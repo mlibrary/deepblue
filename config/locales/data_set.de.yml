@@ -1,0 +1,8 @@
+de:
+  hyrax:
+    icons:
+      data_set:     'fa fa-file-text-o'
+    select_type:
+      data_set:
+        description:        "Data set Werke"
+        name:               "Data Set"

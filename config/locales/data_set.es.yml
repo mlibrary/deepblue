@@ -1,0 +1,10 @@
+es:
+  hyrax:
+    icons:
+      data_set:     'fa fa-file-text-o'
+    select_type:
+      data_set:
+        # TODO: translate `human_name` into Spanish
+        description:        "Data set trabajos"
+        name:               "Data Set"
+        # TODO: translate `human_name` into Spanish

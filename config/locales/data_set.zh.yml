@@ -1,0 +1,10 @@
+zh:
+  hyrax:
+    icons:
+      data_set:     'fa fa-file-text-o'
+    select_type:
+      data_set:
+        # TODO: translate `human_name` into Chinese
+        description:        "Data set 作品"
+        name:               "Data Set"
+        # TODO: translate `human_name` into Chinese
