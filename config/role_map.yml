@@ -1,7 +1,8 @@
 development:
   archivist:
     - archivist1@example.com
-
+  admin:
+    - blancoj@umich.edu
 test:
   archivist:
     - archivist1@example.com

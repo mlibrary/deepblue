@@ -3,9 +3,11 @@
 module Hyrax
   # Generated controller for DataSet
   class DataSetsController < ApplicationController
-    # Adds Hyrax behaviors to the controller.
-    include Hyrax::WorksControllerBehavior
+    # Adds DeepBlue behaviors to the controller.
     include Hyrax::BreadcrumbsForWorks
+
+    include Deepbluedocs::WorksControllerBehavior
+
     self.curation_concern_type = ::DataSet
 
     # Use this line if you want to use a custom presenter
