@@ -123,7 +123,7 @@ module Deepbluedocs
       #property :doi, predicate: ::RDF::Vocab::Identifiers.doi, multiple: false do |index|
       #  index.as :stored_searchable, :facetable
       #end
-
+      
       property :dspace_collection, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/dspaceCollection") do |index|
         index.as :stored_searchable
       end

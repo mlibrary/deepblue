@@ -2,6 +2,7 @@
 #  `rails generate hyrax:work DataSet`
 class DataSet < ActiveFedora::Base
   include ::Hyrax::WorkBehavior
+  include ::Deepblue::WorkBehavior
 
   self.indexer = DataSetIndexer
   # Change this to restrict which works can be added as a child.
