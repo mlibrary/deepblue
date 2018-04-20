@@ -120,10 +120,10 @@ module Deepbluedocs
         index.as :stored_searchable
       end
 
-      property :doi, predicate: ::RDF::Vocab::Identifiers.doi, multiple: false do |index|
-        index.as :stored_searchable, :facetable
-      end
-
+      #property :doi, predicate: ::RDF::Vocab::Identifiers.doi, multiple: false do |index|
+      #  index.as :stored_searchable, :facetable
+      #end
+      
       property :dspace_collection, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/dspaceCollection") do |index|
         index.as :stored_searchable
       end
@@ -196,11 +196,11 @@ module Deepbluedocs
         index.as :stored_searchable, :facetable
       end
 
-      property :nested_geo, :predicate => ::RDF::URI("https://purl.org/geojson/vocab#Feature"), :class_name => NestedGeo
+      #property :nested_geo, :predicate => ::RDF::URI("https://purl.org/geojson/vocab#Feature"), :class_name => NestedGeo
 
-      property :nested_related_items, predicate: ::RDF::Vocab::DC.relation, :class_name => NestedRelatedItems do |index|
-        index.as :stored_searchable
-      end
+      #property :nested_related_items, predicate: ::RDF::Vocab::DC.relation, :class_name => NestedRelatedItems do |index|
+      #  index.as :stored_searchable
+      #end
 
       property :other_affiliation, predicate: ::RDF::URI("http://vivoweb.org/ontology/core#Department") do |index|
         index.as :stored_searchable, :facetable
@@ -263,8 +263,8 @@ module Deepbluedocs
       self.controlled_properties = [:based_near]
 
       accepts_nested_attributes_for :based_near, :allow_destroy => true, :reject_if => proc { |a| a[:id].blank? }
-      accepts_nested_attributes_for :nested_geo, :allow_destroy => true, :reject_if => :all_blank
-      accepts_nested_attributes_for :nested_related_items, :allow_destroy => true, :reject_if => :all_blank
+      #accepts_nested_attributes_for :nested_geo, :allow_destroy => true, :reject_if => :all_blank
+      #accepts_nested_attributes_for :nested_related_items, :allow_destroy => true, :reject_if => :all_blank
     end
   end
 end
