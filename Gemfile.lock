@@ -140,11 +140,16 @@ GEM
       execjs
     coffee-script-source (1.12.2)
     concurrent-ruby (1.0.5)
+    config (1.7.0)
+      activesupport (>= 3.0)
+      deep_merge (~> 1.2.1)
+      dry-validation (>= 0.10.4)
     connection_pool (2.2.1)
     crass (1.0.4)
     daemons (1.2.6)
     declarative (0.0.10)
     declarative-option (0.1.0)
+    deep_merge (1.2.1)
     deprecation (1.0.0)
       activesupport
     devise (4.4.3)
@@ -725,6 +730,7 @@ PLATFORMS
 DEPENDENCIES
   byebug
   coffee-rails (~> 4.2)
+  config
   devise
   devise-guests (~> 0.6)
   fcrepo_wrapper
@@ -749,4 +755,4 @@ DEPENDENCIES
   web-console (>= 3.3.0)
 
 BUNDLED WITH
-   1.14.3
+   1.16.0

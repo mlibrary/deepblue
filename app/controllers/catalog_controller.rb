@@ -1,6 +1,7 @@
 class CatalogController < ApplicationController
   include Hydra::Catalog
   include Hydra::Controller::ControllerBehavior
+  #include BlacklightAdvancedSearch::Controller
 
   # This filter applies the hydra access controls
   before_action :enforce_show_permissions, only: :show
@@ -11,6 +12,10 @@ class CatalogController < ApplicationController
 
   def self.modified_field
     solr_name('system_modified', :stored_sortable, type: :date)
+  end
+
+  def render_bookmarks_control? config, options = {}
+    false
   end
 
   configure_blacklight do |config|
@@ -31,7 +36,10 @@ class CatalogController < ApplicationController
     config.default_solr_params = {
       qt: "search",
       rows: 10,
-      qf: "title_tesim description_tesim creator_tesim keyword_tesim"
+      #qf: "title_tesim description_tesim creator_tesim keyword_tesim"
+      # TODO: Look up where the defaults are set as the master branch only defines qf: "title_tesim name_tesim" and works
+      # add in all the fields we want to search
+      qf: "title_tesim name_tesim creator_tesim description_tesim grantnumber_tesim methodology_tesim subject_tesim keyword_tesim all_text_timv"
     }
 
     # solr field configuration for document/show views
