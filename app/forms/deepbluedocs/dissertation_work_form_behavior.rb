@@ -1,5 +1,5 @@
 module Deepbluedocs
-  module DefaultWorkFormBehavior
+  module DissertationWorkFormBehavior
     extend ActiveSupport::Concern
     included do
       #include ScholarsArchive::DateTermsBehavior
@@ -20,11 +20,11 @@ module Deepbluedocs
       self.required_fields -= [:keyword]
 
       def primary_terms
-        [:title, :alt_title, :creator, :contributor, :description_abstract, :license, :resource_type,  :identifier, :dates_section, :degree_level, :degree_name, :degree_field, :bibliographic_citation, :academic_affiliation,  :in_series, :subject, :tableofcontents, :rights_statement] | super
+        [:title, :contributor_author, :identifier_uniqname, :description_thesisdegreename, :description_thesisdegreediscipline, :date_issued, :date_submitted, :contributor_advisor, :contributor_committeemember, :description_abstract, :subject, :description_thesisdegreegrantor] | super
       end
 
       def secondary_terms
-        t = [:hydrologic_unit_code, :geo_section, :funding_statement, :publisher, :peerreviewed, :conference_location, :conference_name, :conference_section, :language, :file_format, :file_extent, :digitization_spec, :replaces, :additional_information, :isbn, :issn]
+        t = [:identifier, :identifier_orcid, :type_none, :subject_other, :language, :date_available]
         # jose admin?  not found byebug
         #t << [:keyword, :source, :funding_body, :dspace_community, :dspace_collection] if current_ability.current_user.admin?
         t.flatten
