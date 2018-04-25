@@ -3,21 +3,21 @@ module HyraxHelper
   include Hyrax::BlacklightOverride
   include Hyrax::HyraxHelperBehavior
 
-  def link_to_profile(login)
-    user = ::User.find_by_user_key(login)
-    return login if user.nil?
-
-    text = if user.respond_to? :name
-             user.name
-           else
-             login
-           end
-
-    href = profile_path(user)
-
-    # TODO: ?? still needed ?? Fix the link to the user profiles when the sufia object isn't available.
-    link_to text, href
-  end
+  # def link_to_profile(login)
+  #   user = ::User.find_by_user_key(login)
+  #   return login if user.nil?
+  #
+  #   text = if user.respond_to? :name
+  #            user.name
+  #          else
+  #            login
+  #          end
+  #
+  #   href = profile_path(user)
+  #
+  #   # TODO: ?? still needed ?? Fix the link to the user profiles when the sufia object isn't available.
+  #   link_to text, href
+  # end
 
   def self.nbsp_or_value( value )
     return "&nbsp;" if value.nil?

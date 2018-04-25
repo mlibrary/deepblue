@@ -1,8 +1,0 @@
-de:
-  hyrax:
-    icons:
-      umrdr_work:     'fa fa-file-text-o'
-    select_type:
-      umrdr_work:
-        description:        "Umrdr work Werke"
-        name:               "Umrdr Work"

@@ -45,7 +45,7 @@ class NewContentService
     fsets = paths_and_names.map{|fp| build_file_set(fp[0], fp[1])}
     fsets.each do |fs|
       work.ordered_members << fs
-      work.total_file_size_add_file_set fs
+      work.DeepBlueDocs::_add_file_set fs
     end
     return work
   end
@@ -117,8 +117,8 @@ class NewContentService
   def build_work( work_hash )
     title = Array(work_hash[:title])
     creator = Array(work_hash[:creator])
-    authoremail = work_hash[:authoremail] || "contact@umich.edu"
-    rights = Array(work_hash[:rights])
+    #authoremail = work_hash[:authoremail] || "contact@umich.edu"
+    rights_statement = Array(work_hash[:rights_statement])
     desc  = Array(work_hash[:description])
     methodology = work_hash[:methodology] || "No Methodology Available"
     subject = Array(work_hash[:subject])
