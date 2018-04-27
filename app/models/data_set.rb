@@ -26,7 +26,7 @@ class DataSet < ActiveFedora::Base
   # This must be included at the end, because it finalizes the metadata
   # schema (by adding accepts_nested_attributes)
 
-  include ::Deepbluedocs::DefaultMetadata
+  include ::Deepblue::DefaultMetadata
   ## end `rails generate hyrax:work DataSet`
 
   after_initialize :set_defaults
