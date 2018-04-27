@@ -2,13 +2,13 @@ module Umrdr
   module SolrDocumentBehavior
     extend ActiveSupport::Concern
 
-    # def authoremail
-    #   Array(self[Solrizer.solr_name('authoremail')]).first
-    # end
+    def authoremail
+      Array(self[Solrizer.solr_name('authoremail')]).first
+    end
 
-    # def date_coverage
-    #   Array(self[Solrizer.solr_name('date_coverage')]).first
-    # end
+    def date_coverage
+      Array(self[Solrizer.solr_name('date_coverage')]).first
+    end
 
     def file_size
       Array(self['file_size_lts']).first # standard lookup Solrizer.solr_name('file_size')] produces solr_document['file_size_tesim']

@@ -117,7 +117,7 @@ class NewContentService
   def build_work( work_hash )
     title = Array(work_hash[:title])
     creator = Array(work_hash[:creator])
-    #authoremail = work_hash[:authoremail] || "contact@umich.edu"
+    authoremail = work_hash[:authoremail] || "contact@umich.edu"
     rights_statement = Array(work_hash[:rights_statement])
     desc  = Array(work_hash[:description])
     methodology = work_hash[:methodology] || "No Methodology Available"

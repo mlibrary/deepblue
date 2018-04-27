@@ -117,7 +117,7 @@ module MetadataHelper
       report_item( out, "Description: ", generic_work.description, one_line: false, item_prefix: "\t" )
       report_item( out, "Creator: ", generic_work.creator, one_line: false, item_prefix: "\t" )
       report_item( out, "Depositor: ", generic_work.depositor )
-      #report_item( out, "Contact: ", generic_work.authoremail )
+      report_item( out, "Contact: ", generic_work.authoremail )
       report_item( out, "Discipline: ", generic_work.subject, one_line: false, item_prefix: "\t" )
       report_item( out, "Funded by: ", generic_work.fundedby )
       report_item( out, "ORSP Grant Number: ", generic_work.grantnumber )

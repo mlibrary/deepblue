@@ -3,19 +3,20 @@
 module Hyrax
   class DataSetPresenter < Hyrax::WorkShowPresenter
 
-    # :authoremail, :date_coverage,
-    delegate  :doi,
-             :fundedby,
-             :grantnumber,
-             :isReferencedBy,
-             :methodology,
-             :tombstone,
-             :total_file_size,
-             to: :solr_document
+    delegate  :authoremail,
+              :date_coverage,
+              :doi,
+              :fundedby,
+              :grantnumber,
+              :isReferencedBy,
+              :methodology,
+              :tombstone,
+              :total_file_size,
+              to: :solr_document
 
-    # def authoremail
-    #   @solr_document.authoremail
-    # end
+    def authoremail
+      @solr_document.authoremail
+    end
 
     def box_enabled?
       DeepBlueDocs::Application.config.box_integration_enabled
@@ -34,6 +35,10 @@ module Hyrax
                                                    is_admin: current_ability.admin?,
                                                    user_email: EmailHelper.user_email_from( current_user ) )
       return rv
+    end
+
+    def date_coverage
+      @solr_document.date_coverage
     end
 
     # # display date range as from_date To to_date

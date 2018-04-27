@@ -3,20 +3,20 @@ module Umrdr
     extend ActiveSupport::Concern
     included do
 
-      # property :authoremail, predicate: ::RDF::Vocab::FOAF.mbox, multiple: false do |index|
-      #   index.type :text
-      #   index.as :stored_searchable
-      # end
+      property :authoremail, predicate: ::RDF::Vocab::FOAF.mbox, multiple: false do |index|
+        index.type :text
+        index.as :stored_searchable
+      end
 
       property :creator_ordered, predicate: ::RDF::Vocab::MODS.name, multiple: false do |index|
         index.type :text
         index.as :stored_searchable
       end
 
-      # property :date_coverage, predicate: ::RDF::Vocab::DC.temporal, multiple: true do |index|
-      #   index.type :text
-      #   index.as :stored_searchable, :facetable
-      # end
+      property :date_coverage, predicate: ::RDF::Vocab::DC.temporal, multiple: true do |index|
+        index.type :text
+        index.as :stored_searchable, :facetable
+      end
 
       property :description_ordered, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#description_ordered'), multiple: false do |index|
         index.type :text

@@ -25,39 +25,39 @@ RSpec.describe DataSet do
     # end
   end
 
-  # describe 'it requires core metadata' do
-  #   before do
-  #     subject.title = ['Demotitle']
-  #     subject.creator = ['Demo Creator']
-  #     subject.date_created = ['2016-02-28']
-  #     subject.description = ['Demo description.']
-  #     subject.rights_statement = ['Demo rights.']
-  #   end
-  #
-  #   it 'validates title' do
-  #     subject.title = []
-  #     expect(subject).not_to be_valid
-  #   end
-  #
-  #   it 'validates date_created' do
-  #     subject.date_created = []
-  #     expect(subject).not_to be_valid
-  #   end
-  #
-  #   it 'validates description' do
-  #     subject.description = []
-  #     expect(subject).not_to be_valid
-  #   end
-  #
-  #   it 'validates creator' do
-  #     subject.creator = []
-  #     expect(subject).not_to be_valid
-  #   end
-  #
-  #   it 'validates rights_statement' do
-  #     subject.rights_statement = []
-  #     expect(subject).not_to be_valid
-  #   end
-  # end
+  describe 'it requires core metadata' do
+    before do
+      subject.title = ['Demotitle']
+      subject.creator = ['Demo Creator']
+      # subject.date_created = ['2016-02-28']
+      # subject.description = ['Demo description.']
+      # subject.rights_statement = ['Demo rights.']
+    end
+
+    it 'validates title' do
+      subject.title = []
+      expect(subject).not_to be_valid
+    end
+
+    # it 'validates date_created' do
+    #   subject.date_created = []
+    #   expect(subject).not_to be_valid
+    # end
+    #
+    # it 'validates description' do
+    #   subject.description = []
+    #   expect(subject).not_to be_valid
+    # end
+    #
+    # it 'validates creator' do
+    #   subject.creator = []
+    #   expect(subject).not_to be_valid
+    # end
+    #
+    # it 'validates rights_statement' do
+    #   subject.rights_statement = []
+    #   expect(subject).not_to be_valid
+    # end
+  end
 
 end

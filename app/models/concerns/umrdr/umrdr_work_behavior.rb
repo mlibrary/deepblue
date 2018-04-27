@@ -2,10 +2,6 @@ module Umrdr
   module UmrdrWorkBehavior
     extend ActiveSupport::Concern
 
-    # included do
-    #   self.human_readable_type = 'Work'
-    # end
-    #
     # def total_file_size_add_file_set( file_set )
     #   size = file_size_from_file_set file_set
     #   total_file_size_add size
