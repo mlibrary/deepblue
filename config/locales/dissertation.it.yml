@@ -1,0 +1,8 @@
+it:
+  hyrax:
+    icons:
+      dissertation:     'fa fa-file-text-o'
+    select_type:
+      dissertation:
+        description:        "Dissertation opere"
+        name:               "Dissertation"
