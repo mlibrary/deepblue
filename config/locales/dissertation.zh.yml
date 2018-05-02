@@ -1,0 +1,10 @@
+zh:
+  hyrax:
+    icons:
+      dissertation:     'fa fa-file-text-o'
+    select_type:
+      dissertation:
+        # TODO: translate `human_name` into Chinese
+        description:        "Dissertation 作品"
+        name:               "Dissertation"
+        # TODO: translate `human_name` into Chinese

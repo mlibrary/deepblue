@@ -292,7 +292,7 @@ module Deepblue
       end
 
       # 27  description  abstract
-      property :abstract, predicate: ::RDF::Vocab::DC.abstract do |index|
+      property :description_abstract, predicate: ::RDF::Vocab::DC.abstract do |index|
         index.as :stored_searchable
       end
 
