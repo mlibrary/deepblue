@@ -9,6 +9,7 @@ gem 'hyrax', '2.1.0.beta2'
 
 gem 'mysql2' # still somehow in 0.x releases...
 
+gem 'config'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 5.0.6'

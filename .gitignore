@@ -6,6 +6,7 @@
 
 # Ignore bundler config.
 /.bundle
+/.idea
 
 # Ignore the default SQLite database.
 /db/*.sqlite3
@@ -16,6 +17,9 @@
 /tmp/*
 !/log/.keep
 !/tmp/.keep
+fits.log
 
 # Ignore Byebug command history file.
 .byebug_history
+
+.DS_Store
