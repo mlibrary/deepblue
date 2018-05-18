@@ -66,14 +66,24 @@ gem 'rsolr', '>= 1.0'
 gem 'devise'
 gem 'devise-guests', '~> 0.6'
 group :development, :test do
+  gem 'pry'
+  gem 'pry-rails'
+  gem 'pry-byebug'
+  gem 'factory_bot', require: false
   gem 'fcrepo_wrapper'
   gem 'rspec-rails'
+  gem 'rspec-activemodel-mocks'
+  gem 'rspec-its'
+  gem 'rails-controller-testing'
+  gem 'rspec-retry'
+  gem 'capybara'
+  gem 'shoulda-matchers', '~> 3.1'
+  gem 'selenium-webdriver'
+  gem 'chromedriver-helper'
+  gem 'database_cleaner'
 end
 
-group :development, :test do
-end
-
-group :development, :test do
+group :development do
 end
 
 gem 'riiif', '~> 1.1'

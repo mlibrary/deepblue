@@ -18,6 +18,7 @@
 !/log/.keep
 !/tmp/.keep
 fits.log
+dump.rdb
 
 # Ignore Byebug command history file.
 .byebug_history

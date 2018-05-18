@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Umrdr
   module UmrdrWorkMetadata
     extend ActiveSupport::Concern

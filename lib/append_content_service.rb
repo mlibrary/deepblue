@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'tasks/new_content_service'
 
 # Given a configuration hash read from a yaml file, build the contents in the repository.
