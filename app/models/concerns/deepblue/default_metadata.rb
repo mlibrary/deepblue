@@ -655,7 +655,7 @@ module Deepblue
       end 
 
       # 101  identifier   orcid
-      property :identifier_orcid, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/identifierCrcid") do |index|
+      property :identifier_orcid, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/identifierOrcid") do |index|
         index.as :stored_searchabled
       end 
 
