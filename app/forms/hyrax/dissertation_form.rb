@@ -1,8 +1,8 @@
-# Generated via
-#  `rails generate hyrax:work Dissertation`
+# frozen_string_literal: true
+
 module Hyrax
   # Generated form for Dissertation
-  class DissertationForm < Hyrax::Forms::WorkForm
+  class DissertationForm < DeepblueForm
   	include Deepbluedocs::DissertationWorkFormBehavior
 
     self.model_class = ::Dissertation
