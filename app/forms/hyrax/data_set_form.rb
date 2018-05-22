@@ -1,39 +1,11 @@
-# Generated via
-#  `rails generate hyrax:work DataSet`
-module Hyrax
-  # Generated form for DataSet
-  class DataSetForm < Hyrax::Forms::WorkForm
+# frozen_string_literal: true
 
-  	include Deepbluedocs::DefaultWorkFormBehavior
+module Hyrax
+
+  class DataSetForm < DeepblueForm
     
     self.model_class = ::DataSet
-
-    #include HydraEditor::Form::Permissions
-    #self.terms += [:date_coverage]
-    # self.required_fields = [ :creator,
-    #                          :description,
-    #                          :methodology,
-    #                          :rights_statement,
-    #                          :subject,
-    #                          :title ]
-    #
-    # def rendered_terms
-    #   [ :creator,
-    #     :description,
-    #     :fundedby,
-    #     :grantnumber,
-    #     :isReferencedBy,
-    #     :keyword,
-    #     :language,
-    #     :methodology,
-    #     :on_behalf_of,
-    #     :resource_type,
-    #     :rights_statement,
-    #     :subject,
-    #     :title,
-    #     :visibility ]
-    # end
-
+    
     self.terms += [ :authoremail, :date_coverage, :description, :keyword ]
     self.required_fields += [ :authoremail, :description, :rights_statement ]
     self.default_work_primary_terms -=
