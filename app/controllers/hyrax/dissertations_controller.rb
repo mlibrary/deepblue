@@ -1,11 +1,11 @@
-# Generated via
-#  `rails generate hyrax:work Dissertation`
+# frozen_string_literal: true
+
 module Hyrax
   # Generated controller for Dissertation
-  class DissertationsController < ApplicationController
+  class DissertationsController < DeepblueController
     # Adds Hyrax behaviors to the controller.
     include Hyrax::WorksControllerBehavior
-    include Hyrax::BreadcrumbsForWorks
+    #include Hyrax::BreadcrumbsForWorks
     self.curation_concern_type = ::Dissertation
 
     # Use this line if you want to use a custom presenter

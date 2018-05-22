@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 module Hyrax
-  # Generated controller for DataSet
-  class DataSetsController < ApplicationController
+
+  class DataSetsController < DeepblueController
     # Adds Hyrax behaviors to the controller.
     include Deepblue::WorksControllerBehavior
     #include Hyrax::WorksControllerBehavior
-    include Hyrax::BreadcrumbsForWorks
+    #include Hyrax::BreadcrumbsForWorks
 
     self.curation_concern_type = ::DataSet
 
