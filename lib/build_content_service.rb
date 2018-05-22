@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'tasks/new_content_service'
 
 # Given a configuration hash read from a yaml file,
@@ -21,6 +23,8 @@ class BuildContentService < NewContentService
     user = find_or_create_user
     build_works
     build_collections
+  rescue Exception => e
+    Rails.logger.error "BuildContentService.build_repo_contents #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
   end
 
 end

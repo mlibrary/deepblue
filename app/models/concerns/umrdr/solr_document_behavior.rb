@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Umrdr
   module SolrDocumentBehavior
     extend ActiveSupport::Concern

@@ -1,5 +1,5 @@
-# Generated via
-#  `rails generate hyrax:work DataSet`
+# frozen_string_literal: true
+
 class DataSet < ActiveFedora::Base
 
   ## begin `rails generate hyrax:work DataSet`
@@ -11,7 +11,7 @@ class DataSet < ActiveFedora::Base
   #validates :title, presence: { message: 'Your work must have a title.' }
   ## end `rails generate hyrax:work DataSet`
 
-  self.human_readable_type = 'Data Set'
+  #self.human_readable_type = 'Data Set' # deprecated
   include Umrdr::UmrdrWorkBehavior
   include Umrdr::UmrdrWorkMetadata
 

@@ -1,5 +1,5 @@
-# Generated via
-#  `rails generate hyrax:work DataSet`
+# frozen_string_literal: true
+
 module Hyrax
   module Actors
     class DataSetActor < Hyrax::Actors::BaseActor

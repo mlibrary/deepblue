@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Deepbluedocs
   module WorksControllerBehavior
     extend ActiveSupport::Concern

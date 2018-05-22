@@ -1,10 +1,30 @@
+# frozen_string_literal: true
+
 module MetadataHelper
 
   @@FIELD_SEP = '; '.freeze
 
+  def self.file_from_file_set( file_set )
+    file = nil
+    files = file_set.files
+    unless ( files.nil? || 0 == files.size )
+      file = files[0]
+      files.each do | f |
+        file = f unless f.original_name == ''
+      end
+    end
+    return file
+  end
+
   def self.human_readable_size( value )
     value = value.to_i
     return ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( value, precision: 3 )
+  end
+
+  def self.log_lines( filename, *lines )
+    File.open( filename, "a" ) do |f|
+      lines.each { |line| f.puts line }
+    end
   end
 
   def self.metadata_filename_collection( pathname_dir, collection )
@@ -194,5 +214,170 @@ module MetadataHelper
     curration_concern.title.join( field_sep )
   end
 
+
+  def self.yaml_file_set( file_set, out: nil, depth:  '==' )
+    out.puts "#{depth} File Set: #{file_set.label} #{depth}"
+    yaml_item( out, "ID: ", file_set.id )
+    yaml_item( out, "File name: ", file_set.label )
+    yaml_item( out, "Date uploaded: ", file_set.date_uploaded )
+    yaml_item( out, "Date modified: ", file_set.date_uploaded )
+    yaml_item( out, "Total file size: ", human_readable_size( file_set.file_size[0] ) )
+    yaml_item( out, "Checksum: ", file_set.original_checksum )
+    yaml_item( out, "Mimetype: ", file_set.mime_type )
+  end
+
+  def self.yaml_filename_work( pathname_dir, work, task: 'populate' )
+    pathname_dir = Pathname.new pathname_dir unless pathname_dir.kind_of? Pathname
+    pathname_dir.join "w_#{work.id}_#{task}.yml"
+  end
+
+  def self.yaml_generic_work_export_files( generic_work, target_dirname: nil, log_filename: nil, overwrite: true )
+    log_file = target_dirname.join ".export.log" if log_filename.nil?
+    open( log_file, 'w' ) { |f| f.write('') } # erase log file
+    start_time = Time.now
+    log_lines( log_file,
+               "Starting yaml generic work export of files at #{start_time} ...",
+               "Generic work id: #{generic_work.id}",
+               "Total file count: #{generic_work.file_sets.count}")
+    total_byte_count = 0
+    if 0 < generic_work.file_sets.count
+      generic_work.file_sets.each do |file_set|
+        file = file_from_file_set( file_set )
+        export_file_name = file.original_name
+        export_file_name = target_dirname.join "#{file_set.id}_#{export_file_name}"
+        if overwrite
+          write_file = true
+        else
+          write_file = !File.exist?( export_file_name )
+        end
+        if write_file
+          source_uri = file.uri.value
+          log_lines( log_file, "Starting file export of #{export_file_name} (#{file.size} bytes) at #{Time.now}" )
+          bytes_copied = open( source_uri ) { |io| IO.copy_stream( io, export_file_name ) }
+          total_byte_count += bytes_copied
+          log_lines( log_file, "Finisehd file export of #{export_file_name} (#{file.size} bytes) at #{Time.now}" )
+        else
+          log_lines( log_file, "Skipping file export of #{export_file_name} (#{file.size} bytes)." )
+        end
+      end
+    end
+    end_time = Time.now
+    log_lines( log_file,
+               "Total bytes exported: #{total_byte_count}",
+               "... finished yaml generic work export of files at #{end_time}.")
+  rescue Exception => e
+    puts "#{e.class}: #{e.message} at #{e.backtrace.join("\n")}"
+  end
+
+  def self.yaml_generic_work_populate( generic_work,
+      dir: "/deepbluedata-prep/",
+      out: nil,
+      export_files: true,
+      overwrite_export_files: true,
+      source: "DBDv1",
+      target_filename: nil,
+      target_dirname: nil )
+    target_file = nil
+    dir = Pathname.new dir unless dir.kind_of? Pathname
+    if out.nil?
+      generic_work = GenericWork.find generic_work if generic_work.kind_of? String
+      target_file = yaml_filename_work( dir, generic_work )
+      target_dir = yaml_targetdir_work( dir, generic_work )
+      Dir.mkdir( target_dir ) unless Dir.exist? target_dir
+      open( target_file, 'w' ) do |out|
+        yaml_generic_work_populate( generic_work,
+                                    out: out,
+                                    export_files: export_files,
+                                    overwrite_export_files: overwrite_export_files,
+                                    source: source,
+                                    target_filename: target_file,
+                                    target_dirname: target_dir )
+      end
+      if export_files
+        yaml_generic_work_export_files( generic_work, target_dirname: target_dir, overwrite: overwrite_export_files )
+      end
+    else
+      indent_base = " " * 2
+      indent = indent_base * 0
+      yaml_line( out, indent, "#{target_filename}", comment: true )
+      yaml_line( out, indent, "bundle exec rake umrdr:populate[#{target_filename}]", comment: true )
+      yaml_line( out, indent, "---" )
+      yaml_line( out, indent, ':user:' )
+      indent = indent_base * 1
+      yaml_line( out, indent, ':email:', generic_work.depositor )
+      yaml_line( out, indent, ':visibility:', generic_work.visibility )
+      yaml_line( out, indent, ':source:', source )
+      yaml_line( out, indent, ':works:' )
+      indent = indent_base * 2
+      yaml_item( out, indent, ":admin_set_id:", generic_work.admin_set_id, comment: true )
+      yaml_item( out, indent, ":authoremail:", generic_work.authoremail )
+      yaml_item( out, indent, ":creator:", generic_work.creator )
+      yaml_item( out, indent, ":date_uploaded:", generic_work.date_uploaded )
+      yaml_item( out, indent, ":date_modified:", generic_work.date_modified )
+      yaml_item( out, indent, ":date_coverage:", generic_work.date_coverage[0] )
+      yaml_item( out, indent, ":description:", generic_work.description )
+      yaml_item( out, indent, ":depositor:", generic_work.depositor )
+      yaml_item( out, indent, ":subject:", generic_work.subject[0] )
+      yaml_item( out, indent, ":doi:", generic_work.doi )
+      yaml_item( out, indent, ":fundedby:", generic_work.fundedby[0] )
+      yaml_item( out, indent, ":grantnumber:", generic_work.grantnumber )
+      yaml_item( out, indent, ":isReferencedBy:", generic_work.isReferencedBy )
+      yaml_item( out, indent, ':keyword:', generic_work.keyword )
+      yaml_item( out, indent, ":language:", generic_work.language )
+      yaml_item( out, indent, ":methodology:", generic_work.methodology )
+      yaml_item( out, indent, ":rights: ", generic_work.rights[0] )
+      yaml_item( out, indent, ':title:', generic_work.title )
+      yaml_item( out, indent, ":tombstone:", generic_work.tombstone[0] )
+      yaml_item( out, indent, ":total_file_count:", generic_work.file_set_ids.count, comment: true )
+      yaml_item( out, indent, ":total_file_size:", generic_work.total_file_size )
+      yaml_item( out, indent, ":total_file_size_human_readable:", human_readable_size( generic_work.total_file_size ), comment: true )
+      yaml_item( out, indent, ":visibility: ", generic_work.visibility, comment: true )
+
+      yaml_line( out, indent_base * 2, ':filenames:' )
+      if 0 < generic_work.file_sets.count
+        indent = indent_base * 3 + "- "
+        generic_work.file_sets.each do |file_set|
+          yaml_item( out, indent, file_set.label )
+        end
+      end
+      yaml_line( out, indent_base * 2, ':files:' )
+      if 0 < generic_work.file_sets.count
+        indent = indent_base * 3 + "- "
+        generic_work.file_sets.each do |file_set|
+          # puts "fsid=#{fsid}"
+          # file_set = FileSet.find fsid
+          # puts "file_set.files=#{file_set.files}"
+          # STDOUT.flush
+          # #byebug
+          file = file_from_file_set( file_set )
+          file_name = file.original_name
+          file_path = target_dirname.join "#{file_set.id}_#{file_name}"
+          yaml_item( out, indent, "#{file_path}" )
+        end
+      end
+    end
+    return target_file
+  end
+
+  def self.yaml_item( out, indent, label, value = '', comment: false, indent_base: "  ", label_postfix: ' ' )
+    indent = "# #{indent}" if comment
+    unless value.kind_of?( Array )
+      out.puts "#{indent}#{label}#{label_postfix}#{value}"
+    else
+      out.puts "#{indent}#{label}#{label_postfix}"
+      indent += indent_base
+      value.each {|item| out.puts "#{indent}- #{item}" }
+    end
+  end
+
+  def self.yaml_line( out, indent, label, value = '', comment: false, label_postfix: ' ' )
+    indent = "# #{indent}" if comment
+    out.puts "#{indent}#{label}#{label_postfix}#{value}"
+  end
+
+  def self.yaml_targetdir_work( pathname_dir, work, task: 'populate' )
+    pathname_dir = Pathname.new pathname_dir unless pathname_dir.kind_of? Pathname
+    pathname_dir.join "w_#{work.id}_#{task}"
+  end
 
 end

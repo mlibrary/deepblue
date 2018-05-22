@@ -45,7 +45,9 @@ class NewContentService
     fsets = paths_and_names.map{|fp| build_file_set(fp[0], fp[1])}
     fsets.each do |fs|
       work.ordered_members << fs
-      work.DeepBlueDocs::_add_file_set fs
+      # work.total_file_size_add_file_set fs # TODO
+      work.representative = fs if work.representative_id.blank?
+      work.thumbnail = fs if work.thumbnail_id.blank?
     end
     return work
   end
@@ -95,8 +97,8 @@ class NewContentService
     fs.visibility = visibility
     fs.save!
     repository_file_id = nil
-    TaskCharacterizationHelper.characterize( fs, repository_file_id, path, delete_input_file: false, continue_job_chain: false )
-    TaskCharacterizationHelper.create_derivatives( fs, repository_file_id, path, delete_input_file: false )
+    IngestHelper.characterize(fs, repository_file_id, path, delete_input_file: false, continue_job_chain: false )
+    IngestHelper.create_derivatives(fs, repository_file_id, path, delete_input_file: false )
     logger.info "Finished:   #{fname}"
     return fs
   end
@@ -115,30 +117,39 @@ class NewContentService
   end
 
   def build_work( work_hash )
+    source = yaml_source
     title = Array(work_hash[:title])
     creator = Array(work_hash[:creator])
     authoremail = work_hash[:authoremail] || "contact@umich.edu"
-    rights_statement = Array(work_hash[:rights_statement])
+    if 'DBDv1' == source
+      rights_statement = Array(work_hash[:rights])
+    else
+      rights_statement = Array(work_hash[:rights_statement])
+    end
     desc  = Array(work_hash[:description])
     methodology = work_hash[:methodology] || "No Methodology Available"
     subject = Array(work_hash[:subject])
     contributor  = Array(work_hash[:contributor])
-    date_created = Array(work_hash[:date_created])
+    date_uploaded = work_hash[:date_uploaded]
+    date_modified = work_hash[:date_modified]
+    date_created = work_hash[:date_created]
     date_coverage = Array(work_hash[:date_coverage])
     rtype = Array(work_hash[:resource_type] || 'Dataset')
     language = Array(work_hash[:language])
     keyword = Array(work_hash[:keyword])
     isReferencedBy = Array(work_hash[:isReferencedBy])
 
-    work = GenericWork.new( title: title,
+    work = DataSet.new( title: title,
                             creator: creator,
                             authoremail: authoremail,
-                            rights: rights,
+                            rights_statement: rights_statement,
                             description: desc,
                             resource_type: rtype,
                             methodology: methodology,
                             subject: subject,
                             contributor: contributor,
+                            date_uploaded: date_uploaded,
+                            date_modified: date_modified,
                             date_created: date_created,
                             date_coverage: date_coverage,
                             language: language,
@@ -150,7 +161,7 @@ class NewContentService
     work.owner=(user_key)
     work.visibility = visibility
     # Put the work in the default admin_set.
-    work.update( admin_set: default_admin_set )
+    work.update( admin_set: default_admin_set ) # TODO fix
     work.save!
     return work
   end
@@ -176,7 +187,7 @@ class NewContentService
     work_id = work_hash[:id]
     id = Array(work_id)
     owner = Array(work_hash[:owner])
-    work = GenericWork.find id[0]
+    work = DataSet.find id[0]
     if work.nil?
       raise UserNotFoundError.new "Work not found: #{work_id}"
     end
@@ -267,6 +278,11 @@ class NewContentService
 
   def works
     [@cfg[:user][:works]]
+  end
+
+  def yaml_source
+    rv = @cfg[:user][:source]
+    return rv
   end
 
 end

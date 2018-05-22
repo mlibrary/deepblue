@@ -1,5 +1,5 @@
-# Generated via
-#  `rails generate hyrax:work DataSet`
+# frozen_string_literal: true
+
 module Hyrax
   # Generated controller for DataSet
   class DataSetsController < ApplicationController
@@ -71,7 +71,7 @@ module Hyrax
     # def mark_as_set_to_public!
     #   params["generic_work"]["visibility"] = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
     #   if action_name == 'update' and params[:id]
-    #     @visibility_changed_to_public = GenericWork.find(params[:id]).private?
+    #     @visibility_changed_to_public = DataSet.find(params[:id]).private?
     #   end
     # end
 
@@ -307,7 +307,7 @@ module Hyrax
     #   end
     #
     #   # Assign doi as "pending" in the meantime
-    #   curation_concern.doi = GenericWork::PENDING
+    #   curation_concern.doi = DataSet::PENDING
     #
     #   # save (and re-index)
     #   curation_concern.save
@@ -325,7 +325,7 @@ module Hyrax
                        , &block \
                        )
       file_sets = curation_concern.file_sets
-      Hyrax::GenericWorksController.copy_file_sets( target_dir \
+      Hyrax::DataSetsController.copy_file_sets( target_dir \
                                                 , file_sets \
                                                 , log_prefix: log_prefix \
                                                 , do_copy_predicate: do_copy_predicate \

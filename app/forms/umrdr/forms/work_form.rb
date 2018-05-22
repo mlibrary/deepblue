@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Umrdr::Forms
   class WorkForm < Hyrax::Forms::WorkForm
 

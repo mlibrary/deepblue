@@ -92,7 +92,7 @@ module Hyrax
     end
 
     def identifiers_pending?(identifier)
-      @solr_document[Solrizer.solr_name('doi', :symbol)].first == GenericWork::PENDING
+      @solr_document[Solrizer.solr_name('doi', :symbol)].first == DataSet::PENDING
     end
 
     def isReferencedBy
