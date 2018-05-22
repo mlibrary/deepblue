@@ -1,6 +1,6 @@
-# Generated via
-#  `rails generate hyrax:work Dissertation`
+# frozen_string_literal: true
+
 module Hyrax
-  class DissertationPresenter < Hyrax::WorkShowPresenter
+  class DissertationPresenter < DeepbluePresenter
   end
 end

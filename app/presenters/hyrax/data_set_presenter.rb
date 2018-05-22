@@ -1,7 +1,7 @@
-# Generated via
-#  `rails generate hyrax:work DataSet`
+# frozen_string_literal: true
+
 module Hyrax
-  class DataSetPresenter < Hyrax::WorkShowPresenter
+  class DataSetPresenter < DeepbluePresenter
 
     delegate  :authoremail,
               :date_coverage,
