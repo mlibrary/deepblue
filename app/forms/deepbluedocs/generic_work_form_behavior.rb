@@ -14,7 +14,7 @@ module Deepbluedocs
       attr_accessor :degree_field_other
       attr_accessor :degree_name_other
 
-      self.terms += [ :date_uploaded, :date_modified, :academic_affiliation, :alt_title, :description_abstract, :license, :resource_type, :date_available, :date_copyright, :date_issued, :date_collected, :date_valid, :date_reviewed, :date_accepted, :degree_level, :degree_name, :degree_field, :replaces, :hydrologic_unit_code, :funding_body, :funding_statement, :in_series, :tableofcontents, :bibliographic_citation, :peerreviewed, :additional_information, :digitization_spec, :file_extent, :file_format, :dspace_community, :dspace_collection, :isbn, :issn, :embargo_reason, :conference_location, :conference_name, :conference_section ]
+      self.terms += [ :description_sponsorship, :description_mapping, :type_none, :identifier_source, :other_affiliation, :identifier_orcid, :contributor_affiliationumcampus, :contributor_author, :relation_ispartofseries, :date_uploaded, :date_modified, :academic_affiliation, :alt_title, :description_abstract, :license, :resource_type, :date_available, :date_copyright, :date_issued, :date_collected, :date_valid, :date_reviewed, :date_accepted, :degree_level, :degree_name, :degree_field, :replaces, :hydrologic_unit_code, :funding_body, :funding_statement, :in_series, :tableofcontents, :bibliographic_citation, :peerreviewed, :additional_information, :digitization_spec, :file_extent, :file_format, :dspace_community, :dspace_collection, :isbn, :issn, :embargo_reason, :conference_location, :conference_name, :conference_section ]
 
       self.required_fields += [:resource_type]
       self.required_fields -= [:keyword]
