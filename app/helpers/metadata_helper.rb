@@ -361,7 +361,7 @@ module MetadataHelper
 
   def self.yaml_item( out, indent, label, value = '', comment: false, indent_base: "  ", label_postfix: ' ' )
     indent = "# #{indent}" if comment
-    unless value.kind_of?( Array )
+    unless value.respond_to?( :each )
       out.puts "#{indent}#{label}#{label_postfix}#{value}"
     else
       out.puts "#{indent}#{label}#{label_postfix}"
