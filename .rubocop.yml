@@ -1,0 +1,140 @@
+# reference: https://github.com/mlibrary/heliotrope/blob/master/.rubocop.yml
+require: rubocop-rspec
+inherit_from: .rubocop_overrides.yml
+
+AllCops:
+  DisplayCopNames: true
+  Include:
+    - '**/config.ru'
+  Exclude:
+    - 'db/**/*'
+    - 'tmp/**/*'
+    - 'vendor/**/*'
+
+Layout/BlockEndNewline:
+  Exclude:
+    - 'spec/**/*'
+
+Layout/IndentationConsistency:
+  EnforcedStyle: rails
+
+Layout/MultilineBlockLayout:
+  Exclude:
+    - 'spec/**/*'
+
+#Lint/ImplicitStringConcatenation:
+#  Exclude:
+#    - 'lib/generators/sufia/**/*'
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+
+Metrics/LineLength:
+  Enabled: false
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/ClassLength:
+  Description: 'Avoid classes longer than 250 lines of code'
+  Enabled: true
+  Max: 250
+
+Metrics/ParameterLists:
+  CountKeywordArgs: false
+
+Performance/RedundantMerge:
+  Enabled: false
+
+Style/ZeroLengthPredicate:
+  Enabled: false
+
+Style/BlockDelimiters:
+  Exclude:
+    - 'spec/**/*'
+
+Style/FileName:
+  Exclude:
+    - 'Gemfile'
+    - 'Vagrantfile'
+
+Style/CollectionMethods:
+  PreferredMethods:
+    collect: 'map'
+    collect!: 'map!'
+    inject: 'reduce'
+    detect: 'find'
+    find_all: 'select'
+
+Style/WordArray:
+  Enabled: false
+
+Style/RegexpLiteral:
+  Enabled: false
+
+Style/StringLiterals:
+  Enabled: false
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+#Style/LineEndConcatenation:
+#  Exclude:
+#    - 'spec/test_app_templates/lib/generators/**/*'
+#    - 'lib/generators/**/*'
+
+Style/SingleLineBlockParams:
+  Enabled: false
+
+Style/SignalException:
+  Enabled: false
+
+Style/ZeroLengthPredicate:
+  Enabled: false
+
+Rails:
+  Enabled: true
+
+Rails/Date:
+  Enabled: false
+
+Rails/TimeZone:
+  Enabled: false
+
+#Rails/Output:
+#  Exclude:
+#    - 'lib/export/**/*'
+#    - 'lib/import/**/*'
+
+RSpec/AnyInstance:
+  Enabled: false
+
+RSpec/ExampleWording:
+  CustomTransform:
+    be: is
+    have: has
+    not: does not
+    NOT: does NOT
+  IgnoredWords:
+    - only
+
+RSpec/FilePath:
+  Enabled: false
+
+RSpec/InstanceVariable:
+  Enabled: false
+
+RSpec/NotToNot:
+  Enabled: false
+
+RSpec/DescribeClass:
+  Exclude:
+    - 'spec/routing/**/*'
+    - 'spec/views/**/*'
