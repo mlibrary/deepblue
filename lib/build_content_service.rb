@@ -11,6 +11,8 @@ class BuildContentService < NewContentService
     base_path = File.dirname(path_to_config)
     bcs = BuildContentService.new( config, base_path )
     bcs.run
+  rescue Exception => e
+    Rails.logger.error "BuildContentService.call(#{path_to_config}) #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
   end
 
   def initialize( config, base_path )
@@ -19,13 +21,12 @@ class BuildContentService < NewContentService
 
   protected
 
-  def build_repo_contents
-    user = find_or_create_user
-    build_works
-    build_collections
-  rescue Exception => e
-    Rails.logger.error "BuildContentService.build_repo_contents #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
-  end
+    def build_repo_contents
+      # user = find_or_create_user
+      build_works
+      build_collections
+    rescue Exception => e
+      Rails.logger.error "BuildContentService.build_repo_contents #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
+    end
 
 end
-

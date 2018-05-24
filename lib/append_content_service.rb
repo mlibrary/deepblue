@@ -8,8 +8,10 @@ class AppendContentService < NewContentService
   def self.call( path_to_config )
     config = YAML.load_file(path_to_config)
     base_path = File.dirname(path_to_config)
-    bcs = AppendContentService.new( config, base_path)   
+    bcs = AppendContentService.new( config, base_path)
     bcs.run
+  rescue Exception => e
+    Rails.logger.error "AppendContentService.call(#{path_to_config}) #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
   end
 
   def initialize( config, base_path )
@@ -18,11 +20,10 @@ class AppendContentService < NewContentService
 
   protected
 
-  def build_repo_contents
-    user = find_or_create_user
-    find_works_and_add_files
-    #build_collections
-  end
+    def build_repo_contents
+      # user = find_or_create_user
+      find_works_and_add_files
+      # build_collections
+    end
 
 end
-

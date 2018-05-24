@@ -7,10 +7,10 @@ module MetadataHelper
   def self.file_from_file_set( file_set )
     file = nil
     files = file_set.files
-    unless ( files.nil? || 0 == files.size )
+    unless  files.nil? || files.size.zero?
       file = files[0]
-      files.each do | f |
-        file = f unless f.original_name == ''
+      files.each do |f|
+        file = f unless f.original_name.empty?
       end
     end
     return file
@@ -67,15 +67,15 @@ module MetadataHelper
     return rv
   end
 
-  def self.report_collection( collection, dir: nil, out: nil, depth:  '==' )
+  def self.report_collection( collection, dir: nil, out: nil, depth: '==' )
     target_file = nil
     if out.nil?
       target_file = metadata_filename_collection( dir, collection )
-      open( target_file, 'w' ) do |out|
-        report_collection( collection, out: out, depth: depth )
+      open( target_file, 'w' ) do |out2|
+        report_collection( collection, out: out2, depth: depth )
       end
     else
-      title = title( collection, field_sep:'' );
+      title = title( collection, field_sep: '' )
       out.puts "#{depth} Collection: #{title} #{depth}"
       report_item( out, "ID: ", collection.id )
       report_item( out, "Title: ", collection.title, one_line: true )
@@ -97,12 +97,12 @@ module MetadataHelper
     return target_file
   end
 
-  def self.report_collection_work( collection, generic_work, dir: nil, out: nil, depth:  '==' )
+  def self.report_collection_work( collection, generic_work, dir: nil, out: nil, depth: '==' )
     target_file = nil
     if out.nil?
       target_file = metadata_filename_collection_work( dir, collection, generic_work )
-      open( target_file, 'w' ) do |out|
-        report_collection_work( collection, generic_work, out: out, depth: depth )
+      open( target_file, 'w' ) do |out2|
+        report_collection_work( collection, generic_work, out: out2, depth: depth )
       end
     else
       report_work( generic_work, out: out, depth: depth )
@@ -110,7 +110,7 @@ module MetadataHelper
     return target_file
   end
 
-  def self.report_file_set( file_set, out: nil, depth:  '==' )
+  def self.report_file_set( file_set, out: nil, depth: '==' )
     out.puts "#{depth} File Set: #{file_set.label} #{depth}"
     report_item( out, "ID: ", file_set.id )
     report_item( out, "File name: ", file_set.label )
@@ -125,11 +125,11 @@ module MetadataHelper
     target_file = nil
     if out.nil?
       target_file = metadata_filename_work( dir, generic_work )
-      open( target_file, 'w' ) do |out|
-        report_generic_work( generic_work, out: out, depth: depth )
+      open( target_file, 'w' ) do |out2|
+        report_generic_work( generic_work, out: out2, depth: depth )
       end
     else
-      title = title( generic_work, field_sep:'' );
+      title = title( generic_work, field_sep: '' )
       out.puts "#{depth} Generic Work: #{title} #{depth}"
       report_item( out, "ID: ", generic_work.id )
       report_item( out, "Title: ", generic_work.title, one_line: true )
@@ -169,39 +169,36 @@ module MetadataHelper
                         item_postfix: '',
                         item_seperator: @@FIELD_SEP,
                         one_line: nil,
-                        optional: false
-                      )
+                        optional: false )
     multi_item = value.respond_to?( :count ) && value.respond_to?( :each )
     if optional
       return if value.nil?
       return if value.to_s.empty?
-      return if multi_item && 0 == value.count
+      return if multi_item && value.count.zero?
     end
     if one_line.nil?
       one_line = true
       if multi_item
-        if 1 < value.count
-          one_line = false
-        end
+        one_line = false if 1 < value.count
       end
     end
     if one_line
       if value.respond_to?( :join )
         out.puts( "#{label}#{item_prefix}#{value.join( "#{item_prefix}#{item_seperator}#{item_postfix}" )}#{item_postfix}" )
       elsif multi_item
-        out.print( "#{label}" )
+        out.print( label.to_s )
         count = 0
         value.each do |item|
           count += 1
           out.print( "#{item_prefix}#{item}#{item_postfix}" )
-          out.print( "#{item_seperator}" ) unless value.count == count
+          out.print( item_seperator.to_s ) unless value.count == count
         end
         out.puts
       else
         out.puts( "#{label}#{item_prefix}#{value}#{item_postfix}" )
       end
     else
-      out.puts( "#{label}" )
+      out.puts( label.to_s )
       if multi_item
         value.each { |item| out.puts( "#{item_prefix}#{item}#{item_postfix}" ) }
       else
@@ -214,8 +211,16 @@ module MetadataHelper
     curration_concern.title.join( field_sep )
   end
 
+  def self.yaml_escape_value( value, comment: false, escape: false )
+    return "" if value.nil?
+    return value unless escape
+    return value if comment
+    value = value.to_json
+    return "" if "\"\"" == value
+    return value
+  end
 
-  def self.yaml_file_set( file_set, out: nil, depth:  '==' )
+  def self.yaml_file_set( file_set, out: nil, depth: '==' )
     out.puts "#{depth} File Set: #{file_set.label} #{depth}"
     yaml_item( out, "ID: ", file_set.id )
     yaml_item( out, "File name: ", file_set.label )
@@ -227,7 +232,7 @@ module MetadataHelper
   end
 
   def self.yaml_filename_work( pathname_dir, work, task: 'populate' )
-    pathname_dir = Pathname.new pathname_dir unless pathname_dir.kind_of? Pathname
+    pathname_dir = Pathname.new pathname_dir unless pathname_dir.is_a? Pathname
     pathname_dir.join "w_#{work.id}_#{task}.yml"
   end
 
@@ -245,11 +250,11 @@ module MetadataHelper
         file = file_from_file_set( file_set )
         export_file_name = file.original_name
         export_file_name = target_dirname.join "#{file_set.id}_#{export_file_name}"
-        if overwrite
-          write_file = true
-        else
-          write_file = !File.exist?( export_file_name )
-        end
+        write_file = if overwrite
+                       true
+                     else
+                       !File.exist?( export_file_name )
+                     end
         if write_file
           source_uri = file.uri.value
           log_lines( log_file, "Starting file export of #{export_file_name} (#{file.size} bytes) at #{Time.now}" )
@@ -265,28 +270,30 @@ module MetadataHelper
     log_lines( log_file,
                "Total bytes exported: #{total_byte_count}",
                "... finished yaml generic work export of files at #{end_time}.")
-  rescue Exception => e
+  rescue Exception => e # rubocop:disable Lint/RescueException
+    # rubocop:disable Rails/Output
     puts "#{e.class}: #{e.message} at #{e.backtrace.join("\n")}"
+    # rubocop:enable Rails/Output
   end
 
   def self.yaml_generic_work_populate( generic_work,
-      dir: "/deepbluedata-prep/",
-      out: nil,
-      export_files: true,
-      overwrite_export_files: true,
-      source: "DBDv1",
-      target_filename: nil,
-      target_dirname: nil )
+                                       dir: "/deepbluedata-prep/",
+                                       out: nil,
+                                       export_files: true,
+                                       overwrite_export_files: true,
+                                       source: "DBDv1",
+                                       target_filename: nil,
+                                       target_dirname: nil )
     target_file = nil
-    dir = Pathname.new dir unless dir.kind_of? Pathname
+    dir = Pathname.new dir unless dir.is_a? Pathname
     if out.nil?
-      generic_work = GenericWork.find generic_work if generic_work.kind_of? String
+      generic_work = GenericWork.find generic_work if generic_work.is_a? String
       target_file = yaml_filename_work( dir, generic_work )
       target_dir = yaml_targetdir_work( dir, generic_work )
       Dir.mkdir( target_dir ) unless Dir.exist? target_dir
-      open( target_file, 'w' ) do |out|
+      open( target_file, 'w' ) do |out2|
         yaml_generic_work_populate( generic_work,
-                                    out: out,
+                                    out: out2,
                                     export_files: export_files,
                                     overwrite_export_files: overwrite_export_files,
                                     source: source,
@@ -299,7 +306,7 @@ module MetadataHelper
     else
       indent_base = " " * 2
       indent = indent_base * 0
-      yaml_line( out, indent, "#{target_filename}", comment: true )
+      yaml_line( out, indent, target_filename.to_s, comment: true )
       yaml_line( out, indent, "bundle exec rake umrdr:populate[#{target_filename}]", comment: true )
       yaml_line( out, indent, "---" )
       yaml_line( out, indent, ':user:' )
@@ -311,22 +318,22 @@ module MetadataHelper
       indent = indent_base * 2
       yaml_item( out, indent, ":admin_set_id:", generic_work.admin_set_id, comment: true )
       yaml_item( out, indent, ":authoremail:", generic_work.authoremail )
-      yaml_item( out, indent, ":creator:", generic_work.creator )
+      yaml_item( out, indent, ":creator:", generic_work.creator, escape: true )
       yaml_item( out, indent, ":date_uploaded:", generic_work.date_uploaded )
       yaml_item( out, indent, ":date_modified:", generic_work.date_modified )
       yaml_item( out, indent, ":date_coverage:", generic_work.date_coverage[0] )
-      yaml_item( out, indent, ":description:", generic_work.description )
+      yaml_item( out, indent, ":description:", generic_work.description, escape: true )
       yaml_item( out, indent, ":depositor:", generic_work.depositor )
       yaml_item( out, indent, ":subject:", generic_work.subject[0] )
-      yaml_item( out, indent, ":doi:", generic_work.doi )
+      yaml_item( out, indent, ":doi:", generic_work.doi, escape: true )
       yaml_item( out, indent, ":fundedby:", generic_work.fundedby[0] )
-      yaml_item( out, indent, ":grantnumber:", generic_work.grantnumber )
-      yaml_item( out, indent, ":isReferencedBy:", generic_work.isReferencedBy )
-      yaml_item( out, indent, ':keyword:', generic_work.keyword )
-      yaml_item( out, indent, ":language:", generic_work.language )
-      yaml_item( out, indent, ":methodology:", generic_work.methodology )
-      yaml_item( out, indent, ":rights: ", generic_work.rights[0] )
-      yaml_item( out, indent, ':title:', generic_work.title )
+      yaml_item( out, indent, ":grantnumber:", generic_work.grantnumber, escape: true )
+      yaml_item( out, indent, ":isReferencedBy:", generic_work.isReferencedBy, escape: true )
+      yaml_item( out, indent, ':keyword:', generic_work.keyword, escape: true )
+      yaml_item( out, indent, ":language:", generic_work.language, escape: true )
+      yaml_item( out, indent, ":methodology:", generic_work.methodology, escape: true )
+      yaml_item( out, indent, ":rights: ", generic_work.rights[0], escape: true )
+      yaml_item( out, indent, ':title:', generic_work.title, escape: true )
       yaml_item( out, indent, ":tombstone:", generic_work.tombstone[0] )
       yaml_item( out, indent, ":total_file_count:", generic_work.file_set_ids.count, comment: true )
       yaml_item( out, indent, ":total_file_size:", generic_work.total_file_size )
@@ -337,7 +344,7 @@ module MetadataHelper
       if 0 < generic_work.file_sets.count
         indent = indent_base * 3 + "- "
         generic_work.file_sets.each do |file_set|
-          yaml_item( out, indent, file_set.label )
+          yaml_item( out, indent, '', file_set.label, escape: true )
         end
       end
       yaml_line( out, indent_base * 2, ':files:' )
@@ -352,31 +359,31 @@ module MetadataHelper
           file = file_from_file_set( file_set )
           file_name = file.original_name
           file_path = target_dirname.join "#{file_set.id}_#{file_name}"
-          yaml_item( out, indent, "#{file_path}" )
+          yaml_item( out, indent, '', file_path.to_s, escape: true )
         end
       end
     end
     return target_file
   end
 
-  def self.yaml_item( out, indent, label, value = '', comment: false, indent_base: "  ", label_postfix: ' ' )
+  def self.yaml_item( out, indent, label, value = '', comment: false, indent_base: "  ", label_postfix: ' ', escape: false )
     indent = "# #{indent}" if comment
-    unless value.respond_to?( :each )
-      out.puts "#{indent}#{label}#{label_postfix}#{value}"
-    else
+    if value.respond_to?(:each)
       out.puts "#{indent}#{label}#{label_postfix}"
       indent += indent_base
-      value.each {|item| out.puts "#{indent}- #{item}" }
+      value.each { |item| out.puts "#{indent}- #{yaml_escape_value( item, comment: comment, escape: escape )}" }
+    else
+      out.puts "#{indent}#{label}#{label_postfix}#{yaml_escape_value( value, comment: comment, escape: escape )}"
     end
   end
 
-  def self.yaml_line( out, indent, label, value = '', comment: false, label_postfix: ' ' )
+  def self.yaml_line( out, indent, label, value = '', comment: false, label_postfix: ' ', escape: false )
     indent = "# #{indent}" if comment
-    out.puts "#{indent}#{label}#{label_postfix}#{value}"
+    out.puts "#{indent}#{label}#{label_postfix}#{yaml_escape_value( value, comment: comment, escape: escape )}"
   end
 
   def self.yaml_targetdir_work( pathname_dir, work, task: 'populate' )
-    pathname_dir = Pathname.new pathname_dir unless pathname_dir.kind_of? Pathname
+    pathname_dir = Pathname.new pathname_dir unless pathname_dir.is_a? Pathname
     pathname_dir.join "w_#{work.id}_#{task}"
   end
 
