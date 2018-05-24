@@ -6,3 +6,46 @@ en:
       dissertation:
         description:        "Dissertation works"
         name:               "Dissertation"
+  simple_form:
+    hints:
+      defaults:
+        creator: Student's names, identical to how it/they appear on the title page
+        title: Thesis, Dissertation, or Opus title, identical to how it appears on the title page
+        identifier: 
+        identifier_uniqname: Student's EmplID (e.g. 1234 5678) or uniqname
+        identifier_orcid: ORCID iD(s) for author(s) of this item.
+        description_thesisdegreename: 
+        type_none: Optional, used for SNRE Opus
+        description_thesisdegreediscipline: Program granting the degree
+        date_issued: Date appearing on the title page of the thesis, dissertation, or Opus.  Omit day and/or month if they don't apply.
+        date_submitted: Date the manuscript was completed. Omit day and/or month if they don't apply.
+        contributor_advisor: Name(s) of the advisor/chair of the committee
+        contributor_committeemember: Names of the Committee Members
+        description_abstract: Exactly as it appears in the dissertation
+        keyword: Up to six keywords/short phrases describing your thesis
+        subject_other: 
+        description_thesisdegreegrantor: 
+        language: 
+        rights_statement:  
+        date_available: 
+    labels:
+      defaults:
+        creator: Student name(s)
+        title: Title
+        identifier: Opus Project Number (SNRE only; if applicable)
+        identifier_uniqname: EmplID or uniqname
+        dentifier_orcid: ORCID iD
+        description_thesisdegreename: Degree awarded
+        type_none: Type of Opus (SNRE only)
+        description_thesisdegreediscipline: Program name
+        date_issued: Year degree awarded
+        date_submitted: Year manuscript completed
+        contributor_advisor: Thesis Advisor/Chair
+        contributor_committeemember: Committee Member(s)
+        description_abstract: Abstract
+        keyword: Keywords or short phrases
+        subject_other: Subject category
+        description_thesisdegreegrantor: University, degree grantor
+        language: Primary Language
+        rights_statement: Rights Statement 
+        date_available: Date thesis is available
