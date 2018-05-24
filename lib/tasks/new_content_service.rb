@@ -5,16 +5,16 @@ Hydra::FileCharacterization::Characterizers::Fits.tool_path = `which fits || whi
 
 class NewContentService
 
-  class TaskConfigError < RuntimeException
+  class TaskConfigError < RuntimeError
   end
 
-  class UserNotFoundError < RuntimeException
+  class UserNotFoundError < RuntimeError
   end
 
-  class VisibilityError < RuntimeException
+  class VisibilityError < RuntimeError
   end
 
-  class WorkNotFoundError < RuntimeException
+  class WorkNotFoundError < RuntimeError
   end
 
   attr_reader :cfg, :base_path, :user
