@@ -1,0 +1,124 @@
+# reference: https://github.com/mlibrary/heliotrope/blob/master/.rubocop_todo.yml
+# Put any overides here
+#Lint/AmbiguousBlockAssociation:
+#  Exclude:
+#    - 'spec/controllers/hyrax/monographs_controller_spec.rb'
+#    - 'spec/controllers/roles_controller_spec.rb'
+
+Layout/EmptyLines:
+  Enabled: false
+
+Layout/EmptyLinesAroundBlockBody:
+  Enabled: false
+
+Layout/EmptyLinesAroundClassBody:
+  Enabled: false
+
+Layout/EmptyLinesAroundModuleBody:
+  Enabled: false
+
+Layout/LeadingCommentSpace:
+  Exclude:
+    - 'config/initializers/mailboxer.rb'
+
+Layout/SpaceInsideBrackets:
+  Enabled: false
+
+Layout/SpaceInsideParens:
+  Enabled: false
+
+Layout/SpaceAroundOperators:
+  Exclude:
+    - config/application.rb
+
+Metrics/BlockLength:
+  Enabled: true
+  Max: 295 # default is 25
+
+#Metrics/ClassLength:
+#  Exclude:
+#    - 'app/controllers/catalog_controller.rb'
+#    - 'app/presenters/hyrax/file_set_presenter.rb'
+
+#Metrics/CyclomaticComplexity:
+#  Exclude:
+#    - 'app/models/riiif/file.rb'
+#    - 'app/services/downloads_controller_behavior.rb'
+#    - 'app/presenters/hyrax/monograph_presenter.rb'
+
+#Metrics/PerceivedComplexity:
+#  Exclude:
+#    - 'app/models/riiif/file.rb'
+#    - 'app/services/downloads_controller_behavior.rb'
+
+Rails/Exit:
+  Exclude:
+    - 'lib/**/*'
+
+#Rails/OutputSafety:
+#  Exclude:
+#    - 'spec/presenters/concerns/title_presenter_spec.rb'
+#    - 'config/initializers/explain_partials.rb'
+#    - 'app/services/markdown_service.rb'
+#    - 'app/helpers/markdown_helper.rb'
+#    - 'app/helpers/gallery_helper.rb'
+#    - 'app/renderers/hyrax/renderers/attribute_renderer.rb'
+#    - 'app/renderers/hyrax/renderers/markdown_attribute_renderer.rb'
+
+#Rails/SkipsModelValidations:
+#  Exclude:
+#    - 'spec/jobs/characterize_job_spec.rb'
+
+#RSpec/EmptyExampleGroup:
+#  Exclude:
+#    - 'spec/actors/hyrax/monograph_actor_spec.rb'
+
+RSpec/EmptyLineAfterFinalLet:
+  Enabled: false
+
+RSpec/EmptyLineAfterSubject:
+  Enabled: false
+
+RSpec/MultipleExpectations:
+  Enabled: false
+
+RSpec/ExampleLength:
+  Enabled: true
+  Max: 103 # default is 5
+
+RSpec/LetSetup:
+  Enabled: false
+
+RSpec/MessageSpies:
+  Enabled: false
+
+RSpec/NamedSubject:
+  Enabled: false
+
+RSpec/NestedGroups:
+  Enabled: false
+
+#RSpec/SubjectStub:
+#  Exclude:
+#    - 'spec/models/riiif/file_spec.rb'
+
+RSpec/VerifiedDoubles:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Exclude:
+    - 'config/initializers/mailboxer.rb'
+
+#Style/GuardClause:
+#  Exclude:
+#    - 'lib/import/importer.rb'
+
+Style/NumericLiterals:
+  Exclude:
+    - 'config/initializers/mailboxer.rb'
+
+Style/RedundantReturn:
+  Enabled: false
+
+Style/YodaCondition:
+  Enabled: false
