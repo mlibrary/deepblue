@@ -16,15 +16,14 @@ module Deepbluedocs
 
       self.terms += [ :description_thesisdegreediscipline, :date_submitted, :contributor_advisor, :contributor_committeemember, :description_thesisdegreegrantor, :identifier, :identifier_orcid, :type_none, :subject_other, :language, :contributor_author, :identifier_uniqname, :description_thesisdegreename, :date_uploaded, :date_modified, :academic_affiliation, :alt_title, :description_abstract, :license, :resource_type, :date_available, :date_copyright, :date_issued, :date_collected, :date_valid, :date_reviewed, :date_accepted, :degree_level, :degree_name, :degree_field, :replaces, :hydrologic_unit_code, :funding_body, :funding_statement, :in_series, :tableofcontents, :bibliographic_citation, :peerreviewed, :additional_information, :digitization_spec, :file_extent, :file_format, :dspace_community, :dspace_collection, :isbn, :issn, :embargo_reason, :conference_location, :conference_name, :conference_section]
 
-      self.required_fields += [:resource_type]
-      self.required_fields -= [:keyword]
+      self.required_fields += [:resource_type, :identifier_uniqname, :description_thesisdegreename, :description_thesisdegreediscipline, :date_issued, :date_submitted, :contributor_advisor, :contributor_committeemember, :description_abstract, :description_thesisdegreegrantor]
 
       def primary_terms
-        [:title, :contributor_author, :identifier_uniqname, :description_thesisdegreename, :description_thesisdegreediscipline, :date_issued, :date_submitted, :contributor_advisor, :contributor_committeemember, :description_abstract, :subject, :description_thesisdegreegrantor] | super
+        [:title, :identifier, :creator, :identifier_uniqname, :identifier_orcid, :description_thesisdegreename, :type_none, :description_thesisdegreediscipline, :date_issued, :date_submitted, :contributor_advisor, :contributor_committeemember, :description_abstract, :keyword, :subject_other, :description_thesisdegreegrantor, :rights_statement] 
       end
 
       def secondary_terms
-        t = [:identifier, :identifier_orcid, :type_none, :subject_other, :language, :date_available]
+        t = [:language, :date_available]
         # jose admin?  not found byebug
         #t << [:keyword, :source, :funding_body, :dspace_community, :dspace_collection] if current_ability.current_user.admin?
         t.flatten
