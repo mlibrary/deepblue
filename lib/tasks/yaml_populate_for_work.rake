@@ -1,13 +1,13 @@
 require 'open-uri'
 
 desc 'Yaml populate from work'
-task :yaml_populate_from_work => :environment do
+task yaml_populate_from_work: :environment do
   Umrdr::YamlPopulateFromWork.run
 end
 
 desc 'Yaml populate from multiple works'
-task :yaml_populate_from_multiple_works => :environment do
-  Umrdr::YamlPopulateFromWork.run
+task yaml_populate_from_multiple_works: :environment do
+  Umrdr::YamlPopulateFromMultipleWorks.run
 end
 
 module Umrdr

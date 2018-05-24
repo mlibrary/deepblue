@@ -31,6 +31,11 @@ Layout/SpaceAroundOperators:
   Exclude:
     - config/application.rb
 
+Lint/RescueException:
+  Exclude:
+    - 'lib/append_content_service.rb'
+    - 'lib/build_content_service.rb'
+
 Metrics/BlockLength:
   Enabled: true
   Max: 295 # default is 25
@@ -40,16 +45,17 @@ Metrics/BlockLength:
 #    - 'app/controllers/catalog_controller.rb'
 #    - 'app/presenters/hyrax/file_set_presenter.rb'
 
-#Metrics/CyclomaticComplexity:
-#  Exclude:
-#    - 'app/models/riiif/file.rb'
-#    - 'app/services/downloads_controller_behavior.rb'
-#    - 'app/presenters/hyrax/monograph_presenter.rb'
+Metrics/CyclomaticComplexity:
+  Exclude:
+    - 'app/helpers/metadata_helper.rb'
 
-#Metrics/PerceivedComplexity:
-#  Exclude:
-#    - 'app/models/riiif/file.rb'
-#    - 'app/services/downloads_controller_behavior.rb'
+Metrics/ModuleLength:
+  Enabled: true
+  Max: 1000 # default is 100
+
+Metrics/PerceivedComplexity:
+  Exclude:
+    - 'app/helpers/metadata_helper.rb'
 
 Rails/Exit:
   Exclude:
@@ -105,6 +111,10 @@ RSpec/NestedGroups:
 RSpec/VerifiedDoubles:
   Enabled: false
 
+Style/ClassVars:
+  Exclude:
+    - app/helpers/metadata_helper.rb
+
 Style/FrozenStringLiteralComment:
   Exclude:
     - 'config/initializers/mailboxer.rb'
@@ -119,6 +129,10 @@ Style/NumericLiterals:
 
 Style/RedundantReturn:
   Enabled: false
+
+Style/VariableName:
+  Exclude:
+    - app/helpers/metadata_helper.rb
 
 Style/YodaCondition:
   Enabled: false
