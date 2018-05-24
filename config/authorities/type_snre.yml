@@ -1,0 +1,10 @@
+terms:
+    - id: Thesis
+      term: Thesis (SNRE Opus)
+      active: true
+    - id: Project
+      term: Project (SNRE Opus)
+      active: true
+    - id: Practicum
+      term: Practicum (SNRE Opus)
+      active: true

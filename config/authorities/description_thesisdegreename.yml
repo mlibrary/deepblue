@@ -1,0 +1,37 @@
+terms:
+    - id: Ph.D.
+      term: Ph.D.
+      active: true
+    - id: Doctor of Anesthesia Practice (DAP)
+      term: Doctor of Anesthesia Practice (DAP)
+      active: true
+    - id: Doctor of Nursing Practice (DNP)
+      term: Doctor of Nursing Practice (DNP)
+      active: true
+    - id: Doctor of Physical Therapy (DPT)
+      term: Doctor of Physical Therapy (DPT)
+      active: true
+    - id: Ed.D.
+      term: Ed.D.
+      active: true
+    - id: Master of Arts
+      term: Master of Arts
+      active: true
+    - id: Master of Fine Arts (MFA)
+      term: Master of Fine Arts (MFA)
+      active: true
+    - id: Master of Landscape Architecture
+      term: Master of Landscape Architecture
+      active: true
+    - id: Master of Science
+      term: Master of Science
+      active: true
+    - id: Master of Science in Engineering
+      term: Master of Science in Engineering
+      active: true
+    - id: Master of Public Health (MPH)
+      term: Master of Public Health (MPH)
+      active: true
+    - id: Master of Science Nursing (MSN)
+      term: Master of Science Nursing (MSN)
+      active: true

@@ -15,7 +15,7 @@ en:
         identifier_uniqname: Student's EmplID (e.g. 1234 5678) or uniqname
         identifier_orcid: ORCID iD(s) for author(s) of this item.
         description_thesisdegreename: 
-        type_none: Optional, used for SNRE Opus
+        type_snre: Optional, used for SNRE Opus
         description_thesisdegreediscipline: Program granting the degree
         date_issued: Date appearing on the title page of the thesis, dissertation, or Opus.  Omit day and/or month if they don't apply.
         date_submitted: Date the manuscript was completed. Omit day and/or month if they don't apply.
@@ -36,7 +36,7 @@ en:
         identifier_uniqname: EmplID or uniqname
         dentifier_orcid: ORCID iD
         description_thesisdegreename: Degree awarded
-        type_none: Type of Opus (SNRE only)
+        type_snre: Type of Opus (SNRE only)
         description_thesisdegreediscipline: Program name
         date_issued: Year degree awarded
         date_submitted: Year manuscript completed

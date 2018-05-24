@@ -1,0 +1,37 @@
+terms:
+    - id: en_US
+      term: English (United States)
+      active: true      
+    - id: en
+      term: English
+      active: true      
+    - id: es
+      term: Spanish
+      active: true      
+    - id: de
+      term: German
+      active: true      
+    - id: fr
+      term: French
+      active: true      
+    - id: it
+      term: Italian
+      active: true      
+    - id: ja
+      term: Japanese
+      active: true      
+    - id: zh
+      term: Chinese
+      active: true      
+    - id: he
+      term: Hebrew
+      active: true      
+    - id: pl
+      term: Polish
+      active: true      
+    - id:
+      term: Yiddish
+      active: true       
+    - id: other
+      term: (Other)
+      active: true      
