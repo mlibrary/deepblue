@@ -6,3 +6,52 @@ en:
       generic_work:
         description:        "Generic work works"
         name:               "Generic Work"
+  simple_form:
+    hints:
+      defaults:
+        creator: Names of the author(s) of this item.
+        identifier_orcid: ORCID iD(s) for author(s) of this item.
+        academic_affiliation: UM Author's affiliation(s)
+        other_affiliation: Author's affiliation(s), non-UM
+        contributor_affiliationumcampus: 
+        title: Enter the main title of the item.
+        alt_title: If the item has any alternate titles, please enter them.
+        date_issued: Use today's date if Deep Blue is this item's first place of publication.
+        identifier_source: Journal name, book title, etc.
+        publisher: Use only if previously published (e.g., in a journal).
+        peerreviewed: Select "Peer Reviewed" if item is peer reviewed.
+        bibliographic_citation: The citation for this item's previous publication. (e.g. Journal of X, vol. Y, no. Z, year, pp. m-n)
+        relation_ispartofseries: Any series, number, version, or release assigned to this item.
+        identifier: If the item has identification numbers/codes associated with it, please select the type(s) and enter them.
+        rights_statement:
+        type_none: To select more than one value in the list, you may have to hold down the "CTRL" or "Shift" key.
+        language: The language of the main content. If the content does not really have a language (e.g. datasets or images) please select 'N/A'.
+        description_mapping: Other collections this item should appear in (e.g. a thesis, which should appear in both the general thesis and a specific departmental collection).
+        subject: Enter subject keywords or phrases here.
+        description_abstract: Enter the abstract of the item below.
+        description_sponsorship: The names of any sponsors and/or funding codes.
+        description: Any additional descriptive information or comments.
+    labels:
+      defaults:
+        creator: Author(s)
+        identifier_orcid: ORCID iD
+        academic_affiliation: UM Author Affiliation
+        other_affiliation: Other Author Affiliation, non-UM
+        contributor_affiliationumcampus: UM Campus
+        title: Title
+        alt_title: Other Titles
+        date_issued: Date of Issue
+        identifier_source: Source
+        publisher: Publisher
+        peerreviewed: Peer Reviewed
+        bibliographic_citation: Citation
+        relation_ispartofseries: Series/Report No./Version
+        identifier: Identifiers
+        rights_statement: Rights Statement
+        type_none: Type
+        language: Language
+        description_mapping: Map to Other Collections
+        subject: Subject Keywords
+        description_abstract: Abstract
+        description_sponsorship: Sponsors
+        description: Description
