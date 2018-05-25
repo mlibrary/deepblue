@@ -75,10 +75,10 @@ module Deepblue
         index.as :stored_searchable
       end
 
-      #property :doi, predicate: ::RDF::Vocab::Identifiers.doi, multiple: false do |index|
+      # property :doi, predicate: ::RDF::Vocab::Identifiers.doi, multiple: false do |index|
       #  index.as :stored_searchable, :facetable
-      #end
-      
+      # end
+
       property :dspace_collection, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/dspaceCollection") do |index|
         index.as :stored_searchable
       end
@@ -123,11 +123,11 @@ module Deepblue
         index.as :stored_searchable, :facetable
       end
 
-      #property :nested_geo, :predicate => ::RDF::URI("https://purl.org/geojson/vocab#Feature"), :class_name => NestedGeo
+      # property :nested_geo, :predicate => ::RDF::URI("https://purl.org/geojson/vocab#Feature"), :class_name => NestedGeo
 
-      #property :nested_related_items, predicate: ::RDF::Vocab::DC.relation, :class_name => NestedRelatedItems do |index|
+      # property :nested_related_items, predicate: ::RDF::Vocab::DC.relation, :class_name => NestedRelatedItems do |index|
       #  index.as :stored_searchable
-      #end
+      # end
 
       # accessor value used by AddOtherFieldOptionActor to persist "Other" values provided by the user
       attr_accessor :other_affiliation_other
@@ -168,10 +168,10 @@ module Deepblue
         index.as :stored_searchable
       end
 
-      # 3  contributor - part of basic metadata 
+      # 3  contributor - part of basic metadata
       property :contributor, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/contributorMain") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 4  contributor  editor
       property :contributor_editor, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/contributorEditor") do |index|
@@ -201,8 +201,8 @@ module Deepblue
       # 9 creator null - part of basic
       property :creator, predicate: ::RDF::Vocab::DC11.creator do |index|
         index.as :stored_searchable, :facetable
-      end      
-      
+      end
+
       #  10  date
       property :date, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/date") do |index|
         index.as :stored_searchable
@@ -255,7 +255,7 @@ module Deepblue
       property :isbn, predicate: ::RDF::Vocab::Identifiers.isbn do |index|
         index.as :stored_searchable
       end
-      
+
       # 21  identifier   issn
       property :issn, predicate: ::RDF::Vocab::Identifiers.issn do |index|
         index.as :stored_searchable
@@ -270,7 +270,7 @@ module Deepblue
       property :identifier_ismn, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/identifierIsmn") do |index|
         index.as :stored_searchable
       end
-      
+
       # 24  identifier   other
       property :identifier_other, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/identifierOther") do |index|
         index.as :stored_searchable
@@ -281,7 +281,7 @@ module Deepblue
         index.as :stored_searchable
       end
 
-      # 26  description  
+      # 26  description
       property :desciption_none, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/descriptionNone") do |index|
         index.as :stored_searchable
       end
@@ -321,10 +321,10 @@ module Deepblue
         index.as :stored_searchable
       end
 
-      # 33  format 
+      # 33  format
       property :file_format, predicate: ::RDF::Vocab::DC.FileFormat do |index|
         index.as :stored_searchable, :facetable
-      end    
+      end
 
       # 34  format       extent
       property :format_extent, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/formatExtent") do |index|
@@ -341,7 +341,7 @@ module Deepblue
         index.as :stored_searchable
       end
 
-      # 37  language   - not needed 
+      # 37  language   - not needed
       property :language_none, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/languageNone") do |index|
         index.as :stored_searchable
       end
@@ -353,13 +353,13 @@ module Deepblue
 
       # 39  publisher  - part of basic metadata
       property :publisher, predicate: ::RDF::Vocab::DC11.publisher do |index|
-       index.as :stored_searchable
-      end  
+        index.as :stored_searchable
+      end
 
-      # 40  relation 
+      # 40  relation
       property :relation_none, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/relationNone") do |index|
         index.as :stored_searchable
-      end    
+      end
 
       # 41  relation     isformatof
       property :relation_isformatof, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/relationIsformatof") do |index|
@@ -409,7 +409,7 @@ module Deepblue
       # 50  relation     replaces
       property :relation_replaces, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/relationReplaces") do |index|
         index.as :stored_searchable
-      end  
+      end
 
       # 51  relation     isreplacedby
       property :relation_isrplacedby, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/relationIsreplacedby") do |index|
@@ -444,87 +444,87 @@ module Deepblue
       # 57 subject - part of basic metadata
       property :subject, predicate: ::RDF::Vocab::DC.subject do |index|
         index.as :stored_searchable, :facetable
-      end   
+      end
 
       #  58  subject      classification
       property :source_classification, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/sourceClassification") do |index|
         index.as :stored_searchable
-      end       
+      end
 
       #  59  subject      ddc
       property :subject_ddc, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/subjectDdc") do |index|
         index.as :stored_searchable
-      end   
+      end
 
       # 60  subject      lcc
       property :subject_lcc, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/subjectLcc") do |index|
         index.as :stored_searchable
-      end  
+      end
 
       # 61  subject      lcsh
       property :subject_lcsh, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/subjectLcsh") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 62  subject      mesh
       property :subject_mesh, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/subjectMesh") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 63  subject      other
       property :subject_other, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/subjectOther") do |index|
         index.as :stored_searchable
-      end     
-              
+      end
+
       # 64  title   - part of basic metadata
       property :title, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/titleNone") do |index|
         index.as :stored_searchable
-      end  
+      end
 
-      #65  title        alternative
+      # 65  title        alternative
       property :alt_title, predicate: ::RDF::Vocab::DC.alternative do |index|
         index.as :stored_searchable
       end
 
-      # 66  type  
+      # 66  type
       property :type_none, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/typeNone") do |index|
         index.as :stored_searchable
-      end      
+      end
 
       # 67  description  thesisdegreename
       property :description_thesisdegreename, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/descriptionThesisdegreename") do |index|
         index.as :stored_searchable
-      end  
+      end
 
       # 68  description  thesisdegreediscipline
       property :description_thesisdegreediscipline, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/descriptionThesisdegreediscipline") do |index|
         index.as :stored_searchable
-      end  
+      end
 
       # 69  description  thesisdegreegrantor
       property :description_thesisdegreegrantor, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/descriptionThesisdegreegrantor") do |index|
         index.as :stored_searchable
-      end  
+      end
 
       # 70  contributor  committeemember
       property :contributor_committeemember, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/contributorCommitteemember") do |index|
         index.as :stored_searchable
-      end  
+      end
 
       # 71  rights       robots
       property :rights_robots, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/rightsRobots") do |index|
         index.as :stored_searchable
-      end  
+      end
 
       # 72  subject      hlbsecondlevel
       property :subject_hlbsecondlevel, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/subjectHlbsecondlevel") do |index|
         index.as :stored_searchable
-      end  
+      end
 
       # 73  subject      hlbtoplevel
       property :subject_hlbtoplevel, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/subjectHlbtoplevel") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 74  description  peerreviewed
       property :peerreviewed, predicate: ::RDF::URI("http://purl.org/ontology/bibo/peerReviewed"), multiple: false do |index|
@@ -535,7 +535,7 @@ module Deepblue
       property :academic_affiliation, predicate: ::RDF::URI("http://vivoweb.org/ontology/core#AcademicDepartment") do |index|
         index.as :stored_searchable, :facetable
       end
-      
+
       #  76  contributor  affiliationother
       property :other_affiliation, predicate: ::RDF::URI("http://vivoweb.org/ontology/core#Department") do |index|
         index.as :stored_searchable, :facetable
@@ -544,29 +544,29 @@ module Deepblue
       # 77  contributor  affiliationumcampus
       property :contributor_affiliationumcampus, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/contributorAffiliationumcampus") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 78  identifier   uniqname
       property :identifier_uniqname, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/identifierUniqname") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 79  identifier   videostream
       property :identifier_videostream, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/identifierVideostream") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 80  identifier   pmid
       property :identifier_pmid, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/identifierPmid") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 81  identifier   oclc
       property :identifier_oclc, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/identifierOclc") do |index|
         index.as :stored_searchable
-      end 
+      end
 
-      #82  description  withdrawalreason
+      # 82  description  withdrawalreason
       property :embargo_reason, predicate: ::RDF::Vocab::DC.accessRights, multiple: false do |index|
         index.as :stored_searchable
       end
@@ -574,125 +574,125 @@ module Deepblue
       # 83  description  bitstreamurl
       property :description_bitstreamurl, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/descriptionBitstreamurl") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 84  identifier   doi
       property :identifier_doi, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/identifierDoi") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 85  identifier   source
       property :identifier_source, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/identifierSource") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 86  identifier   citedreference
       property :identifier_citedreference, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/identifierCitedreference") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 87  contributor  authoremail
       property :contributor_authoremail, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/contributorAuthoremail") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 88  requestcopy  email
       property :requestcopy_email, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/requestcopyEmail") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 89  requestcopy  name
       property :requestcopy_name, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/requestcopyName") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 90  identifier   imageclass
       property :identifier_imageclass, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/identifierImageclass") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 91  description  mapping
       property :description_mapping, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/descriptionMapping") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 92  language     rfc3066
 
       # 93  description  version
       property :description_version, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/descriptionVersion") do |index|
         index.as :stored_searchable
-      end 
+      end
 
 
       # 94  rights       holder
       property :rights_holder, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/rightsHolder") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 95  date         updated
       property :date_updated, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/dateUpdated") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 96  description  md5checksum
       property :description_md5checksum, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/descriptionMd5checksum") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 97  rights       access
       property :rights_access, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/rightsAccess") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 99  description  hathi
       property :description_hathi, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/descriptionHathi") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 100  description  restriction
       property :description_restriction, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/descriptionRestriction") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 101  identifier   orcid
       property :identifier_orcid, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/identifierOrcid") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 102  description  filedescription
       property :description_filedescription, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/descriptionFiledescription") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 103  date         open
       property :date_open, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/dateOpen") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 104  rights       copyright
       property :rights_copyright, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/rightsCopyright") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 105  provenance
       property :provenance_none, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/provenanceNone") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 106  rights       license
       property :rights_license, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/rightsLicense") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 166  identifier   slug
       property :identifier_slug, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/identifierSlug") do |index|
         index.as :stored_searchable
-      end 
+      end
 
       # 167  description  depositor - part of basic metadata :depositor
-      #property :depositor, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/descriptionDepositor") do |index|
+      # property :depositor, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/descriptionDepositor") do |index|
       #  index.as :stored_searchable
-      #end 
+      # end
 
       # END These are ALL the metadata from Dspace
 
@@ -706,9 +706,9 @@ module Deepblue
       class_attribute :controlled_properties
       self.controlled_properties = [:based_near]
 
-      accepts_nested_attributes_for :based_near, :allow_destroy => true, :reject_if => proc { |a| a[:id].blank? }
-      #accepts_nested_attributes_for :nested_geo, :allow_destroy => true, :reject_if => :all_blank
-      #accepts_nested_attributes_for :nested_related_items, :allow_destroy => true, :reject_if => :all_blank
+      accepts_nested_attributes_for :based_near, allow_destroy: true, reject_if: proc { |a| a[:id].blank? }
+      # accepts_nested_attributes_for :nested_geo, :allow_destroy => true, :reject_if => :all_blank
+      # accepts_nested_attributes_for :nested_related_items, :allow_destroy => true, :reject_if => :all_blank
     end
   end
 end

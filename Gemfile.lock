@@ -162,7 +162,7 @@ GEM
       activesupport (>= 3.0)
       deep_merge (~> 1.2.1)
       dry-validation (>= 0.10.4)
-    connection_pool (2.2.1)
+    connection_pool (2.2.2)
     crass (1.0.4)
     daemons (1.2.6)
     database_cleaner (1.7.0)

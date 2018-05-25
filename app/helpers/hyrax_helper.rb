@@ -28,7 +28,7 @@ module HyraxHelper
   def t_uri(key, scope: [])
     new_scope = scope.collect do |arg|
       if arg.is_a?(String)
-        arg.gsub('.', '_')
+        arg.tr('.', '_')
       else
         arg
       end

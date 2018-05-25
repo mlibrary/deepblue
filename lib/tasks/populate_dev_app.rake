@@ -7,7 +7,7 @@ require_relative '../append_content_service'
 namespace :umrdr do
 
   desc "Populate app with users,collections,works,files."
-  task :populate, [:path_to_config] => :environment do |t, args|
+  task :populate, [:path_to_config] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"
 
     args.one? ? config_setup(args[:path_to_config]) : demo_setup
@@ -16,7 +16,7 @@ namespace :umrdr do
   end
 
   desc "Append files to existing collections."
-  task :append, [:path_to_config] => :environment do |t, args|
+  task :append, [:path_to_config] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"
 
     args.one? ? config_setup_for_append(args[:path_to_config]) : demo_setup
@@ -49,22 +49,21 @@ def demo_setup
   puts "user: #{user.user_key}"
 
   # Create work and attribute to user if they don't already have at least one.
-  if DataSet.where(Solrizer.solr_name('depositor', :symbol) => user.user_key).count < 1
+  if DataSet.where(Solrizer.solr_name('depositor', :symbol) => user.user_key).count < 1 # rubocop:disable Style/GuardClause
     create_demo_work(user)
     puts "demo work created."
   end
 end
 
-def create_user(email='demouser@example.com')
+def create_user(email = 'demouser@example.com')
   pwd = "password"
-  User.create!({:email => email, :password => pwd, :password_confirmation => pwd })
+  User.create!(email: email, password: pwd, password_confirmation: pwd)
 end
 
 def create_demo_work(user)
-  #It did not like attribute tag - need to find
+  # It did not like attribute tag - need to find
   gw = DataSet.new( title: ['Demowork'], owner: user.user_key, description: ["A demonstration work for populating the repo."])
   gw.apply_depositor_metadata(user.user_key)
   gw.visibility = "open"
   gw.save
 end
-

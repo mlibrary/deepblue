@@ -5,23 +5,23 @@ module Hyrax
   class DataSetsController < DeepblueController
     # Adds Hyrax behaviors to the controller.
     include Deepblue::WorksControllerBehavior
-    #include Hyrax::WorksControllerBehavior
-    #include Hyrax::BreadcrumbsForWorks
+    # include Hyrax::WorksControllerBehavior
+    # include Hyrax::BreadcrumbsForWorks
 
     self.curation_concern_type = ::DataSet
 
     # Use this line if you want to use a custom presenter
     self.show_presenter = Hyrax::DataSetPresenter
 
-    #before_action :assign_date_coverage,           only: [:create, :update]
-    #before_action :assign_visibility,              only: [:create, :update]
-    #before_action :check_recent_uploads,           only: [:show]
+    # before_action :assign_date_coverage,           only: [:create, :update]
+    # before_action :assign_visibility,              only: [:create, :update]
+    # before_action :check_recent_uploads,           only: [:show]
 
-    #after_action  :box_work_created,               only: [:create]
-    #after_action  :notify_rds_on_update_to_public, only: [:update]
-    #after_action  :notify_rds,                     only: [:create]
-    #after_action  :prov_work_created,              only: [:create]
-    #after_action  :prov_work_updated,              only: [:update]
+    # after_action  :box_work_created,               only: [:create]
+    # after_action  :notify_rds_on_update_to_public, only: [:update]
+    # after_action  :notify_rds,                     only: [:create]
+    # after_action  :prov_work_created,              only: [:create]
+    # after_action  :prov_work_updated,              only: [:update]
 
     protect_from_forgery with: :null_session, only: [:download]
     protect_from_forgery with: :null_session, only: [:globus_add_email]
@@ -81,7 +81,7 @@ module Hyrax
 
     def notify_rds
       ## TODO
-      #email_rds( action: 'deposit', description: "deposited by #{curation_concern.depositor}", log_provenance: false )
+      # email_rds( action: 'deposit', description: "deposited by #{curation_concern.depositor}", log_provenance: false )
     end
 
     def notify_rds_on_update_to_public
@@ -97,12 +97,12 @@ module Hyrax
 
     def prov_work_created
       ## TODO
-      #provenance_log( action: 'created' )
+      # provenance_log( action: 'created' )
     end
 
     def prov_work_updated
       ## TODO
-      #provenance_log( action: 'updated', modified: "on: #{curation_concern.date_modified}" )
+      # provenance_log( action: 'updated', modified: "on: #{curation_concern.date_modified}" )
     end
 
     ## end Provenance log
@@ -320,35 +320,32 @@ module Hyrax
 
     def copy_file_sets_to( target_dir \
                        , log_prefix: "" \
-                       , do_copy_predicate: lambda { |target_file_name, target_file| true } \
+                       , do_copy_predicate: ->(_target_file_name, _target_file) { true } \
                        , quiet: false \
-                       , &block \
-                       )
+                       , &block) \
       file_sets = curation_concern.file_sets
       Hyrax::DataSetsController.copy_file_sets( target_dir \
                                                 , file_sets \
                                                 , log_prefix: log_prefix \
                                                 , do_copy_predicate: do_copy_predicate \
                                                 , quiet: quiet \
-                                                , &block \
-                                                )
+                                                , &block) \
     end
 
     def self.copy_file_sets( target_dir \
                          , file_sets \
                          , log_prefix: "copy_file_sets" \
-                         , do_copy_predicate: lambda { |target_file_name, target_file| true } \
+                         , do_copy_predicate: ->(_target_file_name, _target_file) { true } \
                          , quiet: false \
-                         , &on_copy_block \
-                         )
+                         , &on_copy_block) \
       Rails.logger.debug "#{log_prefix} Starting copy to #{target_dir}" unless quiet
-      files_extracted = Hash.new
+      files_extracted = {}
       total_bytes = 0
       file_sets.each do |file_set|
         file = nil
         files = file_sets.files
-        file = file_set.files[0] unless ( files.nil? || 0 == files.count )
-        file_set.files.each do | f |
+        file = file_set.files[0] unless files.nil? || files.count.zero?
+        file_set.files.each do |f|
           file = f unless f.original_name == ''
         end
         if file.nil?
@@ -358,12 +355,12 @@ module Hyrax
           # fix possible issues with target file name
           target_file_name = '_nil_' if target_file_name.nil?
           target_file_name = '_empty_' if target_file_name.empty?
-          if files_extracted.has_key? target_file_name
+          if files_extracted.key? target_file_name
             dup_count = 1
             base_ext = File.extname target_file_name
             base_target_file_name = File.basename target_file_name, base_ext
             target_file_name = base_target_file_name + "_" + dup_count.to_s.rjust( 3, '0' ) + base_ext
-            while files_extracted.has_key? target_file_name
+            while files_extracted.key? target_file_name
               dup_count += 1
               target_file_name = base_target_file_name + "_" + dup_count.to_s.rjust( 3, '0' ) + base_ext
             end
@@ -372,7 +369,7 @@ module Hyrax
           target_file = target_dir.join target_file_name
           if do_copy_predicate.call( target_file_name, target_file )
             source_uri = file.uri.value
-            #Rails.logger.debug "#{log_prefix} #{source_uri} exists? #{File.exist?( source_uri )}" unless quiet
+            # Rails.logger.debug "#{log_prefix} #{source_uri} exists? #{File.exist?( source_uri )}" unless quiet
             Rails.logger.debug "#{log_prefix} copy #{target_file} << #{source_uri}" unless quiet
             bytes_copied = open(source_uri) { |io| IO.copy_stream(io, target_file) }
             total_bytes += bytes_copied
@@ -403,51 +400,49 @@ module Hyrax
 
     protected
 
-    def emails_did_not_match_msg( user_email_one, user_email_two )
-      "Emails did not match" # + ": '#{user_email_one}' != '#{user_email_two}'"
-    end
-
-    def email_rds_and_user( action: 'create', description: '', log_provenance: false )
-      email_to = EmailHelper.user_email_from( current_user )
-      email_from = EmailHelper.notification_email # will be nil on developer's machine
-      email_it( action: action,
-                description: description,
-                log_provenance: log_provenance,
-                email_to: email_to,
-                email_from: email_from )
-    end
-
-    def email_rds( action: 'deposit', description: '', log_provenance: false )
-      email_to = EmailHelper.notification_email # will be nil on developer's machine
-      email_it( action: action, description: description, log_provenance: log_provenance, email_to: email_to )
-    end
-
-    def email_it( action: 'deposit', description: '', log_provenance: false, email_to: '', email_from: nil )
-      location = MsgHelper.work_location( curation_concern )
-      title    = MsgHelper.title( curation_concern )
-      creator  = MsgHelper.creator( curation_concern )
-      msg      = "#{title} (#{location}) by + #{creator} with #{curation_concern.visibility} access was #{description}"
-      Rails.logger.debug "email_it: action=#{action} email_to=#{email_to} email_from=#{email_from} msg='#{msg}'"
-      if log_provenance
-        PROV_LOGGER.info( msg )
+      def emails_did_not_match_msg( _user_email_one, _user_email_two )
+        "Emails did not match" # + ": '#{user_email_one}' != '#{user_email_two}'"
       end
-      email = nil
-      case action
-      when 'deposit'
-        email = WorkMailer.deposit_work( to: email_to, body: msg )
-      when 'delete'
-        email = WorkMailer.delete_work( to: email_to, body: msg )
-      when 'create'
-        email = WorkMailer.create_work( to: email_to, body: msg )
-      when 'publish'
-        email = WorkMailer.publish_work( to: email_to, body: msg )
-      when 'update'
-        email = WorkMailer.update_work( to: email_to, body: msg )
-      else
-        Rails.logger.error "email_it unknown action #{action}"
+
+      def email_rds_and_user( action: 'create', description: '', log_provenance: false )
+        email_to = EmailHelper.user_email_from( current_user )
+        email_from = EmailHelper.notification_email # will be nil on developer's machine
+        email_it( action: action,
+                  description: description,
+                  log_provenance: log_provenance,
+                  email_to: email_to,
+                  email_from: email_from )
       end
-      email.deliver_now unless email.nil? || email_to.nil?
-      unless email_from.nil?
+
+      def email_rds( action: 'deposit', description: '', log_provenance: false )
+        email_to = EmailHelper.notification_email # will be nil on developer's machine
+        email_it( action: action, description: description, log_provenance: log_provenance, email_to: email_to )
+      end
+
+      def email_it( action: 'deposit', description: '', log_provenance: false, email_to: '', email_from: nil )
+        location = MsgHelper.work_location( curation_concern )
+        title    = MsgHelper.title( curation_concern )
+        creator  = MsgHelper.creator( curation_concern )
+        msg      = "#{title} (#{location}) by + #{creator} with #{curation_concern.visibility} access was #{description}"
+        Rails.logger.debug "email_it: action=#{action} email_to=#{email_to} email_from=#{email_from} msg='#{msg}'"
+        PROV_LOGGER.info( msg ) if log_provenance
+        email = nil
+        case action
+        when 'deposit'
+          email = WorkMailer.deposit_work( to: email_to, body: msg )
+        when 'delete'
+          email = WorkMailer.delete_work( to: email_to, body: msg )
+        when 'create'
+          email = WorkMailer.create_work( to: email_to, body: msg )
+        when 'publish'
+          email = WorkMailer.publish_work( to: email_to, body: msg )
+        when 'update'
+          email = WorkMailer.update_work( to: email_to, body: msg )
+        else
+          Rails.logger.error "email_it unknown action #{action}"
+        end
+        email.deliver_now unless email.nil? || email_to.nil?
+        return if email_from.nil?
         email = nil
         case action
         when 'deposit'
@@ -465,100 +460,100 @@ module Hyrax
         end
         email.deliver_now unless email.nil? || email_to.nil?
       end
-    end
 
-    def flash_and_go_back( msg )
-      Rails.logger.debug msg
-      redirect_to :back, notice: msg
-    end
-
-    def flash_error_and_go_back( msg )
-      Rails.logger.debug msg
-      redirect_to :back, error: msg
-    end
-
-    def flash_and_redirect_to_main_cc( msg )
-      Rails.logger.debug msg
-      redirect_to [main_app, curation_concern], notice: msg
-    end
-
-    def globus_clean_msg( dir )
-      dirs = dir.join( MsgHelper.t( 'generic_work.globus_clean_join_html' ) )
-      rv = MsgHelper.t( 'generic_work.globus_clean', dirs: dirs )
-      return rv
-    end
-
-    def globus_file_prep_started_msg( user_email: nil )
-      MsgHelper.t( 'generic_work.globus_file_prep_started',
-                   when_available: globus_files_when_available( user_email: user_email ) )
-    end
-
-    def globus_files_prepping_msg( user_email: nil )
-      MsgHelper.t( 'generic_work.globus_files_prepping',
-                   when_available: globus_files_when_available( user_email: user_email ) )
-    end
-
-    def globus_files_when_available( user_email: nil )
-      if user_email.nil?
-        MsgHelper.t( 'generic_work.globus_files_when_available' )
-      else
-        MsgHelper.t( 'generic_work.globus_files_when_available_email', user_email: user_email )
+      def flash_and_go_back( msg )
+        Rails.logger.debug msg
+        redirect_to :back, notice: msg
       end
-    end
 
-    def globus_files_available_here
-      MsgHelper.t( 'generic_work.globus_files_available_here', globus_url: "#{globus_url}" )
-    end
-
-    def globus_status_msg( user_email: nil )
-      msg = nil
-      if globus_complete?
-        msg = globus_files_available_here
-      elsif globus_prepping?
-        msg = globus_files_prepping_msg( user_email: user_email )
-      else
-        msg = globus_file_prep_started_msg( user_email: user_email )
+      def flash_error_and_go_back( msg )
+        Rails.logger.debug msg
+        redirect_to :back, error: msg
       end
-      msg
-    end
 
-    def provenance_log( prefix: '', action: '', modified: '' )
-      location    = MsgHelper.work_location( curation_concern )
-      title       = MsgHelper.title( curation_concern )
-      creator     = MsgHelper.creator( curation_concern )
-      description = MsgHelper.description( curation_concern )
-      publisher   = MsgHelper.publisher( curation_concern )
-      subject     = MsgHelper.subject( curation_concern )
-      msg = "WORK #{action.capitalize}: (#{location}) by + #{creator} with #{curation_concern.visibility} access was #{action}" +
-          " title: #{title} " + "#{modified}"
-          ", rights_statement: #{curation_concern.rights_statement[0]}" +
-          ", methodology: #{curation_concern.methodology}" +
-          ", publisher: #{publisher}" +
-          ", subject: #{subject}" +
-          ", description: #{description}" +
-          ", admin set id: #{curation_concern.admin_set_id}"
-      PROV_LOGGER.info (msg)
-    end
+      def flash_and_redirect_to_main_cc( msg )
+        Rails.logger.debug msg
+        redirect_to [main_app, curation_concern], notice: msg
+      end
 
-    def show_presenter
-      Hyrax::DataSetPresenter
-    end
+      def globus_clean_msg( dir )
+        dirs = dir.join( MsgHelper.t( 'generic_work.globus_clean_join_html' ) )
+        rv = MsgHelper.t( 'generic_work.globus_clean', dirs: dirs )
+        return rv
+      end
+
+      def globus_file_prep_started_msg( user_email: nil )
+        MsgHelper.t( 'generic_work.globus_file_prep_started',
+                     when_available: globus_files_when_available( user_email: user_email ) )
+      end
+
+      def globus_files_prepping_msg( user_email: nil )
+        MsgHelper.t( 'generic_work.globus_files_prepping',
+                     when_available: globus_files_when_available( user_email: user_email ) )
+      end
+
+      def globus_files_when_available( user_email: nil )
+        if user_email.nil?
+          MsgHelper.t( 'generic_work.globus_files_when_available' )
+        else
+          MsgHelper.t( 'generic_work.globus_files_when_available_email', user_email: user_email )
+        end
+      end
+
+      def globus_files_available_here
+        MsgHelper.t( 'generic_work.globus_files_available_here', globus_url: globus_url.to_s )
+      end
+
+      def globus_status_msg( user_email: nil )
+        msg = if globus_complete?
+                globus_files_available_here
+              elsif globus_prepping?
+                globus_files_prepping_msg( user_email: user_email )
+              else
+                globus_file_prep_started_msg( user_email: user_email )
+              end
+        msg
+      end
+
+      def provenance_log( prefix: '', action: '', modified: '' )
+        location    = MsgHelper.work_location( curation_concern )
+        title       = MsgHelper.title( curation_concern )
+        creator     = MsgHelper.creator( curation_concern )
+        description = MsgHelper.description( curation_concern )
+        publisher   = MsgHelper.publisher( curation_concern )
+        subject     = MsgHelper.subject( curation_concern )
+        # rubocop:disable Style/LineEndConcatenation
+        msg = "#{prefix}WORK #{action.capitalize}: (#{location}) by + #{creator} with #{curation_concern.visibility} access was #{action}" +
+              " title: #{title} " + modified.to_s +
+              ", rights: #{curation_concern.rights[0]}" +
+              ", methodology: #{curation_concern.methodology}" +
+              ", publisher: #{publisher}" +
+              ", subject: #{subject}" +
+              ", description: #{description}" +
+              ", admin set id: #{curation_concern.admin_set_id}"
+        # rubocop:enable Style/LineEndConcatenation
+        PROV_LOGGER.info msg
+      end
+
+      def show_presenter
+        Hyrax::DataSetPresenter
+      end
 
     private
 
-    def get_date_uploaded_from_solr(file_set)
-      field = file_set.solr_document[Solrizer.solr_name('date_uploaded', :stored_sortable, type: :date)]
-      return unless field.present?
-      begin
-        Time.parse(field)
-      rescue
-        Rails.logger.info "Unable to parse date: #{field.first.inspect} for #{self['id']}"
+      def get_date_uploaded_from_solr(file_set)
+        field = file_set.solr_document[Solrizer.solr_name('date_uploaded', :stored_sortable, type: :date)]
+        return if field.blank?
+        begin
+          Time.parse(field)
+        rescue
+          Rails.logger.info "Unable to parse date: #{field.first.inspect} for #{self['id']}"
+        end
       end
-    end
 
-    def target_dir_name_id( dir, id, ext = '' )
-      dir.join "#{DeepBlueDocs::Application.config.base_file_name}#{id}#{ext}"
-    end
+      def target_dir_name_id( dir, id, ext = '' )
+        dir.join "#{DeepBlueDocs::Application.config.base_file_name}#{id}#{ext}"
+      end
 
   end
 

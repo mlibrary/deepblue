@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CreateDerivativesJob < ActiveJob::Base
+class CreateDerivativesJob < ActiveJob::Base # rubocop:disable Rails/ApplicationJob
   queue_as Hyrax.config.ingest_queue_name
 
   # @param [FileSet] file_set
@@ -8,7 +8,7 @@ class CreateDerivativesJob < ActiveJob::Base
   # @param [String, NilClass] filepath the cached file within the Hyrax.config.working_path
   def perform( file_set, repository_file_id, filepath = nil, delete_input_file = true )
     IngestHelper.create_derivatives( file_set, repository_file_id, filepath, delete_input_file: delete_input_file )
-  rescue Exception => e
+  rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "CreateDerivativesJob.perform(#{file_set},#{repository_file_id},#{filepath}) #{e.class}: #{e.message}"
   end
 

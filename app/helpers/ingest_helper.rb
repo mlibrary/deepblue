@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-#
+
 module IngestHelper
 
   # @param [FileSet] file_set
@@ -24,7 +24,7 @@ module IngestHelper
 
     file_name = Hyrax::WorkingDirectory.find_or_retrieve( repository_file_id, file_set.id, file_path )
     file_ext = File.extname file_set.label
-    if DeepBlueDocs::Application.config.characterize_excluded_ext_set.has_key? file_ext
+    if DeepBlueDocs::Application.config.characterize_excluded_ext_set.key? file_ext
       Rails.logger.info "Skipping characterization of file with extension #{file_ext}: #{file_name}"
       perform_create_derivatives_job( file_set,
                                       repository_file_id,
@@ -47,7 +47,7 @@ module IngestHelper
       file_set.characterization_proxy.save!
       file_set.update_index
       file_set.parent.in_collections.each(&:update_index) if file_set.parent
-    rescue Exception => e
+    rescue Exception => e # rubocop:disable Lint/RescueException
       Rails.logger.error "TaskIngestHelper.create_derivatives(#{file_name}) #{e.class}: #{e.message} at #{e.backtrace[0]}"
     ensure
       perform_create_derivatives_job( file_set,
@@ -80,7 +80,7 @@ module IngestHelper
     Rails.logger.warn "Create derivatives for: #{file_name}."
     begin
       file_ext = File.extname file_set.label
-      if DeepBlueDocs::Application.config.derivative_excluded_ext_set.has_key? file_ext
+      if DeepBlueDocs::Application.config.derivative_excluded_ext_set.key? file_ext
         Rails.logger.info "Skipping derivative of file with extension #{file_ext}: #{file_name}"
         return
       end
@@ -102,23 +102,21 @@ module IngestHelper
       file_set.update_index
       file_set.parent.update_index if parent_needs_reindex?(file_set)
       Rails.logger.debug "Successful create derivative job for file: #{file_name}"
-        #delete_file( file_path, delete_file_flag: delete_input_file, msg_prefix: 'Create derivatives ' )
-    rescue Exception => e
+    # delete_file( file_path, delete_file_flag: delete_input_file, msg_prefix: 'Create derivatives ' )
+    rescue Exception => e # rubocop:disable Lint/RescueException
       Rails.logger.error "TaskIngestHelper.create_derivatives(#{file_set},#{repository_file_id},#{file_path}) #{e.class}: #{e.message} at #{e.backtrace[0]}"
     ensure
-      #This is the last step in the process ( ingest job -> characterization job -> create derivative (last step))
-      #So now it's safe to remove the file uploaded file.
+      # This is the last step in the process ( ingest job -> characterization job -> create derivative (last step))
+      # So now it's safe to remove the file uploaded file.
       delete_file( file_path, delete_file_flag: delete_input_file, msg_prefix: 'Create derivatives ' )
     end
   end
 
   def self.delete_file( file_path, delete_file_flag: false, msg_prefix: '' )
-    if delete_file_flag
-      if File.exist? file_path
-        File.delete file_path
-        Rails.logger.debug "#{msg_prefix}file deleted: #{file_path}"
-      end
-    end
+    return if delete_file_flag
+    return unless File.exist? file_path
+    File.delete file_path
+    Rails.logger.debug "#{msg_prefix}file deleted: #{file_path}"
   end
 
   # @param [FileSet] file_set
@@ -127,7 +125,7 @@ module IngestHelper
   # @option opts [String] mime_type
   # @option opts [String] filename
   # @option opts [String] relation, ex. :original_file
-  def self.ingest( file_set, path, user, opts = {} )
+  def self.ingest( file_set, path, _user, _opts = {} )
     # launched from Hyrax gem: app/actors/hyrax/actors/file_set_actor.rb  FileSetActor#create_content
     # See Hyrax gem: app/job/ingest_local_file_job.rb
     # def perform(file_set, path, user)
@@ -147,7 +145,7 @@ module IngestHelper
 
   def self.file_set_actor_create_content( file_set, file, relation = :original_file )
     # If the file set doesn't have a title or label assigned, set a default.
-    #file_set.label ||= label_for(file)
+    # file_set.label ||= label_for(file)
     file_set.title = [file_set.label] if file_set.title.blank?
     return false unless file_set.save # Need to save to get an id
     # if from_url
@@ -168,14 +166,14 @@ module IngestHelper
     # def ingest_file(io)
     # Skip versioning because versions will be minted by VersionCommitter as necessary during save_characterize_and_record_committer.
     Hydra::Works::AddFileToFileSet.call( file_set,
-                                        io,
-                                        relation,
-                                        versioning: false )
+                                         io,
+                                         relation,
+                                         versioning: false )
     return false unless file_set.save
     repository_file = related_file( file_set, relation )
     Hyrax::VersioningService.create(repository_file, user)
-    #pathhint = io.uploaded_file.uploader.path if io.uploaded_file # in case next worker is on same filesystem
-    #CharacterizeJob.perform_later(file_set, repository_file.id, pathhint || io.path)
+    # pathhint = io.uploaded_file.uploader.path if io.uploaded_file # in case next worker is on same filesystem
+    # CharacterizeJob.perform_later(file_set, repository_file.id, pathhint || io.path)
     characterize( file_set, repository_file.id, io.path )
   end
 
@@ -201,7 +199,7 @@ module IngestHelper
       if continue_job_chain_later
         CreateDerivativesJob.perform_later( file_set, repository_file_id, file_name, delete_input_file )
       else
-        #CreateDerivativesJob.perform_now( file_set, repository_file_id, file_name, delete_input_file )
+        # CreateDerivativesJob.perform_now( file_set, repository_file_id, file_name, delete_input_file )
         create_derivatives( file_set, repository_file_id, file_name, delete_input_file )
       end
     else
@@ -214,7 +212,7 @@ module IngestHelper
     Rails.logger.debug "#{log_prefix} file_set.orginal_file.size=#{file_set.original_file.size}" unless log_prefix.nil?
     return if file_set.parent.nil?
     total = file_set.parent.total_file_size
-    if total.nil? || 0 == total
+    if total.nil? || total.zero?
       Rails.logger.debug "#{log_prefix}.file_set.parent.update_total_file_size!" unless log_prefix.nil?
       file_set.parent.update_total_file_size!
     else
@@ -222,7 +220,7 @@ module IngestHelper
       file_set.parent.total_file_size_add_file_set! file_set
     end
     Rails.logger.info "end TaskIngestHelper.update_total_file_size"
-  rescue Exception => e
+  rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "TaskIngestHelper.update_total_file_size(#{file_set}) #{e.class}: #{e.message} at #{e.backtrace[0]}"
   end
 

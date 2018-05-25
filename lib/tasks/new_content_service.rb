@@ -129,8 +129,11 @@ class NewContentService
       subject = Array(work_hash[:subject])
       contributor = Array(work_hash[:contributor])
       date_uploaded = work_hash[:date_uploaded]
+      date_uploaded = DateTime.now.to_s if date_uploaded.to_s.empty?
       date_modified = work_hash[:date_modified]
+      date_modified = DateTime.now.to_s if date_modified.to_s.empty?
       date_created = work_hash[:date_created]
+      date_created = DateTime.now.to_s if date_created.to_s.empty?
       date_coverage = Array(work_hash[:date_coverage])
       rtype = Array(work_hash[:resource_type] || 'Dataset')
       language = Array(work_hash[:language])
@@ -201,7 +204,6 @@ class NewContentService
       end
     end
 
-    # rubocop:disable Metrics/CyclomaticComplexity
     # rubocop:disable Rails/Output
     def initialize_with_msg( config, base_path, msg: "NEW CONTENT SERVICE AT YOUR ... SERVICE" )
       verbose_init = false
@@ -216,8 +218,6 @@ class NewContentService
       @base_path = base_path
       logger.info msg unless msg.nil?
     end
-    # rubocop:enable Metrics/CyclomaticComplexity
-    # rubocop:enable Metrics/PerceivedComplexity
     # rubocop:enable Rails/Output
 
     def log_object( obj )
