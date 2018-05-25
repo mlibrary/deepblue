@@ -1,6 +1,6 @@
 module OrderedStringHelper
 
-  class DeserializeError < Exception
+  class DeserializeError < RuntimeError
   end
 
   #
@@ -13,10 +13,8 @@ module OrderedStringHelper
     if serialized_string_containing_an_array.start_with?('[')
       begin
         arr = ActiveSupport::JSON.decode serialized_string_containing_an_array
-        if arr.kind_of?( Array )
-          return arr
-        end
-      rescue ActiveSupport::JSON.parse_error
+        return arr if arr.is_a?( Array )
+      rescue ActiveSupport::JSON.parse_error # rubocop:disable Lint/HandleExceptions
         # ignore and fall through
       end
     end

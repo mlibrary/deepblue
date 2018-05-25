@@ -2,12 +2,12 @@
 
 module MetadataHelper
 
-  @@FIELD_SEP = '; '.freeze
+  @@FIELD_SEP = '; '.freeze # rubocop:disable Style/ClassVars, Style/VariableName
 
   def self.file_from_file_set( file_set )
     file = nil
     files = file_set.files
-    unless  files.nil? || files.size.zero?
+    unless files.nil? || files.size.zero?
       file = files[0]
       files.each do |f|
         file = f unless f.original_name.empty?

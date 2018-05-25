@@ -47,7 +47,10 @@ Metrics/BlockLength:
 
 Metrics/CyclomaticComplexity:
   Exclude:
+    - 'app/controllers/hyrax/data_sets_controller.rb'
+    - 'app/helpers/ingest_helper.rb'
     - 'app/helpers/metadata_helper.rb'
+    - 'lib/tasks/new_content_service.rb'
 
 Metrics/ModuleLength:
   Enabled: true
@@ -55,7 +58,10 @@ Metrics/ModuleLength:
 
 Metrics/PerceivedComplexity:
   Exclude:
+    - 'app/controllers/hyrax/data_sets_controller.rb'
+    - 'app/helpers/ingest_helper.rb'
     - 'app/helpers/metadata_helper.rb'
+    - 'lib/tasks/new_content_service.rb'
 
 Rails/Exit:
   Exclude:
@@ -111,9 +117,9 @@ RSpec/NestedGroups:
 RSpec/VerifiedDoubles:
   Enabled: false
 
-Style/ClassVars:
-  Exclude:
-    - app/helpers/metadata_helper.rb
+#Style/ClassVars:
+#  Exclude:
+#    - app/helpers/metadata_helper.rb
 
 Style/FrozenStringLiteralComment:
   Exclude:
@@ -130,9 +136,9 @@ Style/NumericLiterals:
 Style/RedundantReturn:
   Enabled: false
 
-Style/VariableName:
-  Exclude:
-    - app/helpers/metadata_helper.rb
+#Style/VariableName:
+#  Exclude:
+#    - app/helpers/metadata_helper.rb
 
 Style/YodaCondition:
   Enabled: false

@@ -9,7 +9,7 @@ unless Rails.env.production?
   require 'fcrepo_wrapper'
 
   desc 'Spin up hydra-jetty and run specs'
-  task :ci do 
+  task :ci do
     puts 'running continuous integration'
     # No need to maintain minter state on Travis
     reset_statefile! if ENV['TRAVIS'] == 'true'
@@ -29,6 +29,6 @@ unless Rails.env.production?
   end
 
   def reset_statefile!
-   FileUtils.rm_f('/tmp/minter-state')
+    FileUtils.rm_f('/tmp/minter-state')
   end
 end

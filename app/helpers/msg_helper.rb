@@ -1,7 +1,10 @@
+# frozen_string_literal: true
+
+#
 module MsgHelper
   extend ActionView::Helpers::TranslationHelper
 
-  @@FIELD_SEP = '; '.freeze
+  @@FIELD_SEP = '; '.freeze # rubocop:disable Style/ClassVars, Style/VariableName
 
   def self.creator( curration_concern, field_sep: @@FIELD_SEP )
     curration_concern.creator.join( field_sep )

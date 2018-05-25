@@ -12,9 +12,9 @@ module EmailHelper
     return nil unless user_signed_in
     user_email = nil
     unless current_user.nil?
-      #Rails.logger.debug "current_user=#{current_user}"
-      #Rails.logger.debug "current_user.name=#{current_user.name}"
-      #Rails.logger.debug "current_user.email=#{current_user.email}"
+      # Rails.logger.debug "current_user=#{current_user}"
+      # Rails.logger.debug "current_user.name=#{current_user.name}"
+      # Rails.logger.debug "current_user.email=#{current_user.email}"
       user_email = current_user.email
     end
     user_email
