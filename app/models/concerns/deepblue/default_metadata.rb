@@ -491,6 +491,10 @@ module Deepblue
         index.as :stored_searchable
       end
 
+      property :type_snre, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/typeSnre") do |index|
+        index.as :stored_searchable
+      end  
+
       # 67  description  thesisdegreename
       property :description_thesisdegreename, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/descriptionThesisdegreename") do |index|
         index.as :stored_searchable
