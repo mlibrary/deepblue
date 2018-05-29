@@ -10,6 +10,7 @@ module Hyrax
               :grantnumber,
               :isReferencedBy,
               :methodology,
+              :rights_license,
               :tombstone,
               :total_file_size,
               to: :solr_document
@@ -75,33 +76,31 @@ module Hyrax
     end
 
     def hdl
-      #@object_profile[:hdl]
+      # @object_profile[:hdl]
     end
 
     def human_readable( value )
       ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( value, precision: 3 )
     end
 
-    def identifiers_minted?(identifier)
-      #the first time this is called, doi will not be solr.
-      begin
-        @solr_document[Solrizer.solr_name('doi', :symbol)].first
-      rescue
-        nil
-      end
+    def identifiers_minted?(_identifier)
+      # the first time this is called, doi will not be solr.
+      @solr_document[Solrizer.solr_name('doi', :symbol)].first
+    rescue
+      nil
     end
 
-    def identifiers_pending?(identifier)
+    def identifiers_pending?(_identifier)
       @solr_document[Solrizer.solr_name('doi', :symbol)].first == DataSet::PENDING
     end
 
-    def isReferencedBy
+    def isReferencedBy # rubocop:disable Style/MethodName
       @solr_document.isReferencedBy
     end
 
     def label_with_total_file_size( label )
       total = total_file_size
-      if 0 == total
+      if total.zero?
         label
       else
         count = total_file_count
@@ -128,9 +127,7 @@ module Hyrax
 
     def total_file_size
       total = @solr_document[Solrizer.solr_name('total_file_size', Hyrax::FileSetIndexer::STORED_LONG)]
-      if total.nil?
-        total = 0
-      end
+      total = 0 if total.nil?
       total
     end
 

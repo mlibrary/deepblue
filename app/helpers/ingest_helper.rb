@@ -113,7 +113,7 @@ module IngestHelper
   end
 
   def self.delete_file( file_path, delete_file_flag: false, msg_prefix: '' )
-    return if delete_file_flag
+    return unless delete_file_flag
     return unless File.exist? file_path
     File.delete file_path
     Rails.logger.debug "#{msg_prefix}file deleted: #{file_path}"

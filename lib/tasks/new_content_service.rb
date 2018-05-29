@@ -119,11 +119,11 @@ class NewContentService
       title = Array(work_hash[:title])
       creator = Array(work_hash[:creator])
       authoremail = work_hash[:authoremail] || "contact@umich.edu"
-      rights_statement = if 'DBDv1' == source
-                           Array(work_hash[:rights])
-                         else
-                           Array(work_hash[:rights_statement])
-                         end
+      rights_license = if 'DBDv1' == source
+                         Array(work_hash[:rights])
+                       else
+                         Array(work_hash[:rights_license])
+                       end
       desc = Array(work_hash[:description])
       methodology = work_hash[:methodology] || "No Methodology Available"
       subject = Array(work_hash[:subject])
@@ -143,7 +143,7 @@ class NewContentService
       work = DataSet.new( title: title,
                           creator: creator,
                           authoremail: authoremail,
-                          rights_statement: rights_statement,
+                          rights_license: rights_license,
                           description: desc,
                           resource_type: rtype,
                           methodology: methodology,
