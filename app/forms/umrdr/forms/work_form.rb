@@ -23,7 +23,7 @@ module Umrdr::Forms
     #   # Overriden to cast 'rights' to an array
     #   def sanitize_params(form_params)
     #     super.tap do |params|
-    #       params['rights_statement'] = Array(params['rights_statement']) if params.key?('rights_statement')
+    #       params['rights_license'] = Array(params['rights_license']) if params.key?('rights_license')
     #       params['subject'] = Array(params['subject']) if params.key?('subject')
     #       params['fundedby'] = Array(params['fundedby']) if params.key?('fundedby')
     #     end
@@ -31,7 +31,7 @@ module Umrdr::Forms
     # end
     #
     # def rights
-    #     @model.rights_statement.first
+    #     @model.rights_license.first
     # end
     #
     # # You like danger?! Because you better pass in a hash with the correct keys.

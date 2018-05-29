@@ -8,10 +8,10 @@ class DataSet < ActiveFedora::Base
   self.indexer = DataSetIndexer
   # Change this to restrict which works can be added as a child.
   # self.valid_child_concerns = []
-  #validates :title, presence: { message: 'Your work must have a title.' }
+  # validates :title, presence: { message: 'Your work must have a title.' }
   ## end `rails generate hyrax:work DataSet`
 
-  #self.human_readable_type = 'Data Set' # deprecated
+  # self.human_readable_type = 'Data Set' # deprecated
   include Umrdr::UmrdrWorkBehavior
   include Umrdr::UmrdrWorkMetadata
 
@@ -19,7 +19,7 @@ class DataSet < ActiveFedora::Base
   # validates :creator, presence: { message: 'Your work must have a creator.' }
   validates :description, presence: { message: 'Your work must have a description.' }
   # validates :methodology, presence: { message: 'Your work must have a description of the method for collecting the dataset.' }
-  # validates :rights_statement, presence: { message: 'You must select a license for your work.' }
+  validates :rights_license, presence: { message: 'You must select a license for your work.' }
   validates :authoremail, presence: { message: 'You must have author contact information.' }
 
   ## begin `rails generate hyrax:work DataSet`
@@ -50,24 +50,24 @@ class DataSet < ActiveFedora::Base
   # the list of creators is ordered
   def creator
     values = super
-    values = MetadataHelper.ordered( ordered_values: self.creator_ordered, values: values )
+    values = MetadataHelper.ordered( ordered_values: creator_ordered, values: values )
     return values
   end
 
-  def creator= values
-    self.creator_ordered = MetadataHelper.ordered_values( ordered_values: self.creator_ordered, values: values )
+  def creator=(values)
+    self.creator_ordered = MetadataHelper.ordered_values( ordered_values: creator_ordered, values: values )
     super values
   end
 
   # the list of description is ordered
   def description
     values = super
-    values = MetadataHelper.ordered( ordered_values: self.description_ordered, values: values )
+    values = MetadataHelper.ordered( ordered_values: description_ordered, values: values )
     return values
   end
 
-  def description= values
-    self.description_ordered = MetadataHelper.ordered_values( ordered_values: self.description_ordered, values: values )
+  def description=(values)
+    self.description_ordered = MetadataHelper.ordered_values( ordered_values: description_ordered, values: values )
     super values
   end
 
@@ -105,12 +105,12 @@ class DataSet < ActiveFedora::Base
   #
   def keyword
     values = super
-    values = MetadataHelper.ordered( ordered_values: self.keyword_ordered, values: values )
+    values = MetadataHelper.ordered( ordered_values: keyword_ordered, values: values )
     return values
   end
 
-  def keyword= values
-    self.keyword_ordered = MetadataHelper.ordered_values( ordered_values: self.keyword_ordered, values: values )
+  def keyword=(values)
+    self.keyword_ordered = MetadataHelper.ordered_values( ordered_values: keyword_ordered, values: values )
     super values
   end
 
@@ -131,12 +131,12 @@ class DataSet < ActiveFedora::Base
   # hthe list of title is ordered
   def title
     values = super
-    values = MetadataHelper.ordered( ordered_values: self.title_ordered, values: values )
+    values = MetadataHelper.ordered( ordered_values: title_ordered, values: values )
     return values
   end
 
-  def title= values
-    self.title_ordered = MetadataHelper.ordered_values( ordered_values: self.title_ordered, values: values )
+  def title=(values)
+    self.title_ordered = MetadataHelper.ordered_values( ordered_values: title_ordered, values: values )
     super values
   end
 

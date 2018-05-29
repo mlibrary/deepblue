@@ -15,32 +15,34 @@ RSpec.describe Hyrax::DataSetForm do
   #   FileSet.all.each { |fs| fs.delete }
   # end
 
+  subject { form }
   let(:work) { DataSet.new }
   let(:form) { described_class.new(work, nil, nil) }
 
-  let( :expected_required_fields ) { [
-                                       :title,
-                                       :creator,
-                                       :rights_statement,
-                                       :resource_type,
-                                       :authoremail,
-                                       :description,
-                                       :rights_statement
-                                     ] }
-  let( :expected_primary_terms ) { [
-                                     :title,
-                                     :creator,
-                                     :contributor,
-                                     :description_abstract,
-                                     :resource_type,
-                                     :identifier,
-                                     :subject,
-                                     :rights_statement,
-                                     :authoremail,
-                                     :date_coverage,
-                                     :description,
-                                     :keyword
-                                   ] }
+  let( :expected_required_fields ) { %i[
+    title
+    creator
+    rights_statement
+    resource_type
+    authoremail
+    description
+    rights_license
+  ] }
+  let( :expected_primary_terms ) { %i[
+    title
+    creator
+    contributor
+    description_abstract
+    resource_type
+    identifier
+    subject
+    authoremail
+    date_coverage
+    description
+    keyword
+    rights_license
+    rights_statement
+  ] }
 
   describe "#required_fields" do
     subject { form.required_fields }
@@ -67,10 +69,10 @@ RSpec.describe Hyrax::DataSetForm do
                                   :visibility_after_embargo,
                                   :visibility_during_lease,
                                   :lease_expiration_date,
-                                  :visibility_after_lease,
+                                  :visibility_arights_statementfter_lease,
                                   :collection_ids )
-      is_expected.not_to include *expected_required_fields
-      is_expected.not_to include *expected_primary_terms
+      is_expected.not_to include( *expected_required_fields )
+      is_expected.not_to include( *expected_primary_terms )
       is_expected.to include( :additional_information )
     end
   end
@@ -93,7 +95,7 @@ RSpec.describe Hyrax::DataSetForm do
     end
   end
 
-  describe '.model_attributes' do
+  describe '.model_attributes' do # rubocop:disable RSpec/EmptyExampleGroup
     # let(:permission_template) { create(:permission_template, source_id: source_id) }
     # let!(:workflow) { create(:workflow, active: true, permission_template_id: permission_template.id) }
     # let(:source_id) { '123' }
@@ -153,8 +155,6 @@ RSpec.describe Hyrax::DataSetForm do
 
     it { is_expected.to eq 'open' }
   end
-
-  subject { form }
 
   it { is_expected.to delegate_method(:on_behalf_of).to(:model) }
   it { is_expected.to delegate_method(:depositor).to(:model) }

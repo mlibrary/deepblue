@@ -31,7 +31,7 @@ RSpec.describe DataSet do
       subject.creator = ['Demo Creator']
       # subject.date_created = ['2016-02-28']
       # subject.description = ['Demo description.']
-      # subject.rights_statement = ['Demo rights.']
+      # subject.rights_license = ['Demo license.']
     end
 
     it 'validates title' do
@@ -54,8 +54,8 @@ RSpec.describe DataSet do
     #   expect(subject).not_to be_valid
     # end
     #
-    # it 'validates rights_statement' do
-    #   subject.rights_statement = []
+    # it 'validates rights_license' do
+    #   subject.rights_license = []
     #   expect(subject).not_to be_valid
     # end
   end
