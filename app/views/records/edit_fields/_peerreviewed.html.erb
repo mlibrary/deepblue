@@ -1,0 +1,6 @@
+<% peerreviewed_service = Hyrax::PeerreviewedService.new %>
+<%= f.input :peerreviewed, as: :select,
+    collection: peerreviewed_service.select_active_options,
+    include_blank: true,
+    item_helper: peerreviewed_service.method(:include_current_value),
+    input_html: { class: 'form-control' } %>

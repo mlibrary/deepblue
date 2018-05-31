@@ -1,0 +1,73 @@
+terms:
+    - id: Animation
+      term: Animation
+      active: true
+    - id: Article
+      term: Article
+      active: true
+    - id: Book
+      term: Book
+      active: true
+    - id: Book chapter
+      term: Book chapter
+      active: true
+    - id: Dataset
+      term: Dataset
+      active: true
+    - id: Image
+      term: Image
+      active: true
+    - id: Image, 3-D
+      term: Image, 3-D
+      active: true
+    - id: Interview
+      term: Interview
+      active: true
+    - id: Learning Object
+      term: Learning Object
+      active: true
+    - id: Map
+      term: Map
+      active: true
+    - id: Musical Score
+      term: Musical Score
+      active: true
+    - id: Plan or blueprint
+      term: Plan or blueprint
+      active: true
+    - id: Preprint
+      term: Preprint
+      active: true
+    - id: Presentation
+      term: Presentation
+      active: true
+    - id: Project
+      term: Project
+      active: true
+    - id: Recording, acoustical
+      term: Recording, acoustical
+      active: true
+    - id: Recording, musical
+      term: Recording, musical
+      active: true
+    - id: Recording, oral
+      term: Recording, oral
+      active: true
+    - id: Software
+      term: Software
+      active: true
+    - id: Technical Report
+      term: Technical Report
+      active: true
+    - id: Thesis
+      term: Thesis
+      active: true
+    - id: Video
+      term: Video
+      active: true
+    - id: Working Paper
+      term: Working Paper
+      active: true
+    - id: Other
+      term: Other
+      active: true

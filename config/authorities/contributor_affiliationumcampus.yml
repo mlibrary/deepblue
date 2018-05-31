@@ -1,0 +1,10 @@
+terms:
+    - id: Ann Arbor
+      term: Ann Arbor
+      active: true
+    - id: Dearborn
+      term: Dearborn
+      active: true
+    - id: Flint
+      term: Flint
+      active: true
