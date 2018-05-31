@@ -40,7 +40,7 @@ FactoryBot.define do
     end
 
     factory :private_data_set do
-      #visibility Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
+      # visibility Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
     end
 
     factory :registered_data_set do

@@ -19,6 +19,14 @@ module HyraxHelper
   #   link_to text, href
   # end
 
+  # A Blacklight index field helper_method
+  # @param [Hash] options from blacklight helper_method invocation. Maps rights statement URIs to links with labels.
+  # @return [ActiveSupport::SafeBuffer] rights statement links, html_safe
+  def rights_license_links(options)
+    service = Hyrax::RightsLicenseService.new
+    to_sentence(options[:value].map { |right| link_to service.label(right), right })
+  end
+
   def self.nbsp_or_value( value )
     return "&nbsp;" if value.nil?
     return "&nbsp;" if value.to_s.empty?

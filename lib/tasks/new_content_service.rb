@@ -120,9 +120,9 @@ class NewContentService
       creator = Array(work_hash[:creator])
       authoremail = work_hash[:authoremail] || "contact@umich.edu"
       rights_license = if 'DBDv1' == source
-                         Array(work_hash[:rights])
+                         work_hash[:rights]
                        else
-                         Array(work_hash[:rights_license])
+                         work_hash[:rights_license]
                        end
       desc = Array(work_hash[:description])
       methodology = work_hash[:methodology] || "No Methodology Available"

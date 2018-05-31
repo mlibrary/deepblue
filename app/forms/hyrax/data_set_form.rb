@@ -6,43 +6,46 @@ module Hyrax
 
     self.model_class = ::DataSet
 
-    self.terms += %i[authoremail date_coverage description keyword]
-    self.required_fields += %i[authoremail description rights_license]
+    self.terms -= %i[ rights_statement ]
+    self.terms += %i[ authoremail date_coverage description keyword rights_license ]
+
+    self.required_fields -= %i[ rights_statement ]
+    self.required_fields += %i[ authoremail description rights_license ]
+
     self.default_work_primary_terms -=
       %i[
         abstract
-        license
+        academic_affiliation
         alt_title
+        bibliographic_citation
         dates_section
+        degree_field
         degree_level
         degree_name
-        degree_field
-        bibliographic_citation
-        academic_affiliation
         in_series
-        tableofcontents
+        license
         rights_statement
+        tableofcontents
       ]
-
-    self.default_work_primary_terms += %i[authoremail date_coverage description keyword rights_license]
+    self.default_work_primary_terms += %i[ authoremail date_coverage description keyword rights_license ]
 
     self.default_work_secondary_terms -=
       %i[
-        hydrologic_unit_code
-        geo_section
-        funding_statement
-        publisher
-        peerreviewed
         conference_location
         conference_name
         conference_section
-        language
-        file_format
-        file_extent
         digitization_spec
-        replaces
+        file_extent
+        file_format
+        funding_statement
+        geo_section
+        hydrologic_unit_code
         isbn
         issn
+        language
+        peerreviewed
+        publisher
+        replaces
       ]
 
   end

@@ -1,7 +1,8 @@
 # frozen_string_literal: true
+
 class SolrDocument
   include Blacklight::Solr::Document
-  #include BlacklightOaiProvider::SolrDocumentBehavior
+  # include BlacklightOaiProvider::SolrDocumentBehavior
 
   include Blacklight::Gallery::OpenseadragonSolrDocument
 
@@ -24,7 +25,7 @@ class SolrDocument
   # Recommendation: Use field names from Dublin Core
   use_extension(Blacklight::Document::DublinCore)
 
-  #use_extension(ScholarsArchive::Document::QualifiedDublinCore)
+  # use_extension(ScholarsArchive::Document::QualifiedDublinCore)
 
   # Do content negotiation for AF models.
 
@@ -36,14 +37,6 @@ class SolrDocument
         self[Solrizer.solr_name(property_name)]
       end
     end
-  end
-
-  def peerreviewed_label
-    self['peerreviewed_label_ssim']
-  end
-
-  def license_label
-    self['license_label_ssim']
   end
 
   def academic_affiliation_label
@@ -58,16 +51,12 @@ class SolrDocument
     ScholarsArchive::LabelParserService.parse_label_uris(self['degree_grantors_label_ssim'])
   end
 
-  def other_affiliation_label
-    ScholarsArchive::LabelParserService.parse_label_uris(self['other_affiliation_label_ssim'])
-  end
-
-  def rights_statement_label
-    self['rights_statement_label_ssim']
-  end
-
   def language_label
     self['language_label_ssim']
+  end
+
+  def license_label
+    self['license_label_ssim']
   end
 
   def nested_geo
@@ -78,81 +67,103 @@ class SolrDocument
     ScholarsArchive::LabelParserService.parse_label_uris(self[Solrizer.solr_name('nested_related_items_label', :symbol)]) || []
   end
 
+  def other_affiliation_label
+    ScholarsArchive::LabelParserService.parse_label_uris(self['other_affiliation_label_ssim'])
+  end
+
+  def peerreviewed_label
+    self['peerreviewed_label_ssim']
+  end
+
+  def rights_license_label
+    self['rights_license_label_ssim']
+  end
+
+  def rights_statement_label
+    self['rights_statement_label_ssim']
+  end
+
   def system_created
     Time.parse self['system_create_dtsi']
   end
 
   solrized_methods [
-      'description_thesisdegreediscipline',
-      'date_submitted',
-      'description_thesisdegreegrantor', 
-      'identifier', 
-      'subject_other', 
-      'language',
-      'identifier_uniqname', 
-      'description_thesisdegreename',
-      'abstract',
-      'academic_affiliation',
-      'additional_information',
-      'identifier_source',
-      'description_sponsorship',
-      'description_mapping', 
-      'type_none',
-      'identifier_orcid',
-      'contributor_affiliationumcampus',
-      'contributor_author',
-      'relation_ispartofseries',
-      'alt_title',
-      'bibliographic_citation',
-      'conference_location',
-      'conference_name',
-      'conference_section',
-      'contributor_advisor',
-      'contributor_committeemember',
-      'date_accepted',
-      'date_available',
-      'date_collected',
-      'date_copyright',
-      'date_issued',
-      'date_valid',
-      'date_reviewed',
-      'degree_discipline',
-      'degree_field',
-      'degree_grantors',
-      'degree_level',
-      'degree_name',
-      'digitization_spec',
-      'doi',
-      'dspace_community',
-      'dspace_collection',
-      'editor',
-      'embargo_reason',
-      'file_extent',
-      'file_format',
-      'funding_body',
-      'funding_statement',
-      'graduation_year',
-      'has_journal',
-      'has_number',
-      'has_volume',
-      'hydrologic_unit_code',
-      'in_series',
-      'interactivity_type',
-      'is_based_on_url',
-      'is_referenced_by',
-      'isbn',
-      'issn',
-      'learning_resource_type',
-      'other_affiliation',
-      'replaces',
-      'tableofcontents',
-      'time_required',
-      'typical_age_range',
-      'duration'
+    'abstract',
+    'academic_affiliation',
+    'additional_information',
+    'alt_title',
+    'bibliographic_citation',
+    'conference_location',
+    'conference_name',
+    'conference_section',
+    'contributor_advisor',
+    'contributor_affiliationumcampus',
+    'contributor_author',
+    'contributor_committeemember',
+    'date_accepted',
+    'date_available',
+    'date_collected',
+    'date_copyright',
+    'date_issued',
+    'date_reviewed',
+    'date_submitted',
+    'date_valid',
+    'degree_discipline',
+    'degree_field',
+    'degree_grantors',
+    'degree_level',
+    'degree_name',
+    'description_mapping',
+    'description_sponsorship',
+    'description_thesisdegreediscipline',
+    'description_thesisdegreegrantor',
+    'description_thesisdegreename',
+    'digitization_spec',
+    'doi',
+    'dspace_collection',
+    'dspace_community',
+    'duration',
+    'editor',
+    'embargo_reason',
+    'file_extent',
+    'file_format',
+    'funding_body',
+    'funding_statement',
+    'graduation_year',
+    'has_journal',
+    'has_number',
+    'has_volume',
+    'hydrologic_unit_code',
+    'identifier',
+    'identifier_orcid',
+    'identifier_source',
+    'identifier_uniqname',
+    'in_series',
+    'interactivity_type',
+    'is_based_on_url',
+    'is_referenced_by',
+    'isbn',
+    'issn',
+    'language',
+    'learning_resource_type',
+    'other_affiliation',
+    'relation_ispartofseries',
+    'replaces',
+    'rights_license',
+    'subject_other',
+    'tableofcontents',
+    'time_required',
+    'type_none',
+    'typical_age_range'
   ]
 
   field_semantics.merge!(
-    contributor:  ['contributor_tesim', 'editor_tesim', 'contributor_advisor_tesim', 'contributor_committeemember_tesim', 'oai_academic_affiliation_label', 'oai_other_affiliation_label'],
+    contributor:  [ 'contributor_tesim',
+                    'editor_tesim',
+                    'contributor_advisor_tesim',
+                    'contributor_committeemember_tesim',
+                    'oai_academic_affiliation_label',
+                    'oai_other_affiliation_label' ],
     coverage:     ['based_near_label_tesim', 'conferenceLocation_tesim'],
     creator:      'creator_tesim',
     date:         'date_created_tesim',
@@ -172,7 +183,11 @@ class SolrDocument
 
   # Override SolrDocument hash access for certain virtual fields
   def [](key)
-    return send(key) if ['oai_academic_affiliation_label', 'oai_other_affiliation_label', 'oai_rights', 'oai_identifier', 'oai_nested_related_items_label'].include?(key)
+    return send(key) if [ 'oai_academic_affiliation_label',
+                          'oai_other_affiliation_label',
+                          'oai_rights',
+                          'oai_identifier',
+                          'oai_nested_related_items_label' ].include?(key)
     super
   end
 
@@ -211,9 +226,17 @@ class SolrDocument
 
   def oai_identifier
     if self["has_model_ssim"].first.to_s == "Collection"
-      Hyrax::Engine.routes.url_helpers.url_for(:only_path => false, :action => 'show', :host => CatalogController.blacklight_config.oai[:provider][:repository_url], :controller => 'hyrax/collections', id: self.id)
+      Hyrax::Engine.routes.url_helpers.url_for( only_path: false,
+                                                action: 'show',
+                                                host: CatalogController.blacklight_config.oai[:provider][:repository_url],
+                                                controller: 'hyrax/collections',
+                                                id: id )
     else
-      Rails.application.routes.url_helpers.url_for(:only_path => false, :action => 'show', :host => CatalogController.blacklight_config.oai[:provider][:repository_url], :controller => 'hyrax/' + self["has_model_ssim"].first.to_s.underscore.pluralize, id: self.id)
+      Rails.application.routes.url_helpers.url_for( only_path: false,
+                                                    action: 'show',
+                                                    host: CatalogController.blacklight_config.oai[:provider][:repository_url],
+                                                    controller: 'hyrax/' + self["has_model_ssim"].first.to_s.underscore.pluralize,
+                                                    id: id )
     end
   end
 

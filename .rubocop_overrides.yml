@@ -21,15 +21,18 @@ Layout/LeadingCommentSpace:
   Exclude:
     - 'config/initializers/mailboxer.rb'
 
+Layout/SpaceAroundOperators:
+  Exclude:
+    - config/application.rb
+
 Layout/SpaceInsideBrackets:
   Enabled: false
 
 Layout/SpaceInsideParens:
   Enabled: false
 
-Layout/SpaceAroundOperators:
-  Exclude:
-    - config/application.rb
+Layout/SpaceInsidePercentLiteralDelimiters:
+  Enabled: false
 
 Lint/RescueException:
   Exclude:
