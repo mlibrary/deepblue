@@ -22,7 +22,6 @@ RSpec.describe Hyrax::DataSetForm do
   let( :expected_required_fields ) { %i[
     title
     creator
-    rights_statement
     resource_type
     authoremail
     description
@@ -41,7 +40,6 @@ RSpec.describe Hyrax::DataSetForm do
     description
     keyword
     rights_license
-    rights_statement
   ] }
 
   describe "#required_fields" do

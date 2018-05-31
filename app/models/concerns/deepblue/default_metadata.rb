@@ -5,7 +5,7 @@ module Deepblue
     # Usage notes and expectations can be found in the Metadata Application Profile:
     #   https://docs.google.com/spreadsheets/d/1koKjV7bjn7v4r5a3gsowEimljHiAwbwuOgjHe7FEtuw/edit?usp=sharing
 
-    included do
+    included do # rubocop:disable Metrics/BlockLength
       after_initialize :set_default_visibility
       def set_default_visibility
         self.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC if new_record?
@@ -493,7 +493,7 @@ module Deepblue
 
       property :type_snre, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/typeSnre") do |index|
         index.as :stored_searchable
-      end  
+      end
 
       # 67  description  thesisdegreename
       property :description_thesisdegreename, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/descriptionThesisdegreename") do |index|
@@ -684,7 +684,7 @@ module Deepblue
       end
 
       # 106  rights       license
-      property :rights_license, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/rightsLicense") do |index|
+      property :rights_license, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/rightsLicense"), multiple: false do |index|
         index.as :stored_searchable
       end
 

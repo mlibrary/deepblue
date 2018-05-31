@@ -1,0 +1,6 @@
+<% rights_license_service = Hyrax::RightsLicenseService.new %>
+<%= f.input :rights_license, as: :select,
+    collection: rights_license_service.select_active_options,
+    include_blank: false,
+    item_helper: rights_license_service.method(:include_current_value),
+    input_html: { class: 'form-control' } %>
