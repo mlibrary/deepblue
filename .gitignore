@@ -24,3 +24,19 @@ dump.rdb
 .byebug_history
 
 .DS_Store
+
+## PROJECT::SPECIFIC
+
+## ASSET PIPELINE
+#.sass-cache/
+public/assets/
+
+## Paperclip assets
+#public/system/
+
+## Sitemap
+#public/sitemap.xml
+
+#./spec/internal
+#./.internal_test_app
+
