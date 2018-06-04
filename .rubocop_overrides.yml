@@ -70,6 +70,9 @@ Rails/Exit:
   Exclude:
     - 'lib/**/*'
 
+Rails/DynamicFindBy:
+  Enabled: false # this seems to recommend changes that cause failures
+
 #Rails/OutputSafety:
 #  Exclude:
 #    - 'spec/presenters/concerns/title_presenter_spec.rb'
@@ -118,6 +121,9 @@ RSpec/NestedGroups:
 #    - 'spec/models/riiif/file_spec.rb'
 
 RSpec/VerifiedDoubles:
+  Enabled: false
+
+Style/Alias:
   Enabled: false
 
 #Style/ClassVars:
