@@ -27,6 +27,14 @@ Rails.application.routes.draw do
     end
   end
 
+  namespace :hyrax,  path: :concern do
+    resources :data_sets do
+      member do
+        post 'tombstone'
+      end
+    end
+  end
+
   mount Blacklight::Engine => '/'
   
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html

@@ -1,4 +1,5 @@
 <h2><%= t('.header') %></h2>
+
 <% if presenter.member_presenters.present? %>
   <table class="table table-striped related-files">
     <thead>
@@ -15,6 +16,7 @@
       <%= render partial: 'member', collection: presenter.member_presenters %>
     </tbody>
   </table>
+
 <% elsif can? :edit, presenter.id %>
     <div class="alert alert-warning" role="alert"><%= t('.empty', type: presenter.human_readable_type) %></div>
 <% end %>

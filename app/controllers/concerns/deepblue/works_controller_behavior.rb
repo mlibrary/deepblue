@@ -4,6 +4,6 @@ module Deepblue
     #in umrdr
     #include Hyrax::Controller
     include Hyrax::WorksControllerBehavior
-       
+
   end
 end
