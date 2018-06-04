@@ -3,6 +3,7 @@
 module Umrdr
   module UmrdrWorkMetadata
     extend ActiveSupport::Concern
+
     included do
 
       property :authoremail, predicate: ::RDF::Vocab::FOAF.mbox, multiple: false do |index|
@@ -79,8 +80,9 @@ module Umrdr
       property :total_file_size, predicate: ::RDF::Vocab::DC.SizeOrDuration, multiple: false
 
       # TODO: can't use the same predicate twice
-      #property :total_file_size_human_readable, predicate: ::RDF::Vocab::DC.SizeOrDuration, multiple: false
+      # property :total_file_size_human_readable, predicate: ::RDF::Vocab::DC.SizeOrDuration, multiple: false
 
     end
+
   end
 end

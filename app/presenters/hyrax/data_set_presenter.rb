@@ -4,20 +4,13 @@ module Hyrax
   class DataSetPresenter < DeepbluePresenter
 
     delegate  :authoremail,
-              :date_coverage,
-              :doi,
               :fundedby,
               :grantnumber,
               :isReferencedBy,
               :methodology,
               :rights_license,
-              :tombstone,
               :total_file_size,
               to: :solr_document
-
-    def authoremail
-      @solr_document.authoremail
-    end
 
     def box_enabled?
       DeepBlueDocs::Application.config.box_integration_enabled
@@ -38,22 +31,18 @@ module Hyrax
       return rv
     end
 
+    # display date range as from_date To to_date
     def date_coverage
-      @solr_document.date_coverage
+      solr_value = @solr_document.date_coverage
+      return nil if solr_value.blank?
+      return solr_value.sub( "/open", "" ) if solr_value.match "/open"
+      solr_value.sub( "/", " to " )
     end
-
-    # # display date range as from_date To to_date
-    # def date_coverage
-    #   return @solr_document.date_coverage.sub("/open", "") if @solr_document.date_coverage&.match("/open")
-    #   @solr_document.date_coverage.sub("/", " to ") if @solr_document.date_coverage
-    # end
 
     def doi
-      @solr_document[Solrizer.solr_name('doi', :symbol)].first
-    end
-
-    def fundedby
-      @solr_document.fundedby
+      solr_value = @solr_document[Solrizer.solr_name('doi', :symbol)]
+      return nil if solr_value.blank?
+      solr_value.first
     end
 
     def globus_external_url
@@ -71,10 +60,6 @@ module Hyrax
       ::GlobusJob.files_prepping? concern_id
     end
 
-    def grantnumber
-      @solr_document.grantnumber
-    end
-
     def hdl
       # @object_profile[:hdl]
     end
@@ -83,52 +68,40 @@ module Hyrax
       ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( value, precision: 3 )
     end
 
-    def identifiers_minted?(_identifier)
-      # the first time this is called, doi will not be solr.
-      @solr_document[Solrizer.solr_name('doi', :symbol)].first
+    def identifiers_minted?
+      !doi.nil?
     rescue
       nil
     end
 
-    def identifiers_pending?(_identifier)
-      @solr_document[Solrizer.solr_name('doi', :symbol)].first == DataSet::PENDING
-    end
-
-    def isReferencedBy # rubocop:disable Style/MethodName
-      @solr_document.isReferencedBy
+    def identifiers_pending?
+      doi == DataSet::PENDING
     end
 
     def label_with_total_file_size( label )
       total = total_file_size
-      if total.zero?
-        label
-      else
-        count = total_file_count
-        files = 1 == count ? 'file' : 'files'
-        "#{label} (#{total_file_size_human_readable} in #{count} #{files})"
-      end
+      return label if total.zero?
+      count = total_file_count
+      files = 1 == count ? 'file' : 'files'
+      "#{label} (#{total_file_size_human_readable} in #{count} #{files})"
     end
 
     def tombstone
-      if @solr_document[Solrizer.solr_name('tombstone', :symbol)].nil?
-        nil
-      else
-        @solr_document[Solrizer.solr_name('tombstone', :symbol)].first
-      end
+      solr_value = @solr_document[Solrizer.solr_name('tombstone', :symbol)]
+      return nil if solr_value.blank?
+      solr_value.first
     end
 
     def total_file_count
-      if @solr_document[Solrizer.solr_name('file_set_ids', :symbol)].nil?
-        0
-      else
-        @solr_document[Solrizer.solr_name('file_set_ids', :symbol)].size
-      end
+      solr_value = @solr_document[Solrizer.solr_name('file_set_ids', :symbol)]
+      return 0 if solr_value.blank?
+      solr_value.size
     end
 
     def total_file_size
-      total = @solr_document[Solrizer.solr_name('total_file_size', Hyrax::FileSetIndexer::STORED_LONG)]
-      total = 0 if total.nil?
-      total
+      solr_value = @solr_document[Solrizer.solr_name('total_file_size', Hyrax::FileSetIndexer::STORED_LONG)]
+      return 0 if solr_value.blank?
+      solr_value
     end
 
     def total_file_size_human_readable

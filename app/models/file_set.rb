@@ -1,15 +1,7 @@
 # frozen_string_literal: true
 
 class FileSet < ActiveFedora::Base
+  include Deepblue::FileSetMetadata # must be before `include ::Hyrax::FileSetBehavior`
   include ::Hyrax::FileSetBehavior
-
-  # include Umrdr::FileSetBehavior
-  #
-  # after_initialize :set_defaults
-  #
-  # def set_defaults
-  #   return unless new_record?
-  #   self.visibility = 'open'
-  # end
-
+  include Deepblue::FileSetBehavior
 end

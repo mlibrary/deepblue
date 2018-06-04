@@ -45,7 +45,7 @@ class NewContentService
       fsets = paths_and_names.map { |fp| build_file_set(fp[0], fp[1]) }
       fsets.each do |fs|
         work.ordered_members << fs
-        # work.total_file_size_add_file_set fs # TODO
+        work.total_file_size_add_file_set fs
         work.representative = fs if work.representative_id.blank?
         work.thumbnail = fs if work.thumbnail_id.blank?
       end

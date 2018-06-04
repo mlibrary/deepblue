@@ -6,7 +6,9 @@ module Deepblue
     #   https://docs.google.com/spreadsheets/d/1koKjV7bjn7v4r5a3gsowEimljHiAwbwuOgjHe7FEtuw/edit?usp=sharing
 
     included do # rubocop:disable Metrics/BlockLength
+
       after_initialize :set_default_visibility
+
       def set_default_visibility
         self.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC if new_record?
       end
@@ -700,7 +702,6 @@ module Deepblue
 
       # END These are ALL the metadata from Dspace
 
-
       # accessor attribute used only to group the nested_geo fields and allow proper ordering in the forms
       attr_accessor :geo_section
 
@@ -713,6 +714,7 @@ module Deepblue
       accepts_nested_attributes_for :based_near, allow_destroy: true, reject_if: proc { |a| a[:id].blank? }
       # accepts_nested_attributes_for :nested_geo, :allow_destroy => true, :reject_if => :all_blank
       # accepts_nested_attributes_for :nested_related_items, :allow_destroy => true, :reject_if => :all_blank
+
     end
   end
 end

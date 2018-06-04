@@ -16,8 +16,9 @@ module Umrdr
       Array(self['file_size_lts']).first # standard lookup Solrizer.solr_name('file_size')] produces solr_document['file_size_tesim']
     end
 
-    def file_size_readable
-      ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( file_size, precision: 3 )
+    def file_size_human_readable
+      size = file_size
+      ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( size, precision: 3 )
     end
 
     def fundedby
@@ -28,8 +29,8 @@ module Umrdr
       Array(self[Solrizer.solr_name('grantnumber')]).first
     end
 
-    def isReferencedBy
-      #Array(self[Solrizer.solr_name('isReferencedBy')]).first
+    def isReferencedBy # rubocop:disable Style/MethodName
+      # Array(self[Solrizer.solr_name('isReferencedBy')]).first
       fetch(Solrizer.solr_name('isReferencedBy'), [])
     end
 
