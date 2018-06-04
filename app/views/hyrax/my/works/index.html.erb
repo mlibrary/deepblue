@@ -1,0 +1,68 @@
+<% provide :page_title, t("hyrax.admin.sidebar.works") %>
+
+<% provide :head do %>
+  <%= rss_feed_link_tag route_set: hyrax %>
+  <%= atom_feed_link_tag route_set: hyrax %>
+<% end %>
+
+<script>
+//<![CDATA[
+
+  <%= render partial: 'scripts', formats: [:js] %>
+
+//]]>
+</script>
+
+<% provide :page_header do %>
+  <h1><span class="fa fa-file"></span> <%= t("hyrax.admin.sidebar.works") %></h1>
+  <% if current_ability.can_create_any_work? %>
+    <div class="pull-right">
+      <% if @create_work_presenter.many? && !Flipflop.only_use_data_set_work_type?  %>
+        <% if Flipflop.batch_upload? %>
+          <%= link_to(
+                t(:'helpers.action.batch.new'),
+                '#',
+                data: { behavior: "select-work", target: "#worktypes-to-create", 'create-type' => 'batch' },
+                class: 'btn btn-primary'
+              ) %>
+        <% end %>
+        <%= link_to(
+              t(:'helpers.action.work.new'),
+              '#',
+              data: { behavior: "select-work", target: "#worktypes-to-create", 'create-type' => 'single' },
+              class: 'btn btn-primary'
+            ) %>
+      <% else # simple link to the first work type %>
+        <% if Flipflop.batch_upload? %>
+          <%= link_to(
+              t(:'helpers.action.batch.new'),
+              hyrax.new_batch_upload_path(payload_concern: @create_work_presenter.first_model),
+              class: 'btn btn-primary'
+              ) %>
+        <% end %>
+        <%= link_to(
+              t(:'helpers.action.work.new'),
+              new_polymorphic_path([main_app, @create_work_presenter.first_model]),
+              class: 'btn btn-primary'
+            ) %>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="panel panel-default <%= 'tabs' if current_page?(hyrax.dashboard_works_path(locale: nil)) || @managed_works_count > 0 %>">
+      <%= render 'tabs' if current_page?(hyrax.dashboard_works_path(locale: nil)) || @managed_works_count > 0 %>
+      <div class="panel-body">
+        <%= render 'search_header' %>
+        <h2 class="sr-only">Works listing</h2>
+        <%= render 'document_list' %>
+
+        <%= render 'results_pagination' %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= render '/shared/select_work_type_modal', create_work_presenter: @create_work_presenter if @create_work_presenter.many? && !Flipflop.only_use_data_set_work_type? %>
