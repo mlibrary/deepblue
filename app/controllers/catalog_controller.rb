@@ -31,7 +31,8 @@ class CatalogController < ApplicationController
     config.default_solr_params = {
       qt: "search",
       rows: 10,
-      qf: "title_tesim description_tesim creator_tesim keyword_tesim"
+      # qf: "title_tesim description_tesim creator_tesim keyword_tesim"
+      qf: "title_tesim name_tesim creator_tesim description_tesim grantnumber_tesim methodology_tesim subject_tesim keyword_tesim all_text_timv"
     }
 
     # solr field configuration for document/show views
@@ -77,10 +78,11 @@ class CatalogController < ApplicationController
     config.add_index_field solr_name("language", :stored_searchable), itemprop: 'inLanguage', link_to_search: solr_name("language", :facetable)
     config.add_index_field solr_name("date_uploaded", :stored_sortable, type: :date), itemprop: 'datePublished', helper_method: :human_readable_date
     config.add_index_field solr_name("date_modified", :stored_sortable, type: :date), itemprop: 'dateModified', helper_method: :human_readable_date
-    config.add_index_field solr_name("date_created", :stored_searchable), itemprop: 'dateCreated'
+    config.add_index_field solr_name("date_created", :stored_searchable), itemprop: 'dateCreated', helper_method: :human_readable_date
     config.add_index_field solr_name("rights_license", :stored_searchable), helper_method: :rights_license_links
     config.add_index_field solr_name("rights_statement", :stored_searchable), helper_method: :rights_statement_links
     config.add_index_field solr_name("license", :stored_searchable), helper_method: :license_links
+    config.add_index_field "total_file_size_lts", label: "Total File Size", helper_method: :human_readable_file_size
     config.add_index_field solr_name("resource_type", :stored_searchable), label: "Resource Type", link_to_search: solr_name("resource_type", :facetable)
     config.add_index_field solr_name("file_format", :stored_searchable), link_to_search: solr_name("file_format", :facetable)
     config.add_index_field solr_name("identifier", :stored_searchable), helper_method: :index_field_link, field_name: 'identifier'
@@ -104,6 +106,7 @@ class CatalogController < ApplicationController
     config.add_show_field solr_name("rights_license", :stored_searchable)
     config.add_show_field solr_name("rights_statement", :stored_searchable)
     config.add_show_field solr_name("license", :stored_searchable)
+    config.add_show_field "total_file_size_lts"
     config.add_show_field solr_name("resource_type", :stored_searchable), label: "Resource Type"
     config.add_show_field solr_name("format", :stored_searchable)
     config.add_show_field solr_name("identifier", :stored_searchable)
@@ -283,6 +286,14 @@ class CatalogController < ApplicationController
       }
     end
 
+    config.add_search_field('total_file_size') do |field|
+      solr_name = solr_name("total_file_size", :stored_searchable)
+      field.solr_local_parameters = {
+        qf: solr_name,
+        pf: solr_name
+      }
+    end
+
     # "sort results by" select (pulldown)
     # label in pulldown is followed by the name of the SOLR field to sort by and
     # whether the sort is ascending or descending (it must be asc or desc
@@ -305,4 +316,5 @@ class CatalogController < ApplicationController
   def render_bookmarks_control?
     false
   end
+
 end
