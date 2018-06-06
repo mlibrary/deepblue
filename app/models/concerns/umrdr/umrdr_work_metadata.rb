@@ -16,7 +16,7 @@ module Umrdr
         index.as :stored_searchable
       end
 
-      property :date_coverage, predicate: ::RDF::Vocab::DC.temporal, multiple: true do |index|
+      property :date_coverage, predicate: ::RDF::Vocab::DC.temporal, multiple: false do |index|
         index.type :text
         index.as :stored_searchable, :facetable
       end
@@ -28,7 +28,7 @@ module Umrdr
 
       property :doi, predicate: ::RDF::Vocab::Identifiers.doi, multiple: false
 
-      property :fundedby, predicate: ::RDF::Vocab::DISCO.fundedBy, multiple: true do |index|
+      property :fundedby, predicate: ::RDF::Vocab::DISCO.fundedBy, multiple: false do |index|
         index.type :text
         index.as :stored_searchable
       end
@@ -65,7 +65,10 @@ module Umrdr
         index.as :stored_searchable
       end
 
-      property :subject, predicate: ::RDF::Vocab::MODS.subject
+      property :subject_discipline, predicate: ::RDF::Vocab::MODS.subject, multiple: true do |index|
+        index.type :text
+        index.as :stored_searchable
+      end
 
       property :title_ordered, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#title_ordered'), multiple: false do |index|
         index.type :text

@@ -1,25 +1,30 @@
-<%# # See: for attribute_to_html parameter details, see Hyrax gem pp/presenters/hyrax/presents_attributes.rb %>
-<%# # parameters: include_empty, label, render_as, search_field, work_type %>
-<%= presenter.attribute_to_html(:date_modified, label: t('hyrax.base.show.last_modified')) %>
-<%= presenter.attribute_to_html(:creator, render_as: :faceted) %>
-<%= presenter.attribute_to_html(:authoremail, render_as: :faceted, label: "Depositor", work_type: "DataSet" ) %>
+<%# See: for attribute_to_html parameter details, see Hyrax gem pp/presenters/hyrax/presents_attributes.rb %>
+<%# parameters: include_empty, label, render_as, search_field, work_type %>
+<%= presenter.attribute_to_html(:date_modified, label: t('hyrax.base.show.last_modified') ) %>
+<%= presenter.attribute_to_html(:creator, render_as: :faceted, label: t('show.label.creator') ) %>
+<%= presenter.attribute_to_html(:authoremail, render_as: :faceted, label: t('show.label.authoremail'), work_type: "DataSet" ) %>
 <%= presenter.attribute_to_html(:contributor, render_as: :faceted) %>
-<%= presenter.attribute_to_html(:subject, render_as: :faceted) %>
+<%= presenter.attribute_to_html(:subject, render_as: :faceted, label: t('show.label.subject')) %>
+<%= presenter.attribute_to_html(:subject_discipline, render_as: :faceted, label: t('show.label.subject_discipline')) %>
 <%= presenter.attribute_to_html(:publisher, render_as: :faceted) %>
-<%= presenter.attribute_to_html(:language, render_as: :faceted) %>
+<%= presenter.attribute_to_html(:language, render_as: :faceted, label: t('show.label.language') ) %>
 <%= presenter.attribute_to_html(:identifier, render_as: :linked, search_field: 'identifier_tesim') %>
 <%= presenter.attribute_to_html(:keyword, render_as: :faceted) %>
-<%= presenter.attribute_to_html(:date_created, render_as: :date_attribute ) %>
-<%= presenter.attribute_to_html(:date_coverage) %>
+<%= presenter.attribute_to_html(:date_created, render_as: :date_attribute, label: t('show.label.date_created') ) %>
+<%= presenter.attribute_to_html(:date_coverage, label: t('show.label.date_coverage') ) %>
 <%= presenter.attribute_to_html(:based_near_label) %>
 <%= presenter.attribute_to_html(:related_url, render_as: :external_link) %>
 <%= presenter.attribute_to_html(:resource_type, render_as: :faceted) %>
 <%= presenter.attribute_to_html(:source) %>
-<%= presenter.attribute_to_html(:rights_license, render_as: :rights_license, label: "Rights", work_type: "DataSet" ) %>
-<%= presenter.attribute_to_html(:rights_statement, render_as: :rights_statement) %>
-<%= presenter.attribute_to_html(:doi, work_type: "DataSet" ) %>
-<%= presenter.attribute_to_html(:total_file_size_human_readable, label: "Total file size" ) %>
-<%= presenter.attribute_to_html(:total_file_count) %>
+<%= presenter.attribute_to_html(:rights_license, render_as: :rights_license, label: t('show.label.rights_license'), work_type: "DataSet" ) %>
+<%= presenter.attribute_to_html(:rights_statement, render_as: :rights_statement ) %>
+<%= presenter.attribute_to_html(:doi, label: t('show.label.doi'), work_type: "DataSet" ) %>
+<%= presenter.attribute_to_html(:total_file_size_human_readable, label: t('show.label.total_file_size_human_readable') ) %>
+<%= presenter.attribute_to_html(:total_file_count ) %>
+<%= presenter.attribute_to_html(:fundedby, label: t('show.label.fundedby') ) %>
+<%= presenter.attribute_to_html(:grantnumber, label: t('show.label.grantnumber') ) %>
+<%= presenter.attribute_to_html(:isReferencedBy, label: t('show.label.isReferencedBy') ) %>
+<%= presenter.attribute_to_html(:methodology, label: t('show.label.methodology') ) %>
 <%# "secondary" attributes %>
 <%= presenter.attribute_to_html(:identifier_orcid) %>
 <%= presenter.attribute_to_html(:academic_affiliation) %>
@@ -37,4 +42,4 @@
 <%= presenter.attribute_to_html(:description_mapping) %>
 <%= presenter.attribute_to_html(:description_abstract) %>
 <%= presenter.attribute_to_html(:description_sponsorship) %>
-<%= presenter.attribute_to_html(:description) %>
+<%# This is actually included just below the title, but is not labeled #= presenter.attribute_to_html(:description) %>

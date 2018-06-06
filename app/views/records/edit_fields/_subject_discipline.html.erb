@@ -1,0 +1,7 @@
+<% subject_discipline_service = Hyrax::SubjectDisciplineService.new %>
+<%= f.input :subject_discipline,
+            as: :multi_value_select,
+            collection: subject_discipline_service.select_active_options,
+            include_blank: true,
+            item_helper: subject_discipline_service.method(:include_current_value),
+            input_html: { class: 'form-control' } %>

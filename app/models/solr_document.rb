@@ -51,12 +51,32 @@ class SolrDocument
     ScholarsArchive::LabelParserService.parse_label_uris(self['degree_grantors_label_ssim'])
   end
 
+  def doi_label
+    self['doi_label_ssim']
+  end
+
+  def fundedby_label
+    self['fundedby_label_ssim']
+  end
+
+  def grantnumber_label
+    self['grantnumber_label_ssim']
+  end
+
+  def isReferencedBy_label # rubocop:disable Style/MethodName
+    self['isReferencedBy_label_ssim']
+  end
+
   def language_label
     self['language_label_ssim']
   end
 
   def license_label
     self['license_label_ssim']
+  end
+
+  def methodology_label
+    self['methodology_label_ssim']
   end
 
   def nested_geo
@@ -81,6 +101,10 @@ class SolrDocument
 
   def rights_statement_label
     self['rights_statement_label_ssim']
+  end
+
+  def subject_discipline_label
+    self['subject_discipline_label_ssim']
   end
 
   def system_created
@@ -130,9 +154,11 @@ class SolrDocument
     'embargo_reason',
     'file_extent',
     'file_format',
+    'fundedby',
     'funding_body',
     'funding_statement',
     'graduation_year',
+    'grantnumber',
     'has_journal',
     'has_number',
     'has_volume',
@@ -145,14 +171,17 @@ class SolrDocument
     'interactivity_type',
     'is_based_on_url',
     'is_referenced_by',
+    'isReferencedBy',
     'isbn',
     'issn',
     'language',
     'learning_resource_type',
+    'methodology',
     'other_affiliation',
     'relation_ispartofseries',
     'replaces',
     'rights_license',
+    'subject_discipline',
     'subject_other',
     'tableofcontents',
     'time_required',

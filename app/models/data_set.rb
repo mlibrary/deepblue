@@ -15,12 +15,12 @@ class DataSet < ActiveFedora::Base
   include Umrdr::UmrdrWorkBehavior
   include Umrdr::UmrdrWorkMetadata
 
-  validates :title, presence: { message: 'Your work must have a title.' }
-  # validates :creator, presence: { message: 'Your work must have a creator.' }
-  validates :description, presence: { message: 'Your work must have a description.' }
-  # validates :methodology, presence: { message: 'Your work must have a description of the method for collecting the dataset.' }
-  validates :rights_license, presence: { message: 'You must select a license for your work.' }
   validates :authoremail, presence: { message: 'You must have author contact information.' }
+  validates :creator, presence: { message: 'Your work must have a creator.' }
+  validates :description, presence: { message: 'Your work must have a description.' }
+  validates :methodology, presence: { message: 'Your work must have a description of the method for collecting the dataset.' }
+  validates :rights_license, presence: { message: 'You must select a license for your work.' }
+  validates :title, presence: { message: 'Your work must have a title.' }
 
   ## begin `rails generate hyrax:work DataSet`
   # This must be included at the end, because it finalizes the metadata
@@ -54,7 +54,7 @@ class DataSet < ActiveFedora::Base
     return values
   end
 
-  def creator=(values)
+  def creator=( values )
     self.creator_ordered = MetadataHelper.ordered_values( ordered_values: creator_ordered, values: values )
     super values
   end
@@ -66,7 +66,7 @@ class DataSet < ActiveFedora::Base
     return values
   end
 
-  def description=(values)
+  def description=( values )
     self.description_ordered = MetadataHelper.ordered_values( ordered_values: description_ordered, values: values )
     super values
   end
@@ -85,20 +85,20 @@ class DataSet < ActiveFedora::Base
   #
   #   save
   # end
+
   #
-  # #
-  # # handle the list of isReferencedBy as ordered
-  # #
-  # def isReferencedBy
-  #   values = super
-  #   values = MetadataHelper.ordered( ordered_values: self.isReferencedBy_ordered, values: values )
-  #   return values
-  # end
+  # handle the list of isReferencedBy as ordered
   #
-  # def isReferencedBy= values
-  #   self.isReferencedBy_ordered = MetadataHelper.ordered_values( ordered_values: self.isReferencedBy_ordered, values: values )
-  #   super values
-  # end
+  def isReferencedBy # rubocop:disable Style/MethodName
+    values = super
+    values = MetadataHelper.ordered( ordered_values: isReferencedBy_ordered, values: values )
+    return values
+  end
+
+  def isReferencedBy=( values ) # rubocop:disable Style/MethodName
+    self.isReferencedBy_ordered = MetadataHelper.ordered_values( ordered_values: isReferencedBy_ordered, values: values )
+    super values
+  end
 
   #
   # the list of keyword is ordered
@@ -109,24 +109,24 @@ class DataSet < ActiveFedora::Base
     return values
   end
 
-  def keyword=(values)
+  def keyword=( values )
     self.keyword_ordered = MetadataHelper.ordered_values( ordered_values: keyword_ordered, values: values )
     super values
   end
 
-  # #
-  # # handle the list of language as ordered
-  # #
-  # def language
-  #   values = super
-  #   values = MetadataHelper.ordered( ordered_values: self.language_ordered, values: values )
-  #   return values
-  # end
   #
-  # def language= values
-  #   self.language_ordered = MetadataHelper.ordered_values( ordered_values: self.language_ordered, values: values )
-  #   super values
-  # end
+  # handle the list of language as ordered
+  #
+  def language
+    values = super
+    values = MetadataHelper.ordered( ordered_values: language_ordered, values: values )
+    return values
+  end
+
+  def language=( values )
+    self.language_ordered = MetadataHelper.ordered_values( ordered_values: language_ordered, values: values )
+    super values
+  end
 
   # hthe list of title is ordered
   def title
@@ -135,7 +135,7 @@ class DataSet < ActiveFedora::Base
     return values
   end
 
-  def title=(values)
+  def title=( values )
     self.title_ordered = MetadataHelper.ordered_values( ordered_values: title_ordered, values: values )
     super values
   end

@@ -1,64 +1,129 @@
 en:
   hyrax:
     icons:
-      data_set:     'fa fa-file-text-o'
+      data_set:               'fa fa-file-text-o'
     select_type:
       data_set:
         description:          "Data set works"
         name:                 "Data Set"
+  show:
+    label:
+      authoremail:          "Contact information"
+      creator:              "Creator"
+      date_coverage:        "Date coverage"
+      date_created:         "Date created"
+      doi:                  "DOI"
+      fundedby:             "Funding agency"
+      grantnumber:          "ORSP grant number"
+      isReferencedBy:       "Citations"
+      language:             "Language"
+      methodology:          "Method"
+      rights_license:       "CC License"
+      subject_discipline:   "Discipline"
+      total_file_size:      "Total file size"
+      total_file_size_human_readable: "Total file size"
   simple_form:
     labels:
       defaults:
+        authoremail:          "Contact Information"
         admin_set_id:         "Add as member of administrative set"
         based_near:           "Location"
         collection_ids:       "Add as member of collection"
         contributor:          "Contributor"
         creator:              "Creator"
+        date_coverage:        "Date Coverage"
+        date_coverage_end:    "End Date"
+        date_coverage_start:  "Start Date"
         date_created:         "Date Created"
+        description:          "Description"
         description_abstract: "Abstract or Summary"
+        doi:                  "DOI"
         files:                "Upload a new version of this file from your computer"
+        fundedby:             "Funding Agency"
+        grantnumber:          "ORSP Grant Number"
+        hdl:                  "Handle"
         identifier:           "Identifier"
+        isReferencedBy:       "Citation to related material"
         keyword:              "Keyword"
         language:             "Language"
+        methodology:          "Method"
+        on_behalf_of:         "Deposit on behalf of"
         related_url:          "Related URL"
         resource:             "Resource"
         rights_license:       "Creative Commons License"
+        subject_discipline:   "Discipline"
         subject_other:        "Subject"
+        tag:                  "Keywords"
         title:                "Title"
-
     hints:
       defaults:
+        authoremail: >
+          Enter the contact information (email address) for the individual who can best respond to questions about the
+          Work.
         based_near: >
           A place name related to the work, such as its site of publication, or the city, state, or country the work
           contents are about. Calls upon the <a href='http://www.geonames.org'>GeoNames web service</a>.
         contributor: >
-          A person or group you want to recognize for playing a role in the creation of the work, but not the primary
-          role.
+          Person or organization outside the Creator role who have contributed to the work in some way
+          (e.g., interns, other non-authors/creators).
         creator: >
           The person or group responsible for the work. Usually this is the author of the content. Personal names should
           be entered with the last name first, e.g. &quot;Smith, John.&quot;.
-        date_created: "The date on which the work was generated."
-        description: "Description"
-        description_abstract: >
-          Free-text notes about the work. Examples include abstracts of a paper or citation information for a journal
-          article.
+        creator: >
+          List the name(s) of the person(s) and/or organization(s) responsible for creating the Work; for names, use the
+          following format: Last name, First name MI.
+        date_coverage: >
+          Select the dates that correspond to the span of time that the data were collected and processed.
+        date_created: >
+          The date the work’s data was created, as determined by the creator.
+        describe_work: >
+          Please provide information about your data set (referred to as a "work") in the following fields, keeping in
+          mind that your responses will enable people to discover, identify, and understand your data. If you are
+          uncertain of how to complete any of these fields, we recommend that you read or refer to the
+          <a href="/data/metadata-guidance">Guide to Metadata</a> in Deep Blue Data’s Help pages.
+        description: >
+          Provide a general description of the research that produced this data, as well as an account of the individual
+          data files and how they are related.
+        fundedby: >
+          Select the primary funding agency that supported the research and data collection from the drop-down list.
+        grantnumber: >
+          If you have one, provide the grant number that was assigned by the University of Michigan’s Office of Research
+          and Sponsored Projects (ORSP).
         identifier: >
           A unique handle identifying the work. An example would be a DOI for a journal article, or an ISBN or OCLC
           number for a book.
+        isReferencedBy: >
+          Include a citation, URL, or DOI for any publications that make use of or refer to this dataset.
         keyword: >
-          Words or phrases you select to describe what the work is about. These are used to search for content.
-        language: "The language of the work's content."
+          Enter any terms or topics related to the research subject or methods that you would like associated with the
+          Work.
+        language: >
+          List the language(s) in which the data and supplementary content are written; these could be spoken languages
+          or formal languages, such as programming languages.
+        methodology: >
+          Explain the methods you used to collect and process the data included in this Work.
+        on_behalf_of_html: >
+           If you are depositing data on behalf of someone else, please select the email of that person below.
+           <a href="/data/dashboard">More information on proxies</a>
         publisher: >
-          The person or group making the work available. Generally this is the institution.
+          The person, organization or service responsible for making the work available. (Format: Last name, First name)
         related_url: >
           A link to a website or other specific content (audio, video, PDF document) related to the work. An example is
           the URL of a research project from which the work was derived.
         resource: >
           Pre-defined categories to describe the type of content being uploaded, such as &quot;article&quot; or
           &quot;dataset.&quot;  More than one type may be selected.
+        resource_type: >
+          The file format and/or physical medium of datasets contained in the work.
         rights_license: >
           Select a licensing and distribution option that will govern use of the Work.
-        subject: >
-          Headings or index terms describing what the work is about; these do need to conform to an existing vocabulary.
-        subject_other: "Subject Other"
-        title: "A name to aid in identifying a work."
+        rights_license_html: >
+          Depositors must choose to apply one of the following
+          <a href="https://creativecommons.org/licenses/" target="_blank">Creative Commons licenses</a> to the data.
+        subject_discipline: >
+          Select the disciplines(s) associated with the research for which the data were collected.
+        subject_other: >
+          Subject Other
+        title: >
+          Provide a descriptive name for the Work. Consider including the words “data” or “dataset” and terms related to
+          the methods, discipline, and topic associated with your research.

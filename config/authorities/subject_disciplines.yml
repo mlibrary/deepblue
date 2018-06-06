@@ -1,0 +1,25 @@
+terms:
+    - id: Arts 
+      term: Arts
+    - id: Business
+      term: Business
+    - id: Engineering
+      term: Engineering
+    - id: General Information Sources
+      term: General Information Sources
+    - id: Government, Politics and Law
+      term: Government, Politics and Law
+    - id: Health Sciences
+      term: Health Sciences
+    - id: Humanities
+      term: Humanities
+    - id: International Studies
+      term: International Studies
+    - id: News and Current Events 
+      term: News and Current Events
+    - id: Science
+      term: Science
+    - id: Social Sciences
+      term: Social Sciences
+    - id: Other
+      term: Other 
