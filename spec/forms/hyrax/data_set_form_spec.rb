@@ -22,24 +22,26 @@ RSpec.describe Hyrax::DataSetForm do
   let( :expected_required_fields ) { %i[
     title
     creator
-    resource_type
     authoremail
+    methodology
     description
     rights_license
+    subject_discipline
   ] }
   let( :expected_primary_terms ) { %i[
     title
     creator
-    contributor
-    description_abstract
-    resource_type
-    identifier
-    subject
     authoremail
-    date_coverage
+    methodology
     description
-    keyword
+    date_coverage
     rights_license
+    subject_discipline
+    fundedby
+    grantnumber
+    keyword
+    language
+    isReferencedBy
   ] }
 
   describe "#required_fields" do
@@ -68,10 +70,11 @@ RSpec.describe Hyrax::DataSetForm do
                                   :visibility_during_lease,
                                   :lease_expiration_date,
                                   :visibility_arights_statementfter_lease,
-                                  :collection_ids )
+                                  :collection_ids,
+                                  :additional_information )
       is_expected.not_to include( *expected_required_fields )
       is_expected.not_to include( *expected_primary_terms )
-      is_expected.to include( :additional_information )
+      # is_expected.to include( :additional_information )
     end
   end
 

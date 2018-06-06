@@ -42,6 +42,10 @@ module Umrdr
       Array(self[Solrizer.solr_name('original_checksum')]).first
     end
 
+    def subject_discipline
+      fetch(Solrizer.solr_name('subject_discipline'), [])
+    end
+
     def tombstone
       Array(self[Solrizer.solr_name('tombstone')]).first
     end

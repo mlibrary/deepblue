@@ -124,9 +124,13 @@ class NewContentService
                        else
                          work_hash[:rights_license]
                        end
-      desc = Array(work_hash[:description])
+      description = Array(work_hash[:description])
       methodology = work_hash[:methodology] || "No Methodology Available"
-      subject = Array(work_hash[:subject])
+      subject_discipline = if 'DBDv1' == source
+                             Array( work_hash[:subject] )
+                           else
+                             Array( work_hash[:subject_discipline] )
+                           end
       contributor = Array(work_hash[:contributor])
       date_uploaded = work_hash[:date_uploaded]
       date_uploaded = DateTime.now.to_s if date_uploaded.to_s.empty?
@@ -134,20 +138,22 @@ class NewContentService
       date_modified = DateTime.now.to_s if date_modified.to_s.empty?
       date_created = work_hash[:date_created]
       date_created = DateTime.now.to_s if date_created.to_s.empty?
-      date_coverage = Array(work_hash[:date_coverage])
-      rtype = Array(work_hash[:resource_type] || 'Dataset')
+      date_coverage = work_hash[:date_coverage]
+      resource_type = Array(work_hash[:resource_type] || 'Dataset')
       language = Array(work_hash[:language])
       keyword = Array(work_hash[:keyword])
       isReferencedBy = Array(work_hash[:isReferencedBy]) # rubocop:disable Style/VariableName
+      fundedby = work_hash[:fundedby]
+      grantnumber = work_hash[:grantnumber]
 
       work = DataSet.new( title: title,
                           creator: creator,
                           authoremail: authoremail,
                           rights_license: rights_license,
-                          description: desc,
-                          resource_type: rtype,
+                          description: description,
+                          resource_type: resource_type,
                           methodology: methodology,
-                          subject: subject,
+                          subject_discipline: subject_discipline,
                           contributor: contributor,
                           date_uploaded: date_uploaded,
                           date_modified: date_modified,
@@ -155,7 +161,9 @@ class NewContentService
                           date_coverage: date_coverage,
                           language: language,
                           keyword: keyword,
-                          isReferencedBy: isReferencedBy )
+                          isReferencedBy: isReferencedBy,
+                          fundedby: fundedby,
+                          grantnumber: grantnumber )
 
       add_file_sets_to_work( work_hash, work )
       work.apply_depositor_metadata( user_key )

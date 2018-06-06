@@ -521,14 +521,14 @@ module Hyrax
         creator     = MsgHelper.creator( curation_concern )
         description = MsgHelper.description( curation_concern )
         publisher   = MsgHelper.publisher( curation_concern )
-        subject     = MsgHelper.subject( curation_concern )
+        subject     = MsgHelper.subject_discipline( curation_concern )
         # rubocop:disable Style/LineEndConcatenation
         msg = "#{prefix}WORK #{action.capitalize}: (#{location}) by + #{creator} with #{curation_concern.visibility} access was #{action}" +
               " title: #{title} " + modified.to_s +
-              ", rights: #{curation_concern.rights[0]}" +
+              ", rights: #{curation_concern.rights_license[0]}" +
               ", methodology: #{curation_concern.methodology}" +
               ", publisher: #{publisher}" +
-              ", subject: #{subject}" +
+              ", discipline: #{subject}" +
               ", description: #{description}" +
               ", admin set id: #{curation_concern.admin_set_id}"
         # rubocop:enable Style/LineEndConcatenation

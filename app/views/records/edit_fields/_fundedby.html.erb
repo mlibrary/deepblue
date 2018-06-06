@@ -1,0 +1,7 @@
+<% fundedby_service = Hyrax::FundedbyService.new %>
+<%= f.input :fundedby,
+            as: :select,
+            collection: fundedby_service.select_active_options,
+            include_blank: true,
+            item_helper: fundedby_service.method(:include_current_value),
+            input_html: { class: 'form-control' } %>

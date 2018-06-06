@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::DataSetsController do
+RSpec.describe Hyrax::DataSetsController do # rubocop:disable RSpec/EmptyExampleGroup
 
   # before(:all ) do
   #   puts "DataSet ids before=#{DataSet.all.map { |ds| ds.id }}"
@@ -25,7 +25,7 @@ RSpec.describe Hyrax::DataSetsController do
     sign_in user
   end
 
-  context 'someone elses private work' do
+  context 'someone elses private work' do # rubocop:disable RSpec/EmptyExampleGroup
     # let(:work) { create(:private_data_set) }
     #
     # it 'shows unauthorized message' do

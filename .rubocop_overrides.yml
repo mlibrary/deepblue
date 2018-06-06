@@ -43,10 +43,11 @@ Metrics/BlockLength:
   Enabled: true
   Max: 295 # default is 25
 
-#Metrics/ClassLength:
-#  Exclude:
-#    - 'app/controllers/catalog_controller.rb'
-#    - 'app/presenters/hyrax/file_set_presenter.rb'
+Metrics/ClassLength:
+  # Enabled: true
+  # Max: 1000 # default is 100
+  Exclude:
+   - 'app/controllers/catalog_controller.rb'
 
 Metrics/CyclomaticComplexity:
   Exclude:

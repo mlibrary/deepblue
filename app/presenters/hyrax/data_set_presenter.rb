@@ -9,6 +9,7 @@ module Hyrax
               :isReferencedBy,
               :methodology,
               :rights_license,
+              :subject_discipline,
               :total_file_size,
               to: :solr_document
 
@@ -35,7 +36,7 @@ module Hyrax
     def date_coverage
       solr_value = @solr_document.date_coverage
       return nil if solr_value.blank?
-      return solr_value.sub( "/open", "" ) if solr_value.match "/open"
+      return solr_value.sub( "/open", "" ) if solr_value.match "/open" # rubocop:disable Performance/RedundantMatch
       solr_value.sub( "/", " to " )
     end
 

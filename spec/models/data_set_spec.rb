@@ -10,7 +10,7 @@ RSpec.describe DataSet do
     # end
 
     it 'has subject property' do
-      expect(subject).to respond_to(:subject)
+      expect(subject).to respond_to(:subject_discipline)
     end
 
     it 'has identifier properties' do

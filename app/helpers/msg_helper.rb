@@ -22,8 +22,8 @@ module MsgHelper
     curration_concern.publisher.join( field_sep )
   end
 
-  def self.subject( curration_concern, field_sep: @@FIELD_SEP )
-    curration_concern.subject.join( field_sep )
+  def self.subject_discipline( curration_concern, field_sep: @@FIELD_SEP )
+    curration_concern.subject_discipline.join( field_sep )
   end
 
   def self.title( curration_concern, field_sep: @@FIELD_SEP )
