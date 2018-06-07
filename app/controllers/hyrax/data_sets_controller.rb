@@ -48,6 +48,12 @@ module Hyrax
       box_create_dir_and_add_collaborator
     end
 
+    def tombstone
+      curation_concern.entomb!(params[:tombstone])
+      msg = "Tombstoned: " + "#{curation_concern.title.first}" + " for this reason: " + "#{curation_concern.tombstone.first}" 
+      redirect_to dashboard_works_path, notice: msg
+    end
+
     ## end box integration
 
     ## Changes in visibility

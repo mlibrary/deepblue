@@ -1,4 +1,29 @@
 en:
+  data_set:
+    doi_already_exists:
+      "A DOI already exists or is being minted."
+    doi_job_started:
+      "DOI process kicked off for work id: %{id}"
+    doi_requires_work_with_files:
+      "DOI cannot be minted for a work without files."
+    globus_clean:
+      "Files are being delete from %{dirs}"
+    globus_clean_join_html:
+      "<br/>&nbsp;&nbsp;&nbsp;&nbsp;and "
+    globus_file_prep_started:
+      "Files have started copying to Globus. %{when_available}"
+    globus_files_available_here:
+      "Files are available for download using Globus here: %{globus_url}"
+    globus_files_prepping:
+      "Files are currently being copied to Globus. %{when_available}"
+    globus_files_when_available:
+      "Please check back later."
+    globus_files_when_available_email:
+      "%{user_email} will be sent an email when the files are available for download via Globus."
+    globus_success:
+      'Your dowload all files to Globus was successful!'
+    tombstone_notice:
+      "Tombstoned: \"%{title}\" for this reason: %{reason}"
   hyrax:
     icons:
       data_set:               'fa fa-file-text-o'
