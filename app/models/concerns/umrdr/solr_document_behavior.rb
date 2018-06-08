@@ -25,6 +25,10 @@ module Umrdr
       Array(self[Solrizer.solr_name('fundedby')]).first
     end
 
+    def doi
+      Array(self[Solrizer.solr_name('doi')]).first
+    end
+
     def grantnumber
       Array(self[Solrizer.solr_name('grantnumber')]).first
     end
