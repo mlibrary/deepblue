@@ -6,11 +6,18 @@ class FileSet < ActiveFedora::Base
   include ::Deepblue::FileSetBehavior
   include ::Deepblue::ProvenanceBehavior
 
+  before_destroy :provenance_before_destroy_file_set
+
+  def provenance_before_destroy_file_set
+    provenance_destroy( current_user: '' ) # , event_note: 'provenance_before_destroy_file_set' )
+  end
+
   def attributes_all_for_provenance
     %i[
       date_created
       date_modified
       date_uploaded
+      extracted_text
       file_extension
       files_count
       label
@@ -19,6 +26,7 @@ class FileSet < ActiveFedora::Base
       original_checksum
       original_name
       parent_id
+      title
       uri
       visibility
     ]
@@ -26,6 +34,7 @@ class FileSet < ActiveFedora::Base
 
   def attributes_brief_for_provenance
     %i[
+      title
       label
       parent_id
       file_extension
@@ -38,6 +47,10 @@ class FileSet < ActiveFedora::Base
       return f if f.original_name.present?
     end
     nil
+  end
+
+  def for_provenance_route
+    Rails.application.routes.url_helpers.hyrax_file_set_path( id: id )
   end
 
   def map_provenance_attributes_override!( event:, # rubocop:disable Lint/UnusedMethodArgument
@@ -62,7 +75,7 @@ class FileSet < ActiveFedora::Base
                 value = parent.id unless parent.nil?
                 true
               when 'original_checksum'
-                value = original_checksum
+                value = original_checksum.blank? ? '' : original_checksum[0]
                 true
               when 'original_name'
                 value = original_file.original_name

@@ -2,36 +2,13 @@
 
 module Deepblue
 
-  class ProvenanceLogError < RuntimeError
+  require_relative './abstract_event_behavior'
+
+  class ProvenanceLogError < AbstractEventError
   end
 
   module ProvenanceBehavior
-
-    EVENT_ADD               = 'add'
-    EVENT_CHARACTERIZE      = 'characterize'
-    EVENT_CREATE            = 'create'
-    EVENT_CREATE_DERIVATIVE = 'create_derivative'
-    EVENT_DESTROY           = 'destroy'
-    EVENT_INGEST            = 'ingest'
-    EVENT_MINT_DOI          = 'mint_doi'
-    EVENT_PUBLISH           = 'publish'
-    EVENT_TOMBSTONE         = 'tombstone'
-    EVENT_UPDATE            = 'update'
-    EVENT_UPLOAD            = 'upload'
-    EVENTS                  =
-      [
-        EVENT_ADD,
-        EVENT_CHARACTERIZE,
-        EVENT_CREATE,
-        EVENT_CREATE_DERIVATIVE,
-        EVENT_DESTROY,
-        EVENT_INGEST,
-        EVENT_MINT_DOI,
-        EVENT_PUBLISH,
-        EVENT_TOMBSTONE,
-        EVENT_UPDATE,
-        EVENT_UPLOAD
-      ].freeze
+    include AbstractEventBehavior
 
     def attributes_all_for_provenance
       []
@@ -85,6 +62,42 @@ module Deepblue
       attributes_all_for_provenance
     end
 
+    def attributes_cache_fetch( event:, id: for_provenance_id )
+      key = attributes_cache_key( event: event, id: id )
+      rv = Rails.cache.fetch( key )
+      rv
+    end
+
+    def attributes_cache_key( event:, id: )
+      "#{id}.#{event}"
+    end
+
+    def attributes_cache_write( event:, id: for_provenance_id, attributes: )
+      key = attributes_cache_key( event: event, id: id )
+      Rails.cache.write( key, attributes )
+    end
+
+    def for_provenance_event_cache_exist?( event:, id: for_provenance_id )
+      key = for_provenance_event_cache_key( event: event, id: id )
+      rv = Rails.cache.exist?( key )
+      rv
+    end
+
+    def for_provenance_event_cache_fetch( event:, id: for_provenance_id )
+      key = for_provenance_event_cache_key( event: event, id: id )
+      rv = Rails.cache.fetch( key )
+      rv
+    end
+
+    def for_provenance_event_cache_key( event:, id: )
+      "#{id}.#{event}.provenance"
+    end
+
+    def for_provenance_event_cache_write( event:, id: for_provenance_id, value: DateTime.now )
+      key = for_provenance_event_cache_key( event: event, id: id )
+      Rails.cache.write( key, value, expires_in: 12.hours )
+    end
+
     def for_provenance_class
       for_provenance_object.class
     end
@@ -126,6 +139,8 @@ module Deepblue
                     for_provenance_route
                   when 'route'
                     for_provenance_route
+                  when 'date_created'
+                    prov_object[:date_created].blank? ? '' : prov_object[:date_created][0]
                   else
                     prov_object[attribute]
                   end
@@ -241,6 +256,7 @@ module Deepblue
     end
 
     def provenance_destroy( current_user:, event_note: '' )
+      return if for_provenance_event_cache_exist?( event: EVENT_DESTROY )
       provenance_log_event( attributes: attributes_for_provenance_destroy,
                             current_user: current_user,
                             event: EVENT_DESTROY,
@@ -316,6 +332,29 @@ module Deepblue
                             prov_key_values: prov_key_values )
     end
 
+    def provenance_log_update_after( current_user:, event_note: '' )
+      provenance_attribute_values_before_update = attributes_cache_fetch( event: EVENT_UPDATE, id: for_provenance_id )
+      # Rails.logger.debug ">>>>>>"
+      # Rails.logger.debug "provenance_log_update_after"
+      # Rails.logger.debug "provenance_attribute_values_before_update=#{ActiveSupport::JSON.encode provenance_attribute_values_before_update}"
+      # Rails.logger.debug ">>>>>>"
+      provenance_update( current_user: current_user,
+                         event_note: event_note,
+                         provenance_attribute_values_before_update: provenance_attribute_values_before_update )
+    end
+
+    def provenance_log_update_before( current_user:, event_note: '' )
+      provenance_attribute_values_before_update = provenance_attribute_values_for_update( current_user: current_user,
+                                                                                          event_note: event_note )
+      # Rails.logger.debug ">>>>>>"
+      # Rails.logger.debug "provenance_log_update_before"
+      # Rails.logger.debug "provenance_attribute_values_before_update=#{ActiveSupport::JSON.encode provenance_attribute_values_before_update}"
+      # Rails.logger.debug ">>>>>>"
+      attributes_cache_write( event: EVENT_UPDATE_BEFORE,
+                              id: for_provenance_id,
+                              attributes: provenance_attribute_values_before_update )
+    end
+
     def provenance_upload( current_user:, event_note: '' )
       provenance_log_event( attributes: attributes_for_provenance_upload,
                             current_user: current_user,
@@ -324,13 +363,14 @@ module Deepblue
                             ignore_blank_key_values: true )
     end
 
-    private
+    protected
 
       def provenance_log_event( attributes:,
                                 current_user:,
                                 event:,
                                 event_note:,
                                 ignore_blank_key_values:,
+                                id: for_provenance_id,
                                 prov_key_values: nil )
 
         if prov_key_values.blank?
@@ -341,7 +381,7 @@ module Deepblue
                                                                       ignore_blank_key_values: ignore_blank_key_values )
         end
         class_name = for_provenance_class.name
-        id = for_provenance_id
+        for_provenance_event_cache_write( event: event, id: id )
         ProvenanceHelper.log( class_name: class_name, id: id, event: event, event_note: event_note, **prov_key_values )
       end
 

@@ -9,32 +9,44 @@ module Hyrax
     alias_method :monkey_update, :update
     alias_method :monkey_update_metadata, :update_metadata
 
+    before_action :provenance_log_destroy,       only: [:destroy]
+    before_action :provenance_log_update_before, only: [:update]
+
+    after_action :provenance_log_create,         only: [:create]
+    after_action :provenance_log_update_after,   only: [:update]
+
+    def provenance_log_create
+      curation_concern.provenance_create( current_user: current_user )
+    end
+
+    def provenance_log_destroy
+      curation_concern.provenance_destroy( current_user: current_user )
+    end
+
     def provenance_log_update_after
-      # TODO: list updated values deltas
-      curation_concern.provenance_update( current_user: current_user )
+      curation_concern.provenance_log_update_after( current_user: current_user )
     end
 
     def provenance_log_update_before
-      # TODO: capture before update values to generate delta
-      # curation_concern.provenance_update( current_user: current_user )
+      curation_concern.provenance_log_update_before( current_user: current_user )
     end
 
-    # PATCH /concern/file_sets/:id
-    def update
-      provenance_log_update_before
-      monkey_update
-      provenance_log_update_after
-    rescue RSolr::Error::Http => error
-      flash[:error] = error.message
-      logger.error "FileSetsController::update rescued #{error.class}\n\t#{error.message}\n #{error.backtrace.join("\n")}\n\n"
-      render action: 'edit'
-    end
-
-    def update_metadata
-      provenance_log_update_before
-      monkey_update_metadata
-      provenance_log_update_after
-    end
+    # # PATCH /concern/file_sets/:id
+    # def update
+    #   curation_concern.provenance_log_update_before( current_user: current_user, event_note: 'from #update' )
+    #   monkey_update
+    #   curation_concern.provenance_log_update_after( current_user: current_user, event_note: 'from #update' )
+    # rescue RSolr::Error::Http => error
+    #   flash[:error] = error.message
+    #   logger.error "FileSetsController::update rescued #{error.class}\n\t#{error.message}\n #{error.backtrace.join("\n")}\n\n"
+    #   render action: 'edit'
+    # end
+    #
+    # def update_metadata
+    #   curation_concern.provenance_log_update_before( current_user: current_user, event_note: 'from #update_metadata' )
+    #   monkey_update_metadata
+    #   curation_concern.provenance_log_update_after( current_user: current_user, event_note: 'from #update_metadata' )
+    # end
 
   end
 

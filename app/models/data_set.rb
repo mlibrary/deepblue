@@ -29,6 +29,13 @@ class DataSet < ActiveFedora::Base
   include ::Deepblue::ProvenanceBehavior
 
   after_initialize :set_defaults
+  before_destroy :remove_from_parents
+
+  before_destroy :provenance_before_destroy_data_set
+
+  def provenance_before_destroy_data_set
+    provenance_destroy( current_user: '' ) # , event_note: 'provenance_before_destroy_data_set' )
+  end
 
   PENDING = 'pending'
 
@@ -73,6 +80,10 @@ class DataSet < ActiveFedora::Base
       title
       visibility
     ]
+  end
+
+  def for_provenance_route
+    Rails.application.routes.url_helpers.hyrax_data_set_path( id: id )
   end
 
   def map_provenance_attributes_override!( event:, # rubocop:disable Lint/UnusedMethodArgument

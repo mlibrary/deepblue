@@ -17,18 +17,22 @@ Rails.application.configure do
   config.consider_all_requests_local = true
 
   # Enable/disable caching. By default caching is disabled.
-  if Rails.root.join('tmp/caching-dev.txt').exist? # rubocop:disable Rails/FilePath
+  # rubocop:disable Rails/FilePath
+  if Rails.root.join( 'tmp/caching-dev.txt' ).exist?
+    puts "Rails caching enabled because file exists: #{Rails.root.join( 'tmp/caching-dev.txt' )}"
+    STDOUT.flush
     config.action_controller.perform_caching = true
-
     config.cache_store = :memory_store
     config.public_file_server.headers = {
       'Cache-Control' => 'public, max-age=172800'
     }
   else
+    puts "In order to enable caching, create the file:  #{Rails.root.join( 'tmp/caching-dev.txt' )}"
+    STDOUT.flush
     config.action_controller.perform_caching = false
-
     config.cache_store = :null_store
   end
+  # rubocop:enable Rails/FilePath
 
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = false

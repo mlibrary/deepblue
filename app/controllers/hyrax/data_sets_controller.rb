@@ -27,7 +27,7 @@ module Hyrax
     protect_from_forgery with: :null_session,    only: [:globus_download_add_email]
     protect_from_forgery with: :null_session,    only: [:globus_download_notify_me]
 
-    attr_accessor :user_email_one, :user_email_two, :provenance_attribute_values_before_update
+    attr_accessor :user_email_one, :user_email_two
 
     ## box integration
 
@@ -111,21 +111,11 @@ module Hyrax
     end
 
     def provenance_log_update_after
-      # Rails.logger.debug ">>>>>>"
-      # Rails.logger.debug "provenance_log_update_after"
-      # Rails.logger.debug "provenance_attribute_values_before_update=#{ActiveSupport::JSON.encode provenance_attribute_values_before_update}"
-      # Rails.logger.debug ">>>>>>"
-      curation_concern.provenance_update( current_user: current_user,
-                                          provenance_attribute_values_before_update: provenance_attribute_values_before_update )
+      curation_concern.provenance_log_update_after( current_user: current_user )
     end
 
     def provenance_log_update_before
-      curation_concern.provenance_attribute_values_for_update( current_user: current_user )
-      # provenance_attribute_values_before_update = curation_concern.provenance_attribute_values_for_update( current_user: current_user )
-      # Rails.logger.debug ">>>>>>"
-      # Rails.logger.debug "provenance_log_update_before"
-      # Rails.logger.debug "provenance_attribute_values_before_update=#{ActiveSupport::JSON.encode provenance_attribute_values_before_update}"
-      # Rails.logger.debug ">>>>>>"
+      curation_concern.provenance_log_update_before( current_user: current_user )
     end
 
     ## end Provenance log
