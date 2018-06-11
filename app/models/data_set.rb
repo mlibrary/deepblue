@@ -29,8 +29,7 @@ class DataSet < ActiveFedora::Base
   include ::Deepblue::ProvenanceBehavior
 
   after_initialize :set_defaults
-  before_destroy :remove_from_parents
-
+  
   before_destroy :provenance_before_destroy_data_set
 
   def provenance_before_destroy_data_set
