@@ -46,6 +46,50 @@ module Hyrax
       box_create_dir_and_add_collaborator
     end
 
+    def tombstone
+      curation_concern.entomb!(params[:tombstone])
+      msg = "Tombstoned: " + "#{curation_concern.title.first}" + " for this reason: " + "#{curation_concern.tombstone.first}" 
+      redirect_to dashboard_works_path, notice: msg
+    end
+
+    def doi
+      mint_doi
+      respond_to do |wants|
+        wants.html { redirect_to [main_app, curation_concern] }
+        wants.json { render :show, status: :ok, location: polymorphic_path([main_app, curation_concern]) }
+      end
+    end
+
+    def mint_doi
+      # Do not mint doi if
+      #   one already exists
+      #   work file_set count is 0.
+      if curation_concern.doi
+
+        #flash[:notice] = MsgHelper.t( 'generic_work.doi_already_exists' )
+        flash[:notice] = "A DOI already exists or is being minted."
+        return
+      elsif curation_concern.file_sets.count < 1
+        flash[:notice] = "DOI cannot be minted for a work without files."
+        #flash[:notice] = MsgHelper.t( 'generic_work.doi_requires_work_with_files' )
+        return
+      end
+
+      # Assign doi as "pending" in the meantime
+      curation_concern.doi = DataSet::PENDING
+
+      # save (and re-index)
+      curation_concern.save
+
+      # Kick off job to get a doi
+      #msg = MsgHelper.t( 'generic_work.doi_requires_work_with_files', id: curation_concern.id )
+      msg = "DOI cannot be minted for a work without files. For id : " + curation_concern.id
+      #This has to be fixed.  -jose
+      #PROV_LOGGER.info (msg)
+      ::DoiMintingJob.perform_later(curation_concern.id)
+
+    end    
+
     ## end box integration
 
     ## Changes in visibility / publishing

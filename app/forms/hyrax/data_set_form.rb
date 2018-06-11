@@ -13,6 +13,7 @@ module Hyrax
         date_coverage
         description
         fundedby
+        doi
         grantnumber
         keyword
         methodology

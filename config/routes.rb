@@ -31,6 +31,7 @@ Rails.application.routes.draw do
     resources :data_sets do
       member do
         post 'tombstone'
+        get  'doi'
       end
     end
   end
