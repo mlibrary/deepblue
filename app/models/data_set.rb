@@ -2,7 +2,6 @@
 
 class DataSet < ActiveFedora::Base
 
-  ## begin `rails generate hyrax:work DataSet`
   include ::Hyrax::WorkBehavior
 
   self.indexer = DataSetIndexer
@@ -27,15 +26,80 @@ class DataSet < ActiveFedora::Base
   # schema (by adding accepts_nested_attributes)
 
   include ::Deepblue::DefaultMetadata
-  ## end `rails generate hyrax:work DataSet`
+  include ::Deepblue::ProvenanceBehavior
 
   after_initialize :set_defaults
 
-  PENDING = 'pending'.freeze
+  PENDING = 'pending'
 
   def set_defaults
     return unless new_record?
     self.resource_type = ["Dataset"]
+  end
+
+  def attributes_all_for_provenance
+    %i[
+      admin_set_id
+      authoremail
+      creator
+      date_created
+      date_modified
+      date_updated
+      date_coverage
+      description
+      doi
+      fundedby
+      grantnumber
+      isReferencedBy
+      keyword
+      language
+      location
+      methodology
+      rights_license
+      subject_discipline
+      title
+      tombstone
+      total_file_count
+      total_file_size
+      total_file_size_human_readable
+      visibility
+    ]
+  end
+
+  def attributes_brief_for_provenance
+    %i[
+      admin_set_id
+      authoremail
+      title
+      visibility
+    ]
+  end
+
+  def map_provenance_attributes_override!( event:, # rubocop:disable Lint/UnusedMethodArgument
+                                           attribute:,
+                                           ignore_blank_key_values:,
+                                           prov_key_values: )
+    value = nil
+    handled = case attribute.to_s
+              when 'total_file_count'
+                value = total_file_count
+                true
+              when 'total_file_size_human_readable'
+                value = total_file_size_human_readable
+                true
+              when 'visibility'
+                value = visibility
+                true
+              else
+                false
+              end
+    return false unless handled
+    if ignore_blank_key_values
+      prov_key_values[attribute] = value if value.present?
+    else
+      prov_key_values[attribute] = value
+    end
+    return true
   end
 
   # # Visibility helpers
@@ -71,33 +135,23 @@ class DataSet < ActiveFedora::Base
     super values
   end
 
-  def entomb!(epitaph)
+  #
+  # Make it so work does not show up in search result for anyone, not even admins.
+  #
+  def entomb!( epitaph, current_user )
+    return if tombstone.present?
+    provenance_tombstone( current_user: current_user )
     self.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
     self.depositor = 'TOMBSTONE-' + depositor
     self.tombstone = [epitaph]
 
     file_sets.each do |file_set|
+      # TODO: FileSet#entomb!
       file_set.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
     end
 
     save
   end
-
-
-  # #
-  # # Make it so work does not show up in search result for anyone, not even admins.
-  # #
-  # def entomb!(epitaph)
-  #   self.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
-  #   self.depositor = 'TOMBSTONE-' + depositor
-  #   self.tombstone = [epitaph]
-  #
-  #   file_sets.each do |file_set|
-  #     file_set.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
-  #   end
-  #
-  #   save
-  # end
 
   #
   # handle the list of isReferencedBy as ordered
@@ -151,6 +205,11 @@ class DataSet < ActiveFedora::Base
   def title=( values )
     self.title_ordered = MetadataHelper.ordered_values( ordered_values: title_ordered, values: values )
     super values
+  end
+
+  def total_file_count
+    return 0 if file_set_ids.blank?
+    file_set_ids.size
   end
 
 end

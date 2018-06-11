@@ -1,5 +1,6 @@
-require_relative 'boot'
+# frozen_string_literal: true
 
+require_relative 'boot'
 require 'rails/all'
 
 # Require the gems listed in Gemfile, including any gems
@@ -13,21 +14,21 @@ module DeepBlueDocs
     # -- all .rb files in that directory are automatically loaded.
 
     config.generators do |g|
-      g.test_framework :rspec, :spec => true
+      g.test_framework :rspec, spec: true
     end
 
     ## configure box
 
     config.box_enabled = false
     config.box_developer_token = nil # replace this with a developer token to override Single Auth
-    #config.box_developer_token = 'IGmQMmqw8coKpuQDN3EG4gBrDzn78sGr'.freeze
-    config.box_dlib_dbd_box_user_id = '3200925346'.freeze
-    config.box_ulib_dbd_box_id = '45101723215'.freeze
+    # config.box_developer_token = 'IGmQMmqw8coKpuQDN3EG4gBrDzn78sGr'.freeze
+    config.box_dlib_dbd_box_user_id = '3200925346'
+    config.box_ulib_dbd_box_id = '45101723215'
     config.box_verbose = true
     config.box_always_report_not_logged_in_errors = true
     config.box_create_dirs_for_empty_works = true
-    config.box_access_and_refresh_token_file = File.join( Rails.root, 'config', 'box_config.yml' ).freeze
-    config.box_access_and_refresh_token_file_init = File.join( Rails.root, 'config', 'box_config_init.yml' ).freeze
+    config.box_access_and_refresh_token_file = Rails.root.join( 'config', 'box_config.yml' ).freeze
+    config.box_access_and_refresh_token_file_init = Rails.root.join( 'config', 'box_config_init.yml' ).freeze
     config.box_integration_enabled = config.box_enabled && ( !config.box_developer_token.nil? ||
         File.exist?( config.box_access_and_refresh_token_file ) )
 
@@ -41,7 +42,7 @@ module DeepBlueDocs
     else
       config.globus_dir = ENV['GLOBUS_DIR'] || '/deepbluedata-globus'
     end
-    #puts "globus_dir=#{config.globus_dir}"
+    # puts "globus_dir=#{config.globus_dir}"
     config.globus_dir = Pathname.new config.globus_dir
     config.globus_download_dir = config.globus_dir.join 'download'
     config.globus_prep_dir = config.globus_dir.join 'prep'
@@ -71,16 +72,17 @@ module DeepBlueDocs
     config.min_work_file_size_to_download_warn = 1_000_000_000
 
     # ingest characterization config
-    config.characterize_excluded_ext_set = { '.csv' => 'text/plain' }.freeze #, '.nc' => 'text/plain' }.freeze
+    config.characterize_excluded_ext_set = { '.csv' => 'text/plain' }.freeze # , '.nc' => 'text/plain' }.freeze
 
     # ingest derivative config
     config.derivative_excluded_ext_set = {}.freeze
     config.derivative_max_file_size = 4_000_000_000 # set to -1 for no limit
     config.derivative_max_file_size_str = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert(config.derivative_max_file_size, precision: 3 )
 
-
     config.do_ordered_list_hack = true
     config.do_ordered_list_hack_save = true
+
+    config.provenance_log_default_echo_to_rails_logger_info = true
 
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'hydra/file_characterization'
 require 'tasks/task_logger'
 
@@ -172,6 +174,8 @@ class NewContentService
       # Put the work in the default admin_set.
       work.update( admin_set: default_admin_set ) # TODO fix
       work.save!
+      work.reload
+      work.provenance_ingest( current_user: authoremail, ingester: ingester )
       return work
     end
 
@@ -245,6 +249,10 @@ class NewContentService
 
     def logger_level
       return config_value( :logger_level, 'info' )
+    end
+
+    def ingester
+      @cfg[:user][:ingester]
     end
 
     def user_key

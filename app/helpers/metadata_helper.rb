@@ -2,7 +2,7 @@
 
 module MetadataHelper
 
-  @@FIELD_SEP = '; '.freeze # rubocop:disable Style/ClassVars, Style/VariableName
+  @@FIELD_SEP = '; ' # rubocop:disable Style/ClassVars, Style/VariableName
 
   def self.file_from_file_set( file_set )
     file = nil
@@ -87,7 +87,7 @@ module MetadataHelper
       report_item( out, "Language: ", collection.language )
       report_item( out, "Citation to related material: ", collection.isReferencedBy )
       report_item( out, "Visibility: ", collection.visibility )
-      if 0 < collection.member_objects.count
+      if collection.member_objects.count.positive?
         collection.member_objects.each do |generic_work|
           out.puts
           report_generic_work( generic_work, out: out, depth: "=#{depth}" )
@@ -152,7 +152,7 @@ module MetadataHelper
       report_item( out, "Rights: ", generic_work.rights_license )
       report_item( out, "Admin set id: ", generic_work.admin_set_id )
       report_item( out, "Tombstone: ", generic_work.tombstone, optional: true )
-      if 0 < generic_work.file_sets.count
+      if generic_work.file_sets.count.positive?
         generic_work.file_sets.each do |file_set|
           out.puts
           report_file_set( file_set, out: out, depth: "=#{depth}" )
@@ -224,6 +224,7 @@ module MetadataHelper
     out.puts "#{depth} File Set: #{file_set.label} #{depth}"
     yaml_item( out, "ID: ", file_set.id )
     yaml_item( out, "File name: ", file_set.label )
+    yaml_item( out, "Date created: ", file_set.date_uploaded )
     yaml_item( out, "Date uploaded: ", file_set.date_uploaded )
     yaml_item( out, "Date modified: ", file_set.date_uploaded )
     yaml_item( out, "Total file size: ", human_readable_size( file_set.file_size[0] ) )
@@ -245,7 +246,7 @@ module MetadataHelper
                "Generic work id: #{generic_work.id}",
                "Total file count: #{generic_work.file_sets.count}")
     total_byte_count = 0
-    if 0 < generic_work.file_sets.count
+    if generic_work.file_sets.count.positive?
       generic_work.file_sets.each do |file_set|
         file = file_from_file_set( file_set )
         export_file_name = file.original_name
@@ -313,12 +314,14 @@ module MetadataHelper
       indent = indent_base * 1
       yaml_line( out, indent, ':email:', generic_work.depositor )
       yaml_line( out, indent, ':visibility:', generic_work.visibility )
+      yaml_line( out, indent, ':ingester:', '' )
       yaml_line( out, indent, ':source:', source )
       yaml_line( out, indent, ':works:' )
       indent = indent_base * 2
       yaml_item( out, indent, ":admin_set_id:", generic_work.admin_set_id, comment: true )
       yaml_item( out, indent, ":authoremail:", generic_work.authoremail )
       yaml_item( out, indent, ":creator:", generic_work.creator, escape: true )
+      yaml_item( out, indent, ":date_created:", generic_work.date_created )
       yaml_item( out, indent, ":date_uploaded:", generic_work.date_uploaded )
       yaml_item( out, indent, ":date_modified:", generic_work.date_modified )
       yaml_item( out, indent, ":date_coverage:", generic_work.date_coverage[0] )
@@ -341,14 +344,14 @@ module MetadataHelper
       yaml_item( out, indent, ":visibility: ", generic_work.visibility, comment: true )
 
       yaml_line( out, indent_base * 2, ':filenames:' )
-      if 0 < generic_work.file_sets.count
+      if generic_work.file_sets.count.positive?
         indent = indent_base * 3 + "- "
         generic_work.file_sets.each do |file_set|
           yaml_item( out, indent, '', file_set.label, escape: true )
         end
       end
       yaml_line( out, indent_base * 2, ':files:' )
-      if 0 < generic_work.file_sets.count
+      if generic_work.file_sets.count.positive?
         indent = indent_base * 3 + "- "
         generic_work.file_sets.each do |file_set|
           # puts "fsid=#{fsid}"

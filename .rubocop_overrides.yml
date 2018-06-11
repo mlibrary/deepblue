@@ -54,6 +54,9 @@ Metrics/CyclomaticComplexity:
     - 'app/controllers/hyrax/data_sets_controller.rb'
     - 'app/helpers/ingest_helper.rb'
     - 'app/helpers/metadata_helper.rb'
+    - 'app/models/data_set.rb'
+    - 'app/models/file_set.rb'
+    - 'app/models/concerns/deepblue/provenance_behavior.rb'
     - 'lib/tasks/new_content_service.rb'
 
 Metrics/ModuleLength:
@@ -65,6 +68,8 @@ Metrics/PerceivedComplexity:
     - 'app/controllers/hyrax/data_sets_controller.rb'
     - 'app/helpers/ingest_helper.rb'
     - 'app/helpers/metadata_helper.rb'
+    - 'app/models/file_set.rb'
+    - 'app/models/concerns/deepblue/provenance_behavior.rb'
     - 'lib/tasks/new_content_service.rb'
 
 Rails/Exit:

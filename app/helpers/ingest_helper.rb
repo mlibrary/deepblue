@@ -26,6 +26,7 @@ module IngestHelper
     file_ext = File.extname file_set.label
     if DeepBlueDocs::Application.config.characterize_excluded_ext_set.key? file_ext
       Rails.logger.info "Skipping characterization of file with extension #{file_ext}: #{file_name}"
+      file_set.provenance_characterize( current_user: current_user, event_note: "skipped_extension(#{file_ext})" )
       perform_create_derivatives_job( file_set,
                                       repository_file_id,
                                       file_name,
@@ -44,6 +45,7 @@ module IngestHelper
       proxy = file_set.characterization_proxy
       Hydra::Works::CharacterizationService.run( proxy, file_name )
       Rails.logger.debug "Ran characterization on #{proxy.id} (#{proxy.mime_type})"
+      file_set.provenance_characterize( current_user: current_user )
       file_set.characterization_proxy.save!
       file_set.update_index
       file_set.parent.in_collections.each(&:update_index) if file_set.parent
@@ -82,21 +84,25 @@ module IngestHelper
       file_ext = File.extname file_set.label
       if DeepBlueDocs::Application.config.derivative_excluded_ext_set.key? file_ext
         Rails.logger.info "Skipping derivative of file with extension #{file_ext}: #{file_name}"
+        file_set.provenance_create_derivative( current_user: current_user, event_note: "skipped_extension #{file_ext}" )
         return
       end
       if file_set.video? && !Hyrax.config.enable_ffmpeg
         Rails.logger.info "Skipping video derivative job for file: #{file_name}"
+        file_set.provenance_create_derivative( current_user: current_user, event_note: "skipped_extension #{file_ext}" )
         return
       end
       threshold_file_size = DeepBlueDocs::Application.config.derivative_max_file_size
       if threshold_file_size > -1 && File.exist?(file_name) && File.size(file_name) > threshold_file_size
         human_readable = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( threshold_file_size, precision: 3 )
         Rails.logger.info "Skipping file larger than #{human_readable} for create derivative job file: #{file_name}"
+        file_set.provenance_create_derivative( current_user: current_user, event_note: "skipped_file_size #{File.size(file_name)}" )
         return
       end
       Rails.logger.debug "About to call create derivatives: #{file_name}."
-      file_set.create_derivatives(file_name)
+      file_set.create_derivatives # TODO: (file_name)
       Rails.logger.debug "Create derivatives successful: #{file_name}."
+      file_set.provenance_create_derivative( current_user: current_user )
       # Reload from Fedora and reindex for thumbnail and extracted text
       file_set.reload
       file_set.update_index
@@ -110,6 +116,10 @@ module IngestHelper
       # So now it's safe to remove the file uploaded file.
       delete_file( file_path, delete_file_flag: delete_input_file, msg_prefix: 'Create derivatives ' )
     end
+  end
+
+  def self.current_user
+    ProvenanceHelper.system_as_current_user
   end
 
   def self.delete_file( file_path, delete_file_flag: false, msg_prefix: '' )

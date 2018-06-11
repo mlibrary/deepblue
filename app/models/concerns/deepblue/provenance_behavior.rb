@@ -1,0 +1,391 @@
+# frozen_string_literal: true
+
+module Deepblue
+
+  class ProvenanceLogError < RuntimeError
+  end
+
+  module ProvenanceBehavior
+
+    EVENT_ADD               = 'add'
+    EVENT_CHARACTERIZE      = 'characterize'
+    EVENT_CREATE            = 'create'
+    EVENT_CREATE_DERIVATIVE = 'create_derivative'
+    EVENT_DESTROY           = 'destroy'
+    EVENT_INGEST            = 'ingest'
+    EVENT_MINT_DOI          = 'mint_doi'
+    EVENT_PUBLISH           = 'publish'
+    EVENT_TOMBSTONE         = 'tombstone'
+    EVENT_UPDATE            = 'update'
+    EVENT_UPLOAD            = 'upload'
+    EVENTS                  =
+      [
+        EVENT_ADD,
+        EVENT_CHARACTERIZE,
+        EVENT_CREATE,
+        EVENT_CREATE_DERIVATIVE,
+        EVENT_DESTROY,
+        EVENT_INGEST,
+        EVENT_MINT_DOI,
+        EVENT_PUBLISH,
+        EVENT_TOMBSTONE,
+        EVENT_UPDATE,
+        EVENT_UPLOAD
+      ].freeze
+
+    def attributes_all_for_provenance
+      []
+    end
+
+    def attributes_brief_for_provenance
+      []
+    end
+
+    def attributes_for_provenance_add
+      attributes_brief_for_provenance
+    end
+
+    def attributes_for_provenance_characterize
+      attributes_brief_for_provenance
+    end
+
+    def attributes_for_provenance_create
+      attributes_all_for_provenance
+    end
+
+    def attributes_for_provenance_create_derivative
+      attributes_brief_for_provenance
+    end
+
+    def attributes_for_provenance_destroy
+      attributes_all_for_provenance
+    end
+
+    def attributes_for_provenance_ingest
+      attributes_all_for_provenance
+    end
+
+    def attributes_for_provenance_mint_doi
+      attributes_brief_for_provenance
+    end
+
+    def attributes_for_provenance_publish
+      attributes_all_for_provenance
+    end
+
+    def attributes_for_provenance_tombstone
+      attributes_all_for_provenance
+    end
+
+    def attributes_for_provenance_update
+      attributes_all_for_provenance
+    end
+
+    def attributes_for_provenance_upload
+      attributes_all_for_provenance
+    end
+
+    def for_provenance_class
+      for_provenance_object.class
+    end
+
+    def for_provenance_id
+      for_provenance_object.id
+    end
+
+    def for_provenance_ignore_empty_attributes
+      true
+    end
+
+    def for_provenance_object
+      self
+    end
+
+    def for_provenance_route
+      "route to #{for_provenance_object.id}"
+    end
+
+    def for_provenance_user( current_user )
+      return '' if current_user.blank?
+      return current_user if current_user.is_a? String
+      EmailHelper.user_email_from( current_user )
+    end
+
+    def map_provenance_attributes!( event:, attributes:, ignore_blank_key_values:, **prov_key_values )
+      prov_object = for_provenance_object
+      if attributes.present?
+        attributes.each do |attribute|
+          next if map_provenance_attributes_override!( event: event,
+                                                       attribute: attribute,
+                                                       ignore_blank_key_values: ignore_blank_key_values,
+                                                       prov_key_values: prov_key_values )
+          value = case attribute.to_s
+                  when 'id'
+                    for_provenance_id
+                  when 'location'
+                    for_provenance_route
+                  when 'route'
+                    for_provenance_route
+                  else
+                    prov_object[attribute]
+                  end
+          value = '' if value.nil?
+          if ignore_blank_key_values
+            prov_key_values[attribute] = value if value.present?
+          else
+            prov_key_values[attribute] = value
+          end
+        end
+      end
+      prov_key_values
+    end
+
+    def map_provenance_attributes_for_update( current_user, event_note, provenance_attribute_values_before_update )
+      Rails.logger.debug ">>>>>>"
+      Rails.logger.debug "map_provenance_attributes_for_update"
+      Rails.logger.debug "provenance_attribute_values_before_update=#{ActiveSupport::JSON.encode provenance_attribute_values_before_update}"
+      Rails.logger.debug ">>>>>>"
+      return nil if provenance_attribute_values_before_update.blank?
+      prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes_for_provenance_update,
+                                                                  current_user: current_user,
+                                                                  event: EVENT_UPDATE,
+                                                                  event_note: event_note,
+                                                                  ignore_blank_key_values: false )
+      # only the changed values
+      Rails.logger.debug ">>>>>>"
+      Rails.logger.debug "map_provenance_attributes_for_update"
+      Rails.logger.debug "before reject=#{ActiveSupport::JSON.encode prov_key_values}"
+      Rails.logger.debug ">>>>>>"
+      prov_key_values.reject! { |attribute, value| value == provenance_attribute_values_before_update[attribute] }
+      Rails.logger.debug ">>>>>>"
+      Rails.logger.debug "map_provenance_attributes_for_update"
+      Rails.logger.debug "after reject=#{ActiveSupport::JSON.encode prov_key_values}"
+      Rails.logger.debug ">>>>>>"
+      prov_key_values
+    end
+
+    # override this if there is anything extra to add
+    # return true if handled
+    def map_provenance_attributes_override!( event:,                    # rubocop:disable Lint/UnusedMethodArgument
+                                             attribute:,                # rubocop:disable Lint/UnusedMethodArgument
+                                             ignore_blank_key_values:,  # rubocop:disable Lint/UnusedMethodArgument
+                                             prov_key_values: )         # rubocop:disable Lint/UnusedMethodArgument
+
+      handled = false
+      return handled
+    end
+
+    def provenance_attribute_values_for_snapshot( attributes:,
+                                                  current_user:,
+                                                  event:,
+                                                  event_note:,
+                                                  ignore_blank_key_values:,
+                                                  **added_prov_key_values )
+
+      prov_key_values = { user_email: for_provenance_user( current_user ) }
+      prov_key_values.merge!( event_note: event_note ) if event_note.present?
+      prov_key_values.merge!( added_prov_key_values ) if added_prov_key_values.present?
+      prov_key_values = map_provenance_attributes!( event: event,
+                                                    attributes: attributes,
+                                                    ignore_blank_key_values: ignore_blank_key_values,
+                                                    **prov_key_values )
+      prov_key_values
+    end
+
+    def provenance_attribute_values_for_update( current_user:, event_note: '' )
+      provenance_attribute_values_for_snapshot( attributes: attributes_for_provenance_update,
+                                                current_user: current_user,
+                                                event: EVENT_UPDATE,
+                                                event_note: event_note,
+                                                ignore_blank_key_values: false )
+    end
+
+    def provenance_add( current_user:, child_id:, event_note: '' )
+      event = EVENT_ADD
+      prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes_for_provenance_add,
+                                                                  current_user: current_user,
+                                                                  event: event,
+                                                                  event_note: event_note,
+                                                                  ignore_blank_key_values: true,
+                                                                  child_id: child_id )
+      provenance_log_event( attributes: nil,
+                            current_user: current_user,
+                            event: event,
+                            event_note: event_note,
+                            ignore_blank_key_values: true,
+                            prov_key_values: prov_key_values )
+    end
+
+    def provenance_characterize( current_user:, event_note: '' )
+      provenance_log_event( attributes: attributes_for_provenance_characterize,
+                            current_user: current_user,
+                            event: EVENT_CHARACTERIZE,
+                            event_note: event_note,
+                            ignore_blank_key_values: true )
+    end
+
+    def provenance_create( current_user:, event_note: '' )
+      provenance_log_event( attributes: attributes_for_provenance_create,
+                            current_user: current_user,
+                            event: EVENT_CREATE,
+                            event_note: event_note,
+                            ignore_blank_key_values: false )
+    end
+
+    def provenance_create_derivative( current_user:, event_note: '' )
+      provenance_log_event( attributes: attributes_for_provenance_create_derivative,
+                            current_user: current_user,
+                            event: EVENT_CREATE_DERIVATIVE,
+                            event_note: event_note,
+                            ignore_blank_key_values: true )
+    end
+
+    def provenance_destroy( current_user:, event_note: '' )
+      provenance_log_event( attributes: attributes_for_provenance_destroy,
+                            current_user: current_user,
+                            event: EVENT_DESTROY,
+                            event_note: event_note,
+                            ignore_blank_key_values: false )
+    end
+
+    def provenance_ingest( current_user:, ingester:, event_note: '' )
+      event = EVENT_INGEST
+      prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes_for_provenance_ingest,
+                                                                  current_user: current_user,
+                                                                  event: event,
+                                                                  event_note: event_note,
+                                                                  ignore_blank_key_values: false,
+                                                                  ingester: ingester )
+      provenance_log_event( attributes: nil,
+                            event: event,
+                            current_user: current_user,
+                            event_note: event_note,
+                            ignore_blank_key_values: false,
+                            prov_key_values: prov_key_values )
+    end
+
+    def provenance_log_for_event( attributes: [],
+                                  current_user:,
+                                  event:,
+                                  event_note: '',
+                                  ignore_blank_key_values: false,
+                                  **prov_key_values )
+
+      raise ProvenanceLogError( "Unknown provenance log event: #{event}" ) unless EVENTS.contains( event )
+      provenance_log_event( attributes: attributes,
+                            current_user: current_user,
+                            event: event,
+                            event_note: event_note,
+                            ignore_blank_key_values: ignore_blank_key_values,
+                            prov_key_values: prov_key_values )
+    end
+
+    def provenance_mint_doi( current_user:, event_note: '' )
+      provenance_log_event( attributes: attributes_for_provenance_mint_doi,
+                            current_user: current_user,
+                            event: EVENT_MINT_DOI,
+                            event_note: event_note,
+                            ignore_blank_key_values: true )
+    end
+
+    def provenance_publish( current_user:, event_note: '' )
+      provenance_log_event( attributes: attributes_for_provenance_publish,
+                            current_user: current_user,
+                            event: EVENT_PUBLISH,
+                            event_note: event_note,
+                            ignore_blank_key_values: false )
+    end
+
+    def provenance_tombstone( current_user:, event_note: '' )
+      provenance_log_event( attributes: attributes_for_provenance_tombstone,
+                            current_user: current_user,
+                            event: EVENT_TOMBSTONE,
+                            event_note: event_note,
+                            ignore_blank_key_values: false )
+    end
+
+    def provenance_update( current_user:, event_note: '', provenance_attribute_values_before_update: )
+      prov_key_values = map_provenance_attributes_for_update( current_user,
+                                                              event_note,
+                                                              provenance_attribute_values_before_update )
+      provenance_log_event( attributes: attributes_for_provenance_update,
+                            current_user: current_user,
+                            event: EVENT_UPDATE,
+                            event_note: event_note,
+                            ignore_blank_key_values: false,
+                            prov_key_values: prov_key_values )
+    end
+
+    def provenance_upload( current_user:, event_note: '' )
+      provenance_log_event( attributes: attributes_for_provenance_upload,
+                            current_user: current_user,
+                            event: EVENT_UPLOAD,
+                            event_note: event_note,
+                            ignore_blank_key_values: true )
+    end
+
+    private
+
+      def provenance_log_event( attributes:,
+                                current_user:,
+                                event:,
+                                event_note:,
+                                ignore_blank_key_values:,
+                                prov_key_values: nil )
+
+        if prov_key_values.blank?
+          prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes,
+                                                                      current_user: current_user,
+                                                                      event: event,
+                                                                      event_note: event_note,
+                                                                      ignore_blank_key_values: ignore_blank_key_values )
+        end
+        class_name = for_provenance_class.name
+        id = for_provenance_id
+        ProvenanceHelper.log( class_name: class_name, id: id, event: event, event_note: event_note, **prov_key_values )
+      end
+
+  end
+
+end
+
+module ActiveFedora
+  module PersistenceExt
+
+    def self.prepended( base )
+      base.singleton_class.prepend( ClassMethods )
+    end
+
+    module ClassMethods
+
+      def update( attributes )
+        Rails.logger.debug "ActiveFedora::Persistence.update(#{ActiveSupport::JSON.encode attributes})"
+        if respond_to? :provenance_attribute_values_before_update
+          provenance_attribute_values_before_update = provenance_attribute_values_for_update( current_user: '' )
+          Rails.logger.debug ">>>>>>"
+          Rails.logger.debug "provenance_log_update_before"
+          Rails.logger.debug "provenance_attribute_values_before_update=#{ActiveSupport::JSON.encode provenance_attribute_values_before_update}"
+          Rails.logger.debug ">>>>>>"
+        end
+
+        rv = super( attributes )
+
+        if respond_to? :provenance_attribute_values_before_update
+          Rails.logger.debug ">>>>>>"
+          Rails.logger.debug "provenance_log_update_after"
+          Rails.logger.debug "provenance_attribute_values_before_update=#{ActiveSupport::JSON.encode provenance_attribute_values_before_update}"
+          Rails.logger.debug ">>>>>>"
+          provenance_update( current_user: '',
+                             provenance_attribute_values_before_update: provenance_attribute_values_before_update )
+        end
+        rv
+      end
+
+    end
+
+    # def to_pretty_json
+    #   JSON.pretty_generate(self)
+    # end
+
+  end
+end
