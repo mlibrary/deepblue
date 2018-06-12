@@ -1,4 +1,3 @@
-
 module Hyrax
 
   class SubjectDisciplineService < QaSelectService
