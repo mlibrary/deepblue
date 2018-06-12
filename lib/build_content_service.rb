@@ -6,17 +6,21 @@ require 'tasks/new_content_service'
 # build the contents in the repository.
 class BuildContentService < NewContentService
 
-  def self.call( path_to_config )
-    config = YAML.load_file(path_to_config)
-    base_path = File.dirname(path_to_config)
-    bcs = BuildContentService.new( config, base_path )
+  def self.call( path_to_config, args )
+    config = YAML.load_file( path_to_config )
+    base_path = File.dirname( path_to_config )
+    bcs = BuildContentService.new( path_to_config, config, base_path, args )
     bcs.run
   rescue Exception => e
     Rails.logger.error "BuildContentService.call(#{path_to_config}) #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
   end
 
-  def initialize( config, base_path )
-    initialize_with_msg( config, base_path, msg: "NEW CONTENT SERVICE AT YOUR ... SERVICE" )
+  def initialize( path_to_config, config, base_path, args )
+    initialize_with_msg( args: args,
+                         path_to_config: path_to_config,
+                         config: config,
+                         base_path: base_path,
+                         msg: "NEW CONTENT SERVICE AT YOUR ... SERVICE" )
   end
 
   protected

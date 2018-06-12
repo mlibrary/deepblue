@@ -7,10 +7,15 @@ require_relative '../append_content_service'
 namespace :umrdr do
 
   desc "Populate app with users,collections,works,files."
+  # See: https://stackoverflow.com/questions/825748/how-to-pass-command-line-arguments-to-a-rake-task
   task :populate, [:path_to_config] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"
 
-    args.one? ? config_setup(args[:path_to_config]) : demo_setup
+    # See: Rake::TaskArguments for args class
+    puts "args=#{args}"
+    # puts "args=#{JSON.pretty_print args.to_hash.as_json}"
+
+    args.one? ? config_setup( args[:path_to_config], args ) : demo_setup
 
     puts "Done."
   end
@@ -19,27 +24,27 @@ namespace :umrdr do
   task :append, [:path_to_config] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"
 
-    args.one? ? config_setup_for_append(args[:path_to_config]) : demo_setup
+    args.one? ? config_setup_for_append( args[:path_to_config], args ) : demo_setup
 
     puts "Done."
   end
 
 end
 
-def config_setup(path_to_config)
+def config_setup( path_to_config, args )
   unless File.exist? path_to_config
     puts "bad path to config"
     return
   end
-  BuildContentService.call(path_to_config)
+  BuildContentService.call( path_to_config, args )
 end
 
-def config_setup_for_append(path_to_config)
+def config_setup_for_append( path_to_config, args )
   unless File.exist? path_to_config
     puts "bad path to config"
     return
   end
-  AppendContentService.call(path_to_config)
+  AppendContentService.call( path_to_config, args )
 end
 
 def demo_setup

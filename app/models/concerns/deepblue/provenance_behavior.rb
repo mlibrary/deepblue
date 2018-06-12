@@ -215,14 +215,15 @@ module Deepblue
                                                 ignore_blank_key_values: false )
     end
 
-    def provenance_add( current_user:, child_id:, event_note: '' )
+    def provenance_add( current_user:, child_id:, event_note: '', **added_prov_key_values )
       event = EVENT_ADD
+      added_prov_key_values = { child_id: child_id }.merge added_prov_key_values
       prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes_for_provenance_add,
                                                                   current_user: current_user,
                                                                   event: event,
                                                                   event_note: event_note,
                                                                   ignore_blank_key_values: true,
-                                                                  child_id: child_id )
+                                                                  **added_prov_key_values )
       provenance_log_event( attributes: nil,
                             current_user: current_user,
                             event: event,
@@ -231,12 +232,20 @@ module Deepblue
                             prov_key_values: prov_key_values )
     end
 
-    def provenance_characterize( current_user:, event_note: '' )
+    def provenance_characterize( current_user:, event_note: '', **added_prov_key_values )
+      event = EVENT_CHARACTERIZE
+      prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes_for_provenance_add,
+                                                                  current_user: current_user,
+                                                                  event: event,
+                                                                  event_note: event_note,
+                                                                  ignore_blank_key_values: true,
+                                                                  **added_prov_key_values )
       provenance_log_event( attributes: attributes_for_provenance_characterize,
                             current_user: current_user,
-                            event: EVENT_CHARACTERIZE,
+                            event: event,
                             event_note: event_note,
-                            ignore_blank_key_values: true )
+                            ignore_blank_key_values: true,
+                            prov_key_values: prov_key_values )
     end
 
     def provenance_create( current_user:, event_note: '' )
@@ -247,12 +256,20 @@ module Deepblue
                             ignore_blank_key_values: false )
     end
 
-    def provenance_create_derivative( current_user:, event_note: '' )
+    def provenance_create_derivative( current_user:, event_note: '', **added_prov_key_values )
+      event = EVENT_CREATE_DERIVATIVE
+      prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes_for_provenance_add,
+                                                                  current_user: current_user,
+                                                                  event: event,
+                                                                  event_note: event_note,
+                                                                  ignore_blank_key_values: true,
+                                                                  **added_prov_key_values )
       provenance_log_event( attributes: attributes_for_provenance_create_derivative,
                             current_user: current_user,
-                            event: EVENT_CREATE_DERIVATIVE,
+                            event: event,
                             event_note: event_note,
-                            ignore_blank_key_values: true )
+                            ignore_blank_key_values: true,
+                            prov_key_values: prov_key_values )
     end
 
     def provenance_destroy( current_user:, event_note: '' )
@@ -264,14 +281,22 @@ module Deepblue
                             ignore_blank_key_values: false )
     end
 
-    def provenance_ingest( current_user:, ingester:, event_note: '' )
+    def provenance_ingest( current_user:,
+                           event_note: '',
+                           ingest_id:,
+                           ingester:,
+                           ingest_timestamp:,
+                           **added_prov_key_values )
       event = EVENT_INGEST
+      added_prov_key_values = { ingest_id: ingest_id,
+                                ingester: ingester,
+                                ingest_timestamp: ingest_timestamp }.merge added_prov_key_values
       prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes_for_provenance_ingest,
                                                                   current_user: current_user,
                                                                   event: event,
                                                                   event_note: event_note,
                                                                   ignore_blank_key_values: false,
-                                                                  ingester: ingester )
+                                                                  **added_prov_key_values )
       provenance_log_event( attributes: nil,
                             event: event,
                             current_user: current_user,

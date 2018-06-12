@@ -18,7 +18,10 @@ module Hydra::Works
     # @param [Boolean] versioning whether to create new version entries (only applicable if +type+ corresponds to a versionable file)
     def self.call( file_set, file, type, update_existing: true, versioning: true )
       monkey_call( file_set, file, type, update_existing: update_existing, versioning: versioning )
-      file_set.provenance_ingest( current_user: ProvenanceHelper.system_as_current_user, ingester: ProvenanceHelper.system_as_current_user )
+      file_set.provenance_ingest( current_user: ProvenanceHelper.system_as_current_user,
+                                  ingest_id: '',
+                                  ingester: ProvenanceHelper.system_as_current_user,
+                                  ingest_timestamp: nil )
       Rails.logger.debug ">>>>>>>>>>>>>"
       Rails.logger.debug "File attached to file set #{file_set.id}"
       Rails.logger.debug ">>>>>>>>>>>>>"

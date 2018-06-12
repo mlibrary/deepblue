@@ -10,30 +10,27 @@ module IngestHelper
                          file_path = nil,
                          delete_input_file: true,
                          continue_job_chain: true,
-                         continue_job_chain_later: true )
-    # # See Hyrax gem: app/job/characterize_job.rb
-    # # def perform(file_set, file_id, filepath = nil)
-    # raise "#{file_set.class.characterization_proxy} was not found for FileSet #{file_set.id}" unless file_set.characterization_proxy?
-    # filepath = Hyrax::WorkingDirectory.find_or_retrieve(file_id, file_set.id) unless filepath && File.exist?(filepath)
-    # Hydra::Works::CharacterizationService.run(file_set.characterization_proxy, filepath)
-    # Rails.logger.debug "Ran characterization on #{file_set.characterization_proxy.id} (#{file_set.characterization_proxy.mime_type})"
-    # file_set.characterization_proxy.save!
-    # file_set.update_index
-    # file_set.parent.in_collections.each(&:update_index) if file_set.parent
-    # CreateDerivativesJob.perform_later(file_set, file_id, filepath)
+                         continue_job_chain_later: true,
+                         current_user: IngestHelper.current_user,
+                         **added_prov_key_values )
 
+    # See Hyrax gem: app/job/characterize_job.rb
     file_name = Hyrax::WorkingDirectory.find_or_retrieve( repository_file_id, file_set.id, file_path )
     file_ext = File.extname file_set.label
     if DeepBlueDocs::Application.config.characterize_excluded_ext_set.key? file_ext
       Rails.logger.info "Skipping characterization of file with extension #{file_ext}: #{file_name}"
-      file_set.provenance_characterize( current_user: current_user, event_note: "skipped_extension(#{file_ext})" )
+      file_set.provenance_characterize( current_user: current_user,
+                                        event_note: "skipped_extension(#{file_ext})",
+                                        **added_prov_key_values )
       perform_create_derivatives_job( file_set,
                                       repository_file_id,
                                       file_name,
                                       file_path,
                                       delete_input_file: delete_input_file,
                                       continue_job_chain: continue_job_chain,
-                                      continue_job_chain_later: continue_job_chain_later )
+                                      continue_job_chain_later: continue_job_chain_later,
+                                      current_user: current_user,
+                                      **added_prov_key_values )
       return
     end
     unless file_set.characterization_proxy?
@@ -45,10 +42,10 @@ module IngestHelper
       proxy = file_set.characterization_proxy
       Hydra::Works::CharacterizationService.run( proxy, file_name )
       Rails.logger.debug "Ran characterization on #{proxy.id} (#{proxy.mime_type})"
-      file_set.provenance_characterize( current_user: current_user )
+      file_set.provenance_characterize( current_user: current_user, **added_prov_key_values )
       file_set.characterization_proxy.save!
       file_set.update_index
-      file_set.parent.in_collections.each(&:update_index) if file_set.parent
+      file_set.parent.in_collections.each( &:update_index ) if file_set.parent
     rescue Exception => e # rubocop:disable Lint/RescueException
       Rails.logger.error "TaskIngestHelper.create_derivatives(#{file_name}) #{e.class}: #{e.message} at #{e.backtrace[0]}"
     ensure
@@ -58,57 +55,56 @@ module IngestHelper
                                       file_path,
                                       delete_input_file: delete_input_file,
                                       continue_job_chain: continue_job_chain,
-                                      continue_job_chain_later: continue_job_chain_later )
+                                      continue_job_chain_later: continue_job_chain_later,
+                                      **added_prov_key_values )
     end
   end
 
   # @param [FileSet] file_set
   # @param [String] repository_file_id identifier for a Hydra::PCDM::File
   # @param [String, NilClass] file_path the cached file within the Hyrax.config.working_path
-  def self.create_derivatives( file_set, repository_file_id, file_path = nil, delete_input_file: true )
-    # # See Hyrax gem: app/job/create_derivatives_job.rb
-    # # def perform(file_set, file_id, filepath = nil)
-    # return if file_set.video? && !Hyrax.config.enable_ffmpeg
-    # filename = Hyrax::WorkingDirectory.find_or_retrieve(file_id, file_set.id, filepath)
-    #
-    # file_set.create_derivatives(filename)
-    #
-    # # Reload from Fedora and reindex for thumbnail and extracted text
-    # file_set.reload
-    # file_set.update_index
-    # file_set.parent.update_index if parent_needs_reindex?(file_set)
+  def self.create_derivatives( file_set,
+                               repository_file_id,
+                               file_path = nil,
+                               delete_input_file: true,
+                               current_user: IngestHelper.current_user,
+                               **added_prov_key_values )
 
+    # See Hyrax gem: app/job/create_derivatives_job.rb
     file_name = Hyrax::WorkingDirectory.find_or_retrieve( repository_file_id, file_set.id, file_path )
     Rails.logger.warn "Create derivatives for: #{file_name}."
     begin
       file_ext = File.extname file_set.label
       if DeepBlueDocs::Application.config.derivative_excluded_ext_set.key? file_ext
         Rails.logger.info "Skipping derivative of file with extension #{file_ext}: #{file_name}"
-        file_set.provenance_create_derivative( current_user: current_user, event_note: "skipped_extension #{file_ext}" )
+        file_set.provenance_create_derivative( current_user: current_user,
+                                               event_note: "skipped_extension #{file_ext}",
+                                               **added_prov_key_values )
         return
       end
       if file_set.video? && !Hyrax.config.enable_ffmpeg
         Rails.logger.info "Skipping video derivative job for file: #{file_name}"
-        file_set.provenance_create_derivative( current_user: current_user, event_note: "skipped_extension #{file_ext}" )
+        file_set.provenance_create_derivative( current_user: current_user,
+                                               event_note: "skipped_extension #{file_ext}",
+                                               **added_prov_key_values )
         return
       end
       threshold_file_size = DeepBlueDocs::Application.config.derivative_max_file_size
       if threshold_file_size > -1 && File.exist?(file_name) && File.size(file_name) > threshold_file_size
         human_readable = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( threshold_file_size, precision: 3 )
         Rails.logger.info "Skipping file larger than #{human_readable} for create derivative job file: #{file_name}"
-        file_set.provenance_create_derivative( current_user: current_user, event_note: "skipped_file_size #{File.size(file_name)}" )
+        file_set.provenance_create_derivative( current_user: current_user, event_note: "skipped_file_size #{File.size(file_name)}", **added_prov_key_values )
         return
       end
       Rails.logger.debug "About to call create derivatives: #{file_name}."
       file_set.create_derivatives # TODO: (file_name)
       Rails.logger.debug "Create derivatives successful: #{file_name}."
-      file_set.provenance_create_derivative( current_user: current_user )
+      file_set.provenance_create_derivative( current_user: current_user, **added_prov_key_values )
       # Reload from Fedora and reindex for thumbnail and extracted text
       file_set.reload
       file_set.update_index
       file_set.parent.update_index if parent_needs_reindex?(file_set)
       Rails.logger.debug "Successful create derivative job for file: #{file_name}"
-    # delete_file( file_path, delete_file_flag: delete_input_file, msg_prefix: 'Create derivatives ' )
     rescue Exception => e # rubocop:disable Lint/RescueException
       Rails.logger.error "TaskIngestHelper.create_derivatives(#{file_set},#{repository_file_id},#{file_path}) #{e.class}: #{e.message} at #{e.backtrace[0]}"
     ensure
@@ -141,21 +137,11 @@ module IngestHelper
     # def perform(file_set, path, user)
     file_set.label ||= File.basename(path)
     file_set_actor_create_content( file_set, File.open(path) )
-
-    # actor = Hyrax::Actors::FileSetActor.new(file_set, user)
-    #
-    # if actor.create_content(File.open(path))
-    #   #Hyrax.config.callback.run(:after_import_local_file_success, file_set, user, path)
-    #   #Rails.logger.info "create content succeeded"
-    # else
-    #   #Hyrax.config.callback.run(:after_import_local_file_failure, file_set, user, path)
-    #   Rails.logger.error "create content failed"
-    # end
   end
 
   def self.file_set_actor_create_content( file_set, file, relation = :original_file )
     # If the file set doesn't have a title or label assigned, set a default.
-    # file_set.label ||= label_for(file)
+    file_set.label ||= label_for( file )
     file_set.title = [file_set.label] if file_set.title.blank?
     return false unless file_set.save # Need to save to get an id
     # if from_url
@@ -181,10 +167,27 @@ module IngestHelper
                                          versioning: false )
     return false unless file_set.save
     repository_file = related_file( file_set, relation )
-    Hyrax::VersioningService.create(repository_file, user)
+    Hyrax::VersioningService.create( repository_file, user )
     # pathhint = io.uploaded_file.uploader.path if io.uploaded_file # in case next worker is on same filesystem
     # CharacterizeJob.perform_later(file_set, repository_file.id, pathhint || io.path)
     characterize( file_set, repository_file.id, io.path )
+  end
+
+  # For the label, use the original_filename or original_name if it's there.
+  # If the file was imported via URL, parse the original filename.
+  # If all else fails, use the basename of the file where it sits.
+  # @note This is only useful for labeling the file_set, because of the recourse to import_url
+  def self.label_for(file)
+    if file.is_a?(Hyrax::UploadedFile) # filename not present for uncached remote file!
+      file.uploader.filename.present? ? file.uploader.filename : File.basename(Addressable::URI.parse(file.file_url).path)
+    elsif file.respond_to?(:original_name) # e.g. Hydra::Derivatives::IoDecorator
+      file.original_name
+    elsif file_set.import_url.present?
+      # This path is taken when file is a Tempfile (e.g. from ImportUrlJob)
+      File.basename(Addressable::URI.parse(file_set.import_url).path)
+    else
+      File.basename(file)
+    end
   end
 
   def self.related_file( file_set, relation )
@@ -204,13 +207,21 @@ module IngestHelper
                                            file_path,
                                            delete_input_file: true,
                                            continue_job_chain: true,
-                                           continue_job_chain_later: true )
+                                           continue_job_chain_later: true,
+                                           current_user: IngestHelper.current_user,
+                                           **added_prov_key_values )
     if continue_job_chain
       if continue_job_chain_later
+        # TODO: see about adding **added_prov_key_values to this:
         CreateDerivativesJob.perform_later( file_set, repository_file_id, file_name, delete_input_file )
       else
         # CreateDerivativesJob.perform_now( file_set, repository_file_id, file_name, delete_input_file )
-        create_derivatives( file_set, repository_file_id, file_name, delete_input_file )
+        create_derivatives( file_set,
+                            repository_file_id,
+                            file_name,
+                            delete_input_file: delete_input_file,
+                            current_user: current_user,
+                            **added_prov_key_values )
       end
     else
       delete_file( file_path, delete_file_flag: delete_input_file, msg_prefix: 'Characterize ' )

@@ -19,10 +19,10 @@ class NewContentService
   class WorkNotFoundError < RuntimeError
   end
 
-  attr_reader :cfg, :base_path, :user
+  attr_reader :base_path, :cfg, :ingest_id, :ingester, :ingest_timestamp, :path_to_config, :user
 
-  def initialize( config, base_path )
-    initialize_with_msg( config, base_path )
+  def initialize( path_to_config, config, base_path, args )
+    initialize_with_msg( args: args, path_to_config: path_to_config, config: config, base_path: base_path )
   end
 
   def run
@@ -47,6 +47,11 @@ class NewContentService
       fsets = paths_and_names.map { |fp| build_file_set(fp[0], fp[1]) }
       fsets.each do |fs|
         work.ordered_members << fs
+        work.provenance_add( current_user: user,
+                             child_id: fs.id,
+                             ingest_id: ingest_id,
+                             ingester: ingester,
+                             ingest_timestamp: ingest_timestamp )
         work.total_file_size_add_file_set fs
         work.representative = fs if work.representative_id.blank?
         work.thumbnail = fs if work.thumbnail_id.blank?
@@ -98,8 +103,23 @@ class NewContentService
       fs.visibility = visibility
       fs.save!
       repository_file_id = nil
-      IngestHelper.characterize(fs, repository_file_id, path, delete_input_file: false, continue_job_chain: false )
-      IngestHelper.create_derivatives(fs, repository_file_id, path, delete_input_file: false )
+      IngestHelper.characterize( fs,
+                                 repository_file_id,
+                                 path,
+                                 delete_input_file: false,
+                                 continue_job_chain: false,
+                                 current_user: user,
+                                 ingest_id: ingest_id,
+                                 ingester: ingester,
+                                 ingest_timestamp: ingest_timestamp )
+      IngestHelper.create_derivatives( fs,
+                                       repository_file_id,
+                                       path,
+                                       delete_input_file: false,
+                                       current_user: user,
+                                       ingest_id: ingest_id,
+                                       ingester: ingester,
+                                       ingest_timestamp: ingest_timestamp )
       logger.info "Finished:   #{fname}"
       return fs
     end
@@ -167,7 +187,6 @@ class NewContentService
                           fundedby: fundedby,
                           grantnumber: grantnumber )
 
-      add_file_sets_to_work( work_hash, work )
       work.apply_depositor_metadata( user_key )
       work.owner = user_key
       work.visibility = visibility
@@ -175,12 +194,24 @@ class NewContentService
       work.update( admin_set: default_admin_set ) # TODO fix
       work.save!
       work.reload
-      work.provenance_ingest( current_user: authoremail, ingester: ingester )
+      work.provenance_ingest( current_user: user,
+                              ingest_id: ingest_id,
+                              ingester: ingester,
+                              ingest_timestamp: ingest_timestamp )
+      add_file_sets_to_work( work_hash, work )
       return work
     end
 
     def collections
       @cfg[:user][:collections]
+    end
+
+    def config_value( key, default_value )
+      rv = default_value
+      if @cfg.key? :config
+        rv = @cfg[:config][key] if @cfg[:config].key? key
+      end
+      return rv
     end
 
     def default_admin_set
@@ -216,9 +247,25 @@ class NewContentService
       end
     end
 
+    def ingest_id
+      @ingest_id ||= @cfg[:user][:ingester]
+    end
+
+    def ingester
+      @cfg[:user][:ingester]
+    end
+
     # rubocop:disable Rails/Output
-    def initialize_with_msg( config, base_path, msg: "NEW CONTENT SERVICE AT YOUR ... SERVICE" )
+    def initialize_with_msg( args:,
+                             path_to_config:,
+                             config:,
+                             base_path:,
+                             msg: "NEW CONTENT SERVICE AT YOUR ... SERVICE" )
+
       verbose_init = false
+      @args = args # TODO: args.to_hash
+      puts "args=#{args}" if verbose_init
+      # puts "args=#{JSON.pretty_print args.as_json}" if verbose_init
       puts "ENV['TMPDIR']=#{ENV['TMPDIR']}" if verbose_init
       puts "ENV['_JAVA_OPTIONS']=#{ENV['_JAVA_OPTIONS']}" if verbose_init
       tmpdir = ENV['TMPDIR']
@@ -226,8 +273,11 @@ class NewContentService
       ENV['_JAVA_OPTIONS'] = "-Djava.io.tmpdir=#{tmpdir}"
       puts "ENV['_JAVA_OPTIONS']=#{ENV['_JAVA_OPTIONS']}" if verbose_init
       puts `echo $_JAVA_OPTIONS`.to_s if verbose_init
+      @path_to_config = path_to_config
       @cfg = config
       @base_path = base_path
+      @ingest_id = File.basename path_to_config
+      @ingest_timestamp = DateTime.now
       logger.info msg unless msg.nil?
     end
     # rubocop:enable Rails/Output
@@ -251,21 +301,9 @@ class NewContentService
       return config_value( :logger_level, 'info' )
     end
 
-    def ingester
-      @cfg[:user][:ingester]
-    end
-
     def user_key
       # TODO: validate the email
       @cfg[:user][:email]
-    end
-
-    def config_value( key, default_value )
-      rv = default_value
-      if @cfg.key? :config
-        rv = @cfg[:config][key] if @cfg[:config].key? key
-      end
-      return rv
     end
 
     # config needs default user to attribute collections/works/filesets to
