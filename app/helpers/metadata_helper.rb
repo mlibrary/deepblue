@@ -115,7 +115,7 @@ module MetadataHelper
     report_item( out, "ID: ", file_set.id )
     report_item( out, "File name: ", file_set.label )
     report_item( out, "Date uploaded: ", file_set.date_uploaded )
-    report_item( out, "Date modified: ", file_set.date_uploaded )
+    report_item( out, "Date modified: ", file_set.date_modified )
     report_item( out, "Total file size: ", human_readable_size( file_set.file_size[0] ) )
     report_item( out, "Checksum: ", file_set.original_checksum )
     report_item( out, "Mimetype: ", file_set.mime_type )
