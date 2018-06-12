@@ -48,6 +48,7 @@ Metrics/ClassLength:
   # Max: 1000 # default is 100
   Exclude:
    - 'app/controllers/catalog_controller.rb'
+   - 'lib/tasks/new_content_service.rb'
 
 Metrics/CyclomaticComplexity:
   Exclude:
