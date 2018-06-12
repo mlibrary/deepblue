@@ -11,11 +11,11 @@ module Deepblue
     include AbstractEventBehavior
 
     def attributes_all_for_provenance
-      []
+      %i[]
     end
 
     def attributes_brief_for_provenance
-      []
+      %i[]
     end
 
     def attributes_for_provenance_add

@@ -26,10 +26,11 @@ class DataSet < ActiveFedora::Base
   # schema (by adding accepts_nested_attributes)
 
   include ::Deepblue::DefaultMetadata
+  include ::Deepblue::MetadataBehavior
   include ::Deepblue::ProvenanceBehavior
 
   after_initialize :set_defaults
-  
+
   before_destroy :provenance_before_destroy_data_set
 
   def provenance_before_destroy_data_set
@@ -43,7 +44,7 @@ class DataSet < ActiveFedora::Base
     self.resource_type = ["Dataset"]
   end
 
-  def attributes_all_for_provenance
+  def metadata_keys_all
     %i[
       admin_set_id
       authoremail
@@ -72,13 +73,21 @@ class DataSet < ActiveFedora::Base
     ]
   end
 
-  def attributes_brief_for_provenance
+  def metadata_keys_brief
     %i[
       admin_set_id
       authoremail
       title
       visibility
     ]
+  end
+
+  def attributes_all_for_provenance
+    metadata_keys_all
+  end
+
+  def attributes_brief_for_provenance
+    metadata_keys_brief
   end
 
   def for_provenance_route
@@ -108,6 +117,30 @@ class DataSet < ActiveFedora::Base
       prov_key_values[attribute] = value if value.present?
     else
       prov_key_values[attribute] = value
+    end
+    return true
+  end
+
+  def metadata_hash_override( key:, ignore_blank_values:, key_values: )
+    value = nil
+    handled = case key.to_s
+              when 'total_file_count'
+                value = total_file_count
+                true
+              when 'total_file_size_human_readable'
+                value = total_file_size_human_readable
+                true
+              when 'visibility'
+                value = visibility
+                true
+              else
+                false
+              end
+    return false unless handled
+    if ignore_blank_values
+      key_values[key] = value if value.present?
+    else
+      key_values[key] = value
     end
     return true
   end
