@@ -79,6 +79,10 @@ Rails/Exit:
 Rails/DynamicFindBy:
   Enabled: false # this seems to recommend changes that cause failures
 
+Rails/Output:
+  Exclude:
+    - config/environments/development.rb
+
 #Rails/OutputSafety:
 #  Exclude:
 #    - 'spec/presenters/concerns/title_presenter_spec.rb'
