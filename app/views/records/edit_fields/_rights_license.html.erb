@@ -1,7 +1,20 @@
 <% rights_license_service = Hyrax::RightsLicenseService.new %>
+<% options = rights_license_service.select_active_options %>
+<% if f.object.rights_license == "http://creativecommons.org/licenses/by-nd/4.0/" %>
+<%   options << ["Attribution-NoDerivatives 4.0 Univeral", "http://creativecommons.org/licenses/by-nd/4.0/"] %>
+<% elsif f.object.rights_license == "http://creativecommons.org/licenses/by-nc-sa/4.0/" %>
+<%   options << ["Attribution-NonCommercial-ShareAlike", "http://creativecommons.org/licenses/by-nc-sa/4.0/"] %>
+<% elsif f.object.rights_license == "http://creativecommons.org/licenses/by/3.0/us/" %>
+<%   options << ["Attribution 3.0 United States", "http://creativecommons.org/licenses/by/3.0/us/"] %>
+<% elsif f.object.rights_license == "http://creativecommons.org/licenses/by-nc/3.0/us/" %>
+<%   options << ["Attribution-NonCommercial 3.0 United States", "http://creativecommons.org/licenses/by-nc/3.0/us/"] %>
+<% elsif f.object.rights_license == "http://creativecommons.org/licenses/by-nd/3.0/us/" %>
+<%   options << ["Attribution-NoDerivs 3.0 United States", "http://creativecommons.org/licenses/by-nd/3.0/us/"] %>
+<% elsif f.object.rights_license == "http://creativecommons.org/licenses/by-sa/3.0/us/" %>
+<%   options << ["Attribution-ShareAlike 3.0 United States", "http://creativecommons.org/licenses/by-sa/3.0/us/"] %>
+<% end %>
 <%= f.input :rights_license,
             as: :select,
-            collection: rights_license_service.select_active_options,
+            collection: options,
             include_blank: false,
-            item_helper: rights_license_service.method(:include_current_value),
             input_html: { class: 'form-control' } %>
