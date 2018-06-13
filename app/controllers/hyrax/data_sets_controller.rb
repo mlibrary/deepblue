@@ -17,9 +17,9 @@ module Hyrax
 
     # after_action  :box_work_created,               only: [:create]
     # after_action  :notify_rds_on_update_to_public, only: [:update]
-    # after_action  :notify_rds,                     only: [:create]
-    after_action :provenance_log_create,         only: [:create]
-    after_action :provenance_log_update_after,   only: [:update]
+    after_action :notify_rds,                      only: [:create]
+    after_action :provenance_log_create,           only: [:create]
+    after_action :provenance_log_update_after,     only: [:update]
 
     protect_from_forgery with: :null_session,    only: [:download]
     protect_from_forgery with: :null_session,    only: [:globus_add_email]
@@ -46,12 +46,6 @@ module Hyrax
       box_create_dir_and_add_collaborator
     end
 
-    def tombstone
-      curation_concern.entomb!(params[:tombstone])
-      msg = "Tombstoned: " + "#{curation_concern.title.first}" + " for this reason: " + "#{curation_concern.tombstone.first}" 
-      redirect_to dashboard_works_path, notice: msg
-    end
-
     def doi
       mint_doi
       respond_to do |wants|
@@ -66,12 +60,12 @@ module Hyrax
       #   work file_set count is 0.
       if curation_concern.doi
 
-        #flash[:notice] = MsgHelper.t( 'generic_work.doi_already_exists' )
+        # flash[:notice] = MsgHelper.t( 'generic_work.doi_already_exists' )
         flash[:notice] = "A DOI already exists or is being minted."
         return
       elsif curation_concern.file_sets.count < 1
         flash[:notice] = "DOI cannot be minted for a work without files."
-        #flash[:notice] = MsgHelper.t( 'generic_work.doi_requires_work_with_files' )
+        # flash[:notice] = MsgHelper.t( 'generic_work.doi_requires_work_with_files' )
         return
       end
 
@@ -82,13 +76,13 @@ module Hyrax
       curation_concern.save
 
       # Kick off job to get a doi
-      #msg = MsgHelper.t( 'generic_work.doi_requires_work_with_files', id: curation_concern.id )
-      msg = "DOI cannot be minted for a work without files. For id : " + curation_concern.id
-      #This has to be fixed.  -jose
-      #PROV_LOGGER.info (msg)
+      # TODO: provenance logging
+      # msg = MsgHelper.t( 'generic_work.doi_requires_work_with_files', id: curation_concern.id )
+      # msg = "DOI cannot be minted for a work without files. For id : " + curation_concern.id
+      # This has to be fixed.  -jose
+      # PROV_LOGGER.info (msg)
       ::DoiMintingJob.perform_later(curation_concern.id)
-
-    end    
+    end
 
     ## end box integration
 
@@ -123,15 +117,16 @@ module Hyrax
     ## Send email
 
     def notify_rds
-      # TODO
-      # email_rds( action: 'deposit', description: "deposited by #{curation_concern.depositor}" )
+      curation_concern.email_create_to_rds( current_user: current_user,
+                                            event_note: "deposited by #{curation_concern.depositor}" )
     end
 
     def notify_rds_on_update_to_public
-      # TODO
-      # return unless @visibility_changed_to_public
+      return unless @visibility_changed_to_public
       # description = "previously deposited by #{curation_concern.depositor}, was updated to #{curation_concern.visibility} access"
       # email_rds( action: 'update', description: description )
+      # TODO
+      curation_concern.email_update_to_rds( current_user: current_user )
     end
 
     ## end Send email
@@ -167,7 +162,8 @@ module Hyrax
     ## Tombstone
 
     def tombstone
-      curation_concern.entomb!( params[:tombstone], current_user )
+      curation_concern.entomb!( params[:tombstone] )
+      # curation_concern.entomb!( params[:tombstone], current_user )
       msg = "Tombstoned: #{curation_concern.title.first} for this reason: #{curation_concern.tombstone.first}"
       redirect_to dashboard_works_path, notice: msg
     end

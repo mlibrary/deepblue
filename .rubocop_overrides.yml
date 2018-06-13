@@ -48,6 +48,7 @@ Metrics/ClassLength:
   # Max: 1000 # default is 100
   Exclude:
    - 'app/controllers/catalog_controller.rb'
+   - 'app/controllers/hyrax/data_sets_controller.rb'
    - 'lib/tasks/new_content_service.rb'
 
 Metrics/CyclomaticComplexity:
@@ -57,6 +58,7 @@ Metrics/CyclomaticComplexity:
     - 'app/helpers/metadata_helper.rb'
     - 'app/models/data_set.rb'
     - 'app/models/file_set.rb'
+    - 'app/models/concerns/deepblue/email_behavior.rb'
     - 'app/models/concerns/deepblue/metadata_behavior.rb'
     - 'app/models/concerns/deepblue/provenance_behavior.rb'
     - 'lib/tasks/new_content_service.rb'
@@ -71,6 +73,7 @@ Metrics/PerceivedComplexity:
     - 'app/helpers/ingest_helper.rb'
     - 'app/helpers/metadata_helper.rb'
     - 'app/models/file_set.rb'
+    - 'app/models/concerns/deepblue/email_behavior.rb'
     - 'app/models/concerns/deepblue/metadata_behavior.rb'
     - 'app/models/concerns/deepblue/provenance_behavior.rb'
     - 'lib/tasks/new_content_service.rb'
