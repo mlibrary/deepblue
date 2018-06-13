@@ -149,3 +149,28 @@ en:
         title: >
           Provide a descriptive name for the Work. Consider including the words “data” or “dataset” and terms related to
           the methods, discipline, and topic associated with your research.
+  rights_license:
+    http://creativecommons_org/publicdomain/zero/1_0/:
+      description:
+        "You dedicate this work to the public domain, waiving all your rights to the work worldwide under copyright law."
+    http://creativecommons_org/licenses/by/4_0/:
+      description:
+        "This license lets others distribute, remix, tweak, and build upon your work, even commercially, as long as they credit you for the original creation."
+    http://creativecommons_org/licenses/by-nc/4_0/:
+      description:
+        "This license lets others modify and build upon your work non-commercially. Their new works must also acknowledge you and be non-commercial, but they don’t have to license their derivative works on the same terms."
+    http://creativecommons_org/licenses/by-nd/4_0/:
+      description:
+        "This license allows for redistribution, commercial and non-commercial, as long as it is passed along unchanged and in whole, with credit to you."
+    http://creativecommons_org/licenses/by/3_0/us/:
+      description:
+        "This license lets others distribute, remix, tweak, and build upon your work, even commercially, as long as they credit you for the original creation."
+    http://creativecommons_org/licenses/by-nc/3_0/us/:
+      description:
+        "This license lets others modify and build upon your work non-commercially. Their new works must also acknowledge you and be non-commercial, but they don’t have to license their derivative works on the same terms."
+    http://creativecommons_org/licenses/by-nd/3_0/us/:
+      description:
+        "This license allows for redistribution, commercial and non-commercial, as long as it is passed along unchanged and in whole, with credit to you."
+    http://creativecommons_org/licenses/by-sa/3_0/us/:
+      description:
+        "This license lets others remix, tweak, and build upon your work even for commercial purposes, as long as they credit you and license their new creations under the identical terms."
