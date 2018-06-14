@@ -39,6 +39,12 @@ module MetadataHelper
     pathname_dir.join "w_#{work.id}_metadata_report.txt"
   end
 
+  def self.metadata_multi_valued?( attribute_value )
+    return false if attribute_value.blank?
+    return true if attribute_value.respond_to?( :each ) && 1 < attribute_value.size
+    false
+  end
+
   def self.ordered( ordered_values: nil, values: nil )
     return nil if values.nil?
     if DeepBlueDocs::Application.config.do_ordered_list_hack

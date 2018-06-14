@@ -27,6 +27,7 @@ class DataSet < ActiveFedora::Base
 
   include ::Deepblue::DefaultMetadata
   include ::Deepblue::MetadataBehavior
+  include ::Deepblue::EmailBehavior
   include ::Deepblue::ProvenanceBehavior
 
   after_initialize :set_defaults
@@ -75,23 +76,65 @@ class DataSet < ActiveFedora::Base
 
   def metadata_keys_brief
     %i[
-      admin_set_id
       authoremail
       title
       visibility
     ]
   end
 
+  def attributes_all_for_email
+    metadata_keys_all
+  end
+
   def attributes_all_for_provenance
     metadata_keys_all
+  end
+
+  def attributes_brief_for_email
+    metadata_keys_brief
   end
 
   def attributes_brief_for_provenance
     metadata_keys_brief
   end
 
-  def for_provenance_route
+  def for_email_route
+    for_event_route
+  end
+
+  def for_event_route
     Rails.application.routes.url_helpers.hyrax_data_set_path( id: id )
+  end
+
+  def for_provenance_route
+    for_event_route
+  end
+
+  def map_email_attributes_override!( event:, # rubocop:disable Lint/UnusedMethodArgument
+                                      attribute:,
+                                      ignore_blank_key_values:,
+                                      email_key_values: )
+    value = nil
+    handled = case attribute.to_s
+              when 'total_file_count'
+                value = total_file_count
+                true
+              when 'total_file_size_human_readable'
+                value = total_file_size_human_readable
+                true
+              when 'visibility'
+                value = visibility
+                true
+              else
+                false
+              end
+    return false unless handled
+    if ignore_blank_key_values
+      email_key_values[attribute] = value if value.present?
+    else
+      email_key_values[attribute] = value
+    end
+    return true
   end
 
   def map_provenance_attributes_override!( event:, # rubocop:disable Lint/UnusedMethodArgument
