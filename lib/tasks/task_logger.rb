@@ -2,7 +2,7 @@
 
 require 'logger'
 
-module Umrdr
+module Deepblue
 
   class TaskLogger < Logger
 

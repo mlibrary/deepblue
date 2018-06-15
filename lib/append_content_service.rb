@@ -3,7 +3,7 @@
 require 'tasks/new_content_service'
 
 # Given a configuration hash read from a yaml file, build the contents in the repository.
-class AppendContentService < NewContentService
+class AppendContentService < Deepblue::NewContentService
 
   def self.call( path_to_config, args )
     config = YAML.load_file( path_to_config )
