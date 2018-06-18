@@ -55,6 +55,7 @@ class FileSet < ActiveFedora::Base
   end
 
   def files_to_file
+    return nil unless files.present?
     files.each do |f|
       return f if f.original_name.present?
     end

@@ -381,74 +381,6 @@ module Hyrax
     #   ::DoiMintingJob.perform_later(curation_concern.id)
     # end
 
-    def copy_file_sets_to( target_dir \
-                         , log_prefix: "" \
-                         , do_copy_predicate: ->(_target_file_name, _target_file) { true } \
-                         , quiet: false \
-                         , &block) \
-      file_sets = curation_concern.file_sets
-      Hyrax::DataSetsController.copy_file_sets( target_dir \
-                                                , file_sets \
-                                                , log_prefix: log_prefix \
-                                                , do_copy_predicate: do_copy_predicate \
-                                                , quiet: quiet \
-                                                , &block) \
-    end
-
-    def self.copy_file_sets( target_dir \
-                           , file_sets \
-                           , log_prefix: "copy_file_sets" \
-                           , do_copy_predicate: ->(_target_file_name, _target_file) { true } \
-                           , quiet: false \
-                           , &on_copy_block) \
-      Rails.logger.debug "#{log_prefix} Starting copy to #{target_dir}" unless quiet
-      files_extracted = {}
-      total_bytes = 0
-      file_sets.each do |file_set|
-        file = nil
-        files = file_sets.files
-        file = file_set.files[0] unless files.nil? || files.count.zero?
-        file_set.files.each do |f|
-          file = f unless f.original_name == ''
-        end
-        if file.nil?
-          Rails.logger.warn "#{log_prefix} file_set.id #{file_set.id} files[0] is nil"
-        else
-          target_file_name = file_set.label
-          # fix possible issues with target file name
-          target_file_name = '_nil_' if target_file_name.nil?
-          target_file_name = '_empty_' if target_file_name.empty?
-          if files_extracted.key? target_file_name
-            dup_count = 1
-            base_ext = File.extname target_file_name
-            base_target_file_name = File.basename target_file_name, base_ext
-            target_file_name = base_target_file_name + "_" + dup_count.to_s.rjust( 3, '0' ) + base_ext
-            while files_extracted.key? target_file_name
-              dup_count += 1
-              target_file_name = base_target_file_name + "_" + dup_count.to_s.rjust( 3, '0' ) + base_ext
-            end
-          end
-          files_extracted.store( target_file_name, true )
-          target_file = target_dir.join target_file_name
-          if do_copy_predicate.call( target_file_name, target_file )
-            source_uri = file.uri.value
-            # Rails.logger.debug "#{log_prefix} #{source_uri} exists? #{File.exist?( source_uri )}" unless quiet
-            Rails.logger.debug "#{log_prefix} copy #{target_file} << #{source_uri}" unless quiet
-            bytes_copied = open(source_uri) { |io| IO.copy_stream(io, target_file) }
-            total_bytes += bytes_copied
-            copied = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( bytes_copied, precision: 3 )
-            Rails.logger.debug "#{log_prefix} copied #{copied} to #{target_file}" unless quiet
-            on_copy_block.call( target_file_name, target_file ) if on_copy_block # rubocop:disable Style/SafeNavigation
-          else
-            Rails.logger.debug "#{log_prefix} skipped copy of #{target_file}" unless quiet
-          end
-        end
-      end
-      total_copied = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( total_bytes, precision: 3 )
-      Rails.logger.debug "#{log_prefix} Finished copy to #{target_dir}; total #{total_copied} in #{files_extracted.size} files" unless quiet
-      total_bytes
-    end
-
     def globus_complete?
       ::GlobusJob.copy_complete? curation_concern.id
     end
@@ -520,6 +452,20 @@ module Hyrax
           Rails.logger.error "email_it unknown action #{action}"
         end
         email.deliver_now unless email.nil? || email_to.nil?
+      end
+
+      def export_file_sets_to( target_dir:,
+                               log_prefix: "",
+                               do_export_predicate: ->(_target_file_name, _target_file) { true },
+                               quiet: false,
+                               &block )
+        file_sets = curation_concern.file_sets
+        ExportFilesHelper.export_file_sets( target_dir: target_dir,
+                                            file_sets: file_sets,
+                                            log_prefix: log_prefix,
+                                            do_export_predicate: do_export_predicate,
+                                            quiet: quiet,
+                                            &block )
       end
 
       def flash_and_go_back( msg )

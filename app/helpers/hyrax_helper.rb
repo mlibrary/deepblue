@@ -4,7 +4,6 @@ module HyraxHelper
   include Hyrax::HyraxHelperBehavior
 
 
-  # A Blacklight helper_method
   # @param [Hash] options from blacklight invocation of helper_method
   # @see #index_field_link params
   # @return [String]
