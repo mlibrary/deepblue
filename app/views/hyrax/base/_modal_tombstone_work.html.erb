@@ -1,28 +1,28 @@
 <div class="modal fade disable-unless-selected" id="tombstoneId" tabindex="-1" role="dialog" aria-labelledby="tombstone-work-label">
   <div class="modal-dialog" role="document" style="text-align: left; display: inline-block">
     <div class="modal-content">
-        <form action="<%= id %>/tombstone" method="POST">
+      <form action="<%= id %>/tombstone" method="POST">
       
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="tombstone-close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="select-tombstone">Tombstone Work</h4>
-          </div>
-
-          <div class="modal-body style="text-align: right; display: inline-block">
-            <select id="select-tombstone" name="tombstone">
-              <option value="Removed from view by legal order." selected>Removed from view by legal order.</option>
-              <option value="Removed from view by the University.">Removed from view by the University.</option>
-              <option value="Removed from view at request of the author.">Removed from view at request of the author.</option>
-           </select>
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="tombstone-close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="select-tombstone">Tombstone Work</h4>
         </div>
+
+        <div class="modal-body" style="text-align: right; display: inline-block">
+          <select id="select-tombstone" name="tombstone">
+            <option value="Removed from view by legal order." selected>Removed from view by legal order.</option>
+            <option value="Removed from view by the University.">Removed from view by the University.</option>
+            <option value="Removed from view at request of the author.">Removed from view at request of the author.</option>
+          </select>
+        </div>
+
         <div class="modal-footer">
           <div style="text-align: right; display: inline-block">
             <button type="button" class="btn btn-default" data-dismiss="modal"><%= t('helpers.action.cancel') %></button>
-          <input type="submit" class="btn btn-primary" value="Tombstone" />
-
-            </div>
+            <input type="submit" class="btn btn-primary" value="Tombstone" />
           </div>
         </div>
+
       </form>
     </div>
   </div>

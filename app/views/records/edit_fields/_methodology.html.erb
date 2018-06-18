@@ -1,0 +1,5 @@
+<% if f.object.class.multiple? key %>
+  <%= f.input :methodology, as: :multi_value, input_html: { rows: '5', type: 'textarea'}, required: true, force_single: true %>
+<% else %>
+  <%= f.input :methodology, as: :text, input_html: { rows: '5' } %>
+<% end %>
