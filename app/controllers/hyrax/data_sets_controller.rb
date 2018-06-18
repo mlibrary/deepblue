@@ -162,7 +162,7 @@ module Hyrax
     ## Tombstone
 
     def tombstone
-      curation_concern.entomb!( params[:tombstone] )
+      curation_concern.entomb!( params[:tombstone], current_user )
       # curation_concern.entomb!( params[:tombstone], current_user )
       msg = "Tombstoned: #{curation_concern.title.first} for this reason: #{curation_concern.tombstone.first}"
       redirect_to dashboard_works_path, notice: msg
