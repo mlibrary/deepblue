@@ -32,7 +32,7 @@ en:
         description_sponsorship: The names of any sponsors and/or funding codes.
         description: Any additional descriptive information or comments.
     labels:
-      defaults:
+      generic_work:
         creator: Author(s)
         identifier_orcid: ORCID iD
         academic_affiliation: UM Author Affiliation

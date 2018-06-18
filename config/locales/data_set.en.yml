@@ -49,7 +49,7 @@ en:
       total_file_size_human_readable: "Total file size"
   simple_form:
     labels:
-      defaults:
+      data_set:
         authoremail:          "Contact Information"
         admin_set_id:         "Add as member of administrative set"
         based_near:           "Location"
@@ -81,7 +81,7 @@ en:
         tag:                  "Keywords"
         title:                "Title"
     hints:
-      defaults:
+      data_set:
         authoremail: >
           Enter the contact information (email address) for the individual who can best respond to questions about the
           Work.

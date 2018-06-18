@@ -51,6 +51,10 @@ module Hyrax
 
     self.default_work_secondary_terms = []
 
+    def data_set?
+      true
+    end
+
   end
 
 end
