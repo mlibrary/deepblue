@@ -9,7 +9,7 @@ namespace :deepblue do
   # bundle exec rake deepblue:upgrade_provenance_log[log/p-20180613a-provenance.log,log/p-20180613a-provenance-out.log,log/p-20180613a-provenance-report.log]
   desc 'Upgrade provenance log'
   # See: https://stackoverflow.com/questions/825748/how-to-pass-command-line-arguments-to-a-rake-task
-  task :upgrade_provenance_log, [:input_file,:output_file,:report_file] => :environment do |_task, args|
+  task :upgrade_provenance_log, %i[input_file output_file report_file] => :environment do |_task, args|
     # puts "upgrade_provenance_log", args.as_json
     task = Deepblue::UpgradeProvenanceLog.new( input_file: args[:input_file],
                                                output_file: args[:output_file],
@@ -71,7 +71,7 @@ module Deepblue
   class UpgradeProvenanceLog
     include TaskReporter
     include AbstractEventBehavior
-    
+
     attr_reader :error_line_numbers, :error_output_line_numbers, :input_line_number, :last_error, :output_line_number
 
     class ParseError < RuntimeError
@@ -110,9 +110,9 @@ module Deepblue
     SPLITTER_TICK_COMMA_TICK = "','"
     SPLITTER_NEWLINES = "\\n\\n"
     SPLITTER_SEMICOLON_SPACE = '; '
-    SPLITTER_CREATOR = [ SPLITTER_TICK_COMMA_TICK, SPLITTER_SEMICOLON_SPACE ]
-    SPLITTER_SUBJECT = [ SPLITTER_TICK_COMMA_TICK, SPLITTER_SEMICOLON_SPACE ]
-    SPLITTER_TITLE = [ SPLITTER_TICK_COMMA_TICK, SPLITTER_SEMICOLON_SPACE ]
+    SPLITTER_CREATOR = [ SPLITTER_TICK_COMMA_TICK, SPLITTER_SEMICOLON_SPACE ].freeze
+    SPLITTER_SUBJECT = [ SPLITTER_TICK_COMMA_TICK, SPLITTER_SEMICOLON_SPACE ].freeze
+    SPLITTER_TITLE = [ SPLITTER_TICK_COMMA_TICK, SPLITTER_SEMICOLON_SPACE ].freeze
 
     def initialize( input_file:, output_file:, report_file:, output_mode: "w" )
       @input_file = input_file
@@ -152,7 +152,7 @@ module Deepblue
       # WORK Updated: (http://deepblue.lib.umich.edu/data/concern/generic_works/wm117p52g) by + Regoli, Leonardo H. with restricted access was updated title: Model outputs for "Multi-species and multi-fluid MHD approaches for the study of ionospheric escape at Mars" on: 2018-04-04T14:45:35+00:00
       @re_work_updated2 = Regexp.compile( "^WORK Updated: #{RE_LINK_GENERIC_WORK} #{RE_BY_PLUS_CREATORS} #{RE_WITH_ACCESS} was updated #{RE_TITLE} #{RE_ON}$" )
     end
-    
+
     def report_results( to_this: nil )
       if to_this.nil?
         open( @report_file, "w" ) { |fout| report_results( to_this: fout ) }
@@ -200,7 +200,7 @@ module Deepblue
         @input_line_number = 0
         @output_record = nil
         open( @input_file, "r" ) do |fin|
-          while !fin.eof?
+          until fin.eof?
             pacifier.pacify
             read_input_line fin
             record_process
@@ -211,9 +211,8 @@ module Deepblue
         record_process
       ensure
         pacifier.nl
-        return if @output_log.nil?
-        @output_log.flush
-        @output_log.close
+        @output_log.flush unless @output_log.nil? # rubocop:disable Style/SafeNavigation
+        @output_log.close unless @output_log.nil? # rubocop:disable Style/SafeNavigation
       end
     end
 
@@ -225,6 +224,7 @@ module Deepblue
 
       def fix_backslashes( key:, value: )
         return value unless @fix_backslashes
+        # rubocop:disable Lint/EmptyWhen
         case key.to_s
         when 'methodology'
           # fix
@@ -235,12 +235,13 @@ module Deepblue
         else
           return value
         end
+        # rubocop:enable Lint/EmptyWhen
         value.gsub( '\\\\', '\\' )
       end
 
       def fix_property_value( properties:, key:, value:, splitter: )
         key = key.to_s
-        return fix_backslashes( key: key, value: value ) unless properties.has_key? key
+        return fix_backslashes( key: key, value: value ) unless properties.key? key
         property = properties[key]
         return fix_backslashes( key: key, value: value ) unless property.multiple?
         return [fix_backslashes( key: key, value: value )] if splitter.nil?
@@ -282,7 +283,7 @@ module Deepblue
         return if @output_record.nil?
         added_prov_key_values = @output_record.added_prov_key_values
         values_to_inspect_count = 0
-        added_prov_key_values.each_pair do |key,value|
+        added_prov_key_values.each_pair do |key, value|
           value = value.to_s
           if inspect_colon_key?( key ) && value.include?( ':' )
             values_to_inspect_count += 1
@@ -344,14 +345,14 @@ module Deepblue
       def record_parse
         pacifier.pacify 'p'
         match = @re_record_start.match @input_line_buffer
-        raise ParseError.new( "Expected start of record at line #{@input_line_buffer_start_line_number}" ) unless match
+        raise ParseError "Expected start of record at line #{@input_line_buffer_start_line_number}" unless match
         record_date = match[1]
         rest = match[2]
-        if @re_discard.match rest
+        if @re_discard.match rest # rubocop:disable Performance/RegexpMatch
           record_parse_discard
           return
         end
-        if @re_work_created_or_updated.match rest
+        if @re_work_created_or_updated.match rest # rubocop:disable Performance/RegexpMatch
           return if record_parse_work_created( record_date: record_date, match: @re_work_created.match( rest ) )
           return if record_parse_work_created2( record_date: record_date, match: @re_work_created2.match( rest ) )
           return if record_parse_work_updated( record_date: record_date, match: @re_work_updated.match( rest ) )
@@ -665,4 +666,3 @@ module Deepblue
   end
 
 end
-

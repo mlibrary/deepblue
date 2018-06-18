@@ -20,7 +20,10 @@ module Deepblue
     protected
 
       def initialize_log
-        Deepblue::TaskLogger.new( STDOUT ).tap { |logger| logger.level = Logger::INFO; Rails.logger = logger }
+        Deepblue::TaskLogger.new( STDOUT ).tap do |logger|
+          logger.level = Logger::INFO
+          Rails.logger = logger
+        end
       end
 
       def initialize_pacifier

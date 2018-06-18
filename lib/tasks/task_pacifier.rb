@@ -22,11 +22,9 @@ module Deepblue
     def pacify( x = '.' )
       return unless active
       x = x.to_s
-      @count = @count + x.length
+      @count += x.length
       @out.print x
-      if @count > @count_nl
-        nl
-      end
+      nl if @count > @count_nl
       @out.flush
     end
 
