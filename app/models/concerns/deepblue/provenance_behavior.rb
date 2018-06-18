@@ -197,9 +197,9 @@ module Deepblue
                                                   ignore_blank_key_values:,
                                                   **added_prov_key_values )
 
-      prov_key_values = { user_email: for_provenance_user( current_user ) }
-      prov_key_values.merge!( event_note: event_note ) if event_note.present?
-      prov_key_values.merge!( added_prov_key_values ) if added_prov_key_values.present?
+      prov_key_values = ProvenanceHelper.initialize_prov_key_values( user_email: for_provenance_user( current_user ),
+                                                                     event_note: event_note,
+                                                                     **added_prov_key_values )
       prov_key_values = map_provenance_attributes!( event: event,
                                                     attributes: attributes,
                                                     ignore_blank_key_values: ignore_blank_key_values,

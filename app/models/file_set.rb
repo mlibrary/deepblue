@@ -22,6 +22,8 @@ class FileSet < ActiveFedora::Base
       extracted_text
       file_extension
       files_count
+      file_size
+      file_size_human_readable
       label
       location
       mime_type
@@ -74,6 +76,21 @@ class FileSet < ActiveFedora::Base
                 true
               when 'files_count'
                 value = files.size
+                true
+              when 'files_size'
+                value = if file_size.blank?
+                          original_file.size
+                        else
+                          file_size[0]
+                        end
+                true
+              when 'files_size_human_readable'
+                value = if file_size.blank?
+                          original_file.size
+                        else
+                          file_size[0]
+                        end
+                value = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( value, precision: 3 )
                 true
               when 'label'
                 value = label
