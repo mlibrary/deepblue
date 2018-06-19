@@ -24,6 +24,13 @@ module Deepblue
       "#{timestamp} #{event}/#{class_name}/#{id} #{key_values}"
     end
 
+    def self.bold_debug( msg = nil, lines: 1, &block )
+      lines = 1 if lines < 1
+      lines.times { Rails.logger.debug ">>>>>>>>>>" }
+      Rails.logger.debug msg, &block
+      lines.times { Rails.logger.debug ">>>>>>>>>>" }
+    end
+
     def self.log( class_name: 'UnknownClass',
                   event: 'unknown',
                   event_note: '',

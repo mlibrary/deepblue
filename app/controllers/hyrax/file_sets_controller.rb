@@ -6,6 +6,7 @@ module Hyrax
 
   # monkey patch FileSetsController
   class FileSetsController < ApplicationController
+
     alias_method :monkey_update, :update
     alias_method :monkey_update_metadata, :update_metadata
 
@@ -16,19 +17,19 @@ module Hyrax
     after_action :provenance_log_update_after,   only: [:update]
 
     def provenance_log_create
-      curation_concern.provenance_create( current_user: current_user )
+      curation_concern.provenance_create( current_user: current_user, event_note: 'FileSetsController' )
     end
 
     def provenance_log_destroy
-      curation_concern.provenance_destroy( current_user: current_user )
+      curation_concern.provenance_destroy( current_user: current_user, event_note: 'FileSetsController' )
     end
 
     def provenance_log_update_after
-      curation_concern.provenance_log_update_after( current_user: current_user )
+      curation_concern.provenance_log_update_after( current_user: current_user, event_note: 'FileSetsController.provenance_log_update_after' )
     end
 
     def provenance_log_update_before
-      curation_concern.provenance_log_update_before( current_user: current_user )
+      curation_concern.provenance_log_update_before( current_user: current_user, event_note: 'FileSetsController.provenance_log_update_before' )
     end
 
     # # PATCH /concern/file_sets/:id

@@ -7,8 +7,9 @@ module Deepblue
 
   module AbstractEventBehavior
 
-    EVENT_ADD               = 'add'
     EVENT_CHARACTERIZE      = 'characterize'
+    EVENT_CHILD_ADD         = 'child_add'
+    EVENT_CHILD_REMOVE      = 'child_remove'
     EVENT_CREATE            = 'create'
     EVENT_CREATE_DERIVATIVE = 'create_derivative'
     EVENT_DESTROY           = 'destroy'
@@ -22,8 +23,9 @@ module Deepblue
     EVENT_UPLOAD            = 'upload'
     EVENTS                  =
       [
-        EVENT_ADD,
         EVENT_CHARACTERIZE,
+        EVENT_CHILD_ADD,
+        EVENT_CHILD_REMOVE,
         EVENT_CREATE,
         EVENT_CREATE_DERIVATIVE,
         EVENT_DESTROY,
