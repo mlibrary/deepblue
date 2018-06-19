@@ -33,7 +33,7 @@ module Hyrax
 
     def box_create_dir_and_add_collaborator
       return nil unless DeepBlueDocs::Application.config.box_integration_enabled
-      user_email = EmailHelper.user_email_from( current_user )
+      user_email = Deepblue::EmailHelper.user_email_from( current_user )
       BoxHelper.create_dir_and_add_collaborator( curation_concern.id, user_email: user_email )
     end
 
@@ -230,7 +230,7 @@ module Hyrax
 
     # def globus_add_email
     #   if user_signed_in?
-    #     user_email = EmailHelper.user_email_from( current_user )
+    #     user_email = Deepblue::EmailHelper.user_email_from( current_user )
     #     globus_copy_job( user_email: user_email, delay_per_file_seconds: 0 )
     #     flash_and_go_back globus_files_prepping_msg( user_email: user_email )
     #   elsif params[:user_email_one].present? || params[:user_email_two].present?
@@ -276,7 +276,7 @@ module Hyrax
     #   if globus_complete?
     #     flash_and_redirect_to_main_cc globus_files_available_here
     #   else
-    #     user_email = EmailHelper.user_email_from( current_user, user_signed_in: user_signed_in? )
+    #     user_email = Deepblue::EmailHelper.user_email_from( current_user, user_signed_in: user_signed_in? )
     #     msg = nil
     #     if globus_prepping?
     #       msg = globus_files_prepping_msg( user_email: user_email )
@@ -302,7 +302,7 @@ module Hyrax
     #
     # def globus_download_notify_me
     #   if user_signed_in?
-    #     user_email = EmailHelper.user_email_from( current_user )
+    #     user_email = Deepblue::EmailHelper.user_email_from( current_user )
     #     globus_copy_job( user_email: user_email )
     #     flash_and_go_back globus_file_prep_started_msg( user_email: user_email )
     #   elsif params[:user_email_one].present? || params[:user_email_two].present?
@@ -394,65 +394,6 @@ module Hyrax
     end
 
     protected
-
-      def emails_did_not_match_msg( _user_email_one, _user_email_two )
-        "Emails did not match" # + ": '#{user_email_one}' != '#{user_email_two}'"
-      end
-
-      def email_rds_and_user( action: 'create', description: '' )
-        email_to = EmailHelper.user_email_from( current_user )
-        email_from = EmailHelper.notification_email # will be nil on developer's machine
-        email_it( action: action,
-                  description: description,
-                  email_to: email_to,
-                  email_from: email_from )
-      end
-
-      def email_rds( action: 'deposit', description: '' )
-        email_to = EmailHelper.notification_email # will be nil on developer's machine
-        email_it( action: action, description: description, email_to: email_to )
-      end
-
-      def email_it( action: 'deposit', description: '', email_to: '', email_from: nil )
-        location = MsgHelper.work_location( curration_concern: curation_concern )
-        title    = MsgHelper.title( curation_concern )
-        creator  = MsgHelper.creator( curation_concern )
-        msg      = "#{title} (#{location}) by + #{creator} with #{curation_concern.visibility} access was #{description}"
-        Rails.logger.debug "email_it: action=#{action} email_to=#{email_to} email_from=#{email_from} msg='#{msg}'"
-        email = nil
-        case action
-        when 'deposit'
-          email = WorkMailer.deposit_work( to: email_to, body: msg )
-        when 'delete'
-          email = WorkMailer.delete_work( to: email_to, body: msg )
-        when 'create'
-          email = WorkMailer.create_work( to: email_to, body: msg )
-        when 'publish'
-          email = WorkMailer.publish_work( to: email_to, body: msg )
-        when 'update'
-          email = WorkMailer.update_work( to: email_to, body: msg )
-        else
-          Rails.logger.error "email_it unknown action #{action}"
-        end
-        email.deliver_now unless email.nil? || email_to.nil?
-        return if email_from.nil?
-        email = nil
-        case action
-        when 'deposit'
-          email = WorkMailer.deposit_work( to: email_to, from: email_from, body: msg )
-        when 'delete'
-          email = WorkMailer.delete_work( to: email_to, from: email_from, body: msg )
-        when 'create'
-          email = WorkMailer.create_work( to: email_to, from: email_from, body: msg )
-        when 'publish'
-          email = WorkMailer.publish_work( to: email_to, from: email_from, body: msg )
-        when 'update'
-          email = WorkMailer.update_work( to: email_to, from: email_from, body: msg )
-        else
-          Rails.logger.error "email_it unknown action #{action}"
-        end
-        email.deliver_now unless email.nil? || email_to.nil?
-      end
 
       def export_file_sets_to( target_dir:,
                                log_prefix: "",

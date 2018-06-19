@@ -273,7 +273,9 @@ module Deepblue
     end
 
     def provenance_destroy( current_user:, event_note: '' )
-      return if for_provenance_event_cache_exist?( event: EVENT_DESTROY )
+      unless DeepBlueDocs::Application.config.provenance_log_redudant_events
+        return if for_provenance_event_cache_exist?( event: EVENT_DESTROY )
+      end
       provenance_log_event( attributes: attributes_for_provenance_destroy,
                             current_user: current_user,
                             event: EVENT_DESTROY,

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "email_logger"
 require "provenance_logger"
 
 Rails.application.configure do

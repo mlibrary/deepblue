@@ -18,7 +18,19 @@ module Deepblue
       %i[]
     end
 
-    def attributes_for_email_create
+    def attributes_for_email_rds_create
+      attributes_all_for_email
+    end
+
+    def attributes_for_email_rds_destroy
+      attributes_all_for_email
+    end
+
+    def attributes_for_email_rds_publish
+      attributes_all_for_email
+    end
+
+    def attributes_for_email_user_create
       attributes_all_for_email
     end
 
@@ -60,11 +72,11 @@ module Deepblue
       body.string
     end
 
-    def email_create( to:, current_user:, event_note: '' )
-      email_event_notification( to: to,
+    def email_rds_create( current_user:, event_note: '' )
+      email_event_notification( to: email_address_rds,
                                 from: email_address_rds,
-                                subject: for_email_subject(subject_rest: 'New Work Created' ),
-                                attributes: attributes_for_email_create,
+                                subject: for_email_subject( subject_rest: 'Work Created' ),
+                                attributes: attributes_for_email_rds_create,
                                 current_user: current_user,
                                 event: EVENT_CREATE,
                                 event_note: event_note,
@@ -72,12 +84,48 @@ module Deepblue
                                 ignore_blank_key_values: false )
     end
 
-    def email_create_to_rds( current_user:, event_note: '' )
-      email_create( to: email_address_rds, current_user: current_user, event_note: event_note )
+    def email_rds_destroy( current_user:, event_note: '' )
+      email_event_notification( to: email_address_rds,
+                                from: email_address_rds,
+                                subject: for_email_subject( subject_rest: 'Work Deleted' ),
+                                attributes: attributes_for_email_rds_destroy,
+                                current_user: current_user,
+                                event: EVENT_DESTROY,
+                                event_note: event_note,
+                                id: for_email_id,
+                                ignore_blank_key_values: false )
     end
 
-    def email_create_to_user( current_user:, event_note: '' )
-      email_create( to: email_address_user( current_user ), current_user: current_user, event_note: event_note )
+    def email_rds_publish( current_user:, event_note: '' )
+      email_event_notification( to: email_address_rds,
+                                from: email_address_rds,
+                                subject: for_email_subject( subject_rest: 'Work Published' ),
+                                attributes: attributes_for_email_rds_publish,
+                                current_user: current_user,
+                                event: EVENT_PUBLISH,
+                                event_note: event_note,
+                                id: for_email_id,
+                                ignore_blank_key_values: false )
+    end
+
+    def email_user_create( current_user:, event_note: '' )
+      email_event_notification( to: email_address_user( current_user ),
+                                from: email_address_rds,
+                                subject: for_email_subject( subject_rest: 'Work Created' ),
+                                attributes: attributes_for_email_user_create,
+                                current_user: current_user,
+                                event: EVENT_CREATE,
+                                event_note: event_note,
+                                id: for_email_id,
+                                ignore_blank_key_values: false )
+    end
+
+    def email_create_to_rds( current_user:, event_note: '' ) # TODO: delete this method
+      email_rds_create( current_user: current_user, event_note: event_note )
+    end
+
+    def email_create_to_user( current_user:, event_note: '' ) # TODO: delete this method
+      email_create( current_user: current_user, event_note: event_note )
     end
 
     def for_email_class
@@ -200,12 +248,78 @@ module Deepblue
         end
         event_attributes_cache_write( event: event, id: id, behavior: :EmailBehavior )
         body = email_compose_body( event_note: event_note, email_key_values: email_key_values )
-        # TODO: write to log
-        # ApplicationMailer.mail( to: to, from: from, subject: subject, body: body )
-        Rails.logger.debug ">>>>>>"
-        Rails.logger.debug "email_event_notification"
-        Rails.logger.debug "to: #{to}\nfrom: #{from}\nsubject: #{subject}\nbody:\n#{body}"
-        Rails.logger.debug ">>>>>>"
+        EmailHelper.send_email( to: to, from: from, subject: subject, body: body )
+        class_name = for_email_class.name
+        EmailHelper.log( class_name: class_name,
+                         current_user: current_user,
+                         event: event,
+                         event_note: event_note,
+                         id: id,
+                         to: to,
+                         from: from,
+                         subject: subject,
+                         **email_key_values )
+      end
+
+      def emails_did_not_match_msg( _user_email_one, _user_email_two )
+        "Emails did not match" # + ": '#{user_email_one}' != '#{user_email_two}'"
+      end
+
+      ### TODO: review and integrate as necessary (also delete from DataSetsController)
+
+      def email_rds_and_user( action: 'create', description: '' )
+        email_to = EmailHelper.user_email_from( current_user )
+        email_from = EmailHelper.notification_email # will be nil on developer's machine
+        email_it( action: action,
+                  description: description,
+                  email_to: email_to,
+                  email_from: email_from )
+      end
+
+      def email_rds( action: 'deposit', description: '' )
+        email_to = EmailHelper.notification_email # will be nil on developer's machine
+        email_it( action: action, description: description, email_to: email_to )
+      end
+
+      def email_it( action: 'deposit', description: '', email_to: '', email_from: nil )
+        location = MsgHelper.work_location( curration_concern: curation_concern )
+        title    = MsgHelper.title( curation_concern )
+        creator  = MsgHelper.creator( curation_concern )
+        msg      = "#{title} (#{location}) by + #{creator} with #{curation_concern.visibility} access was #{description}"
+        Rails.logger.debug "email_it: action=#{action} email_to=#{email_to} email_from=#{email_from} msg='#{msg}'"
+        email = nil
+        case action
+        when 'deposit'
+          email = WorkMailer.deposit_work( to: email_to, body: msg )
+        when 'delete'
+          email = WorkMailer.delete_work( to: email_to, body: msg )
+        when 'create'
+          email = WorkMailer.create_work( to: email_to, body: msg )
+        when 'publish'
+          email = WorkMailer.publish_work( to: email_to, body: msg )
+        when 'update'
+          email = WorkMailer.update_work( to: email_to, body: msg )
+        else
+          Rails.logger.error "email_it unknown action #{action}"
+        end
+        email.deliver_now unless email.nil? || email_to.nil?
+        return if email_from.nil?
+        email = nil
+        case action
+        when 'deposit'
+          email = WorkMailer.deposit_work( to: email_to, from: email_from, body: msg )
+        when 'delete'
+          email = WorkMailer.delete_work( to: email_to, from: email_from, body: msg )
+        when 'create'
+          email = WorkMailer.create_work( to: email_to, from: email_from, body: msg )
+        when 'publish'
+          email = WorkMailer.publish_work( to: email_to, from: email_from, body: msg )
+        when 'update'
+          email = WorkMailer.update_work( to: email_to, from: email_from, body: msg )
+        else
+          Rails.logger.error "email_it unknown action #{action}"
+        end
+        email.deliver_now unless email.nil? || email_to.nil?
       end
 
   end

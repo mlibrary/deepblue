@@ -28,7 +28,7 @@ module Hyrax
       rv = ::BoxHelper.box_link_display_for_work?( work_id: @solr_document.id,
                                                    work_file_count: total_file_count,
                                                    is_admin: current_ability.admin?,
-                                                   user_email: EmailHelper.user_email_from( current_user ) )
+                                                   user_email: Deepblue::EmailHelper.user_email_from( current_user ) )
       return rv
     end
 
@@ -36,7 +36,7 @@ module Hyrax
     def date_coverage
       solr_value = @solr_document.date_coverage
       return nil if solr_value.blank?
-      return solr_value.sub( "/open", "" ) if solr_value.match "/open" # rubocop:disable Performance/RedundantMatch
+      return solr_value.sub( "/open", "" ) if solr_value.match "/open" # rubocop:disable Performance/RedundantMatch, Performance/RegexpMatch
       solr_value.sub( "/", " to " )
     end
 

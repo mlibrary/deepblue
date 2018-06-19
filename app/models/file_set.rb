@@ -55,7 +55,7 @@ class FileSet < ActiveFedora::Base
   end
 
   def files_to_file
-    return nil unless files.present?
+    return nil if files.blank?
     files.each do |f|
       return f if f.original_name.present?
     end
@@ -78,14 +78,14 @@ class FileSet < ActiveFedora::Base
               when 'files_count'
                 value = files.size
                 true
-              when 'files_size'
+              when 'file_size'
                 value = if file_size.blank?
                           original_file.size
                         else
                           file_size[0]
                         end
                 true
-              when 'files_size_human_readable'
+              when 'file_size_human_readable'
                 value = if file_size.blank?
                           original_file.size
                         else
