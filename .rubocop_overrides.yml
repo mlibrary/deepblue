@@ -55,9 +55,9 @@ Metrics/ClassLength:
 Metrics/CyclomaticComplexity:
   Exclude:
     - 'app/controllers/hyrax/data_sets_controller.rb'
-    - 'app/helpers/ingest_helper.rb'
     - 'app/helpers/export_files_helper.rb'
     - 'app/helpers/metadata_helper.rb'
+    - 'app/helpers/deepblue/ingest_helper.rb'
     - 'app/models/data_set.rb'
     - 'app/models/file_set.rb'
     - 'app/models/concerns/deepblue/email_behavior.rb'
@@ -73,9 +73,9 @@ Metrics/ModuleLength:
 Metrics/PerceivedComplexity:
   Exclude:
     - 'app/controllers/hyrax/data_sets_controller.rb'
-    - 'app/helpers/ingest_helper.rb'
     - 'app/helpers/export_files_helper.rb'
     - 'app/helpers/metadata_helper.rb'
+    - 'app/helpers/deepblue/ingest_helper.rb'
     - 'app/models/file_set.rb'
     - 'app/models/concerns/deepblue/email_behavior.rb'
     - 'app/models/concerns/deepblue/metadata_behavior.rb'

@@ -7,7 +7,7 @@ class CreateDerivativesJob < ActiveJob::Base # rubocop:disable Rails/Application
   # @param [String] repository_file_id identifier for a Hydra::PCDM::File
   # @param [String, NilClass] filepath the cached file within the Hyrax.config.working_path
   def perform( file_set, repository_file_id, filepath = nil, delete_input_file = true )
-    IngestHelper.create_derivatives( file_set, repository_file_id, filepath, delete_input_file: delete_input_file )
+    Deepblue::IngestHelper.create_derivatives( file_set, repository_file_id, filepath, delete_input_file: delete_input_file )
   rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "CreateDerivativesJob.perform(#{file_set},#{repository_file_id},#{filepath}) #{e.class}: #{e.message}"
   end

@@ -82,7 +82,9 @@ module DeepBlueDocs
     config.do_ordered_list_hack = true
     config.do_ordered_list_hack_save = true
 
-    config.provenance_log_default_echo_to_rails_logger_info = true
+    config.email_log_echo_to_rails_logger = true
+    config.provenance_log_echo_to_rails_logger = true
+    config.provenance_log_redudant_events = true
 
   end
 end
