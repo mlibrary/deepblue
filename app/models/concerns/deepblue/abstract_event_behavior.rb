@@ -55,7 +55,7 @@ module Deepblue
     end
 
     def event_attributes_cache_key( event:, id:, behavior: nil )
-      return "#{id}.#{event}" if behavior.nil?
+      return "#{id}.#{event}" if behavior.blank?
       "#{id}.#{event}.#{behavior}"
     end
 

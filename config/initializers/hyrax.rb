@@ -278,7 +278,7 @@ Hyrax.config do |config|
   #
   # config.whitelisted_ingest_dirs = []
 
-  # rubocop:disable Rails/Output
+  # rubocop#:disable Rails/Output
   # Doing this before adding actors freezes the stack
   # # print out the actor stack
   # actor = Hyrax::CurationConcern.actor
@@ -296,15 +296,16 @@ Hyrax.config do |config|
   Hyrax::CurationConcern.actor_factory.insert_after Hyrax::Actors::AddToWorkActor, Hyrax::Actors::BeforeAttachMembersActor
   Hyrax::CurationConcern.actor_factory.insert_after Hyrax::Actors::FeaturedWorkActor, Hyrax::Actors::BeforeModelActor
 
-  actor = Hyrax::CurationConcern.actor
-  puts "Hyrax::CurationConcern.actor stack after inserts"
-  loop do
-    puts "#{actor.class.name}"
-    break if actor.nil?
-    break unless actor.respond_to? :next_actor
-    actor = actor.next_actor
-  end
-  # rubocop:enable Rails/Output
+  # turn this on to see verify the stack
+  # actor = Hyrax::CurationConcern.actor
+  # puts "Hyrax::CurationConcern.actor stack after inserts"
+  # loop do
+  #   puts "#{actor.class.name}"
+  #   break if actor.nil?
+  #   break unless actor.respond_to? :next_actor
+  #   actor = actor.next_actor
+  # end
+  # rubocop#:enable Rails/Output
 
 end
 
