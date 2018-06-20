@@ -12,6 +12,7 @@ module Hyrax
     # before_action :assign_date_coverage,           only: [:create, :update]
     # before_action :assign_visibility,              only: [:create, :update]
     # before_action :check_recent_uploads,           only: [:show]
+    before_action :email_rds_destroy,            only: [:destroy]
     before_action :provenance_log_destroy,       only: [:destroy]
     before_action :provenance_log_update_before, only: [:update]
 
@@ -119,6 +120,10 @@ module Hyrax
     def email_rds_create
       curation_concern.email_rds_create( current_user: current_user,
                                          event_note: "deposited by #{curation_concern.depositor}" )
+    end
+
+    def email_rds_destroy
+      curation_concern.email_rds_destroy( current_user: current_user )
     end
 
     def notify_rds_on_update_to_public

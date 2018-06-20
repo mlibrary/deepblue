@@ -23,7 +23,7 @@ module Deepblue
     end
 
     def attributes_for_email_rds_destroy
-      attributes_all_for_email
+      return attributes_all_for_email, USE_BLANK_KEY_VALUES
     end
 
     def attributes_for_email_rds_publish
@@ -86,15 +86,16 @@ module Deepblue
     end
 
     def email_rds_destroy( current_user:, event_note: '' )
+      attributes, ignore_blank_key_values = attributes_for_email_rds_destroy
       email_event_notification( to: email_address_rds,
                                 from: email_address_rds,
                                 subject: for_email_subject( subject_rest: 'Work Deleted' ),
-                                attributes: attributes_for_email_rds_destroy,
+                                attributes: attributes,
                                 current_user: current_user,
                                 event: EVENT_DESTROY,
                                 event_note: event_note,
                                 id: for_email_id,
-                                ignore_blank_key_values: false )
+                                ignore_blank_key_values: ignore_blank_key_values )
     end
 
     def email_rds_publish( current_user:, event_note: '' )
