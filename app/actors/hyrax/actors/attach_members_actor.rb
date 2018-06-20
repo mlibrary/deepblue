@@ -17,7 +17,7 @@ module Hyrax
           return unless env.current_ability.can?( :edit, member )
           env.curation_concern.ordered_members << member
           current_user = env['warden'].user
-          curation_concern.provenance_add( current_user: current_user, child_id: id ) if curation_concern.respond_to? :provenance_add
+          curation_concern.provenance_child_add(current_user: current_user, child_id: id ) if curation_concern.respond_to? :provenance_child_add
         end
 
     end

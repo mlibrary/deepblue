@@ -215,8 +215,24 @@ module Deepblue
                                                 ignore_blank_key_values: false )
     end
 
-    def provenance_add( current_user:, child_id:, event_note: '', **added_prov_key_values )
-      event = EVENT_ADD
+    def provenance_characterize( current_user:, event_note: '', **added_prov_key_values )
+      event = EVENT_CHARACTERIZE
+      prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes_for_provenance_add,
+                                                                  current_user: current_user,
+                                                                  event: event,
+                                                                  event_note: event_note,
+                                                                  ignore_blank_key_values: true,
+                                                                  **added_prov_key_values )
+      provenance_log_event( attributes: attributes_for_provenance_characterize,
+                            current_user: current_user,
+                            event: event,
+                            event_note: event_note,
+                            ignore_blank_key_values: true,
+                            prov_key_values: prov_key_values )
+    end
+
+    def provenance_child_add( current_user:, child_id:, event_note: '', **added_prov_key_values )
+      event = EVENT_CHILD_ADD
       added_prov_key_values = { child_id: child_id }.merge added_prov_key_values
       prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes_for_provenance_add,
                                                                   current_user: current_user,
@@ -232,15 +248,16 @@ module Deepblue
                             prov_key_values: prov_key_values )
     end
 
-    def provenance_characterize( current_user:, event_note: '', **added_prov_key_values )
-      event = EVENT_CHARACTERIZE
+    def provenance_child_remove( current_user:, child_id:, event_note: '', **added_prov_key_values )
+      event = EVENT_CHILD_REMOVE
+      added_prov_key_values = { child_id: child_id }.merge added_prov_key_values
       prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes_for_provenance_add,
                                                                   current_user: current_user,
                                                                   event: event,
                                                                   event_note: event_note,
                                                                   ignore_blank_key_values: true,
                                                                   **added_prov_key_values )
-      provenance_log_event( attributes: attributes_for_provenance_characterize,
+      provenance_log_event( attributes: nil,
                             current_user: current_user,
                             event: event,
                             event_note: event_note,
@@ -273,7 +290,7 @@ module Deepblue
     end
 
     def provenance_destroy( current_user:, event_note: '' )
-      unless DeepBlueDocs::Application.config.provenance_log_redudant_events
+      unless DeepBlueDocs::Application.config.provenance_log_redundant_events
         return if for_provenance_event_cache_exist?( event: EVENT_DESTROY )
       end
       provenance_log_event( attributes: attributes_for_provenance_destroy,

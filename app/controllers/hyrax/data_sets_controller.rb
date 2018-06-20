@@ -134,27 +134,27 @@ module Hyrax
     ## Provenance log
 
     def provenance_log_create
-      curation_concern.provenance_create( current_user: current_user )
+      curation_concern.provenance_create( current_user: current_user, event_note: 'DataSetsController' )
     end
 
     def provenance_log_destroy
-      curation_concern.provenance_destroy( current_user: current_user )
+      curation_concern.provenance_destroy( current_user: current_user, event_note: 'DataSetsController' )
     end
 
     def provenance_log_mint_doi
-      curation_concern.provenance_mint_doi( current_user: current_user )
+      curation_concern.provenance_mint_doi( current_user: current_user, event_note: 'DataSetsController' )
     end
 
     def provenance_log_publish
-      curation_concern.provenance_publish( current_user: current_user )
+      curation_concern.provenance_publish( current_user: current_user, event_note: 'DataSetsController' )
     end
 
     def provenance_log_update_after
-      curation_concern.provenance_log_update_after( current_user: current_user )
+      curation_concern.provenance_log_update_after( current_user: current_user, event_note: 'DataSetsController.provenance_log_update_after' )
     end
 
     def provenance_log_update_before
-      curation_concern.provenance_log_update_before( current_user: current_user )
+      curation_concern.provenance_log_update_before( current_user: current_user, event_note: 'DataSetsController.provenance_log_update_before' )
     end
 
     ## end Provenance log

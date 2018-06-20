@@ -84,7 +84,7 @@ module DeepBlueDocs
 
     config.email_log_echo_to_rails_logger = true
     config.provenance_log_echo_to_rails_logger = true
-    config.provenance_log_redudant_events = true
+    config.provenance_log_redundant_events = true
 
   end
 end

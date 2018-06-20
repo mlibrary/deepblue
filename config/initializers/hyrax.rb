@@ -1,10 +1,11 @@
+# frozen_string_literal: true
+
 Hyrax.config do |config|
-  # Injected via `rails g hyrax:work DataSet`
+
   config.register_curation_concern :data_set
-  # Injected via `rails g hyrax:work Dissertation`
   config.register_curation_concern :dissertation
-  # Injected via `rails g hyrax:work GenericWork`
   config.register_curation_concern :generic_work
+
   # Register roles that are expected by your implementation.
   # @see Hyrax::RoleRegistry for additional details.
   # @note there are magical roles as defined in Hyrax::RoleRegistry::MAGIC_ROLES
@@ -276,6 +277,35 @@ Hyrax.config do |config|
   # mount point.
   #
   # config.whitelisted_ingest_dirs = []
+
+  # rubocop:disable Rails/Output
+  # Doing this before adding actors freezes the stack
+  # # print out the actor stack
+  # actor = Hyrax::CurationConcern.actor
+  # puts "Hyrax::CurationConcern.actor stack"
+  # loop do
+  #   puts "actor: #{actor.class.name}"
+  #   break if actor.nil?
+  #   break unless actor.respond_to? :next_actor
+  #   actor = actor.next_actor
+  # end
+
+  # see Hyrax::DefaultMiddlewareStack.build_stack
+  Hyrax::CurationConcern.actor_factory.insert_after Hyrax::Actors::OptimisticLockValidator, Hyrax::Actors::AfterOptimisticLockValidator
+  Hyrax::CurationConcern.actor_factory.insert_after Hyrax::Actors::CollectionsMembershipActor, Hyrax::Actors::BeforeAddToWorkActor
+  Hyrax::CurationConcern.actor_factory.insert_after Hyrax::Actors::AddToWorkActor, Hyrax::Actors::BeforeAttachMembersActor
+  Hyrax::CurationConcern.actor_factory.insert_after Hyrax::Actors::FeaturedWorkActor, Hyrax::Actors::BeforeModelActor
+
+  actor = Hyrax::CurationConcern.actor
+  puts "Hyrax::CurationConcern.actor stack after inserts"
+  loop do
+    puts "#{actor.class.name}"
+    break if actor.nil?
+    break unless actor.respond_to? :next_actor
+    actor = actor.next_actor
+  end
+  # rubocop:enable Rails/Output
+
 end
 
 Date::DATE_FORMATS[:standard] = "%m/%d/%Y"
