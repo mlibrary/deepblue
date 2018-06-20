@@ -17,7 +17,7 @@ module Hyrax
 
     # after_action  :box_work_created,               only: [:create]
     # after_action  :notify_rds_on_update_to_public, only: [:update]
-    after_action :notify_rds,                      only: [:create]
+    after_action :email_rds_create,                only: [:create]
     after_action :provenance_log_create,           only: [:create]
     after_action :provenance_log_update_after,     only: [:update]
 
@@ -116,9 +116,9 @@ module Hyrax
 
     ## Send email
 
-    def notify_rds
-      curation_concern.email_create_to_rds( current_user: current_user,
-                                            event_note: "deposited by #{curation_concern.depositor}" )
+    def email_rds_create
+      curation_concern.email_rds_create( current_user: current_user,
+                                         event_note: "deposited by #{curation_concern.depositor}" )
     end
 
     def notify_rds_on_update_to_public

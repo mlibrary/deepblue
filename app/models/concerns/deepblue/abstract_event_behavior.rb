@@ -39,6 +39,9 @@ module Deepblue
         EVENT_UPLOAD
       ].freeze
 
+    IGNORE_BLANK_KEY_VALUES = true
+    USE_BLANK_KEY_VALUES = false
+
     def event_attributes_cache_exist?( event:, id:, behavior: nil )
       key = event_attributes_cache_key( event: event, id: id, behavior: behavior )
       rv = Rails.cache.exist?( key )
