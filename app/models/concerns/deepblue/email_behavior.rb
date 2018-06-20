@@ -19,7 +19,7 @@ module Deepblue
     end
 
     def attributes_for_email_rds_create
-      attributes_all_for_email
+      return attributes_all_for_email, USE_BLANK_KEY_VALUES
     end
 
     def attributes_for_email_rds_destroy
@@ -73,15 +73,16 @@ module Deepblue
     end
 
     def email_rds_create( current_user:, event_note: '' )
+      attributes, ignore_blank_key_values = attributes_for_email_rds_create
       email_event_notification( to: email_address_rds,
                                 from: email_address_rds,
                                 subject: for_email_subject( subject_rest: 'Work Created' ),
-                                attributes: attributes_for_email_rds_create,
+                                attributes: attributes,
                                 current_user: current_user,
                                 event: EVENT_CREATE,
                                 event_note: event_note,
                                 id: for_email_id,
-                                ignore_blank_key_values: false )
+                                ignore_blank_key_values: ignore_blank_key_values )
     end
 
     def email_rds_destroy( current_user:, event_note: '' )
@@ -118,10 +119,6 @@ module Deepblue
                                 event_note: event_note,
                                 id: for_email_id,
                                 ignore_blank_key_values: false )
-    end
-
-    def email_create_to_rds( current_user:, event_note: '' ) # TODO: delete this method
-      email_rds_create( current_user: current_user, event_note: event_note )
     end
 
     def email_create_to_user( current_user:, event_note: '' ) # TODO: delete this method
