@@ -51,7 +51,7 @@ module Deepblue
     end
 
     def attributes_for_provenance_tombstone
-      attributes_all_for_provenance
+      return attributes_all_for_provenance, USE_BLANK_KEY_VALUES
     end
 
     def attributes_for_provenance_update
@@ -356,12 +356,28 @@ module Deepblue
                             ignore_blank_key_values: false )
     end
 
-    def provenance_tombstone( current_user:, event_note: '' )
-      provenance_log_event( attributes: attributes_for_provenance_tombstone,
+    def provenance_tombstone( current_user:,
+                              event_note: '',
+                              epitaph:,
+                              depositor_at_tombstone:,
+                              visibility_at_tombstone: )
+
+      attributes, ignore_blank_key_values = attributes_for_provenance_tombstone
+      event = EVENT_TOMBSTONE
+      prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes_for_provenance_ingest,
+                                                                  current_user: current_user,
+                                                                  event: event,
+                                                                  event_note: event_note,
+                                                                  ignore_blank_key_values: false,
+                                                                  epitaph: epitaph,
+                                                                  depositor_at_tombstone: depositor_at_tombstone,
+                                                                  visibility_at_tombstone: visibility_at_tombstone )
+      provenance_log_event( attributes: attributes,
                             current_user: current_user,
-                            event: EVENT_TOMBSTONE,
+                            event: event,
                             event_note: event_note,
-                            ignore_blank_key_values: false )
+                            ignore_blank_key_values: ignore_blank_key_values,
+                            prov_key_values: prov_key_values )
     end
 
     def provenance_update( current_user:, event_note: '', provenance_attribute_values_before_update: )
