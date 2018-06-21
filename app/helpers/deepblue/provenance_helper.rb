@@ -2,7 +2,14 @@
 
 module Deepblue
 
+  class LogParseError < RuntimeError
+  end
+
   module ProvenanceHelper
+
+    TIMESTAMP_FORMAT = '\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d'
+    RE_TIMESTAMP_FORMAT = Regexp.compile "^#{TIMESTAMP_FORMAT}$"
+    RE_LOG_LINE = Regexp.compile "^(#{TIMESTAMP_FORMAT}) ([^/]+)/([^/]*)/([^/]+)/([^/ ]+) (.*)$"
 
     def self.echo_to_rails_logger
       DeepBlueDocs::Application.config.provenance_log_echo_to_rails_logger
@@ -50,16 +57,32 @@ module Deepblue
       PROV_LOGGER.info( msg )
     end
 
+    def self.parse_log_line( line )
+      # line is of the form: "timestamp event/event_note/class_name/id key_values"
+      match = RE_LOG_LINE.match line
+      raise LogParseError, "parse of log line failed: '#{line}'" unless match
+      timestamp = match[1]
+      event = match[2]
+      event_note = match[3]
+      class_name = match[4]
+      id = match[5]
+      key_values = match[6]
+      key_values = ActiveSupport::JSON.decode key_values
+      return timestamp, event, event_note, class_name, id, key_values
+    end
+
     def self.system_as_current_user
       "Deepblue"
     end
 
     def self.timestamp_now
-      Time.now.to_formatted_s(:db)
+      Time.now.to_formatted_s(:db )
     end
 
     def self.to_log_format_timestamp( timestamp )
-      timestamp = Time.parse( timestamp ) if timestamp.is_a? String
+      is_a_string = timestamp.is_a?( String )
+      return timestamp if is_a_string && RE_TIMESTAMP_FORMAT =~ timestamp
+      timestamp = Time.parse( timestamp ) if is_a_string
       timestamp = timestamp.to_formatted_s( :db ) if timestamp.is_a? Time
       timestamp.to_s
     end
