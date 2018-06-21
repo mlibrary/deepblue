@@ -138,6 +138,22 @@ module Hyrax
 
     ## end Send email
 
+    ## Globus
+
+    def globus_complete?
+      ::GlobusJob.copy_complete? curation_concern.id
+    end
+
+    def globus_prepping?
+      ::GlobusJob.files_prepping? curation_concern.id
+    end
+
+    def globus_url
+      ::GlobusJob.external_url curation_concern.id
+    end
+
+    ## end Globus
+
     ## Provenance log
 
     def provenance_log_create
@@ -169,9 +185,13 @@ module Hyrax
     ## Tombstone
 
     def tombstone
-      curation_concern.entomb!( params[:tombstone], current_user )
-      # curation_concern.entomb!( params[:tombstone], current_user )
-      msg = "Tombstoned: #{curation_concern.title.first} for this reason: #{curation_concern.tombstone.first}"
+      epitaph = params[:tombstone]
+      success = curation_concern.entomb!( epitaph, current_user )
+      msg = if success
+              MsgHelper.t( 'data_set.tombstone_notice', title: curation_concern.title.first.to_s, reason: epitaph.to_s )
+            else
+              "#{curation_concern.title.first} is already tombstoned."
+            end
       redirect_to dashboard_works_path, notice: msg
     end
 
@@ -184,14 +204,6 @@ module Hyrax
     #     wants.html { redirect_to [main_app, curation_concern] }
     #     wants.json { render :show, status: :ok, location: polymorphic_path([main_app, curation_concern]) }
     #   end
-    # end
-    #
-    # def tombstone
-    #   curation_concern.entomb!(params[:tombstone])
-    #   redirect_to dashboard_works_path,
-    #               notice: MsgHelper.t( 'generic_work.tombstone_notice',
-    #                                    title: "#{curation_concern.title.first}",
-    #                                    reason: "#{curation_concern.tombstone.first}" )
     # end
     #
     # def confirm
@@ -387,18 +399,6 @@ module Hyrax
     #   ProvenanceHelper.raw_log msg
     #   ::DoiMintingJob.perform_later(curation_concern.id)
     # end
-
-    def globus_complete?
-      ::GlobusJob.copy_complete? curation_concern.id
-    end
-
-    def globus_prepping?
-      ::GlobusJob.files_prepping? curation_concern.id
-    end
-
-    def globus_url
-      ::GlobusJob.external_url curation_concern.id
-    end
 
     protected
 

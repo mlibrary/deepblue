@@ -50,10 +50,11 @@ class DataSet < ActiveFedora::Base
       admin_set_id
       authoremail
       creator
+      date_coverage
       date_created
       date_modified
       date_updated
-      date_coverage
+      depositor
       description
       doi
       fundedby
@@ -103,7 +104,7 @@ class DataSet < ActiveFedora::Base
   end
 
   def for_event_route
-    Rails.application.routes.url_helpers.hyrax_data_set_path( id: id )
+    Rails.application.routes.url_helpers.hyrax_data_set_path( id: self.id ) # rubocop:disable Style/RedundantSelf
   end
 
   def for_provenance_route
@@ -225,8 +226,9 @@ class DataSet < ActiveFedora::Base
   # Make it so work does not show up in search result for anyone, not even admins.
   #
   def entomb!( epitaph, current_user )
-    return if tombstone.present?
-    provenance_tombstone( current_user: current_user )
+    return false if tombstone.present?
+    depositor_at_tombstone = depositor
+    visibility_at_tombstone = visibility
     self.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
     self.depositor = 'TOMBSTONE-' + depositor
     self.tombstone = [epitaph]
@@ -235,8 +237,12 @@ class DataSet < ActiveFedora::Base
       # TODO: FileSet#entomb!
       file_set.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
     end
-
     save
+    provenance_tombstone( current_user: current_user,
+                          epitaph: epitaph,
+                          depositor_at_tombstone: depositor_at_tombstone,
+                          visibility_at_tombstone: visibility_at_tombstone )
+    true
   end
 
   #
