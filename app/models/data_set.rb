@@ -57,6 +57,7 @@ class DataSet < ActiveFedora::Base
       depositor
       description
       doi
+      file_set_ids
       fundedby
       grantnumber
       isReferencedBy
@@ -144,6 +145,9 @@ class DataSet < ActiveFedora::Base
                                            prov_key_values: )
     value = nil
     handled = case attribute.to_s
+              when 'file_set_ids'
+                value = file_set_ids
+                true
               when 'total_file_count'
                 value = total_file_count
                 true
@@ -168,6 +172,9 @@ class DataSet < ActiveFedora::Base
   def metadata_hash_override( key:, ignore_blank_values:, key_values: )
     value = nil
     handled = case key.to_s
+              when 'file_ids'
+                value = file_ids
+                true
               when 'total_file_count'
                 value = total_file_count
                 true

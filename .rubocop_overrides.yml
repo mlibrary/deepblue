@@ -65,6 +65,7 @@ Metrics/CyclomaticComplexity:
     - 'app/models/concerns/deepblue/provenance_behavior.rb'
     - 'lib/tasks/new_content_service.rb'
     - 'lib/tasks/upgrade_provenance_log.rake'
+    - 'spec/models/data_set_spec.rb'
 
 Metrics/ModuleLength:
   Enabled: true
@@ -82,6 +83,7 @@ Metrics/PerceivedComplexity:
     - 'app/models/concerns/deepblue/provenance_behavior.rb'
     - 'lib/tasks/new_content_service.rb'
     - 'lib/tasks/upgrade_provenance_log.rake'
+    - 'spec/models/data_set_spec.rb'
 
 Rails/Exit:
   Exclude:
