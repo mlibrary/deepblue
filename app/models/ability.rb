@@ -2,7 +2,11 @@ class Ability
   include Hydra::Ability
   
   include Hyrax::Ability
-  self.ability_logic += [:everyone_can_create_curation_concerns]
+  self.ability_logic += [:everyone_can_create_curation_concerns, :depositor_can_mint_doi]
+
+  def depositor_can_mint_doi
+    can [:doi], ActiveFedora::Base
+  end
 
   # Define any customized permissions here.
   def custom_permissions

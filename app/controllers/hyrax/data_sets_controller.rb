@@ -60,13 +60,15 @@ module Hyrax
       #   one already exists
       #   work file_set count is 0.
       if curation_concern.doi
-
         # flash[:notice] = MsgHelper.t( 'generic_work.doi_already_exists' )
         flash[:notice] = "A DOI already exists or is being minted."
         return
       elsif curation_concern.file_sets.count < 1
         flash[:notice] = "DOI cannot be minted for a work without files."
         # flash[:notice] = MsgHelper.t( 'generic_work.doi_requires_work_with_files' )
+        return
+      elsif ( ( curation_concern.depositor != current_user.email ) && !current_ability.admin? )
+        flash[:notice] = "Current User does not have access to Mint the Doi."
         return
       end
 
