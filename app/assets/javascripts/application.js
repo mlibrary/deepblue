@@ -23,3 +23,4 @@
 //= require_tree .
 //= require hyrax
 
+//= require date_coverage_field

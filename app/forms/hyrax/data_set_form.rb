@@ -55,6 +55,10 @@ module Hyrax
       true
     end
 
+    def merge_date_coverage_attributes!(hsh)
+      @attributes.merge!(hsh&.stringify_keys || {})
+    end
+
   end
 
 end

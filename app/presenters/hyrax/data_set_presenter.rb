@@ -11,6 +11,7 @@ module Hyrax
               :rights_license,
               :subject_discipline,
               :total_file_size,
+              :date_coverage,
               to: :solr_document
 
     def box_enabled?
