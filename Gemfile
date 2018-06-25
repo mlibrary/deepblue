@@ -11,6 +11,9 @@ gem 'mysql2' # still somehow in 0.x releases...
 
 gem 'config'
 
+# Date range support
+gem 'edtf'
+
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 5.0.6'
 # Use sqlite3 as the database for Active Record

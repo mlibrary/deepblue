@@ -9,7 +9,7 @@ module Hyrax
     self.curation_concern_type = ::DataSet
     self.show_presenter = Hyrax::DataSetPresenter
 
-    # before_action :assign_date_coverage,           only: [:create, :update]
+    before_action :assign_date_coverage,           only: [:create, :update]
     # before_action :assign_visibility,              only: [:create, :update]
     # before_action :check_recent_uploads,           only: [:show]
     before_action :email_rds_destroy,            only: [:destroy]
@@ -196,6 +196,14 @@ module Hyrax
     end
 
     ## End Tombstone
+
+    # Create EDTF::Interval from form parameters
+    # Replace the date coverage parameter prior with serialization of EDTF::Interval
+    def assign_date_coverage
+      cov_interval = Dataset::DateCoverageService.params_to_interval params
+      params['data_set']['date_coverage'] = cov_interval ? cov_interval.edtf : ""
+    end
+
 
     # Begin processes to mint hdl and doi for the work
     # def identifiers

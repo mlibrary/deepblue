@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+require 'edtf'
 module Hyrax
 
   class DeepblueController < ApplicationController
