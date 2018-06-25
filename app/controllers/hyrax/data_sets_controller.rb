@@ -9,17 +9,18 @@ module Hyrax
     self.curation_concern_type = ::DataSet
     self.show_presenter = Hyrax::DataSetPresenter
 
-    before_action :assign_date_coverage, only: %i[create update]
-    # before_action :assign_visibility,              only: [:create, :update]
-    # before_action :check_recent_uploads,           only: [:show]
+    before_action :assign_date_coverage,         only: %i[create update]
     before_action :email_rds_destroy,            only: [:destroy]
     before_action :provenance_log_destroy,       only: [:destroy]
     before_action :provenance_log_update_before, only: [:update]
+    before_action :visiblity_changed,            only: [:update]
+    # before_action :check_recent_uploads,           only: [:show]
 
     # after_action  :box_work_created,               only: [:create]
     # after_action  :notify_rds_on_update_to_public, only: [:update]
     after_action :email_rds_create,                only: [:create]
     after_action :provenance_log_create,           only: [:create]
+    after_action :visibility_changed_update,       only: [:update]
     after_action :provenance_log_update_after,     only: [:update]
 
     protect_from_forgery with: :null_session,    only: [:download]
@@ -48,6 +49,17 @@ module Hyrax
     end
 
     ## end box integration
+
+    ## date_coverage
+
+    # Create EDTF::Interval from form parameters
+    # Replace the date coverage parameter prior with serialization of EDTF::Interval
+    def assign_date_coverage
+      cov_interval = Dataset::DateCoverageService.params_to_interval params
+      params['data_set']['date_coverage'] = cov_interval ? cov_interval.edtf : ""
+    end
+
+    # end date_coverage
 
     ## DOI
 
@@ -94,35 +106,7 @@ module Hyrax
 
     ## end DOI
 
-    ## Changes in visibility / publishing
-
-    # TODO: when changing to public visibility, then log provenance as published
-    # def assign_visibility
-    #   if set_to_draft?
-    #     mark_as_set_to_private!
-    #   else
-    #     mark_as_set_to_public!
-    #   end
-    # end
-    #
-    # def set_to_draft?
-    #   params["isDraft"] == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
-    # end
-    #
-    # def mark_as_set_to_private!
-    #   params["generic_work"]["visibility"] = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
-    # end
-    #
-    # def mark_as_set_to_public!
-    #   params["generic_work"]["visibility"] = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
-    #   if action_name == 'update' and params[:id]
-    #     @visibility_changed_to_public = DataSet.find(params[:id]).private?
-    #   end
-    # end
-
-    ## end Changes in visibility
-
-    ## Send email
+    ## email
 
     def email_rds_create
       curation_concern.email_rds_create( current_user: current_user,
@@ -133,15 +117,7 @@ module Hyrax
       curation_concern.email_rds_destroy( current_user: current_user )
     end
 
-    def notify_rds_on_update_to_public
-      return unless @visibility_changed_to_public
-      # description = "previously deposited by #{curation_concern.depositor}, was updated to #{curation_concern.visibility} access"
-      # email_rds( action: 'update', description: description )
-      # TODO
-      curation_concern.email_update_to_rds( current_user: current_user )
-    end
-
-    ## end Send email
+    ## end email
 
     ## Globus
 
@@ -177,6 +153,10 @@ module Hyrax
       curation_concern.provenance_publish( current_user: current_user, event_note: 'DataSetsController' )
     end
 
+    def provenance_log_unpublish
+      curation_concern.provenance_unpublish( current_user: current_user, event_note: 'DataSetsController' )
+    end
+
     def provenance_log_update_after
       curation_concern.provenance_log_update_after( current_user: current_user, event_note: 'DataSetsController.provenance_log_update_after' )
     end
@@ -202,12 +182,45 @@ module Hyrax
 
     ## End Tombstone
 
-    # Create EDTF::Interval from form parameters
-    # Replace the date coverage parameter prior with serialization of EDTF::Interval
-    def assign_date_coverage
-      cov_interval = Dataset::DateCoverageService.params_to_interval params
-      params['data_set']['date_coverage'] = cov_interval ? cov_interval.edtf : ""
+    ## visibility / publish
+
+    def visiblity_changed
+      if visibility_to_private?
+        mark_as_set_to_private
+      elsif visibility_to_public?
+        mark_as_set_to_public
+      end
     end
+
+    def visibility_changed_update
+      if curation_concern.private? && @visibility_changed_to_private
+        provenance_log_unpublish
+      elsif curation_concern.public? && @visibility_changed_to_public
+        provenance_log_publish
+      end
+    end
+
+    def visibility_to_private?
+      return false if curation_concern.private?
+      params["data_set"]["visibility"] == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
+    end
+
+    def visibility_to_public?
+      return false if curation_concern.public?
+      params["data_set"]["visibility"] == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
+    end
+
+    def mark_as_set_to_private
+      @visibility_changed_to_public = false
+      @visibility_changed_to_private = true
+    end
+
+    def mark_as_set_to_public
+      @visibility_changed_to_public = true
+      @visibility_changed_to_private = false
+    end
+
+    ## end visibility / publish
 
     # ## begin download operations
     #

@@ -47,10 +47,14 @@ module Deepblue
     end
 
     def attributes_for_provenance_publish
-      attributes_all_for_provenance
+      return attributes_all_for_provenance, USE_BLANK_KEY_VALUES
     end
 
     def attributes_for_provenance_tombstone
+      return attributes_all_for_provenance, USE_BLANK_KEY_VALUES
+    end
+
+    def attributes_for_provenance_unpublish
       return attributes_all_for_provenance, USE_BLANK_KEY_VALUES
     end
 
@@ -350,11 +354,12 @@ module Deepblue
     end
 
     def provenance_publish( current_user:, event_note: '' )
-      provenance_log_event( attributes: attributes_for_provenance_publish,
+      attributes, ignore_blank_key_values = attributes_for_provenance_publish
+      provenance_log_event( attributes: attributes,
                             current_user: current_user,
                             event: EVENT_PUBLISH,
                             event_note: event_note,
-                            ignore_blank_key_values: false )
+                            ignore_blank_key_values: ignore_blank_key_values )
     end
 
     def provenance_tombstone( current_user:,
@@ -379,6 +384,15 @@ module Deepblue
                             event_note: event_note,
                             ignore_blank_key_values: ignore_blank_key_values,
                             prov_key_values: prov_key_values )
+    end
+
+    def provenance_unpublish( current_user:, event_note: '' )
+      attributes, ignore_blank_key_values = attributes_for_provenance_unpublish
+      provenance_log_event( attributes: attributes,
+                            current_user: current_user,
+                            event: EVENT_UNPUBLISH,
+                            event_note: event_note,
+                            ignore_blank_key_values: ignore_blank_key_values )
     end
 
     def provenance_update( current_user:, event_note: '', provenance_attribute_values_before_update: )

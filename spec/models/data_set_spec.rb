@@ -150,7 +150,7 @@ RSpec.describe DataSet do
 
   end
 
-  describe 'provenance mint do' do
+  describe 'provenance mint doi' do
     let( :exp_despositor ) { depositor }
     let( :exp_event ) { Deepblue::AbstractEventBehavior::EVENT_MINT_DOI }
     let( :exp_visibility ) { visibility_public }
@@ -195,6 +195,104 @@ RSpec.describe DataSet do
                                      exp_methodology: methodology,
                                      exp_rights_license: rights_license,
                                      exp_visibility: exp_visibility )
+    end
+
+  end
+
+  describe 'provenance publish' do
+    let( :exp_despositor ) { depositor }
+    let( :exp_event ) { Deepblue::AbstractEventBehavior::EVENT_PUBLISH }
+
+    before do
+      subject.id = id
+      subject.authoremail = authoremail
+      subject.title = [title]
+      subject.creator = [creator]
+      subject.date_created = date_created
+      subject.depositor = depositor
+      subject.description = [description]
+      subject.methodology = methodology
+      subject.rights_license = rights_license
+      subject.visibility = visibility_public
+    end
+
+    it 'uses all attributes and keeps blank ones' do
+      attributes, ignore_blank_key_values = subject.attributes_for_provenance_publish
+      expect( ignore_blank_key_values ).to eq Deepblue::AbstractEventBehavior::USE_BLANK_KEY_VALUES
+      expect( attributes ).to eq metadata_keys_all
+    end
+
+    it 'is published' do
+      prov_logger_received = nil
+      allow( PROV_LOGGER ).to receive( :info ) { |msg| prov_logger_received = msg }
+      before = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
+      expect( subject.provenance_publish( current_user: current_user ) ).to eq true
+      after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
+      validate_prov_logger_received( prov_logger_received: prov_logger_received,
+                                     size: 31,
+                                     before: before,
+                                     after: after,
+                                     exp_event: exp_event,
+                                     exp_class_name: exp_class_name,
+                                     exp_id: id,
+                                     exp_authoremail: authoremail,
+                                     exp_creator: [creator],
+                                     exp_date_created: '2', # TODO: this is wrong -- find out why
+                                     exp_description: [description],
+                                     exp_depositor: exp_despositor,
+                                     exp_location: exp_location,
+                                     exp_methodology: methodology,
+                                     exp_rights_license: rights_license,
+                                     exp_visibility: visibility_public )
+    end
+
+  end
+
+  describe 'provenance unpublish' do
+    let( :exp_despositor ) { depositor }
+    let( :exp_event ) { Deepblue::AbstractEventBehavior::EVENT_UNPUBLISH }
+
+    before do
+      subject.id = id
+      subject.authoremail = authoremail
+      subject.title = [title]
+      subject.creator = [creator]
+      subject.date_created = date_created
+      subject.depositor = depositor
+      subject.description = [description]
+      subject.methodology = methodology
+      subject.rights_license = rights_license
+      subject.visibility = visibility_private
+    end
+
+    it 'uses all attributes and keeps blank ones' do
+      attributes, ignore_blank_key_values = subject.attributes_for_provenance_unpublish
+      expect( ignore_blank_key_values ).to eq Deepblue::AbstractEventBehavior::USE_BLANK_KEY_VALUES
+      expect( attributes ).to eq metadata_keys_all
+    end
+
+    it 'is published' do
+      prov_logger_received = nil
+      allow( PROV_LOGGER ).to receive( :info ) { |msg| prov_logger_received = msg }
+      before = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
+      expect( subject.provenance_unpublish( current_user: current_user ) ).to eq true
+      after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
+      validate_prov_logger_received( prov_logger_received: prov_logger_received,
+                                     size: 31,
+                                     before: before,
+                                     after: after,
+                                     exp_event: exp_event,
+                                     exp_class_name: exp_class_name,
+                                     exp_id: id,
+                                     exp_authoremail: authoremail,
+                                     exp_creator: [creator],
+                                     exp_date_created: '2', # TODO: this is wrong -- find out why
+                                     exp_description: [description],
+                                     exp_depositor: exp_despositor,
+                                     exp_location: exp_location,
+                                     exp_methodology: methodology,
+                                     exp_rights_license: rights_license,
+                                     exp_visibility: visibility_private )
     end
 
   end
