@@ -17,6 +17,7 @@ module Deepblue
     EVENT_MINT_DOI          = 'mint_doi'
     EVENT_PUBLISH           = 'publish'
     EVENT_TOMBSTONE         = 'tombstone'
+    EVENT_UNPUBLISH         = 'unpublish'
     EVENT_UPDATE            = 'update'
     EVENT_UPDATE_AFTER      = 'update_after'
     EVENT_UPDATE_BEFORE     = 'update_before'
@@ -33,6 +34,7 @@ module Deepblue
         EVENT_MINT_DOI,
         EVENT_PUBLISH,
         EVENT_TOMBSTONE,
+        EVENT_UNPUBLISH,
         EVENT_UPDATE,
         EVENT_UPDATE_AFTER,
         EVENT_UPDATE_BEFORE,

@@ -25,6 +25,7 @@ RSpec.describe Deepblue::AbstractEventBehavior do
       expect( Deepblue::AbstractEventBehavior::EVENT_MINT_DOI ).to eq 'mint_doi'
       expect( Deepblue::AbstractEventBehavior::EVENT_PUBLISH ).to eq 'publish'
       expect( Deepblue::AbstractEventBehavior::EVENT_TOMBSTONE ).to eq 'tombstone'
+      expect( Deepblue::AbstractEventBehavior::EVENT_UNPUBLISH ).to eq 'unpublish'
       expect( Deepblue::AbstractEventBehavior::EVENT_UPDATE ).to eq 'update'
       expect( Deepblue::AbstractEventBehavior::EVENT_UPDATE_AFTER ).to eq 'update_after'
       expect( Deepblue::AbstractEventBehavior::EVENT_UPDATE_BEFORE ).to eq 'update_before'
@@ -40,6 +41,7 @@ RSpec.describe Deepblue::AbstractEventBehavior do
         Deepblue::AbstractEventBehavior::EVENT_MINT_DOI,
         Deepblue::AbstractEventBehavior::EVENT_PUBLISH,
         Deepblue::AbstractEventBehavior::EVENT_TOMBSTONE,
+        Deepblue::AbstractEventBehavior::EVENT_UNPUBLISH,
         Deepblue::AbstractEventBehavior::EVENT_UPDATE,
         Deepblue::AbstractEventBehavior::EVENT_UPDATE_AFTER,
         Deepblue::AbstractEventBehavior::EVENT_UPDATE_BEFORE,
