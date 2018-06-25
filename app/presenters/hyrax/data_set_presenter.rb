@@ -47,6 +47,16 @@ module Hyrax
       solr_value.first
     end
 
+    def doi_minted?
+      !doi.nil?
+    rescue
+      nil
+    end
+
+    def doi_pending?
+      doi == DataSet::DOI_PENDING
+    end
+
     def globus_external_url
       concern_id = @solr_document.id
       ::GlobusJob.external_url concern_id
@@ -68,16 +78,6 @@ module Hyrax
 
     def human_readable( value )
       ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( value, precision: 3 )
-    end
-
-    def identifiers_minted?
-      !doi.nil?
-    rescue
-      nil
-    end
-
-    def identifiers_pending?
-      doi == DataSet::PENDING
     end
 
     def label_with_total_file_size( label )

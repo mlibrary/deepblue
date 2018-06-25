@@ -53,6 +53,14 @@ RSpec.describe DataSet do
       visibility
     ]
   }
+  let( :exp_class_name ) { 'DataSet' }
+  let( :exp_location ) { "/concern/data_sets/#{id}" }
+
+  describe 'constants' do
+    it do
+      expect( DataSet::DOI_PENDING ).to eq 'doi_pending'
+    end
+  end
 
   describe 'metadata overrides' do
     before do
@@ -136,8 +144,57 @@ RSpec.describe DataSet do
       expect( subject.attributes_all_for_provenance ).to eq metadata_keys_all
     end
 
-    it 'has breif metadata elements defined' do
+    it 'has brief metadata elements defined' do
       expect( subject.attributes_brief_for_provenance ).to eq metadata_keys_brief
+    end
+
+  end
+
+  describe 'provenance mint do' do
+    let( :exp_despositor ) { depositor }
+    let( :exp_event ) { Deepblue::AbstractEventBehavior::EVENT_MINT_DOI }
+    let( :exp_visibility ) { visibility_public }
+
+    before do
+      subject.id = id
+      subject.authoremail = authoremail
+      subject.title = [title]
+      subject.creator = [creator]
+      subject.date_created = date_created
+      subject.depositor = depositor
+      subject.description = [description]
+      subject.methodology = methodology
+      subject.rights_license = rights_license
+    end
+
+    it 'uses all attributes and keeps blank ones' do
+      attributes, ignore_blank_key_values = subject.attributes_for_provenance_mint_doi
+      expect( ignore_blank_key_values ).to eq Deepblue::AbstractEventBehavior::USE_BLANK_KEY_VALUES
+      expect( attributes ).to eq metadata_keys_all
+    end
+
+    it 'is minted' do
+      prov_logger_received = nil
+      allow( PROV_LOGGER ).to receive( :info ) { |msg| prov_logger_received = msg }
+      before = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
+      expect( subject.provenance_mint_doi( current_user: current_user ) ).to eq true
+      after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
+      validate_prov_logger_received( prov_logger_received: prov_logger_received,
+                                     size: 31,
+                                     before: before,
+                                     after: after,
+                                     exp_event: exp_event,
+                                     exp_class_name: exp_class_name,
+                                     exp_id: id,
+                                     exp_authoremail: authoremail,
+                                     exp_creator: [creator],
+                                     exp_date_created: '2', # TODO: this is wrong -- find out why
+                                     exp_description: [description],
+                                     exp_depositor: exp_despositor,
+                                     exp_location: exp_location,
+                                     exp_methodology: methodology,
+                                     exp_rights_license: rights_license,
+                                     exp_visibility: exp_visibility )
     end
 
   end
@@ -188,11 +245,10 @@ RSpec.describe DataSet do
     let( :epitaph ) { 'The reason for being tombstoned.' }
     let( :depositor_at_tombstone ) { depositor }
     let( :visibility_at_tombstone ) { visibility_public }
-    let( :prov_event ) { Deepblue::AbstractEventBehavior::EVENT_TOMBSTONE }
-    let( :prov_class_name ) { 'DataSet' }
-    let( :prov_id ) { id }
-    let( :prov_depositor ) { "TOMBSTONE-#{depositor}" }
-    let( :prov_visibility ) { visibility_private }
+    let( :exp_event ) { Deepblue::AbstractEventBehavior::EVENT_TOMBSTONE }
+    let( :exp_depositor ) { "TOMBSTONE-#{depositor}" }
+    let( :exp_visibility ) { visibility_private }
+
     before do
       subject.id = id
       subject.authoremail = authoremail
@@ -205,6 +261,7 @@ RSpec.describe DataSet do
       subject.rights_license = rights_license
       allow( Rails.logger ).to receive( :debug ).with( any_args )
     end
+
     it 'is tombstoned' do
       prov_logger_received = nil
       allow( PROV_LOGGER ).to receive( :info ) { |msg| prov_logger_received = msg }
@@ -215,19 +272,19 @@ RSpec.describe DataSet do
                                      size: 34,
                                      before: before,
                                      after: after,
-                                     exp_event: prov_event,
-                                     exp_class_name: prov_class_name,
-                                     exp_id: prov_id,
+                                     exp_event: exp_event,
+                                     exp_class_name: exp_class_name,
+                                     exp_id: id,
                                      exp_authoremail: authoremail,
                                      exp_creator: [creator],
                                      exp_date_created: '2', # TODO: this is wrong -- find out why
                                      exp_description: [description],
-                                     exp_depositor: "TOMBSTONE-#{depositor}",
-                                     exp_location: "/concern/data_sets/#{id}",
+                                     exp_depositor: exp_depositor,
+                                     exp_location: exp_location,
                                      exp_methodology: methodology,
                                      exp_rights_license: rights_license,
                                      exp_tombstone: [epitaph],
-                                     exp_visibility: prov_visibility,
+                                     exp_visibility: exp_visibility,
                                      depositor_at_tombstone: depositor_at_tombstone,
                                      visibility_at_tombstone: visibility_at_tombstone )
     end

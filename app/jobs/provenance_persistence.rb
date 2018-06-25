@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Deepblue
+
   module ProvenancePersistenceExt
 
     def self.prepended( base )
@@ -39,4 +40,5 @@ module Deepblue
     # end
 
   end
+
 end
