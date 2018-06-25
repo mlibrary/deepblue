@@ -92,3 +92,5 @@ group :development do
 end
 
 gem 'riiif', '~> 1.1'
+
+gem 'okcomputer', '~> 1.17'
