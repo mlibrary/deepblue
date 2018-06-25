@@ -12,7 +12,7 @@
         <button class="btn btn-primary btn-sm" data-target="#tombstoneId" data-toggle="modal">Tombstone</button> 
       <% end %>
 
-      <% if !presenter.identifiers_minted? %>
+      <% if !presenter.doi_minted? %>
         <%= link_to "Mint Doi", main_app.doi_hyrax_data_set_path(presenter.id), class: 'btn btn-default' %>
       <% end %>
  

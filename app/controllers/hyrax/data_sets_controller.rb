@@ -9,7 +9,7 @@ module Hyrax
     self.curation_concern_type = ::DataSet
     self.show_presenter = Hyrax::DataSetPresenter
 
-    before_action :assign_date_coverage,           only: [:create, :update]
+    before_action :assign_date_coverage, only: %i[create update]
     # before_action :assign_visibility,              only: [:create, :update]
     # before_action :check_recent_uploads,           only: [:show]
     before_action :email_rds_destroy,            only: [:destroy]
@@ -47,11 +47,19 @@ module Hyrax
       box_create_dir_and_add_collaborator
     end
 
+    ## end box integration
+
+    ## DOI
+
     def doi
       mint_doi
       respond_to do |wants|
         wants.html { redirect_to [main_app, curation_concern] }
-        wants.json { render :show, status: :ok, location: polymorphic_path([main_app, curation_concern]) }
+        wants.json do
+          render :show,
+                 status: :ok,
+                 location: polymorphic_path([main_app, curation_concern])
+        end
       end
     end
 
@@ -59,35 +67,32 @@ module Hyrax
       # Do not mint doi if
       #   one already exists
       #   work file_set count is 0.
-      if curation_concern.doi
-        # flash[:notice] = MsgHelper.t( 'generic_work.doi_already_exists' )
-        flash[:notice] = "A DOI already exists or is being minted."
+      if curation_concern.doi == DataSet::DOI_PENDING
+        flash[:notice] = MsgHelper.t( 'data_set.doi_is_being_minted' )
+        return
+      elsif curation_concern.doi
+        flash[:notice] = MsgHelper.t( 'data_set.doi_already_exists' )
         return
       elsif curation_concern.file_sets.count < 1
-        flash[:notice] = "DOI cannot be minted for a work without files."
-        # flash[:notice] = MsgHelper.t( 'generic_work.doi_requires_work_with_files' )
+        flash[:notice] = MsgHelper.t( 'data_set.doi_requires_work_with_files' )
         return
-      elsif ( ( curation_concern.depositor != current_user.email ) && !current_ability.admin? )
-        flash[:notice] = "Current User does not have access to Mint the Doi."
+      elsif ( curation_concern.depositor != current_user.email ) && !current_ability.admin?
+        flash[:notice] = MsgHelper.t( 'data_set.doi_user_without_access' )
         return
       end
 
       # Assign doi as "pending" in the meantime
-      curation_concern.doi = DataSet::PENDING
+      curation_concern.doi = DataSet::DOI_PENDING
 
       # save (and re-index)
       curation_concern.save
 
       # Kick off job to get a doi
-      # TODO: provenance logging
-      # msg = MsgHelper.t( 'generic_work.doi_requires_work_with_files', id: curation_concern.id )
-      # msg = "DOI cannot be minted for a work without files. For id : " + curation_concern.id
-      # This has to be fixed.  -jose
-      # PROV_LOGGER.info (msg)
-      ::DoiMintingJob.perform_later(curation_concern.id)
+      provenance_log_mint_doi
+      ::DoiMintingJob.perform_later( curation_concern.id )
     end
 
-    ## end box integration
+    ## end DOI
 
     ## Changes in visibility / publishing
 
@@ -204,20 +209,6 @@ module Hyrax
       params['data_set']['date_coverage'] = cov_interval ? cov_interval.edtf : ""
     end
 
-
-    # Begin processes to mint hdl and doi for the work
-    # def identifiers
-    #   mint_doi
-    #   respond_to do |wants|
-    #     wants.html { redirect_to [main_app, curation_concern] }
-    #     wants.json { render :show, status: :ok, location: polymorphic_path([main_app, curation_concern]) }
-    #   end
-    # end
-    #
-    # def confirm
-    #   render 'confirm_work'
-    # end
-    #
     # ## begin download operations
     #
     # def download
@@ -380,32 +371,6 @@ module Hyrax
     #       Rails.logger.info "Something happened in check_recent_uploads: #{params[:uploads_since]} : #{e.message}"
     #     end
     #   end
-    # end
-    #
-    # # TODO move this to an actor after sufia 7.0 dependency.
-    #
-    # def mint_doi
-    #   # Do not mint doi if
-    #   #   one already exists
-    #   #   work file_set count is 0.
-    #   if curation_concern.doi
-    #     flash[:notice] = MsgHelper.t( 'generic_work.doi_already_exists' )
-    #     return
-    #   elsif curation_concern.file_sets.count < 1
-    #     flash[:notice] = MsgHelper.t( 'generic_work.doi_requires_work_with_files' )
-    #     return
-    #   end
-    #
-    #   # Assign doi as "pending" in the meantime
-    #   curation_concern.doi = DataSet::PENDING
-    #
-    #   # save (and re-index)
-    #   curation_concern.save
-    #
-    #   # Kick off job to get a doi
-    #   msg = MsgHelper.t( 'generic_work.doi_requires_work_with_files', id: curation_concern.id )
-    #   ProvenanceHelper.raw_log msg
-    #   ::DoiMintingJob.perform_later(curation_concern.id)
     # end
 
     protected

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CreateDerivativesJob < ActiveJob::Base # rubocop:disable Rails/ApplicationJob
+class CreateDerivativesJob < ApplicationJob
   queue_as Hyrax.config.ingest_queue_name
 
   # @param [FileSet] file_set

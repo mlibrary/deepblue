@@ -1,11 +1,15 @@
 en:
   data_set:
     doi_already_exists:
-      "A DOI already exists or is being minted."
+      "A DOI already exists for this work."
+    doi_is_being_minted:
+      "A DOI is currently being minted."
     doi_job_started:
       "DOI process kicked off for work id: %{id}"
     doi_requires_work_with_files:
       "DOI cannot be minted for a work without files."
+    doi_user_without_access:
+      "Current User does not have access to Mint the Doi."
     globus_clean:
       "Files are being delete from %{dirs}"
     globus_clean_join_html:

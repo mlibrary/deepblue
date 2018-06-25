@@ -43,7 +43,7 @@ module Deepblue
     end
 
     def attributes_for_provenance_mint_doi
-      attributes_brief_for_provenance
+      return attributes_all_for_provenance, USE_BLANK_KEY_VALUES
     end
 
     def attributes_for_provenance_publish
@@ -341,11 +341,12 @@ module Deepblue
     end
 
     def provenance_mint_doi( current_user:, event_note: '' )
-      provenance_log_event( attributes: attributes_for_provenance_mint_doi,
+      attributes, ignore_blank_key_values = attributes_for_provenance_mint_doi
+      provenance_log_event( attributes: attributes,
                             current_user: current_user,
                             event: EVENT_MINT_DOI,
                             event_note: event_note,
-                            ignore_blank_key_values: true )
+                            ignore_blank_key_values: ignore_blank_key_values )
     end
 
     def provenance_publish( current_user:, event_note: '' )

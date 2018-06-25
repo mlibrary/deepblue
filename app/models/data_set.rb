@@ -38,7 +38,7 @@ class DataSet < ActiveFedora::Base
     provenance_destroy( current_user: '' ) # , event_note: 'provenance_before_destroy_data_set' )
   end
 
-  PENDING = 'pending'
+  DOI_PENDING = 'doi_pending'
 
   def set_defaults
     return unless new_record?
