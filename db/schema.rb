@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180417175303) do
+ActiveRecord::Schema.define(version: 20180417175304) do
 
   create_table "bookmarks", force: :cascade do |t|
     t.integer  "user_id",       null: false
@@ -123,15 +123,16 @@ ActiveRecord::Schema.define(version: 20180417175303) do
     t.string  "title"
     t.text    "description"
     t.string  "machine_id"
-    t.boolean "nestable",                   default: true,  null: false
-    t.boolean "discoverable",               default: true,  null: false
-    t.boolean "sharable",                   default: true,  null: false
-    t.boolean "allow_multiple_membership",  default: true,  null: false
-    t.boolean "require_membership",         default: false, null: false
-    t.boolean "assigns_workflow",           default: false, null: false
-    t.boolean "assigns_visibility",         default: false, null: false
-    t.boolean "share_applies_to_new_works", default: true,  null: false
-    t.boolean "brandable",                  default: true,  null: false
+    t.boolean "nestable",                   default: true,      null: false
+    t.boolean "discoverable",               default: true,      null: false
+    t.boolean "sharable",                   default: true,      null: false
+    t.boolean "allow_multiple_membership",  default: true,      null: false
+    t.boolean "require_membership",         default: false,     null: false
+    t.boolean "assigns_workflow",           default: false,     null: false
+    t.boolean "assigns_visibility",         default: false,     null: false
+    t.boolean "share_applies_to_new_works", default: true,      null: false
+    t.boolean "brandable",                  default: true,      null: false
+    t.string  "badge_color",                default: "#663333"
     t.index ["machine_id"], name: "index_hyrax_collection_types_on_machine_id", unique: true
   end
 

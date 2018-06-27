@@ -19,6 +19,7 @@ module Hyrax
         methodology
         rights_license
         subject_discipline
+        isReferencedBy
       ]
 
     self.default_work_primary_terms =
