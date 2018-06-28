@@ -3,7 +3,7 @@
 module Umrdr::Forms
   class WorkForm < Hyrax::Forms::WorkForm
 
-    # self.terms += [ :authoremail, :date_coverage, :fundedby, :grantnumber, :isReferencedBy, :methodology, :on_behalf_of]
+    # self.terms += [ :authoremail, :date_coverage, :fundedby, :grantnumber, :referenced_by, :methodology, :on_behalf_of]
 
     # class << self
     #   # This determines whether the allowed parameters are single or multiple.

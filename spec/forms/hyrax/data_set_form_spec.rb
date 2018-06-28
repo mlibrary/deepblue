@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Hyrax::DataSetForm do
@@ -41,7 +43,7 @@ RSpec.describe Hyrax::DataSetForm do
     grantnumber
     keyword
     language
-    isReferencedBy
+    referenced_by
   ] }
 
   describe "#required_fields" do

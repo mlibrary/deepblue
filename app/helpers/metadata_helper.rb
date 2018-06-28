@@ -91,7 +91,7 @@ module MetadataHelper
       report_item( out, "Keyword: ", collection.keyword, one_line: false, item_prefix: "\t" )
       report_item( out, "Discipline: ", collection.subject_discipline, one_line: false, item_prefix: "\t" )
       report_item( out, "Language: ", collection.language )
-      report_item( out, "Citation to related material: ", collection.isReferencedBy )
+      report_item( out, "Citation to related material: ", collection.referenced_by )
       report_item( out, "Visibility: ", collection.visibility )
       if collection.member_objects.count.positive?
         collection.member_objects.each do |generic_work|
@@ -149,7 +149,7 @@ module MetadataHelper
       report_item( out, "ORSP Grant Number: ", generic_work.grantnumber )
       report_item( out, "Keyword: ", generic_work.keyword, one_line: false, item_prefix: "\t" )
       report_item( out, "Date coverage: ", generic_work.date_coverage )
-      report_item( out, "Citation to related material: ", generic_work.isReferencedBy )
+      report_item( out, "Citation to related material: ", generic_work.referenced_by )
       report_item( out, "Language: ", generic_work.language )
       report_item( out, "Total file count: ", generic_work.file_set_ids.count )
       report_item( out, "Total file size: ", human_readable_size( generic_work.total_file_size ) )
@@ -337,7 +337,7 @@ module MetadataHelper
       yaml_item( out, indent, ":doi:", generic_work.doi, escape: true )
       yaml_item( out, indent, ":fundedby:", generic_work.fundedby[0] )
       yaml_item( out, indent, ":grantnumber:", generic_work.grantnumber, escape: true )
-      yaml_item( out, indent, ":isReferencedBy:", generic_work.isReferencedBy, escape: true )
+      yaml_item( out, indent, ":referenced_by:", generic_work.referenced_by, escape: true )
       yaml_item( out, indent, ':keyword:', generic_work.keyword, escape: true )
       yaml_item( out, indent, ":language:", generic_work.language, escape: true )
       yaml_item( out, indent, ":methodology:", generic_work.methodology, escape: true )

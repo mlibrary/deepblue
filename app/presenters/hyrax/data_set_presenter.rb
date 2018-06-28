@@ -6,7 +6,7 @@ module Hyrax
     delegate  :authoremail,
               :fundedby,
               :grantnumber,
-              :isReferencedBy,
+              :referenced_by,
               :methodology,
               :rights_license,
               :subject_discipline,

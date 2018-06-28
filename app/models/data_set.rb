@@ -60,11 +60,11 @@ class DataSet < ActiveFedora::Base
       file_set_ids
       fundedby
       grantnumber
-      isReferencedBy
       keyword
       language
       location
       methodology
+      referenced_by
       rights_license
       subject_discipline
       title
@@ -256,16 +256,16 @@ class DataSet < ActiveFedora::Base
   end
 
   #
-  # handle the list of isReferencedBy as ordered
+  # handle the list of referenced_by as ordered
   #
-  def isReferencedBy # rubocop:disable Style/MethodName
+  def referenced_by
     values = super
-    values = MetadataHelper.ordered( ordered_values: isReferencedBy_ordered, values: values )
+    values = MetadataHelper.ordered( ordered_values: referenced_by_ordered, values: values )
     return values
   end
 
-  def isReferencedBy=( values ) # rubocop:disable Style/MethodName
-    self.isReferencedBy_ordered = MetadataHelper.ordered_values( ordered_values: isReferencedBy_ordered, values: values )
+  def referenced_by=( values )
+    self.referenced_by_ordered = MetadataHelper.ordered_values( ordered_values: referenced_by_ordered, values: values )
     super values
   end
 
