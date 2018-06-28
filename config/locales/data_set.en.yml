@@ -44,7 +44,7 @@ en:
       doi:                  "DOI"
       fundedby:             "Funding agency"
       grantnumber:          "ORSP grant number"
-      isReferencedBy:       "Citations"
+      referenced_by:        "Citations"
       language:             "Language"
       methodology:          "Method"
       rights_license:       "CC License"
@@ -72,7 +72,7 @@ en:
         grantnumber:          "ORSP Grant Number"
         hdl:                  "Handle"
         identifier:           "Identifier"
-        isReferencedBy:       "Citation to related material"
+        referenced_by:        "Citation to related material"
         keyword:              "Keyword"
         language:             "Language"
         methodology:          "Method"
@@ -118,7 +118,7 @@ en:
         identifier: >
           A unique handle identifying the work. An example would be a DOI for a journal article, or an ISBN or OCLC
           number for a book.
-        isReferencedBy: >
+        referenced_by: >
           Include a citation, URL, or DOI for any publications that make use of or refer to this dataset.
         keyword: >
           Enter any terms or topics related to the research subject or methods that you would like associated with the

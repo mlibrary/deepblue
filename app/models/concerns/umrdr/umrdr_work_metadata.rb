@@ -40,12 +40,12 @@ module Umrdr
 
       property :hdl, predicate: ::RDF::Vocab::Identifiers.hdl, multiple: false
 
-      property :isReferencedBy, predicate: ::RDF::Vocab::DC.isReferencedBy, multiple: true do |index|
+      property :referenced_by, predicate: ::RDF::Vocab::DC.isReferencedBy, multiple: true do |index|
         index.type :text
         index.as :stored_searchable
       end
 
-      property :isReferencedBy_ordered, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#isReferencedBy_ordered'), multiple: false do |index|
+      property :referenced_by_ordered, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#referenced_by_ordered'), multiple: false do |index|
         index.type :text
         index.as :stored_searchable
       end

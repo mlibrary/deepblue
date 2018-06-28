@@ -33,9 +33,9 @@ module Umrdr
       Array(self[Solrizer.solr_name('grantnumber')]).first
     end
 
-    def isReferencedBy # rubocop:disable Style/MethodName
-      # Array(self[Solrizer.solr_name('isReferencedBy')]).first
-      fetch(Solrizer.solr_name('isReferencedBy'), [])
+    def referenced_by
+      # Array(self[Solrizer.solr_name('referenced_by')]).first
+      fetch(Solrizer.solr_name('referenced_by'), [])
     end
 
     def methodology

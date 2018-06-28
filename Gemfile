@@ -64,7 +64,8 @@ end
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
 group :development, :test do
-  gem 'solr_wrapper', '>= 0.3'
+  # gem 'solr_wrapper', '>= 0.3'
+  gem 'solr_wrapper', '~> 2.0.0'
 end
 
 gem 'devise'

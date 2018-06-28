@@ -63,8 +63,8 @@ class SolrDocument
     self['grantnumber_label_ssim']
   end
 
-  def isReferencedBy_label # rubocop:disable Style/MethodName
-    self['isReferencedBy_label_ssim']
+  def referenced_by_label
+    self['referenced_by_label_ssim']
   end
 
   def language_label
@@ -170,8 +170,7 @@ class SolrDocument
     'in_series',
     'interactivity_type',
     'is_based_on_url',
-    'is_referenced_by',
-    'isReferencedBy',
+    'referenced_by',
     'isbn',
     'issn',
     'language',

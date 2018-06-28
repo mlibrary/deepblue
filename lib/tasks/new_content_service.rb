@@ -166,7 +166,11 @@ module Deepblue
         resource_type = Array(work_hash[:resource_type] || 'Dataset')
         language = Array(work_hash[:language])
         keyword = Array(work_hash[:keyword])
-        isReferencedBy = Array(work_hash[:isReferencedBy]) # rubocop:disable Style/VariableName
+        referenced_by = if 'DBDv1' == source
+                          Array(work_hash[:isReferencedBy])
+                        else
+                          work_hash[:referenced_by]
+                        end
         fundedby = work_hash[:fundedby]
         grantnumber = work_hash[:grantnumber]
 
@@ -185,7 +189,7 @@ module Deepblue
                             date_coverage: date_coverage,
                             language: language,
                             keyword: keyword,
-                            isReferencedBy: isReferencedBy,
+                            referenced_by: referenced_by,
                             fundedby: fundedby,
                             grantnumber: grantnumber )
 

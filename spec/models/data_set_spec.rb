@@ -31,11 +31,11 @@ RSpec.describe DataSet do
       file_set_ids
       fundedby
       grantnumber
-      isReferencedBy
       keyword
       language
       location
       methodology
+      referenced_by
       rights_license
       subject_discipline
       title
@@ -417,7 +417,7 @@ RSpec.describe DataSet do
                                      exp_doi: '',
                                      exp_fundedby: '',
                                      exp_grantnumber: '',
-                                     exp_isReferencedBy: [],
+                                     exp_referenced_by: [],
                                      exp_keyword: [],
                                      exp_language: [],
                                      exp_location: '',
@@ -465,7 +465,7 @@ RSpec.describe DataSet do
     validate_expected( rv_key_values, :doi, exp_doi )
     validate_expected( rv_key_values, :fundedby, exp_fundedby )
     validate_expected( rv_key_values, :grantnumber, exp_grantnumber )
-    validate_expected( rv_key_values, :isReferencedBy, exp_isReferencedBy )
+    validate_expected( rv_key_values, :referenced_by, exp_referenced_by )
     validate_expected( rv_key_values, :keyword, exp_keyword )
     validate_expected( rv_key_values, :language, exp_language )
     validate_expected( rv_key_values, :location, exp_location )

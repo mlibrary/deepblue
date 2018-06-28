@@ -19,7 +19,7 @@ module Hyrax
         methodology
         rights_license
         subject_discipline
-        isReferencedBy
+        referenced_by
       ]
 
     self.default_work_primary_terms =
@@ -36,7 +36,7 @@ module Hyrax
         grantnumber
         keyword
         language
-        isReferencedBy
+        referenced_by
       ]
 
     self.required_fields =
