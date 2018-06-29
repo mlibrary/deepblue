@@ -84,6 +84,14 @@ class DataSet < ActiveFedora::Base
     ]
   end
 
+  def metadata_keys_update
+    %i[
+      authoremail
+      title
+      visibility
+    ]
+  end
+
   def attributes_all_for_email
     metadata_keys_all
   end
@@ -98,6 +106,14 @@ class DataSet < ActiveFedora::Base
 
   def attributes_brief_for_provenance
     metadata_keys_brief
+  end
+
+  def attributes_update_for_email
+    metadata_keys_update
+  end
+
+  def attributes_update_for_provenance
+    metadata_keys_update
   end
 
   def for_email_route

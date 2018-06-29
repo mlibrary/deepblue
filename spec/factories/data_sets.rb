@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :data_set, aliases: [:data_set_work], class: ::DataSet do
 
@@ -28,6 +30,7 @@ FactoryBot.define do
 
     authoremail "test@umich.edu"
     description ["This is the description."]
+    methodology "The Methodology"
 
     after(:build) do |work, evaluator|
       work.apply_depositor_metadata(evaluator.user.user_key)

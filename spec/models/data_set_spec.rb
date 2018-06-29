@@ -53,6 +53,13 @@ RSpec.describe DataSet do
       visibility
     ]
   }
+  let( :metadata_keys_update ) {
+    %i[
+      authoremail
+      title
+      visibility
+    ]
+  }
   let( :exp_class_name ) { 'DataSet' }
   let( :exp_location ) { "/concern/data_sets/#{id}" }
 
@@ -146,6 +153,10 @@ RSpec.describe DataSet do
 
     it 'has brief metadata elements defined' do
       expect( subject.attributes_brief_for_provenance ).to eq metadata_keys_brief
+    end
+
+    it 'has update metadata elements defined' do
+      expect( subject.attributes_update_for_provenance ).to eq metadata_keys_update
     end
 
   end
@@ -385,6 +396,89 @@ RSpec.describe DataSet do
                                      exp_visibility: exp_visibility,
                                      depositor_at_tombstone: depositor_at_tombstone,
                                      visibility_at_tombstone: visibility_at_tombstone )
+    end
+
+  end
+
+  describe 'provenance update' do
+    let( :exp_despositor ) { depositor }
+    let( :exp_event ) { Deepblue::AbstractEventBehavior::EVENT_UPDATE }
+    let( :methodology_new ) { 'The New Methodology' }
+    let( :methodology_old ) { 'The Old Methodology' }
+    let( :rights_license ) { 'The Rights License' }
+    let( :subject_discipline ) { 'The Subject Discipline' }
+    let( :form_params ) do
+      { "title": [title, ""],
+        "creator": [creator, ""],
+        "authoremail": authoremail,
+        "methodology": methodology_new,
+        "description": [description, ""],
+        "rights_license": rights_license,
+        "subject_discipline": [subject_discipline, ""],
+        "fundedby": "",
+        "grantnumber": "",
+        "keyword": [""],
+        "language": [""],
+        "referenced_by": [""],
+        "member_of_collection_ids": "",
+        "find_child_work": "",
+        "permissions_attributes": { "0": { "access": "edit", "id": "197055dd-3e5e-4714-9878-8620f2195428/39/2e/47/ca/392e47ca-b01b-4c3f-afb9-9ddb537fdacc" } },
+        "visibility_during_embargo": "restricted",
+        "embargo_release_date": "2018-06-30",
+        "visibility_after_embargo": "open",
+        "visibility_during_lease": "open",
+        "lease_expiration_date": "2018-06-30",
+        "visibility_after_lease": "restricted",
+        "visibility": visibility_private,
+        "version": "W/\"591319c1fdd3c69832f55e8fbbef903a4a0381a5\"",
+        "date_coverage": "" }
+    end
+    let( :expected_attr_key_values ) { { UpdateAttribute_methodology: { attribute: :methodology, old_value: methodology, new_value: methodology_new } } }
+    let( :expected_added_key_values ) { { UpdateAttribute_methodology: { "attribute" => "methodology", "old_value" => "The Methodology", "new_value" => "The New Methodology" } } }
+
+    before do
+      subject.id = id
+      subject.authoremail = authoremail
+      subject.title = [title]
+      subject.creator = [creator]
+      subject.date_created = date_created
+      subject.depositor = depositor
+      subject.description = [description]
+      subject.methodology = methodology
+      subject.rights_license = rights_license
+      subject.subject_discipline = [subject_discipline]
+      subject.visibility = visibility_public
+    end
+
+    it 'uses update attributes and discards blank ones' do
+      attributes, ignore_blank_key_values = subject.attributes_for_provenance_update
+      expect( ignore_blank_key_values ).to eq Deepblue::AbstractEventBehavior::IGNORE_BLANK_KEY_VALUES
+      expect( attributes ).to eq metadata_keys_update
+    end
+
+    it 'logs provenance for update' do
+      attr_key_values = subject.provenance_log_update_before( form_params: form_params )
+      expect( attr_key_values ).to eq expected_attr_key_values
+      subject.methodology = methodology_new
+
+      prov_logger_received = nil
+      allow( PROV_LOGGER ).to receive( :info ) { |msg| prov_logger_received = msg }
+      before = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
+      subject.provenance_log_update_after( current_user: current_user, update_attr_key_values: attr_key_values )
+      after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
+      validate_prov_logger_received( prov_logger_received: prov_logger_received,
+                                     size: 9,
+                                     before: before,
+                                     after: after,
+                                     exp_event: exp_event,
+                                     exp_class_name: exp_class_name,
+                                     exp_id: id,
+                                     exp_authoremail: authoremail,
+                                     exp_total_file_count: nil,
+                                     exp_total_file_size: nil,
+                                     exp_total_file_size_human_readable: nil,
+                                     exp_visibility: visibility_public,
+                                     **expected_added_key_values )
     end
 
   end

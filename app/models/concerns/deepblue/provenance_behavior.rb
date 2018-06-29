@@ -18,6 +18,10 @@ module Deepblue
       %i[]
     end
 
+    def attributes_update_for_provenance
+      attributes_all_for_provenance
+    end
+
     def attributes_for_provenance_add
       attributes_brief_for_provenance
     end
@@ -59,7 +63,7 @@ module Deepblue
     end
 
     def attributes_for_provenance_update
-      attributes_all_for_provenance
+      return attributes_update_for_provenance, IGNORE_BLANK_KEY_VALUES
     end
 
     def attributes_for_provenance_upload
@@ -374,7 +378,7 @@ module Deepblue
                                                                   current_user: current_user,
                                                                   event: event,
                                                                   event_note: event_note,
-                                                                  ignore_blank_key_values: false,
+                                                                  ignore_blank_key_values: ignore_blank_key_values,
                                                                   epitaph: epitaph,
                                                                   depositor_at_tombstone: depositor_at_tombstone,
                                                                   visibility_at_tombstone: visibility_at_tombstone )
@@ -395,39 +399,40 @@ module Deepblue
                             ignore_blank_key_values: ignore_blank_key_values )
     end
 
-    def provenance_update( current_user:, event_note: '', provenance_attribute_values_before_update: )
-      prov_key_values = map_provenance_attributes_for_update( current_user,
-                                                              event_note,
-                                                              provenance_attribute_values_before_update )
-      provenance_log_event( attributes: attributes_for_provenance_update,
+    def provenance_update( current_user:, event_note: '', **added_prov_key_values )
+      attributes, ignore_blank_key_values = attributes_for_provenance_update
+      event = EVENT_UPDATE
+      prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes,
+                                                                  current_user: current_user,
+                                                                  event: event,
+                                                                  event_note: event_note,
+                                                                  ignore_blank_key_values: ignore_blank_key_values,
+                                                                  **added_prov_key_values )
+      provenance_log_event( attributes: attributes,
                             current_user: current_user,
-                            event: EVENT_UPDATE,
+                            event: event,
                             event_note: event_note,
-                            ignore_blank_key_values: false,
+                            ignore_blank_key_values: ignore_blank_key_values,
                             prov_key_values: prov_key_values )
     end
 
-    def provenance_log_update_after( current_user:, event_note: '' )
-      provenance_attribute_values_before_update = attributes_cache_fetch( event: EVENT_UPDATE, id: for_provenance_id )
-      # Rails.logger.debug ">>>>>>"
-      # Rails.logger.debug "provenance_log_update_after"
-      # Rails.logger.debug "provenance_attribute_values_before_update=#{ActiveSupport::JSON.encode provenance_attribute_values_before_update}"
-      # Rails.logger.debug ">>>>>>"
-      provenance_update( current_user: current_user,
-                         event_note: event_note,
-                         provenance_attribute_values_before_update: provenance_attribute_values_before_update )
+    def provenance_log_update_after( current_user:, event_note: '', update_attr_key_values: nil )
+      # LoggingHelper.bold_debug [ "provenance_log_update_after", 'update_attr_key_values:', update_attr_key_values ]
+      update_attr_key_values = ProvenanceHelper.update_attribute_key_values( curation_concern: for_provenance_object,
+                                                                             **update_attr_key_values )
+      # LoggingHelper.bold_debug [ "provenance_log_update_after", 'update_attr_key_values:', update_attr_key_values ]
+      provenance_update( current_user: current_user, event_note: event_note, **update_attr_key_values ) if update_attr_key_values.present?
     end
 
-    def provenance_log_update_before( current_user:, event_note: '' )
-      provenance_attribute_values_before_update = provenance_attribute_values_for_update( current_user: current_user,
-                                                                                          event_note: event_note )
-      # Rails.logger.debug ">>>>>>"
-      # Rails.logger.debug "provenance_log_update_before"
-      # Rails.logger.debug "provenance_attribute_values_before_update=#{ActiveSupport::JSON.encode provenance_attribute_values_before_update}"
-      # Rails.logger.debug ">>>>>>"
-      attributes_cache_write( event: EVENT_UPDATE_BEFORE,
-                              id: for_provenance_id,
-                              attributes: provenance_attribute_values_before_update )
+    def provenance_log_update_before( form_params: )
+      # LoggingHelper.bold_debug [ "provenance_log_update_before",
+      #                            ActiveSupport::JSON.encode( form_params ),
+      #                            'form_params:',
+      #                            form_params ]
+      update_attr_key_values = ProvenanceHelper.form_params_to_update_attribute_key_values( curation_concern: for_provenance_object,
+                                                                                            form_params: form_params )
+      # LoggingHelper.bold_debug [ "provenance_log_update_before", 'update_attr_key_values:', update_attr_key_values ]
+      update_attr_key_values
     end
 
     def provenance_upload( current_user:, event_note: '' )
@@ -473,28 +478,28 @@ module ActiveFedora
 
     module ClassMethods
 
-      def update( attributes )
-        Rails.logger.debug "ActiveFedora::Persistence.update(#{ActiveSupport::JSON.encode attributes})"
-        if respond_to? :provenance_attribute_values_before_update
-          provenance_attribute_values_before_update = provenance_attribute_values_for_update( current_user: '' )
-          Rails.logger.debug ">>>>>>"
-          Rails.logger.debug "provenance_log_update_before"
-          Rails.logger.debug "provenance_attribute_values_before_update=#{ActiveSupport::JSON.encode provenance_attribute_values_before_update}"
-          Rails.logger.debug ">>>>>>"
-        end
-
-        rv = super( attributes )
-
-        if respond_to? :provenance_attribute_values_before_update
-          Rails.logger.debug ">>>>>>"
-          Rails.logger.debug "provenance_log_update_after"
-          Rails.logger.debug "provenance_attribute_values_before_update=#{ActiveSupport::JSON.encode provenance_attribute_values_before_update}"
-          Rails.logger.debug ">>>>>>"
-          provenance_update( current_user: '',
-                             provenance_attribute_values_before_update: provenance_attribute_values_before_update )
-        end
-        rv
-      end
+      # def update( attributes )
+      #   Rails.logger.debug "ActiveFedora::Persistence.update(#{ActiveSupport::JSON.encode attributes})"
+      #   if respond_to? :provenance_attribute_values_before_update
+      #     provenance_attribute_values_before_update = provenance_attribute_values_for_update( current_user: '' )
+      #     Rails.logger.debug ">>>>>>"
+      #     Rails.logger.debug "provenance_log_update_before"
+      #     Rails.logger.debug "provenance_attribute_values_before_update=#{ActiveSupport::JSON.encode provenance_attribute_values_before_update}"
+      #     Rails.logger.debug ">>>>>>"
+      #   end
+      #
+      #   rv = super( attributes )
+      #
+      #   if respond_to? :provenance_attribute_values_before_update
+      #     Rails.logger.debug ">>>>>>"
+      #     Rails.logger.debug "provenance_log_update_after"
+      #     Rails.logger.debug "provenance_attribute_values_before_update=#{ActiveSupport::JSON.encode provenance_attribute_values_before_update}"
+      #     Rails.logger.debug ">>>>>>"
+      #     provenance_update( current_user: '',
+      #                        provenance_attribute_values_before_update: provenance_attribute_values_before_update )
+      #   end
+      #   rv
+      # end
 
     end
 

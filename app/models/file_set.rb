@@ -46,12 +46,38 @@ class FileSet < ActiveFedora::Base
     ]
   end
 
+  def metadata_keys_update
+    %i[
+      title
+      label
+      parent_id
+      file_extension
+      visibility
+    ]
+  end
+
+  def attributes_all_for_email
+    metadata_keys_all
+  end
+
   def attributes_all_for_provenance
     metadata_keys_all
   end
 
+  def attributes_brief_for_email
+    metadata_keys_brief
+  end
+
   def attributes_brief_for_provenance
     metadata_keys_brief
+  end
+
+  def attributes_update_for_email
+    metadata_keys_update
+  end
+
+  def attributes_update_for_provenance
+    metadata_keys_update
   end
 
   def files_to_file
