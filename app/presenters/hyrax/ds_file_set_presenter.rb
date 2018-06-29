@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-module Dataset
+module Hyrax
 
-  class FileSetPresenter < ::Hyrax::FileSetPresenter
+  class DsFileSetPresenter < Hyrax::FileSetPresenter
 
     delegate :file_size, :file_size_readable, :original_checksum, :mime_type, to: :solr_document
 
