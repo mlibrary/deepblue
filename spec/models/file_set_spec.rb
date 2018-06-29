@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe FileSet do
 
-  #include Hyrax::FactoryHelpers
+  # include Hyrax::FactoryHelpers
 
   # before(:all) do
   #   #puts "DataSet ids before=#{DataSet.all.map { |ds| ds.id }}"
@@ -17,7 +19,64 @@ RSpec.describe FileSet do
   #   FileSet.all.each { |fs| fs.delete }
   # end
 
+  let( :metadata_keys_all ) {
+    %i[
+      date_created
+      date_modified
+      date_uploaded
+      extracted_text
+      file_extension
+      files_count
+      file_size
+      file_size_human_readable
+      label
+      location
+      mime_type
+      original_checksum
+      original_name
+      parent_id
+      title
+      uri
+      visibility
+    ]
+  }
+  let( :metadata_keys_brief ) {
+    %i[
+      title
+      label
+      parent_id
+      file_extension
+      visibility
+    ]
+  }
+  let( :metadata_keys_update ) {
+    %i[
+      title
+      label
+      parent_id
+      file_extension
+      visibility
+    ]
+  }
+
+
   let(:user) { create(:user) }
+
+  describe 'provenance constants' do
+
+    it 'has all metadata elements defined' do
+      expect( subject.attributes_all_for_provenance ).to eq metadata_keys_all
+    end
+
+    it 'has brief metadata elements defined' do
+      expect( subject.attributes_brief_for_provenance ).to eq metadata_keys_brief
+    end
+
+    it 'has update metadata elements defined' do
+      expect( subject.attributes_update_for_provenance ).to eq metadata_keys_update
+    end
+
+  end
 
   describe 'rdf type' do
     subject { described_class.new.type }
@@ -74,12 +133,12 @@ RSpec.describe FileSet do
       subject.edit_users = ['user1']
       subject.read_users = %w[user2 user3]
       expect(subject.permissions.map(&:to_hash)).to match_array [
-                                                                    { type: 'group', access: 'read', name: 'group1' },
-                                                                    { type: 'group', access: 'read', name: 'group2' },
-                                                                    { type: 'person', access: 'read', name: 'user2' },
-                                                                    { type: 'person', access: 'read', name: 'user3' },
-                                                                    { type: 'person', access: 'edit', name: 'user1' }
-                                                                ]
+        { type: 'group', access: 'read', name: 'group1' },
+        { type: 'group', access: 'read', name: 'group2' },
+        { type: 'person', access: 'read', name: 'user2' },
+        { type: 'person', access: 'read', name: 'user3' },
+        { type: 'person', access: 'edit', name: 'user1' }
+      ]
     end
 
     it "has attached content" do
@@ -127,37 +186,37 @@ RSpec.describe FileSet do
       expect(subject.to_param).to eq subject.id
     end
 
-    describe 'that have been saved' do
-      # before { subject.apply_depositor_metadata('jcoyne') }
-      #
-      # it 'is able to set values via delegated methods' do
-      #   subject.related_url = ['http://example.org/']
-      #   subject.creator = ['John Doe']
-      #   subject.title = ['New work']
-      #   subject.save
-      #   f = subject.reload
-      #   expect(f.related_url).to eq ['http://example.org/']
-      #   expect(f.creator).to eq ['John Doe']
-      #   expect(f.title).to eq ['New work']
-      # end
-      #
-      # it 'is able to be added to w/o unexpected graph behavior' do
-      #   subject.creator = ['John Doe']
-      #   subject.title = ['New work']
-      #   subject.save!
-      #   f = subject.reload
-      #   expect(f.creator).to eq ['John Doe']
-      #   expect(f.title).to eq ['New work']
-      #   f.creator = ['Jane Doe']
-      #   f.title += ['Newer work']
-      #   f.save
-      #   f = subject.reload
-      #   expect(f.creator).to eq ['Jane Doe']
-      #   # TODO: Is order important?
-      #   expect(f.title).to include('New work')
-      #   expect(f.title).to include('Newer work')
-      # end
-    end
+    # describe 'that have been saved' do
+    #   before { subject.apply_depositor_metadata('jcoyne') }
+    #
+    #   it 'is able to set values via delegated methods' do
+    #     subject.related_url = ['http://example.org/']
+    #     subject.creator = ['John Doe']
+    #     subject.title = ['New work']
+    #     subject.save
+    #     f = subject.reload
+    #     expect(f.related_url).to eq ['http://example.org/']
+    #     expect(f.creator).to eq ['John Doe']
+    #     expect(f.title).to eq ['New work']
+    #   end
+    #
+    #   it 'is able to be added to w/o unexpected graph behavior' do
+    #     subject.creator = ['John Doe']
+    #     subject.title = ['New work']
+    #     subject.save!
+    #     f = subject.reload
+    #     expect(f.creator).to eq ['John Doe']
+    #     expect(f.title).to eq ['New work']
+    #     f.creator = ['Jane Doe']
+    #     f.title += ['Newer work']
+    #     f.save
+    #     f = subject.reload
+    #     expect(f.creator).to eq ['Jane Doe']
+    #     # TODO: Is order important?
+    #     expect(f.title).to include('New work')
+    #     expect(f.title).to include('Newer work')
+    #   end
+    # end
   end
 
   # describe '#indexer' do

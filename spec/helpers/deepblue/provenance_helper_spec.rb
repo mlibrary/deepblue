@@ -8,12 +8,115 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
       expect( Deepblue::ProvenanceHelper::RE_TIMESTAMP_FORMAT.source ).to eq '^\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d$'
       expect( Deepblue::ProvenanceHelper::RE_LOG_LINE.source ).to \
         eq '^(\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d) ([^/]+)/([^/]*)/([^/]+)/([^/ ]+) (.*)$'
+      expect( Deepblue::ProvenanceHelper::PREFIX_UPDATE_ATTRIBUTE ).to eq 'UpdateAttribute_'
     end
   end
 
   describe '.echo_to_rails_logger' do
     subject { Deepblue::ProvenanceHelper.echo_to_rails_logger }
     it { expect( subject ).to eq true }
+  end
+
+  describe '.form_params_to_update_attribute_key_values' do
+    let( :authoremail ) { 'authoremail@umich.edu' }
+    let( :creator ) { 'Creator, A' }
+    let( :current_user ) { 'user@umich.edu' }
+    let( :date_created ) { '2018-02-28' }
+    let( :depositor ) { authoremail }
+    let( :description ) { 'The Description' }
+    let( :id ) { '0123458678' }
+    let( :methodology ) { 'The Methodology' }
+    let( :methodology_new ) { 'The New Methodology' }
+    let( :rights_license ) { 'The Rights License' }
+    let( :subject_discipline ) { 'The Subject Discipline' }
+    let( :title ) { 'The Title' }
+    let( :visibility_private ) { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE }
+    let( :visibility_public ) { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC }
+    let( :curation_concern ) do
+      DataSet.new( authoremail: authoremail,
+                   title: [title],
+                   creator: [creator],
+                   date_created: date_created,
+                   depositor: depositor,
+                   description: [description],
+                   methodology: methodology,
+                   rights_license: rights_license,
+                   subject_discipline: [subject_discipline],
+                   visibility: visibility_public )
+    end
+
+    context 'No changes' do
+      let( :form_params ) do
+        { "title": [title, ""],
+          "creator": [creator, ""],
+          "authoremail": authoremail,
+          "methodology": methodology,
+          "description": [description, ""],
+          "rights_license": rights_license,
+          "subject_discipline": [subject_discipline, ""],
+          "fundedby": "",
+          "grantnumber": "",
+          "keyword": [""],
+          "language": [""],
+          "referenced_by": [""],
+          "member_of_collection_ids": "",
+          "find_child_work": "",
+          "permissions_attributes": { "0": { "access": "edit", "id": "197055dd-3e5e-4714-9878-8620f2195428/39/2e/47/ca/392e47ca-b01b-4c3f-afb9-9ddb537fdacc" } },
+          "visibility_during_embargo": "restricted",
+          "embargo_release_date": "2018-06-30",
+          "visibility_after_embargo": "open",
+          "visibility_during_lease": "open",
+          "lease_expiration_date": "2018-06-30",
+          "visibility_after_lease": "restricted",
+          "visibility": visibility_private,
+          "version": "W/\"591319c1fdd3c69832f55e8fbbef903a4a0381a5\"",
+          "date_coverage": "" }
+      end
+      let( :expected_attr_key_values ) { {} }
+
+      it do
+        attr_key_values = Deepblue::ProvenanceHelper.form_params_to_update_attribute_key_values( curation_concern: curation_concern,
+                                                                                                 form_params: form_params )
+        expect( attr_key_values ).to eq expected_attr_key_values
+      end
+    end
+
+    context 'methodology updated' do
+      let( :form_params ) do
+        { "title": [title, ""],
+          "creator": [creator, ""],
+          "authoremail": authoremail,
+          "methodology": methodology_new,
+          "description": [description, ""],
+          "rights_license": rights_license,
+          "subject_discipline": [subject_discipline, ""],
+          "fundedby": "",
+          "grantnumber": "",
+          "keyword": [""],
+          "language": [""],
+          "referenced_by": [""],
+          "member_of_collection_ids": "",
+          "find_child_work": "",
+          "permissions_attributes": { "0": { "access": "edit", "id": "197055dd-3e5e-4714-9878-8620f2195428/39/2e/47/ca/392e47ca-b01b-4c3f-afb9-9ddb537fdacc" } },
+          "visibility_during_embargo": "restricted",
+          "embargo_release_date": "2018-06-30",
+          "visibility_after_embargo": "open",
+          "visibility_during_lease": "open",
+          "lease_expiration_date": "2018-06-30",
+          "visibility_after_lease": "restricted",
+          "visibility": visibility_private,
+          "version": "W/\"591319c1fdd3c69832f55e8fbbef903a4a0381a5\"",
+          "date_coverage": "" }
+      end
+      let( :expected_attr_key_values ) { { UpdateAttribute_methodology: { attribute: :methodology, old_value: methodology, new_value: methodology_new } } }
+
+      it do
+        attr_key_values = Deepblue::ProvenanceHelper.form_params_to_update_attribute_key_values( curation_concern: curation_concern,
+                                                                                                 form_params: form_params )
+        expect( attr_key_values ).to eq expected_attr_key_values
+      end
+    end
+
   end
 
   describe '.initialize_prov_key_values' do
@@ -367,6 +470,47 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
       it do
         expect( Deepblue::ProvenanceHelper.to_log_format_timestamp( time_now.to_s ) ).to match timestamp_re
       end
+    end
+  end
+
+  describe '.update_attribute_key_values' do
+    let( :authoremail ) { 'authoremail@umich.edu' }
+    let( :creator ) { [ 'Creator, A' ] }
+    let( :current_user ) { 'user@umich.edu' }
+    let( :date_created ) { '2018-02-28' }
+    let( :depositor ) { authoremail }
+    let( :description ) { [ 'The Description' ] }
+    let( :id ) { '0123458678' }
+    let( :methodology_new ) { 'The New Methodology' }
+    let( :methodology_old ) { 'The Old Methodology' }
+    let( :rights_license ) { 'The Rights License' }
+    let( :title ) { [ 'The Title' ] }
+    let( :subject_discipline ) { 'The Subject Discipline' }
+    let( :visibility_private ) { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE }
+    let( :visibility_public ) { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC }
+    let( :curation_concern ) do
+      DataSet.new( authoremail: authoremail,
+                   title: title,
+                   creator: creator,
+                   date_created: date_created,
+                   depositor: depositor,
+                   description: description,
+                   methodology: methodology_new,
+                   rights_license: rights_license,
+                   subject_discipline: [subject_discipline],
+                   visibility: visibility_public )
+    end
+    let( :update_attr_key_values ) { { UpdateAttribute_methodology: { attribute: :methodology, old_value: methodology_old, new_value: 'some value from form' } } }
+    it do
+      updated = Deepblue::ProvenanceHelper.update_attribute_key_values( curation_concern: curation_concern,
+                                                                        update_attr_key_values: update_attr_key_values )
+      # puts ActiveSupport::JSON.encode updated
+      # updated = updated[:update_attr_key_values]
+      expect( updated.size ).to be 1
+      expect( updated.key?(:UpdateAttribute_methodology) ).to be true
+      expect( updated[:UpdateAttribute_methodology][:attribute] ).to eq :methodology
+      expect( updated[:UpdateAttribute_methodology][:old_value] ).to eq methodology_old
+      expect( updated[:UpdateAttribute_methodology][:new_value] ).to eq methodology_new
     end
   end
 

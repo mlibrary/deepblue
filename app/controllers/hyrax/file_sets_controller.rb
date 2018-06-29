@@ -7,8 +7,8 @@ module Hyrax
   # monkey patch FileSetsController
   class FileSetsController < ApplicationController
 
-    alias_method :monkey_update, :update
-    alias_method :monkey_update_metadata, :update_metadata
+    # alias_method :monkey_update, :update
+    # alias_method :monkey_update_metadata, :update_metadata
 
     before_action :provenance_log_destroy,       only: [:destroy]
     before_action :provenance_log_update_before, only: [:update]
@@ -25,35 +25,20 @@ module Hyrax
     end
 
     def provenance_log_update_after
-      curation_concern.provenance_log_update_after( current_user: current_user, event_note: 'FileSetsController.provenance_log_update_after' )
+      curation_concern.provenance_log_update_after( current_user: current_user,
+                                                    # event_note: 'FileSetsController.provenance_log_update_after',
+                                                    update_attr_key_values: @update_attr_key_values )
     end
 
     def provenance_log_update_before
-      curation_concern.provenance_log_update_before( current_user: current_user, event_note: 'FileSetsController.provenance_log_update_before' )
+      @update_attr_key_values = curation_concern.provenance_log_update_before( form_params: params['file_set'].dup )
     end
 
-    # # PATCH /concern/file_sets/:id
-    # def update
-    #   curation_concern.provenance_log_update_before( current_user: current_user, event_note: 'from #update' )
-    #   monkey_update
-    #   curation_concern.provenance_log_update_after( current_user: current_user, event_note: 'from #update' )
-    # rescue RSolr::Error::Http => error
-    #   flash[:error] = error.message
-    #   logger.error "FileSetsController::update rescued #{error.class}\n\t#{error.message}\n #{error.backtrace.join("\n")}\n\n"
-    #   render action: 'edit'
-    # end
-    #
-    # def update_metadata
-    #   curation_concern.provenance_log_update_before( current_user: current_user, event_note: 'from #update_metadata' )
-    #   monkey_update_metadata
-    #   curation_concern.provenance_log_update_after( current_user: current_user, event_note: 'from #update_metadata' )
-    # end
+    protected
 
-protected
-
-    def show_presenter
-      Hyrax::DsFileSetPresenter
-    end
+      def show_presenter
+        Hyrax::DsFileSetPresenter
+      end
 
   end
 

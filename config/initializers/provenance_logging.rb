@@ -5,6 +5,6 @@
 DeepBlueDocs::Application.config.after_initialize do
   # Rails.logger.info "Initializing provenance logging..."
   # STDOUT.puts "Initializing provenance logging..."
-  require 'provenance_persistence'
-  ActiveFedora::Persistence.prepend( ::Deepblue::ProvenancePersistenceExt )
+  # require 'provenance_persistence'
+  # ActiveFedora::Persistence.prepend( ::Deepblue::ProvenancePersistenceExt )
 end

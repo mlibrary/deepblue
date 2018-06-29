@@ -158,11 +158,13 @@ module Hyrax
     end
 
     def provenance_log_update_after
-      curation_concern.provenance_log_update_after( current_user: current_user, event_note: 'DataSetsController.provenance_log_update_after' )
+      curation_concern.provenance_log_update_after( current_user: current_user,
+                                                    # event_note: 'DataSetsController.provenance_log_update_after',
+                                                    update_attr_key_values: @update_attr_key_values )
     end
 
     def provenance_log_update_before
-      curation_concern.provenance_log_update_before( current_user: current_user, event_note: 'DataSetsController.provenance_log_update_before' )
+      @update_attr_key_values = curation_concern.provenance_log_update_before( form_params: params['data_set'].dup )
     end
 
     ## end Provenance log

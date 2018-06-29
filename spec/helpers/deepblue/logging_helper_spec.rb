@@ -5,6 +5,7 @@ RSpec.describe Deepblue::LoggingHelper, type: :helper do
   describe '.bold_debug' do
     let( :arrow_line ) { ">>>>>>>>>>" }
     let( :msg ) { 'The message.' }
+
     context 'with msg' do
       before do
         allow( Rails.logger ).to receive( :debug ).with( any_args )
@@ -16,6 +17,7 @@ RSpec.describe Deepblue::LoggingHelper, type: :helper do
         expect( Rails.logger ).to have_received( :debug ).exactly( 3 ).times
       end
     end
+
     context 'with msg and lines: 2' do
       before do
         allow( Rails.logger ).to receive( :debug ).with( any_args )
@@ -27,6 +29,41 @@ RSpec.describe Deepblue::LoggingHelper, type: :helper do
         expect( Rails.logger ).to have_received( :debug ).exactly( 5 ).times
       end
     end
+
+    context 'with msg as array' do
+      let( :msg_line_1 ) { "line 1" }
+      let( :msg_line_2 ) { "line 2" }
+      let( :msg_array ) { [ msg_line_1, msg_line_2 ] }
+      before do
+        allow( Rails.logger ).to receive( :debug ).with( any_args )
+      end
+      it do
+        Deepblue::LoggingHelper.bold_debug( msg_array )
+        expect( Rails.logger ).to have_received( :debug ).with( arrow_line ).exactly( 2 ).times
+        expect( Rails.logger ).to have_received( :debug ).with( msg_line_1 )
+        expect( Rails.logger ).to have_received( :debug ).with( msg_line_1 )
+        expect( Rails.logger ).to have_received( :debug ).exactly( 4 ).times
+      end
+    end
+
+    context 'with msg as hash' do
+      let( :msg_key1 ) { :key1 }
+      let( :msg_key2 ) { :key2 }
+      let( :msg_value_1 ) { "value 1" }
+      let( :msg_value_2 ) { "value 2" }
+      let( :msg_hash ) { [ msg_key1 => msg_value_1, msg_key2 => msg_value_2 ] }
+      before do
+        allow( Rails.logger ).to receive( :debug ).with( any_args )
+      end
+      it do
+        Deepblue::LoggingHelper.bold_debug( msg_hash )
+        expect( Rails.logger ).to have_received( :debug ).with( arrow_line ).exactly( 2 ).times
+        expect( Rails.logger ).to have_received( :debug ).with( "#{msg_key1}: #{msg_value_1}" )
+        expect( Rails.logger ).to have_received( :debug ).with( "#{msg_key2}: #{msg_value_2}" )
+        expect( Rails.logger ).to have_received( :debug ).exactly( 4 ).times
+      end
+    end
+
     # context 'with block msg' do
     #   let( :block_msg ) { 'The block message.' }
     #   before do

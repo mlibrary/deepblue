@@ -4,10 +4,21 @@ module Deepblue
 
   module LoggingHelper
 
-    def self.bold_debug( msg = nil, lines: 1, &block )
+    def self.bold_debug( msg = nil, key_value_lines: true, lines: 1, &block )
       lines = 1 if lines < 1
       lines.times { Rails.logger.debug ">>>>>>>>>>" }
-      Rails.logger.debug msg, &block
+      if msg.respond_to?( :each )
+        msg.each do |m|
+          if key_value_lines && m.respond_to?( :each_pair )
+            m.each_pair { |k, v| Rails.logger.debug "#{k}: #{v}" }
+          else
+            Rails.logger.debug m
+          end
+        end
+        Rails.logger.debug nil, &block if block_given?
+      else
+        Rails.logger.debug msg, &block
+      end
       lines.times { Rails.logger.debug ">>>>>>>>>>" }
     end
 

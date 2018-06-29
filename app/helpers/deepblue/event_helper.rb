@@ -52,8 +52,8 @@ module Deepblue
       LoggingCallback.process_event_curation_concern( event_name: :after_update_metadata,
                                                       curation_concern: curation_concern,
                                                       user: user )
-      return unless curation_concern.respond_to? :provenance_log_update_after
-      curation_concern.provenance_log_update_after( current_user: user, event_note: 'after_update_metadata' )
+      # return unless curation_concern.respond_to? :provenance_log_update_after
+      # curation_concern.provenance_log_update_after( current_user: user, event_note: 'after_update_metadata' )
     end
 
   end
