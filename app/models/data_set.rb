@@ -256,7 +256,7 @@ class DataSet < ActiveFedora::Base
     depositor_at_tombstone = depositor
     visibility_at_tombstone = visibility
     self.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
-    self.depositor = 'TOMBSTONE-' + depositor
+    self.depositor = depositor
     self.tombstone = [epitaph]
 
     file_sets.each do |file_set|
