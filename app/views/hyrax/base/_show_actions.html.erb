@@ -6,8 +6,14 @@
 <% end %>
 
   <% if presenter.tombstone.blank? && presenter.editor? %>
-      <%= link_to "Edit", edit_polymorphic_path([main_app, presenter]), class: 'btn btn-default' %>
-      <%= link_to "Delete", [main_app, presenter], class: 'btn btn-danger', data: { confirm: "Delete this #{presenter.human_readable_type}?" }, method: :delete %>
+      <% if presenter.doi_minted? && presenter.current_ability.admin? %>
+        <%= link_to "Edit", edit_polymorphic_path([main_app, presenter]), class: 'btn btn-default' %>
+        <%= link_to "Delete", [main_app, presenter], class: 'btn btn-danger', data: { confirm: "Delete this #{presenter.human_readable_type}?" }, method: :delete %>
+      <% elsif !presenter.doi_minted? %>
+        <%= link_to "Edit", edit_polymorphic_path([main_app, presenter]), class: 'btn btn-default' %>
+        <%= link_to "Delete", [main_app, presenter], class: 'btn btn-danger', data: { confirm: "Delete this #{presenter.human_readable_type}?" }, method: :delete %>      
+      <% end %>
+        
       <% if presenter.current_ability.admin? %>
         <button class="btn btn-primary btn-sm" data-target="#tombstoneId" data-toggle="modal">Tombstone</button> 
       <% end %>

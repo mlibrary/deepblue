@@ -49,6 +49,12 @@ module Hyrax
     #   curation_concern.provenance_log_update_after( current_user: current_user, event_note: 'from #update_metadata' )
     # end
 
+protected
+
+    def show_presenter
+      Hyrax::DsFileSetPresenter
+    end
+
   end
 
 end
