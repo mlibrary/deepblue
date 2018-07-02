@@ -19,6 +19,9 @@ RSpec.describe FileSet do
   #   FileSet.all.each { |fs| fs.delete }
   # end
 
+  let( :id ) { '0123458678' }
+  let( :visibility_private ) { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE }
+  let( :visibility_public ) { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC }
   let( :metadata_keys_all ) {
     %i[
       date_created
@@ -180,6 +183,53 @@ RSpec.describe FileSet do
       expect(subject).to respond_to(:sample_rate)
       # :creator is characterization metadata?
       expect(subject).to respond_to(:creator)
+    end
+
+    describe 'metadata overrides' do
+      before do
+        subject.id = id
+        subject.label = "some_file.pdf"
+        subject.visibility = visibility_public
+      end
+
+      it 'provides file_set_ids' do
+        key = :label
+        exp_value = "some_file.pdf"
+        key_values = { test: 'testing' }
+        expect( subject.metadata_hash_override( key: key, ignore_blank_values: false, key_values: key_values ) ).to eq true
+        expect( key_values[key] ).to eq exp_value
+        expect( key_values[:test] ).to eq 'testing'
+        expect( key_values.size ).to eq 2
+      end
+
+      it 'provides file_size' do
+        key = :file_size
+        exp_value = 0
+        key_values = { test: 'testing' }
+        expect( subject.metadata_hash_override( key: key, ignore_blank_values: false, key_values: key_values ) ).to eq true
+        expect( key_values[key] ).to eq exp_value
+        expect( key_values[:test] ).to eq 'testing'
+        expect( key_values.size ).to eq 2
+      end
+
+      it 'provides file_size_human_readable' do
+        key = :file_size_human_readable
+        exp_value = '0 Bytes'
+        key_values = { test: 'testing' }
+        expect( subject.metadata_hash_override( key: key, ignore_blank_values: false, key_values: key_values ) ).to eq true
+        expect( key_values[key] ).to eq exp_value
+        expect( key_values[:test] ).to eq 'testing'
+        expect( key_values.size ).to eq 2
+      end
+
+      it 'does not provide some arbritrary metadata' do
+        key = :some_arbritrary_metadata
+        key_values = { test: 'testing' }
+        expect( subject.metadata_hash_override( key: key, ignore_blank_values: false, key_values: key_values ) ).to eq false
+        expect( key_values[:test] ).to eq 'testing'
+        expect( key_values.size ).to eq 1
+      end
+
     end
 
     it 'redefines to_param to make redis keys more recognizable' do

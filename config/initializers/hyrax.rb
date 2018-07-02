@@ -30,6 +30,7 @@ Hyrax.config do |config|
 
   # Email recipient of messages sent via the contact form
   # config.contact_email = "repo-admin@example.org"
+  config.contact_email = Settings.contact_email
 
   # Text prefacing the subject entered in the contact form
   # config.subject_prefix = "Contact form:"
@@ -67,6 +68,7 @@ Hyrax.config do |config|
 
   # Where to store tempfiles, leave blank for the system temp directory (e.g. /tmp)
   # config.temp_file_base = '/home/developer1'
+  config.temp_file_base = File.join( Rails.root, 'tmp', 'derivatives') # rubocop:disable Rails/FilePath
 
   # Hostpath to be used in Endnote exports
   # config.persistent_hostpath = 'http://localhost/files/'
@@ -86,12 +88,15 @@ Hyrax.config do |config|
 
   # Store identifier minter's state in a file for later replayability
   # config.minter_statefile = '/tmp/minter-state'
+  config.minter_statefile = Settings.minter_file
 
   # Prefix for Redis keys
   # config.redis_namespace = "hyrax"
+  config.redis_namespace = Settings.redis_namespace
 
   # Path to the file characterization tool
   # config.fits_path = "fits.sh"
+  config.fits_path = system("which", "fits.sh") ? "fits.sh" : "/l/local/fits/fits.sh"
 
   # Path to the file derivatives creation tool
   # config.libreoffice_path = "soffice"
@@ -112,7 +117,7 @@ Hyrax.config do |config|
 
   # Location autocomplete uses geonames to search for named regions
   # Username for connecting to geonames
-  # config.geonames_username = ''
+  config.geonames_username = ''
 
   # Should the acceptance of the licence agreement be active (checkbox), or
   # implied when the save button is pressed? Set to true for active
@@ -122,7 +127,7 @@ Hyrax.config do |config|
   # Should work creation require file upload, or can a work be created first
   # and a file added at a later time?
   # The default is true.
-  # config.work_requires_files = true
+  config.work_requires_files = false
 
   # Enable IIIF image service. This is required to use the
   # UniversalViewer-ified show page
@@ -250,6 +255,11 @@ Hyrax.config do |config|
   #
   # Location where BagIt files should be exported
   # config.bagit_dir = "tmp/descriptions"
+
+  # This enables or disables the ability to download files.
+  config.define_singleton_method(:download_files) do
+    return true
+  end
 
   # If browse-everything has been configured, load the configs.  Otherwise, set to nil.
   begin

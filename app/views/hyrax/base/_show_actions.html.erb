@@ -1,46 +1,86 @@
 <div class="show-actions">
-<% if presenter.tombstone.blank? %>
-  <% if Hyrax.config.analytics? %>
-    <%= link_to "Analytics", presenter.stats_path, id: 'stats', class: 'btn btn-default', data: { turbolinks: false } %>
+  <% if @presenter.tombstone.blank? %>
+    <% if Hyrax.config.analytics? %>
+      <%= link_to t('simple_form.actions.data_set.analytics'),
+                  @presenter.stats_path,
+                  id: 'stats',
+                  class: 'btn btn-default',
+                  data: { turbolinks: false } %>
+    <% end %>
   <% end %>
-<% end %>
 
-  <% if presenter.tombstone.blank? && presenter.editor? %>
-      <% if presenter.doi_minted? && presenter.current_ability.admin? %>
-        <%= link_to "Edit", edit_polymorphic_path([main_app, presenter]), class: 'btn btn-default' %>
-        <%= link_to "Delete", [main_app, presenter], class: 'btn btn-danger', data: { confirm: "Delete this #{presenter.human_readable_type}?" }, method: :delete %>
+  <% if Hyrax.config.download_files %>
+    <%= form_tag( main_app.zip_download_hyrax_data_set_path( @presenter.id ), method: 'post' ) do %>
+      <%= hidden_field_tag('data_set[nop]') %>
+      <% if DeepBlueDocs::Application.config.max_work_file_size_to_download < @presenter.total_file_size %>
+        <p><%= t('simple_form.hints.data_set.download_total_work_size_too_large',
+                 total_file_size: @presenter.total_file_size_human_readable ) %>
+        </p>
+      <% else %>
+        <%= submit_tag( @presenter.label_with_total_file_size( t('simple_form.actions.data_set.zip_download') ),
+                        class: 'btn btn-primary') %>
+        <% if DeepBlueDocs::Application.config.min_work_file_size_to_download_warn < @presenter.total_file_size %>
+          <p><%= t('simple_form.hints.data_set.download_total_work_size_may_be_too_large_html',
+                   total_file_size: @presenter.total_file_size_human_readable ) %>
+          </p>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <% if @presenter.tombstone.blank? && @presenter.editor? %>
+      <% if @presenter.doi_minted? && @presenter.current_ability.admin? %>
+        <%= link_to t('simple_form.actions.data_set.edit'),
+                    edit_polymorphic_path([main_app, @presenter]),
+                    class: 'btn btn-default' %>
+        <%= link_to t('simple_form.actions.data_set.delete'),
+                    [main_app, @presenter],
+                    class: 'btn btn-danger',
+                    data: { confirm: "Delete this #{@presenter.human_readable_type}?" },
+                    method: :delete %>
       <% elsif !presenter.doi_minted? %>
-        <%= link_to "Edit", edit_polymorphic_path([main_app, presenter]), class: 'btn btn-default' %>
-        <%= link_to "Delete", [main_app, presenter], class: 'btn btn-danger', data: { confirm: "Delete this #{presenter.human_readable_type}?" }, method: :delete %>      
+        <%= link_to t('simple_form.actions.data_set.edit'),
+                    edit_polymorphic_path([main_app, @presenter]),
+                    class: 'btn btn-default' %>
+        <%= link_to t('simple_form.actions.data_set.delete'),
+                    [main_app, @presenter],
+                    class: 'btn btn-danger',
+                    data: { confirm: "Delete this #{@presenter.human_readable_type}?" },
+                    method: :delete %>
       <% end %>
         
-      <% if presenter.current_ability.admin? %>
-        <button class="btn btn-primary btn-sm" data-target="#tombstoneId" data-toggle="modal">Tombstone</button> 
+      <% if @presenter.current_ability.admin? %>
+        <button class="btn btn-primary btn-sm" data-target="#tombstoneId" data-toggle="modal">
+          <%= t('simple_form.actions.data_set.tombstone') %>
+        </button>
       <% end %>
 
-      <% if !presenter.doi_minted? %>
-        <%= link_to "Mint Doi", main_app.doi_hyrax_data_set_path(presenter.id), class: 'btn btn-default' %>
+      <% if !@presenter.doi_minted? %>
+        <%= link_to t('simple_form.actions.data_set.mint_doi'),
+                    main_app.doi_hyrax_data_set_path(@presenter.id), class: 'btn btn-default' %>
       <% end %>
  
-      <% if presenter.member_presenters.size > 1 %>
-          <%= link_to t("hyrax.file_manager.link_text"), polymorphic_path([main_app, :file_manager, presenter]), class: 'btn btn-default' %>
+      <% if @presenter.member_presenters.size > 1 %>
+          <%= link_to t("hyrax.file_manager.link_text"),
+                      polymorphic_path([main_app, :file_manager, @presenter]),
+                      class: 'btn btn-default' %>
       <% end %>
   <% end %>
-<% if presenter.tombstone.blank? %>
-  <% if presenter.work_featurable? %>
-      <%= link_to "Feature", hyrax.featured_work_path(presenter, format: :json),
-          data: { behavior: 'feature' },
-          class: presenter.display_unfeature_link? ? 'btn btn-default collapse' : 'btn btn-default' %>
+  <% if @presenter.tombstone.blank? %>
+    <% if @presenter.work_featurable? %>
+        <%= link_to "Feature", hyrax.featured_work_path(@presenter, format: :json),
+            data: { behavior: 'feature' },
+            class: @presenter.display_unfeature_link? ? 'btn btn-default collapse' : 'btn btn-default' %>
 
-      <%= link_to "Unfeature", hyrax.featured_work_path(presenter, format: :json),
-          data: { behavior: 'unfeature' },
-          class: presenter.display_feature_link? ? 'btn btn-default collapse' : 'btn btn-default' %>
+        <%= link_to "Unfeature", hyrax.featured_work_path(@presenter, format: :json),
+            data: { behavior: 'unfeature' },
+            class: @presenter.display_feature_link? ? 'btn btn-default collapse' : 'btn btn-default' %>
+    <% end %>
   <% end %>
-<% end %>  
 
-<!-- COinS hook for Zotero -->
-  <span class="Z3988" title="<%= export_as_openurl_ctx_kev(presenter) %>"></span>
+  <!-- COinS hook for Zotero -->
+  <span class="Z3988" title="<%= export_as_openurl_ctx_kev(@presenter) %>"></span>
 </div>
 
-<%= render 'modal_tombstone_work', id: presenter.id %>
+<%= render 'modal_tombstone_work', id: @presenter.id %>
 

@@ -84,6 +84,60 @@ RSpec.describe DataSet do
     end
 
     it 'provides file_set_ids' do
+      key = :file_set_ids
+      exp_value = []
+      key_values = { test: 'testing' }
+      expect( subject.metadata_hash_override( key: key, ignore_blank_values: false, key_values: key_values ) ).to eq true
+      expect( key_values[key] ).to eq exp_value
+      expect( key_values[:test] ).to eq 'testing'
+      expect( key_values.size ).to eq 2
+    end
+
+    it 'provides total_file_size' do
+      key = :total_file_size
+      exp_value = nil
+      key_values = { test: 'testing' }
+      expect( subject.metadata_hash_override( key: key, ignore_blank_values: false, key_values: key_values ) ).to eq true
+      expect( key_values[key] ).to eq exp_value
+      expect( key_values[:test] ).to eq 'testing'
+      expect( key_values.size ).to eq 2
+    end
+
+    it 'provides total_file_size_human_readable' do
+      key = :total_file_size_human_readable
+      exp_value = nil
+      key_values = { test: 'testing' }
+      expect( subject.metadata_hash_override( key: key, ignore_blank_values: false, key_values: key_values ) ).to eq true
+      expect( key_values[key] ).to eq exp_value
+      expect( key_values[:test] ).to eq 'testing'
+      expect( key_values.size ).to eq 2
+    end
+
+    it 'does not provide some arbritrary metadata' do
+      key = :some_arbritrary_metadata
+      key_values = { test: 'testing' }
+      expect( subject.metadata_hash_override( key: key, ignore_blank_values: false, key_values: key_values ) ).to eq false
+      expect( key_values[:test] ).to eq 'testing'
+      expect( key_values.size ).to eq 1
+    end
+
+  end
+
+  describe 'provenance metadata overrides' do
+    before do
+      subject.id = id
+      subject.authoremail = authoremail
+      subject.title = [title]
+      subject.creator = [creator]
+      subject.depositor = depositor
+      subject.date_created = date_created
+      subject.description = [description]
+      subject.methodology = methodology
+      subject.rights_license = rights_license
+      subject.visibility = visibility_public
+    end
+
+    it 'provides file_set_ids' do
       prov_key_values = { test: 'testing' }
       attribute = :file_set_ids
       ignore_blank_key_values = false
@@ -355,7 +409,7 @@ RSpec.describe DataSet do
     let( :depositor_at_tombstone ) { depositor }
     let( :visibility_at_tombstone ) { visibility_public }
     let( :exp_event ) { Deepblue::AbstractEventBehavior::EVENT_TOMBSTONE }
-    let( :exp_depositor ) { "TOMBSTONE-#{depositor}" }
+    let( :exp_depositor ) { depositor }
     let( :exp_visibility ) { visibility_private }
 
     before do

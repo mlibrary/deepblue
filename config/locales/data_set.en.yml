@@ -52,6 +52,26 @@ en:
       total_file_size:      "Total file size"
       total_file_size_human_readable: "Total file size"
   simple_form:
+    actions:
+      data_set:
+        analytics:                      "Analytics"
+        confirm:                        "Confirm Your Deposit"
+        delete:                         "Delete"
+        edit:                           "Edit"
+        globus:                         "Send to Globus to Download"
+        globus_add_email:               "Add Email"
+        globus_clean_download:          "Clean Globus Download Directory for this Work"
+        globus_clean_prep:              "Clean Globus Prep Directory for this Work"
+        globus_download:                "Send to Globus to Download"
+        globus_download_add_email:      "Email Me When Globus Download is Complete"
+        globus_download_notify_me:      "Email Me When Globus Download is Complete"
+        globus_download_and_notify_me:  "Download All for Globus and Email Me When Complete"
+        globus_download_dont_notify_me: "Don't Add My Email"
+        mint_doi:                       "Mint DOI"
+        save_metadata:                  "Save Metadata"
+        save_metadata_public:           "Save Description (Public)"
+        tombstone:                      "Tombstone"
+        zip_download:                   "Download All Files"
     labels:
       data_set:
         authoremail:          "Contact Information"
@@ -92,6 +112,8 @@ en:
         based_near: >
           A place name related to the work, such as its site of publication, or the city, state, or country the work
           contents are about. Calls upon the <a href='http://www.geonames.org'>GeoNames web service</a>.
+        box_link: >
+          Link to M-Box deposit directory
         contributor: >
           Person or organization outside the Creator role who have contributed to the work in some way
           (e.g., interns, other non-authors/creators).
@@ -110,8 +132,23 @@ en:
         description: >
           Provide a general description of the research that produced this data, as well as an account of the individual
           data files and how they are related.
+        download_total_work_size_too_large: >
+          Total work file size of %{total_file_size} is too large to download directly.
+        download_total_work_size_may_be_too_large_html: >
+          &nbsp;&mdash;&nbsp;Total file size of %{total_file_size} may be too large to download directly.
+          Consider using Globus (see below).
         fundedby: >
           Select the primary funding agency that supported the research and data collection from the drop-down list.
+        globus_link:
+          "Link to Globus download directory"
+        globus_files_are_ready:
+          "Files are ready"
+        globus_help:
+          "What is Globus?"
+        globus_is_for_large_datasets:
+          "Globus is for large data sets."
+        globus_currently_downloading_html:
+          "Globus is currently downloading files for this work...<br/>"
         grantnumber: >
           If you have one, provide the grant number that was assigned by the University of Michigan’s Office of Research
           and Sponsored Projects (ORSP).
@@ -155,26 +192,33 @@ en:
           the methods, discipline, and topic associated with your research.
   rights_license:
     http://creativecommons_org/publicdomain/zero/1_0/:
-      description:
-        "You dedicate this work to the public domain, waiving all your rights to the work worldwide under copyright law."
+      description: >
+        You dedicate this work to the public domain, waiving all your rights to the work worldwide under copyright law.
     http://creativecommons_org/licenses/by/4_0/:
-      description:
-        "This license lets others distribute, remix, tweak, and build upon your work, even commercially, as long as they credit you for the original creation."
+      description: >
+        This license lets others distribute, remix, tweak, and build upon your work, even commercially, as long as they
+        credit you for the original creation.
     http://creativecommons_org/licenses/by-nc/4_0/:
-      description:
-        "This license lets others modify and build upon your work non-commercially. Their new works must also acknowledge you and be non-commercial, but they don’t have to license their derivative works on the same terms."
+      description: >
+        This license lets others modify and build upon your work non-commercially. Their new works must also
+        acknowledge you and be non-commercial, but they don’t have to license their derivative works on the same terms.
     http://creativecommons_org/licenses/by-nd/4_0/:
-      description:
-        "This license allows for redistribution, commercial and non-commercial, as long as it is passed along unchanged and in whole, with credit to you."
+      description: >
+        This license allows for redistribution, commercial and non-commercial, as long as it is passed along unchanged
+        and in whole, with credit to you.
     http://creativecommons_org/licenses/by/3_0/us/:
-      description:
-        "This license lets others distribute, remix, tweak, and build upon your work, even commercially, as long as they credit you for the original creation."
+      description: >
+        This license lets others distribute, remix, tweak, and build upon your work, even commercially, as long as they
+        credit you for the original creation.
     http://creativecommons_org/licenses/by-nc/3_0/us/:
-      description:
-        "This license lets others modify and build upon your work non-commercially. Their new works must also acknowledge you and be non-commercial, but they don’t have to license their derivative works on the same terms."
+      description: >
+        This license lets others modify and build upon your work non-commercially. Their new works must also
+        acknowledge you and be non-commercial, but they don’t have to license their derivative works on the same terms.
     http://creativecommons_org/licenses/by-nd/3_0/us/:
-      description:
-        "This license allows for redistribution, commercial and non-commercial, as long as it is passed along unchanged and in whole, with credit to you."
+      description: >
+        This license allows for redistribution, commercial and non-commercial, as long as it is passed along unchanged
+        and in whole, with credit to you.
     http://creativecommons_org/licenses/by-sa/3_0/us/:
-      description:
-        "This license lets others remix, tweak, and build upon your work even for commercial purposes, as long as they credit you and license their new creations under the identical terms."
+      description: >
+        This license lets others remix, tweak, and build upon your work even for commercial purposes, as long as
+        they credit you and license their new creations under the identical terms.

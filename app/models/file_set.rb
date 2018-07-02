@@ -106,7 +106,11 @@ class FileSet < ActiveFedora::Base
                 true
               when 'file_size'
                 value = if file_size.blank?
-                          original_file.size
+                          if original_file.nil?
+                            0
+                          else
+                            original_file.size
+                          end
                         else
                           file_size[0]
                         end
@@ -154,12 +158,35 @@ class FileSet < ActiveFedora::Base
 
   def metadata_hash_override( key:, ignore_blank_values:, key_values: )
     value = nil
-    handled = case metadata_key.to_s
+    handled = case key.to_s
               when 'file_extension'
                 value = File.extname label if label.present?
                 true
               when 'files_count'
                 value = files.size
+                true
+              when 'file_size'
+                value = if file_size.blank?
+                          if original_file.nil?
+                            0
+                          else
+                            original_file.size
+                          end
+                        else
+                          file_size[0]
+                        end
+                true
+              when 'file_size_human_readable'
+                value = if file_size.blank?
+                          if original_file.nil?
+                            0
+                          else
+                            original_file.size
+                          end
+                        else
+                          file_size[0]
+                        end
+                value = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( value, precision: 3 )
                 true
               when 'label'
                 value = label
@@ -192,6 +219,14 @@ class FileSet < ActiveFedora::Base
       key_values[key] = value
     end
     return true
+  end
+
+  def metadata_report_keys
+    return USE_BLANK_KEY_VALUES, metadata_keys_all
+  end
+
+  def metadata_report_title_pre
+    'FileSet: '
   end
 
 end

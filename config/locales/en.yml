@@ -21,3 +21,9 @@
 
 en:
   hello: "Hello world"
+  simple_form:
+    actions:
+      data_set:
+        edit:   "Edit"
+
+

@@ -58,8 +58,10 @@ Metrics/CyclomaticComplexity:
     - 'app/controllers/hyrax/data_sets_controller.rb'
     - 'app/helpers/export_files_helper.rb'
     - 'app/helpers/metadata_helper.rb'
+    - 'app/helpers/deepblue/export_files_helper.rb'
     - 'app/helpers/deepblue/ingest_helper.rb'
     - 'app/helpers/deepblue/logging_helper.rb'
+    - 'app/helpers/deepblue/metadata_helper.rb'
     - 'app/helpers/deepblue/provenance_helper.rb'
     - 'app/models/data_set.rb'
     - 'app/models/file_set.rb'
@@ -79,8 +81,10 @@ Metrics/PerceivedComplexity:
     - 'app/controllers/hyrax/data_sets_controller.rb'
     - 'app/helpers/export_files_helper.rb'
     - 'app/helpers/metadata_helper.rb'
+    - 'app/helpers/deepblue/export_files_helper.rb'
     - 'app/helpers/deepblue/ingest_helper.rb'
     - 'app/helpers/deepblue/logging_helper.rb'
+    - 'app/helpers/deepblue/metadata_helper.rb'
     - 'app/helpers/deepblue/provenance_helper.rb'
     - 'app/models/file_set.rb'
     - 'app/models/concerns/deepblue/email_behavior.rb'
@@ -158,10 +162,6 @@ Style/Alias:
 #  Exclude:
 #    - app/helpers/metadata_helper.rb
 
-Style/LineEndConcatenation:
-  Exclude:
-    - 'lib/tasks/upgrade_provenance_log.rake'
-
 Style/FrozenStringLiteralComment:
   Exclude:
     - 'config/initializers/mailboxer.rb'
@@ -170,12 +170,20 @@ Style/FrozenStringLiteralComment:
 #  Exclude:
 #    - 'lib/import/importer.rb'
 
+Style/LineEndConcatenation:
+  Exclude:
+    - 'lib/tasks/upgrade_provenance_log.rake'
+
 Style/NumericLiterals:
   Exclude:
     - 'config/initializers/mailboxer.rb'
 
 Style/RedundantReturn:
   Enabled: false
+
+Style/RedundantSelf:
+  Exclude:
+   - 'app/models/concerns/deepblue/metadata_behavior.rb'
 
 #Style/VariableName:
 #  Exclude:
