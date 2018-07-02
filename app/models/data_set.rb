@@ -197,12 +197,15 @@ class DataSet < ActiveFedora::Base
               when 'total_file_count'
                 value = total_file_count
                 true
+              when 'total_file_size'
+                value = total_file_size
+                true
               when 'total_file_size_human_readable'
                 value = total_file_size_human_readable
                 true
-              when 'visibility'
-                value = visibility
-                true
+              # when 'visibility'
+              #   value = visibility
+              #   true
               else
                 false
               end
@@ -213,6 +216,29 @@ class DataSet < ActiveFedora::Base
       key_values[key] = value
     end
     return true
+  end
+
+  def metadata_report_contained_objects
+    file_sets
+  end
+
+  def metadata_report_keys
+    return USE_BLANK_KEY_VALUES, metadata_keys_all
+  end
+
+  def metadata_report_label_override( metadata_key:, metadata_value: ) # rubocop:disable Lint/UnusedMethodArgument
+    case metadata_key.to_s
+    when 'file_set_ids'
+      'File Set IDs: '
+    when 'total_file_count'
+      'Total File Count: '
+    when 'total_file_size_human_readable'
+      'Total File Size: '
+    end
+  end
+
+  def metadata_report_title_pre
+    'DataSet: '
   end
 
   # # Visibility helpers
@@ -227,24 +253,24 @@ class DataSet < ActiveFedora::Base
   # the list of creators is ordered
   def creator
     values = super
-    values = MetadataHelper.ordered( ordered_values: creator_ordered, values: values )
+    values = Deepblue::MetadataHelper.ordered( ordered_values: creator_ordered, values: values )
     return values
   end
 
   def creator=( values )
-    self.creator_ordered = MetadataHelper.ordered_values( ordered_values: creator_ordered, values: values )
+    self.creator_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: creator_ordered, values: values )
     super values
   end
 
   # the list of description is ordered
   def description
     values = super
-    values = MetadataHelper.ordered( ordered_values: description_ordered, values: values )
+    values = Deepblue::MetadataHelper.ordered( ordered_values: description_ordered, values: values )
     return values
   end
 
   def description=( values )
-    self.description_ordered = MetadataHelper.ordered_values( ordered_values: description_ordered, values: values )
+    self.description_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: description_ordered, values: values )
     super values
   end
 
@@ -276,12 +302,12 @@ class DataSet < ActiveFedora::Base
   #
   def referenced_by
     values = super
-    values = MetadataHelper.ordered( ordered_values: referenced_by_ordered, values: values )
+    values = Deepblue::MetadataHelper.ordered( ordered_values: referenced_by_ordered, values: values )
     return values
   end
 
   def referenced_by=( values )
-    self.referenced_by_ordered = MetadataHelper.ordered_values( ordered_values: referenced_by_ordered, values: values )
+    self.referenced_by_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: referenced_by_ordered, values: values )
     super values
   end
 
@@ -290,12 +316,12 @@ class DataSet < ActiveFedora::Base
   #
   def keyword
     values = super
-    values = MetadataHelper.ordered( ordered_values: keyword_ordered, values: values )
+    values = Deepblue::MetadataHelper.ordered( ordered_values: keyword_ordered, values: values )
     return values
   end
 
   def keyword=( values )
-    self.keyword_ordered = MetadataHelper.ordered_values( ordered_values: keyword_ordered, values: values )
+    self.keyword_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: keyword_ordered, values: values )
     super values
   end
 
@@ -304,24 +330,24 @@ class DataSet < ActiveFedora::Base
   #
   def language
     values = super
-    values = MetadataHelper.ordered( ordered_values: language_ordered, values: values )
+    values = Deepblue::MetadataHelper.ordered( ordered_values: language_ordered, values: values )
     return values
   end
 
   def language=( values )
-    self.language_ordered = MetadataHelper.ordered_values( ordered_values: language_ordered, values: values )
+    self.language_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: language_ordered, values: values )
     super values
   end
 
   # hthe list of title is ordered
   def title
     values = super
-    values = MetadataHelper.ordered( ordered_values: title_ordered, values: values )
+    values = Deepblue::MetadataHelper.ordered( ordered_values: title_ordered, values: values )
     return values
   end
 
   def title=( values )
-    self.title_ordered = MetadataHelper.ordered_values( ordered_values: title_ordered, values: values )
+    self.title_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: title_ordered, values: values )
     super values
   end
 

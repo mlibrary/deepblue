@@ -3,7 +3,7 @@
 module Hyrax
 
   class DataSetsController < DeepblueController
-    # Adds Hyrax behaviors to the controller.
+
     include Deepblue::WorksControllerBehavior
 
     self.curation_concern_type = ::DataSet
@@ -14,20 +14,17 @@ module Hyrax
     before_action :provenance_log_destroy,       only: [:destroy]
     before_action :provenance_log_update_before, only: [:update]
     before_action :visiblity_changed,            only: [:update]
-    # before_action :check_recent_uploads,           only: [:show]
 
-    # after_action  :box_work_created,               only: [:create]
-    # after_action  :notify_rds_on_update_to_public, only: [:update]
     after_action :email_rds_create,                only: [:create]
     after_action :provenance_log_create,           only: [:create]
     after_action :visibility_changed_update,       only: [:update]
     after_action :provenance_log_update_after,     only: [:update]
 
-    protect_from_forgery with: :null_session,    only: [:download]
     protect_from_forgery with: :null_session,    only: [:globus_add_email]
     protect_from_forgery with: :null_session,    only: [:globus_download]
     protect_from_forgery with: :null_session,    only: [:globus_download_add_email]
     protect_from_forgery with: :null_session,    only: [:globus_download_notify_me]
+    protect_from_forgery with: :null_session,    only: [:zip_download]
 
     attr_accessor :user_email_one, :user_email_two
 
@@ -224,40 +221,46 @@ module Hyrax
 
     ## end visibility / publish
 
-    # ## begin download operations
-    #
-    # def download
-    #   require 'zip'
-    #   require 'tempfile'
-    #
-    #   tmp_dir = ENV['TMPDIR'] || "/tmp"
-    #   tmp_dir = Pathname tmp_dir
-    #   #Rails.logger.debug "Download Zip begin tmp_dir #{tmp_dir}"
-    #   target_dir = target_dir_name_id( tmp_dir, curation_concern.id )
-    #   #Rails.logger.debug "Download Zip begin copy to folder #{target_dir}"
-    #   Dir.mkdir(target_dir) unless Dir.exist?( target_dir )
-    #   target_zipfile = target_dir_name_id( target_dir, curation_concern.id, ".zip" )
-    #   #Rails.logger.debug "Download Zip begin copy to target_zipfile #{target_zipfile}"
-    #   File.delete target_zipfile if File.exist? target_zipfile
-    #   # clean the zip directory if necessary, since the zip structure is currently flat, only
-    #   # have to clean files in the target folder
-    #   files = Dir.glob( "#{target_dir.join '*'}")
-    #   files.each do |file|
-    #     File.delete file if File.exist? file
-    #   end
-    #   Rails.logger.debug "Download Zip begin copy to folder #{target_dir}"
-    #   Zip::File.open(target_zipfile.to_s, Zip::File::CREATE ) do |zipfile|
-    #     metadata_filename = MetadataHelper.report_generic_work( curation_concern, dir: target_dir )
-    #     zipfile.add( metadata_filename.basename, metadata_filename )
-    #     copy_file_sets_to( target_dir, log_prefix: "Zip: " ) do |target_file_name, target_file|
-    #       zipfile.add( target_file_name, target_file )
-    #     end
-    #   end
-    #   Rails.logger.debug "Download Zip copy complete to folder #{target_dir}"
-    #   send_file target_zipfile.to_s
-    # end
+    ## begin download operations
 
-    ## end download operations
+    def zip_download
+      require 'zip'
+      require 'tempfile'
+
+      tmp_dir = ENV['TMPDIR'] || "/tmp"
+      tmp_dir = Pathname.new tmp_dir
+      # Rails.logger.debug "Download Zip begin tmp_dir #{tmp_dir}"
+      Deepblue::LoggingHelper.bold_debug [ "zip_download begin", "tmp_dir=#{tmp_dir}" ]
+      target_dir = target_dir_name_id( tmp_dir, curation_concern.id )
+      # Rails.logger.debug "Download Zip begin copy to folder #{target_dir}"
+      Deepblue::LoggingHelper.bold_debug [ "zip_download", "target_dir=#{target_dir}" ]
+      Dir.mkdir( target_dir ) unless Dir.exist?( target_dir )
+      target_zipfile = target_dir_name_id( target_dir, curation_concern.id, ".zip" )
+      # Rails.logger.debug "Download Zip begin copy to target_zipfile #{target_zipfile}"
+      Deepblue::LoggingHelper.bold_debug [ "zip_download", "target_zipfile=#{target_zipfile}" ]
+      File.delete target_zipfile if File.exist? target_zipfile
+      # clean the zip directory if necessary, since the zip structure is currently flat, only
+      # have to clean files in the target folder
+      files = Dir.glob( (target_dir.join '*').to_s)
+      Deepblue::LoggingHelper.bold_debug files, label: "zip_download files to delete:"
+      files.each do |file|
+        File.delete file if File.exist? file
+      end
+      Rails.logger.debug "Download Zip begin copy to folder #{target_dir}"
+      Deepblue::LoggingHelper.bold_debug [ "zip_download", "begin copy target_dir=#{target_dir}" ]
+      Zip::File.open(target_zipfile.to_s, Zip::File::CREATE ) do |zipfile|
+        metadata_filename = curation_concern.metadata_report( dir: target_dir )
+        zipfile.add( metadata_filename.basename, metadata_filename )
+        export_file_sets_to( target_dir: target_dir, log_prefix: "Zip: " ) do |target_file_name, target_file|
+          zipfile.add( target_file_name, target_file )
+        end
+      end
+      # Rails.logger.debug "Download Zip copy complete to folder #{target_dir}"
+      Deepblue::LoggingHelper.bold_debug [ "zip_download", "download complete target_dir=#{target_dir}" ]
+      send_file target_zipfile.to_s
+    end
+
+    # end download operations
 
     ## begin globus operations
 
@@ -396,12 +399,12 @@ module Hyrax
                                quiet: false,
                                &block )
         file_sets = curation_concern.file_sets
-        ExportFilesHelper.export_file_sets( target_dir: target_dir,
-                                            file_sets: file_sets,
-                                            log_prefix: log_prefix,
-                                            do_export_predicate: do_export_predicate,
-                                            quiet: quiet,
-                                            &block )
+        Deepblue::ExportFilesHelper.export_file_sets( target_dir: target_dir,
+                                                      file_sets: file_sets,
+                                                      log_prefix: log_prefix,
+                                                      do_export_predicate: do_export_predicate,
+                                                      quiet: quiet,
+                                                      &block )
       end
 
       def flash_and_go_back( msg )

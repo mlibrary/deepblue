@@ -1,11 +1,25 @@
+# frozen_string_literal: true
+
 class Ability
   include Hydra::Ability
-  
   include Hyrax::Ability
-  self.ability_logic += [:everyone_can_create_curation_concerns, :depositor_can_mint_doi]
 
-  def depositor_can_mint_doi
+  self.ability_logic += [:everyone_can_create_curation_concerns]
+  self.ability_logic += [:deepblue_abilities]
+
+  def deepblue_abilities
     can [:doi], ActiveFedora::Base
+
+    alias_action :globus_clean_download,     to: :delete
+    alias_action :globus_download,           to: :read
+    alias_action :globus_add_email,          to: :read
+    alias_action :globus_download_add_email, to: :read
+    alias_action :globus_download_notify_me, to: :read
+    alias_action :tombstone,                 to: :delete
+    alias_action :zip_download,              to: :read
+
+    # alias_action :confirm,                   to: :read
+    # alias_action :identifiers,               to: :update
   end
 
   # Define any customized permissions here.
@@ -22,4 +36,5 @@ class Ability
     #   can [:create], ActiveFedora::Base
     # end
   end
+
 end
