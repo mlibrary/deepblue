@@ -66,7 +66,6 @@ describe GlobusCopyJob, "GlobusJob globus_enabled: :true", globus_enabled: :true
         # Dir.delete globus_prep_copy_tmp_dir if Dir.exist? globus_prep_copy_tmp_dir
         allow( Rails.logger ).to receive( :debug )
         allow( Rails.logger ).to receive( :error )
-        allow( PROV_LOGGER ).to receive( :info ) if DeepBlueDocs::Application.config.globus_log_provenance_copy_job_complete
         # TODO
         # mailer.define_singleton_method( :deliver_now ) do nil; end
         # allow( WorkMailer ).to receive( :globus_job_complete ).with( any_args ).and_return( mailer ).twice

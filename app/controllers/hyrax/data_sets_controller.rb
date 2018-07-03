@@ -101,6 +101,10 @@ module Hyrax
       ::DoiMintingJob.perform_later( curation_concern.id )
     end
 
+    def mint_doi_enabled?
+      true
+    end
+
     ## end DOI
 
     ## email
@@ -117,18 +121,6 @@ module Hyrax
     ## end email
 
     ## Globus
-
-    def globus_complete?
-      ::GlobusJob.copy_complete? curation_concern.id
-    end
-
-    def globus_prepping?
-      ::GlobusJob.files_prepping? curation_concern.id
-    end
-
-    def globus_url
-      ::GlobusJob.external_url curation_concern.id
-    end
 
     def globus_add_email
       if user_signed_in?
@@ -164,6 +156,10 @@ module Hyrax
     def globus_clean_prep
       ::GlobusCleanJob.perform_later( curation_concern.id, clean_download: false )
       globus_ui_delay
+    end
+
+    def globus_complete?
+      ::GlobusJob.copy_complete? curation_concern.id
     end
 
     def globus_copy_job( user_email: nil,
@@ -202,6 +198,10 @@ module Hyrax
       end
     end
 
+    def globus_download_enabled?
+      DeepBlueDocs::Application.config.globus_enabled
+    end
+
     def globus_download_notify_me
       if user_signed_in?
         user_email = Deepblue::EmailHelper.user_email_from( current_user )
@@ -225,8 +225,24 @@ module Hyrax
       end
     end
 
+    def globus_enabled?
+      DeepBlueDocs::Application.config.globus_enabled
+    end
+
+    def globus_last_error_msg
+      ::GlobusJob.error_file_contents curation_concern.id
+    end
+
+    def globus_prepping?
+      ::GlobusJob.files_prepping? curation_concern.id
+    end
+
     def globus_ui_delay( delay_seconds: DeepBlueDocs::Application.config.globus_after_copy_job_ui_delay_seconds )
       sleep delay_seconds if delay_seconds.positive?
+    end
+
+    def globus_url
+      ::GlobusJob.external_url curation_concern.id
     end
 
     ## end Globus
@@ -278,6 +294,10 @@ module Hyrax
       redirect_to dashboard_works_path, notice: msg
     end
 
+    def tombstone_enabled?
+      true
+    end
+
     ## End Tombstone
 
     ## visibility / publish
@@ -320,7 +340,7 @@ module Hyrax
 
     ## end visibility / publish
 
-    ## begin download operations
+    ## begin zip download operations
 
     def zip_download
       require 'zip'
@@ -359,7 +379,11 @@ module Hyrax
       send_file target_zipfile.to_s
     end
 
-    # end download operations
+    def zip_download_enabled?
+      true
+    end
+
+    # end zip download operations
 
     # # Create EDTF::Interval from form parameters
     # # Replace the date coverage parameter prior with serialization of EDTF::Interval
@@ -387,6 +411,10 @@ module Hyrax
     # end
 
     protected
+
+      def emails_did_not_match_msg( _user_email_one, _user_email_two )
+        "Emails did not match" # + ": '#{user_email_one}' != '#{user_email_two}'"
+      end
 
       def export_file_sets_to( target_dir:,
                                log_prefix: "",

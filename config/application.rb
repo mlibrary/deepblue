@@ -53,7 +53,6 @@ module DeepBlueDocs
     config.globus_enabled = true && Dir.exist?( config.globus_download_dir ) && Dir.exist?( config.globus_prep_dir )
     config.base_file_name = "DeepBlueData_"
     config.globus_base_url = 'https://www.globus.org/app/transfer?origin_id=99d8c648-a9ff-11e7-aedd-22000a92523b&origin_path=%2Fdownload%2F'
-    config.globus_log_provenance_copy_job_complete = false
     config.globus_restart_all_copy_jobs_quiet = true
     config.globus_debug_delay_per_file_copy_job_seconds = 0
     config.globus_after_copy_job_ui_delay_seconds = 3
@@ -82,7 +81,9 @@ module DeepBlueDocs
     config.do_ordered_list_hack = true
     config.do_ordered_list_hack_save = true
 
+    config.email_enabled = false
     config.email_log_echo_to_rails_logger = true
+
     config.provenance_log_echo_to_rails_logger = true
     config.provenance_log_redundant_events = true
 

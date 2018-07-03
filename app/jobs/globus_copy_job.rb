@@ -15,7 +15,7 @@ class GlobusCopyJob < GlobusJob
       @target_prep_dir     = target_prep_dir2( @globus_concern_id, prefix: nil, mkdir: true )
       @target_prep_dir_tmp = target_prep_tmp_dir2( @globus_concern_id, prefix: nil, mkdir: true )
       curation_concern = ActiveFedora::Base.find @globus_concern_id
-      globus_copy_job_started_email_rds( curation_concern, description: 'Globus copy job started', log_provenance: false )
+      globus_email_rds( curation_concern: curation_concern, description: "copy job started for work #{curation_concern.id}" )
       metadata_file = curation_concern.metadata_report( dir: @target_prep_dir_tmp, filename_pre: 'w_' )
       move_destination = GlobusJob.target_file_name( @target_prep_dir, metadata_file.basename )
       Deepblue::LoggingHelper.debug "#{@globus_log_prefix} mv #{metadata_file} to #{move_destination}" unless @globus_job_quiet
@@ -45,11 +45,9 @@ class GlobusCopyJob < GlobusJob
         @email_lines = globus_copy_job_complete_lines( curation_concern )
         globus_copy_job_email_all
         globus_copy_job_email_clean
-        if DeepBlueDocs::Application.config.globus_log_provenance_copy_job_complete
-          globus_copy_job_log_provenance
-        end
       rescue Exception => e # rubocop:disable Lint/RescueException
-        msg = "#{@globus_log_prefix} #{e.class}: #{e.message} at #{e.backtrace[0]}"
+        # msg = "#{@globus_log_prefix} #{e.class}: #{e.message} at #{e.backtrace[0]}"
+        msg = "#{@globus_log_prefix} #{e.class}: #{e.message} at #{e.backtrace.join("\n")}"
         Rails.logger.error msg
       end
     end
@@ -83,7 +81,8 @@ class GlobusCopyJob < GlobusJob
       lines << "Globus link: #{MsgHelper.globus_link(curation_concern)}"
       return lines
     rescue Exception => e # rubocop:disable Lint/RescueException
-      msg = "#{@globus_log_prefix} #{e.class}: #{e.message} at #{e.backtrace[0]}"
+      # msg = "#{@globus_log_prefix} #{e.class}: #{e.message} at #{e.backtrace[0]}"
+      msg = "#{@globus_log_prefix} #{e.class}: #{e.message} at #{e.backtrace.join("\n")}"
       Rails.logger.error msg
     end
 
@@ -91,17 +90,20 @@ class GlobusCopyJob < GlobusJob
       return if email.blank?
       return if lines.blank?
       Deepblue::LoggingHelper.debug "#{@globus_log_prefix} globus_copy_job_email_user: work id: #{@globus_concern_id} email: #{email}" unless @globus_job_quiet
-      msg = lines.join( "\n" )
-      Deepblue::EmailHelper.send_email_globus_job_complete( to: email, body: msg )
-    end
-
-    def globus_copy_job_started_email_rds( curation_concern, description: '', log_provenance: false )
-      location = MsgHelper.work_location( curation_concern: curation_concern )
-      title    = MsgHelper.title( curation_concern )
-      creator  = MsgHelper.creator( curation_concern )
-      msg      = "#{title} (#{location}) by + #{creator} with #{curation_concern.visibility} access was #{description}"
-      PROV_LOGGER.info( msg ) if log_provenance
-      Deepblue::EmailHelper.send_email_globus_job_started( to: Deepblue::EmailHelper.notification_email, body: msg )
+      body = lines.join( "\n" )
+      to = email
+      from = email
+      subject = 'DBD: Globus Work Files Available'
+      Deepblue::EmailHelper.log( class_name: 'GlobusCopyJob',
+                                 current_user: nil,
+                                 event: Deepblue::AbstractEventBehavior::EVENT_GLOBUS,
+                                 event_note: 'files available',
+                                 id: @globus_concern_id,
+                                 to: to,
+                                 from: from,
+                                 subject: subject,
+                                 body: lines )
+      Deepblue::EmailHelper.send_email( to: to, from: from, subject: subject, body: body )
     end
 
     def globus_copy_job_email_all( emails: nil, lines: [] )
@@ -112,7 +114,8 @@ class GlobusCopyJob < GlobusJob
       Deepblue::LoggingHelper.debug "#{@globus_log_prefix} globus_copy_job_email_all lines=#{lines}" unless @globus_job_quiet
       emails.each { |email| globus_copy_job_email_user( email: email, lines: lines ) }
     rescue Exception => e # rubocop:disable Lint/RescueException
-      msg = "#{@globus_log_prefix} #{e.class}: #{e.message} at #{e.backtrace[0]}"
+      # msg = "#{@globus_log_prefix} #{e.class}: #{e.message} at #{e.backtrace[0]}"
+      msg = "#{@globus_log_prefix} #{e.class}: #{e.message} at #{e.backtrace.join("\n")}"
       Rails.logger.error msg
     end
 
@@ -134,11 +137,6 @@ class GlobusCopyJob < GlobusJob
         end
       end
       return email_addresses.keys
-    end
-
-    def globus_copy_job_log_provenance
-      msg = @email_lines.join( ', ' )
-      PROV_LOGGER.info( msg )
     end
 
     def globus_do_copy?( target_file_name )
