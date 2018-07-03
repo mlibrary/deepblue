@@ -39,6 +39,14 @@ class GlobusJob < ApplicationJob
     target_file_name_env( @@globus_prep_dir, 'error', target_base_name( id ) )
   end
 
+  def self.error_file_contents( id )
+    contents = nil
+    return contents unless error_file_exists? id
+    file = error_file id
+    open( file, 'r' ) { |f| contents = f.readlines }
+    return contents
+  end
+
   def self.error_file_exists?( id, write_error_to_log: false, log_prefix: '', quiet: true )
     error_file = error_file( id )
     error_file_exists = false
@@ -179,8 +187,16 @@ class GlobusJob < ApplicationJob
     end
 
     def globus_copy_job_email_file
-      rv = GlobusJob.target_file_name_env( @@globus_prep_dir, 'copy_job_emails', GlobusJob.target_base_name( @globus_concern_id ) )
+      rv = GlobusJob.target_file_name_env( @@globus_prep_dir,
+                                           'copy_job_emails',
+                                           GlobusJob.target_base_name( @globus_concern_id ) )
       return rv
+    end
+
+    def globus_email_rds( curation_concern: nil, description: '' )
+      curation_concern = ActiveFedora::Base.find @globus_concern_id if curation_concern.nil?
+      return unless curation_concern.respond_to? :email_rds_globus
+      curation_concern.email_rds_globus( current_user: nil, event_note: description )
     end
 
     def globus_error( msg )
@@ -239,7 +255,8 @@ class GlobusJob < ApplicationJob
         Deepblue::LoggingHelper.debug "#{@globus_log_prefix} lock file #{@globus_lock_file}" unless @globus_job_quiet
       rescue Exception => e # rubocop:disable Lint/RescueException
         msg = "#{@globus_log_prefix} #{e.class}: #{e.message} at #{e.backtrace[0]}"
-        Rails.logger.error msg
+        # Rails.logger.error msg
+        Rails.logger.error "#{@globus_log_prefix} #{e.class}: #{e.message} at #{e.backtrace.join("\n")}"
         globus_error msg
         return
       end

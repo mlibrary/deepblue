@@ -13,6 +13,8 @@ module Deepblue
     EVENT_CREATE            = 'create'
     EVENT_CREATE_DERIVATIVE = 'create_derivative'
     EVENT_DESTROY           = 'destroy'
+    EVENT_DOWNLOAD          = 'download'
+    EVENT_GLOBUS            = 'globus'
     EVENT_INGEST            = 'ingest'
     EVENT_MINT_DOI          = 'mint_doi'
     EVENT_PUBLISH           = 'publish'
@@ -30,6 +32,8 @@ module Deepblue
         EVENT_CREATE,
         EVENT_CREATE_DERIVATIVE,
         EVENT_DESTROY,
+        EVENT_DOWNLOAD,
+        EVENT_GLOBUS,
         EVENT_INGEST,
         EVENT_MINT_DOI,
         EVENT_PUBLISH,

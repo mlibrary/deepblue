@@ -14,6 +14,8 @@ module Hyrax
               :date_coverage,
               to: :solr_document
 
+    # begin box
+
     def box_enabled?
       DeepBlueDocs::Application.config.box_integration_enabled
     end
@@ -33,6 +35,8 @@ module Hyrax
       return rv
     end
 
+    # end box
+
     # display date range as from_date To to_date
     def date_coverage
       solr_value = @solr_document.date_coverage
@@ -40,6 +44,8 @@ module Hyrax
       return solr_value.sub( "/open", "" ) if solr_value.match "/open" # rubocop:disable Performance/RedundantMatch, Performance/RegexpMatch
       solr_value.sub( "/", " to " )
     end
+
+    # begin doi
 
     def doi
       solr_value = @solr_document[Solrizer.solr_name('doi', :symbol)]
@@ -57,6 +63,22 @@ module Hyrax
       doi == DataSet::DOI_PENDING
     end
 
+    def mint_doi_enabled?
+      true
+    end
+
+    # end doi
+
+    # begin globus
+
+    def globus_download_enabled?
+      DeepBlueDocs::Application.config.globus_enabled
+    end
+
+    def globus_enabled?
+      DeepBlueDocs::Application.config.globus_enabled
+    end
+
     def globus_external_url
       concern_id = @solr_document.id
       ::GlobusJob.external_url concern_id
@@ -71,6 +93,13 @@ module Hyrax
       concern_id = @solr_document.id
       ::GlobusJob.files_prepping? concern_id
     end
+
+    def globus_last_error_msg
+      concern_id = @solr_document.id
+      ::GlobusJob.error_file_contents concern_id
+    end
+
+    # end globus
 
     def hdl
       # @object_profile[:hdl]
@@ -88,11 +117,19 @@ module Hyrax
       "#{label} (#{total_file_size_human_readable} in #{count} #{files})"
     end
 
+    # begin tombstone
+
     def tombstone
       solr_value = @solr_document[Solrizer.solr_name('tombstone', :symbol)]
       return nil if solr_value.blank?
       solr_value.first
     end
+
+    def tombstone_enabled?
+      true
+    end
+
+    # end tombstone
 
     def total_file_count
       solr_value = @solr_document[Solrizer.solr_name('file_set_ids', :symbol)]
@@ -109,6 +146,14 @@ module Hyrax
     def total_file_size_human_readable
       human_readable( total_file_size )
     end
+
+    # begin zip download
+
+    def zip_download_enabled?
+      true
+    end
+
+    # end zip download
 
   end
 

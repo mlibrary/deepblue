@@ -26,6 +26,10 @@ module Deepblue
       return attributes_all_for_email, USE_BLANK_KEY_VALUES
     end
 
+    def attributes_for_email_rds_globus
+      return attributes_brief_for_email, IGNORE_BLANK_KEY_VALUES
+    end
+
     def attributes_for_email_rds_publish
       attributes_all_for_email
     end
@@ -38,11 +42,13 @@ module Deepblue
                                              current_user:,
                                              event:,
                                              event_note:,
+                                             to_note:,
                                              ignore_blank_key_values:,
                                              **added_email_key_values )
 
       email_key_values = { user_email: for_email_user( current_user ) }
       email_key_values.merge!( event_note: event_note ) if event_note.present?
+      email_key_values.merge!( to_note: to_note ) if to_note.present?
       email_key_values.merge!( added_email_key_values ) if added_email_key_values.present?
       email_key_values = map_email_attributes!( event: event,
                                                 attributes: attributes,
@@ -75,6 +81,7 @@ module Deepblue
     def email_rds_create( current_user:, event_note: '' )
       attributes, ignore_blank_key_values = attributes_for_email_rds_create
       email_event_notification( to: email_address_rds,
+                                to_note: 'RDS',
                                 from: email_address_rds,
                                 subject: for_email_subject( subject_rest: 'Work Created' ),
                                 attributes: attributes,
@@ -88,6 +95,7 @@ module Deepblue
     def email_rds_destroy( current_user:, event_note: '' )
       attributes, ignore_blank_key_values = attributes_for_email_rds_destroy
       email_event_notification( to: email_address_rds,
+                                to_note: 'RDS',
                                 from: email_address_rds,
                                 subject: for_email_subject( subject_rest: 'Work Deleted' ),
                                 attributes: attributes,
@@ -98,8 +106,23 @@ module Deepblue
                                 ignore_blank_key_values: ignore_blank_key_values )
     end
 
+    def email_rds_globus( current_user:, event_note: )
+      attributes, ignore_blank_key_values = attributes_for_email_rds_globus
+      email_event_notification( to: email_address_rds,
+                                to_note: 'RDS',
+                                from: email_address_rds,
+                                subject: for_email_subject( subject_rest: "Globus #{event_note}" ),
+                                attributes: attributes,
+                                current_user: current_user,
+                                event: EVENT_GLOBUS,
+                                event_note: event_note,
+                                id: for_email_id,
+                                ignore_blank_key_values: ignore_blank_key_values )
+    end
+
     def email_rds_publish( current_user:, event_note: '' )
       email_event_notification( to: email_address_rds,
+                                to_note: 'RDS',
                                 from: email_address_rds,
                                 subject: for_email_subject( subject_rest: 'Work Published' ),
                                 attributes: attributes_for_email_rds_publish,
@@ -112,6 +135,7 @@ module Deepblue
 
     def email_user_create( current_user:, event_note: '' )
       email_event_notification( to: email_address_user( current_user ),
+                                to_note: 'user',
                                 from: email_address_rds,
                                 subject: for_email_subject( subject_rest: 'Work Created' ),
                                 attributes: attributes_for_email_user_create,
@@ -227,6 +251,7 @@ module Deepblue
     protected
 
       def email_event_notification( to:,
+                                    to_note:,
                                     from:,
                                     subject:,
                                     attributes:,
@@ -242,6 +267,7 @@ module Deepblue
                                                                   current_user: current_user,
                                                                   event: event,
                                                                   event_note: event_note,
+                                                                  to_note: to_note,
                                                                   ignore_blank_key_values: ignore_blank_key_values )
         end
         event_attributes_cache_write( event: event, id: id, behavior: :EmailBehavior )
@@ -257,63 +283,6 @@ module Deepblue
                          from: from,
                          subject: subject,
                          **email_key_values )
-      end
-
-      def emails_did_not_match_msg( _user_email_one, _user_email_two )
-        "Emails did not match" # + ": '#{user_email_one}' != '#{user_email_two}'"
-      end
-
-      ### TODO: review and integrate as necessary (also delete from DataSetsController)
-
-      def email_rds_and_user( action: 'create', description: '' )
-        email_to = EmailHelper.user_email_from( current_user )
-        email_from = EmailHelper.notification_email # will be nil on developer's machine
-        email_it( action: action,
-                  description: description,
-                  email_to: email_to,
-                  email_from: email_from )
-      end
-
-      def email_rds( action: 'deposit', description: '' )
-        email_to = EmailHelper.notification_email # will be nil on developer's machine
-        email_it( action: action, description: description, email_to: email_to )
-      end
-
-      def email_it( action: 'deposit', description: '', email_to: '', email_from: nil )
-        location = MsgHelper.work_location( curation_concern: curation_concern )
-        title    = MsgHelper.title( curation_concern )
-        creator  = MsgHelper.creator( curation_concern )
-        msg      = "#{title} (#{location}) by + #{creator} with #{curation_concern.visibility} access was #{description}"
-        LoggingHelper.debug "email_it: action=#{action} email_to=#{email_to} email_from=#{email_from} msg='#{msg}'"
-        case action
-        when 'deposit'
-          EmailHelper.send_email_deposit_work( to: email_to, body: msg )
-        when 'delete'
-          EmailHelper.send_email_delete_work( to: email_to, body: msg )
-        when 'create'
-          EmailHelper.send_email_create_work( to: email_to, body: msg )
-        when 'publish'
-          EmailHelper.send_email_publish_work( to: email_to, body: msg )
-        when 'update'
-          EmailHelper.send_email_update_work( to: email_to, body: msg )
-        else
-          Rails.logger.error "email_it unknown action #{action}"
-        end
-        return if email_from.nil?
-        case action
-        when 'deposit'
-          EmailHelper.send_email_deposit_work( to: email_to, from: email_from, body: msg )
-        when 'delete'
-          EmailHelper.send_email_delete_work( to: email_to, from: email_from, body: msg )
-        when 'create'
-          EmailHelper.send_email_create_work( to: email_to, from: email_from, body: msg )
-        when 'publish'
-          EmailHelper.send_email_publish_work( to: email_to, from: email_from, body: msg )
-        when 'update'
-          EmailHelper.send_email_update_work( to: email_to, from: email_from, body: msg )
-        else
-          Rails.logger.error "email_it unknown action #{action}"
-        end
       end
 
   end

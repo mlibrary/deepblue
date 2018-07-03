@@ -14,11 +14,17 @@ module Deepblue
                   id: 'unknown_id',
                   timestamp: LoggingHelper.timestamp_now,
                   to:,
+                  to_note: '',
                   from:,
                   subject:,
                   **key_values )
 
-      added_key_values = { to: to, from: from, subject: subject }
+      email_enabled = DeepBlueDocs::Application.config.email_enabled
+      added_key_values = if to_note.blank?
+                           { to: to, from: from, subject: subject, email_enabled: email_enabled }
+                         else
+                           { to: to, to_note: to_note, from: from, subject: subject, email_enabled: email_enabled }
+                         end
       key_values.merge! added_key_values
       LoggingHelper.log( class_name: class_name,
                          event: event,
@@ -38,47 +44,13 @@ module Deepblue
       Rails.configuration.notification_email
     end
 
-    def self.send_email( to:, from:, subject:, body: )
-      # TODO: actually send
-      # email = ApplicationMailer.mail( to: to, from: from, subject: subject, body: body )
-      # email.deliver_now
-      LoggingHelper.bold_debug [ "email_event_notification", "to: #{to}\nfrom: #{from}\nsubject: #{subject}\nbody:\n#{body}" ]
-    end
-
-    def self.send_email_create_work( to: notification_email, from: notification_email, body: '' )
-      send_email( to: to, from: from, subject: 'DBD: New Work Created', body: body )
-    end
-
-    def self.send_email_deposit_work( to: notification_email, from: notification_email, body: '' )
-      send_email( to: to, from: from, subject: 'DBD: New Deposit', body: body )
-    end
-
-    def self.send_email_delete_work( to: notification_email, from: notification_email, body: '' )
-      send_email( to: to, from: from, subject: 'DBD: Work Deleted', body: body )
-    end
-
-    def self.send_email_globus_clean_job_complete( to:, body: )
-      send_email( to: to, from: to, subject: 'DBD: Globus Clean Job Complete', body: body )
-    end
-
-    def self.send_email_globus_job_complete( to:, body: )
-      send_email( to: to, from: to, subject: 'DBD: Globus Work Files Available', body: body )
-    end
-
-    def self.send_email_globus_job_started( to: notification_email, body: '' )
-      send_email( to: to, from: to, subject: 'DBD: Globus Work Copy Job Started', body: body )
-    end
-
-    def self.send_email_globus_push_work( to:, from:, body: )
-      send_email( to: to, from: from, subject: 'DBD: Globus Work Files Prepared', body: body )
-    end
-
-    def self.send_email_publish_work( to: notification_email, from: notification_email, body: '' )
-      send_email( to: to, from: from, subject: 'DBD: Work Published', body: body )
-    end
-
-    def self.send_email_update_work( to: notification_email, from: notification_email, body: '' )
-      send_email( to: to, from: from, subject: 'DBD: Work Updated', body: body )
+    def self.send_email( to:, from:, subject:, body:, log: false )
+      email_enabled = DeepBlueDocs::Application.config.email_enabled
+      is_enabled = email_enabled ? "is enabled" : "is not enabled"
+      LoggingHelper.bold_debug [ "EmailHelper.send_email #{is_enabled}", "to: #{to} from: #{from} subject: #{subject}\nbody:\n#{body}" ] if log
+      return unless email_enabled
+      email = ApplicationMailer.mail( to: to, from: from, subject: subject, body: body )
+      email.deliver_now
     end
 
     def self.user_email

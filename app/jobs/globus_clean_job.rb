@@ -30,18 +30,8 @@ class GlobusCleanJob < GlobusJob
       GlobusJob.clean_file globus_ready_file
     end
 
-    globus_clean_job_email_rds( description: "cleaned Globus directories", log_provenance: true )
+    globus_email_rds( description: "cleaned work #{@globus_concern_id} directories" )
     Deepblue::LoggingHelper.debug "#{@globus_log_prefix} end globus clean" unless @globus_job_quiet
-  end
-
-  def globus_clean_job_email_rds( curation_concern: nil, description: '', log_provenance: false )
-    curation_concern = ActiveFedora::Base.find @globus_concern_id if curation_concern.nil?
-    location = MsgHelper.work_location( curation_concern: curation_concern )
-    title    = MsgHelper.title( curation_concern )
-    creator  = MsgHelper.creator( curation_concern )
-    msg      = "#{title} (#{location}) by + #{creator} with #{curation_concern.visibility} #{description}"
-    PROV_LOGGER.info( msg ) if log_provenance
-    Deepblue::EmailHelper.send_email_globus_clean_job_complete( to: Deepblue::EmailHelper.notification_email, body: msg ) ## TODO
   end
 
 end

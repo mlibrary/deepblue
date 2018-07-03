@@ -1,5 +1,7 @@
 <div class="show-actions">
-  <% if @presenter.tombstone.blank? %>
+  <% not_tombstoned = @presenter.tombstone.blank? %>
+  <% if not_tombstoned %>
+
     <% if Hyrax.config.analytics? %>
       <%= link_to t('simple_form.actions.data_set.analytics'),
                   @presenter.stats_path,
@@ -7,82 +9,84 @@
                   class: 'btn btn-default',
                   data: { turbolinks: false } %>
     <% end %>
-  <% end %>
 
-  <% if Hyrax.config.download_files %>
-    <%= form_tag( main_app.zip_download_hyrax_data_set_path( @presenter.id ), method: 'post' ) do %>
-      <%= hidden_field_tag('data_set[nop]') %>
-      <% if DeepBlueDocs::Application.config.max_work_file_size_to_download < @presenter.total_file_size %>
-        <p><%= t('simple_form.hints.data_set.download_total_work_size_too_large',
-                 total_file_size: @presenter.total_file_size_human_readable ) %>
-        </p>
-      <% else %>
-        <%= submit_tag( @presenter.label_with_total_file_size( t('simple_form.actions.data_set.zip_download') ),
-                        class: 'btn btn-primary') %>
-        <% if DeepBlueDocs::Application.config.min_work_file_size_to_download_warn < @presenter.total_file_size %>
-          <p><%= t('simple_form.hints.data_set.download_total_work_size_may_be_too_large_html',
-                   total_file_size: @presenter.total_file_size_human_readable ) %>
-          </p>
+    <% if Hyrax.config.download_files %>
+      <% if @presenter.zip_download_enabled? %>
+        <%= form_tag( main_app.zip_download_hyrax_data_set_path( @presenter.id ), method: 'post' ) do %>
+          <%= hidden_field_tag('data_set[nop]') %>
+          <% if DeepBlueDocs::Application.config.max_work_file_size_to_download < @presenter.total_file_size %>
+            <p><%= t('simple_form.hints.data_set.download_total_work_size_too_large',
+                     total_file_size: @presenter.total_file_size_human_readable ) %>
+            </p>
+          <% else %>
+            <%= submit_tag( @presenter.label_with_total_file_size( t('simple_form.actions.data_set.zip_download') ),
+                            class: 'btn btn-primary') %>
+            <% if DeepBlueDocs::Application.config.min_work_file_size_to_download_warn < @presenter.total_file_size %>
+              <p><%= t('simple_form.hints.data_set.download_total_work_size_may_be_too_large_html',
+                       total_file_size: @presenter.total_file_size_human_readable ) %>
+              </p>
+            <% end %>
+          <% end %>
         <% end %>
       <% end %>
-    <% end %>
-    <%= form_tag( main_app.globus_download_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
-      <p></p>
-      <%= hidden_field_tag('data_set[nop]') %>
-      <% if DeepBlueDocs::Application.config.globus_enabled %>
-        <% if @presenter.globus_files_available? %>
-          <p><%= t('simple_form.hints.data_set.globus_files_are_ready') %> &nbsp;
-            <%= link_to t('simple_form.hints.data_set.globus_link'),
-                        @presenter.globus_external_url,
-                        class: 'btn btn-default',
-                        target: "_blank",
-                        title: "link to external globus files" %>
+      <% if @presenter.respond_to?( 'globus_enabled?' ) && @presenter.globus_enabled? %>
+        <%= form_tag( main_app.globus_download_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
+          <%= hidden_field_tag('data_set[nop]') %>
+           <% if @presenter.globus_files_available? %>
+             <p><%= t('simple_form.hints.data_set.globus_files_are_ready') %> &nbsp;
+              <%= link_to t('simple_form.hints.data_set.globus_link'),
+                          @presenter.globus_external_url,
+                          class: 'btn btn-default',
+                          target: "_blank",
+                          title: "link to external globus files" %>
+              <br/>
+              <%= t('simple_form.hints.data_set.globus_is_for_large_datasets') %> &nbsp;
+              <a href="<%= main_app.static_path(action: 'globus-help') %>">
+                <%= t('simple_form.hints.data_set.globus_help') %>
+              </a>
+            </p>
+          <% elsif !@presenter.globus_files_prepping? %>
+            <br/>
+            <%= submit_tag(t('simple_form.actions.data_set.globus_download'), class: 'btn btn-primary') %>
+            <br/>
+            <%= t('simple_form.hints.data_set.globus_is_for_large_datasets') %> &nbsp;
+            <a href="<%= main_app.static_path( action: 'globus-help' ) %>">
+              <%= t('simple_form.hints.data_set.globus_help') %>
+            </a>
+          <% end %>
+        <% end %>
+        <% if @presenter.current_ability.admin? %>
+          <% last_globus_error = @presenter.globus_last_error_msg %>
+          <% if last_globus_error %>
+            <p><%= "Last globus error: #{last_globus_error}" %></p>
+          <% end %>
+          <% if @presenter.globus_files_available? || last_globus_error %>
+            <%= form_tag( main_app.globus_clean_download_hyrax_data_set_path(@presenter.id), method: 'delete' ) do %>
+              <br/>
+              <%= hidden_field_tag('data_set[nop]') %>
+              <%= submit_tag(t('simple_form.actions.data_set.globus_clean_download'),
+                             class: 'btn btn-primary',
+                             data: {confirm: t('simple_form.confirm.data_set.delete_all_globus_download_files')}) %>
+            <% end %>
+          <% end %>
+        <% end %>
+        <% if @presenter.globus_files_prepping? %>
+          <%= form_tag( main_app.globus_download_add_email_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
+            <br/>
+            <%= hidden_field_tag('data_set[nop]') %>
+            <%= t('simple_form.hints.data_set.globus_currently_downloading_html')
+                submit_tag(t('simple_form.actions.data_set.globus_download_add_email'), class: 'btn btn-primary') %>
             <br/>
             <%= t('simple_form.hints.data_set.globus_is_for_large_datasets') %> &nbsp;
             <a href="<%= main_app.static_path(action: 'globus-help') %>">
               <%= t('simple_form.hints.data_set.globus_help') %>
             </a>
-          </p>
-        <% elsif !@presenter.globus_files_prepping? %>
-          <%= submit_tag(t('simple_form.actions.data_set.globus_download'), class: 'btn btn-primary') %>
-          <br/>
-          <%= t('simple_form.hints.data_set.globus_is_for_large_datasets') %> &nbsp;
-          <a href="<%= main_app.static_path(action: 'globus-help') %>">
-            <%= t('simple_form.hints.data_set.globus_help') %>
-          </a>
+          <% end %>
         <% end %>
       <% end %>
     <% end %>
-    <%= form_tag(main_app.globus_clean_download_hyrax_data_set_path(@presenter.id), method: 'delete') do %>
-      <p></p>
-      <%= hidden_field_tag('data_set[nop]') %>
-      <% if DeepBlueDocs::Application.config.globus_enabled && @presenter.current_ability.admin? %>
-        <% if @presenter.globus_files_available? %>
-          <%= submit_tag(t('simple_form.actions.data_set.globus_clean_download'),
-                         class: 'btn btn-primary',
-                         data: {confirm: t('simple_form.confirm.data_set.delete_all_globus_download_files')}) %>
-        <% end %>
-      <% end %>
-    <% end %>
-    <%= form_tag(main_app.globus_download_add_email_hyrax_data_set_path(@presenter.id), method: 'post') do %>
-      <p></p>
-      <%= hidden_field_tag('data_set[nop]') %>
-      <% if DeepBlueDocs::Application.config.globus_enabled %>
-        <% if @presenter.globus_files_prepping? %>
-          <%= t('simple_form.hints.data_set.globus_currently_downloading_html')
-              submit_tag(t('simple_form.actions.data_set.globus_download_add_email'), class: 'btn btn-primary') %>
-          <br/>
-          <%= t('simple_form.hints.data_set.globus_is_for_large_datasets') %> &nbsp;
-          <a href="<%= main_app.static_path(action: 'globus-help') %>">
-            <%= t('simple_form.hints.data_set.globus_help') %>
-          </a>
-        <% end %>
-      <% end %>
-      <p></p>
-    <% end %>
-  <% end %>
 
-  <% if @presenter.tombstone.blank? && @presenter.editor? %>
+    <% if @presenter.editor? && @presenter.mint_doi_enabled? %>
       <% if @presenter.doi_minted? && @presenter.current_ability.admin? %>
         <%= link_to t('simple_form.actions.data_set.edit'),
                     edit_polymorphic_path([main_app, @presenter]),
@@ -102,25 +106,27 @@
                     data: { confirm: "Delete this #{@presenter.human_readable_type}?" },
                     method: :delete %>
       <% end %>
-        
-      <% if @presenter.current_ability.admin? %>
-        <button class="btn btn-primary btn-sm" data-target="#tombstoneId" data-toggle="modal">
-          <%= t('simple_form.actions.data_set.tombstone') %>
-        </button>
-      <% end %>
 
       <% if !@presenter.doi_minted? %>
         <%= link_to t('simple_form.actions.data_set.mint_doi'),
                     main_app.doi_hyrax_data_set_path(@presenter.id), class: 'btn btn-default' %>
       <% end %>
- 
+    <% end %>
+
+    <% if @presenter.current_ability.admin? && @presenter.tombstone_enabled? %>
+      <button class="btn btn-primary btn-sm" data-target="#tombstoneId" data-toggle="modal">
+        <%= t('simple_form.actions.data_set.tombstone') %>
+      </button>
+    <% end %>
+
+    <% if @presenter.editor? %>
       <% if @presenter.member_presenters.size > 1 %>
           <%= link_to t("hyrax.file_manager.link_text"),
                       polymorphic_path([main_app, :file_manager, @presenter]),
                       class: 'btn btn-default' %>
       <% end %>
-  <% end %>
-  <% if @presenter.tombstone.blank? %>
+    <% end %>
+
     <% if @presenter.work_featurable? %>
         <%= link_to "Feature", hyrax.featured_work_path(@presenter, format: :json),
             data: { behavior: 'feature' },
@@ -130,6 +136,7 @@
             data: { behavior: 'unfeature' },
             class: @presenter.display_feature_link? ? 'btn btn-default collapse' : 'btn btn-default' %>
     <% end %>
+
   <% end %>
 
   <!-- COinS hook for Zotero -->
