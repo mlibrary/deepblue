@@ -167,22 +167,14 @@ class FileSet < ActiveFedora::Base
                 true
               when 'file_size'
                 value = if file_size.blank?
-                          if original_file.nil?
-                            0
-                          else
-                            original_file.size
-                          end
+                          original_file.nil? ? 0 : original_file.size
                         else
                           file_size[0]
                         end
                 true
               when 'file_size_human_readable'
                 value = if file_size.blank?
-                          if original_file.nil?
-                            0
-                          else
-                            original_file.size
-                          end
+                          original_file.nil? ? 0 : original_file.size
                         else
                           file_size[0]
                         end
@@ -201,7 +193,7 @@ class FileSet < ActiveFedora::Base
                 value = original_checksum.blank? ? '' : original_checksum[0]
                 true
               when 'original_name'
-                value = original_file.original_name
+                value = original_file.nil? ? nil : original_file.original_name
                 true
               when 'uri'
                 value = uri.value

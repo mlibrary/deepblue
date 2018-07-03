@@ -280,44 +280,40 @@ module Deepblue
       end
 
       def email_it( action: 'deposit', description: '', email_to: '', email_from: nil )
-        location = MsgHelper.work_location( curration_concern: curation_concern )
+        location = MsgHelper.work_location( curation_concern: curation_concern )
         title    = MsgHelper.title( curation_concern )
         creator  = MsgHelper.creator( curation_concern )
         msg      = "#{title} (#{location}) by + #{creator} with #{curation_concern.visibility} access was #{description}"
-        Rails.logger.debug "email_it: action=#{action} email_to=#{email_to} email_from=#{email_from} msg='#{msg}'"
-        email = nil
+        LoggingHelper.debug "email_it: action=#{action} email_to=#{email_to} email_from=#{email_from} msg='#{msg}'"
         case action
         when 'deposit'
-          email = WorkMailer.deposit_work( to: email_to, body: msg )
+          EmailHelper.send_email_deposit_work( to: email_to, body: msg )
         when 'delete'
-          email = WorkMailer.delete_work( to: email_to, body: msg )
+          EmailHelper.send_email_delete_work( to: email_to, body: msg )
         when 'create'
-          email = WorkMailer.create_work( to: email_to, body: msg )
+          EmailHelper.send_email_create_work( to: email_to, body: msg )
         when 'publish'
-          email = WorkMailer.publish_work( to: email_to, body: msg )
+          EmailHelper.send_email_publish_work( to: email_to, body: msg )
         when 'update'
-          email = WorkMailer.update_work( to: email_to, body: msg )
+          EmailHelper.send_email_update_work( to: email_to, body: msg )
         else
           Rails.logger.error "email_it unknown action #{action}"
         end
-        email.deliver_now unless email.nil? || email_to.nil?
         return if email_from.nil?
-        email = nil
         case action
         when 'deposit'
-          email = WorkMailer.deposit_work( to: email_to, from: email_from, body: msg )
+          EmailHelper.send_email_deposit_work( to: email_to, from: email_from, body: msg )
         when 'delete'
-          email = WorkMailer.delete_work( to: email_to, from: email_from, body: msg )
+          EmailHelper.send_email_delete_work( to: email_to, from: email_from, body: msg )
         when 'create'
-          email = WorkMailer.create_work( to: email_to, from: email_from, body: msg )
+          EmailHelper.send_email_create_work( to: email_to, from: email_from, body: msg )
         when 'publish'
-          email = WorkMailer.publish_work( to: email_to, from: email_from, body: msg )
+          EmailHelper.send_email_publish_work( to: email_to, from: email_from, body: msg )
         when 'update'
-          email = WorkMailer.update_work( to: email_to, from: email_from, body: msg )
+          EmailHelper.send_email_update_work( to: email_to, from: email_from, body: msg )
         else
           Rails.logger.error "email_it unknown action #{action}"
         end
-        email.deliver_now unless email.nil? || email_to.nil?
       end
 
   end

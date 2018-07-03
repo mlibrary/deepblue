@@ -33,7 +33,7 @@ module Hyrax
             work = ::ActiveFedora::Base.find( work_id )
             next unless work.respond_to? :provenance_child_add
             if can_edit_both_works?( env, work )
-              work.provenance_child_add( current_user: env.user, child_id: env.curration_concern.id, event_note: 'BeforeAddToWorkActor' )
+              work.provenance_child_add( current_user: env.user, child_id: env.curation_concern.id, event_note: 'BeforeAddToWorkActor' )
             end
           end
         end
@@ -53,7 +53,7 @@ module Hyrax
           (env.curation_concern.in_works_ids - new_work_ids).each do |old_id|
             work = ::ActiveFedora::Base.find( old_id )
             next unless work.respond_to? :provenance_child_remove
-            work.provenance_child_remove( current_user: env.user, child_id: env.curration_concern.id, event_note: 'BeforeAddToWorkActor' )
+            work.provenance_child_remove( current_user: env.user, child_id: env.curation_concern.id, event_note: 'BeforeAddToWorkActor' )
           end
         end
 
