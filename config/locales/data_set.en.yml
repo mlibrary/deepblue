@@ -72,6 +72,10 @@ en:
         save_metadata_public:           "Save Description (Public)"
         tombstone:                      "Tombstone"
         zip_download:                   "Download All Files"
+    confirm:
+      data_set:
+        delete_all_globus_download_files: >
+          Are you sure you want to delete all Globus files in this works download directory?
     labels:
       data_set:
         authoremail:          "Contact Information"
@@ -87,6 +91,8 @@ en:
         description:          "Description"
         description_abstract: "Abstract or Summary"
         doi:                  "DOI"
+        email:                "Email"
+        email_again:          "Email again"
         files:                "Upload a new version of this file from your computer"
         fundedby:             "Funding Agency"
         grantnumber:          "ORSP Grant Number"
@@ -139,16 +145,22 @@ en:
           Consider using Globus (see below).
         fundedby: >
           Select the primary funding agency that supported the research and data collection from the drop-down list.
-        globus_link:
-          "Link to Globus download directory"
+        globus_click_submit_to_start_downloading: >
+          Click submit to start downloading %{title} to Globus. If you would like to be sent an email when the files
+          are available fill in your email address:
+        globus_currently_downloading_html:
+          "Globus is currently downloading files for this work...<br/>"
         globus_files_are_ready:
           "Files are ready"
         globus_help:
           "What is Globus?"
         globus_is_for_large_datasets:
           "Globus is for large data sets."
-        globus_currently_downloading_html:
-          "Globus is currently downloading files for this work...<br/>"
+        globus_is_currently_downloading_submit_email_address: >
+          %{title} is currently downloading to Globus. If you would like to be sent an email when the files are
+          available via Globus, please submit your email address:
+        globus_link:
+          "Link to Globus download directory"
         grantnumber: >
           If you have one, provide the grant number that was assigned by the University of Michigan’s Office of Research
           and Sponsored Projects (ORSP).

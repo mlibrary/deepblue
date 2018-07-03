@@ -26,6 +26,60 @@
         <% end %>
       <% end %>
     <% end %>
+    <%= form_tag( main_app.globus_download_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
+      <p></p>
+      <%= hidden_field_tag('data_set[nop]') %>
+      <% if DeepBlueDocs::Application.config.globus_enabled %>
+        <% if @presenter.globus_files_available? %>
+          <p><%= t('simple_form.hints.data_set.globus_files_are_ready') %> &nbsp;
+            <%= link_to t('simple_form.hints.data_set.globus_link'),
+                        @presenter.globus_external_url,
+                        class: 'btn btn-default',
+                        target: "_blank",
+                        title: "link to external globus files" %>
+            <br/>
+            <%= t('simple_form.hints.data_set.globus_is_for_large_datasets') %> &nbsp;
+            <a href="<%= main_app.static_path(action: 'globus-help') %>">
+              <%= t('simple_form.hints.data_set.globus_help') %>
+            </a>
+          </p>
+        <% elsif !@presenter.globus_files_prepping? %>
+          <%= submit_tag(t('simple_form.actions.data_set.globus_download'), class: 'btn btn-primary') %>
+          <br/>
+          <%= t('simple_form.hints.data_set.globus_is_for_large_datasets') %> &nbsp;
+          <a href="<%= main_app.static_path(action: 'globus-help') %>">
+            <%= t('simple_form.hints.data_set.globus_help') %>
+          </a>
+        <% end %>
+      <% end %>
+    <% end %>
+    <%= form_tag(main_app.globus_clean_download_hyrax_data_set_path(@presenter.id), method: 'delete') do %>
+      <p></p>
+      <%= hidden_field_tag('data_set[nop]') %>
+      <% if DeepBlueDocs::Application.config.globus_enabled && @presenter.current_ability.admin? %>
+        <% if @presenter.globus_files_available? %>
+          <%= submit_tag(t('simple_form.actions.data_set.globus_clean_download'),
+                         class: 'btn btn-primary',
+                         data: {confirm: t('simple_form.confirm.data_set.delete_all_globus_download_files')}) %>
+        <% end %>
+      <% end %>
+    <% end %>
+    <%= form_tag(main_app.globus_download_add_email_hyrax_data_set_path(@presenter.id), method: 'post') do %>
+      <p></p>
+      <%= hidden_field_tag('data_set[nop]') %>
+      <% if DeepBlueDocs::Application.config.globus_enabled %>
+        <% if @presenter.globus_files_prepping? %>
+          <%= t('simple_form.hints.data_set.globus_currently_downloading_html')
+              submit_tag(t('simple_form.actions.data_set.globus_download_add_email'), class: 'btn btn-primary') %>
+          <br/>
+          <%= t('simple_form.hints.data_set.globus_is_for_large_datasets') %> &nbsp;
+          <a href="<%= main_app.static_path(action: 'globus-help') %>">
+            <%= t('simple_form.hints.data_set.globus_help') %>
+          </a>
+        <% end %>
+      <% end %>
+      <p></p>
+    <% end %>
   <% end %>
 
   <% if @presenter.tombstone.blank? && @presenter.editor? %>
