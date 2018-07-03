@@ -57,7 +57,7 @@ en:
         analytics:                      "Analytics"
         confirm:                        "Confirm Your Deposit"
         delete:                         "Delete"
-        edit:                           "Edit"
+        edit:                           "Edit Metadata"
         globus:                         "Send to Globus to Download"
         globus_add_email:               "Add Email"
         globus_clean_download:          "Clean Globus Download Directory for this Work"

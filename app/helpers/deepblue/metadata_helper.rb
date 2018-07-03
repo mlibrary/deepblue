@@ -215,8 +215,8 @@ module Deepblue
       end
     end
 
-    def self.title( curration_concern, field_sep: @@FIELD_SEP )
-      curration_concern.title.join( field_sep )
+    def self.title( curation_concern, field_sep: @@FIELD_SEP )
+      curation_concern.title.join( field_sep )
     end
 
     def self.yaml_escape_value( value, comment: false, escape: false )

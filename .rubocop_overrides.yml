@@ -49,6 +49,7 @@ Metrics/ClassLength:
   Exclude:
    - 'app/controllers/catalog_controller.rb'
    - 'app/controllers/hyrax/data_sets_controller.rb'
+   - 'app/jobs/globus_job.rb'
    - 'app/models/data_set.rb'
    - 'lib/tasks/new_content_service.rb'
    - 'lib/tasks/upgrade_provenance_log.rake'
@@ -63,6 +64,10 @@ Metrics/CyclomaticComplexity:
     - 'app/helpers/deepblue/logging_helper.rb'
     - 'app/helpers/deepblue/metadata_helper.rb'
     - 'app/helpers/deepblue/provenance_helper.rb'
+    - 'app/jobs/globus_copy_job.rb'
+    - 'app/jobs/globus_era.rb'
+    - 'app/jobs/globus_job.rb'
+    - 'app/jobs/globus_restart_all_job.rb'
     - 'app/models/data_set.rb'
     - 'app/models/file_set.rb'
     - 'app/models/concerns/deepblue/email_behavior.rb'
@@ -86,6 +91,11 @@ Metrics/PerceivedComplexity:
     - 'app/helpers/deepblue/logging_helper.rb'
     - 'app/helpers/deepblue/metadata_helper.rb'
     - 'app/helpers/deepblue/provenance_helper.rb'
+    - 'app/jobs/globus_copy_job.rb'
+    - 'app/jobs/globus_era.rb'
+    - 'app/jobs/globus_job.rb'
+    - 'app/jobs/globus_restart_all_job.rb'
+    - 'app/models/data_set.rb'
     - 'app/models/file_set.rb'
     - 'app/models/concerns/deepblue/email_behavior.rb'
     - 'app/models/concerns/deepblue/metadata_behavior.rb'
@@ -158,9 +168,10 @@ RSpec/VerifiedDoubles:
 Style/Alias:
   Enabled: false
 
-#Style/ClassVars:
-#  Exclude:
-#    - app/helpers/metadata_helper.rb
+Style/ClassVars:
+  Exclude:
+    - 'app/jobs/globus_era.rb'
+    - 'app/jobs/globus_job.rb'
 
 Style/FrozenStringLiteralComment:
   Exclude:
