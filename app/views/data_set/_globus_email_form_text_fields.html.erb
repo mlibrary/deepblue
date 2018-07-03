@@ -1,0 +1,5 @@
+  <%= hidden_field_tag('data_set[nop]') %>
+  <label for="user_email_one" class=""><%= t('simple_form.labels.data_set.email') %>:</label>
+  <%= text_field_tag :user_email_one, params[:user_email_one], size: 30 %><br/>
+  <label for="user_email_two" class=""><%= t('simple_form.labels.data_set.email_again') %>:</label>
+  <%= text_field_tag :user_email_two, params[:user_email_two], size: 30 %><br/>

@@ -328,14 +328,14 @@ module Hyrax
 
       tmp_dir = ENV['TMPDIR'] || "/tmp"
       tmp_dir = Pathname.new tmp_dir
-      # LoggingHelper.debug "Download Zip begin tmp_dir #{tmp_dir}"
+      # Deepblue::LoggingHelper.debug "Download Zip begin tmp_dir #{tmp_dir}"
       Deepblue::LoggingHelper.bold_debug [ "zip_download begin", "tmp_dir=#{tmp_dir}" ]
       target_dir = target_dir_name_id( tmp_dir, curation_concern.id )
-      # LoggingHelper.debug "Download Zip begin copy to folder #{target_dir}"
+      # Deepblue::LoggingHelper.debug "Download Zip begin copy to folder #{target_dir}"
       Deepblue::LoggingHelper.bold_debug [ "zip_download", "target_dir=#{target_dir}" ]
       Dir.mkdir( target_dir ) unless Dir.exist?( target_dir )
       target_zipfile = target_dir_name_id( target_dir, curation_concern.id, ".zip" )
-      # LoggingHelper.debug "Download Zip begin copy to target_zipfile #{target_zipfile}"
+      # Deepblue::LoggingHelper.debug "Download Zip begin copy to target_zipfile #{target_zipfile}"
       Deepblue::LoggingHelper.bold_debug [ "zip_download", "target_zipfile=#{target_zipfile}" ]
       File.delete target_zipfile if File.exist? target_zipfile
       # clean the zip directory if necessary, since the zip structure is currently flat, only
@@ -345,7 +345,7 @@ module Hyrax
       files.each do |file|
         File.delete file if File.exist? file
       end
-      LoggingHelper.debug "Download Zip begin copy to folder #{target_dir}"
+      Deepblue::LoggingHelper.debug "Download Zip begin copy to folder #{target_dir}"
       Deepblue::LoggingHelper.bold_debug [ "zip_download", "begin copy target_dir=#{target_dir}" ]
       Zip::File.open(target_zipfile.to_s, Zip::File::CREATE ) do |zipfile|
         metadata_filename = curation_concern.metadata_report( dir: target_dir )
@@ -354,7 +354,7 @@ module Hyrax
           zipfile.add( target_file_name, target_file )
         end
       end
-      # LoggingHelper.debug "Download Zip copy complete to folder #{target_dir}"
+      # Deepblue::LoggingHelper.debug "Download Zip copy complete to folder #{target_dir}"
       Deepblue::LoggingHelper.bold_debug [ "zip_download", "download complete target_dir=#{target_dir}" ]
       send_file target_zipfile.to_s
     end
@@ -403,17 +403,17 @@ module Hyrax
       end
 
       def flash_and_go_back( msg )
-        LoggingHelper.debug msg
+        Deepblue::LoggingHelper.debug msg
         redirect_to :back, notice: msg
       end
 
       def flash_error_and_go_back( msg )
-        LoggingHelper.debug msg
+        Deepblue::LoggingHelper.debug msg
         redirect_to :back, error: msg
       end
 
       def flash_and_redirect_to_main_cc( msg )
-        LoggingHelper.debug msg
+        Deepblue::LoggingHelper.debug msg
         redirect_to [main_app, curation_concern], notice: msg
       end
 
