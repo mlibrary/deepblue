@@ -2,9 +2,14 @@
 
 require 'rails_helper'
 require 'uri'
+require_relative '../../app/mailers/deepblue_mailer'
 
 RSpec.configure do |config|
   config.filter_run_excluding globus_enabled: :true unless DeepBlueDocs::Application.config.globus_enabled
+end
+
+class MailerMock
+  def deliver_now; end
 end
 
 describe GlobusCopyJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do # rubocop:disable RSpec/DescribeMethod
@@ -40,7 +45,7 @@ describe GlobusCopyJob, "GlobusJob globus_enabled: :true", globus_enabled: :true
     let( :current_token ) { GlobusJob.era_token }
     let( :user_email ) { "test@email.edu" }
     let( :email_addresses ) { [ user_email ] }
-    let( :mailer ) { "mailer" }
+    let( :mailer ) { MailerMock.new }
 
     context "when can acquire lock" do
       before do
@@ -66,10 +71,8 @@ describe GlobusCopyJob, "GlobusJob globus_enabled: :true", globus_enabled: :true
         # Dir.delete globus_prep_copy_tmp_dir if Dir.exist? globus_prep_copy_tmp_dir
         allow( Rails.logger ).to receive( :debug )
         allow( Rails.logger ).to receive( :error )
-        # TODO
-        # mailer.define_singleton_method( :deliver_now ) do nil; end
-        # allow( WorkMailer ).to receive( :globus_job_complete ).with( any_args ).and_return( mailer ).twice
-        # allow( mailer ).to receive( :deliver_now ).twice
+        allow( DeepblueMailer ).to receive( :send_an_email ).with( any_args ).and_return( mailer )
+        allow( mailer ).to receive( :deliver_now )
       end
       it "calls globus block." do
         open( file1.path, 'w' ) { |f| f << "File01" << "\n" }

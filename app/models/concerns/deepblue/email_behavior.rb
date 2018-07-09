@@ -31,7 +31,11 @@ module Deepblue
     end
 
     def attributes_for_email_rds_publish
-      attributes_all_for_email
+      return attributes_all_for_email, USE_BLANK_KEY_VALUES
+    end
+
+    def attributes_for_email_rds_unpublish
+      return attributes_all_for_email, USE_BLANK_KEY_VALUES
     end
 
     def attributes_for_email_user_create
@@ -121,16 +125,31 @@ module Deepblue
     end
 
     def email_rds_publish( current_user:, event_note: '' )
+      attributes, ignore_blank_key_values = attributes_for_email_rds_publish
       email_event_notification( to: email_address_rds,
                                 to_note: 'RDS',
                                 from: email_address_rds,
                                 subject: for_email_subject( subject_rest: 'Work Published' ),
-                                attributes: attributes_for_email_rds_publish,
+                                attributes: attributes,
                                 current_user: current_user,
                                 event: EVENT_PUBLISH,
                                 event_note: event_note,
                                 id: for_email_id,
-                                ignore_blank_key_values: false )
+                                ignore_blank_key_values: ignore_blank_key_values )
+    end
+
+    def email_rds_unpublish( current_user:, event_note: '' )
+      attributes, ignore_blank_key_values = attributes_for_email_rds_unpublish
+      email_event_notification( to: email_address_rds,
+                                to_note: 'RDS',
+                                from: email_address_rds,
+                                subject: for_email_subject( subject_rest: 'Work Unpublished' ),
+                                attributes: attributes,
+                                current_user: current_user,
+                                event: EVENT_UNPUBLISH,
+                                event_note: event_note,
+                                id: for_email_id,
+                                ignore_blank_key_values: ignore_blank_key_values )
     end
 
     def email_user_create( current_user:, event_note: '' )
