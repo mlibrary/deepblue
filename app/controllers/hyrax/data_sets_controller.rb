@@ -118,6 +118,14 @@ module Hyrax
       curation_concern.email_rds_destroy( current_user: current_user )
     end
 
+    def email_rds_publish
+      curation_concern.email_rds_publish( current_user: current_user )
+    end
+
+    def email_rds_unpublish
+      curation_concern.email_rds_unpublish( current_user: current_user )
+    end
+
     ## end email
 
     ## Globus
@@ -313,8 +321,10 @@ module Hyrax
     def visibility_changed_update
       if curation_concern.private? && @visibility_changed_to_private
         provenance_log_unpublish
+        email_rds_unpublish
       elsif curation_concern.public? && @visibility_changed_to_public
         provenance_log_publish
+        email_rds_publish
       end
     end
 

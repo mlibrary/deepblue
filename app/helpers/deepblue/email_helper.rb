@@ -48,8 +48,9 @@ module Deepblue
       email_enabled = DeepBlueDocs::Application.config.email_enabled
       is_enabled = email_enabled ? "is enabled" : "is not enabled"
       LoggingHelper.bold_debug [ "EmailHelper.send_email #{is_enabled}", "to: #{to} from: #{from} subject: #{subject}\nbody:\n#{body}" ] if log
+      return if to.blank?
       return unless email_enabled
-      email = ApplicationMailer.mail( to: to, from: from, subject: subject, body: body )
+      email = DeepblueMailer.send_an_email( to: to, from: from, subject: subject, body: body )
       email.deliver_now
     end
 
