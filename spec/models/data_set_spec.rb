@@ -35,6 +35,7 @@ RSpec.describe DataSet do
       language
       location
       methodology
+      prior_identifier
       referenced_by
       rights_license
       subject_discipline
@@ -245,7 +246,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_mint_doi( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 31,
+                                     size: 32,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -253,7 +254,7 @@ RSpec.describe DataSet do
                                      exp_id: id,
                                      exp_authoremail: authoremail,
                                      exp_creator: [creator],
-                                     exp_date_created: '2', # TODO: this is wrong -- find out why
+                                     exp_date_created: "2018-02-28",
                                      exp_description: [description],
                                      exp_depositor: exp_despositor,
                                      exp_location: exp_location,
@@ -294,7 +295,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_publish( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 31,
+                                     size: 32,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -302,7 +303,7 @@ RSpec.describe DataSet do
                                      exp_id: id,
                                      exp_authoremail: authoremail,
                                      exp_creator: [creator],
-                                     exp_date_created: '2', # TODO: this is wrong -- find out why
+                                     exp_date_created: "2018-02-28",
                                      exp_description: [description],
                                      exp_depositor: exp_despositor,
                                      exp_location: exp_location,
@@ -343,7 +344,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_unpublish( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 31,
+                                     size: 32,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -351,7 +352,7 @@ RSpec.describe DataSet do
                                      exp_id: id,
                                      exp_authoremail: authoremail,
                                      exp_creator: [creator],
-                                     exp_date_created: '2', # TODO: this is wrong -- find out why
+                                     exp_date_created: "2018-02-28",
                                      exp_description: [description],
                                      exp_depositor: exp_despositor,
                                      exp_location: exp_location,
@@ -432,7 +433,7 @@ RSpec.describe DataSet do
       expect( subject.entomb!( epitaph, current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 34,
+                                     size: 35,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -440,7 +441,7 @@ RSpec.describe DataSet do
                                      exp_id: id,
                                      exp_authoremail: authoremail,
                                      exp_creator: [creator],
-                                     exp_date_created: '2', # TODO: this is wrong -- find out why
+                                     exp_date_created: "2018-02-28",
                                      exp_description: [description],
                                      exp_depositor: exp_depositor,
                                      exp_location: exp_location,
@@ -570,6 +571,7 @@ RSpec.describe DataSet do
                                      exp_language: [],
                                      exp_location: '',
                                      exp_methodology: '',
+                                     exp_prior_identifier: [],
                                      exp_rights_license: '',
                                      exp_subject_discipline: [],
                                      exp_title: [],
@@ -618,6 +620,7 @@ RSpec.describe DataSet do
     validate_expected( rv_key_values, :language, exp_language )
     validate_expected( rv_key_values, :location, exp_location )
     validate_expected( rv_key_values, :methodology, exp_methodology )
+    validate_expected( rv_key_values, :prior_identifier, exp_prior_identifier )
     validate_expected( rv_key_values, :rights_license, exp_rights_license )
     validate_expected( rv_key_values, :subject_discipline, exp_subject_discipline )
     validate_expected( rv_key_values, :title, exp_title )

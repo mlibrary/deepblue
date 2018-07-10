@@ -38,6 +38,7 @@ RSpec.describe FileSet do
       original_checksum
       original_name
       parent_id
+      prior_identifier
       title
       uri
       visibility

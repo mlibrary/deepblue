@@ -64,6 +64,7 @@ class DataSet < ActiveFedora::Base
       language
       location
       methodology
+      prior_identifier
       referenced_by
       rights_license
       subject_discipline

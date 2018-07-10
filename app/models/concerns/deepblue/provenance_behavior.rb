@@ -148,7 +148,7 @@ module Deepblue
                   when 'route'
                     for_provenance_route
                   when 'date_created'
-                    prov_object[:date_created].blank? ? '' : prov_object[:date_created][0]
+                    prov_object[:date_created].blank? ? '' : prov_object[:date_created]
                   else
                     prov_object[attribute]
                   end

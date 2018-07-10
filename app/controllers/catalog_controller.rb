@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CatalogController < ApplicationController
   include Hydra::Catalog
   include Hydra::Controller::ControllerBehavior
@@ -114,7 +116,7 @@ class CatalogController < ApplicationController
     config.add_show_field solr_name("format", :stored_searchable)
     config.add_show_field solr_name("identifier", :stored_searchable)
 
-    config.add_show_field solr_name("date_coverage", :stored_searchable), label: "Date Coverage"    
+    config.add_show_field solr_name("date_coverage", :stored_searchable), label: "Date Coverage"
 
     # "fielded" search configuration. Used by pulldown among other places.
     # For supported keys in hash, see rdoc for Blacklight::SearchFields
@@ -275,6 +277,15 @@ class CatalogController < ApplicationController
     config.add_search_field('methodology') do |field|
       field.label = "Method"
       solr_name = solr_name("methodology_label", :stored_searchable)
+      field.solr_local_parameters = {
+        qf: solr_name,
+        pf: solr_name
+      }
+    end
+
+    config.add_search_field('prior_identifier') do |field|
+      field.label = "Prior Identifier"
+      solr_name = solr_name("prior_identifier", :stored_searchable)
       field.solr_local_parameters = {
         qf: solr_name,
         pf: solr_name

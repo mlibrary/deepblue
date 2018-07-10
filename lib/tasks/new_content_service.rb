@@ -44,9 +44,13 @@ module Deepblue
 
     protected
 
-      def add_file_sets_to_work( work_hash, work )
-        paths_and_names = work_hash[:files].zip work_hash[:filenames]
-        fsets = paths_and_names.map { |fp| build_file_set(fp[0], fp[1]) }
+      def add_file_sets_to_work( work_hash:, work: )
+        file_ids = work_hash[:file_ids]
+        file_ids = [] if file_ids.nil?
+        filenames = work_hash[:filenames]
+        filenames = [] if filenames.nil?
+        paths_and_names = work_hash[:files].zip( filenames, file_ids )
+        fsets = paths_and_names.map { |fp| build_file_set( path: fp[0], filename: fp[1], file_ids: fp[2] ) }
         fsets.each do |fs|
           work.ordered_members << fs
           work.provenance_child_add(current_user: user,
@@ -61,7 +65,7 @@ module Deepblue
         return work
       end
 
-      def build_collection( collection_hash )
+      def build_collection( collection_hash: )
         title = collection_hash['title']
         desc  = collection_hash['desc']
         col = Collection.new( title: title, description: desc, creator: Array(user_key) )
@@ -69,7 +73,7 @@ module Deepblue
 
         # Build all the works in the collection
         works_info = Array(collection_hash['works'])
-        c_works = works_info.map { |w| build_work(w) }
+        c_works = works_info.map { |w| build_work( work_hash: w ) }
 
         # Add each work to the collection (see CollectionBehavior#add_member_objects)
         c_works.each do |cw|
@@ -82,27 +86,29 @@ module Deepblue
 
       def build_collections
         return unless collections
-        collections.each { |collection_hash| build_collection( collection_hash ) }
+        collections.each { |collection_hash| build_collection( collection_hash: collection_hash ) }
       end
 
-      def build_file_set( path, filename = nil )
+      def build_file_set( path:, filename: nil, file_ids: nil )
+        # puts "path=#{path} filename=#{filename} file_ids=#{file_ids}"
         # If filename not given, use basename from path
-        fname = filename || File.basename(path)
+        fname = filename || File.basename( path )
         logger.info "Processing: #{fname}"
-        file = File.open(path)
+        file = File.open( path )
         # fix so that filename comes from the name of the file and not the hash
         file.define_singleton_method( :original_name ) do
           fname
         end
 
         fs = FileSet.new
-        fs.apply_depositor_metadata(user_key)
-        Hydra::Works::UploadFileToFileSet.call(fs, file)
-        fs.title = Array(fname)
+        fs.apply_depositor_metadata( user_key )
+        Hydra::Works::UploadFileToFileSet.call( fs, file )
+        fs.title = Array( fname )
         fs.label = fname
-        now = DateTime.now.new_offset(0)
+        now = DateTime.now.new_offset( 0 )
         fs.date_uploaded = now
         fs.visibility = visibility
+        fs.prior_identifier = file_ids if file_ids.present?
         fs.save!
         repository_file_id = nil
         IngestHelper.characterize( fs,
@@ -122,7 +128,7 @@ module Deepblue
                                          ingest_id: ingest_id,
                                          ingester: ingester,
                                          ingest_timestamp: ingest_timestamp )
-        logger.info "Finished:   #{fname}"
+        logger.info "Finished: #{fname}"
         return fs
       end
 
@@ -133,12 +139,12 @@ module Deepblue
       def build_works
         return unless works
         works.each do |work_hash|
-          work = build_work( work_hash )
+          work = build_work( work_hash: work_hash )
           log_object work
         end
       end
 
-      def build_work( work_hash )
+      def build_work( work_hash: )
         source = yaml_source
         title = Array(work_hash[:title])
         creator = Array(work_hash[:creator])
@@ -150,6 +156,13 @@ module Deepblue
                          end
         description = Array(work_hash[:description])
         methodology = work_hash[:methodology] || "No Methodology Available"
+        prior_identifier = if 'DBDv1' == source
+                             Array( work_hash[:id] )
+                           else
+                             arr = Array( work_hash[:prior_identifier] )
+                             id = work_hash[:id]
+                             arr << id if id.present?
+                           end
         subject_discipline = if 'DBDv1' == source
                                Array( work_hash[:subject] )
                              else
@@ -181,6 +194,7 @@ module Deepblue
                             description: description,
                             resource_type: resource_type,
                             methodology: methodology,
+                            prior_identifier: prior_identifier,
                             subject_discipline: subject_discipline,
                             contributor: contributor,
                             date_uploaded: date_uploaded,
@@ -204,7 +218,7 @@ module Deepblue
                                 ingest_id: ingest_id,
                                 ingester: ingester,
                                 ingest_timestamp: ingest_timestamp )
-        add_file_sets_to_work( work_hash, work )
+        add_file_sets_to_work( work_hash: work_hash, work: work )
         return work
       end
 
@@ -212,7 +226,7 @@ module Deepblue
         @cfg[:user][:collections]
       end
 
-      def config_value( key, default_value )
+      def config_value( key:, default_value: )
         rv = default_value
         if @cfg.key? :config
           rv = @cfg[:config][key] if @cfg[:config].key? key
@@ -231,7 +245,7 @@ module Deepblue
         return user
       end
 
-      def find_work( work_hash )
+      def find_work( work_hash: )
         work_id = work_hash[:id]
         id = Array(work_id)
         # owner = Array(work_hash[:owner])
@@ -243,8 +257,8 @@ module Deepblue
       def find_works_and_add_files
         return unless works
         works.each do |work_hash|
-          work = find_work( work_hash )
-          add_file_sets_to_work( work_hash, work )
+          work = find_work( work_hash: work_hash )
+          add_file_sets_to_work( work_hash: work_hash, work: work )
           work.apply_depositor_metadata( user_key )
           work.owner = user_key
           work.visibility = visibility
@@ -304,7 +318,7 @@ module Deepblue
       end
 
       def logger_level
-        return config_value( :logger_level, 'info' )
+        return config_value( key: :logger_level, default_value: 'info' )
       end
 
       def user_key
