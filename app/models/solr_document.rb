@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class SolrDocument
+
   include Blacklight::Solr::Document
   # include BlacklightOaiProvider::SolrDocumentBehavior
 
@@ -95,6 +96,10 @@ class SolrDocument
     self['peerreviewed_label_ssim']
   end
 
+  def prior_identifier_label
+    self['prior_identifier_label_ssim']
+  end
+
   def rights_license_label
     self['rights_license_label_ssim']
   end
@@ -177,6 +182,7 @@ class SolrDocument
     'learning_resource_type',
     'methodology',
     'other_affiliation',
+    'prior_identifier',
     'relation_ispartofseries',
     'replaces',
     'rights_license',

@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module Deepblue
+
   module DefaultMetadata
     extend ActiveSupport::Concern
 
@@ -133,6 +136,10 @@ module Deepblue
 
       # accessor value used by AddOtherFieldOptionActor to persist "Other" values provided by the user
       attr_accessor :other_affiliation_other
+
+      property :prior_identifier, predicate: ActiveFedora::RDF::Fcrepo::Model.altIds, multiple: true do |index|
+        index.as :stored_searchable
+      end
 
       property :related_url, predicate: ::RDF::RDFS.seeAlso do |index|
         index.as :stored_searchable
@@ -717,4 +724,5 @@ module Deepblue
 
     end
   end
+
 end

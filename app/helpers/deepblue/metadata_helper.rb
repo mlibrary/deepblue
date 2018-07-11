@@ -141,6 +141,7 @@ module Deepblue
         out.puts "#{depth} Generic Work: #{title} #{depth}"
         report_item( out, "ID: ", generic_work.id )
         report_item( out, "Title: ", generic_work.title, one_line: true )
+        report_item( out, "Prior Identifier: ", generic_work.prior_identifier, one_line: true )
         report_item( out, "Methodology: ", generic_work.methodology )
         report_item( out, "Description: ", generic_work.description, one_line: false, item_prefix: "\t" )
         report_item( out, "Creator: ", generic_work.creator, one_line: false, item_prefix: "\t" )
@@ -285,23 +286,23 @@ module Deepblue
       # rubocop:enable Rails/Output
     end
 
-    def self.yaml_generic_work_populate( generic_work,
+    def self.yaml_generic_work_populate( generic_work:,
                                          dir: "/deepbluedata-prep/",
                                          out: nil,
                                          export_files: true,
                                          overwrite_export_files: true,
-                                         source: "DBDv1",
+                                         source: "DBDv2",
                                          target_filename: nil,
                                          target_dirname: nil )
       target_file = nil
       dir = Pathname.new dir unless dir.is_a? Pathname
       if out.nil?
-        generic_work = GenericWork.find generic_work if generic_work.is_a? String
+        generic_work = DataSet.find generic_work if generic_work.is_a? String
         target_file = yaml_filename_work( dir, generic_work )
         target_dir = yaml_targetdir_work( dir, generic_work )
         Dir.mkdir( target_dir ) unless Dir.exist? target_dir
         open( target_file, 'w' ) do |out2|
-          yaml_generic_work_populate( generic_work,
+          yaml_generic_work_populate( generic_work: generic_work,
                                       out: out2,
                                       export_files: export_files,
                                       overwrite_export_files: overwrite_export_files,
@@ -326,26 +327,28 @@ module Deepblue
         yaml_line( out, indent, ':source:', source )
         yaml_line( out, indent, ':works:' )
         indent = indent_base * 2
+        yaml_item( out, indent, ":id:", generic_work.id )
         yaml_item( out, indent, ":admin_set_id:", generic_work.admin_set_id, comment: true )
         yaml_item( out, indent, ":authoremail:", generic_work.authoremail )
         yaml_item( out, indent, ":creator:", generic_work.creator, escape: true )
         yaml_item( out, indent, ":date_created:", generic_work.date_created )
         yaml_item( out, indent, ":date_uploaded:", generic_work.date_uploaded )
         yaml_item( out, indent, ":date_modified:", generic_work.date_modified )
-        yaml_item( out, indent, ":date_coverage:", generic_work.date_coverage[0] )
+        yaml_item( out, indent, ":date_coverage:", generic_work.date_coverage, single_value: true )
         yaml_item( out, indent, ":description:", generic_work.description, escape: true )
         yaml_item( out, indent, ":depositor:", generic_work.depositor )
         yaml_item( out, indent, ":subject_discipline:", generic_work.subject_discipline )
         yaml_item( out, indent, ":doi:", generic_work.doi, escape: true )
-        yaml_item( out, indent, ":fundedby:", generic_work.fundedby[0] )
+        yaml_item( out, indent, ":fundedby:", generic_work.fundedby, single_value: true )
         yaml_item( out, indent, ":grantnumber:", generic_work.grantnumber, escape: true )
         yaml_item( out, indent, ":referenced_by:", generic_work.referenced_by, escape: true )
         yaml_item( out, indent, ':keyword:', generic_work.keyword, escape: true )
         yaml_item( out, indent, ":language:", generic_work.language, escape: true )
         yaml_item( out, indent, ":methodology:", generic_work.methodology, escape: true )
-        yaml_item( out, indent, ":rights_license: ", generic_work.rights_license[0], escape: true )
+        yaml_item( out, indent, ":prior_identifier:", generic_work.prior_identifier, escape: true )
+        yaml_item( out, indent, ":rights_license: ", generic_work.rights_license, single_value: true, escape: true )
         yaml_item( out, indent, ':title:', generic_work.title, escape: true )
-        yaml_item( out, indent, ":tombstone:", generic_work.tombstone[0] )
+        yaml_item( out, indent, ":tombstone:", generic_work.tombstone, single_value: true )
         yaml_item( out, indent, ":total_file_count:", generic_work.file_set_ids.count, comment: true )
         yaml_item( out, indent, ":total_file_size:", generic_work.total_file_size )
         yaml_item( out, indent, ":total_file_size_human_readable:", human_readable_size( generic_work.total_file_size ), comment: true )
@@ -356,6 +359,16 @@ module Deepblue
           indent = indent_base * 3 + "- "
           generic_work.file_sets.each do |file_set|
             yaml_item( out, indent, '', file_set.label, escape: true )
+          end
+        end
+        yaml_line( out, indent_base * 2, ':file_ids:' )
+        if generic_work.file_sets.count.positive?
+          indent = indent_base * 3 + "- "
+          generic_work.file_sets.each do |file_set|
+            file_ids = file_set.prior_identifier
+            file_ids = [] if file_ids.nil?
+            file_ids << file_set.id
+            yaml_item( out, indent, '', ActiveSupport::JSON.encode( file_ids ) )
           end
         end
         yaml_line( out, indent_base * 2, ':files:' )
@@ -377,9 +390,21 @@ module Deepblue
       return target_file
     end
 
-    def self.yaml_item( out, indent, label, value = '', comment: false, indent_base: "  ", label_postfix: ' ', escape: false )
+    def self.yaml_item( out,
+                        indent,
+                        label,
+                        value = '',
+                        single_value: false,
+                        comment: false,
+                        indent_base: "  ",
+                        label_postfix: ' ',
+                        escape: false )
+
       indent = "# #{indent}" if comment
-      if value.respond_to?(:each)
+      if single_value && value.present? && value.respond_to?( :each )
+        value = value[0]
+        out.puts "#{indent}#{label}#{label_postfix}#{yaml_escape_value( value, comment: comment, escape: escape )}"
+      elsif value.respond_to?(:each)
         out.puts "#{indent}#{label}#{label_postfix}"
         indent += indent_base
         value.each { |item| out.puts "#{indent}- #{yaml_escape_value( item, comment: comment, escape: escape )}" }

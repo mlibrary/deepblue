@@ -30,6 +30,7 @@ class FileSet < ActiveFedora::Base
       original_checksum
       original_name
       parent_id
+      prior_identifier
       title
       uri
       visibility
