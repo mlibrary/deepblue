@@ -53,15 +53,17 @@ module Deepblue
         fsets = paths_and_names.map { |fp| build_file_set( path: fp[0], filename: fp[1], file_ids: fp[2] ) }
         fsets.each do |fs|
           work.ordered_members << fs
-          work.provenance_child_add(current_user: user,
-                                    child_id: fs.id,
-                                    ingest_id: ingest_id,
-                                    ingester: ingester,
-                                    ingest_timestamp: ingest_timestamp )
+          work.provenance_child_add( current_user: user,
+                                     child_id: fs.id,
+                                     ingest_id: ingest_id,
+                                     ingester: ingester,
+                                     ingest_timestamp: ingest_timestamp )
           work.total_file_size_add_file_set fs
           work.representative = fs if work.representative_id.blank?
           work.thumbnail = fs if work.thumbnail_id.blank?
         end
+        work.save!
+        work.reload
         return work
       end
 
