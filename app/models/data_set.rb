@@ -7,8 +7,6 @@ class DataSet < ActiveFedora::Base
   self.indexer = DataSetIndexer
   # Change this to restrict which works can be added as a child.
   # self.valid_child_concerns = []
-  # validates :title, presence: { message: 'Your work must have a title.' }
-  ## end `rails generate hyrax:work DataSet`
 
   # self.human_readable_type = 'Data Set' # deprecated
   include Umrdr::UmrdrWorkBehavior
@@ -21,11 +19,10 @@ class DataSet < ActiveFedora::Base
   validates :rights_license, presence: { message: 'You must select a license for your work.' }
   validates :title, presence: { message: 'Your work must have a title.' }
 
-  ## begin `rails generate hyrax:work DataSet`
   # This must be included at the end, because it finalizes the metadata
   # schema (by adding accepts_nested_attributes)
-
   include ::Deepblue::DefaultMetadata
+
   include ::Deepblue::MetadataBehavior
   include ::Deepblue::EmailBehavior
   include ::Deepblue::ProvenanceBehavior
@@ -251,30 +248,6 @@ class DataSet < ActiveFedora::Base
   #   visibility == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
   # end
 
-  # the list of creators is ordered
-  def creator
-    values = super
-    values = Deepblue::MetadataHelper.ordered( ordered_values: creator_ordered, values: values )
-    return values
-  end
-
-  def creator=( values )
-    self.creator_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: creator_ordered, values: values )
-    super values
-  end
-
-  # the list of description is ordered
-  def description
-    values = super
-    values = Deepblue::MetadataHelper.ordered( ordered_values: description_ordered, values: values )
-    return values
-  end
-
-  def description=( values )
-    self.description_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: description_ordered, values: values )
-    super values
-  end
-
   #
   # Make it so work does not show up in search result for anyone, not even admins.
   #
@@ -298,17 +271,29 @@ class DataSet < ActiveFedora::Base
     true
   end
 
-  #
-  # handle the list of referenced_by as ordered
-  #
-  def referenced_by
+  # begin metadata
+
+  # the list of creators is ordered
+  def creator
     values = super
-    values = Deepblue::MetadataHelper.ordered( ordered_values: referenced_by_ordered, values: values )
+    values = Deepblue::MetadataHelper.ordered( ordered_values: creator_ordered, values: values )
     return values
   end
 
-  def referenced_by=( values )
-    self.referenced_by_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: referenced_by_ordered, values: values )
+  def creator=( values )
+    self.creator_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: creator_ordered, values: values )
+    super values
+  end
+
+  # the list of description is ordered
+  def description
+    values = super
+    values = Deepblue::MetadataHelper.ordered( ordered_values: description_ordered, values: values )
+    return values
+  end
+
+  def description=( values )
+    self.description_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: description_ordered, values: values )
     super values
   end
 
@@ -340,7 +325,21 @@ class DataSet < ActiveFedora::Base
     super values
   end
 
-  # hthe list of title is ordered
+  #
+  # handle the list of referenced_by as ordered
+  #
+  def referenced_by
+    values = super
+    values = Deepblue::MetadataHelper.ordered( ordered_values: referenced_by_ordered, values: values )
+    return values
+  end
+
+  def referenced_by=( values )
+    self.referenced_by_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: referenced_by_ordered, values: values )
+    super values
+  end
+
+  # the list of title is ordered
   def title
     values = super
     values = Deepblue::MetadataHelper.ordered( ordered_values: title_ordered, values: values )
@@ -351,6 +350,8 @@ class DataSet < ActiveFedora::Base
     self.title_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: title_ordered, values: values )
     super values
   end
+
+  # end metadata
 
   def total_file_count
     return 0 if file_set_ids.blank?
