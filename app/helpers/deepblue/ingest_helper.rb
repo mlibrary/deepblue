@@ -99,7 +99,7 @@ module Deepblue
           return
         end
         Rails.logger.debug "About to call create derivatives: #{file_name}."
-        file_set.create_derivatives # TODO: (file_name)
+        file_set.create_derivatives( file_name )
         Rails.logger.debug "Create derivatives successful: #{file_name}."
         file_set.provenance_create_derivative( current_user: current_user, **added_prov_key_values )
         # Reload from Fedora and reindex for thumbnail and extracted text
