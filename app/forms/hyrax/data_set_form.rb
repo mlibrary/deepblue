@@ -39,6 +39,8 @@ module Hyrax
         referenced_by
       ]
 
+    self.default_work_secondary_terms = []
+
     self.required_fields =
       %i[
         title
@@ -49,8 +51,6 @@ module Hyrax
         rights_license
         subject_discipline
       ]
-
-    self.default_work_secondary_terms = []
 
     def data_set?
       true
