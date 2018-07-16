@@ -22,7 +22,8 @@ module Umrdr
     end
 
     def fundedby
-      Array(self[Solrizer.solr_name('fundedby')]).first
+      #Array(self[Solrizer.solr_name('fundedby')]).first
+      fetch(Solrizer.solr_name('fundedby'), [])
     end
 
     def doi

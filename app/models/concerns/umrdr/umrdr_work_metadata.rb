@@ -28,7 +28,7 @@ module Umrdr
 
       property :doi, predicate: ::RDF::Vocab::Identifiers.doi, multiple: false
 
-      property :fundedby, predicate: ::RDF::Vocab::DISCO.fundedBy, multiple: false do |index|
+      property :fundedby, predicate: ::RDF::Vocab::DISCO.fundedBy, multiple: true do |index|
         index.type :text
         index.as :stored_searchable
       end
