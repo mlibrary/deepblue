@@ -100,6 +100,7 @@ en:
         hdl:                  "Handle"
         identifier:           "Identifier"
         referenced_by:        "Citation to related material"
+        curation_notes_user:  "Curation Notes for Users"
         keyword:              "Keyword"
         language:             "Language"
         methodology:          "Method"
@@ -171,6 +172,8 @@ en:
           number for a book.
         referenced_by: >
           Include a citation, URL, or DOI for any publications that make use of or refer to this dataset.
+        curation_notes_user: >
+          This field is intended for users (not admins) to enter curation information.  
         keyword: >
           Enter any terms or topics related to the research subject or methods that you would like associated with the
           Work.

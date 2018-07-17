@@ -20,6 +20,7 @@ module Hyrax
         rights_license
         subject_discipline
         referenced_by
+        curation_notes_user
       ]
 
     self.default_work_primary_terms =
@@ -37,6 +38,7 @@ module Hyrax
         keyword
         language
         referenced_by
+        curation_notes_user
       ]
 
     self.default_work_secondary_terms = []

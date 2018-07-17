@@ -15,6 +15,7 @@ en:
       subject_discipline:   "Discipline"
       total_file_size:      "Total file size"
       total_file_size_human_readable: "Total file size"
+      curation_notes_user: "Curation Notes for Users"
   simple_form:
     actions:
       file_set:
