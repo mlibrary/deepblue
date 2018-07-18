@@ -27,7 +27,11 @@ module Umrdr
 
     def curation_notes_user
       fetch(Solrizer.solr_name('curation_notes_user'), [])
-    end    
+    end 
+
+    def curation_notes_admin
+      fetch(Solrizer.solr_name('curation_notes_user'), [])
+    end        
 
     def doi
       Array(self[Solrizer.solr_name('doi')]).first

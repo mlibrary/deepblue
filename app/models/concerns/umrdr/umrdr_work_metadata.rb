@@ -38,6 +38,11 @@ module Umrdr
         index.as :stored_searchable
       end
 
+      property :curation_notes_admin, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#curation_notes_admin'), multiple: true do |index|
+        index.type :text
+        index.as :stored_searchable
+      end
+
       property :grantnumber, predicate: ::RDF::URI.new('http://purl.org/cerif/frapo/hasGrantNumber'), multiple: false do |index|
         index.type :text
         index.as :stored_searchable
