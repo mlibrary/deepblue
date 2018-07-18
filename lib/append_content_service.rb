@@ -5,19 +5,22 @@ require 'tasks/new_content_service'
 # Given a configuration hash read from a yaml file, build the contents in the repository.
 class AppendContentService < Deepblue::NewContentService
 
-  def self.call( path_to_config, args )
-    config = YAML.load_file( path_to_config )
-    base_path = File.dirname( path_to_config )
-    bcs = AppendContentService.new( args, path_to_config, config, base_path )
+  def self.call( path_to_yaml_file:, args: )
+    cfg_hash = YAML.load_file( path_to_yaml_file )
+    base_path = File.dirname( path_to_yaml_file )
+    bcs = AppendContentService.new( args: args,
+                                    path_to_yaml_file: path_to_yaml_file,
+                                    cfg_hash: cfg_hash,
+                                    base_path: base_path )
     bcs.run
   rescue Exception => e
-    Rails.logger.error "AppendContentService.call(#{path_to_config}) #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
+    Rails.logger.error "AppendContentService.call(#{path_to_yaml_file}) #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
   end
 
-  def initialize( args, path_to_config, config, base_path )
+  def initialize( args:, path_to_yaml_file:, cfg_hash:, base_path: )
     initialize_with_msg( args: args,
-                         path_to_config: path_to_config,
-                         config: config,
+                         path_to_yaml_file: path_to_yaml_file,
+                         cfg_hash: cfg_hash,
                          base_path: base_path,
                          msg: "NEW CONTENT SERVICE AT YOUR ... SERVICE" )
   end
