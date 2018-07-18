@@ -19,7 +19,6 @@ class FileSet < ActiveFedora::Base
       date_created
       date_modified
       date_uploaded
-      extracted_text
       file_extension
       files_count
       file_size

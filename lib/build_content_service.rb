@@ -6,19 +6,22 @@ require 'tasks/new_content_service'
 # build the contents in the repository.
 class BuildContentService < Deepblue::NewContentService
 
-  def self.call( path_to_config, args )
-    config = YAML.load_file( path_to_config )
-    base_path = File.dirname( path_to_config )
-    bcs = BuildContentService.new( path_to_config, config, base_path, args )
+  def self.call( path_to_yaml_file:, args: )
+    cfg_hash = YAML.load_file( path_to_yaml_file )
+    base_path = File.dirname( path_to_yaml_file )
+    bcs = BuildContentService.new( path_to_yaml_file: path_to_yaml_file,
+                                   cfg_hash: cfg_hash,
+                                   base_path: base_path,
+                                   args: args )
     bcs.run
   rescue Exception => e
-    Rails.logger.error "BuildContentService.call(#{path_to_config}) #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
+    Rails.logger.error "BuildContentService.call(#{path_to_yaml_file}) #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
   end
 
-  def initialize( path_to_config, config, base_path, args )
+  def initialize( path_to_yaml_file:, cfg_hash:, base_path:, args: )
     initialize_with_msg( args: args,
-                         path_to_config: path_to_config,
-                         config: config,
+                         path_to_yaml_file: path_to_yaml_file,
+                         cfg_hash: cfg_hash,
                          base_path: base_path,
                          msg: "NEW CONTENT SERVICE AT YOUR ... SERVICE" )
   end
@@ -26,7 +29,6 @@ class BuildContentService < Deepblue::NewContentService
   protected
 
     def build_repo_contents
-      # user = find_or_create_user
       build_works
       build_collections
     rescue Exception => e

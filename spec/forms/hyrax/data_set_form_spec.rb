@@ -19,7 +19,9 @@ RSpec.describe Hyrax::DataSetForm do
 
   subject { form }
   let(:work) { DataSet.new }
-  let(:form) { described_class.new(work, nil, nil) }
+  let(:user) { create(:user) }
+  let(:ability) { Ability.new(user) }
+  let(:form) { described_class.new(work, ability, nil) }
 
   let( :expected_required_fields ) { %i[
     title
@@ -44,6 +46,7 @@ RSpec.describe Hyrax::DataSetForm do
     keyword
     language
     referenced_by
+    curation_notes_user
   ] }
 
   describe "#required_fields" do
@@ -54,7 +57,6 @@ RSpec.describe Hyrax::DataSetForm do
 
   describe "#primary_terms" do
     subject { form.primary_terms }
-
     it { is_expected.to eq expected_primary_terms }
   end
 

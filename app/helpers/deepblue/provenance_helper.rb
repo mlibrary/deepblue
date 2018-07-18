@@ -12,9 +12,15 @@ module Deepblue
     RE_LOG_LINE = Regexp.compile "^(#{TIMESTAMP_FORMAT}) ([^/]+)/([^/]*)/([^/]+)/([^/ ]+) (.*)$"
     PREFIX_UPDATE_ATTRIBUTE = 'UpdateAttribute_'
 
+    # rubocop:disable Style/ClassVars
     def self.echo_to_rails_logger
-      DeepBlueDocs::Application.config.provenance_log_echo_to_rails_logger
+      @@echo_to_rails_logger ||= DeepBlueDocs::Application.config.provenance_log_echo_to_rails_logger
     end
+
+    def self.echo_to_rails_logger=( echo_to_rails_logger )
+      @@echo_to_rails_logger = echo_to_rails_logger
+    end
+    # rubocop:enable Style/ClassVars
 
     def self.form_params_to_update_attribute_key_values( curation_concern:,
                                                          form_params:,
@@ -75,7 +81,7 @@ module Deepblue
         event = "#{event}/#{event_note}"
       end
       key_values.merge! prov_key_values
-      key_values = ActiveSupport::JSON.encode key_values if json_encode
+      key_values = prov_encode( value: key_values, json_encode: json_encode )
       "#{timestamp} #{event}/#{class_name}/#{id} #{key_values}"
     end
 
@@ -113,6 +119,21 @@ module Deepblue
       key_values = match[6]
       key_values = ActiveSupport::JSON.decode key_values
       return timestamp, event, event_note, class_name, id, key_values
+    end
+
+    def self.prov_encode( value:, json_encode: true )
+      return value unless json_encode
+      begin
+        return ActiveSupport::JSON.encode value
+      rescue Exception => e # rubocop:disable Lint/RescueException
+        Rails.logger.error "#{e.class}: #{e.message} at #{e.backtrace[0]}"
+        return value.to_s unless value.respond_to? :each_pair
+        new_value = {}
+        value.each_pair do |key, val|
+          new_value[key] = prov_encode( value: val )
+        end
+        return ActiveSupport::JSON.encode new_value
+      end
     end
 
     def self.system_as_current_user

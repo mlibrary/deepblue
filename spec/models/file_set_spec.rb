@@ -27,7 +27,6 @@ RSpec.describe FileSet do
       date_created
       date_modified
       date_uploaded
-      extracted_text
       file_extension
       files_count
       file_size
