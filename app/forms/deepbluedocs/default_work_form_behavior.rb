@@ -105,7 +105,16 @@ module Deepbluedocs
         ]
 
       def primary_terms
-        default_work_primary_terms | super
+        if current_ability.admin?
+          default_work_primary_terms | super
+          default_work_primary_terms.delete(:curation_notes_admin)
+          default_work_primary_terms << :curation_notes_admin
+          default_work_primary_terms
+        else  
+          default_work_primary_terms | super
+          default_work_primary_terms.delete(:curation_notes_admin)
+          default_work_primary_terms
+        end
       end
 
       def secondary_terms

@@ -21,6 +21,7 @@ module Hyrax
         subject_discipline
         referenced_by
         curation_notes_user
+        curation_notes_admin
       ]
 
     self.default_work_primary_terms =
@@ -38,7 +39,7 @@ module Hyrax
         keyword
         language
         referenced_by
-        curation_notes_user
+        curation_notes_user       
       ]
 
     self.default_work_secondary_terms = []
