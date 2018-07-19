@@ -1,0 +1,108 @@
+<% content_for :page_navigation do %>
+<ul>
+  <li><a href="#data-format-and-deposit-size">Data Format &amp; Deposit Size</a></li>
+  <li><a href="#license">License</a></li>
+  <li><a href="#metadata">Metadata</a></li>
+  <li><a href="#documentation">Documentation</a></li>
+  <li><a href="#conditions-for-deposit">Conditions for Deposit</a></li>
+</ul>
+<% end %>
+<%= render partial: 'help_sidebar' %>
+<h2>Prepare Your Data</h2>
+
+<h3 id="data-format-and-deposit-size">Data Format &amp; Deposit Size</h3>
+
+<p>Deep Blue Data will accept any file format. We will accept compressed data (.zip, .gz, tar.gz) although to facilitate
+  basic preservation services compressed data is discouraged. <a href="file-format-preservation">Review file formats and
+  levels of preservation</a>.</p>
+
+<p>We do not foresee placing cumulative storage limits on deposits, but there are some constraints on the size of
+  deposits:</p>
+
+<ul>
+  <li>The maximum size of a deposit uploaded through the online interface is <strong>2 GB</strong>.</li>
+  <li>For deposits exceeding <strong>2 GB</strong>, we will work with depositors to ingest your data.
+      <a href="<%= hyrax.contact_path %>">Please contact us if your deposit exceeds 2 GB</a>.</li>
+</ul>
+
+<h3 id="license">License</h3>
+
+<p>Depositors will be asked  to apply one of several <a href="http://creativecommons.org/">Creative Commons</a> licenses
+  to the data. Depositors authorize the Library to distribute the data under the terms of the license they have
+  selected.</p>
+
+
+<h3 id="metadata">Metadata</h3>
+
+<p>We require descriptive metadata for each deposited dataset. A detailed description of the data's origins, purpose,
+  and use are essential for both discoverability and reuse. The following are our minimum requirements:</p>
+
+<ul>
+  <li><strong>Title:</strong> a descriptive title for the data and any associated works you deposit along with it</li>
+  <li><strong>Authors(s):</strong> those involved in creating the data. Enter last name then first name then middle
+    initial. (Ex. Smith, Jane M.)</li>
+  <li><strong>Date Coverage:</strong> The specific date (ex. mm/dd/yyyy) or span of time
+    (ex. mm/dd/yyyy or mm/dd/yyyy - mm/dd/yyyy) the data set was collected, or relates to, as determined by its
+    author(s).</li>
+  <li><strong>Method:</strong> a description of how the data set was generated, acquired and/or processed (this should
+    include any software, instrumentation or equipment used.)</li>
+  <li><strong>Description:</strong> a brief description of the datafiles, what they contain and any accompanying
+    documentation.</li>
+</ul>
+
+<p>The system also generates metadata automatically to help us maintain the integrity of your files and provide a
+  complete record:</p>
+
+<ul>
+  <li><strong>Timestamp:</strong> Deep Blue Data captures the time and date of your deposit and generates a timestamp
+    when any changes to deposits are made to track modifications over time.</li>
+  <li><strong>Depositor:</strong> who made the deposit and any subsequent changes, in case we need to consult with them
+    about issues that arise</li>
+  <li><strong>Checksums:</strong> an error detection mechanism to help ensure the integrity of the files</li>
+</ul>
+
+<p>Regardless of which license a depositor chooses for data distribution, metadata will always be distributed with the
+  <a href="https://creativecommons.org/about/cc0">CC0 license</a> in order to facilitate the broadest possible use.</p>
+
+<p>Please see the <a href="metadata-guidance">Guide to Creating Metadata for Your Dataset in Deep Blue Data</a>
+   for more information.</p>
+
+
+<h3 id="documentation">Documentation</h3>
+
+Each data set deposited into Deep Blue Data should contain sufficient
+documentation for people to understand and make use of the data.
+Please review our
+<a href="dbd-documentation-guide">Guide to Creating Documentation for Your Data Set in Deep Blue Data</a>
+for details.
+
+
+<h3 id="conditions-for-deposit">Conditions for Deposit</h3>
+
+<p>By depositing in Deep Blue Data, you agree that we bear no responsibility for the contents of your submission and
+  represent that:</p>
+
+<ul>
+  <li>The submission is your original work and/or that you have the authority to grant the rights in the license you
+    have selected.</li>
+  <li>You obtained the permission of the owner for materials that are not your original work to grant the Library the
+    rights required and the third-party work is clearly identified and acknowledged.</li>
+  <li>You are responsible for ensuring that Research data involving the use of human subjects is in accordance with the
+    <a href="http://research-compliance.umich.edu/irb-application-process">University of Michigan's (U-M) Institutional
+      Review Board (IRB)</a>.</li>
+  <li>Your submission does not, to the best of your knowledge, infringe upon anyone's copyright.</li>
+  <li>The submission contains no libelous or other unlawful matter and makes no improper invasion of the privacy of any
+    other person.</li>
+  <li>You have fulfilled any right of review, confidentiality, or other obligations required by contract or agreement if
+    the work was sponsored or supported by an agency or organization other than U-M.</li>
+</ul>
+
+<br/><br/><br/>
+
+<p>Have Questions? Need Help?</p>
+
+<p>Please contact Research Data Services -
+  <a href="mailto:researchdataservices@umich.edu">researchdataservices@umich.edu</a>
+</p>
+
+<p>This document was last updated on May 15, 2018</p>

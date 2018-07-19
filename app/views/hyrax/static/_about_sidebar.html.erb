@@ -1,0 +1,11 @@
+<% content_for :sidebar do %>
+<aside class="sidebar">
+  <h2>About</h2>
+  <ul>
+    <%= render partial: 'help_sidebar_link', locals: { path: 'about', label: "About Deep Blue Data" } %>
+    <%= render partial: 'help_sidebar_link', locals: { path: 'file-format-preservation', label: "File Formats & Preservation" } %>
+    <%= render partial: 'help_sidebar_link', locals: { path: 'retention', label: "Retention" } %>
+    <%= render partial: 'help_sidebar_link', locals: { path: 'support-for-depositors', label: "Support for Depositors" } %>
+  </ul>
+</aside>
+<% end %>
