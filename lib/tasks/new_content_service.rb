@@ -57,23 +57,44 @@ module Deepblue
 
     protected
 
+      def add_file_set_to_work( work:, file_set: )
+        work.ordered_members << file_set
+        log_provenance_add_child( parent: work, child: file_set )
+        work.total_file_size_add_file_set file_set
+        work.representative = file_set if work.representative_id.blank?
+        work.thumbnail = file_set if work.thumbnail_id.blank?
+      end
+
       def add_file_sets_to_work( work_hash:, work: )
+        file_set_ids = work_hash[:file_set_ids]
+        return add_file_sets_to_work_from_file_set_ids( work_hash: work_hash, work: work ) if file_set_ids.present?
+        return add_file_sets_to_work_from_files( work_hash: work_hash, work: work )
+      end
+
+      def add_file_sets_to_work_from_file_set_ids( work_hash:, work: )
+        file_set_ids = work_hash[:file_set_ids]
+        file_set_ids.each do |file_set_id|
+          file_set_key = "f_#{file_set_id}"
+          file_set_hash = work_hash[file_set_key.to_sym]
+          file_set = build_file_set_from_hash( id: file_set_id, file_set_hash: file_set_hash )
+          add_file_set_to_work( work: work, file_set: file_set )
+        end
+        work.save!
+        work.reload
+        return work
+      end
+
+      def add_file_sets_to_work_from_files( work_hash:, work: )
         files = work_hash[:files]
-        return if files.blank?
+        return work if files.blank?
         file_ids = work_hash[:file_ids]
         file_ids = [] if file_ids.nil?
         filenames = work_hash[:filenames]
         filenames = [] if filenames.nil?
         paths_and_names = files.zip( filenames, file_ids )
-        fsets = paths_and_names.map do |fp|
-          build_file_set( path: fp[0], file_set_vis: work.visibility, filename: fp[1], file_ids: fp[2] )
-        end
-        fsets.each do |fs|
-          work.ordered_members << fs
-          log_provenance_add_child( parent: work, child: fs )
-          work.total_file_size_add_file_set fs
-          work.representative = fs if work.representative_id.blank?
-          work.thumbnail = fs if work.thumbnail_id.blank?
+        paths_and_names.each do |fp|
+          fs = build_file_set( path: fp[0], file_set_vis: work.visibility, filename: fp[1], file_ids: fp[2] )
+          add_file_set_to_work( work: work, file_set: fs )
         end
         work.save!
         work.reload
@@ -83,13 +104,11 @@ module Deepblue
       def add_works_to_collection( collection_hash:, collection: )
         # puts "collection_hash=#{collection_hash}"
         work_ids = works_from_hash( hash: collection_hash )
-        collection_works = work_ids[0].map do |work_id|
+        work_ids[0].each do |work_id|
           # puts "work_id=#{work_id}"
           work_hash = works_from_id( hash: collection_hash, work_id: work_id )
           # puts "work_hash=#{work_hash}"
-          build_or_find_work( work_hash: work_hash )
-        end
-        collection_works.each do |work|
+          work = build_or_find_work( work_hash: work_hash )
           work.member_of_collections << collection
           log_provenance_add_child( parent: collection, child: work )
           work.save!
@@ -172,17 +191,8 @@ module Deepblue
 
       def build_file_set( path:, file_set_vis:, filename: nil, file_ids: nil )
         # puts "path=#{path} filename=#{filename} file_ids=#{file_ids}"
-        # If filename not given, use basename from path
         fname = filename || File.basename( path )
-        logger.info "Processing: #{fname}"
-        file = File.open( path )
-        # fix so that filename comes from the name of the file and not the hash
-        file.define_singleton_method( :original_name ) do
-          fname
-        end
-        file_set = FileSet.new
-        file_set.apply_depositor_metadata( user_key )
-        Hydra::Works::UploadFileToFileSet.call( file_set, file )
+        build_file_set_new( path: path, original_name: fname )
         file_set.title = Array( fname )
         file_set.label = fname
         now = DateTime.now.new_offset( 0 )
@@ -190,6 +200,37 @@ module Deepblue
         file_set.visibility = file_set_vis
         file_set.prior_identifier = file_ids if file_ids.present?
         file_set.save!
+        return build_file_set_ingest( file_set: file_set, path: path )
+      end
+
+      def build_file_set_from_hash( id:, file_set_hash: )
+        # puts "path=#{path} filename=#{filename} file_ids=#{file_ids}"
+
+        path = file_set_hash[:file_path]
+        original_name = file_set_hash[:original_name]
+        file_set = build_file_set_new( path: path, original_name: original_name )
+
+        title = Array( file_set_hash[:title] )
+        label = file_set_hash[:label]
+        date_uploaded = build_date( hash: file_set_hash, key: :date_uploaded )
+        date_modified = build_date( hash: file_set_hash, key: :date_modified )
+        date_created = Array( build_date( hash: file_set_hash, key: :date_created ) )
+        prior_identifier = build_prior_identifier( hash: file_set_hash, id: id )
+        visibility = visibility_from_hash( hash: file_set_hash )
+
+        file_set.title = title
+        file_set.label = label
+        file_set.date_uploaded = date_uploaded
+        file_set.date_modified = date_modified
+        file_set.date_created = date_created
+        file_set.prior_identifier = prior_identifier
+        file_set.visibility = visibility
+        file_set.save!
+
+        return build_file_set_ingest( file_set: file_set, path: path )
+      end
+
+      def build_file_set_ingest( file_set:, path: )
         log_object file_set
         repository_file_id = nil
         IngestHelper.characterize( file_set,
@@ -210,7 +251,20 @@ module Deepblue
                                          ingester: ingester,
                                          ingest_timestamp: ingest_timestamp )
         log_provenance_ingest( curation_concern: file_set )
-        logger.info "Finished: #{fname}"
+        logger.info "Finished: #{path}"
+        return file_set
+      end
+
+      def build_file_set_new( path:, original_name: )
+        logger.info "Processing: #{path}"
+        file = File.open( path )
+        # fix so that filename comes from the name of the file and not the hash
+        file.define_singleton_method( :original_name ) do
+          original_name
+        end
+        file_set = FileSet.new
+        file_set.apply_depositor_metadata( user_key )
+        Hydra::Works::UploadFileToFileSet.call( file_set, file )
         return file_set
       end
 

@@ -258,31 +258,42 @@ module Deepblue
 
     def self.yaml_body_files( out, indent_base:, indent:, curation_concern:, target_dirname: )
       indent_first_line = indent
-      yaml_line( out, indent_first_line, ':filenames:' )
-      if curation_concern.file_sets.count.positive?
-        indent = indent_base + indent_first_line + "-"
-        curation_concern.file_sets.each do |file_set|
-          yaml_item( out, indent, '', file_set.label, escape: true )
-        end
-      end
-      yaml_line( out, indent_first_line, ':file_ids:' )
-      if curation_concern.file_sets.count.positive?
-        indent = indent_base + indent_first_line + "-"
-        curation_concern.file_sets.each do |file_set|
-          file_ids = file_set.prior_identifier
-          file_ids = [] if file_ids.nil?
-          file_ids << file_set.id
-          yaml_item( out, indent, '', ActiveSupport::JSON.encode( file_ids ) )
-        end
-      end
-      yaml_line( out, indent_first_line, ':files:' )
+      yaml_line( out, indent_first_line, ':file_set_ids:' )
       return unless curation_concern.file_sets.count.positive?
       indent = indent_base + indent_first_line + "-"
       curation_concern.file_sets.each do |file_set|
-        file = file_from_file_set( file_set )
-        file_name = file.original_name
-        file_path = target_dirname.join "#{file_set.id}_#{file_name}"
-        yaml_item( out, indent, '', file_path.to_s, escape: true )
+        yaml_item( out, indent, '', file_set.id, escape: true )
+      end
+      curation_concern.file_sets.each do |file_set|
+        file_id = ":f_#{file_set.id}:"
+        yaml_line( out, indent_first_line, file_id )
+        indent = indent_base + indent_first_line
+        yaml_item( out, indent, ':id:', file_set.id, escape: true )
+        single_value = 1 == file_set.title.size
+        yaml_item( out, indent, ':title:', file_set.title, escape: true, single_value: single_value )
+        file_ids = file_set.prior_identifier
+        file_ids = [] if file_ids.nil?
+        file_ids << file_set.id
+        yaml_item( out, indent, ':prior_identifier:', ActiveSupport::JSON.encode( file_ids ) )
+        file_path = yaml_export_file_path( target_dirname: target_dirname, file_set: file_set )
+        yaml_item( out, indent, ':file_path:', file_path.to_s, escape: true )
+        yaml_item( out, indent, ":date_created:", file_set.date_created )
+        yaml_item( out, indent, ":date_uploaded:", file_set.date_uploaded )
+        yaml_item( out, indent, ":date_modified:", file_set.date_modified )
+        file_size = if file_set.file_size.blank?
+                      file_set.original_file.nil? ? 0 : file_set.original_file.size
+                    else
+                      file_set.file_size[0]
+                    end
+        yaml_item( out, indent, ":file_size:", file_size )
+        yaml_item( out, indent, ":file_size_human_readable:", human_readable_size( file_size ), escape: true )
+        yaml_item( out, indent, ":label:", file_set.label, escape: true )
+        yaml_item( out, indent, ":mime_type:", file_set.mime_type, escape: true )
+        value = file_set.original_checksum.blank? ? '' : file_set.original_checksum[0]
+        yaml_item( out, indent, ":original_checksum:", value )
+        value = file_set.original_file.nil? ? nil : file_set.original_file.original_name
+        yaml_item( out, indent, ":original_name:", value, escape: true )
+        yaml_item( out, indent, ":visibility:", file_set.visibility )
       end
     end
 
@@ -328,6 +339,12 @@ module Deepblue
       return value
     end
 
+    def self.yaml_export_file_path( target_dirname:, file_set: )
+      file = file_from_file_set( file_set )
+      export_file_name = file.original_name
+      target_dirname.join "#{file_set.id}_#{export_file_name}"
+    end
+
     def self.yaml_file_set( file_set, out: nil, depth: '==' )
       out.puts "#{depth} File Set: #{file_set.label} #{depth}"
       yaml_item( out, "ID: ", file_set.id )
@@ -358,6 +375,7 @@ module Deepblue
       yaml_line( out, indent, ':visibility:', curation_concern.visibility )
       yaml_line( out, indent, ':ingester:', '' )
       yaml_line( out, indent, ':source:', source )
+      yaml_line( out, indent, ':export_timestamp:', DateTime.now.to_s )
       yaml_line( out, indent, ':mode:', mode )
       yaml_line( out, indent, ':id:', curation_concern.id )
       yaml_line( out, indent, header_type )
@@ -547,15 +565,14 @@ module Deepblue
       total_byte_count = 0
       if work.file_sets.count.positive?
         work.file_sets.each do |file_set|
-          file = file_from_file_set( file_set )
-          export_file_name = file.original_name
-          export_file_name = target_dirname.join "#{file_set.id}_#{export_file_name}"
+          export_file_name = yaml_export_file_path( target_dirname: target_dirname, file_set: file_set )
           write_file = if overwrite
                          true
                        else
                          !File.exist?( export_file_name )
                        end
           if write_file
+            file = file_from_file_set( file_set )
             source_uri = file.uri.value
             log_lines( log_file, "Starting file export of #{export_file_name} (#{file.size} bytes) at #{Time.now}" )
             bytes_copied = open( source_uri ) { |io| IO.copy_stream( io, export_file_name ) }
