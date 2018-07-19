@@ -4,6 +4,8 @@ module Hyrax
 
   class DataSetsController < DeepblueController
 
+    PARAMS_KEY = 'data_set'
+
     include Deepblue::WorksControllerBehavior
 
     self.curation_concern_type = ::DataSet
@@ -54,14 +56,14 @@ module Hyrax
     # Replace the date coverage parameter prior with serialization of EDTF::Interval
     def assign_date_coverage
       cov_interval = Dataset::DateCoverageService.params_to_interval params
-      params['data_set']['date_coverage'] = cov_interval ? cov_interval.edtf : ""
+      params[PARAMS_KEY]['date_coverage'] = cov_interval ? cov_interval.edtf : ""
     end
 
     def assign_admin_set
       admin_sets = Hyrax::AdminSetService.new(self).search_results(:deposit)
       admin_sets.each do |admin_set|
-        if admin_set.id != "admin_set/default"  
-          params['data_set']['admin_set_id'] = admin_set.id
+        if admin_set.id != "admin_set/default"
+          params[PARAMS_KEY]['admin_set_id'] = admin_set.id
         end
       end
     end
@@ -294,7 +296,7 @@ module Hyrax
     end
 
     def provenance_log_update_before
-      @update_attr_key_values = curation_concern.provenance_log_update_before( form_params: params['data_set'].dup )
+      @update_attr_key_values = curation_concern.provenance_log_update_before( form_params: params[PARAMS_KEY].dup )
     end
 
     ## end Provenance log
@@ -340,12 +342,12 @@ module Hyrax
 
     def visibility_to_private?
       return false if curation_concern.private?
-      params["data_set"]["visibility"] == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
+      params[PARAMS_KEY]['visibility'] == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
     end
 
     def visibility_to_public?
       return false if curation_concern.public?
-      params["data_set"]["visibility"] == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
+      params[PARAMS_KEY]['visibility'] == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
     end
 
     def mark_as_set_to_private
