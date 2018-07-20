@@ -7,6 +7,8 @@ module Hyrax
   # monkey patch FileSetsController
   class FileSetsController < ApplicationController
 
+    PARAMS_KEY = 'file_set'
+
     # alias_method :monkey_update, :update
     # alias_method :monkey_update_metadata, :update_metadata
 
@@ -31,7 +33,7 @@ module Hyrax
     end
 
     def provenance_log_update_before
-      @update_attr_key_values = curation_concern.provenance_log_update_before( form_params: params['file_set'].dup )
+      @update_attr_key_values = curation_concern.provenance_log_update_before( form_params: params[PARAMS_KEY].dup )
     end
 
     protected

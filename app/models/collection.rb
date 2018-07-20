@@ -4,7 +4,7 @@ class Collection < ActiveFedora::Base
   include ::Hyrax::CollectionBehavior
 
   # You can replace these metadata if they're not suitable
-  #include Hyrax::BasicMetadata
+  # include Hyrax::BasicMetadata
   include Umrdr::UmrdrWorkBehavior
   include Umrdr::UmrdrWorkMetadata
 
@@ -12,14 +12,171 @@ class Collection < ActiveFedora::Base
   # schema (by adding accepts_nested_attributes)
   include ::Deepblue::DefaultMetadata
 
+  include ::Deepblue::MetadataBehavior
+  include ::Deepblue::EmailBehavior
+  include ::Deepblue::ProvenanceBehavior
+
+  before_destroy :provenance_before_destroy_collection
+
   self.indexer = Hyrax::CollectionWithBasicMetadataIndexer
 
-  # after_initialize :set_defaults
-  #
-  # def set_defaults
-  #   return unless new_record?
-  #   # self.visibility = 'open'
-  # end
+  def provenance_before_destroy_collection
+    provenance_destroy( current_user: '' ) # , event_note: 'provenance_before_destroy_collection' )
+  end
+
+  def metadata_keys_all
+    %i[
+      title
+      creator
+      description
+      keyword
+      subject_discipline
+      language
+      referenced_by
+      visibility
+    ]
+  end
+
+  def metadata_keys_brief
+    %i[
+      creator
+      title
+      visibility
+    ]
+  end
+
+  def metadata_keys_update
+    %i[
+      creator
+      title
+      visibility
+    ]
+  end
+
+  def attributes_all_for_email
+    metadata_keys_all
+  end
+
+  def attributes_all_for_provenance
+    metadata_keys_all
+  end
+
+  def attributes_brief_for_email
+    metadata_keys_brief
+  end
+
+  def attributes_brief_for_provenance
+    metadata_keys_brief
+  end
+
+  def attributes_update_for_email
+    metadata_keys_update
+  end
+
+  def attributes_update_for_provenance
+    metadata_keys_update
+  end
+
+  def for_email_route
+    for_event_route
+  end
+
+  def for_event_route
+    Rails.application.routes.url_helpers.hyrax_data_set_path( id: self.id ) # rubocop:disable Style/RedundantSelf
+  end
+
+  def for_provenance_route
+    for_event_route
+  end
+
+  def map_email_attributes_override!( event:, # rubocop:disable Lint/UnusedMethodArgument
+                                      attribute:,
+                                      ignore_blank_key_values:,
+                                      email_key_values: )
+    value = nil
+    handled = case attribute.to_s
+              when 'collection_type'
+                value = collection_type.machine_id
+                true
+              when 'visibility'
+                value = visibility
+                true
+              else
+                false
+              end
+    return false unless handled
+    if ignore_blank_key_values
+      email_key_values[attribute] = value if value.present?
+    else
+      email_key_values[attribute] = value
+    end
+    return true
+  end
+
+  def map_provenance_attributes_override!( event:, # rubocop:disable Lint/UnusedMethodArgument
+                                           attribute:,
+                                           ignore_blank_key_values:,
+                                           prov_key_values: )
+    value = nil
+    handled = case attribute.to_s
+              when 'collection_type'
+                value = collection_type.machine_id
+                true
+              when 'visibility'
+                value = visibility
+                true
+              else
+                false
+              end
+    return false unless handled
+    if ignore_blank_key_values
+      prov_key_values[attribute] = value if value.present?
+    else
+      prov_key_values[attribute] = value
+    end
+    return true
+  end
+
+  def metadata_hash_override( key:, ignore_blank_values:, key_values: )
+    value = nil
+    handled = case key.to_s
+              when 'collection_type'
+                value = collection_type.machine_id
+                true
+              else
+                false
+              end
+    return false unless handled
+    if ignore_blank_values
+      key_values[key] = value if value.present?
+    else
+      key_values[key] = value
+    end
+    return true
+  end
+
+  def metadata_report_contained_objects
+    member_objects
+  end
+
+  def metadata_report_keys
+    return USE_BLANK_KEY_VALUES, metadata_keys_all
+  end
+
+  def metadata_report_label_override( metadata_key:, metadata_value: ) # rubocop:disable Lint/UnusedMethodArgument
+    case metadata_key.to_s
+    when 'collection_type'
+      'Collection Type: '
+    when 'total_file_count'
+      'Total File Count: '
+    when 'total_file_size_human_readable'
+      'Total File Size: '
+    end
+  end
+
+  def metadata_report_title_pre
+    'Collection: '
+  end
 
   # begin metadata
 
