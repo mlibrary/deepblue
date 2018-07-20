@@ -4,8 +4,10 @@ module Deepblue
 
   module MetadataHelper
 
+    SOURCE_DBDv1 = 'DBDv1' # rubocop:disable Style/ConstantName
+    SOURCE_DBDv2 = 'DBDv2' # rubocop:disable Style/ConstantName
     DEFAULT_BASE_DIR = "/deepbluedata-prep/"
-    DEFAULT_SOURCE = 'DBDv2'
+    DEFAULT_SOURCE = SOURCE_DBDv2
     DEFAULT_TASK = 'populate'
     FIELD_SEP = '; '
     HEADER_TYPE_COLLECTIONS = ':collections:'
@@ -229,7 +231,7 @@ module Deepblue
       curation_concern.title.join( field_sep )
     end
 
-    def self.yaml_body_collections( out, indent:, curation_concern: )
+    def self.yaml_body_collections( out, indent:, curation_concern:, source: )
       yaml_item( out, indent, ":id:", curation_concern.id )
       yaml_item( out, indent, ":collection_type:", curation_concern.collection_type.machine_id, escape: true )
       yaml_item( out, indent, ":collection_type_gid:", curation_concern.collection_type_gid, escape: true )
@@ -239,11 +241,11 @@ module Deepblue
       yaml_item( out, indent, ":description:", curation_concern.description, escape: true )
       yaml_item( out, indent, ":depositor:", curation_concern.depositor )
       yaml_item( out, indent, ":doi:", curation_concern.doi, escape: true )
-      yaml_item( out, indent, ":referenced_by:", curation_concern.referenced_by, escape: true )
+      yaml_item_referenced_by( out, indent, curation_concern: curation_concern, source: source )
       yaml_item( out, indent, ':keyword:', curation_concern.keyword, escape: true )
       yaml_item( out, indent, ":language:", curation_concern.language, escape: true )
-      yaml_item( out, indent, ":prior_identifier:", curation_concern.prior_identifier, escape: true )
-      yaml_item( out, indent, ":subject_discipline:", curation_concern.subject_discipline )
+      yaml_item_prior_identifier( out, indent, curation_concern: curation_concern, source: source )
+      yaml_item_subject( out, indent, curation_concern: curation_concern, source: source )
       yaml_item( out, indent, ':title:', curation_concern.title, escape: true )
       yaml_item( out, indent, ":tombstone:", curation_concern.tombstone, single_value: true )
       yaml_item( out, indent, ":total_work_count:", curation_concern.work_ids.count )
@@ -256,7 +258,7 @@ module Deepblue
       yaml_item( out, indent, ":visibility:", curation_concern.visibility )
     end
 
-    def self.yaml_body_files( out, indent_base:, indent:, curation_concern:, target_dirname: )
+    def self.yaml_body_files( out, indent_base:, indent:, curation_concern:, source:, target_dirname: )
       indent_first_line = indent
       yaml_line( out, indent_first_line, ':file_set_ids:' )
       return unless curation_concern.file_sets.count.positive?
@@ -271,10 +273,11 @@ module Deepblue
         yaml_item( out, indent, ':id:', file_set.id, escape: true )
         single_value = 1 == file_set.title.size
         yaml_item( out, indent, ':title:', file_set.title, escape: true, single_value: single_value )
-        file_ids = file_set.prior_identifier
-        file_ids = [] if file_ids.nil?
-        file_ids << file_set.id
-        yaml_item( out, indent, ':prior_identifier:', ActiveSupport::JSON.encode( file_ids ) )
+        # file_ids = file_set.prior_identifier
+        # file_ids = [] if file_ids.nil?
+        # file_ids << file_set.id
+        # yaml_item( out, indent, ':prior_identifier:', ActiveSupport::JSON.encode( file_ids ) )
+        yaml_item_prior_identifier( out, indent, curation_concern: curation_concern, source: source )
         file_path = yaml_export_file_path( target_dirname: target_dirname, file_set: file_set )
         yaml_item( out, indent, ':file_path:', file_path.to_s, escape: true )
         yaml_item( out, indent, ":date_created:", file_set.date_created )
@@ -297,7 +300,7 @@ module Deepblue
       end
     end
 
-    def self.yaml_body_works( out, indent:, curation_concern: )
+    def self.yaml_body_works( out, indent:, curation_concern:, source: )
       yaml_item( out, indent, ":id:", curation_concern.id )
       yaml_item( out, indent, ":admin_set_id:", curation_concern.admin_set_id, escape: true )
       yaml_item( out, indent, ":authoremail:", curation_concern.authoremail )
@@ -309,15 +312,15 @@ module Deepblue
       yaml_item( out, indent, ":description:", curation_concern.description, escape: true )
       yaml_item( out, indent, ":depositor:", curation_concern.depositor )
       yaml_item( out, indent, ":doi:", curation_concern.doi, escape: true )
-      yaml_item( out, indent, ":fundedby:", curation_concern.fundedby, single_value: true )
+      yaml_item( out, indent, ":fundedby:", curation_concern.fundedby, single_value: true, escape: true )
       yaml_item( out, indent, ":grantnumber:", curation_concern.grantnumber, escape: true )
-      yaml_item( out, indent, ":referenced_by:", curation_concern.referenced_by, escape: true )
+      yaml_item_referenced_by( out, indent, curation_concern: curation_concern, source: source )
       yaml_item( out, indent, ':keyword:', curation_concern.keyword, escape: true )
       yaml_item( out, indent, ":language:", curation_concern.language, escape: true )
       yaml_item( out, indent, ":methodology:", curation_concern.methodology, escape: true )
-      yaml_item( out, indent, ":prior_identifier:", curation_concern.prior_identifier, escape: true )
+      yaml_item_prior_identifier( out, indent, curation_concern: curation_concern, source: source )
       yaml_item( out, indent, ":rights_license: ", curation_concern.rights_license, escape: true )
-      yaml_item( out, indent, ":subject_discipline:", curation_concern.subject_discipline )
+      yaml_item_subject( out, indent, curation_concern: curation_concern, source: source )
       yaml_item( out, indent, ':title:', curation_concern.title, escape: true )
       yaml_item( out, indent, ":tombstone:", curation_concern.tombstone, single_value: true )
       yaml_item( out, indent, ":total_file_count:", curation_concern.file_set_ids.count )
@@ -343,18 +346,6 @@ module Deepblue
       file = file_from_file_set( file_set )
       export_file_name = file.original_name
       target_dirname.join "#{file_set.id}_#{export_file_name}"
-    end
-
-    def self.yaml_file_set( file_set, out: nil, depth: '==' )
-      out.puts "#{depth} File Set: #{file_set.label} #{depth}"
-      yaml_item( out, "ID: ", file_set.id )
-      yaml_item( out, "File name: ", file_set.label )
-      yaml_item( out, "Date created: ", file_set.date_uploaded )
-      yaml_item( out, "Date uploaded: ", file_set.date_uploaded )
-      yaml_item( out, "Date modified: ", file_set.date_uploaded )
-      yaml_item( out, "Total file size: ", human_readable_size( file_set.file_size[0] ) )
-      yaml_item( out, "Checksum: ", file_set.original_checksum )
-      yaml_item( out, "Mimetype: ", file_set.mime_type )
     end
 
     def self.yaml_filename( pathname_dir:, id:, prefix:, task: )
@@ -414,6 +405,34 @@ module Deepblue
     def self.yaml_line( out, indent, label, value = '', comment: false, label_postfix: ' ', escape: false )
       indent = "# #{indent}" if comment
       out.puts "#{indent}#{label}#{label_postfix}#{yaml_escape_value( value, comment: comment, escape: escape )}"
+    end
+
+    def self.yaml_item_prior_identifier( out, indent, curation_concern:, source: )
+      if source == SOURCE_DBDv1
+        yaml_item( out, indent, ":prior_identifier:", '' )
+      else
+        # ids = curation_concern.prior_identifier
+        # ids = [] if ids.nil?
+        # ids << curation_concern.id
+        # yaml_item( out, indent, ':prior_identifier:', ActiveSupport::JSON.encode( ids ) )
+        yaml_item( out, indent, ":prior_identifier:", curation_concern.prior_identifier )
+      end
+    end
+
+    def self.yaml_item_referenced_by( out, indent, curation_concern:, source: )
+      if source == SOURCE_DBDv1
+        yaml_item( out, indent, ":isReferencedBy:", curation_concern.isReferencedBy, escape: true )
+      else
+        yaml_item( out, indent, ":referenced_by:", curation_concern.referenced_by, escape: true )
+      end
+    end
+
+    def self.yaml_item_subject( out, indent, curation_concern:, source: )
+      if source == SOURCE_DBDv1
+        yaml_item( out, indent, ":subject:", curation_concern.subject, escape: true )
+      else
+        yaml_item( out, indent, ":subject_discipline:", curation_concern.subject_discipline, escape: true )
+      end
     end
 
     def self.yaml_populate_collection( collection:,
@@ -479,11 +498,12 @@ module Deepblue
           indent = indent_base * 2
           yaml_line( out, indent, ":works_#{work.id}:" )
           indent = indent_base * 3
-          yaml_body_works( out, indent: indent, curation_concern: work )
+          yaml_body_works( out, indent: indent, curation_concern: work, source: source )
           yaml_body_files( out,
                            indent_base: indent_base,
                            indent: indent,
                            curation_concern: work,
+                           source: source,
                            target_dirname: target_dirname )
         end
       end
@@ -536,6 +556,7 @@ module Deepblue
                          indent_base: indent_base,
                          indent: indent,
                          curation_concern: curation_concern,
+                         source: source,
                          target_dirname: target_dirname )
       end
       return target_file
