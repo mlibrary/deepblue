@@ -1,0 +1,15 @@
+<% content_for :sidebar do %>
+<aside class="sidebar">
+  <h2>Help</h2>
+  <ul>
+    <%= render partial: 'help_sidebar_link', locals: { path: 'prepare-your-data', label: "Prepare Your Data" } %>
+    <%= render partial: 'help_sidebar_link', locals: { path: 'dbd-documentation-guide', label: "Documentation Guidance" } %>
+    <%= render partial: 'help_sidebar_link', locals: { path: 'dbd-glossary', label: "Deep Blue Data Glossary" } %>
+    <%= render partial: 'help_sidebar_link', locals: { path: 'metadata-guidance', label: "Metadata Guidance" } %>
+    <%= render partial: 'help_sidebar_link', locals: { path: 'how-to-upload', label: "How to Upload" } %>
+    <%= render partial: 'help_sidebar_link', locals: { path: 'use-downloaded-data', label: "Use Downloaded Data" } %>
+    <%= render partial: 'help_sidebar_link', locals: { path: 'globus-help', label: "Using Globus" } %>
+    <li><a href="<%= hyrax.contact_path %>">Contact Us</a></li>
+  </ul>
+</aside>
+<% end %>

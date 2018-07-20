@@ -1,0 +1,37 @@
+<% content_for :page_navigation do %>
+<ul>
+    <li><a href="#dataplan">Data Management Plan</a></li>
+    <li><a href="#planning">Planning</a></li>
+    <li><a href="#managing">Managing</a></li>
+    <li><a href="#depositing">Depositing</a></li>
+</ul>
+<% end %>
+<%= render partial: 'about_sidebar' %>
+<h2>Support for Depositors</h2>
+
+<p><a href="http://www.lib.umich.edu/research-data-services">Research Data Services</a> and other members of the U-M
+  Library provide a suite of services to assist you in preparing your data for deposit into Deep Blue Data.</p>
+
+<h3 id="dataplan">Data Management Plan</h3>
+The <a href="management-plan-text">text for DMP</a> can be inserted into your data management plan to indicate your use
+of Deep Blue Data as a means to share and preserve your data.
+
+<h3 id="planning">Planning</h3>
+<p>Librarians will review and provide feedback on your data management plan, which is now required by many funding
+  agencies. More generally, we will consult with you to help you plan for the eventual deposit of your data into Deep
+  Blue Data and consider what actions you might need to take over the course of your research. We can also help you
+  discover other data sets that are relevant to your research for your use or to serve as examples for developing your
+  own data set.</p>
+
+<h3 id="managing">Managing</h3>
+<p>Librarians are available for consultation about managing and developing your data set so that it can be shared and
+  preserved when the time comes. We can work with you to help you consider what documentation you will need, how you
+  might describe your data using a metadata schema that is appropriate for your data, and how to organize your data to
+  make it easier to understand and use.</p>
+
+<h3 id="depositing">Depositing</h3>
+<p>When you are ready to deposit your data into Deep Blue Data, we can help you gather what information you will need,
+  walk you through the process, or answer any questions that you may have. We can also provide guidance on how to
+  increase the potential impact of sharing your data set through Deep Blue Data.</p>
+
+<a href="<%= hyrax.contact_path %>">Contact Us for assistance</a>
