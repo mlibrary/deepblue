@@ -268,6 +268,11 @@ module Deepblue
         return file_set
       end
 
+      def build_fundedby( hash: )
+        rv = Array( hash[:fundedby] )
+        return rv
+      end
+
       def build_or_find_collection( collection_hash: )
         # puts "build_or_find_collection( collection_hash: #{ActiveSupport::JSON.encode( collection_hash )} )"
         return if collection_hash.blank?
@@ -315,11 +320,13 @@ module Deepblue
       end
 
       def build_rights_liscense( hash: )
-        if 'DBDv1' == source
-          hash[:rights]
-        else
-          hash[:rights_license]
-        end
+        rv = if 'DBDv1' == source
+               hash[:rights]
+             else
+               hash[:rights_license]
+             end
+        rv = rv[0] if rv.respond_to?( '[]' )
+        return rv
       end
 
       def build_repo_contents
@@ -352,7 +359,7 @@ module Deepblue
         language = Array( work_hash[:language] )
         keyword = Array( work_hash[:keyword] )
         referenced_by = build_referenced_by( hash: work_hash )
-        fundedby = work_hash[:fundedby]
+        fundedby = build_fundedby( hash: work_hash )
         grantnumber = work_hash[:grantnumber]
 
         work = DataSet.new( title: title,
