@@ -360,6 +360,7 @@ module Deepblue
         keyword = Array( work_hash[:keyword] )
         referenced_by = build_referenced_by( hash: work_hash )
         fundedby = build_fundedby( hash: work_hash )
+        fundedby_other = work_hash[:fundedby_other]
         grantnumber = work_hash[:grantnumber]
 
         work = DataSet.new( title: title,
@@ -380,6 +381,7 @@ module Deepblue
                             keyword: keyword,
                             referenced_by: referenced_by,
                             fundedby: fundedby,
+                            fundedby_other: fundedby_other,
                             grantnumber: grantnumber )
 
         work.apply_depositor_metadata( user_key )

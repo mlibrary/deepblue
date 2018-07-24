@@ -24,6 +24,8 @@ RSpec.describe FileSet do
   let( :visibility_public ) { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC }
   let( :metadata_keys_all ) {
     %i[
+      curation_notes_admin
+      curation_notes_user
       date_created
       date_modified
       date_uploaded

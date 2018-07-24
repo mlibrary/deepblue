@@ -86,6 +86,8 @@ en:
         collection_ids:       "Add as member of collection"
         contributor:          "Contributor"
         creator:              "Creator"
+        curation_notes_admin: "Curation Notes for Admins"
+        curation_notes_user:  "Curation Notes for Users"
         date_coverage:        "Date Coverage"
         date_coverage_end:    "End Date"
         date_coverage_start:  "Start Date"
@@ -102,8 +104,6 @@ en:
         hdl:                  "Handle"
         identifier:           "Identifier"
         referenced_by:        "Citation to related material"
-        curation_notes_user:  "Curation Notes for Users"
-        curation_notes_admin: "Curation Notes for Admins"
         keyword:              "Keyword"
         language:             "Language"
         methodology:          "Method"
@@ -177,10 +177,10 @@ en:
           number for a book.
         referenced_by: >
           Include a citation, URL, or DOI for any publications that make use of or refer to this dataset.
+        curation_notes_admin: >
+          This field is intended for Admins to enter curation information.
         curation_notes_user: >
           This field is intended for users (not Admins) to enter curation information.
-        curation_notes_admin: >
-          This field is intended for Admins to enter curation information.            
         keyword: >
           Enter any terms or topics related to the research subject or methods that you would like associated with the
           Work.

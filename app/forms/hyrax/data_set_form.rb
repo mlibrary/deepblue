@@ -19,10 +19,10 @@ module Hyrax
         keyword
         methodology
         rights_license
-        subject_discipline
         referenced_by
-        curation_notes_user
+        subject_discipline
         curation_notes_admin
+        curation_notes_user
       ]
 
     self.default_work_primary_terms =
@@ -41,6 +41,7 @@ module Hyrax
         keyword
         language
         referenced_by
+        curation_notes_admin
         curation_notes_user
       ]
 

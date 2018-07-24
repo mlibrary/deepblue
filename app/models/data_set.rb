@@ -47,6 +47,8 @@ class DataSet < ActiveFedora::Base
       admin_set_id
       authoremail
       creator
+      curation_notes_admin
+      curation_notes_user
       date_coverage
       date_created
       date_modified
@@ -56,6 +58,7 @@ class DataSet < ActiveFedora::Base
       doi
       file_set_ids
       fundedby
+      fundedby_other
       grantnumber
       keyword
       language
@@ -282,6 +285,30 @@ class DataSet < ActiveFedora::Base
 
   def creator=( values )
     self.creator_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: creator_ordered, values: values )
+    super values
+  end
+
+  # the list of curation_note_admin is ordered
+  def curation_note_admin
+    values = super
+    values = Deepblue::MetadataHelper.ordered( ordered_values: curation_note_admin_ordered, values: values )
+    return values
+  end
+
+  def curation_note_admin=( values )
+    self.curation_note_admin_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: curation_note_admin_ordered, values: values )
+    super values
+  end
+
+  # the list of curation_note_user is ordered
+  def curation_note_user
+    values = super
+    values = Deepblue::MetadataHelper.ordered( ordered_values: curation_note_user_ordered, values: values )
+    return values
+  end
+
+  def curation_note_user=( values )
+    self.curation_note_user_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: curation_note_user_ordered, values: values )
     super values
   end
 
