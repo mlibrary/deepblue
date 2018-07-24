@@ -13,6 +13,7 @@ module Hyrax
         date_coverage
         description
         fundedby
+        fundedby_other
         doi
         grantnumber
         keyword
@@ -35,11 +36,12 @@ module Hyrax
         rights_license
         subject_discipline
         fundedby
+        fundedby_other
         grantnumber
         keyword
         language
         referenced_by
-        curation_notes_user       
+        curation_notes_user
       ]
 
     self.default_work_secondary_terms = []

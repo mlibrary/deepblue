@@ -33,6 +33,11 @@ module Umrdr
         index.as :stored_searchable
       end
 
+      property :fundedby_other, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#fundedby_other'), multiple: false do |index|
+        index.type :text
+        index.as :stored_searchable
+      end
+
       property :curation_notes_user, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#curation_notes_user'), multiple: true do |index|
         index.type :text
         index.as :stored_searchable

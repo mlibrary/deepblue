@@ -25,12 +25,16 @@ module Umrdr
       fetch(Solrizer.solr_name('fundedby'), [])
     end
 
+    def fundedby_other
+      Array(self[Solrizer.solr_name('fundedby_other')]).first
+    end
+
     def curation_notes_user
       fetch(Solrizer.solr_name('curation_notes_user'), [])
     end 
 
     def curation_notes_admin
-      fetch(Solrizer.solr_name('curation_notes_user'), [])
+      fetch(Solrizer.solr_name('curation_notes_admin'), [])
     end        
 
     def doi
