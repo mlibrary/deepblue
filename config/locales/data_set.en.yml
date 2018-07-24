@@ -43,6 +43,7 @@ en:
       date_created:         "Date created"
       doi:                  "DOI"
       fundedby:             "Funding agency"
+      fundedby_other:       "Other Funding agency"
       grantnumber:          "ORSP grant number"
       referenced_by:        "Citations"
       language:             "Language"
@@ -96,6 +97,7 @@ en:
         email_again:          "Email again"
         files:                "Upload a new version of this file from your computer"
         fundedby:             "Funding Agency"
+        fundedby_other:       "Other Funding Agency"
         grantnumber:          "ORSP Grant Number"
         hdl:                  "Handle"
         identifier:           "Identifier"
@@ -149,6 +151,8 @@ en:
           Consider using Globus (see below).
         fundedby: >
           Select the primary funding agency that supported the research and data collection from the drop-down list.
+        fundedby_other: >
+          Other funding agency, not from one in the list.
         globus_click_submit_to_start_downloading: >
           Click submit to start downloading %{title} to Globus. If you would like to be sent an email when the files
           are available fill in your email address:
