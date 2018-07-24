@@ -8,8 +8,20 @@ module Umrdr
       Array(self[Solrizer.solr_name('authoremail')]).first
     end
 
+    def curation_notes_admin
+      fetch(Solrizer.solr_name('curation_notes_admin'), [])
+    end
+
+    def curation_notes_user
+      fetch(Solrizer.solr_name('curation_notes_user'), [])
+    end
+
     def date_coverage
       Array(self[Solrizer.solr_name('date_coverage')]).first
+    end
+
+    def doi
+      Array(self[Solrizer.solr_name('doi')]).first
     end
 
     def file_size
@@ -29,25 +41,8 @@ module Umrdr
       Array(self[Solrizer.solr_name('fundedby_other')]).first
     end
 
-    def curation_notes_user
-      fetch(Solrizer.solr_name('curation_notes_user'), [])
-    end 
-
-    def curation_notes_admin
-      fetch(Solrizer.solr_name('curation_notes_admin'), [])
-    end        
-
-    def doi
-      Array(self[Solrizer.solr_name('doi')]).first
-    end
-
     def grantnumber
       Array(self[Solrizer.solr_name('grantnumber')]).first
-    end
-
-    def referenced_by
-      # Array(self[Solrizer.solr_name('referenced_by')]).first
-      fetch(Solrizer.solr_name('referenced_by'), [])
     end
 
     def methodology
@@ -56,6 +51,11 @@ module Umrdr
 
     def original_checksum
       Array(self[Solrizer.solr_name('original_checksum')]).first
+    end
+
+    def referenced_by
+      # Array(self[Solrizer.solr_name('referenced_by')]).first
+      fetch(Solrizer.solr_name('referenced_by'), [])
     end
 
     def subject_discipline

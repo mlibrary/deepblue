@@ -4,14 +4,17 @@ module Hyrax
   class DataSetPresenter < DeepbluePresenter
 
     delegate  :authoremail,
+              :curation_notes_admin,
+              :curation_notes_user,
+              :date_coverage,
               :fundedby,
+              :fundedby_other,
               :grantnumber,
-              :referenced_by,
               :methodology,
+              :referenced_by,
               :rights_license,
               :subject_discipline,
               :total_file_size,
-              :date_coverage,
               to: :solr_document
 
     # begin box

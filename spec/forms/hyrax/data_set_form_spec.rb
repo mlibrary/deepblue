@@ -42,6 +42,7 @@ RSpec.describe Hyrax::DataSetForm do
     rights_license
     subject_discipline
     fundedby
+    fundedby_other
     grantnumber
     keyword
     language
@@ -57,7 +58,9 @@ RSpec.describe Hyrax::DataSetForm do
 
   describe "#primary_terms" do
     subject { form.primary_terms }
-    it { is_expected.to eq expected_primary_terms }
+    it do
+      is_expected.to eq expected_primary_terms
+    end
   end
 
   describe "#secondary_terms" do
