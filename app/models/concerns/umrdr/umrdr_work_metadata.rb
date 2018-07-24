@@ -74,6 +74,11 @@ module Umrdr
         index.type :text
         index.as :stored_searchable
       end
+      
+      property :rights_license_other, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#rights_license_other'), multiple: false do |index|
+        index.type :text
+        index.as :stored_searchable
+      end
 
       property :keyword_ordered, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#keyword_ordered'), multiple: false do |index|
         index.type :text

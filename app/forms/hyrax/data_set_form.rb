@@ -18,8 +18,9 @@ module Hyrax
         grantnumber
         keyword
         methodology
-        rights_license
         referenced_by
+        rights_license
+        rights_license_other
         subject_discipline
         curation_notes_admin
         curation_notes_user
@@ -34,6 +35,7 @@ module Hyrax
         description
         date_coverage
         rights_license
+        rights_license_other
         subject_discipline
         fundedby
         fundedby_other

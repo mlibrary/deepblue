@@ -13,6 +13,7 @@ module Hyrax
               :methodology,
               :referenced_by,
               :rights_license,
+              :rights_license_other,              
               :subject_discipline,
               :total_file_size,
               to: :solr_document

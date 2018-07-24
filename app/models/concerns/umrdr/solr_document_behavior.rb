@@ -58,6 +58,10 @@ module Umrdr
       fetch(Solrizer.solr_name('referenced_by'), [])
     end
 
+    def rights_license_other
+      Array(self[Solrizer.solr_name('rights_license_other')]).first
+    end
+
     def subject_discipline
       fetch(Solrizer.solr_name('subject_discipline'), [])
     end
