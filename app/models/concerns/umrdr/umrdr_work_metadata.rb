@@ -16,6 +16,26 @@ module Umrdr
         index.as :stored_searchable
       end
 
+      property :curation_notes_admin, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#curation_notes_admin'), multiple: true do |index|
+        index.type :text
+        index.as :stored_searchable
+      end
+
+      property :curation_notes_admin_ordered, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#curation_notes_admin_ordered'), multiple: true do |index|
+        index.type :text
+        index.as :stored_searchable
+      end
+
+      property :curation_notes_user, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#curation_notes_user'), multiple: true do |index|
+        index.type :text
+        index.as :stored_searchable
+      end
+
+      property :curation_notes_user_ordered, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#curation_notes_user_ordered'), multiple: true do |index|
+        index.type :text
+        index.as :stored_searchable
+      end
+
       property :date_coverage, predicate: ::RDF::Vocab::DC.temporal, multiple: false do |index|
         index.type :text
         index.as :stored_searchable, :facetable
@@ -38,22 +58,6 @@ module Umrdr
         index.as :stored_searchable
       end
 
-      property :rights_license_other, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#rights_license_other'), multiple: false do |index|
-        index.type :text
-        index.as :stored_searchable
-      end
-
-
-      property :curation_notes_user, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#curation_notes_user'), multiple: true do |index|
-        index.type :text
-        index.as :stored_searchable
-      end
-
-      property :curation_notes_admin, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#curation_notes_admin'), multiple: true do |index|
-        index.type :text
-        index.as :stored_searchable
-      end
-
       property :grantnumber, predicate: ::RDF::URI.new('http://purl.org/cerif/frapo/hasGrantNumber'), multiple: false do |index|
         index.type :text
         index.as :stored_searchable
@@ -67,6 +71,11 @@ module Umrdr
       end
 
       property :referenced_by_ordered, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#referenced_by_ordered'), multiple: false do |index|
+        index.type :text
+        index.as :stored_searchable
+      end
+      
+      property :rights_license_other, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#rights_license_other'), multiple: false do |index|
         index.type :text
         index.as :stored_searchable
       end

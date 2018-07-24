@@ -160,6 +160,7 @@ module Deepblue
         report_item( out, "Contact: ", generic_work.authoremail )
         report_item( out, "Discipline: ", generic_work.subject_discipline, one_line: false, item_prefix: "\t" )
         report_item( out, "Funded by: ", generic_work.fundedby )
+        report_item( out, "Funded by Other: ", generic_work.fundedby_other )
         report_item( out, "ORSP Grant Number: ", generic_work.grantnumber )
         report_item( out, "Keyword: ", generic_work.keyword, one_line: false, item_prefix: "\t" )
         report_item( out, "Date coverage: ", generic_work.date_coverage )
@@ -305,6 +306,8 @@ module Deepblue
       yaml_item( out, indent, ":admin_set_id:", curation_concern.admin_set_id, escape: true )
       yaml_item( out, indent, ":authoremail:", curation_concern.authoremail )
       yaml_item( out, indent, ":creator:", curation_concern.creator, escape: true )
+      yaml_item( out, indent, ":curation_notes_admin:", curation_concern.curation_notes_admin, escape: true )
+      yaml_item( out, indent, ":curation_notes_user:", curation_concern.curation_notes_user, escape: true )
       yaml_item( out, indent, ":date_created:", curation_concern.date_created )
       yaml_item( out, indent, ":date_uploaded:", curation_concern.date_uploaded )
       yaml_item( out, indent, ":date_modified:", curation_concern.date_modified )
@@ -313,6 +316,7 @@ module Deepblue
       yaml_item( out, indent, ":depositor:", curation_concern.depositor )
       yaml_item( out, indent, ":doi:", curation_concern.doi, escape: true )
       yaml_item( out, indent, ":fundedby:", curation_concern.fundedby, single_value: true, escape: true )
+      yaml_item( out, indent, ":fundedby_other:", curation_concern.fundedby_other, single_value: true, escape: true )
       yaml_item( out, indent, ":grantnumber:", curation_concern.grantnumber, escape: true )
       yaml_item_referenced_by( out, indent, curation_concern: curation_concern, source: source )
       yaml_item( out, indent, ':keyword:', curation_concern.keyword, escape: true )
@@ -482,7 +486,7 @@ module Deepblue
                      source: source,
                      mode: mode )
         indent = indent_base * 2
-        yaml_body_collections( out, indent: indent, curation_concern: collection )
+        yaml_body_collections( out, indent: indent, curation_concern: collection, source: source )
         return unless populate_works
         return unless collection.member_objects.size.positive?
         indent = indent_base * 2
@@ -551,7 +555,7 @@ module Deepblue
                      source: source,
                      mode: mode )
         indent = indent_base * 2
-        yaml_body_works( out, indent: indent, curation_concern: curation_concern )
+        yaml_body_works( out, indent: indent, curation_concern: curation_concern, source: source )
         yaml_body_files( out,
                          indent_base: indent_base,
                          indent: indent,

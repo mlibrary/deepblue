@@ -21,6 +21,8 @@ RSpec.describe DataSet do
       admin_set_id
       authoremail
       creator
+      curation_notes_admin
+      curation_notes_user
       date_coverage
       date_created
       date_modified
@@ -30,6 +32,7 @@ RSpec.describe DataSet do
       doi
       file_set_ids
       fundedby
+      fundedby_other
       grantnumber
       keyword
       language
@@ -246,7 +249,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_mint_doi( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 32,
+                                     size: 35,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -295,7 +298,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_publish( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 32,
+                                     size: 35,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -344,7 +347,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_unpublish( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 32,
+                                     size: 35,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -433,7 +436,7 @@ RSpec.describe DataSet do
       expect( subject.entomb!( epitaph, current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 35,
+                                     size: 38,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -471,6 +474,7 @@ RSpec.describe DataSet do
         "rights_license": rights_license,
         "subject_discipline": [subject_discipline, ""],
         "fundedby": "",
+        "fundedby_other": "",
         "grantnumber": "",
         "keyword": [""],
         "language": [""],
@@ -486,7 +490,9 @@ RSpec.describe DataSet do
         "visibility_after_lease": "restricted",
         "visibility": visibility_private,
         "version": "W/\"591319c1fdd3c69832f55e8fbbef903a4a0381a5\"",
-        "date_coverage": "" }
+        "date_coverage": "",
+        "curation_notes_admin": [""],
+        "curation_notes_user": [""] }
     end
     let( :expected_attr_key_values ) { { UpdateAttribute_methodology: { attribute: :methodology, old_value: methodology, new_value: methodology_new } } }
     let( :expected_added_key_values ) { { UpdateAttribute_methodology: { "attribute" => "methodology", "old_value" => "The Methodology", "new_value" => "The New Methodology" } } }
@@ -557,6 +563,8 @@ RSpec.describe DataSet do
                                      exp_admin_set_id: '',
                                      exp_authoremail: '',
                                      exp_creator: [],
+                                     exp_curation_notes_admin: [],
+                                     exp_curation_notes_user: [],
                                      exp_date_coverage: '',
                                      exp_date_created: '',
                                      exp_date_modified: '',
@@ -565,6 +573,7 @@ RSpec.describe DataSet do
                                      exp_description: [],
                                      exp_doi: '',
                                      exp_fundedby: '',
+                                     exp_fundedby_other: '',
                                      exp_grantnumber: '',
                                      exp_referenced_by: [],
                                      exp_keyword: [],
@@ -606,6 +615,8 @@ RSpec.describe DataSet do
     validate_expected( rv_key_values, :admin_set_id, exp_admin_set_id )
     validate_expected( rv_key_values, :authoremail, exp_authoremail )
     validate_expected( rv_key_values, :creator, exp_creator )
+    validate_expected( rv_key_values, :curation_notes_admin, exp_curation_notes_admin )
+    validate_expected( rv_key_values, :curation_notes_user, exp_curation_notes_user )
     validate_expected( rv_key_values, :date_coverage, exp_date_coverage )
     validate_expected( rv_key_values, :date_created, exp_date_created )
     validate_expected( rv_key_values, :date_modified, exp_date_modified )
@@ -614,6 +625,7 @@ RSpec.describe DataSet do
     validate_expected( rv_key_values, :description, exp_description )
     validate_expected( rv_key_values, :doi, exp_doi )
     validate_expected( rv_key_values, :fundedby, exp_fundedby )
+    validate_expected( rv_key_values, :fundedby_other, exp_fundedby_other )
     validate_expected( rv_key_values, :grantnumber, exp_grantnumber )
     validate_expected( rv_key_values, :referenced_by, exp_referenced_by )
     validate_expected( rv_key_values, :keyword, exp_keyword )

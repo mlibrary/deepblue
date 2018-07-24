@@ -26,13 +26,15 @@ class Collection < ActiveFedora::Base
 
   def metadata_keys_all
     %i[
-      title
       creator
+      curation_notes_admin
+      curation_notes_user
       description
       keyword
-      subject_discipline
       language
       referenced_by
+      subject_discipline
+      title
       visibility
     ]
   end
@@ -189,6 +191,30 @@ class Collection < ActiveFedora::Base
 
   def creator=( values )
     self.creator_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: creator_ordered, values: values )
+    super values
+  end
+
+  # the list of curation_note_admin is ordered
+  def curation_note_admin
+    values = super
+    values = Deepblue::MetadataHelper.ordered( ordered_values: curation_note_admin_ordered, values: values )
+    return values
+  end
+
+  def curation_note_admin=( values )
+    self.curation_note_admin_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: curation_note_admin_ordered, values: values )
+    super values
+  end
+
+  # the list of curation_note_user is ordered
+  def curation_note_user
+    values = super
+    values = Deepblue::MetadataHelper.ordered( ordered_values: curation_note_user_ordered, values: values )
+    return values
+  end
+
+  def curation_note_user=( values )
+    self.curation_note_user_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: curation_note_user_ordered, values: values )
     super values
   end
 

@@ -206,6 +206,15 @@ class CatalogController < ApplicationController
       }
     end
 
+    config.add_search_field('doi') do |field|
+      field.label = "Doi"
+      solr_name = solr_name("doi_label", :stored_searchable)
+      field.solr_local_parameters = {
+        qf: solr_name,
+        pf: solr_name
+      }
+    end
+
     config.add_search_field('format') do |field|
       solr_name = solr_name("format", :stored_searchable)
       field.solr_local_parameters = {
@@ -223,15 +232,14 @@ class CatalogController < ApplicationController
       }
     end
 
-    config.add_search_field('doi') do |field|
-      field.label = "Doi"
-      solr_name = solr_name("doi_label", :stored_searchable)
+    config.add_search_field('fundedby_other') do |field|
+      field.label = "Funded By Other"
+      solr_name = solr_name("fundedby_other_label", :stored_searchable)
       field.solr_local_parameters = {
         qf: solr_name,
         pf: solr_name
       }
     end
-
 
     config.add_search_field('grantnumber') do |field|
       field.label = "Grant number"

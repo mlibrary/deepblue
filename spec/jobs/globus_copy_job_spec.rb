@@ -81,7 +81,10 @@ describe GlobusCopyJob, "GlobusJob globus_enabled: :true", globus_enabled: :true
         # expect( Rails.logger ).to have_received( :debug ).with( 'bogus so we can look at the logger output' )
         file = '/tmp/deepbluedata-globus/prep/.test.error.DeepBlueData_id321'
         if File.exist? file
+          puts ">>>>>>>>>>>>>>>>>>"
+          puts "Error file exists:"
           open( file, 'r') { |f| puts f.readlines.join( "\n" ) }
+          puts ">>>>>>>>>>>>>>>>>>"
         end
         expect( Rails.logger ).to have_received( :debug ).with( "#{log_prefix} lock file #{lock_file}" )
         expect( Rails.logger ).to have_received( :debug ).with( "#{log_prefix} writing lock token #{current_token} to #{lock_file}" )

@@ -18,12 +18,12 @@ module Hyrax
         grantnumber
         keyword
         methodology
+        referenced_by
         rights_license
         rights_license_other
         subject_discipline
-        referenced_by
-        curation_notes_user
         curation_notes_admin
+        curation_notes_user
       ]
 
     self.default_work_primary_terms =
@@ -43,6 +43,7 @@ module Hyrax
         keyword
         language
         referenced_by
+        curation_notes_admin
         curation_notes_user
       ]
 

@@ -16,6 +16,8 @@ class FileSet < ActiveFedora::Base
 
   def metadata_keys_all
     %i[
+      curation_notes_admin
+      curation_notes_user
       date_created
       date_modified
       date_uploaded
@@ -220,5 +222,33 @@ class FileSet < ActiveFedora::Base
   def metadata_report_title_pre
     'FileSet: '
   end
+
+  # begin metadata
+
+  # the list of curation_note_admin is ordered
+  def curation_note_admin
+    values = super
+    values = Deepblue::MetadataHelper.ordered( ordered_values: curation_note_admin_ordered, values: values )
+    return values
+  end
+
+  def curation_note_admin=( values )
+    self.curation_note_admin_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: curation_note_admin_ordered, values: values )
+    super values
+  end
+
+  # the list of curation_note_user is ordered
+  def curation_note_user
+    values = super
+    values = Deepblue::MetadataHelper.ordered( ordered_values: curation_note_user_ordered, values: values )
+    return values
+  end
+
+  def curation_note_user=( values )
+    self.curation_note_user_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: curation_note_user_ordered, values: values )
+    super values
+  end
+
+  # end metadata
 
 end

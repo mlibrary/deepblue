@@ -44,6 +44,14 @@ class SolrDocument
     ScholarsArchive::LabelParserService.parse_label_uris(self['academic_affiliation_label_ssim'])
   end
 
+  def curation_notes_admin_label
+    self['curation_notes_admin_label_ssim']
+  end
+
+  def curation_notes_user_label
+    self['curation_notes_user_label_ssim']
+  end
+
   def degree_field_label
     ScholarsArchive::LabelParserService.parse_label_uris(self['degree_field_label_ssim'])
   end
@@ -58,6 +66,10 @@ class SolrDocument
 
   def fundedby_label
     self['fundedby_label_ssim']
+  end
+
+  def fundedby_other_label
+    self['fundedby_other_label_ssim']
   end
 
   def grantnumber_label
@@ -132,6 +144,8 @@ class SolrDocument
     'contributor_affiliationumcampus',
     'contributor_author',
     'contributor_committeemember',
+    'curation_notes_admin',
+    'curation_notes_user',
     'date_accepted',
     'date_available',
     'date_collected',
@@ -160,6 +174,7 @@ class SolrDocument
     'file_extent',
     'file_format',
     'fundedby',
+    'fundedby_other',
     'funding_body',
     'funding_statement',
     'graduation_year',
