@@ -116,6 +116,10 @@ class SolrDocument
     self['rights_license_label_ssim']
   end
 
+  def rights_license_other_label
+    self['rights_license_other_label_ssim']
+  end
+
   def rights_statement_label
     self['rights_statement_label_ssim']
   end
@@ -201,6 +205,7 @@ class SolrDocument
     'relation_ispartofseries',
     'replaces',
     'rights_license',
+    'rights_license_other',
     'subject_discipline',
     'subject_other',
     'tableofcontents',

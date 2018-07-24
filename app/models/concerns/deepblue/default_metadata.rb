@@ -697,6 +697,10 @@ module Deepblue
         index.as :stored_searchable
       end
 
+      property :rights_license_other, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/rightsLicenseOther"), multiple: false do |index|
+        index.as :stored_searchable
+      end
+
       # 166  identifier   slug
       property :identifier_slug, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/identifierSlug") do |index|
         index.as :stored_searchable

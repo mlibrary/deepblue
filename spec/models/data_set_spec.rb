@@ -41,6 +41,7 @@ RSpec.describe DataSet do
       prior_identifier
       referenced_by
       rights_license
+      rights_license_other
       subject_discipline
       title
       tombstone
@@ -249,7 +250,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_mint_doi( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 35,
+                                     size: 36,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -298,7 +299,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_publish( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 35,
+                                     size: 36,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -347,7 +348,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_unpublish( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 35,
+                                     size: 36,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -436,7 +437,7 @@ RSpec.describe DataSet do
       expect( subject.entomb!( epitaph, current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 38,
+                                     size: 39,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -582,6 +583,7 @@ RSpec.describe DataSet do
                                      exp_methodology: '',
                                      exp_prior_identifier: [],
                                      exp_rights_license: '',
+                                     exp_rights_license_other: '',
                                      exp_subject_discipline: [],
                                      exp_title: [],
                                      exp_tombstone: [],
@@ -634,6 +636,7 @@ RSpec.describe DataSet do
     validate_expected( rv_key_values, :methodology, exp_methodology )
     validate_expected( rv_key_values, :prior_identifier, exp_prior_identifier )
     validate_expected( rv_key_values, :rights_license, exp_rights_license )
+    validate_expected( rv_key_values, :rights_license_other, exp_rights_license_other )
     validate_expected( rv_key_values, :subject_discipline, exp_subject_discipline )
     validate_expected( rv_key_values, :title, exp_title )
     validate_expected( rv_key_values, :tombstone, exp_tombstone )

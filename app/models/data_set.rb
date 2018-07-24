@@ -67,6 +67,7 @@ class DataSet < ActiveFedora::Base
       prior_identifier
       referenced_by
       rights_license
+      rights_license_other
       subject_discipline
       title
       tombstone
