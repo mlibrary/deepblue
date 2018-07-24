@@ -5,10 +5,12 @@ module Hyrax
 
     delegate  :authoremail,
               :fundedby,
+              :fundedby_other,
               :grantnumber,
               :referenced_by,
               :methodology,
               :rights_license,
+              :rights_license_other,              
               :subject_discipline,
               :total_file_size,
               :date_coverage,

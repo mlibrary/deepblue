@@ -19,6 +19,7 @@ module Hyrax
         keyword
         methodology
         rights_license
+        rights_license_other
         subject_discipline
         referenced_by
         curation_notes_user
@@ -34,6 +35,7 @@ module Hyrax
         description
         date_coverage
         rights_license
+        rights_license_other
         subject_discipline
         fundedby
         fundedby_other

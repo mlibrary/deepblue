@@ -17,6 +17,8 @@
 <%= presenter.attribute_to_html(:resource_type, render_as: :faceted) %>
 <%= presenter.attribute_to_html(:source) %>
 <%= presenter.attribute_to_html(:rights_license, render_as: :rights_license, label: t('show.label.rights_license'), work_type: "DataSet" ) %>
+<%= presenter.attribute_to_html(:rights_license_other, label: t('show.label.rights_license_other') ) %>
+
 <%= presenter.attribute_to_html(:rights_statement, render_as: :rights_statement ) %>
 <%= presenter.attribute_to_html(:doi, label: t('show.label.doi'), work_type: "DataSet" ) %>
 <%= presenter.attribute_to_html(:total_file_size_human_readable, label: t('show.label.total_file_size_human_readable') ) %>
