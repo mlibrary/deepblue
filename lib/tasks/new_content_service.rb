@@ -346,6 +346,7 @@ module Deepblue
         creator = Array( work_hash[:creator] )
         authoremail = work_hash[:authoremail]
         rights_license = build_rights_liscense( hash: work_hash )
+        rights_license_other = work_hash[:rights_license_other]
         description = Array( work_hash[:description] )
         methodology = work_hash[:methodology] || "No Methodology Available"
         prior_identifier = build_prior_identifier( hash: work_hash, id: id )
@@ -367,6 +368,7 @@ module Deepblue
                             creator: creator,
                             authoremail: authoremail,
                             rights_license: rights_license,
+                            rights_license_other: rights_license_other,
                             description: description,
                             resource_type: resource_type,
                             methodology: methodology,

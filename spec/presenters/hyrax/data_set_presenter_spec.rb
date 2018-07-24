@@ -1,5 +1,5 @@
-# Generated via
-#  `rails generate hyrax:work DataSet`
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Hyrax::DataSetPresenter do
@@ -21,10 +21,15 @@ RSpec.describe Hyrax::DataSetPresenter do
 
   it { is_expected.to delegate_method(:to_s).to(:solr_document) }
   it { is_expected.to delegate_method(:human_readable_type).to(:solr_document) }
+  it { is_expected.to delegate_method(:curation_notes_admin).to(:solr_document) }
+  it { is_expected.to delegate_method(:curation_notes_user).to(:solr_document) }
   it { is_expected.to delegate_method(:date_created).to(:solr_document) }
   it { is_expected.to delegate_method(:date_modified).to(:solr_document) }
   it { is_expected.to delegate_method(:date_uploaded).to(:solr_document) }
+  it { is_expected.to delegate_method(:fundedby).to(:solr_document) }
+  it { is_expected.to delegate_method(:fundedby_other).to(:solr_document) }
   it { is_expected.to delegate_method(:rights_license).to(:solr_document) }
+  it { is_expected.to delegate_method(:rights_license_other).to(:solr_document) }
 
   it { is_expected.to delegate_method(:based_near_label).to(:solr_document) }
   it { is_expected.to delegate_method(:related_url).to(:solr_document) }
@@ -316,7 +321,7 @@ RSpec.describe Hyrax::DataSetPresenter do
   describe '#page_title' do
     subject { presenter.page_title }
 
-    it { is_expected.to eq 'Generic Work | foo | ID: 888888 | Hyrax' }
+    it { is_expected.to eq 'Generic Work | foo | ID: 888888 | Deep Blue Data' }
   end
 
   #   describe "#valid_child_concerns" do

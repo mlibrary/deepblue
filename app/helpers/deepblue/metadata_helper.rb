@@ -171,6 +171,7 @@ module Deepblue
         report_item( out, "DOI: ", generic_work.doi, optional: true )
         report_item( out, "Visibility: ", generic_work.visibility )
         report_item( out, "Rights: ", generic_work.rights_license )
+        report_item( out, "Rights (other): ", generic_work.rights_license_other )
         report_item( out, "Admin set id: ", generic_work.admin_set_id )
         report_item( out, "Tombstone: ", generic_work.tombstone, optional: true )
         if generic_work.file_sets.count.positive?
@@ -324,6 +325,7 @@ module Deepblue
       yaml_item( out, indent, ":methodology:", curation_concern.methodology, escape: true )
       yaml_item_prior_identifier( out, indent, curation_concern: curation_concern, source: source )
       yaml_item( out, indent, ":rights_license: ", curation_concern.rights_license, escape: true )
+      yaml_item( out, indent, ":rights_license_other: ", curation_concern.rights_license_other, escape: true )
       yaml_item_subject( out, indent, curation_concern: curation_concern, source: source )
       yaml_item( out, indent, ':title:', curation_concern.title, escape: true )
       yaml_item( out, indent, ":tombstone:", curation_concern.tombstone, single_value: true )

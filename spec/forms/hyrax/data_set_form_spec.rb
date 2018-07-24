@@ -40,6 +40,7 @@ RSpec.describe Hyrax::DataSetForm do
     description
     date_coverage
     rights_license
+    rights_license_other
     subject_discipline
     fundedby
     fundedby_other
