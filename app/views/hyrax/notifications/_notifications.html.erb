@@ -1,0 +1,36 @@
+<% if messages.present? %>
+  <div class="table-responsive1">
+    <table class="table table-striped datatable" data-order="[[ 0, &quot;desc&quot; ]]">
+      <thead>
+        <tr>
+          <th><%= t('hyrax.mailbox.date') %></th>
+          <th><%= t('hyrax.mailbox.subject') %></th>
+          <th><%= t('hyrax.mailbox.message') %></th>
+          <th><span class="sr-only"><%= t('hyrax.mailbox.delete') %></span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% messages.each do |msg| %>
+          <tr>
+            <td>
+                <%= msg.last_message.created_at.to_formatted_s(:long_ordinal) %>
+            </td>
+            <td><%= msg.last_message.subject.html_safe %></td>
+            <td><%= msg.last_message.body.html_safe %></td>
+            <td>
+              <%= link_to hyrax.notification_path(msg.id),
+                      class: "itemicon itemtrash",
+                      title: t('hyrax.mailbox.delete'),
+                      method: :delete do %>
+                  <span class="sr-only"><%= I18n.t('hyrax.dashboard.delete_notification') %></span>
+                <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
+                <% end %>
+            </td>
+          </tr>
+          <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <p><%= t('hyrax.mailbox.empty') %></p>
+<% end %>
