@@ -250,3 +250,6 @@ en:
       description: >
         This license lets others remix, tweak, and build upon your work even for commercial purposes, as long as
         they credit you and license their new creations under the identical terms.
+    Other:
+      description: >
+        Other license.  You will have to enter a value in Other License area.
