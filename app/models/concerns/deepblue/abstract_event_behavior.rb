@@ -14,6 +14,7 @@ module Deepblue
     EVENT_CREATE_DERIVATIVE = 'create_derivative'
     EVENT_DESTROY           = 'destroy'
     EVENT_DOWNLOAD          = 'download'
+    EVENT_FIXITY_CHECK      = 'fixity_check'
     EVENT_GLOBUS            = 'globus'
     EVENT_INGEST            = 'ingest'
     EVENT_MINT_DOI          = 'mint_doi'
@@ -33,6 +34,7 @@ module Deepblue
         EVENT_CREATE_DERIVATIVE,
         EVENT_DESTROY,
         EVENT_DOWNLOAD,
+        EVENT_FIXITY_CHECK,
         EVENT_GLOBUS,
         EVENT_INGEST,
         EVENT_MINT_DOI,

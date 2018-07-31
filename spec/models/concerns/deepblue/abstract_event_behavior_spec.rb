@@ -22,6 +22,7 @@ RSpec.describe Deepblue::AbstractEventBehavior do
       expect( Deepblue::AbstractEventBehavior::EVENT_CREATE_DERIVATIVE ).to eq 'create_derivative'
       expect( Deepblue::AbstractEventBehavior::EVENT_DESTROY ).to eq 'destroy'
       expect( Deepblue::AbstractEventBehavior::EVENT_DOWNLOAD ).to eq 'download'
+      expect( Deepblue::AbstractEventBehavior::EVENT_FIXITY_CHECK ).to eq 'fixity_check'
       expect( Deepblue::AbstractEventBehavior::EVENT_GLOBUS ).to eq 'globus'
       expect( Deepblue::AbstractEventBehavior::EVENT_INGEST ).to eq 'ingest'
       expect( Deepblue::AbstractEventBehavior::EVENT_MINT_DOI ).to eq 'mint_doi'
@@ -40,6 +41,7 @@ RSpec.describe Deepblue::AbstractEventBehavior do
         Deepblue::AbstractEventBehavior::EVENT_CREATE_DERIVATIVE,
         Deepblue::AbstractEventBehavior::EVENT_DESTROY,
         Deepblue::AbstractEventBehavior::EVENT_DOWNLOAD,
+        Deepblue::AbstractEventBehavior::EVENT_FIXITY_CHECK,
         Deepblue::AbstractEventBehavior::EVENT_GLOBUS,
         Deepblue::AbstractEventBehavior::EVENT_INGEST,
         Deepblue::AbstractEventBehavior::EVENT_MINT_DOI,
