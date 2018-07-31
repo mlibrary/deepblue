@@ -1,0 +1,11 @@
+<% # main container for facets/limits menu -%>
+<% if has_facet_values? %>
+  <div class="list-filters" role="group">
+    <span class="list-filters-label"><%= t("hyrax.dashboard.my.facet_label.works") %></span>
+    <% if current_ability.admin? %>
+       <%= render_facet_partials %>
+    <% else %>
+       <%= render_facet_partials.sub( /\<div class\=\"btn\-group\"\>\s*\<button class\=\"btn btn\-default dropdown\-toggle\" type\=\"button\" id\=\"admin\_set\_sim\".*\<\/div\>/m, '').html_safe %> 
+    <% end %>
+  </div>
+<% end %>
