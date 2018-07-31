@@ -13,6 +13,8 @@ module Deepblue
     SOURCE_DBDv2 = 'DBDv2' # rubocop:disable Style/ConstantName
     MODE_APPEND = 'append'
     MODE_BUILD = 'build'
+    MODE_MIGRATE = 'migrate'
+    MODE_UPDATE = 'update' # TODO
 
     class RestrictedVocabularyError < RuntimeError
     end
@@ -29,7 +31,7 @@ module Deepblue
     class WorkNotFoundError < RuntimeError
     end
 
-    attr_reader :base_path, :cfg_hash, :config, :ingest_id, :ingester, :ingest_timestamp, :path_to_yaml_file, :user
+    attr_reader :base_path, :cfg_hash, :config, :ingest_id, :ingester, :ingest_timestamp, :mode, :path_to_yaml_file, :user
 
     def initialize( path_to_yaml_file:, cfg_hash:, base_path:, args: )
       initialize_with_msg( args: args,
@@ -58,6 +60,7 @@ module Deepblue
     protected
 
       def add_file_set_to_work( work:, file_set: )
+        return if file_set.parent.present? && work.id == file_set.parent_id
         work.ordered_members << file_set
         log_provenance_add_child( parent: work, child: file_set )
         work.total_file_size_add_file_set file_set
@@ -76,7 +79,7 @@ module Deepblue
         file_set_ids.each do |file_set_id|
           file_set_key = "f_#{file_set_id}"
           file_set_hash = work_hash[file_set_key.to_sym]
-          file_set = build_file_set_from_hash( id: file_set_id, file_set_hash: file_set_hash )
+          file_set = build_file_set_from_hash( id: file_set_id, file_set_hash: file_set_hash, parent: work )
           add_file_set_to_work( work: work, file_set: file_set )
         end
         work.save!
@@ -93,7 +96,7 @@ module Deepblue
         filenames = [] if filenames.nil?
         paths_and_names = files.zip( filenames, file_ids )
         paths_and_names.each do |fp|
-          fs = build_file_set( path: fp[0], file_set_vis: work.visibility, filename: fp[1], file_ids: fp[2] )
+          fs = build_file_set( id: nil, path: fp[0], file_set_vis: work.visibility, filename: fp[1], file_ids: fp[2] )
           add_file_set_to_work( work: work, file_set: fs )
         end
         work.save!
@@ -108,7 +111,8 @@ module Deepblue
           # puts "work_id=#{work_id}"
           work_hash = works_from_id( hash: collection_hash, work_id: work_id )
           # puts "work_hash=#{work_hash}"
-          work = build_or_find_work( work_hash: work_hash )
+          work = build_or_find_work( work_hash: work_hash, parent: collection )
+          next if work.member_of_collection_ids.include? collection.id
           work.member_of_collections << collection
           log_provenance_add_child( parent: collection, child: work )
           work.save!
@@ -131,15 +135,21 @@ module Deepblue
         admin_set
       end
 
-      def build_date( hash:, key: )
-        rv = hash[key]
-        return rv unless rv.to_s.empty?
-        DateTime.now.to_s
-      end
-
       def build_collection( id:, collection_hash: )
+        if MODE_APPEND == mode && id.present?
+          collection = find_collection_using_prior_id( prior_id: id )
+          log_msg( "#{mode}: found collection with prior id: #{id} title: #{collection.title.first}" ) if collection.present?
+          return collection if collection.present?
+        end
+        if MODE_MIGRATE == mode && id.present?
+          collection = find_collection_using_id( id: id )
+          log_msg( "#{mode}: found collection with id: #{id} title: #{collection.title.first}" ) if collection.present?
+          return collection if collection.present?
+        end
         title = Array( collection_hash[:title] )
         creator = Array( collection_hash[:creator] )
+        curation_notes_admin = Array( collection_hash[:curation_notes_admin] )
+        curation_notes_user = Array( collection_hash[:curation_notes_user] )
         description = Array( collection_hash[:description] )
         prior_identifier = build_prior_identifier( hash: collection_hash, id: id )
         subject_discipline = build_subject_discipline( hash: collection_hash )
@@ -150,20 +160,22 @@ module Deepblue
         language = Array( collection_hash[:language] )
         keyword = Array( collection_hash[:keyword] )
         referenced_by = build_referenced_by( hash: collection_hash )
-
-        collection = Collection.new( title: title,
-                                     creator: creator,
-                                     description: description,
-                                     resource_type: resource_type,
-                                     prior_identifier: prior_identifier,
-                                     subject_discipline: subject_discipline,
-                                     date_uploaded: date_uploaded,
-                                     date_modified: date_modified,
+        id_new = MODE_MIGRATE == mode ? id : nil
+        collection = new_collection( creator: creator,
+                                     curation_notes_admin: curation_notes_admin,
+                                     curation_notes_user: curation_notes_user,
                                      date_created: date_created,
-                                     language: language,
+                                     date_modified: date_modified,
+                                     date_uploaded: date_uploaded,
+                                     description: description,
+                                     id: id_new,
                                      keyword: keyword,
-                                     referenced_by: referenced_by )
-
+                                     language: language,
+                                     prior_identifier: prior_identifier,
+                                     referenced_by: referenced_by,
+                                     resource_type: resource_type,
+                                     subject_discipline: subject_discipline,
+                                     title: title )
         collection.collection_type = build_collection_type( hash: collection_hash )
         collection.apply_depositor_metadata( user_key )
         collection.visibility = visibility_from_hash( hash: collection_hash )
@@ -189,10 +201,16 @@ module Deepblue
         collections.each { |collection_hash| build_or_find_collection( collection_hash: collection_hash ) }
       end
 
-      def build_file_set( path:, file_set_vis:, filename: nil, file_ids: nil )
-        # puts "path=#{path} filename=#{filename} file_ids=#{file_ids}"
+      def build_date( hash:, key: )
+        rv = hash[key]
+        return rv unless rv.to_s.empty?
+        DateTime.now.to_s
+      end
+
+      def build_file_set( id:, path:, file_set_vis:, filename: nil, file_ids: nil )
+        # puts "id=#{id} path=#{path} filename=#{filename} file_ids=#{file_ids}"
         fname = filename || File.basename( path )
-        build_file_set_new( path: path, original_name: fname )
+        build_file_set_new( id: id, path: path, original_name: fname )
         file_set.title = Array( fname )
         file_set.label = fname
         now = DateTime.now.new_offset( 0 )
@@ -200,37 +218,56 @@ module Deepblue
         file_set.visibility = file_set_vis
         file_set.prior_identifier = file_ids if file_ids.present?
         file_set.save!
-        return build_file_set_ingest( file_set: file_set, path: path )
+        return build_file_set_ingest( file_set: file_set, path: path, checksum_algorithm: nil, checksum_value: nil )
       end
 
-      def build_file_set_from_hash( id:, file_set_hash: )
-        # puts "path=#{path} filename=#{filename} file_ids=#{file_ids}"
+      def build_file_set_from_hash( id:, file_set_hash:, parent: )
+        if MODE_APPEND == mode && id.present?
+          file_set = find_file_set_using_prior_id( prior_id: id, parent: parent )
+          log_msg( "#{mode}: found file_set with prior id: #{id} title: #{file_set.title.first}" ) if file_set.present?
+          return file_set if file_set.present?
+        end
+        if MODE_MIGRATE == mode && id.present?
+          file_set = find_file_set_using_id( id: id )
+          log_msg( "#{mode}: found file_set with id: #{id} title: #{file_set.title.first}" ) if file_set.present?
+          return file_set if file_set.present?
+        end
+        # puts "id=#{id} path=#{path} filename=#{filename} file_ids=#{file_ids}"
 
         path = file_set_hash[:file_path]
         original_name = file_set_hash[:original_name]
-        file_set = build_file_set_new( path: path, original_name: original_name )
+        file_set = build_file_set_new( id: id, path: path, original_name: original_name )
 
         title = Array( file_set_hash[:title] )
         label = file_set_hash[:label]
+        curation_notes_admin = Array( file_set_hash[:curation_notes_admin] )
+        curation_notes_user = Array( file_set_hash[:curation_notes_user] )
+        checksum_algorithm = file_set_hash[:checksum_algorithm]
+        checksum_value = file_set_hash[:checksum_value]
         date_uploaded = build_date( hash: file_set_hash, key: :date_uploaded )
         date_modified = build_date( hash: file_set_hash, key: :date_modified )
         date_created = Array( build_date( hash: file_set_hash, key: :date_created ) )
         prior_identifier = build_prior_identifier( hash: file_set_hash, id: id )
         visibility = visibility_from_hash( hash: file_set_hash )
 
-        file_set.title = title
+        update_cc_attribute(curation_concern: file_set, attribute: :title, value: title )
+        update_cc_attribute(curation_concern: file_set, attribute: :curation_notes_admin, value: curation_notes_admin )
+        update_cc_attribute(curation_concern: file_set, attribute: :curation_notes_user, value: curation_notes_user )
         file_set.label = label
         file_set.date_uploaded = date_uploaded
         file_set.date_modified = date_modified
         file_set.date_created = date_created
-        file_set.prior_identifier = prior_identifier
-        file_set.visibility = visibility
+        update_cc_attribute(curation_concern: file_set, attribute: :prior_identifier, value: prior_identifier )
+        update_visibility( curation_concern: file_set, visibility: visibility )
         file_set.save!
 
-        return build_file_set_ingest( file_set: file_set, path: path )
+        return build_file_set_ingest( file_set: file_set,
+                                      path: path,
+                                      checksum_algorithm: checksum_algorithm,
+                                      checksum_value: checksum_value )
       end
 
-      def build_file_set_ingest( file_set:, path: )
+      def build_file_set_ingest( file_set:, path:, checksum_algorithm:, checksum_value: )
         log_object file_set
         repository_file_id = nil
         IngestHelper.characterize( file_set,
@@ -251,18 +288,35 @@ module Deepblue
                                          ingester: ingester,
                                          ingest_timestamp: ingest_timestamp )
         log_provenance_ingest( curation_concern: file_set )
-        logger.info "Finished: #{path}"
+        if checksum_algorithm.present? && checksum_value.present?
+          # TODO
+          # TODO add provenance logging of checksum
+          # TODO
+          checksum = file_set_checksum( file_set: file_set )
+          log_msg( "#{mode}: file checksum is nil" ) if checksum.blank?
+          if checksum.present? && checksum.algorithm == checksum_algorithm
+            if checksum.value == checksum_value
+              log_msg( "#{mode}: checksum succeeded: #{checksum_value}" )
+            else
+              log_msg( "#{mode}: WARNING checksum failed: #{checksum.value} vs #{checksum_value}" )
+            end
+          else
+            log_msg( "#{mode}: incompatible checksum algorithms: #{checksum.algorithm} vs #{checksum_algorithm}" )
+          end
+        end
+        log_msg( "#{mode}: finished: #{path}" )
         return file_set
       end
 
-      def build_file_set_new( path:, original_name: )
-        logger.info "Processing: #{path}"
+      def build_file_set_new( id:, path:, original_name: )
+        log_msg( "#{mode}: processing: #{path}" )
         file = File.open( path )
         # fix so that filename comes from the name of the file and not the hash
         file.define_singleton_method( :original_name ) do
           original_name
         end
-        file_set = FileSet.new
+        id_new = MODE_MIGRATE == mode ? id : nil
+        file_set = new_file_set( id: id_new )
         file_set.apply_depositor_metadata( user_key )
         Hydra::Works::UploadFileToFileSet.call( file_set, file )
         return file_set
@@ -277,10 +331,6 @@ module Deepblue
         # puts "build_or_find_collection( collection_hash: #{ActiveSupport::JSON.encode( collection_hash )} )"
         return if collection_hash.blank?
         id = collection_hash[:id]
-        mode = collection_hash[:mode]
-        mode = MODE_BUILD if id.blank?
-        collection = nil
-        collection = Collection.find( id ) if MODE_APPEND == mode
         collection = build_collection( id: id, collection_hash: collection_hash ) if collection.nil?
         log_object collection if collection.present?
         add_works_to_collection( collection_hash: collection_hash, collection: collection )
@@ -288,15 +338,11 @@ module Deepblue
         return collection
       end
 
-      def build_or_find_work( work_hash: )
+      def build_or_find_work( work_hash:, parent: )
         # puts "build_or_find_work( work_hash: #{work_hash} )"
         return nil if work_hash.blank?
         id = work_hash[:id]
-        mode = work_hash[:mode]
-        mode = MODE_BUILD if id.blank?
-        work = nil
-        work = DataSet.find( id ) if MODE_APPEND == mode
-        work = build_work( id: id, work_hash: work_hash ) if work.nil?
+        work = build_work( id: id, work_hash: work_hash, parent: parent ) if work.nil?
         log_object work if work.present?
         add_file_sets_to_work( work_hash: work_hash, work: work )
         return work
@@ -304,9 +350,14 @@ module Deepblue
 
       def build_prior_identifier( hash:, id: )
         if 'DBDv1' == source
-          Array( id )
+          if MODE_MIGRATE == mode
+            []
+          else
+            Array( id )
+          end
         else
           arr = Array( hash[:prior_identifier] )
+          return arr if MODE_MIGRATE == mode
           arr << id if id.present?
         end
       end
@@ -341,9 +392,21 @@ module Deepblue
         end
       end
 
-      def build_work( id:, work_hash: )
+      def build_work( id:, work_hash:, parent: )
+        if MODE_APPEND == mode && id.present?
+          work = find_data_set_using_prior_id( prior_id: id, parent: parent )
+          log_msg( "#{mode}: found work with prior id: #{id} title: #{work.title.first}" ) if work.present?
+          return work if work.present?
+        end
+        if MODE_MIGRATE == mode && id.present?
+          work = find_data_set_using_id( id: id )
+          log_msg( "#{mode}: found work with id: #{id} title: #{work.title.first}" ) if work.present?
+          return work if work.present?
+        end
         title = Array( work_hash[:title] )
         creator = Array( work_hash[:creator] )
+        curation_notes_admin = Array( work_hash[:curation_notes_admin] )
+        curation_notes_user = Array( work_hash[:curation_notes_user] )
         authoremail = work_hash[:authoremail]
         rights_license = build_rights_liscense( hash: work_hash )
         rights_license_other = work_hash[:rights_license_other]
@@ -363,28 +426,31 @@ module Deepblue
         fundedby = build_fundedby( hash: work_hash )
         fundedby_other = work_hash[:fundedby_other]
         grantnumber = work_hash[:grantnumber]
-
-        work = DataSet.new( title: title,
-                            creator: creator,
-                            authoremail: authoremail,
-                            rights_license: rights_license,
-                            rights_license_other: rights_license_other,
-                            description: description,
-                            resource_type: resource_type,
-                            methodology: methodology,
-                            prior_identifier: prior_identifier,
-                            subject_discipline: subject_discipline,
-                            contributor: contributor,
-                            date_uploaded: date_uploaded,
-                            date_modified: date_modified,
-                            date_created: date_created,
-                            date_coverage: date_coverage,
-                            language: language,
-                            keyword: keyword,
-                            referenced_by: referenced_by,
-                            fundedby: fundedby,
-                            fundedby_other: fundedby_other,
-                            grantnumber: grantnumber )
+        id_new = MODE_MIGRATE == mode ? id : nil
+        work = new_data_set( authoremail: authoremail,
+                             contributor: contributor,
+                             creator: creator,
+                             curation_notes_admin: curation_notes_admin,
+                             curation_notes_user: curation_notes_user,
+                             date_coverage: date_coverage,
+                             date_created: date_created,
+                             date_modified: date_modified,
+                             date_uploaded: date_uploaded,
+                             description: description,
+                             fundedby: fundedby,
+                             fundedby_other: fundedby_other,
+                             grantnumber: grantnumber,
+                             id: id_new,
+                             keyword: keyword,
+                             language: language,
+                             methodology: methodology,
+                             prior_identifier: prior_identifier,
+                             referenced_by: referenced_by,
+                             resource_type: resource_type,
+                             rights_license: rights_license,
+                             rights_license_other: rights_license_other,
+                             subject_discipline: subject_discipline,
+                             title: title )
 
         work.apply_depositor_metadata( user_key )
         work.owner = user_key
@@ -400,7 +466,7 @@ module Deepblue
       def build_works
         return unless works
         works.each do |work_hash|
-          work = build_or_find_work( work_hash: work_hash )
+          work = build_or_find_work( work_hash: work_hash, parent: nil )
           log_object work if work.present?
         end
       end
@@ -413,10 +479,10 @@ module Deepblue
         [hash[:collections]]
       end
 
-      def cfg_hash_value( key:, default_value: )
+      def cfg_hash_value( base_key: :config, key:, default_value: )
         rv = default_value
-        if @cfg_hash.key? :config
-          rv = @cfg_hash[:config][key] if @cfg_hash[:config].key? key
+        if @cfg_hash.key? base_key
+          rv = @cfg_hash[base_key][key] if @cfg_hash[base_key].key? key
         end
         return rv
       end
@@ -424,6 +490,98 @@ module Deepblue
       def default_admin_set
         @default_admin_set ||= AdminSet.find( AdminSet::DEFAULT_ID )
         # @default_admin_set ||= AdminSet.find_or_create_default_admin_set_id
+      end
+
+      def file_from_file_set( file_set: )
+        file = nil
+        files = file_set.files
+        unless files.nil? || files.size.zero?
+          file = files[0]
+          files.each do |f|
+            file = f unless f.original_name.empty?
+          end
+        end
+        return file
+      end
+
+      def file_set_checksum( file_set: )
+        file = file_from_file_set( file_set: file_set )
+        return file.checksum if file.present?
+        return nil
+      end
+
+      def find_collection_using_id( id: )
+        return nil if id.blank?
+        Collection.find id
+      rescue ActiveFedora::ObjectNotFoundError
+        return nil
+      end
+
+      def find_collection_using_prior_id( prior_id: )
+        return nil if prior_id.blank?
+        Collection.all.each do |curation_concern|
+          prior_ids = Array( curation_concern.prior_identifier )
+          prior_ids.each do |id|
+            return curation_concern if id == prior_id
+          end
+        end
+        return nil
+      end
+
+      def find_data_set_using_id( id: )
+        return nil if id.blank?
+        DataSet.find id
+      rescue ActiveFedora::ObjectNotFoundError
+        return nil
+      end
+
+      def find_data_set_using_prior_id( prior_id:, parent: )
+        return nil if prior_id.blank?
+        if parent.present?
+          parent.member_objects.each do |obj|
+            next unless obj.is_a? DataSet
+            prior_ids = Array( obj.prior_identifier )
+            prior_ids.each do |id|
+              return obj if id == prior_id
+            end
+          end
+        end
+        DataSet.all.each do |curation_concern|
+          prior_ids = Array( curation_concern.prior_identifier )
+          prior_ids.each do |id|
+            return curation_concern if id == prior_id
+          end
+        end
+        return nil
+      end
+
+      def find_file_set_using_id( id: )
+        return nil if id.blank?
+        FileSet.find id
+      rescue ActiveFedora::ObjectNotFoundError
+        return nil
+      end
+
+      def find_file_set_using_prior_id( prior_id:, parent: )
+        return nil if prior_id.blank?
+        return if parent.blank?
+        parent.file_sets.each do |fs|
+          prior_ids = Array( fs.prior_identifier )
+          prior_ids.each do |id|
+            return fs if id == prior_id
+          end
+        end
+        FileSet.all.each do |fs|
+          if fs.parent.present?
+            return fs if fs.parent.present? && fs.parent_id == parent.id
+            next
+          end
+          prior_ids = Array( fs.prior_identifier )
+          prior_ids.each do |id|
+            return fs if id == prior_id
+          end
+        end
+        return nil
       end
 
       def find_or_create_user
@@ -490,12 +648,22 @@ module Deepblue
         @base_path = base_path
         @ingest_id = File.basename path_to_yaml_file
         @ingest_timestamp = DateTime.now
-        logger.info msg unless msg.nil?
+        logger.info msg if msg.present?
       end
       # rubocop:enable Rails/Output
 
+      def log_msg( msg )
+        return if msg.blank?
+        logger.info "#{timestamp_now} #{msg}"
+      end
+
       def log_object( obj )
-        logger.info "id: #{obj.id} title: #{obj.title.first}"
+        id = if obj.respond_to?( :has_attribute? ) && obj.has_attribute?( :prior_identifier )
+               "#{obj.id} prior id: #{Array( obj.prior_identifier )}"
+             else
+               obj.id.to_s
+             end
+        log_msg "#{mode}: #{obj.class.name} id: #{id} title: #{obj.title.first}"
       end
 
       def log_provenance_add_child( parent:, child: )
@@ -531,8 +699,274 @@ module Deepblue
         return rv
       end
 
+      def mode
+        # @mode ||= @cfg_hash[:user][:mode]
+        @mode ||= cfg_hash_value( base_key: :user, key: :mode, default_value: MODE_APPEND )
+      end
+
+      def new_collection( creator:,
+                          curation_notes_admin:,
+                          curation_notes_user:,
+                          date_created:,
+                          date_modified:,
+                          date_uploaded:,
+                          description:,
+                          id:,
+                          keyword:,
+                          language:,
+                          prior_identifier:,
+                          referenced_by:,
+                          resource_type:,
+                          subject_discipline:,
+                          title: )
+
+        if id.present?
+          Collection.new( creator: creator,
+                          curation_notes_admin: curation_notes_admin,
+                          curation_notes_user: curation_notes_user,
+                          date_created: date_created,
+                          date_modified: date_modified,
+                          date_uploaded: date_uploaded,
+                          description: description,
+                          id: id,
+                          keyword: keyword,
+                          language: language,
+                          prior_identifier: prior_identifier,
+                          referenced_by: referenced_by,
+                          resource_type: resource_type,
+                          subject_discipline: subject_discipline,
+                          title: title )
+        else
+          Collection.new( creator: creator,
+                          curation_notes_admin: curation_notes_admin,
+                          curation_notes_user: curation_notes_user,
+                          date_created: date_created,
+                          date_modified: date_modified,
+                          date_uploaded: date_uploaded,
+                          description: description,
+                          keyword: keyword,
+                          language: language,
+                          prior_identifier: prior_identifier,
+                          referenced_by: referenced_by,
+                          resource_type: resource_type,
+                          subject_discipline: subject_discipline,
+                          title: title )
+        end
+      end
+
+      def new_data_set( authoremail:,
+                        contributor:,
+                        creator:,
+                        curation_notes_admin:,
+                        curation_notes_user:,
+                        date_coverage:,
+                        date_created:,
+                        date_modified:,
+                        date_uploaded:,
+                        description:,
+                        fundedby:,
+                        fundedby_other:,
+                        grantnumber:,
+                        id:,
+                        keyword:,
+                        language:,
+                        methodology:,
+                        prior_identifier:,
+                        referenced_by:,
+                        resource_type:,
+                        rights_license:,
+                        rights_license_other:,
+                        subject_discipline:,
+                        title: )
+        if id.present?
+          DataSet.new( authoremail: authoremail,
+                       contributor: contributor,
+                       creator: creator,
+                       curation_notes_admin: curation_notes_admin,
+                       curation_notes_user: curation_notes_user,
+                       date_coverage: date_coverage,
+                       date_created: date_created,
+                       date_modified: date_modified,
+                       date_uploaded: date_uploaded,
+                       description: description,
+                       fundedby: fundedby,
+                       fundedby_other: fundedby_other,
+                       grantnumber: grantnumber,
+                       id: id,
+                       keyword: keyword,
+                       language: language,
+                       methodology: methodology,
+                       prior_identifier: prior_identifier,
+                       referenced_by: referenced_by,
+                       resource_type: resource_type,
+                       rights_license: rights_license,
+                       rights_license_other: rights_license_other,
+                       subject_discipline: subject_discipline,
+                       title: title )
+        else
+          DataSet.new( authoremail: authoremail,
+                       contributor: contributor,
+                       creator: creator,
+                       curation_notes_admin: curation_notes_admin,
+                       curation_notes_user: curation_notes_user,
+                       date_coverage: date_coverage,
+                       date_created: date_created,
+                       date_modified: date_modified,
+                       date_uploaded: date_uploaded,
+                       description: description,
+                       fundedby: fundedby,
+                       fundedby_other: fundedby_other,
+                       grantnumber: grantnumber,
+                       keyword: keyword,
+                       language: language,
+                       methodology: methodology,
+                       prior_identifier: prior_identifier,
+                       referenced_by: referenced_by,
+                       resource_type: resource_type,
+                       rights_license: rights_license,
+                       rights_license_other: rights_license_other,
+                       subject_discipline: subject_discipline,
+                       title: title )
+        end
+      end
+
+      def new_file_set( id: )
+        if id.present?
+          FileSet.new( id: id )
+        else
+          FileSet.new
+        end
+      end
+
       def source
         @source ||= valid_restricted_vocab( @cfg_hash[:user][:source], var: :source, vocab: %w[DBDv1 DBDv2] )
+      end
+
+      def timestamp_now
+        Time.now.to_formatted_s(:db )
+      end
+
+      def update_cc_attribute(curation_concern:, attribute:, value: )
+        curation_concern[attribute] = value
+      end
+
+      def update_collection( collection:,
+                             creator:,
+                             curation_notes_admin:,
+                             curation_notes_user:,
+                             date_created:,
+                             date_modified:,
+                             date_uploaded:,
+                             description:,
+                             keyword:,
+                             language:,
+                             methodology:,
+                             prior_identifier:,
+                             referenced_by:,
+                             resource_type:,
+                             subject_discipline:,
+                             title: )
+
+        # TODO: provenance
+        update_cc_attribute(curation_concern: collection, attribute: :creator, value: creator )
+        update_cc_attribute(curation_concern: collection, attribute: :curation_notes_admin, value: curation_notes_admin )
+        update_cc_attribute(curation_concern: collection, attribute: :curation_notes_user, value: curation_notes_user )
+        update_cc_attribute(curation_concern: collection, attribute: :date_created, value: date_created )
+        update_cc_attribute(curation_concern: collection, attribute: :date_modified, value: date_modified )
+        update_cc_attribute(curation_concern: collection, attribute: :date_uploaded, value: date_uploaded )
+        update_cc_attribute(curation_concern: collection, attribute: :description, value: description )
+        update_cc_attribute(curation_concern: collection, attribute: :keyword, value: keyword )
+        update_cc_attribute(curation_concern: collection, attribute: :language, value: language )
+        update_cc_attribute(curation_concern: collection, attribute: :methodology, value: methodology )
+        update_cc_attribute(curation_concern: collection, attribute: :prior_identifier, value: prior_identifier )
+        update_cc_attribute(curation_concern: collection, attribute: :referenced_by, value: referenced_by )
+        update_cc_attribute(curation_concern: collection, attribute: :resource_type, value: resource_type )
+        update_cc_attribute(curation_concern: collection, attribute: :subject_discipline, value: subject_discipline )
+        update_cc_attribute(curation_concern: collection, attribute: :title, value: title )
+        collection.save!
+        collection.reload
+        return collection
+      end
+
+      def update_work( work:,
+                       authoremail:,
+                       contributor:,
+                       creator:,
+                       curation_notes_admin:,
+                       curation_notes_user:,
+                       date_coverage:,
+                       date_created:,
+                       date_modified:,
+                       date_uploaded:,
+                       description:,
+                       fundedby:,
+                       fundedby_other:,
+                       grantnumber:,
+                       keyword:,
+                       language:,
+                       methodology:,
+                       prior_identifier:,
+                       referenced_by:,
+                       resource_type:,
+                       rights_license:,
+                       rights_license_other:,
+                       subject_discipline:,
+                       title: )
+
+        # TODO: provenance
+        update_cc_attribute(curation_concern: work, attribute: :authoremail, value: authoremail )
+        update_cc_attribute(curation_concern: work, attribute: :contributor, value: contributor )
+        update_cc_attribute(curation_concern: work, attribute: :creator, value: creator )
+        update_cc_attribute(curation_concern: work, attribute: :curation_notes_admin, value: curation_notes_admin )
+        update_cc_attribute(curation_concern: work, attribute: :curation_notes_user, value: curation_notes_user )
+        update_cc_attribute(curation_concern: work, attribute: :date_coverage, value: date_coverage )
+        update_cc_attribute(curation_concern: work, attribute: :date_created, value: date_created )
+        update_cc_attribute(curation_concern: work, attribute: :date_modified, value: date_modified )
+        update_cc_attribute(curation_concern: work, attribute: :date_uploaded, value: date_uploaded )
+        update_cc_attribute(curation_concern: work, attribute: :description, value: description )
+        update_cc_attribute(curation_concern: work, attribute: :fundedby, value: fundedby )
+        update_cc_attribute(curation_concern: work, attribute: :fundedby_other, value: fundedby_other )
+        update_cc_attribute(curation_concern: work, attribute: :grantnumber, value: grantnumber )
+        update_cc_attribute(curation_concern: work, attribute: :keyword, value: keyword )
+        update_cc_attribute(curation_concern: work, attribute: :language, value: language )
+        update_cc_attribute(curation_concern: work, attribute: :methodology, value: methodology )
+        update_cc_attribute(curation_concern: work, attribute: :prior_identifier, value: prior_identifier )
+        update_cc_attribute(curation_concern: work, attribute: :referenced_by, value: referenced_by )
+        update_cc_attribute(curation_concern: work, attribute: :resource_type, value: resource_type )
+        update_cc_attribute(curation_concern: work, attribute: :rights_license, value: rights_license )
+        update_cc_attribute(curation_concern: work, attribute: :rights_license_other, value: rights_license_other )
+        update_cc_attribute(curation_concern: work, attribute: :subject_discipline, value: subject_discipline )
+        update_cc_attribute(curation_concern: work, attribute: :title, value: title )
+        work.save!
+        work.reload
+        return work
+      end
+
+      def update_file_set( file_set:,
+                           curation_notes_admin:,
+                           curation_notes_user:,
+                           date_created:,
+                           date_modified:,
+                           date_uploaded:,
+                           prior_identifier:,
+                           title: )
+
+        # TODO: provenance
+        update_cc_attribute(curation_concern: file_set, attribute: :curation_notes_admin, value: curation_notes_admin )
+        update_cc_attribute(curation_concern: file_set, attribute: :curation_notes_user, value: curation_notes_user )
+        update_cc_attribute(curation_concern: file_set, attribute: :date_created, value: date_created )
+        update_cc_attribute(curation_concern: file_set, attribute: :date_modified, value: date_modified )
+        update_cc_attribute(curation_concern: file_set, attribute: :date_uploaded, value: date_uploaded )
+        update_cc_attribute(curation_concern: file_set, attribute: :prior_identifier, value: prior_identifier )
+        update_cc_attribute(curation_concern: file_set, attribute: :title, value: title )
+        collection.save!
+        collection.reload
+        return collection
+      end
+
+      def update_visibility( curation_concern:, visibility: )
+        return unless visibility_curation_concern visibility
+        curation_concern.visibility = visibility
       end
 
       def user_key
