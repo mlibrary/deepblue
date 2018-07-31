@@ -289,19 +289,27 @@ module Deepblue
                                          ingest_timestamp: ingest_timestamp )
         log_provenance_ingest( curation_concern: file_set )
         if checksum_algorithm.present? && checksum_value.present?
-          # TODO
-          # TODO add provenance logging of checksum
-          # TODO
           checksum = file_set_checksum( file_set: file_set )
           log_msg( "#{mode}: file checksum is nil" ) if checksum.blank?
           if checksum.present? && checksum.algorithm == checksum_algorithm
             if checksum.value == checksum_value
               log_msg( "#{mode}: checksum succeeded: #{checksum_value}" )
+              log_provenance_fixity_check( curation_concern: file_set,
+                                           fixity_check_status: 'success',
+                                           fixity_check_note: '' )
             else
-              log_msg( "#{mode}: WARNING checksum failed: #{checksum.value} vs #{checksum_value}" )
+              msg = "#{checksum.value} vs #{checksum_value}"
+              log_msg( "#{mode}: WARNING checksum failed: #{msg}" )
+              log_provenance_fixity_check( curation_concern: file_set,
+                                           fixity_check_status: 'failed',
+                                           fixity_check_note: msg )
             end
           else
-            log_msg( "#{mode}: incompatible checksum algorithms: #{checksum.algorithm} vs #{checksum_algorithm}" )
+            msg = "incompatible checksum algorithms: #{checksum.algorithm} vs #{checksum_algorithm}"
+            log_msg( "#{mode}: #{msg}" )
+            log_provenance_fixity_check( curation_concern: file_set,
+                                         fixity_check_status: 'failed',
+                                         fixity_check_note: msg )
           end
         end
         log_msg( "#{mode}: finished: #{path}" )
@@ -667,12 +675,19 @@ module Deepblue
       end
 
       def log_provenance_add_child( parent:, child: )
-        return unless parent.respond_to? :provenance_ingest
+        return unless parent.respond_to? :provenance_child_add
         parent.provenance_child_add( current_user: user,
                                      child_id: child.id,
                                      ingest_id: ingest_id,
                                      ingester: ingester,
                                      ingest_timestamp: ingest_timestamp )
+      end
+
+      def log_provenance_fixity_check( curation_concern:, fixity_check_status:, fixity_check_note: )
+        return unless curation_concern.respond_to? :provenance_fixity_check
+        curation_concern.provenance_fixity_check( current_user: user,
+                                                  fixity_check_status: fixity_check_status,
+                                                  fixity_check_note: fixity_check_note )
       end
 
       def log_provenance_ingest( curation_concern: )
