@@ -160,7 +160,7 @@ module Deepblue
         report_item( out, "Contact: ", generic_work.authoremail )
         report_item( out, "Discipline: ", generic_work.subject_discipline, one_line: false, item_prefix: "\t" )
         report_item( out, "Funded by: ", generic_work.fundedby )
-        report_item( out, "Funded by Other: ", generic_work.fundedby_other )
+        report_item( out, "Funded by Other: ", generic_work.fundedby_other ) if report_source == SOURCE_DBDv2
         report_item( out, "ORSP Grant Number: ", generic_work.grantnumber )
         report_item( out, "Keyword: ", generic_work.keyword, one_line: false, item_prefix: "\t" )
         report_item( out, "Date coverage: ", generic_work.date_coverage )
@@ -171,7 +171,7 @@ module Deepblue
         report_item( out, "DOI: ", generic_work.doi, optional: true )
         report_item( out, "Visibility: ", generic_work.visibility )
         report_item( out, "Rights: ", generic_work.rights_license )
-        report_item( out, "Rights (other): ", generic_work.rights_license_other )
+        report_item( out, "Rights (other): ", generic_work.rights_license_other ) if report_source == SOURCE_DBDv2
         report_item( out, "Admin set id: ", generic_work.admin_set_id )
         report_item( out, "Tombstone: ", generic_work.tombstone, optional: true )
         if generic_work.file_sets.count.positive?
@@ -229,14 +229,20 @@ module Deepblue
       end
     end
 
+    def self.report_source
+      SOURCE_DBDv2
+    end
+
     def self.report_title( curation_concern, field_sep: FIELD_SEP )
       curation_concern.title.join( field_sep )
     end
 
     def self.yaml_body_collections( out, indent:, curation_concern:, source: )
       yaml_item( out, indent, ":id:", curation_concern.id )
-      yaml_item( out, indent, ":collection_type:", curation_concern.collection_type.machine_id, escape: true )
-      yaml_item( out, indent, ":collection_type_gid:", curation_concern.collection_type_gid, escape: true )
+      if source == SOURCE_DBDv2
+        yaml_item( out, indent, ":collection_type:", curation_concern.collection_type.machine_id, escape: true )
+        yaml_item( out, indent, ":collection_type_gid:", curation_concern.collection_type_gid, escape: true )
+      end
       yaml_item( out, indent, ":creator:", curation_concern.creator, escape: true )
       yaml_item( out, indent, ":date_created:", curation_concern.date_created )
       yaml_item( out, indent, ":date_modified:", curation_concern.date_modified )
@@ -309,8 +315,8 @@ module Deepblue
       yaml_item( out, indent, ":admin_set_id:", curation_concern.admin_set_id, escape: true )
       yaml_item( out, indent, ":authoremail:", curation_concern.authoremail )
       yaml_item( out, indent, ":creator:", curation_concern.creator, escape: true )
-      yaml_item( out, indent, ":curation_notes_admin:", curation_concern.curation_notes_admin, escape: true )
-      yaml_item( out, indent, ":curation_notes_user:", curation_concern.curation_notes_user, escape: true )
+      yaml_item( out, indent, ":curation_notes_admin:", curation_concern.curation_notes_admin, escape: true ) if source == SOURCE_DBDv2
+      yaml_item( out, indent, ":curation_notes_user:", curation_concern.curation_notes_user, escape: true ) if source == SOURCE_DBDv2
       yaml_item( out, indent, ":date_coverage:", curation_concern.date_coverage, single_value: true )
       yaml_item( out, indent, ":date_created:", curation_concern.date_created )
       yaml_item( out, indent, ":date_modified:", curation_concern.date_modified )
@@ -320,15 +326,15 @@ module Deepblue
       yaml_item( out, indent, ":doi:", curation_concern.doi, escape: true )
       yaml_item( out, indent, ":edit_users:", curation_concern.edit_users, escape: true )
       yaml_item( out, indent, ":fundedby:", curation_concern.fundedby, single_value: true, escape: true )
-      yaml_item( out, indent, ":fundedby_other:", curation_concern.fundedby_other, single_value: true, escape: true )
+      yaml_item( out, indent, ":fundedby_other:", curation_concern.fundedby_other, single_value: true, escape: true ) if source == SOURCE_DBDv2
       yaml_item( out, indent, ":grantnumber:", curation_concern.grantnumber, escape: true )
       yaml_item_referenced_by( out, indent, curation_concern: curation_concern, source: source )
       yaml_item( out, indent, ':keyword:', curation_concern.keyword, escape: true )
       yaml_item( out, indent, ":language:", curation_concern.language, escape: true )
       yaml_item( out, indent, ":methodology:", curation_concern.methodology, escape: true )
       yaml_item_prior_identifier( out, indent, curation_concern: curation_concern, source: source )
-      yaml_item( out, indent, ":rights_license: ", curation_concern.rights_license, escape: true )
-      yaml_item( out, indent, ":rights_license_other: ", curation_concern.rights_license_other, escape: true )
+      yaml_item_rights( out, indent, curation_concern: curation_concern, source: source )
+      yaml_item( out, indent, ":rights_license_other: ", curation_concern.rights_license_other, escape: true ) if source == SOURCE_DBDv2
       yaml_item_subject( out, indent, curation_concern: curation_concern, source: source )
       yaml_item( out, indent, ':title:', curation_concern.title, escape: true )
       yaml_item( out, indent, ":tombstone:", curation_concern.tombstone, single_value: true )
@@ -417,11 +423,6 @@ module Deepblue
       end
     end
 
-    def self.yaml_line( out, indent, label, value = '', comment: false, label_postfix: ' ', escape: false )
-      indent = "# #{indent}" if comment
-      out.puts "#{indent}#{label}#{label_postfix}#{yaml_escape_value( value, comment: comment, escape: escape )}"
-    end
-
     def self.yaml_item_prior_identifier( out, indent, curation_concern:, source: )
       if source == SOURCE_DBDv1
         yaml_item( out, indent, ":prior_identifier:", '' )
@@ -442,12 +443,25 @@ module Deepblue
       end
     end
 
+    def self.yaml_item_rights( out, indent, curation_concern:, source: )
+      if source == SOURCE_DBDv1
+        yaml_item( out, indent, ":rights:", curation_concern.rights, escape: true )
+      else
+        yaml_item( out, indent, ":rights_license:", curation_concern.rights_license, escape: true )
+      end
+    end
+
     def self.yaml_item_subject( out, indent, curation_concern:, source: )
       if source == SOURCE_DBDv1
         yaml_item( out, indent, ":subject:", curation_concern.subject, escape: true )
       else
         yaml_item( out, indent, ":subject_discipline:", curation_concern.subject_discipline, escape: true )
       end
+    end
+
+    def self.yaml_line( out, indent, label, value = '', comment: false, label_postfix: ' ', escape: false )
+      indent = "# #{indent}" if comment
+      out.puts "#{indent}#{label}#{label_postfix}#{yaml_escape_value( value, comment: comment, escape: escape )}"
     end
 
     def self.yaml_populate_collection( collection:,

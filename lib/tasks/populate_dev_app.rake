@@ -6,48 +6,92 @@ require_relative '../append_content_service'
 
 namespace :umrdr do
 
-  # bundle exec rake umrdr::populate[/deepbluedata_prep/w_9019s2443_populate]
-  desc "Populate app with users,collections,works,files."
+  # See: Rake::TaskArguments for args class
   # See: https://stackoverflow.com/questions/825748/how-to-pass-command-line-arguments-to-a-rake-task
-  task :populate, [:path_to_yaml_file] => :environment do |_t, args|
-    ENV["RAILS_ENV"] ||= "development"
-    # See: Rake::TaskArguments for args class
-    puts "args=#{args}"
-    # puts "args=#{JSON.pretty_print args.to_hash.as_json}"
-    args.one? ? content_build( path_to_yaml_file: args[:path_to_yaml_file], args: args ) : content_demo
-    puts "Done."
-  end
 
   # bundle exec rake umrdr::append[/deepbluedata_prep/w_9019s2443_populate]
+  # bundle exec rake umrdr::append[/deepbluedata_prep/w_9019s2443_populate,ingester@umich.edu]
   desc "Append files to existing collections."
-  task :append, [:path_to_yaml_file] => :environment do |_t, args|
+  task :append, %i[ path_to_yaml_file ingester ] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"
-    args.one? ? content_append( path_to_yaml_file: args[:path_to_yaml_file], args: args ) : content_demo
+    args.with_defaults( ingester: '' )
+    content_append( path_to_yaml_file: args[:path_to_yaml_file], ingester: args[:ingester], args: args )
+    puts "Done."
+  end
+
+  # bundle exec rake umrdr::build[/deepbluedata_prep/w_9019s2443_populate]
+  # bundle exec rake umrdr::build[/deepbluedata_prep/w_9019s2443_populate,ingester@umich.edu]
+  desc "Build app with  collections, works, and files."
+  task :build, %i[ path_to_yaml_file ingester ] => :environment do |_t, args|
+    ENV["RAILS_ENV"] ||= "development"
+    args.with_defaults( ingester: '' )
+    content_build( path_to_yaml_file: args[:path_to_yaml_file], ingester: args[:ingester], args: args )
+    puts "Done."
+  end
+
+  # bundle exec rake umrdr::demo_content
+  desc "Set up demo content"
+  task demo_content: :environment do |_t, _args|
+    ENV["RAILS_ENV"] ||= "development"
+    demo_content
+    puts "Done."
+  end
+
+  # bundle exec rake umrdr::migrate[/deepbluedata_prep/w_9019s2443_populate]
+  # bundle exec rake umrdr::migrate[/deepbluedata_prep/w_9019s2443_populate,ingester@umich.edu]
+  desc "Migrate collections and works."
+  task :migrate, %i[ path_to_yaml_file ingester ] => :environment do |_t, args|
+    ENV["RAILS_ENV"] ||= "development"
+    args.with_defaults( ingester: '' )
+    content_migrate( path_to_yaml_file: args[:path_to_yaml_file], ingester: args[:ingester], args: args )
+    puts "Done."
+  end
+
+  # bundle exec rake umrdr::populate[/deepbluedata_prep/w_9019s2443_populate]
+  # bundle exec rake umrdr::populate[/deepbluedata_prep/w_9019s2443_populate,ingester@umich.edu]
+  desc "Populate (mode determined by input file) app with collections, works, and files."
+  task :populate, %i[ path_to_yaml_file ingester ] => :environment do |_t, args|
+    ENV["RAILS_ENV"] ||= "development"
+    # See: Rake::TaskArguments for args class
+    # puts "args=#{args}"
+    # puts "args=#{JSON.pretty_print args.to_hash.as_json}"
+    args.with_defaults( ingester: '' )
+    content_populate( path_to_yaml_file: args[:path_to_yaml_file], ingester: args[:ingester], args: args )
     puts "Done."
   end
 
 end
 
-def content_append( path_to_yaml_file:, args: )
+def content_append( path_to_yaml_file:, ingester: nil, args: )
   return unless valid_path_to_yaml_file? path_to_yaml_file
-  AppendContentService.call( path_to_yaml_file: path_to_yaml_file, args: args )
+  AppendContentService.call( path_to_yaml_file: path_to_yaml_file,
+                             ingester: ingester,
+                             mode: Deepblue::NewContentService::MODE_APPEND,
+                             args: args )
 end
 
-def content_build( path_to_yaml_file:, args: )
+def content_build( path_to_yaml_file:, ingester: nil, args: )
   return unless valid_path_to_yaml_file? path_to_yaml_file
-  BuildContentService.call( path_to_yaml_file: path_to_yaml_file, args: args )
+  BuildContentService.call( path_to_yaml_file: path_to_yaml_file,
+                            ingester: ingester,
+                            mode: Deepblue::NewContentService::MODE_BUILD,
+                            args: args )
 end
 
-def content_demo
-  # Create user if user doesn't already exist
-  email = 'demouser@example.com'
-  user = User.find_by( email: email ) || create_user( email: email )
-  puts "user: #{user.user_key}"
+def content_migrate( path_to_yaml_file:, ingester: nil, args: )
+  return unless valid_path_to_yaml_file? path_to_yaml_file
+  BuildContentService.call( path_to_yaml_file: path_to_yaml_file,
+                            ingester: ingester,
+                            mode: Deepblue::NewContentService::MODE_MIGRATE,
+                            args: args )
+end
 
-  # Create work and attribute to user if they don't already have at least one.
-  return unless DataSet.where( Solrizer.solr_name('depositor', :symbol) => user.user_key ).count < 1
-  create_demo_work( user: user )
-  puts "demo work created."
+def content_populate( path_to_yaml_file:, ingester: nil, args: )
+  return unless valid_path_to_yaml_file? path_to_yaml_file
+  # mode determined in yaml file, defaulting to append mode
+  BuildContentService.call( path_to_yaml_file: path_to_yaml_file,
+                            ingester: ingester,
+                            args: args )
 end
 
 def create_user( email: 'demouser@example.com' )
@@ -61,6 +105,18 @@ def create_demo_work( user: )
   gw.apply_depositor_metadata(user.user_key)
   gw.visibility = "open"
   gw.save
+end
+
+def demo_content
+  # Create user if user doesn't already exist
+  email = 'demouser@example.com'
+  user = User.find_by( email: email ) || create_user( email: email )
+  puts "user: #{user.user_key}"
+
+  # Create work and attribute to user if they don't already have at least one.
+  return unless DataSet.where( Solrizer.solr_name('depositor', :symbol) => user.user_key ).count < 1
+  create_demo_work( user: user )
+  puts "demo work created."
 end
 
 def valid_path_to_yaml_file?( path_to_yaml_file )
