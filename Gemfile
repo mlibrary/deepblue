@@ -43,8 +43,11 @@ gem 'jbuilder', '~> 2.5'
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
-# will load new rubyzip version
-gem 'rubyzip', '>=1.2.1'
+# Begin security vulnerability mitigation
+gem 'rubyzip', '>= 1.2.1'
+gem 'sinatra', '~> 2.0.2'
+gem 'sprockets', '~> 3.7.2'
+# End security vulnerability mitigation
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
