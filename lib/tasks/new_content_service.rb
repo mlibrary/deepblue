@@ -7,6 +7,10 @@ Hydra::FileCharacterization::Characterizers::Fits.tool_path = `which fits || whi
 
 module Deepblue
 
+  # see: http://ruby-doc.org/stdlib-2.0.0/libdoc/benchmark/rdoc/Benchmark.html
+  require 'benchmark'
+  include Benchmark
+
   class NewContentService
 
     SOURCE_DBDv1 = 'DBDv1' # rubocop:disable Style/ConstantName
@@ -31,7 +35,7 @@ module Deepblue
     class WorkNotFoundError < RuntimeError
     end
 
-    attr_reader :base_path, :cfg_hash, :config, :ingest_id, :ingester, :ingest_timestamp, :mode, :path_to_yaml_file, :user
+    attr_reader :base_path, :cfg_hash, :config, :ingest_id, :ingest_timestamp, :ingester, :mode, :path_to_yaml_file, :user
 
     def initialize( path_to_yaml_file:, cfg_hash:, base_path:, args: )
       initialize_with_msg( args: args,
@@ -102,6 +106,10 @@ module Deepblue
         work.save!
         work.reload
         return work
+      end
+
+      def add_measurement( measurement )
+        measurements << measurement
       end
 
       def add_works_to_collection( collection_hash:, collection: )
@@ -198,7 +206,17 @@ module Deepblue
 
       def build_collections
         return unless collections
-        collections.each { |collection_hash| build_or_find_collection( collection_hash: collection_hash ) }
+        collections.each do |collection_hash|
+          collection_id = 'nil'
+          collection = nil
+          measurement = Benchmark.measure do
+            collection = build_or_find_collection( collection_hash: collection_hash )
+            collection_id = collection.id if collection.present?
+          end
+          next if collection.blank?
+          measurement.instance_variable_set( :@label, collection_id )
+          add_measurement measurement
+        end
       end
 
       def build_date( hash:, key: )
@@ -474,8 +492,16 @@ module Deepblue
       def build_works
         return unless works
         works.each do |work_hash|
-          work = build_or_find_work( work_hash: work_hash, parent: nil )
-          log_object work if work.present?
+          work = nil
+          work_id = 'nil'
+          measurement = Benchmark.measure do
+            work = build_or_find_work( work_hash: work_hash, parent: nil )
+            work_id = work.id if work.present?
+            log_object work if work.present?
+          end
+          next if work.blank?
+          measurement.instance_variable_set( :@label, work_id )
+          add_measurement measurement
         end
       end
 
@@ -611,12 +637,15 @@ module Deepblue
         return unless works
         works.each do |work_hash|
           work = find_work( work_hash: work_hash )
-          add_file_sets_to_work( work_hash: work_hash, work: work )
-          work.apply_depositor_metadata( user_key )
-          work.owner = user_key
-          work.visibility = visibility_from_hash( hash: work_hash )
-          work.save!
-          log_object work
+          measurement = Benchmark.measure( work.id ) do
+            add_file_sets_to_work( work_hash: work_hash, work: work )
+            work.apply_depositor_metadata( user_key )
+            work.owner = user_key
+            work.visibility = visibility_from_hash( hash: work_hash )
+            work.save!
+            log_object work
+          end
+          add_measurement measurement
         end
       end
 
@@ -633,6 +662,8 @@ module Deepblue
                                path_to_yaml_file:,
                                cfg_hash:,
                                base_path:,
+                               mode: nil,
+                               ingester: nil,
                                msg: "NEW CONTENT SERVICE AT YOUR ... SERVICE",
                                **config )
 
@@ -656,6 +687,8 @@ module Deepblue
         @base_path = base_path
         @ingest_id = File.basename path_to_yaml_file
         @ingest_timestamp = DateTime.now
+        @mode = mode if mode.present?
+        @ingester = ingester if ingester.present?
         logger.info msg if msg.present?
       end
       # rubocop:enable Rails/Output
@@ -712,6 +745,10 @@ module Deepblue
       def logger_level
         rv = cfg_hash_value( key: :logger_level, default_value: 'info' )
         return rv
+      end
+
+      def measurements
+        @measurements ||= []
       end
 
       def mode
@@ -851,6 +888,51 @@ module Deepblue
         else
           FileSet.new
         end
+      end
+
+      def report( first_label:, first_id:, measurements:, total: nil )
+        label = first_label
+        label += ' ' * (first_id.size - label.size)
+        log_msg "#{label} #{Benchmark::CAPTION.chop}"
+        format = Benchmark::FORMAT.chop
+        measurements.each do |measurement|
+          label = measurement.label
+          log_msg measurement.format( "#{label} #{format} is #{seconds_to_readable(measurement.real)}" )
+        end
+        return if total.blank?
+        label = 'total'
+        label += ' ' * (first_id.size - label.size)
+        log_msg total.format( "#{label} #{format} is #{seconds_to_readable(total.real)}" )
+      end
+
+      def report_measurements( first_label: )
+        return if measurements.blank?
+        puts
+        log_msg "Report run time:"
+        m1 = measurements[0]
+        first_id = m1.label
+        total = nil
+        measurements.each do |measurement|
+          if total.nil?
+            total = measurement
+          else
+            total += measurement
+          end
+        end
+        report( first_label: first_label, first_id: first_id, measurements: measurements, total: total )
+      end
+
+      def seconds_to_readable( seconds )
+        h, min, s, _fr = split_seconds( seconds )
+        return "#{h} hours, #{min} minutes, and #{s} seconds"
+      end
+
+      def split_seconds( fr )
+        # ss,  fr = fr.divmod(86_400) # 4p
+        ss = ( fr + 0.5 ).to_int
+        h,   ss = ss.divmod(3600)
+        min, s  = ss.divmod(60)
+        return h, min, s, fr
       end
 
       def source
