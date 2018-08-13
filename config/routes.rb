@@ -17,6 +17,15 @@ Rails.application.routes.draw do
   curation_concerns_basic_routes
   concern :exportable, Blacklight::Routes::Exportable.new
 
+  # Permissions routes
+  namespace :hyrax, path: :concern do
+  resources :permissions, only: [] do
+      member do
+        get :copy_access
+      end
+    end
+  end
+
   resources :solr_documents, only: [:show], path: '/catalog', controller: 'catalog' do
     concerns :exportable
   end
