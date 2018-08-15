@@ -46,6 +46,16 @@ form#new_collection,
     font-size: .85em;
 }
 
+ /* To support [more...] and [less...] */
+  a.morelink {
+     text-decoration:none;
+     outline: none;
+ }
+ .morecontent span {
+     display: none;
+ }
+ /* End [more...] and [less...] */
+
 .multi_value .field-controls .btn.add.btn-add-another::before {
     content: " + "
 }
