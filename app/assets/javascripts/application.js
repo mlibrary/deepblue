@@ -24,3 +24,4 @@
 //= require hyrax
 
 //= require date_coverage_field
+//= require more 
