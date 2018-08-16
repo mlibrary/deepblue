@@ -7,7 +7,11 @@
   <%= form_tag main_app.hyrax_workflow_action_path(presenter), method: :put do %>
     <div id="workflow_controls_collapse" class="panel-body panel-collapse collapse">
       <div class="col-sm-3 workflow-actions">
-        <h3>Work is under Review</h3>
+        <% if @presenter.workflow.state == "deposited" %>
+          <h3>Work has been Approved and Deposited</h3>
+        <% else %>
+          <h3>Work is under Review</h3>
+        <% end %>
       </div>
       <div class="col-sm-9 workflow-comments">
         <h4>Previous Comments</h4>
