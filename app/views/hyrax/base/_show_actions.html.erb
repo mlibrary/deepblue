@@ -11,7 +11,7 @@
     <% end %>
 
     <% if Hyrax.config.download_files %>
-      <% if @presenter.zip_download_enabled? %>
+      <% if @presenter.zip_download_enabled? && @presenter.solr_document.visibility != "embargo" %>
         <%= form_tag( main_app.zip_download_hyrax_data_set_path( @presenter.id ), method: 'post' ) do %>
           <%= hidden_field_tag('data_set[nop]') %>
           <% if DeepBlueDocs::Application.config.max_work_file_size_to_download < @presenter.total_file_size %>
@@ -29,7 +29,7 @@
           <% end %>
         <% end %>
       <% end %>
-      <% if @presenter.respond_to?( 'globus_enabled?' ) && @presenter.globus_enabled? %>
+      <% if @presenter.respond_to?( 'globus_enabled?' ) && @presenter.globus_enabled? && @presenter.solr_document.visibility != "embargo" %>
         <%= form_tag( main_app.globus_download_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
           <%= hidden_field_tag('data_set[nop]') %>
            <% if @presenter.globus_files_available? %>
