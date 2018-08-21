@@ -7,7 +7,7 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
       expect( Deepblue::ProvenanceHelper::TIMESTAMP_FORMAT ).to eq '\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d'
       expect( Deepblue::ProvenanceHelper::RE_TIMESTAMP_FORMAT.source ).to eq '^\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d$'
       expect( Deepblue::ProvenanceHelper::RE_LOG_LINE.source ).to \
-        eq '^(\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d) ([^/]+)/([^/]*)/([^/]+)/([^/ ]+) (.*)$'
+        eq '^(\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d) ([^/]+)/([^/]*)/([^/]+)/([^/ ]*) (.*)$'
       expect( Deepblue::ProvenanceHelper::PREFIX_UPDATE_ATTRIBUTE ).to eq 'UpdateAttribute_'
     end
   end

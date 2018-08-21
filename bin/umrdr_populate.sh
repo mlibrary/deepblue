@@ -26,7 +26,7 @@ for arg in "$@"; do
   log_file="${base_dir}${base_file}.out"
   ts=$(date "+%Y%m%d%H%M%S")
   if [ -f $log_file ]; then
-    backup_log_file="${base_dir}/${base_file}/${ts}_${base_file}.out"
+    backup_log_file="${base_dir}${base_file}/${ts}_${base_file}.out"
     echo "Log File: '${log_file}' exists, move it to backup ${backup_log_file}"
     mv ${log_file} ${backup_log_file}
   else

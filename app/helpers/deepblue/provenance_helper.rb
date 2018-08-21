@@ -9,7 +9,8 @@ module Deepblue
 
     TIMESTAMP_FORMAT = '\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d'
     RE_TIMESTAMP_FORMAT = Regexp.compile "^#{TIMESTAMP_FORMAT}$"
-    RE_LOG_LINE = Regexp.compile "^(#{TIMESTAMP_FORMAT}) ([^/]+)/([^/]*)/([^/]+)/([^/ ]+) (.*)$"
+    # Format: Date Timestamp Event/Event_detail_possibly_empty/ClassName/ID_possibly_empty Rest_in_form_of_JSON_hash
+    RE_LOG_LINE = Regexp.compile "^(#{TIMESTAMP_FORMAT}) ([^/]+)/([^/]*)/([^/]+)/([^/ ]*) (.*)$"
     PREFIX_UPDATE_ATTRIBUTE = 'UpdateAttribute_'
 
     # rubocop:disable Style/ClassVars
@@ -107,18 +108,26 @@ module Deepblue
       PROV_LOGGER.info( msg )
     end
 
-    def self.parse_log_line( line )
+    def self.parse_log_line( line, line_number: nil, raw_key_values: false )
       # line is of the form: "timestamp event/event_note/class_name/id key_values"
       match = RE_LOG_LINE.match line
-      raise LogParseError, "parse of log line failed: '#{line}'" unless match
+      unless match
+        msg = "parse of log line failed: '#{line}'" if line_number.blank?
+        msg = "parse of log line failed at line #{line_number}: '#{line}'" if line_number.present?
+        raise LogParseError, msg
+      end
       timestamp = match[1]
       event = match[2]
       event_note = match[3]
       class_name = match[4]
       id = match[5]
       key_values = match[6]
-      key_values = ActiveSupport::JSON.decode key_values
+      key_values = parse_log_line_key_values key_values unless raw_key_values
       return timestamp, event, event_note, class_name, id, key_values
+    end
+
+    def self.parse_log_line_key_values( key_values )
+      ActiveSupport::JSON.decode key_values
     end
 
     def self.prov_encode( value:, json_encode: true )
