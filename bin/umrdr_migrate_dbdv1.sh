@@ -4,7 +4,7 @@
 # ./bin/umrdr_migrate.sh c_00000021r w_12345678 ...
 # nohup ./bin/umrdr_migrate.sh c_00000021r w_12345678 2>&1 > ./log/20180811.umrdr_migrate.sh.out &
 
-base_dir="/deepbluedata-prep/"
+base_dir="/deepbluedata-prep/DBDv1/"
 task="umrdr:migrate"
 prefix=""
 postfix="_populate"

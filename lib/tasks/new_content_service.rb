@@ -13,12 +13,13 @@ module Deepblue
 
   class NewContentService
 
-    SOURCE_DBDv1 = 'DBDv1' # rubocop:disable Style/ConstantName
-    SOURCE_DBDv2 = 'DBDv2' # rubocop:disable Style/ConstantName
+    DEFAULT_USER_CREATE = true
     MODE_APPEND = 'append'
     MODE_BUILD = 'build'
     MODE_MIGRATE = 'migrate'
     MODE_UPDATE = 'update' # TODO
+    SOURCE_DBDv1 = 'DBDv1' # rubocop:disable Style/ConstantName
+    SOURCE_DBDv2 = 'DBDv2' # rubocop:disable Style/ConstantName
 
     class RestrictedVocabularyError < RuntimeError
     end
@@ -35,7 +36,16 @@ module Deepblue
     class WorkNotFoundError < RuntimeError
     end
 
-    attr_reader :base_path, :cfg_hash, :config, :ingest_id, :ingest_timestamp, :ingester, :mode, :path_to_yaml_file, :user
+    attr_reader :base_path,
+                :cfg_hash,
+                :config,
+                :ingest_id,
+                :ingest_timestamp,
+                :ingester,
+                :mode,
+                :path_to_yaml_file,
+                :user,
+                :user_create
 
     def initialize( path_to_yaml_file:, cfg_hash:, base_path:, args: )
       initialize_with_msg( args: args,
@@ -154,20 +164,22 @@ module Deepblue
           log_msg( "#{mode}: found collection with id: #{id} title: #{collection.title.first}" ) if collection.present?
           return collection if collection.present?
         end
-        title = Array( collection_hash[:title] )
         creator = Array( collection_hash[:creator] )
         curation_notes_admin = Array( collection_hash[:curation_notes_admin] )
         curation_notes_user = Array( collection_hash[:curation_notes_user] )
-        description = Array( collection_hash[:description] )
-        prior_identifier = build_prior_identifier( hash: collection_hash, id: id )
-        subject_discipline = build_subject_discipline( hash: collection_hash )
-        date_uploaded = build_date( hash: collection_hash, key: :date_uploaded )
-        date_modified = build_date( hash: collection_hash, key: :date_modified )
         date_created = build_date( hash: collection_hash, key: :date_created )
-        resource_type = Array( collection_hash[:resource_type] || 'Collection' )
-        language = Array( collection_hash[:language] )
+        date_modified = build_date( hash: collection_hash, key: :date_modified )
+        date_uploaded = build_date( hash: collection_hash, key: :date_uploaded )
+        description = Array( collection_hash[:description] )
+        edit_users = Array( collection_hash[:edit_users] )
         keyword = Array( collection_hash[:keyword] )
+        language = Array( collection_hash[:language] )
+        prior_identifier = build_prior_identifier( hash: collection_hash, id: id )
         referenced_by = build_referenced_by( hash: collection_hash )
+        resource_type = Array( collection_hash[:resource_type] || 'Collection' )
+        subject_discipline = build_subject_discipline( hash: collection_hash )
+        title = Array( collection_hash[:title] )
+        # user_create_users( emails: depositor )
         id_new = MODE_MIGRATE == mode ? id : nil
         collection = new_collection( creator: creator,
                                      curation_notes_admin: curation_notes_admin,
@@ -186,6 +198,7 @@ module Deepblue
                                      title: title )
         collection.collection_type = build_collection_type( hash: collection_hash )
         collection.apply_depositor_metadata( user_key )
+        update_edit_users( curation_concern: collection, edit_users: edit_users )
         collection.visibility = visibility_from_hash( hash: collection_hash )
         collection.save!
         collection.reload
@@ -194,7 +207,7 @@ module Deepblue
       end
 
       def build_collection_type( hash: )
-        return Hyrax::CollectionType.find_or_create_default_collection_type if 'DBDv1' == source
+        return Hyrax::CollectionType.find_or_create_default_collection_type if SOURCE_DBDv1 == source
         collection_type = hash[:collection_type]
         collection_type = Hyrax::CollectionType.find_by( machine_id: collection_type ) if collection_type.present?
         return collection_type if collection_type.present?
@@ -206,6 +219,7 @@ module Deepblue
 
       def build_collections
         return unless collections
+        user_create_users( emails: user_key )
         collections.each do |collection_hash|
           collection_id = 'nil'
           collection = nil
@@ -256,26 +270,28 @@ module Deepblue
         original_name = file_set_hash[:original_name]
         file_set = build_file_set_new( id: id, path: path, original_name: original_name )
 
-        title = Array( file_set_hash[:title] )
-        label = file_set_hash[:label]
         curation_notes_admin = Array( file_set_hash[:curation_notes_admin] )
         curation_notes_user = Array( file_set_hash[:curation_notes_user] )
         checksum_algorithm = file_set_hash[:checksum_algorithm]
         checksum_value = file_set_hash[:checksum_value]
-        date_uploaded = build_date( hash: file_set_hash, key: :date_uploaded )
-        date_modified = build_date( hash: file_set_hash, key: :date_modified )
         date_created = Array( build_date( hash: file_set_hash, key: :date_created ) )
+        date_modified = build_date( hash: file_set_hash, key: :date_modified )
+        date_uploaded = build_date( hash: file_set_hash, key: :date_uploaded )
+        edit_users = Array( file_set_hash[:edit_users] )
+        label = file_set_hash[:label]
         prior_identifier = build_prior_identifier( hash: file_set_hash, id: id )
+        title = Array( file_set_hash[:title] )
         visibility = visibility_from_hash( hash: file_set_hash )
 
-        update_cc_attribute(curation_concern: file_set, attribute: :title, value: title )
-        update_cc_attribute(curation_concern: file_set, attribute: :curation_notes_admin, value: curation_notes_admin )
-        update_cc_attribute(curation_concern: file_set, attribute: :curation_notes_user, value: curation_notes_user )
+        update_cc_attribute( curation_concern: file_set, attribute: :title, value: title )
+        update_cc_attribute( curation_concern: file_set, attribute: :curation_notes_admin, value: curation_notes_admin )
+        update_cc_attribute( curation_concern: file_set, attribute: :curation_notes_user, value: curation_notes_user )
         file_set.label = label
         file_set.date_uploaded = date_uploaded
         file_set.date_modified = date_modified
         file_set.date_created = date_created
-        update_cc_attribute(curation_concern: file_set, attribute: :prior_identifier, value: prior_identifier )
+        update_cc_attribute( curation_concern: file_set, attribute: :prior_identifier, value: prior_identifier )
+        update_edit_users( curation_concern: file_set, edit_users: edit_users )
         update_visibility( curation_concern: file_set, visibility: visibility )
         file_set.save!
 
@@ -375,7 +391,7 @@ module Deepblue
       end
 
       def build_prior_identifier( hash:, id: )
-        if 'DBDv1' == source
+        if SOURCE_DBDv1 == source
           if MODE_MIGRATE == mode
             []
           else
@@ -389,7 +405,7 @@ module Deepblue
       end
 
       def build_referenced_by( hash: )
-        if 'DBDv1' == source
+        if SOURCE_DBDv1 == source
           Array( hash[:isReferencedBy] )
         else
           hash[:referenced_by]
@@ -397,7 +413,7 @@ module Deepblue
       end
 
       def build_rights_liscense( hash: )
-        rv = if 'DBDv1' == source
+        rv = if SOURCE_DBDv1 == source
                hash[:rights]
              else
                hash[:rights_license]
@@ -411,7 +427,7 @@ module Deepblue
       end
 
       def build_subject_discipline( hash: )
-        if 'DBDv1' == source
+        if SOURCE_DBDv1 == source
           Array( hash[:subject] )
         else
           Array( hash[:subject_discipline] )
@@ -429,30 +445,32 @@ module Deepblue
           log_msg( "#{mode}: found work with id: #{id} title: #{work.title.first}" ) if work.present?
           return work if work.present?
         end
-        title = Array( work_hash[:title] )
+        authoremail = work_hash[:authoremail]
+        contributor = Array( work_hash[:contributor] )
         creator = Array( work_hash[:creator] )
         curation_notes_admin = Array( work_hash[:curation_notes_admin] )
         curation_notes_user = Array( work_hash[:curation_notes_user] )
-        authoremail = work_hash[:authoremail]
-        rights_license = build_rights_liscense( hash: work_hash )
-        rights_license_other = work_hash[:rights_license_other]
-        description = Array( work_hash[:description] )
-        methodology = work_hash[:methodology] || "No Methodology Available"
-        prior_identifier = build_prior_identifier( hash: work_hash, id: id )
-        subject_discipline = build_subject_discipline( hash: work_hash )
-        contributor = Array( work_hash[:contributor] )
-        date_uploaded = build_date( hash: work_hash, key: :date_uploaded )
-        date_modified = build_date( hash: work_hash, key: :date_modified )
-        date_created = build_date( hash: work_hash, key: :date_created )
         date_coverage = work_hash[:date_coverage]
-        resource_type = Array( work_hash[:resource_type] || 'Dataset' )
-        language = Array( work_hash[:language] )
-        keyword = Array( work_hash[:keyword] )
-        referenced_by = build_referenced_by( hash: work_hash )
+        date_created = build_date( hash: work_hash, key: :date_created )
+        date_modified = build_date( hash: work_hash, key: :date_modified )
+        date_uploaded = build_date( hash: work_hash, key: :date_uploaded )
+        description = Array( work_hash[:description] )
+        edit_users = Array( work_hash[:edit_users] )
         fundedby = build_fundedby( hash: work_hash )
         fundedby_other = work_hash[:fundedby_other]
         grantnumber = work_hash[:grantnumber]
+        language = Array( work_hash[:language] )
+        keyword = Array( work_hash[:keyword] )
+        methodology = work_hash[:methodology] || "No Methodology Available"
+        prior_identifier = build_prior_identifier( hash: work_hash, id: id )
+        referenced_by = build_referenced_by( hash: work_hash )
+        resource_type = Array( work_hash[:resource_type] || 'Dataset' )
+        rights_license = build_rights_liscense( hash: work_hash )
+        rights_license_other = work_hash[:rights_license_other]
+        subject_discipline = build_subject_discipline( hash: work_hash )
+        title = Array( work_hash[:title] )
         id_new = MODE_MIGRATE == mode ? id : nil
+        user_create_users( emails: authoremail )
         work = new_data_set( authoremail: authoremail,
                              contributor: contributor,
                              creator: creator,
@@ -479,6 +497,7 @@ module Deepblue
                              title: title )
 
         work.apply_depositor_metadata( user_key )
+        update_edit_users( curation_concern: work, edit_users: edit_users )
         work.owner = user_key
         work.visibility = visibility_from_hash( hash: work_hash )
         admin_set = build_admin_set( hash: work_hash )
@@ -491,6 +510,7 @@ module Deepblue
 
       def build_works
         return unless works
+        user_create_users( emails: user_key )
         works.each do |work_hash|
           work = nil
           work_id = 'nil'
@@ -664,6 +684,7 @@ module Deepblue
                                base_path:,
                                mode: nil,
                                ingester: nil,
+                               user_create: DEFAULT_USER_CREATE,
                                msg: "NEW CONTENT SERVICE AT YOUR ... SERVICE",
                                **config )
 
@@ -689,6 +710,7 @@ module Deepblue
         @ingest_timestamp = DateTime.now
         @mode = mode if mode.present?
         @ingester = ingester if ingester.present?
+        @user_create = user_create
         logger.info msg if msg.present?
       end
       # rubocop:enable Rails/Output
@@ -891,6 +913,7 @@ module Deepblue
       end
 
       def report( first_label:, first_id:, measurements:, total: nil )
+        return if measurements.blank?
         label = first_label
         label += ' ' * (first_id.size - label.size)
         log_msg "#{label} #{Benchmark::CAPTION.chop}"
@@ -899,6 +922,7 @@ module Deepblue
           label = measurement.label
           log_msg measurement.format( "#{label} #{format} is #{seconds_to_readable(measurement.real)}" )
         end
+        return if measurements.size == 1
         return if total.blank?
         label = 'total'
         label += ' ' * (first_id.size - label.size)
@@ -943,7 +967,7 @@ module Deepblue
         Time.now.to_formatted_s(:db )
       end
 
-      def update_cc_attribute(curation_concern:, attribute:, value: )
+      def update_cc_attribute( curation_concern:, attribute:, value: )
         curation_concern[attribute] = value
       end
 
@@ -965,24 +989,57 @@ module Deepblue
                              title: )
 
         # TODO: provenance
-        update_cc_attribute(curation_concern: collection, attribute: :creator, value: creator )
-        update_cc_attribute(curation_concern: collection, attribute: :curation_notes_admin, value: curation_notes_admin )
-        update_cc_attribute(curation_concern: collection, attribute: :curation_notes_user, value: curation_notes_user )
-        update_cc_attribute(curation_concern: collection, attribute: :date_created, value: date_created )
-        update_cc_attribute(curation_concern: collection, attribute: :date_modified, value: date_modified )
-        update_cc_attribute(curation_concern: collection, attribute: :date_uploaded, value: date_uploaded )
-        update_cc_attribute(curation_concern: collection, attribute: :description, value: description )
-        update_cc_attribute(curation_concern: collection, attribute: :keyword, value: keyword )
-        update_cc_attribute(curation_concern: collection, attribute: :language, value: language )
-        update_cc_attribute(curation_concern: collection, attribute: :methodology, value: methodology )
-        update_cc_attribute(curation_concern: collection, attribute: :prior_identifier, value: prior_identifier )
-        update_cc_attribute(curation_concern: collection, attribute: :referenced_by, value: referenced_by )
-        update_cc_attribute(curation_concern: collection, attribute: :resource_type, value: resource_type )
-        update_cc_attribute(curation_concern: collection, attribute: :subject_discipline, value: subject_discipline )
-        update_cc_attribute(curation_concern: collection, attribute: :title, value: title )
+        update_cc_attribute( curation_concern: collection, attribute: :creator, value: creator )
+        update_cc_attribute( curation_concern: collection, attribute: :curation_notes_admin, value: curation_notes_admin )
+        update_cc_attribute( curation_concern: collection, attribute: :curation_notes_user, value: curation_notes_user )
+        update_cc_attribute( curation_concern: collection, attribute: :date_created, value: date_created )
+        update_cc_attribute( curation_concern: collection, attribute: :date_modified, value: date_modified )
+        update_cc_attribute( curation_concern: collection, attribute: :date_uploaded, value: date_uploaded )
+        update_cc_attribute( curation_concern: collection, attribute: :description, value: description )
+        update_cc_attribute( curation_concern: collection, attribute: :keyword, value: keyword )
+        update_cc_attribute( curation_concern: collection, attribute: :language, value: language )
+        update_cc_attribute( curation_concern: collection, attribute: :methodology, value: methodology )
+        update_cc_attribute( curation_concern: collection, attribute: :prior_identifier, value: prior_identifier )
+        update_cc_attribute( curation_concern: collection, attribute: :referenced_by, value: referenced_by )
+        update_cc_attribute( curation_concern: collection, attribute: :resource_type, value: resource_type )
+        update_cc_attribute( curation_concern: collection, attribute: :subject_discipline, value: subject_discipline )
+        update_cc_attribute( curation_concern: collection, attribute: :title, value: title )
         collection.save!
         collection.reload
         return collection
+      end
+
+      def update_edit_users( curation_concern:, edit_users: )
+        return if edit_users.blank?
+        user_create_users( emails: edit_users )
+        curation_concern.edit_users = edit_users
+      end
+
+      def update_file_set( file_set:,
+                           curation_notes_admin:,
+                           curation_notes_user:,
+                           date_created:,
+                           date_modified:,
+                           date_uploaded:,
+                           prior_identifier:,
+                           title: )
+
+        # TODO: provenance
+        update_cc_attribute( curation_concern: file_set, attribute: :curation_notes_admin, value: curation_notes_admin )
+        update_cc_attribute( curation_concern: file_set, attribute: :curation_notes_user, value: curation_notes_user )
+        update_cc_attribute( curation_concern: file_set, attribute: :date_created, value: date_created )
+        update_cc_attribute( curation_concern: file_set, attribute: :date_modified, value: date_modified )
+        update_cc_attribute( curation_concern: file_set, attribute: :date_uploaded, value: date_uploaded )
+        update_cc_attribute( curation_concern: file_set, attribute: :prior_identifier, value: prior_identifier )
+        update_cc_attribute( curation_concern: file_set, attribute: :title, value: title )
+        collection.save!
+        collection.reload
+        return collection
+      end
+
+      def update_visibility( curation_concern:, visibility: )
+        return unless visibility_curation_concern visibility
+        curation_concern.visibility = visibility
       end
 
       def update_work( work:,
@@ -1011,59 +1068,43 @@ module Deepblue
                        title: )
 
         # TODO: provenance
-        update_cc_attribute(curation_concern: work, attribute: :authoremail, value: authoremail )
-        update_cc_attribute(curation_concern: work, attribute: :contributor, value: contributor )
-        update_cc_attribute(curation_concern: work, attribute: :creator, value: creator )
-        update_cc_attribute(curation_concern: work, attribute: :curation_notes_admin, value: curation_notes_admin )
-        update_cc_attribute(curation_concern: work, attribute: :curation_notes_user, value: curation_notes_user )
-        update_cc_attribute(curation_concern: work, attribute: :date_coverage, value: date_coverage )
-        update_cc_attribute(curation_concern: work, attribute: :date_created, value: date_created )
-        update_cc_attribute(curation_concern: work, attribute: :date_modified, value: date_modified )
-        update_cc_attribute(curation_concern: work, attribute: :date_uploaded, value: date_uploaded )
-        update_cc_attribute(curation_concern: work, attribute: :description, value: description )
-        update_cc_attribute(curation_concern: work, attribute: :fundedby, value: fundedby )
-        update_cc_attribute(curation_concern: work, attribute: :fundedby_other, value: fundedby_other )
-        update_cc_attribute(curation_concern: work, attribute: :grantnumber, value: grantnumber )
-        update_cc_attribute(curation_concern: work, attribute: :keyword, value: keyword )
-        update_cc_attribute(curation_concern: work, attribute: :language, value: language )
-        update_cc_attribute(curation_concern: work, attribute: :methodology, value: methodology )
-        update_cc_attribute(curation_concern: work, attribute: :prior_identifier, value: prior_identifier )
-        update_cc_attribute(curation_concern: work, attribute: :referenced_by, value: referenced_by )
-        update_cc_attribute(curation_concern: work, attribute: :resource_type, value: resource_type )
-        update_cc_attribute(curation_concern: work, attribute: :rights_license, value: rights_license )
-        update_cc_attribute(curation_concern: work, attribute: :rights_license_other, value: rights_license_other )
-        update_cc_attribute(curation_concern: work, attribute: :subject_discipline, value: subject_discipline )
-        update_cc_attribute(curation_concern: work, attribute: :title, value: title )
+        update_cc_attribute( curation_concern: work, attribute: :authoremail, value: authoremail )
+        update_cc_attribute( curation_concern: work, attribute: :contributor, value: contributor )
+        update_cc_attribute( curation_concern: work, attribute: :creator, value: creator )
+        update_cc_attribute( curation_concern: work, attribute: :curation_notes_admin, value: curation_notes_admin )
+        update_cc_attribute( curation_concern: work, attribute: :curation_notes_user, value: curation_notes_user )
+        update_cc_attribute( curation_concern: work, attribute: :date_coverage, value: date_coverage )
+        update_cc_attribute( curation_concern: work, attribute: :date_created, value: date_created )
+        update_cc_attribute( curation_concern: work, attribute: :date_modified, value: date_modified )
+        update_cc_attribute( curation_concern: work, attribute: :date_uploaded, value: date_uploaded )
+        update_cc_attribute( curation_concern: work, attribute: :description, value: description )
+        update_cc_attribute( curation_concern: work, attribute: :fundedby, value: fundedby )
+        update_cc_attribute( curation_concern: work, attribute: :fundedby_other, value: fundedby_other )
+        update_cc_attribute( curation_concern: work, attribute: :grantnumber, value: grantnumber )
+        update_cc_attribute( curation_concern: work, attribute: :keyword, value: keyword )
+        update_cc_attribute( curation_concern: work, attribute: :language, value: language )
+        update_cc_attribute( curation_concern: work, attribute: :methodology, value: methodology )
+        update_cc_attribute( curation_concern: work, attribute: :prior_identifier, value: prior_identifier )
+        update_cc_attribute( curation_concern: work, attribute: :referenced_by, value: referenced_by )
+        update_cc_attribute( curation_concern: work, attribute: :resource_type, value: resource_type )
+        update_cc_attribute( curation_concern: work, attribute: :rights_license, value: rights_license )
+        update_cc_attribute( curation_concern: work, attribute: :rights_license_other, value: rights_license_other )
+        update_cc_attribute( curation_concern: work, attribute: :subject_discipline, value: subject_discipline )
+        update_cc_attribute( curation_concern: work, attribute: :title, value: title )
         work.save!
         work.reload
         return work
       end
 
-      def update_file_set( file_set:,
-                           curation_notes_admin:,
-                           curation_notes_user:,
-                           date_created:,
-                           date_modified:,
-                           date_uploaded:,
-                           prior_identifier:,
-                           title: )
-
-        # TODO: provenance
-        update_cc_attribute(curation_concern: file_set, attribute: :curation_notes_admin, value: curation_notes_admin )
-        update_cc_attribute(curation_concern: file_set, attribute: :curation_notes_user, value: curation_notes_user )
-        update_cc_attribute(curation_concern: file_set, attribute: :date_created, value: date_created )
-        update_cc_attribute(curation_concern: file_set, attribute: :date_modified, value: date_modified )
-        update_cc_attribute(curation_concern: file_set, attribute: :date_uploaded, value: date_uploaded )
-        update_cc_attribute(curation_concern: file_set, attribute: :prior_identifier, value: prior_identifier )
-        update_cc_attribute(curation_concern: file_set, attribute: :title, value: title )
-        collection.save!
-        collection.reload
-        return collection
-      end
-
-      def update_visibility( curation_concern:, visibility: )
-        return unless visibility_curation_concern visibility
-        curation_concern.visibility = visibility
+      def user_create_users( emails:, password: 'password' )
+        return unless user_create
+        return if emails.blank?
+        emails = Array( emails )
+        emails.each do |email|
+          next if User.find_by_user_key( email ).present?
+          User.create!( email: email, password: password, password_confirmation: password )
+          log_msg( "Creating user: #{email}" )
+        end
       end
 
       def user_key
