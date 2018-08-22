@@ -18,7 +18,7 @@
         <dl>
           <% presenter.workflow.comments.each do |comment| %>
             <dt><%= comment.name_of_commentor %></dt>
-            <dd><%= comment.comment %></dd>
+            <dd><%= comment.created_at.strftime('%a, %d %b %Y %H:%M:%S') %> - <%= comment.comment %></dd>
           <% end %>
         </dl>
       </div>
