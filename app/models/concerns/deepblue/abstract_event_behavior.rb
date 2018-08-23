@@ -17,6 +17,7 @@ module Deepblue
     EVENT_FIXITY_CHECK      = 'fixity_check'
     EVENT_GLOBUS            = 'globus'
     EVENT_INGEST            = 'ingest'
+    EVENT_MIGRATE           = 'migrate'
     EVENT_MINT_DOI          = 'mint_doi'
     EVENT_PUBLISH           = 'publish'
     EVENT_TOMBSTONE         = 'tombstone'
@@ -37,6 +38,7 @@ module Deepblue
         EVENT_FIXITY_CHECK,
         EVENT_GLOBUS,
         EVENT_INGEST,
+        EVENT_MIGRATE,
         EVENT_MINT_DOI,
         EVENT_PUBLISH,
         EVENT_TOMBSTONE,

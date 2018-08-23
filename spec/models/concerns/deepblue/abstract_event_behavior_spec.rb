@@ -25,6 +25,7 @@ RSpec.describe Deepblue::AbstractEventBehavior do
       expect( Deepblue::AbstractEventBehavior::EVENT_FIXITY_CHECK ).to eq 'fixity_check'
       expect( Deepblue::AbstractEventBehavior::EVENT_GLOBUS ).to eq 'globus'
       expect( Deepblue::AbstractEventBehavior::EVENT_INGEST ).to eq 'ingest'
+      expect( Deepblue::AbstractEventBehavior::EVENT_MIGRATE ).to eq 'migrate'
       expect( Deepblue::AbstractEventBehavior::EVENT_MINT_DOI ).to eq 'mint_doi'
       expect( Deepblue::AbstractEventBehavior::EVENT_PUBLISH ).to eq 'publish'
       expect( Deepblue::AbstractEventBehavior::EVENT_TOMBSTONE ).to eq 'tombstone'
@@ -44,6 +45,7 @@ RSpec.describe Deepblue::AbstractEventBehavior do
         Deepblue::AbstractEventBehavior::EVENT_FIXITY_CHECK,
         Deepblue::AbstractEventBehavior::EVENT_GLOBUS,
         Deepblue::AbstractEventBehavior::EVENT_INGEST,
+        Deepblue::AbstractEventBehavior::EVENT_MIGRATE,
         Deepblue::AbstractEventBehavior::EVENT_MINT_DOI,
         Deepblue::AbstractEventBehavior::EVENT_PUBLISH,
         Deepblue::AbstractEventBehavior::EVENT_TOMBSTONE,

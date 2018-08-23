@@ -113,7 +113,9 @@ Rails/DynamicFindBy:
 
 Rails/Output:
   Exclude:
-    - config/environments/development.rb
+    - 'config/environments/development.rb'
+    - 'lib/tasks/task_helper.rb'
+    - 'lib/tasks/yaml_populate.rb'
 
 #Rails/OutputSafety:
 #  Exclude:
@@ -172,6 +174,7 @@ Style/ClassVars:
   Exclude:
     - 'app/jobs/globus_era.rb'
     - 'app/jobs/globus_job.rb'
+    - 'app/helpers/deepblue/metadata_helper.rb'
 
 Style/FrozenStringLiteralComment:
   Exclude:
