@@ -43,11 +43,15 @@ module Deepblue
     end
 
     def attributes_for_provenance_fixity_check
-      return attributes_brief_for_provenance, USE_BLANK_KEY_VALUES
+      return attributes_brief_for_provenance, IGNORE_BLANK_KEY_VALUES
     end
 
     def attributes_for_provenance_ingest
       return attributes_all_for_provenance, USE_BLANK_KEY_VALUES
+    end
+
+    def attributes_for_provenance_migrate
+      return attributes_brief_for_provenance, IGNORE_BLANK_KEY_VALUES
     end
 
     def attributes_for_provenance_mint_doi
@@ -390,6 +394,29 @@ module Deepblue
                             event: event,
                             event_note: event_note,
                             ignore_blank_key_values: ignore_blank_key_values,
+                            prov_key_values: prov_key_values )
+    end
+
+    def provenance_migrate( current_user:, event_note: '', migrate_direction:, parent_id: nil, **added_prov_key_values )
+      event = EVENT_MIGRATE
+      attributes, ignore_blank_key_values = attributes_for_provenance_migrate
+      added_prov_key_values = if parent_id.present?
+                                { migrate_direction: migrate_direction, parent_id: parent_id }.merge added_prov_key_values
+                              else
+                                { migrate_direction: migrate_direction }.merge added_prov_key_values
+                              end
+      event_note = migrate_direction if event_note.blank?
+      prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes,
+                                                                  current_user: current_user,
+                                                                  event: event,
+                                                                  event_note: event_note,
+                                                                  ignore_blank_key_values: ignore_blank_key_values,
+                                                                  **added_prov_key_values )
+      provenance_log_event( attributes: nil,
+                            event: event,
+                            current_user: current_user,
+                            event_note: event_note,
+                            ignore_blank_key_values: false,
                             prov_key_values: prov_key_values )
     end
 

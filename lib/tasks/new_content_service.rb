@@ -202,6 +202,7 @@ module Deepblue
         collection.visibility = visibility_from_hash( hash: collection_hash )
         collection.save!
         collection.reload
+        log_provenance_migrate( curation_concern: collection ) if MODE_MIGRATE == mode
         log_provenance_ingest( curation_concern: collection )
         return collection
       end
@@ -303,6 +304,7 @@ module Deepblue
 
       def build_file_set_ingest( file_set:, path:, checksum_algorithm:, checksum_value: )
         log_object file_set
+        log_provenance_migrate( curation_concern: file_set ) if MODE_MIGRATE == mode
         repository_file_id = nil
         IngestHelper.characterize( file_set,
                                    repository_file_id,
@@ -504,6 +506,7 @@ module Deepblue
         work.update( admin_set: admin_set )
         work.save!
         work.reload
+        log_provenance_migrate( curation_concern: work ) if MODE_MIGRATE == mode
         log_provenance_ingest( curation_concern: work )
         return work
       end
@@ -753,6 +756,11 @@ module Deepblue
                                             ingest_timestamp: ingest_timestamp )
       end
 
+      def log_provenance_migrate( curation_concern:, migrate_direction: 'import' )
+        return unless curation_concern.respond_to? :provenance_migrate
+        curation_concern.provenance_migrate( current_user: user, migrate_direction: migrate_direction )
+      end
+
       def logger
         @logger ||= logger_initialize
       end
@@ -920,13 +928,13 @@ module Deepblue
         format = Benchmark::FORMAT.chop
         measurements.each do |measurement|
           label = measurement.label
-          log_msg measurement.format( "#{label} #{format} is #{seconds_to_readable(measurement.real)}" )
+          log_msg measurement.format( "#{label} #{format} is #{TaskHelper.seconds_to_readable(measurement.real)}" )
         end
         return if measurements.size == 1
         return if total.blank?
         label = 'total'
         label += ' ' * (first_id.size - label.size)
-        log_msg total.format( "#{label} #{format} is #{seconds_to_readable(total.real)}" )
+        log_msg total.format( "#{label} #{format} is #{TaskHelper.seconds_to_readable(total.real)}" )
       end
 
       def report_measurements( first_label: )
@@ -944,19 +952,6 @@ module Deepblue
           end
         end
         report( first_label: first_label, first_id: first_id, measurements: measurements, total: total )
-      end
-
-      def seconds_to_readable( seconds )
-        h, min, s, _fr = split_seconds( seconds )
-        return "#{h} hours, #{min} minutes, and #{s} seconds"
-      end
-
-      def split_seconds( fr )
-        # ss,  fr = fr.divmod(86_400) # 4p
-        ss = ( fr + 0.5 ).to_int
-        h,   ss = ss.divmod(3600)
-        min, s  = ss.divmod(60)
-        return h, min, s, fr
       end
 
       def source
