@@ -26,17 +26,27 @@ class Collection < ActiveFedora::Base
 
   def metadata_keys_all
     %i[
+      child_collection_ids
+      child_collection_count
+      child_work_ids
+      child_work_count
+      collection_type
       creator
       curation_notes_admin
       curation_notes_user
+      date_created
+      date_modified
+      date_updated
       description
       keyword
       language
+      prior_identifier
       referenced_by
       subject_discipline
       title
+      total_file_size
       visibility
-    ]
+     ]
   end
 
   def metadata_keys_brief
@@ -91,14 +101,56 @@ class Collection < ActiveFedora::Base
     for_event_route
   end
 
+  def child_collection_count
+    ActiveFedora::Base.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Collection").count
+  end
+
+  def child_collection_ids
+    ActiveFedora::Base.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Collection").map { |w| w.id } # rubocop:disable Style/SymbolProc
+  end
+
+  def child_work_count
+    ActiveFedora::Base.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Work").count
+  end
+
+  def child_work_ids
+    ActiveFedora::Base.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Work").map { |w| w.id } # rubocop:disable Style/SymbolProc
+  end
+
+  def total_file_size
+    bytes
+  end
+
+  def total_file_size_human_readable
+    value = total_file_size
+    ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( value, precision: 3 )
+  end
+
   def map_email_attributes_override!( event:, # rubocop:disable Lint/UnusedMethodArgument
                                       attribute:,
                                       ignore_blank_key_values:,
                                       email_key_values: )
     value = nil
     handled = case attribute.to_s
+              when 'child_collection_count'
+                value = child_work_count
+                true
+              when 'child_collection_ids'
+                value = collection_ids
+              when 'child_work_count'
+                value = child_work_count
+                true
+              when 'child_work_ids'
+                value = child_work_ids
+                true
               when 'collection_type'
                 value = collection_type.machine_id
+                true
+              when 'total_file_size'
+                value = total_file_size
+                true
+              when 'total_file_size_human_readable'
+                value = total_file_size_human_readable
                 true
               when 'visibility'
                 value = visibility
@@ -121,8 +173,25 @@ class Collection < ActiveFedora::Base
                                            prov_key_values: )
     value = nil
     handled = case attribute.to_s
+              when 'child_collection_count'
+                value = child_work_count
+                true
+              when 'child_collection_ids'
+                value = collection_ids
+              when 'child_work_count'
+                value = child_work_count
+                true
+              when 'child_work_ids'
+                value = child_work_ids
+                true
               when 'collection_type'
                 value = collection_type.machine_id
+                true
+              when 'total_file_size'
+                value = total_file_size
+                true
+              when 'total_file_size_human_readable'
+                value = total_file_size_human_readable
                 true
               when 'visibility'
                 value = visibility
@@ -142,8 +211,28 @@ class Collection < ActiveFedora::Base
   def metadata_hash_override( key:, ignore_blank_values:, key_values: )
     value = nil
     handled = case key.to_s
+              when 'child_collection_count'
+                value = child_work_count
+                true
+              when 'child_collection_ids'
+                value = collection_ids
+              when 'child_work_count'
+                value = child_work_count
+                true
+              when 'child_work_ids'
+                value = child_work_ids
+                true
               when 'collection_type'
                 value = collection_type.machine_id
+                true
+              when 'total_file_size'
+                value = total_file_size
+                true
+              when 'total_file_size_human_readable'
+                value = total_file_size_human_readable
+                true
+              when 'visibility'
+                value = visibility
                 true
               else
                 false
@@ -167,10 +256,18 @@ class Collection < ActiveFedora::Base
 
   def metadata_report_label_override( metadata_key:, metadata_value: ) # rubocop:disable Lint/UnusedMethodArgument
     case metadata_key.to_s
+    when 'child_collection_count'
+      'Child Collection Count: '
+    when 'child_collection_ids'
+      'Child Collection Identifiers: '
+    when 'child_work_count'
+      'Child Work Count: '
+    when 'child_work_ids'
+      'Child Work Identifiers: '
     when 'collection_type'
       'Collection Type: '
-    when 'total_file_count'
-      'Total File Count: '
+    when 'total_file_size'
+      'Total File Size: '
     when 'total_file_size_human_readable'
       'Total File Size: '
     end
