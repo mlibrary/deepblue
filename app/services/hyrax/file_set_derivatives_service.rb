@@ -36,7 +36,7 @@ module Hyrax
     #   Rails.logger.warn "About to call create_derivatives(" + filename + ")"
     #   mp_create_derivatives.bind(self).(filename)
     #   Rails.logger.warn "Returned from call create_derivatives(" + filename + ")"
-    # rescue Exception => e
+    # rescue Exception => e # rubocop:disable Lint/RescueException
     #   Rails.logger.error "create_derivatives(" + filename + ") exception: " + e
     # end
 

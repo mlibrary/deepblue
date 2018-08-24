@@ -768,7 +768,7 @@ module Deepblue
       def logger_initialize
         # TODO: add some flags to the input yml file for log level and Rails logging integration
         # rubocop:disable Style/Semicolon
-        Deepblue::TaskLogger.new(STDOUT).tap { |logger| logger.level = logger_level; Rails.logger = logger }
+        Deepblue::TaskLogger.new(STDOUT).tap { |logger| logger.level = logger_level; Rails.logger = logger } # rubocop:disable Style/Semicolon
         # rubocop:enable Style/Semicolon
       end
 

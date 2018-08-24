@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'open-uri'
-
 namespace :deepblue do
 
   # bundle exec rake deepblue:yaml_populate_from_collection[nk322d32h,/deepbluedata-prep,true]
@@ -25,6 +23,7 @@ end
 
 module Deepblue
 
+  require 'open-uri'
   require_relative 'task_helper'
   require_relative 'yaml_populate'
 
