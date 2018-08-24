@@ -11,9 +11,10 @@ module Hyrax
               :fundedby_other,
               :grantnumber,
               :methodology,
+              :prior_identifier,
               :referenced_by,
               :rights_license,
-              :rights_license_other,              
+              :rights_license_other,
               :subject_discipline,
               :total_file_size,
               to: :solr_document
