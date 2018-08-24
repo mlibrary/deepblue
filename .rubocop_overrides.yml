@@ -47,12 +47,13 @@ Metrics/ClassLength:
   # Enabled: true
   # Max: 1000 # default is 100
   Exclude:
-   - 'app/controllers/catalog_controller.rb'
-   - 'app/controllers/hyrax/data_sets_controller.rb'
-   - 'app/jobs/globus_job.rb'
-   - 'app/models/data_set.rb'
-   - 'lib/tasks/new_content_service.rb'
-   - 'lib/tasks/upgrade_provenance_log.rake'
+    - 'app/controllers/catalog_controller.rb'
+    - 'app/controllers/hyrax/data_sets_controller.rb'
+    - 'app/jobs/globus_job.rb'
+    - 'app/models/collection.rb'
+    - 'app/models/data_set.rb'
+    - 'lib/tasks/new_content_service.rb'
+    - 'lib/tasks/upgrade_provenance_log.rake'
 
 Metrics/CyclomaticComplexity:
   Exclude:
@@ -68,6 +69,7 @@ Metrics/CyclomaticComplexity:
     - 'app/jobs/globus_era.rb'
     - 'app/jobs/globus_job.rb'
     - 'app/jobs/globus_restart_all_job.rb'
+    - 'app/models/collection.rb'
     - 'app/models/data_set.rb'
     - 'app/models/file_set.rb'
     - 'app/models/concerns/deepblue/email_behavior.rb'
@@ -95,6 +97,7 @@ Metrics/PerceivedComplexity:
     - 'app/jobs/globus_era.rb'
     - 'app/jobs/globus_job.rb'
     - 'app/jobs/globus_restart_all_job.rb'
+    - 'app/models/collection.rb'
     - 'app/models/data_set.rb'
     - 'app/models/file_set.rb'
     - 'app/models/concerns/deepblue/email_behavior.rb'
