@@ -35,7 +35,9 @@
 <%= presenter.attribute_to_html(:grantnumber, label: t('show.label.grantnumber') ) %>
 <%= presenter.attribute_to_html(:referenced_by, label: t('show.label.referenced_by') ) %>
 <%= presenter.attribute_to_html(:methodology, label: t('show.label.methodology') ) %>
-<%= presenter.attribute_to_html(:prior_identifier, label: t('show.label.prior_identifier') ) %>
+<% if current_ability.admin? %>
+  <%= presenter.attribute_to_html(:prior_identifier, label: t('show.label.prior_identifier') ) %>
+<% end %>
 <%# "secondary" attributes %>
 <%= presenter.attribute_to_html(:identifier_orcid) %>
 <%= presenter.attribute_to_html(:academic_affiliation) %>
