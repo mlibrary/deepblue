@@ -161,7 +161,7 @@ module Deepblue
                     prov_object[attribute]
                     # begin
                     #   prov_object[attribute]
-                    # rescue Exception => e
+                    # rescue Exception => e # rubocop:disable Lint/RescueException
                     #   puts "attribute='#{attribute}' #{e}"
                     #   raise e
                     # end

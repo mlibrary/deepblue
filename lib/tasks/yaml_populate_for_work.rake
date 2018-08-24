@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
-require 'open-uri'
-
 namespace :deepblue do
 
-  # bundle exec rake umrdr:yaml_populate_from_work[f4752g72m,'{"target_dir":"/deepbluedata-prep"\,"export_files":true,"mode":"build"}']
+  # bundle exec rake deepblue:yaml_populate_from_work[f4752g72m,'{"target_dir":"/deepbluedata-prep"\,"export_files":true,"mode":"build"}']
   desc 'Yaml populate from work'
   # See: https://stackoverflow.com/questions/825748/how-to-pass-command-line-arguments-to-a-rake-task
   task :yaml_populate_from_work, %i[ id options ] => :environment do |_task, args|
@@ -13,7 +11,7 @@ namespace :deepblue do
     task.run
   end
 
-  # bundle exec rake umrdr:yaml_populate_from_multiple_works['f4752g72m f4752g72m','{"target_dir":"/deepbluedata-prep"\,"export_files":true\,"mode":"build"}']
+  # bundle exec rake deepblue:yaml_populate_from_multiple_works['f4752g72m f4752g72m','{"target_dir":"/deepbluedata-prep"\,"export_files":true\,"mode":"build"}']
   desc 'Yaml populate from multiple works (ids separated by spaces)'
   task :yaml_populate_from_multiple_works, %i[ ids options ] => :environment do |_task, args|
     args.with_defaults( options: '{}' )
@@ -25,6 +23,7 @@ end
 
 module Deepblue
 
+  require 'open-uri'
   require_relative 'task_helper'
   require_relative 'yaml_populate'
 

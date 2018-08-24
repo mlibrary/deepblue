@@ -16,7 +16,7 @@ class BuildContentService < Deepblue::NewContentService
                                    ingester: ingester,
                                    args: args )
     bcs.run
-  rescue Exception => e
+  rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "BuildContentService.call(#{path_to_yaml_file}) #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
   end
 
@@ -36,7 +36,7 @@ class BuildContentService < Deepblue::NewContentService
       build_works
       build_collections
       report_measurements( first_label: 'id' )
-    rescue Exception => e
+    rescue Exception => e # rubocop:disable Lint/RescueException
       Rails.logger.error "BuildContentService.build_repo_contents #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
     end
 

@@ -15,7 +15,7 @@ class AppendContentService < Deepblue::NewContentService
                                     mode: mode,
                                     base_path: base_path )
     bcs.run
-  rescue Exception => e
+  rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "AppendContentService.call(#{path_to_yaml_file}) #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
   end
 
