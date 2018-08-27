@@ -18,6 +18,7 @@ module Hydra::Works
         end
       end
       has_virus = monkey_file_has_virus?
+      # Note: local_path_for_file copies the file to a temp, skip this if we can
       # path = original_file.is_a?(String) ? original_file : local_path_for_file(original_file)
       # rv = system_virus_scanner.infected?(path)
       log_virus_scan_provenance( has_virus: has_virus )
