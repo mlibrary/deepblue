@@ -78,6 +78,9 @@ module DeepBlueDocs
     config.derivative_max_file_size = 4_000_000_000 # set to -1 for no limit
     config.derivative_max_file_size_str = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert(config.derivative_max_file_size, precision: 3 )
 
+    # ingest virus scan config
+    config.virus_scan_max_file_size = 4_000_000_000
+
     config.do_ordered_list_hack = true
     config.do_ordered_list_hack_save = true
 

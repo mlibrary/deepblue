@@ -12,7 +12,7 @@ module Hydra::Works
 
       def viruses?
         return false unless original_file && original_file.new_record? # We have a new file to check
-        return false unless original_file.size <= 4_000_000_000
+        return false unless original_file.size <= DeepBlueDocs::Application.config.virus_scan_max_file_size
         VirusCheckerService.file_has_virus? original_file
       end
 
