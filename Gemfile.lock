@@ -1,3 +1,6 @@
+
+
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -150,6 +153,7 @@ GEM
     chromedriver-helper (1.2.0)
       archive-zip (~> 0.10)
       nokogiri (~> 1.8)
+    clamav-client (3.1.0)
     clipboard-rails (1.7.1)
     coderay (1.1.2)
     coffee-rails (4.2.2)
@@ -248,7 +252,7 @@ GEM
       sassc (>= 1.11)
     globalid (0.4.1)
       activesupport (>= 4.2.0)
-    google-api-client (0.23.5)
+    google-api-client (0.23.6)
       addressable (~> 2.5, >= 2.5.1)
       googleauth (>= 0.5, < 0.7.0)
       httpclient (>= 2.8.1, < 3.0)
@@ -851,6 +855,7 @@ DEPENDENCIES
   byebug
   capybara
   chromedriver-helper
+  clamav-client
   coffee-rails (~> 4.2)
   config
   database_cleaner

@@ -6,7 +6,7 @@ FactoryBot.define do
     transient do
       user { create(:user) }
       # Set to true (or a hash) if you want to create an admin set
-      with_admin_set false
+      with_admin_set { false }
     end
 
     # It is reasonable to assume that a work has an admin set; However, we don't want to
@@ -25,12 +25,12 @@ FactoryBot.define do
       work.save! if work.member_of_collections.present?
     end
 
-    title ["Test title"]
-    visibility Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
+    title { ["Test title"] }
+    visibility { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE }
 
-    authoremail "test@umich.edu"
-    description ["This is the description."]
-    methodology "The Methodology"
+    authoremail { "test@umich.edu" }
+    description { ["This is the description."] }
+    methodology { "The Methodology" }
 
     after(:build) do |work, evaluator|
       work.apply_depositor_metadata(evaluator.user.user_key)
@@ -39,7 +39,7 @@ FactoryBot.define do
     factory :public_data_set, aliases: [:public_data_set_data_set], traits: [:public]
 
     trait :public do
-      visibility Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
+      visibility { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC }
     end
 
     factory :private_data_set do
@@ -47,7 +47,7 @@ FactoryBot.define do
     end
 
     factory :registered_data_set do
-      read_groups ["registered"]
+      read_groups { ["registered"] }
     end
 
     factory :data_set_with_one_file do
@@ -107,7 +107,7 @@ FactoryBot.define do
       # let(:work) { create(:embargoed_data_set, with_embargo_attributes: embargo_attributes) }
 
       transient do
-        with_embargo_attributes false
+        with_embargo_attributes { false }
         embargo_date { Date.tomorrow.to_s }
         current_state { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE }
         future_state { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC }
@@ -154,7 +154,7 @@ FactoryBot.define do
       # let(:work) { create(:leased_data_set, with_lease_attributes: lease_attributes) }
 
       transient do
-        with_lease_attributes false
+        with_lease_attributes { false }
         lease_date { Date.tomorrow.to_s }
         current_state { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC }
         future_state { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE }
@@ -191,7 +191,7 @@ FactoryBot.define do
 
   # Doesn't set up any edit_users
   factory :data_set_without_access, class: DataSet do
-    title ['Test title']
+    title { ['Test title'] }
     depositor { create(:user).user_key }
   end
 end
