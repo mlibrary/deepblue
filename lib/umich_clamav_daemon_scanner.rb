@@ -4,9 +4,11 @@
 # clamav daemon
 
 # rubocop:disable Style/SafeNavigation
+require 'abstract_virus_scanner'
+require 'null_virus_scanner'
 require 'clamav/client'
 
-class UMichClamAVDaemonScanner < Hydra::Works::VirusScanner
+class UMichClamAVDaemonScanner < AbstractVirusScanner
 
   # standard umich clamav configuration (from /etc/clamav/clamav.conf)
 
@@ -16,19 +18,24 @@ class UMichClamAVDaemonScanner < Hydra::Works::VirusScanner
 
   CHUNKSIZE = 4096
 
-  class CannotConnectClient
+  class CannotConnectClient < NullVirusScanner
+
+    def initialize( file )
+      super( file )
+    end
+
   end
 
   attr_accessor :client
 
-  def initialize(filename)
+  def initialize( filename )
     super
     @client = begin
       connection = ClamAV::Connection.new( socket:  ::TCPSocket.new('127.0.0.1', 3310),
                                            wrapper: ::ClamAV::Wrappers::NewLineWrapper.new )
       ClamAV::Client.new(connection)
     rescue Errno::ECONNREFUSED => e # rubocop:disable Lint/UselessAssignment
-      CannotConnectClient.new
+      CannotConnectClient.new( filename )
     end
   end
 
@@ -43,39 +50,35 @@ class UMichClamAVDaemonScanner < Hydra::Works::VirusScanner
     end
   end
 
-  def can_scan?( original_file )
-    return false unless original_file && original_file.new_record? # We have a new file to check
-    return false unless original_file.size <= DeepBlueDocs::Application.config.virus_scan_max_file_size
-    return true
-  end
-
-  # Check to see if the file passed on `#new` is infected
-  # Reports `true` if a virus is found, `false` for all other
-  # states (no virus or some sort of error)
+  # return one of:
+  # Hydra::Works::VirusCheck::VIRUS_SCAN_ERROR = 'scan error'
+  # Hydra::Works::VirusCheck::VIRUS_SCAN_NOT_VIRUS = 'not virus'
+  # Hydra::Works::VirusCheck::VIRUS_SCAN_SKIPPED = 'scan skipped'
+  # Hydra::Works::VirusCheck::VIRUS_SCAN_SKIPPED = 'scan skipped'
+  # Hydra::Works::VirusCheck::VIRUS_SCAN_SKIPPED_SERVICE_UNAVAILABLE = 'scan skipped service unavailable'
+  # Hydra::Works::VirusCheck::VIRUS_SCAN_SKIPPED_TOO_BIG = 'scan skipped too big'
+  # Hydra::Works::VirusCheck::VIRUS_SCAN_UNKNOWN = 'scan unknown'
+  # Hydra::Works::VirusCheck::VIRUS_SCAN_VIRUS = 'virus'
+  #
   def infected?
     unless alive?
-      # TODO: provenance logging
       warning "Cannot connect to virus scanner. Skipping file #{file}"
-      return false
+      return scan_skipped_service_unavailable
     end
     resp = scan_response
     case resp
     when ClamAV::SuccessResponse
-      # TODO: provenance logging
       info "Clean virus check for '#{file}'"
-      false
+      scan_no_virus
     when ClamAV::VirusResponse
-      # TODO: provenance logging
       warn "Virus #{resp.virus_name} found in file '#{file}'"
-      true
+      scan_virus
     when ClamAV::ErrorResponse
-      # TODO: provenance logging
       warn "ClamAV error: #{resp.error_str} for file #{file}. File not scanned!"
-      false # err on the side of trust? Need to think about this
+      scan_error # err on the side of trust? Need to think about this
     else
-      # TODO: provenance logging
       warn "ClamAV response unknown type '#{resp.class}': #{resp}. File not scanned!"
-      false
+      scan_unknown
     end
   end
 
@@ -83,7 +86,6 @@ class UMichClamAVDaemonScanner < Hydra::Works::VirusScanner
     begin
       file_io = File.open( file, 'rb' )
     rescue => e
-      # TODO: provenance logging
       msg = "Can't open file #{file} for scanning: #{e}"
       error msg
       raise msg

@@ -78,6 +78,10 @@ module Deepblue
       return attributes_all_for_provenance, USE_BLANK_KEY_VALUES
     end
 
+    def attributes_for_provenance_virus_check
+      return attributes_brief_for_provenance, IGNORE_BLANK_KEY_VALUES
+    end
+
     def attributes_cache_fetch( event:, id: for_provenance_id )
       key = attributes_cache_key( event: event, id: id )
       rv = Rails.cache.fetch( key )
@@ -161,7 +165,7 @@ module Deepblue
                     prov_object[attribute]
                     # begin
                     #   prov_object[attribute]
-                    # rescue Exception => e # rubocop:disable Lint/RescueException
+                    # rescue Exception => e
                     #   puts "attribute='#{attribute}' #{e}"
                     #   raise e
                     # end
@@ -513,6 +517,30 @@ module Deepblue
                             event: EVENT_UPLOAD,
                             event_note: event_note,
                             ignore_blank_key_values: true )
+    end
+
+    def provenance_virus_check( current_user: nil,
+                                event_note: '',
+                                virus_check_service:,
+                                scan_result:,
+                                **added_prov_key_values )
+      event = EVENT_VIRUS_CHECK
+      attributes, ignore_blank_key_values = attributes_for_provenance_virus_check
+      added_prov_key_values = { virus_check_service: virus_check_service,
+                                scan_result: scan_result }.merge added_prov_key_values
+      event_note = scan_result if event_note.blank?
+      prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes,
+                                                                  current_user: current_user,
+                                                                  event: event,
+                                                                  event_note: event_note,
+                                                                  ignore_blank_key_values: ignore_blank_key_values,
+                                                                  **added_prov_key_values )
+      provenance_log_event( attributes: nil,
+                            event: event,
+                            current_user: current_user,
+                            event_note: event_note,
+                            ignore_blank_key_values: false,
+                            prov_key_values: prov_key_values )
     end
 
     protected
