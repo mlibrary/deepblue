@@ -61,6 +61,8 @@ group :development, :test do
   gem 'rubocop-rspec', '~> 1.16.0'
 end
 
+gem 'clamav-client'
+
 group :development do
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'listen', '~> 3.0.5'

@@ -1,14 +1,12 @@
 # frozen_string_literal: true
 
-# require 'clamav/client'
-
 # An AV class that streams the file to an already-running
 # clamav daemon
 
 # rubocop:disable Style/SafeNavigation
 require 'clamav/client'
-class UMichClamAVDaemonScanner < Hydra::Works::VirusScanner
 
+class UMichClamAVDaemonScanner < Hydra::Works::VirusScanner
 
   # standard umich clamav configuration (from /etc/clamav/clamav.conf)
 
@@ -18,7 +16,6 @@ class UMichClamAVDaemonScanner < Hydra::Works::VirusScanner
 
   CHUNKSIZE = 4096
 
-
   class CannotConnectClient
   end
 
@@ -27,8 +24,8 @@ class UMichClamAVDaemonScanner < Hydra::Works::VirusScanner
   def initialize(filename)
     super
     @client = begin
-      connection = ClamAV::Connection.new(socket:  ::TCPSocket.new('127.0.0.1', 3310),
-                                          wrapper: ::ClamAV::Wrappers::NewLineWrapper.new)
+      connection = ClamAV::Connection.new( socket:  ::TCPSocket.new('127.0.0.1', 3310),
+                                           wrapper: ::ClamAV::Wrappers::NewLineWrapper.new )
       ClamAV::Client.new(connection)
     rescue Errno::ECONNREFUSED => e # rubocop:disable Lint/UselessAssignment
       CannotConnectClient.new
@@ -42,7 +39,7 @@ class UMichClamAVDaemonScanner < Hydra::Works::VirusScanner
     when CannotConnectClient
       false
     else
-      client.execute(ClamAV::Commands::PingCommand.new)
+      client.execute( ClamAV::Commands::PingCommand.new )
     end
   end
 
@@ -51,21 +48,26 @@ class UMichClamAVDaemonScanner < Hydra::Works::VirusScanner
   # states (no virus or some sort of error)
   def infected?
     unless alive?
+      # TODO: provenance logging
       warning "Cannot connect to virus scanner. Skipping file #{file}"
       return false
     end
     resp = scan_response
     case resp
     when ClamAV::SuccessResponse
+      # TODO: provenance logging
       info "Clean virus check for '#{file}'"
       false
     when ClamAV::VirusResponse
+      # TODO: provenance logging
       warn "Virus #{resp.virus_name} found in file '#{file}'"
       true
     when ClamAV::ErrorResponse
+      # TODO: provenance logging
       warn "ClamAV error: #{resp.error_str} for file #{file}. File not scanned!"
       false # err on the side of trust? Need to think about this
     else
+      # TODO: provenance logging
       warn "ClamAV response unknown type '#{resp.class}': #{resp}. File not scanned!"
       false
     end
@@ -73,8 +75,9 @@ class UMichClamAVDaemonScanner < Hydra::Works::VirusScanner
 
   def scan_response
     begin
-      file_io = File.open(file, 'rb')
+      file_io = File.open( file, 'rb' )
     rescue => e
+      # TODO: provenance logging
       msg = "Can't open file #{file} for scanning: #{e}"
       error msg
       raise msg
@@ -114,6 +117,7 @@ end
 # reading it all into memory. Internal to how
 # ClamAV::Client works
 class UMInstreamScanner < ClamAV::Commands::InstreamCommand
+
   def call(conn)
     conn.write_request("INSTREAM")
     while (packet = @io.read(@max_chunk_size))
@@ -122,7 +126,7 @@ class UMInstreamScanner < ClamAV::Commands::InstreamCommand
     send_end_of_file(conn)
     av_return_status(conn)
   rescue => e
-    ClamAV::ErrorResponse.new("Error sending data to ClamAV Daemon: #{e}")
+    ClamAV::ErrorResponse.new( "Error sending data to ClamAV Daemon: #{e}" )
   end
 
   def av_return_status(conn)
@@ -138,9 +142,7 @@ class UMInstreamScanner < ClamAV::Commands::InstreamCommand
     conn.raw_write("#{packet_size}#{packet}")
   end
 
-
 end
-
 
 # To use a virus checker other than ClamAV:
 #   class MyScanner < Hydra::Works::VirusScanner

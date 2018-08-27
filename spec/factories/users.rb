@@ -1,12 +1,14 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :user do
     sequence(:email) { |n| "user#{n}@example.com" }
-    password 'password'
+    password { 'password' }
 
     transient do
       # Allow for custom groups when a user is instantiated.
       # @example create(:user, groups: 'avacado')
-      groups []
+      groups { [] }
     end
 
     # TODO: Register the groups for the given user key such that we can remove the following from other specs:
@@ -22,7 +24,7 @@ FactoryBot.define do
     end
 
     factory :admin do
-      groups ['admin']
+      groups { ['admin'] }
     end
 
     factory :user_with_mail do
@@ -46,7 +48,7 @@ FactoryBot.define do
   end
 
   trait :guest do
-    guest true
+    guest { true }
   end
 end
 
