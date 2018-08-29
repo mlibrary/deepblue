@@ -97,7 +97,7 @@ module Umrdr
 
       property :subject_discipline, predicate: ::RDF::Vocab::MODS.subject, multiple: true do |index|
         index.type :text
-        index.as :stored_searchable
+        index.as :stored_searchable, :facetable
       end
 
       property :title_ordered, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#title_ordered'), multiple: false do |index|
