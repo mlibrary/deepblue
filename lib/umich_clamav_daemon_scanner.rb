@@ -50,36 +50,28 @@ class UMichClamAVDaemonScanner < AbstractVirusScanner
     end
   end
 
-  # return one of:
-  # Hydra::Works::VirusCheck::VIRUS_SCAN_ERROR = 'scan error'
-  # Hydra::Works::VirusCheck::VIRUS_SCAN_NOT_VIRUS = 'not virus'
-  # Hydra::Works::VirusCheck::VIRUS_SCAN_SKIPPED = 'scan skipped'
-  # Hydra::Works::VirusCheck::VIRUS_SCAN_SKIPPED = 'scan skipped'
-  # Hydra::Works::VirusCheck::VIRUS_SCAN_SKIPPED_SERVICE_UNAVAILABLE = 'scan skipped service unavailable'
-  # Hydra::Works::VirusCheck::VIRUS_SCAN_SKIPPED_TOO_BIG = 'scan skipped too big'
-  # Hydra::Works::VirusCheck::VIRUS_SCAN_UNKNOWN = 'scan unknown'
-  # Hydra::Works::VirusCheck::VIRUS_SCAN_VIRUS = 'virus'
-  #
   def infected?
+    debug "UMichClamAVDaemonScanner.infected? File '#{file}' exists? #{File.exist? file}"
     unless alive?
       warning "Cannot connect to virus scanner. Skipping file #{file}"
-      return scan_skipped_service_unavailable
+      return ::Deepblue::VirusScanService::VIRUS_SCAN_SKIPPED_SERVICE_UNAVAILABLE
     end
     resp = scan_response
-    case resp
-    when ClamAV::SuccessResponse
-      info "Clean virus check for '#{file}'"
-      scan_no_virus
-    when ClamAV::VirusResponse
-      warn "Virus #{resp.virus_name} found in file '#{file}'"
-      scan_virus
-    when ClamAV::ErrorResponse
-      warn "ClamAV error: #{resp.error_str} for file #{file}. File not scanned!"
-      scan_error # err on the side of trust? Need to think about this
-    else
-      warn "ClamAV response unknown type '#{resp.class}': #{resp}. File not scanned!"
-      scan_unknown
-    end
+    rv = case resp
+         when ClamAV::SuccessResponse
+           info "Clean virus check for '#{file}'"
+           ::Deepblue::VirusScanService::VIRUS_SCAN_NO_VIRUS
+         when ClamAV::VirusResponse
+           warn "Virus #{resp.virus_name} found in file '#{file}'"
+           ::Deepblue::VirusScanService::VIRUS_SCAN_VIRUS
+         when ClamAV::ErrorResponse
+           warn "ClamAV error: #{resp.error_str} for file #{file}. File not scanned!"
+           ::Deepblue::VirusScanService::VIRUS_SCAN_ERROR # err on the side of trust? Need to think about this
+         else
+           warn "ClamAV response unknown type '#{resp.class}': #{resp}. File not scanned!"
+           ::Deepblue::VirusScanService::VIRUS_SCAN_UNKNOWN
+         end
+    return rv
   end
 
   def scan_response
@@ -91,7 +83,7 @@ class UMichClamAVDaemonScanner < AbstractVirusScanner
       raise msg
     end
 
-    scan(file_io)
+    scan( file_io )
   end
 
   # Do the scan by streaming to the daemon
@@ -106,16 +98,21 @@ class UMichClamAVDaemonScanner < AbstractVirusScanner
   private
 
     # Set up logging for the clamav daemon scanner
-    def info(msg)
-      ActiveFedora::Base.logger.info(msg) if ActiveFedora::Base.logger
+
+    def debug( msg )
+      ActiveFedora::Base.logger.debug( msg ) if ActiveFedora::Base.logger
     end
 
-    def warning(msg)
-      ActiveFedora::Base.logger.warn(msg) if ActiveFedora::Base.logger
+    def error( msg )
+      ActiveFedora::Base.logger.error( msg ) if ActiveFedora::Base.logger
     end
 
-    def error(msg)
-      ActiveFedora::Base.logger.error(msg) if ActiveFedora::Base.logger
+    def info( msg )
+      ActiveFedora::Base.logger.info( msg ) if ActiveFedora::Base.logger
+    end
+
+    def warning( msg )
+      ActiveFedora::Base.logger.warn( msg ) if ActiveFedora::Base.logger
     end
 
 end

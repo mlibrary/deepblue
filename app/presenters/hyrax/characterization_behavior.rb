@@ -1,5 +1,8 @@
+# frozen_string_literal: true
+
 module Hyrax
-  # TODO: monkey patch this to only necessary behavior override
+
+  # TODO: monkey patch this to only override and provide necessary behavior
   module CharacterizationBehavior
     extend ActiveSupport::Concern
 
@@ -34,7 +37,10 @@ module Hyrax
           :well_formed,
           :last_modified,
           :original_checksum,
-          :mime_type
+          :mime_type,
+          :virus_scan_service,
+          :virus_scan_status,
+          :virus_scan_status_date
         ]
       end
     end
@@ -106,5 +112,7 @@ module Hyrax
         end
         additional_characterization_metadata
       end
+
   end
+
 end

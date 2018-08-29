@@ -34,7 +34,7 @@ RSpec.describe Deepblue::AbstractEventBehavior do
       expect( Deepblue::AbstractEventBehavior::EVENT_UPDATE_AFTER ).to eq 'update_after'
       expect( Deepblue::AbstractEventBehavior::EVENT_UPDATE_BEFORE ).to eq 'update_before'
       expect( Deepblue::AbstractEventBehavior::EVENT_UPLOAD ).to eq 'upload'
-      expect( Deepblue::AbstractEventBehavior::EVENT_VIRUS_CHECK ).to eq 'virus_check'
+      expect( Deepblue::AbstractEventBehavior::EVENT_VIRUS_SCAN ).to eq 'virus_scan'
       expect( Deepblue::AbstractEventBehavior::EVENTS ).to eq [
         Deepblue::AbstractEventBehavior::EVENT_CHARACTERIZE,
         Deepblue::AbstractEventBehavior::EVENT_CHILD_ADD,
@@ -55,7 +55,7 @@ RSpec.describe Deepblue::AbstractEventBehavior do
         Deepblue::AbstractEventBehavior::EVENT_UPDATE_AFTER,
         Deepblue::AbstractEventBehavior::EVENT_UPDATE_BEFORE,
         Deepblue::AbstractEventBehavior::EVENT_UPLOAD,
-        Deepblue::AbstractEventBehavior::EVENT_VIRUS_CHECK
+        Deepblue::AbstractEventBehavior::EVENT_VIRUS_SCAN
       ]
       expect( Deepblue::AbstractEventBehavior::IGNORE_BLANK_KEY_VALUES ).to eq true
       expect( Deepblue::AbstractEventBehavior::USE_BLANK_KEY_VALUES ).to eq false

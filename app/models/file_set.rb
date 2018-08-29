@@ -34,6 +34,9 @@ class FileSet < ActiveFedora::Base
       prior_identifier
       title
       uri
+      virus_scan_service
+      virus_scan_status
+      virus_scan_status_date
       visibility
     ]
   end
@@ -54,6 +57,19 @@ class FileSet < ActiveFedora::Base
       label
       parent_id
       file_extension
+      visibility
+    ]
+  end
+
+  def metadata_keys_virus
+    %i[
+      title
+      label
+      parent_id
+      file_extension
+      virus_scan_service
+      virus_scan_status
+      virus_scan_status_date
       visibility
     ]
   end
@@ -82,6 +98,10 @@ class FileSet < ActiveFedora::Base
     metadata_keys_update
   end
 
+  def attributes_virus_for_provenance
+    metadata_keys_virus
+  end
+
   def files_to_file
     return nil if files.blank?
     files.each do |f|
@@ -107,22 +127,10 @@ class FileSet < ActiveFedora::Base
                 value = files.size
                 true
               when 'file_size'
-                value = if file_size.blank?
-                          if original_file.nil?
-                            0
-                          else
-                            original_file.size
-                          end
-                        else
-                          file_size[0]
-                        end
+                value = file_size_value
                 true
               when 'file_size_human_readable'
-                value = if file_size.blank?
-                          original_file.size
-                        else
-                          file_size[0]
-                        end
+                value = file_size_value
                 value = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( value, precision: 3 )
                 true
               when 'label'
@@ -138,7 +146,7 @@ class FileSet < ActiveFedora::Base
                 value = original_checksum.blank? ? '' : original_checksum[0]
                 true
               when 'original_name'
-                value = original_file.original_name
+                value = original_name_value
                 true
               when 'uri'
                 value = uri.value
@@ -158,6 +166,20 @@ class FileSet < ActiveFedora::Base
     return true
   end
 
+  def file_size_value
+    if file_size.blank?
+      original_file.nil? ? 0 : original_file.size
+    else
+      file_size[0]
+    end
+  end
+
+  def original_name_value
+    return '' if original_file.nil?
+    return original_file.original_name if original_file.respond_to?( :original_name )
+    return ''
+  end
+
   def metadata_hash_override( key:, ignore_blank_values:, key_values: )
     value = nil
     handled = case key.to_s
@@ -168,18 +190,10 @@ class FileSet < ActiveFedora::Base
                 value = files.size
                 true
               when 'file_size'
-                value = if file_size.blank?
-                          original_file.nil? ? 0 : original_file.size
-                        else
-                          file_size[0]
-                        end
+                value = file_size_value
                 true
               when 'file_size_human_readable'
-                value = if file_size.blank?
-                          original_file.nil? ? 0 : original_file.size
-                        else
-                          file_size[0]
-                        end
+                value = file_size_value
                 value = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( value, precision: 3 )
                 true
               when 'label'
@@ -195,7 +209,7 @@ class FileSet < ActiveFedora::Base
                 value = original_checksum.blank? ? '' : original_checksum[0]
                 true
               when 'original_name'
-                value = original_file.nil? ? nil : original_file.original_name
+                value = original_name_value
                 true
               when 'uri'
                 value = uri.value

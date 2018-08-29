@@ -1,8 +1,13 @@
 # frozen_string_literal: true
 
 module Deepblue
+
+  require_relative '../../../services/deepblue/virus_scan_service'
+
   module FileSetBehavior
     extend ActiveSupport::Concern
+
+    include ::Deepblue::VirusScanService
 
     included do
 
@@ -17,8 +22,86 @@ module Deepblue
     end
 
     def update_parent
-      parent.total_file_size_add_file_set!( self ) unless parent.nil?
+      return if parent.nil?
+      parent.total_file_size_add_file_set!( self )
+    end
+
+    def virus_scan
+      LoggingHelper.bold_debug [ "FileSet.virus_scan", "original_file = #{original_file}" ]
+      # check file size here to avoid making a temp copy of the file in VirusCheckerService
+      needed = virus_scan_needed?
+      if needed && virus_scan_file_too_big?
+        virus_scan_status_update( scan_result: VIRUS_SCAN_SKIPPED_TOO_BIG )
+      elsif needed
+        # TODO: figure out how to retry the virus scan as this only works for ( original_file && original_file.new_record? )
+        scan_result = Hydra::Works::VirusCheckerService.file_has_virus? original_file
+        virus_scan_status_update( scan_result: scan_result, previous_scan_result: virus_scan_status )
+      else
+        logger.info "Virus scan not needed." # TODO: improve message
+      end
+    end
+
+    def virus_scan_file_too_big?
+      rv = virus_scan_file_size > DeepBlueDocs::Application.config.virus_scan_max_file_size
+      return rv
+    end
+
+    def virus_scan_file_size
+      if file_size.blank?
+        if original_file.nil?
+          0
+        elsif original_file.respond_to? :size
+          original_file.size
+        else
+          0
+        end
+      else
+        file_size[0]
+      end
+    end
+
+    def virus_scan_needed?
+      return true if original_file && original_file.new_record?
+      return false unless DeepBlueDocs::Application.config.virus_scan_retry
+      scan_status = virus_scan_status
+      return true if scan_status.blank?
+      case scan_status
+      when VIRUS_SCAN_NOT_VIRUS
+        false
+      when VIRUS_SCAN_VIRUS
+        false
+      when VIRUS_SCAN_SKIPPED_TOO_BIG
+        false
+      when VIRUS_SCAN_SKIPPED_SERVICE_UNAVAILABLE
+        DeepBlueDocs::Application.config.virus_scan_retry_on_service_unavailable
+      when VIRUS_SCAN_ERROR
+        DeepBlueDocs::Application.config.virus_scan_retry_on_error
+      when VIRUS_SCAN_UNKNOWN
+        DeepBlueDocs::Application.config.virus_scan_retry_on_unknown
+      else
+        true
+      end
+    end
+
+    def virus_scan_retry?
+      return !( original_file && original_file.new_record? )
+    end
+
+    def virus_scan_status_update( scan_result:, previous_scan_result: nil )
+      return scan_result if previous_scan_result.present? && scan_result == previous_scan_result
+      # for some reason, this does not save the attributes
+      # virus_scan_service = virus_scan_service_name
+      # virus_scan_status = scan_result
+      # virus_scan_status_date = virus_scan_timestamp_now
+      # but this does save the attributes
+      self['virus_scan_service'] = virus_scan_service_name
+      self['virus_scan_status'] = scan_result
+      self['virus_scan_status_date'] = virus_scan_timestamp_now
+      save! # ( validate: false )
+      provenance_virus_scan( scan_result: scan_result ) if respond_to? :provenance_virus_scan
+      return scan_result
     end
 
   end
+
 end

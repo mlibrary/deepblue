@@ -23,6 +23,7 @@ module Deepblue
         Rails.logger.info "Skipping characterization of file with extension #{file_ext}: #{file_name}"
         file_set.provenance_characterize( current_user: current_user,
                                           event_note: "skipped_extension(#{file_ext})",
+                                          calling_class: name,
                                           **added_prov_key_values )
         perform_create_derivatives_job( file_set,
                                         repository_file_id,
@@ -44,7 +45,9 @@ module Deepblue
         proxy = file_set.characterization_proxy
         Hydra::Works::CharacterizationService.run( proxy, file_name )
         Rails.logger.debug "Ran characterization on #{proxy.id} (#{proxy.mime_type})"
-        file_set.provenance_characterize( current_user: current_user, **added_prov_key_values )
+        file_set.provenance_characterize( current_user: current_user,
+                                          calling_class: name,
+                                          **added_prov_key_values )
         file_set.characterization_proxy.save!
         file_set.update_index
         file_set.parent.in_collections.each( &:update_index ) if file_set.parent
@@ -81,6 +84,7 @@ module Deepblue
           Rails.logger.info "Skipping derivative of file with extension #{file_ext}: #{file_name}"
           file_set.provenance_create_derivative( current_user: current_user,
                                                  event_note: "skipped_extension #{file_ext}",
+                                                 calling_class: name,
                                                  **added_prov_key_values )
           return
         end
@@ -88,6 +92,7 @@ module Deepblue
           Rails.logger.info "Skipping video derivative job for file: #{file_name}"
           file_set.provenance_create_derivative( current_user: current_user,
                                                  event_note: "skipped_extension #{file_ext}",
+                                                 calling_class: name,
                                                  **added_prov_key_values )
           return
         end
@@ -95,13 +100,18 @@ module Deepblue
         if threshold_file_size > -1 && File.exist?(file_name) && File.size(file_name) > threshold_file_size
           human_readable = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( threshold_file_size, precision: 3 )
           Rails.logger.info "Skipping file larger than #{human_readable} for create derivative job file: #{file_name}"
-          file_set.provenance_create_derivative( current_user: current_user, event_note: "skipped_file_size #{File.size(file_name)}", **added_prov_key_values )
+          file_set.provenance_create_derivative( current_user: current_user,
+                                                 event_note: "skipped_file_size #{File.size(file_name)}",
+                                                 calling_class: name,
+                                                 **added_prov_key_values )
           return
         end
         Rails.logger.debug "About to call create derivatives: #{file_name}."
         file_set.create_derivatives( file_name )
         Rails.logger.debug "Create derivatives successful: #{file_name}."
-        file_set.provenance_create_derivative( current_user: current_user, **added_prov_key_values )
+        file_set.provenance_create_derivative( current_user: current_user,
+                                               calling_class: name,
+                                               **added_prov_key_values )
         # Reload from Fedora and reindex for thumbnail and extracted text
         file_set.reload
         file_set.update_index
@@ -170,6 +180,7 @@ module Deepblue
       return false unless file_set.save
       repository_file = related_file( file_set, relation )
       Hyrax::VersioningService.create( repository_file, user )
+      virus_scan( file_set )
       # pathhint = io.uploaded_file.uploader.path if io.uploaded_file # in case next worker is on same filesystem
       # CharacterizeJob.perform_later(file_set, repository_file.id, pathhint || io.path)
       characterize( file_set, repository_file.id, io.path )
@@ -245,6 +256,13 @@ module Deepblue
       Rails.logger.info "end IngestHelper.update_total_file_size"
     rescue Exception => e # rubocop:disable Lint/RescueException
       Rails.logger.error "IngestHelper.update_total_file_size(#{file_set}) #{e.class}: #{e.message} at #{e.backtrace[0]}"
+    end
+
+    def self.virus_scan( file_set )
+      LoggingHelper.bold_debug "IngestHelper.virus_scan #{file_set}"
+      file_set.virus_scan
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      Rails.logger.error "IngestHelper.virus_scan(#{file_set}) #{e.class}: #{e.message} at #{e.backtrace[0]}"
     end
 
   end

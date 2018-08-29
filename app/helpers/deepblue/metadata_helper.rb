@@ -65,7 +65,10 @@ module Deepblue
                                                   depositor
                                                   label
                                                   prior_identifier
-                                                  title ].freeze
+                                                  title
+                                                  virus_scan_service
+                                                  virus_scan_status
+                                                  virus_scan_status_date ].freeze
     ATTRIBUTE_NAMES_IGNORE = %w[ access_control_id
                                  collection_type_gid
                                  file_size

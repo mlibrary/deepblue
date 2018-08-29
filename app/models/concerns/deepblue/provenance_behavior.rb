@@ -18,6 +18,10 @@ module Deepblue
       %i[]
     end
 
+    def attributes_virus_for_provenance
+      attributes_brief_for_provenance
+    end
+
     def attributes_update_for_provenance
       attributes_all_for_provenance
     end
@@ -78,8 +82,8 @@ module Deepblue
       return attributes_all_for_provenance, USE_BLANK_KEY_VALUES
     end
 
-    def attributes_for_provenance_virus_check
-      return attributes_brief_for_provenance, IGNORE_BLANK_KEY_VALUES
+    def attributes_for_provenance_virus_scan
+      return attributes_virus_for_provenance, IGNORE_BLANK_KEY_VALUES
     end
 
     def attributes_cache_fetch( event:, id: for_provenance_id )
@@ -146,6 +150,7 @@ module Deepblue
 
     def map_provenance_attributes!( event:, attributes:, ignore_blank_key_values:, **prov_key_values )
       prov_object = for_provenance_object
+      # prov_object_class = prov_object.class.name
       if attributes.present?
         attributes.each do |attribute|
           next if map_provenance_attributes_override!( event: event,
@@ -162,7 +167,11 @@ module Deepblue
                   when 'date_created'
                     prov_object[:date_created].blank? ? '' : prov_object[:date_created]
                   else
-                    prov_object[attribute]
+                    if prov_object.has_attribute? attribute
+                      prov_object[attribute]
+                    else
+                      'MISSING_ATTRIBUTE'
+                    end
                     # begin
                     #   prov_object[attribute]
                     # rescue Exception => e
@@ -243,9 +252,10 @@ module Deepblue
                                                 ignore_blank_key_values: false )
     end
 
-    def provenance_characterize( current_user:, event_note: '', **added_prov_key_values )
+    def provenance_characterize( current_user:, event_note: '', calling_class:, **added_prov_key_values )
       event = EVENT_CHARACTERIZE
       attributes, ignore_blank_key_values = attributes_for_provenance_add
+      added_prov_key_values = { calling_class: calling_class }.merge added_prov_key_values
       prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes,
                                                                   current_user: current_user,
                                                                   event: event,
@@ -306,9 +316,10 @@ module Deepblue
                             ignore_blank_key_values: ignore_blank_key_values )
     end
 
-    def provenance_create_derivative( current_user:, event_note: '', **added_prov_key_values )
+    def provenance_create_derivative( current_user:, event_note: '', calling_class:, **added_prov_key_values )
       event = EVENT_CREATE_DERIVATIVE
       attributes, ignore_blank_key_values = attributes_for_provenance_add
+      added_prov_key_values = { calling_class: calling_class }.merge added_prov_key_values
       prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes,
                                                                   current_user: current_user,
                                                                   event: event,
@@ -362,13 +373,15 @@ module Deepblue
 
     def provenance_ingest( current_user:,
                            event_note: '',
+                           calling_class:,
                            ingest_id:,
                            ingester:,
                            ingest_timestamp:,
                            **added_prov_key_values )
       event = EVENT_INGEST
       attributes, ignore_blank_key_values = attributes_for_provenance_ingest
-      added_prov_key_values = { ingest_id: ingest_id,
+      added_prov_key_values = { calling_class: calling_class,
+                                ingest_id: ingest_id,
                                 ingester: ingester,
                                 ingest_timestamp: ingest_timestamp }.merge added_prov_key_values
       prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes,
@@ -519,15 +532,13 @@ module Deepblue
                             ignore_blank_key_values: true )
     end
 
-    def provenance_virus_check( current_user: nil,
-                                event_note: '',
-                                virus_check_service:,
-                                scan_result:,
-                                **added_prov_key_values )
-      event = EVENT_VIRUS_CHECK
-      attributes, ignore_blank_key_values = attributes_for_provenance_virus_check
-      added_prov_key_values = { virus_check_service: virus_check_service,
-                                scan_result: scan_result }.merge added_prov_key_values
+    def provenance_virus_scan( current_user: nil,
+                               event_note: '',
+                               scan_result:,
+                               **added_prov_key_values )
+      event = EVENT_VIRUS_SCAN
+      attributes, ignore_blank_key_values = attributes_for_provenance_virus_scan
+      added_prov_key_values = { scan_result: scan_result }.merge added_prov_key_values
       event_note = scan_result if event_note.blank?
       prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes,
                                                                   current_user: current_user,

@@ -211,7 +211,10 @@ class SolrDocument
     'tableofcontents',
     'time_required',
     'type_none',
-    'typical_age_range'
+    'typical_age_range',
+    'virus_scan_service',
+    'virus_scan_status',
+    'virus_scan_status_date'
   ]
 
   field_semantics.merge!(
