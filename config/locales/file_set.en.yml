@@ -3,6 +3,8 @@ en:
     label:
       authoremail:          "Contact information"
       creator:              "Creator"
+      curation_notes_admin: "Curation Notes for Admins"
+      curation_notes_user:  "Curation Notes for Users"
       date_coverage:        "Date coverage"
       date_created:         "Date created"
       doi:                  "DOI"
@@ -16,8 +18,9 @@ en:
       subject_discipline:   "Discipline"
       total_file_size:      "Total file size"
       total_file_size_human_readable: "Total file size"
-      curation_notes_admin: "Curation Notes for Admins"
-      curation_notes_user:  "Curation Notes for Users"
+      virus_scan_service:   "Virus scan service"
+      virus_scan_status:    "Virus scan status"
+      virus_scan_status_date: "Virus scan status date"
   simple_form:
     actions:
       file_set:

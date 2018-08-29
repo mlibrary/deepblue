@@ -4,7 +4,13 @@ module Hyrax
 
   class DsFileSetPresenter < Hyrax::FileSetPresenter
 
-    delegate :file_size, :file_size_readable, :original_checksum, :mime_type, to: :solr_document
+    delegate :file_size,
+             :file_size_human_readable,
+             :original_checksum,
+             :mime_type,
+             :virus_scan_service,
+             :virus_scan_status,
+             :virus_scan_status_date, to: :solr_document
 
     def doi_minted?
       # the first time this is called, doi will not be in solr.

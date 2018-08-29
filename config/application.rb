@@ -80,6 +80,10 @@ module DeepBlueDocs
 
     # ingest virus scan config
     config.virus_scan_max_file_size = 4_000_000_000
+    config.virus_scan_retry = true
+    config.virus_scan_retry_on_error = false
+    config.virus_scan_retry_on_service_unavailable = true
+    config.virus_scan_retry_on_unknown = false
 
     config.do_ordered_list_hack = true
     config.do_ordered_list_hack_save = true

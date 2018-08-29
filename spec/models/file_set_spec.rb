@@ -42,6 +42,9 @@ RSpec.describe FileSet do
       prior_identifier
       title
       uri
+      virus_scan_service
+      virus_scan_status
+      virus_scan_status_date
       visibility
     ]
   }

@@ -360,10 +360,25 @@ module Deepblue
           original_name
         end
         id_new = MODE_MIGRATE == mode ? id : nil
-        file_set = new_file_set( id: id_new )
-        file_set.apply_depositor_metadata( user_key )
-        Hydra::Works::UploadFileToFileSet.call( file_set, file )
+        attempts = 0
+        file_set = nil
+        loop do
+          break if attempts > 3
+          file_set = new_file_set( id: id_new )
+          file_set.apply_depositor_metadata( user_key )
+          success = upload_file_to_file_set( file_set, file )
+          break if success
+          attempts += 1
+          file_set = nil
+        end
         return file_set
+      end
+
+      def upload_file_to_file_set( file_set, file )
+        Hydra::Works::UploadFileToFileSet.call( file_set, file )
+        return true
+      rescue Ldp::Conflict
+        return false
       end
 
       def build_fundedby( hash: )
@@ -751,6 +766,7 @@ module Deepblue
       def log_provenance_ingest( curation_concern: )
         return unless curation_concern.respond_to? :provenance_ingest
         curation_concern.provenance_ingest( current_user: user,
+                                            calling_class: self.class.name,
                                             ingest_id: ingest_id,
                                             ingester: ingester,
                                             ingest_timestamp: ingest_timestamp )

@@ -79,5 +79,17 @@ module Umrdr
       ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( total, precision: 3 )
     end
 
+    def virus_scan_service
+      Array(self[Solrizer.solr_name('virus_scan_service')]).first
+    end
+
+    def virus_scan_status
+      Array(self[Solrizer.solr_name('virus_scan_status')]).first
+    end
+
+    def virus_scan_status_date
+      Array(self[Solrizer.solr_name('virus_scan_status_date')]).first
+    end
+
   end
 end
