@@ -5,7 +5,11 @@
     <% index_fields(document).each do |field_name, field| -%>
       <% if should_render_index_field? document, field %>
           <dt><%= render_index_field_label document, field: field_name %></dt>
-          <dd><span class="more"><%= doc_presenter.field_value field_name %></span></dd>
+          <% if field_name == "description_tesim" %>
+            <dd><span class="more"><%= doc_presenter.field_value field_name %></span></dd>
+          <% else %>
+            <dd><span><%= doc_presenter.field_value field_name %></span></dd>
+          <% end %>
       <% end %>
     <% end %>
     </dl>
