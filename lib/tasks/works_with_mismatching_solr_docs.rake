@@ -11,11 +11,18 @@ end
 
 module Deepblue
 
-  class WorksWithMismatchingSolrDocs
+  require 'tasks/abstract_task'
 
-    attr_accessor :logger, :keys_to_skip, :pacifier, :report, :report_missing_files, :report_files_mismatching_solr_docs,
+  class WorksWithMismatchingSolrDocs < AbstractTask
+
+    attr_accessor :keys_to_skip,
+                  :pacifier,
+                  :report,
+                  :report_missing_files,
+                  :report_files_mismatching_solr_docs,
                   :report_mismatching_files,
-                  :report_missing_other, :test_work_files_for_mismatching_solr_docs, :verbose
+                  :report_missing_other,
+                  :test_work_files_for_mismatching_solr_docs
 
     attr_reader :collections_mismatching_solr_docs,
                 :works_mismatching_solr_docs,
@@ -40,9 +47,8 @@ module Deepblue
 
     def run
       @pacifier ||= TaskPacifier.new
-      @logger ||= TaskLogger.new(STDOUT).tap { |logger| logger.level = Logger::INFO; Rails.logger = logger } # rubocop:disable Style/Semicolon
       @logger.info
-      GenericWork.all.each do |w|
+      TaskHelper.all_works.each do |w|
         print "#{w.id} ... " if @verbose
         check_work_solr_docs( w )
         # report_work_with_files_mismatching_solr_docs( work_id: w.id )
@@ -185,7 +191,7 @@ module Deepblue
     end
 
     def report_work_with_files_mismatching_solr_docs( work_id: nil, files_ids_with_mismatching_solr_docs: [] )
-      w = GenericWork.find work_id
+      w = TaskHelper.work_find( id: work_id )
       @logger.info "work: #{work_id} #{w.title.join( ',' )}"
       @logger.info "work: #{work_id} #{w.visibility}"
       @logger.info "work: #{work_id} #{w.depositor}"

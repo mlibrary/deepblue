@@ -22,7 +22,7 @@ module Deepblue
 
   class UpdateAllWorkFileSets
     def self.run
-      works = ::GenericWork.all
+      works = TaskHelper.all_works
       UpdateFileDerivatives.new( works ).run
     end
   end
@@ -31,13 +31,14 @@ module Deepblue
     def self.run
       # TODO: pass in the work ids
       works = []
-      # works << ::GenericWork.find( '1n79h444s' )
-      # works << ::GenericWork.find( 'ft848q70w' )
-      # works << ::GenericWork.find( 'pr76f340k' )
-      works << ::GenericWork.find( 'kd17cs870' )
+      # works << TaskHelper.work_find( id: '1n79h444s' )
+      # works << TaskHelper.work_find( id: 'ft848q70w' )
+      # works << TaskHelper.work_find( id: 'pr76f340k' )
+      works << TaskHelper.work_find( id: 'kd17cs870' )
       UpdateFileDerivatives.new( works ).run
     end
   end
+
   class UpdateFileDerivatives
 
     def initialize( works, restart_with_work_id: nil )

@@ -28,7 +28,7 @@ module Deepblue
       @user_pacifier = false
       @verbose = false
       puts
-      GenericWork.all.each do |w|
+      TaskHelper.all_works.each do |w|
         print "#{w.id} ... " if @verbose
         # puts JSON.pretty_generate doc.as_json
         check_work_edit_users( w )
@@ -113,7 +113,7 @@ module Deepblue
     end
 
     def report_work_with_files_missing_edit_users( work_id: nil, files_ids_with_missing_edit_users: [] )
-      w = GenericWork.find work_id
+      w = TaskHelper.work_find( id: work_id )
       puts "work: #{work_id} #{w.title.join( ',' )}"
       puts "work: #{work_id} #{w.visibility}"
       puts "work: #{work_id} #{w.depositor}"

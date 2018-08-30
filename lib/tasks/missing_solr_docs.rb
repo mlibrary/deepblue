@@ -2,10 +2,11 @@
 
 module Deepblue
 
+  require 'tasks/abstract_task'
   require 'tasks/active_fedora_indexing_descendent_fetcher2'
   require 'tasks/task_logger'
 
-  class MissingSolrdocs
+  class MissingSolrdocs < AbstractTask
 
     def descendant_uris( uri, exclude_uri: false, pacifier: nil, logger: nil )
       ActiveFedora::Indexing::DescendantFetcher2.new( uri,
@@ -19,7 +20,7 @@ module Deepblue
       begin
         c = Collection.find id
         rv = true unless c.nil?
-      rescue Exception => ignore # rubocop:disable Lint/RescueException, Lint/HandleExceptions, Lint/UselessAssignment
+      rescue Exception => _ignore # rubocop:disable Lint/RescueException, Lint/HandleExceptions
       end
       return rv
     end
@@ -28,7 +29,7 @@ module Deepblue
       rv = nil
       begin
         rv = Collection.find id
-      rescue Exception => ignore # rubocop:disable Lint/RescueException, Lint/HandleExceptions, Lint/UselessAssignment
+      rescue Exception => _ignore # rubocop:disable Lint/RescueException, Lint/HandleExceptions
       end
       return rv
     end
@@ -45,7 +46,7 @@ module Deepblue
       begin
         fs = FileSet.find id
         rv = true unless fs.nil?
-      rescue Exception => ignore # rubocop:disable Lint/RescueException, Lint/HandleExceptions, Lint/UselessAssignment
+      rescue Exception => _ignore # rubocop:disable Lint/RescueException, Lint/HandleExceptions
       end
       return rv
     end
@@ -54,14 +55,14 @@ module Deepblue
       rv = nil
       begin
         rv = FileSet.find id
-      rescue Exception => ignore # rubocop:disable Lint/RescueException, Lint/HandleExceptions, Lint/UselessAssignment
+      rescue Exception => _ignore # rubocop:disable Lint/RescueException, Lint/HandleExceptions
       end
       return rv
     end
 
     def find_missing_files_for_work( _uri, id )
       missing_files = []
-      w = GenericWork.find id
+      w = TaskHelper.work_find( id: id )
       w.file_set_ids.each do |fs|
         doc = solr_doc_from_id( fs.id )
         missing_files << fs.id if doc.nil?
@@ -69,37 +70,9 @@ module Deepblue
       return missing_files
     end
 
-    def generic_work?( _uri, id )
-      rv = false
-      begin
-        w = GenericWork.find id
-        rv = true unless w.nil?
-      rescue Exception => ignore # rubocop:disable Lint/RescueException, Lint/HandleExceptions, Lint/UselessAssignment
-      end
-      return rv
-    end
-
-    def generic_work_or_nil( _uri, id )
-      rv = nil
-      begin
-        rv = GenericWork.find id
-      rescue Exception => ignore # rubocop:disable Lint/RescueException, Lint/HandleExceptions, Lint/UselessAssignment
-      end
-      return rv
-    end
-
     def hydra_model( doc )
       return '' if doc.nil?
       return doc.hydra_model.to_s
-    end
-
-    def logger
-      @logger ||= logger_initialize
-    end
-
-    def logger_initialize
-      # TODO: add some flags to the input yml file for log level and Rails logging integration
-      Umrdr::TaskLogger.new(STDOUT).tap { |logger| logger.level = Logger::INFO; Rails.logger = logger } # rubocop:disable Style/Semicolon
     end
 
     def solr_doc( _uri, id )
@@ -110,7 +83,7 @@ module Deepblue
       doc = nil
       begin
         doc = SolrDocument.find id
-      rescue Blacklight::Exceptions::RecordNotFound => e2 # rubocop:disable Lint/HandleExceptions, Lint/UselessAssignment
+      rescue Blacklight::Exceptions::RecordNotFound => _e2 # rubocop:disable Lint/HandleExceptions
         # puts "e2 #{e2.class}: #{e2.message}"
       rescue Exception => e # rubocop:disable Lint/RescueException
         puts "e #{e.class}: #{e.message} at #{e.backtrace[0]}" # rubocop:disable Rails/Output
@@ -125,6 +98,21 @@ module Deepblue
 
     def uri_to_id( uri )
       ActiveFedora::Base.uri_to_id(uri)
+    end
+
+    def work?( uri, id )
+      w = work_or_nil( uri, id )
+      return true if w.present?
+      return false
+    end
+
+    def work_or_nil( _uri, id )
+      rv = nil
+      begin
+        rv = TaskHelper.work_find( id: id )
+      rescue Exception => _ignore # rubocop:disable Lint/RescueException, Lint/HandleExceptions
+      end
+      return rv
     end
 
   end

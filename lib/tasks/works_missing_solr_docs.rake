@@ -2,9 +2,13 @@
 
 namespace :deepblue do
 
+  # bundle exec rake deepblue:works_missing_solr_docs
   desc 'List works missing solr docs'
-  task works_missing_solr_docs: :environment do
-    Deepblue::WorksMissingSolrdocs.new.run
+  task :works_missing_solr_docs, %i[ options ] => :environment do |_task, args|
+    args.with_defaults( options: '{}' )
+    options = args[:options]
+    task = Deepblue::WorksMissingSolrdocs.new( options: options )
+    task.run
   end
 
 end
@@ -15,17 +19,39 @@ module Deepblue
 
   class WorksMissingSolrdocs < MissingSolrdocs
 
+    DEFAULT_REPORT_MISSING_FILES = false
+    DEFAULT_REPORT_MISSING_OTHER = false
+    DEFAULT_USER_PACIFIER = false
+
+    attr_accessor :report_missing_files, :report_missing_other, :user_pacifier
+
+    attr_reader :collections_missing_solr_docs,
+                :files_missing_solr_docs,
+                :works_missing_solr_docs,
+                :other_missing_solr_docs,
+                :pacifier,
+                :logger
+
+    def initialize( options: )
+      super( options: options )
+      @report_missing_files = TaskHelper.task_options_value( @options,
+                                                             key: 'report_missing_files',
+                                                             default_value: DEFAULT_REPORT_MISSING_FILES )
+      @report_missing_other = TaskHelper.task_options_value( @options,
+                                                             key: 'report_missing_other',
+                                                             default_value: DEFAULT_REPORT_MISSING_OTHER )
+      @user_pacifier = TaskHelper.task_options_value( @options,
+                                                      key: 'user_pacifier',
+                                                      default_value: DEFAULT_USER_PACIFIER )
+    end
+
     def run
       @collections_missing_solr_docs = []
       @files_missing_solr_docs = []
       @works_missing_solr_docs = []
       @other_missing_solr_docs = []
-      @report_missing_files = false
-      @report_missing_other = false
-      @user_pacifier = false
-      @verbose = false
       @pacifier = TaskPacifier.new
-      @logger = TaskLogger.new(STDOUT).tap { |logger| logger.level = Logger::INFO; Rails.logger = logger } # rubocop:disable Style/Semicolon
+      @logger = TaskHelper.logger_new
       count = 0
       descendants = descendant_uris( ActiveFedora.fedora.base_uri,
                                      exclude_uri: true,
@@ -41,10 +67,10 @@ module Deepblue
         hydra_model = hydra_model doc
         # @logger.info "'#{hydra_model}'"
         # @logger.info JSON.pretty_generate doc.as_json
-        @logger.info "generic_work? #{generic_work?( uri, id )}" if @verbose
+        @logger.info "work? #{work?( uri, id )}" if @verbose
         @logger.info "file_set? #{file_set?( uri, id )}" if @verbose
         if doc.nil?
-          if generic_work?( uri, id )
+          if work?( uri, id )
             @works_missing_solr_docs << id
           elsif file_set?( uri, id )
             @files_missing_solr_docs << id
@@ -53,7 +79,7 @@ module Deepblue
           else
             @other_missing_solr_docs << id
           end
-        elsif hydra_model == "GenericWork"
+        elsif TaskHelper.hydra_model_work?( hydra_model: hydra_model )
           count += 1
           @logger.info "#{id}...good work" if @verbose
         elsif hydra_model == "FileSet"

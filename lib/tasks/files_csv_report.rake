@@ -11,7 +11,9 @@ end
 
 module Deepblue
 
-  class FilesCsvReport
+  require 'tasks/abstract_task'
+
+  class FilesCsvReport < AbstractTask
 
     def run
       @count = 0
@@ -21,7 +23,7 @@ module Deepblue
       puts "target_file=#{target_file}"
       open( target_file, 'w' ) do |out|
         out.puts "w_id,fs_id,visibility,depositor,date_uploaded,time_uploaded,label,dupe,file0_nil?,original_checksum,original_size,uri_bytes"
-        GenericWork.all.each { |w| report_work( out, w ) }
+        TaskHelper.all_works.each { |w| report_work( out, w ) }
       end
       puts
     end

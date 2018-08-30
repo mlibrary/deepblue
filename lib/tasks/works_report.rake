@@ -6,14 +6,21 @@ namespace :deepblue do
   task works_report: :environment do
     Deepblue::WorksReport.run
   end
+  # task :works_report, %i[ options ] => :environment do |_task, args|
+  #   args.with_defaults( options: '{}' )
+  #   options = args[:options]
+  #   task = Deepblue::WorksReport.new( options: options )
+  #   task.run
+  # end
 
 end
 
 module Deepblue
 
+  require 'tasks/abstract_task'
   require 'stringio'
 
-  class WorksReport
+  class WorksReport < AbstractTask
 
     # Produce a report containing:
     # * # of datasets
@@ -23,6 +30,22 @@ module Deepblue
     # * Top 10 file formats (csv, nc, txt, pdf, etc)
     # * Discipline of dataset
     # * Names of depositors
+
+    # TODO: change to standard rake task with options
+    #
+    # DEFAULT_VERBOSE = false
+    #
+    # attr_reader :options
+    #
+    # attr_accessor :verbose
+    #
+    # def initialize( options: {} )
+    #   @options = TaskHelper.task_options_parse options
+    #   puts "options=#{options}" if @options.key? :error
+    #   puts "@options=#{@options}" if @options.key? :error
+    #   @verbose = TaskHelper.task_options_value( @options, key: 'verbose', default_value: DEFAULT_VERBOSE )
+    #   puts "@verbose=#{@verbose}" if @verbose
+    # end
 
     def self.files( count )
       if 1 == count
@@ -60,7 +83,7 @@ module Deepblue
         out << ',' << work.file_set_ids.size.to_s
         out << ',' << work_size.to_s
         out << ',' << human_readable( work_size ).to_s
-        out << ',' << '"' << work.subject.join( '; ' ) << '"'
+        out << ',' << '"' << TaskHelper.work_discipline( work: work ).join( '; ' ) << '"'
         out << ',' << '"' << work.creator.join( '; ' ) << '"'
         out << ',' << '"' << (work.thumbnail_id.nil? ? '' : work.thumbnail_id).to_s << '"'
         out << ',' << '"' << (work.doi.nil? ? '' : work.doi).to_s << '"'
@@ -172,7 +195,7 @@ module Deepblue
       out_file_sets = open( file_sets_file, 'w' )
       print_work_line( out_works, header: true )
       print_file_set_line( out_file_sets, header: true )
-      all_works = GenericWork.all
+      all_works = TaskHelper.all_works
       total_works = 0
       total_file_sets = 0
       total_works_size = 0

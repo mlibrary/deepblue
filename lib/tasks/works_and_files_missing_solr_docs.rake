@@ -3,8 +3,11 @@
 namespace :deepblue do
 
   desc 'List works and their files missing solr docs'
-  task works_and_files_missing_solr_docs: :environment do
-    Deepblue::WorksAndFilesMissingSolrdocs.new.run
+  task :works_and_files_missing_solr_docs, %i[ options ] => :environment do |_task, args|
+    args.with_defaults( options: '{}' )
+    options = args[:options]
+    task = Deepblue::WorksAndFilesMissingSolrdocs.new( options: options )
+    task.run
   end
 
 end
@@ -32,7 +35,7 @@ module Deepblue
       @verbose = false
       count = 0
       @pacifier = TaskPacifier.new
-      @logger = TaskLogger.new(STDOUT).tap { |logger| logger.level = Logger::INFO; Rails.logger = logger } # rubocop:disable Style/Semicolon
+      @logger = TaskHelper.logger_new
       descendants = descendant_uris( ActiveFedora.fedora.base_uri,
                                      exclude_uri: true,
                                      pacifier: @pacifier,
@@ -47,10 +50,10 @@ module Deepblue
         hydra_model = hydra_model doc
         # @logger.info "'#{hydra_model}'"
         # @logger.info JSON.pretty_generate doc.as_json
-        @logger.info "generic_work? #{generic_work?( uri, id )}" if @verbose
+        @logger.info "work? #{work?( uri, id )}" if @verbose
         @logger.info "file_set? #{file_set?( uri, id )}" if @verbose
         if doc.nil?
-          if generic_work?( uri, id )
+          if work?( uri, id )
             @works_missing_solr_docs << id
             missing_files = find_missing_files_for_work( uri, id )
             @work_id_to_missing_files_map[id] = missing_files unless missing_files.empty?
@@ -63,7 +66,7 @@ module Deepblue
           else
             @other_missing_solr_docs << id
           end
-        elsif hydra_model == "GenericWork"
+        elsif TaskHelper.hydra_model_work?( hydra_model: hydra_model )
           count += 1
           @logger.info "#{id}...good work" if @verbose
         elsif hydra_model == "FileSet"

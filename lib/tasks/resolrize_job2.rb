@@ -8,7 +8,7 @@ module Deepblue
   class ResolrizeJob2 < ApplicationJob
 
     def perform
-      logger = TaskLogger.new(STDOUT).tap { |log| log.level = Logger::INFO; Rails.logger = log } # rubocop:disable Style/Semicolon
+      logger = TaskHelper.logger_new
       pacifier = TaskPacifier.new
       ActiveFedora::Base.reindex_everything2( logger: logger, pacifier: pacifier )
     end
