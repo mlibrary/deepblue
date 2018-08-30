@@ -20,16 +20,16 @@ module Deepblue
     def self.run
       # TODO: pass in the work ids
       all_works = []
-      all_works << ::GenericWork.find( '1n79h444s' )
-      all_works << ::GenericWork.find( 'ft848q70w' )
-      # all_works << ::GenericWork.find( 'mg74qm08d' )
+      all_works << TaskHelper.work_find( id: '1n79h444s' )
+      all_works << TaskHelper.work_find( id: 'ft848q70w' )
+      # all_works << TaskHelper.work_find( id: 'mg74qm08d' )
       UpdateWorksTotalFileSizes.new( all_works ).run
     end
   end
 
   class UpdateWorks
     def self.run
-      all_works = ::GenericWork.all
+      all_works = TaskHelper.all_works
       UpdateWorksTotalFileSizes.new( all_works ).run
     end
   end
@@ -107,7 +107,7 @@ module Deepblue
       nil_files = []
       work_ids_found = []
       begin
-        all_works = ::GenericWork.all # all_works.size
+        all_works = TaskHelper.all_works # all_works.size
         all_works.map do |w|
           puts "Skipping nil work" if w.nil?
           next if w.nil?

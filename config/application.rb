@@ -8,6 +8,7 @@ require 'rails/all'
 Bundler.require(*Rails.groups)
 
 module DeepBlueDocs
+
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
@@ -16,6 +17,9 @@ module DeepBlueDocs
     config.generators do |g|
       g.test_framework :rspec, spec: true
     end
+
+    # config.dbd_version = 'DBDv1'
+    config.dbd_version = 'DBDv2'
 
     ## configure box
 
@@ -95,4 +99,5 @@ module DeepBlueDocs
     config.provenance_log_redundant_events = true
 
   end
+
 end

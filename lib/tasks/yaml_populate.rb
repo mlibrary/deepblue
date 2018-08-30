@@ -4,12 +4,13 @@ require 'open-uri'
 
 module Deepblue
 
+  require 'tasks/abstract_task'
   require_relative 'task_helper'
   # see: http://ruby-doc.org/stdlib-2.0.0/libdoc/benchmark/rdoc/Benchmark.html
   require 'benchmark'
   include Benchmark
 
-  class YamlPopulate
+  class YamlPopulate < AbstractTask
 
     DEFAULT_EXPORT_FILES = true
     DEFAULT_MODE = 'build'
@@ -18,11 +19,8 @@ module Deepblue
     attr_accessor :populate_type
 
     def initialize( populate_type:, options: )
+      super( options: options )
       @populate_type = populate_type
-      # puts "options=#{options}"
-      @options = TaskHelper.task_options_parse options
-      # puts "@options=#{@options}"
-      puts "WARNING: options error #{@options['error']}" if @options.key? 'error'
       @target_dir = task_options_value( key: 'target_dir', default_value: DEFAULT_TARGET_DIR )
       @export_files = task_options_value( key: 'export_files', default_value: DEFAULT_EXPORT_FILES )
       @mode = task_options_value( key: 'mode', default_value: DEFAULT_MODE )
@@ -60,10 +58,6 @@ module Deepblue
         end
       end
       return measurement
-    end
-
-    def task_options_value( key:, default_value: nil )
-      TaskHelper.task_options_value( @options, key: key, default_value: default_value )
     end
 
     def yaml_populate_collection( id: )

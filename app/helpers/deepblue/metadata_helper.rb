@@ -214,24 +214,24 @@ module Deepblue
         report_item( out, "Citation to related material: ", collection.referenced_by )
         report_item( out, "Visibility: ", collection.visibility )
         if collection.member_objects.count.positive?
-          collection.member_objects.each do |generic_work|
+          collection.member_objects.each do |work|
             out.puts
-            report_generic_work( generic_work, out: out, depth: "=#{depth}" )
+            report_work(work, out: out, depth: "=#{depth}" )
           end
         end
       end
       return target_file
     end
 
-    def self.report_collection_work( collection, generic_work, dir: nil, out: nil, depth: '==' )
+    def self.report_collection_work( collection, work, dir: nil, out: nil, depth: '==' )
       target_file = nil
       if out.nil?
-        target_file = metadata_filename_collection_work( dir, collection, generic_work )
+        target_file = metadata_filename_collection_work( dir, collection, work )
         open( target_file, 'w' ) do |out2|
-          report_collection_work( collection, generic_work, out: out2, depth: depth )
+          report_collection_work( collection, work, out: out2, depth: depth )
         end
       else
-        report_work( generic_work, out: out, depth: depth )
+        report_work( work, out: out, depth: depth )
       end
       return target_file
     end
@@ -247,42 +247,42 @@ module Deepblue
       report_item( out, "Mimetype: ", file_set.mime_type )
     end
 
-    def self.report_generic_work( generic_work, dir: nil, out: nil, depth: '==' )
+    def self.report_work( work, dir: nil, out: nil, depth: '==' )
       target_file = nil
       if out.nil?
-        target_file = metadata_filename_work( dir, generic_work )
+        target_file = metadata_filename_work( dir, work )
         open( target_file, 'w' ) do |out2|
-          report_generic_work( generic_work, out: out2, depth: depth )
+          report_work(work, out: out2, depth: depth )
         end
       else
-        title = report_title( generic_work, field_sep: '' )
+        title = report_title( work, field_sep: '' )
         out.puts "#{depth} Generic Work: #{title} #{depth}"
-        report_item( out, "ID: ", generic_work.id )
-        report_item( out, "Title: ", generic_work.title, one_line: true )
-        report_item( out, "Prior Identifier: ", generic_work.prior_identifier, one_line: true )
-        report_item( out, "Methodology: ", generic_work.methodology )
-        report_item( out, "Description: ", generic_work.description, one_line: false, item_prefix: "\t" )
-        report_item( out, "Creator: ", generic_work.creator, one_line: false, item_prefix: "\t" )
-        report_item( out, "Depositor: ", generic_work.depositor )
-        report_item( out, "Contact: ", generic_work.authoremail )
-        report_item( out, "Discipline: ", generic_work.subject_discipline, one_line: false, item_prefix: "\t" )
-        report_item( out, "Funded by: ", generic_work.fundedby )
-        report_item( out, "Funded by Other: ", generic_work.fundedby_other ) if report_source == SOURCE_DBDv2
-        report_item( out, "ORSP Grant Number: ", generic_work.grantnumber )
-        report_item( out, "Keyword: ", generic_work.keyword, one_line: false, item_prefix: "\t" )
-        report_item( out, "Date coverage: ", generic_work.date_coverage )
-        report_item( out, "Citation to related material: ", generic_work.referenced_by )
-        report_item( out, "Language: ", generic_work.language )
-        report_item( out, "Total file count: ", generic_work.file_set_ids.count )
-        report_item( out, "Total file size: ", human_readable_size( generic_work.total_file_size ) )
-        report_item( out, "DOI: ", generic_work.doi, optional: true )
-        report_item( out, "Visibility: ", generic_work.visibility )
-        report_item( out, "Rights: ", generic_work.rights_license )
-        report_item( out, "Rights (other): ", generic_work.rights_license_other ) if report_source == SOURCE_DBDv2
-        report_item( out, "Admin set id: ", generic_work.admin_set_id )
-        report_item( out, "Tombstone: ", generic_work.tombstone, optional: true )
-        if generic_work.file_sets.count.positive?
-          generic_work.file_sets.each do |file_set|
+        report_item( out, "ID: ", work.id )
+        report_item( out, "Title: ", work.title, one_line: true )
+        report_item( out, "Prior Identifier: ", work.prior_identifier, one_line: true )
+        report_item( out, "Methodology: ", work.methodology )
+        report_item( out, "Description: ", work.description, one_line: false, item_prefix: "\t" )
+        report_item( out, "Creator: ", work.creator, one_line: false, item_prefix: "\t" )
+        report_item( out, "Depositor: ", work.depositor )
+        report_item( out, "Contact: ", work.authoremail )
+        report_item( out, "Discipline: ", work.subject_discipline, one_line: false, item_prefix: "\t" )
+        report_item( out, "Funded by: ", work.fundedby )
+        report_item( out, "Funded by Other: ", work.fundedby_other ) if report_source == SOURCE_DBDv2
+        report_item( out, "ORSP Grant Number: ", work.grantnumber )
+        report_item( out, "Keyword: ", work.keyword, one_line: false, item_prefix: "\t" )
+        report_item( out, "Date coverage: ", work.date_coverage )
+        report_item( out, "Citation to related material: ", work.referenced_by )
+        report_item( out, "Language: ", work.language )
+        report_item( out, "Total file count: ", work.file_set_ids.count )
+        report_item( out, "Total file size: ", human_readable_size( work.total_file_size ) )
+        report_item( out, "DOI: ", work.doi, optional: true )
+        report_item( out, "Visibility: ", work.visibility )
+        report_item( out, "Rights: ", work.rights_license )
+        report_item( out, "Rights (other): ", work.rights_license_other ) if report_source == SOURCE_DBDv2
+        report_item( out, "Admin set id: ", work.admin_set_id )
+        report_item( out, "Tombstone: ", work.tombstone, optional: true )
+        if work.file_sets.count.positive?
+          work.file_sets.each do |file_set|
             out.puts
             report_file_set( file_set, out: out, depth: "=#{depth}" )
           end

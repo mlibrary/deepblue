@@ -12,11 +12,12 @@ end
 # rubocop:disable Style/SafeNavigation Style/Semicolon
 module Deepblue
 
-  class ReindexWorksWithMismatchingSolrDocs
+  require 'tasks/abstract_task'
+
+  class ReindexWorksWithMismatchingSolrDocs < AbstractTask
 
     def run
       @pacifier ||= TaskPacifier.new
-      @logger ||= TaskLogger.new(STDOUT).tap { |logger| logger.level = Logger::INFO; Rails.logger = logger } # rubocop:disable Style/Semicolon
       @verify_report = true
       @verbose = true
       works_with = works_with_finder

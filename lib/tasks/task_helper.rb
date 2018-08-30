@@ -8,6 +8,14 @@ module Deepblue
 
   module TaskHelper
 
+    def self.all_works
+      if DeepBlueDocs::Application.config.dbd_version == 'DBDv1'
+        GenericWorks.all
+      else
+        DataSet.all
+      end
+    end
+
     def self.benchmark_report( label:, first_id:, measurements:, total: nil )
       label += ' ' * (first_id.size - label.size)
       puts "#{label} #{Benchmark::CAPTION}"
@@ -22,6 +30,25 @@ module Deepblue
       puts total.format( "#{label} #{format} is #{seconds_to_readable(total.real)}\n" )
     end
 
+    def self.hydra_model_work?( hydra_model: )
+      if DeepBlueDocs::Application.config.dbd_version == 'DBDv1'
+        'GenericWork' == hyrda_model
+      else
+        'DataSet' == hydra_model
+      end
+    end
+
+    def self.ensure_dirs_exist( *dirs )
+      dirs.each { |dir| Dir.mkdir( dir ) unless Dir.exist?( dir ) }
+    end
+
+    def self.logger_new( logger_level: Logger::INFO )
+      TaskLogger.new( STDOUT ).tap do |logger|
+        logger.level = logger_level
+        Rails.logger = logger
+      end
+    end
+
     def self.seconds_to_readable( seconds )
       h, min, s, _fr = split_seconds( seconds )
       return "#{h} hours, #{min} minutes, and #{s} seconds"
@@ -33,6 +60,22 @@ module Deepblue
       h,   ss = ss.divmod(3600 )
       min, s  = ss.divmod(60 )
       return h, min, s, fr
+    end
+
+    def self.target_file_name( file_set:, files_extracted: )
+      target_file_name = file_set.label
+      if files_extracted.key? target_file_name
+        dup_count = 1
+        base_ext = File.extname target_file_name
+        base_target_file_name = File.basename target_file_name, base_ext
+        target_file_name = base_target_file_name + "_" + dup_count.to_s.rjust( 3, '0' ) + base_ext
+        while files_extracted.key? target_file_name
+          dup_count += 1
+          target_file_name = base_target_file_name + "_" + dup_count.to_s.rjust( 3, '0' ) + base_ext
+        end
+      end
+      files_extracted.store( target_file_name, true )
+      return target_file_name
     end
 
     def self.task_options_error?( options )
@@ -49,7 +92,26 @@ module Deepblue
     def self.task_options_value( options, key:, default_value: nil )
       return default_value if options.blank?
       return default_value unless options.key? key
+      # if [true, false].include? default_value
+      #   return options[key].to_bool
+      # end
       return options[key]
+    end
+
+    def self.work_discipline( work: )
+      if DeepBlueDocs::Application.config.dbd_version == 'DBDv1'
+        work.subject
+      else
+        work.subject_discipline
+      end
+    end
+
+    def self.work_find( id: )
+      if DeepBlueDocs::Application.config.dbd_version == 'DBDv1'
+        GenericWork.find id
+      else
+        DataSet.find id
+      end
     end
 
   end

@@ -11,17 +11,26 @@ end
 
 module Deepblue
 
-  class WorksMissingEditUsers
+  require 'tasks/abstract_task'
 
-    attr_accessor :logger, :pacifier, :report, :report_missing_files, :report_files_missing_edit_users,
-                  :report_missing_other, :verbose
+  class WorksMissingEditUsers < AbstractTask
 
-    attr_reader :collections_missing_edit_users, :collections_missing_depositor_edit_user,
-                :works_missing_edit_users, :works_missing_depositor_edit_user,
-                :files_missing_edit_users, :files_missing_depositor_edit_user,
+    attr_accessor :pacifier,
+                  :report,
+                  :report_missing_files,
+                  :report_files_missing_edit_users,
+                  :report_missing_other
+
+    attr_reader :collections_missing_edit_users,
+                :collections_missing_depositor_edit_user,
+                :works_missing_edit_users,
+                :works_missing_depositor_edit_user,
+                :files_missing_edit_users,
+                :files_missing_depositor_edit_user,
                 :work_to_files_missing_edit_users_map
 
     def initialize
+      super
       @collections_missing_edit_users = []
       @collections_missing_depositor_edit_user = []
       @works_missing_edit_users = []
@@ -38,9 +47,8 @@ module Deepblue
 
     def run
       @pacifier ||= TaskPacifier.new
-      @logger ||= TaskLogger.new(STDOUT).tap { |logger| logger.level = Logger::INFO; Rails.logger = logger } # rubocop:disable Style/Semicolon
       @logger.info
-      GenericWork.all.each do |w|
+      TaskHelper.all_works.each do |w|
         print "#{w.id} ... " if @verbose
         # @logger.info JSON.pretty_generate doc.as_json
         check_work_edit_users( w )
@@ -126,7 +134,7 @@ module Deepblue
     end
 
     def report_work_with_files_missing_edit_users( work_id: nil, files_ids_with_missing_edit_users: [] )
-      w = GenericWork.find work_id
+      w = TaskHelper.work_find( id: work_id )
       @logger.info "work: #{work_id} #{w.title.join( ',' )}"
       @logger.info "work: #{work_id} #{w.visibility}"
       @logger.info "work: #{work_id} #{w.depositor}"
