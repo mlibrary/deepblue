@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'hydra/file_characterization'
+require_relative './task_helper'
 require_relative './task_logger'
 
 Hydra::FileCharacterization::Characterizers::Fits.tool_path = `which fits || which fits.sh`.strip
@@ -14,6 +15,7 @@ module Deepblue
   class NewContentService
 
     DEFAULT_USER_CREATE = true
+    DEFAULT_VERBOSE = false
     MODE_APPEND = 'append'
     MODE_BUILD = 'build'
     MODE_MIGRATE = 'migrate'
@@ -45,10 +47,12 @@ module Deepblue
                 :mode,
                 :path_to_yaml_file,
                 :user,
-                :user_create
+                :user_create,
+                :verbose
 
-    def initialize( path_to_yaml_file:, cfg_hash:, base_path:, args: )
+    def initialize( path_to_yaml_file:, cfg_hash:, base_path:, options:, args: )
       initialize_with_msg( args: args,
+                           options: options,
                            path_to_yaml_file: path_to_yaml_file,
                            cfg_hash: cfg_hash,
                            base_path: base_path )
@@ -397,6 +401,17 @@ module Deepblue
         return collection
       end
 
+      def build_or_find_user( user_hash: )
+        return nil if user_hash.blank?
+        email = user_hash[:email]
+        user = User.find_by_user_key( email )
+        # log_object user if user.present?
+        return user if user.present?
+        user = build_user( user_hash: user_hash )
+        # log_object user if user.present?
+        return user
+      end
+
       def build_or_find_work( work_hash:, parent: )
         # puts "build_or_find_work( work_hash: #{work_hash} )"
         return nil if work_hash.blank?
@@ -449,6 +464,39 @@ module Deepblue
         else
           Array( hash[:subject_discipline] )
         end
+      end
+
+      def build_user( user_hash: )
+        attr_names = User.attribute_names
+        skip = Deepblue::MetadataHelper::ATTRIBUTE_NAMES_USER_IGNORE
+        attrs = {}
+        attr_names.each do |key|
+          next if skip.include?( name )
+          value = user_hash[key.to_sym]
+          attrs[key] = value if value.present?
+        end
+        puts "User.create!( #{attrs} )" # rubocop:disable Rails/Output
+        # TODO
+        # User.create!( attrs )
+        return nil
+      end
+
+      def build_users
+        return unless users
+        # user_create_users( emails: user_key )
+        measurement = Benchmark.measure do
+          users.each do |users_hash|
+            user_emails = users_hash[:user_emails]
+            next if user_emails.blank?
+            user_emails.each do |user_email|
+              user_email_id = "user_#{user_email}".to_sym
+              user_hash = users_hash[user_email_id]
+              user = build_or_find_user( user_hash: user_hash )
+              log_object user if user.present?
+            end
+          end
+        end
+        return measurement
       end
 
       def build_work( id:, work_hash:, parent: )
@@ -697,6 +745,7 @@ module Deepblue
 
       # rubocop:disable Rails/Output
       def initialize_with_msg( args:,
+                               options:,
                                path_to_yaml_file:,
                                cfg_hash:,
                                base_path:,
@@ -708,6 +757,16 @@ module Deepblue
 
         DeepBlueDocs::Application.config.provenance_log_echo_to_rails_logger = false
         ProvenanceHelper.echo_to_rails_logger = false
+
+        @options = TaskHelper.task_options_parse options
+        if @options.key?( :error ) || @options.key?( 'error' )
+          puts "WARNING: options error #{@options['error']}"
+          puts "options=#{options}" if @options.key?
+          puts "@options=#{@options}" if @options.key?
+        end
+        @verbose = TaskHelper.task_options_value( @options, key: 'verbose', default_value: DEFAULT_VERBOSE )
+        puts "@verbose=#{@verbose}" if @verbose
+
         verbose_init = false
         @args = args # TODO: args.to_hash
         puts "args=#{args}" if verbose_init
@@ -741,10 +800,26 @@ module Deepblue
       def log_object( obj )
         id = if obj.respond_to?( :has_attribute? ) && obj.has_attribute?( :prior_identifier )
                "#{obj.id} prior id: #{Array( obj.prior_identifier )}"
-             else
+             elsif obj.respond_to? :email
+               obj.email
+             elsif obj.respond_to? :id
                obj.id.to_s
+             else
+               'no_id'
              end
-        log_msg "#{mode}: #{obj.class.name} id: #{id} title: #{obj.title.first}"
+        title = if obj.respond_to? :title
+                  value = obj.title
+                  value = value.first if value.respond_to? :first
+                  value
+                else
+                  'no_title'
+                end
+        msg = if obj.respond_to? :title
+                "#{mode}: #{obj.class.name} id: #{id} title: #{title}"
+              else
+                "#{mode}: #{obj.class.name} id: #{id}"
+              end
+        log_msg msg
       end
 
       def log_provenance_add_child( parent:, child: )
@@ -1105,6 +1180,10 @@ module Deepblue
         return work
       end
 
+      def users
+        @users ||= users_from_hash( hash: @cfg_hash[:user] )
+      end
+
       def user_create_users( emails:, password: 'password' )
         return unless user_create
         return if emails.blank?
@@ -1114,6 +1193,10 @@ module Deepblue
           User.create!( email: email, password: password, password_confirmation: password )
           log_msg( "Creating user: #{email}" )
         end
+      end
+
+      def users_from_hash( hash: )
+        [hash[:users]]
       end
 
       def user_key

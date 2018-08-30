@@ -1,16 +1,17 @@
 # frozen_string_literal: true
 
 require 'yaml'
-require_relative '../build_content_service'
 require_relative '../append_content_service'
+require_relative '../build_content_service'
+require_relative '../ingest_users_service'
 
 namespace :umrdr do
 
   # See: Rake::TaskArguments for args class
   # See: https://stackoverflow.com/questions/825748/how-to-pass-command-line-arguments-to-a-rake-task
 
-  # bundle exec rake umrdr::append[/deepbluedata_prep/w_9019s2443_populate]
-  # bundle exec rake umrdr::append[/deepbluedata_prep/w_9019s2443_populate,ingester@umich.edu]
+  # bundle exec rake umrdr:append[/deepbluedata-prep/w_9019s2443_populate.yml]
+  # bundle exec rake umrdr:append[/deepbluedata-prep/w_9019s2443_populate.yml,ingester@umich.edu]
   desc "Append files to existing collections."
   task :append, %i[ path_to_yaml_file ingester ] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"
@@ -19,8 +20,8 @@ namespace :umrdr do
     puts "Done."
   end
 
-  # bundle exec rake umrdr::build[/deepbluedata_prep/w_9019s2443_populate]
-  # bundle exec rake umrdr::build[/deepbluedata_prep/w_9019s2443_populate,ingester@umich.edu]
+  # bundle exec rake umrdr:build[/deepbluedata-prep/w_9019s2443_populate.yml]
+  # bundle exec rake umrdr:build[/deepbluedata-prep/w_9019s2443_populate.yml,ingester@umich.edu]
   desc "Build app with  collections, works, and files."
   task :build, %i[ path_to_yaml_file ingester ] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"
@@ -29,7 +30,7 @@ namespace :umrdr do
     puts "Done."
   end
 
-  # bundle exec rake umrdr::demo_content
+  # bundle exec rake umrdr:demo_content
   desc "Set up demo content"
   task demo_content: :environment do |_t, _args|
     ENV["RAILS_ENV"] ||= "development"
@@ -37,8 +38,8 @@ namespace :umrdr do
     puts "Done."
   end
 
-  # bundle exec rake umrdr::migrate[/deepbluedata_prep/w_9019s2443_populate]
-  # bundle exec rake umrdr::migrate[/deepbluedata_prep/w_9019s2443_populate,ingester@umich.edu]
+  # bundle exec rake umrdr:migrate[/deepbluedata-prep/w_9019s2443_populate.yml]
+  # bundle exec rake umrdr:migrate[/deepbluedata-prep/w_9019s2443_populate.yml,ingester@umich.edu]
   desc "Migrate collections and works."
   task :migrate, %i[ path_to_yaml_file ingester ] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"
@@ -47,9 +48,9 @@ namespace :umrdr do
     puts "Done."
   end
 
-  # bundle exec rake umrdr::populate[/deepbluedata_prep/w_9019s2443_populate]
-  # bundle exec rake umrdr::populate[/deepbluedata_prep/w_9019s2443_populate,ingester@umich.edu]
-  desc "Populate (mode determined by input file) app with collections, works, and files."
+  # bundle exec rake umrdr:populate[/deepbluedata-prep/w_9019s2443_populate.yml]
+  # bundle exec rake umrdr:populate[/deepbluedata-prep/w_9019s2443_populate.yml,ingester@umich.edu]
+  desc "Populate app with collections, works, and files."
   task :populate, %i[ path_to_yaml_file ingester ] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"
     # See: Rake::TaskArguments for args class
@@ -60,38 +61,62 @@ namespace :umrdr do
     puts "Done."
   end
 
+  # bundle exec rake umrdr:populate_users[/deepbluedata-prep/users_build.yml]
+  desc "Populate users."
+  task :populate_users, %i[ path_to_yaml_file ingester options ] => :environment do |_t, args|
+    ENV["RAILS_ENV"] ||= "development"
+    args.with_defaults( ingester: '', options: {} )
+    content_populate_users( path_to_yaml_file: args[:path_to_yaml_file],
+                            ingester: args[:ingester],
+                            options: args[:options],
+                            args: args )
+    puts "Done."
+  end
+
 end
 
-def content_append( path_to_yaml_file:, ingester: nil, args: )
+def content_append( path_to_yaml_file:, ingester: nil, options: {}, args: )
   return unless valid_path_to_yaml_file? path_to_yaml_file
   AppendContentService.call( path_to_yaml_file: path_to_yaml_file,
                              ingester: ingester,
                              mode: Deepblue::NewContentService::MODE_APPEND,
+                             options: options,
                              args: args )
 end
 
-def content_build( path_to_yaml_file:, ingester: nil, args: )
+def content_build( path_to_yaml_file:, ingester: nil, options: {}, args: )
   return unless valid_path_to_yaml_file? path_to_yaml_file
   BuildContentService.call( path_to_yaml_file: path_to_yaml_file,
                             ingester: ingester,
                             mode: Deepblue::NewContentService::MODE_BUILD,
+                            options: options,
                             args: args )
 end
 
-def content_migrate( path_to_yaml_file:, ingester: nil, args: )
+def content_migrate( path_to_yaml_file:, ingester: nil, options: {}, args: )
   return unless valid_path_to_yaml_file? path_to_yaml_file
   BuildContentService.call( path_to_yaml_file: path_to_yaml_file,
                             ingester: ingester,
                             mode: Deepblue::NewContentService::MODE_MIGRATE,
+                            options: options,
                             args: args )
 end
 
-def content_populate( path_to_yaml_file:, ingester: nil, args: )
+def content_populate( path_to_yaml_file:, ingester: nil, options: {}, args: )
   return unless valid_path_to_yaml_file? path_to_yaml_file
   # mode determined in yaml file, defaulting to append mode
   BuildContentService.call( path_to_yaml_file: path_to_yaml_file,
                             ingester: ingester,
+                            options: options,
                             args: args )
+end
+
+def content_populate_users( path_to_yaml_file:, ingester: nil, options:, args: )
+  return unless valid_path_to_yaml_file? path_to_yaml_file
+  IngestUsersService.call( path_to_yaml_file: path_to_yaml_file,
+                           ingester: ingester,
+                           options: options,
+                           args: args )
 end
 
 def create_user( email: 'demouser@example.com' )
