@@ -11,11 +11,13 @@ module Deepblue
     DEFAULT_TASK = 'populate'
     FIELD_SEP = '; '
     HEADER_TYPE_COLLECTIONS = ':collections:'
+    HEADER_TYPE_USERS = ':users:'
     HEADER_TYPE_WORKS = ':works:'
     MODE_APPEND = 'append'
     MODE_BUILD = 'build'
     MODE_MIGRATE = 'migrate'
     PREFIX_COLLECTION = 'c_'
+    PREFIX_USERS = 'users'
     PREFIX_WORK = 'w_'
 
     ATTRIBUTE_NAMES_ALWAYS_INCLUDE_CC = %w[ admin_set_id
@@ -69,6 +71,7 @@ module Deepblue
                                                   virus_scan_service
                                                   virus_scan_status
                                                   virus_scan_status_date ].freeze
+    ATTRIBUTE_NAMES_ALWAYS_INCLUDE_USER = %w[ id email ].freeze
     ATTRIBUTE_NAMES_IGNORE = %w[ access_control_id
                                  collection_type_gid
                                  file_size
@@ -98,9 +101,34 @@ module Deepblue
                                   'rights': 'rights_license',
                                   'subject': 'subject_discipline' }.freeze
     ATTRIBUTE_NAMES_MAP_V2_V1 = {}.freeze
+    ATTRIBUTE_NAMES_USER_IGNORE = %w[ current_sign_in_at
+                                      current_sign_in_ip
+                                      encrypted_password
+                                      reset_password_token
+                                      reset_password_sent_at ].freeze
 
     def self.attribute_names_always_include_cc
       @@attribute_names_always_include ||= init_attribute_names_always_include_cc
+    end
+
+    def self.attribute_names_collection
+      @@attribute_names_collection ||= Collection.attribute_names.sort
+    end
+
+    def self.attribute_names_file_set
+      @@attribute_names_file_set ||= FileSet.attribute_names.sort
+    end
+
+    def self.attribute_names_user
+      @@attribute_names_user ||= User.attribute_names.sort
+    end
+
+    def self.attribute_names_work( source: )
+      if source == SOURCE_DBDv2
+        DataSet.attribute_names.sort
+      else
+        GenericWork.attribute_names.sort
+      end
     end
 
     def self.init_attribute_names_always_include_cc
@@ -379,47 +407,35 @@ module Deepblue
       end
     end
 
-    def self.attribute_names_collection
-      @@attribute_names_collection ||= Collection.attribute_names.sort
-    end
-
-    def self.yaml_item_collection( out, indent, curation_concern, name: )
-      return if ATTRIBUTE_NAMES_IGNORE.include? name
-      label = ":#{name}:"
-      value = curation_concern[name]
-      return if value.blank? && !ATTRIBUTE_NAMES_ALWAYS_INCLUDE_CC.include?( name )
-      yaml_item( out, indent, label, value, escape: true )
-    end
-
-    def self.yaml_body_collections2( out, indent:, curation_concern:, source: )
-      yaml_item( out, indent, ":id:", curation_concern.id )
-      if source == SOURCE_DBDv2
-        yaml_item( out, indent, ":collection_type:", curation_concern.collection_type.machine_id, escape: true )
-        yaml_item( out, indent, ":collection_type_gid:", curation_concern.collection_type_gid, escape: true )
-      end
-      yaml_item( out, indent, ":creator:", curation_concern.creator, escape: true )
-      yaml_item( out, indent, ":date_created:", curation_concern.date_created )
-      yaml_item( out, indent, ":date_modified:", curation_concern.date_modified )
-      yaml_item( out, indent, ":description:", curation_concern.description, escape: true )
-      yaml_item( out, indent, ":depositor:", curation_concern.depositor )
-      yaml_item( out, indent, ":doi:", curation_concern.doi, escape: true )
-      yaml_item( out, indent, ":edit_users:", curation_concern.edit_users, escape: true )
-      yaml_item( out, indent, ':keyword:', curation_concern.keyword, escape: true )
-      yaml_item( out, indent, ":language:", curation_concern.language, escape: true )
-      yaml_item_prior_identifier( out, indent, curation_concern: curation_concern, source: source )
-      yaml_item_referenced_by( out, indent, curation_concern: curation_concern, source: source )
-      yaml_item_subject( out, indent, curation_concern: curation_concern, source: source )
-      yaml_item( out, indent, ':title:', curation_concern.title, escape: true )
-      yaml_item( out, indent, ":tombstone:", curation_concern.tombstone, single_value: true )
-      yaml_item( out, indent, ":total_work_count:", curation_concern.work_ids.count )
-      yaml_item( out, indent, ":total_file_size:", curation_concern.total_file_size )
-      yaml_item( out,
-                 indent,
-                 ":total_file_size_human_readable:",
-                 human_readable_size( curation_concern.total_file_size ),
-                 escape: true )
-      yaml_item( out, indent, ":visibility:", curation_concern.visibility )
-    end
+    # def self.yaml_body_collections2( out, indent:, curation_concern:, source: )
+    #   yaml_item( out, indent, ":id:", curation_concern.id )
+    #   if source == SOURCE_DBDv2
+    #     yaml_item( out, indent, ":collection_type:", curation_concern.collection_type.machine_id, escape: true )
+    #     yaml_item( out, indent, ":collection_type_gid:", curation_concern.collection_type_gid, escape: true )
+    #   end
+    #   yaml_item( out, indent, ":creator:", curation_concern.creator, escape: true )
+    #   yaml_item( out, indent, ":date_created:", curation_concern.date_created )
+    #   yaml_item( out, indent, ":date_modified:", curation_concern.date_modified )
+    #   yaml_item( out, indent, ":description:", curation_concern.description, escape: true )
+    #   yaml_item( out, indent, ":depositor:", curation_concern.depositor )
+    #   yaml_item( out, indent, ":doi:", curation_concern.doi, escape: true )
+    #   yaml_item( out, indent, ":edit_users:", curation_concern.edit_users, escape: true )
+    #   yaml_item( out, indent, ':keyword:', curation_concern.keyword, escape: true )
+    #   yaml_item( out, indent, ":language:", curation_concern.language, escape: true )
+    #   yaml_item_prior_identifier( out, indent, curation_concern: curation_concern, source: source )
+    #   yaml_item_referenced_by( out, indent, curation_concern: curation_concern, source: source )
+    #   yaml_item_subject( out, indent, curation_concern: curation_concern, source: source )
+    #   yaml_item( out, indent, ':title:', curation_concern.title, escape: true )
+    #   yaml_item( out, indent, ":tombstone:", curation_concern.tombstone, single_value: true )
+    #   yaml_item( out, indent, ":total_work_count:", curation_concern.work_ids.count )
+    #   yaml_item( out, indent, ":total_file_size:", curation_concern.total_file_size )
+    #   yaml_item( out,
+    #              indent,
+    #              ":total_file_size_human_readable:",
+    #              human_readable_size( curation_concern.total_file_size ),
+    #              escape: true )
+    #   yaml_item( out, indent, ":visibility:", curation_concern.visibility )
+    # end
 
     def self.yaml_body_files( out,
                               indent_base:,
@@ -438,7 +454,7 @@ module Deepblue
       end
       curation_concern.file_sets.each do |file_set|
         log_provenance_migrate( curation_concern: file_set, parent: curation_concern, source: source ) if MODE_MIGRATE == mode
-        file_id = ":f_#{file_set.id}:"
+        file_id = ":#{yaml_file_set_id( file_set )}:"
         yaml_line( out, indent_first_line, file_id )
         indent = indent_base + indent_first_line
         yaml_item( out, indent, ':id:', file_set.id, escape: true )
@@ -472,66 +488,78 @@ module Deepblue
       end
     end
 
-    def self.attribute_names_file_set
-      @@attribute_names_file_set ||= FileSet.attribute_names.sort
-    end
+    # def self.yaml_body_files2( out,
+    #                            indent_base:,
+    #                            indent:,
+    #                            curation_concern:,
+    #                            mode: MODE_BUILD,
+    #                            source:,
+    #                            target_dirname: )
+    #
+    #   indent_first_line = indent
+    #   yaml_line( out, indent_first_line, ':file_set_ids:' )
+    #   return unless curation_concern.file_sets.count.positive?
+    #   indent = indent_base + indent_first_line + "-"
+    #   curation_concern.file_sets.each do |file_set|
+    #     yaml_item( out, indent, '', file_set.id, escape: true )
+    #   end
+    #   curation_concern.file_sets.each do |file_set|
+    #     log_provenance_migrate( curation_concern: file_set, parent: curation_concern, source: source ) if MODE_MIGRATE == mode
+    #     file_id = ":#{yaml_file_set_id( file_set )}:"
+    #     yaml_line( out, indent_first_line, file_id )
+    #     indent = indent_base + indent_first_line
+    #     yaml_item( out, indent, ':id:', file_set.id, escape: true )
+    #     single_value = 1 == file_set.title.size
+    #     yaml_item( out, indent, ':title:', file_set.title, escape: true, single_value: single_value )
+    #     yaml_item_prior_identifier( out, indent, curation_concern: file_set, source: source )
+    #     file_path = yaml_export_file_path( target_dirname: target_dirname, file_set: file_set )
+    #     yaml_item( out, indent, ':file_path:', file_path.to_s, escape: true )
+    #     checksum = yaml_file_set_checksum( file_set: file_set )
+    #     yaml_item( out, indent, ":checksum_algorithm:", checksum.present? ? checksum.algorithm : '', escape: true )
+    #     yaml_item( out, indent, ":checksum_value:", checksum.present? ? checksum.value : '', escape: true )
+    #     yaml_item( out, indent, ":date_created:", file_set.date_created )
+    #     yaml_item( out, indent, ":date_created:", file_set.date_created )
+    #     yaml_item( out, indent, ":date_modified:", file_set.date_modified )
+    #     yaml_item( out, indent, ":date_uploaded:", file_set.date_uploaded )
+    #     yaml_item( out, indent, ":edit_users:", file_set.edit_users, escape: true )
+    #     file_size = if file_set.file_size.blank?
+    #                   file_set.original_file.nil? ? 0 : file_set.original_file.size
+    #                 else
+    #                   file_set.file_size[0]
+    #                 end
+    #     yaml_item( out, indent, ":file_size:", file_size )
+    #     yaml_item( out, indent, ":file_size_human_readable:", human_readable_size( file_size ), escape: true )
+    #     yaml_item( out, indent, ":label:", file_set.label, escape: true )
+    #     yaml_item( out, indent, ":mime_type:", file_set.mime_type, escape: true )
+    #     value = file_set.original_checksum.blank? ? '' : file_set.original_checksum[0]
+    #     yaml_item( out, indent, ":original_checksum:", value )
+    #     value = file_set.original_file.nil? ? nil : file_set.original_file.original_name
+    #     yaml_item( out, indent, ":original_name:", value, escape: true )
+    #     yaml_item( out, indent, ":visibility:", file_set.visibility )
+    #   end
+    # end
 
-    def self.yaml_item_file_set( out, indent, file_set, name: )
-      return if ATTRIBUTE_NAMES_IGNORE.include? name
-      label = ":#{name}:"
-      value = file_set[name]
-      return if value.blank? && !ATTRIBUTE_NAMES_ALWAYS_INCLUDE_FILE_SET.include?( name )
-      yaml_item( out, indent, label, value, escape: true )
-    end
-
-    def self.yaml_body_files2( out,
-                               indent_base:,
-                               indent:,
-                               curation_concern:,
-                               mode: MODE_BUILD,
-                               source:,
-                               target_dirname: )
-
+    def self.yaml_body_user_body( out, indent_base:, indent:, user: )
       indent_first_line = indent
-      yaml_line( out, indent_first_line, ':file_set_ids:' )
-      return unless curation_concern.file_sets.count.positive?
-      indent = indent_base + indent_first_line + "-"
-      curation_concern.file_sets.each do |file_set|
-        yaml_item( out, indent, '', file_set.id, escape: true )
+      user_email = ":#{yaml_user_email( user )}:"
+      yaml_line( out, indent_first_line, user_email )
+      indent = indent_base + indent_first_line
+      yaml_item(out, indent, ':email:', user.email, escape: true )
+      skip = %w[ email ]
+      attribute_names_user.each do |name|
+        next if skip.include? name
+        yaml_item_user(out, indent, user, name: name )
       end
-      curation_concern.file_sets.each do |file_set|
-        log_provenance_migrate( curation_concern: file_set, parent: curation_concern, source: source ) if MODE_MIGRATE == mode
-        file_id = ":f_#{file_set.id}:"
-        yaml_line( out, indent_first_line, file_id )
-        indent = indent_base + indent_first_line
-        yaml_item( out, indent, ':id:', file_set.id, escape: true )
-        single_value = 1 == file_set.title.size
-        yaml_item( out, indent, ':title:', file_set.title, escape: true, single_value: single_value )
-        yaml_item_prior_identifier( out, indent, curation_concern: file_set, source: source )
-        file_path = yaml_export_file_path( target_dirname: target_dirname, file_set: file_set )
-        yaml_item( out, indent, ':file_path:', file_path.to_s, escape: true )
-        checksum = yaml_file_set_checksum( file_set: file_set )
-        yaml_item( out, indent, ":checksum_algorithm:", checksum.present? ? checksum.algorithm : '', escape: true )
-        yaml_item( out, indent, ":checksum_value:", checksum.present? ? checksum.value : '', escape: true )
-        yaml_item( out, indent, ":date_created:", file_set.date_created )
-        yaml_item( out, indent, ":date_created:", file_set.date_created )
-        yaml_item( out, indent, ":date_modified:", file_set.date_modified )
-        yaml_item( out, indent, ":date_uploaded:", file_set.date_uploaded )
-        yaml_item( out, indent, ":edit_users:", file_set.edit_users, escape: true )
-        file_size = if file_set.file_size.blank?
-                      file_set.original_file.nil? ? 0 : file_set.original_file.size
-                    else
-                      file_set.file_size[0]
-                    end
-        yaml_item( out, indent, ":file_size:", file_size )
-        yaml_item( out, indent, ":file_size_human_readable:", human_readable_size( file_size ), escape: true )
-        yaml_item( out, indent, ":label:", file_set.label, escape: true )
-        yaml_item( out, indent, ":mime_type:", file_set.mime_type, escape: true )
-        value = file_set.original_checksum.blank? ? '' : file_set.original_checksum[0]
-        yaml_item( out, indent, ":original_checksum:", value )
-        value = file_set.original_file.nil? ? nil : file_set.original_file.original_name
-        yaml_item( out, indent, ":original_name:", value, escape: true )
-        yaml_item( out, indent, ":visibility:", file_set.visibility )
+    end
+
+    def self.yaml_body_users( out, indent_base:, indent:, users: )
+      yaml_item( out, indent, ":total_user_count:", users.count )
+      indent_first_line = indent
+      yaml_line( out, indent_first_line, ':user_emails:' )
+      return unless users.count.positive?
+      indent = indent_base + indent_first_line + "-"
+      users.each do |user|
+        yaml_item( out, indent, '', user.email, escape: true )
       end
     end
 
@@ -557,59 +585,43 @@ module Deepblue
       end
     end
 
-    def self.attribute_names_work( source: )
-      if source == SOURCE_DBDv2
-        DataSet.attribute_names.sort
-      else
-        GenericWork.attribute_names.sort
-      end
-    end
-
-    def self.yaml_item_work( out, indent, curation_concern, name: )
-      return if ATTRIBUTE_NAMES_IGNORE.include? name
-      label = ":#{name}:"
-      value = curation_concern[name]
-      return if value.blank? && !ATTRIBUTE_NAMES_ALWAYS_INCLUDE_CC.include?( name )
-      yaml_item( out, indent, label, value, escape: true )
-    end
-
-    def self.yaml_body_works2( out, indent:, curation_concern:, source: )
-      yaml_item( out, indent, ":id:", curation_concern.id )
-      yaml_item( out, indent, ":admin_set_id:", curation_concern.admin_set_id, escape: true )
-      yaml_item( out, indent, ":authoremail:", curation_concern.authoremail )
-      yaml_item( out, indent, ":creator:", curation_concern.creator, escape: true )
-      yaml_item( out, indent, ":curation_notes_admin:", curation_concern.curation_notes_admin, escape: true ) if source == SOURCE_DBDv2
-      yaml_item( out, indent, ":curation_notes_user:", curation_concern.curation_notes_user, escape: true ) if source == SOURCE_DBDv2
-      yaml_item( out, indent, ":date_coverage:", curation_concern.date_coverage, single_value: true )
-      yaml_item( out, indent, ":date_created:", curation_concern.date_created )
-      yaml_item( out, indent, ":date_modified:", curation_concern.date_modified )
-      yaml_item( out, indent, ":date_uploaded:", curation_concern.date_uploaded )
-      yaml_item( out, indent, ":depositor:", curation_concern.depositor )
-      yaml_item( out, indent, ":description:", curation_concern.description, escape: true )
-      yaml_item( out, indent, ":doi:", curation_concern.doi, escape: true )
-      yaml_item( out, indent, ":edit_users:", curation_concern.edit_users, escape: true )
-      yaml_item( out, indent, ":fundedby:", curation_concern.fundedby, single_value: true, escape: true )
-      yaml_item( out, indent, ":fundedby_other:", curation_concern.fundedby_other, single_value: true, escape: true ) if source == SOURCE_DBDv2
-      yaml_item( out, indent, ":grantnumber:", curation_concern.grantnumber, escape: true )
-      yaml_item_referenced_by( out, indent, curation_concern: curation_concern, source: source )
-      yaml_item( out, indent, ':keyword:', curation_concern.keyword, escape: true )
-      yaml_item( out, indent, ":language:", curation_concern.language, escape: true )
-      yaml_item( out, indent, ":methodology:", curation_concern.methodology, escape: true )
-      yaml_item_prior_identifier( out, indent, curation_concern: curation_concern, source: source )
-      yaml_item_rights( out, indent, curation_concern: curation_concern, source: source )
-      yaml_item( out, indent, ":rights_license_other: ", curation_concern.rights_license_other, escape: true ) if source == SOURCE_DBDv2
-      yaml_item_subject( out, indent, curation_concern: curation_concern, source: source )
-      yaml_item( out, indent, ':title:', curation_concern.title, escape: true )
-      yaml_item( out, indent, ":tombstone:", curation_concern.tombstone, single_value: true )
-      yaml_item( out, indent, ":total_file_count:", curation_concern.file_set_ids.count )
-      yaml_item( out, indent, ":total_file_size:", curation_concern.total_file_size )
-      yaml_item( out,
-                 indent,
-                 ":total_file_size_human_readable:",
-                 human_readable_size( curation_concern.total_file_size ),
-                 escape: true )
-      yaml_item( out, indent, ":visibility:", curation_concern.visibility )
-    end
+    # def self.yaml_body_works2( out, indent:, curation_concern:, source: )
+    #   yaml_item( out, indent, ":id:", curation_concern.id )
+    #   yaml_item( out, indent, ":admin_set_id:", curation_concern.admin_set_id, escape: true )
+    #   yaml_item( out, indent, ":authoremail:", curation_concern.authoremail )
+    #   yaml_item( out, indent, ":creator:", curation_concern.creator, escape: true )
+    #   yaml_item( out, indent, ":curation_notes_admin:", curation_concern.curation_notes_admin, escape: true ) if source == SOURCE_DBDv2
+    #   yaml_item( out, indent, ":curation_notes_user:", curation_concern.curation_notes_user, escape: true ) if source == SOURCE_DBDv2
+    #   yaml_item( out, indent, ":date_coverage:", curation_concern.date_coverage, single_value: true )
+    #   yaml_item( out, indent, ":date_created:", curation_concern.date_created )
+    #   yaml_item( out, indent, ":date_modified:", curation_concern.date_modified )
+    #   yaml_item( out, indent, ":date_uploaded:", curation_concern.date_uploaded )
+    #   yaml_item( out, indent, ":depositor:", curation_concern.depositor )
+    #   yaml_item( out, indent, ":description:", curation_concern.description, escape: true )
+    #   yaml_item( out, indent, ":doi:", curation_concern.doi, escape: true )
+    #   yaml_item( out, indent, ":edit_users:", curation_concern.edit_users, escape: true )
+    #   yaml_item( out, indent, ":fundedby:", curation_concern.fundedby, single_value: true, escape: true )
+    #   yaml_item( out, indent, ":fundedby_other:", curation_concern.fundedby_other, single_value: true, escape: true ) if source == SOURCE_DBDv2
+    #   yaml_item( out, indent, ":grantnumber:", curation_concern.grantnumber, escape: true )
+    #   yaml_item_referenced_by( out, indent, curation_concern: curation_concern, source: source )
+    #   yaml_item( out, indent, ':keyword:', curation_concern.keyword, escape: true )
+    #   yaml_item( out, indent, ":language:", curation_concern.language, escape: true )
+    #   yaml_item( out, indent, ":methodology:", curation_concern.methodology, escape: true )
+    #   yaml_item_prior_identifier( out, indent, curation_concern: curation_concern, source: source )
+    #   yaml_item_rights( out, indent, curation_concern: curation_concern, source: source )
+    #   yaml_item( out, indent, ":rights_license_other: ", curation_concern.rights_license_other, escape: true ) if source == SOURCE_DBDv2
+    #   yaml_item_subject( out, indent, curation_concern: curation_concern, source: source )
+    #   yaml_item( out, indent, ':title:', curation_concern.title, escape: true )
+    #   yaml_item( out, indent, ":tombstone:", curation_concern.tombstone, single_value: true )
+    #   yaml_item( out, indent, ":total_file_count:", curation_concern.file_set_ids.count )
+    #   yaml_item( out, indent, ":total_file_size:", curation_concern.total_file_size )
+    #   yaml_item( out,
+    #              indent,
+    #              ":total_file_size_human_readable:",
+    #              human_readable_size( curation_concern.total_file_size ),
+    #              escape: true )
+    #   yaml_item( out, indent, ":visibility:", curation_concern.visibility )
+    # end
 
     def self.yaml_escape_value( value, comment: false, escape: false )
       return "" if value.nil?
@@ -626,6 +638,16 @@ module Deepblue
       target_dirname.join "#{file_set.id}_#{export_file_name}"
     end
 
+    def self.yaml_file_set_checksum( file_set: )
+      file = file_from_file_set( file_set )
+      return file.checksum if file.present?
+      return nil
+    end
+
+    def self.yaml_file_set_id( file_set )
+      "f_#{file_set.id}"
+    end
+
     def self.yaml_filename( pathname_dir:, id:, prefix:, task: )
       pathname_dir = Pathname.new pathname_dir unless pathname_dir.is_a? Pathname
       pathname_dir.join "#{prefix}#{id}_#{task}.yml"
@@ -635,14 +657,12 @@ module Deepblue
       yaml_filename( pathname_dir: pathname_dir, id: collection.id, prefix: PREFIX_COLLECTION, task: task )
     end
 
-    def self.yaml_filename_work( pathname_dir:, work:, task: DEFAULT_TASK )
-      yaml_filename( pathname_dir: pathname_dir, id: work.id, prefix: PREFIX_WORK, task: task )
+    def self.yaml_filename_users( pathname_dir:, task: DEFAULT_TASK )
+      yaml_filename( pathname_dir: pathname_dir, id: '', prefix: PREFIX_USERS, task: task )
     end
 
-    def self.yaml_file_set_checksum( file_set: )
-      file = file_from_file_set( file_set )
-      return file.checksum if file.present?
-      return nil
+    def self.yaml_filename_work( pathname_dir:, work:, task: DEFAULT_TASK )
+      yaml_filename( pathname_dir: pathname_dir, id: work.id, prefix: PREFIX_WORK, task: task )
     end
 
     def self.yaml_header( out, indent:, curation_concern:, header_type:, source:, mode: )
@@ -656,11 +676,19 @@ module Deepblue
       yaml_line( out, indent, header_type )
     end
 
-    def self.yaml_header_populate( out, indent:, target_filename: )
+    def self.yaml_header_populate( out, indent:, rake_task: 'umrdr:populate', target_filename: )
       yaml_line( out, indent, target_filename.to_s, comment: true )
-      yaml_line( out, indent, "bundle exec rake umrdr:populate[#{target_filename}]", comment: true )
+      yaml_line( out, indent, "bundle exec rake #{rake_task}[#{target_filename}]", comment: true )
       yaml_line( out, indent, "---" )
       yaml_line( out, indent, ':user:' )
+    end
+
+    def self.yaml_header_users( out, indent:, header_type: HEADER_TYPE_USERS, source:, mode: )
+      yaml_line( out, indent, ':ingester:', '' )
+      yaml_line( out, indent, ':source:', source )
+      yaml_line( out, indent, ':export_timestamp:', DateTime.now.to_s )
+      yaml_line( out, indent, ':mode:', mode )
+      yaml_line( out, indent, header_type )
     end
 
     def self.yaml_is_a_work?( curation_concern:, source: )
@@ -692,6 +720,22 @@ module Deepblue
       else
         out.puts "#{indent}#{label}#{label_postfix}#{yaml_escape_value( value, comment: comment, escape: escape )}"
       end
+    end
+
+    def self.yaml_item_collection( out, indent, curation_concern, name: )
+      return if ATTRIBUTE_NAMES_IGNORE.include? name
+      label = ":#{name}:"
+      value = curation_concern[name]
+      return if value.blank? && !ATTRIBUTE_NAMES_ALWAYS_INCLUDE_CC.include?( name )
+      yaml_item( out, indent, label, value, escape: true )
+    end
+
+    def self.yaml_item_file_set( out, indent, file_set, name: )
+      return if ATTRIBUTE_NAMES_IGNORE.include? name
+      label = ":#{name}:"
+      value = file_set[name]
+      return if value.blank? && !ATTRIBUTE_NAMES_ALWAYS_INCLUDE_FILE_SET.include?( name )
+      yaml_item( out, indent, label, value, escape: true )
     end
 
     def self.yaml_item_prior_identifier( out, indent, curation_concern:, source: )
@@ -728,6 +772,22 @@ module Deepblue
       else
         yaml_item( out, indent, ":subject_discipline:", curation_concern.subject_discipline, escape: true )
       end
+    end
+
+    def self.yaml_item_user( out, indent, user, name: )
+      return if ATTRIBUTE_NAMES_USER_IGNORE.include? name
+      label = ":#{name}:"
+      value = user[name]
+      return if value.blank? && !ATTRIBUTE_NAMES_ALWAYS_INCLUDE_USER.include?( name )
+      yaml_item( out, indent, label, value, escape: true )
+    end
+
+    def self.yaml_item_work( out, indent, curation_concern, name: )
+      return if ATTRIBUTE_NAMES_IGNORE.include? name
+      label = ":#{name}:"
+      value = curation_concern[name]
+      return if value.blank? && !ATTRIBUTE_NAMES_ALWAYS_INCLUDE_CC.include?( name )
+      yaml_item( out, indent, label, value, escape: true )
     end
 
     def self.yaml_line( out, indent, label, value = '', comment: false, label_postfix: ' ', escape: false )
@@ -812,6 +872,39 @@ module Deepblue
       end
     end
 
+    def self.yaml_populate_users( dir: DEFAULT_BASE_DIR,
+                                  out: nil,
+                                  source: DEFAULT_SOURCE,
+                                  mode: MODE_MIGRATE,
+                                  target_filename: nil )
+
+      target_file = nil
+      dir = Pathname.new dir unless dir.is_a? Pathname
+      Dir.mkdir( dir ) unless Dir.exist? dir
+      if out.nil?
+        target_file = yaml_filename_users( pathname_dir: dir, task: mode )
+        # target_dir = yaml_targetdir_users( pathname_dir: dir, task: mode )
+        # Dir.mkdir( target_dir ) unless Dir.exist? target_dir
+        open( target_file, 'w' ) do |out2|
+          yaml_populate_users( out: out2, source: source, mode: mode, target_filename: target_file )
+        end
+      else
+        # log_provenance_migrate( curation_concern: curation_concern, source: source ) if MODE_MIGRATE == mode
+        indent_base = " " * 2
+        indent = indent_base * 0
+        yaml_header_populate( out, indent: indent, rake_task: 'umrdr:populate_users', target_filename: target_filename )
+        indent = indent_base * 1
+        yaml_header_users( out, indent: indent, source: source, mode: mode )
+        indent = indent_base * 2
+        users = User.all
+        yaml_body_users( out, indent_base: indent_base, indent: indent, users: users )
+        users.each do |user|
+          yaml_body_user_body( out, indent_base: indent_base, indent: indent, user: user )
+        end
+      end
+      return target_file
+    end
+
     def self.yaml_populate_work( curation_concern:,
                                  dir: DEFAULT_BASE_DIR,
                                  out: nil,
@@ -876,8 +969,16 @@ module Deepblue
       yaml_targetdir( pathname_dir: pathname_dir, id: collection.id, prefix: PREFIX_COLLECTION, task: task )
     end
 
+    def self.yaml_targetdir_users( pathname_dir:, task: DEFAULT_TASK )
+      yaml_targetdir( pathname_dir: pathname_dir, id: '', prefix: PREFIX_USERS, task: task )
+    end
+
     def self.yaml_targetdir_work( pathname_dir:, work:, task: DEFAULT_TASK )
       yaml_targetdir( pathname_dir: pathname_dir, id: work.id, prefix: PREFIX_WORK, task: task )
+    end
+
+    def self.yaml_user_email( user )
+      "user_#{user.email}"
     end
 
     def self.yaml_work_export_files( work:, target_dirname: nil, log_filename: nil, overwrite: true )

@@ -30,6 +30,10 @@ module Deepblue
       TaskHelper.benchmark_report( label: 'coll id', first_id: first_id, measurements: measurements, total: total )
     end
 
+    def report_users( first_id:, measurements:, total: nil )
+      TaskHelper.benchmark_report( label: 'users', first_id: first_id, measurements: measurements, total: total )
+    end
+
     def report_work( first_id:, measurements:, total: nil )
       TaskHelper.benchmark_report( label: 'work id', first_id: first_id, measurements: measurements, total: total )
     end
