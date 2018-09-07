@@ -15,12 +15,13 @@ class AppendContentService < Deepblue::NewContentService
                                     mode: mode,
                                     base_path: base_path )
     bcs.run
-  rescue Exception => e # rubocop:disable Lint/RescueException
+  rescue Exception => e
     Rails.logger.error "AppendContentService.call(#{path_to_yaml_file}) #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
   end
 
   def initialize( args:, path_to_yaml_file:, cfg_hash:, base_path:, ingester:, mode: )
     initialize_with_msg( args: args,
+                         options: {},
                          path_to_yaml_file: path_to_yaml_file,
                          cfg_hash: cfg_hash,
                          base_path: base_path,

@@ -17,8 +17,8 @@ module Deepblue
       @options = TaskHelper.task_options_parse options
       if @options.key?( :error ) || @options.key?( 'error' )
         puts "WARNING: options error #{@options['error']}"
-        puts "options=#{options}" if @options.key?
-        puts "@options=#{@options}" if @options.key?
+        puts "options=#{options}" if @options.key? 'error'
+        puts "@options=#{@options}" if @options.key? 'error'
       end
       @verbose = TaskHelper.task_options_value( @options, key: 'verbose', default_value: DEFAULT_VERBOSE )
       puts "@verbose=#{@verbose}" if @verbose

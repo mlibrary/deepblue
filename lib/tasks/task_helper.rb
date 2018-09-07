@@ -98,6 +98,14 @@ module Deepblue
       return options[key]
     end
 
+    def self.work?( obj )
+      if DeepBlueDocs::Application.config.dbd_version == 'DBDv1'
+        obj.is_a? GenericWork
+      else
+        obj.is_a? DataSet
+      end
+    end
+
     def self.work_discipline( work: )
       if DeepBlueDocs::Application.config.dbd_version == 'DBDv1'
         work.subject

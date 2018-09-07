@@ -60,7 +60,7 @@ class UMichClamAVDaemonScanner < AbstractVirusScanner
     rv = case resp
          when ClamAV::SuccessResponse
            info "Clean virus check for '#{file}'"
-           ::Deepblue::VirusScanService::VIRUS_SCAN_NO_VIRUS
+           ::Deepblue::VirusScanService::VIRUS_SCAN_NOT_VIRUS
          when ClamAV::VirusResponse
            warn "Virus #{resp.virus_name} found in file '#{file}'"
            ::Deepblue::VirusScanService::VIRUS_SCAN_VIRUS
