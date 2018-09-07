@@ -48,7 +48,7 @@ gem 'jbuilder', '~> 2.5'
 # gem 'capistrano-rails', group: :development
 
 # Begin security vulnerability mitigation
-gem 'rubyzip', '>= 1.2.1'
+gem 'rubyzip', '~> 1.2.2'
 gem 'sinatra', '~> 2.0.2'
 gem 'sprockets', '~> 3.7.2'
 # End security vulnerability mitigation
