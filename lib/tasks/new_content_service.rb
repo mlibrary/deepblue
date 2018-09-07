@@ -394,6 +394,10 @@ module Deepblue
         # puts "build_or_find_collection( collection_hash: #{ActiveSupport::JSON.encode( collection_hash )} )"
         return if collection_hash.blank?
         id = collection_hash[:id]
+        mode = collection_hash[:mode]
+        mode = MODE_BUILD if id.blank?
+        collection = nil
+        collection = Collection.find( id ) if MODE_APPEND == mode
         collection = build_collection( id: id, collection_hash: collection_hash ) if collection.nil?
         log_object collection if collection.present?
         add_works_to_collection( collection_hash: collection_hash, collection: collection )
@@ -416,6 +420,10 @@ module Deepblue
         # puts "build_or_find_work( work_hash: #{work_hash} )"
         return nil if work_hash.blank?
         id = work_hash[:id]
+        mode = work_hash[:mode]
+        mode = MODE_BUILD if id.blank?
+        work = nil
+        work = GenericWork.find( id ) if MODE_APPEND == mode
         work = build_work( id: id, work_hash: work_hash, parent: parent ) if work.nil?
         log_object work if work.present?
         add_file_sets_to_work( work_hash: work_hash, work: work )
@@ -470,10 +478,10 @@ module Deepblue
         attr_names = User.attribute_names
         skip = Deepblue::MetadataHelper::ATTRIBUTE_NAMES_USER_IGNORE
         attrs = {}
-        attr_names.each do |key|
+        attr_names.each do |name|
           next if skip.include?( name )
-          value = user_hash[key.to_sym]
-          attrs[key] = value if value.present?
+          value = user_hash[name.to_sym]
+          attrs[name] = value if value.present?
         end
         puts "User.create!( #{attrs} )" # rubocop:disable Rails/Output
         # TODO
@@ -501,12 +509,12 @@ module Deepblue
 
       def build_work( id:, work_hash:, parent: )
         if MODE_APPEND == mode && id.present?
-          work = find_data_set_using_prior_id( prior_id: id, parent: parent )
+          work = find_work_using_prior_id( prior_id: id, parent: parent )
           log_msg( "#{mode}: found work with prior id: #{id} title: #{work.title.first}" ) if work.present?
           return work if work.present?
         end
         if MODE_MIGRATE == mode && id.present?
-          work = find_data_set_using_id( id: id )
+          work = find_work_using_id( id: id )
           log_msg( "#{mode}: found work with id: #{id} title: #{work.title.first}" ) if work.present?
           return work if work.present?
         end
@@ -648,33 +656,6 @@ module Deepblue
         return nil
       end
 
-      def find_data_set_using_id( id: )
-        return nil if id.blank?
-        DataSet.find id
-      rescue ActiveFedora::ObjectNotFoundError
-        return nil
-      end
-
-      def find_data_set_using_prior_id( prior_id:, parent: )
-        return nil if prior_id.blank?
-        if parent.present?
-          parent.member_objects.each do |obj|
-            next unless obj.is_a? DataSet
-            prior_ids = Array( obj.prior_identifier )
-            prior_ids.each do |id|
-              return obj if id == prior_id
-            end
-          end
-        end
-        DataSet.all.each do |curation_concern|
-          prior_ids = Array( curation_concern.prior_identifier )
-          prior_ids.each do |id|
-            return curation_concern if id == prior_id
-          end
-        end
-        return nil
-      end
-
       def find_file_set_using_id( id: )
         return nil if id.blank?
         FileSet.find id
@@ -714,7 +695,7 @@ module Deepblue
         work_id = work_hash[:id]
         id = Array(work_id)
         # owner = Array(work_hash[:owner])
-        work = DataSet.find id[0]
+        work = TaskHelper.work_find id[0]
         raise UserNotFoundError, "Work not found: #{work_id}" if work.nil?
         return work
       end
@@ -733,6 +714,33 @@ module Deepblue
           end
           add_measurement measurement
         end
+      end
+
+      def find_work_using_id( id: )
+        return nil if id.blank?
+        TaskHelper.work_find id
+      rescue ActiveFedora::ObjectNotFoundError
+        return nil
+      end
+
+      def find_work_using_prior_id( prior_id:, parent: )
+        return nil if prior_id.blank?
+        if parent.present?
+          parent.member_objects.each do |obj|
+            next unless TaskHelper.work? obj
+            prior_ids = Array( obj.prior_identifier )
+            prior_ids.each do |id|
+              return obj if id == prior_id
+            end
+          end
+        end
+        TaskHelper.all_works.each do |curation_concern|
+          prior_ids = Array( curation_concern.prior_identifier )
+          prior_ids.each do |id|
+            return curation_concern if id == prior_id
+          end
+        end
+        return nil
       end
 
       def ingest_id
