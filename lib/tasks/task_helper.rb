@@ -30,6 +30,10 @@ module Deepblue
       puts total.format( "#{label} #{format} is #{seconds_to_readable(total.real)}\n" )
     end
 
+    def self.ensure_dirs_exist( *dirs )
+      dirs.each { |dir| Dir.mkdir( dir ) unless Dir.exist?( dir ) }
+    end
+
     def self.hydra_model_work?( hydra_model: )
       if DeepBlueDocs::Application.config.dbd_version == 'DBDv1'
         'GenericWork' == hyrda_model
@@ -38,8 +42,9 @@ module Deepblue
       end
     end
 
-    def self.ensure_dirs_exist( *dirs )
-      dirs.each { |dir| Dir.mkdir( dir ) unless Dir.exist?( dir ) }
+    def self.human_readable_size( value )
+      value = value.to_i
+      return ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( value, precision: 3 )
     end
 
     def self.logger_new( logger_level: Logger::INFO )
@@ -89,12 +94,13 @@ module Deepblue
       return { 'error': e, 'options_str': options_str }
     end
 
-    def self.task_options_value( options, key:, default_value: nil )
+    def self.task_options_value( options, key:, default_value: nil, verbose: false )
       return default_value if options.blank?
       return default_value unless options.key? key
       # if [true, false].include? default_value
       #   return options[key].to_bool
       # end
+      puts "set key #{key} to #{options[key]}" if verbose
       return options[key]
     end
 

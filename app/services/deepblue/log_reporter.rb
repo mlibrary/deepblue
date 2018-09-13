@@ -2,6 +2,8 @@
 
 module Deepblue
 
+  require_relative './log_reader'
+
   # rubocop:disable Metrics/ParameterLists
   class LogReporter < LogReader
 
@@ -15,7 +17,9 @@ module Deepblue
 
     def initialize( filter: nil, input:, options: {} )
       super( filter: filter, input: input, options: options )
-      add_date_range_filter
+      @output_close = false
+      @output_mode = 'w'
+      @output_pathname = nil
     end
 
     # rubocop:disable Rails/Output
@@ -38,17 +42,6 @@ module Deepblue
     end
 
     protected
-
-      def add_date_range_filter
-        begin_timestamp = option( key: 'begin_timestamp', default_value: nil )
-        end_timestamp = option( key: 'end_timestamp', default_value: nil )
-        timestamp_format = option( key: 'timestamp_format', default_value: '' )
-        return if begin_timestamp.blank? && end_timestamp.blank?
-        date_range_filter = DateLogFilter.new( begin_timestamp: begin_timestamp,
-                                               end_timestamp: end_timestamp,
-                                               timestamp_format: timestamp_format )
-        filter_and( new_filters: date_range_filter )
-      end
 
       def class_event_key( class_name:, event: )
         "#{class_name}_#{event}"

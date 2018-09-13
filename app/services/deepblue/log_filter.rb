@@ -188,14 +188,16 @@ module Deepblue
 
     # Examples:
     #
-    # filter = Deepblue::DataLogFilter( begin_timestamp: Date.new=( 2018, 08, 17 ) )
-    # filter = Deepblue::DataLogFilter( begin_timestamp: DateTime.new( 2018, 08, 17, 10, 0, 0 ) )
-    # filter = Deepblue::DataLogFilter( begin_timestamp: DateTime.now - 3.days )
+    # filter = Deepblue::DataLogFilter.new( begin_timestamp: Date.new=( 2018, 08, 17 ) )
+    # filter = Deepblue::DataLogFilter.new( begin_timestamp: DateTime.new( 2018, 08, 17, 10, 0, 0 ) )
+    # filter = Deepblue::DataLogFilter.new( begin_timestamp: DateTime.now - 3.days )
     #
-    # filter = Deepblue::DataLogFilter( begin_timestamp: '2018/08/17', timestamp_format: '%Y/%m/%d' )
-    # filter = Deepblue::DataLogFilter( begin_timestamp: '2018/08/17 12:10:00', timestamp_format: '%Y/%m/%d %H:%M:%S' )
+    # filter = Deepblue::DataLogFilter.new( begin_timestamp: '2018/08/17', timestamp_format: '%Y/%m/%d' )
+    # filter = Deepblue::DataLogFilter.new( begin_timestamp: '2018/08/17 12:10:00', timestamp_format: '%Y/%m/%d %H:%M:%S' )
     #
-    # filter = Deepblue::DateLogFilter( begin_timestamp: Date.new - 2.days )
+    # filter = Deepblue::DateLogFilter.new( begin_timestamp: "2018-08-16 15:00:00", timestamp_format: '%Y-%m-%d %H:%M:%S' )
+    #
+    # filter = Deepblue::DateLogFilter.new( begin_timestamp: Date.new - 2.days )
     #
     def initialize( begin_timestamp: nil, end_timestamp: nil, timestamp_format: '' )
       @begin_timestamp = arg_to_timestamp( begin_timestamp, timestamp_format: timestamp_format )
@@ -208,6 +210,27 @@ module Deepblue
       after_end = false
       after_end = timestamp > @after_timestamp if @after_timestamp.present?
       return !before_begin && !after_end
+    end
+
+    def begin_timestamp_label
+      ts = begin_timestamp
+      return '' if ts.blank?
+      ts.strftime "%Y%m%d%H%M%S"
+    end
+
+    def end_timestamp_label
+      ts = end_timestamp
+      return '' if ts.blank?
+      ts.strftime "%Y%m%d%H%M%S"
+    end
+
+    def date_range_label
+      ts1 = begin_timestamp_label
+      ts2 = end_timestamp_label
+      return '' if ts1.blank? && ts2.blank?
+      return ts1 if ts2.blank?
+      return ts2 if ts1.blank?
+      return "#{ts1}-#{ts2}"
     end
 
   end
@@ -246,6 +269,18 @@ module Deepblue
 
     def initialize
       super( matching_events: [ AbstractEventBehavior::EVENT_FIXITY_CHECK ] )
+    end
+
+  end
+
+  class MigrationEventFilter < EventLogFilter
+
+    def initialize
+      super( matching_events: [ AbstractEventBehavior::EVENT_CHILD_ADD,
+                                AbstractEventBehavior::EVENT_FIXITY_CHECK,
+                                AbstractEventBehavior::EVENT_INGEST,
+                                AbstractEventBehavior::EVENT_MIGRATE,
+                                AbstractEventBehavior::EVENT_VIRUS_SCAN ] )
     end
 
   end

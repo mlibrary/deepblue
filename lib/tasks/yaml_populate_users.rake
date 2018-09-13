@@ -28,6 +28,7 @@ module Deepblue
 
     def run
       measurement = run_users
+      report_stats
       report_users( first_id: 'users', measurements: [measurement] )
     end
 
@@ -40,7 +41,10 @@ module Deepblue
 
     def yaml_populate_users
       puts "Exporting users to '#{@target_dir}' with mode #{@mode}"
-      Deepblue::MetadataHelper.yaml_populate_users( dir: @target_dir, mode: @mode )
+      service = YamlPopulateService.new( mode: @mode )
+      service.yaml_populate_users( dir: @target_dir )
+      @populate_stats << service.yaml_populate_stats
+      # Deepblue::MetadataHelper.yaml_populate_users( dir: @target_dir, mode: @mode )
     end
 
   end
