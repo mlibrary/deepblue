@@ -695,7 +695,7 @@ module Deepblue
         work_id = work_hash[:id]
         id = Array(work_id)
         # owner = Array(work_hash[:owner])
-        work = TaskHelper.work_find id[0]
+        work = TaskHelper.work_find( id: id[0] )
         raise UserNotFoundError, "Work not found: #{work_id}" if work.nil?
         return work
       end
@@ -718,7 +718,7 @@ module Deepblue
 
       def find_work_using_id( id: )
         return nil if id.blank?
-        TaskHelper.work_find id
+        TaskHelper.work_find( id: id )
       rescue ActiveFedora::ObjectNotFoundError
         return nil
       end

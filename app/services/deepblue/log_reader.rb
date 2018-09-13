@@ -2,9 +2,19 @@
 
 module Deepblue
 
+  require_relative './log_filter'
+
   class LogReader
 
+    DEFAULT_BEGIN_TIMESTAMP = ''
+    DEFAULT_END_TIMESTAMP = ''
+    DEFAULT_TIMESTAMP_FORMAT = ''
+    DEFAULT_VERBOSE = false
+
+    attr_accessor :verbose
+
     attr_reader :current_line
+    attr_reader :date_range_filter
     attr_reader :filter # , :filter_predicate
     attr_reader :input, :input_pathname, :input_mode, :input_close
     attr_reader :lines_parsed, :lines_read
@@ -26,12 +36,26 @@ module Deepblue
       # @filter_predicate = filter_predicate
       @input = input
       @options = options
+      @verbose = option( key: 'verbose', default_value: DEFAULT_VERBOSE )
+      add_date_range_filter
     end
 
     def initialize_filter( filter )
       return AllLogFilter.new if filter.blank?
       return AndLogFilter( filters: filter ) if filter.is_a? Array
       filter
+    end
+
+    def add_date_range_filter
+      begin_timestamp = option( key: 'begin_timestamp', default_value: DEFAULT_BEGIN_TIMESTAMP )
+      end_timestamp = option( key: 'end_timestamp', default_value: DEFAULT_END_TIMESTAMP )
+      timestamp_format = option( key: 'timestamp_format', default_value: DEFAULT_TIMESTAMP_FORMAT )
+      puts "add_date_range_filter begin_timestamp=#{begin_timestamp} end_timestamp=#{end_timestamp}" if verbose # rubocop:disable Rails/Output
+      return if begin_timestamp.blank? && end_timestamp.blank?
+      @date_range_filter = DateLogFilter.new( begin_timestamp: begin_timestamp,
+                                              end_timestamp: end_timestamp,
+                                              timestamp_format: timestamp_format )
+      filter_and( new_filters: date_range_filter )
     end
 
     def filter_and( new_filters:, append: true )
@@ -50,6 +74,7 @@ module Deepblue
                   new_filters.concat current_filter
                   AndLogFilter.new( filters: new_filters )
                 end
+      puts "filter_and @filter=#{@filter}" if verbose # rubocop:disable Rails/Output
     end
 
     def filter_or( new_filters:, append: true )

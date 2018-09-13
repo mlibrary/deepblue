@@ -40,6 +40,7 @@ module Deepblue
 
     def run
       measurement = run_one( id: @id )
+      report_stats
       report_collection( first_id: @id, measurements: [measurement] )
     end
 
@@ -55,6 +56,7 @@ module Deepblue
     def run
       return if @ids.blank?
       measurements, total = run_multiple( ids: @ids )
+      report_stats
       report_collection( first_id: @ids[0], measurements: measurements, total: total )
     end
 

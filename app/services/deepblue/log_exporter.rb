@@ -5,8 +5,10 @@ module Deepblue
   # rubocop:disable Metrics/ParameterLists
   class LogExporter < LogReader
 
+    attr_accessor :output, :output_mode
+
     attr_reader :lines_exported
-    attr_reader :output, :output_close, :output_mode, :output_pathname
+    attr_reader :output_close, :output_pathname
 
     def initialize( filter: nil, input:, output:, options: {} )
       super( filter: filter, input: input, options: options )
