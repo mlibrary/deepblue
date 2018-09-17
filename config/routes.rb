@@ -1,5 +1,12 @@
 # frozen_string_literal: true
 
+resque_web_constraint = lambda do |request|
+  current_user = request.env['warden'].user
+  ability = Ability.new current_user
+  rv = ability.present? && ability.respond_to?(:admin?) && ability.admin?
+  rv
+end
+
 Rails.application.routes.draw do
 
   mount Riiif::Engine => 'images', as: :riiif if Hyrax.config.iiif_image_server?
@@ -28,6 +35,10 @@ Rails.application.routes.draw do
 
   resources :solr_documents, only: [:show], path: '/catalog', controller: 'catalog' do
     concerns :exportable
+  end
+
+  constraints resque_web_constraint do
+    mount ResqueWeb::Engine => "/resque"
   end
 
   resources :bookmarks do
