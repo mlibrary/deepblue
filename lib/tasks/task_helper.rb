@@ -9,8 +9,8 @@ module Deepblue
   module TaskHelper
 
     def self.all_works
-      if DeepBlueDocs::Application.config.dbd_version == 'DBDv1'
-        GenericWorks.all
+      if dbd_version_1?
+        GenericWork.all
       else
         DataSet.all
       end
@@ -30,12 +30,20 @@ module Deepblue
       puts total.format( "#{label} #{format} is #{seconds_to_readable(total.real)}\n" )
     end
 
+    def self.dbd_version_1?
+      DeepBlueDocs::Application.config.dbd_version == 'DBDv1'
+    end
+
+    def self.dbd_version_2?
+      DeepBlueDocs::Application.config.dbd_version == 'DBDv2'
+    end
+
     def self.ensure_dirs_exist( *dirs )
       dirs.each { |dir| Dir.mkdir( dir ) unless Dir.exist?( dir ) }
     end
 
     def self.hydra_model_work?( hydra_model: )
-      if DeepBlueDocs::Application.config.dbd_version == 'DBDv1'
+      if dbd_version_1?
         'GenericWork' == hyrda_model
       else
         'DataSet' == hydra_model
@@ -105,7 +113,7 @@ module Deepblue
     end
 
     def self.work?( obj )
-      if DeepBlueDocs::Application.config.dbd_version == 'DBDv1'
+      if dbd_version_1?
         obj.is_a? GenericWork
       else
         obj.is_a? DataSet
@@ -113,7 +121,7 @@ module Deepblue
     end
 
     def self.work_discipline( work: )
-      if DeepBlueDocs::Application.config.dbd_version == 'DBDv1'
+      if dbd_version_1?
         work.subject
       else
         work.subject_discipline
@@ -121,7 +129,7 @@ module Deepblue
     end
 
     def self.work_find( id: )
-      if DeepBlueDocs::Application.config.dbd_version == 'DBDv1'
+      if dbd_version_1?
         GenericWork.find id
       else
         DataSet.find id

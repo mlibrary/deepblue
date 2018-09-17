@@ -405,14 +405,19 @@ module Deepblue
         return collection
       end
 
-      def build_or_find_user( user_hash: )
+      def build_or_find_user( user_hash:, user_update: true )
         return nil if user_hash.blank?
         email = user_hash[:email]
+        log_msg( "build_or_find_user: email: #{email}" ) if verbose
         user = User.find_by_user_key( email )
-        # log_object user if user.present?
-        return user if user.present?
+        if user.present?
+          log_object user if verbose
+          log_msg( "found user: #{user}" ) if verbose
+          update_user( user: user, user_hash: user_hash ) if user_update
+          return user
+        end
         user = build_user( user_hash: user_hash )
-        # log_object user if user.present?
+        log_object user if user.present?
         return user
       end
 
@@ -477,16 +482,28 @@ module Deepblue
       def build_user( user_hash: )
         attr_names = User.attribute_names
         skip = Deepblue::MetadataHelper::ATTRIBUTE_NAMES_USER_IGNORE
-        attrs = {}
+        attrs = { password: "password", password_confirmation: "password" }
         attr_names.each do |name|
           next if skip.include?( name )
+          next if name == "id"
           value = user_hash[name.to_sym]
           attrs[name] = value if value.present?
         end
-        puts "User.create!( #{attrs} )" # rubocop:disable Rails/Output
-        # TODO
-        # User.create!( attrs )
-        return nil
+        log_msg( "User.create!( #{attrs} )" )
+        User.create!( attrs )
+      end
+
+      def update_user( user:, user_hash: )
+        attr_names = User.attribute_names
+        skip = Deepblue::MetadataHelper::ATTRIBUTE_NAMES_USER_IGNORE
+        attr_names.each do |name|
+          next if skip.include?( name )
+          next if name == "id"
+          value = user_hash[name.to_sym]
+          user[name] = value if value.present?
+        end
+        log_msg( "update_user #{user.email}" )
+        user.save
       end
 
       def build_users
@@ -496,9 +513,13 @@ module Deepblue
           users.each do |users_hash|
             user_emails = users_hash[:user_emails]
             next if user_emails.blank?
+            log_msg( "users_hash: #{users_hash}" ) if verbose
             user_emails.each do |user_email|
+              log_msg( "processing user: #{user_email}" ) if verbose
               user_email_id = "user_#{user_email}".to_sym
+              log_msg( "user_email_id: #{user_email_id}" ) if verbose
               user_hash = users_hash[user_email_id]
+              log_msg( "user_hash: #{user_hash}" ) if verbose
               user = build_or_find_user( user_hash: user_hash )
               log_object user if user.present?
             end

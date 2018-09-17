@@ -61,7 +61,7 @@ namespace :umrdr do
     puts "Done."
   end
 
-  # bundle exec rake umrdr:populate_users[/deepbluedata-prep/users_build.yml]
+  # bundle exec rake umrdr:populate_users[/deepbluedata-prep/users_build.yml,'{"verbose":true}']
   desc "Populate users."
   task :populate_users, %i[ path_to_yaml_file ingester options ] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"

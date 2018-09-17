@@ -22,6 +22,8 @@ module Deepblue
 
     DEFAULT_IDS = ''
 
+    attr_accessor :ids
+
     # Produce a report containing: TODO
     # * # of datasets
     # * Total size of the datasets in GB

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# ported from deepblue
+
 module Deepblue
 
   require 'tasks/abstract_task'
