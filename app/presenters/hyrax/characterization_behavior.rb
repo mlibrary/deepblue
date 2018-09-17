@@ -7,6 +7,7 @@ module Hyrax
     extend ActiveSupport::Concern
 
     class_methods do
+
       def characterization_terms
         [
           :byte_order,
@@ -36,17 +37,24 @@ module Hyrax
           :filename,
           :well_formed,
           :last_modified,
-          :original_checksum,
-          :mime_type,
-          :virus_scan_service,
-          :virus_scan_status,
-          :virus_scan_status_date
+          :original_checksum, # TODO: revisit this...
+          :mime_type
         ]
       end
+
+      def characterization_terms_admin_only
+        %i[
+          virus_scan_service
+          virus_scan_status
+          virus_scan_status_date
+        ]
+      end
+
     end
 
     included do
-      delegate(*characterization_terms, to: :solr_document)
+      delegate( *characterization_terms, to: :solr_document )
+      delegate( *characterization_terms_admin_only, to: :solr_document )
     end
 
     def characterized?
@@ -55,6 +63,10 @@ module Hyrax
 
     def characterization_metadata
       @characterization_metadata ||= build_characterization_metadata
+    end
+
+    def characterization_metadata_admin_only
+      @characterization_metadata_admin_only ||= build_characterization_metadata_admin_only
     end
 
     # Override this if you want to inject additional characterization metadata
@@ -68,6 +80,10 @@ module Hyrax
       @additional_characterization_metadata ||= {}
     end
 
+    def additional_characterization_metadata_admin_only
+      @additional_characterization_metadata_admin_only ||= {}
+    end
+
     def label_for_term(term)
       # TODO: put this in localization map
       return "File Size" if :file_size_human_readable == term
@@ -78,8 +94,18 @@ module Hyrax
     # to the maximum number of configured values.
     # @param [Symbol] term found in the characterization_metadata hash
     # @return [Array] of truncated values
-    def primary_characterization_values(term)
-      values = values_for(term)
+    def primary_characterization_values( term )
+      values = values_for( term )
+      values.slice!(Hyrax.config.fits_message_length, (values.length - Hyrax.config.fits_message_length))
+      truncate_all(values)
+    end
+
+    # Returns an array of characterization values truncated to 250 characters limited
+    # to the maximum number of configured values.
+    # @param [Symbol] term found in the characterization_metadata hash
+    # @return [Array] of truncated values
+    def primary_characterization_values_admin_only( term )
+      values = values_for_admin_only( term )
       values.slice!(Hyrax.config.fits_message_length, (values.length - Hyrax.config.fits_message_length))
       truncate_all(values)
     end
@@ -95,10 +121,25 @@ module Hyrax
       truncate_all(additional_values)
     end
 
+    # Returns an array of characterization values truncated to 250 characters that are in
+    # excess of the maximum number of configured values.
+    # @param [Symbol] term found in the characterization_metadata hash
+    # @return [Array] of truncated values
+    def secondary_characterization_values_admin_only(term)
+      values = values_for_admin_only(term)
+      additional_values = values.slice(Hyrax.config.fits_message_length, values.length - Hyrax.config.fits_message_length)
+      return [] unless additional_values
+      truncate_all(additional_values)
+    end
+
     private
 
-      def values_for(term)
-        Array.wrap(characterization_metadata[term])
+      def values_for( term )
+        Array.wrap( characterization_metadata[term] )
+      end
+
+      def values_for_admin_only( term )
+        Array.wrap( characterization_metadata_admin_only[term] )
       end
 
       def truncate_all(values)
@@ -111,6 +152,14 @@ module Hyrax
           additional_characterization_metadata[term.to_sym] = value if value.present?
         end
         additional_characterization_metadata
+      end
+
+      def build_characterization_metadata_admin_only
+        self.class.characterization_terms_admin_only.each do |term|
+          value = send(term)
+          additional_characterization_metadata_admin_only[term.to_sym] = value if value.present?
+        end
+        additional_characterization_metadata_admin_only
       end
 
   end
