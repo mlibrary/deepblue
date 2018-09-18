@@ -86,6 +86,10 @@ module Deepblue
       return attributes_virus_for_provenance, IGNORE_BLANK_KEY_VALUES
     end
 
+    def attributes_for_provenance_workflow
+      return attributes_brief_for_provenance, IGNORE_BLANK_KEY_VALUES
+    end
+
     def attributes_cache_fetch( event:, id: for_provenance_id )
       key = attributes_cache_key( event: event, id: id )
       rv = Rails.cache.fetch( key )
@@ -540,6 +544,32 @@ module Deepblue
       attributes, ignore_blank_key_values = attributes_for_provenance_virus_scan
       added_prov_key_values = { scan_result: scan_result }.merge added_prov_key_values
       event_note = scan_result if event_note.blank?
+      prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes,
+                                                                  current_user: current_user,
+                                                                  event: event,
+                                                                  event_note: event_note,
+                                                                  ignore_blank_key_values: ignore_blank_key_values,
+                                                                  **added_prov_key_values )
+      provenance_log_event( attributes: nil,
+                            event: event,
+                            current_user: current_user,
+                            event_note: event_note,
+                            ignore_blank_key_values: false,
+                            prov_key_values: prov_key_values )
+    end
+
+    def provenance_workflow( current_user: nil,
+                             event_note: '',
+                             workflow_name:,
+                             workflow_state_prior:,
+                             workflow_state:,
+                             **added_prov_key_values )
+      event = EVENT_WORKFLOW
+      attributes, ignore_blank_key_values = attributes_for_provenance_workflow
+      added_prov_key_values = { workflow_name: workflow_name,
+                                workflow_state_prior: workflow_state_prior,
+                                workflow_state: workflow_state }.merge added_prov_key_values
+      event_note = workflow_state if event_note.blank?
       prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes,
                                                                   current_user: current_user,
                                                                   event: event,
