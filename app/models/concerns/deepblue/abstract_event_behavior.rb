@@ -27,6 +27,7 @@ module Deepblue
     EVENT_UPDATE_BEFORE     = 'update_before'
     EVENT_UPLOAD            = 'upload'
     EVENT_VIRUS_SCAN        = 'virus_scan'
+    EVENT_WORKFLOW          = 'workflow'
     EVENTS                  =
       [
         EVENT_CHARACTERIZE,
@@ -48,7 +49,8 @@ module Deepblue
         EVENT_UPDATE_AFTER,
         EVENT_UPDATE_BEFORE,
         EVENT_UPLOAD,
-        EVENT_VIRUS_SCAN
+        EVENT_VIRUS_SCAN,
+        EVENT_WORKFLOW
       ].freeze
 
     IGNORE_BLANK_KEY_VALUES = true

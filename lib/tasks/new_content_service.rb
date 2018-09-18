@@ -14,6 +14,7 @@ module Deepblue
 
   class NewContentService
 
+    DEFAULT_DATA_SET_ADMIN_SET_NAME = "DataSet Admin Set"
     DEFAULT_USER_CREATE = true
     DEFAULT_VERBOSE = false
     MODE_APPEND = 'append'
@@ -114,7 +115,7 @@ module Deepblue
         filenames = [] if filenames.nil?
         paths_and_names = files.zip( filenames, file_ids )
         paths_and_names.each do |fp|
-          fs = build_file_set( id: nil, path: fp[0], file_set_vis: work.visibility, filename: fp[1], file_ids: fp[2] )
+          fs = build_file_set( id: nil, path: fp[0], work: work, filename: fp[1], file_ids: fp[2] )
           add_file_set_to_work( work: work, file_set: fs )
         end
         work.save!
@@ -144,15 +145,65 @@ module Deepblue
         return collection
       end
 
-      def build_admin_set( hash: )
+      def admin_set_default
+        @admin_set_default ||= AdminSet.find( AdminSet::DEFAULT_ID )
+        # @admin_set_default ||= AdminSet.find_or_create_default_admin_set_id
+      end
+
+      def admin_set_data_set
+        @admin_set_data_set ||= AdminSet.all.select { |x| x.title == [DEFAULT_DATA_SET_ADMIN_SET_NAME] }.first
+      end
+
+      def admin_set_data_set?( admin_set )
+        return false if admin_set.nil?
+        admin_set.title == [DEFAULT_DATA_SET_ADMIN_SET_NAME]
+      end
+
+      def admin_set_work
+        if TaskHelper.dbd_version_1?
+          admin_set_default
+        else
+          admin_set_data_set
+        end
+      end
+
+      def apply_visibility_and_workflow( work:, work_hash:, admin_set: )
+        # puts "work.id=#{work.id} admin_set.id=#{admin_set.id}"
+        work.visibility = visibility_from_hash( hash: work_hash )
+        work.admin_set = admin_set
+        # puts "work.id=#{work.id} admin_set.id=#{admin_set.id} visibility=#{work.visibility}"
+        return if TaskHelper.dbd_version_1?
+        return unless admin_set_data_set? admin_set
+        wf = work.active_workflow
+        # puts "wf.name=#{wf.name}"
+        wgid = work.to_global_id.to_s
+        # user = User.find_by_user_key( work.owner )
+        # agent = PowerConverter.convert( user, to: :sipity_agent )
+        entity = Sipity::Entity.create!( proxy_for_global_id: wgid, workflow: wf, workflow_state: nil )
+        # entity = PowerConverter.convert( work, to: :sipity_entity )
+        action_name = if "open" == work.visibility
+                        "deposited"
+                      else
+                        "pending_review"
+                      end
+        # puts "action_name=#{action_name}"
+        action = Sipity::WorkflowAction.find_or_create_by!( workflow: wf, name: action_name )
+        action_id = action.id
+        wf_state = Sipity::WorkflowState.find_or_create_by!( workflow: wf, name: action_name )
+        entity.update!( workflow_state_id: action_id, workflow_state: wf_state )
+        log_provenance_workflow( curation_concern: work, workflow: wf, workflow_state: action_name )
+      end
+
+      def build_admin_set_work( hash: )
         admin_set_id = hash[:admin_set_id]
-        return default_admin_set if admin_set_id.blank?
-        return default_admin_set if AdminSet.default_set? admin_set_id
+        # TODO: admin_set_title = hash[:admin_set_title]
+        return admin_set_work if admin_set_id.blank?
+        return admin_set_work if AdminSet.default_set? admin_set_id
         begin
           admin_set = AdminSet.find( admin_set_id )
         rescue ActiveFedora::ObjectNotFoundError
           # TODO: Log this
-          admin_set = default_admin_set
+          admin_set = admin_set_work
         end
         admin_set
       end
@@ -201,7 +252,8 @@ module Deepblue
                                      subject_discipline: subject_discipline,
                                      title: title )
         collection.collection_type = build_collection_type( hash: collection_hash )
-        collection.apply_depositor_metadata( user_key )
+        depositor = build_depositor( hash: collection_hash )
+        collection.apply_depositor_metadata( depositor )
         update_edit_users( curation_concern: collection, edit_users: edit_users )
         collection.visibility = visibility_from_hash( hash: collection_hash )
         collection.save!
@@ -244,15 +296,31 @@ module Deepblue
         DateTime.now.to_s
       end
 
-      def build_file_set( id:, path:, file_set_vis:, filename: nil, file_ids: nil )
+      def build_date_coverage( hash: )
+        rv = Array( hash[:date_coverage] )
+        return nil if rv.empty?
+        return rv.first
+      end
+
+      def build_depositor( hash: )
+        depositor = hash[:depositor]
+        user_create_users( emails: depositor ) if depositor.present?
+        return depositor if depositor.present?
+        depositor = user_key
+        return depositor
+      end
+
+      def build_file_set( id:, path:, work:, filename: nil, file_ids: nil )
         # puts "id=#{id} path=#{path} filename=#{filename} file_ids=#{file_ids}"
         fname = filename || File.basename( path )
-        build_file_set_new( id: id, path: path, original_name: fname )
+        build_file_set_new( id: id, depositor: work.depositor, path: path, original_name: fname )
         file_set.title = Array( fname )
         file_set.label = fname
         now = DateTime.now.new_offset( 0 )
         file_set.date_uploaded = now
-        file_set.visibility = file_set_vis
+        file_set.visibility = work.visibility
+        file_set.owner = work.owner
+        file_set.depositor = work.depositor
         file_set.prior_identifier = file_ids if file_ids.present?
         file_set.save!
         return build_file_set_ingest( file_set: file_set, path: path, checksum_algorithm: nil, checksum_value: nil )
@@ -270,10 +338,10 @@ module Deepblue
           return file_set if file_set.present?
         end
         # puts "id=#{id} path=#{path} filename=#{filename} file_ids=#{file_ids}"
-
+        depositor = build_depositor( hash: file_set_hash )
         path = file_set_hash[:file_path]
         original_name = file_set_hash[:original_name]
-        file_set = build_file_set_new( id: id, path: path, original_name: original_name )
+        file_set = build_file_set_new( id: id, depositor: depositor, path: path, original_name: original_name )
 
         curation_notes_admin = Array( file_set_hash[:curation_notes_admin] )
         curation_notes_user = Array( file_set_hash[:curation_notes_user] )
@@ -356,7 +424,7 @@ module Deepblue
         return file_set
       end
 
-      def build_file_set_new( id:, path:, original_name: )
+      def build_file_set_new( id:, depositor:, path:, original_name: )
         log_msg( "#{mode}: processing: #{path}" )
         file = File.open( path )
         # fix so that filename comes from the name of the file and not the hash
@@ -369,20 +437,13 @@ module Deepblue
         loop do
           break if attempts > 3
           file_set = new_file_set( id: id_new )
-          file_set.apply_depositor_metadata( user_key )
+          file_set.apply_depositor_metadata( depositor )
           success = upload_file_to_file_set( file_set, file )
           break if success
           attempts += 1
           file_set = nil
         end
         return file_set
-      end
-
-      def upload_file_to_file_set( file_set, file )
-        Hydra::Works::UploadFileToFileSet.call( file_set, file )
-        return true
-      rescue Ldp::Conflict
-        return false
       end
 
       def build_fundedby( hash: )
@@ -544,7 +605,7 @@ module Deepblue
         creator = Array( work_hash[:creator] )
         curation_notes_admin = Array( work_hash[:curation_notes_admin] )
         curation_notes_user = Array( work_hash[:curation_notes_user] )
-        date_coverage = work_hash[:date_coverage]
+        date_coverage = build_date_coverage( hash: work_hash )
         date_created = build_date( hash: work_hash, key: :date_created )
         date_modified = build_date( hash: work_hash, key: :date_modified )
         date_uploaded = build_date( hash: work_hash, key: :date_uploaded )
@@ -590,12 +651,13 @@ module Deepblue
                              subject_discipline: subject_discipline,
                              title: title )
 
-        work.apply_depositor_metadata( user_key )
+        depositor = build_depositor( hash: work_hash )
+        work.apply_depositor_metadata( depositor )
         update_edit_users( curation_concern: work, edit_users: edit_users )
-        work.owner = user_key
-        work.visibility = visibility_from_hash( hash: work_hash )
-        admin_set = build_admin_set( hash: work_hash )
+        work.owner = depositor
+        admin_set = build_admin_set_work( hash: work_hash )
         work.update( admin_set: admin_set )
+        apply_visibility_and_workflow( work: work, work_hash: work_hash, admin_set: admin_set )
         work.save!
         work.reload
         log_provenance_migrate( curation_concern: work ) if MODE_MIGRATE == mode
@@ -634,11 +696,6 @@ module Deepblue
           rv = @cfg_hash[base_key][key] if @cfg_hash[base_key].key? key
         end
         return rv
-      end
-
-      def default_admin_set
-        @default_admin_set ||= AdminSet.find( AdminSet::DEFAULT_ID )
-        # @default_admin_set ||= AdminSet.find_or_create_default_admin_set_id
       end
 
       def file_from_file_set( file_set: )
@@ -707,7 +764,7 @@ module Deepblue
       end
 
       def find_or_create_user
-        user = User.find_by(user_key: user_key) || create_user(user_key)
+        user = User.find_by( user_key: user_key ) || create_user( user_key )
         raise UserNotFoundError, "User not found: #{user_key}" if user.nil?
         return user
       end
@@ -727,9 +784,12 @@ module Deepblue
           work = find_work( work_hash: work_hash )
           measurement = Benchmark.measure( work.id ) do
             add_file_sets_to_work( work_hash: work_hash, work: work )
-            work.apply_depositor_metadata( user_key )
-            work.owner = user_key
-            work.visibility = visibility_from_hash( hash: work_hash )
+            depositor = build_depositor( hash: work_hash )
+            work.apply_depositor_metadata( depositor )
+            work.owner = depositor
+            admin_set = build_admin_set_work( hash: work_hash )
+            work.admin_set = admin_set
+            apply_visibility_and_workflow( work: work, work_hash: work_hash, admin_set: admin_set )
             work.save!
             log_object work
           end
@@ -879,6 +939,14 @@ module Deepblue
       def log_provenance_migrate( curation_concern:, migrate_direction: 'import' )
         return unless curation_concern.respond_to? :provenance_migrate
         curation_concern.provenance_migrate( current_user: user, migrate_direction: migrate_direction )
+      end
+
+      def log_provenance_workflow( curation_concern:, workflow:, workflow_state: )
+        return unless curation_concern.respond_to? :provenance_workflow
+        curation_concern.provenance_workflow( current_user: user,
+                                              workflow_name: workflow.name,
+                                              workflow_state: workflow_state,
+                                              workflow_state_prior: '' )
       end
 
       def logger
@@ -1207,6 +1275,13 @@ module Deepblue
         work.save!
         work.reload
         return work
+      end
+
+      def upload_file_to_file_set( file_set, file )
+        Hydra::Works::UploadFileToFileSet.call( file_set, file )
+        return true
+      rescue Ldp::Conflict
+        return false
       end
 
       def users
