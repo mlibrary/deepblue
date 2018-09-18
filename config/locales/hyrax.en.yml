@@ -53,7 +53,7 @@ en:
       admin_sets:
         form_visibility:
           visibility:
-            restricted: Draft -- depositor can only select draft for visibility. Access is restricted to repository administrators, managers, and viewers of the set. Must be used with "No embargo" setting above.
+            restricted: Private -- depositor can only select private for visibility. Access is restricted to repository administrators, managers, and viewers of the set. Must be used with "No embargo" setting above.
     account_name:           "My Institution Account Id"
     directory:
       suffix:               "@example.org"
@@ -72,4 +72,4 @@ en:
         after_create_html: If you uploaded files for this work, they are being processed by %{application_name} in the background. The metadata and access controls you specified are being applied. You may need to refresh this page to see these updates.
     visibility:
       restricted: 
-        text: Draft
+        text: Private

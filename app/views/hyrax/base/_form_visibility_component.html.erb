@@ -33,14 +33,6 @@
             </div>
           </label>
         </li>
-        <li class="radio">
-          <label>
-            <%= f.radio_button :visibility, Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE %>
-            <%= visibility_badge(Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE) %>
-            <br />
-            <%= t('hyrax.visibility.restricted.note_html') %>
-          </label>
-        </li>
       </ul>
     </fieldset>
 <% end %>
