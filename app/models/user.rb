@@ -5,7 +5,20 @@ class User < ApplicationRecord
   include Hyrax::User
   include Hyrax::UserUsageStats
 
+  before_validation :generate_password, :on => :create
 
+  def generate_password
+    self.password = SecureRandom.urlsafe_base64(12)
+    self.password_confirmation = self.password
+  end
+
+  # Use the http header as auth.  This app will be behind a reverse proxy
+  #   that will take care of the authentication.
+  Devise.add_module(:http_header_authenticatable,
+                    strategy: true,
+                    controller: :sessions,
+                    model: 'devise/models/http_header_authenticatable')
+  devise :http_header_authenticatable
 
   if Blacklight::Utils.needs_attr_accessible?
     attr_accessible :email, :password, :password_confirmation

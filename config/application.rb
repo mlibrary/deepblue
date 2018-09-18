@@ -101,12 +101,25 @@ module DeepBlueDocs
     config.characterize_excluded_ext_set = { '.csv' => 'text/plain' }.freeze # , '.nc' => 'text/plain' }.freeze
     config.characterize_enforced_mime_type = { '.csv' => 'text/csv' }.freeze # , '.nc' => 'text/plain' }.freeze
 
+
+    # URL for logging the user out of Cosign
+    config.logout_prefix = "https://weblogin.umich.edu/cgi-bin/logout?"
+
     # ingest derivative config
     config.derivative_excluded_ext_set = {}.freeze
     config.derivative_max_file_size = 4_000_000_000 # set to -1 for no limit
     config.derivative_max_file_size_str = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert(config.derivative_max_file_size, precision: 3 )
 
     config.relative_url_root = '/data' unless Rails.env.test?
+
+    # For properly generating URLs and minting DOIs - the app may not by default
+    # Outside of a request context the hostname needs to be provided.
+    config.hostname = ENV['UMRDR_HOST'] || Settings.umrdr_host
+
+    # Set the default host for resolving _url methods
+    Rails.application.routes.default_url_options[:host] = config.hostname
+
+
 
     # ingest virus scan config
     config.virus_scan_max_file_size = 4_000_000_000
