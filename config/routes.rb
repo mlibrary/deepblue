@@ -9,44 +9,7 @@ end
 
 Rails.application.routes.draw do
 
-  mount Riiif::Engine => 'images', as: :riiif if Hyrax.config.iiif_image_server?
-  concern :searchable, Blacklight::Routes::Searchable.new
-
-  resource :catalog, only: [:index], as: 'catalog', path: '/catalog', controller: 'catalog' do
-    concerns :searchable
-  end
-
-  devise_for :users
-  mount Qa::Engine => '/authorities'
-  mount Hyrax::Engine, at: '/'
-  resources :welcome, only: 'index'
-  root 'hyrax/homepage#index'
-  curation_concerns_basic_routes
-  concern :exportable, Blacklight::Routes::Exportable.new
-
-  # Permissions routes
-  namespace :hyrax, path: :concern do
-  resources :permissions, only: [] do
-      member do
-        get :copy_access
-      end
-    end
-  end
-
-  resources :solr_documents, only: [:show], path: '/catalog', controller: 'catalog' do
-    concerns :exportable
-  end
-
-  constraints resque_web_constraint do
-    mount ResqueWeb::Engine => "/resque"
-  end
-
-  resources :bookmarks do
-    concerns :exportable
-    collection do
-      delete 'clear'
-    end
-  end
+  mount Blacklight::Engine => '/'
 
   get ':action' => 'hyrax/static#:action', constraints: { action: %r{
                                                                       about|
@@ -71,6 +34,21 @@ Rails.application.routes.draw do
                                                                     }x },
       as: :static
 
+  mount Riiif::Engine => 'images', as: :riiif if Hyrax.config.iiif_image_server?
+  concern :searchable, Blacklight::Routes::Searchable.new
+
+  resource :catalog, only: [:index], as: 'catalog', path: '/catalog', controller: 'catalog' do
+    concerns :searchable
+  end
+
+  devise_for :users
+  mount Qa::Engine => '/authorities'
+  mount Hyrax::Engine, at: '/'
+  resources :welcome, only: 'index'
+  root 'hyrax/homepage#index'
+  curation_concerns_basic_routes
+  concern :exportable, Blacklight::Routes::Exportable.new
+
   namespace :hyrax, path: :concern do
     resources :data_sets do
       member do
@@ -91,7 +69,29 @@ Rails.application.routes.draw do
     end
   end
 
-  mount Blacklight::Engine => '/'
+  # Permissions routes
+  namespace :hyrax, path: :concern do
+  resources :permissions, only: [] do
+      member do
+        get :copy_access
+      end
+    end
+  end
+
+  resources :solr_documents, only: [:show], path: '/catalog', controller: 'catalog' do
+    concerns :exportable
+  end
+
+  constraints resque_web_constraint do
+    mount ResqueWeb::Engine => "/resque"
+  end
+
+  resources :bookmarks do
+    concerns :exportable
+    collection do
+      delete 'clear'
+    end
+  end
 
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
