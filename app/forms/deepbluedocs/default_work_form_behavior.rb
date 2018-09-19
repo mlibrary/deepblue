@@ -108,11 +108,14 @@ module Deepbluedocs
         if current_ability.admin?
           default_work_primary_terms | super
           default_work_primary_terms.delete(:curation_notes_admin)
+          default_work_primary_terms.delete(:curation_notes_user)
           default_work_primary_terms << :curation_notes_admin
+          default_work_primary_terms << :curation_notes_user
           default_work_primary_terms
         else  
           default_work_primary_terms | super
           default_work_primary_terms.delete(:curation_notes_admin)
+          default_work_primary_terms.delete(:curation_notes_user)
           default_work_primary_terms
         end
       end
