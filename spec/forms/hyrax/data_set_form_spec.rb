@@ -48,7 +48,6 @@ RSpec.describe Hyrax::DataSetForm do
     keyword
     language
     referenced_by
-    curation_notes_user
   ] }
 
   describe "#required_fields" do
