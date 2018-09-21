@@ -7,6 +7,9 @@
   <li><a href="#quick-pc-tips">Tips for Globus on a PC</a></li>
 </ul>
 <% end %>
+<%= render partial: 'help_sidebar' %>
+
+<div class="<%= main_content_classes %> static-page-main">
 <h2>Using Globus</h2>
 <h3><em>Guide to transferring files from Deep Blue Data with Globus</em></h3>
 <h3 id="what-is-globus" class="active">What is Globus and why do I need it to access files on Deep Blue Data?</h3>
@@ -48,7 +51,7 @@
       to allow Globus to perform actions using your third-party identity.</p>
     <p>You can find Globus's walkthrough for setting up an account at the following link:
       <a href="https://docs.globus.org/how-to/get-started/">https://docs.globus.org/how-to/get-started/</a>.</p>
-  <li>I<em>nstall Globus Connect Personal</em></li>
+  <li><em>Install Globus Connect Personal</em></li>
 
   <P>Once you have an account set up, you will want to establish a personal endpoint on your computer so that you can
     transfer data to it. To do this, you will need to download and install the program Globus Connect Personal, which
@@ -132,14 +135,7 @@
   find the icon in the bottom right-hand corner of your screen, (or in the menu/status bar at the top for Mac)
   right-click (or ctrl-click for Mac) and click "Quit Globus Personal Connect."</p>
 
-<br/><br/><br/>
+<%= render partial: 'get_help' %>
 
-<p>Have Questions? Need Help?</p>
-
-<p>Please contact Research Data Services -
-  <a href="mailto:researchdataservices@umich.edu">researchdataservices@umich.edu</a>
-</p>
-
-<p>This document was last updated on May 15, 2018</p>
-
-<%= render partial: 'help_sidebar' %>
+<p class="font-xsmall">This document was last updated on May 15, 2018</p>
+</div>

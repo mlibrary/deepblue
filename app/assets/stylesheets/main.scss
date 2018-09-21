@@ -209,6 +209,78 @@ h4.search-result-title a {
   font-size: 1.2em;
 }
 
+/** Help + About **/ 
+
+.static-page-sidebar {
+  
+  h2 {
+    font-size: 1.5em;
+    font-weight: 500;
+    padding: .5em 0;
+  }
+
+   ul li > ul li {
+    padding-left: 1em;
+  }
+
+  li.current {
+    //border-left: 4px solid #0C5292;
+    font-weight: 600;
+  }
+}
+
+.static-page-main {
+
+  h1 {
+    font-size: 1.65em;
+    font-weight: 500;
+    padding: .5em 0;
+  }
+
+  h2 {
+    font-size: 1.5em;
+    font-weight: 500;
+    padding: .5em 0;
+  }
+
+  h3 {
+    font-size: 1.25em;
+    font-weight: 500;
+    padding: .5em 0;
+  }
+
+  h4 {
+    font-size: 1.15em;
+    font-weight: 500;
+    padding: .5em 0;
+  }
+
+  ul {
+    padding: 0 2em .5em;
+  }
+
+  ul li {
+    list-style: circle;
+  }
+
+  strong {
+    font-weight: bold;
+  }
+
+  em {
+    font-style: italic;
+  }
+
+  .need-help {
+    padding: 1em;
+    margin: 2em 0;
+    text-align: center;
+  }
+
+  img {
+    max-width: 100%;}
+}
+
 /** Footer **/
 
 .footer {
