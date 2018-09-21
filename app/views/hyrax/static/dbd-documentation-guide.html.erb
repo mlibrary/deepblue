@@ -7,6 +7,7 @@
 <% end %>
 <%= render partial: 'help_sidebar' %>
 
+<div class="<%= main_content_classes %> static-page-main">
 <h2>Guide to Creating Documentation for Your Dataset in Deep Blue Data</h2>
 
 <p class="c13">Research Data Services –
@@ -145,12 +146,7 @@ give you attribution for your work.</span>
   </li>
 </ul>
 
-<br/><br/><br/>
+<%= render partial: 'get_help' %>
 
-<p>Have Questions? Need Help?</p>
-
-<p>Please contact Research Data Services -
-  <a href="mailto:researchdataservices@umich.edu">researchdataservices@umich.edu</a>
-</p>
-
-<p>This document was last updated on May 15, 2018</p>
+<p class="font-xsmall">This document was last updated on May 15, 2018</p>
+</div>

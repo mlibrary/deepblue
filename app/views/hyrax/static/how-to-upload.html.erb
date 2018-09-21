@@ -8,6 +8,8 @@
 </ul>
 <% end %>
 <%= render partial: 'help_sidebar' %>
+
+<div class="<%= main_content_classes %> static-page-main">
 <h2 id="How_to_Upload">How to Upload</h2>
 
 <p>Uploading your data to Deep Blue Data is a straight-forward process, but you will need to take some time to prepare
@@ -77,12 +79,7 @@ page to be sure you:</p>
 
 <p><strong>Congratulation, you have deposited your data!</strong></p>
 
-<br/><br/><br/>
+<%= render partial: 'get_help' %>
 
-<p>Have Questions? Need Help?</p>
-
-<p>Please contact Research Data Services -
-  <a href="mailto:researchdataservices@umich.edu">researchdataservices@umich.edu</a>
-</p>
-
-<p>This document was last updated on May 15, 2018</p>
+<p class="font-xsmall">This document was last updated on May 15, 2018</p>
+</div>

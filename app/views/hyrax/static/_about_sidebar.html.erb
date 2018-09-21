@@ -1,5 +1,4 @@
-<% content_for :sidebar do %>
-<aside class="sidebar">
+<aside class="<%= sidebar_classes %> static-page-sidebar">
   <h2>About</h2>
   <ul>
     <%= render partial: 'help_sidebar_link', locals: { path: 'about', label: "About Deep Blue Data" } %>
@@ -8,4 +7,3 @@
     <%= render partial: 'help_sidebar_link', locals: { path: 'support-for-depositors', label: "Support for Depositors" } %>
   </ul>
 </aside>
-<% end %>

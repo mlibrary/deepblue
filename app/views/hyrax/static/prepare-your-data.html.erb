@@ -8,6 +8,8 @@
 </ul>
 <% end %>
 <%= render partial: 'help_sidebar' %>
+
+<div class="<%= main_content_classes %> static-page-main">
 <h2>Prepare Your Data</h2>
 
 <h3 id="data-format-and-deposit-size">Data Format &amp; Deposit Size</h3>
@@ -97,12 +99,7 @@ for details.
     the work was sponsored or supported by an agency or organization other than U-M.</li>
 </ul>
 
-<br/><br/><br/>
+<%= render partial: 'get_help' %>
 
-<p>Have Questions? Need Help?</p>
-
-<p>Please contact Research Data Services -
-  <a href="mailto:researchdataservices@umich.edu">researchdataservices@umich.edu</a>
-</p>
-
-<p>This document was last updated on May 15, 2018</p>
+<p class="font-xsmall">This document was last updated on May 15, 2018</p>
+</div>

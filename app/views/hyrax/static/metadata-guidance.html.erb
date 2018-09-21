@@ -22,6 +22,7 @@
 <% end %>
 <%= render partial: 'help_sidebar' %>
 
+<div class="<%= main_content_classes %> static-page-main">
 <h2>Guide to Creating Metadata for Your Dataset in Deep Blue Data</h2>
 
 <p class="c14" id="h.7lf6ehxv2wno"><span class="c10">Research
@@ -719,12 +720,7 @@ Add another [element name],” which will create another field.
 Repeat this process as needed.</span>
 </p>
 
-<br/><br/><br/>
+<%= render partial: 'get_help' %>
 
-<p>Have Questions? Need Help?</p>
-
-<p>Please contact Research Data Services -
-  <a href="mailto:researchdataservices@umich.edu">researchdataservices@umich.edu</a>
-</p>
-
-<p>This document was last updated on May 15, 2018</p>
+<p class="font-xsmall">This document was last updated on May 15, 2018</p>
+</div>

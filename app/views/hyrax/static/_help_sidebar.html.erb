@@ -1,5 +1,4 @@
-<% content_for :sidebar do %>
-<aside class="sidebar">
+<aside class="<%= sidebar_classes %> static-page-sidebar ">
   <h2>Help</h2>
   <ul>
     <%= render partial: 'help_sidebar_link', locals: { path: 'prepare-your-data', label: "Prepare Your Data" } %>
@@ -12,4 +11,3 @@
     <li><a href="<%= hyrax.contact_path %>">Contact Us</a></li>
   </ul>
 </aside>
-<% end %>
