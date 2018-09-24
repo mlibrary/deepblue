@@ -46,6 +46,7 @@ module Deepblue
                                             language
                                             language_ordered
                                             methodology
+                                            owner
                                             prior_identifier
                                             referenced_by
                                             referenced_by_ordered
@@ -66,6 +67,7 @@ module Deepblue
                                                   date_uploaded
                                                   depositor
                                                   label
+                                                  owner
                                                   prior_identifier
                                                   title
                                                   virus_scan_service

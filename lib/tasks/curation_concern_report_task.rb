@@ -12,13 +12,12 @@ module Deepblue
 
     attr_accessor :file_ext_re
 
-    attr_accessor :authors, :depositors, :extensions
     attr_accessor :collections_file, :works_file, :file_sets_file
     attr_accessor :collection_size, :work_size
     attr_accessor :out_report
-    attr_accessor :out_collections, :out_works, :out_file_sets
-    attr_accessor :total_collections, :total_works, :total_file_sets
-    attr_accessor :total_collections_size, :total_works_size
+    attr_accessor :out_collections, :out_works, :out_file_sets, :prefix
+    attr_accessor :tagged_totals
+    attr_accessor :totals
     attr_accessor :work_ids_reported
 
     def initialize( options: {} )
@@ -32,14 +31,8 @@ module Deepblue
     protected
 
       def initialize_report_values
-        @total_collections = 0
-        @total_works = 0
-        @total_file_sets = 0
-        @total_works_size = 0
-        @total_collections_size = 0
-        @authors = Hash.new( 0 )
-        @depositors = Hash.new( 0 )
-        @extensions = Hash.new( 0 )
+        @totals = Hash.new( 0 )
+        @tagged_totals = {}
         @work_ids_reported = {}
         @out_report = StringIO.new
       end
@@ -54,7 +47,7 @@ module Deepblue
           w.file_sets do |fs|
             # print 'f'
             file_set_count += 1
-            total_size += fs.original_file.size
+            total_size += size_of fs
           end
         end
         return file_set_count, total_size
@@ -89,6 +82,107 @@ module Deepblue
         ActiveSupport::NumberHelper.number_to_human_size( value )
       end
 
+      def inc( key:, by: 1 )
+        x = @totals[key] + by
+        @totals[key] = x
+      end
+
+      def inc_author( work )
+        inc_tagged_total( base_tag: 'authors', curation_concern: work, item: work.authoremail )
+      end
+
+      def inc_collections( collection )
+        inc_total( base_key: 'collections', curation_concern: collection )
+      end
+
+      def inc_collections_size( collection, size )
+        inc_total_size( base_key: 'collections', curation_concern: collection, by: size )
+      end
+
+      def inc_depositor( work )
+        inc_tagged_total( base_tag: 'depositors', curation_concern: work, item: work.depositor )
+      end
+
+      def inc_extension( work, file_set )
+        ext = extension_for file_set
+        return ext if ext.blank?
+        return inc_tagged_total( base_tag: 'extensions', curation_concern: work, file_set: file_set, item: ext )
+      end
+
+      def inc_file_sets( work, _file_set )
+        inc_total( base_key: 'file_sets', curation_concern: work )
+      end
+
+      def inc_tagged( tag:, item:, by: 1 )
+        hash = @tagged_totals[tag]
+        if hash.nil?
+          hash = Hash.new( 0 )
+          @tagged_totals[tag] = hash
+        end
+        x = hash[item] + by
+        hash[item] = x # rubocop:disable Lint/UselessSetterCall
+      end
+
+      def inc_tagged_total( base_tag:, curation_concern:, file_set: nil, item:, by: 1 )
+        inc_tagged( tag: base_tag, item: item, by: by )
+        status = curation_concern_status( curation_concern, file_set: file_set )
+        tag = key( base: base_tag, status: status )
+        inc_tagged( tag: tag, item: item, by: by )
+        return item
+      end
+
+      def curation_concern_status( curation_concern, file_set: nil )
+        if TaskHelper.dbd_version_1?
+          obj = if file_set.present?
+                  file_set
+                else
+                  curation_concern
+                end
+          if obj.visibility == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
+            'public'
+          else
+            'private'
+          end
+        elsif curation_concern.is_a? Collection
+          if curation_concern.visibility == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
+            'published'
+          else
+            'pending_review'
+          end
+        else
+          e = PowerConverter.convert( curation_concern, to: :sipity_entity )
+          if 'deposited' == e.workflow_state_name
+            'published'
+          else
+            'pending_review'
+          end
+        end
+      end
+
+      def inc_total( base_key:, curation_concern:, file_set: nil, by: 1 )
+        inc( key: key( base: base_key ), by: by )
+        status = curation_concern_status( curation_concern, file_set: file_set )
+        key = key( base: base_key, status: status )
+        inc( key: key, by: by )
+      end
+
+      def inc_total_size( base_key:, curation_concern:, by: )
+        inc_total( base_key: "#{base_key}_size", curation_concern: curation_concern, by: by )
+      end
+
+      def inc_works( work )
+        inc_total( base_key: 'works', curation_concern: work )
+      end
+
+      def inc_works_size( work, size )
+        inc_total_size( base_key: 'works', curation_concern: work, by: size )
+      end
+
+      def key( base:, status: nil )
+        return "#{base}_#{status}" if status.present?
+        base
+      end
+
       def parent_ids( work: )
         work.member_of_collection_ids
       end
@@ -99,7 +193,7 @@ module Deepblue
           out << ',' << 'Create date'
           out << ',' << 'Update date'
           out << ',' << 'Depositor'
-          out << ',' << 'Visibility'
+          out << ',' << 'Status'
           out << ',' << 'Work count'
           out << ',' << 'File set count'
           out << ',' << 'Total size'
@@ -113,7 +207,7 @@ module Deepblue
           out << ',' << '"' << to_date( collection.create_date ) << '"'
           out << ',' << '"' << to_date( collection.date_modified ) << '"'
           out << ',' << '"' << collection.depositor << '"'
-          out << ',' << '"' << collection.visibility << '"'
+          out << ',' << '"' << curation_concern_status( collection ) << '"'
           col_work_ids = collection_work_ids( collection: collection )
           out << ',' << col_work_ids.size.to_s
           file_set_count, total_size = collection_file_set_count_and_size( collection_work_ids: col_work_ids )
@@ -128,13 +222,13 @@ module Deepblue
         out
       end
 
-      def print_file_set_line( out, work_id: nil, file_set: nil, file_size: 0, file_ext: '', header: false )
+      def print_file_set_line( out, work: nil, file_set: nil, file_size: 0, file_ext: '', header: false )
         if header
           out << 'Id'
           out << ',' << 'Parent work id'
           out << ',' << 'Update date'
           out << ',' << 'Depositor'
-          out << ',' << 'Visibility'
+          out << ',' << 'Status'
           out << ',' << 'File size'
           out << ',' << 'File size print'
           out << ',' << 'File ext'
@@ -143,10 +237,10 @@ module Deepblue
         else
           return out if file_set.nil?
           out << file_set.id.to_s
-          out << ',' << work_id.to_s
+          out << ',' << work.id.to_s
           out << ',' << '"' << to_date( file_set.date_modified ) << '"'
           out << ',' << '"' << file_set.depositor << '"'
-          out << ',' << '"' << file_set.visibility << '"'
+          out << ',' << '"' << curation_concern_status( work, file_set: file_set ) << '"'
           out << ',' << file_size.to_s
           out << ',' << human_readable( file_size ).to_s
           out << ',' << file_ext
@@ -164,7 +258,7 @@ module Deepblue
           out << ',' << 'Update date'
           out << ',' << 'Depositor'
           out << ',' << 'Author email'
-          out << ',' << 'Visibility'
+          out << ',' << 'Status'
           out << ',' << 'File set count'
           out << ',' << 'Work size'
           out << ',' << 'Work size print'
@@ -180,7 +274,7 @@ module Deepblue
           out << ',' << '"' << to_date( work.date_modified ) << '"'
           out << ',' << '"' << work.depositor << '"'
           out << ',' << '"' << work.authoremail << '"'
-          out << ',' << '"' << work.visibility << '"'
+          out << ',' << '"' << curation_concern_status( work ) << '"'
           out << ',' << work.file_set_ids.size.to_s
           out << ',' << work_size.to_s
           out << ',' << human_readable( work_size ).to_s
@@ -195,20 +289,15 @@ module Deepblue
         out
       end
 
-      def quote( out, str )
-        out << '"' << str << '"'
-        out
-      end
-
-      def report_collection( collection: )
+      def process_collection( collection: )
         return if collection.blank?
         return unless collection.is_a? Collection
-        @total_collections += 1
+        inc_collections( collection )
         # TODO: collection_authors, collection_depositors
         # authors[collection.authoremail] = authors[collection.authoremail] + 1
         # depositors[collection.depositor] = depositors[collection.depositor] + 1
         @collection_size = 0
-        collection_files = 0
+        @collection_files = 0
         work_ids = collection_work_ids( collection: collection )
         file_set_count, _total_size = collection_file_set_count_and_size( collection_work_ids: work_ids )
         print "[#{collection.id}] has #{works( work_ids.count )} and #{files( file_set_count )}..."
@@ -221,85 +310,204 @@ module Deepblue
             next
           end
           work = TaskHelper.work_find( id: wid )
-          @total_works += 1
-          authors[work.authoremail] = authors[work.authoremail] + 1
-          depositors[work.depositor] = depositors[work.depositor] + 1
+          inc_works( work )
+          inc_author( work )
+          inc_depositor( work )
           @work_size = 0
-          collection_files += work.file_sets.count
-          report_file_sets( work: work, in_collection: false )
+          @collection_files += work.file_sets.count
+          process_file_sets( work: work, collection: collection )
           work_ids_reported[work.id] = true
           print_work_line( out_works, work: work, work_size: @work_size )
         end
-        print " #{human_readable( @collection_size )} in #{files( collection_files )}\n"
+        print " #{human_readable( @collection_size )} in #{files( @collection_files )}\n"
         STDOUT.flush
         print_collection_line( out_collections, collection: collection )
       end
 
-      def report_collections
+      def process_collections
         Collection.all.each do |collection|
-          report_collection( collection: collection )
+          process_collection( collection: collection )
         end
       end
 
-      def report_curation_concerns( ids: )
+      def process_curation_concerns(ids: )
         return if ids.blank?
         ids.each do |id|
           curation_concern = ActiveFedora::Base.find id
-          report_collection( collection: curation_concern )
-          report_work( work: curation_concern )
+          process_collection( collection: curation_concern )
+          process_work( work: curation_concern )
         end
       end
 
-      def report_file_sets( work:, in_collection: false )
+      def process_file_sets( work:, collection: nil )
         work.file_sets.each do |fs|
-          @total_file_sets += 1
+          inc_file_sets( work, fs )
           size = size_of fs
-          ext = extension_for fs
-          extensions[ext] = extensions[ext] + 1 unless '' == ext
-          print_file_set_line( out_file_sets, work_id: work.id, file_set: fs, file_size: size, file_ext: ext )
+          ext = inc_extension( work, fs )
+          print_file_set_line( out_file_sets, work: work, file_set: fs, file_size: size, file_ext: ext )
           @work_size += size
-          @collection_size += size if in_collection
-          @total_collections_size += size
-          @total_works_size += size
+          @collection_size += size if collection.present?
+          inc_collections_size( collection, size ) if collection.present?
+          inc_works_size( work, size )
         end
       end
 
-      def report_work( work: )
+      def process_work( work: )
         return if work.nil?
         return unless TaskHelper.work? work
         if work_ids_reported.key?( work.id )
           print "#{work.id} already reported.\n"
           return
         end
-        @total_works += 1
-        authors[work.authoremail] = authors[work.authoremail] + 1
-        depositors[work.depositor] = depositors[work.depositor] + 1
+        inc_works( work )
+        inc_author( work )
+        inc_depositor( work )
         @work_size = 0
         print "#{work.id} has #{files(work.file_set_ids.size)}..."
         STDOUT.flush
-        report_file_sets( work: work )
+        process_file_sets( work: work )
         print " #{human_readable( @work_size )}\n"
         STDOUT.flush
         work_ids_reported[work.id] = true
         print_work_line( out_works, work: work, work_size: @work_size )
       end
 
-      def report_works
+      def process_works
         TaskHelper.all_works.each do |work|
-          report_work( work: work )
+          process_work( work: work )
         end
       end
 
-      def size_of( af )
-        return 0 if af.nil?
+      def quote( out, str )
+        out << '"' << str << '"'
+        out
+      end
+
+      def report_all_totals
+        statuses = if TaskHelper.dbd_version_1?
+                     [ 'public', 'private' ]
+                   else
+                     [ 'published', 'pending_review' ]
+                   end
+        out_report << "\n#{statuses[0].titlecase} Totals:\n\n"
+        report_totals( status: statuses[0] )
+        report_authors( status: statuses[0] )
+        report_depositors( status: statuses[0] )
+        report_top_ten( status: statuses[0] )
+
+        out_report << "\n\n#{statuses[1].titlecase} Totals:\n\n"
+        report_totals( status: statuses[1] )
+        report_authors( status: statuses[1] )
+        report_depositors( status: statuses[1] )
+        report_top_ten( status: statuses[1] )
+
+        out_report << "\n\nGrand Totals:\n\n"
+        report_totals
+        report_authors
+        report_depositors
+      end
+
+      def report_authors( status: nil )
+        report_tagged_totals( base_tag: 'authors', status: status )
+      end
+
+      def report_depositors( status: nil )
+        report_tagged_totals( base_tag: 'depositors', status: status )
+      end
+
+      def report_extensions( status: nil )
+        report_tagged_totals( base_tag: 'extensions', status: status )
+      end
+
+      def report_finished
+        out_report << "Report finished: " << Time.new.to_s << "\n"
+
+        report_all_totals
+        report_top_ten
+
+        @out_report_file = Pathname.new( '.' ).join "#{prefix}.txt"
+        open( @out_report_file, 'w' ) { |out| out << out_report.string }
+        print "\n"
+        print "\n"
+        print out_report.string
+        print "\n"
+        STDOUT.flush
+      end
+
+      def report_tagged_totals( base_tag:, status: nil )
+        # out_report << "report_tagged_totals(#{base_tag},#{status})\n"
+        tag_hash = tagged( base_tag: base_tag, status: status )
+        # out_report << "tag_hash='#{tag_hash}'\n"
+        label = status_label( status )
+        out_report << "Skipping unique and repeats for #{label}#{base_tag}\n" if tag_hash.nil?
+        return if tag_hash.nil?
+        out_report << "Unique #{label}#{base_tag}: #{tag_hash.size}\n"
+        count = 0
+        tag_hash.each_pair { |_key, value| count += 1 if value > 1 }
+        out_report << "Repeat #{label}#{base_tag}: #{count}\n"
+      end
+
+      def report_top_ten( status: nil )
+        status_label = status_label( status )
+        top = top_ten( tagged( base_tag: 'authors', status: status ) )
+        top_ten_print( "\nTop ten #{status_label}authors:", top )
+        top = top_ten( tagged( base_tag: 'depositors', status: status ) )
+        top_ten_print( "\nTop ten #{status_label}depositors:", top )
+        top = top_ten( tagged( base_tag: 'extensions', status: status ) )
+        top_ten_print( "\nTop ten #{status_label}extensions:", top )
+      end
+
+      def report_total_line( type, status: nil )
+        key = key( base: type, status: status )
+        return unless @totals.key? key
+        label = status_label( status )
+        total = total( key )
+        out_report << "Total #{label}#{type.humanize( capitalize: false )}: #{total}" << "\n"
+      end
+
+      def report_total_size_line( type, status: nil )
+        key = key( base: "#{type}_size", status: status )
+        return unless @totals.key? key
+        label = status_label( status )
+        total = total( key )
+        out_report << "Total #{label}#{type} size: #{human_readable( total )}" << "\n"
+      end
+
+      def report_totals( status: nil )
+        report_total_line( 'collections', status: status )
+        report_total_line( 'works', status: status )
+        report_total_line( 'file_sets', status: status )
+        report_total_size_line( 'collections', status: status )
+        report_total_size_line( 'works', status: status )
+      end
+
+      def size_of( file_set )
+        return 0 if file_set.nil?
         file = nil
         begin
-          file = af.original_file
+          file = file_set.original_file
         rescue Exception => e # rubocop:disable Lint/RescueException, Lint/UselessAssignment
           return 0
         end
         return 0 if file.nil?
         file.size
+      end
+
+      def status_label( status )
+        if status.blank?
+          ''
+        else
+          "#{status.humanize( capitalize: false )} "
+        end
+      end
+
+      def tagged( base_tag:, status: nil )
+        tag = if status.present?
+                "#{base_tag}_#{status}"
+              else
+                base_tag
+              end
+        @tagged_totals[tag]
       end
 
       def to_date( date )
@@ -310,6 +518,7 @@ module Deepblue
       def top_ten( hash )
         # brute force with too many sorts...
         top = []
+        return top if hash.nil?
         hash.each_pair do |key, value|
           if 10 > top.size
             top << [key, value]
@@ -329,19 +538,25 @@ module Deepblue
         top
       end
 
-      def top_ten_print( out, header, top_ten )
-        out << header << "\n"
+      def top_ten_print( header, top_ten )
+        out_report << header << "\n"
+        out_report << "Skipping due to nil hash\n" if top_ten.nil?
+        return if top_ten.nil?
         index = 0
         top_ten.each do |a|
           index += 1
-          out << index << ') ' << a[0].to_s << ' occured ' << a[1]
-          out << if 1 == a[1]
-                   " time"
-                 else
-                   " times"
-                 end
-          out << "\n"
+          out_report << index << ') ' << a[0].to_s << ' occured ' << a[1]
+          out_report << if 1 == a[1]
+                          " time"
+                        else
+                          " times"
+                        end
+          out_report << "\n"
         end
+      end
+
+      def total( name )
+        @totals[name]
       end
 
       def works( count )
