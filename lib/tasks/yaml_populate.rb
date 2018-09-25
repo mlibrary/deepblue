@@ -73,6 +73,27 @@ module Deepblue
       TaskHelper.benchmark_report( label: 'work id', first_id: first_id, measurements: measurements, total: total )
     end
 
+    def run_all
+      total = nil
+      measurements = []
+      curation_concerns = if 'work' == @populate_type
+                            TaskHelper.all_works
+                          else
+                            Collection.all
+                          end
+      curation_concerns.each do |cc|
+        @ids << cc.id
+        subtotal = run_one_curation_concern( curation_concern: cc )
+        measurements << subtotal
+        if total.nil?
+          total = subtotal
+        else
+          total += subtotal
+        end
+      end
+      return measurements, total
+    end
+
     def run_multiple( ids: )
       total = nil
       measurements = []
@@ -99,28 +120,39 @@ module Deepblue
       return measurement
     end
 
-    def yaml_populate_collection( id: )
-      puts "Exporting collection #{id} to '#{@target_dir}' with export files flag set to #{@export_files} and mode #{@mode}"
-      service = YamlPopulateService.new( mode: @mode )
-      service.yaml_populate_collection( collection: id, dir: @target_dir, export_files: @export_files )
-      @populate_ids << id
-      @populate_stats << service.yaml_populate_stats
-      # Deepblue::MetadataHelper.yaml_populate_collection( collection: id,
-      #                                                    dir: @target_dir,
-      #                                                    export_files: @export_files,
-      #                                                    mode: @mode )
+    def run_one_curation_concern( curation_concern: )
+      measurement = Benchmark.measure( curation_concern.id ) do
+        if 'work' == @populate_type
+          yaml_populate_work( id: curation_concern.id, work: curation_concern )
+        else
+          yaml_populate_collection( id: curation_concern.id, collection: curation_concern )
+        end
+      end
+      return measurement
     end
 
-    def yaml_populate_work( id: )
-      puts "Exporting work #{id} to '#{@target_dir}' with export files flag set to #{@export_files} and mode #{@mode}"
+    def yaml_populate_collection( id:, collection: nil )
+      puts "Exporting collection #{id} to '#{@target_dir}' with export files flag set to #{@export_files} and mode #{@mode}"
       service = YamlPopulateService.new( mode: @mode )
-      service.yaml_populate_work( curation_concern: id, dir: @target_dir, export_files: @export_files )
+      if collection.nil?
+        service.yaml_populate_collection( collection: id, dir: @target_dir, export_files: @export_files )
+      else
+        service.yaml_populate_collection( collection: collection, dir: @target_dir, export_files: @export_files )
+      end
       @populate_ids << id
       @populate_stats << service.yaml_populate_stats
-      # Deepblue::MetadataHelper.yaml_populate_work( curation_concern: id,
-      #                                              dir: @target_dir,
-      #                                              export_files: @export_files,
-      #                                              mode: @mode )
+    end
+
+    def yaml_populate_work( id:, work: nil )
+      puts "Exporting work #{id} to '#{@target_dir}' with export files flag set to #{@export_files} and mode #{@mode}"
+      service = YamlPopulateService.new( mode: @mode )
+      if work.nil?
+        service.yaml_populate_work( curation_concern: id, dir: @target_dir, export_files: @export_files )
+      else
+        service.yaml_populate_work( curation_concern: work, dir: @target_dir, export_files: @export_files )
+      end
+      @populate_ids << id
+      @populate_stats << service.yaml_populate_stats
     end
 
   end

@@ -3,7 +3,6 @@
 # An AV class that streams the file to an already-running
 # clamav daemon
 
-# rubocop:disable Style/SafeNavigation
 require 'abstract_virus_scanner'
 require 'null_virus_scanner'
 require 'clamav/client'
@@ -100,19 +99,19 @@ class UMichClamAVDaemonScanner < AbstractVirusScanner
     # Set up logging for the clamav daemon scanner
 
     def debug( msg )
-      ActiveFedora::Base.logger.debug( msg ) if ActiveFedora::Base.logger
+      Hyrax.logger&.debug( msg )
     end
 
     def error( msg )
-      ActiveFedora::Base.logger.error( msg ) if ActiveFedora::Base.logger
+      Hyrax.logger&.error( msg )
     end
 
     def info( msg )
-      ActiveFedora::Base.logger.info( msg ) if ActiveFedora::Base.logger
+      Hyrax.logger&.info( msg )
     end
 
     def warning( msg )
-      ActiveFedora::Base.logger.warn( msg ) if ActiveFedora::Base.logger
+      Hyrax.logger&.warn( msg )
     end
 
 end
@@ -156,5 +155,3 @@ end
 #       [return true or false]
 #     end
 #   end
-
-# rubocop:enable Style/SafeNavigation
