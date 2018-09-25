@@ -325,7 +325,7 @@ module Deepblue
         collection = Collection.find collection if collection.is_a? String
         target_file = yaml_filename_collection( pathname_dir: dir, collection: collection )
         target_dir = yaml_targetdir_collection( pathname_dir: dir, collection: collection )
-        Dir.mkdir( target_dir ) unless Dir.exist? target_dir
+        Dir.mkdir( target_dir ) if export_files && !Dir.exist?( target_dir )
         open( target_file, 'w' ) do |out2|
           yaml_populate_collection( collection: collection,
                                     out: out2,
@@ -396,8 +396,6 @@ module Deepblue
       Dir.mkdir( dir ) unless Dir.exist? dir
       if out.nil?
         target_file = yaml_filename_users( pathname_dir: dir, task: mode )
-        # target_dir = yaml_targetdir_users( pathname_dir: dir, task: mode )
-        # Dir.mkdir( target_dir ) unless Dir.exist? target_dir
         open( target_file, 'w' ) do |out2|
           yaml_populate_users( out: out2, target_filename: target_file )
         end
@@ -432,7 +430,7 @@ module Deepblue
         curation_concern = yaml_work_find( curation_concern: curation_concern ) if curation_concern.is_a? String
         target_file = yaml_filename_work( pathname_dir: dir, work: curation_concern )
         target_dir = yaml_targetdir_work( pathname_dir: dir, work: curation_concern )
-        Dir.mkdir( target_dir ) unless Dir.exist? target_dir
+        Dir.mkdir( target_dir ) if export_files && !Dir.exist?( target_dir )
         open( target_file, 'w' ) do |out2|
           yaml_populate_work( curation_concern: curation_concern,
                               out: out2,

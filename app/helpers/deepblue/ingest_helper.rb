@@ -50,7 +50,8 @@ module Deepblue
                                           **added_prov_key_values )
         file_set.characterization_proxy.save!
         file_set.update_index
-        file_set.parent.in_collections.each( &:update_index ) if file_set.parent
+        file_set.parent&.in_collections&.each(&:update_index)
+        # file_set.parent.in_collections.each( &:update_index ) if file_set.parent
       rescue Exception => e # rubocop:disable Lint/RescueException
         Rails.logger.error "IngestHelper.create_derivatives(#{file_name}) #{e.class}: #{e.message} at #{e.backtrace[0]}"
       ensure

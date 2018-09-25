@@ -19,6 +19,14 @@ namespace :deepblue do
     task.run
   end
 
+  # bundle exec rake deepblue:yaml_populate_from_all_works['{"target_dir":"/deepbluedata-prep"\,"export_files":false\,"mode":"build"}']
+  desc 'Yaml populate from all works'
+  task :yaml_populate_from_all_works, %i[ options ] => :environment do |_task, args|
+    args.with_defaults( options: '{}' )
+    task = Deepblue::YamlPopulateFromAllWorks.new( options: args[:options] )
+    task.run
+  end
+
 end
 
 module Deepblue
@@ -30,6 +38,24 @@ module Deepblue
   # see: http://ruby-doc.org/stdlib-2.0.0/libdoc/benchmark/rdoc/Benchmark.html
   require 'benchmark'
   include Benchmark
+
+  class YamlPopulateFromAllWorks < Deepblue::YamlPopulate
+
+    def initialize( options: )
+      super( populate_type: 'work', options: options )
+      @export_files = task_options_value( key: 'export_files', default_value: false )
+      @ids = []
+    end
+
+    def run
+      @ids = []
+      measurements, total = run_all
+      return if @ids.empty?
+      report_stats
+      report_work( first_id: @ids[0], measurements: measurements, total: total )
+    end
+
+  end
 
   class YamlPopulateFromWork < Deepblue::YamlPopulate
 
