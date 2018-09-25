@@ -59,7 +59,6 @@ module Hyrax
 
     def file_size_too_large_to_download?
       !@solr_document.file_size.nil? && @solr_document.file_size >= DeepBlueDocs::Application.config.max_work_file_size_to_download
-      return true
     end
 
   end
