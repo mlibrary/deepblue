@@ -4,7 +4,7 @@ module Hyrax
 
   class DsFileSetPresenter < Hyrax::FileSetPresenter
 
-    delegate :file_size,
+    delegate :title, :file_size,
              :file_size_human_readable,
              :original_checksum,
              :mime_type,
@@ -31,6 +31,35 @@ module Hyrax
     def parent_public?
       g = DataSet.find parent.id
       g.public?
+    end
+
+    def first_title
+      title.first
+    end
+
+    # To handle large files.
+    def link_name
+      if ( current_ability.admin? || current_ability.can?(:read, id) )
+        first_title
+      else
+        'File'
+      end
+    end
+
+    def file_name( parent_presenter, link_to )
+      if parent_presenter.tombstone.present?
+        rv = link_name
+      elsif file_size_too_large_to_download?
+        rv = link_name
+      else
+        rv = link_to
+      end
+      return rv
+    end
+
+    def file_size_too_large_to_download?
+      !@solr_document.file_size.nil? && @solr_document.file_size >= DeepBlueDocs::Application.config.max_work_file_size_to_download
+      return true
     end
 
   end

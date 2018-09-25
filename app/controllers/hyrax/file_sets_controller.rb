@@ -8,6 +8,7 @@ module Hyrax
   class FileSetsController < ApplicationController
 
     PARAMS_KEY = 'file_set'
+    self.show_presenter = Hyrax::DsFileSetPresenter
 
     # alias_method :monkey_update, :update
     # alias_method :monkey_update_metadata, :update_metadata

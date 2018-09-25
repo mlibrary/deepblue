@@ -16,10 +16,10 @@
                     class: 'btn btn-danger', data: { confirm: "Delete this #{@presenter.human_readable_type}?" },
                     method: :delete %>
       <% end %>
-      <%= link_to t('hyrax.single_use_links.button'),
+      <%#= link_to t('hyrax.single_use_links.button'),
                   hyrax.generate_download_single_use_link_path(@presenter),
                   class: 'btn btn-default generate-single-use-link' %>
   <% end %>
 
-  <%= render 'social_media' %>
+  <%#= render 'social_media' %>
 </div>
