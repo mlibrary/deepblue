@@ -43,9 +43,9 @@ module Deepblue
 
       def report
         out_report << "Report started: " << Time.new.to_s << "\n"
-        @prefix = "#{Time.now.strftime('%Y%m%d')}_works_report"
-        @works_file = Pathname.new( '.' ).join "#{prefix}_works.csv"
-        @file_sets_file = Pathname.new( '.' ).join "#{prefix}_file_sets.csv"
+        @prefix = "#{Time.now.strftime('%Y%m%d')}_works_report" if @prefix.nil?
+        @works_file = Pathname.new( report_dir ).join "#{prefix}_works.csv"
+        @file_sets_file = Pathname.new( report_dir ).join "#{prefix}_file_sets.csv"
         @out_works = open( works_file, 'w' )
         @out_file_sets = open( file_sets_file, 'w' )
         print_work_line( out_works, header: true )

@@ -56,10 +56,10 @@ module Deepblue
 
       def report
         out_report << "Report started: " << Time.new.to_s << "\n"
-        @prefix = "#{Time.now.strftime('%Y%m%d')}_curation_concerns_report"
-        @collections_file = Pathname.new( '.' ).join "#{prefix}_collections.csv"
-        @works_file = Pathname.new( '.' ).join "#{prefix}_works.csv"
-        @file_sets_file = Pathname.new( '.' ).join "#{prefix}_file_sets.csv"
+        @prefix = "#{Time.now.strftime('%Y%m%d')}_curation_concerns_report" if @prefix.nil?
+        @collections_file = Pathname.new( report_dir ).join "#{prefix}_collections.csv"
+        @works_file = Pathname.new( report_dir ).join "#{prefix}_works.csv"
+        @file_sets_file = Pathname.new( report_dir ).join "#{prefix}_file_sets.csv"
         @out_collections = open( collections_file, 'w' )
         @out_works = open( works_file, 'w' )
         @out_file_sets = open( file_sets_file, 'w' )
