@@ -10,21 +10,24 @@ module Deepblue
 
     DEFAULT_FILE_EXT_RE = Regexp.compile( '^.+\.([^\.]+)$' ).freeze
 
-    attr_accessor :file_ext_re
+    DEFAULT_REPORT_DIR = "."
+    DEFAULT_REPORT_FILE_PREFIX = nil
 
+    attr_accessor :file_ext_re
     attr_accessor :collections_file, :works_file, :file_sets_file
     attr_accessor :collection_size, :work_size
     attr_accessor :out_report
     attr_accessor :out_collections, :out_works, :out_file_sets, :prefix
+    attr_accessor :report_dir
     attr_accessor :tagged_totals
     attr_accessor :totals
-    attr_accessor :work_ids_reported
+    attr_accessor :work_ids_reported, :work_file_count_cache, :work_size_cache
 
     def initialize( options: {} )
       super( options: options )
       # TODO: @file_ext_re = TaskHelper.task_options_value( @options, key: 'file_ext_re', default_value: DEFAULT_FILE_EXT_RE )
-      # TODO: report_dir
-      # TODO: file_prefix
+      @prefix = task_options_value( key: 'report_file_prefix', default_value: DEFAULT_REPORT_FILE_PREFIX )
+      @report_dir = task_options_value( key: 'report_dir', default_value: DEFAULT_REPORT_DIR )
       @file_ext_re = DEFAULT_FILE_EXT_RE
     end
 
@@ -34,6 +37,8 @@ module Deepblue
         @totals = Hash.new( 0 )
         @tagged_totals = {}
         @work_ids_reported = {}
+        @work_file_count_cache = {}
+        @work_size_cache = {}
         @out_report = StringIO.new
       end
 
@@ -289,7 +294,7 @@ module Deepblue
         out
       end
 
-      def process_collection( collection: )
+      def process_collection( collection:, report_line_prefix: '' )
         return if collection.blank?
         return unless collection.is_a? Collection
         inc_collections( collection )
@@ -299,34 +304,49 @@ module Deepblue
         @collection_size = 0
         @collection_files = 0
         work_ids = collection_work_ids( collection: collection )
-        file_set_count, _total_size = collection_file_set_count_and_size( collection_work_ids: work_ids )
-        print "[#{collection.id}] has #{works( work_ids.count )} and #{files( file_set_count )}..."
+        # file_set_count, _total_size = collection_file_set_count_and_size( collection_work_ids: work_ids )
+        # print "#{report_line_prefix}[#{collection.id}] has #{works( work_ids.count )} and #{files( file_set_count )}..."
+        print "#{report_line_prefix}[#{collection.id}] has #{works( work_ids.count )} ..."
         STDOUT.flush
         work_ids.each do |wid|
           put 'n' if wid.nil?
           next if wid.nil?
-          if work_ids_reported.key?( wid )
-            print "#{wid} already reported.\n"
-            next
-          end
-          work = TaskHelper.work_find( id: wid )
-          inc_works( work )
-          inc_author( work )
-          inc_depositor( work )
+          print "\n[#{collection.id}] #{wid} ..."
           @work_size = 0
-          @collection_files += work.file_sets.count
-          process_file_sets( work: work, collection: collection )
-          work_ids_reported[work.id] = true
-          print_work_line( out_works, work: work, work_size: @work_size )
+          if work_ids_reported.key?( wid )
+            print " already reported as"
+            @work_size = work_size_cache[wid]
+            @work_file_count = work_file_count_cache[wid]
+          else
+            work = TaskHelper.work_find( id: wid )
+            inc_works( work )
+            inc_author( work )
+            inc_depositor( work )
+            process_file_sets( work: work )
+            work_ids_reported[work.id] = true
+            work_size_cache[work.id] = @work_size
+            @work_file_count = work.file_sets.count
+            work_file_count_cache[work.id] = work.file_sets.count
+            print_work_line( out_works, work: work, work_size: @work_size )
+          end
+          @collection_files += @work_file_count
+          @collection_size += @work_size
+          inc_collections_size( collection, @work_size )
+          print " #{human_readable( @work_size )} in #{files( @work_file_count )}"
         end
-        print " #{human_readable( @collection_size )} in #{files( @collection_files )}\n"
+        print "\n[#{collection.id}] has total size of #{human_readable( @collection_size )} in #{files( @collection_files )}\n"
         STDOUT.flush
         print_collection_line( out_collections, collection: collection )
       end
 
       def process_collections
-        Collection.all.each do |collection|
-          process_collection( collection: collection )
+        collections = Collection.all
+        puts "#{collections.size} collections to process..."
+        count = 0
+        collections.each do |collection|
+          count += 1
+          report_line_prefix = "#{count} of #{collections.size}: "
+          process_collection( collection: collection, report_line_prefix: report_line_prefix )
         end
       end
 
@@ -339,42 +359,47 @@ module Deepblue
         end
       end
 
-      def process_file_sets( work:, collection: nil )
+      def process_file_sets( work: )
         work.file_sets.each do |fs|
           inc_file_sets( work, fs )
           size = size_of fs
           ext = inc_extension( work, fs )
           print_file_set_line( out_file_sets, work: work, file_set: fs, file_size: size, file_ext: ext )
           @work_size += size
-          @collection_size += size if collection.present?
-          inc_collections_size( collection, size ) if collection.present?
           inc_works_size( work, size )
         end
       end
 
-      def process_work( work: )
+      def process_work( work:, report_line_prefix: '' )
         return if work.nil?
         return unless TaskHelper.work? work
         if work_ids_reported.key?( work.id )
-          print "#{work.id} already reported.\n"
+          print "#{report_line_prefix}#{work.id} already reported.\n"
           return
         end
         inc_works( work )
         inc_author( work )
         inc_depositor( work )
         @work_size = 0
-        print "#{work.id} has #{files(work.file_set_ids.size)}..."
+        print "#{report_line_prefix}#{work.id} has #{files(work.file_set_ids.size)}..."
         STDOUT.flush
         process_file_sets( work: work )
         print " #{human_readable( @work_size )}\n"
         STDOUT.flush
         work_ids_reported[work.id] = true
+        work_size_cache[work.id] = @work_size
+        work_file_count_cache[work.id] = work.file_sets.count
         print_work_line( out_works, work: work, work_size: @work_size )
       end
 
       def process_works
-        TaskHelper.all_works.each do |work|
-          process_work( work: work )
+        works = TaskHelper.all_works
+        puts "#{works.size} works to process..."
+        count = 0
+        works.each do |work|
+          count += 1
+          report_line_prefix = "#{count} of #{works.size}: "
+          process_work( work: work, report_line_prefix: report_line_prefix )
         end
       end
 
@@ -425,7 +450,7 @@ module Deepblue
         report_all_totals
         report_top_ten
 
-        @out_report_file = Pathname.new( '.' ).join "#{prefix}.txt"
+        @out_report_file = Pathname.new( report_dir ).join "#{prefix}.txt"
         open( @out_report_file, 'w' ) { |out| out << out_report.string }
         print "\n"
         print "\n"
