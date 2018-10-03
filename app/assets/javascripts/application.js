@@ -19,10 +19,8 @@
 //
 // Required by Blacklight
 //= require blacklight/blacklight
-
-//= require_tree .
-//= require hyrax
-
 //= require date_coverage_field
 //= require more 
 //= require tufts/ensure_upload_fade_in
+
+//= require hyrax
