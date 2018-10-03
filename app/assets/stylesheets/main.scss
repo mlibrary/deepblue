@@ -180,8 +180,13 @@ body {
   }
 }
 
-#recentTab {
-  color: #337ab7;
+.recent-item {
+  border: 1px solid transparent;
+  box-shadow: 0 0 2px 0 rgba(0,0,0,0.12),0 2px 4px 0 rgba(0,0,0,0.24);
+}
+
+#homeTabs {
+  margin-bottom: 5px;
 }
 
 /** Content **/
@@ -206,7 +211,37 @@ ul.breadcrumb li a {
 /** Catalog **/
 h4.search-result-title a {
   color: #337ab7;
-  font-size: 1.2em;
+  font-size: 1.3em;
+}
+
+.search-result-wrapper {
+  padding-bottom: 1.5em;
+}
+
+
+/** Facets **/
+
+.top-panel-heading.panel-heading {
+  background-color: #FAFAFA;
+  border: 1px solid #ddd;
+  margin-bottom: 2px;
+}
+
+.top-panel-heading.panel-heading h2.facets-heading {
+  font-size: 1em;
+  font-weight: 600;
+  color: #333;
+}
+
+.panel-title.facet-field-heading a {
+    color: #4A4A4A;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: .8em;
+}
+
+.panel-heading.collapse-toggle .panel-title::after {
+    padding-top: .25em;
 }
 
 /** Help + About **/ 
@@ -329,5 +364,8 @@ h4.search-result-title a {
 }
 /** Media Queries **/
 
-
+@media (max-width: 575.98px) { 
+ 
+  
+}
 
