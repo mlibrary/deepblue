@@ -218,6 +218,18 @@ h4.search-result-title a {
   padding-bottom: 1.5em;
 }
 
+table.table.table-striped.related-files {
+   table-layout: fixed;
+   word-wrap: break-word;
+}
+
+.table-scroll--container {
+  overflow-x: auto;
+}
+
+.related-files .thumbnail {
+    width: 60px;
+  }
 
 /** Facets **/
 
