@@ -18,7 +18,7 @@
 
   <div itemscope itemtype="<%= itemtype %>" class="col-xs-12">
     <div class="panel panel-default">
-      <div class="panel-heading">
+      <div class="panel-heading work-panel-heading">
         <%= render 'work_title', presenter: @presenter %>
       </div>
       <div class="panel-body">
@@ -29,14 +29,23 @@
               <%= render 'representative_media', presenter: @presenter, viewer: true %>
             </div>
           <% end %>
-          <div class="col-sm-3 text-center">
-            <%= render 'representative_media', presenter: @presenter, viewer: false unless @presenter.universal_viewer? %>
-            <%= render 'citations', presenter: @presenter %>
-            <%= render 'social_media' %>
-          </div>
-          <div class="col-sm-9">
+          <!--<div class="col-sm-3 text-center">
+            <%# Removed the social media and thumbnail section %>
+            <%# render 'representative_media', presenter: @presenter, viewer: false unless @presenter.universal_viewer? %>
+            <%# render 'citations', presenter: @presenter %>
+            <%# render 'social_media' %>
+          </div>-->
+          <div class="col-sm-12">
+            <table class="table table-striped data-set-table">
+              <thead>
+              <tr>
+                <th scope="col">Attribute</th>
+                <th scope="col">Value</th>
+              </tr>
+            </thead>
             <%= render 'work_description', presenter: @presenter %>
             <%= render 'metadata', presenter: @presenter %>
+            </table>
           </div>
           <div class="col-sm-12">
             <%= render 'relationships', presenter: @presenter %>
@@ -44,6 +53,9 @@
             <%# TODO: we may consider adding these partials in the future %>
             <%# = render 'sharing_with', presenter: @presenter %>
             <%# = render 'user_activity', presenter: @presenter %>
+          </div>
+          <div class="button-panel--show col-sm-12 panel">
+            <%= render "show_actions", presenter: @presenter %>
           </div>
         </div>
       </div>
