@@ -12,9 +12,14 @@
 
 <% else %>
   <tr class="<%= dom_class(member) %> attributes">
-    <td class="thumbnail">
-      <%= render_thumbnail_tag member %>
-    </td>
+      <td class="thumbnail">
+        <% if can?(:download, member.id) %>
+          <%= render_thumbnail_tag member %>
+        <% else %>
+          None
+        <% end %>
+      </td>
+
     <% if can?(:download, member.id) %>
         <% unless member.file_size_too_large_to_download? %>
           <td role="menuitem" tabindex="-1">
@@ -28,6 +33,8 @@
         <% else %>
           <td class="attribute filename"><%= member.link_name %></td>
         <% end %>
+    <% else %>
+        <td class="attribute filename"><%= member.title.first %></td>
     <% end %>
 
 
