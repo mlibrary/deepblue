@@ -31,7 +31,12 @@
                         data: { label: member.id } %>
           </td>
         <% else %>
-          <td class="attribute filename"><%= member.link_name %></td>
+          <td class="attribute filename">
+            <span class="hastooltip">
+              <%= member.link_name %>
+              <span class="tooltip">This file is too large to download directly. Use Globus.</span>
+            </span>
+          </td>
         <% end %>
     <% else %>
         <td class="attribute filename"><%= member.title.first %></td>
