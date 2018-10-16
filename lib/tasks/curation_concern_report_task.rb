@@ -215,10 +215,13 @@ module Deepblue
           out << ',' << '"' << curation_concern_status( collection ) << '"'
           col_work_ids = collection_work_ids( collection: collection )
           out << ',' << col_work_ids.size.to_s
-          file_set_count, total_size = collection_file_set_count_and_size( collection_work_ids: col_work_ids )
-          out << ',' << file_set_count.to_s
-          out << ',' << total_size.to_s
-          out << ',' << human_readable( total_size ).to_s
+          # file_set_count, total_size = collection_file_set_count_and_size( collection_work_ids: col_work_ids )
+          # out << ',' << file_set_count.to_s
+          # out << ',' << total_size.to_s
+          # out << ',' << human_readable( total_size ).to_s
+          out << ',' << @collection_size.to_s
+          out << ',' << @collection_files.to_s
+          out << ',' << human_readable( @collection_size ).to_s
           out << ',' << '"' << collection.subject.join( '; ' ) << '"'
           out << ',' << '"' << collection.creator.join( '; ' ) << '"'
           out << ',' << '"' << col_work_ids.join( ' ' ) << '"'
@@ -373,22 +376,25 @@ module Deepblue
       def process_work( work:, report_line_prefix: '' )
         return if work.nil?
         return unless TaskHelper.work? work
-        if work_ids_reported.key?( work.id )
-          print "#{report_line_prefix}#{work.id} already reported.\n"
-          return
-        end
-        inc_works( work )
-        inc_author( work )
-        inc_depositor( work )
         @work_size = 0
         print "#{report_line_prefix}#{work.id} has #{files(work.file_set_ids.size)}..."
         STDOUT.flush
-        process_file_sets( work: work )
+        if work_ids_reported.key?( work.id )
+          print " already reported ..."
+          @work_size = work_size_cache[work.id]
+          @work_file_count = work_file_count_cache[work.id]
+        else
+          inc_works( work )
+          inc_author( work )
+          inc_depositor( work )
+          process_file_sets( work: work )
+          work_ids_reported[work.id] = true
+          work_size_cache[work.id] = @work_size
+          work_file_count_cache[work.id] = work.file_sets.count
+        end
+        STDOUT.flush
         print " #{human_readable( @work_size )}\n"
         STDOUT.flush
-        work_ids_reported[work.id] = true
-        work_size_cache[work.id] = @work_size
-        work_file_count_cache[work.id] = work.file_sets.count
         print_work_line( out_works, work: work, work_size: @work_size )
       end
 
