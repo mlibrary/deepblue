@@ -267,6 +267,18 @@ table.table.table-striped.related-files {
     text-shadow: none;
 }
 
+.add-files-link {
+  text-align: center;
+  padding: .5em 0 1em;
+  font-size: 1.25em;
+}
+
+.arrow-icon {
+  position: relative;
+  top: 5px;
+  left: 5px;
+}
+
 /** Work Details **/
 
 .work-description {
