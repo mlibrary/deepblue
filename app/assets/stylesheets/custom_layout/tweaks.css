@@ -356,3 +356,27 @@ a.disabled {
 th.alert-warning {
     font-weight: normal;
 }
+
+/* Tooltip text */
+.hastooltip .tooltip {
+    visibility: hidden;
+    width: 60%;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    padding: 2px;
+    border-radius: 2px;
+
+    /* Position the tooltip text */
+    position: relative;
+    z-index: 1;
+    bottom: 125%;
+    left: 20%;
+    margin-left: -60px;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.hastooltip:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+}
