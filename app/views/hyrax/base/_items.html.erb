@@ -1,22 +1,27 @@
-<h2><%= t('.header') %></h2>
+<!--<h2><%= t('.header') %></h2>-->
 
 <% if presenter.member_presenters.present? %>
-<div class="table-scroll--container">
-  <table class="table table-striped related-files">
-    <thead>
-      <tr>
-        <th><%= t('.thumbnail') %></th>
-        <th><%= t('.title') %></th>
-        <th><%= t('.date_uploaded') %></th>
-        <th><%= t('.file_size') %></th>
-        <th><%= t('.visibility') %></th>
-        <th><%= t('.actions') %></th>
-      </tr>
-    </thead>
-    <tbody>
-      <%= render partial: 'member', collection: presenter.member_presenters %>
-    </tbody>
-  </table>
+<div class="panel panel-default panel-items">
+  <div class="panel-heading">
+    <h2>Files</h2>
+  </div>
+    <div class="table-scroll--container">
+      <table class="table table-striped related-files">
+        <thead>
+          <tr>
+            <th><%= t('.thumbnail') %></th>
+            <th><%= t('.title') %></th>
+            <th><%= t('.date_uploaded') %></th>
+            <th><%= t('.file_size') %></th>
+            <th><%= t('.visibility') %></th>
+            <th><%= t('.actions') %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <%= render partial: 'member', collection: presenter.member_presenters %>
+        </tbody>
+      </table>
+    </div>
 </div>
 <% elsif can? :edit, presenter.id %>
     <div class="alert alert-warning" role="alert"><%= t('.empty', type: presenter.human_readable_type) %></div>

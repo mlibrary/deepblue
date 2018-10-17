@@ -19,6 +19,10 @@ body {
   background: #f2f2f2;
 }
 
+.bold {
+  font-weight: 600;
+}
+
 /** Utilities **/
 
 .padding0 {
@@ -231,7 +235,44 @@ table.table.table-striped.related-files {
     width: 60px;
   }
 
+/** Deposit Pages **/
+
+.nav.nav-tabs {
+  padding-left: 0;
+}
+
+.deposit-header {
+  padding-bottom: .5em;
+}
+
+#metadata {
+
+  .form-control {
+    border: solid 1px #000 !important;
+  }
+}
+
+.required-tag {
+    display: inline-block;
+    padding: 0.2rem 0.4rem;
+    position: relative;
+    bottom: 0.2rem;
+    background-color: #0C5292;
+    border-radius: 0.2rem;
+    vertical-align: super;
+    font-size: 0.7rem;
+    font-weight: normal;
+    line-height: 1em;
+    color: #FFF;
+    text-shadow: none;
+}
+
 /** Work Details **/
+
+.work-description {
+  font-size: 1.65em;
+  padding: .35em 0;
+}
 
 .title-header {
   font-size: 1.5em;
@@ -241,6 +282,15 @@ table.table.table-striped.related-files {
   background-color: #fff !important;
   padding-top: 1.25em;
   padding-bottom: 1.25em;
+
+  .title-header {
+    font-size: 1.35em !important;
+  }
+
+  span.label.label-success,
+  span.label.label-primary {
+    vertical-align: top !important;
+  }
 }
 .work-show.data_set {
   background-color: #f2f2f2;
@@ -252,6 +302,10 @@ ul.tabular {
     display: inline;
     padding: .5em;
   }
+
+    li:first-child {
+      padding-left: 0;
+    }
 }
 
 .data-set-table {
@@ -261,6 +315,38 @@ ul.tabular {
   tr th {
     font-weight: 600;
     padding: 1em !important;
+  }
+}
+
+.panel-items {
+  margin-top: 1em;
+
+  h2 {
+    font-size: 1.25em;
+  }
+
+  .file_set.attributes {
+    border-bottom: solid 1px #CCC;
+  }
+}
+
+.panel-relationships {
+
+  h2 {
+    font-size: 1.25em;
+  }
+
+  dl.work-show dt {
+    padding-left: .5em;
+  }
+}
+
+/** Show Actions **/
+
+.show-actions {
+
+  form, a {
+    margin: .5em .25em;
   }
 }
 
