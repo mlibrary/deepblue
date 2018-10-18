@@ -1,20 +1,20 @@
 #!/bin/bash
 
 # input of the form:
-# ./bin/umrdr_migrate.sh -b /deepbluedata-prep/ c_00000021r w_12345678
-# ./bin/umrdr_migrate.sh -b /deepbluedata-prep/ -i fritx -v c_00000021r w_12345678 w_123
-# ./bin/umrdr_migrate.sh -b /deepbluedata-prep/DBDv1/ -v c_00000021r w_12345678 w_123
-# nohup ./bin/umrdr_migrate.sh -b /deepbluedata-prep/ c_00000021r w_12345678 2>&1 > ./log/20180811.umrdr_migrate.sh.out &
+# ./bin/umrdr_new_content.sh -b /deepbluedata-prep/ c_00000021r w_12345678
+# ./bin/umrdr_new_content.sh -b /deepbluedata-prep/ -i fritx -v c_00000021r w_12345678 w_123
+# ./bin/umrdr_new_content.sh -b /deepbluedata-prep/DBDv1/ -v c_00000021r w_12345678 w_123
+# nohup ./bin/umrdr_new_content.sh -b /deepbluedata-prep/ c_00000021r w_12345678 2>&1 > ./log/20180811.umrdr_new_content.sh.out &
 
-shell_name="umrdr_migrate.sh"
+shell_name="umrdr_new_content.sh"
 original_args="$@"
 base_dir="/deepbluedata-prep/" # default value for -b / --base_dir
 ingester="fritx@umich.edu"     # default value for -i / --ingester
 dry_run=false                  # default value for -d / --dry_run
 prefix=""                      # default value for prefix ( -c / --collections ) ( -w / --works )
 postfix="_populate"            # default value for -p / --postfix
-task="umrdr:migrate"           # default value for -t / --task
-verbose=false                  # default value for -v / --verbose
+task="umrdr:build"             # default value for -t / --task
+verbose=true                  # default value for -v / --verbose
 not_processed=()
 
 ts=$(date "+%Y%m%d%H%M%S")

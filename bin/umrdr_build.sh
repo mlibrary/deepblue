@@ -1,43 +1,10 @@
 #!/bin/bash
 
 # input of the form:
-# ./bin/umrdr_build.sh c_00000021r w_12345678 ...
-# nohup ./bin/umrdr_build.sh c_00000021r w_12345678 2>&1 > ./log/20180811.umrdr_build.sh.out &
+# ./bin/umrdr_build.sh -b /deepbluedata-prep/ c_00000021r w_12345678
+# ./bin/umrdr_build.sh -b /deepbluedata-prep/ -i fritx -v c_00000021r w_12345678 w_123
+# ./bin/umrdr_build.sh -b /deepbluedata-prep/DBDv1/ -v c_00000021r w_12345678 w_123
+# nohup ./bin/umrdr_build.sh -b /deepbluedata-prep/ c_00000021r w_12345678 2>&1 > ./log/20180811.umrdr_build.sh.out &
 
-base_dir="/deepbluedata-prep/"
-task="umrdr:build"
-prefix=""
-postfix="_populate"
-ingester=fritx@umich.edu
-
-ts=$(date "+%Y%m%d%H%M%S")
-echo "Begin: $ts"
-for arg in "$@"; do
-  echo
-  echo "${arg}"
-  base_file="${prefix}${arg}${postfix}"
-  input_file="${base_dir}${base_file}.yml"
-  if [ -f $input_file ]; then
-    echo "Input File: '${input_file}' exists."
-  else
-    echo "WARNING Input File: '${input_file}' not found."
-    continue
-  fi
-  log_file="${base_dir}${base_file}.out"
-  ts=$(date "+%Y%m%d%H%M%S")
-  if [ -f $log_file ]; then
-    backup_log_file="${base_dir}${base_file}/${ts}_${base_file}.out"
-    echo "Log File: '${log_file}' exists, move it to backup ${backup_log_file}"
-    mv ${log_file} ${backup_log_file}
-  else
-    echo "Log File: '${log_file}' not found."
-  fi
-  if [ -z "${ingester}" ]; then
-  	bundle exec rake ${task}[${input_file}] 2>&1 | tee ${log_file}
-  else
-  	bundle exec rake ${task}[${input_file},${ingester}] 2>&1 | tee ${log_file}
-  fi
-done
-echo
-ts=$(date "+%Y%m%d%H%M%S")
-echo "End: $ts"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+${DIR}/umrdr_new_content.sh -t umrdr:build "$@"
