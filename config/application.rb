@@ -82,6 +82,8 @@ module DeepBlueDocs
     config.derivative_max_file_size = 4_000_000_000 # set to -1 for no limit
     config.derivative_max_file_size_str = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert(config.derivative_max_file_size, precision: 3 )
 
+    config.relative_url_root = '/data' unless Rails.env.test?
+
     # ingest virus scan config
     config.virus_scan_max_file_size = 4_000_000_000
     config.virus_scan_retry = true
