@@ -18,6 +18,7 @@ module Deepblue
     DEFAULT_MAX_FILE_COUNT = 400
     DEFAULT_MAX_FILE_SIZE = 1024 * 1024 * 1024 * 100 # 100 GB
     DEFAULT_MODE = "migrate"
+    DEFAULT_NOHUP_ALLOWED = true
     DEFAULT_NOHUP_FILE_COUNT = DEFAULT_MAX_FILE_COUNT / 2
     DEFAULT_NOHUP_FILE_SIZE = DEFAULT_MAX_FILE_SIZE / 2
     DEFAULT_OUTPUT_DIR = "/deepbluedata-prep/tmp"
@@ -31,7 +32,7 @@ module Deepblue
 
     attr_accessor :input_dir, :output_dir, :input_csv_file, :input_csv_file_has_header
     attr_accessor :target_script_dir, :rake_task, :shell_task, :tstr
-    attr_accessor :target_dir, :mode, :export_files, :export_options, :import_options
+    attr_accessor :target_dir, :mode, :export_files, :export_options, :import_options, :nohup_allowed
     attr_accessor :max_id_count, :max_file_count, :nohup_file_count, :max_file_size, :nohup_file_size
     attr_accessor :csv_row_index_id, :csv_row_index_file_count, :csv_row_index_file_size
     attr_accessor :script_name
@@ -54,6 +55,7 @@ module Deepblue
       default_export_options = "'{\"target_dir\":\"#{@target_dir}\"\\,\"export_files\":#{@export_files}\\,\"mode\":\"#{@mode}\"}'"
       @export_options = task_options_value( key: 'export_options', default_value: default_export_options )
       @import_options = task_options_value( key: 'import_options', default_value: DEFAULT_IMPORT_OPTIONS )
+      @nohup_allowed = task_options_value( key: 'nohup_allowed', default_value: DEFAULT_NOHUP_ALLOWED )
       @max_id_count = task_options_value( key: 'max_id_count', default_value: DEFAULT_MAX_ID_COUNT ).to_int
       @max_file_count = task_options_value( key: 'max_file_count', default_value: DEFAULT_MAX_FILE_COUNT ).to_int
       @nohup_file_count = task_options_value( key: 'nohup_file_count', default_value: DEFAULT_NOHUP_FILE_COUNT ).to_int
@@ -66,11 +68,13 @@ module Deepblue
 
     def print_export_script_line( out, line_count, ids, file_count, file_size )
       nohup = false
-      nohup = true if file_count > @nohup_file_count
-      nohup = true if file_size > @nohup_file_size
+      if @nohup_allowed
+        nohup = true if file_count > @nohup_file_count
+        nohup = true if file_size > @nohup_file_size
+      end
       out << "# #{line_count} # id_count=#{ids.size} file_count=#{file_count} file_size=#{TaskHelper.human_readable_size( file_size )}\n"
       ids_str = ids.join( ' ' )
-      log_out = "#{@target_dir}#{@tstr}-#{line_count}.#{@rake_task}.out"
+      log_out = "#{@target_dir}/#{@tstr}-#{line_count}.#{@rake_task}.out"
       cmd_and_args = "bundle exec rake deepblue:#{@rake_task}['#{ids_str}',#{@export_options}]"
       if nohup
         out << "nohup #{cmd_and_args} 2>&1 > #{log_out} &\n"
@@ -83,11 +87,13 @@ module Deepblue
 
     def print_import_script_line( out, line_count, ids, file_count, file_size )
       nohup = false
-      nohup = true if file_count > @nohup_file_count
-      nohup = true if file_size > @nohup_file_size
+      if @nohup_allowed
+        nohup = true if file_count > @nohup_file_count
+        nohup = true if file_size > @nohup_file_size
+      end
       out << "# #{line_count} # id_count=#{ids.size} file_count=#{file_count} file_size=#{TaskHelper.human_readable_size( file_size )}\n"
       ids_str = ids.join( ' ' )
-      log_out = "#{@target_dir}#{@tstr}-#{line_count}.#{@shell_task}.out"
+      log_out = "#{@target_dir}/#{@tstr}-#{line_count}.#{@shell_task}.out"
       cmd_and_args = "./bin/umrdr_new_content.sh #{@import_options} -t umrdr:#{@shell_task} -b #{@target_dir} #{ids_str}"
       if nohup
         out << "nohup #{cmd_and_args} 2>&1 > #{log_out} &\n"

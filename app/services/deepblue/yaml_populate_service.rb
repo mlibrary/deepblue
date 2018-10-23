@@ -502,13 +502,20 @@ module Deepblue
                          !File.exist?( export_file_name )
                        end
           file = MetadataHelper.file_from_file_set( file_set )
-          export_what = "#{export_file_name} (#{human_readable_size(file.size)} / #{file.size} bytes)"
-          if write_file
+          file_size = if file_set.file_size.blank?
+                        file_set.original_file.nil? ? 0 : file_set.original_file.size
+                      else
+                        file_set.file_size[0]
+                      end
+          export_what = "#{export_file_name} (#{human_readable_size(file_size)} / #{file_size} bytes)"
+          if write_file && file.present?
             source_uri = file.uri.value
             log_lines( log_file, "Starting file export of #{export_what} at #{Time.now}." )
             bytes_copied = open( source_uri ) { |io| IO.copy_stream( io, export_file_name ) }
             total_byte_count += bytes_copied
             log_lines( log_file, "Finished file export of #{export_what} at #{Time.now}." )
+          elsif file.nil?
+            log_lines( log_file, "WARNING: Skipping file export of file_set #{file_set.id} -- #{export_what} at #{Time.now} because file is nil." )
           else
             log_lines( log_file, "Skipping file export of #{export_what} at #{Time.now}." )
           end
