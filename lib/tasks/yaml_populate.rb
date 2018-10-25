@@ -13,6 +13,7 @@ module Deepblue
 
   class YamlPopulate < AbstractTask
 
+    DEFAULT_CREATE_ZERO_LENGTH_FILES = true
     DEFAULT_EXPORT_FILES = true
     DEFAULT_MODE = 'build'
     DEFAULT_OVERWRITE_EXPORT_FILES = true
@@ -28,7 +29,10 @@ module Deepblue
       @target_dir = task_options_value( key: 'target_dir', default_value: DEFAULT_TARGET_DIR )
       @export_files = task_options_value( key: 'export_files', default_value: DEFAULT_EXPORT_FILES )
       @mode = task_options_value( key: 'mode', default_value: DEFAULT_MODE )
-      @overwrite_export_files = task_options_value( key: 'overwrite_export_files', default_value: DEFAULT_OVERWRITE_EXPORT_FILES )
+      @create_zero_length_files = task_options_value( key: 'create_zero_length_files',
+                                                      default_value: DEFAULT_CREATE_ZERO_LENGTH_FILES )
+      @overwrite_export_files = task_options_value( key: 'overwrite_export_files',
+                                                    default_value: DEFAULT_OVERWRITE_EXPORT_FILES )
       @populate_ids = []
       @populate_stats = []
     end
@@ -136,7 +140,9 @@ module Deepblue
 
     def yaml_populate_collection( id:, collection: nil )
       puts "Exporting collection #{id} to '#{@target_dir}' with export files flag set to #{@export_files} and mode #{@mode}"
-      service = YamlPopulateService.new( mode: @mode )
+      service = YamlPopulateService.new( mode: @mode,
+                                         create_zero_length_files: @create_zero_length_files,
+                                         overwrite_export_files: @overwrite_export_files )
       if collection.nil?
         service.yaml_populate_collection( collection: id, dir: @target_dir, export_files: @export_files )
       else
@@ -148,17 +154,13 @@ module Deepblue
 
     def yaml_populate_work( id:, work: nil )
       puts "Exporting work #{id} to '#{@target_dir}' with export files flag set to #{@export_files} and mode #{@mode}"
-      service = YamlPopulateService.new( mode: @mode )
+      service = YamlPopulateService.new( mode: @mode,
+                                         create_zero_length_files: @create_zero_length_files,
+                                         overwrite_export_files: @overwrite_export_files )
       if work.nil?
-        service.yaml_populate_work( curation_concern: id,
-                                    dir: @target_dir,
-                                    export_files: @export_files,
-                                    overwrite_export_files: @overwrite_export_files )
+        service.yaml_populate_work( curation_concern: id, dir: @target_dir, export_files: @export_files )
       else
-        service.yaml_populate_work( curation_concern: work,
-                                    dir: @target_dir,
-                                    export_files: @export_files,
-                                    overwrite_export_files: @overwrite_export_files )
+        service.yaml_populate_work( curation_concern: work, dir: @target_dir, export_files: @export_files )
       end
       @populate_ids << id
       @populate_stats << service.yaml_populate_stats

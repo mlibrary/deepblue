@@ -4,13 +4,24 @@ module Deepblue
 
   class YamlPopulateService
 
+    DEFAULT_CREATE_ZERO_LENGTH_FILES = true
+    DEFAULT_OVERWRITE_EXPORT_FILES = true
+
     attr_accessor :mode, :source
 
     # TODO: count these
     attr_reader :total_collections_exported, :total_file_sets_exported, :total_works_exported, :total_users_exported
 
-    def initialize( mode: MetadataHelper::MODE_BUILD, source: MetadataHelper::DEFAULT_SOURCE )
+    attr_accessor :overwrite_export_files, :create_zero_length_files
+
+    def initialize( create_zero_length_files: DEFAULT_CREATE_ZERO_LENGTH_FILES,
+                    mode: MetadataHelper::MODE_BUILD,
+                    overwrite_export_files: DEFAULT_OVERWRITE_EXPORT_FILES,
+                    source: MetadataHelper::DEFAULT_SOURCE )
+
+      @create_zero_length_files = create_zero_length_files
       @mode = mode
+      @overwrite_export_files = overwrite_export_files
       @source = source
       @total_collections_exported = 0
       @total_file_sets_exported = 0
@@ -315,7 +326,6 @@ module Deepblue
                                   out: nil,
                                   populate_works: true,
                                   export_files: true,
-                                  overwrite_export_files: true,
                                   target_filename: nil,
                                   target_dirname: nil )
 
@@ -331,14 +341,13 @@ module Deepblue
                                     out: out2,
                                     populate_works: populate_works,
                                     export_files: false,
-                                    overwrite_export_files: overwrite_export_files,
                                     target_filename: target_file,
                                     target_dirname: target_dir )
         end
         if export_files
           collection.member_objects.each do |work|
             next unless yaml_is_a_work?( curation_concern: work )
-            yaml_work_export_files( work: work, target_dirname: target_dir, overwrite: overwrite_export_files )
+            yaml_work_export_files( work: work, target_dirname: target_dir )
           end
         end
       else
@@ -420,7 +429,6 @@ module Deepblue
                             dir: MetadataHelper::DEFAULT_BASE_DIR,
                             out: nil,
                             export_files: true,
-                            overwrite_export_files: true,
                             target_filename: nil,
                             target_dirname: nil )
 
@@ -435,12 +443,11 @@ module Deepblue
           yaml_populate_work( curation_concern: curation_concern,
                               out: out2,
                               export_files: export_files,
-                              overwrite_export_files: overwrite_export_files,
                               target_filename: target_file,
                               target_dirname: target_dir )
         end
         if export_files
-          yaml_work_export_files( work: curation_concern, target_dirname: target_dir, overwrite: overwrite_export_files )
+          yaml_work_export_files( work: curation_concern, target_dirname: target_dir )
         end
       else
         log_provenance_migrate( curation_concern: curation_concern ) if MetadataHelper::MODE_MIGRATE == mode
@@ -484,7 +491,7 @@ module Deepblue
       "user_#{user.email}"
     end
 
-    def yaml_work_export_files( work:, target_dirname: nil, log_filename: nil, overwrite: true )
+    def yaml_work_export_files( work:, target_dirname: nil, log_filename: nil )
       log_file = target_dirname.join ".export.log" if log_filename.nil?
       open( log_file, 'w' ) { |f| f.write('') } # erase log file
       start_time = Time.now
@@ -496,7 +503,7 @@ module Deepblue
       if work.file_sets.count.positive?
         work.file_sets.each do |file_set|
           export_file_name = yaml_export_file_path( target_dirname: target_dirname, file_set: file_set )
-          write_file = if overwrite
+          write_file = if overwrite_export_files
                          true
                        else
                          !File.exist?( export_file_name )
@@ -514,8 +521,15 @@ module Deepblue
             bytes_copied = open( source_uri ) { |io| IO.copy_stream( io, export_file_name ) }
             total_byte_count += bytes_copied
             log_lines( log_file, "Finished file export of #{export_what} at #{Time.now}." )
-          elsif file.nil?
-            log_lines( log_file, "WARNING: Skipping file export of file_set #{file_set.id} -- #{export_what} at #{Time.now} because file is nil." )
+          elsif write_file && file.nil? && export_file_name.present?
+            if create_zero_length_files
+              log_lines( log_file, "File export of file_set #{file_set.id} -- #{export_what} at #{Time.now} creating zero length file because file is nil." )
+              open( export_file_name, 'w' ) { |out| out.write( '' ) }
+            else
+              log_lines( log_file, "WARNING: Skipping file export of file_set #{file_set.id} -- #{export_what} at #{Time.now} because file is nil." )
+            end
+          elsif write_file && file.nil?
+            log_lines( log_file, "WARNING: Skipping file export of file_set #{file_set.id} -- #{export_what} at #{Time.now} because file is nil and export_file_name is empty." )
           else
             log_lines( log_file, "Skipping file export of #{export_what} at #{Time.now}." )
           end
