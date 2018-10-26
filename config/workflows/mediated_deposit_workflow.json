@@ -18,7 +18,7 @@
                         }
                     ],
                     "methods": [
-                        "Hyrax::Workflow::GrantReadToDepositor",
+                        "Hyrax::Workflow::GrantEditToDepositor",
                         "Hyrax::Workflow::DeactivateObject"
                     ]
                 }, {
