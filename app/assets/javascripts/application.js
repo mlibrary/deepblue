@@ -20,7 +20,8 @@
 // Required by Blacklight
 //= require blacklight/blacklight
 //= require date_coverage_field
-//= require more 
+//= require more
+//= require validations
 //= require tufts/ensure_upload_fade_in
 
 //= require hyrax
