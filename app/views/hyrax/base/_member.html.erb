@@ -23,7 +23,7 @@
     <% if can?(:download, member.id) %>
         <% unless member.file_size_too_large_to_download? %>
           <td role="menuitem" tabindex="-1">
-            <%= link_to member.link_name,
+            <%= link_to truncate(member.link_name, length: 40, omission: "...#{member.link_name[-5, 5]}"),
                         hyrax.download_path(member),
                         title: t('.download_title', file_set: member),
                         target: "_blank",
@@ -33,13 +33,13 @@
         <% else %>
           <td class="attribute filename">
             <span class="hastooltip">
-              <%= member.link_name %>
+              <%= truncate(member.link_name, length: 40, omission: "...#{member.link_name[-5, 5]}") %>
               <span class="tooltip">This file is too large to download directly. Use Globus.</span>
             </span>
           </td>
         <% end %>
     <% else %>
-        <td class="attribute filename"><%= member.title.first %></td>
+        <td class="attribute filename"><%= truncate(member.title.first, length: 40, omission: "...#{member.title.first[-5, 5]}") %></td>
     <% end %>
 
 
