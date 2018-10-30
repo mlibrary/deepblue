@@ -98,7 +98,7 @@ module Deepblue
         file_set_ids.each do |file_set_id|
           file_set_key = "f_#{file_set_id}"
           file_set_hash = work_hash[file_set_key.to_sym]
-          file_set = build_file_set_from_hash( id: file_set_id, file_set_hash: file_set_hash, parent: work )
+          file_set = build_file_set_from_hash( id: file_set_id.to_s, file_set_hash: file_set_hash, parent: work )
           add_file_set_to_work( work: work, file_set: file_set )
         end
         work.save!
@@ -132,7 +132,7 @@ module Deepblue
         work_ids = works_from_hash( hash: collection_hash )
         work_ids[0].each do |work_id|
           # puts "work_id=#{work_id}"
-          work_hash = works_from_id( hash: collection_hash, work_id: work_id )
+          work_hash = works_from_id( hash: collection_hash, work_id: work_id.to_s )
           # puts "work_hash=#{work_hash}"
           work = build_or_find_work( work_hash: work_hash, parent: collection )
           next if work.member_of_collection_ids.include? collection.id
@@ -292,8 +292,22 @@ module Deepblue
 
       def build_date( hash:, key: )
         rv = hash[key]
-        return rv unless rv.to_s.empty?
-        DateTime.now.to_s
+        return DateTime.now.to_s if rv.blank?
+        rv = rv[0] if rv.is_a? Array
+        rv = DateTime.parse rv
+        return rv.to_s
+      rescue ArgumentError
+        return build_date2( rv )
+      end
+
+      def build_date2( str )
+        return DateTime.strptime( str, "%m/%d/%Y" ) if str.match?( /\d\d?\/\d\d?\/\d\d\d\d/ )
+        return DateTime.strptime( str, "%m-%d-%Y" ) if str.match?( /\d\d?\-\d\d?\-\d\d\d\d/ )
+        return DateTime.strptime( str, "%Y" ) if str.match?( /\d\d\d\d/ )
+        return DateTime.now.to_s
+      rescue ArgumentError
+        log_msg( "Failed to parse data string '#{str}'" )
+        return DateTime.now.to_s
       end
 
       def build_date_coverage( hash: )
@@ -454,7 +468,7 @@ module Deepblue
       def build_or_find_collection( collection_hash: )
         # puts "build_or_find_collection( collection_hash: #{ActiveSupport::JSON.encode( collection_hash )} )"
         return if collection_hash.blank?
-        id = collection_hash[:id]
+        id = collection_hash[:id].to_s
         mode = collection_hash[:mode]
         mode = MODE_BUILD if id.blank?
         collection = nil
@@ -485,7 +499,7 @@ module Deepblue
       def build_or_find_work( work_hash:, parent: )
         # puts "build_or_find_work( work_hash: #{work_hash} )"
         return nil if work_hash.blank?
-        id = work_hash[:id]
+        id = work_hash[:id].to_s
         mode = work_hash[:mode]
         mode = MODE_BUILD if id.blank?
         work = nil
@@ -770,7 +784,7 @@ module Deepblue
       end
 
       def find_work( work_hash: )
-        work_id = work_hash[:id]
+        work_id = work_hash[:id].to_s
         id = Array(work_id)
         # owner = Array(work_hash[:owner])
         work = TaskHelper.work_find( id: id[0] )
@@ -799,7 +813,7 @@ module Deepblue
 
       def find_work_using_id( id: )
         return nil if id.blank?
-        TaskHelper.work_find( id: id )
+        TaskHelper.work_find( id: id.to_s )
       rescue ActiveFedora::ObjectNotFoundError
         return nil
       end
