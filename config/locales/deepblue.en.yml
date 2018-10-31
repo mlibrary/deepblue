@@ -7,7 +7,7 @@ en:
 
     # Default translation keys for submit and button FormHelper
     submit:
-      create: 'Create %{model}'
+      create: 'Save %{model}'
       update: 'Update %{model}'
       submit: 'Save %{model}'
 
