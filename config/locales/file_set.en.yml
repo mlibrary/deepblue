@@ -13,7 +13,7 @@ en:
       grantnumber:          "ORSP grant number"
       referenced_by:        "Citations"
       language:             "Language"
-      methodology:          "Method"
+      methodology:          "Methodology"
       rights_license:       "CC License"
       subject_discipline:   "Discipline"
       total_file_size:      "Total file size"

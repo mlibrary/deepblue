@@ -204,7 +204,7 @@ en:
         date_coverage_start: "Start Date"
         date_coverage_end: "End Date"
         description: "Description"
-        methodology: "Method"
+        methodology: "Methodology"
         doi: "DOI"
         hdl: "Handle"
         isReferencedBy: "Citation to related material"

@@ -292,7 +292,7 @@ class CatalogController < ApplicationController
     end
 
     config.add_search_field('methodology') do |field|
-      field.label = "Method"
+      field.label = "Methodology"
       solr_name = solr_name("methodology_label", :stored_searchable)
       field.solr_local_parameters = {
         qf: solr_name,
