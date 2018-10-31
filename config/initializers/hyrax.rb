@@ -42,11 +42,14 @@ Hyrax.config do |config|
   # config.max_days_between_fixity_checks = 7
 
   # Options to control the file uploader
-  config.uploader = { # Run `bundle exec rake assets:clobber assets:precompile` in dev for this to take effect
+  # Run `bundle rake tmp:cache:clear` to clear all the contents of public/assets
+  # Run `bundle exec rake assets:clobber assets:precompile` in dev for this to take effect
+  config.uploader = {
     limitConcurrentUploads: 6,
     maxNumberOfFiles: 100,
     # maxFileSize: 500.megabytes
-    maxFileSize: 2.gigabytes
+    maxFileSize: 2.gigabytes,
+    url: '/data/uploads'
   }
 
   # Enable displaying usage statistics in the UI
