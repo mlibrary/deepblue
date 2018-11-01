@@ -6,3 +6,12 @@ function checkemail(email)
        alert('Please enter valid email for Contact Information');
     }
  }
+
+ function checkdate(email)
+{
+   var regex=/\d{4}/;
+   if(!regex.test(email))
+   {
+       alert('Please enter a valid date');
+    }
+ }
