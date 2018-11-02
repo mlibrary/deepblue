@@ -49,6 +49,7 @@ gem 'jbuilder', '~> 2.5'
 # gem 'capistrano-rails', group: :development
 
 # Begin security vulnerability mitigation
+gem 'loofah', '~> 2.2.3'
 gem 'rubyzip', '~> 1.2.2'
 gem 'sinatra', '~> 2.0.2'
 gem 'sprockets', '~> 3.7.2'
@@ -63,6 +64,7 @@ group :development, :test do
 end
 
 gem 'clamav-client'
+gem 'down', '~> 4.4'
 
 group :development do
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
