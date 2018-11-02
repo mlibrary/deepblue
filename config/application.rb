@@ -76,6 +76,7 @@ module DeepBlueDocs
 
     # ingest characterization config
     config.characterize_excluded_ext_set = { '.csv' => 'text/plain' }.freeze # , '.nc' => 'text/plain' }.freeze
+    config.characterize_enforced_mime_type = { '.csv' => 'text/csv' }.freeze # , '.nc' => 'text/plain' }.freeze
 
     # ingest derivative config
     config.derivative_excluded_ext_set = {}.freeze

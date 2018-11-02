@@ -11,6 +11,7 @@ module Hydra::Works
 
     # monkey patch characterization_terms
     def characterization_terms( omdoc )
+      puts;puts ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> CharacterizationService.characterization_terms";puts
       h = {}
       omdoc.class.terminology.terms.each_pair do |key, target|
         # a key is a proxy if its target responds to proxied_term
@@ -22,11 +23,28 @@ module Hydra::Works
         end
       end
       # begin monkey patch
-      # puts "\n>>>>>>>>>h[:file_mime_type]=#{h[:file_mime_type]}\n"
-      h[:file_mime_type] = [h[:file_mime_type].first.split( ',' ).first] if h.key? :file_mime_type
-      # puts "\n>>>>>>>>>h[:file_mime_type]=#{h[:file_mime_type]}\n"
+      h = clean_and_override_mime_type( h )
       # end monkey patch
       h.delete_if { |_k, v| v.empty? }
+    end
+
+    def clean_and_override_mime_type( h )
+      return h unless h.key? :file_mime_type
+      puts "\n>>>>>>>>>h[:file_mime_type]=#{h[:file_mime_type]}\n"
+      # make sure mime_type does not contain a comma, like: "mime/type,mime/type"
+      h[:file_mime_type] = [h[:file_mime_type].first.split( ',' ).first]
+      # TODO: should log this if a comma is found
+      puts "\n>>>>>>>>>h[:file_mime_type]=#{h[:file_mime_type]}\n"
+      fname = file_name
+      file_ext = File.extname fname
+      puts "\n>>>>>>>>>fname=#{fname}, file_ext=#{file_ext}\n"
+      if DeepBlueDocs::Application.config.characterize_excluded_ext_set.key? file_ext
+        # TODO: should log this if the enforced mime type is different than the one determined
+        enforced_mime_type = DeepBlueDocs::Application.config.characterize_enforced_mime_type[file_ext]
+        h[:file_mime_type] = enforced_mime_type
+        puts "\n>>>>>>>>>enforced mime type h[:file_mime_type]=#{h[:file_mime_type]}\n"
+      end
+      return h
     end
 
   end
