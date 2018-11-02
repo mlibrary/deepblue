@@ -159,9 +159,22 @@ module Deepblue
     end
 
     def yaml_export_file_path( target_dirname:, file_set: )
-      file = MetadataHelper.file_from_file_set( file_set )
-      export_file_name = file&.original_name
+      export_file_name = yaml_export_file_name( file_set: file_set )
       target_dirname.join "#{file_set.id}_#{export_file_name}"
+    end
+
+    def yaml_export_file_name( file_set: )
+      title = file_set.title[0]
+      file = MetadataHelper.file_from_file_set( file_set )
+      if file.nil?
+        rv = "nil_file"
+      else
+        rv = file&.original_name
+        rv = "nil_original_file" if rv.nil?
+      end
+      rv = title unless title == rv
+      rv = rv.gsub( /[\/\?\<\>\\\:\*\|\'\"\^\;]/, '_' )
+      return rv
     end
 
     def yaml_file_set_checksum( file_set: )
