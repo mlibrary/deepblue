@@ -19,7 +19,6 @@ function checkdate(email)
 function movetofilestab()
 {
   window.scrollTo(0, 0);
-  var hash = window.location.hash;
-  hash && $('ul.nav a[href="#files"]').tab('show');
-
+  $('a[href="#files"]').click()
+  event.preventDefault();
 }
