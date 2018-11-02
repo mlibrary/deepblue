@@ -1,5 +1,5 @@
-# Generated via
-#  `rails generate hyrax:work DataSet`
+# frozen_string_literal: true
+
 class DataSetIndexer < Hyrax::WorkIndexer
   # This indexes the default metadata. You can remove it if you want to
   # provide your own metadata and indexing.
@@ -31,7 +31,8 @@ class DataSetIndexer < Hyrax::WorkIndexer
       solr_doc[Solrizer.solr_name('doi', :symbol)] = object.doi
       solr_doc[Solrizer.solr_name('title_ordered', :stored_searchable)] = object.title_ordered
       solr_doc[Solrizer.solr_name('tombstone', :symbol)] = object.tombstone
-      solr_doc[Solrizer.solr_name('total_file_size', Hyrax::FileSetIndexer::STORED_LONG)] = object.total_file_size
+      # solr_doc[Solrizer.solr_name('total_file_size', Hyrax::FileSetIndexer::STORED_LONG)] = object.total_file_size
+      solr_doc[Solrizer.solr_name('total_file_size', Hyrax::FileSetIndexer::STORED_LONG)] = object.size_of_work
 
       # ### same as
       # admin_set_label = object.admin_set.to_s
