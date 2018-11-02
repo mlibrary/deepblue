@@ -18,24 +18,24 @@ module Deepblue
 
       # See Hyrax gem: app/job/characterize_job.rb
       file_name = Hyrax::WorkingDirectory.find_or_retrieve( repository_file_id, file_set.id, file_path )
-      file_ext = File.extname file_set.label
-      if DeepBlueDocs::Application.config.characterize_excluded_ext_set.key? file_ext
-        Rails.logger.info "Skipping characterization of file with extension #{file_ext}: #{file_name}"
-        file_set.provenance_characterize( current_user: current_user,
-                                          event_note: "skipped_extension(#{file_ext})",
-                                          calling_class: name,
-                                          **added_prov_key_values )
-        perform_create_derivatives_job( file_set,
-                                        repository_file_id,
-                                        file_name,
-                                        file_path,
-                                        delete_input_file: delete_input_file,
-                                        continue_job_chain: continue_job_chain,
-                                        continue_job_chain_later: continue_job_chain_later,
-                                        current_user: current_user,
-                                        **added_prov_key_values )
-        return
-      end
+      # file_ext = File.extname file_set.label
+      # if DeepBlueDocs::Application.config.characterize_excluded_ext_set.key? file_ext
+      #   Rails.logger.info "Skipping characterization of file with extension #{file_ext}: #{file_name}"
+      #   file_set.provenance_characterize( current_user: current_user,
+      #                                     event_note: "skipped_extension(#{file_ext})",
+      #                                     calling_class: name,
+      #                                     **added_prov_key_values )
+      #   perform_create_derivatives_job( file_set,
+      #                                   repository_file_id,
+      #                                   file_name,
+      #                                   file_path,
+      #                                   delete_input_file: delete_input_file,
+      #                                   continue_job_chain: continue_job_chain,
+      #                                   continue_job_chain_later: continue_job_chain_later,
+      #                                   current_user: current_user,
+      #                                   **added_prov_key_values )
+      #   return
+      # end
       unless file_set.characterization_proxy?
         error_msg = "#{file_set.class.characterization_proxy} was not found"
         Rails.logger.error error_msg
@@ -55,6 +55,7 @@ module Deepblue
       rescue Exception => e # rubocop:disable Lint/RescueException
         Rails.logger.error "IngestHelper.create_derivatives(#{file_name}) #{e.class}: #{e.message} at #{e.backtrace[0]}"
       ensure
+        update_total_file_size( file_set, log_prefix: "CharacterizationHelper.characterize()" )
         perform_create_derivatives_job( file_set,
                                         repository_file_id,
                                         file_name,
@@ -245,6 +246,7 @@ module Deepblue
     def self.update_total_file_size( file_set, log_prefix: nil )
       Rails.logger.info "begin IngestHelper.update_total_file_size"
       Rails.logger.debug "#{log_prefix} file_set.orginal_file.size=#{file_set.original_file.size}" unless log_prefix.nil?
+      Rails.logger.info "nothing to update, parent is nil" if file_set.parent.nil?
       return if file_set.parent.nil?
       total = file_set.parent.total_file_size
       if total.nil? || total.zero?

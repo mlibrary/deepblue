@@ -56,7 +56,8 @@ module Deepblue
           0
         end
       else
-        file_size[0]
+        # file_size[0]
+        file_size_value
       end
     end
 
