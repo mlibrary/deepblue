@@ -7,7 +7,7 @@
   <% f.object.primary_terms.each do |term| %>
     <%= render_edit_field_partial(term, f: f) %>
   <% end %>
-  <div class="add-files-link"><a href="#files"> Add Files<span><%= image_tag("arrow-right.svg", class: "arrow-icon", alt:"next arrow icon", 'aria-hidden'=> "true") %></span></a></div>
+  <div class="add-files-link"><button onclick="movetofilestab();">Add Files</button><span><%= image_tag("arrow-right.svg", class: "arrow-icon", alt:"next arrow icon", 'aria-hidden'=> "true") %></span></div>
   </div>
 <% if f.object.display_additional_fields? %>
   <%= link_to t('hyrax.works.form.additional_fields'),
