@@ -1,23 +1,19 @@
-<footer class="footer footer--dark ">
-  <div class="footer-container container footer-text--light">
-    <div class="col-xs-12">
-        <ul class="col-sm-4">
-        <li><a href="<%= hyrax.help_path('help') %>">Help</a></li>
-          <li><a href="<%= hyrax.root_path %>" class="footer-link">Home</a></li>
-          <li><a href="<%= hyrax.agreement_path('agreement')  %> " class="footer-link">Policy &amp; Terms of Use</a></li>
+<footer class="footer" role="contentinfo">
+  <div class="footer--dark">
+    <div class="footer-container footer-text--light">
+        <ul>
+          <li><a href="<%= hyrax.help_path('help') %>">Help</a></li>
+            <li><a href="<%= hyrax.root_path %>" class="footer-link">Home</a></li>
+            <li><a href="<%= hyrax.agreement_path('agreement')  %> " class="footer-link">Policy &amp; Terms of Use</a></li>
         </ul>
-        <ul class="col-sm-8 text-right">
-          <li class="footer-right">Questions? Contact us <%= render partial: '/contact_us' %></li>
-        </ul>
+        <p class="align-rt">Questions? Contact us <%= render partial: '/contact_us' %></p>
       </div>
   </div>
-</footer>
 
-<div class="footer-subfooter footer--light">
-   <div class="footer-container container">
-      <div class="col-xs-12">
-      <p class="col-sm-6">© 2018 Regents of the University of Michigan</p>
-      <p class="col-sm-6 col-md-6 align-right">Powered by Samvera</p>
+  <div class="footer-subfooter footer--light">
+    <div class="footer-container">
+        <p>© 2018 Regents of the University of Michigan</p>
+        <p class="align-rt">Powered by Samvera</p>
     </div>
-   </div>
-</div>
+  </div>
+</footer>
