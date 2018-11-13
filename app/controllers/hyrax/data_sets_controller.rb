@@ -17,11 +17,13 @@ module Hyrax
     before_action :provenance_log_destroy,       only: [:destroy]
     before_action :provenance_log_update_before, only: [:update]
     before_action :visiblity_changed,            only: [:update]
+    before_action :prepare_permissions,           only: [:show]
 
     after_action :email_rds_create,                only: [:create]
     after_action :provenance_log_create,           only: [:create]
     after_action :visibility_changed_update,       only: [:update]
     after_action :provenance_log_update_after,     only: [:update]
+    after_action :reset_permissions,               only: [:show]
 
     protect_from_forgery with: :null_session,    only: [:globus_add_email]
     protect_from_forgery with: :null_session,    only: [:globus_download]
@@ -30,6 +32,27 @@ module Hyrax
     protect_from_forgery with: :null_session,    only: [:zip_download]
 
     attr_accessor :user_email_one, :user_email_two
+
+    # These mehtods (prepare_permissions, and reset_permissions) are used so that 
+    # when viewing a tombstoned work, and the user is not admin, the user 
+    # will be able to see the metadata.
+    def prepare_permissions
+      if current_ability.admin?
+      else
+        # Need to add admin group to current_ability
+        # or presenter will not be accessible.
+        current_ability.user_groups << "admin"
+        if presenter.tombstone.present? 
+        else
+          current_ability.user_groups.delete("admin")
+        end
+      end
+    end
+
+    def reset_permissions
+      current_ability.user_groups.delete("admin")
+    end
+
 
     ## box integration
 
