@@ -125,7 +125,7 @@ body {
 
 .splash-container {
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 1rem;
   max-width: 60rem;
 
  .splash-text--medium {
@@ -246,6 +246,12 @@ ul.breadcrumb li a {
   }
 }
 
+
+
+.row.home-content {
+    max-width: 100%;
+}
+
 .recent-item {
   border: 1px solid transparent;
   box-shadow: 0 0 2px 0 rgba(0,0,0,0.12),0 2px 4px 0 rgba(0,0,0,0.24);
@@ -332,22 +338,45 @@ table.table.table-striped.related-files {
 
 /** Work Details **/
 
-.work-description {
-  font-size: 1.65em;
-  padding: .35em 0;
+.work-details-container {
+  border-radius: 4px;
+  -webkit-box-shadow: 0 2px 2px 0 rgba(0,0,0,.12),0 2px 4px 0 rgba(0,0,0,.24);
+  box-shadow: 0 2px 2px 0 rgba(0,0,0,.12),0 2px 4px 0 rgba(0,0,0,.24);
 }
-
 .title-header {
   font-size: 1.5em;
+}
+
+.work-description-panel-heading {
+  background-color: #e6f3ff !important;
+
+  .work-description-title {
+    display: inline-flex;
+    align-content: center;
+    color: #0c5292;
+    font-size: 1em;
+    font-weight: 600;
+    padding-top:.5rem;
+    padding-bottom: .5rem;
+  }
+
+  svg.icon {
+    margin-right: .5em;
+  }
 }
 
 .work-panel-heading {
   background-color: #fff !important;
   padding-top: 1.25em;
-  padding-bottom: 1.25em;
+  padding-bottom: .5em;
+  border-bottom: 0;
 
   .title-header {
-    font-size: 1.35em !important;
+    font-size: 1.5em !important;
+  }
+
+  .text-muted {
+    font-size: .5em;
   }
 
   span.label.label-success,
@@ -375,8 +404,12 @@ ul.tabular {
   border: 1px solid #e3e3e3;
   border-radius: 3px;
 
+  tbody tr th {
+    padding: 1em !important;
+    color: #6e6e6e;
+  }
+
   tr th {
-    font-weight: 600;
     padding: 1em !important;
   }
 }
