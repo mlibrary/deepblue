@@ -426,7 +426,8 @@ ul.tabular {
   }
 
   .table-scroll--container {
-    height: 300px;
+    height: auto;
+    max-height: 500px;
   }
 }
 
