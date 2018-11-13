@@ -16,13 +16,14 @@ module Deepblue
 
     DEFAULT_DATA_SET_ADMIN_SET_NAME = "DataSet Admin Set"
     DEFAULT_USER_CREATE = true
-    DEFAULT_VERBOSE = false
+    DEFAULT_VERBOSE = true
     MODE_APPEND = 'append'
     MODE_BUILD = 'build'
     MODE_MIGRATE = 'migrate'
     MODE_UPDATE = 'update' # TODO
     SOURCE_DBDv1 = 'DBDv1' # rubocop:disable Style/ConstantName
     SOURCE_DBDv2 = 'DBDv2' # rubocop:disable Style/ConstantName
+    STOP_NEW_CONTENT_SERVICE_FILE_NAME = 'stop_umrdr_new_content'
 
     class RestrictedVocabularyError < RuntimeError
     end
@@ -78,6 +79,31 @@ module Deepblue
 
     protected
 
+      def comment_work( work_hash: )
+        return unless @verbose
+        comment = work_hash[:comment]
+        log_msg( "#{mode}: #{comment}" ) if comment.present?
+        value = work_hash[:total_file_count]
+        log_msg( "#{mode}: Total file count: #{value}" ) if value.present?
+        value = work_hash[:total_file_size_human_readable]
+        log_msg( "#{mode}: Total file size: #{value}" ) if value.present?
+      end
+
+      def continue_new_content_service
+        return false if @stop_new_content_service
+        # puts "continue? check for existence of #{@stop_new_content_service_file}"
+        if @stop_new_content_service_file.exist?
+          @stop_new_content_service = true
+          return false
+        end
+        # puts "continue? check for existence of #{@stop_new_content_service_ppid_file}"
+        if @stop_new_content_service_ppid_file.exist?
+          @stop_new_content_service = true
+          return false
+        end
+        return true
+      end
+
       def add_file_set_to_work( work:, file_set: )
         return if file_set.parent.present? && work.id == file_set.parent_id
         work.ordered_members << file_set
@@ -93,12 +119,37 @@ module Deepblue
         return add_file_sets_to_work_from_files( work_hash: work_hash, work: work )
       end
 
+      def add_file_sets_file_size( file_set_hash: nil, path: nil )
+        return '' unless @verbose
+        if file_set_hash.present?
+          size = file_set_hash[:file_size_human_readable]
+          return '' if size.blank?
+          return " with size #{size}"
+        elsif path.present?
+          return '' unless File.exist? path
+          size = File.new( path ).size
+          size = TaskHelper.human_readable_size( size )
+          return " with size #{size}"
+        end
+        return ''
+      end
+
       def add_file_sets_to_work_from_file_set_ids( work_hash:, work: )
         file_set_ids = work_hash[:file_set_ids]
+        count = file_set_ids.size
+        i = 0
         file_set_ids.each do |file_set_id|
+          i += 1
+          next unless continue_new_content_service
           file_set_key = "f_#{file_set_id}"
           file_set_hash = work_hash[file_set_key.to_sym]
-          file_set = build_file_set_from_hash( id: file_set_id.to_s, file_set_hash: file_set_hash, parent: work )
+          file_size = add_file_sets_file_size( file_set_hash: file_set_hash )
+          file_set = build_file_set_from_hash( id: file_set_id.to_s,
+                                               file_set_hash: file_set_hash,
+                                               parent: work,
+                                               file_set_of: i,
+                                               file_set_count: count,
+                                               file_size: file_size )
           add_file_set_to_work( work: work, file_set: file_set )
         end
         work.save!
@@ -114,8 +165,20 @@ module Deepblue
         filenames = work_hash[:filenames]
         filenames = [] if filenames.nil?
         paths_and_names = files.zip( filenames, file_ids )
+        count = paths_and_names.size
+        i = 0
         paths_and_names.each do |fp|
-          fs = build_file_set( id: nil, path: fp[0], work: work, filename: fp[1], file_ids: fp[2] )
+          i += 1
+          next unless continue_new_content_service
+          file_size = add_file_sets_file_size( file_set_hash: nil, path: fp[0] )
+          fs = build_file_set( id: nil,
+                               path: fp[0],
+                               work: work,
+                               filename: fp[1],
+                               file_ids: fp[2],
+                               file_set_of: i,
+                               file_set_count: count,
+                               file_size: file_size )
           add_file_set_to_work( work: work, file_set: fs )
         end
         work.save!
@@ -131,6 +194,7 @@ module Deepblue
         # puts "collection_hash=#{collection_hash}"
         work_ids = works_from_hash( hash: collection_hash )
         work_ids[0].each do |work_id|
+          next unless continue_new_content_service
           # puts "work_id=#{work_id}"
           work_hash = works_from_id( hash: collection_hash, work_id: work_id.to_s )
           # puts "work_hash=#{work_hash}"
@@ -209,6 +273,7 @@ module Deepblue
       end
 
       def build_collection( id:, collection_hash: )
+        return nil unless continue_new_content_service
         if MODE_APPEND == mode && id.present?
           collection = find_collection_using_prior_id( prior_id: id )
           log_msg( "#{mode}: found collection with prior id: #{id} title: #{collection.title.first}" ) if collection.present?
@@ -278,6 +343,7 @@ module Deepblue
         return unless collections
         user_create_users( emails: user_key )
         collections.each do |collection_hash|
+          next unless continue_new_content_service
           collection_id = 'nil'
           collection = nil
           measurement = Benchmark.measure do
@@ -324,8 +390,9 @@ module Deepblue
         return depositor
       end
 
-      def build_file_set( id:, path:, work:, filename: nil, file_ids: nil )
+      def build_file_set( id:, path:, work:, filename: nil, file_ids: nil, file_set_of:, file_set_count:, file_size: '' )
         # puts "id=#{id} path=#{path} filename=#{filename} file_ids=#{file_ids}"
+        log_msg( "#{mode}: building file #{file_set_of} of #{file_set_count}#{file_size}" ) if @verbose
         fname = filename || File.basename( path )
         build_file_set_new( id: id, depositor: work.depositor, path: path, original_name: fname )
         file_set.title = Array( fname )
@@ -340,7 +407,7 @@ module Deepblue
         return build_file_set_ingest( file_set: file_set, path: path, checksum_algorithm: nil, checksum_value: nil )
       end
 
-      def build_file_set_from_hash( id:, file_set_hash:, parent: )
+      def build_file_set_from_hash( id:, file_set_hash:, parent:, file_set_of:, file_set_count:, file_size: '' )
         if MODE_APPEND == mode && id.present?
           file_set = find_file_set_using_prior_id( prior_id: id, parent: parent )
           log_msg( "#{mode}: found file_set with prior id: #{id} title: #{file_set.title.first}" ) if file_set.present?
@@ -351,6 +418,7 @@ module Deepblue
           log_msg( "#{mode}: found file_set with id: #{id} title: #{file_set.title.first}" ) if file_set.present?
           return file_set if file_set.present?
         end
+        log_msg( "#{mode}: building file #{file_set_of} of #{file_set_count}#{file_size}" ) if @verbose
         # puts "id=#{id} path=#{path} filename=#{filename} file_ids=#{file_ids}"
         depositor = build_depositor( hash: file_set_hash )
         path = file_set_hash[:file_path]
@@ -467,6 +535,7 @@ module Deepblue
 
       def build_or_find_collection( collection_hash: )
         # puts "build_or_find_collection( collection_hash: #{ActiveSupport::JSON.encode( collection_hash )} )"
+        return nil unless continue_new_content_service
         return if collection_hash.blank?
         id = collection_hash[:id].to_s
         mode = collection_hash[:mode]
@@ -474,6 +543,7 @@ module Deepblue
         collection = nil
         collection = Collection.find( id ) if MODE_APPEND == mode
         collection = build_collection( id: id, collection_hash: collection_hash ) if collection.nil?
+        return nil if collection.nil?
         log_object collection if collection.present?
         add_works_to_collection( collection_hash: collection_hash, collection: collection )
         collection.save!
@@ -498,13 +568,16 @@ module Deepblue
 
       def build_or_find_work( work_hash:, parent: )
         # puts "build_or_find_work( work_hash: #{work_hash} )"
+        return nil unless continue_new_content_service
         return nil if work_hash.blank?
+        comment_work( work_hash: work_hash )
         id = work_hash[:id].to_s
         mode = work_hash[:mode]
         mode = MODE_BUILD if id.blank?
         work = nil
         work = GenericWork.find( id ) if MODE_APPEND == mode
         work = build_work( id: id, work_hash: work_hash, parent: parent ) if work.nil?
+        return nil if work.nil?
         log_object work if work.present?
         add_file_sets_to_work( work_hash: work_hash, work: work )
         return work
@@ -604,6 +677,7 @@ module Deepblue
       end
 
       def build_work( id:, work_hash:, parent: )
+        return nil unless continue_new_content_service
         if MODE_APPEND == mode && id.present?
           work = find_work_using_prior_id( prior_id: id, parent: parent )
           log_msg( "#{mode}: found work with prior id: #{id} title: #{work.title.first}" ) if work.present?
@@ -683,6 +757,7 @@ module Deepblue
         return unless works
         user_create_users( emails: user_key )
         works.each do |work_hash|
+          next unless continue_new_content_service
           work = nil
           work_id = 'nil'
           measurement = Benchmark.measure do
@@ -795,6 +870,7 @@ module Deepblue
       def find_works_and_add_files
         return unless works
         works.each do |work_hash|
+          next unless continue_new_content_service
           work = find_work( work_hash: work_hash )
           measurement = Benchmark.measure( work.id ) do
             add_file_sets_to_work( work_hash: work_hash, work: work )
@@ -891,6 +967,10 @@ module Deepblue
         @mode = mode if mode.present?
         @ingester = ingester if ingester.present?
         @user_create = user_create
+        @stop_new_content_service = false
+        current_dir = Pathname.new( '.' ).realdirpath
+        @stop_new_content_service_file = current_dir.join STOP_NEW_CONTENT_SERVICE_FILE_NAME
+        @stop_new_content_service_ppid_file = current_dir.join( "#{Process.ppid}_#{STOP_NEW_CONTENT_SERVICE_FILE_NAME}" )
         logger.info msg if msg.present?
       end
       # rubocop:enable Rails/Output

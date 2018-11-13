@@ -8,13 +8,15 @@
 
 shell_name="umrdr_new_content.sh"
 original_args="$@"
+stop_file="$PWD/stop_umrdr_new_content"
+pid_stop_file="$PWD/$$_stop_umrdr_new_content"
 base_dir="/deepbluedata-prep/" # default value for -b / --base_dir
 ingester="fritx@umich.edu"     # default value for -i / --ingester
 dry_run=false                  # default value for -d / --dry_run
 prefix=""                      # default value for prefix ( -c / --collections ) ( -w / --works )
 postfix="_populate"            # default value for -p / --postfix
 task="umrdr:build"             # default value for -t / --task
-verbose=true                  # default value for -v / --verbose
+verbose=true                   # default value for -v / --verbose
 not_processed=()
 
 ts=$(date "+%Y%m%d%H%M%S")
@@ -76,6 +78,8 @@ fi
 
 if [ "${verbose}" = "true" ]; then
   echo "# base_dir  (-b) = '${base_dir}'"
+  echo "# stop_file      = '${stop_file}'"
+  echo "# pid_stop_file  = '${pid_stop_file}'"
   echo "# dry_run   (-d) = ${dry_run}"
   echo "# ingester  (-i) = '${ingester}'"
   echo "# prefix (-c/-w) = '${prefix}'"
@@ -91,6 +95,15 @@ if [ "${dry_run}" = "true" ]; then
 fi
 echo "# Begin: $ts"
 for arg in "$@"; do
+  if [ -f $stop_file ]; then
+    not_processed+=("${arg}")
+    continue
+  elif [ -f $pid_stop_file ]; then
+    not_processed+=("${arg}")
+    continue
+  elif [ "${verbose}" = "true" ]; then
+    echo "# To stop processing: touch ${pid_stop_file}"
+  fi
   ${verbose} && echo "#"
   ${verbose} && echo "# processing '${arg}' ..."
   base_file="${prefix}${arg}${postfix}"
@@ -116,19 +129,26 @@ for arg in "$@"; do
     ${verbose} && echo "# Log File: '${log_file}' not found."
   fi
   if [ -z "${ingester}" ]; then
-  	if [ "${dry_run}" = "true" ]; then
-  	  echo "bundle exec rake ${task}[${input_file}] 2>&1 | tee ${log_file}"
-  	else
-  	  bundle exec rake ${task}[${input_file}] 2>&1 | tee ${log_file}
-  	fi
+    if [ "${dry_run}" = "true" ]; then
+      echo "bundle exec rake ${task}[${input_file}] 2>&1 | tee ${log_file}"
+    else
+      bundle exec rake ${task}[${input_file}] 2>&1 | tee ${log_file}
+    fi
   else
-  	if [ "${dry_run}" = "true" ]; then
-  	  echo "bundle exec rake ${task}[${input_file},${ingester}] 2>&1 | tee ${log_file}"
-  	else
-  	  bundle exec rake ${task}[${input_file},${ingester}] 2>&1 | tee ${log_file}
-  	fi
+    if [ "${dry_run}" = "true" ]; then
+      echo "bundle exec rake ${task}[${input_file},${ingester}] 2>&1 | tee ${log_file}"
+    else
+      ${verbose} && echo "bundle exec rake ${task}[${input_file},${ingester}] 2>&1 | tee ${log_file}"
+      bundle exec rake ${task}[${input_file},${ingester}] 2>&1 | tee ${log_file}
+    fi
   fi
 done
+if [ -f $stop_file ]; then
+  echo "# Stop file found: ${stop_file}"
+fi
+if [ -f $pid_stop_file ]; then
+  echo "# Stop file found: ${pid_stop_file}"
+fi
 ${verbose} && echo "#"
 ts=$(date "+%Y%m%d%H%M%S")
 echo "# End: $ts"
