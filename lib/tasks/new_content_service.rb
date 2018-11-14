@@ -514,17 +514,20 @@ module Deepblue
           original_name
         end
         id_new = MODE_MIGRATE == mode ? id : nil
-        attempts = 0
-        file_set = nil
-        loop do
-          break if attempts > 3
-          file_set = new_file_set( id: id_new )
-          file_set.apply_depositor_metadata( depositor )
-          success = upload_file_to_file_set( file_set, file )
-          break if success
-          attempts += 1
-          file_set = nil
-        end
+        file_set = new_file_set( id: id_new )
+        file_set.apply_depositor_metadata( depositor )
+        upload_file_to_file_set( file_set, file )
+        # attempts = 0
+        # file_set = nil
+        # loop do
+        #   break if attempts > 6
+        #   file_set = new_file_set( id: id_new )
+        #   file_set.apply_depositor_metadata( depositor )
+        #   success = upload_file_to_file_set( file_set, file )
+        #   break if success
+        #   attempts += 1
+        #   file_set = nil
+        # end
         return file_set
       end
 
@@ -952,11 +955,20 @@ module Deepblue
         # puts "args=#{JSON.pretty_print args.as_json}" if verbose_init
         puts "ENV['TMPDIR']=#{ENV['TMPDIR']}" if verbose_init
         puts "ENV['_JAVA_OPTIONS']=#{ENV['_JAVA_OPTIONS']}" if verbose_init
+        puts "ENV['JAVA_OPTIONS']=#{ENV['JAVA_OPTIONS']}" if verbose_init
         tmpdir = ENV['TMPDIR']
-        tmpdir = File.absolute_path( './tmp/' ) if tmpdir.blank?
+        if tmpdir.blank?
+          tmpdir = File.absolute_path( './tmp/' )
+          ENV['TMPDIR'] = tmpdir
+        end
         ENV['_JAVA_OPTIONS'] = "-Djava.io.tmpdir=#{tmpdir}"
+        ENV['JAVA_OPTIONS'] = "-Djava.io.tmpdir=#{tmpdir}"
+        puts "ENV['TMPDIR']=#{ENV['TMPDIR']}" if verbose_init
         puts "ENV['_JAVA_OPTIONS']=#{ENV['_JAVA_OPTIONS']}" if verbose_init
+        puts "ENV['JAVA_OPTIONS']=#{ENV['JAVA_OPTIONS']}" if verbose_init
+        puts `echo $TMPDIR`.to_s if verbose_init
         puts `echo $_JAVA_OPTIONS`.to_s if verbose_init
+        puts `echo $JAVA_OPTIONS`.to_s if verbose_init
         @path_to_yaml_file = path_to_yaml_file
         @config = {}
         @config.merge!( config ) if config.present?
