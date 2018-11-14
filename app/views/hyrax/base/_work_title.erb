@@ -3,7 +3,11 @@
     <div class="col-sm-12">
       <% if index == 0 %>
         <h2 class="title-header"><span class="bold">Title: </span><%= title %>
-          <small class="text-muted"><%= @presenter.permission_badge %> <%= presenter.workflow.badge %></small>
+          <% if @presenter.tombstone.present? %>
+            <small class="text-muted"><span class="label label-danger">Tombstone</span> <%= presenter.workflow.badge %></small>
+          <% else %>
+            <small class="text-muted"><%= @presenter.permission_badge %> <%= presenter.workflow.badge %></small>
+          <% end %>
         </h2>
       <% else %>
         <h2 class="title-header"><%= title %></h2>
