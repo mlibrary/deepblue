@@ -21,6 +21,25 @@ module DeepBlueDocs
     # config.dbd_version = 'DBDv1'
     config.dbd_version = 'DBDv2'
 
+    ## ensure tmp directories are defined
+    verbose_init = false
+    puts "ENV['TMPDIR']=#{ENV['TMPDIR']}" if verbose_init
+    puts "ENV['_JAVA_OPTIONS']=#{ENV['_JAVA_OPTIONS']}" if verbose_init
+    puts "ENV['JAVA_OPTIONS']=#{ENV['JAVA_OPTIONS']}" if verbose_init
+    tmpdir = ENV['TMPDIR']
+    if tmpdir.blank?
+      tmpdir = File.absolute_path( './tmp/derivatives/' )
+      ENV['TMPDIR'] = tmpdir
+    end
+    ENV['_JAVA_OPTIONS'] = "-Djava.io.tmpdir=#{tmpdir}" if ENV['_JAVA_OPTIONS'].blank?
+    ENV['JAVA_OPTIONS'] = "-Djava.io.tmpdir=#{tmpdir}" if ENV['JAVA_OPTIONS'].blank?
+    puts "ENV['TMPDIR']=#{ENV['TMPDIR']}"
+    puts "ENV['_JAVA_OPTIONS']=#{ENV['_JAVA_OPTIONS']}" if verbose_init
+    puts "ENV['JAVA_OPTIONS']=#{ENV['JAVA_OPTIONS']}" if verbose_init
+    puts `echo $TMPDIR`.to_s if verbose_init
+    puts `echo $_JAVA_OPTIONS`.to_s if verbose_init
+    puts `echo $JAVA_OPTIONS`.to_s if verbose_init
+
     ## configure box
 
     config.box_enabled = false
