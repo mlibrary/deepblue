@@ -1,24 +1,28 @@
-# README
+# DeepBlue
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+University of Michigan Research Data Repository
 
-Things you may want to cover:
+![deepblue](https://s3.amazonaws.com/ArchiveImages/LJ/2016/10/161014_DeepBlueData.jpg)
 
-* Ruby version
 
-* System dependencies
+## History
 
-* Configuration
+This application is being developed as a part of the University of Michgan Research Data Services offerings.  
+Its goal is to improving the ability of researchers at the University of Michigan to make their data sets widely accessible and their research easily reproducible.
 
-* Database creation
+## Credits
 
-* Database initialization
+Samvera Project Community.
 
-* How to run the test suite
+Penn State University Library.
 
-* Services (job queues, cache servers, search engines, etc.)
+University of Michigan Library.
 
-* Deployment instructions
+## License
 
-* ...
+Regents of the University of Michigan... likely some rights reserved.
+
+## Wiki
+
+https://github.com/mlibrary/deepblue/wiki
+
