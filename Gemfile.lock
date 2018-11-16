@@ -541,7 +541,7 @@ GEM
       nokogiri (~> 1.6)
       rails (~> 5.0)
       rdf
-    rack (2.0.5)
+    rack (2.0.6)
     rack-protection (2.0.4)
       rack
     rack-test (0.6.3)
@@ -868,6 +868,7 @@ DEPENDENCIES
   pry-byebug
   pry-rails
   puma (~> 3.0)
+  rack (~> 2.0.6)
   rails (~> 5.0.6)
   rails-controller-testing
   resque

@@ -2,6 +2,7 @@
 
 require_relative 'boot'
 require 'rails/all'
+require_relative '../lib/rack_multipart_buf_size_setter.rb'
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -18,6 +19,8 @@ module DeepBlueDocs
       g.test_framework :rspec, spec: true
     end
 
+    config.middleware.insert_before Rack::Runtime, RackMultipartBufSizeSetter
+
     # config.dbd_version = 'DBDv1'
     config.dbd_version = 'DBDv2'
 
@@ -27,7 +30,7 @@ module DeepBlueDocs
     puts "ENV['_JAVA_OPTIONS']=#{ENV['_JAVA_OPTIONS']}" if verbose_init
     puts "ENV['JAVA_OPTIONS']=#{ENV['JAVA_OPTIONS']}" if verbose_init
     tmpdir = ENV['TMPDIR']
-    if tmpdir.blank?
+    if ( tmpdir.blank? || tmpdir == '/tmp' || tmpdir.start_with?( '/tmp/' ) )
       tmpdir = File.absolute_path( './tmp/derivatives/' )
       ENV['TMPDIR'] = tmpdir
     end
