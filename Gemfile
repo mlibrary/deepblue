@@ -1,3 +1,6 @@
+# minimum gem update:
+# bundle update --source name_of_gem
+
 source 'https://rubygems.org'
 
 git_source(:github) do |repo_name|
@@ -48,8 +51,15 @@ gem 'jbuilder', '~> 2.5'
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
+# Pinning Rack commit that resolves the large file upload issue
+# When 2.0.4 is out this might not be needed anymore
+# See: https://tools.lib.umich.edu/jira/browse/DBD-920
+#      https://tools.lib.umich.edu/jira/browse/HELIO-1450
+# gem 'rack', git: 'https://github.com/rack/rack.git', ref: 'ee01748'
+
 # Begin security vulnerability mitigation
 gem 'loofah', '~> 2.2.3'
+gem 'rack', '~> 2.0.6'
 gem 'rubyzip', '~> 1.2.2'
 gem 'sinatra', '~> 2.0.2'
 gem 'sprockets', '~> 3.7.2'
