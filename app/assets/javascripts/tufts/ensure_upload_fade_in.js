@@ -9,8 +9,26 @@
 // in time. 
 //
 $(document).on('turbolinks:load', function() {
-   $('.data_set_rights_license_other').hide();  
-   $('.data_set_fundedby_other').hide(); 
+  var rbtn = document.getElementById('data_set_rights_license_other').checked
+  if (rbtn)
+  {
+      $('.data_set_rights_license_other').show();
+  }
+  else
+  {
+      $('.data_set_rights_license_other').hide();   
+  }
+
+
+  var rbtn =  $('#data_set_fundedby option:selected').text()
+  if ( rbtn.match(/Other/gi) )
+  {
+      $('.data_set_fundedby_other').show();
+  }
+  else
+  {
+      $('.data_set_fundedby_other').hide();   
+  }
 })
 
 $(document).on('change', function (e, data) {
@@ -22,22 +40,22 @@ $(document).on('change', function (e, data) {
   var rbtn = document.getElementById('data_set_rights_license_other').checked
   if (rbtn)
   {
-  		$('.data_set_rights_license_other').show();
+      $('.data_set_rights_license_other').show();
   }
   else
   {
-  		$('.data_set_rights_license_other').hide();  	
+      $('.data_set_rights_license_other').hide();   
   }
 
 
   var rbtn =  $('#data_set_fundedby option:selected').text()
   if ( rbtn.match(/Other/gi) )
   {
-  		$('.data_set_fundedby_other').show();
+      $('.data_set_fundedby_other').show();
   }
   else
   {
-  		$('.data_set_fundedby_other').hide();  	
+      $('.data_set_fundedby_other').hide();   
   }
 
 
