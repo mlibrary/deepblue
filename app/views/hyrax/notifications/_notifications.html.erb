@@ -1,6 +1,6 @@
 <% if messages.present? %>
   <div class="table-responsive1">
-    <table class="table table-striped datatable" data-sort-name="date" data-order="[[ 0, &quot;desc&quot; ]]">
+    <table class="table table-striped datatable" data-sort-name="date" data-order="[ 0, &quot;desc&quot; ]">
       <thead>
         <tr>
           <th><%= t('hyrax.mailbox.date') %></th>
@@ -13,7 +13,7 @@
         <% messages.each do |msg| %>
           <tr>
             <td>
-                <%= msg.last_message.created_at.to_formatted_s(:long_ordinal) %>
+                <%= msg.last_message.created_at %>
             </td>
             <td><%= msg.last_message.subject.html_safe %></td>
             <td><%= msg.last_message.body.html_safe %></td>
