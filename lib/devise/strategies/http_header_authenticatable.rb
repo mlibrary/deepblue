@@ -16,7 +16,6 @@ module Devise
           u = User.find_by_user_key(user)
           if u.nil?
             u = User.create(email: user)
-            u.populate_attributes
           end
           success!(u)
         else
