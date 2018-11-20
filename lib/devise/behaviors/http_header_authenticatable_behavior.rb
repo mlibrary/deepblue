@@ -6,7 +6,7 @@ module Behaviors
     # Remote user needs to be present and not null
     def valid_user?(headers)
       remote_user = remote_user(headers)
-      remote_user.present? && remote_user != '(null)@umich.edu' 
+      remote_user.present? && remote_user != '(null)@umich.edu'
     end
 
     protected

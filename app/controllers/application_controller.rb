@@ -20,7 +20,7 @@ class ApplicationController < ActionController::Base
   #   * forcing the session to be restarted on every request
   #   * ensuring the user will be logged out if REMOTE_USER is not set
   #   * clearing the entire session including flash messages
-  def clear_session_user  
+  def clear_session_user
     return nil_request if request.nil?
     search = session[:search].dup if session[:search]
     request.env['warden'].logout unless user_logged_in?
@@ -46,5 +46,5 @@ class ApplicationController < ActionController::Base
     Rails.logger.debug "[AUTHN] Warden after_authentication (clearing flash): #{user}"
     auth.request.flash.clear
   end
-  
+
 end
