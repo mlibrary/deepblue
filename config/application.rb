@@ -89,6 +89,15 @@ module DeepBlueDocs
 
     config.relative_url_root = '/data' unless Rails.env.test?
 
+    # For properly generating URLs and minting DOIs - the app may not by default
+    # Outside of a request context the hostname needs to be provided.
+    config.hostname = ENV['UMRDR_HOST'] || Settings.umrdr_host
+
+    # Set the default host for resolving _url methods
+    Rails.application.routes.default_url_options[:host] = config.hostname
+
+
+
     # ingest virus scan config
     config.virus_scan_max_file_size = 4_000_000_000
     config.virus_scan_retry = true
