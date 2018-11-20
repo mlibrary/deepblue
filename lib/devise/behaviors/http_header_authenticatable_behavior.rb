@@ -1,5 +1,5 @@
 # Default strategy for signing in a user, based on remote user attribute in headers.
-module Behaviors
+module Devise::Behaviors
   module HttpHeaderAuthenticatableBehavior
 
     # Called if the user doesn't already have a rails session cookie

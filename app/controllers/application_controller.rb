@@ -5,7 +5,7 @@ class ApplicationController < ActionController::Base
   include Hydra::Controller::ControllerBehavior
 
   # Behavior for devise.  Use remote user field in http header for auth.
-  include Behaviors::HttpHeaderAuthenticatableBehavior
+  include Devise::Behaviors::HttpHeaderAuthenticatableBehavior
 
   # Adds Hyrax behaviors into the application controller
   include Hyrax::Controller

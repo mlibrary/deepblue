@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'devise/behaviors/http_header_authenticatable_behavior'
+require 'devise/strategies/http_header_authenticatable'
+require 'devise/models/http_header_authenticatable'
+
 # Use this hook to configure devise mailer, warden hooks and so forth.
 # Many of these configuration options can be set straight in your model.
 Devise.setup do |config|

@@ -2,6 +2,7 @@
 
 require "email_logger"
 require "provenance_logger"
+require "devise/fake_auth_header"
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
