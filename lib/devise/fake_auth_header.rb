@@ -5,7 +5,7 @@
 # development and testing environments.  Only add this middleware for those
 # environments: in development.rb and test.rb under config/environments/
 # config.middleware.use "FakeAuthHeader"
-class FakeAuthHeader  
+class FakeAuthHeader
   def initialize app
     @app = app
   end

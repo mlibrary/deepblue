@@ -1,12 +1,12 @@
 # Default strategy for signing in a user, based on remote user attribute in headers.
-module Behaviors
+module Devise::Behaviors
   module HttpHeaderAuthenticatableBehavior
 
     # Called if the user doesn't already have a rails session cookie
     # Remote user needs to be present and not null
     def valid_user?(headers)
       remote_user = remote_user(headers)
-      remote_user.present? && remote_user != '(null)@umich.edu' 
+      remote_user.present? && remote_user != '(null)@umich.edu'
     end
 
     protected
