@@ -15,7 +15,8 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
   before_action :clear_session_user
-   # From PSU's ScholarSphere
+
+  # From PSU's ScholarSphere
   # Clears any user session and authorization information by:
   #   * forcing the session to be restarted on every request
   #   * ensuring the user will be logged out if REMOTE_USER is not set
@@ -26,7 +27,8 @@ class ApplicationController < ActionController::Base
     request.env['warden'].logout unless user_logged_in?
     session[:search] = search
   end
-   def user_logged_in?
+  
+  def user_logged_in?
     user_signed_in? && ( valid_user?(request.headers) || Rails.env.test?)
   end
 
