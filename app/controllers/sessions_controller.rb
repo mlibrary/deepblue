@@ -11,7 +11,7 @@ class SessionsController < ApplicationController
     if user_signed_in?
       Rails.logger.debug "[AUTHN] sessions#new, redirecting"
       # redirect to where user came from (see Devise::Controllers::StoreLocation#stored_location_for)
-      redirect_to stored_location_for(:user) || hyrax.dashboard_index_path
+      redirect_to stored_location_for(:user) || hyrax.dashboard_path
     else
       Rails.logger.debug "[AUTHN] sessions#new, failed because user_signed_in? was false"
       # should have been redirected via mod_cosign - error out instead of going through redirect loop
