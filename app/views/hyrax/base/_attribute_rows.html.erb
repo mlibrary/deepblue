@@ -33,10 +33,6 @@
 <%= presenter.attribute_to_html(:date_modified, label: t('hyrax.base.show.last_modified') ) %>
 <%= presenter.attribute_to_html(:language, render_as: :faceted, label: t('show.label.language') ) %>
 
-<%= presenter.attribute_to_html(:total_file_count ) %>
-<%= presenter.attribute_to_html(:total_file_size_human_readable, label: t('show.label.total_file_size_human_readable') ) %>
-
-
 <%= presenter.attribute_to_html(:subject, render_as: :faceted, label: t('show.label.subject')) %>
 <%= presenter.attribute_to_html(:identifier, render_as: :linked, search_field: 'identifier_tesim') %>
 <%= presenter.attribute_to_html(:date_created, render_as: :date_attribute, label: t('show.label.date_created') ) %>
