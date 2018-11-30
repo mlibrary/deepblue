@@ -17,9 +17,9 @@ module Hyrax
         solr_doc['label_ssi']   = object.label
         solr_doc['file_format_tesim'] = file_format
         solr_doc['file_format_sim']   = file_format
-        ::Deepblue::LoggingHelper.bold_debug "FileSetIndex.generate_solr_document #{object.class} #{object.file_size[0]}"
+        # ::Deepblue::LoggingHelper.bold_debug "FileSetIndex.generate_solr_document #{object.class} #{object.file_size[0]}"
         solr_doc['file_size_lts'] = object.file_size[0]
-        ::Deepblue::LoggingHelper.bold_debug "FileSetIndex.generate_solr_document solr_doc['file_size_lts'] = #{solr_doc['file_size_lts']}"
+        # ::Deepblue::LoggingHelper.bold_debug "FileSetIndex.generate_solr_document solr_doc['file_size_lts'] = #{solr_doc['file_size_lts']}"
         solr_doc['all_text_timv'] = object.extracted_text.content if object.extracted_text.present?
         solr_doc['height_is'] = Integer(object.height.first) if object.height.present?
         solr_doc['width_is']  = Integer(object.width.first) if object.width.present?

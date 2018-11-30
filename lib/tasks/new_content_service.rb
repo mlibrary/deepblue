@@ -356,24 +356,29 @@ module Deepblue
         end
       end
 
-      def build_date( hash:, key: )
+      def build_date( hash:, key:, no_default: false )
         rv = hash[key]
-        return DateTime.now.to_s if rv.blank?
+        return build_date_now( no_default: no_default ) if rv.blank?
         rv = rv[0] if rv.is_a? Array
         rv = DateTime.parse rv
-        return rv.to_s
+        return rv
       rescue ArgumentError
-        return build_date2( rv )
+        return build_date2( rv, key: key, no_default: no_default )
       end
 
-      def build_date2( str )
+      def build_date2( str, key:, no_default: )
         return DateTime.strptime( str, "%m/%d/%Y" ) if str.match?( /\d\d?\/\d\d?\/\d\d\d\d/ )
         return DateTime.strptime( str, "%m-%d-%Y" ) if str.match?( /\d\d?\-\d\d?\-\d\d\d\d/ )
         return DateTime.strptime( str, "%Y" ) if str.match?( /\d\d\d\d/ )
-        return DateTime.now.to_s
+        return build_date_now( no_default: no_default )
       rescue ArgumentError
-        log_msg( "Failed to parse data string '#{str}'" )
-        return DateTime.now.to_s
+        log_msg( "Failed to parse data string '#{str}' for key '#{key}'" )
+        return build_date_now( no_default: no_default )
+      end
+
+      def build_date_now( no_default: )
+        return nil if no_default
+        return DateTime.now
       end
 
       def build_date_coverage( hash: )
@@ -949,26 +954,27 @@ module Deepblue
         @verbose = TaskHelper.task_options_value( @options, key: 'verbose', default_value: DEFAULT_VERBOSE )
         puts "@verbose=#{@verbose}" if @verbose
 
-        verbose_init = false
-        @args = args # TODO: args.to_hash
-        puts "args=#{args}" if verbose_init
-        # puts "args=#{JSON.pretty_print args.as_json}" if verbose_init
-        puts "ENV['TMPDIR']=#{ENV['TMPDIR']}" if verbose_init
-        puts "ENV['_JAVA_OPTIONS']=#{ENV['_JAVA_OPTIONS']}" if verbose_init
-        puts "ENV['JAVA_OPTIONS']=#{ENV['JAVA_OPTIONS']}" if verbose_init
-        tmpdir = ENV['TMPDIR']
-        if tmpdir.blank?
-          tmpdir = File.absolute_path( './tmp/' )
-          ENV['TMPDIR'] = tmpdir
-        end
-        ENV['_JAVA_OPTIONS'] = "-Djava.io.tmpdir=#{tmpdir}"
-        ENV['JAVA_OPTIONS'] = "-Djava.io.tmpdir=#{tmpdir}"
-        puts "ENV['TMPDIR']=#{ENV['TMPDIR']}" if verbose_init
-        puts "ENV['_JAVA_OPTIONS']=#{ENV['_JAVA_OPTIONS']}" if verbose_init
-        puts "ENV['JAVA_OPTIONS']=#{ENV['JAVA_OPTIONS']}" if verbose_init
-        puts `echo $TMPDIR`.to_s if verbose_init
-        puts `echo $_JAVA_OPTIONS`.to_s if verbose_init
-        puts `echo $JAVA_OPTIONS`.to_s if verbose_init
+        # Now done in config/application.rb
+        # verbose_init = false
+        # @args = args # TODO: args.to_hash
+        # puts "args=#{args}" if verbose_init
+        # # puts "args=#{JSON.pretty_print args.as_json}" if verbose_init
+        # puts "ENV['TMPDIR']=#{ENV['TMPDIR']}" if verbose_init
+        # puts "ENV['_JAVA_OPTIONS']=#{ENV['_JAVA_OPTIONS']}" if verbose_init
+        # puts "ENV['JAVA_OPTIONS']=#{ENV['JAVA_OPTIONS']}" if verbose_init
+        # tmpdir = ENV['TMPDIR']
+        # if tmpdir.blank?
+        #   tmpdir = File.absolute_path( './tmp/' )
+        #   ENV['TMPDIR'] = tmpdir
+        # end
+        # ENV['_JAVA_OPTIONS'] = "-Djava.io.tmpdir=#{tmpdir}"
+        # ENV['JAVA_OPTIONS'] = "-Djava.io.tmpdir=#{tmpdir}"
+        # puts "ENV['TMPDIR']=#{ENV['TMPDIR']}" if verbose_init
+        # puts "ENV['_JAVA_OPTIONS']=#{ENV['_JAVA_OPTIONS']}" if verbose_init
+        # puts "ENV['JAVA_OPTIONS']=#{ENV['JAVA_OPTIONS']}" if verbose_init
+        # puts `echo $TMPDIR`.to_s if verbose_init
+        # puts `echo $_JAVA_OPTIONS`.to_s if verbose_init
+        # puts `echo $JAVA_OPTIONS`.to_s if verbose_init
         @path_to_yaml_file = path_to_yaml_file
         @config = {}
         @config.merge!( config ) if config.present?
