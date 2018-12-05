@@ -27,7 +27,7 @@ describe GlobusJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do 
   describe "GlobusJob#external_url" do
     it "returns a globus external url." do
       url = GlobusJob.external_url "id321"
-      expect( url ).to eq( "https://www.globus.org/app/transfer?origin_id=99d8c648-a9ff-11e7-aedd-22000a92523b&origin_path=%2Fdownload%2FDeepBlueData_id321%2F" )
+      expect( url ).to eq( "https://app.globus.org/file-manager?origin_id=99d8c648-a9ff-11e7-aedd-22000a92523b&origin_path=%2Fdownload%2FDeepBlueData_id321%2F" )
     end
   end
 

@@ -79,7 +79,7 @@ module DeepBlueDocs
     end
     config.globus_enabled = true && Dir.exist?( config.globus_download_dir ) && Dir.exist?( config.globus_prep_dir )
     config.base_file_name = "DeepBlueData_"
-    config.globus_base_url = 'https://www.globus.org/app/transfer?origin_id=99d8c648-a9ff-11e7-aedd-22000a92523b&origin_path=%2Fdownload%2F'
+    config.globus_base_url = 'https://app.globus.org/file-manager?origin_id=99d8c648-a9ff-11e7-aedd-22000a92523b&origin_path=%2Fdownload%2F'
     config.globus_restart_all_copy_jobs_quiet = true
     config.globus_debug_delay_per_file_copy_job_seconds = 0
     config.globus_after_copy_job_ui_delay_seconds = 3
