@@ -52,9 +52,8 @@ module Deepblue
                 :user_create,
                 :verbose
 
-    def initialize( path_to_yaml_file:, cfg_hash:, base_path:, options:, args: )
-      initialize_with_msg( args: args,
-                           options: options,
+    def initialize( path_to_yaml_file:, cfg_hash:, base_path:, options: )
+      initialize_with_msg( options: options,
                            path_to_yaml_file: path_to_yaml_file,
                            cfg_hash: cfg_hash,
                            base_path: base_path )
@@ -636,17 +635,21 @@ module Deepblue
       end
 
       def build_user( user_hash: )
-        attr_names = User.attribute_names
-        skip = Deepblue::MetadataHelper::ATTRIBUTE_NAMES_USER_IGNORE
-        attrs = { password: "password", password_confirmation: "password" }
-        attr_names.each do |name|
-          next if skip.include?( name )
-          next if name == "id"
-          value = user_hash[name.to_sym]
-          attrs[name] = value if value.present?
-        end
-        log_msg( "User.create!( #{attrs} )" )
-        User.create!( attrs )
+        # attr_names = User.attribute_names
+        # skip = Deepblue::MetadataHelper::ATTRIBUTE_NAMES_USER_IGNORE
+        # attrs = { password: "password", password_confirmation: "password" }
+        # attr_names.each do |name|
+        #   next if skip.include?( name )
+        #   next if name == "id"
+        #   value = user_hash[name.to_sym]
+        #   attrs[name] = value if value.present?
+        # end
+        # log_msg( "User.create!( #{attrs} )" )
+        # User.create!( attrs )
+        email = user_hash[:email]
+        log_msg( "User.new( #{email} )" )
+        user = User.new( email: email, password: 'password' ) { |u| u.save( validate: false ) }
+        update_user( user: user, user_hash: user_hash )
       end
 
       def update_user( user:, user_hash: )
@@ -655,11 +658,12 @@ module Deepblue
         attr_names.each do |name|
           next if skip.include?( name )
           next if name == "id"
+          next if name == "email"
           value = user_hash[name.to_sym]
           user[name] = value if value.present?
         end
         log_msg( "update_user #{user.email}" )
-        user.save
+        user.save( validate: false )
       end
 
       def build_users
@@ -931,8 +935,7 @@ module Deepblue
       end
 
       # rubocop:disable Rails/Output
-      def initialize_with_msg( args:,
-                               options:,
+      def initialize_with_msg( options:,
                                path_to_yaml_file:,
                                cfg_hash:,
                                base_path:,
@@ -1406,7 +1409,8 @@ module Deepblue
         emails = Array( emails )
         emails.each do |email|
           next if User.find_by_user_key( email ).present?
-          User.create!( email: email, password: password, password_confirmation: password )
+          # User.create!( email: email, password: password, password_confirmation: password )
+          User.new( email: email, password: password ) { |u| u.save( validate: false ) }
           log_msg( "Creating user: #{email}" )
         end
       end
