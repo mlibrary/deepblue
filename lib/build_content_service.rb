@@ -14,8 +14,7 @@ class BuildContentService < Deepblue::NewContentService
                                    base_path: base_path,
                                    mode: mode,
                                    ingester: ingester,
-                                   options: options,
-                                   args: args )
+                                   options: options )
     bcs.run
   rescue Exception => e
     Rails.logger.error "BuildContentService.call(#{path_to_yaml_file}) #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
