@@ -105,9 +105,9 @@ module Deepblue
     ATTRIBUTE_NAMES_MAP_V2_V1 = {}.freeze
     ATTRIBUTE_NAMES_USER_IGNORE = %w[ current_sign_in_at
                                       current_sign_in_ip
-                                      encrypted_password
                                       reset_password_token
                                       reset_password_sent_at ].freeze
+    # encrypted_password
 
     def self.attribute_names_always_include_cc
       @@attribute_names_always_include ||= init_attribute_names_always_include_cc
