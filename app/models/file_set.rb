@@ -90,6 +90,10 @@ class FileSet < ActiveFedora::Base
     metadata_keys_brief
   end
 
+  def attributes_standard_for_email
+    metadata_keys_brief
+  end
+
   def attributes_update_for_email
     metadata_keys_update
   end

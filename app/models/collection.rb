@@ -46,7 +46,7 @@ class Collection < ActiveFedora::Base
       title
       total_file_size
       visibility
-     ]
+    ]
   end
 
   def metadata_keys_brief
@@ -78,6 +78,10 @@ class Collection < ActiveFedora::Base
   end
 
   def attributes_brief_for_provenance
+    metadata_keys_brief
+  end
+
+  def attributes_standard_for_email
     metadata_keys_brief
   end
 
