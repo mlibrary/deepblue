@@ -11,6 +11,8 @@ Rails.application.routes.draw do
 
   mount Blacklight::Engine => '/'
 
+  get '/concern/generic_works/*rest', to: redirect( '/data/concern/data_sets/%{rest}', status: 302 )
+
   get ':action' => 'hyrax/static#:action', constraints: { action: %r{
                                                                       about|
                                                                       agreement|
