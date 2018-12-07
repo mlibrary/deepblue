@@ -4,6 +4,26 @@ module Deepblue
 
   module ExportFilesHelper
 
+    require "Down"
+
+    def self.export_file_uri( source_uri:, target_file: )
+      if source_uri.starts_with?( "http:" ) || source_uri.starts_with?( "https:" )
+        # see: https://github.com/janko-m/down
+        Down.download( source_uri, destination: target_file )
+        bytes_exported = File.size target_file
+      else
+        bytes_exported = open( source_uri ) { |io| IO.copy_stream( io, target_file ) }
+      end
+      return bytes_exported
+    end
+
+    def self.export_file_uri_bytes( source_uri: )
+      # TODO: replace this with Down gem
+      bytes_expected = -1
+      open( source_uri ) { |io| bytes_expected = io.meta['content-length'] }
+      return bytes_expected
+    end
+
     def self.export_file_sets( target_dir:,
                                file_sets:,
                                log_prefix: "export_file_sets",
@@ -39,7 +59,7 @@ module Deepblue
             source_uri = file.uri.value
             # LoggingHelper.debug "#{log_prefix} #{source_uri} exists? #{File.exist?( source_uri )}" unless quiet
             LoggingHelper.debug "#{log_prefix} export #{target_file} << #{source_uri}" unless quiet
-            bytes_copied = open(source_uri) { |io| IO.copy_stream(io, target_file) }
+            bytes_copied = export_file_uri( source_uri: source_uri, target_file: target_file )
             total_bytes += bytes_copied
             copied = DeepblueHelper.human_readable_size( bytes_copied )
             LoggingHelper.debug "#{log_prefix} copied #{copied} to #{target_file}" unless quiet
