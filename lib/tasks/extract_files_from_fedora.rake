@@ -45,7 +45,7 @@ module Deepblue
           target_file = "#{tmp}/#{target_file_name}"
           source_uri = file.uri.value
           puts "copy #{target_file} << #{source_uri}"
-          bytes_copied = open(source_uri) { |io| IO.copy_stream(io, target_file) }
+          bytes_copied = ExportFilesHelper.export_file_uri( source_uri: source_uri, target_file: target_file )
           puts "bytes copied #{bytes_copied}"
         rescue Exception => e # rubocop:disable Lint/RescueException
           # STDERR.puts "UpdateWorksTotalFileSizes #{e.class}: #{e.message}"

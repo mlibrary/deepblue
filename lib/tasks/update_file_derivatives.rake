@@ -151,7 +151,7 @@ module Deepblue
       unless File.exist? target_file
         pacify 'C'
         source_uri = fs.files[0].uri.value
-        _bytes_copied = open(source_uri) { |io| IO.copy_stream( io, target_file ) }
+        ExportFilesHelper.export_file_uri( source_uri: source_uri, target_file: target_file )
       end
       target_file
     end

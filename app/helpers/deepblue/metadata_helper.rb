@@ -1005,7 +1005,7 @@ module Deepblue
           if write_file
             source_uri = file.uri.value
             log_lines( log_file, "Starting file export of #{export_what} at #{Time.now}." )
-            bytes_copied = open( source_uri ) { |io| IO.copy_stream( io, export_file_name ) }
+            bytes_copied = ExportFilesHelper.export_file_uri( source_uri: source_uri, target_file: export_file_name )
             total_byte_count += bytes_copied
             log_lines( log_file, "Finished file export of #{export_what} at #{Time.now}." )
           else

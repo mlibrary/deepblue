@@ -49,7 +49,7 @@ module Deepblue
     def get_uri_byte_count( fs )
       bytes_expected = -1
       source_uri = fs.files[0].uri.value
-      open(source_uri) { |io| bytes_expected = io.meta['content-length'] }
+      bytes_expected = ExportFilesHelper.export_file_uri_bytes( source_uri: source_uri )
       return bytes_expected
     rescue Exception => e # rubocop:disable Lint/RescueException, Lint/UselessAssignment
       pacify '!'
