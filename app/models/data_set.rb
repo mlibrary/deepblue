@@ -78,6 +78,23 @@ class DataSet < ActiveFedora::Base
     ]
   end
 
+  # Title
+  # Creator
+  # Contact information
+  # Discipline
+  # Record URL
+  def metadata_keys_email_standard
+    %i[
+      title
+      creator
+      depositor
+      authoremail
+      description
+      subject_discipline
+      location
+    ]
+  end
+
   def metadata_keys_brief
     %i[
       authoremail
@@ -108,6 +125,10 @@ class DataSet < ActiveFedora::Base
 
   def attributes_brief_for_provenance
     metadata_keys_brief
+  end
+
+  def attributes_standard_for_email
+    metadata_keys_email_standard
   end
 
   def attributes_update_for_email

@@ -18,12 +18,16 @@ module Deepblue
       %i[]
     end
 
+    def attributes_standard_for_email
+      %i[]
+    end
+
     def attributes_for_email_rds_create
-      return attributes_all_for_email, USE_BLANK_KEY_VALUES
+      return attributes_standard_for_email, USE_BLANK_KEY_VALUES
     end
 
     def attributes_for_email_rds_destroy
-      return attributes_all_for_email, USE_BLANK_KEY_VALUES
+      return attributes_standard_for_email, USE_BLANK_KEY_VALUES
     end
 
     def attributes_for_email_rds_globus
@@ -31,15 +35,15 @@ module Deepblue
     end
 
     def attributes_for_email_rds_publish
-      return attributes_all_for_email, USE_BLANK_KEY_VALUES
+      return attributes_standard_for_email, USE_BLANK_KEY_VALUES
     end
 
     def attributes_for_email_rds_unpublish
-      return attributes_all_for_email, USE_BLANK_KEY_VALUES
+      return attributes_standard_for_email, USE_BLANK_KEY_VALUES
     end
 
     def attributes_for_email_user_create
-      attributes_all_for_email
+      attributes_standard_for_email
     end
 
     def email_attribute_values_for_snapshot( attributes:,
@@ -66,6 +70,11 @@ module Deepblue
       rv
     end
 
+    def email_address_rds_deepblue
+      rv = EmailHelper.contact_email
+      rv
+    end
+
     def email_address_user( current_user )
       rv = EmailHelper.user_email_from current_user
       rv
@@ -84,7 +93,7 @@ module Deepblue
 
     def email_rds_create( current_user:, event_note: '' )
       attributes, ignore_blank_key_values = attributes_for_email_rds_create
-      email_event_notification( to: email_address_rds,
+      email_event_notification( to: email_address_rds_deepblue,
                                 to_note: 'RDS',
                                 from: email_address_rds,
                                 subject: for_email_subject( subject_rest: 'Work Created' ),
