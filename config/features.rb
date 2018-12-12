@@ -5,6 +5,10 @@ Flipflop.configure do
 
   feature :limit_browse_options,
           default: true,
-          description: "Limit the users browse options"          
+          description: "Limit the users browse options"
+
+  feature :dir_upload,
+          default: false,
+          description: "Allow user to upload files for work from a directory."           
 
 end
