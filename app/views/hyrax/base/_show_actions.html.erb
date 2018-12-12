@@ -22,9 +22,11 @@
             <%= submit_tag( @presenter.label_with_total_file_size( t('simple_form.actions.data_set.zip_download') ),
                             class: 'btn btn-primary') %>
             <% if DeepBlueDocs::Application.config.min_work_file_size_to_download_warn < @presenter.total_file_size %>
-              <p><%= t('simple_form.hints.data_set.download_total_work_size_may_be_too_large_html',
+              <p><%= t('simple_form.hints.data_set.download_total_work_size_too_large',
                        total_file_size: @presenter.total_file_size_human_readable ) %>
-              </p>
+              </p> 
+            <% else %>
+              <p><%= t('simple_form.hints.data_set.download_general_message') %> </p>                 
             <% end %>
           <% end %>
         <% end %>
@@ -108,10 +110,15 @@
       <% end %>
 
       <% if !@presenter.doi_minted? %>
+        <br>
         <%= link_to t('simple_form.actions.data_set.mint_doi'),
                     main_app.doi_hyrax_data_set_path(@presenter.id), class: 'btn btn-default' %>
+
+        <%= t('simple_form.actions.data_set.mint_help') %>
+
       <% end %>
     <% end %>
+<br></br>
 
     <% if @presenter.current_ability.admin? && @presenter.tombstone_enabled? %>
       <button class="btn btn-primary btn-sm" data-target="#tombstoneId" data-toggle="modal">

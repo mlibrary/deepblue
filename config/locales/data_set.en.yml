@@ -35,6 +35,9 @@ en:
       data_set:
         description:          "Data set works"
         name:                 "Data Set"
+    base:
+      form_files:
+        local_upload_html: "<p>Upload data files (e.g. .xls, .sas) and documentation files (e.g. codebooks, readme.txt).</p><p>You must include some form of documentation for your dataset to be published. See the Guide to Creating Documentation for Your Dataset or this Example readme for more information.</p><p>‘Add folder...’ will upload individual files within the selected folder.”</p>"
   show:
     label:
       authoremail:          "Contact information"
@@ -71,8 +74,10 @@ en:
         globus_download_and_notify_me:  "Download All for Globus and Email Me When Complete"
         globus_download_dont_notify_me: "Don't Add My Email"
         mint_doi:                       "Mint DOI"
+        mint_help:                      "You can mint a DOI once you have uploaded all your files. Once a DOI is minted, you may not upload additional files, edit, or delete your work. For questions or help, please contact us by email or use the Deep Blue contact page."
         save_metadata:                  "Save Metadata"
         save_metadata_public:           "Save Description (Public)"
+        submit_help:                    "Submit your work for review and publication"
         tombstone:                      "Tombstone"
         zip_download:                   "Download All Files"
     confirm:
@@ -88,7 +93,7 @@ en:
         contributor:          "Contributor"
         creator:              "Creator"
         curation_notes_admin: "Curation Notes for Admins"
-        curation_notes_user:  "Curation Notes for Users"
+        curation_notes_user:  "Curation Notes"
         date_coverage:        "Date Coverage"
         date_coverage_end:    "End Date"
         date_coverage_start:  "Start Date"
@@ -100,7 +105,7 @@ en:
         email_again:          "Email again"
         files:                "Upload a new version of this file from your computer"
         fundedby:             "Funding Agency"
-        fundedby_other:       "Other Funding Agency"
+        fundedby_other:       "Enter other funding agency title"
         grantnumber:          "ORSP Grant Number"
         hdl:                  "Handle"
         identifier:           "Identifier"
@@ -112,8 +117,8 @@ en:
         prior_identifier:     "Prior Identifier"
         related_url:          "Related URL"
         resource:             "Resource"
-        rights_license:       "Creative Commons License"
-        rights_license_other: "Other Creative Commons License"
+        rights_license:       "License"
+        rights_license_other: "Other License"
         subject_discipline:   "Discipline"
         subject_other:        "Subject"
         tag:                  "Keywords"
@@ -144,13 +149,12 @@ en:
           uncertain of how to complete any of these fields, we recommend that you read or refer to the
           <a href="/data/metadata-guidance">Guide to Metadata</a> in Deep Blue Data’s Help pages.
         description: >
-          Provide a general description of the research that produced this data, as well as an account of the individual
-          data files and how they are related.
+          Provide a general description of the research that produced this data. If specific software or scripts 
+          are required to access your data, this is a good place to document that as well.
         download_total_work_size_too_large: >
-          Total work file size of %{total_file_size} is too large to download directly.
-        download_total_work_size_may_be_too_large_html: >
-          &nbsp;&mdash;&nbsp;Total file size of %{total_file_size} may be too large to download directly.
-          Consider using Globus (see below).
+          Total work file size of %{total_file_size} is too large to download directly. Consider using Globus (see below).
+        download_general_message: >          
+          Download will include text file of metadata.
         fundedby: >
           Select the primary funding agency that supported the research and data collection from the drop-down list.
         fundedby_other: >
@@ -178,19 +182,21 @@ en:
           A unique handle identifying the work. An example would be a DOI for a journal article, or an ISBN or OCLC
           number for a book.
         referenced_by: >
-          Include a citation, URL, or DOI for any publications that make use of or refer to this dataset.
+          Include a citation, URL, or DOI for any publications that make use of or refer to this dataset. If your data 
+          deposit is reported on in an article, please include a citation for that article (if the article is still in 
+          press, provisional citations are acceptable and can be updated when finalized).
         curation_notes_admin: >
           This field is intended for Admins to enter curation information.
         curation_notes_user: >
-          This field is intended for users (not Admins) to enter curation information.
+          Enter any curation notes for public display in the record.
         keyword: >
           Enter any terms or topics related to the research subject or methods that you would like associated with the
-          Work.
+          Work. Enter any terms on which you would like users to be able to search to find your Work.
         language: >
           List the language(s) in which the data and supplementary content are written; these could be spoken languages
           or formal languages, such as programming languages.
         methodology: >
-          Explain the methods you used to collect and process the data included in this Work.
+          Explain the methods you used to collect and process <strong>the data</strong> 123abc included in this Work.
         on_behalf_of_html: >
            If you are depositing data on behalf of someone else, please select the email of that person below.
            <a href="/data/dashboard">More information on proxies</a>

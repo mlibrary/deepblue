@@ -1,12 +1,12 @@
 terms:
     - id: http://creativecommons.org/publicdomain/zero/1.0/
-      term: CC0 1.0 Universal
+      term: CC0 1.0 Universal (CC0 1.0) Public Domain Dedication
       active: true
     - id: http://creativecommons.org/licenses/by/4.0/
-      term: Attribution 4.0 Universal
+      term: Attribution 4.0 International (CC BY 4.0)
       active: true
     - id: http://creativecommons.org/licenses/by-nc/4.0/
-      term: Attribution-NonCommercial 4.0 Universal
+      term: Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)
       active: true
     - id: http://creativecommons.org/licenses/by-nd/4.0/
       term: Attribution-NoDerivatives 4.0 Univeral

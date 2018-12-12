@@ -100,8 +100,7 @@ en:
           Depositors must choose to apply one of the following
           <a href="https://creativecommons.org/licenses/" target="_blank">Creative Commons licenses</a> to the data.
         description: >
-          Provide a general description of the research that produced this data, as well as an account of the individual
-          data files and how they are related.
+          Provide a general description of the research that produced this data.
         publisher: >
           The person, organization or service responsible for making the work available. (Format: Last name, First name)
         subject: >
@@ -115,7 +114,7 @@ en:
           Enter any terms or topics related to the research subject or methods that you would like associated with the
           Work.
         methodology: >
-          Explain the methods you used to collect and process the data included in this Work.
+          Explain the methods you used to collect and process <strong>the data</strong> abc included in this Work.
         isReferencedBy: >
           Include a citation, URL, or DOI for any publications that make use of or refer to this dataset.
         authoremail: >
