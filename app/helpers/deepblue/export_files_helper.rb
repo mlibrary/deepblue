@@ -4,7 +4,7 @@ module Deepblue
 
   module ExportFilesHelper
 
-    require 'Down'
+    require 'down'
 
     def self.export_file_uri( source_uri:, target_file: )
       if source_uri.starts_with?( "http:" ) || source_uri.starts_with?( "https:" )
