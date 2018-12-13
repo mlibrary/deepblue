@@ -5,7 +5,7 @@ module Deepblue
   module EmailHelper
 
     def self.contact_email
-      Rails.configuration.contact_email
+      Settings.contact_email
     end
 
     def self.echo_to_rails_logger
