@@ -20,7 +20,7 @@ module Deepblue
     MODE_APPEND = 'append'
     MODE_BUILD = 'build'
     MODE_MIGRATE = 'migrate'
-    MODE_UPDATE = 'update' # TODO
+    MODE_UPDATE = 'update'
     SOURCE_DBDv1 = 'DBDv1' # rubocop:disable Style/ConstantName
     SOURCE_DBDv2 = 'DBDv2' # rubocop:disable Style/ConstantName
     STOP_NEW_CONTENT_SERVICE_FILE_NAME = 'stop_umrdr_new_content'
@@ -899,6 +899,25 @@ module Deepblue
         end
       end
 
+      def find_works_and_update
+        return unless works
+        works.each do |work_hash|
+          work = find_work( work_hash: work_hash )
+          measurement = Benchmark.measure( work.id ) do
+            update_work_from_hash( work_hash: work_hash, work: work )
+            depositor = build_depositor( hash: work_hash )
+            work.apply_depositor_metadata( depositor )
+            work.owner = depositor
+            admin_set = build_admin_set_work( hash: work_hash )
+            work.admin_set = admin_set
+            apply_visibility_and_workflow( work: work, work_hash: work_hash, admin_set: admin_set )
+            work.save!
+            log_object work
+          end
+          add_measurement measurement
+        end
+      end
+
       def find_work_using_id( id: )
         return nil if id.blank?
         TaskHelper.work_find( id: id.to_s )
@@ -1390,6 +1409,10 @@ module Deepblue
         work.save!
         work.reload
         return work
+      end
+
+      def update_work_from_hash( work_hash:, work: )
+        # TODO
       end
 
       def upload_file_to_file_set( file_set, file )

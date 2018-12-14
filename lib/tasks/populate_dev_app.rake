@@ -106,6 +106,15 @@ def content_populate( path_to_yaml_file:, ingester: nil, options: {} )
                             options: options )
 end
 
+def content_update( path_to_yaml_file:, ingester: nil, options: {}, args: )
+  return unless valid_path_to_yaml_file? path_to_yaml_file
+  UpdateContentService.call( path_to_yaml_file: path_to_yaml_file,
+                             ingester: ingester,
+                             mode: Deepblue::NewContentService::MODE_UPDATE,
+                             options: options,
+                             args: args )
+end
+
 def content_populate_users( path_to_yaml_file:, ingester: nil, options: )
   return unless valid_path_to_yaml_file? path_to_yaml_file
   IngestUsersService.call( path_to_yaml_file: path_to_yaml_file,
