@@ -40,3 +40,30 @@ public/assets/
 #./spec/internal
 #./.internal_test_app
 
+# Ignore some config
+# These files should be copied from the $file.yml.sample and tweaked
+# per environment. See bin/setup
+config/analytics.yml
+config/database.yml
+config/box_config.yml
+config/box_config_init.yml
+config/box_config_init.yml.initialized
+config/secrets.yml
+config/blacklight.yml
+config/fedora.yml
+config/solr.yml
+config/redis.yml
+config/resque-pool.yml
+config/jetty.yml
+config/umich.yml
+config/doi.yml
+config/browse_everything_providers.yml
+config/arkivo.yml
+config/zotero.yml
+config/ezid.yml
+config/clients_data/*
+config/mcommunity.yml
+config/puma.rb
+config/*.p12
+config/skylight.yml
+

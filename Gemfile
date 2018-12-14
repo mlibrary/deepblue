@@ -37,6 +37,9 @@ gem 'resque'
 gem 'resque-pool'
 gem 'resque-web', '~> 0.0.7', require: 'resque_web'
 
+# EZID client from Duke
+gem 'ezid-client'
+
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
 # Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
