@@ -228,6 +228,9 @@ GEM
       nokogiri (>= 1.4.3)
     erubis (2.7.0)
     execjs (2.7.0)
+    ezid-client (1.8.0)
+      hashie (~> 3.4, >= 3.4.3)
+      nokogiri
     factory_bot (4.11.1)
       activesupport (>= 3.0.0)
     faraday (0.12.2)
@@ -271,6 +274,7 @@ GEM
       tilt
     hamster (3.0.0)
       concurrent-ruby (~> 1.0)
+    hashie (3.6.0)
     hiredis (0.6.1)
     htmlentities (4.3.4)
     http_logger (0.5.1)
@@ -855,6 +859,7 @@ DEPENDENCIES
   devise-guests (~> 0.6)
   down (~> 4.4)
   edtf
+  ezid-client
   factory_bot
   fcrepo_wrapper
   hyrax (= 2.2.4)
