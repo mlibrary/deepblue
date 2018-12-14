@@ -10,7 +10,7 @@ class DoiMintingJob < Hyrax::ApplicationJob
     Rails.logger.debug "DoiMintingJob work id #{id} #{user.email} starting..."
 
     # Continue only when doi is pending
-    return unless work.doi.nil? || work.doi == GenericWork::PENDING
+    return unless work.doi.nil? || work.doi == DataSet::DOI_PENDING
 
     if Umrdr::DoiMintingService.mint_doi_for work
       Rails.logger.debug "DoiMintingJob work id #{id} #{user.email} succeeded."
