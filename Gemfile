@@ -91,11 +91,6 @@ end
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
-group :development, :test do
-  # gem 'solr_wrapper', '>= 0.3'
-  gem 'solr_wrapper', '~> 2.0.0'
-end
-
 gem 'devise'
 gem 'devise-guests', '~> 0.6'
 gem 'rsolr', '>= 1.0'
@@ -115,6 +110,7 @@ group :development, :test do
   gem 'rspec-retry'
   gem 'selenium-webdriver'
   gem 'shoulda-matchers', '~> 3.1'
+  gem 'solr_wrapper', '~> 2.1.0'
 end
 
 group :development do
