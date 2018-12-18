@@ -6,7 +6,11 @@
         <% if Hyrax.config.browse_everything? %>
           <%= t('hyrax.base.form_files.local_upload_browse_everything_html', contact_href: link_to(t("hyrax.upload.alert.contact_href_text"), hyrax.contact_form_index_path)) %>
         <% else %>
-          <%= t('hyrax.base.form_files.local_upload_html') %>
+          <% if Flipflop.dir_upload? %>
+            <p>If you have more than 100 files please <a href="<%= hyrax.contact_path %>">Contact Us</a> for assistance in uploading your data.</p><%= t('hyrax.base.form_files.local_upload_html') %>
+          <% else %>
+            <p>If you have more than 100 files please <a href="<%= hyrax.contact_path %>">Contact Us</a> for assistance in uploading your data.</p><%= t('hyrax.base.form_files.local_upload_no_dir_html') %>          
+          <% end %>
         <% end %>
         <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
         <div class="fileupload-buttonbar">
