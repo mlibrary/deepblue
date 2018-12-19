@@ -36,6 +36,8 @@ en:
         description:          "Data set works"
         name:                 "Data Set"
     base:
+      required_descriptions_deepblue: Please complete required descriptions
+      required_agreement_deepblue: Check deposit agreement below
       form_files:
         local_upload_html: "<p>Upload data files (e.g. .xls, .sas) and documentation files (e.g. codebooks, readme.txt).</p><p>You must include some form of documentation for your dataset to be published. See the Guide to Creating Documentation for Your Dataset or this Example readme for more information.</p><p>‘Add folder...’ will upload individual files within the selected folder.”</p>"
         local_upload_no_dir_html: "<p>Upload data files (e.g. .xls, .sas) and documentation files (e.g. codebooks, readme.txt).</p><p>You must include some form of documentation for your dataset to be published. See the Guide to Creating Documentation for Your Dataset or this Example readme for more information.</p>"

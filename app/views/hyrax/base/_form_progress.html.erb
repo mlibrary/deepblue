@@ -7,12 +7,12 @@
       <fieldset>
         <legend class="legend-save-work"><%= t('.requirements') %></legend>
         <ul class="requirements">
-          <li class="incomplete" id="required-metadata"><%= t('.required_descriptions') %></li>
+          <li class="incomplete" id="required-metadata"><%= t('hyrax.base.required_descriptions_deepblue') %></li>
           <% if Hyrax.config.work_requires_files? %>
             <li class="incomplete" id="required-files"><%= t('.required_files') %></li>
           <% end %>
           <% if Flipflop.show_deposit_agreement? && Flipflop.active_deposit_agreement_acceptance? %>
-            <li class="incomplete" id="required-agreement"><%= t('.required_agreement') %></li>
+            <li class="incomplete" id="required-agreement"><%= t('hyrax.base.required_agreement_deepblue') %></li>
           <% end %>
         </ul>
       </fieldset>
