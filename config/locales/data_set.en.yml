@@ -199,7 +199,7 @@ en:
           List the language(s) in which the data and supplementary content are written; these could be spoken languages
           or formal languages, such as programming languages.
         methodology: >
-          Explain the methods you used to collect and process <strong>the data</strong> 123abc included in this Work.
+          Explain the methods you used to collect and process <span class="text-bold">the data</span> included in this Work.
         on_behalf_of_html: >
            If you are depositing data on behalf of someone else, please select the email of that person below.
            <a href="/data/dashboard">More information on proxies</a>
