@@ -6,8 +6,13 @@ module DeepblueHelper
     ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( value, precision: precision )
   end
 
-	def users_browser
-		user_agent =  request.env['HTTP_USER_AGENT'].downcase 
+  def user_agent()
+    user_agent =  request.env['HTTP_USER_AGENT']
+    user_agent
+  end
+
+	def users_browser()
+		user_agent = user_agent().downcase
 		@users_browser ||= begin
 		  if user_agent.index('msie') && !user_agent.index('opera') && !user_agent.index('webtv')
 		                # 'ie'+user_agent[user_agent.index('msie')+5].chr
@@ -34,6 +39,10 @@ module DeepblueHelper
 		        'msnbot'
 		    elsif user_agent.index('yahoo! slurp')
 		        'yahoobot'
+		    elsif user_agent.index('mozilla/5.0 (windows nt 6.3; win64, x64')
+		        'msie'
+		    elsif user_agent.index('mozilla/5.0 (windows nt 10.0; win64; x64)')
+		        'msie'  
 		    #Everything thinks it's mozilla, so this goes last
 		    elsif user_agent.index('mozilla/')
 		        'gecko'
