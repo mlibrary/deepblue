@@ -3,7 +3,9 @@
 require 'yaml'
 require_relative '../append_content_service'
 require_relative '../build_content_service'
+require_relative '../diff_content_service'
 require_relative '../ingest_users_service'
+require_relative '../update_content_service'
 
 namespace :umrdr do
 
@@ -35,6 +37,16 @@ namespace :umrdr do
   task demo_content: :environment do |_t, _args|
     ENV["RAILS_ENV"] ||= "development"
     demo_content
+    puts "Done."
+  end
+
+  # bundle exec rake umrdr:diff[/deepbluedata-prep/w_9019s2443_populate.yml]
+  # bundle exec rake umrdr:diff[/deepbluedata-prep/w_9019s2443_populate.yml,ingester@umich.edu]
+  desc "Diff collections and works."
+  task :diff, %i[ path_to_yaml_file ingester ] => :environment do |_t, args|
+    ENV["RAILS_ENV"] ||= "development"
+    args.with_defaults( ingester: '' )
+    content_diff( path_to_yaml_file: args[:path_to_yaml_file], ingester: args[:ingester] )
     puts "Done."
   end
 
@@ -72,6 +84,16 @@ namespace :umrdr do
     puts "Done."
   end
 
+  # bundle exec rake umrdr:update[/deepbluedata-prep/w_9019s2443_populate.yml]
+  # bundle exec rake umrdr:update[/deepbluedata-prep/w_9019s2443_populate.yml,ingester@umich.edu]
+  desc "Update collections and works."
+  task :update, %i[ path_to_yaml_file ingester ] => :environment do |_t, args|
+    ENV["RAILS_ENV"] ||= "development"
+    args.with_defaults( ingester: '' )
+    content_update( path_to_yaml_file: args[:path_to_yaml_file], ingester: args[:ingester] )
+    puts "Done."
+  end
+
 end
 
 def content_append( path_to_yaml_file:, ingester: nil, options: {} )
@@ -90,6 +112,14 @@ def content_build( path_to_yaml_file:, ingester: nil, options: {} )
                             options: options )
 end
 
+def content_diff( path_to_yaml_file:, ingester: nil, options: {} )
+  return unless valid_path_to_yaml_file? path_to_yaml_file
+  DiffContentService.call( path_to_yaml_file: path_to_yaml_file,
+                           ingester: ingester,
+                           mode: Deepblue::NewContentService::MODE_DIFF,
+                           options: options )
+end
+
 def content_migrate( path_to_yaml_file:, ingester: nil, options: {} )
   return unless valid_path_to_yaml_file? path_to_yaml_file
   BuildContentService.call( path_to_yaml_file: path_to_yaml_file,
@@ -106,13 +136,12 @@ def content_populate( path_to_yaml_file:, ingester: nil, options: {} )
                             options: options )
 end
 
-def content_update( path_to_yaml_file:, ingester: nil, options: {}, args: )
+def content_update( path_to_yaml_file:, ingester: nil, options: {} )
   return unless valid_path_to_yaml_file? path_to_yaml_file
   UpdateContentService.call( path_to_yaml_file: path_to_yaml_file,
                              ingester: ingester,
                              mode: Deepblue::NewContentService::MODE_UPDATE,
-                             options: options,
-                             args: args )
+                             options: options )
 end
 
 def content_populate_users( path_to_yaml_file:, ingester: nil, options: )
