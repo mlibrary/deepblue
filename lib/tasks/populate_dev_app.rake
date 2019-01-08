@@ -42,7 +42,7 @@ namespace :umrdr do
 
   # bundle exec rake umrdr:diff[/deepbluedata-prep/w_9019s2443_populate.yml]
   # bundle exec rake umrdr:diff[/deepbluedata-prep/w_9019s2443_populate.yml,ingester@umich.edu]
-  desc "Diff collections and works."
+  desc "Diff a collections or work."
   task :diff, %i[ path_to_yaml_file ingester ] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"
     args.with_defaults( ingester: '' )
@@ -116,7 +116,6 @@ def content_diff( path_to_yaml_file:, ingester: nil, options: {} )
   return unless valid_path_to_yaml_file? path_to_yaml_file
   DiffContentService.call( path_to_yaml_file: path_to_yaml_file,
                            ingester: ingester,
-                           mode: Deepblue::NewContentService::MODE_DIFF,
                            options: options )
 end
 
@@ -131,24 +130,19 @@ end
 def content_populate( path_to_yaml_file:, ingester: nil, options: {} )
   return unless valid_path_to_yaml_file? path_to_yaml_file
   # mode determined in yaml file, defaulting to append mode
-  BuildContentService.call( path_to_yaml_file: path_to_yaml_file,
-                            ingester: ingester,
-                            options: options )
+  BuildContentService.call( path_to_yaml_file: path_to_yaml_file, ingester: ingester, options: options )
 end
 
 def content_update( path_to_yaml_file:, ingester: nil, options: {} )
   return unless valid_path_to_yaml_file? path_to_yaml_file
   UpdateContentService.call( path_to_yaml_file: path_to_yaml_file,
                              ingester: ingester,
-                             mode: Deepblue::NewContentService::MODE_UPDATE,
                              options: options )
 end
 
 def content_populate_users( path_to_yaml_file:, ingester: nil, options: )
   return unless valid_path_to_yaml_file? path_to_yaml_file
-  IngestUsersService.call( path_to_yaml_file: path_to_yaml_file,
-                           ingester: ingester,
-                           options: options )
+  IngestUsersService.call( path_to_yaml_file: path_to_yaml_file, ingester: ingester, options: options )
 end
 
 def create_user( email: 'demouser@example.com' )

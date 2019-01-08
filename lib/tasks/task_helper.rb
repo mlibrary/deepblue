@@ -96,6 +96,7 @@ module Deepblue
     end
 
     def self.task_options_parse( options_str )
+      return options_str if options_str.is_a? Hash
       return {} if options_str.blank?
       ActiveSupport::JSON.decode options_str
     rescue ActiveSupport::JSON.parse_error => e
