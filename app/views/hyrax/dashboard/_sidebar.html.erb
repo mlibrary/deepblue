@@ -4,7 +4,7 @@
   <li>
     <div class="profile">
       <div class="profile-image">
-      <% unless (defined?(current_user)).nil? %>
+      <% unless (defined?(current_user.avatar)).nil? %>
         <%= image_tag current_user.avatar.url(:thumb), width: 100 if current_user.avatar.present? %>
       <% end %>
       </div>
