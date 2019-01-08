@@ -19,13 +19,23 @@ module Deepblue
 
     DEFAULT_DATA_SET_ADMIN_SET_NAME = "DataSet Admin Set"
     DEFAULT_DIFF_ATTRS_SKIP = [ :date_created, :date_modified, :date_uploaded, :visibility ].freeze # :edit_users,
-    DEFAULT_DIFF_ATTRS_SKIP_IF_BLANK = [ :curation_notes_admin, :curation_notes_user,
-                                         :checksum_algorithm, :checksum_value, :doi, :prior_identifier ].freeze
+    DEFAULT_DIFF_ATTRS_SKIP_IF_BLANK = [ :creator_ordered, :curation_notes_admin, :curation_notes_admin_ordered,
+                                         :curation_notes_user, :curation_notes_user_ordered,
+                                         :checksum_algorithm, :checksum_value,
+                                         :description_ordered, :doi,
+                                         :fundedby_other, :keyword_ordered, :language_ordered,
+                                         :prior_identifier, :referenced_by_ordered, :title_ordered ].freeze
+    DEFAULT_DIFF_COLLECTIONS_RECURSE = false
     DEFAULT_UPDATE_ADD_FILES = true
     DEFAULT_UPDATE_ATTRS_SKIP = [ :date_created, :date_modified, :date_uploaded, :edit_users, :original_name,
                                   :visibility ].freeze
-    DEFAULT_UPDATE_ATTRS_SKIP_IF_BLANK = [ :curation_notes_admin, :curation_notes_user,
-                                           :checksum_algorithm, :checksum_value, :doi, :prior_identifier ].freeze
+    DEFAULT_UPDATE_ATTRS_SKIP_IF_BLANK = [ :creator_ordered, :curation_notes_admin, :curation_notes_admin_ordered,
+                                           :curation_notes_user, :curation_notes_user_ordered,
+                                           :checksum_algorithm, :checksum_value,
+                                           :description_ordered, :doi,
+                                           :fundedby_other, :keyword_ordered, :language_ordered,
+                                           :prior_identifier, :referenced_by_ordered, :title_ordered ].freeze
+    DEFAULT_UPDATE_COLLECTIONS_RECURSE = false
     DEFAULT_UPDATE_DELETE_FILES = true
     DEFAULT_USER_CREATE = true
     DEFAULT_VERBOSE = true
@@ -61,6 +71,7 @@ module Deepblue
                 :config,
                 :diff_attrs_skip,
                 :diff_attrs_skip_if_blank,
+                :diff_collections_recurse,
                 :ingest_id,
                 :ingest_timestamp,
                 :ingester,
@@ -70,6 +81,7 @@ module Deepblue
                 :update_attrs_skip,
                 :update_attrs_skip_if_blank,
                 :update_build_mode,
+                :update_collections_recurse,
                 :update_delete_files,
                 :user,
                 :user_create,
@@ -888,8 +900,11 @@ module Deepblue
       def diff_collection( diffs: nil, collection:, collection_hash: )
         diffs = [] if diffs.nil?
         diff_attr( diffs, collection, collection_hash, attr_name: :creator )
+        diff_attr( diffs, collection, collection_hash, attr_name: :creator_ordered, multi: false )
         diff_attr( diffs, collection, collection_hash, attr_name: :curation_notes_admin )
+        diff_attr( diffs, collection, collection_hash, attr_name: :curation_notes_admin_ordered, multi: false )
         diff_attr( diffs, collection, collection_hash, attr_name: :curation_notes_user )
+        diff_attr( diffs, collection, collection_hash, attr_name: :curation_notes_user_ordered, multi: false )
         diff_attr_value( diffs, collection, attr_name: :date_created, value: build_date( hash: collection_hash, key: :date_created ) )
         diff_attr_value( diffs, collection, attr_name: :date_modified, value: build_date( hash: collection_hash, key: :date_modified ) )
         diff_attr_value( diffs, collection, attr_name: :date_uploaded, value: build_date( hash: collection_hash, key: :date_uploaded ) )
@@ -899,17 +914,21 @@ module Deepblue
         description = ["Missing description"] if description.blank?
         description = ["Missing description"] if [nil] == description
         diff_attr_value( diffs, collection, attr_name: :description, value: description )
+        diff_attr( diffs, collection, collection_hash, attr_name: :description_ordered, multi: false )
         diff_attr( diffs, collection, collection_hash, attr_name: :doi, multi: false )
         diff_edit_users( diffs, collection, collection_hash )
-        # diff_value_value( diffs, collection, attr_name: :edit_users, current_value: collection.edit_users, value: Array( collection_hash[:edit_users]) )
         diff_attr( diffs, collection, collection_hash, attr_name: :keyword )
+        diff_attr( diffs, collection, collection_hash, attr_name: :keyword_ordered, multi: false )
         diff_attr( diffs, collection, collection_hash, attr_name: :language )
+        diff_attr( diffs, collection, collection_hash, attr_name: :language_ordered, multi: false )
         diff_attr( diffs, collection, collection_hash, attr_name: :prior_identifier )
         diff_attr_value( diffs, collection, attr_name: :referenced_by, value: build_referenced_by( hash: collection_hash ) )
         resource_type = Array( collection_hash[:resource_type] || 'Collection' )
         diff_attr_value( diffs, collection, attr_name: :resource_type, value: resource_type )
         diff_attr_value( diffs, collection, attr_name: :subject_discipline, value: build_subject_discipline( hash: collection_hash ) )
         diff_attr( diffs, collection, collection_hash, attr_name: :title )
+        diff_attr( diffs, collection, collection_hash, attr_name: :title_ordered, multi: false )
+        return diffs unless diff_collections_recurse
         diffs = diff_collection_works( diffs: diffs, collection: collection, collection_hash: collection_hash )
         return diffs
       end
@@ -980,7 +999,9 @@ module Deepblue
       def diff_file_set( diffs:, file_set:, file_set_hash:, parent: nil )
         return diffs unless continue_new_content_service
         diff_attr( diffs, file_set, file_set_hash, attr_name: :curation_notes_admin )
+        diff_attr( diffs, file_set, file_set_hash, attr_name: :curation_notes_admin_ordered, multi: false )
         diff_attr( diffs, file_set, file_set_hash, attr_name: :curation_notes_user )
+        diff_attr( diffs, file_set, file_set_hash, attr_name: :curation_notes_user_ordered, multi: false )
         # diff_attr( diffs, file_set, file_set_hash, attr_name: :checksum_algorithm )
         # diff_attr( diffs, file_set, file_set_hash, attr_name: :checksum_value )
         diff_attr_value( diffs, file_set, attr_name: :date_created, value: build_date( hash: file_set_hash, key: :date_created ) )
@@ -989,7 +1010,6 @@ module Deepblue
         depositor = build_depositor( hash: file_set_hash )
         diff_attr_value( diffs, file_set, attr_name: :depositor, value: depositor )
         diff_edit_users( diffs, file_set, file_set_hash )
-        # diff_value_value( diffs, file_set, attr_name: :edit_users, current_value: file_set.edit_users, value: Array( file_set_hash[:edit_users]) )
         original_name = file_set_hash[:original_name]
         diff_attr( diffs, file_set, file_set_hash, attr_name: :label, multi: false )
         diff_value_value( diffs, file_set, attr_name: :orignal_name, current_value: file_set.original_name_value, value: original_name )
@@ -1035,7 +1055,7 @@ module Deepblue
         return diffs
       end
 
-      def diff_value_value( diffs, cc_or_fs, attr_name:, current_value:, value: nil, multi: true )
+      def diff_value_value( diffs, cc_or_fs, attr_name:, current_value:, value: nil )
         return diffs unless diff_attr? attr_name
         return diffs unless diff_attr_if_blank?( attr_name, value: value )
         return diffs if current_value == value
@@ -1050,8 +1070,11 @@ module Deepblue
         diff_attr( diffs, work, work_hash, attr_name: :authoremail, multi: false )
         diff_attr( diffs, work, work_hash, attr_name: :contributor )
         diff_attr( diffs, work, work_hash, attr_name: :creator )
+        diff_attr( diffs, work, work_hash, attr_name: :creator_ordered, multi: false )
         diff_attr( diffs, work, work_hash, attr_name: :curation_notes_admin )
+        diff_attr( diffs, work, work_hash, attr_name: :curation_notes_admin_ordered, multi: false )
         diff_attr( diffs, work, work_hash, attr_name: :curation_notes_user )
+        diff_attr( diffs, work, work_hash, attr_name: :curation_notes_user_ordered, multi: false )
         diff_attr_value( diffs, work, attr_name: :date_coverage, value: build_date_coverage( hash: work_hash ) )
         diff_attr_value( diffs, work, attr_name: :date_created, value: build_date( hash: work_hash, key: :date_created ) )
         diff_attr_value( diffs, work, attr_name: :date_modified, value: build_date( hash: work_hash, key: :date_modified ) )
@@ -1062,25 +1085,29 @@ module Deepblue
         description = ["Missing description"] if description.blank?
         description = ["Missing description"] if [nil] == description
         diff_attr_value( diffs, work, attr_name: :description, value: description )
+        diff_attr( diffs, work, work_hash, attr_name: :description_ordered, multi: false )
         diff_attr( diffs, work, work_hash, attr_name: :doi, multi: false )
         diff_edit_users( diffs, work, work_hash )
-        # diff_value_value( diffs, work, attr_name: :edit_users, current_value: work.edit_users, value: Array( work_hash[:edit_users]) )
         diff_attr_value( diffs, work, attr_name: :fundedby, value: build_fundedby( hash: work_hash ) )
         diff_attr( diffs, work, work_hash, attr_name: :fundedby_other )
         diff_attr( diffs, work, work_hash, attr_name: :grantnumber, multi: false )
         diff_attr( diffs, work, work_hash, attr_name: :keyword )
+        diff_attr( diffs, work, work_hash, attr_name: :keyword_ordered, multi: false )
         diff_attr( diffs, work, work_hash, attr_name: :language )
+        diff_attr( diffs, work, work_hash, attr_name: :language_ordered, multi: false )
         methodology = work_hash[:methodology] || "No Methodology Available"
         diff_attr_value( diffs, work, attr_name: :methodology, value: methodology )
         diff_attr_value( diffs, work, attr_name: :owner, value: depositor )
         diff_attr( diffs, work, work_hash, attr_name: :prior_identifier )
         diff_attr_value( diffs, work, attr_name: :referenced_by, value: build_referenced_by( hash: work_hash ) )
+        diff_attr( diffs, work, work_hash, attr_name: :referenced_by_ordered, multi: false )
         resource_type = Array( work_hash[:resource_type] || 'Dataset' )
         diff_attr_value( diffs, work, attr_name: :resource_type, value: resource_type )
         diff_attr_value( diffs, work, attr_name: :rights_license, value: build_rights_liscense( hash: work_hash ) )
         diff_attr( diffs, work, work_hash, attr_name: :rights_license_other, multi: false )
         diff_attr_value( diffs, work, attr_name: :subject_discipline, value: build_subject_discipline( hash: work_hash ) )
         diff_attr( diffs, work, work_hash, attr_name: :title )
+        diff_attr( diffs, work, work_hash, attr_name: :title_ordered, multi: false )
         diff_value_value( diffs, work, attr_name: :visibility, current_value: work.visibility, value: visibility_from_hash( hash: work_hash ) )
         diffs = diff_file_sets( diffs: diffs, work_hash: work_hash, work: work )
         return diffs
@@ -1218,8 +1245,10 @@ module Deepblue
         id = Array(work_id)
         # owner = Array(work_hash[:owner])
         work = TaskHelper.work_find( id: id[0] )
-        raise UserNotFoundError, "Work not found: #{work_id}" if work.nil? && error_if_not_found
         return work, id[0]
+      rescue ActiveFedora::ObjectNotFoundError
+        raise if error_if_not_found
+        return nil, id[0]
       end
 
       def find_works_and_add_files
@@ -1317,28 +1346,6 @@ module Deepblue
         end
         @verbose = TaskHelper.task_options_value( @options, key: 'verbose', default_value: DEFAULT_VERBOSE )
         puts "@verbose=#{@verbose}" if @verbose
-
-        # Now done in config/application.rb
-        # verbose_init = false
-        # @args = args # TODO: args.to_hash
-        # puts "args=#{args}" if verbose_init
-        # # puts "args=#{JSON.pretty_print args.as_json}" if verbose_init
-        # puts "ENV['TMPDIR']=#{ENV['TMPDIR']}" if verbose_init
-        # puts "ENV['_JAVA_OPTIONS']=#{ENV['_JAVA_OPTIONS']}" if verbose_init
-        # puts "ENV['JAVA_OPTIONS']=#{ENV['JAVA_OPTIONS']}" if verbose_init
-        # tmpdir = ENV['TMPDIR']
-        # if tmpdir.blank?
-        #   tmpdir = File.absolute_path( './tmp/' )
-        #   ENV['TMPDIR'] = tmpdir
-        # end
-        # ENV['_JAVA_OPTIONS'] = "-Djava.io.tmpdir=#{tmpdir}"
-        # ENV['JAVA_OPTIONS'] = "-Djava.io.tmpdir=#{tmpdir}"
-        # puts "ENV['TMPDIR']=#{ENV['TMPDIR']}" if verbose_init
-        # puts "ENV['_JAVA_OPTIONS']=#{ENV['_JAVA_OPTIONS']}" if verbose_init
-        # puts "ENV['JAVA_OPTIONS']=#{ENV['JAVA_OPTIONS']}" if verbose_init
-        # puts `echo $TMPDIR`.to_s if verbose_init
-        # puts `echo $_JAVA_OPTIONS`.to_s if verbose_init
-        # puts `echo $JAVA_OPTIONS`.to_s if verbose_init
         @path_to_yaml_file = path_to_yaml_file
         @config = {}
         @config.merge!( config ) if config.present?
@@ -1690,8 +1697,11 @@ module Deepblue
         updates_in = [] if updates_in.nil?
         updates = []
         update_attr( updates, collection, collection_hash, attr_name: :creator )
+        update_attr( updates, collection, collection_hash, attr_name: :creator_ordered, multi: false )
         update_attr( updates, collection, collection_hash, attr_name: :curation_notes_admin )
+        update_attr( updates, collection, collection_hash, attr_name: :curation_notes_admin_ordered, multi: false )
         update_attr( updates, collection, collection_hash, attr_name: :curation_notes_user )
+        update_attr( updates, collection, collection_hash, attr_name: :curation_notes_user_ordered, multi: false )
         update_attr_value( updates, collection, attr_name: :date_created, value: build_date( hash: collection_hash, key: :date_created ) )
         update_attr_value( updates, collection, attr_name: :date_modified, value: build_date( hash: collection_hash, key: :date_modified ) )
         update_attr_value( updates, collection, attr_name: :date_uploaded, value: build_date( hash: collection_hash, key: :date_uploaded ) )
@@ -1701,18 +1711,22 @@ module Deepblue
         description = ["Missing description"] if description.blank?
         description = ["Missing description"] if [nil] == description
         update_attr_value( updates, collection, attr_name: :description, value: description )
+        update_attr( updates, collection, collection_hash, attr_name: :description_ordered, multi: false )
         update_attr( updates, collection, collection_hash, attr_name: :doi, multi: false )
-        # update_value_value( updates, collection, attr_name: :edit_users, current_value: collection.edit_users, value: Array( collection_hash[:edit_users]) )
         update_edit_users( updates, collection, collection_hash )
         update_attr( updates, collection, collection_hash, attr_name: :keyword )
+        update_attr( updates, collection, collection_hash, attr_name: :keyword_ordered, multi: false )
         update_attr( updates, collection, collection_hash, attr_name: :language )
+        update_attr( updates, collection, collection_hash, attr_name: :language_ordered, multi: false )
         update_attr( updates, collection, collection_hash, attr_name: :prior_identifier )
         update_attr_value( updates, collection, attr_name: :referenced_by, value: build_referenced_by( hash: collection_hash ) )
         resource_type = Array( collection_hash[:resource_type] || 'Collection' )
         update_attr_value( updates, collection, attr_name: :resource_type, value: resource_type )
         update_attr_value( updates, collection, attr_name: :subject_discipline, value: build_subject_discipline( hash: collection_hash ) )
         update_attr( updates, collection, collection_hash, attr_name: :title )
+        update_attr( updates, collection, collection_hash, attr_name: :title_ordered, multi: false )
         collection.save! unless updates.empty?
+        return updates_in.concat updates unless update_collections_recurse
         updates = update_collection_works( updates: updates, collection: collection, collection_hash: collection_hash )
         return updates_in.concat updates
       end
@@ -1788,7 +1802,9 @@ module Deepblue
         updates_in = [] if updates_in.nil?
         updates = []
         update_attr( updates, file_set, file_set_hash, attr_name: :curation_notes_admin )
+        update_attr( updates, file_set, file_set_hash, attr_name: :curation_notes_admin_ordered, multi: false )
         update_attr( updates, file_set, file_set_hash, attr_name: :curation_notes_user )
+        update_attr( updates, file_set, file_set_hash, attr_name: :curation_notes_user_ordered, multi: false )
         # update_attr( updates, file_set, file_set_hash, attr_name: :checksum_algorithm )
         # update_attr( updates, file_set, file_set_hash, attr_name: :checksum_value )
         update_attr_value( updates, file_set, attr_name: :date_created, value: build_date( hash: file_set_hash, key: :date_created ) )
@@ -1796,7 +1812,6 @@ module Deepblue
         update_attr_value( updates, file_set, attr_name: :date_uploaded, value: build_date( hash: file_set_hash, key: :date_uploaded ) )
         depositor = build_depositor( hash: file_set_hash )
         update_attr_value( updates, file_set, attr_name: :depositor, value: depositor )
-        # update_value_value( updates, file_set, attr_name: :edit_users, current_value: file_set.edit_users, value: Array( file_set_hash[:edit_users]) )
         update_edit_users( updates, file_set, file_set_hash )
         update_attr( updates, file_set, file_set_hash, attr_name: :label, multi: false )
         original_name = file_set_hash[:original_name]
@@ -1860,7 +1875,7 @@ module Deepblue
         return updates
       end
 
-      def update_value_value( updates, cc_or_fs, attr_name:, current_value:, value: nil, multi: true )
+      def update_value_value( updates, cc_or_fs, attr_name:, current_value:, value: nil )
         return updates unless update_attr? attr_name
         return updates unless update_attr_if_blank?( attr_name, value: value )
         return updates if current_value == value
@@ -1882,8 +1897,11 @@ module Deepblue
         update_attr( updates, work, work_hash, attr_name: :authoremail, multi: false )
         update_attr( updates, work, work_hash, attr_name: :contributor )
         update_attr( updates, work, work_hash, attr_name: :creator )
+        update_attr( updates, work, work_hash, attr_name: :creator_ordered, multi: false )
         update_attr( updates, work, work_hash, attr_name: :curation_notes_admin )
+        update_attr( updates, work, work_hash, attr_name: :curation_notes_admin_ordered, multi: false )
         update_attr( updates, work, work_hash, attr_name: :curation_notes_user )
+        update_attr( updates, work, work_hash, attr_name: :curation_notes_user_ordered, multi: false )
         update_attr_value( updates, work, attr_name: :date_coverage, value: build_date_coverage(hash: work_hash ) )
         update_attr_value( updates, work, attr_name: :date_created, value: build_date(hash: work_hash, key: :date_created ) )
         update_attr_value( updates, work, attr_name: :date_modified, value: build_date(hash: work_hash, key: :date_modified ) )
@@ -1894,25 +1912,29 @@ module Deepblue
         description = ["Missing description"] if description.blank?
         description = ["Missing description"] if [nil] == description
         update_attr_value( updates, work, attr_name: :description, value: description )
+        update_attr( updates, work, work_hash, attr_name: :description_ordered, multi: false )
         update_attr( updates, work, work_hash, attr_name: :doi, multi: false )
-        # update_value_value( updates, work, attr_name: :edit_users, current_value: work.edit_users, value: Array(work_hash[:edit_users]) )
         update_edit_users( updates, work, work_hash )
         update_attr_value( updates, work, attr_name: :fundedby, value: build_fundedby(hash: work_hash ) )
         update_attr( updates, work, work_hash, attr_name: :fundedby_other )
         update_attr( updates, work, work_hash, attr_name: :grantnumber, multi: false )
         update_attr( updates, work, work_hash, attr_name: :keyword )
+        update_attr( updates, work, work_hash, attr_name: :keyword_ordered, multi: false )
         update_attr( updates, work, work_hash, attr_name: :language )
+        update_attr( updates, work, work_hash, attr_name: :language_ordered, multi: false )
         methodology = work_hash[:methodology] || "No Methodology Available"
         update_attr_value( updates, work, attr_name: :methodology, value: methodology )
         update_attr_value( updates, work, attr_name: :owner, value: depositor )
         update_attr( updates, work, work_hash, attr_name: :prior_identifier )
         update_attr_value( updates, work, attr_name: :referenced_by, value: build_referenced_by(hash: work_hash ) )
+        update_attr( updates, work, work_hash, attr_name: :referenced_by_ordered, multi: false )
         resource_type = Array( work_hash[:resource_type] || 'Dataset' )
         update_attr_value( updates, work, attr_name: :resource_type, value: resource_type )
         update_attr_value( updates, work, attr_name: :rights_license, value: build_rights_liscense(hash: work_hash ) )
         update_attr( updates, work, work_hash, attr_name: :rights_license_other, multi: false )
         update_attr_value( updates, work, attr_name: :subject_discipline, value: build_subject_discipline(hash: work_hash ) )
         update_attr( updates, work, work_hash, attr_name: :title )
+        update_attr( updates, work, work_hash, attr_name: :title_ordered, multi: false )
         update_value_value( updates, work, attr_name: :visibility, current_value: work.visibility, value: visibility_from_hash(hash: work_hash ) )
         work.save! unless updates.empty?
         updates = update_file_sets( updates: updates, work_hash: work_hash, work: work )
