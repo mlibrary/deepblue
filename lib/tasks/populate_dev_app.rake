@@ -4,8 +4,10 @@ require 'yaml'
 require_relative '../append_content_service'
 require_relative '../build_content_service'
 require_relative '../diff_content_service'
+require_relative '../diff_users_service'
 require_relative '../ingest_users_service'
 require_relative '../update_content_service'
+require_relative '../update_users_service'
 
 namespace :umrdr do
 
@@ -47,6 +49,17 @@ namespace :umrdr do
     ENV["RAILS_ENV"] ||= "development"
     args.with_defaults( ingester: '' )
     content_diff( path_to_yaml_file: args[:path_to_yaml_file], ingester: args[:ingester] )
+    puts "Done."
+  end
+
+  # bundle exec rake umrdr:diff_users[/deepbluedata-prep/users_build.yml,'{"verbose":true}']
+  desc "Diff users."
+  task :diff_users, %i[ path_to_yaml_file ingester options ] => :environment do |_t, args|
+    ENV["RAILS_ENV"] ||= "development"
+    args.with_defaults( ingester: '', options: {} )
+    content_diff_users( path_to_yaml_file: args[:path_to_yaml_file],
+                        ingester: args[:ingester],
+                        options: args[:options] )
     puts "Done."
   end
 
@@ -94,6 +107,17 @@ namespace :umrdr do
     puts "Done."
   end
 
+  # bundle exec rake umrdr:diff_users[/deepbluedata-prep/users_build.yml,'{"verbose":true}']
+  desc "Update users."
+  task :update_users, %i[ path_to_yaml_file ingester options ] => :environment do |_t, args|
+    ENV["RAILS_ENV"] ||= "development"
+    args.with_defaults( ingester: '', options: {} )
+    content_update_users( path_to_yaml_file: args[:path_to_yaml_file],
+                        ingester: args[:ingester],
+                        options: args[:options] )
+    puts "Done."
+  end
+
 end
 
 def content_append( path_to_yaml_file:, ingester: nil, options: {} )
@@ -117,6 +141,11 @@ def content_diff( path_to_yaml_file:, ingester: nil, options: {} )
   DiffContentService.call( path_to_yaml_file: path_to_yaml_file,
                            ingester: ingester,
                            options: options )
+end
+
+def content_diff_users( path_to_yaml_file:, ingester: nil, options: )
+  return unless valid_path_to_yaml_file? path_to_yaml_file
+  DiffUsersService.call( path_to_yaml_file: path_to_yaml_file, ingester: ingester, options: options )
 end
 
 def content_migrate( path_to_yaml_file:, ingester: nil, options: {} )
@@ -143,6 +172,11 @@ end
 def content_populate_users( path_to_yaml_file:, ingester: nil, options: )
   return unless valid_path_to_yaml_file? path_to_yaml_file
   IngestUsersService.call( path_to_yaml_file: path_to_yaml_file, ingester: ingester, options: options )
+end
+
+def content_update_users( path_to_yaml_file:, ingester: nil, options: )
+  return unless valid_path_to_yaml_file? path_to_yaml_file
+  UpdateUsersService.call( path_to_yaml_file: path_to_yaml_file, ingester: ingester, options: options )
 end
 
 def create_user( email: 'demouser@example.com' )

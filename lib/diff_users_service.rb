@@ -2,23 +2,21 @@
 
 require 'tasks/new_content_service'
 
-# Given a configuration hash read from a yaml file,
-# diff the contents in the repository.
-class DiffContentService < Deepblue::NewContentService
+class DiffUsersService < Deepblue::NewContentService
 
   def self.call( path_to_yaml_file:, ingester: nil, options: )
     cfg_hash = Deepblue::NewContentService.load_yaml_file( path_to_yaml_file )
     return if cfg_hash.nil?
     base_path = File.dirname( path_to_yaml_file )
-    bcs = DiffContentService.new( path_to_yaml_file: path_to_yaml_file,
+    bcs = DiffUsersService.new( path_to_yaml_file: path_to_yaml_file,
                                   cfg_hash: cfg_hash,
                                   base_path: base_path,
                                   ingester: ingester,
                                   options: options )
     bcs.run
   rescue Exception => e # rubocop:disable Lint/RescueException
-    puts "DiffContentService.call(#{path_to_yaml_file}) #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
-    Rails.logger.error "DiffContentService.call(#{path_to_yaml_file}) #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
+    puts "DiffUsersService.call(#{path_to_yaml_file}) #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
+    Rails.logger.error "DiffUsersService.call(#{path_to_yaml_file}) #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
   end
 
   def initialize( path_to_yaml_file:, cfg_hash:, base_path:, ingester:, options: )
@@ -28,18 +26,17 @@ class DiffContentService < Deepblue::NewContentService
                          base_path: base_path,
                          mode: Deepblue::NewContentService::MODE_DIFF,
                          ingester: ingester,
-                         msg: "DIFF CONTENT SERVICE AT YOUR ... SERVICE" )
+                         msg: "DIFF USER SERVICE AT YOUR ... SERVICE" )
   end
 
   protected
 
     def build_repo_contents
-      diff_works
-      diff_collections
-      report_measurements( first_label: 'id' )
+      diff_users
+      report_measurements( first_label: 'users' )
     rescue Exception => e # rubocop:disable Lint/RescueException
-      puts "DiffContentService.build_repo_contents #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
-      Rails.logger.error "DiffContentService.build_repo_contents #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
+      puts "DiffUsersService.build_repo_contents #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
+      Rails.logger.error "DiffUsersService.build_repo_contents #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
     end
 
 end

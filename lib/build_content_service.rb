@@ -7,7 +7,8 @@ require 'tasks/new_content_service'
 class BuildContentService < Deepblue::NewContentService
 
   def self.call( path_to_yaml_file:, mode: nil, ingester: nil, options: )
-    cfg_hash = YAML.load_file( path_to_yaml_file )
+    cfg_hash = Deepblue::NewContentService.load_yaml_file( path_to_yaml_file )
+    return if cfg_hash.nil?
     base_path = File.dirname( path_to_yaml_file )
     bcs = BuildContentService.new( path_to_yaml_file: path_to_yaml_file,
                                    cfg_hash: cfg_hash,

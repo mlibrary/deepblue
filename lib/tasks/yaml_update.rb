@@ -66,13 +66,13 @@ module Deepblue
 
     def yaml_update_collection( id: )
       path_to_yaml_file = "#{@source_dir}/c_#{id}_populate.yml"
-      puts "Updating work #{id} from '#{@source_dir}' path to yaml = '#{path_to_yaml_file}'"
+      puts "Updating work #{id}  using yaml file '#{path_to_yaml_file}'"
       UpdateContentService.call( path_to_yaml_file: path_to_yaml_file, ingester: @ingester, options: @options )
     end
 
     def yaml_update_work( id: )
       path_to_yaml_file = "#{@source_dir}/w_#{id}_populate.yml"
-      puts "Updating work #{id} from '#{@source_dir}' path to yaml = '#{path_to_yaml_file}'"
+      puts "Updating work #{id}  using yaml file '#{path_to_yaml_file}'"
       UpdateContentService.call( path_to_yaml_file: path_to_yaml_file, ingester: @ingester, options: @options )
     end
 
