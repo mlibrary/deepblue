@@ -18,25 +18,52 @@ module Deepblue
   class NewContentService
 
     DEFAULT_DATA_SET_ADMIN_SET_NAME = "DataSet Admin Set"
-    DEFAULT_DIFF_ATTRS_SKIP = [ :date_created, :date_modified, :date_uploaded, :visibility ].freeze # :edit_users,
-    DEFAULT_DIFF_ATTRS_SKIP_IF_BLANK = [ :creator_ordered, :curation_notes_admin, :curation_notes_admin_ordered,
+    DEFAULT_DIFF_ATTRS_SKIP = [ :creator_ordered,
+                                :curation_notes_admin_ordered, :curation_notes_user_ordered,
+                                :date_created, :date_modified, :date_uploaded,
+                                :description_ordered,
+                                :keyword_ordered, :language_ordered,
+                                :referenced_by_ordered, :title_ordered,
+                                :visibility ].freeze
+    DEFAULT_DIFF_ATTRS_SKIP_IF_BLANK = [ :creator_ordered,
+                                         :curation_notes_admin, :curation_notes_admin_ordered,
                                          :curation_notes_user, :curation_notes_user_ordered,
                                          :checksum_algorithm, :checksum_value,
-                                         :description_ordered, :doi,
-                                         :fundedby_other, :keyword_ordered, :language_ordered,
-                                         :prior_identifier, :referenced_by_ordered, :title_ordered ].freeze
+                                         :description_ordered,
+                                         :doi,
+                                         :fundedby_other,
+                                         :keyword_ordered, :language_ordered,
+                                         :prior_identifier,
+                                         :referenced_by_ordered, :title_ordered ].freeze
+    DEFAULT_DIFF_USER_ATTRS_SKIP = [ :created_at,
+                                     :current_sign_in_at, :current_sign_in_ip,
+                                     :email, :encrypted_password,
+                                     :id,
+                                     :updated_at ].freeze
     DEFAULT_DIFF_COLLECTIONS_RECURSE = false
     DEFAULT_UPDATE_ADD_FILES = true
-    DEFAULT_UPDATE_ATTRS_SKIP = [ :date_created, :date_modified, :date_uploaded, :edit_users, :original_name,
+    DEFAULT_UPDATE_ATTRS_SKIP = [ :creator_ordered,
+                                  :curation_notes_admin_ordered, :curation_notes_user_ordered,
+                                  :date_created, :date_modified, :date_uploaded,
+                                  :edit_users,
+                                  :keyword_ordered, :language_ordered,
+                                  :original_name,
+                                  :referenced_by_ordered, :title_ordered,
                                   :visibility ].freeze
     DEFAULT_UPDATE_ATTRS_SKIP_IF_BLANK = [ :creator_ordered, :curation_notes_admin, :curation_notes_admin_ordered,
                                            :curation_notes_user, :curation_notes_user_ordered,
                                            :checksum_algorithm, :checksum_value,
                                            :description_ordered, :doi,
                                            :fundedby_other, :keyword_ordered, :language_ordered,
-                                           :prior_identifier, :referenced_by_ordered, :title_ordered ].freeze
+                                           :prior_identifier,
+                                           :referenced_by_ordered, :title_ordered ].freeze
     DEFAULT_UPDATE_COLLECTIONS_RECURSE = false
     DEFAULT_UPDATE_DELETE_FILES = true
+    DEFAULT_UPDATE_USER_ATTRS_SKIP = [ :created_at,
+                                       :current_sign_in_at, :current_sign_in_ip,
+                                       :email, :encrypted_password,
+                                       :id,
+                                       :updated_at ].freeze
     DEFAULT_USER_CREATE = true
     DEFAULT_VERBOSE = true
     DIFF_DATES = false
@@ -71,6 +98,7 @@ module Deepblue
                 :config,
                 :diff_attrs_skip,
                 :diff_attrs_skip_if_blank,
+                :diff_user_attrs_skip,
                 :diff_collections_recurse,
                 :ingest_id,
                 :ingest_timestamp,
@@ -80,6 +108,7 @@ module Deepblue
                 :update_add_files,
                 :update_attrs_skip,
                 :update_attrs_skip_if_blank,
+                :update_user_attrs_skip,
                 :update_build_mode,
                 :update_collections_recurse,
                 :update_delete_files,
@@ -92,6 +121,17 @@ module Deepblue
                            path_to_yaml_file: path_to_yaml_file,
                            cfg_hash: cfg_hash,
                            base_path: base_path )
+    end
+
+    def self.load_yaml_file( path_to_yaml_file )
+      if File.exist? path_to_yaml_file
+        cfg_hash = YAML.load_file( path_to_yaml_file )
+        return cfg_hash
+      else
+        puts "yaml file not found: ' #{path_to_yaml_file}'"
+        Rails.logger.error "yaml file not found: ' #{path_to_yaml_file}'"
+        return nil
+      end
     end
 
     def run
@@ -695,36 +735,20 @@ module Deepblue
         end
       end
 
+      def build_time( value: )
+        return '' if value.nil?
+        rv = value
+        return rv if rv.is_a? Time
+        rv = Time.parse value
+      rescue ArgumentError
+        return ''
+      end
+
       def build_user( user_hash: )
-        # attr_names = User.attribute_names
-        # skip = Deepblue::MetadataHelper::ATTRIBUTE_NAMES_USER_IGNORE
-        # attrs = { password: "password", password_confirmation: "password" }
-        # attr_names.each do |name|
-        #   next if skip.include?( name )
-        #   next if name == "id"
-        #   value = user_hash[name.to_sym]
-        #   attrs[name] = value if value.present?
-        # end
-        # log_msg( "User.create!( #{attrs} )" )
-        # User.create!( attrs )
         email = user_hash[:email]
         log_msg( "User.new( #{email} )" )
         user = User.new( email: email, password: 'password' ) { |u| u.save( validate: false ) }
         update_user( user: user, user_hash: user_hash )
-      end
-
-      def update_user( user:, user_hash: )
-        attr_names = User.attribute_names
-        skip = Deepblue::MetadataHelper::ATTRIBUTE_NAMES_USER_IGNORE
-        attr_names.each do |name|
-          next if skip.include?( name )
-          next if name == "id"
-          next if name == "email"
-          value = user_hash[name.to_sym]
-          user[name] = value if value.present?
-        end
-        log_msg( "update_user #{user.email}" )
-        user.save( validate: false )
       end
 
       def build_users
@@ -870,6 +894,11 @@ module Deepblue
         value = cc_or_fs_hash[attr_name] if attr_name_hash.blank?
         value = cc_or_fs_hash[attr_name_hash] if attr_name_hash.present?
         value = Array( value ) if multi
+        if attr_current.is_a?( Time )
+          attr_current = attr_current.change(usec: 0)
+          value = build_time( value: value )
+          value = value.change(usec: 0) if value.is_a? Time
+        end
         return diffs unless diff_attr_if_blank?( attr_name, value: value )
         return diffs if attr_current == value
         diffs << "#{attr_prefix cc_or_fs}: #{attr_name} '#{attr_current}' vs. '#{value}'"
@@ -1051,8 +1080,74 @@ module Deepblue
       end
 
       def diff_file_sets_from_files( diffs:, work_hash:, work: )
-        # TODO: for now, just detect if they are there
+        # TODO
         return diffs
+      end
+
+      def diff_user( diffs: nil, user_hash:, user:, user_email: )
+        diffs = [] if diffs.nil?
+        return diffs unless continue_new_content_service
+        attr_names = User.attribute_names
+        attr_names.each do |name|
+          diff_user_attr( diffs, user, user_hash, user_email, attr_name: name )
+        end
+        return diffs
+      end
+
+      def diff_users
+        return unless users
+        measurement = Benchmark.measure do
+          users.each do |users_hash|
+            user_emails = users_hash[:user_emails]
+            next if user_emails.blank?
+            # log_msg( "users_hash: #{users_hash}" ) if verbose
+            user_emails.each do |user_email|
+              # log_msg( "processing user: #{user_email}" ) if verbose
+              user_email_id = "user_#{user_email}".to_sym
+              # log_msg( "user_email_id: #{user_email_id}" ) if verbose
+              user_hash = users_hash[user_email_id]
+              # log_msg( "user_hash: #{user_hash}" ) if verbose
+              user = find_user( user_hash: user_hash )
+              if user.nil?
+                puts "== user #{user_email} is missing ==" if user_email_id.present?
+              else
+                puts "#{user_email}: diff..." if verbose
+                diffs = diff_user( user_hash: user_hash, user: user, user_email: user_email )
+                if diffs.present?
+                  puts "#{user_email}: diffs"
+                  puts "#{diffs.join("\n")}"
+                else
+                  puts "#{user_email}: no differences found" if verbose
+                end
+              end
+            end
+          end
+        end
+        return measurement
+      end
+
+      def diff_user_attr( diffs, user, user_hash, user_email, attr_name:, attr_name_hash: nil, multi: false )
+        attr_name = attr_name.to_sym if attr_name.is_a? String
+        return diffs unless diff_user_attr? attr_name
+        attr_current = user[attr_name]
+        value = user_hash[attr_name] if attr_name_hash.blank?
+        value = user_hash[attr_name_hash] if attr_name_hash.present?
+        value = Array( value ) if multi
+        return diffs unless diff_user_attr_if_blank?( attr_name, value: value )
+        return diffs if attr_current == value
+        diffs << "#{user_email}: #{attr_name} '#{attr_current}' vs. '#{value}'"
+      rescue Exception => e # rubocop:disable Lint/RescueException
+        diffs << "#{user_email}: #{attr_name} -- Exception: #{e.class}: #{e.message} at #{e.backtrace[0]}"
+      end
+
+      def diff_user_attr?( attr_name )
+        return false if diff_user_attrs_skip.include? attr_name
+        return true
+      end
+
+      def diff_user_attr_if_blank?( attr_name, value:, parent: nil )
+        return false if value.blank? # && diff_attrs_skip_if_blank.include?( attr_name )
+        return true
       end
 
       def diff_value_value( diffs, cc_or_fs, attr_name:, current_value:, value: nil )
@@ -1240,6 +1335,14 @@ module Deepblue
         return user
       end
 
+      def find_user( user_hash:, user_update: false )
+        return nil if user_hash.blank?
+        email = user_hash[:email]
+        # log_msg( "find_user: email: #{email}" ) if verbose
+        user = User.find_by_user_key( email )
+        return user
+      end
+
       def find_work( work_hash:, error_if_not_found: true )
         work_id = work_hash[:id].to_s
         id = Array(work_id)
@@ -1270,25 +1373,6 @@ module Deepblue
           add_measurement measurement
         end
       end
-
-      # def find_works_and_update
-      #   return unless works
-      #   works.each do |work_hash|
-      #     work, work_id = find_work( work_hash: work_hash )
-      #     measurement = Benchmark.measure( work_id ) do
-      #       update_work_from_hash( work_hash: work_hash, work: work )
-      #       depositor = build_depositor( hash: work_hash )
-      #       work.apply_depositor_metadata( depositor )
-      #       work.owner = depositor
-      #       admin_set = build_admin_set_work( hash: work_hash )
-      #       work.admin_set = admin_set
-      #       apply_visibility_and_workflow( work: work, work_hash: work_hash, admin_set: admin_set )
-      #       work.save!
-      #       log_object work
-      #     end
-      #     add_measurement measurement
-      #   end
-      # end
 
       def find_work_using_id( id: )
         return nil if id.blank?
@@ -1353,11 +1437,15 @@ module Deepblue
         @base_path = base_path
         @diff_attrs_skip = [] + DEFAULT_DIFF_ATTRS_SKIP
         @diff_attrs_skip_if_blank = [] + DEFAULT_DIFF_ATTRS_SKIP_IF_BLANK
+        @diff_user_attrs_skip = [] + DEFAULT_DIFF_USER_ATTRS_SKIP
+        @diff_user_attrs_skip.concat Deepblue::MetadataHelper::ATTRIBUTE_NAMES_USER_IGNORE
         @update_add_files = DEFAULT_UPDATE_ADD_FILES
         @update_attrs_skip = [] + DEFAULT_UPDATE_ATTRS_SKIP
         @update_attrs_skip_if_blank = [] + DEFAULT_UPDATE_ATTRS_SKIP_IF_BLANK
         @update_build_mode = DEFAULT_UPDATE_BUILD_MODE
         @update_delete_files = DEFAULT_UPDATE_DELETE_FILES
+        @update_user_attrs_skip = [] + DEFAULT_UPDATE_USER_ATTRS_SKIP
+        @update_user_attrs_skip.concat Deepblue::MetadataHelper::ATTRIBUTE_NAMES_USER_IGNORE
         @ingest_id = File.basename path_to_yaml_file
         @ingest_timestamp = DateTime.now
         @mode = mode if mode.present?
@@ -1663,7 +1751,7 @@ module Deepblue
       end
 
       def update_attr_if_blank?( attr_name, value:, parent: nil )
-        return false if value.blank? && update_attrs_skip_if_blank.include?( attr_name )
+        return false if value.blank? # && update_attrs_skip_if_blank.include?( attr_name )
         return true
       end
 
@@ -1875,6 +1963,32 @@ module Deepblue
         return updates
       end
 
+      def update_user( updates: nil, user:, user_hash:, user_email: nil )
+        if user_email.nil?
+          # old update
+          attr_names = User.attribute_names
+          skip = Deepblue::MetadataHelper::ATTRIBUTE_NAMES_USER_IGNORE
+          attr_names.each do |name|
+            next if skip.include?( name )
+            next if name == "id"
+            next if name == "email"
+            value = user_hash[name.to_sym]
+            user[name] = value if value.present?
+          end
+          log_msg( "update_user #{user.email}" )
+          user.save( validate: false )
+        else
+          # new update
+          updates = [] if updates.nil?
+          return updates unless continue_new_content_service
+          attr_names = User.attribute_names
+          attr_names.each do |name|
+            update_user_attr( updates, user, user_hash, user_email, attr_name: name )
+          end
+          return updates
+        end
+      end
+
       def update_value_value( updates, cc_or_fs, attr_name:, current_value:, value: nil )
         return updates unless update_attr? attr_name
         return updates unless update_attr_if_blank?( attr_name, value: value )
@@ -1882,6 +1996,69 @@ module Deepblue
         updates << "#{attr_prefix cc_or_fs}: #{attr_name} '#{current_value}' vs. '#{value}'"
       rescue Exception => e # rubocop:disable Lint/RescueException
         updates << "#{attr_prefix cc_or_fs}: #{attr_name} -- Exception: #{e.class}: #{e.message} at #{e.backtrace[0]}"
+      end
+
+      def update_users
+        return unless users
+        measurement = Benchmark.measure do
+          users.each do |users_hash|
+            user_emails = users_hash[:user_emails]
+            next if user_emails.blank?
+            # log_msg( "users_hash: #{users_hash}" ) if verbose
+            user_emails.each do |user_email|
+              # log_msg( "processing user: #{user_email}" ) if verbose
+              user_email_id = "user_#{user_email}".to_sym
+              # log_msg( "user_email_id: #{user_email_id}" ) if verbose
+              user_hash = users_hash[user_email_id]
+              # log_msg( "user_hash: #{user_hash}" ) if verbose
+              user = find_user( user_hash: user_hash )
+              if user.nil?
+                puts "== user #{user_email} is missing ==" if user_email_id.present?
+              else
+                puts "#{user_email}: update..." if verbose
+                updates = update_user( user_hash: user_hash, user: user, user_email: user_email )
+                if updates.present?
+                  puts "#{user_email}: updated"
+                  puts "#{updates.join("\n")}"
+                  user.save( validate: false )
+                else
+                  puts "#{user_email}: no updates done" if verbose
+                end
+              end
+            end
+          end
+        end
+        return measurement
+      end
+
+      def update_user_attr( updates, user, user_hash, user_email, attr_name:, attr_name_hash: nil, multi: false )
+        attr_name = attr_name.to_sym if attr_name.is_a? String
+        return updates unless update_user_attr? attr_name
+        attr_current = user[attr_name]
+        value = user_hash[attr_name] if attr_name_hash.blank?
+        value = user_hash[attr_name_hash] if attr_name_hash.present?
+        value = Array( value ) if multi
+        if attr_current.is_a?( Time )
+          attr_current = attr_current.change(usec: 0)
+          value = build_time( value: value )
+          value = value.change(usec: 0) if value.is_a? Time
+        end
+        return updates unless update_user_attr_if_blank?( attr_name, value: value )
+        return updates if attr_current == value
+        user[attr_name] = value
+        updates << "#{user_email}: #{attr_name} '#{attr_current}' updated to '#{value}'"
+      rescue Exception => e # rubocop:disable Lint/RescueException
+        updates << "#{user_email}: #{attr_name} -- Exception: #{e.class}: #{e.message} at #{e.backtrace[0]}"
+      end
+
+      def update_user_attr?( attr_name )
+        return false if update_user_attrs_skip.include? attr_name
+        return true
+      end
+
+      def update_user_attr_if_blank?( attr_name, value:, parent: nil )
+        return false if value.blank? # && update_attrs_skip_if_blank.include?( attr_name )
+        return true
       end
 
       def update_visibility( curation_concern:, visibility: )

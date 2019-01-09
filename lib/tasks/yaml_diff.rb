@@ -66,13 +66,13 @@ module Deepblue
 
     def yaml_diff_collection( id: )
       path_to_yaml_file = "#{@source_dir}/c_#{id}_populate.yml"
-      puts "Diffing work #{id} from '#{@source_dir}' path to yaml = '#{path_to_yaml_file}'"
+      puts "Diffing work #{id} using yaml file '#{path_to_yaml_file}'"
       DiffContentService.call( path_to_yaml_file: path_to_yaml_file, ingester: @ingester, options: @options )
     end
 
     def yaml_diff_work( id: )
       path_to_yaml_file = "#{@source_dir}/w_#{id}_populate.yml"
-      puts "Diffing work #{id} from '#{@source_dir}' path to yaml = '#{path_to_yaml_file}'"
+      puts "Diffing work #{id} using yaml file '#{path_to_yaml_file}'"
       DiffContentService.call( path_to_yaml_file: path_to_yaml_file, ingester: @ingester, options: @options )
     end
 
