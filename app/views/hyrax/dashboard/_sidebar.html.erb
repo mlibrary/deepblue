@@ -16,8 +16,10 @@
     </div>
   </li>
 
-  <%#= render 'hyrax/dashboard/sidebar/activity', menu: menu %>
-  <%#= render 'hyrax/dashboard/sidebar/repository_content', menu: menu %>
-  <%#= render 'hyrax/dashboard/sidebar/tasks', menu: menu %>
-  <%#= render 'hyrax/dashboard/sidebar/configuration', menu: menu %>
+<% unless (defined?(current_user.name)).nil? %>
+  <%= render 'hyrax/dashboard/sidebar/activity', menu: menu %>
+  <%= render 'hyrax/dashboard/sidebar/repository_content', menu: menu %>
+  <%= render 'hyrax/dashboard/sidebar/tasks', menu: menu %>
+  <%= render 'hyrax/dashboard/sidebar/configuration', menu: menu %>
+<% end %>
 </ul>
