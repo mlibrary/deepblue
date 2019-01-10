@@ -12,7 +12,7 @@ class DoiMintingJob < Hyrax::ApplicationJob
     # Continue only when doi is pending
     return unless work.doi.nil? || work.doi == DataSet::DOI_PENDING
 
-    if Umrdr::DoiMintingService.mint_doi_for work
+    if Deepblue::DoiMintingService.mint_doi_for work
       Rails.logger.debug "DoiMintingJob work id #{id} #{user.email} succeeded."
       # do success callback
       if Hyrax.config.callback.set?(:after_doi_success)

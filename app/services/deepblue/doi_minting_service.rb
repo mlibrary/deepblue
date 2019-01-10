@@ -10,7 +10,7 @@ module Deepblue
     attr_reader :work, :metadata
 
     def self.mint_doi_for(work)
-      Umrdr::DoiMintingService.new(work).run
+      DoiMintingService.new(work).run
     end
 
     def initialize(work)
