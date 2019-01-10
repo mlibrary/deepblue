@@ -10,7 +10,18 @@ module Deepblue
     attr :work, :metadata
 
     def self.mint_doi_for(work)
-      DoiMintingService.new(work).run
+      Rails.logger.debug "DoiMintingService.mint_doi_for( work id = #{work.id} )"
+      service = Deepblue::DoiMintingService.new( work )
+      Rails.logger.debug "DoiMintingService.mint_doi_for calling run"
+      service.run
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      Rails.logger.debug "DoiMintingService.mint_doi_for( work id = #{work.id} ) rescue exception -- Exception: #{e.class}: #{e.message} at #{e.backtrace[0]}"
+      unless work.nil?
+        work.doi = nil
+        work.save
+        work.doi
+      end
+      raise
     end
 
     def initialize(work)
@@ -21,7 +32,9 @@ module Deepblue
 
     def run
       Rails.logger.debug "DoiMintingService.run( work id = #{work.id} )"
-      return unless doi_server_reachable?
+      rv = doi_server_reachable?
+      Rails.logger.debug "DoiMintingService.run doi_server_reachable?=#{rv}"
+      return mint_doi_failed unless rv
       work.doi = mint_doi
       work.save
       work.doi
@@ -60,7 +73,7 @@ module Deepblue
           md.datacite_publicationyear = Date.today.year.to_s
           md.datacite_resourcetype= RESOURCE_TYPE
           md.datacite_creator=work.creator.join(';')
-          md.target = Rails.application.routes.url_helpers.hyrax_generic_work_url(id: work.id)
+          md.target = Rails.application.routes.url_helpers.hyrax_data_set_url(id: work.id)
         end
       end
 
@@ -72,6 +85,13 @@ module Deepblue
         shoulder = Ezid::Client.config.default_shoulder
         identifier = Ezid::Identifier.mint( shoulder, @metadata )
         identifier.id
+      end
+
+      def mint_doi_failed
+        Rails.logger.error "DoiMintingService.mint_doi_failed work id = #{work.id}"
+        work.doi = nil
+        work.save
+        work.doi
       end
 
   end
