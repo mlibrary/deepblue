@@ -1,0 +1,17 @@
+<dl>
+  <% present_terms(@presenter, @presenter.terms_with_values) do |r, term| %>
+    <div>
+      <dt><%= r.label(term) %></dt>
+      <dd><%= r.value(term) %></dd>
+    </div>
+  <% end %>
+
+  <% unless @presenter.total_viewable_items.blank? %>
+    <% unless @presenter.modified_date.blank? %>
+      <div>
+        <dt>Last Updated</dt>
+        <dd><%= @presenter.modified_date %></dd>
+      </div>
+    <% end %>
+  <% end %>
+</dl>
