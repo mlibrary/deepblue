@@ -6,6 +6,29 @@
     font-family: 'Open Sans', sans-serif;
 }
 
+/** Alert announcement **/
+
+.update-alert {
+    background-color: #FFEEDD;
+    color: rgb(170, 86, 0);
+    border-bottom: 1px solid rgb(231, 117, 4);
+    border-color: rgb(231, 117, 4);
+}
+
+.update-alert-container {
+    font-size: 0.9rem;
+    padding: .25em;
+}
+
+.update-alert-container p {
+    padding: .15em 0 .15em 1.25em;
+}
+
+.update-alert a {
+    text-decoration: underline;
+    color: rgb(170, 86, 0);
+}
+
 /* Describe Work/Collections Form */
 h2.non.lower {
     text-align: center;
