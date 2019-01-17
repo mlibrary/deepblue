@@ -86,11 +86,12 @@ module Deepblue
     RE_DESCRIPTION = 'description: (.*)'
     RE_EMAIL = '((?:[a-zA-Z0-9_\-\.]+)@(?:[a-zA-Z0-9_\-\.]+)\.(?:[a-zA-Z]{2,5}))'
     RE_ID = 'id: ([a-z0-9]+)'
+    RE_ID2 = '([a-z0-9]+)'
     RE_LINK_GENERIC_WORK = '\(https?:\/\/deepblue\.lib\.umich\.edu\/data\/concern\/generic_works\/([a-z0-9]+)(?:\?locale=en)?\)'
     RE_METHODOLOGY = 'methodology: (.*)'
     RE_ON = 'on: (\d\d\d\d\-.*)'
     RE_ORIGINAL_NAME = 'original name: (.*)'
-    RE_PARENT_ID = 'parent id: ([a-z0-9]+)'
+    RE_PARENT_ID = 'parent[ _]id: ([a-z0-9]+)'
     RE_PUBLISHER = 'publisher: (.*)'
     RE_REST = '(.*)'
     RE_RIGHTS = 'rights: (.*)'
@@ -135,8 +136,12 @@ module Deepblue
 
       @re_record_start = Regexp.compile( "^#{RE_START_DATE} INFO User:  #{RE_REST}$" )
       @re_doi_kicked_off = Regexp.compile( "^DOI process kicked off for work #{RE_ID}$")
+      # DOI cannot be minted for a work without files.
       @re_file_uploaded = Regexp.compile( "^File Uploaded with #{RE_PARENT_ID}, #{RE_TOTAL_SIZE}," +
                                           " #{RE_ORIGINAL_NAME}, #{RE_CONTENT_TYPE}$" )
+      @re_migrate_export_collection = Regexp.compile( "^Migrate export Collection #{RE_ID2}$" )
+      @re_migrate_export_file_set = Regexp.compile( "^Migrate export FileSet #{RE_ID2} #{RE_PARENT_ID}$" )
+      @re_migrate_export_work = Regexp.compile( "^Migrate export GenericWork #{RE_ID2}( #{RE_PARENT_ID})?$" )
       @re_work_created = Regexp.compile( "^WORK CREATED: #{RE_LINK_GENERIC_WORK} #{RE_BY_CREATORS}, #{RE_WITH_ACCESS}" +
                                          " was created with #{RE_TITLE}, #{RE_RIGHTS}, #{RE_METHODOLOGY}," +
                                          " #{RE_PUBLISHER}, #{RE_SUBJECT}, #{RE_DESCRIPTION}, #{RE_ADMIN_SET_ID}$" )
@@ -362,6 +367,9 @@ module Deepblue
         end
         return if record_parse_doi_kicked_off( record_date: record_date, match: @re_doi_kicked_off.match( rest ) )
         return if record_parse_file_upload( record_date: record_date, match: @re_file_uploaded.match( rest ) )
+        return if record_parse_migrate_export_collection( record_date: record_date, match: @re_migrate_export_collection.match( rest ) )
+        return if record_parse_migrate_export_file_set( record_date: record_date, match: @re_migrate_export_file_set.match( rest ) )
+        return if record_parse_migrate_export_work( record_date: record_date, match: @re_migrate_export_work.match( rest ) )
         return if record_parse_work_created3( record_date: record_date, match: @re_work_created3.match( rest ) )
         return if record_parse_work_deleted( record_date: record_date, match: @re_work_deleted.match( rest ) )
         return if record_parse_work_published( record_date: record_date, match: @re_work_published.match( rest ) )
@@ -421,6 +429,61 @@ module Deepblue
                                                   file_size_human_readable: file_size_human_readable,
                                                   mime_type: mime_type,
                                                   original_name: original_name )
+        true
+      end
+
+      def record_parse_migrate_export_collection( record_date:, match: )
+        return false unless match
+        pacifier.pacify_bracket 'MC'
+        timestamp = ProvenanceHelper.to_log_format_timestamp record_date
+        collection_id = match[1]
+        @output_record = ProvenanceLogRecord.new( class_name: 'Collection',
+                                                  event: EVENT_MIGRATE,
+                                                  event_note: "export",
+                                                  id: collection_id,
+                                                  timestamp: timestamp,
+                                                  input_line_number: @input_line_number - 1 )
+        true
+      end
+
+      def record_parse_migrate_export_file_set( record_date:, match: )
+        return false unless match
+        pacifier.pacify_bracket 'MFS'
+        timestamp = ProvenanceHelper.to_log_format_timestamp record_date
+        file_set_id = match[1]
+        parent_id = match[2]
+        @output_record = ProvenanceLogRecord.new( class_name: 'FileSet',
+                                                  event: EVENT_MIGRATE,
+                                                  event_note: "export",
+                                                  id: file_set_id,
+                                                  parent_id: parent_id,
+                                                  timestamp: timestamp,
+                                                  input_line_number: @input_line_number - 1 )
+        true
+      end
+
+      def record_parse_migrate_export_work( record_date:, match: )
+        return false unless match
+        pacifier.pacify_bracket 'MW'
+        timestamp = ProvenanceHelper.to_log_format_timestamp record_date
+        work_id = match[1]
+        parent_id = match[3] if match.size > 2
+        if parent_id.present?
+          @output_record = ProvenanceLogRecord.new( class_name: 'DataSet',
+                                                    event: EVENT_MIGRATE,
+                                                    event_note: "export",
+                                                    id: work_id,
+                                                    parent_id: parent_id,
+                                                    timestamp: timestamp,
+                                                    input_line_number: @input_line_number - 1 )
+        else
+          @output_record = ProvenanceLogRecord.new( class_name: 'DataSet',
+                                                    event: EVENT_MIGRATE,
+                                                    event_note: "export",
+                                                    id: work_id,
+                                                    timestamp: timestamp,
+                                                    input_line_number: @input_line_number - 1 )
+        end
         true
       end
 
