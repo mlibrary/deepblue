@@ -3,403 +3,414 @@
 }
 
 * {
-    font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
 }
 
-/** Alert announcement **/
+/** 
+Design System alert announcements for Warning(orange), Informational(blue), Error(red) 
+**/
 
-.update-alert {
-    background-color: #FFEEDD;
-    color: rgb(170, 86, 0);
-    border-bottom: 1px solid rgb(231, 117, 4);
-    border-color: rgb(231, 117, 4);
+.update-alert--warning {
+  background-color: #ffeedd;
+  color: rgb(170, 86, 0);
+  border-bottom: 1px solid rgb(231, 117, 4);
+  border-color: rgb(231, 117, 4);
+}
+
+.update-alert--informational {
+  color: rgb(12, 82, 146);
+  border-bottom: 1px solid rgb(18, 109, 193);
+  background: rgb(230, 243, 255);
+  border-color: rgb(18, 109, 193);
+}
+
+.update-alert--error {
+  color: rgb(197, 59, 38);
+  border-bottom: 1px solid rgb(237, 93, 71);
+  background: rgb(255, 234, 231);
+  border-color: rgb(237, 93, 71);
 }
 
 .update-alert-container {
-    font-size: 0.9rem;
-    padding: .25em;
+  font-size: 0.9rem;
+  padding: 0.25em;
 }
 
 .update-alert-container p {
-    padding: .15em 0 .15em 1.25em;
+  padding: 0.75em 0 0.75em 1.25em;
 }
 
 .update-alert a {
-    text-decoration: underline;
-    color: rgb(170, 86, 0);
+  text-decoration: underline;
+  color: rgb(170, 86, 0);
 }
 
 /* Describe Work/Collections Form */
 h2.non.lower {
-    text-align: center;
-    background-color: #FAFAFA;
-    padding: .75em;
-    margin: 0;
-    border-bottom: 2px solid #E5E5E5;
+  text-align: center;
+  background-color: #fafafa;
+  padding: 0.75em;
+  margin: 0;
+  border-bottom: 2px solid #e5e5e5;
 }
 
 #page-positioner .form-group {
-    margin: 1em;
-    padding: 0 .5em;
+  margin: 1em;
+  padding: 0 0.5em;
 }
 
 #works_edit,
 #descriptions_display {
-    background-color: #fff;
+  background-color: #fff;
 }
 
 div.nogroup {
-    background-color: #fff;
+  background-color: #fff;
 }
 
 form#new_generic_work,
 form#new_collection,
 .edit_generic_work,
 .simple_form.editor {
-    background-color: #FFFFFF;
-    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.12), 0 2px 4px 0 rgba(0,0,0,0.24);
+  background-color: #ffffff;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.12), 0 2px 4px 0 rgba(0, 0, 0, 0.24);
 }
 
 .describe_sub {
-    margin: 1em;
-    padding: 0 .5em .5em;
+  margin: 1em;
+  padding: 0 0.5em 0.5em;
 }
 
 .help-block {
-    font-size: .85em;
+  font-size: 0.85em;
 }
 
- /* To support [more...] and [less...] */
-  a.morelink {
-     text-decoration:none;
-     outline: none;
- }
- .morecontent span {
-     display: none;
- }
- /* End [more...] and [less...] */
+/* To support [more...] and [less...] */
+a.morelink {
+  text-decoration: none;
+  outline: none;
+}
+.morecontent span {
+  display: none;
+}
+/* End [more...] and [less...] */
 
 .multi_value .field-controls .btn.add.btn-add-another::before {
-    content: " + "
+  content: " + ";
 }
 
 .primary-actions {
-    margin: 1em;
-    padding-bottom: 1em;
-    text-align: center;
+  margin: 1em;
+  padding-bottom: 1em;
+  text-align: center;
 }
 
 /* to support use of bootstrap cells within the list items */
 ol.catalog li:after {
-    content: "";
-    display: table;
-    clear: both;
+  content: "";
+  display: table;
+  clear: both;
 }
 
 .multi_value ul.listing {
-    max-width: none;
+  max-width: none;
 }
 
 .multi_value .field-controls .btn.remove {
-    width: 15em;
+  width: 15em;
 }
 
 .attributes .attribute {
-    list-style: none;
+  list-style: none;
 }
 
 .attributes ul {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
 
 .attributes td {
-    width: 75%;
+  width: 75%;
 }
 
 .attributes thead th {
-    text-align: left;
-    font-size: 1.2em;
+  text-align: left;
+  font-size: 1.2em;
 }
 
-.smalltext  {
-    font-size: .65em;
+.smalltext {
+  font-size: 0.65em;
 }
-
 
 /* Make the PDF icon not as big as my head */
 
 .generic-icon {
-    max-width: 8em;
+  max-width: 8em;
 }
-
 
 /* To support [more...] and [less...] */
 a.morelink {
-    text-decoration:none;
-    outline: none;
+  text-decoration: none;
+  outline: none;
 }
 .morecontent span {
-    display: none;
+  display: none;
 }
 /* End [more...] and [less...] */
 
 #page-positioner {
-    background-color: #F2F2F2;
+  background-color: #f2f2f2;
 }
 
 footer {
-    background-color: #fff;
+  background-color: #fff;
 }
 
 /*** Deposit Work Page ***/
 
 div.not-required {
-    background-color: #FAFAFA;
-    border-top: solid 1px #E5E5E5;
-    border-bottom: solid 1px #E5E5E5;
-    margin-bottom: 1.5em;
+  background-color: #fafafa;
+  border-top: solid 1px #e5e5e5;
+  border-bottom: solid 1px #e5e5e5;
+  margin-bottom: 1.5em;
 }
 
 .date-add-coverage-button::before {
-    content: " + "
+  content: " + ";
 }
 
 .date-reset::before {
-    content: " - "
+  content: " - ";
 }
 
 .date-reset {
-    float: right;
+  float: right;
 }
 
 .radio aside {
-    padding: 0 0 .25em 1em;
+  padding: 0 0 0.25em 1em;
 }
 
 div.radio p {
-    margin: 0;
+  margin: 0;
 }
 
 .radio p > label {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 /**** Buttons for Works/Collections/Upload Forms ****/
 .data-buttons {
-    text-align: center;
+  text-align: center;
 }
 
 a.cancel-btn {
-    padding: .75em 0;
-    font-size: .95em;
+  padding: 0.75em 0;
+  font-size: 0.95em;
 }
 
 .confirm-group {
-    text-align: center;
-    padding: 1em 0;
+  text-align: center;
+  padding: 1em 0;
 }
 
 /**** Search Results *****/
 
 #search-results ul.catalog {
-    list-style: none;
+  list-style: none;
 }
 
 /*** Deposit Intro Page ****/
 
 .position-page {
-    max-width: 45em;
-    margin: 2em auto;
-    background: #fff;
-    text-align: center;
-    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.12), 0 2px 4px 0 rgba(0,0,0,0.24);
-    padding-bottom: 1em;
+  max-width: 45em;
+  margin: 2em auto;
+  background: #fff;
+  text-align: center;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.12), 0 2px 4px 0 rgba(0, 0, 0, 0.24);
+  padding-bottom: 1em;
 }
 
-.position-page h2{
-    padding-top: 1em;
+.position-page h2 {
+  padding-top: 1em;
 }
 
 .position-page .text-block {
-    text-align: center;
-    padding: 0 2.5em;
+  text-align: center;
+  padding: 0 2.5em;
 }
 
 .position-page ul {
-    list-style: none;
-    padding: 1em 0;
+  list-style: none;
+  padding: 1em 0;
 }
 
 .position-page ul li {
-    display: inline-block;
-    vertical-align: middle;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .position-page .input-group {
-    padding: .5em 3em;
+  padding: 0.5em 3em;
 }
 
 span.icon.arrow:before {
-    content: url(https://www.lib.umich.edu/falafel/v0/icons/white/arrow_right.svg);
-    position: relative;
-    top: 6px;
-    display: inline-block;
+  content: url(https://www.lib.umich.edu/falafel/v0/icons/white/arrow_right.svg);
+  position: relative;
+  top: 6px;
+  display: inline-block;
 }
 
 .emphasis {
-    color: #126DC1;
-    margin: 0;
-    font-weight: 500;
+  color: #126dc1;
+  margin: 0;
+  font-weight: 500;
 }
 
 .collection-icon-search {
-    color: #2C72B6;
-    font-size: 6em;
+  color: #2c72b6;
+  font-size: 6em;
 }
 
 /*** Files/Uploads ***/
 
 .well-title {
-    margin-top: 0;
-    padding: 19px;
-    border-bottom: 1px solid #e3e3e3;
-    background-color: #FAFAFA;
+  margin-top: 0;
+  padding: 19px;
+  border-bottom: 1px solid #e3e3e3;
+  background-color: #fafafa;
 }
 
 .well {
-    min-height: 20px;
-    padding: 0;
-    margin: 20px 0;
-    background-color: #fff;
-    border: 1px solid #e3e3e3;
-    border-radius: 4px;
-    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+  min-height: 20px;
+  padding: 0;
+  margin: 20px 0;
+  background-color: #fff;
+  border: 1px solid #e3e3e3;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
 }
 
 .well-inner-wrapper {
-    padding: 0 19px 19px;
+  padding: 0 19px 19px;
 }
 
 .fileupload-buttonbar {
-    padding: 1.5em 0 .5em;
+  padding: 1.5em 0 0.5em;
 }
 
 table.work-description {
-    background-color: #fff;
-    border: 1px solid #e3e3e3;
+  background-color: #fff;
+  border: 1px solid #e3e3e3;
 }
 
 /*** Confirm Page ***/
 
 form.copy-url > .input-group {
-    padding: 0;
+  padding: 0;
 }
 
 .box-padding {
-    padding: .5em 3.5em;
+  padding: 0.5em 3.5em;
 }
 
 .dashboard-btn {
-    margin: .5em 0;
+  margin: 0.5em 0;
 }
 
 /**** Footer ****/
 
 footer > .ribbon-content p {
-    padding-left: 0;
+  padding-left: 0;
 }
 
 /**** Utility Classes ****/
 
 .top-border {
-    border-top: 2px solid #E5E5E5;
-    padding: 1em 0;
+  border-top: 2px solid #e5e5e5;
+  padding: 1em 0;
 }
 
 .align-left {
-    text-align: left;
+  text-align: left;
 }
 
 .align-right {
-    text-align: right;
+  text-align: right;
 }
 
 .float-right {
-    float: right;
+  float: right;
 }
 
 .emphasis-text {
-    padding-top: 1em;
-    font-size: 1.1em;
-    color: #126DC1;
-    font-weight: 500;
+  padding-top: 1em;
+  font-size: 1.1em;
+  color: #126dc1;
+  font-weight: 500;
 }
 
 .bold {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 /* Fixes for insanely-positioned facet values on "My Works" and "My Collections" page. */
-.dropdown-menu, .twitter-typeahead .tt-menu {
-    border: 0px solid rgba(0, 0, 0, 0.15);
-    border-radius: 0px;
-    box-shadow: none;
-    margin: 1px 0 0;
-    padding: 1px 0;
-    position: static;
-    top: auto;
-    z-index: 1000;
+.dropdown-menu,
+.twitter-typeahead .tt-menu {
+  border: 0px solid rgba(0, 0, 0, 0.15);
+  border-radius: 0px;
+  box-shadow: none;
+  margin: 1px 0 0;
+  padding: 1px 0;
+  position: static;
+  top: auto;
+  z-index: 1000;
 }
 
 .facet-values {
-    display: table;
+  display: table;
 }
 
 .panel {
-    background-color: #f2f2f2;
-    box-shadow: none;
+  background-color: #f2f2f2;
+  box-shadow: none;
 }
 
 div.panel-body {
-    background-color: #fff;
+  background-color: #fff;
 }
 
-.pagination {
-
-a.disabled {
-    color: #000000;
-    pointer-events: none;
-    cursor: default;
-}
-
+.pagination > a.disabled {
+  color: #000000;
+  pointer-events: none;
+  cursor: default;
 }
 
 th.alert-warning {
-    font-weight: normal;
+  font-weight: normal;
 }
 
 /* Tooltip text */
 .hastooltip .tooltip {
-    visibility: hidden;
-    width: 60%;
-    background-color: #555;
-    color: #fff;
-    text-align: center;
-    padding: 2px;
-    border-radius: 2px;
+  visibility: hidden;
+  width: 60%;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  padding: 2px;
+  border-radius: 2px;
 
-    /* Position the tooltip text */
-    position: relative;
-    z-index: 1;
-    bottom: 125%;
-    left: 20%;
-    margin-left: -60px;
+  /* Position the tooltip text */
+  position: relative;
+  z-index: 1;
+  bottom: 125%;
+  left: 20%;
+  margin-left: -60px;
 }
 
 /* Show the tooltip text when you mouse over the tooltip container */
 .hastooltip:hover .tooltip {
-    visibility: visible;
-    opacity: 1;
+  visibility: visible;
+  opacity: 1;
 }
