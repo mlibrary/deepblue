@@ -17,6 +17,10 @@ Design System alert announcements for Warning(orange), Informational(blue), Erro
   border-color: rgb(231, 117, 4);
 }
 
+.update-alert--warning a {
+  color: rgb(170, 86, 0);
+}
+
 .update-alert--informational {
   color: rgb(12, 82, 146);
   border-bottom: 1px solid rgb(18, 109, 193);

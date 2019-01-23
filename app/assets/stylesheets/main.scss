@@ -54,6 +54,16 @@ body {
   border: 1px solid rgb(78, 78, 78) !important ;
 }
 
+.add-files-link button {
+  padding: 0.3rem 0.75rem;
+  border-radius: 4px;
+  border-style: none none solid !important;
+  background: rgb(18, 109, 193) !important;
+  text-decoration: none;
+  border-bottom: 3px solid rgb(12, 82, 146) !important;
+  color: #fff;
+}
+
 /** Breadcrumb **/
 
 .breadcrumb {
@@ -214,6 +224,18 @@ a#browse_link {
 }
 
 /** Dashboard **/
+
+body.dashboard {
+  padding-top: 0;
+}
+
+.dashboard #masthead {
+  position: initial;
+}
+
+.dashboard #content-wrapper {
+  padding: 0;
+}
 
 .dashboard .main-header {
   padding: 1em 0.5em;
@@ -646,5 +668,13 @@ div.facets h3 {
   .footer-container ul {
     width: 100%;
     padding-bottom: 0.5em;
+  }
+
+  .table.table-striped.data-set-table {
+    table-layout: fixed;
+
+    td {
+      word-break: break-word;
+    }
   }
 }
