@@ -59,6 +59,7 @@ Rails.application.routes.draw do
     resources :data_sets do
       member do
         # post   'confirm'
+        get    'display_provenance_log'
         get    'doi'
         post   'globus_download'
         post   'globus_add_email'

@@ -1,0 +1,47 @@
+<% if @presenter.present? && @presenter.display_provenance_log_enabled? %>
+  <div class="panel panel-items panel-provenance-log-entries">
+    <% if @presenter.provenance_log_entries? %>
+      <% provenance_log_entries = Deepblue::ProvenanceLogService.entries( @presenter.id ) %>
+      <div class="panel-heading">
+        <h2>Provenance Log (<%= provenance_log_entries.size %> entries)</h2>
+      </div>
+      <div class="table-scroll--container">
+        <table class="table table-striped provenance-log-entries">
+          <thead>
+          <tr>
+            <th><%= t('.timestamp') %></th>
+            <th><%= t('.event') %></th>
+            <th><%= t('.event_note') %></th>
+            <th><%= t('.class_name') %></th>
+          </tr>
+          </thead>
+          <tbody>
+          <% provenance_log_entries.each do |entry| %>
+            <% next if entry.blank? %>
+            <% p = Deepblue::ProvenanceLogService.parse_entry( entry ) %>
+            <tr>
+            <% if p[:parse_error].present? %>
+              <td>Parse Error</td>
+              <td colspan="3"><%= p[:parse_error].message %></td>
+              <td></td>
+              <td></td>
+            <% else %>
+              <td><%= p[:timestamp] %></td>
+              <td><%= p[:event] %></td>
+              <td><%= p[:event_note] %></td>
+              <td><%= p[:class_name] %></td>
+            <% end %>
+            </tr>
+            <tr>
+              <td>&nbsp;</td>
+              <td colspan="3">
+                <%= raw Deepblue::ProvenanceLogService.key_values_to_table( p[:raw_key_values], parse: true ) %>
+              </td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </div>
+<% end %>

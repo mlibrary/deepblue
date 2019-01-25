@@ -3,15 +3,15 @@
 module Deepblue
 
   class ProvenancePath
+
     attr_reader :id, :destination_name
 
     class << self
 
       # Path on file system where derivative file is stored
       # @param [ActiveFedora::Base or String] object either the AF object or its id
-      # @param [String] destination_name
-      def provenance_path_for_reference( object, destination_name )
-        new( object, destination_name ).provenance_path
+      def path_for_reference( object )
+        new( object, "provenance" ).provenance_path
       end
 
       # # @param [ActiveFedora::Base or String] object either the AF object or its id
@@ -23,10 +23,9 @@ module Deepblue
     end
 
     # @param [ActiveFedora::Base, String] object either the AF object or its id
-    # @param [String] destination_name
     def initialize( object, destination_name = nil )
       @id = object.is_a?(String) ? object : object.id
-      @destination_name = destination_name.gsub(/^original_file_/, '') if destination_name # TODO
+      @destination_name = destination_name
     end
 
     def provenance_path
@@ -48,7 +47,7 @@ module Deepblue
 
       # @return <Pathname> Full prefix of the path for object.
       def path_prefix
-        Pathname.new( Hyrax.config.derivatives_path ).join(pair_path) # TODO
+        Pathname.new( Hyrax.config.derivatives_path ).join( pair_path ) # TODO
       end
 
       def pair_path
@@ -60,13 +59,8 @@ module Deepblue
         destination_name + extension
       end
 
-      def extension # TODO
-        case destination_name
-        when 'thumbnail'
-          ".#{MIME::Types.type_for('jpg').first.extensions.first}"
-        else
-          ".#{destination_name}"
-        end
+      def extension
+        ".log"
       end
 
   end

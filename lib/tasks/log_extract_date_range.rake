@@ -19,25 +19,16 @@ module Deepblue
 
   class LogExtractDateRange < AbstractLogTask
 
-    DEFAULT_OUTPUT = './log/out.provenance_production.log'
-
-    attr_accessor :begin_timestamp, :end_timestamp, :format_timestamp
-
     def initialize( options: )
       super( options: options )
-      @output = task_options_value( key: 'output', default_value: DEFAULT_OUTPUT )
-
-      @exporter = LogExporter.new( input: input, output: @output, options: options_to_pass )
+      puts "input reading from #{input}" if verbose
+      puts "output written to #{output}" if verbose
+      @exporter = LogExporter.new( input: input, output: output, options: options_to_pass )
       @exporter.add_date_range_filter
       return unless DEFAULT_OUTPUT == @output
       filter = @exporter.date_range_filter
-      @output = @output.sub( 'out', "#{filter.date_range_label}.out" )
+      @output = @output.sub( 'out', "#{filter.date_range_label}.out" ) unless filter.nil?
       @exporter.output = @output
-    end
-
-    def run
-      @exporter.run
-      puts "output written to #{@output}" if verbose
     end
 
   end

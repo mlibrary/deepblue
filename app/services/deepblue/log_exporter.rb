@@ -2,17 +2,36 @@
 
 module Deepblue
 
+  require 'json'
+
   # rubocop:disable Metrics/ParameterLists
   class LogExporter < LogReader
 
-    attr_accessor :output, :output_mode
+    DEFAULT_PP_EXPORT = false
 
+    attr_accessor :output, :output_mode
     attr_reader :lines_exported
     attr_reader :output_close, :output_pathname
+    attr_accessor :pp_export
 
     def initialize( filter: nil, input:, output:, options: {} )
       super( filter: filter, input: input, options: options )
       @output = output
+      @pp_export = option( key: 'pp_export', default_value: DEFAULT_PP_EXPORT )
+      puts "pp_export=#{pp_export}" if verbose
+    end
+
+    def export_line( line, timestamp, event, event_note, class_name, id, raw_key_values )
+      if pp_export
+        pretty_print_line line, timestamp, event, event_note, class_name, id, raw_key_values
+      else
+        @output.puts line
+      end
+    end
+
+    def pretty_print_line( line, timestamp, event, event_note, class_name, id, raw_key_values )
+      @output.puts "#{timestamp} #{event}/#{event_note}/#{class_name}/#{id}"
+      @output.puts JSON.pretty_generate( JSON.parse( raw_key_values ) )
     end
 
     def output_mode
@@ -22,8 +41,8 @@ module Deepblue
     def run
       @lines_exported = 0
       log_open_output
-      readlines do |line, _timestamp, _event, _event_note, _class_name, _id, _raw_key_values|
-        @output.puts line
+      readlines do |line, timestamp, event, event_note, class_name, id, raw_key_values|
+        export_line line, timestamp, event, event_note, class_name, id, raw_key_values
         @lines_exported += 1
       end
     ensure

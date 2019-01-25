@@ -146,6 +146,11 @@
 
   <% end %>
 
+  <% if @presenter.current_ability.admin?  && @presenter.display_provenance_log_enabled? %>
+    <%= link_to t('simple_form.actions.data_set.display_provenance_log'),
+                main_app.display_provenance_log_hyrax_data_set_path(@presenter.id), class: 'btn btn-default' %>
+  <% end %>
+
   <!-- COinS hook for Zotero -->
   <span class="Z3988" title="<%= export_as_openurl_ctx_kev(@presenter) %>"></span>
 </div>
