@@ -29,6 +29,8 @@ class GlobusCopyJob < GlobusJob
         sleep delay_per_file_seconds if delay_per_file_seconds.positive?
         move_destination = GlobusJob.target_file_name( @target_prep_dir, target_file_name )
         Deepblue::LoggingHelper.debug "#{@globus_log_prefix} mv #{target_file} to #{move_destination}" unless @globus_job_quiet
+        FileUtils.chmod( "g+rw", target_file )
+        FileUtils.chown( nil, "dbglobus", target_file ) # TODO: parameritize group
         FileUtils.move( target_file, move_destination )
         if generate_error
           @globus_lock_file = nil
