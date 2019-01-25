@@ -25,6 +25,7 @@ module Hyrax
     after_action :provenance_log_update_after,     only: [:update]
     after_action :reset_permissions,               only: [:show]
 
+    protect_from_forgery with: :null_session,    only: [:display_provenance_log]
     protect_from_forgery with: :null_session,    only: [:globus_add_email]
     protect_from_forgery with: :null_session,    only: [:globus_download]
     protect_from_forgery with: :null_session,    only: [:globus_download_add_email]
@@ -33,7 +34,9 @@ module Hyrax
 
     attr_accessor :user_email_one, :user_email_two
 
-    # These mehtods (prepare_permissions, and reset_permissions) are used so that 
+    attr_accessor :provenance_log_entries
+
+    # These methods (prepare_permissions, and reset_permissions) are used so that
     # when viewing a tombstoned work, and the user is not admin, the user 
     # will be able to see the metadata.
     def prepare_permissions
@@ -323,6 +326,28 @@ module Hyrax
     end
 
     ## end Provenance log
+
+    ## display provenance log
+
+    def display_provenance_log
+      # load provenance log for this work
+      file_path = Deepblue::ProvenancePath.path_for_reference( curation_concern.id )
+      Deepblue::LoggingHelper.bold_debug [ "DataSetsController", "display_provenance_log", file_path ]
+      Deepblue::ProvenanceLogService.entries( curation_concern.id, refresh: true )
+      # continue on to normal display
+      redirect_to [main_app, curation_concern]
+    end
+
+    def display_provenance_log_enabled?
+      true
+    end
+
+    def provenance_log_entries_present?
+      provenance_log_entries.present?
+    end
+
+    ## end display provenance log
+
 
     ## Tombstone
 

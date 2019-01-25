@@ -47,9 +47,12 @@ module Deepblue
     end
 
     def add_date_range_filter
-      begin_timestamp = option( key: 'begin_timestamp', default_value: DEFAULT_BEGIN_TIMESTAMP )
-      end_timestamp = option( key: 'end_timestamp', default_value: DEFAULT_END_TIMESTAMP )
-      timestamp_format = option( key: 'timestamp_format', default_value: DEFAULT_TIMESTAMP_FORMAT )
+      begin_timestamp = option( key: 'begin' )
+      begin_timestamp = option( key: 'begin_timestamp', default_value: DEFAULT_BEGIN_TIMESTAMP ) unless begin_timestamp.present?
+      end_timestamp = option( key: 'end' )
+      end_timestamp = option( key: 'end_timestamp', default_value: DEFAULT_END_TIMESTAMP ) unless end_timestamp.present?
+      timestamp_format = option( key: 'format' )
+      timestamp_format = option( key: 'timestamp_format', default_value: DEFAULT_TIMESTAMP_FORMAT ) unless timestamp_format.present?
       puts "add_date_range_filter begin_timestamp=#{begin_timestamp} end_timestamp=#{end_timestamp}" if verbose # rubocop:disable Rails/Output
       return if begin_timestamp.blank? && end_timestamp.blank?
       @date_range_filter = DateLogFilter.new( begin_timestamp: begin_timestamp,

@@ -112,11 +112,17 @@ module Deepblue
       def arg_to_timestamp( arg, timestamp_format: )
         timestamp = arg
         if timestamp_format.blank?
+          return DateTime.strptime( arg, "%Y-%m-%d %H:%M:%S" ) if arg.match?( /\d\d\d\d\-\d\d?\-\d\d? \d\d?:\d\d:\d\d/ )
+          return DateTime.strptime( arg, "%m/%d/%Y" ) if arg.match?( /\d\d?\/\d\d?\/\d\d\d\d/ )
+          return DateTime.strptime( arg, "%m-%d-%Y" ) if arg.match?( /\d\d?\-\d\d?\-\d\d\d\d/ )
+          return DateTime.strptime( arg, "%Y" ) if arg.match?( /\d\d\d\d/ )
           timestamp = DateTime.parse( arg ) if arg.is_a? String
         elsif arg.is_a? String
           timestamp = DateTime.strptime( arg, timestamp_format )
         end
         return timestamp
+      rescue ArgumentError
+        puts "DateTime.parse failed - arg='#{arg}' timestamp_format='#{timestamp_format}'" # - #{e.class}: #{e.message} at #{e.backtrace[0]}"
       end
 
       def parse_key_values( raw_key_values )

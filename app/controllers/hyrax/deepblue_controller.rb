@@ -12,6 +12,10 @@ module Hyrax
       false
     end
 
+    def display_provenance_log_enabled?
+      false
+    end
+
     def globus_download_enabled?
       false
     end
