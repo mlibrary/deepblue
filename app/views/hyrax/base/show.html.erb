@@ -31,6 +31,9 @@
       <div class="panel-heading work-panel-heading">
         <%= render 'work_title', presenter: @presenter %>
       </div>
+      <% if !@presenter.tombstone.present? && @presenter.workflow.state != "deposited" && !can?( :edit, @presenter.id ) %>
+      &nbsp;
+      <% else %>
       <div class="panel-body">
         <div class="row">
           <%= render 'workflow_actions_widget', presenter: @presenter %>
@@ -70,6 +73,7 @@
           </div>
         </div>
       </div>
+      <% end %>
     </div>
   </div>
 </div>
