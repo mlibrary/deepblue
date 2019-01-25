@@ -487,13 +487,13 @@ module Deepblue
         # puts "id=#{id} path=#{path} filename=#{filename} file_ids=#{file_ids}"
         log_msg( "#{mode}: building file #{file_set_of} of #{file_set_count}#{file_size}" ) if @verbose
         fname = filename || File.basename( path )
-        build_file_set_new( id: id, depositor: work.depositor, path: path, original_name: fname, build_mode: mode )
+        file_set = build_file_set_new( id: id, depositor: work.depositor, path: path, original_name: fname, build_mode: mode )
         file_set.title = Array( fname )
         file_set.label = fname
         now = DateTime.now.new_offset( 0 )
         file_set.date_uploaded = now
         file_set.visibility = work.visibility
-        file_set.owner = work.owner
+        # file_set.owner = work.owner
         file_set.depositor = work.depositor
         file_set.prior_identifier = file_ids if file_ids.present?
         file_set.save!
