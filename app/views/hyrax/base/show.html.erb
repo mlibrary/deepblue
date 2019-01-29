@@ -29,7 +29,9 @@
         </div>
       </div>
       <div class="panel-heading work-panel-heading">
-        <%= render 'work_title', presenter: @presenter %>
+        <span itemprop="name" itemscope itemtype="http://schema.org/Name">
+          <%= render 'work_title', presenter: @presenter %>
+        </span>
       </div>
       <% if !@presenter.tombstone.present? && @presenter.workflow.state != "deposited" && !can?( :edit, @presenter.id ) %>
       &nbsp;
