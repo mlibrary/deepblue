@@ -27,7 +27,7 @@ module Deepblue
     end
 
     def virus_scan
-      LoggingHelper.bold_debug [ "FileSet.virus_scan", "original_file = #{original_file}" ]
+      LoggingHelper.bold_debug [ "FileSetBehavior.virus_scan", "original_file = #{original_file}" ]
       # check file size here to avoid making a temp copy of the file in VirusCheckerService
       needed = virus_scan_needed?
       if needed && virus_scan_file_too_big?
@@ -42,7 +42,9 @@ module Deepblue
     end
 
     def virus_scan_file_too_big?
-      rv = virus_scan_file_size > DeepBlueDocs::Application.config.virus_scan_max_file_size
+      fsize = virus_scan_file_size
+      return false if fsize.blank?
+      rv = fsize.to_i > DeepBlueDocs::Application.config.virus_scan_max_file_size
       return rv
     end
 
