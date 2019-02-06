@@ -2,7 +2,7 @@
 
 namespace :deepblue do
 
-  # bundle exec rake deepblue:log_extract_date_range['{"id":"XYZ12345"\,"input":"./log/provenance_production.log"}']
+  # bundle exec rake deepblue:log_extract_id['{"id":"XYZ12345"\,"input":"./log/provenance_production.log"}']
   desc 'Extract provenance log entries with a given id'
   task :log_extract_id, %i[ options ] => :environment do |_task, args|
     args.with_defaults( options: '{}' )
