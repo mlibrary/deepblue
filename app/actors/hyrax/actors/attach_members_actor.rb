@@ -13,11 +13,27 @@ module Hyrax
       private
 
         def add( env, id )
+          return if id.blank?
           member = ActiveFedora::Base.find( id )
           return unless env.current_ability.can?( :edit, member )
           env.curation_concern.ordered_members << member
           current_user = env['warden'].user
-          curation_concern.provenance_child_add(current_user: current_user, child_id: id ) if curation_concern.respond_to? :provenance_child_add
+          return unless curation_concern.respond_to? :provenance_child_add
+          curation_concern.provenance_child_add( current_user: current_user,
+                                                 child_id: id,
+                                                 event_note: "AttachMembersActor" )
+        end
+
+        # Remove the object from the members set and the ordered members list
+        def remove( curation_concern, id )
+          return if id.blank?
+          member = ActiveFedora::Base.find(id)
+          curation_concern.ordered_members.delete(member)
+          curation_concern.members.delete(member)
+          return unless curation_concern.respond_to? :provenance_child_remove
+          curation_concern.provenance_child_remove( current_user: current_user,
+                                                    child_id: id,
+                                                    event_note: "AttachMembersActor" )
         end
 
     end
