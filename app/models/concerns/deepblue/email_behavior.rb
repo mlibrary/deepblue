@@ -93,7 +93,7 @@ module Deepblue
 
     def email_rds_create( current_user:, event_note: '' )
       attributes, ignore_blank_key_values = attributes_for_email_rds_create
-      email_event_notification( to: email_address_rds_deepblue,
+      email_event_notification( to: email_address_rds,
                                 to_note: 'RDS',
                                 from: email_address_rds,
                                 subject: for_email_subject( subject_rest: 'Work Created' ),
