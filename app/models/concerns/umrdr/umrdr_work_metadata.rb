@@ -53,7 +53,7 @@ module Umrdr
         index.as :stored_searchable
       end
 
-      property :fundedby_other, predicate: ::RDF::Vocab::DISCO.fundedBy, multiple: true do |index|
+      property :fundedby_other, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#fundedby_other'), multiple: true do |index|
         index.type :text
         index.as :stored_searchable
       end
