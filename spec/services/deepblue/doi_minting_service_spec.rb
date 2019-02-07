@@ -51,7 +51,7 @@ describe Deepblue::DoiMintingService do
       end
       it "does not attempt to mint a doi" do
         expect(subject).not_to receive(:mint_doi)
-        expect(subject.run).to be_nil
+        expect(subject.run).to eq "doi:10.5072/FK2DEAD455BEEF"
       end
     end
   end
