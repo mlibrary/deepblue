@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module Hyrax
+
   module Actors
     # Validates that the submitted version is the most recent version in the datastore.
     # Caveat: we are not detecting if the version is changed by a different process between
@@ -29,4 +32,5 @@ module Hyrax
         end
     end
   end
+
 end

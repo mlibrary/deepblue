@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module Hyrax
+
   module Actors
 
     class EnvironmentAttributes
@@ -93,4 +96,5 @@ module Hyrax
     end
 
   end
+
 end
