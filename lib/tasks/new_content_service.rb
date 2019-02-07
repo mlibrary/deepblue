@@ -350,6 +350,9 @@ module Deepblue
         rescue ActiveFedora::ObjectNotFoundError
           # TODO: Log this
           admin_set = admin_set_work
+        rescue Ldp::Gone
+          # TODO: Log this
+          admin_set = admin_set_work
         end
         admin_set
       end
