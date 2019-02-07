@@ -10,7 +10,8 @@ module Hyrax
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if create was successful
       def create( env )
-        work_ids = env_attributes_by_key( env: env, key: :in_works_ids )
+        env.log_event( next_actor: next_actor )
+        work_ids = env.attributes.values_at( :in_works_ids )
         Deepblue::LoggingHelper.bold_debug "BeforeAddToWorkActor.create: next_actor = #{next_actor.class.name}, work_ids=#{work_ids}"
         actor = next_actor
         actor.create( env ) && add_to_works( env, work_ids )
@@ -19,7 +20,8 @@ module Hyrax
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if update was successful
       def update( env )
-        work_ids = env_attributes_by_key( env: env, key: :in_works_ids )
+        env.log_event( next_actor: next_actor )
+        work_ids = env.attributes.values_at( :in_works_ids )
         Deepblue::LoggingHelper.bold_debug "BeforeAddToWorkActor.update: next_actor = #{next_actor.class.name}, work_ids=#{work_ids}"
         actor = next_actor
         add_to_works( env, work_ids ) && actor.update( env )

@@ -19,7 +19,8 @@ module Hyrax
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if update was successful
       def update( env )
-        attributes_collection = env_attributes_by_key( env: env, key: :work_members_attributes )
+        env.log_event( next_actor: next_actor )
+        attributes_collection = env.attributes.values_at( :work_members_attributes )
         Deepblue::LoggingHelper.bold_debug "BeforeAttachMembersActor.update: next_actor = #{next_actor.class.name}"
         assign_nested_attributes_for_collection( env, attributes_collection ) && next_actor.update( env )
       end
