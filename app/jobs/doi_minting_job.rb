@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class DoiMintingJob < Hyrax::ApplicationJob
+class DoiMintingJob < ::Hyrax::ApplicationJob
 
   queue_as :doi_minting
 

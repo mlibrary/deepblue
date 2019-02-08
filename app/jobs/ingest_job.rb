@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class IngestJob < Hyrax::ApplicationJob
+class IngestJob < ::Hyrax::ApplicationJob
   # monkey patch
 
   queue_as Hyrax.config.ingest_queue_name
