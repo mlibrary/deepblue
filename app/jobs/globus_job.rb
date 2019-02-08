@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class GlobusJob < ApplicationJob
+class GlobusJob < ::Hyrax::ApplicationJob
 
   @@globus_era_timestamp = DeepBlueDocs::Application.config.globus_era_timestamp
   @@globus_era_token = DeepBlueDocs::Application.config.globus_era_token.freeze

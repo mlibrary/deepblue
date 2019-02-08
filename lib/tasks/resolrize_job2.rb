@@ -5,7 +5,7 @@ require 'tasks/task_logger'
 
 module Deepblue
 
-  class ResolrizeJob2 < ApplicationJob
+  class ResolrizeJob2 < Hyrax::ApplicationJob
 
     def perform
       logger = TaskHelper.logger_new
