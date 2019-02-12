@@ -53,9 +53,9 @@ module Deepblue
     end
 
     def msg_to_log
-      prov_key_values = ProvenanceHelper.initialize_prov_key_values( user_email: @user_email,
-                                                                     event_note: @event_note,
-                                                                     **@added_prov_key_values )
+      prov_key_values = ProvenanceHelper.logger_initialize_key_values(user_email: @user_email,
+                                                                      event_note: @event_note,
+                                                                      **@added_prov_key_values )
       msg = ProvenanceHelper.msg_to_log( class_name: @class_name,
                                          event: @event,
                                          event_note: @event_note,

@@ -4,17 +4,19 @@
 class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
   queue_as Hyrax.config.ingest_queue_name
 
-  JOB_IS_VERBOSE = true
+  ATTACH_FILES_TO_WORK_JOB_IS_VERBOSE = true
+  ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY = false
 
   # @param [ActiveFedora::Base] work - the work object
   # @param [Array<Hyrax::UploadedFile>] uploaded_files - an array of files to attach
   def perform( work, uploaded_files, **work_attributes )
     @processed = []
-    Deepblue::LoggingHelper.bold_debug [ "#{caller_locations(1, 1)[0]}",
+    Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                         Deepblue::LoggingHelper.called_from,
                                          "work=#{work}",
                                          "uploaded_files=#{uploaded_files}",
                                          "uploaded_files.count=#{uploaded_files.count}",
-                                         "work_attributes=#{work_attributes}" ] if JOB_IS_VERBOSE
+                                         "work_attributes=#{work_attributes}" ] if ATTACH_FILES_TO_WORK_JOB_IS_VERBOSE
     validate_files!(uploaded_files)
     depositor = proxy_or_depositor( work )
     user = User.find_by_user_key( depositor )
@@ -24,9 +26,30 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       upload_file( work, uploaded_file, user, work_permissions, metadata )
     end
     failed = uploaded_files - @processed
-    Rails.logger.error "FAILED to process all uploaded files at #{caller_locations(1, 1)[0]}, count of unprocessed files = #{failed.count}" unless failed.empty?
+    unless failed.empty?
+      Rails.logger.error "FAILED to process all uploaded files at #{caller_locations(1, 1)[0]}, count of unprocessed files = #{failed.count}"
+      Deepblue::UploadHelper.log( class_name: self.class.name,
+                                  event: "attach_files_to_work",
+                                  event_note: "failed",
+                                  id: work.id,
+                                  user: user,
+                                  work_id: work.id,
+                                  failed: failed,
+                                  uploaded_files_count: uploaded_files.count )
+                                  # work_attributes: work_attributes  )
+    end
   rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "#{e.class} work_id=#{work.id} -- #{e.message} at #{e.backtrace[0]}"
+    Deepblue::UploadHelper.log( class_name: self.class.name,
+                                event: "attach_files_to_work",
+                                event_note: "failed",
+                                id: work.id,
+                                user: user,
+                                work_id: work.id,
+                                exception: e.to_s,
+                                backtrace0: e.backtrace[0],
+                                uploaded_files_count: uploaded_files.count )
+                                # work_attributes: work_attributes )
     raise
   end
 
@@ -57,22 +80,48 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
     end
 
     def upload_file( work, uploaded_file, user, work_permissions, metadata )
-      Deepblue::LoggingHelper.bold_debug [ "#{caller_locations(1, 1)[0]}",
-                                           "work_id=#{work.id}",
-                                           "uploaded_file.file=#{uploaded_file.file}",
+      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                           Deepblue::LoggingHelper.called_from,
+                                           "work.id=#{work.id}",
+                                           "uploaded_file.file=#{uploaded_file.file.path}",
                                            "uploaded_file.file_set_uri=#{uploaded_file.file_set_uri}",
+                                           # Deepblue::LoggingHelper.obj_methods( "uploaded_file", uploaded_file ),
+                                           # Deepblue::LoggingHelper.obj_instance_variables( "uploaded_file", uploaded_file ),
+                                           # Deepblue::LoggingHelper.obj_attribute_names( "uploaded_file", uploaded_file ),
+                                           Deepblue::LoggingHelper.obj_to_json( "uploaded_file", uploaded_file ),
+                                           "uploaded_file.id=#{Deepblue::UploadHelper.uploaded_file_id( uploaded_file )}",
                                            "user=#{user}",
                                            "work_permissions=#{work_permissions}",
-                                           "metadata=#{metadata}" ] if JOB_IS_VERBOSE
+                                           "metadata=#{metadata}" ] if ATTACH_FILES_TO_WORK_JOB_IS_VERBOSE
+      Deepblue::UploadHelper.log( class_name: self.class.name,
+                                  event: "upload_file",
+                                  id: "NA",
+                                  path: Deepblue::UploadHelper.uploaded_file_path( uploaded_file ),
+                                  size: Deepblue::UploadHelper.uploaded_file_size( uploaded_file ),
+                                  uploaded_file_id: Deepblue::UploadHelper.uploaded_file_id( uploaded_file ),
+                                  user: user.to_s,
+                                  work_id: work.id)
       actor = Hyrax::Actors::FileSetActor.new( FileSet.create, user )
       actor.file_set.permissions_attributes = work_permissions
       actor.create_metadata( metadata )
-      actor.create_content( uploaded_file )
+      # when actor.create content is here, and the processing is synchronous, then it fails to add size to the file_set
+      # actor.create_content( uploaded_file, continue_job_chain_later: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY )
       actor.attach_to_work( work )
       uploaded_file.update( file_set_uri: actor.file_set.uri )
+      actor.create_content( uploaded_file, continue_job_chain_later: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY )
       @processed << uploaded_file
     rescue Exception => e # rubocop:disable Lint/RescueException
-      Rails.logger.error "#{e.class} work_id=#{work_id} -- #{e.message} at #{e.backtrace[0]}"
+      Rails.logger.error "#{e.class} work.id=#{work.id} -- #{e.message} at #{e.backtrace[0]}"
+      Deepblue::UploadHelper.log( class_name: self.class.name,
+                                  event: "upload_file",
+                                  event_note: "failed",
+                                  id: work.id,
+                                  path: uploaded_file.file.path,
+                                  size: File.size( uploaded_file.file.path ),
+                                  user: user,
+                                  work_id: work.id,
+                                  exception: e.to_s,
+                                  backtrace0: e.backtrace[0] )
     end
 
 end
