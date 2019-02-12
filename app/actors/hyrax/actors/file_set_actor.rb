@@ -22,23 +22,37 @@ module Hyrax
       # @param [Hyrax::UploadedFile, File] file the file uploaded by the user
       # @param [Symbol, #to_s] relation
       # @return [IngestJob, FalseClass] false on failure, otherwise the queued job
-      def create_content(file, relation = :original_file, from_url: false)
+      def create_content( file, relation = :original_file, from_url: false, continue_job_chain_later: true )
+        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "file=#{file}",
+                                             Deepblue::LoggingHelper.obj_to_json( "file", file ),
+                                             "relation=#{relation}",
+                                             "from_url=#{from_url}",
+                                             "continue_job_chain_later=#{continue_job_chain_later}" ]
         # If the file set doesn't have a title or label assigned, set a default.
         file_set.label ||= label_for(file)
         file_set.title = [file_set.label] if file_set.title.blank?
         return false unless file_set.save # Need to save to get an id
+        io_wrapper = wrapper!( file: file, relation: relation )
         if from_url
           # If ingesting from URL, don't spawn an IngestJob; instead
           # reach into the FileActor and run the ingest with the file instance in
           # hand. Do this because we don't have the underlying UploadedFile instance
-          file_actor = build_file_actor(relation)
-          file_actor.ingest_file(wrapper!(file: file, relation: relation))
+          file_actor = build_file_actor( relation )
+          file_actor.ingest_file( io_wrapper, continue_job_chain_later: continue_job_chain_later )
+          parent = file_set.parent
           # Copy visibility and permissions from parent (work) to
           # FileSets even if they come in from BrowseEverything
-          VisibilityCopyJob.perform_later(file_set.parent)
-          InheritPermissionsJob.perform_later(file_set.parent)
+          if continue_job_chain_later
+            VisibilityCopyJob.perform_later( parent )
+            InheritPermissionsJob.perform_later( parent )
+          else
+            VisibilityCopyJob.perform_now( parent )
+            InheritPermissionsJob.perform_now( parent )
+          end
         else
-          IngestJob.perform_later(wrapper!(file: file, relation: relation))
+          IngestJob.perform_now( io_wrapper, continue_job_chain_later: continue_job_chain_later )
         end
       end
 
@@ -58,7 +72,10 @@ module Hyrax
       #   we have to save both the parent work and the file_set in order to record the "metadata" relationship between them.
       # @param [Hash] file_set_params specifying the visibility, lease and/or embargo of the file set.
       #   Without visibility, embargo_release_date or lease_expiration_date, visibility will be copied from the parent.
-      def create_metadata(file_set_params = {})
+      def create_metadata( file_set_params = {} )
+        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "file_set_params=#{file_set_params}" ]
         file_set.depositor = depositor_id(user)
         now = TimeService.time_in_utc
         file_set.date_uploaded = now
@@ -74,6 +91,10 @@ module Hyrax
       # Adds a FileSet to the work using ore:Aggregations.
       # Locks to ensure that only one process is operating on the list at a time.
       def attach_to_work(work, file_set_params = {})
+        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "work.id=#{work.id}",
+                                             "file_set_params=#{file_set_params}" ]
         acquire_lock_for(work.id) do
           # Ensure we have an up-to-date copy of the members association, so that we append to the end of the list.
           work.reload unless work.new_record?
@@ -124,8 +145,11 @@ module Hyrax
         end
 
         # uses create! because object must be persisted to serialize for jobs
-        def wrapper!(file:, relation:)
-          JobIoWrapper.create_with_varied_file_handling!(user: user, file: file, relation: relation, file_set: file_set)
+        def wrapper!( file:, relation: )
+          JobIoWrapper.create_with_varied_file_handling!( user: user,
+                                                          file: file,
+                                                          relation: relation,
+                                                          file_set: file_set )
         end
 
         # For the label, use the original_filename or original_name if it's there.

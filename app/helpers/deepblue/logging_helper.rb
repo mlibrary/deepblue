@@ -23,6 +23,14 @@ module Deepblue
       lines.times { Rails.logger.debug ">>>>>>>>>>" }
     end
 
+    def self.called_from
+      "called from: #{caller_locations(1, 2)[1]}"
+    end
+
+    def self.caller
+      "#{caller_locations(1, 2)[1]}"
+    end
+
     def self.debug( msg = nil, label: nil, key_value_lines: true, lines: 0, &block )
       lines = 0 if lines.negative?
       lines.times { Rails.logger.debug ">>>>>>>>>>" }
@@ -40,6 +48,10 @@ module Deepblue
         Rails.logger.debug msg, &block
       end
       lines.times { Rails.logger.debug ">>>>>>>>>>" }
+    end
+
+    def self.here
+      "#{caller_locations(1, 1)[0]}"
     end
 
     def self.initialize_key_values( user_email:, event_note:, **added_key_values )
@@ -79,6 +91,28 @@ module Deepblue
       key_values.merge! added_key_values
       key_values = ActiveSupport::JSON.encode key_values if json_encode
       "#{timestamp} #{event}/#{class_name}/#{id} #{key_values}"
+    end
+
+    def self.obj_attribute_names( label, obj )
+      return "#{label}.attribute_names=N/A" unless obj.respond_to? :attribute_names
+      "#{label}.attribute_names=#{obj.attribute_names}"
+    end
+
+    def self.obj_class( label, obj )
+      "#{label}.class=#{obj.class.name}"
+    end
+
+    def self.obj_instance_variables( label, obj )
+      "#{label}.instance_variables=#{obj.instance_variables}"
+    end
+
+    def self.obj_methods( label, obj )
+      "#{label}.methods=#{obj.methods.sort}"
+    end
+
+    def self.obj_to_json( label, obj )
+      return "#{label}.to_json=N/A" unless obj.respond_to? :to_json
+      "#{label}.to_json=#{obj.to_json}"
     end
 
     def self.system_as_current_user

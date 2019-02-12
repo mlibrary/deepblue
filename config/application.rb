@@ -137,6 +137,8 @@ module DeepBlueDocs
     config.provenance_log_echo_to_rails_logger = true
     config.provenance_log_redundant_events = true
 
+    config.upload_log_echo_to_rails_logger = true
+
   end
 
 end

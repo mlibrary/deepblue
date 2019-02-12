@@ -4,11 +4,11 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
 
   describe 'constants' do
     it do
-      expect( Deepblue::ProvenanceHelper::TIMESTAMP_FORMAT ).to eq '\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d'
-      expect( Deepblue::ProvenanceHelper::RE_TIMESTAMP_FORMAT.source ).to eq '^\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d$'
-      expect( Deepblue::ProvenanceHelper::RE_LOG_LINE.source ).to \
+      expect( Deepblue::JsonLoggerHelper::TIMESTAMP_FORMAT ).to eq '\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d'
+      expect( Deepblue::JsonLoggerHelper::RE_TIMESTAMP_FORMAT.source ).to eq '^\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d$'
+      expect( Deepblue::JsonLoggerHelper::RE_LOG_LINE.source ).to \
         eq '^(\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d) ([^/]+)/([^/]*)/([^/]+)/([^/ ]*) (.*)$'
-      expect( Deepblue::ProvenanceHelper::PREFIX_UPDATE_ATTRIBUTE ).to eq 'UpdateAttribute_'
+      expect( Deepblue::JsonLoggerHelper::PREFIX_UPDATE_ATTRIBUTE ).to eq 'UpdateAttribute_'
     end
   end
 
@@ -128,7 +128,7 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
     context 'parameters: user_email and event_note' do
       subject do
         lambda do |user_email, event_note|
-          Deepblue::ProvenanceHelper.initialize_prov_key_values( user_email: user_email, event_note: event_note )
+          Deepblue::ProvenanceHelper.logger_initialize_key_values(user_email: user_email, event_note: event_note )
         end
       end
 
@@ -148,16 +148,16 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
       let( :result2 ) { { user_email: user_email, event_note: event_note, added1: added1, added2: added2 } }
 
       it 'returns a hash containing user_email, event_note, and added1' do
-        expect( Deepblue::ProvenanceHelper.initialize_prov_key_values( user_email: user_email,
-                                                                       event_note: event_note,
-                                                                       added1: added1 ) ).to eq result1
+        expect( Deepblue::ProvenanceHelper.logger_initialize_key_values(user_email: user_email,
+                                                                        event_note: event_note,
+                                                                        added1: added1 ) ).to eq result1
       end
 
       it 'returns a hash containing user_email, event_note, added1, and added2' do
-        expect( Deepblue::ProvenanceHelper.initialize_prov_key_values( user_email: user_email,
-                                                                       event_note: event_note,
-                                                                       added1: added1,
-                                                                       added2: added2 ) ).to eq result2
+        expect( Deepblue::ProvenanceHelper.logger_initialize_key_values(user_email: user_email,
+                                                                        event_note: event_note,
+                                                                        added1: added1,
+                                                                        added2: added2 ) ).to eq result2
       end
     end
   end

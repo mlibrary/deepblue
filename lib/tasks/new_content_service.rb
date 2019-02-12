@@ -226,6 +226,7 @@ module Deepblue
                                                file_size: file_size,
                                                build_mode: mode )
           add_file_set_to_work( work: work, file_set: file_set )
+          # TODO: move ingest step here, this will probably fix file_sets that turn up with missing file sizes
         end
         work.save!
         work.reload
@@ -255,6 +256,7 @@ module Deepblue
                                file_set_count: count,
                                file_size: file_size )
           add_file_set_to_work( work: work, file_set: fs )
+          # TODO: move ingest step here, this will probably fix file_sets that turn up with missing file sizes
         end
         work.save!
         work.reload
@@ -500,6 +502,7 @@ module Deepblue
         file_set.depositor = work.depositor
         file_set.prior_identifier = file_ids if file_ids.present?
         file_set.save!
+        # TODO: move ingest step to after attach to work, this will probably fix file_sets that turn up with missing file sizes
         return build_file_set_ingest( file_set: file_set, path: path, checksum_algorithm: nil, checksum_value: nil, build_mode: mode )
       end
 
@@ -557,6 +560,7 @@ module Deepblue
         update_visibility( curation_concern: file_set, visibility: visibility )
         file_set.save!
 
+        # TODO: move ingest step to after attach to work, this will probably fix file_sets that turn up with missing file sizes
         return build_file_set_ingest( file_set: file_set,
                                       path: path,
                                       checksum_algorithm: checksum_algorithm,
@@ -1948,6 +1952,7 @@ module Deepblue
                                                  file_size: file_size,
                                                  build_mode: update_build_mode )
             add_file_set_to_work( work: work, file_set: file_set )
+            # TODO: move ingest step here, this will probably fix file_sets that turn up with missing file sizes
             updates << "#{attr_prefix work}: file added #{file_set_id}"
           end
         end

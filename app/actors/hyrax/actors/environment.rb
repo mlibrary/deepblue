@@ -18,7 +18,8 @@ module Hyrax
       def initialize( hash, curation_concern_id: '' )
         @hash = hash
         @curation_concern_id = curation_concern_id
-        Deepblue::LoggingHelper.bold_debug ["from #{caller_locations(1, 1)[0]}",
+        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                            Deepblue::LoggingHelper.called_from,
                                             "curation_concern_id=#{@curation_concern_id}",
                                             "EnvironmentAttributes.initialized",
                                             "attributes=#{@hash}" ]
@@ -48,7 +49,8 @@ module Hyrax
         def log_it( key_label, key )
           return if IGNORE_KEYS.include? key
           from = caller_locations(1, 2)[1]
-          Deepblue::LoggingHelper.bold_debug ["from #{from}",
+          Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
                                               "curation_concern_id=#{@curation_concern_id}",
                                               "#{key_label} key=#{key}",
                                               "attributes=#{@hash}" ]
@@ -84,10 +86,11 @@ module Hyrax
       def log_event( next_actor: )
         # return if LOG_IGNORE_EVENT.include? key
         from = caller_locations(1, 2)[1]
-        Deepblue::LoggingHelper.bold_debug ["from #{from}",
+        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
                                             "curation_concern.class.name=#{curation_concern.class.name}",
                                             "curation_concern.id=#{curation_concern&.id}",
-                                            "next_actor=#{next_actor.class.name}",
+                                             Deepblue::LoggingHelper.obj_class( "next_actor", next_actor ),
                                             "attributes=#{attributes}" ]
       rescue Exception => e # rubocop:disable Lint/RescueException
         Rails.logger.error "log_event exception - #{e.class}: #{e.message} at #{e.backtrace[0]}"
