@@ -73,18 +73,22 @@ class JobIoWrapper < ApplicationRecord
 
   def ingest_file( continue_job_chain: true,
                    continue_job_chain_later: true,
-                   delete_input_file: true )
+                   delete_input_file: true,
+                   uploaded_file_ids: [] )
     actor = file_actor
     Deepblue::LoggingHelper.bold_debug [ "#{caller_locations(1, 1)[0]}",
                                          "actor.class=#{actor.class.name}",
                                          "relation=#{relation}",
                                          "continue_job_chain=#{continue_job_chain}",
                                          "continue_job_chain_later=#{continue_job_chain_later}",
-                                         "delete_input_file=#{delete_input_file}" ]
+                                         "delete_input_file=#{delete_input_file}",
+                                         "uploaded_file_ids=#{uploaded_file_ids}",
+                                         "" ]
     actor.ingest_file(self,
                       continue_job_chain: continue_job_chain,
                       continue_job_chain_later: continue_job_chain_later,
-                      delete_input_file: delete_input_file )
+                      delete_input_file: delete_input_file,
+                      uploaded_file_ids: uploaded_file_ids )
   end
 
   private

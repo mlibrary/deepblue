@@ -27,7 +27,8 @@ module Hyrax
       def ingest_file( io,
                        continue_job_chain: true,
                        continue_job_chain_later: true,
-                       delete_input_file: true )
+                       delete_input_file: true,
+                       uploaded_file_ids: [] )
 
         Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
@@ -35,6 +36,7 @@ module Hyrax
                                              "continue_job_chain=#{continue_job_chain}",
                                              "continue_job_chain_later=#{continue_job_chain_later}",
                                              "delete_input_file=#{delete_input_file}",
+                                             "uploaded_file_ids=#{uploaded_file_ids}",
                                              "" ]
         # Skip versioning because versions will be minted by VersionCommitter as necessary during save_characterize_and_record_committer.
         Hydra::Works::AddFileToFileSet.call( file_set,
@@ -46,14 +48,18 @@ module Hyrax
         Hyrax::VersioningService.create(repository_file, user)
         pathhint = io.uploaded_file.uploader.path if io.uploaded_file # in case next worker is on same filesystem
         if continue_job_chain_later
-          CharacterizeJob.perform_later( file_set, repository_file.id, pathhint || io.path )
+          CharacterizeJob.perform_later( file_set,
+                                         repository_file.id,
+                                         pathhint || io.path,
+                                         uploaded_file_ids: uploaded_file_ids )
         else
           CharacterizeJob.perform_now( file_set,
                                        repository_file.id,
                                        pathhint || io.path,
                                        continue_job_chain: continue_job_chain,
                                        continue_job_chain_later: continue_job_chain_later,
-                                       delete_input_file: delete_input_file )
+                                       delete_input_file: delete_input_file,
+                                       uploaded_file_ids: uploaded_file_ids )
         end
       end
 

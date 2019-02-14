@@ -20,7 +20,8 @@ class IngestJob < ::Hyrax::ApplicationJob
                notification: false,
                continue_job_chain: true,
                continue_job_chain_later: true,
-               delete_input_file: true )
+               delete_input_file: true,
+               uploaded_file_ids: [] )
 
     uploaded_file = wrapper.uploaded_file
     Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
@@ -38,10 +39,12 @@ class IngestJob < ::Hyrax::ApplicationJob
                                            # Deepblue::LoggingHelper.obj_attribute_names( "uploaded_file", uploaded_file ),
                                            Deepblue::LoggingHelper.obj_to_json( "uploaded_file", uploaded_file ),
                                            "uploaded_file.id=#{Deepblue::UploadHelper.uploaded_file_id( uploaded_file )}",
+                                           "uploaded_file_ids=#{uploaded_file_ids}",
                                            "" ]
     wrapper.ingest_file( continue_job_chain: continue_job_chain,
                          continue_job_chain_later: continue_job_chain_later,
-                         delete_input_file: delete_input_file )
+                         delete_input_file: delete_input_file,
+                         uploaded_file_ids: uploaded_file_ids )
   end
 
 end

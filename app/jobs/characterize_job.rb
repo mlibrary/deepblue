@@ -11,7 +11,8 @@ class CharacterizeJob < ::Hyrax::ApplicationJob
                filepath = nil,
                continue_job_chain: true,
                continue_job_chain_later: true,
-               delete_input_file: true )
+               delete_input_file: true,
+               uploaded_file_ids: [] )
 
     Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                          Deepblue::LoggingHelper.called_from,
@@ -21,13 +22,15 @@ class CharacterizeJob < ::Hyrax::ApplicationJob
                                          "continue_job_chain=#{continue_job_chain}",
                                          "continue_job_chain_later=#{continue_job_chain_later}",
                                          "delete_input_file=#{delete_input_file}",
+                                         "uploaded_file_ids=#{uploaded_file_ids}",
                                          "" ]
     Deepblue::IngestHelper.characterize( file_set,
                                          repository_file_id,
                                          filepath,
                                          continue_job_chain: continue_job_chain,
                                          continue_job_chain_later: continue_job_chain_later,
-                                         delete_input_file: delete_input_file )
+                                         delete_input_file: delete_input_file,
+                                         uploaded_file_ids: uploaded_file_ids )
   rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "CharacterizeJob.perform(#{file_set},#{repository_file_id},#{filepath}) #{e.class}: #{e.message}"
   end
