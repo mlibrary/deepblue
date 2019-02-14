@@ -83,6 +83,12 @@ module DeepBlueDocs
     config.globus_restart_all_copy_jobs_quiet = true
     config.globus_debug_delay_per_file_copy_job_seconds = 0
     config.globus_after_copy_job_ui_delay_seconds = 3
+    if Rails.env.production?
+      config.globus_copy_file_group = "dbdglobus"
+    else
+      config.globus_copy_file_group = nil
+    end
+    config.globus_copy_file_permissions = "u=rw,g=rw,o=r"
 
     # deposit notification email addresses
     config.notification_email = Settings.notification_email
