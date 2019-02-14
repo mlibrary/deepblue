@@ -22,14 +22,20 @@ module Hyrax
       # @param [Hyrax::UploadedFile, File] file the file uploaded by the user
       # @param [Symbol, #to_s] relation
       # @return [IngestJob, FalseClass] false on failure, otherwise the queued job
-      def create_content( file, relation = :original_file, from_url: false, continue_job_chain_later: true )
+      def create_content( file,
+                          relation = :original_file,
+                          from_url: false,
+                          continue_job_chain_later: true,
+                          uploaded_file_ids: [] )
         Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "file=#{file}",
                                              Deepblue::LoggingHelper.obj_to_json( "file", file ),
                                              "relation=#{relation}",
                                              "from_url=#{from_url}",
-                                             "continue_job_chain_later=#{continue_job_chain_later}" ]
+                                             "continue_job_chain_later=#{continue_job_chain_later}",
+                                             "uploaded_file_ids=#{uploaded_file_ids}",
+                                              "" ]
         # If the file set doesn't have a title or label assigned, set a default.
         file_set.label ||= label_for(file)
         file_set.title = [file_set.label] if file_set.title.blank?
@@ -52,7 +58,9 @@ module Hyrax
             InheritPermissionsJob.perform_now( parent )
           end
         else
-          IngestJob.perform_now( io_wrapper, continue_job_chain_later: continue_job_chain_later )
+          IngestJob.perform_now( io_wrapper,
+                                 continue_job_chain_later: continue_job_chain_later,
+                                 uploaded_file_ids: uploaded_file_ids )
         end
       end
 

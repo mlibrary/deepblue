@@ -17,26 +17,56 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                          "uploaded_files=#{uploaded_files}",
                                          "uploaded_files.count=#{uploaded_files.count}",
                                          "work_attributes=#{work_attributes}" ] if ATTACH_FILES_TO_WORK_JOB_IS_VERBOSE
-    validate_files!(uploaded_files)
     depositor = proxy_or_depositor( work )
     user = User.find_by_user_key( depositor )
+    uploaded_file_ids = uploaded_files.map { |u| u.id }
+    Deepblue::UploadHelper.log( class_name: self.class.name,
+                                event: "attach_files_to_work",
+                                event_note: "starting",
+                                id: work.id,
+                                uploaded_file_ids: uploaded_file_ids,
+                                uploaded_file_ids_count: uploaded_file_ids.size,
+                                user: user.to_s,
+                                work_id: work.id,
+                                asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY)
+    validate_files!(uploaded_files)
     work_permissions = work.permissions.map( &:to_hash )
     metadata = visibility_attributes( work_attributes )
     uploaded_files.each do |uploaded_file|
-      upload_file( work, uploaded_file, user, work_permissions, metadata )
+      upload_file( work, uploaded_file, user, work_permissions, metadata, uploaded_file_ids: uploaded_file_ids )
     end
     failed = uploaded_files - @processed
-    unless failed.empty?
+    Deepblue::UploadHelper.log( class_name: self.class.name,
+                                event: "upload_file_list",
+                                event_note: "started",
+                                id: "NA",
+                                uploaded_file_ids: uploaded_file_ids,
+                                uploaded_file_ids_count: uploaded_file_ids.size,
+                                user: user.to_s,
+                                work_id: work.id,
+                                asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY)
+    if failed.empty?
+      Deepblue::UploadHelper.log( class_name: self.class.name,
+                                  event: "attach_files_to_work",
+                                  event_note: "finished",
+                                  id: work.id,
+                                  uploaded_file_ids: uploaded_file_ids,
+                                  uploaded_file_ids_count: uploaded_file_ids.size,
+                                  user: user.to_s,
+                                  work_id: work.id,
+                                  asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY)
+    else
       Rails.logger.error "FAILED to process all uploaded files at #{caller_locations(1, 1)[0]}, count of unprocessed files = #{failed.count}"
       Deepblue::UploadHelper.log( class_name: self.class.name,
                                   event: "attach_files_to_work",
-                                  event_note: "failed",
+                                  event_note: "finished_with_failed_files",
                                   id: work.id,
-                                  user: user,
+                                  uploaded_file_ids: uploaded_file_ids,
+                                  uploaded_file_ids_count: uploaded_file_ids.size,
+                                  user: user.to_s,
                                   work_id: work.id,
                                   failed: failed,
-                                  uploaded_files_count: uploaded_files.count )
-                                  # work_attributes: work_attributes  )
+                                  asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY )
     end
   rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "#{e.class} work_id=#{work.id} -- #{e.message} at #{e.backtrace[0]}"
@@ -44,12 +74,11 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                 event: "attach_files_to_work",
                                 event_note: "failed",
                                 id: work.id,
-                                user: user,
+                                user: user.to_s,
                                 work_id: work.id,
                                 exception: e.to_s,
                                 backtrace0: e.backtrace[0],
-                                uploaded_files_count: uploaded_files.count )
-                                # work_attributes: work_attributes )
+                                asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY )
     raise
   end
 
@@ -79,7 +108,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       work.on_behalf_of.blank? ? work.depositor : work.on_behalf_of
     end
 
-    def upload_file( work, uploaded_file, user, work_permissions, metadata )
+    def upload_file( work, uploaded_file, user, work_permissions, metadata, uploaded_file_ids: [] )
       Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
                                            "work.id=#{work.id}",
@@ -92,7 +121,9 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                            "uploaded_file.id=#{Deepblue::UploadHelper.uploaded_file_id( uploaded_file )}",
                                            "user=#{user}",
                                            "work_permissions=#{work_permissions}",
-                                           "metadata=#{metadata}" ] if ATTACH_FILES_TO_WORK_JOB_IS_VERBOSE
+                                           "metadata=#{metadata}",
+                                           "uploaded_file_ids=#{uploaded_file_ids}",
+                                           "" ] if ATTACH_FILES_TO_WORK_JOB_IS_VERBOSE
       Deepblue::UploadHelper.log( class_name: self.class.name,
                                   event: "upload_file",
                                   id: "NA",
@@ -100,7 +131,8 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                   size: Deepblue::UploadHelper.uploaded_file_size( uploaded_file ),
                                   uploaded_file_id: Deepblue::UploadHelper.uploaded_file_id( uploaded_file ),
                                   user: user.to_s,
-                                  work_id: work.id)
+                                  work_id: work.id,
+                                  asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY)
       actor = Hyrax::Actors::FileSetActor.new( FileSet.create, user )
       actor.file_set.permissions_attributes = work_permissions
       actor.create_metadata( metadata )
@@ -108,7 +140,9 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       # actor.create_content( uploaded_file, continue_job_chain_later: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY )
       actor.attach_to_work( work )
       uploaded_file.update( file_set_uri: actor.file_set.uri )
-      actor.create_content( uploaded_file, continue_job_chain_later: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY )
+      actor.create_content( uploaded_file,
+                            continue_job_chain_later: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY,
+                            uploaded_file_ids: uploaded_file_ids )
       @processed << uploaded_file
     rescue Exception => e # rubocop:disable Lint/RescueException
       Rails.logger.error "#{e.class} work.id=#{work.id} -- #{e.message} at #{e.backtrace[0]}"
@@ -121,7 +155,8 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                   user: user,
                                   work_id: work.id,
                                   exception: e.to_s,
-                                  backtrace0: e.backtrace[0] )
+                                  backtrace0: e.backtrace[0],
+                                  asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY )
     end
 
 end
