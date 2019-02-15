@@ -98,12 +98,12 @@ module Hyrax
 
       # Adds a FileSet to the work using ore:Aggregations.
       # Locks to ensure that only one process is operating on the list at a time.
-      def attach_to_work(work, file_set_params = {})
+      def attach_to_work( work, file_set_params = {}, uploaded_file_id: nil )
         Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "work.id=#{work.id}",
                                              "file_set_params=#{file_set_params}" ]
-        acquire_lock_for(work.id) do
+        acquire_lock_for( work.id ) do
           # Ensure we have an up-to-date copy of the members association, so that we append to the end of the list.
           work.reload unless work.new_record?
           file_set.visibility = work.visibility unless assign_visibility?(file_set_params)
@@ -113,8 +113,31 @@ module Hyrax
           # Save the work so the association between the work and the file_set is persisted (head_id)
           # NOTE: the work may not be valid, in which case this save doesn't do anything.
           work.save
+          Deepblue::UploadHelper.log( class_name: self.class.name,
+                                      event: "attach_to_work",
+                                      id: file_set.id,
+                                      uploaded_file_id: uploaded_file_id,
+                                      work_id: work.id,
+                                      work_file_set_count: work.file_set_ids.count )
           Hyrax.config.callback.run(:after_create_fileset, file_set, user)
         end
+      rescue Exception => e # rubocop:disable Lint/RescueException
+        Rails.logger.error "#{e.class} work.id=#{work.id} -- #{e.message} at #{e.backtrace[0]}"
+        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "ERROR",
+                                             "e=#{e.class.name}",
+                                             "e.message=#{e.message}",
+                                             "e.backtrace:" ] +
+                                               e.backtrace
+        Deepblue::UploadHelper.log( class_name: self.class.name,
+                                    event: "attach_to_work",
+                                    event_note: "failed",
+                                    id: work.id,
+                                    uploaded_file_id: uploaded_file_id,
+                                    work_id: work.id,
+                                    exception: e.to_s,
+                                    backtrace0: e.backtrace[0] )
       end
       alias attach_file_to_work attach_to_work
       deprecation_deprecate attach_file_to_work: "use attach_to_work instead"

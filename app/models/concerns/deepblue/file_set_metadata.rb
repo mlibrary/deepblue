@@ -26,7 +26,8 @@ module Deepblue
         index.as :stored_searchable
       end
 
-      property :file_size, predicate: ::RDF::Vocab::DC.SizeOrDuration, multiple: false
+      # property :file_size, predicate: ::RDF::Vocab::DC.SizeOrDuration, multiple: false
+      property :file_size, predicate: ::RDF::Vocab::DC.SizeOrDuration, multiple: true
 
       property :prior_identifier, predicate: ActiveFedora::RDF::Fcrepo::Model.altIds, multiple: true do |index|
         index.as :stored_searchable
