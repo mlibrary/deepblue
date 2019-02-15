@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
 module Deepbluedocs
+
   module DissertationWorkFormBehavior
     extend ActiveSupport::Concern
     included do
-      #include ScholarsArchive::DateTermsBehavior
-      #include ScholarsArchive::NestedBehavior
+      # include ScholarsArchive::DateTermsBehavior
+      # include ScholarsArchive::NestedBehavior
 
       # accessor attributes only used to group dates and geo fields and allow proper ordering in this form
       attr_accessor :dates_section
@@ -62,4 +65,5 @@ module Deepbluedocs
       end
     end
   end
+
 end

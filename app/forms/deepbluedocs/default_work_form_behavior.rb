@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module Deepbluedocs
+
   module DefaultWorkFormBehavior
     extend ActiveSupport::Concern
     included do
@@ -170,4 +173,5 @@ module Deepbluedocs
       end
     end
   end
+
 end

@@ -26,7 +26,8 @@ class SolrDocument
   # Recommendation: Use field names from Dublin Core
   use_extension(Blacklight::Document::DublinCore)
 
-  # use_extension(ScholarsArchive::Document::QualifiedDublinCore)
+  # This fails to load.
+  # use_extension(::ScholarsArchive::Document::QualifiedDublinCore)
 
   # Do content negotiation for AF models.
 
@@ -41,7 +42,9 @@ class SolrDocument
   end
 
   def academic_affiliation_label
-    ScholarsArchive::LabelParserService.parse_label_uris(self['academic_affiliation_label_ssim'])
+    # references to ScholarsArchive raise ActionView::Template::Error (uninitialized constant SolrDocument::ScholarsArchive)
+    # ScholarsArchive::LabelParserService.parse_label_uris(self['academic_affiliation_label_ssim'])
+    self['academic_affiliation_label_ssim']
   end
 
   def curation_notes_admin_label
@@ -53,11 +56,15 @@ class SolrDocument
   end
 
   def degree_field_label
-    ScholarsArchive::LabelParserService.parse_label_uris(self['degree_field_label_ssim'])
+    # references to ScholarsArchive raise ActionView::Template::Error (uninitialized constant SolrDocument::ScholarsArchive)
+    # ScholarsArchive::LabelParserService.parse_label_uris(self['degree_field_label_ssim'])
+    self['degree_field_label_ssim']
   end
 
   def degree_grantors_label
-    ScholarsArchive::LabelParserService.parse_label_uris(self['degree_grantors_label_ssim'])
+    # references to ScholarsArchive raise ActionView::Template::Error (uninitialized constant SolrDocument::ScholarsArchive)
+    # ScholarsArchive::LabelParserService.parse_label_uris(self['degree_grantors_label_ssim'])
+    self['degree_grantors_label_ssim']
   end
 
   def doi_label
@@ -97,11 +104,15 @@ class SolrDocument
   end
 
   def nested_related_items_label
-    ScholarsArchive::LabelParserService.parse_label_uris(self[Solrizer.solr_name('nested_related_items_label', :symbol)]) || []
+    # references to ScholarsArchive raise ActionView::Template::Error (uninitialized constant SolrDocument::ScholarsArchive)
+    # ScholarsArchive::LabelParserService.parse_label_uris(self[Solrizer.solr_name('nested_related_items_label', :symbol)]) || []
+    self[Solrizer.solr_name('nested_related_items_label', :symbol)] || []
   end
 
   def other_affiliation_label
-    ScholarsArchive::LabelParserService.parse_label_uris(self['other_affiliation_label_ssim'])
+    # references to ScholarsArchive raise ActionView::Template::Error (uninitialized constant SolrDocument::ScholarsArchive)
+    # ScholarsArchive::LabelParserService.parse_label_uris(self['other_affiliation_label_ssim'])
+    self['other_affiliation_label_ssim']
   end
 
   def peerreviewed_label
