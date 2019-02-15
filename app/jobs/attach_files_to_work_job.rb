@@ -28,6 +28,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                 uploaded_file_ids_count: uploaded_file_ids.size,
                                 user: user.to_s,
                                 work_id: work.id,
+                                work_file_set_count: work.file_set_ids.count,
                                 asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY)
     validate_files!(uploaded_files)
     work_permissions = work.permissions.map( &:to_hash )
@@ -36,15 +37,6 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       upload_file( work, uploaded_file, user, work_permissions, metadata, uploaded_file_ids: uploaded_file_ids )
     end
     failed = uploaded_files - @processed
-    Deepblue::UploadHelper.log( class_name: self.class.name,
-                                event: "upload_file_list",
-                                event_note: "started",
-                                id: "NA",
-                                uploaded_file_ids: uploaded_file_ids,
-                                uploaded_file_ids_count: uploaded_file_ids.size,
-                                user: user.to_s,
-                                work_id: work.id,
-                                asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY)
     if failed.empty?
       Deepblue::UploadHelper.log( class_name: self.class.name,
                                   event: "attach_files_to_work",
@@ -54,6 +46,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                   uploaded_file_ids_count: uploaded_file_ids.size,
                                   user: user.to_s,
                                   work_id: work.id,
+                                  work_file_set_count: work.file_set_ids.count,
                                   asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY)
     else
       Rails.logger.error "FAILED to process all uploaded files at #{caller_locations(1, 1)[0]}, count of unprocessed files = #{failed.count}"
@@ -65,6 +58,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                   uploaded_file_ids_count: uploaded_file_ids.size,
                                   user: user.to_s,
                                   work_id: work.id,
+                                  work_file_set_count: work.file_set_ids.count,
                                   failed: failed,
                                   asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY )
     end
@@ -132,13 +126,14 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                   uploaded_file_id: Deepblue::UploadHelper.uploaded_file_id( uploaded_file ),
                                   user: user.to_s,
                                   work_id: work.id,
+                                  work_file_set_count: work.file_set_ids.count,
                                   asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY)
       actor = Hyrax::Actors::FileSetActor.new( FileSet.create, user )
       actor.file_set.permissions_attributes = work_permissions
       actor.create_metadata( metadata )
       # when actor.create content is here, and the processing is synchronous, then it fails to add size to the file_set
       # actor.create_content( uploaded_file, continue_job_chain_later: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY )
-      actor.attach_to_work( work )
+      actor.attach_to_work( work, uploaded_file_id: Deepblue::UploadHelper.uploaded_file_id( uploaded_file ) )
       uploaded_file.update( file_set_uri: actor.file_set.uri )
       actor.create_content( uploaded_file,
                             continue_job_chain_later: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY,

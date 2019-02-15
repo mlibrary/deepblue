@@ -49,6 +49,12 @@ module Hyrax
                                   user: current_user.to_s )
     rescue Exception => e # rubocop:disable Lint/RescueException
       Rails.logger.error "UploadsController.create #{e.class}: #{e.message} at #{e.backtrace[0]}"
+      Deepblue::UploadHelper.log( class_name: self.class.name,
+                                  event: "create",
+                                  event_note: "failed",
+                                  id: "NA",
+                                  exception: e.to_s,
+                                  backtrace0: e.backtrace[0..4] )
       raise
     end
 
@@ -68,6 +74,15 @@ module Hyrax
                                   user: current_user.to_s )
       @upload.destroy
       head :no_content
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      Rails.logger.error "UploadsController.destroy #{e.class}: #{e.message} at #{e.backtrace[0]}"
+      Deepblue::UploadHelper.log( class_name: self.class.name,
+                                  event: "destroy",
+                                  event_note: "failed",
+                                  id: "NA",
+                                  exception: e.to_s,
+                                  backtrace0: e.backtrace[0] )
+      raise
     end
 
   end
