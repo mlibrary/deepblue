@@ -50,7 +50,9 @@ class UMichClamAVDaemonScanner < AbstractVirusScanner
   end
 
   def infected?
-    debug "UMichClamAVDaemonScanner.infected? File '#{file}' exists? #{File.exist? file}"
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                               ::Deepblue::LoggingHelper.called_from,
+                               "UMichClamAVDaemonScanner.infected? File '#{file}' exists? #{File.exist? file}" ]
     unless alive?
       warning "Cannot connect to virus scanner. Skipping file #{file}"
       return ::Deepblue::VirusScanService::VIRUS_SCAN_SKIPPED_SERVICE_UNAVAILABLE
