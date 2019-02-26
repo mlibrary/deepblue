@@ -9,16 +9,18 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
 
   # @param [ActiveFedora::Base] work - the work object
   # @param [Array<Hyrax::UploadedFile>] uploaded_files - an array of files to attach
-  def perform( work, uploaded_files, **work_attributes )
+  def perform( work, uploaded_files, user_key, **work_attributes )
     @processed = []
     Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                          Deepblue::LoggingHelper.called_from,
                                          "work=#{work}",
+                                         "user_key=#{user_key}",
                                          "uploaded_files=#{uploaded_files}",
                                          "uploaded_files.count=#{uploaded_files.count}",
                                          "work_attributes=#{work_attributes}" ] if ATTACH_FILES_TO_WORK_JOB_IS_VERBOSE
     depositor = proxy_or_depositor( work )
-    user = User.find_by_user_key( depositor )
+    # user = User.find_by_user_key( depositor ) # Wrong!, it's actually on the upload file record.
+    user = User.find_by_user_key( user_key )
     uploaded_file_ids = uploaded_files.map { |u| u.id }
     Deepblue::UploadHelper.log( class_name: self.class.name,
                                 event: "attach_files_to_work",
@@ -110,7 +112,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                            "uploaded_file.file_set_uri=#{uploaded_file.file_set_uri}",
                                            # Deepblue::LoggingHelper.obj_methods( "uploaded_file", uploaded_file ),
                                            # Deepblue::LoggingHelper.obj_instance_variables( "uploaded_file", uploaded_file ),
-                                           # Deepblue::LoggingHelper.obj_attribute_names( "uploaded_file", uploaded_file ),
+                                           Deepblue::LoggingHelper.obj_attribute_names( "uploaded_file", uploaded_file ),
                                            Deepblue::LoggingHelper.obj_to_json( "uploaded_file", uploaded_file ),
                                            "uploaded_file.id=#{Deepblue::UploadHelper.uploaded_file_id( uploaded_file )}",
                                            "user=#{user}",
