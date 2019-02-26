@@ -157,7 +157,9 @@ en:
           are required to access your data, this is a good place to document that as well.
         download_total_work_size_too_large: >
           Total work file size of %{total_file_size} is too large to download directly. Consider using Globus (see below).
-        download_general_message: >          
+        download_total_work_size_may_be_too_large: >
+          Total work file size of %{total_file_size} may be too large to download directly. Consider using Globus (see below).
+        download_general_message: >
           Download will include text file of metadata.
         fundedby: >
           Select the primary funding agency that supported the research and data collection from the drop-down list.
@@ -228,6 +230,9 @@ en:
         title: >
           Provide a descriptive name for the Work. Consider including the words “data” or “dataset” and terms related to
           the methods, discipline, and topic associated with your research.
+      file_set:
+        too_large_to_download_directly: >
+          This file is too large to download directly. Consider using Globus.
   rights_license:
     http://creativecommons_org/publicdomain/zero/1_0/:
       description: >

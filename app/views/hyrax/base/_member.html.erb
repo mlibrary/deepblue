@@ -34,7 +34,7 @@
           <td class="attribute filename">
             <span class="hastooltip">
               <%= truncate(member.link_name, length: 40, omission: "...#{member.link_name[-5, 5]}") %>
-              <span class="tooltip">This file is too large to download directly. Use Globus.</span>
+              <span class="tooltip"><%= t('simple_form.hints.file_set.too_large_to_download_directly') %></span>
             </span>
           </td>
         <% end %>
