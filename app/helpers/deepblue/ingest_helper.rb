@@ -286,10 +286,16 @@ module Deepblue
           CreateDerivativesJob.perform_later( file_set,
                                               repository_file_id,
                                               file_name,
-                                              delete_input_file,
+                                              current_user: current_user,
+                                              delete_input_file: delete_input_file,
                                               uploaded_file_ids: uploaded_file_ids )
         else
-          # CreateDerivativesJob.perform_now( file_set, repository_file_id, file_name, delete_input_file )
+          # CreateDerivativesJob.perform_now( file_set,
+          #                                   repository_file_id,
+          #                                   file_name,
+          #                                   current_user: current_user,
+          #                                   delete_input_file: delete_input_file,
+          #                                   uploaded_file_ids: uploaded_file_ids )
           create_derivatives( file_set,
                               repository_file_id,
                               file_name,

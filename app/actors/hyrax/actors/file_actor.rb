@@ -27,12 +27,14 @@ module Hyrax
       def ingest_file( io,
                        continue_job_chain: true,
                        continue_job_chain_later: true,
+                       current_user: nil,
                        delete_input_file: true,
                        uploaded_file_ids: [] )
 
         Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "io=#{io})",
+                                             "user=#{user}",
                                              "continue_job_chain=#{continue_job_chain}",
                                              "continue_job_chain_later=#{continue_job_chain_later}",
                                              "delete_input_file=#{delete_input_file}",
@@ -45,12 +47,13 @@ module Hyrax
                                              versioning: false )
         return false unless file_set.save
         repository_file = related_file
-        Hyrax::VersioningService.create(repository_file, user)
+        Hyrax::VersioningService.create( repository_file, current_user )
         pathhint = io.uploaded_file.uploader.path if io.uploaded_file # in case next worker is on same filesystem
         if continue_job_chain_later
           CharacterizeJob.perform_later( file_set,
                                          repository_file.id,
                                          pathhint || io.path,
+                                         current_user: current_user,
                                          uploaded_file_ids: uploaded_file_ids )
         else
           CharacterizeJob.perform_now( file_set,
@@ -58,6 +61,7 @@ module Hyrax
                                        pathhint || io.path,
                                        continue_job_chain: continue_job_chain,
                                        continue_job_chain_later: continue_job_chain_later,
+                                       current_user: current_user,
                                        delete_input_file: delete_input_file,
                                        uploaded_file_ids: uploaded_file_ids )
         end
