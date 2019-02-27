@@ -61,9 +61,12 @@ gem 'jbuilder', '~> 2.5'
 # gem 'rack', git: 'https://github.com/rack/rack.git', ref: 'ee01748'
 
 # Begin security vulnerability mitigation
+# bundle update --source gem-name
+gem 'bootstrap-sass', '~> 3.4.1'
 gem 'loofah', '~> 2.2.3'
 gem 'rack', '~> 2.0.6'
 gem 'rubyzip', '~> 1.2.2'
+gem 'sassc', '>= 2.0.0'
 gem 'sinatra', '~> 2.0.2'
 gem 'sprockets', '~> 3.7.2'
 # End security vulnerability mitigation
