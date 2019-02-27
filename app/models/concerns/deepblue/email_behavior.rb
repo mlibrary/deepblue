@@ -80,8 +80,9 @@ module Deepblue
       rv
     end
 
-    def email_compose_body( event_note:, email_key_values: )
+    def email_compose_body( event_note:, message:, email_key_values: )
       body = StringIO.new
+      body.puts message.to_s if message.present?
       body.puts event_note.to_s if event_note.present?
       email_key_values.each_pair do |key, value|
         label = for_email_label key
@@ -133,7 +134,7 @@ module Deepblue
                                 ignore_blank_key_values: ignore_blank_key_values )
     end
 
-    def email_rds_publish( current_user:, event_note: '' )
+    def email_rds_publish( current_user:, event_note: '', message: '' )
       attributes, ignore_blank_key_values = attributes_for_email_rds_publish
       email_event_notification( to: email_address_rds,
                                 to_note: 'RDS',
@@ -143,6 +144,7 @@ module Deepblue
                                 current_user: current_user,
                                 event: EVENT_PUBLISH,
                                 event_note: event_note,
+                                message: message,
                                 id: for_email_id,
                                 ignore_blank_key_values: ignore_blank_key_values )
     end
@@ -286,6 +288,7 @@ module Deepblue
                                     current_user:,
                                     event:,
                                     event_note:,
+                                    message: '',
                                     ignore_blank_key_values:,
                                     id:,
                                     email_key_values: nil )
@@ -299,7 +302,7 @@ module Deepblue
                                                                   ignore_blank_key_values: ignore_blank_key_values )
         end
         event_attributes_cache_write( event: event, id: id, behavior: :EmailBehavior )
-        body = email_compose_body( event_note: event_note, email_key_values: email_key_values )
+        body = email_compose_body( event_note: event_note, message: message, email_key_values: email_key_values )
         EmailHelper.send_email( to: to, from: from, subject: subject, body: body )
         class_name = for_email_class.name
         EmailHelper.log( class_name: class_name,
@@ -310,6 +313,7 @@ module Deepblue
                          to: to,
                          from: from,
                          subject: subject,
+                         message: message,
                          **email_key_values )
       end
 

@@ -37,7 +37,7 @@ module Hyrax
                                                "user=#{user}",
                                                "recipients=#{recipients}",
                                                "" ]
-        new(entity, comment, user, recipients).call
+        new( entity, comment, user, recipients ).call
       end
 
       attr_reader :work_id, :title, :comment, :user, :recipients
@@ -59,20 +59,13 @@ module Hyrax
       end
 
       def call
+        curation_concern_notifications( user, message, subject )
         users_to_notify.uniq.each do |recipient|
-          Hyrax::MessengerService.deliver(user, recipient, message, subject)
+          Hyrax::MessengerService.deliver( user, recipient, message, subject )
         end
       end
 
       private
-
-        def subject
-          raise NotImplementedError, "Implement #subject in a child class"
-        end
-
-        def message
-          "#{title} (#{link_to work_id, document_path}) was advanced in the workflow by #{user.user_key} and is awaiting approval #{comment}"
-        end
 
         # @return [ActiveFedora::Base] the document (work) the the Abstract WorkFlow is creating a notification for
         def document
@@ -85,9 +78,22 @@ module Hyrax
           url_to_work
         end
 
+        def curation_concern_notifications( user, message, subject )
+          # override to log provenance
+        end
+
+        def message
+          "#{title} (#{link_to work_id, document_path}) was advanced in the workflow by #{user.user_key} and is awaiting approval #{comment}"
+        end
+
+        def subject
+          raise NotImplementedError, "Implement #subject in a child class"
+        end
+
         def users_to_notify
           recipients.fetch(:to, []) + recipients.fetch(:cc, [])
         end
+
     end
 
   end
