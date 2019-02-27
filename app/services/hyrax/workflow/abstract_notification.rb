@@ -1,5 +1,9 @@
+# frozen_string_literal: true
+
 module Hyrax
+
   module Workflow
+
     # @abstract A notification that happens when a state transition occurs. Subclass AbstractNotification to create a notification.
     # @example
     #   module Hyrax
@@ -25,7 +29,14 @@ module Hyrax
     class AbstractNotification
       include ActionView::Helpers::UrlHelper
 
-      def self.send_notification(entity:, comment:, user:, recipients:)
+      def self.send_notification( entity:, comment:, user:, recipients: )
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "entity=#{entity}",
+                                               "comment=#{comment}",
+                                               "user=#{user}",
+                                               "recipients=#{recipients}",
+                                               "" ]
         new(entity, comment, user, recipients).call
       end
 
@@ -70,7 +81,7 @@ module Hyrax
 
         def document_path
           key = document.model_name.singular_route_key
-          url_to_work = "/data" + Rails.application.routes.url_helpers.send(key + "_path", document.id)
+          url_to_work = Rails.application.routes.url_helpers.send( key + "_path", document.id )
           url_to_work
         end
 
@@ -78,5 +89,7 @@ module Hyrax
           recipients.fetch(:to, []) + recipients.fetch(:cc, [])
         end
     end
+
   end
+
 end
