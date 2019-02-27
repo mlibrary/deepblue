@@ -21,13 +21,14 @@ module Deepblue
                   to_note: '',
                   from:,
                   subject:,
+                  message: '',
                   **key_values )
 
       email_enabled = DeepBlueDocs::Application.config.email_enabled
       added_key_values = if to_note.blank?
-                           { to: to, from: from, subject: subject, email_enabled: email_enabled }
+                           { to: to, from: from, subject: subject, message: message, email_enabled: email_enabled }
                          else
-                           { to: to, to_note: to_note, from: from, subject: subject, email_enabled: email_enabled }
+                           { to: to, to_note: to_note, from: from, subject: subject, message: message, email_enabled: email_enabled }
                          end
       key_values.merge! added_key_values
       LoggingHelper.log( class_name: class_name,

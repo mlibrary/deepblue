@@ -450,13 +450,20 @@ module Deepblue
                             ignore_blank_key_values: ignore_blank_key_values )
     end
 
-    def provenance_publish( current_user:, event_note: '' )
+    def provenance_publish( current_user:, event_note: '', message: '' )
       attributes, ignore_blank_key_values = attributes_for_provenance_publish
+      prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes,
+                                                                  current_user: current_user,
+                                                                  event: EVENT_PUBLISH,
+                                                                  event_note: event_note,
+                                                                  ignore_blank_key_values: ignore_blank_key_values,
+                                                                  message: message )
       provenance_log_event( attributes: attributes,
                             current_user: current_user,
                             event: EVENT_PUBLISH,
                             event_note: event_note,
-                            ignore_blank_key_values: ignore_blank_key_values )
+                            ignore_blank_key_values: ignore_blank_key_values,
+                            prov_key_values: prov_key_values )
     end
 
     def provenance_tombstone( current_user:,
