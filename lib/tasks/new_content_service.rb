@@ -180,11 +180,14 @@ module Deepblue
 
       def add_file_set_to_work( work:, file_set: )
         return if file_set.parent.present? && work.id == file_set.parent_id
+        # TODO: probably should lock the work here.
+        work.reload
         work.ordered_members << file_set
         log_provenance_add_child( parent: work, child: file_set )
         work.total_file_size_add_file_set file_set
         work.representative = file_set if work.representative_id.blank?
         work.thumbnail = file_set if work.thumbnail_id.blank?
+        work.save!
       end
 
       def add_file_sets_to_work( work_hash:, work: )
