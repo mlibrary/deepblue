@@ -51,6 +51,21 @@ class FileSet < ActiveFedora::Base
     ]
   end
 
+  def metadata_keys_report
+    %i[
+      curation_notes_user
+      file_extension
+      files_count
+      file_size_human_readable
+      label
+      mime_type
+      original_checksum
+      original_name
+      parent_id
+      title
+    ]
+  end
+
   def metadata_keys_update
     %i[
       title
@@ -234,7 +249,7 @@ class FileSet < ActiveFedora::Base
   end
 
   def metadata_report_keys
-    return USE_BLANK_KEY_VALUES, metadata_keys_all
+    return IGNORE_BLANK_KEY_VALUES, metadata_keys_report
   end
 
   def metadata_report_title_pre

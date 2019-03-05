@@ -28,6 +28,10 @@ module Deepblue
       %i[]
     end
 
+    def metadata_keys_report
+      %i[]
+    end
+
     def metadata_keys_brief
       %i[]
     end
@@ -91,14 +95,15 @@ module Deepblue
         ignore_blank_values, metadata_keys = metadata_report_keys
         metadata = metadata_hash( metadata_keys: metadata_keys, ignore_blank_values: ignore_blank_values )
         metadata_report_to( out: out, metadata_hash: metadata, depth: depth )
-        contained_objects = metadata_report_contained_objects
-        if contained_objects.count.positive?
-          contained_objects.each do |obj|
-            next unless obj.respond_to? :metadata_report
-            out.puts
-            obj.metadata_report( out: out, depth: depth + 1 )
-          end
-        end
+        # Don't include metadata reports for contained objects, such as file_sets
+        # contained_objects = metadata_report_contained_objects
+        # if contained_objects.count.positive?
+        #   contained_objects.each do |obj|
+        #     next unless obj.respond_to? :metadata_report
+        #     out.puts
+        #     obj.metadata_report( out: out, depth: depth + 1 )
+        #   end
+        # end
         return nil
       end
     end
@@ -116,7 +121,7 @@ module Deepblue
     end
 
     def metadata_report_keys
-      return AbstractEventBehavior::USE_BLANK_KEY_VALUES, []
+      return AbstractEventBehavior::IGNORE_BLANK_KEY_VALUES, metadata_keys_report
     end
 
     def metadata_report_label( metadata_key:, metadata_value: )

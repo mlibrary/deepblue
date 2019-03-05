@@ -103,6 +103,31 @@ class DataSet < ActiveFedora::Base
     ]
   end
 
+  def metadata_keys_report
+    %i[
+      authoremail
+      creator
+      curation_notes_user
+      date_coverage
+      depositor
+      description
+      doi
+      fundedby
+      fundedby_other
+      grantnumber
+      keyword
+      language
+      methodology
+      referenced_by
+      rights_license
+      rights_license_other
+      subject_discipline
+      title
+      total_file_count
+      total_file_size_human_readable
+    ]
+  end
+
   def metadata_keys_update
     %i[
       authoremail
@@ -246,7 +271,7 @@ class DataSet < ActiveFedora::Base
   end
 
   def metadata_report_keys
-    return USE_BLANK_KEY_VALUES, metadata_keys_all
+    return IGNORE_BLANK_KEY_VALUES, metadata_keys_report
   end
 
   def metadata_report_label_override( metadata_key:, metadata_value: ) # rubocop:disable Lint/UnusedMethodArgument

@@ -75,7 +75,7 @@ RSpec.describe Deepblue::AbstractEventBehavior do
       expect( empty_mock.metadata_hash_override( key: 'key', ignore_blank_values: false, key_values: [ key: 'value' ] ) ).to eq false
       expect( empty_mock.metadata_report_label_override(metadata_key: 'key', metadata_value: 'value' ) ).to eq nil
       ignore_blank_key_values, keys = empty_mock.metadata_report_keys
-      expect( ignore_blank_key_values ).to eq ::Deepblue::AbstractEventBehavior::USE_BLANK_KEY_VALUES
+      expect( ignore_blank_key_values ).to eq ::Deepblue::AbstractEventBehavior::IGNORE_BLANK_KEY_VALUES
       expect( keys ).to eq []
       expect( empty_mock.metadata_report_contained_objects ).to eq []
       expect( empty_mock.metadata_report_title_pre ).to eq ''

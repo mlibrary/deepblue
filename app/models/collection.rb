@@ -57,6 +57,23 @@ class Collection < ActiveFedora::Base
     ]
   end
 
+  def metadata_keys_report
+    %i[
+      child_collection_count
+      child_work_count
+      collection_type
+      creator
+      curation_notes_user
+      description
+      keyword
+      language
+      referenced_by
+      subject_discipline
+      title
+      total_file_size
+    ]
+  end
+
   def metadata_keys_update
     %i[
       creator
@@ -255,7 +272,7 @@ class Collection < ActiveFedora::Base
   end
 
   def metadata_report_keys
-    return USE_BLANK_KEY_VALUES, metadata_keys_all
+    return IGNORE_BLANK_KEY_VALUES, metadata_keys_report
   end
 
   def metadata_report_label_override( metadata_key:, metadata_value: ) # rubocop:disable Lint/UnusedMethodArgument
