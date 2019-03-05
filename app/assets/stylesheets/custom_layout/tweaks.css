@@ -103,6 +103,10 @@ a.morelink {
   content: " + ";
 }
 
+ul.tabular_list {
+  padding: 0.5em;
+}
+
 .primary-actions {
   margin: 1em;
   padding-bottom: 1em;

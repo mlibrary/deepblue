@@ -5,16 +5,17 @@
        <%= raw ("<span class=\"more\">" + iconify_auto_link(methodology) + "</span>") %>
     </span></li></ul></td></tr>
 <% end %>
-
+<tr><th>Description</th><td><ul class='tabular_list'>
 <% presenter.description.each do |description| %>
-    <tr><th>Description</th><td><ul class='tabular'><li class="attribute attribute-description"><span itemprop="description">
-       <%= raw ("<span class=\"more\">" + iconify_auto_link(description) + "</span>") %>
-    </span></li></ul></td></tr>
+<li class="attribute attribute-description"><span itemprop="description">
+   <%= raw ("<span class=\"more\">" + iconify_auto_link(description) + "</span>") %>
+</span></li>
 <% end %>
+</ul></td></tr>
 
 <span itemprop="url" itemscope itemtype="http://schema.org/Url">
   <input type="hidden" id="url" name="urml" value="<%= main_app.hyrax_data_set_url%>">
-<span>
+</span>
 
 <%= presenter.attribute_to_html(:creator, render_as: :faceted, label: t('show.label.creator') ) %>
 
@@ -61,7 +62,7 @@
 
 <span itemprop="license" itemscope itemtype="http://schema.org/License">
 <%= presenter.attribute_to_html(:rights_license, render_as: :rights_license, label: t('show.label.rights_license'), work_type: "DataSet" ) %>
-</sann>
+</span>
 
 
 <%= presenter.attribute_to_html(:rights_license_other, label: t('show.label.rights_license_other') ) %>
