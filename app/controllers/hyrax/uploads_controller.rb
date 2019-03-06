@@ -18,7 +18,6 @@ module Hyrax
                                            # "file.instance_variables=#{file.instance_variables}",
                                            # "file.tempfile.class=#{file.tempfile.class}",
                                            # "file.tempfile.methods=#{file.tempfile.methods.sort}",
-                                           "file.tempfile.to_yaml_properties=#{file.tempfile.to_yaml_properties}",
                                            "current_user=#{current_user}" ]
       @upload.attributes = { file: file, user: current_user }
       @upload.save!
@@ -29,7 +28,6 @@ module Hyrax
                                            "file.path=#{file.path}",
                                            "file.size=#{file.size}",
                                            "file.original_filename=#{file.original_filename}",
-                                           "file.tempfile.to_yaml_properties=#{file.tempfile.to_yaml_properties}",
                                            "current_user=#{current_user}",
                                            "@upload=#{@upload}",
                                            # Deepblue::LoggingHelper.obj_methods( "@upload",  @upload ),
