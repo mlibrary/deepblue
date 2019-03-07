@@ -3,13 +3,33 @@
 module Deepblue
 
   module EmailHelper
+    extend ActionView::Helpers::TranslationHelper
 
     def self.contact_email
       Settings.contact_email
     end
 
+    def self.data_set_url( id: nil, data_set: nil )
+      id = data_set.id if data_set.present?
+      host = hostname
+      Rails.application.routes.url_helpers.hyrax_data_set_url( id: id, host: host, only_path: false )
+    end
+
+    def self.file_set_url( id: nil, file_set: nil )
+      id = file_set.id if file_set.present?
+      host = hostname
+      Rails.application.routes.url_helpers.hyrax_file_set_url( id: id, host: host, only_path: false )
+    end
+
     def self.echo_to_rails_logger
       DeepBlueDocs::Application.config.email_log_echo_to_rails_logger
+    end
+
+    def self.hostname
+      rv = Settings.umrdr_hostname
+      return rv unless rv.nil?
+      # then we are in development mode
+      "http://localhost:3000/data/"
     end
 
     def self.log( class_name: 'UnknownClass',

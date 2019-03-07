@@ -2,6 +2,7 @@
 
 # Converts UploadedFiles into FileSets and attaches them to works.
 class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
+  include Rails.application.routes.url_helpers
   queue_as Hyrax.config.ingest_queue_name
 
   ATTACH_FILES_TO_WORK_JOB_IS_VERBOSE = true
@@ -64,6 +65,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                   failed: failed,
                                   asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY )
     end
+    notify_attach_files_to_work_job_complete( failed_to_upload: failed, uploaded_files: uploaded_files, user: user, work: work )
   rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "#{e.class} work_id=#{work.id} -- #{e.message} at #{e.backtrace[0]}"
     Deepblue::UploadHelper.log( class_name: self.class.name,
@@ -80,21 +82,88 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
 
   private
 
-    # The attributes used for visibility - sent as initial params to created FileSets.
-    def visibility_attributes(attributes)
-      attributes.slice(:visibility, :visibility_during_lease,
-                       :visibility_after_lease, :lease_expiration_date,
-                       :embargo_release_date, :visibility_during_embargo,
-                       :visibility_after_embargo)
+    def attach_files_to_work_job_complete_email_user( email: nil, lines: [], subject:, work: )
+      return if email.blank?
+      return if lines.blank?
+      # Deepblue::LoggingHelper.debug "attach_files_to_work_job_complete_email_user: work id: #{work.id} email: #{email}"
+      body = lines.join( "\n" )
+      to = email
+      from = email
+      Deepblue::EmailHelper.log( class_name: self.class.name,
+                                 current_user: nil,
+                                 event: Deepblue::AbstractEventBehavior::EVENT_UPLOAD,
+                                 event_note: 'files attached to work',
+                                 id: work.id,
+                                 to: to,
+                                 from: from,
+                                 subject: subject,
+                                 body: lines )
+      Deepblue::EmailHelper.send_email( to: to, from: from, subject: subject, body: body )
     end
 
-    def validate_files!(uploaded_files)
-      uploaded_files.each do |uploaded_file|
-        next if uploaded_file.is_a? Hyrax::UploadedFile
-        msg = "Hyrax::UploadedFile required, but #{uploaded_file.class} received: #{uploaded_file.inspect}"
-        Rails.logger.error msg
-        raise ArgumentError, msg
+    def data_set_url( work )
+      Deepblue::EmailHelper.data_set_url( data_set: work )
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
+      return e.to_s
+    end
+
+    def file_stats( uploaded_file )
+      file_set_id = ActiveFedora::Base.uri_to_id uploaded_file.file_set_uri
+      file_set = FileSet.find file_set_id
+      return file_set.original_name_value, file_set.file_size_value
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
+      return e.to_s, ''
+    end
+
+    def notify_attach_files_to_work_job_complete( failed_to_upload:, uploaded_files:, user:, work: )
+      notify_user = DeepBlueDocs::Application.config.notify_user_file_upload_and_ingest_are_complete
+      notify_managers = DeepBlueDocs::Application.config.notify_managers_file_upload_and_ingest_are_complete
+      return unless notify_user || notify_managers
+      title = work.title.first
+      lines = []
+      lines << Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.finished",
+                                        title: title,
+                                        id: work.id )
+      lines << Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.visit_work",
+                                        work_url: data_set_url( work ) )
+
+      unless failed_to_upload.empty?
+        lines << Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.total_failed",
+                                          file_count: failed_to_upload.size )
+        lines << Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.files_failed" )
+        count = 0
+        failed_to_upload.each do |uploaded_file|
+          count += 1
+          file_name, file_size = file_stats( uploaded_file )
+          lines << Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.file_line",
+                                            line_count: count,
+                                            file_name: file_name,
+                                            file_size: file_size )
+        end
+
       end
+      lines << Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.total_success",
+                                        file_count: @processed.size )
+      lines << Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.files_attached" )
+      count = 0
+      @processed.each do |uploaded_file|
+        count += 1
+        file_name, file_size = file_stats( uploaded_file )
+        lines << Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.file_line",
+                                          line_count: count,
+                                          file_name: file_name,
+                                          file_size: file_size )
+      end
+      subject = Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.subject", title: title )
+      attach_files_to_work_job_complete_email_user( email: user.email, lines: lines, subject: subject, work: work ) if notify_user
+      attach_files_to_work_job_complete_email_user( email: Deepblue::EmailHelper.notification_email,
+                                                    lines: lines,
+                                                    subject: subject,
+                                                    work: work ) if notify_managers
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
     end
 
     ##
@@ -154,6 +223,23 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                   exception: e.to_s,
                                   backtrace0: e.backtrace[0],
                                   asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY )
+    end
+
+    # The attributes used for visibility - sent as initial params to created FileSets.
+    def visibility_attributes(attributes)
+      attributes.slice(:visibility, :visibility_during_lease,
+                       :visibility_after_lease, :lease_expiration_date,
+                       :embargo_release_date, :visibility_during_embargo,
+                       :visibility_after_embargo)
+    end
+
+    def validate_files!(uploaded_files)
+      uploaded_files.each do |uploaded_file|
+        next if uploaded_file.is_a? Hyrax::UploadedFile
+        msg = "Hyrax::UploadedFile required, but #{uploaded_file.class} received: #{uploaded_file.inspect}"
+        Rails.logger.error msg
+        raise ArgumentError, msg
+      end
     end
 
 end
