@@ -60,6 +60,17 @@ en:
         visibility: Access
     directory:
       suffix:               "@example.org"
+    email:
+      notify_attach_files_to_work_job_complete:
+        subject:            "DBD: Files Attached to %{title}"
+        finished:           "The files you uploaded to work %{title} (id: %{id}) have finished uploading and been attached."
+        visit_work:         "\nYou can visit your work here: %{work_url}"
+        total_failed:       "\nThe total number of files uploaded and failed was %{file_count}."
+        total_success:      "\nThe total number of files uploaded and attached was %{file_count}."
+        files_attached:     "\nFiles attached are:"
+        files_failed:       "\nFiles not attached are:"
+        file_line:          "%{line_count} -- '%{file_name}' - %{file_size} bytes"
+
     footer:
       copyright_html: "<strong>Copyright &copy; 2017 Samvera</strong> Licensed under the Apache License, Version 2.0"
       service_html: A service of <a href="http://samvera.org/" class="navbar-link" target="_blank">Samvera</a>.
