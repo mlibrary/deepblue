@@ -26,7 +26,7 @@ module Deepblue
     end
 
     def self.hostname
-      rv = Settings.umrdr_hostname
+      rv = Settings.umrdr_host
       return rv unless rv.nil?
       # then we are in development mode
       "http://localhost:3000/data/"
