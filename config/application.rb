@@ -15,6 +15,8 @@ module DeepBlueDocs
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
+    #
+    # reference config values like: DeepBlueDocs::Application.config.variable_name
 
     config.generators do |g|
       g.test_framework :rspec, spec: true
@@ -58,6 +60,9 @@ module DeepBlueDocs
     config.box_access_and_refresh_token_file_init = Rails.root.join( 'config', 'box_config_init.yml' ).freeze
     config.box_integration_enabled = config.box_enabled && ( !config.box_developer_token.nil? ||
         File.exist?( config.box_access_and_refresh_token_file ) )
+
+    ## configure embargo
+    config.embargo_enforce_future_release_date = false
 
     ## configure for Globus
     # -- To enable Globus for development, create /deepbluedata-globus/download and /deepbluedata-globus/prep
