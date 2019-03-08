@@ -48,9 +48,9 @@ module Hyrax
 
         def log_it( key_label, key )
           return if IGNORE_KEYS.include? key
-          from = caller_locations(1, 2)[1]
           Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                Deepblue::LoggingHelper.called_from,
+                                               "called from: #{caller_locations(1, 3)[2]}",
                                               "curation_concern_id=#{@curation_concern_id}",
                                               "#{key_label} key=#{key}",
                                               "attributes=#{@hash}" ]
