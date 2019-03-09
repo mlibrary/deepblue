@@ -1,7 +1,13 @@
-# This is a sample config file that points to a solr server for each environment
+# Import values from settings.yml, etc. This file should remain generic;
+# that is, any literals or additional keys should be added to settings and
+# imported here, except for one-off testing.
+
+default: &default
+  url: <%= ENV['SOLR_URL'] || Settings.solr.url %>
+
 development:
-  url: http://127.0.0.1:<%= ENV['SOLR_TEST_PORT'] || 8983 %>/solr/hydra-development
+  <<: *default
 test:
-  url: http://127.0.0.1:<%= ENV['SOLR_TEST_PORT'] || 8985 %>/solr/hydra-test
+  <<: *default
 production:
-  url: http://your.production.server:8080/bl_solr/core0
+  <<: *default

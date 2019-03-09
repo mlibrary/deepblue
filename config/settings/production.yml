@@ -1,0 +1,36 @@
+# Production environment configuration. These should generally receive values
+# in settings.local.yml for deployed instances. If running a multi-environment
+# instance for testing or debugging, production.local.yml may be helpful. As-is,
+# they are compatible with a typical container-style approach, where default
+# ports on generic hostnames are used for each service/resource.
+
+hostname: <%= ENV['APP_HOSTNAME'] || 'deepblue.lib.umich.edu' %>
+
+hyrax:
+  redis_namespace: <%= ENV['REDIS_NS'] || 'deepbluedata-production' %>
+
+fedora:
+  url: http://fcrepo/fedora/rest
+  base_path: /deepbluedata-production
+
+solr:
+  url: http://solr/solr/deepbluedata-production
+
+redis:
+  url: redis://redis/
+
+# The shoulder is made invalid here to avoid unintentionally creating
+# identifiers in a test namespace and appearing to work if left unconfigured.
+ezid:
+  host: ez.datacite.org
+  shoulder: invalid:invalid
+
+rails:
+  # Set the key base in settings.local.yml or production.local.yml or use the
+  # SECRET_KEY_BASE environment variable, which will take precedence. It is
+  # left nil here to trigger the error message from Rails if not specified.
+  secret_key_base:
+  cable:
+    adapter: redis
+    url: redis://redis/
+    channel_prefix: deepbluedata-production

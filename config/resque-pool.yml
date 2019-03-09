@@ -1,0 +1,11 @@
+# Numbers of workers for the different job types, the default being "*".
+batch_update: 3
+derivatives: 1
+resolrize: 1
+audit: 2
+event: 5
+import_url: 3
+ingest: 5
+sufia: 1
+doi_minting: 1
+"*": 3
