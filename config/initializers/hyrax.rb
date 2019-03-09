@@ -30,7 +30,7 @@ Hyrax.config do |config|
 
   # Email recipient of messages sent via the contact form
   # config.contact_email = "repo-admin@example.org"
-  config.contact_email = Settings.contact_email
+  config.contact_email = Settings.hyrax.contact_email
 
   # Text prefacing the subject entered in the contact form
   # config.subject_prefix = "Contact form:"
@@ -92,11 +92,11 @@ Hyrax.config do |config|
 
   # Store identifier minter's state in a file for later replayability
   # config.minter_statefile = '/tmp/minter-state'
-  config.minter_statefile = Settings.minter_file
+  config.minter_statefile = Settings.hyrax.minter_statefile
 
   # Prefix for Redis keys
   # config.redis_namespace = "hyrax"
-  config.redis_namespace = Settings.redis_namespace
+  config.redis_namespace = Settings.hyrax.redis_namespace
 
   # Path to the file characterization tool
   # config.fits_path = "fits.sh"
