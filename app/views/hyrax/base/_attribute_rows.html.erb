@@ -6,10 +6,17 @@
     </span></li></ul></td></tr>
 <% end %>
 <tr><th>Description</th><td><ul class='tabular_list'>
+
+<% num_para = presenter.description.count %>
 <% presenter.description.each do |description| %>
 <li class="attribute attribute-description"><span itemprop="description">
    <%= raw ("<span class=\"more\">" + iconify_auto_link(description) + "</span>") %>
-</span></li>
+   </span>
+   <% if num_para > 1 %>
+     <p></p>
+     <% num_para = num_para - 1 %>
+   <% end %>
+</li>
 <% end %>
 </ul></td></tr>
 
