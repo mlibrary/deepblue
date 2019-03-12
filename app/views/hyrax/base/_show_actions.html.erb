@@ -4,7 +4,7 @@
 
     <% if Hyrax.config.analytics? %>
       <%= link_to t('simple_form.actions.data_set.analytics'),
-                  @presenter.stats_path,
+                  DeepBlueDocs::Application.config.relative_url_root + @presenter.stats_path,
                   id: 'stats',
                   class: 'btn btn-default',
                   data: { turbolinks: false } %>
