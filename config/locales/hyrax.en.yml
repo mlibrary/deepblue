@@ -58,6 +58,9 @@ en:
     base:
       items:
         visibility: Access
+    contact_form:
+      issue_types:
+        size: My deposit is larger than 2GB
     directory:
       suffix:               "@example.org"
     email:
