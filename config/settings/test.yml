@@ -1,0 +1,17 @@
+hostname: <%= ENV['APP_HOSTNAME'] || 'test.deepblue.lib.umich.edu' %>
+
+hyrax:
+  redis_namespace: <%= ENV['REDIS_NS'] || 'deepbluedata-test' %>
+
+fedora:
+  url: http://127.0.0.1:<%= ENV['FCREPO_TEST_PORT'] || 8986 %>/rest
+  base_path: /deepbluedata-test
+
+solr:
+  url: http://127.0.0.1:<%= ENV['SOLR_TEST_PORT'] || 8985 %>/solr/deepbluedata-test
+
+ezid:
+  timeout: 10
+
+rails:
+  secret_key_base: a8e4aa45a4953ee0263a0df4a33bd051b4db4503d96f93db838730ff93ed413d62dbb6f2feb82ec902d135799e7faf44b815726dc491f5cc3131db394fd2259d

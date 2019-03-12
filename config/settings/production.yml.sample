@@ -1,8 +1,0 @@
-umrdr_host: deepblue.lib.umich.edu
-minter_file: <%= ENV['MINTER_FILE'] || "/tmp/umrdr-minter-#{Time.now.min}#{Time.now.sec}" %>
-redis_namespace: <%= ENV['REDIS_NS'] || "umrdr-production" %>
-
-# Settings for email contact form and deposit notification
-contact_email: <%= "#{ENV['USER']}@umich.edu" %>
-from_email: 'deepblue@umich.edu'
-notification_email: <%= "#{ENV['USER']}@umich.edu" %>

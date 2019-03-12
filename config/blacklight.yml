@@ -1,9 +1,18 @@
+# Import values from settings.yml, etc. This file should remain generic;
+# that is, any literals or additional keys should be added to settings and
+# imported here, except for one-off testing.
+
+# Blacklight does not allow alias in its YAML.safe_load call, so each
+# environment is simply repeated. Also, only the 'solr' adapter exists, so
+# there is no need to expose that as a setting unless another implementation
+# arises. We also assume that the ActiveFedora and Blacklight cores are the
+# same here; another preceding default for a Blacklight URL could be added.
 development:
   adapter: solr
-  url: <%= ENV['SOLR_URL'] || "http://127.0.0.1:#{ENV.fetch('SOLR_DEVELOPMENT_PORT', 8983)}/solr/hydra-development" %>
+  url: <%= ENV['SOLR_URL'] || Settings.solr.url %>
 test: &test
   adapter: solr
-  url: <%= ENV['SOLR_URL'] || "http://127.0.0.1:#{ENV.fetch('SOLR_TEST_PORT', 8985)}/solr/hydra-test" %>
+  url: <%= ENV['SOLR_URL'] || Settings.solr.url %>
 production:
   adapter: solr
-  url: <%= ENV['SOLR_URL'] || "http://127.0.0.1:8983/solr/blacklight-core" %>
+  url: <%= ENV['SOLR_URL'] || Settings.solr.url %>

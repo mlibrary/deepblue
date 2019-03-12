@@ -1,0 +1,17 @@
+hostname: <%= ENV['APP_HOSTNAME'] || 'deepblue.local' %>
+
+hyrax:
+  redis_namespace: <%= ENV['REDIS_NS'] || 'deepbluedata-dev' %>
+
+fedora:
+  url: http://127.0.0.1:<%= ENV['FCREPO_DEVELOPMENT_PORT'] || 8984 %>/rest
+  base_path: /deepbluedata-dev
+
+solr:
+  url: http://127.0.0.1:<%= ENV['SOLR_DEV_PORT'] || 8983 %>/solr/deepbluedata-dev
+
+ezid:
+  timeout: 30
+
+rails:
+  secret_key_base: 0f9ceb7d976868b367d90eb9e9d3b99116c244c990d84dad2c8d5e0924a55c164be57eaeaf2256b37a33a149424976010e6fedcbfc0ef40601160ba2e1f05b5b

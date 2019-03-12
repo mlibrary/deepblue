@@ -1,15 +1,16 @@
+# Import values from settings.yml, etc. This file should remain generic;
+# that is, any literals or additional keys should be added to settings and
+# imported here, except for one-off testing.
+
+default: &default
+  user:      <%= Settings.fedora.user %>
+  password:  <%= Settings.fedora.password %>
+  url:       <%= Settings.fedora.url %>
+  base_path: <%= Settings.fedora.base_path %>
+
 development:
-  user: fedoraAdmin
-  password: fedoraAdmin
-  url: http://127.0.0.1:<%= ENV['FCREPO_DEVELOPMENT_PORT'] || 8984 %>/rest
-  base_path: /dev
+  <<: *default
 test:
-  user: fedoraAdmin
-  password: fedoraAdmin
-  url: http://127.0.0.1:<%= ENV['FCREPO_TEST_PORT'] || 8986 %>/rest
-  base_path: /test
+  <<: *default
 production:
-  user: fedoraAdmin
-  password: fedoraAdmin
-  url: http://127.0.0.1:8983/fedora/rest
-  base_path: /prod
+  <<: *default
