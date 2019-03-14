@@ -26,6 +26,8 @@ ezid:
   shoulder: invalid:invalid
 
 rails:
+  database:
+    database: db/production.sqlite3
   # Set the key base in settings.local.yml or production.local.yml or use the
   # SECRET_KEY_BASE environment variable, which will take precedence. It is
   # left nil here to trigger the error message from Rails if not specified.

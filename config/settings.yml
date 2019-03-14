@@ -80,9 +80,14 @@ ezid:
 
 
 # These are keys used to bridge between settings and the standard Rails files.
-# Database settings are not included here because DATABASE_URL is very commonly
-# used to supply all relevant options in the environment.
 rails:
+  # Database settings as they will be mapped into database.yml for the running
+  # environment. The shell variable DATABASE_URL will always override values
+  # in the settings files.
+  database:
+    adapter: sqlite3
+    pool: 5
+    timeout: 5000
   # This value is nil here, to be set per environment and read in secrets.yml.
   # The SECRET_KEY_BASE environment variable will always override this setting.
   secret_key_base:

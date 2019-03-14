@@ -14,4 +14,10 @@ ezid:
   timeout: 10
 
 rails:
+  database:
+    # Warning: The database defined as "test" will be erased and
+    # re-generated from your development database when you run "rake".
+    # Do not set this db to the same as development or production.
+    database: db/test.sqlite3
+    timeout: 10000
   secret_key_base: a8e4aa45a4953ee0263a0df4a33bd051b4db4503d96f93db838730ff93ed413d62dbb6f2feb82ec902d135799e7faf44b815726dc491f5cc3131db394fd2259d

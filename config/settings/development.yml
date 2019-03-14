@@ -14,4 +14,6 @@ ezid:
   timeout: 30
 
 rails:
+  database:
+    database: db/development.sqlite3
   secret_key_base: 0f9ceb7d976868b367d90eb9e9d3b99116c244c990d84dad2c8d5e0924a55c164be57eaeaf2256b37a33a149424976010e6fedcbfc0ef40601160ba2e1f05b5b
