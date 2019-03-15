@@ -2,7 +2,7 @@
 
 namespace :deepblue do
 
-  # bundle exec rake deepblue:yaml_populate_from_work[f4752g72m,'{"target_dir":"/deepbluedata-prep"\,"export_files":true,"mode":"build"}']
+  # bundle exec rake deepblue:yaml_populate_from_work[f4752g72m,'{"target_dir":"/deepbluedata-prep"\,"export_files":true\,"mode":"build"}']
   desc 'Yaml populate from work'
   # See: https://stackoverflow.com/questions/825748/how-to-pass-command-line-arguments-to-a-rake-task
   task :yaml_populate_from_work, %i[ id options ] => :environment do |_task, args|
