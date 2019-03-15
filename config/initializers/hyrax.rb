@@ -45,25 +45,26 @@ Hyrax.config do |config|
   # Run `bundle exec rake tmp:cache:clear` to clear all the contents of public/assets
   # Run `bundle exec rake assets:clobber assets:precompile` in dev for this to take effect
   config.uploader = {
-    limitConcurrentUploads: 6,
-    maxNumberOfFiles: 100,
-    # maxFileSize: 500.megabytes
-    maxFileSize: 2.gigabytes,
-    url: '/data/uploads'
+      limitConcurrentUploads: 6,
+      maxNumberOfFiles: 100,
+      # maxFileSize: 500.megabytes
+      maxFileSize: 2.gigabytes,
+      url: '/data/uploads'
   }
 
   # Enable displaying usage statistics in the UI
   # Defaults to false
   # Requires a Google Analytics id and OAuth2 keyfile.  See README for more info
-  config.analytics = false
+  config.analytics = true
 
   # Google Analytics tracking ID to gather usage statistics
-  # config.google_analytics_id = 'UA-99999999-1'
+  config.google_analytics_id = Rails.application.secrets.analytics_id
 
   # Date you wish to start collecting Google Analytic statistics for
   # Leaving it blank will set the start date to when ever the file was uploaded by
   # NOTE: if you have always sent analytics to GA for downloads and page views leave this commented out
-  # config.analytic_start_date = DateTime.new(2014, 9, 10)
+  # This is the date on the UMRDR WorkViewStat table record number 1
+  config.analytic_start_date = DateTime.new(2016, 4, 10 )
 
   # Enables a link to the citations page for a work
   # Default is false
