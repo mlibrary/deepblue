@@ -20,8 +20,8 @@
 <% end %>
 </ul></td></tr>
 
-<span itemprop="url" itemscope itemtype="http://schema.org/Url">
-  <input type="hidden" id="url" name="urml" value="<%= main_app.hyrax_data_set_url%>">
+<span itemprop="url">
+  <span class="hide"><%= main_app.hyrax_data_set_url %></span>
 </span>
 
 <%= presenter.attribute_to_html(:creator, render_as: :faceted, label: t('show.label.creator') ) %>
@@ -38,11 +38,12 @@
 <%= presenter.attribute_to_html(:fundedby_other, label: t('show.label.fundedby_other') ) %>
 <%= presenter.attribute_to_html(:grantnumber, label: t('show.label.grantnumber') ) %>
 
-<span itemprop="keyword" itemscope itemtype="http://schema.org/Keywords">
-  <%= presenter.attribute_to_html(:keyword, render_as: :faceted) %>
+<%= presenter.attribute_to_html(:keyword, render_as: :faceted) %>
+
+<span itemprop="temporalCoverage">
+  <%= presenter.attribute_to_html(:date_coverage, label: t('show.label.date_coverage') ) %>
 </span>
 
-<%= presenter.attribute_to_html(:date_coverage, label: t('show.label.date_coverage') ) %>
 <%= presenter.attribute_to_html(:referenced_by, label: t('show.label.referenced_by') ) %>
 <%= presenter.attribute_to_html(:publisher, render_as: :faceted) %>
 <%= presenter.attribute_to_html(:resource_type, render_as: :faceted) %>
@@ -67,9 +68,12 @@
   <%= presenter.attribute_to_html(:doi, label: t('show.label.doi'), work_type: "DataSet" ) %>
 </span>
 
-<span itemprop="license" itemscope itemtype="http://schema.org/License">
-<%= presenter.attribute_to_html(:rights_license, render_as: :rights_license, label: t('show.label.rights_license'), work_type: "DataSet" ) %>
+
+<span itemprop="license">
+  <span class="hide"><%= presenter.rights_license[0] %></span>
 </span>
+
+<%= presenter.attribute_to_html(:rights_license, render_as: :rights_license, label: t('show.label.rights_license'), work_type: "DataSet" ) %>
 
 
 <%= presenter.attribute_to_html(:rights_license_other, label: t('show.label.rights_license_other') ) %>
