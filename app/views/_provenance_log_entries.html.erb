@@ -1,4 +1,4 @@
-<% if @presenter.present? && @presenter.display_provenance_log_enabled? %>
+<% if current_ability.admin? && @presenter.present? && @presenter.display_provenance_log_enabled? %>
   <div class="panel panel-items panel-provenance-log-entries">
     <% if @presenter.provenance_log_entries? %>
       <% provenance_log_entries = Deepblue::ProvenanceLogService.entries( @presenter.id ) %>
