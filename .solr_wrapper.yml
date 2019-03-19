@@ -1,5 +1,11 @@
-# Place any default configuration for solr_wrapper here
-# port: 8983
+# Note that these values are only for solr_wrapper and must match the app
+# config in settings.yml, etc. These defaults are primarily for no-argument
+# development invocation. See config/solr_wrapper_test.yml for test values.
+# Currently, deepblue is not compatible with Solr 8.0+
+version: 6.6.5
+port: 8983
+instance_dir: tmp/solr-development
 collection:
-  dir: solr/conf/
-  name: blacklight-core
+  persist: true
+  dir: solr/config/
+  name: deepbluedata-dev

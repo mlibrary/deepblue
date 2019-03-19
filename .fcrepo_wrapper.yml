@@ -1,0 +1,6 @@
+# Note that these values are only for fcrepo_wrapper and must match the app
+# config in settings.yml, etc. These defaults are primarily for no-argument
+# development invocation. See config/fcrepo_wrapper_test.yml for test values.
+port: 8984
+enable_jms: false
+fcrepo_home_dir: tmp/fcrepo4-development-data

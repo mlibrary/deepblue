@@ -14,14 +14,14 @@ unless Rails.env.production?
     # No need to maintain minter state on Travis
     reset_statefile! if ENV['TRAVIS'] == 'true'
 
-    solr_params = { port: '8985', verbose: true, managed: true }
-    fcrepo_params = { port: '8986', verbose: true, managed: true }
+    solr_config   = Rails.root.join('config/solr_wrapper_test.yml')
+    fcrepo_config = Rails.root.join('config/fcrepo_wrapper_test.yml')
 
-    SolrWrapper.wrap(solr_params) do |solr|
-      ENV['SOLR_TEST_PORT'] = solr.port
-      solr.with_collection(name: 'hydra-test', dir: File.join(File.expand_path('../..', File.dirname(__FILE__)), 'solr', 'config')) do
-        FcrepoWrapper.wrap(fcrepo_params) do |fcrepo|
-          ENV['FCREPO_TEST_PORT'] = fcrepo.port
+    solr_instance = SolrWrapper.instance(config: solr_config, verbose: true, managed: true)
+    solr_instance.wrap do |solr|
+      solr.with_collection do
+        fcrepo_instance = FcrepoWrapper::Instance.new(config: fcrepo_config, verbose: true, managed: true)
+        fcrepo_instance.wrap do |fcrepo|
           Rake::Task['spec'].invoke
         end
       end

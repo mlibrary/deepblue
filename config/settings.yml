@@ -1,0 +1,96 @@
+# Master configuration file. This holds the definitions and defaults that
+# can be set per environment in settings/, or settings.local.yml. Keys can
+# certainly be added in secondary files, but be sure to verify that the key
+# will be used. Most values are used individually, rather than passing
+# along a whole hash or array.
+
+# Application hostname, used for link, asset, and email generation.
+# More specific defaults are included in each enviroment.
+# The APP_HOSTNAME environment variable can override this.
+hostname: default.deepblue.lib.umich.edu
+
+# Relative URL segment at which the application resides, used to compute links
+# and assets. Used instead of RAILS_RELATIVE_URL_ROOT everywhere, because the
+# behavior with the environment variable has proven inconsistent.
+# FIXME: There are multiple places in the application that depend on this
+#        path being /data. They should all be cleaned up to generate paths
+#        based on the configuration of Rails / ActionController.
+relative_url_root: /data
+
+# Does not appear to be used anywhere
+# from_email: 'deepblue@umich.edu'
+
+# Used to set Rails.configuration.notification_email; should be use directly
+# from Settings unless there is an engine reference somewhere.
+notification_email: <%= "#{ENV['USER']}@umich.edu" %>
+
+# Used to set Rails.configuration.user_email, but value never seems to be set.
+# Should also be used directly from Settings rather than being inserted into
+# the Rails.configuration.
+# user_email:
+
+# These keys are mapped to Hyrax configuration options in places like
+# initializers/hyrax.rb.
+hyrax:
+  # Settings for email contact form and deposit notification
+  contact_email: <%= "#{ENV['USER']}@umich.edu" %>
+  minter_statefile: <%= ENV['MINTER_FILE'] || "/tmp/umrdr-minter-#{Time.now.min}#{Time.now.sec}" %>
+  # Redis namespace used in both Hyrax and Resque initializers
+  redis_namespace: <%= ENV['REDIS_NS'] || 'deepbluedata' %>
+
+# Fedora connection information.
+# These values are used in fedora.yml; no literals should appear there. Each
+# environment has more specific defaults, so an invalid host is used here.
+fedora:
+  user: fedoraAdmin
+  password: fedoraAdmin
+  url: http://fcrepo.invalid/
+  base_path: /deepbluedata
+
+# Solr connection information for both ActiveFedora and Blacklight.
+# This value is used in solr.yml; no literals should appear there. Each
+# environment has more specific defaults, so an invalid host is used here.
+# The SOLR_URL environment variable will override the defaults.
+solr:
+  url: http://solr.invalid/core
+
+# These values are used for the Redis connections without modification the
+# redis_config.rb and resque_config.rb initializers. The namespace for
+# ActiveJob/Resque is handled separately, as the hyrax.redis_namespace key
+# above.
+#
+# Note that the url option will override many options, per the redis gem docs.
+# A value in the REDIS_URL environment variable will override a url value.
+redis:
+  host: localhost
+  port: 6379
+  thread_safe: true
+
+# EZID Client configuration; see initializer/ezid.rb
+# The doi:10.5072/FK2 shoulder is a defined temporary/testing namespace.
+# Set real values in settings.local.yml or local environment file.
+ezid:
+  host: ez.test.datacite.org
+  user: eziduser.invalid
+  password: ezidpassword.invalid
+  shoulder: doi:10.5072/FK2
+  port: 443
+  use_ssl: true
+  timeout: 300
+
+
+# These are keys used to bridge between settings and the standard Rails files.
+rails:
+  # Database settings as they will be mapped into database.yml for the running
+  # environment. The shell variable DATABASE_URL will always override values
+  # in the settings files.
+  database:
+    adapter: sqlite3
+    pool: 5
+    timeout: 5000
+  # This value is nil here, to be set per environment and read in secrets.yml.
+  # The SECRET_KEY_BASE environment variable will always override this setting.
+  secret_key_base:
+  # Action Cable settings applied in cable.yml
+  cable:
+    adapter: async

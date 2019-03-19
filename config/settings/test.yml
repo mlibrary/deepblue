@@ -1,0 +1,27 @@
+hostname: <%= ENV['APP_HOSTNAME'] || 'test.deepblue.lib.umich.edu' %>
+
+hyrax:
+  redis_namespace: <%= ENV['REDIS_NS'] || 'deepbluedata-test' %>
+
+fedora:
+  url: http://127.0.0.1:<%= ENV['FCREPO_TEST_PORT'] || 8986 %>/rest
+  base_path: /deepbluedata-test
+
+# We specify an explicitly named test core. Make sure that config/solr_wrapper_test.yml
+# matches this if you change it and depend on the `ci` rake task. You can run Fedora and
+# Solr on any ports and namespaces manually and use .local.yml files for tests run by
+# hand, but the rake task uses what's in the file exclusively.
+solr:
+  url: http://127.0.0.1:<%= ENV['SOLR_TEST_PORT'] || 8985 %>/solr/deepbluedata-test
+
+ezid:
+  timeout: 10
+
+rails:
+  database:
+    # Warning: The database defined as "test" will be erased and
+    # re-generated from your development database when you run "rake".
+    # Do not set this db to the same as development or production.
+    database: db/test.sqlite3
+    timeout: 10000
+  secret_key_base: a8e4aa45a4953ee0263a0df4a33bd051b4db4503d96f93db838730ff93ed413d62dbb6f2feb82ec902d135799e7faf44b815726dc491f5cc3131db394fd2259d

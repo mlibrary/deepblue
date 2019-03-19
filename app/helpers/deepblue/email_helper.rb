@@ -6,7 +6,7 @@ module Deepblue
     extend ActionView::Helpers::TranslationHelper
 
     def self.contact_email
-      Settings.contact_email
+      Settings.hyrax.contact_email
     end
 
     def self.data_set_url( id: nil, data_set: nil )
@@ -26,7 +26,7 @@ module Deepblue
     end
 
     def self.hostname
-      rv = Settings.umrdr_host
+      rv = Settings.hostname
       return rv unless rv.nil?
       # then we are in development mode
       "http://localhost:3000/data/"
