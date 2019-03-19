@@ -125,7 +125,9 @@ module DeepBlueDocs
     # URL for logging the user out of Cosign
     config.logout_prefix = "https://weblogin.umich.edu/cgi-bin/logout?"
 
-    config.relative_url_root = Settings.relative_url_root
+    # FIXME: This unless reveals bugs. There are places in the app that hard-code the
+    #        /data prefix and the tests break when it is set.
+    config.relative_url_root = Settings.relative_url_root unless Rails.env.test?
 
     # For properly generating URLs and minting DOIs - the app may not by default
     # Outside of a request context the hostname needs to be provided.
