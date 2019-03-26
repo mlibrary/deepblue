@@ -38,8 +38,7 @@ module Hyrax
                                              "continue_job_chain=#{continue_job_chain}",
                                              "continue_job_chain_later=#{continue_job_chain_later}",
                                              "delete_input_file=#{delete_input_file}",
-                                             "uploaded_file_ids=#{uploaded_file_ids}",
-                                             "" ]
+                                             "uploaded_file_ids=#{uploaded_file_ids}" ]
         # Skip versioning because versions will be minted by VersionCommitter as necessary during save_characterize_and_record_committer.
         Hydra::Works::AddFileToFileSet.call( file_set,
                                              io,
@@ -70,12 +69,35 @@ module Hyrax
       # Reverts file and spawns async job to characterize and create derivatives.
       # @param [String] revision_id
       # @return [CharacterizeJob, FalseClass] spawned job on success, false on failure
-      def revert_to(revision_id)
+      def revert_to( revision_id )
+        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "user=#{user}",
+                                             "file_set.id=#{file_set.id}",
+                                             "relation=#{relation}",
+                                             "revision_id=#{revision_id}" ]
         repository_file = related_file
+        current_version = file_set.latest_version
+        prior_revision_id = current_version.label
+        prior_create_date = current_version.created
+        # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+        #                                      Deepblue::LoggingHelper.called_from,
+        #                                      "repository_file=#{repository_file}",
+        #                                      "file_set.latest_version_create_datetime=#{prior_create_date}" ]
         repository_file.restore_version(revision_id)
         return false unless file_set.save
-        Hyrax::VersioningService.create(repository_file, user)
-        CharacterizeJob.perform_later(file_set, repository_file.id)
+        current_version = file_set.latest_version
+        new_revision_id = current_version.label
+        new_create_date = current_version.created
+        file_set.provenance_update_version( current_user: user,
+                                            event_note: "revert_to",
+                                            new_create_date: new_create_date,
+                                            new_revision_id: new_revision_id,
+                                            prior_create_date: prior_create_date,
+                                            prior_revision_id: prior_revision_id,
+                                            revision_id: revision_id )
+        Hyrax::VersioningService.create( repository_file, user )
+        CharacterizeJob.perform_later( file_set, repository_file.id, current_user: user )
       end
 
       # @note FileSet comparison is limited to IDs, but this should be sufficient, given that

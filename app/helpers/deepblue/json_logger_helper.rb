@@ -21,6 +21,7 @@ module Deepblue
                                                       delta_only: true )
 
         attr_key_values = {}
+        return attr_key_values if form_params.nil?
         form_params.each_pair do |key, value|
           update_key = "#{update_key_prefix}#{key}".to_sym
           key = key.to_sym

@@ -34,6 +34,7 @@ class FileSet < ActiveFedora::Base
       prior_identifier
       title
       uri
+      version_count
       virus_scan_service
       virus_scan_status
       virus_scan_status_date
@@ -72,6 +73,7 @@ class FileSet < ActiveFedora::Base
       label
       parent_id
       file_extension
+      version_count
       visibility
     ]
   end
@@ -170,6 +172,9 @@ class FileSet < ActiveFedora::Base
               when 'uri'
                 value = uri.value
                 true
+              when 'version_count'
+                value = version_count
+                true
               when 'visibility'
                 value = visibility
                 true
@@ -232,6 +237,9 @@ class FileSet < ActiveFedora::Base
                 true
               when 'uri'
                 value = uri.value
+                true
+              when 'version_count'
+                value = version_count
                 true
               when 'visibility'
                 value = visibility

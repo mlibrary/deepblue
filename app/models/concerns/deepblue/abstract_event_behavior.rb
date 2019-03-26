@@ -25,6 +25,7 @@ module Deepblue
     EVENT_UPDATE            = 'update'
     EVENT_UPDATE_AFTER      = 'update_after'
     EVENT_UPDATE_BEFORE     = 'update_before'
+    EVENT_UPDATE_VERSION    = 'update_version'
     EVENT_UPLOAD            = 'upload'
     EVENT_VIRUS_SCAN        = 'virus_scan'
     EVENT_WORKFLOW          = 'workflow'
@@ -48,6 +49,7 @@ module Deepblue
         EVENT_UPDATE,
         EVENT_UPDATE_AFTER,
         EVENT_UPDATE_BEFORE,
+        EVENT_UPDATE_VERSION,
         EVENT_UPLOAD,
         EVENT_VIRUS_SCAN,
         EVENT_WORKFLOW

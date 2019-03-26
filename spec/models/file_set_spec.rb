@@ -42,6 +42,7 @@ RSpec.describe FileSet do
       prior_identifier
       title
       uri
+      version_count
       virus_scan_service
       virus_scan_status
       virus_scan_status_date
@@ -63,6 +64,7 @@ RSpec.describe FileSet do
       label
       parent_id
       file_extension
+      version_count
       visibility
     ]
   }

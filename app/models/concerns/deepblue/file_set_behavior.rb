@@ -21,10 +21,47 @@ module Deepblue
 
     end
 
+    # versioning
+
+    def versions
+      ofile = original_file
+      return [] if ofile.nil?
+      rv = ofile.versions
+      return [] if rv.nil?
+      rv = rv.all
+    end
+
+    def latest_version
+      versions.last
+    end
+
+    def latest_version_create_datetime
+      version_datetime latest_version
+    end
+
+    def version_count
+      vers = versions
+      return 0 if vers.nil?
+      vers.count
+    end
+
+    def version_datetime( version )
+      return nil if version.nil?
+      return '' if version.created.blank?
+      DateTime.parse version.created
+    end
+
+    def version_datetime_display( version )
+      timestamp = version_datetime( version )
+      DeepblueHelper.display_timestamp timestamp
+    end
+
     def update_parent
       return if parent.nil?
       parent.total_file_size_add_file_set!( self )
     end
+
+    # virus scanning
 
     def virus_scan
       LoggingHelper.bold_debug [ LoggingHelper.here, LoggingHelper.called_from, "original_file = #{original_file}" ]
