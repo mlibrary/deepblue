@@ -1,8 +1,8 @@
 <table id="activity" class="table table-striped table-bordered">
   <thead>
     <tr>
-      <th>User Activity</th>
-      <th>Date</th>
+      <th><%= t( ".user_activity" ) %></th>
+      <th><%= t( ".date" ) %></th>
     </tr>
   </thead>
   <tbody>
@@ -13,8 +13,9 @@
       <td><%= sanitize event[:action] %></td>
       <% time = Time.zone.at(event[:timestamp].to_i) %>
       <td data-sort="<%= time.getutc.iso8601(5) %>">
-        <div datetime="<%= time.getutc.iso8601 %>" title="<%= time.to_formatted_s(:standard) %>">
-          <%= time.to_formatted_s(:standard) %>
+        <% formatted_time = DeepblueHelper.display_timestamp time %>
+        <div datetime="<%= time.getutc.iso8601 %>" title="<%= formatted_time %>">
+          <%= formatted_time %>
         </div>
       </td>
     </tr>

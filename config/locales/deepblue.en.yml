@@ -75,6 +75,8 @@ en:
     required:
       html: '<span class="required required-tag">Required</span>'
     hints:
+      file_set:
+        save_version_note: 'You must click "Save Revision" to revert a previous version of this file'
       generic_work:
         describe_work: >
           Please provide information about your data set (referred to as a "work") in the following fields, keeping in
