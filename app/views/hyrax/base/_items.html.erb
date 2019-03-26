@@ -1,9 +1,9 @@
 <!--<h2><%= t('.header') %></h2>-->
 
-<% if presenter.member_presenters.present? %>
+<% if @presenter.member_presenters.present? %>
 <div class="panel panel-default panel-items">
   <div class="panel-heading">
-    <h2>Files (Count: <%= presenter.total_file_count %>;  Size: <%= presenter.total_file_size_human_readable %>)</h2>
+    <h2>Files (Count: <%= @presenter.total_file_count %>;  Size: <%= @presenter.total_file_size_human_readable %>)</h2>
   </div>
     <div class="table-scroll--container">
       <table class="table table-striped related-files">
@@ -12,17 +12,18 @@
             <th class="sr-only"><%= t('.thumbnail') %></th>
             <th><%= t('.title') %></th>
             <th><%= t('.date_uploaded') %></th>
+            <th><%= t('.date_modified') %></th>
             <th><%= t('.file_size') %></th>
             <th><%= t('.visibility') %></th>
             <th><%= t('.actions') %></th>
           </tr>
         </thead>
         <tbody>
-          <%= render partial: 'member', collection: presenter.member_presenters %>
+          <%= render partial: 'member', collection: @presenter.member_presenters %>
         </tbody>
       </table>
     </div>
 </div>
-<% elsif can? :edit, presenter.id %>
-    <div class="alert alert-warning" role="alert"><%= t('.empty', type: presenter.human_readable_type) %></div>
+<% elsif can? :edit, @presenter.id %>
+    <div class="alert alert-warning" role="alert"><%= t('.empty', type: @presenter.human_readable_type) %></div>
 <% end %>

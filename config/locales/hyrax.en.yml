@@ -53,14 +53,21 @@ en:
       admin_sets:
         form_visibility:
           visibility:
-            restricted: Private -- depositor can only select private for visibility. Access is restricted to repository administrators, managers, and viewers of the set. Must be used with "No embargo" setting above.
+            restricted: >
+              Private -- depositor can only select private for visibility. Access is restricted to repository
+              administrators, managers, and viewers of the set. Must be used with "No embargo" setting above.
     account_name:           "My Institution Account Id"
     base:
       items:
-        visibility: Access
+        date_modified:      "Last Modified"
+        date_uploaded:      "Original Upload"
+        file_size:          "File Size"
+        visibility:         "Access"
+      member:
+        download_title:     "link to download this file"
     contact_form:
       issue_types:
-        size: My deposit is larger than 2GB
+        size:               "My deposit is larger than 2GB"
     directory:
       suffix:               "@example.org"
     email:
@@ -73,7 +80,9 @@ en:
         files_attached:     "\nFiles attached are:"
         files_failed:       "\nFiles not attached are:"
         file_line:          "%{line_count} -- '%{file_name}' - %{file_size} bytes"
-
+    file_sets:
+      detail_header:        "File Deepblue Details"
+      not_yet_characterized: "not yet characterized"
     footer:
       copyright_html: "<strong>Copyright &copy; 2017 Samvera</strong> Licensed under the Apache License, Version 2.0"
       service_html: A service of <a href="http://samvera.org/" class="navbar-link" target="_blank">Samvera</a>.
@@ -81,13 +90,16 @@ en:
     institution_name_full:  "The Institution Name"
     product_name:           "Deep Blue Data"
     product_twitter_handle: "@SamveraRepo"
-    share_button: Deposit Your Work
+    share_button:           Deposit Your Work
     works:
       form:
         tab:
           relationships: Add to Collections
       create:
-        after_create_html: If you uploaded files for this work, they are being processed by %{application_name} in the background. The metadata and access controls you specified are being applied. You may need to refresh this page to see these updates.
+        after_create_html: >
+          If you uploaded files for this work, they are being processed by %{application_name} in the background.
+          The metadata and access controls you specified are being applied. You may need to refresh this page to see
+          these updates.
     visibility:
       restricted: 
         text: Restricted

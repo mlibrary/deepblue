@@ -84,9 +84,9 @@ module Hyrax
       @additional_characterization_metadata_admin_only ||= {}
     end
 
-    def label_for_term(term)
-      # TODO: put this in localization map
-      return "File Size" if :file_size_human_readable == term
+    def label_for_term( term )
+      MsgHelper.t( "show.file_set.label.#{term}", raise: true )
+    rescue I18n::MissingTranslationData => e
       term.to_s.titleize
     end
 

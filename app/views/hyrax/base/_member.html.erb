@@ -1,49 +1,45 @@
 <% if @presenter.tombstone.present? %>
-
   <tr class="<%= dom_class(member) %> attributes">
     <td class="attribute thumbnail"><center>-</center></td>
     <td class="attribute attribute-filename"><%= member.link_name %></td>
     <td class="attribute date_uploaded"><%= member.try(:date_uploaded) %></td>
+    <td class="attribute date_modified"><%= member.try(:date_modified) %></td>
     <td class="attribute attribute-file_size"><%= member.file_size_human_readable %></td>
     <td class="attribute permission"><span class="label label-danger">Tombstone</span></td>
     <td class="attribute smalltext">No Details Available</td> 
   </tr>
-
-
 <% else %>
   <tr class="<%= dom_class(member) %> attributes">
-      <td class="thumbnail">
-        <% if can?(:download, member.id) %>
-          <%= render_thumbnail_tag member %>
-        <% else %>
-          None
-        <% end %>
-      </td>
-
+    <td class="thumbnail">
+      <% if can?(:download, member.id) %>
+        <%= render_thumbnail_tag member %>
+      <% else %>
+        <%= t( '.no_thumbnail' ) %>
+      <% end %>
+    </td>
     <% if can?(:download, member.id) %>
-        <% unless member.file_size_too_large_to_download? %>
-          <td role="menuitem" tabindex="-1">
-            <%= link_to truncate(member.link_name, length: 40, omission: "...#{member.link_name[-5, 5]}"),
-                        hyrax.download_path(member),
-                        title: t('.download_title', file_set: member),
-                        target: "_blank",
-                        id: "file_download",
-                        data: { label: member.id } %>
-          </td>
-        <% else %>
-          <td class="attribute filename">
-            <span class="hastooltip">
-              <%= truncate(member.link_name, length: 40, omission: "...#{member.link_name[-5, 5]}") %>
-              <span class="tooltip"><%= t('simple_form.hints.file_set.too_large_to_download_directly') %></span>
-            </span>
-          </td>
-        <% end %>
+      <% unless member.file_size_too_large_to_download? %>
+        <td role="menuitem" tabindex="-1">
+          <%= link_to truncate(member.link_name, length: 40, omission: "...#{member.link_name[-5, 5]}"),
+                      hyrax.download_path(member),
+                      title: t('.download_title', file_set: member),
+                      target: "_blank",
+                      id: "file_download",
+                      data: { label: member.id } %>
+        </td>
+      <% else %>
+        <td class="attribute filename">
+          <span class="hastooltip">
+            <%= truncate(member.link_name, length: 40, omission: "...#{member.link_name[-5, 5]}") %>
+            <span class="tooltip"><%= t('simple_form.hints.file_set.too_large_to_download_directly') %></span>
+          </span>
+        </td>
+      <% end %>
     <% else %>
-        <td class="attribute filename"><%= truncate(member.title.first, length: 40, omission: "...#{member.title.first[-5, 5]}") %></td>
+      <td class="attribute filename"><%= truncate(member.title.first, length: 40, omission: "...#{member.title.first[-5, 5]}") %></td>
     <% end %>
-
-
     <td class="attribute attribute-date_uploaded"><%= member.try(:date_uploaded) %></td>
+    <td class="attribute attribute-date_modified"><%= member.try(:date_modified) %></td>
     <td class="attribute attribute-file_size"><%= member.file_size_human_readable %></td>
     <td class="attribute attribute-permission"><%= member.permission_badge %></td>
     <td>
