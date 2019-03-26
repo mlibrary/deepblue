@@ -68,8 +68,24 @@ module Hyrax
       # @param [Hyrax::UploadedFile, File, ActionDigest::HTTP::UploadedFile] file the file uploaded by the user
       # @param [Symbol, #to_s] relation
       # @return [IngestJob] the queued job
-      def update_content(file, relation = :original_file)
-        IngestJob.perform_later(wrapper!(file: file, relation: relation), notification: true)
+      def update_content( file, relation = :original_file )
+        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "user=#{user}",
+                                             "file_set.id=#{file_set.id}",
+                                             "file=#{file}",
+                                             "relation=#{relation}" ]
+        current_version = file_set.latest_version
+        prior_revision_id = current_version.label
+        prior_create_date = current_version.created
+        file_set.provenance_update_version( current_user: user,
+                                            event_note: "update_content",
+                                            new_create_date: '',
+                                            new_revision_id: '',
+                                            prior_create_date: prior_create_date,
+                                            prior_revision_id: prior_revision_id,
+                                            revision_id: '' )
+        IngestJob.perform_later( wrapper!(file: file, relation: relation), notification: true )
       end
 
       # @!endgroup
@@ -145,10 +161,29 @@ module Hyrax
       # @param [String] revision_id the revision to revert to
       # @param [Symbol, #to_sym] relation
       # @return [Boolean] true on success, false otherwise
-      def revert_content(revision_id, relation = :original_file)
-        return false unless build_file_actor(relation).revert_to(revision_id)
+      def revert_content( revision_id, relation = :original_file )
+        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "revision_id=#{revision_id}",
+                                             "relation=#{relation}" ]
+        # return false unless build_file_actor(relation).revert_to(revision_id)
+        file_actor = build_file_actor( relation )
+        # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+        #                                      Deepblue::LoggingHelper.called_from,
+        #                                      Deepblue::LoggingHelper.obj_class( "file_actor", file_actor ) ]
+        return false unless file_actor.revert_to revision_id
         Hyrax.config.callback.run(:after_revert_content, file_set, user, revision_id)
         true
+      rescue Exception => e # rubocop:disable Lint/RescueException
+        Rails.logger.error "#{e.class} work.id=#{work.id} -- #{e.message} at #{e.backtrace[0]}"
+        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "ERROR",
+                                             "e=#{e.class.name}",
+                                             "e.message=#{e.message}",
+                                             "e.backtrace:" ] +
+                                               e.backtrace
+        false
       end
 
       def update_metadata(attributes)

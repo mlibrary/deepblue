@@ -10,7 +10,7 @@ module Hyrax
     PARAMS_KEY = 'file_set'
     self.show_presenter = Hyrax::DsFileSetPresenter
 
-    # alias_method :monkey_update, :update
+    alias_method :monkey_attempt_update, :attempt_update
     # alias_method :monkey_update_metadata, :update_metadata
 
     before_action :provenance_log_destroy,       only: [:destroy]
@@ -38,6 +38,36 @@ module Hyrax
     end
 
     protected
+
+      def attempt_update
+        # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+        #                                      Deepblue::LoggingHelper.called_from,
+        #                                      "current_user=#{current_user}",
+        #                                      Deepblue::LoggingHelper.obj_class( "actor", actor ) ]
+        if wants_to_revert?
+          Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "current_user=#{current_user}",
+                                               Deepblue::LoggingHelper.obj_class( "actor", actor ),
+                                               "wants to revert" ]
+          actor.revert_content(params[:revision])
+        elsif params.key?(:file_set)
+          if params[:file_set].key?(:files)
+            Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                                 Deepblue::LoggingHelper.called_from,
+                                                 "current_user=#{current_user}",
+                                                 Deepblue::LoggingHelper.obj_class( "actor", actor ),
+                                                 "actor.update_content" ]
+            actor.update_content(params[:file_set][:files].first)
+          else
+            Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                                 Deepblue::LoggingHelper.called_from,
+                                                 "current_user=#{current_user}",
+                                                 "update_metadata" ]
+            update_metadata
+          end
+        end
+      end
 
       def show_presenter
         Hyrax::DsFileSetPresenter

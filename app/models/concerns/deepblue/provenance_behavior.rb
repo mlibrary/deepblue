@@ -78,6 +78,10 @@ module Deepblue
       return attributes_update_for_provenance, IGNORE_BLANK_KEY_VALUES
     end
 
+    def attributes_for_provenance_update_version
+      return attributes_update_for_provenance, IGNORE_BLANK_KEY_VALUES
+    end
+
     def attributes_for_provenance_upload
       return attributes_all_for_provenance, USE_BLANK_KEY_VALUES
     end
@@ -533,6 +537,35 @@ module Deepblue
                                                                                             form_params: form_params )
       # LoggingHelper.bold_debug [ "provenance_log_update_before", 'update_attr_key_values:', update_attr_key_values ]
       update_attr_key_values
+    end
+
+    def provenance_update_version( current_user:,
+                                   event_note: '',
+                                   new_create_date:,
+                                   new_revision_id:,
+                                   prior_create_date:,
+                                   prior_revision_id:,
+                                   revision_id:,
+                                   **added_prov_key_values )
+      attributes, ignore_blank_key_values = attributes_for_provenance_update_version
+      event = EVENT_UPDATE_VERSION
+      added_prov_key_values = { new_create_date: new_create_date,
+                                new_revision_id: new_revision_id,
+                                prior_create_date: prior_create_date,
+                                prior_revision_id: prior_revision_id,
+                                revision_id: revision_id }.merge added_prov_key_values
+      prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes,
+                                                                  current_user: current_user,
+                                                                  event: event,
+                                                                  event_note: event_note,
+                                                                  ignore_blank_key_values: ignore_blank_key_values,
+                                                                  **added_prov_key_values )
+      provenance_log_event( attributes: attributes,
+                            current_user: current_user,
+                            event: event,
+                            event_note: event_note,
+                            ignore_blank_key_values: ignore_blank_key_values,
+                            prov_key_values: prov_key_values )
     end
 
     def provenance_upload( current_user:, event_note: '' )
