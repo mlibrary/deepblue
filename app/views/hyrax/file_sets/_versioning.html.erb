@@ -1,0 +1,38 @@
+<div id="versioning_display" class="tab-pane">
+  <h2><%= t('.header') %></h2>
+  <%= simple_form_for [main_app, curation_concern], html: { multipart: true } do |f| %>
+    <%= hidden_field_tag('redirect_tab', 'versions') %>
+    <h3><%= t('.upload') %></h3>
+    <%= f.input :files, as: :multifile, wrapper: :vertical_file_input, required: true %>
+    <%= f.button :button,
+                 name: "update_versioning",
+                 id: "upload_submit",
+                 onclick: "confirmation_needed = false;",
+                 class: "btn btn-primary" do %>
+      <%= t('.upload') %>
+    <% end %>
+  <% end %>
+
+  <%= form_for [main_app, curation_concern],
+               html: { class: 'edit_file_set_previous_version' } do |f| %>
+    <h3><%= t('.restore') %></h3>
+    <% @version_list.each do |version| %>
+      <div class="radio">
+        <label class="radio <%= version.current? ? 'disabled' : '' %>">
+          <%= radio_button_tag(:revision, version.label, false, disabled: version.current?, required: 'required') %>
+          <%= version.current? ? t('.current') : t('.restore_from') %>
+          <%= curation_concern.version_datetime_display version %> [by <%= version.committer %>]
+        </label>
+      </div>
+    <% end %>
+    <div id="save_version_note" class="alert hide"><%= t( 'simple_form.hints.file_set.save_version_note' ) %></div>
+    <%= f.button :button,
+                 name: "revert_submit",
+                 id: "revert_submit",
+                 onclick: "confirmation_needed = false;",
+                 class: "btn btn-primary",
+                 type: 'submit' do %>
+      <%= t('.save') %>
+    <% end %>
+  <% end %>
+</div> <!-- /row -->

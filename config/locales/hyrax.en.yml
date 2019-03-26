@@ -90,8 +90,11 @@ en:
     institution_name_full:  "The Institution Name"
     product_name:           "Deep Blue Data"
     product_twitter_handle: "@SamveraRepo"
-    share_button:           Deposit Your Work
-    works:
+    share_button:           "Deposit Your Work"
+    users:
+      activity_log:
+        date:               "Date"
+        user_activity:      "User Activity"
       form:
         tab:
           relationships: Add to Collections

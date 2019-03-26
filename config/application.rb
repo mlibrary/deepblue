@@ -27,6 +27,10 @@ module DeepBlueDocs
     # config.dbd_version = 'DBDv1'
     config.dbd_version = 'DBDv2'
 
+    # puts "config.time_zone=#{config.time_zone}"
+    config.timezone_offset = DateTime.now.offset
+    config.datetime_stamp_display_local_time_zone = true
+
     ## ensure tmp directories are defined
     verbose_init = false
     puts "ENV['TMPDIR']=#{ENV['TMPDIR']}" if verbose_init
