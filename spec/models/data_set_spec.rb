@@ -250,7 +250,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_mint_doi( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 36,
+                                     size: 37,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -299,7 +299,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_publish( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 37,
+                                     size: 38,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -349,7 +349,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_unpublish( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 36,
+                                     size: 37,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -438,7 +438,7 @@ RSpec.describe DataSet do
       expect( subject.entomb!( epitaph, current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 39,
+                                     size: 40,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -530,7 +530,7 @@ RSpec.describe DataSet do
       subject.provenance_log_update_after( current_user: current_user, update_attr_key_values: attr_key_values )
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 9,
+                                     size: 10,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -560,6 +560,7 @@ RSpec.describe DataSet do
                                      before: nil,
                                      after: nil,
                                      exp_timestamp: nil,
+                                     exp_time_zone: DeepBlueDocs::Application.config.timezone_zone,
                                      exp_event:,
                                      exp_event_note: nil,
                                      exp_class_name:,
@@ -615,6 +616,7 @@ RSpec.describe DataSet do
     expect( rv_key_values['event'] ).to eq exp_event
     expect( rv_key_values['timestamp'] ).to be_between( before, after ) if before.present? && after.present?
     expect( rv_key_values['timestamp'] ).to eq exp_timestamp if exp_timestamp.present?
+    expect( rv_key_values['time_zone'] ).to eq exp_time_zone if exp_time_zone.present?
     validate_expected( rv_key_values, :event_note, exp_event_note )
     validate_expected( rv_key_values, :class_name, exp_class_name )
     validate_expected( rv_key_values, :id, exp_id )

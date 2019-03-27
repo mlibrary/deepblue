@@ -127,9 +127,15 @@ RSpec.describe Deepblue::LoggingHelper, type: :helper do
     let( :blank_event_note ) { '' }
     let( :id ) { 'id1234' }
     let( :timestamp ) { Time.now.to_formatted_s(:db ) }
+    let( :time_zone ) { DateTime.now.zone }
 
     context 'parms without added' do
-      let( :key_values ) { { event: event, event_note: event_note, timestamp: timestamp, class_name: class_name, id: id } }
+      let( :key_values ) { { event: event,
+                             event_note: event_note,
+                             timestamp: timestamp,
+                             time_zone: time_zone,
+                             class_name: class_name,
+                             id: id } }
       let( :json ) { ActiveSupport::JSON.encode key_values }
       let( :result1 ) { "#{timestamp} #{event}/#{event_note}/#{class_name}/#{id} #{json}" }
       it do
@@ -137,12 +143,13 @@ RSpec.describe Deepblue::LoggingHelper, type: :helper do
                                                     event: event,
                                                     event_note: event_note,
                                                     id: id,
-                                                    timestamp: timestamp ) ).to eq result1
+                                                    timestamp: timestamp,
+                                                    time_zone: time_zone ) ).to eq result1
       end
     end
 
     context 'parms, blank event_note, without added' do
-      let( :key_values ) { { event: event, timestamp: timestamp, class_name: class_name, id: id } }
+      let( :key_values ) { { event: event, timestamp: timestamp, time_zone: time_zone, class_name: class_name, id: id } }
       let( :json ) { ActiveSupport::JSON.encode key_values }
       let( :result1 ) { "#{timestamp} #{event}//#{class_name}/#{id} #{json}" }
       it do
@@ -150,7 +157,8 @@ RSpec.describe Deepblue::LoggingHelper, type: :helper do
                                                     event: event,
                                                     event_note: blank_event_note,
                                                     id: id,
-                                                    timestamp: timestamp ) ).to eq result1
+                                                    timestamp: timestamp,
+                                                    time_zone: time_zone ) ).to eq result1
       end
     end
 

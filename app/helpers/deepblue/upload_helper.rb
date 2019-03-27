@@ -33,6 +33,7 @@ module Deepblue
                         event_note: event_note,
                         id: id,
                         timestamp: timestamp,
+                        time_zone: LoggingHelper.timestamp_zone,
                         **log_key_values )
       log_raw msg
       Rails.logger.info msg if echo_to_rails_logger

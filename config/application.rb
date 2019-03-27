@@ -29,6 +29,7 @@ module DeepBlueDocs
 
     # puts "config.time_zone=#{config.time_zone}"
     config.timezone_offset = DateTime.now.offset
+    config.timezone_zone = DateTime.now.zone
     config.datetime_stamp_display_local_time_zone = true
 
     ## ensure tmp directories are defined

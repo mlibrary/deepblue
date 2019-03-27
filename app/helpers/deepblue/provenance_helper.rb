@@ -28,6 +28,7 @@ module Deepblue
                   event_note: '',
                   id: 'unknown_id',
                   timestamp: timestamp_now,
+                  time_zone: timestamp_zone,
                   echo_to_rails_logger: ProvenanceHelper.echo_to_rails_logger,
                   **log_key_values )
 
@@ -36,6 +37,7 @@ module Deepblue
                         event_note: event_note,
                         id: id,
                         timestamp: timestamp,
+                        time_zone: time_zone,
                         **log_key_values )
       log_raw msg
       Rails.logger.info msg if echo_to_rails_logger
