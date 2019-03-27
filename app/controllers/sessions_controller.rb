@@ -1,13 +1,18 @@
+# frozen_string_literal: true
+
+# this class is specific to UMich authentication only
 class SessionsController < ApplicationController
-   def destroy
-     if user_signed_in?
-       sso_logout
-     else
-       logout_now
-     end
-   end
+
+  def destroy
+    if user_signed_in?
+      sso_logout
+    else
+      logout_now
+    end
+  end
 
   def new
+    raise unless Rails.configuration.authentication_method == "umich"
     if user_signed_in?
       Rails.logger.debug "[AUTHN] sessions#new, redirecting"
       # redirect to where user came from (see Devise::Controllers::StoreLocation#stored_location_for)
@@ -23,4 +28,5 @@ class SessionsController < ApplicationController
     sso_auto_logout
     redirect_to root_url
   end
+
 end

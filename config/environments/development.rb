@@ -7,8 +7,10 @@ require "devise/fake_auth_header"
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
-  # Middleware to fake authentication header field that would come from apache.
-  config.middleware.use FakeAuthHeader
+  if Rails.configuration.authentication_method == "umich"
+    # Middleware to fake authentication header field that would come from apache. ONLY APPLIES TO UMICH AUTHENTICATION
+    config.middleware.use FakeAuthHeader
+  end
 
   # In the development environment your application's code is reloaded on
   # every request. This slows down response time but is perfect for development

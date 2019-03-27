@@ -1,3 +1,5 @@
+# this class is specific to UMich authentication only
+
 require 'devise/strategies/http_header_authenticatable'
 module Devise
   module Models

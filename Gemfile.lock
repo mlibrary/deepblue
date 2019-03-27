@@ -517,6 +517,13 @@ GEM
       activesupport
       nokogiri (>= 1.4.2)
       solrizer (~> 3.3)
+    omniauth (1.9.0)
+      hashie (>= 3.4.6, < 3.7.0)
+      rack (>= 1.6.2, < 3)
+    omniauth-cas (1.1.1)
+      addressable (~> 2.3)
+      nokogiri (~> 1.5)
+      omniauth (~> 1.2)
     openseadragon (0.5.0)
       rails (> 3.2.0)
     orm_adapter (0.5.0)
@@ -870,6 +877,8 @@ DEPENDENCIES
   loofah (~> 2.2.3)
   mysql2
   okcomputer (~> 1.17)
+  omniauth
+  omniauth-cas
   pry
   pry-byebug
   pry-rails

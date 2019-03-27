@@ -5,11 +5,13 @@ class User < ApplicationRecord
   include Hyrax::User
   include Hyrax::UserUsageStats
 
-  before_validation :generate_password, :on => :create
+  if Rails.configuration.authentication_method == "umich"
+    before_validation :generate_password, :on => :create
 
-  def generate_password
-    self.password = SecureRandom.urlsafe_base64(12)
-    self.password_confirmation = self.password
+    def generate_password
+      self.password = SecureRandom.urlsafe_base64(12)
+      self.password_confirmation = self.password
+    end
   end
 
   # Use the http header as auth.  This app will be behind a reverse proxy
@@ -18,8 +20,16 @@ class User < ApplicationRecord
                     strategy: true,
                     controller: :sessions,
                     model: 'devise/models/http_header_authenticatable')
-  devise :http_header_authenticatable
+  if Rails.configuration.authentication_method == "umich"
+    devise :http_header_authenticatable
+  end
 
+  if Rails.configuration.authentication_method == "iu"
+    devise :omniauthable, :omniauth_providers => [:cas]
+  else
+    devise :database_authenticatable, :registerable,
+           :recoverable, :rememberable, :trackable, :validatable
+  end
   if Blacklight::Utils.needs_attr_accessible?
     attr_accessible :email, :password, :password_confirmation
   end
@@ -27,8 +37,6 @@ class User < ApplicationRecord
   include Blacklight::User
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
-  devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable
 
   # Method added by Blacklight; Blacklight uses #to_s on your
   # user class to get a user-displayable login/identifier for
@@ -36,4 +44,15 @@ class User < ApplicationRecord
   def to_s
     email
   end
+
+  # helper for IU auth
+  def self.find_for_iu_cas(auth)
+    where(provider: auth.provider, uid: auth.uid).first_or_create! do |user|
+      user.provider = auth.provider
+      user.uid = auth.uid
+      user.email = [auth.uid,'@indiana.edu'].join
+      user.encrypted_password = Devise.friendly_token[0,20]
+    end
+  end
+
 end
