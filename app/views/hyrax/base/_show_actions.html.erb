@@ -148,7 +148,7 @@
   <% end %>
 
   <% if @presenter.current_ability.admin?  && @presenter.display_provenance_log_enabled? %>
-    <%= link_to t('simple_form.actions.data_set.display_provenance_log'),
+    <%= link_to t('simple_form.actions.display_provenance_log'),
                 main_app.display_provenance_log_hyrax_data_set_path(@presenter.id), class: 'btn btn-default' %>
   <% end %>
 

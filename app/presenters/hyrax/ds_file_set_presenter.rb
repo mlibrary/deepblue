@@ -28,6 +28,19 @@ module Hyrax
       g.doi.present?
     end
 
+    # begin display_provenance_log
+
+    def display_provenance_log_enabled?
+      true
+    end
+
+    def provenance_log_entries?
+      file_path = Deepblue::ProvenancePath.path_for_reference( id )
+      File.exist? file_path
+    end
+
+    # end display_provenance_log
+
     def parent_public?
       g = DataSet.find parent.id
       g.public?

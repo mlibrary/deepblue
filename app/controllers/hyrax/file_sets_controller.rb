@@ -19,6 +19,10 @@ module Hyrax
     after_action :provenance_log_create,         only: [:create]
     after_action :provenance_log_update_after,   only: [:update]
 
+    protect_from_forgery with: :null_session,    only: [:display_provenance_log]
+
+    ## Provenance log
+
     def provenance_log_create
       curation_concern.provenance_create( current_user: current_user, event_note: 'FileSetsController' )
     end
@@ -36,6 +40,29 @@ module Hyrax
     def provenance_log_update_before
       @update_attr_key_values = curation_concern.provenance_log_update_before( form_params: params[PARAMS_KEY].dup )
     end
+
+    ## end Provenance log
+
+    ## display provenance log
+
+    def display_provenance_log
+      # load provenance log for this work
+      file_path = Deepblue::ProvenancePath.path_for_reference( curation_concern.id )
+      Deepblue::LoggingHelper.bold_debug [ "DataSetsController", "display_provenance_log", file_path ]
+      Deepblue::ProvenanceLogService.entries( curation_concern.id, refresh: true )
+      # continue on to normal display
+      redirect_to [main_app, curation_concern]
+    end
+
+    def display_provenance_log_enabled?
+      true
+    end
+
+    def provenance_log_entries_present?
+      provenance_log_entries.present?
+    end
+
+    ## end display provenance log
 
     protected
 

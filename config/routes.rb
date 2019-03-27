@@ -56,6 +56,14 @@ Rails.application.routes.draw do
   concern :exportable, Blacklight::Routes::Exportable.new
 
   namespace :hyrax, path: :concern do
+    resources :file_sets do
+      member do
+        get    'display_provenance_log'
+      end
+    end
+  end
+
+  namespace :hyrax, path: :concern do
     resources :data_sets do
       member do
         # post   'confirm'
