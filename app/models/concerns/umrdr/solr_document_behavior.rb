@@ -24,6 +24,23 @@ module Umrdr
       Array(self[Solrizer.solr_name('doi')]).first
     end
 
+    def doi_minted?
+      # the first time this is called, doi will not be in solr.
+      # @solr_document[ Solrizer.solr_name( 'doi', :symbol ) ].first
+      doi.first
+    rescue
+      nil
+    end
+
+    def doi_minting_enabled?
+      ::Deepblue::DoiBehavior::DOI_MINTING_ENABLED
+    end
+
+    def doi_pending?
+      #@solr_document[ Solrizer.solr_name( 'doi', :symbol ) ].first == ::Deepblue::DoiBehavior::DOI_PENDING
+      doi.first == ::Deepblue::DoiBehavior::DOI_PENDING
+    end
+
     def file_size
       Array(self['file_size_lts']).first # standard lookup Solrizer.solr_name('file_size')] produces solr_document['file_size_tesim']
     end

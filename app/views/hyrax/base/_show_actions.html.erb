@@ -89,7 +89,7 @@
       <% end %>
     <% end %>
 
-    <% if @presenter.editor? && @presenter.mint_doi_enabled? %>
+    <% if @presenter.editor? && @presenter.doi_minting_enabled? %>
       <% if @presenter.doi_minted? && @presenter.current_ability.admin? %>
         <%= link_to t('simple_form.actions.data_set.edit'),
                     edit_polymorphic_path([main_app, @presenter]),

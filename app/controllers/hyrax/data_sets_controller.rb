@@ -99,7 +99,7 @@ module Hyrax
     ## DOI
 
     def doi
-      mint_doi
+      doi_mint
       respond_to do |wants|
         wants.html { redirect_to [main_app, curation_concern] }
         wants.json do
@@ -110,38 +110,30 @@ module Hyrax
       end
     end
 
-    def mint_doi
+    def doi_minting_enabled?
+      ::Deepblue::DoiBehavior::DOI_MINTING_ENABLED
+    end
+
+    def doi_mint
       # Do not mint doi if
       #   one already exists
       #   work file_set count is 0.
-      if curation_concern.doi == DataSet::DOI_PENDING
+      if curation_concern.doi_pending?
         flash[:notice] = MsgHelper.t( 'data_set.doi_is_being_minted' )
-        return
-      elsif curation_concern.doi
+      elsif curation_concern.doi_minted?
         flash[:notice] = MsgHelper.t( 'data_set.doi_already_exists' )
-        return
       elsif curation_concern.file_sets.count < 1
         flash[:notice] = MsgHelper.t( 'data_set.doi_requires_work_with_files' )
-        return
       elsif ( curation_concern.depositor != current_user.email ) && !current_ability.admin?
         flash[:notice] = MsgHelper.t( 'data_set.doi_user_without_access' )
-        return
+      elsif curation_concern.doi_mint( current_user: current_user, event_note: 'DataSetsController' )
+        flash[:notice] = MsgHelper.t( 'data_set.doi_minting_started' )
       end
-
-      # Assign doi as "pending" in the meantime
-      curation_concern.doi = DataSet::DOI_PENDING
-
-      # save (and re-index)
-      curation_concern.save
-
-      # Kick off job to get a doi
-      provenance_log_mint_doi
-      ::DoiMintingJob.perform_later( curation_concern.id )
     end
 
-    def mint_doi_enabled?
-      true
-    end
+    # def mint_doi_enabled?
+    #   true
+    # end
 
     ## end DOI
 
@@ -301,10 +293,6 @@ module Hyrax
 
     def provenance_log_destroy
       curation_concern.provenance_destroy( current_user: current_user, event_note: 'DataSetsController' )
-    end
-
-    def provenance_log_mint_doi
-      curation_concern.provenance_mint_doi( current_user: current_user, event_note: 'DataSetsController' )
     end
 
     def provenance_log_publish
