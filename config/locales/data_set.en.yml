@@ -62,11 +62,11 @@ en:
       total_file_size_human_readable: "Total file size"
   simple_form:
     actions:
+      display_provenance_log:           "Display Provenance Log Entries"
       data_set:
         analytics:                      "Analytics"
         confirm:                        "Confirm Your Deposit"
         delete:                         "Delete"
-        display_provenance_log:         "Display Provenance Log Entries"
         edit:                           "Edit Metadata"
         globus:                         "Send to Globus to Download"
         globus_add_email:               "Add Email"
