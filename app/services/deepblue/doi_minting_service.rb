@@ -44,7 +44,6 @@ module Deepblue
       config = Ezid::Client.config
       puts "Ezid::Client.config.host = #{config.host}"
       puts "Ezid::Client.config.port = #{config.port}"
-      # puts "Ezid::Client.config.use_ssl = #{config.use_ssl}"
       puts "Ezid::Client.config.user    = #{config.user}"
       puts "Ezid::Client.config.password = #{config.password}"
       puts "Ezid::Client.config.default_shoulder = #{config.default_shoulder}"

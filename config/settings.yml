@@ -75,7 +75,6 @@ ezid:
   password: ezidpassword.invalid
   shoulder: doi:10.5072/FK2
   port: 443
-  use_ssl: true
   timeout: 300
 
 
