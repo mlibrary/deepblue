@@ -1,3 +1,5 @@
+# this class is specific to UMich authentication only
+
 module Devise
   module Strategies
     class HttpHeaderAuthenticatable < ::Devise::Strategies::Base

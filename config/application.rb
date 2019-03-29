@@ -18,6 +18,11 @@ module DeepBlueDocs
     #
     # reference config values like: DeepBlueDocs::Application.config.variable_name
 
+    # Chimera configuration goes here
+    # config.authentication_method = "generic"
+    # config.authentication_method = "iu"
+    config.authentication_method = "umich"
+
     config.generators do |g|
       g.test_framework :rspec, spec: true
     end

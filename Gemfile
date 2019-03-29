@@ -96,6 +96,8 @@ gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
 gem 'devise'
 gem 'devise-guests', '~> 0.6'
+gem 'omniauth'
+gem 'omniauth-cas'
 gem 'rsolr', '>= 1.0'
 group :development, :test do
   gem 'capybara'
