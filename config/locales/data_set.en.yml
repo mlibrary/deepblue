@@ -6,6 +6,8 @@ en:
       "A DOI is currently being minted."
     doi_job_started:
       "DOI process kicked off for work id: %{id}"
+    doi_minting_started:
+      "DOI minting has started."
     doi_requires_work_with_files:
       "DOI cannot be minted for a work without files."
     doi_user_without_access:

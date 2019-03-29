@@ -7,26 +7,34 @@ module Deepblue
     PUBLISHER = "University of Michigan".freeze
     RESOURCE_TYPE = "Dataset".freeze
 
-    attr :work, :metadata
+    attr :current_user, :work, :metadata
 
-    def self.mint_doi_for(work)
-      Rails.logger.debug "DoiMintingService.mint_doi_for( work id = #{work.id} )"
-      service = Deepblue::DoiMintingService.new( work )
-      Rails.logger.debug "DoiMintingService.mint_doi_for calling run"
+    def self.mint_doi_for( work:, current_user: )
+      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                           Deepblue::LoggingHelper.called_from,
+                                           "work.id=#{work.id}" ]
+      service = Deepblue::DoiMintingService.new( work: work, current_user: current_user )
+      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                           Deepblue::LoggingHelper.called_from,
+                                           "work.id=#{work.id}",
+                                           "about to call service.run" ]
       service.run
     rescue Exception => e # rubocop:disable Lint/RescueException
-      Rails.logger.debug "DoiMintingService.mint_doi_for( work id = #{work.id} ) rescue exception -- Exception: #{e.class}: #{e.message} at #{e.backtrace[0]}"
+      Rails.logger.debug "DoiMintingService.mint_doi_for( work id = #{work.id}, current_user = #{current_user} ) rescue exception -- Exception: #{e.class}: #{e.message} at #{e.backtrace[0]}"
       unless work.nil?
+        work.reload # consider locking work
         work.doi = nil
         work.save
+        work.reload
         work.doi
       end
       raise
     end
 
-    def initialize(work)
+    def initialize( work:, current_user: )
       Rails.logger.debug "DoiMintingService.initalize( work id = #{work.id} )"
       @work = work
+      @current_user = current_user
       @metadata = generate_metadata
     end
 
@@ -35,8 +43,11 @@ module Deepblue
       rv = doi_server_reachable?
       Rails.logger.debug "DoiMintingService.run doi_server_reachable?=#{rv}"
       return mint_doi_failed unless rv
+      work.reload # consider locking work
       work.doi = mint_doi
       work.save
+      work.reload
+      work.provenance_mint_doi( current_user: current_user, event_note: 'DoiMintingService' )
       work.doi
     end
 
@@ -53,7 +64,7 @@ module Deepblue
       config = Ezid::Client.config
       return [ "Ezid::Client.config.host = #{config.host}",
                "Ezid::Client.config.port = #{config.port}",
-               "Ezid::Client.config.user    = #{config.user}",
+               "Ezid::Client.config.user = #{config.user}",
                # "Ezid::Client.config.password = #{config.password}",
                "Ezid::Client.config.default_shoulder = #{config.default_shoulder}" ]
     end
@@ -78,9 +89,17 @@ module Deepblue
 
       def mint_doi
         # identifier = Ezid::Identifier.create(@metadata)
-        Rails.logger.debug "DoiMintingService.mint_doi( #{metadata} )"
-        msg = ezid_config.join("\n")
-        Rails.logger.debug msg
+        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "work.id=#{work.id}",
+                                             "metadata=#{metadata}" ]
+
+        # Rails.logger.debug "DoiMintingService.mint_doi( #{metadata} )"
+        # msg = ezid_config.join("\n")
+        # Rails.logger.debug msg
+        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "work.id=#{work.id}" ] + ezid_config
         shoulder = Ezid::Client.config.default_shoulder
         identifier = Ezid::Identifier.mint( shoulder, @metadata )
         identifier.id
@@ -88,8 +107,10 @@ module Deepblue
 
       def mint_doi_failed
         Rails.logger.error "DoiMintingService.mint_doi_failed work id = #{work.id}"
+        work.reload # consider locking work
         work.doi = nil
         work.save
+        work.reload
         work.doi
       end
 

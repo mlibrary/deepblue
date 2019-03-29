@@ -7,6 +7,10 @@ module Hyrax
               :curation_notes_admin,
               :curation_notes_user,
               :date_coverage,
+              :doi,
+              :doi_minted?,
+              :doi_minting_enabled?,
+              :doi_pending?,
               :fundedby,
               :fundedby_other,
               :grantnumber,
@@ -64,27 +68,27 @@ module Hyrax
     # end display_provenance_log
 
     # begin doi
-
-    def doi
-      solr_value = @solr_document[Solrizer.solr_name('doi', :symbol)]
-      return nil if solr_value.blank?
-      solr_value.first
-    end
-
-    def doi_minted?
-      !doi.nil?
-    rescue
-      nil
-    end
-
-    def doi_pending?
-      doi == DataSet::DOI_PENDING
-    end
-
-    def mint_doi_enabled?
-      true
-    end
-
+    #
+    # def doi
+    #   solr_value = @solr_document[Solrizer.solr_name('doi', :symbol)]
+    #   return nil if solr_value.blank?
+    #   solr_value.first
+    # end
+    #
+    # def doi_minted?
+    #   !doi.nil?
+    # rescue
+    #   nil
+    # end
+    #
+    # def doi_pending?
+    #   doi == ::Deepblue::DoiBehavior::DOI_PENDING
+    # end
+    #
+    # def mint_doi_enabled?
+    #   true
+    # end
+    #
     # end doi
 
     # begin globus

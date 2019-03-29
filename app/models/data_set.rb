@@ -26,6 +26,7 @@ class DataSet < ActiveFedora::Base
   include ::Deepblue::MetadataBehavior
   include ::Deepblue::EmailBehavior
   include ::Deepblue::ProvenanceBehavior
+  include ::Deepblue::DoiBehavior
 
   after_initialize :set_defaults
 
@@ -34,8 +35,6 @@ class DataSet < ActiveFedora::Base
   def provenance_before_destroy_data_set
     provenance_destroy( current_user: '' ) # , event_note: 'provenance_before_destroy_data_set' )
   end
-
-  DOI_PENDING = 'doi_pending'
 
   def set_defaults
     return unless new_record?
