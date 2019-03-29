@@ -66,6 +66,7 @@ module Deepblue
                   event_note: '',
                   id: 'unknown_id',
                   timestamp: LoggingHelper.timestamp_now,
+                  time_zone: LoggingHelper.timestamp_zone,
                   echo_to_rails_logger: true,
                   logger: Rails.logger,
                   **key_values )
@@ -75,17 +76,29 @@ module Deepblue
                         event_note: event_note,
                         id: id,
                         timestamp: timestamp,
+                        time_zone: time_zone,
                         **key_values )
       logger.info msg
       Rails.logger.info msg if echo_to_rails_logger
     end
 
-    def self.msg_to_log( class_name:, event:, event_note:, id:, timestamp:, json_encode: true, **added_key_values )
+    def self.msg_to_log( class_name:,
+                         event:,
+                         event_note:,
+                         id:, timestamp:,
+                         time_zone:,
+                         json_encode: true,
+                         **added_key_values )
       if event_note.blank?
-        key_values = { event: event, timestamp: timestamp, class_name: class_name, id: id }
+        key_values = { event: event, timestamp: timestamp, time_zone: time_zone, class_name: class_name, id: id }
         event += '/'
       else
-        key_values = { event: event, event_note: event_note, timestamp: timestamp, class_name: class_name, id: id }
+        key_values = { event: event,
+                       event_note: event_note,
+                       timestamp: timestamp,
+                       time_zone: time_zone,
+                       class_name: class_name,
+                       id: id }
         event = "#{event}/#{event_note}"
       end
       key_values.merge! added_key_values
@@ -121,6 +134,10 @@ module Deepblue
 
     def self.timestamp_now
       Time.now.to_formatted_s(:db )
+    end
+
+    def self.timestamp_zone
+      DeepBlueDocs::Application.config.timezone_zone
     end
 
     def self.to_log_format_timestamp( timestamp )

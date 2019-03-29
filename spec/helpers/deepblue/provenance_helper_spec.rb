@@ -169,11 +169,13 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
     let( :blank_event_note ) { '' }
     let( :id ) { 'id1234' }
     let( :timestamp ) { Time.now.to_formatted_s(:db ) }
+    let( :time_zone ) { DateTime.now.zone }
 
     context 'parms without added' do
       let( :key_values ) { { event: event,
                              event_note: event_note,
                              timestamp: timestamp,
+                             time_zone: time_zone,
                              class_name: class_name,
                              id: id } }
       let( :json ) { ActiveSupport::JSON.encode key_values }
@@ -183,12 +185,13 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
                                                        event: event,
                                                        event_note: event_note,
                                                        id: id,
-                                                       timestamp: timestamp ) ).to eq result1
+                                                       timestamp: timestamp,
+                                                       time_zone: time_zone ) ).to eq result1
       end
     end
 
     context 'parms, blank event_note, without added' do
-      let( :key_values ) { { event: event, timestamp: timestamp, class_name: class_name, id: id } }
+      let( :key_values ) { { event: event, timestamp: timestamp, time_zone: time_zone, class_name: class_name, id: id } }
       let( :json ) { ActiveSupport::JSON.encode key_values }
       let( :result1 ) { "#{timestamp} #{event}//#{class_name}/#{id} #{json}" }
       it do
@@ -196,7 +199,8 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
                                                        event: event,
                                                        event_note: blank_event_note,
                                                        id: id,
-                                                       timestamp: timestamp ) ).to eq result1
+                                                       timestamp: timestamp,
+                                                       time_zone: time_zone ) ).to eq result1
       end
     end
   end
@@ -214,6 +218,7 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
     let( :id ) { 'id1234' }
     let( :id_default ) { 'unknown_id' }
     let( :timestamp ) { Time.now.to_formatted_s(:db ) }
+    let( :time_zone ) { DateTime.now.zone }
 
     context 'no parms' do
       it do
@@ -235,16 +240,18 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
         expect( rv_class_name ).to eq class_name_default
         expect( rv_id ).to eq id_default
         expect( rv_key_values['timestamp'] ).to be_between( before, after )
+        expect( rv_key_values['time_zone'] ).to eq time_zone
         expect( rv_key_values['event'] ).to eq event_default
         # expect( rv_key_values['event_note'] ).to eq event_note_default
         expect( rv_key_values['class_name'] ).to eq class_name_default
         expect( rv_key_values['id'] ).to eq id_default
-        expect( rv_key_values.size ).to eq 4
+        expect( rv_key_values.size ).to eq 5
       end
     end
 
     context 'parms specified, no added' do
       let( :timestamp ) { Deepblue::ProvenanceHelper.to_log_format_timestamp( 5.minutes.ago ) }
+      let( :time_zone ) { DateTime.now.zone }
       it do
         prov_logger_received = nil
         allow( PROV_LOGGER ).to receive( :info ) { |msg| prov_logger_received = msg }
@@ -252,7 +259,8 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
                                         event: event,
                                         event_note: event_note,
                                         id: id,
-                                        timestamp: timestamp )
+                                        timestamp: timestamp,
+                                        time_zone: time_zone )
         expect( prov_logger_received ).to be_a String
         rv_timestamp,
             rv_event,
@@ -266,16 +274,18 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
         expect( rv_class_name ).to eq class_name
         expect( rv_id ).to eq id
         expect( rv_key_values['timestamp'] ).to eq timestamp
+        expect( rv_key_values['time_zone'] ).to eq time_zone
         expect( rv_key_values['event'] ).to eq event
         expect( rv_key_values['event_note'] ).to eq event_note
         expect( rv_key_values['class_name'] ).to eq class_name
         expect( rv_key_values['id'] ).to eq id
-        expect( rv_key_values.size ).to eq 5
+        expect( rv_key_values.size ).to eq 6
       end
     end
 
     context 'parms specified and added' do
       let( :timestamp ) { Deepblue::ProvenanceHelper.to_log_format_timestamp( 5.minutes.ago ) }
+      let( :time_zone ) { DateTime.now.zone }
       it do
         prov_logger_received = nil
         allow( PROV_LOGGER ).to receive( :info ) { |msg| prov_logger_received = msg }
@@ -284,6 +294,7 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
                                         event_note: event_note,
                                         id: id,
                                         timestamp: timestamp,
+                                        time_zone: time_zone,
                                         added1: added1,
                                         added2: added2 )
         expect( prov_logger_received ).to be_a String
@@ -299,13 +310,14 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
         expect( rv_class_name ).to eq class_name
         expect( rv_id ).to eq id
         expect( rv_key_values['timestamp'] ).to eq timestamp
+        expect( rv_key_values['time_zone'] ).to eq time_zone
         expect( rv_key_values['event'] ).to eq event
         expect( rv_key_values['event_note'] ).to eq event_note
         expect( rv_key_values['class_name'] ).to eq class_name
         expect( rv_key_values['id'] ).to eq id
         expect( rv_key_values['added1'] ).to eq added1
         expect( rv_key_values['added2'] ).to eq added2
-        expect( rv_key_values.size ).to eq 7
+        expect( rv_key_values.size ).to eq 8
       end
     end
   end
@@ -329,6 +341,7 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
     let( :blank_event_note ) { '' }
     let( :id ) { 'id1234' }
     let( :timestamp ) { Time.now.to_formatted_s(:db ) }
+    let( :time_zone ) { DateTime.now.zone }
 
     context 'bad input raises error' do
       it do
@@ -348,6 +361,7 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
                                                             event_note: event_note,
                                                             id: id,
                                                             timestamp: timestamp,
+                                                            time_zone: time_zone,
                                                             added1: added1,
                                                             added2: added2 ) }
       let( :after ) { Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now }
@@ -364,13 +378,14 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
         expect( rv_class_name ).to eq class_name
         expect( rv_id ).to eq id
         expect( rv_key_values['timestamp'] ).to be_between( before, after )
+        expect( rv_key_values['time_zone'] ).to eq time_zone
         expect( rv_key_values['event'] ).to eq event
         expect( rv_key_values['event_note'] ).to eq event_note
         expect( rv_key_values['class_name'] ).to eq class_name
         expect( rv_key_values['id'] ).to eq id
         expect( rv_key_values['added1'] ).to eq added1
         expect( rv_key_values['added2'] ).to eq added2
-        expect( rv_key_values.size ).to eq 7
+        expect( rv_key_values.size ).to eq 8
       end
     end
 
@@ -380,7 +395,8 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
                                                             event: event,
                                                             event_note: event_note,
                                                             id: id,
-                                                            timestamp: timestamp ) }
+                                                            timestamp: timestamp,
+                                                            time_zone: time_zone ) }
       let( :after ) { Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now }
       it do
         rv_timestamp,
@@ -399,7 +415,7 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
         expect( rv_key_values['event_note'] ).to eq event_note
         expect( rv_key_values['class_name'] ).to eq class_name
         expect( rv_key_values['id'] ).to eq id
-        expect( rv_key_values.size ).to eq 5
+        expect( rv_key_values.size ).to eq 6
       end
     end
 
@@ -409,7 +425,8 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
                                                             event: event,
                                                             event_note: blank_event_note,
                                                             id: id,
-                                                            timestamp: timestamp ) }
+                                                            timestamp: timestamp,
+                                                            time_zone: time_zone ) }
       let( :after ) { Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now }
       it do
         rv_timestamp,
@@ -424,11 +441,12 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
         expect( rv_class_name ).to eq class_name
         expect( rv_id ).to eq id
         expect( rv_key_values['timestamp'] ).to be_between( before, after )
+        expect( rv_key_values['time_zone'] ).to eq time_zone
         expect( rv_key_values['event'] ).to eq event
         # expect( rv_key_values['event_note'] ).to eq event_note
         expect( rv_key_values['class_name'] ).to eq class_name
         expect( rv_key_values['id'] ).to eq id
-        expect( rv_key_values.size ).to eq 4
+        expect( rv_key_values.size ).to eq 5
       end
     end
   end

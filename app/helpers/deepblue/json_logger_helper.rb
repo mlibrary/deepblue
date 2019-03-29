@@ -81,12 +81,24 @@ module Deepblue
         end
       end
 
-      def msg_to_log( class_name:, event:, event_note:, id:, timestamp:, json_encode: true, **log_key_values )
+      def msg_to_log( class_name:,
+                      event:,
+                      event_note:,
+                      id:,
+                      timestamp:,
+                      time_zone:,
+                      json_encode: true,
+                      **log_key_values )
         if event_note.blank?
-          key_values = { event: event, timestamp: timestamp, class_name: class_name, id: id }
+          key_values = { event: event, timestamp: timestamp, time_zone: time_zone, class_name: class_name, id: id }
           event += '/'
         else
-          key_values = { event: event, event_note: event_note, timestamp: timestamp, class_name: class_name, id: id }
+          key_values = { event: event,
+                         event_note: event_note,
+                         timestamp: timestamp,
+                         time_zone: time_zone,
+                         class_name: class_name,
+                         id: id }
           event = "#{event}/#{event_note}"
         end
         key_values.merge! log_key_values
@@ -122,6 +134,10 @@ module Deepblue
 
       def timestamp_now
         Time.now.to_formatted_s(:db )
+      end
+
+      def timestamp_zone
+        DeepBlueDocs::Application.config.timezone_zone
       end
 
       def to_log_format_timestamp( timestamp )
