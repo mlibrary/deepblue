@@ -7,19 +7,7 @@ module Deepblue
 
   class AbstractCurationConcernFilter
 
-    def curation_concern_attribute( curation_concern, attribute )
-      value = case attribute
-              when :create_date
-                curation_concern.create_date
-              when :modified_date
-                curation_concern.modified_date
-              else
-                curation_concern.attributes[attribute.to_s]
-              end
-      return value
-    end
-
-    def include( curation_concern )
+    def filter_in?( curation_concern:, task: )
       false
     end
 
@@ -45,8 +33,8 @@ module Deepblue
       @end_date = to_datetime( parms[:end], parms[:format] )
     end
 
-    def include( curation_concern )
-      date =  curation_concern_attribute( curation_concern, @attribute )
+    def include?( curation_concern:, task: )
+      date =  task.curation_concern_attribute( curation_concern: curation_concern, attribute: @attribute )
       return date >= @begin if @end_date.nil?
       return date <= @end if @begin_date.nil?
       rv = date.between?( @begin_date, @end_date )
@@ -62,8 +50,8 @@ module Deepblue
       @include = include
     end
 
-    def include( curation_concern )
-      value = curation_concern_attribute( curation_concern, @attribute )
+    def include?( curation_concern:, task: )
+      value = task.curation_concern_attribute( curation_concern: curation_concern, attribute: @attribute )
       rv = value.blank?
       return rv if @include
       return !rv
@@ -79,8 +67,8 @@ module Deepblue
       @include = include
     end
 
-    def include( curation_concern )
-      value = curation_concern_attribute( curation_concern, @attribute )
+    def include?( curation_concern:, task: )
+      value = task.curation_concern_attribute( curation_concern: curation_concern, attribute: @attribute )
       value = to_string( value )
       rv = ( value == @value )
       return rv if @include
@@ -99,8 +87,8 @@ module Deepblue
       @value.downcase! if @ignore_case
     end
 
-    def include( curation_concern )
-      value = curation_concern_attribute( curation_concern, @attribute )
+    def include?( curation_concern:, task: )
+      value = task.curation_concern_attribute( curation_concern: curation_concern, attribute: @attribute )
       value = to_string( value )
       value.downcase! if @ignore_case
       rv = value.include?( @value )
@@ -117,8 +105,8 @@ module Deepblue
       @include = include
     end
 
-    def include( curation_concern )
-      value = curation_concern_attribute( curation_concern, @attribute )
+    def include?( curation_concern:, task: )
+      value = task.curation_concern_attribute( curation_concern: curation_concern, attribute: @attribute)
       value = to_string( value )
       rv = ( value.match @regex )
       return rv if @include
@@ -141,6 +129,8 @@ module Deepblue
       load_report_definitions
       @config = report_sub_hash( key: :config )
       @verbose = hash_value( hash: config, key: :verbose, default_value: verbose )
+      @field_accessors = report_sub_hash( key: :field_accessors )
+      @field_accessor_modes = {}
       @curation_concern = report_hash_value( key: :curation_concern )
       @fields = report_sub_hash( key: :fields )
       @field_formats = report_sub_hash( key: :field_formats )
@@ -184,20 +174,36 @@ module Deepblue
       end
     end
 
-    def curation_concern_attribute( curation_concern, attribute )
-      value = case attribute
-              when :create_date
-                curation_concern.create_date
-              when :modified_date
-                curation_concern.modified_date
-              else
+    def curation_concern_attribute( curation_concern:, attribute: )
+      access_mode = @field_accessor_modes[attribute]
+      if access_mode.nil?
+        field_accessor = @field_accessors[attribute]
+        if field_accessor.nil?
+          access_mode = :attribute
+        elsif field_accessor.respond_to? :has_key?
+          if field_accessor.has_key? :method
+            access_mode = :method
+          elsif field_accessor.has_key? :attribute
+            access_mode = :attribute
+          else
+            access_mode = :attribute
+          end
+        else
+          access_mode = :attribute
+        end
+        @field_accessor_modes[attribute] = access_mode
+      end
+      value = case access_mode
+              when :attribute
                 curation_concern.attributes[attribute.to_s]
+              when :method
+                raise unless curation_concern.respond_to? attribute.to_s
+                curation_concern.public_send( attribute.to_s )
               end
-      value = curation_concern_format( attribute, value )
       return value
     end
 
-    def curation_concern_format( attribute, value )
+    def curation_concern_format( attribute:, value: )
       return value unless field_formats.has_key? attribute
       if value.respond_to? :join
         format_str = field_format_strings[ attribute ]
@@ -241,10 +247,10 @@ module Deepblue
 
     def filter_out( curation_concern )
       filter_exclude.each do |filter|
-        return true if filter.include( curation_concern )
+        return true if filter.include?( curation_concern: curation_concern, task: self )
       end
       filter_include.each do |filter|
-        return true unless filter.include( curation_concern )
+        return true unless filter.include?( curation_concern: curation_concern, task: self )
       end
       return false
     end
@@ -330,7 +336,9 @@ module Deepblue
       row = []
       fields.each do |attribute,_value|
         next if attribute.to_s.start_with? '.'
-        row << curation_concern_attribute( curation_concern, attribute )
+        value = curation_concern_attribute( curation_concern: curation_concern, attribute: attribute )
+        value = curation_concern_format( attribute: attribute, value: value )
+        row << value
       end
       return row
     end
