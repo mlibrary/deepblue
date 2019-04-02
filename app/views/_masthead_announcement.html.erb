@@ -1,9 +1,11 @@
-<section class="update-alert--warning container-fluid">
-  <div class="row ribbon-content">
-    <div class="container update-alert-container">
-      <p class="margin0">We've recently updated Deep Blue Data--for more about our upgrade to Hyrax 2.0, please see
-        <a href="https://www.lib.umich.edu/blogs/bits-and-pieces/change-coming-deep-blue-data">this blog post</a>.
-      </p>
+<% if DeepBlueDocs::Application.config.show_masthead_announcement %>
+  <section class="update-alert--warning container-fluid">
+    <div class="row ribbon-content">
+      <div class="container update-alert-container">
+        <p class="margin0">We've recently updated Deep Blue Data--for more about our upgrade to Hyrax 2.0, please see
+          <a href="https://www.lib.umich.edu/blogs/bits-and-pieces/change-coming-deep-blue-data">this blog post</a>.
+        </p>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
+<% end %>

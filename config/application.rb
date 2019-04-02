@@ -32,6 +32,8 @@ module DeepBlueDocs
     # config.dbd_version = 'DBDv1'
     config.dbd_version = 'DBDv2'
 
+    config.show_masthead_announcement = false
+
     # puts "config.time_zone=#{config.time_zone}"
     config.timezone_offset = DateTime.now.offset
     config.timezone_zone = DateTime.now.zone
