@@ -9,7 +9,8 @@ git_source(:github) do |repo_name|
 end
 
 # gem 'hyrax', '2.1.0'
-gem 'hyrax', '2.2.4'
+# gem 'hyrax', '2.2.4'
+gem 'hyrax', '2.5.0'
 
 gem 'mysql2' # still somehow in 0.x releases...
 

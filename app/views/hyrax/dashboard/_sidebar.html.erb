@@ -1,25 +1,27 @@
 <% menu = Hyrax::MenuPresenter.new(self) %>
 <div class="sidebar-toggle"><span class="fa fa-chevron-circle-right"></span></div>
-<ul class="nav nav-pills nav-stacked">
-  <li>
-    <div class="profile">
-      <div class="profile-image">
-      <% unless (defined?(current_user.avatar)).nil? %>
-        <%= image_tag current_user.avatar.url(:thumb), width: 100 if current_user.avatar.present? %>
-      <% end %>
+<nav>
+  <ul class="nav nav-pills nav-stacked">
+    <li>
+      <div class="profile">
+        <div class="profile-image">
+        <% unless (defined?(current_user.avatar)).nil? %>
+          <%= image_tag current_user.avatar.url(:thumb), width: 100 if current_user.avatar.present? %>
+        <% end %>
+        </div>
+        <div class="profile-data">
+          <% unless (defined?(current_user.name)).nil? %>
+            <div class="profile-data-name"><%= current_user.name %></div>
+          <% end %>
+        </div>
       </div>
-      <div class="profile-data">
-        <% unless (defined?(current_user.name)).nil? %>
-          <div class="profile-data-name"><%= current_user.name %></div>
-        <% end %>  
-      </div>
-    </div>
-  </li>
+    </li>
 
-<% unless (defined?(current_user.name)).nil? %>
-  <%= render 'hyrax/dashboard/sidebar/activity', menu: menu %>
-  <%= render 'hyrax/dashboard/sidebar/repository_content', menu: menu %>
-  <%= render 'hyrax/dashboard/sidebar/tasks', menu: menu %>
-  <%= render 'hyrax/dashboard/sidebar/configuration', menu: menu %>
-<% end %>
-</ul>
+  <% unless (defined?(current_user.name)).nil? %>
+    <%= render 'hyrax/dashboard/sidebar/activity', menu: menu %>
+    <%= render 'hyrax/dashboard/sidebar/repository_content', menu: menu %>
+    <%= render 'hyrax/dashboard/sidebar/tasks', menu: menu %>
+    <%= render 'hyrax/dashboard/sidebar/configuration', menu: menu %>
+  <% end %>
+  </ul>
+</nav>
