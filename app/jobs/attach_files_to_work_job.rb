@@ -212,12 +212,13 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       @processed << uploaded_file
     rescue Exception => e # rubocop:disable Lint/RescueException
       Rails.logger.error "#{e.class} work.id=#{work.id} -- #{e.message} at #{e.backtrace[0]}"
+      file_size = File.size( uploaded_file.file.path ) rescue -1 # in case the file has already disappeared
       Deepblue::UploadHelper.log( class_name: self.class.name,
                                   event: "upload_file",
                                   event_note: "failed",
                                   id: work.id,
                                   path: uploaded_file.file.path,
-                                  size: File.size( uploaded_file.file.path ),
+                                  size: file_size,
                                   user: user,
                                   work_id: work.id,
                                   exception: e.to_s,
