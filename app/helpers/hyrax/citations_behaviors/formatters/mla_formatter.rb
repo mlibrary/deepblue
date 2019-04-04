@@ -19,8 +19,8 @@ module Hyrax
           pub_info = clean_end_punctuation(setup_pub_info(work, true))
 
           text << pub_info + "." if pub_info.present?
-          text << work.date_coverage + ". "
-          text << work.doi
+	  text << work.date_coverage + ". " if work.date_coverage.present?
+	  text << work.doi if work.doi.present?
           text.html_safe
         end
 
