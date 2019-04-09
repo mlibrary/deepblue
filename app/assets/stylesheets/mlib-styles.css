@@ -298,7 +298,7 @@ input {
 
 .form-control {
   padding: 0.15rem 0.25rem;
-  border: solid 2px black;
+  border: solid 1px black;
   width: 100%;
   font-size: 1rem;
   line-height: inherit;
@@ -843,6 +843,10 @@ code.code-tag {
     margin-left: 0.75rem;
     border-left: solid 1.1px rgba(255, 255, 255, 0.75);
     padding-left: 0.6rem; }
+
+a.site-link {
+    text-decoration: none;
+  }
 
 .card {
   box-shadow: 0 1px 10px rgba(0, 0, 0, 0.04);
