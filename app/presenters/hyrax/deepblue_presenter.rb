@@ -24,9 +24,9 @@ module Hyrax
     #   false
     # end
 
-    def tombstone_enabled?
-      false
-    end
+    # def tombstone_enabled?
+    #   false
+    # end
 
     def zip_download_enabled?
       false
