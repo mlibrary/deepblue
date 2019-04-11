@@ -1,10 +1,15 @@
 <% provide :page_title, @presenter.page_title %>
+<% contents_hidden = ( !@presenter.parent.tombstone.present? && @presenter.parent.workflow.state != "deposited" && !can?(:edit, @presenter.id) ) %>
 <div class="container-fluid">
   <div class="row">
     <div class="col-xs-12 col-sm-4">
-      <%= media_display @presenter %>
-      <%= render 'show_actions', presenter: @presenter %>
-      <%#= render 'single_use_links', presenter: @presenter if @presenter.editor? %>
+      <% if contents_hidden %>
+        &nbsp;
+      <% else %>
+        <%= media_display @presenter %>
+        <%= render 'show_actions', presenter: @presenter %>
+        <%#= render 'single_use_links', presenter: @presenter if @presenter.editor? %>
+      <% end %>
     </div>
 
 <%  if @presenter.parent.respond_to? :itemtype %>
@@ -20,10 +25,14 @@
         <%= render 'file_set_title', presenter: @presenter %>
       </header>
 
-      <%# TODO: render 'show_descriptions' See https://github.com/samvera/hyrax/issues/1481 %>
-      <%= render 'show_details' %>
-      <%= render 'hyrax/users/activity_log', events: @presenter.events %>
-      <%= render '/provenance_log_entries', presenter: @presenter %>
+      <% if contents_hidden %>
+        &nbsp;
+      <% else %>
+        <%# TODO: render 'show_descriptions' See https://github.com/samvera/hyrax/issues/1481 %>
+        <%= render 'show_details' %>
+        <%= render 'hyrax/users/activity_log', events: @presenter.events %>
+        <%= render '/provenance_log_entries', presenter: @presenter %>
+      <% end %>
     </div><!-- /columns second -->
   </div> <!-- /.row -->
 </div><!-- /.container-fluid -->
