@@ -49,6 +49,7 @@
               alert the user that the object has changed by someone else %>
     <%= f.input Hyrax::Actors::OptimisticLockValidator.version_field, as: :hidden if f.object.persisted? %>
     <%= f.submit class: 'btn btn-primary', onclick: "confirmation_needed = false;", id: "with_files_submit", name: "save_with_files" %>
+    <%= link_to t('.cancel'), hyrax.my_works_path, class: 'btn btn-default'%>
     <p><%= t('simple_form.actions.data_set.submit_help') %></p>
   </div>
 
