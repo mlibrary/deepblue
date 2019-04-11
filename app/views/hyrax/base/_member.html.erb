@@ -12,7 +12,7 @@
   <tr class="<%= dom_class(member) %> attributes">
     <td class="thumbnail">
       <% if can?(:download, member.id) %>
-        <%= render_thumbnail_tag member %>
+        <%= raw (render_thumbnail_tag member).gsub!('data-context-href', 'data-reference') %>
       <% else %>
         <%= t( '.no_thumbnail' ) %>
       <% end %>
