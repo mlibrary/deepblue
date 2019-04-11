@@ -53,7 +53,7 @@ en:
       fundedby:             "Funding agency"
       fundedby_other:       "Other Funding agency"
       grantnumber:          "ORSP grant number"
-      referenced_by:        "Citations"
+      referenced_by:        "Citations to related material"
       language:             "Language"
       methodology:          "Methodology"
       prior_identifier:     "Prior Identifier"
