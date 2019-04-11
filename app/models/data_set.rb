@@ -151,6 +151,11 @@ class DataSet < ActiveFedora::Base
     metadata_keys_brief
   end
 
+  def attributes_for_email_rds_create
+    attributes = %i[ title location creator depositor authoremail subject_discipline id type ]
+    return attributes, Deepblue::AbstractEventBehavior::USE_BLANK_KEY_VALUES
+  end
+
   def attributes_standard_for_email
     metadata_keys_email_standard
   end
@@ -181,6 +186,12 @@ class DataSet < ActiveFedora::Base
                                       email_key_values: )
     value = nil
     handled = case attribute.to_s
+              when 'data_set_url'
+                value = data_set_url
+                true
+              when 'location'
+                value = data_set_url
+                true
               when 'file_set_ids'
                 value = file_set_ids
                 true
@@ -193,6 +204,12 @@ class DataSet < ActiveFedora::Base
               when 'visibility'
                 value = visibility
                 true
+              when 'work_or_collection'
+                value = "Work"
+                true
+              when 'type'
+                value = "Work"
+                true
               else
                 false
               end
@@ -203,6 +220,13 @@ class DataSet < ActiveFedora::Base
       email_key_values[attribute] = value
     end
     return true
+  end
+
+  def data_set_url
+    Deepblue::EmailHelper.data_set_url( data_set: self )
+  rescue Exception => e # rubocop:disable Lint/RescueException
+    Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
+    return e.to_s
   end
 
   def map_provenance_attributes_override!( event:, # rubocop:disable Lint/UnusedMethodArgument
