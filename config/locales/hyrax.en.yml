@@ -80,6 +80,11 @@ en:
         files_attached:     "\nFiles attached are:"
         files_failed:       "\nFiles not attached are:"
         file_line:          "%{line_count} -- '%{file_name}' - %{file_size} bytes"
+      subject:
+        work_created:       "DBD: Work Created"
+        work_deleted:       "DBD: Work Deleted"
+        work_published:     "DBD: Work Published"
+        work_unpublished:   "DBD: Work Unpublished"
     file_sets:
       detail_header:        "File Deepblue Details"
       not_yet_characterized: "not yet characterized"

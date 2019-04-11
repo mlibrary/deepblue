@@ -80,10 +80,9 @@ module Deepblue
       rv
     end
 
-    def email_compose_body( event_note:, message:, email_key_values: )
+    def email_compose_body( message:, email_key_values: )
       body = StringIO.new
       body.puts message.to_s if message.present?
-      body.puts event_note.to_s if event_note.present?
       email_key_values.each_pair do |key, value|
         label = for_email_label key
         value = for_email_value( key, value )
@@ -94,16 +93,22 @@ module Deepblue
 
     def email_rds_create( current_user:, event_note: '' )
       attributes, ignore_blank_key_values = attributes_for_email_rds_create
+      email_key_values = {}
+      email_key_values = map_email_attributes!( event: EVENT_CREATE,
+                                                attributes: attributes,
+                                                ignore_blank_key_values: ignore_blank_key_values,
+                                                **email_key_values )
       email_event_notification( to: email_address_rds,
                                 to_note: 'RDS',
                                 from: email_address_rds,
-                                subject: for_email_subject( subject_rest: 'Work Created' ),
+                                subject: Deepblue::EmailHelper.t( "hyrax.email.subject.work_created" ),
                                 attributes: attributes,
                                 current_user: current_user,
                                 event: EVENT_CREATE,
                                 event_note: event_note,
                                 id: for_email_id,
-                                ignore_blank_key_values: ignore_blank_key_values )
+                                ignore_blank_key_values: ignore_blank_key_values,
+                                email_key_values: email_key_values )
     end
 
     def email_rds_destroy( current_user:, event_note: '' )
@@ -111,7 +116,7 @@ module Deepblue
       email_event_notification( to: email_address_rds,
                                 to_note: 'RDS',
                                 from: email_address_rds,
-                                subject: for_email_subject( subject_rest: 'Work Deleted' ),
+                                subject: Deepblue::EmailHelper.t( "hyrax.email.subject.work_deleted" ),
                                 attributes: attributes,
                                 current_user: current_user,
                                 event: EVENT_DESTROY,
@@ -139,7 +144,7 @@ module Deepblue
       email_event_notification( to: email_address_rds,
                                 to_note: 'RDS',
                                 from: email_address_rds,
-                                subject: for_email_subject( subject_rest: 'Work Published' ),
+                                subject: Deepblue::EmailHelper.t( "hyrax.email.subject.work_published" ),
                                 attributes: attributes,
                                 current_user: current_user,
                                 event: EVENT_PUBLISH,
@@ -154,7 +159,7 @@ module Deepblue
       email_event_notification( to: email_address_rds,
                                 to_note: 'RDS',
                                 from: email_address_rds,
-                                subject: for_email_subject( subject_rest: 'Work Unpublished' ),
+                                subject: Deepblue::EmailHelper.t( "hyrax.email.subject.work_unpublished" ),
                                 attributes: attributes,
                                 current_user: current_user,
                                 event: EVENT_UNPUBLISH,
@@ -167,7 +172,7 @@ module Deepblue
       email_event_notification( to: email_address_user( current_user ),
                                 to_note: 'user',
                                 from: email_address_rds,
-                                subject: for_email_subject( subject_rest: 'Work Created' ),
+                                subject: Deepblue::EmailHelper.t( "hyrax.email.subject.work_created" ),
                                 attributes: attributes_for_email_user_create,
                                 current_user: current_user,
                                 event: EVENT_CREATE,
@@ -302,7 +307,7 @@ module Deepblue
                                                                   ignore_blank_key_values: ignore_blank_key_values )
         end
         event_attributes_cache_write( event: event, id: id, behavior: :EmailBehavior )
-        body = email_compose_body( event_note: event_note, message: message, email_key_values: email_key_values )
+        body = email_compose_body( message: message, email_key_values: email_key_values )
         EmailHelper.send_email( to: to, from: from, subject: subject, body: body )
         class_name = for_email_class.name
         EmailHelper.log( class_name: class_name,
