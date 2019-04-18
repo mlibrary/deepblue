@@ -123,11 +123,18 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       return unless notify_user || notify_managers
       title = work.title.first
       lines = []
+      file_count = @processed.size
+      file_count_phrase = if 1 == file_count
+                            Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.one_file_count_phrase" )
+                          else
+                            Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.many_files_count_phrase",
+                                                     file_count: file_count )
+                          end
+      work_url = data_set_url( work )
       lines << Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.finished",
+                                        file_count_phrase: file_count_phrase,
                                         title: title,
-                                        id: work.id )
-      lines << Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.visit_work",
-                                        work_url: data_set_url( work ) )
+                                        work_url: work_url )
 
       unless failed_to_upload.empty?
         lines << Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.total_failed",
@@ -144,17 +151,20 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
         end
 
       end
-      lines << Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.total_success",
-                                        file_count: @processed.size )
-      lines << Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.files_attached" )
-      count = 0
+      file_list = []
       @processed.each do |uploaded_file|
-        count += 1
         file_name, file_size = file_stats( uploaded_file )
-        lines << Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.file_line",
+        file_list << Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.file_list_item",
+                                              file_name: file_name,
+                                              file_size: file_size )
+      end
+      file_list.sort!
+      count = 0
+      file_list.each do |file_item|
+        count += 1
+        lines << Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.file_list_line",
                                           line_count: count,
-                                          file_name: file_name,
-                                          file_size: file_size )
+                                          file_item: file_item )
       end
       subject = Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.subject", title: title )
       attach_files_to_work_job_complete_email_user( email: user.email, lines: lines, subject: subject, work: work ) if notify_user
@@ -164,6 +174,8 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                                     work: work ) if notify_managers
     rescue Exception => e # rubocop:disable Lint/RescueException
       Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
+      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                           Deepblue::LoggingHelper.called_from ] + e.backtrace
     end
 
     ##
