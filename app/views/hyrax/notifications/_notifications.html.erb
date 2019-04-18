@@ -13,7 +13,7 @@
         <% messages.each do |msg| %>
           <tr>
             <td>
-                <%= msg.last_message.created_at %>
+                <%= DeepblueHelper.display_timestamp msg.last_message.created_at %>
             </td>
             <td><%= msg.last_message.subject.html_safe %></td>
             <td><%= msg.last_message.body.html_safe %></td>
