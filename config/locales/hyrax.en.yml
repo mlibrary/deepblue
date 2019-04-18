@@ -73,12 +73,15 @@ en:
     email:
       notify_attach_files_to_work_job_complete:
         subject:            "DBD: Files Attached to %{title}"
-        finished:           "The files you uploaded to work %{title} (id: %{id}) have finished uploading and been attached."
-        visit_work:         "\nYou can visit your work here: %{work_url}"
+        one_file_count_phrase:   "file has"
+        many_files_count_phrase: "%{file_count} files have"
+        finished:           "The following %{file_count_phrase} been ingested into Deep Blue Data deposit \"%{title},\" at %{work_url} . Please use this list to confirm all intended files were uploaded:"
         total_failed:       "\nThe total number of files uploaded and failed was %{file_count}."
         total_success:      "\nThe total number of files uploaded and attached was %{file_count}."
         files_attached:     "\nFiles attached are:"
         files_failed:       "\nFiles not attached are:"
+        file_list_item:     "'%{file_name}' - %{file_size} bytes"
+        file_list_line:     "%{line_count} -- %{file_item}"
         file_line:          "%{line_count} -- '%{file_name}' - %{file_size} bytes"
       subject:
         work_created:       "DBD: Work Created"
