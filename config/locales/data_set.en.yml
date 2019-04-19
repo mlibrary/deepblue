@@ -64,7 +64,7 @@ en:
       total_file_size_human_readable: "Total file size"
   simple_form:
     actions:
-      display_provenance_log:           "Display Provenance Log Entries"
+      display_provenance_log:           "Display or Update Provenance Log Entries"
       data_set:
         analytics:                      "Analytics"
         confirm:                        "Confirm Your Deposit"
