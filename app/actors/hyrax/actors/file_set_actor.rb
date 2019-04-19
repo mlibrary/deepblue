@@ -85,6 +85,9 @@ module Hyrax
                                             prior_create_date: prior_create_date,
                                             prior_revision_id: prior_revision_id,
                                             revision_id: '' )
+        file_set.date_modified = TimeService.time_in_utc
+        file_set.save
+        file_set.reload
         IngestJob.perform_later( wrapper!(file: file, relation: relation), notification: true )
       end
 
