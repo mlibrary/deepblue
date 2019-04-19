@@ -422,3 +422,10 @@ th.alert-warning {
   visibility: visible;
   opacity: 1;
 }
+
+.provenance-log-entries * {
+  font-size: 0.8rem;
+  /* background-color: pink; */
+  margin: 1px;
+  padding: 1px;
+}
