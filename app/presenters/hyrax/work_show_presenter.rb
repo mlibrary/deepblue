@@ -7,6 +7,12 @@ module Hyrax
 
   class WorkShowPresenter
 
+    def relative_url_root
+      rv = ::DeepBlueDocs::Application.config.relative_url_root
+      return rv if rv
+      ''
+    end
+
     def tombstone
       solr_value = @solr_document[Solrizer.solr_name('tombstone', :symbol)]
       return nil if solr_value.blank?

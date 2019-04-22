@@ -127,7 +127,7 @@ Hyrax = {
         if ($("meta[name='current-user']").length === 0)
             return;
         <% if Hyrax.config.realtime_notifications? %>
-        var consumer = ActionCable.createConsumer("/data" + "<%= Hyrax::Engine.routes.url_helpers.notifications_endpoint_path %>");
+        var consumer = ActionCable.createConsumer("<%= ::DeepBlueDocs::Application.config.relative_url_root %>" + "<%= Hyrax::Engine.routes.url_helpers.notifications_endpoint_path %>");
         consumer.subscriptions.create("Hyrax::NotificationsChannel", {
             connected: function(data) {
                 this.perform("update_locale", { locale: $('html').attr('lang') });

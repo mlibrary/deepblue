@@ -49,7 +49,7 @@ Hyrax.config do |config|
       maxNumberOfFiles: 100,
       # maxFileSize: 500.megabytes
       maxFileSize: 2.gigabytes,
-      url: '/data/uploads'
+      url: Settings.relative_url_root + '/uploads'
   }
 
   # Enable displaying usage statistics in the UI
