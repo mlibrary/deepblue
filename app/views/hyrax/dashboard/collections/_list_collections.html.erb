@@ -23,7 +23,7 @@
           <%= image_tag(collection_presenter.thumbnail_path) %>
         <% end %>
       </div>
-      <%= link_to "/data" + collection_presenter.show_path do %>
+      <%= link_to collection_presenter.relative_url_root + collection_presenter.show_path do %>
           <span class="sr-only"><%= t("hyrax.dashboard.my.sr.show_label") %> </span>
           <%= collection_presenter.title_or_label %>
       <% end %>

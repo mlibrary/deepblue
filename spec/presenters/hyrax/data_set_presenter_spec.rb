@@ -39,6 +39,11 @@ RSpec.describe Hyrax::DataSetPresenter do
   it { is_expected.to delegate_method(:keyword).to(:solr_document) }
   it { is_expected.to delegate_method(:itemtype).to(:solr_document) }
 
+  describe "#relative_url_root" do
+    subject { presenter.relative_url_root }
+    it { is_expected.to eq '' } # this is true for test, in dev or prod it would be equal to '/data'
+  end
+
   describe "#model_name" do
     subject { presenter.model_name }
 

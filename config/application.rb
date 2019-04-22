@@ -139,6 +139,7 @@ module DeepBlueDocs
 
     # FIXME: This unless reveals bugs. There are places in the app that hard-code the
     #        /data prefix and the tests break when it is set.
+    # See references to: DeepBlueDocs::Application.config.relative_url_root
     config.relative_url_root = Settings.relative_url_root unless Rails.env.test?
 
     # For properly generating URLs and minting DOIs - the app may not by default
