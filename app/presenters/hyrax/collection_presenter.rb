@@ -72,6 +72,11 @@ module Hyrax
     end
 
     def total_viewable_works
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "current_ability=#{current_ability}",
+                                             "" ]
       ActiveFedora::Base.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Work").accessible_by(current_ability).count
     end
 
