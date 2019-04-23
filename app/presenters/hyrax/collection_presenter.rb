@@ -59,6 +59,12 @@ module Hyrax
       end
     end
 
+    def relative_url_root
+      rv = ::DeepBlueDocs::Application.config.relative_url_root
+      return rv if rv
+      ''
+    end
+
     def size
       number_to_human_size(@solr_document['bytes_lts'])
     end
