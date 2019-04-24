@@ -21,6 +21,8 @@ module Hyrax
     after_action :visibility_changed_update,       only: [:update]
     after_action :provenance_log_update_after,     only: [:update]
 
+    protect_from_forgery with: :null_session,      only: [:display_provenance_log]
+
     with_themed_layout :decide_layout
     load_and_authorize_resource except: %i[index show create], instance_name: :collection
 
@@ -31,6 +33,10 @@ module Hyrax
         { id: id, text: label }
       end
       render json: result
+    end
+
+    def curation_concern
+      @collection
     end
 
     ## email
@@ -83,6 +89,29 @@ module Hyrax
     end
 
     ## end Provenance log
+
+    ## display provenance log
+
+    def display_provenance_log
+      # load provenance log for this work
+      id = @collection.id # curation_concern.id
+      file_path = Deepblue::ProvenancePath.path_for_reference( id )
+      Deepblue::LoggingHelper.bold_debug [ "CollectionsController", "display_provenance_log", file_path ]
+      Deepblue::ProvenanceLogService.entries( id, refresh: true )
+      # continue on to normal display
+      #redirect_to [main_app, curation_concern]
+      redirect_to :back
+    end
+
+    def display_provenance_log_enabled?
+      true
+    end
+
+    def provenance_log_entries_present?
+      provenance_log_entries.present?
+    end
+
+    ## end display provenance log
 
     ## visibility / publish
 

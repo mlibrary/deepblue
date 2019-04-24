@@ -429,3 +429,8 @@ th.alert-warning {
   margin: 1px;
   padding: 1px;
 }
+
+.provenance-log-container {
+  width: 100%;
+  /* border: 1px solid red; */
+}
