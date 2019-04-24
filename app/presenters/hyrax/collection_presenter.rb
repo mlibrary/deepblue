@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module Hyrax
+
   class CollectionPresenter
     include ModelProxy
     include PresentsAttributes
@@ -58,6 +61,19 @@ module Hyrax
         solr_document.send key
       end
     end
+
+    # begin display_provenance_log
+
+    def display_provenance_log_enabled?
+      true
+    end
+
+    def provenance_log_entries?
+      file_path = Deepblue::ProvenancePath.path_for_reference( id )
+      File.exist? file_path
+    end
+
+    # end display_provenance_log
 
     def relative_url_root
       rv = ::DeepBlueDocs::Application.config.relative_url_root
@@ -194,5 +210,7 @@ module Hyrax
       return true if current_ability.can?(:edit, solr_document)
       false
     end    
+
   end
+
 end

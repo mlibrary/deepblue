@@ -3,11 +3,7 @@
   <div class="row hyc-header">
     <div class="col-md-12">
 
-      <% unless @presenter.banner_file.blank? %>
-          <header class="hyc-banner" style="background-image:url(<%= @presenter.banner_file %>)">
-      <% else %>
-          <header class="hyc-generic">
-      <% end %>
+      <header class="hyc-banner" <%= @presenter.banner_file.blank? ? '' : raw( "style=\"background-image:url(" ) + @presenter.banner_file + raw( ")\"" ) %> >
 
       <div class="hyc-title">
         <h1><%= @presenter.title.first %></h1>
@@ -107,4 +103,13 @@
         <%= render 'paginate' %>
       </div>
   <% end # if @members_count > 0 %>
+
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-sm-12">
+        <%= render '/provenance_log_entries', presenter: @presenter %>
+      </div>
+    </div>
+  </div>
+
 </div>
