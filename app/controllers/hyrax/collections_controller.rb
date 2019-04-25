@@ -4,27 +4,35 @@ module Hyrax
 
   class CollectionsController < DeepblueController
 
-    EVENT_NOTE = 'CollectionsController'
+    EVENT_NOTE = 'Hyrax::CollectionsController'
     PARAMS_KEY = 'collection'
 
     include Hyrax::CollectionsControllerBehavior
     # include Deepblue::CollectionsControllerBehavior
     include BreadcrumbsForCollections
 
+    before_action :deepblue_collections_controller_debug
+
     before_action :email_rds_destroy,            only: [:destroy]
     before_action :provenance_log_destroy,       only: [:destroy]
     before_action :provenance_log_update_before, only: [:update]
     before_action :visiblity_changed,            only: [:update]
 
-    after_action :email_rds_create,                only: [:create]
-    after_action :provenance_log_create,           only: [:create]
-    after_action :visibility_changed_update,       only: [:update]
-    after_action :provenance_log_update_after,     only: [:update]
+    after_action :email_rds_create,              only: [:create]
+    after_action :provenance_log_create,         only: [:create]
+    after_action :provenance_log_update_after,   only: [:update]
+    after_action :visibility_changed_update,     only: [:update]
 
-    protect_from_forgery with: :null_session,      only: [:display_provenance_log]
+    protect_from_forgery with: :null_session,    only: [:display_provenance_log]
 
     with_themed_layout :decide_layout
     load_and_authorize_resource except: %i[index show create], instance_name: :collection
+
+    def deepblue_collections_controller_debug
+      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+      #                                        Deepblue::LoggingHelper.called_from,
+      #                                        "params=#{params}" ]
+    end
 
     # Renders a JSON response with a list of files in this collection
     # This is used by the edit form to populate the thumbnail_id dropdown
@@ -36,7 +44,7 @@ module Hyrax
     end
 
     def curation_concern
-      @collection
+      @collection ||= ActiveFedora::Base.find(params[:id])
     end
 
     ## email
@@ -85,6 +93,10 @@ module Hyrax
     end
 
     def provenance_log_update_before
+      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+      #                                        Deepblue::LoggingHelper.called_from,
+      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
+      #                                        "" ]
       @update_attr_key_values = curation_concern.provenance_log_update_before( form_params: params[PARAMS_KEY].dup )
     end
 
@@ -116,6 +128,10 @@ module Hyrax
     ## visibility / publish
 
     def visiblity_changed
+      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+      #                                        Deepblue::LoggingHelper.called_from,
+      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
+      #                                        "" ]
       if visibility_to_private?
         mark_as_set_to_private
       elsif visibility_to_public?
@@ -124,6 +140,10 @@ module Hyrax
     end
 
     def visibility_changed_update
+      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+      #                                        Deepblue::LoggingHelper.called_from,
+      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
+      #                                        "" ]
       if curation_concern.private? && @visibility_changed_to_private
         provenance_log_unpublish
         email_rds_unpublish
@@ -134,6 +154,10 @@ module Hyrax
     end
 
     def visibility_to_private?
+      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+      #                                        Deepblue::LoggingHelper.called_from,
+      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
+      #                                        "" ]
       return false if curation_concern.private?
       params[PARAMS_KEY]['visibility'] == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
     end
