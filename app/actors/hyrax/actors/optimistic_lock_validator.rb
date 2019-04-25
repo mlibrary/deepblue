@@ -13,6 +13,7 @@ module Hyrax
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if update was successful
       def update(env)
+        log_event( env: env )
         validate_lock(env, version_attribute(env.attributes)) && next_actor.update(env)
       end
 

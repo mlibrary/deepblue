@@ -58,6 +58,10 @@ module Deepblue
     ## visibility / publish
 
     def visiblity_changed
+      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+      #                                        Deepblue::LoggingHelper.called_from,
+      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
+      #                                        "" ]
       if visibility_to_private?
         mark_as_set_to_private
       elsif visibility_to_public?
@@ -66,6 +70,10 @@ module Deepblue
     end
 
     def visibility_changed_update
+      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+      #                                        Deepblue::LoggingHelper.called_from,
+      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
+      #                                        "" ]
       if curation_concern.private? && @visibility_changed_to_private
         provenance_log_unpublish
         email_rds_unpublish
@@ -76,11 +84,19 @@ module Deepblue
     end
 
     def visibility_to_private?
+      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+      #                                        Deepblue::LoggingHelper.called_from,
+      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
+      #                                        "" ]
       return false if curation_concern.private?
       params[params_key]['visibility'] == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
     end
 
     def visibility_to_public?
+      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+      #                                        Deepblue::LoggingHelper.called_from,
+      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
+      #                                        "" ]
       return false if curation_concern.public?
       params[params_key]['visibility'] == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
     end

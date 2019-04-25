@@ -13,7 +13,7 @@ module Hyrax
 
       include Deepblue::CollectionsControllerBehavior
 
-      EVENT_NOTE = 'Dashboard::CollectionsController'
+      EVENT_NOTE = 'Hyrax::Dashboard::CollectionsController'
       PARAMS_KEY = 'collection'
 
       ## monkey patch overrides
@@ -39,7 +39,7 @@ module Hyrax
       after_action :provenance_log_update_after, only: [:update]
 
       def curation_concern
-        @collection
+        @collection ||= ActiveFedora::Base.find(params[:id])
       end
 
       def default_event_note
