@@ -514,6 +514,23 @@ ul.tabular {
   }
 }
 
+.panel-edit {
+  margin-bottom: .25em;
+  
+  h2 {
+    font-size: 1.25em; }
+  p {
+    padding: .25em;
+    margin-bottom: .5em;
+  }
+  .panel-body {
+    padding: .5em;
+  }
+  .btn.btn-danger {
+    padding: .75em 1em;
+  }
+}
+
 .panel-relationships {
   h2 {
     font-size: 1.25em;
@@ -524,9 +541,15 @@ ul.tabular {
   }
 }
 
+a#stats {
+  margin-bottom: 1em;
+}
+
 /** Show Actions **/
 
 .show-actions {
+  padding: 0;
+  
   form,
   a {
     margin: 0.5em 0.25em;
