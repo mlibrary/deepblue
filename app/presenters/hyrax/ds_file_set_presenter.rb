@@ -28,6 +28,12 @@ module Hyrax
     #   @solr_document[ Solrizer.solr_name( 'doi', :symbol ) ].first == ::Deepblue::DoiBehavior::DOI_PENDING
     # end
 
+    def relative_url_root
+      rv = ::DeepBlueDocs::Application.config.relative_url_root
+      return rv if rv
+      ''
+    end
+
     def parent_doi_minted?
       g = DataSet.find parent.id
       g.doi_minted?
