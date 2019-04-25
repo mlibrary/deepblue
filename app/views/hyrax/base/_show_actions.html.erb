@@ -6,7 +6,7 @@
       <%= link_to t('simple_form.actions.data_set.analytics'),
                   @presenter.relative_url_root + @presenter.stats_path,
                   id: 'stats',
-                  class: 'btn btn-default',
+                  class: 'btn btn-secondary btn-analytics',
                   data: { turbolinks: false } %>
     <% end %>
 
@@ -91,32 +91,51 @@
 
     <% if @presenter.editor? && @presenter.doi_minting_enabled? %>
       <% if @presenter.doi_minted? && @presenter.current_ability.admin? %>
+        <div class="panel panel-default panel-edit">
+          <div class="panel-heading">
+          <h2>Edit Work</h2>
+          </div>
+            <div class="button-set">
         <%= link_to t('simple_form.actions.data_set.edit'),
                     edit_polymorphic_path([main_app, @presenter]),
-                    class: 'btn btn-default' %>
+                    class: 'btn btn-primary' %>
         <%= link_to t('simple_form.actions.data_set.delete'),
                     [main_app, @presenter],
                     class: 'btn btn-danger',
                     data: { confirm: "Delete this #{@presenter.human_readable_type}?" },
                     method: :delete %>
+          </div>
+        </div>
       <% elsif !presenter.doi_minted? %>
+      <div class="panel panel-default panel-edit">
+          <div class="panel-heading">
+          <h2>Edit Work</h2>
+          </div>
+        <div class="panel-body">
         <%= link_to t('simple_form.actions.data_set.edit'),
                     edit_polymorphic_path([main_app, @presenter]),
-                    class: 'btn btn-default' %>
+                    class: 'btn btn-primary' %>
         <%= link_to t('simple_form.actions.data_set.delete'),
                     [main_app, @presenter],
                     class: 'btn btn-danger',
                     data: { confirm: "Delete this #{@presenter.human_readable_type}?" },
                     method: :delete %>
+          </div>
+        </div>
       <% end %>
 
       <% if !@presenter.doi_minted? %>
         <br>
+        <div class="panel panel-default panel-edit">
+          <div class="panel-heading">
+          <h2>Mint DOI</h2>
+          </div>
+        <div class="panel-body">
+        <p><%= t('simple_form.actions.data_set.mint_help') %></p>
         <%= link_to t('simple_form.actions.data_set.mint_doi'),
-                    main_app.doi_hyrax_data_set_path(@presenter.id), class: 'btn btn-default' %>
-
-        <%= t('simple_form.actions.data_set.mint_help') %>
-
+                    main_app.doi_hyrax_data_set_path(@presenter.id), class: 'btn btn-primary' %>
+    </div>
+    </div>
       <% end %>
     <% end %>
 <br></br>
