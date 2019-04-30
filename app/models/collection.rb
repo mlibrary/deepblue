@@ -312,27 +312,27 @@ class Collection < ActiveFedora::Base
     super values
   end
 
-  # the list of curation_note_admin is ordered
-  def curation_note_admin
+  # the list of curation_notes_admin is ordered
+  def curation_notes_admin
     values = super
-    values = Deepblue::MetadataHelper.ordered( ordered_values: curation_note_admin_ordered, values: values )
+    values = Deepblue::MetadataHelper.ordered( ordered_values: curation_notes_admin_ordered, values: values )
     return values
   end
 
-  def curation_note_admin=( values )
-    self.curation_note_admin_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: curation_note_admin_ordered, values: values )
+  def curation_notes_admin=( values )
+    self.curation_notes_admin_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: curation_notes_admin_ordered, values: values )
     super values
   end
 
-  # the list of curation_note_user is ordered
-  def curation_note_user
+  # the list of curation_notes_user is ordered
+  def curation_notes_user
     values = super
-    values = Deepblue::MetadataHelper.ordered( ordered_values: curation_note_user_ordered, values: values )
+    values = Deepblue::MetadataHelper.ordered( ordered_values: curation_notes_user_ordered, values: values )
     return values
   end
 
-  def curation_note_user=( values )
-    self.curation_note_user_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: curation_note_user_ordered, values: values )
+  def curation_notes_user=( values )
+    self.curation_notes_user_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: curation_notes_user_ordered, values: values )
     super values
   end
 

@@ -5,8 +5,8 @@
        <%= raw ("<span class=\"more\">" + iconify_auto_link(methodology) + "</span>") %>
     </span></li></ul></td></tr>
 <% end %>
-<tr><th>Description</th><td><ul class='tabular_list'>
 
+<tr><th>Description</th><td><ul class='tabular_list'>
 <% num_para = presenter.description.count %>
 <% presenter.description.each do |description| %>
 <li class="attribute attribute-description"><span itemprop="description">
@@ -47,11 +47,34 @@
 <%= presenter.attribute_to_html(:referenced_by, label: t('show.label.referenced_by') ) %>
 <%= presenter.attribute_to_html(:publisher, render_as: :faceted) %>
 <%= presenter.attribute_to_html(:resource_type, render_as: :faceted) %>
+
+<tr><th>User Curation Notes</th><td><ul class='tabular_list'>
+<% num_para = presenter.curation_notes_user.count %>
+<% presenter.curation_notes_user.each do |note| %>
+  <li class="attribute attribute-curation_note_user"><span itemprop="curation_notes_user">
+   <%= raw ("<span class=\"more\">" + iconify_auto_link(note) + "</span>") %>
+   </span>
+    <% if num_para > 1 %>
+      <p></p>
+      <% num_para = num_para - 1 %>
+    <% end %>
+  </li>
+<% end %>
+</ul></td></tr>
 <% if current_ability.admin? %>
-  <%= presenter.attribute_to_html(:curation_notes_user, label: t('show.label.curation_notes_user') ) %>
-  <%= presenter.attribute_to_html(:curation_notes_admin, label: t('show.label.curation_notes_admin') ) %>
-<% else %>
-  <%= presenter.attribute_to_html(:curation_notes_user, label: t('show.label.curation_notes_user') ) %>
+  <tr><th>Admin Curation Notes</th><td><ul class='tabular_list'>
+  <% num_para = presenter.curation_notes_admin.count %>
+  <% presenter.curation_notes_admin.each do |note| %>
+    <li class="attribute attribute-curation-notes-admin"><span itemprop="curation_notes_admin">
+     <%= raw ("<span class=\"more\">" + iconify_auto_link(note) + "</span>") %>
+     </span>
+      <% if num_para > 1 %>
+        <p></p>
+        <% num_para = num_para - 1 %>
+      <% end %>
+    </li>
+  <% end %>
+  </ul></td></tr>
 <% end %>
 <%= presenter.attribute_to_html(:date_modified, label: t('hyrax.base.show.last_modified') ) %>
 <%= presenter.attribute_to_html(:language, render_as: :faceted, label: t('show.label.language') ) %>

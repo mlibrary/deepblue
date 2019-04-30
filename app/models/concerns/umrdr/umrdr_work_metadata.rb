@@ -21,7 +21,7 @@ module Umrdr
         index.as :stored_searchable
       end
 
-      property :curation_notes_admin_ordered, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#curation_notes_admin_ordered'), multiple: true do |index|
+      property :curation_notes_admin_ordered, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#curation_notes_admin_ordered'), multiple: false do |index|
         index.type :text
         index.as :stored_searchable
       end
@@ -31,7 +31,7 @@ module Umrdr
         index.as :stored_searchable
       end
 
-      property :curation_notes_user_ordered, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#curation_notes_user_ordered'), multiple: true do |index|
+      property :curation_notes_user_ordered, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#curation_notes_user_ordered'), multiple: false do |index|
         index.type :text
         index.as :stored_searchable
       end
