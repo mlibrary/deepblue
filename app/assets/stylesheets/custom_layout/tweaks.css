@@ -434,3 +434,12 @@ th.alert-warning {
   width: 100%;
   /* border: 1px solid red; */
 }
+
+table.datatable thead th.no-sort {
+    pointer-events: none;
+        background: none; 
+}
+
+.datatable > thead > tr > th[class*="no-sort"]:after{
+    content: "" !important;
+}

@@ -1,8 +1,10 @@
 <tr id="document_<%= document.id %>">
+
   <td>
     <label for="batch_document_<%= document.id %>" class="sr-only"><%= t("hyrax.dashboard.my.sr.batch_checkbox") %></label>
     <%= render 'hyrax/batch_select/add_button', document: document %>&nbsp;
   </td>
+
   <td>
     <div class='media'>
       <%= link_to [main_app, document], class: 'media-left', 'aria-hidden' => true do %>
@@ -27,16 +29,13 @@
     </div>
   </td>
 
-  <td class='text-center'><%= document.date_modified %></td>
-  <td class='text-center'><%= document.date_uploaded %></td>
-  <td class='workflow-state text-center'><%= presenter.workflow.state_label %></td>
+  <td class="date text-center"><%= document.date_modified %></td>
+  <td class="date text-center"><%= document.date_uploaded %></td>
+  <td class="text-center">
+    <span class="fa <%= current_user.trophies.where(work_id: document.id).exists? ? 'fa-star highlighted-work' : 'fa-star-o trophy-off' %>" aria-hidden="true"></span></td>
+  <td class="text-center"><%= render_visibility_link document %></td>
 
-
-  <% if !document.tombstone.nil? %>
-     <td class='text-center'><span class="label label-danger">Tombstone</span></td>
-     <td class="text-center">Tombstoned</td>
-  <% else %>
-    <td class='text-center'><%= render_visibility_link document %></td>
-    <td class='text-center'><%= render 'work_action_menu', document: document %></td>
-  <% end %>
+  <td class="text-center">
+    <%= render 'work_action_menu', document: document %>
+  </td>
 </tr>
