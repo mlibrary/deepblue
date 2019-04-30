@@ -529,7 +529,9 @@ module Deepblue
     end
 
     def provenance_log_update_before( form_params: )
-      # LoggingHelper.bold_debug [ "provenance_log_update_before",
+      # LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+      #                            Deepblue::LoggingHelper.called_from,
+      #                            Deepblue::LoggingHelper.obj_class( 'class', self ),
       #                            ActiveSupport::JSON.encode( form_params ),
       #                            'form_params:',
       #                            form_params ]

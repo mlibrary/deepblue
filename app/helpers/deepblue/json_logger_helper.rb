@@ -25,7 +25,19 @@ module Deepblue
         form_params.each_pair do |key, value|
           update_key = "#{update_key_prefix}#{key}".to_sym
           key = key.to_sym
-          next unless curation_concern.has_attribute? key
+          has_old_value = case key
+                          when :visibility
+                            old_value = curation_concern.visibility
+                            true
+                          else
+                            if curation_concern.has_attribute? key
+                              old_value = curation_concern[key]
+                              true
+                            else
+                              false
+                            end
+                          end
+          next unless has_old_value
           if value.is_a? Array
             if value.blank?
               value = nil
@@ -35,7 +47,7 @@ module Deepblue
               value.pop if '' == value.last
             end
           end
-          old_value = curation_concern[key]
+          # old_value = curation_concern[key]
           new_value = nil
           if delta_only
             unless old_value.blank? && value.blank?
@@ -162,13 +174,22 @@ module Deepblue
           next unless key.to_s.start_with? update_key_prefix
           attribute = value[:attribute]
           old_value = value[:old_value]
-          new_value = curation_concern[attribute]
+          new_value = curation_concern_attribute( curation_concern: curation_concern, attribute: attribute )
           # puts "#{attribute}, #{old_value}, #{new_value}"
           new_update_attr_key_values[key] = { attribute: attribute,
                                               old_value: old_value,
                                               new_value: new_value } unless old_value == new_value
         end
         return new_update_attr_key_values
+      end
+
+      def curation_concern_attribute( curation_concern:, attribute: )
+        case attribute
+        when :visibility
+          curation_concern.visibility
+        else
+          curation_concern[attribute]
+        end
       end
 
     end
