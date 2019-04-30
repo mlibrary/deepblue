@@ -89,56 +89,40 @@
       <% end %>
     <% end %>
 
-    <% if @presenter.editor? && @presenter.doi_minting_enabled? %>
-      <% if @presenter.doi_minted? && @presenter.current_ability.admin? %>
-        <div class="panel panel-default panel-edit">
-          <div class="panel-heading">
-          <h2>Edit Work</h2>
-          </div>
-            <div class="button-set">
-        <%= link_to t('simple_form.actions.data_set.edit'),
-                    edit_polymorphic_path([main_app, @presenter]),
-                    class: 'btn btn-primary' %>
-        <%= link_to t('simple_form.actions.data_set.delete'),
-                    [main_app, @presenter],
-                    class: 'btn btn-danger',
-                    data: { confirm: "Delete this #{@presenter.human_readable_type}?" },
-                    method: :delete %>
-          </div>
-        </div>
-      <% elsif !presenter.doi_minted? %>
+    <% if @presenter.editor? || @presenter.current_ability.admin? %>
       <div class="panel panel-default panel-edit">
-          <div class="panel-heading">
+        <div class="panel-heading">
           <h2>Edit Work</h2>
-          </div>
-        <div class="panel-body">
-        <%= link_to t('simple_form.actions.data_set.edit'),
-                    edit_polymorphic_path([main_app, @presenter]),
-                    class: 'btn btn-primary' %>
-        <%= link_to t('simple_form.actions.data_set.delete'),
-                    [main_app, @presenter],
-                    class: 'btn btn-danger',
-                    data: { confirm: "Delete this #{@presenter.human_readable_type}?" },
-                    method: :delete %>
-          </div>
         </div>
-      <% end %>
-
-      <% if !@presenter.doi_minted? %>
+        <div class="button-set">
+          <%= link_to t('simple_form.actions.data_set.edit'),
+                      edit_polymorphic_path([main_app, @presenter]),
+                      class: 'btn btn-primary' %>
+          <% if ( @presenter.doi_minting_enabled? && !@presenter.doi_minted? ) || @presenter.current_ability.admin? %>
+            <%= link_to t('simple_form.actions.data_set.delete'),
+                        [main_app, @presenter],
+                        class: 'btn btn-danger',
+                        data: { confirm: "Delete this #{@presenter.human_readable_type}?" },
+                        method: :delete %>
+          <% end %>
+        </div>
+      </div>
+      <% if @presenter.doi_minting_enabled? && !@presenter.doi_minted? %>
         <br>
         <div class="panel panel-default panel-edit">
           <div class="panel-heading">
-          <h2>Mint DOI</h2>
+            <h2>Mint DOI</h2>
           </div>
-        <div class="panel-body">
-        <p><%= t('simple_form.actions.data_set.mint_help') %></p>
-        <%= link_to t('simple_form.actions.data_set.mint_doi'),
+          <div class="panel-body">
+            <p><%= t('simple_form.actions.data_set.mint_help') %></p>
+            <%= link_to t('simple_form.actions.data_set.mint_doi'),
                     main_app.doi_hyrax_data_set_path(@presenter.id), class: 'btn btn-primary' %>
-    </div>
-    </div>
+          </div>
+        </div>
       <% end %>
     <% end %>
-<br></br>
+
+    <br></br>
 
     <% if @presenter.current_ability.admin? && @presenter.tombstone_enabled? %>
       <button class="btn btn-primary btn-sm" data-target="#tombstoneId" data-toggle="modal">
