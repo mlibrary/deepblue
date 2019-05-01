@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 module Hyrax
+
   class DataSetPresenter < DeepbluePresenter
 
     delegate  :authoremail,
               :curation_notes_admin,
               :curation_notes_user,
               :date_coverage,
-              :doi,
+              :doi, :doi_the_correct_one,
               :doi_minted?,
               :doi_minting_enabled?,
               :doi_pending?,
@@ -22,6 +23,28 @@ module Hyrax
               :subject_discipline,
               :total_file_size,
               to: :solr_document
+
+    # def initialize( solr_document, current_ability, request = nil )
+    #   ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+    #                                          Deepblue::LoggingHelper.called_from,
+    #                                          Deepblue::LoggingHelper.obj_class( 'class', self ),
+    #                                          "solr_document = #{solr_document}",
+    #                                          "solr_document.class.name = #{solr_document.class.name}",
+    #                                          "current_ability = #{current_ability}",
+    #                                          "request = #{request}",
+    #                                          "" ]
+    #   super( solr_document, current_ability, request )
+    #   ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+    #                                          Deepblue::LoggingHelper.called_from,
+    #                                          Deepblue::LoggingHelper.obj_class( 'class', self ),
+    #                                          "@solr_document.class.name = #{@solr_document.class.name}",
+    #                                          "@solr_document.doi = #{@solr_document.doi}",
+    #                                          "@solr_document.doi_the_correct_one = #{@solr_document.doi_the_correct_one}",
+    #                                          "@solr_document.doi_minted? = #{@solr_document.doi_minted?}",
+    #                                          "@solr_document.doi_minting_enabled? = #{@solr_document.doi_minting_enabled?}",
+    #                                          "@solr_document.doi_pending? = #{@solr_document.doi_pending?}",
+    #                                          "" ]
+    # end
 
     # begin box
 
