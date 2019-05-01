@@ -89,7 +89,7 @@
       <% end %>
     <% end %>
 
-    <% if @presenter.editor? || @presenter.current_ability.admin? %>
+    <% if ( ( @presenter.editor? && @presenter.workflow.state != "deposited" )|| @presenter.current_ability.admin? ) %>
       <div class="panel panel-default panel-edit">
         <div class="panel-heading">
           <h2>Edit Work</h2>

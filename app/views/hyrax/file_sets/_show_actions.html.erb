@@ -7,7 +7,7 @@
                 data: { turbolinks: false } %>
   <% end %>
 
-  <% if @presenter.editor? || current_ability.admin? %>
+  <% if ( ( @presenter.editor? && @presenter.parent.workflow.state != "deposited" ) ||  current_ability.admin? ) %>
     <%= link_to "Edit This #{@presenter.human_readable_type}", edit_polymorphic_path([main_app, @presenter]),
                 class: 'btn btn-default' %>
     <% if ( @presenter.parent_doi_minted? && !current_ability.admin? ) %>

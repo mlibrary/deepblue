@@ -31,12 +31,16 @@
   <td class='text-center'><%= document.date_uploaded %></td>
   <td class='workflow-state text-center'><%= presenter.workflow.state_label %></td>
 
-
   <% if !document.tombstone.nil? %>
      <td class='text-center'><span class="label label-danger">Tombstone</span></td>
      <td class="text-center">Tombstoned</td>
   <% else %>
-    <td class='text-center'><%= render_visibility_link document %></td>
-    <td class='text-center'><%= render 'work_action_menu', document: document %></td>
+    <% if ( ( presenter.editor? && presenter.workflow.state != "deposited" )|| presenter.current_ability.admin? ) %>
+      <td class='text-center'><%= render_visibility_link document %></td>
+      <td class='text-center'><%= render 'work_action_menu', document: document %></td>
+    <% else %>
+      <td class='text-center'><%= render_visibility_link document %></td>
+      <td class='text-center'>-</td> 
+    <% end %>
   <% end %>
 </tr>

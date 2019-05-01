@@ -35,7 +35,11 @@
     <span class="fa <%= current_user.trophies.where(work_id: document.id).exists? ? 'fa-star highlighted-work' : 'fa-star-o trophy-off' %>" aria-hidden="true"></span></td>
   <td class="text-center"><%= render_visibility_link document %></td>
 
-  <td class="text-center">
-    <%= render 'work_action_menu', document: document %>
+  <td class="text-center"> 
+    <% if ( ( presenter.editor? && presenter.workflow.state != "deposited" )|| presenter.current_ability.admin? ) %>
+      <%= render 'work_action_menu', document: document %>
+    <% else %>
+      -
+    <% end %>
   </td>
 </tr>
