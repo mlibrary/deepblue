@@ -48,23 +48,25 @@
 <%= presenter.attribute_to_html(:publisher, render_as: :faceted) %>
 <%= presenter.attribute_to_html(:resource_type, render_as: :faceted) %>
 
-<tr><th>User Curation Notes</th><td><ul class='tabular_list'>
-<% num_para = presenter.curation_notes_user.count %>
-<% presenter.curation_notes_user.each do |note| %>
-  <li class="attribute attribute-curation_note_user"><span itemprop="curation_notes_user">
-   <%= raw ("<span class=\"more\">" + iconify_auto_link(note) + "</span>") %>
-   </span>
-    <% if num_para > 1 %>
-      <p></p>
-      <% num_para = num_para - 1 %>
-    <% end %>
-  </li>
+<% if @presenter.curation_notes_user.present? %>
+  <tr><th>User Curation Notes</th><td><ul class='tabular_list'>
+  <% num_para = @presenter.curation_notes_user.count %>
+  <% @presenter.curation_notes_user.each do |note| %>
+    <li class="attribute attribute-curation_note_user"><span itemprop="curation_notes_user">
+     <%= raw ("<span class=\"more\">" + iconify_auto_link(note) + "</span>") %>
+     </span>
+      <% if num_para > 1 %>
+        <p></p>
+        <% num_para = num_para - 1 %>
+      <% end %>
+    </li>
+  <% end %>
+  </ul></td></tr>
 <% end %>
-</ul></td></tr>
-<% if current_ability.admin? %>
+<% if @presenter.curation_notes_admin.present? && current_ability.admin? %>
   <tr><th>Admin Curation Notes</th><td><ul class='tabular_list'>
-  <% num_para = presenter.curation_notes_admin.count %>
-  <% presenter.curation_notes_admin.each do |note| %>
+  <% num_para = @presenter.curation_notes_admin.count %>
+  <% @presenter.curation_notes_admin.each do |note| %>
     <li class="attribute attribute-curation-notes-admin"><span itemprop="curation_notes_admin">
      <%= raw ("<span class=\"more\">" + iconify_auto_link(note) + "</span>") %>
      </span>
@@ -87,8 +89,10 @@
 
 <%= presenter.attribute_to_html(:source) %>
 
+<!-- DOI: <%= @presenter.doi %> -->
+<!-- presenter.class_name: <%= @presenter.class_name %> -->
 <span itemprop="identifier" itemscope itemtype="http://schema.org/Identifier">
-  <%= presenter.attribute_to_html(:doi, label: t('show.label.doi'), work_type: "DataSet" ) %>
+  <%= @presenter.attribute_to_html(:doi, label: t('show.label.doi'), work_type: "DataSet" ) %>
 </span>
 
 
