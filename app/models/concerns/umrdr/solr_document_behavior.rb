@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Umrdr
+
   module SolrDocumentBehavior
     extend ActiveSupport::Concern
 
@@ -20,14 +21,35 @@ module Umrdr
       Array(self[Solrizer.solr_name('date_coverage')]).first
     end
 
+    ## begin DOI methods
+
     def doi
-      Array(self[Solrizer.solr_name('doi')]).first
+      rv = doi_the_correct_one
+      # rv = Array( self[ Solrizer.solr_name( 'doi', :symbol ) ] ).first
+      # rv = self[ Solrizer.solr_name( 'doi', :symbol ) ]
+      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+      #                                        Deepblue::LoggingHelper.called_from,
+      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
+      #                                        "doi = #{doi}",
+      #                                        "" ]
+      return rv
+    end
+
+    def doi_the_correct_one
+      # rv = Array( self[Solrizer.solr_name('doi')] ).first
+      rv = self[ Solrizer.solr_name( 'doi', :symbol ) ]
+      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+      #                                        Deepblue::LoggingHelper.called_from,
+      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
+      #                                        "doi = #{doi}",
+      #                                        "" ]
+      return rv
     end
 
     def doi_minted?
       # the first time this is called, doi will not be in solr.
       # @solr_document[ Solrizer.solr_name( 'doi', :symbol ) ].first
-      doi.first
+      doi_the_correct_one.present?
     rescue
       nil
     end
@@ -38,8 +60,10 @@ module Umrdr
 
     def doi_pending?
       #@solr_document[ Solrizer.solr_name( 'doi', :symbol ) ].first == ::Deepblue::DoiBehavior::DOI_PENDING
-      doi.first == ::Deepblue::DoiBehavior::DOI_PENDING
+      doi_the_correct_one == ::Deepblue::DoiBehavior::DOI_PENDING
     end
+
+    ## end DOI methods
 
     def file_size
       Array(self['file_size_lts']).first # standard lookup Solrizer.solr_name('file_size')] produces solr_document['file_size_tesim']
@@ -109,4 +133,5 @@ module Umrdr
     end
 
   end
+
 end
