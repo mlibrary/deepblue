@@ -31,6 +31,9 @@ dump.rdb
 #.sass-cache/
 public/assets/
 
+## Branding assets
+public/branding/
+
 ## Paperclip assets
 #public/system/
 
