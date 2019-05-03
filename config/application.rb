@@ -2,6 +2,8 @@
 
 require_relative 'boot'
 require 'rails/all'
+# require 'app/model/concerns/hydra/access_controls/access_right'
+require File.join(Gem::Specification.find_by_name("hydra-access-controls").full_gem_path, "app/models/concerns/hydra/access_controls/access_right.rb")
 # require_relative '../lib/rack_multipart_buf_size_setter.rb'
 
 # Require the gems listed in Gemfile, including any gems
@@ -75,6 +77,8 @@ module DeepBlueDocs
 
     ## configure embargo
     config.embargo_enforce_future_release_date = false
+    config.embargo_visibility_after_default_status = ::Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
+    config.embargo_visibility_during_default_status = ::Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
 
     ## configure for Globus
     # -- To enable Globus for development, create /deepbluedata-globus/download and /deepbluedata-globus/prep
