@@ -68,6 +68,14 @@ en:
     contact_form:
       issue_types:
         size:               "My deposit is larger than 2GB"
+    dashboard:
+      review_submissions:
+        heading:
+          depositor:        "Depositor"
+          last_modified:    "Last Modified"
+          status:           "Status"
+          submission_date:  "Submission Date"
+          work:             "Work"
     directory:
       suffix:               "@example.org"
     email:

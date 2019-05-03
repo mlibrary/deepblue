@@ -27,8 +27,8 @@
     </div>
   </td>
 
-  <td class='text-center'><%= document.date_modified %></td>
   <td class='text-center'><%= document.date_uploaded %></td>
+  <td class='text-center'><%= document.date_modified %></td>
   <td class='workflow-state text-center'><%= presenter.workflow.state_label %></td>
 
   <% if !document.tombstone.nil? %>
