@@ -601,9 +601,68 @@ div.facets h3 {
   font-size: 1.5em;
   padding-top: 1em;
 }
-#collection_search {
-  padding: 1em;
+
+.hyc-banner {
+  margin: 1em 0;
 }
+
+.hyc-banner .hyc-title {
+  h1 {
+    font-size:2em;
+  }
+   h1.no-banner-text {
+    color: #000;
+    text-shadow:none;
+    font-size:2em;
+  }
+}
+
+.hyc-metadata.panel.panel-default {
+  padding: 0;
+  margin: 0 1em;
+}
+
+.hyc-metadata {
+   padding: 0;
+   max-width: 100%;
+  h2 {
+  margin:0;
+  padding: 0 .25em;
+  }
+
+  dl {
+  padding: 0 .25em;
+  }
+}
+
+.hyc-description {
+  .hyc-blacklight.hyc-bl-title, .hyc-blacklight.hyc-bl-results {
+    padding-left: 0;
+  }
+}
+
+#collection_search {
+  padding: 1.05em;
+}
+
+.hyc-blacklight.hyc-bl-search.hyc-body.row {
+  padding: 1em 0;
+
+  .edit_collection {
+  margin: 0 1em;
+  }
+}
+
+.hyc-blacklight.hyc-bl-title {
+  h3 {
+    font-weight: bold;
+  }
+}
+
+.hyc-blacklight.hyc-bl-results {
+  padding: 1em 0 0 1.5em;
+}
+
 /** Help + About **/
 
 .static-page-sidebar {
@@ -714,6 +773,11 @@ div.facets h3 {
 
   a {
     color: #fff;
+    text-decoration:none;
+  }
+
+  p.column-two > a {
+    text-decoration: underline;
   }
 
   a:hover {

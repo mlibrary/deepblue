@@ -3,10 +3,11 @@
   <div class="row hyc-header">
     <div class="col-md-12">
 
-      <header class="hyc-banner" <%= @presenter.banner_file.blank? ? '' : raw( "style=\"background-image:url(" ) + @presenter.banner_file + raw( ")\"" ) %> >
+      <header class="hyc-banner" <%= @presenter.banner_file.blank? ? '' : raw( "style=\"background-image:linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.7)),url(" ) + @presenter.banner_file + raw( ")\"" ) %> >
 
       <div class="hyc-title">
-        <h1><%= @presenter.title.first %></h1>
+        <h1 <%= @presenter.banner_file.blank? ? "class=no-banner-text" : '' %> >
+        <%= @presenter.title.first %></h1>
       </div>
 
       <% unless @presenter.logo_record.blank? %>
@@ -34,7 +35,7 @@
   </div>
 
   <div class="row hyc-body">
-    <div class="col-md-8 hyc-description">
+    <div class="col-sm-10 col-md-8 hyc-description">
       <%= render 'collection_description', presenter: @presenter %>
 
       <% if @presenter.collection_type_is_nestable? && @presenter.total_parent_collections > 0 %>
@@ -49,11 +50,15 @@
       <% end %>
 
     </div>
-    <div class="col-md-4 hyc-metadata">
-      <% unless has_collection_search_parameters? %>
-          <h2><%= t('hyrax.dashboard.collections.show.metadata_header') %></h2>
-          <%= render 'show_descriptions' %>
-      <% end %>
+    <div class="col-sm-10 col-md-4">
+      <div class=" hyc-metadata panel panel-default">
+        <% unless has_collection_search_parameters? %>
+          <div class="panel-header">
+            <h2><%= t('hyrax.dashboard.collections.show.metadata_header') %></h2>
+          </div>
+            <%= render 'show_descriptions' %>
+        <% end %>
+      </div>
     </div>
   </div>
 
@@ -70,46 +75,59 @@
 
   <!-- Search bar -->
   <div class="hyc-blacklight hyc-bl-search hyc-body row">
-    <div class="col-sm-8">
+    <div class="col-sm-8 col-sm-offset-4">
       <%= render 'search_form', presenter: @presenter, url: hyrax.collection_path(@presenter.id) %>
     </div>
   </div>
 
   <!-- Subcollections -->
   <% if @presenter.collection_type_is_nestable? && @subcollection_count > 0 %>
-      <div class="hyc-blacklight hyc-bl-title">
-        <h4><%= t('.subcollection_count') %> (<%= @subcollection_count %>)</h4>
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="panel panel-default">
+          <div class="panel-heading">
+            <div class="hyc-blacklight hyc-bl-title">
+              <h3><%= t('.subcollection_count') %> (<%= @subcollection_count %>)</h3>
+            </div>
+          </div>
+          <div class="hyc-blacklight hyc-bl-results">
+            <%= render 'subcollection_list', collection: @subcollection_docs %>
+          </div>
       </div>
-      <div class="hyc-blacklight hyc-bl-results">
-        <%= render 'subcollection_list', collection: @subcollection_docs %>
-      </div>
+    </div>
+  </div>  
   <% end %>
 
   <!-- Works -->
   <% if @members_count > 0 %>
-      <div class="hyc-blacklight hyc-bl-title">
-        <h4><%= t('.works_in_collection') %> (<%= @members_count %>)</h4>
-      </div>
+  <div class="row">
+    <div class="col-sm-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <div class="hyc-blacklight hyc-bl-title">
+              <h3><%= t('.works_in_collection') %> (<%= @members_count %>)</h3>
+            </div>
+          </div>
+          <div class="hyc-blacklight hyc-bl-sort">
+            <%= render 'sort_and_per_page', collection: @presenter %>
+          </div>
 
-      <div class="hyc-blacklight hyc-bl-sort">
-        <%= render 'sort_and_per_page', collection: @presenter %>
-      </div>
+          <div class="hyc-blacklight hyc-bl-results">
+            <%= render_document_index @member_docs %>
+          </div>
 
-      <div class="hyc-blacklight hyc-bl-results">
-        <%= render_document_index @member_docs %>
-      </div>
-
-      <div class="hyc-blacklight hyc-bl-pager">
-        <%= render 'paginate' %>
-      </div>
+          <div class="hyc-blacklight hyc-bl-pager">
+            <%= render 'paginate' %>
+          </div>
+        </div>
+    </div>
+  </div>
   <% end # if @members_count > 0 %>
 
-  <div class="panel-body">
     <div class="row">
       <div class="col-sm-12">
         <%= render '/provenance_log_entries', presenter: @presenter %>
       </div>
     </div>
-  </div>
 
 </div>
