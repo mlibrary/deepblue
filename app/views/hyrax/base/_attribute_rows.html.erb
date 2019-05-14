@@ -49,7 +49,7 @@
 <%= presenter.attribute_to_html(:resource_type, render_as: :faceted) %>
 
 <% if @presenter.curation_notes_user.present? %>
-  <tr><th>User Curation Notes</th><td><ul class='tabular_list'>
+  <tr><th>Curation notes</th><td><ul class='tabular_list'>
   <% num_para = @presenter.curation_notes_user.count %>
   <% @presenter.curation_notes_user.each do |note| %>
     <li class="attribute attribute-curation_note_user"><span itemprop="curation_notes_user">
@@ -64,7 +64,7 @@
   </ul></td></tr>
 <% end %>
 <% if @presenter.curation_notes_admin.present? && current_ability.admin? %>
-  <tr><th>Admin Curation Notes</th><td><ul class='tabular_list'>
+  <tr><th>Admin curation notes</th><td><ul class='tabular_list'>
   <% num_para = @presenter.curation_notes_admin.count %>
   <% @presenter.curation_notes_admin.each do |note| %>
     <li class="attribute attribute-curation-notes-admin"><span itemprop="curation_notes_admin">
