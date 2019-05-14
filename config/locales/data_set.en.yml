@@ -42,7 +42,7 @@ en:
       required_agreement_deepblue: Check deposit agreement below
       form_files:
         local_upload_html: "<p>Upload data files (e.g. .xls, .sas) and documentation files (e.g. codebooks, readme.txt).</p><p>You must include some form of documentation for your dataset to be published. See the Guide to Creating Documentation for Your Dataset or this Example readme for more information.</p><p>‘Add folder...’ will upload individual files within the selected folder.”</p>"
-        local_upload_no_dir_html: "<p>Upload data files (e.g. .xls, .sas) and documentation files (e.g. codebooks, readme.txt).</p><p>You must include some form of documentation for your dataset to be published. See the Guide to Creating Documentation for Your Dataset or this Example readme for more information.</p>"
+        local_upload_no_dir_html: "<p>Upload data files (e.g. .xls, .sas) and documentation files (e.g. codebooks, readme.txt).</p><p>You must include some form of documentation for your dataset to be reviewed and published. See the <a href=\"https://training.deepblue.lib.umich.edu/data/DBD_Documentation_Guide.pdf\" target=\"_blank\">Guide to Creating Documentation for Your Dataset</a> for more information.</p>"
   show:
     label:
       authoremail:          "Contact information"
