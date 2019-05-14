@@ -166,7 +166,7 @@ en:
         fundedby: >
           Select the primary funding agency that supported the research and data collection from the drop-down list.
         fundedby_other: >
-          Other funding agency, not from one in the list.
+          Enter the funding agency's title.
         globus_click_submit_to_start_downloading: >
           Click submit to start downloading %{title} to Globus. If you would like to be sent an email when the files
           are available fill in your email address:
