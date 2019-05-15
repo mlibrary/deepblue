@@ -32,6 +32,8 @@ module Hyrax
         def assign_nested_attributes_for_collection( env, attributes_collection )
           return true if attributes_blank? attributes_collection
           return true unless env.curation_concern.respond_to? :provenance_child_add
+
+          attributes_collection = attributes_collection.first if  attributes_collection.is_a? Array
           attributes_collection = attributes_collection.sort_by { |i, _| i.to_i }.map { |_, attributes| attributes }
           # checking for existing works to avoid rewriting/loading works that are already attached
           existing_works = env.curation_concern.member_ids

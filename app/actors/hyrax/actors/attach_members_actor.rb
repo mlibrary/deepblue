@@ -17,9 +17,10 @@ module Hyrax
           member = ActiveFedora::Base.find( id )
           return unless env.current_ability.can?( :edit, member )
           env.curation_concern.ordered_members << member
-          current_user = env['warden'].user
-          return unless curation_concern.respond_to? :provenance_child_add
-          curation_concern.provenance_child_add( current_user: current_user,
+
+          return unless env.curation_concern.respond_to? :provenance_child_add
+          current_user = env.user
+          env.curation_concern.provenance_child_add( current_user: current_user,
                                                  child_id: id,
                                                  event_note: "AttachMembersActor" )
         end
