@@ -6,9 +6,9 @@
       <% if should_render_index_field? document, field %>
           <dt><%= render_index_field_label document, field: field_name %></dt>
           <% if field_name == "description_tesim" %>
-            <dd><span class="more"><%= doc_presenter.field_value field_name %></span></dd>
+            <dd><span class="more"><%= doc_presenter.field_value field %></span></dd>
           <% else %>
-            <dd><span><%= doc_presenter.field_value field_name %></span></dd>
+            <dd><span><%= doc_presenter.field_value field %></span></dd>
           <% end %>
       <% end %>
     <% end %>
