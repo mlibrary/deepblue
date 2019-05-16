@@ -320,6 +320,10 @@ module Deepblue
         # puts "work.id=#{work.id} admin_set.id=#{admin_set.id} visibility=#{work.visibility}"
         return if TaskHelper.dbd_version_1?
         return unless admin_set_data_set? admin_set
+        if work.id.nil?
+          work.save!
+          work.reload
+        end
         wf = work.active_workflow
         # puts "wf.name=#{wf.name}"
         wgid = work.to_global_id.to_s
@@ -384,7 +388,7 @@ module Deepblue
         description = Array( collection_hash[:description] )
         description = ["Missing description"] if description.blank?
         description = ["Missing description"] if [nil] == description
-        doi, doi_mint_flag = build_doi( collection_hash )
+        doi = build_doi( hash: collection_hash )
         edit_users = Array( collection_hash[:edit_users] )
         keyword = Array( collection_hash[:keyword] )
         language = Array( collection_hash[:language] )
@@ -420,7 +424,7 @@ module Deepblue
         collection.reload
         log_provenance_migrate( curation_concern: collection ) if MODE_MIGRATE == mode
         log_provenance_ingest( curation_concern: collection )
-        doi_mint( curation_concern: collection ) if doi_mint_flag
+        # doi_mint( curation_concern: collection ) if doi_mint_flag
         return collection
       end
 
@@ -495,9 +499,10 @@ module Deepblue
 
       def build_doi( hash:, allow_minting: true )
         doi = hash[:doi]
-        doi_mint_flag = ( DOI_MINT_NOW == doi ) && allow_minting
-        doi = nil if doi_mint_flag
-        return doi, doi_mint_flag
+        # doi_mint_flag = ( DOI_MINT_NOW == doi ) && allow_minting
+        # doi = nil if doi_mint_flag
+        # return doi, doi_mint_flag
+        return doi
       end
 
       def build_file_set( id:, path:, work:, filename: nil, file_ids: nil, file_set_of:, file_set_count:, file_size: '' )
@@ -709,6 +714,7 @@ module Deepblue
         return nil if work.nil?
         log_object work if work.present?
         add_file_sets_to_work( work_hash: work_hash, work: work )
+        doi_mint( curation_concern: work )
         return work
       end
 
@@ -818,7 +824,7 @@ module Deepblue
         description = Array( work_hash[:description] )
         description = ["Missing description"] if description.blank?
         description = ["Missing description"] if [nil] == description
-        doi, doi_mint_flag = build_doi( work_hash )
+        doi = build_doi( hash: work_hash )
         edit_users = Array( work_hash[:edit_users] )
         fundedby = build_fundedby( hash: work_hash )
         fundedby_other = work_hash[:fundedby_other]
@@ -872,7 +878,7 @@ module Deepblue
         work.reload
         log_provenance_migrate( curation_concern: work ) if MODE_MIGRATE == mode
         log_provenance_ingest( curation_concern: work )
-        doi_mint( curation_concern: work ) if doi_mint_flag
+        # doi_mint( curation_concern: work ) if doi_mint_flag
         return work
       end
 
@@ -1259,9 +1265,25 @@ module Deepblue
       end
 
       def doi_mint( curation_concern: )
+        # return unless allow_mint_doi
+        return unless curation_concern.respond_to? :doi_mint
+        return unless DOI_MINT_NOW == curation_concern.doi
+        curation_concern.doi = nil
+        curation_concern.save!
+        curation_concern.reload
         curation_concern.doi_mint( current_user: user,
                                    event_note: 'NewContentService',
-                                   job_delay: 60 ) if curation_concern.respond_to? :doi_mint
+                                   job_delay: 60 )
+      rescue Exception => e # rubocop:disable Lint/RescueException
+        # updates << "#{attr_prefix cc_or_fs}: #{attr_name} -- Exception: #{e.class}: #{e.message} at #{e.backtrace[0]}"
+        Rails.logger.error "#{e.class} work.id=#{work.id} -- #{e.message} at #{e.backtrace[0]}"
+        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "ERROR",
+                                             "e=#{e.class.name}",
+                                             "e.message=#{e.message}",
+                                             "e.backtrace:" ] +
+                                               e.backtrace
       end
 
       def file_from_file_set( file_set: )
@@ -1837,7 +1859,7 @@ module Deepblue
         description = ["Missing description"] if [nil] == description
         update_attr_value( updates, collection, attr_name: :description, value: description )
         update_attr( updates, collection, collection_hash, attr_name: :description_ordered, multi: false )
-        update_attr_doi( updates, collection, collection_hash )
+        # update_attr_doi( updates, collection, collection_hash )
         update_edit_users( updates, collection, collection_hash )
         update_attr( updates, collection, collection_hash, attr_name: :keyword )
         update_attr( updates, collection, collection_hash, attr_name: :keyword_ordered, multi: false )
@@ -2128,7 +2150,6 @@ module Deepblue
         description = ["Missing description"] if [nil] == description
         update_attr_value( updates, work, attr_name: :description, value: description )
         update_attr( updates, work, work_hash, attr_name: :description_ordered, multi: false )
-        update_attr_doi( updates, work, work_hash )
         update_edit_users( updates, work, work_hash )
         update_attr_value( updates, work, attr_name: :fundedby, value: build_fundedby(hash: work_hash ) )
         update_attr( updates, work, work_hash, attr_name: :fundedby_other )
@@ -2153,6 +2174,8 @@ module Deepblue
         update_value_value( updates, work, attr_name: :visibility, current_value: work.visibility, value: visibility_from_hash(hash: work_hash ) )
         work.save! unless updates.empty?
         updates = update_file_sets( updates: updates, work_hash: work_hash, work: work )
+        update_attr_doi( updates, work, work_hash )
+        work.save! unless updates.empty?
         return updates_in.concat updates
       end
 
