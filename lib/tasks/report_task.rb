@@ -35,6 +35,7 @@ module Deepblue
 
     def include?( curation_concern:, task: )
       date =  task.curation_concern_attribute( curation_concern: curation_concern, attribute: @attribute )
+      return false if date.nil?
       return date >= @begin if @end_date.nil?
       return date <= @end if @begin_date.nil?
       rv = date.between?( @begin_date, @end_date )
@@ -200,11 +201,14 @@ module Deepblue
                 raise unless curation_concern.respond_to? attribute.to_s
                 curation_concern.public_send( attribute.to_s )
               end
+      # puts "attribute=#{attribute} access_mode=#{access_mode} value=#{value}"
       return value
     end
 
     def curation_concern_format( attribute:, value: )
+      # puts "attribute=#{attribute} value=#{value}"
       return value unless field_formats.has_key? attribute
+      return "" if value.nil?
       if value.respond_to? :join
         format_str = field_format_strings[ attribute ]
         return value.join( format_str ) unless format_str.nil?
@@ -239,6 +243,7 @@ module Deepblue
     end
 
     def date_to_local_timezone( timestamp )
+      return timestamp if timestamp.nil?
       timestamp = timestamp.to_datetime if timestamp.is_a? Time
       timestamp = DateTime.parse timestamp if timestamp.is_a? String
       timestamp = timestamp.new_offset( DateTime.now.offset )
