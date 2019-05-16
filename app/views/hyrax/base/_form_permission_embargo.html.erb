@@ -1,0 +1,8 @@
+<div class="form-inline">
+  <%= visibility_badge(Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_EMBARGO) %>
+  <input type="hidden" id="data_set_visibility_during_embargo" name="data_set[visibility_during_embargo]" value="restricted" />
+   <input type="hidden" id="data_set_visibility_after_embargo" name="data_set[visibility_after_embargo]" value="open" />   
+  <%= "Restricted" %>
+  <%= f.input :embargo_release_date, wrapper: :inline, input_html: { value: f.object.embargo_release_date || Date.tomorrow, class: 'datepicker' } %>
+  <p><%= "then open it up to " %><bold><%= "Open Access" %></bold></p>
+</div>
