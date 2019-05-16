@@ -4,6 +4,7 @@ class ApplicationController < ActionController::Base
   helper Openseadragon::OpenseadragonHelper
   # Adds a few additional behaviors into the application controller
   include Blacklight::Controller
+  skip_after_action :discard_flash_if_xhr
   include Hydra::Controller::ControllerBehavior
 
   # Behavior for devise.  Use remote user field in http header for auth.
