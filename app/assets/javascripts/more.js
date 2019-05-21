@@ -7,11 +7,12 @@ $(document).on('turbolinks:load', function() {
         var content = $(this).html();
  
         if(content.length > showChar) {
-            c = start_substr (content, showChar)
+            var c = start_substr (content, showChar)
             var h = content.substr(c.length, content.length - c.length);
-            var html = c + '<span class="moreellipses">' + ellipsestext + '</span><span class="morecontent"><span>' + h + '</span>&nbsp;&nbsp;<a href="" class="morelink">' + moretext + '</a></span>';
- 
-            $(this).html(html);
+            if (h != "") {
+                var html = c + '<span class="moreellipses">' + ellipsestext + '</span><span class="morecontent"><span>' + h + '</span>&nbsp;&nbsp;<a href="" class="morelink">' + moretext + '</a></span>';
+                $(this).html(html);
+            }
         }
     });
      $(".morelink").click(function(){
