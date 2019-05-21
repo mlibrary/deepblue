@@ -14,7 +14,9 @@ export class RequiredFields {
           total = total + 1
        }
     }
-    return this.requiredFields.filter((n, elem) => { return this.isValuePresent(elem) } ).length === total - 1
+
+   return this.requiredFields.filter((n, elem) => { return this.isValuePresent(elem) } ).length === total - 1
+
   }
 
   totalRadios(elem) {
