@@ -88,4 +88,9 @@ Rails.application.configure do
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
+
+  # This is to solve issue 362 : logo and banner files not shoing up on public dir
+  # But did show up on testing and local
+  # https://stackoverflow.com/questions/5914848/ruby-on-rails-error-accessing-to-public-directory
+  config.serve_static_files = true
 end
