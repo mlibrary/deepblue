@@ -412,6 +412,20 @@ table.table.table-striped.related-files  {
   left: 5px;
 }
 
+/** Edit Work/User Collection **/
+.set-access-controls h3, 
+.set-access-controls label,
+.section-add-sharing h3,
+.section-collection-sharing legend,
+.section-collection-sharing h3 {
+  font-weight: bold;
+  font-size: 1.05em;
+}
+
+div.branding-banner-row {
+    border-top: 0;
+}
+
 /** Work Details **/
 
 .work-details-container {
@@ -597,23 +611,66 @@ div.facets h3 {
 }
 
 /** Collections **/
+
+.hyc-container {
+  margin-top: 1em;
+}
+
 .hyc-generic .hyc-title h1 {
   font-size: 1.5em;
   padding-top: 1em;
 }
 
 .hyc-banner {
-  margin: 1em 0;
+  margin-top: .5em;
+  border-radius: 0;
+  min-height: 145px;
+  box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.12), 0 -2px 4px 0 rgba(0, 0, 0, 0.24);
 }
 
-.hyc-banner .hyc-title {
-  h1 {
-    font-size:2em;
+.hyc-title-row {
+  background-color: #fff;
+  box-shadow: 0 0 2px 0 rgba(0,0,0,0.12),0 2px 4px 0 rgba(0,0,0,0.24);
+  width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -ms-flex-flow: row wrap;
+          flex-flow: row wrap;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+          align-items: center;
+  margin-bottom: 2em;
+  padding: .75em 0;
+
+  .hyc-title-under-banner {
+    font-size: 1.55em;
+    color:#000;
+    padding-left: .5em;
+    padding-right: .5em;
+  -webkit-box-flex: 2;
+  -ms-flex-positive: 2;
+          flex-grow: 2;
   }
-   h1.no-banner-text {
-    color: #000;
-    text-shadow:none;
-    font-size:2em;
+}
+
+.hyc-bugs  {
+  margin-left: auto;
+
+  .hyc-last-updated {
+    padding-right: .5em;
+    padding-left: .5em;
+  }
+}
+
+.hyc-logos {
+  padding-left: .5em;
+  padding-top: .5em;  
+
+  img {
+    max-width: 50px;
   }
 }
 

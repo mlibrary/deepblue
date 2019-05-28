@@ -2,15 +2,16 @@
 <div class="hyc-container" itemscope itemtype="http://schema.org/CollectionPage">
   <div class="row hyc-header">
     <div class="col-md-12">
+      <section>
+        <!-- Banner container -->
+        <div class="hyc-banner" <%= @presenter.banner_file.blank? ? "style=display:none" : raw( "style=\"background-image:url(" ) + @presenter.banner_file + raw( ")\"" ) %> >
+        </div>
 
-      <header class="hyc-banner" <%= @presenter.banner_file.blank? ? '' : raw( "style=\"background-image:linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.7)),url(" ) + @presenter.banner_file + raw( ")\"" ) %> >
-
-      <div class="hyc-title">
-        <h1 <%= @presenter.banner_file.blank? ? "class=no-banner-text" : '' %> >
-        <%= @presenter.title.first %></h1>
-      </div>
-
-      <% unless @presenter.logo_record.blank? %>
+        <!-- Title Row -->
+       <div class="hyc-title">
+        <div class="hyc-title-row">
+          <!-- Logo option -->
+       <% unless @presenter.logo_record.blank? %>
           <div class="hyc-logos">
             <% @presenter.logo_record.each_with_index  do |lr, i| %>
 
@@ -24,12 +25,15 @@
             <% end %>
           </div>
       <% end %>
-
-      <div class="hyc-bugs">
-          <div class="hyc-last-updated"><%= @presenter.permission_badge %></div>
+          <h1 class="hyc-title-under-banner"><%= @presenter.title.first %></h1>
+          <div class="hyc-bugs">
+            <!-- Permission Badge -->
+              <div class="hyc-last-updated"><%= @presenter.permission_badge %></div>
+          </div>
+          </div>
+        </div>
       </div>
-
-      </header>
+      </section>
 
     </div>
   </div>
