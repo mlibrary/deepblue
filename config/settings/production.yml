@@ -25,6 +25,11 @@ ezid:
   host: ez.datacite.org
   shoulder: invalid:invalid
 
+jira:
+  username: jirausername.invalid
+  password: jirapassword.invalid
+  site_url: https://tools.lib.umich.edu
+
 rails:
   database:
     database: db/production.sqlite3

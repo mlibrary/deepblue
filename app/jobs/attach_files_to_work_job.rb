@@ -170,7 +170,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       attach_files_to_work_job_complete_email_user( email: user.email, lines: lines, subject: subject, work: work ) if notify_user
       attach_files_to_work_job_complete_email_user( email: Deepblue::EmailHelper.notification_email,
                                                     lines: lines,
-                                                    subject: subject,
+                                                    subject: subject + " (RDS)",
                                                     work: work ) if notify_managers
     rescue Exception => e # rubocop:disable Lint/RescueException
       Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"

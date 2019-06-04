@@ -23,13 +23,11 @@ module Hyrax
 
       def after_create
         monkey_after_create
-        provenance_log_create
-        email_rds_create
+        workflow_create
       end
 
       def destroy
-        provenance_log_destroy
-        email_rds_destroy
+        workflow_destroy
         monkey_destroy
       end
 

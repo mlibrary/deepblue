@@ -11,12 +11,9 @@ module Hyrax
         def curation_concern_notifications( user, message, subject )
           curation_concern = ActiveFedora::Base.find( work_id )
           current_user = user.user_key
-          curation_concern.provenance_publish( current_user: current_user,
-                                               event_note: 'DepositedNotification',
-                                               message: message ) if curation_concern.respond_to? :provenance_publish
-          curation_concern.email_rds_publish( current_user: current_user,
-                                              event_note: 'DepositedNotification',
-                                              message: message ) if curation_concern.respond_to? :email_rds_publish
+          curation_concern.workflow_publish( current_user: current_user,
+                                             event_note: 'DepositedNotification',
+                                             message: message ) if curation_concern.respond_to? :workflow_publish
         end
 
         def message

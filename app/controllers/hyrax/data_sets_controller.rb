@@ -13,17 +13,15 @@ module Hyrax
 
     before_action :assign_date_coverage,         only: %i[create update]
     before_action :assign_admin_set,             only: %i[create update]
-    before_action :email_rds_destroy,            only: [:destroy]
-    before_action :provenance_log_destroy,       only: [:destroy]
+    before_action :workflow_destroy,             only: [:destroy]
     before_action :provenance_log_update_before, only: [:update]
     before_action :visiblity_changed,            only: [:update]
-    before_action :prepare_permissions,           only: [:show]
+    before_action :prepare_permissions,          only: [:show]
 
-    after_action :email_rds_create,                only: [:create]
-    after_action :provenance_log_create,           only: [:create]
-    after_action :visibility_changed_update,       only: [:update]
-    after_action :provenance_log_update_after,     only: [:update]
-    after_action :reset_permissions,               only: [:show]
+    after_action :workflow_create,               only: [:create]
+    after_action :visibility_changed_update,     only: [:update]
+    after_action :provenance_log_update_after,   only: [:update]
+    after_action :reset_permissions,             only: [:show]
 
     protect_from_forgery with: :null_session,    only: [:display_provenance_log]
     protect_from_forgery with: :null_session,    only: [:globus_add_email]
@@ -136,27 +134,6 @@ module Hyrax
     # end
 
     ## end DOI
-
-    ## email
-
-    def email_rds_create
-      curation_concern.email_rds_create( current_user: current_user,
-                                         event_note: "deposited by #{curation_concern.depositor}" )
-    end
-
-    def email_rds_destroy
-      curation_concern.email_rds_destroy( current_user: current_user )
-    end
-
-    def email_rds_publish
-      curation_concern.email_rds_publish( current_user: current_user )
-    end
-
-    def email_rds_unpublish
-      curation_concern.email_rds_unpublish( current_user: current_user )
-    end
-
-    ## end email
 
     ## Globus
 
@@ -287,22 +264,6 @@ module Hyrax
 
     ## Provenance log
 
-    def provenance_log_create
-      curation_concern.provenance_create( current_user: current_user, event_note: 'DataSetsController' )
-    end
-
-    def provenance_log_destroy
-      curation_concern.provenance_destroy( current_user: current_user, event_note: 'DataSetsController' )
-    end
-
-    def provenance_log_publish
-      curation_concern.provenance_publish( current_user: current_user, event_note: 'DataSetsController' )
-    end
-
-    def provenance_log_unpublish
-      curation_concern.provenance_unpublish( current_user: current_user, event_note: 'DataSetsController' )
-    end
-
     def provenance_log_update_after
       curation_concern.provenance_log_update_after( current_user: current_user,
                                                     # event_note: 'DataSetsController.provenance_log_update_after',
@@ -374,12 +335,10 @@ module Hyrax
       #                                        Deepblue::LoggingHelper.called_from,
       #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
       #                                        "" ]
-     if curation_concern.private? && @visibility_changed_to_private
-        provenance_log_unpublish
-        email_rds_unpublish
+      if curation_concern.private? && @visibility_changed_to_private
+       workflow_unpublish
       elsif curation_concern.public? && @visibility_changed_to_public
-        provenance_log_publish
-        email_rds_publish
+        workflow_publish
       end
     end
 

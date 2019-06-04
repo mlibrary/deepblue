@@ -8,18 +8,16 @@ module Hyrax
     PARAMS_KEY = 'collection'
 
     include Hyrax::CollectionsControllerBehavior
-    # include Deepblue::CollectionsControllerBehavior
+    include Deepblue::ControllerWorkflowEventBehavior
     include BreadcrumbsForCollections
 
     before_action :deepblue_collections_controller_debug
 
-    before_action :email_rds_destroy,            only: [:destroy]
-    before_action :provenance_log_destroy,       only: [:destroy]
+    before_action :workflow_destroy,             only: [:destroy]
     before_action :provenance_log_update_before, only: [:update]
     before_action :visiblity_changed,            only: [:update]
 
-    after_action :email_rds_create,              only: [:create]
-    after_action :provenance_log_create,         only: [:create]
+    after_action :workflow_create,              only: [:create]
     after_action :provenance_log_update_after,   only: [:update]
     after_action :visibility_changed_update,     only: [:update]
 
@@ -47,44 +45,7 @@ module Hyrax
       @collection ||= ActiveFedora::Base.find(params[:id])
     end
 
-    ## email
-
-    def email_rds_create
-      curation_concern.email_rds_create( current_user: current_user,
-                                         event_note: "created by #{curation_concern.depositor}" )
-    end
-
-    def email_rds_destroy
-      curation_concern.email_rds_destroy( current_user: current_user )
-    end
-
-    def email_rds_publish
-      curation_concern.email_rds_publish( current_user: current_user )
-    end
-
-    def email_rds_unpublish
-      curation_concern.email_rds_unpublish( current_user: current_user )
-    end
-
-    ## end email
-
     ## Provenance log
-
-    def provenance_log_create
-      curation_concern.provenance_create( current_user: current_user, event_note: EVENT_NOTE )
-    end
-
-    def provenance_log_destroy
-      curation_concern.provenance_destroy( current_user: current_user, event_note: EVENT_NOTE )
-    end
-
-    def provenance_log_publish
-      curation_concern.provenance_publish( current_user: current_user, event_note: EVENT_NOTE )
-    end
-
-    def provenance_log_unpublish
-      curation_concern.provenance_unpublish( current_user: current_user, event_note: EVENT_NOTE )
-    end
 
     def provenance_log_update_after
       # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
@@ -152,11 +113,9 @@ module Hyrax
       #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
       #                                        "" ]
       if curation_concern.private? && @visibility_changed_to_private
-        provenance_log_unpublish
-        email_rds_unpublish
+        workflow_unpublish
       elsif curation_concern.public? && @visibility_changed_to_public
-        provenance_log_publish
-        email_rds_publish
+        workflow_publish
       end
     end
 

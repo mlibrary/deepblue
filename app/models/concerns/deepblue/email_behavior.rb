@@ -91,7 +91,7 @@ module Deepblue
       body.string
     end
 
-    def email_rds_create( current_user:, event_note: '' )
+    def email_rds_create( current_user:, event_note: '', return_email_parameters: false, send_it: true )
       attributes, ignore_blank_key_values = attributes_for_email_rds_create
       email_key_values = {}
       email_key_values = map_email_attributes!( event: EVENT_CREATE,
@@ -108,6 +108,8 @@ module Deepblue
                                 event_note: event_note,
                                 id: for_email_id,
                                 ignore_blank_key_values: ignore_blank_key_values,
+                                return_email_parameters: return_email_parameters,
+                                send_it: send_it,
                                 email_key_values: email_key_values )
     end
 
@@ -296,6 +298,8 @@ module Deepblue
                                     message: '',
                                     ignore_blank_key_values:,
                                     id:,
+                                    return_email_parameters: false,
+                                    send_it: true,
                                     email_key_values: nil )
 
         if email_key_values.blank?
@@ -308,7 +312,7 @@ module Deepblue
         end
         event_attributes_cache_write( event: event, id: id, behavior: :EmailBehavior )
         body = email_compose_body( message: message, email_key_values: email_key_values )
-        EmailHelper.send_email( to: to, from: from, subject: subject, body: body )
+        EmailHelper.send_email( to: to, from: from, subject: subject, body: body ) if send_it
         class_name = for_email_class.name
         EmailHelper.log( class_name: class_name,
                          current_user: current_user,
@@ -319,7 +323,21 @@ module Deepblue
                          from: from,
                          subject: subject,
                          message: message,
-                         **email_key_values )
+                         body: body,
+                         **email_key_values ) if send_it
+        return nil unless return_email_parameters
+        parameters = { to: to,
+                       to_note: to_note,
+                       from: from,
+                       subject: subject,
+                       message: message,
+                       body: body,
+                       current_user: current_user,
+                       event: event,
+                       event_note: event_note,
+                       id: id,
+                       email_key_values: email_key_values }
+        return parameters
       end
 
   end

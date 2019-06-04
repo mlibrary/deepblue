@@ -4,46 +4,11 @@ module Deepblue
 
   module CollectionsControllerBehavior
 
+    include Deepblue::ControllerWorkflowEventBehavior
+
     PARAMS_KEY = 'collection'
 
-    ## email
-
-    def email_rds_create
-      curation_concern.email_rds_create( current_user: current_user,
-                                         event_note: "created by #{curation_concern.depositor}" )
-    end
-
-    def email_rds_destroy
-      curation_concern.email_rds_destroy( current_user: current_user )
-    end
-
-    def email_rds_publish
-      curation_concern.email_rds_publish( current_user: current_user )
-    end
-
-    def email_rds_unpublish
-      curation_concern.email_rds_unpublish( current_user: current_user )
-    end
-
-    ## end email
-
     ## Provenance log
-
-    def provenance_log_create
-      curation_concern.provenance_create( current_user: current_user, event_note: default_event_note )
-    end
-
-    def provenance_log_destroy
-      curation_concern.provenance_destroy( current_user: current_user, event_note: default_event_note )
-    end
-
-    def provenance_log_publish
-      curation_concern.provenance_publish( current_user: current_user, event_note: default_event_note )
-    end
-
-    def provenance_log_unpublish
-      curation_concern.provenance_unpublish( current_user: current_user, event_note: default_event_note )
-    end
 
     def provenance_log_update_after
       # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
@@ -89,11 +54,9 @@ module Deepblue
       #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
       #                                        "" ]
       if curation_concern.private? && @visibility_changed_to_private
-        provenance_log_unpublish
-        email_rds_unpublish
+        workflow_unpublish
       elsif curation_concern.public? && @visibility_changed_to_public
-        provenance_log_publish
-        email_rds_publish
+        workflow_publish
       end
     end
 

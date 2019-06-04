@@ -27,6 +27,7 @@ class DataSet < ActiveFedora::Base
   include ::Deepblue::EmailBehavior
   include ::Deepblue::ProvenanceBehavior
   include ::Deepblue::DoiBehavior
+  include ::Deepblue::WorkflowEventBehavior
 
   after_initialize :set_defaults
 
