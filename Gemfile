@@ -97,8 +97,11 @@ gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
 gem 'devise'
 gem 'devise-guests', '~> 0.6'
+gem 'jira-ruby', '~> 1.1'
+gem 'okcomputer', '~> 1.17'
 gem 'omniauth'
 gem 'omniauth-cas'
+gem 'riiif', '~> 1.1'
 gem 'rsolr', '>= 1.0'
 group :development, :test do
   gem 'capybara'
@@ -118,10 +121,3 @@ group :development, :test do
   gem 'shoulda-matchers', '~> 3.1'
   gem 'solr_wrapper', '~> 2.1.0'
 end
-
-group :development do
-end
-
-gem 'riiif', '~> 1.1'
-
-gem 'okcomputer', '~> 1.17'

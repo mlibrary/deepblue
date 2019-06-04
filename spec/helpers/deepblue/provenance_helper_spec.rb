@@ -65,6 +65,43 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
           "permissions_attributes": { "0": { "access": "edit", "id": "197055dd-3e5e-4714-9878-8620f2195428/39/2e/47/ca/392e47ca-b01b-4c3f-afb9-9ddb537fdacc" } },
           "visibility_during_embargo": "restricted",
           "embargo_release_date": "2018-06-30",
+          "visibility_after_embargo": "restricted",
+          "visibility_during_lease": "open",
+          "lease_expiration_date": "2018-06-30",
+          "visibility_after_lease": "open",
+          "visibility": visibility_private,
+          "version": "W/\"591319c1fdd3c69832f55e8fbbef903a4a0381a5\"",
+          "date_coverage": "" }
+      end
+      let( :expected_attr_key_values ) { {:UpdateAttribute_visibility=>{:attribute=>:visibility, :new_value=>"restricted", :old_value=>"open"}} }
+
+      it do
+        attr_key_values = Deepblue::ProvenanceHelper.form_params_to_update_attribute_key_values( curation_concern: curation_concern,
+                                                                                                 form_params: form_params )
+        expect( attr_key_values ).to eq expected_attr_key_values
+      end
+    end
+
+    context 'Only visibility change.' do
+      let( :form_params ) do
+        { "title": [title, ""],
+          "creator": [creator, ""],
+          "authoremail": authoremail,
+          "methodology": methodology,
+          "description": [description, ""],
+          "rights_license": rights_license,
+          "subject_discipline": [subject_discipline, ""],
+          "fundedby": "",
+          "fundedby_other": "",
+          "grantnumber": "",
+          "keyword": [""],
+          "language": [""],
+          "referenced_by": [""],
+          "member_of_collection_ids": "",
+          "find_child_work": "",
+          "permissions_attributes": { "0": { "access": "edit", "id": "197055dd-3e5e-4714-9878-8620f2195428/39/2e/47/ca/392e47ca-b01b-4c3f-afb9-9ddb537fdacc" } },
+          "visibility_during_embargo": "restricted",
+          "embargo_release_date": "2018-06-30",
           "visibility_after_embargo": "open",
           "visibility_during_lease": "open",
           "lease_expiration_date": "2018-06-30",
@@ -73,7 +110,7 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
           "version": "W/\"591319c1fdd3c69832f55e8fbbef903a4a0381a5\"",
           "date_coverage": "" }
       end
-      let( :expected_attr_key_values ) { {} }
+      let( :expected_attr_key_values ) { {:UpdateAttribute_visibility=>{:attribute=>:visibility, :new_value=>"restricted", :old_value=>"open"}} }
 
       it do
         attr_key_values = Deepblue::ProvenanceHelper.form_params_to_update_attribute_key_values( curation_concern: curation_concern,
@@ -105,8 +142,8 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
           "visibility_after_embargo": "open",
           "visibility_during_lease": "open",
           "lease_expiration_date": "2018-06-30",
-          "visibility_after_lease": "restricted",
-          "visibility": visibility_private,
+          "visibility_after_lease": "open",
+          "visibility": visibility_public,
           "version": "W/\"591319c1fdd3c69832f55e8fbbef903a4a0381a5\"",
           "date_coverage": "" }
       end

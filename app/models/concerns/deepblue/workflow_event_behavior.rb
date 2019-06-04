@@ -1,0 +1,67 @@
+# frozen_string_literal: true
+
+module Deepblue
+
+  # class WorkflowEventError < AbstractEventError
+  # end
+
+  module WorkflowEventBehavior
+
+    def workflow_create( current_user:, event_note: "" )
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "current_user=#{current_user}",
+                                             "event_note=#{event_note}",
+                                             "" ]
+      provenance_create( current_user: current_user, event_note: event_note )
+      parameters = email_rds_create( current_user: current_user, event_note: event_note, return_email_parameters: true )
+      summary = "#{parameters[:subject]} - #{parameters[:id]}"
+      JiraHelper.new_ticket( summary: summary, description: parameters[ :body ] )
+    end
+
+    def workflow_destroy( current_user:, event_note: "" )
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "current_user=#{current_user}",
+                                             "event_note=#{event_note}",
+                                             "" ]
+      provenance_destroy( current_user: current_user, event_note: event_note )
+      email_rds_destroy( current_user: current_user, event_note: event_note )
+    end
+
+    def workflow_publish( current_user:, event_note: "", message: "" )
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "current_user=#{current_user}",
+                                             "event_note=#{event_note}",
+                                             "message=#{message}",
+                                             "" ]
+      provenance_publish( current_user: current_user, event_note: event_note, message: message )
+      email_rds_publish( current_user: current_user, event_note: event_note, message: message )
+    end
+
+    def workflow_unpublish( current_user:, event_note: "" )
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "current_user=#{current_user}",
+                                             "event_note=#{event_note}",
+                                             "" ]
+      provenance_unpublish( current_user: current_user, event_note: event_note )
+      email_rds_unpublish( current_user: current_user, event_note: event_note )
+    end
+
+    def workflow_update_before( current_user:, event_note: "" )
+
+    end
+
+    def workflow_update_after( current_user:, event_note: "" )
+
+    end
+
+    end
+
+end

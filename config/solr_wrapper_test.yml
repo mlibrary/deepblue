@@ -1,6 +1,6 @@
 # Test configuration; used by the `ci` rake task. Can also be specified with
 # a --config option to run standalone for tests.
-version: 6.6.5
+# version: 6.6.5
 port: 8985
 instance_dir: tmp/solr-test
 collection:

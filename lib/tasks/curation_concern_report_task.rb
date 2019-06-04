@@ -576,7 +576,7 @@ module Deepblue
         index = 0
         top_ten.each do |a|
           index += 1
-          out_report << index << ') ' << a[0].to_s << ' occured ' << a[1]
+          out_report << index << ') ' << a[0].to_s << ' occurred ' << a[1]
           out_report << if 1 == a[1]
                           " time"
                         else

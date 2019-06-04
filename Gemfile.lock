@@ -393,6 +393,10 @@ GEM
     jbuilder (2.8.0)
       activesupport (>= 4.2.0)
       multi_json (>= 1.2)
+    jira-ruby (1.6.0)
+      activesupport
+      multipart-post
+      oauth (~> 0.5, >= 0.5.0)
     jmespath (1.4.0)
     jquery-datatables-rails (3.4.0)
       actionpack (>= 3.1)
@@ -504,7 +508,7 @@ GEM
     mono_logger (1.1.0)
     multi_json (1.13.1)
     multi_xml (0.6.0)
-    multipart-post (2.0.0)
+    multipart-post (2.1.1)
     mustermann (1.0.3)
     mysql2 (0.5.2)
     nest (3.1.2)
@@ -733,8 +737,8 @@ GEM
       json
       multipart-post
       oauth2
-    ruby-progressbar (1.10.0)
-    rubyzip (1.2.2)
+    ruby-progressbar (1.10.1)
+    rubyzip (1.2.3)
     samvera-nesting_indexer (2.0.0)
       dry-equalizer
     sass (3.7.3)
@@ -880,6 +884,7 @@ DEPENDENCIES
   fcrepo_wrapper
   hyrax (= 2.5.0)
   jbuilder (~> 2.5)
+  jira-ruby (~> 1.1)
   jquery-rails
   listen (~> 3.0.5)
   loofah (~> 2.2.3)
@@ -922,4 +927,4 @@ DEPENDENCIES
   web-console (>= 3.3.0)
 
 BUNDLED WITH
-   1.17.3
+   2.0.1

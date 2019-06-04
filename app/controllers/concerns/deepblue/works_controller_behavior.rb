@@ -1,9 +1,13 @@
+# frozen_string_literal: true
+
 module Deepblue
+
   module WorksControllerBehavior
     extend ActiveSupport::Concern
     #in umrdr
     #include Hyrax::Controller
     include Hyrax::WorksControllerBehavior
+    include Deepblue::ControllerWorkflowEventBehavior
 
     def after_update_response
       if curation_concern.file_sets.present?
@@ -26,4 +30,5 @@ module Deepblue
     end
 
   end
+
 end

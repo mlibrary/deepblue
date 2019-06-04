@@ -13,6 +13,11 @@ solr:
 ezid:
   timeout: 30
 
+jira:
+  username: development_jirausername.invalid
+  password: development_jirapassword.invalid
+  site_url: https://tools.lib.umich.edu
+
 rails:
   database:
     database: db/development.sqlite3

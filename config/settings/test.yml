@@ -17,6 +17,11 @@ solr:
 ezid:
   timeout: 10
 
+jira:
+  username: jirausername.invalid
+  password: jirapassword.invalid
+  site_url: https://tools.lib.umich.edu
+
 rails:
   database:
     # Warning: The database defined as "test" will be erased and
