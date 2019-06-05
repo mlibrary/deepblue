@@ -1,0 +1,5 @@
+<% if f.object.class.multiple? key %>
+  <%= f.input :fundedby_other, as: :multi_value, input_html: { rows: '5'}, required: true, force_single: true %>
+<% else %>
+  <%= f.input :fundedby_other, required: false, as: :text, input_html: { rows: '5' } %>
+<% end %>
