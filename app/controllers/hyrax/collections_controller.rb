@@ -17,7 +17,7 @@ module Hyrax
     before_action :provenance_log_update_before, only: [:update]
     before_action :visiblity_changed,            only: [:update]
 
-    after_action :workflow_create,              only: [:create]
+    after_action :workflow_create,               only: [:create]
     after_action :provenance_log_update_after,   only: [:update]
     after_action :visibility_changed_update,     only: [:update]
 

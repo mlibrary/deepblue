@@ -60,6 +60,11 @@ module DeepBlueDocs
     puts `echo $_JAVA_OPTIONS`.to_s if verbose_init
     puts `echo $JAVA_OPTIONS`.to_s if verbose_init
 
+    # For properly generating URLs and minting DOIs - the app may not by default
+    # Outside of a request context the hostname needs to be provided.
+    config.hostname = ENV['APP_HOSTNAME'] || Settings.hostname
+    # puts "config.hostname=#{config.hostname}"
+
     ## configure box
 
     config.box_enabled = false
@@ -125,7 +130,11 @@ module DeepBlueDocs
     config.min_work_file_size_to_download_warn = 1_000_000_000
 
     ## configure jira integration
-    config.jira_integration_enabled = true
+    config.jira_integration_hostnames = [ 'deepblue.local',
+                                          'testing.deepblue.lib.umich.edu',
+                                          'staging.deepblue.lib.umich.edu',
+                                          'deepblue.lib.umich.edu' ].freeze
+    config.jira_integration_enabled = config.jira_integration_hostnames.include? config.hostname
     config.jira_test_mode = true
     # config.jira_manager_project_key = 'DBHELP'
     # config.jira_manager_issue_type = 'Data Deposit'
@@ -153,10 +162,6 @@ module DeepBlueDocs
     #        /data prefix and the tests break when it is set.
     # See references to: DeepBlueDocs::Application.config.relative_url_root
     config.relative_url_root = Settings.relative_url_root unless Rails.env.test?
-
-    # For properly generating URLs and minting DOIs - the app may not by default
-    # Outside of a request context the hostname needs to be provided.
-    config.hostname = ENV['APP_HOSTNAME'] || Settings.hostname
 
     # Set the default host for resolving _url methods
     Rails.application.routes.default_url_options[:host] = config.hostname
