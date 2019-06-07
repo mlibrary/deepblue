@@ -20,7 +20,7 @@ module Hyrax
 
           text << pub_info + "." if pub_info.present?
 	        text << work.date_coverage + ". " if work.date_coverage.present?
-	        text << work.doi if work.doi.present?
+	        text << Array(work.doi).first if work.doi.present?
           text.html_safe
         end
 
