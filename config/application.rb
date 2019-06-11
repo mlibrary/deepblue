@@ -139,10 +139,10 @@ module DeepBlueDocs
                                                'deepblue.lib.umich.edu' ].freeze
     config.jira_integration_enabled = config.jira_integration_hostnames.include? config.hostname
     config.jira_test_mode = !config.jira_integration_hostnames_prod.include?( config.hostname )
-    # config.jira_manager_project_key = 'DBHELP'
-    # config.jira_manager_issue_type = 'Data Deposit'
-    config.jira_manager_project_key = 'BLUEDOC'
-    config.jira_manager_issue_type = 'Story'
+    config.jira_manager_project_key = 'DBHELP'
+    config.jira_manager_issue_type = 'Data Deposit'
+    # config.jira_manager_project_key = 'BLUEDOC'
+    # config.jira_manager_issue_type = 'Story'
 
     ### file upload and ingest
     config.notify_user_file_upload_and_ingest_are_complete = true
