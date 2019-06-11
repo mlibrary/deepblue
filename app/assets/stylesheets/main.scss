@@ -339,15 +339,39 @@ nav.breadcrumb ol li a {
 /** Catalog **/
 h2.search-result-title a {
   color: $primary-link;
-  font-size: 1.3em;
+  font-size: 1.2em;
 }
 
-#search-results a {
-  color: $primary-link;
+span.collection-tag {
+  color: #6E6E6E;
+  font-size: 1.05em;
+  margin-left: auto;
+  padding-right: .5em;
+}
+
+#search-results {
+  ul.catalog li {
+    background-color: #fafafa;
+    box-shadow: 0 0 2px 0 rgba(0,0,0,0.12),0 2px 4px 0 rgba(0,0,0,0.24);
+    margin: 1em 0;
+    padding: 0 .5em .5em;
+  }
+  a {
+    color: $primary-link;
+  }
 }
 
 .search-result-wrapper {
-  padding-bottom: 1.5em;
+    border-bottom: none;
+    margin-right: 0;
+    margin-left: 0;
+}
+
+.search-result-wrapper .search-results-title-row  {
+  background-color: #fff;
+  padding: .75em 0 .75em;
+  margin-bottom: .5em;
+  flex-flow: row wrap;
 }
 
 table.table.table-striped.related-files  {
