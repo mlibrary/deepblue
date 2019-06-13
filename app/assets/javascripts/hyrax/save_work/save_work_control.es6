@@ -123,7 +123,7 @@ export default class SaveWorkControl {
 
   // If fudedby field changes, fire a formChanged event.
   watchFundedbyields() {
-      $('#data_set_fundedby', this.form).bind('change', () => this.formChangedAgain())
+      $('.data_set_fundedby', this.form).bind('change', () => this.formChangedAgain())
 
       $('#data_set_rights_license_other', this.form).bind('change', () => this.formChangedAgain())
       $('#data_set_rights_license_httpcreativecommonsorgpublicdomainzero10', this.form).bind('change', () => this.formChangedAgain())
@@ -152,8 +152,16 @@ export default class SaveWorkControl {
 
   formChangedAgain() {
 
-    var rbtn =  $('#data_set_fundedby option:selected').text()
-    if ( rbtn.match(/Other/gi) )
+    var other = false;
+    var fundedbys = document.getElementsByName('data_set[fundedby][]');
+      for(var i=0; i<fundedbys.length; i++) {
+        if ( fundedbys[i].value.match(/Other/gi) )
+        {
+          other = true;
+        }
+      }
+
+    if ( other )
     {
       document.getElementById("data_set_fundedby_other").setAttribute('required',"required");
       document.getElementById("data_set_fundedby_other").required = true;
@@ -163,6 +171,10 @@ export default class SaveWorkControl {
     {
       document.getElementById("data_set_fundedby_other").removeAttribute("required");
       document.getElementById("data_set_fundedby_other").required = false;
+      var other_funders = document.getElementsByName('data_set[fundedby_other][]');
+      for(var i=0; i<other_funders.length; i++) {
+        other_funders[i].value = '';
+      }
       $('.data_set_fundedby_other').hide(); 
     }
 
@@ -175,6 +187,7 @@ export default class SaveWorkControl {
     else
     {
       document.getElementsByName("data_set[rights_license_other]")[0].removeAttribute("required");
+      document.getElementsByName("data_set[rights_license_other]")[0].value = ''; 
       $('.data_set_rights_license_other').hide(); 
     }
 
