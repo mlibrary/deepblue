@@ -91,7 +91,7 @@
 
 <span itemprop="identifier" itemscope itemtype="http://schema.org/Identifier">
   <% unless @presenter.doi_the_correct_one.nil? %>
-    <% @presenter.doi_the_correct_one[0].sub! 'doi:', 'http://doi.org/' %>
+    <% @presenter.doi_the_correct_one[0].sub! 'doi:', 'https://doi.org/' %>
   <% end %>
   <%= @presenter.attribute_to_html(:doi_the_correct_one, label: t('show.label.doi'), work_type: "DataSet") %>
 </span>
