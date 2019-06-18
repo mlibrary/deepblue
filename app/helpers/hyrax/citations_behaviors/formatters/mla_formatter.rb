@@ -11,27 +11,38 @@ module Hyrax
           # setup formatted author list
           authors = author_list(work).reject(&:blank?)
           text << "<span class=\"citation-author\">#{format_authors(authors)}</span>"
+ 
+          text << "(" + work.date_coverage + "). " if work.date_coverage.present?
+
           # setup title
           title_info = setup_title_info(work)
           text << format_title(title_info)
 
-          # Publication
-          pub_info = clean_end_punctuation(setup_pub_info(work, true))
+          text << " [Data set]. University of Michigan Deep Blue Data Repository. "
 
-          text << pub_info + "." if pub_info.present?
-	        text << work.date_coverage + ". " if work.date_coverage.present?
-	        text << Array(work.doi).first if work.doi.present?
+          # Publication - for now, not interested in putting this in
+          # pub_info = clean_end_punctuation(setup_pub_info(work, true))
+          # text << pub_info + "." if pub_info.present?
+
+	        text << ( Array(work.doi).first.sub! 'doi:', 'https://doi.org/' ) if work.doi.present?
+          text.gsub!(URI.regexp, '<a href="\0">\0</a>')
           text.html_safe
         end
 
         def format_authors(authors_list = [])
-          return "" if authors_list.blank?
-          authors_list = Array.wrap(authors_list)
-          text = concatenate_authors_from(authors_list)
-          if text.present?
-            text << "." unless text =~ /\.$/
-            text << " "
+          text = ""
+          authors_list.each do |name|
+            name.delete!(' ')
+            i = name.index(',') 
+            unless ( i.nil? )
+              last = name[0..i-1]
+              first = name[i+ 1]
+              text << last + ", " + first + "., "
+            else
+              text << name + ", "
+            end
           end
+          text.sub! /, $/, ' '
           text
         end
 
@@ -43,7 +54,7 @@ module Hyrax
               authors_list[1...-1].each do |author|
                 text << ", " << given_name_first(author)
               end
-              text << ", and #{given_name_first(authors_list.last)}"
+              text << ", #{given_name_first(authors_list.last)}"
             else
               text << ", et al"
             end
@@ -57,7 +68,9 @@ module Hyrax
         end
 
         def format_title(title_info)
-          title_info.blank? ? "" : "<i class=\"citation-title\">#{mla_citation_title(title_info)}</i> "
+          title = mla_citation_title(title_info)
+          title.sub! /.$/, ''
+          title_info.blank? ? "" : "<i class=\"citation-title\">#{title}</i> "
         end
       end
     end
