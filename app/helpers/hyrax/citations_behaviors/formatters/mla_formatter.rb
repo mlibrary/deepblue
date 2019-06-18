@@ -23,8 +23,9 @@ module Hyrax
           # Publication - for now, not interested in putting this in
           # pub_info = clean_end_punctuation(setup_pub_info(work, true))
           # text << pub_info + "." if pub_info.present?
-
-	        text << ( Array(work.doi).first.sub! 'doi:', 'https://doi.org/' ) if work.doi.present?
+          doi = ""
+          doi = ( Array(work.doi).first.sub 'doi:', 'https://doi.org/' ) if work.doi.present?
+	        text << doi
           text.gsub!(URI.regexp, '<a href="\0">\0</a>')
           text.html_safe
         end
