@@ -812,6 +812,7 @@ module Deepblue
           log_msg( "#{mode}: found work with id: #{id} title: #{work.title.first}" ) if work.present?
           return work if work.present?
         end
+        work_type = work_hash[:work_type]
         authoremail = work_hash[:authoremail]
         contributor = Array( work_hash[:contributor] )
         creator = Array( work_hash[:creator] )
@@ -838,10 +839,44 @@ module Deepblue
         rights_license = build_rights_liscense( hash: work_hash )
         rights_license_other = work_hash[:rights_license_other]
         subject_discipline = build_subject_discipline( hash: work_hash )
+
+        identifier = Array( work_hash[:identifier] )
+        identifier_uniqname = Array( work_hash[:identifier_uniqname] )
+        identifier_orcid = Array( work_hash[:identifier_orcid] )
+        description_thesisdegreename = Array( work_hash[:description_thesisdegreename] )
+        description_thesisdegreediscipline = Array( work_hash[:description_thesisdegreediscipline] )
+        date_submitted = work_hash[:date_submitted]
+        contributor_advisor = Array( work_hash[:contributor_advisor] )
+        contributor_committeemember = Array( work_hash[:contributor_committeemember] )
+        description_abstract = Array( work_hash[:description_abstract] )
+        subject_other = Array( work_hash[:subject_other] )
+        description_thesisdegreegrantor = Array( work_hash[:description_thesisdegreegrantor] )
+
+        type_none = Array( work_hash[:type_none] )
+        identifier_other = Array( work_hash[:identifier_other] )
+        subject = Array( work_hash[:subject] )
+        identifier_uri = Array( work_hash[:identifier_uri] )
+
+    other_affiliation = Array( work_hash[:other_affiliation] )
+    contributor_affiliationumcampus = Array( work_hash[:contributor_affiliationumcampus] )
+    academic_affiliation = Array( work_hash[:academic_affiliation] )
+    alt_title = Array( work_hash[:alt_title] )
+    identifier_source = Array( work_hash[:identifier_source] )
+    publisher = Array( work_hash[:publisher] )
+    relation_ispartofseries = Array( work_hash[:relation_ispartofseries] )
+    description_sponsorship = Array( work_hash[:description_sponsorship] )
+    identifier_citedreference = Array( work_hash[:identifier_citedreference] )
+    peerreviewed = work_hash[:peerreviewed]
+    subject_hlbtoplevel = Array( work_hash[:subject_hlbtoplevel] )
+    subject_hlbsecondlevel = Array( work_hash[:subject_hlbsecondlevel] )
+
+
+
         title = Array( work_hash[:title] )
         id_new = MODE_MIGRATE == mode ? id : nil
         user_create_users( emails: authoremail )
-        work = new_data_set( authoremail: authoremail,
+        work = new_data_set( work_type: work_type,
+                             authoremail: authoremail,
                              contributor: contributor,
                              creator: creator,
                              curation_notes_admin: curation_notes_admin,
@@ -865,6 +900,38 @@ module Deepblue
                              rights_license: rights_license,
                              rights_license_other: rights_license_other,
                              subject_discipline: subject_discipline,
+
+                             identifier: identifier,
+                             identifier_uniqname: identifier_uniqname,
+                             identifier_orcid: identifier_orcid,
+                             description_thesisdegreename: description_thesisdegreename,
+                             description_thesisdegreediscipline: description_thesisdegreediscipline,
+                             date_submitted: date_submitted,
+                             contributor_advisor: contributor_advisor,
+                             contributor_committeemember: contributor_committeemember,
+                             description_abstract: description_abstract,
+                             subject_other: subject_other,
+                             description_thesisdegreegrantor: description_thesisdegreegrantor,
+
+                       type_none: type_none,
+                       identifier_other: identifier_other,
+                       subject: subject,
+                       identifier_uri: identifier_uri,
+
+
+    other_affiliation: other_affiliation,
+    contributor_affiliationumcampus: contributor_affiliationumcampus,
+    academic_affiliation: academic_affiliation,
+    alt_title: alt_title,
+    identifier_source: identifier_source,
+    publisher: publisher,
+    relation_ispartofseries: relation_ispartofseries,
+    description_sponsorship: description_sponsorship,
+    identifier_citedreference: identifier_citedreference,
+    peerreviewed: peerreviewed,
+    subject_hlbtoplevel: subject_hlbtoplevel,
+    subject_hlbsecondlevel: subject_hlbsecondlevel,
+
                              title: title )
 
         depositor = build_depositor( hash: work_hash )
@@ -1652,7 +1719,8 @@ module Deepblue
         end
       end
 
-      def new_data_set( authoremail:,
+      def new_data_set( work_type:,
+                        authoremail:,
                         contributor:,
                         creator:,
                         curation_notes_admin:,
@@ -1676,6 +1744,38 @@ module Deepblue
                         rights_license:,
                         rights_license_other:,
                         subject_discipline:,
+
+                        identifier:,
+                        identifier_uniqname:,
+                        identifier_orcid:,
+                        description_thesisdegreename:,
+                        description_thesisdegreediscipline:,
+                        date_submitted:,
+                        contributor_advisor:,
+                        contributor_committeemember:,
+                        description_abstract:,
+                        subject_other:,
+                        description_thesisdegreegrantor:,
+
+                       type_none:,
+                       identifier_other:,
+                       subject:,
+                       identifier_uri:,
+
+    other_affiliation:,
+    contributor_affiliationumcampus:,
+    academic_affiliation:,
+    alt_title:,
+    identifier_source:,
+    publisher:,
+    relation_ispartofseries:,
+    description_sponsorship:,
+    identifier_citedreference:,
+    peerreviewed:,
+    subject_hlbtoplevel:,
+    subject_hlbsecondlevel:,
+
+
                         title: )
         if id.present?
           DataSet.new( authoremail: authoremail,
@@ -1704,7 +1804,111 @@ module Deepblue
                        subject_discipline: subject_discipline,
                        title: title )
         else
-          DataSet.new( authoremail: authoremail,
+          if ( work_type == "Dissertation" )
+                      Dissertation.new( authoremail: authoremail,
+                       contributor: contributor,
+                       creator: creator,
+                       curation_notes_admin: curation_notes_admin,
+                       curation_notes_user: curation_notes_user,
+                       date_coverage: date_coverage,
+                       date_created: date_created,
+                       date_modified: date_modified,
+                       date_uploaded: date_uploaded,
+                       description: description,
+                       doi: doi,
+                       fundedby: fundedby,
+                       fundedby_other: fundedby_other,
+                       grantnumber: grantnumber,
+                       keyword: keyword,
+                       language: language,
+                       methodology: methodology,
+                       prior_identifier: prior_identifier,
+                       referenced_by: referenced_by,
+                       resource_type: resource_type,
+                       rights_license: rights_license,
+                       rights_license_other: rights_license_other,
+                       subject_discipline: subject_discipline,
+
+                       identifier: identifier,
+                       identifier_uniqname: identifier_uniqname,
+                       identifier_orcid: identifier_orcid,
+                       description_thesisdegreename: description_thesisdegreename,
+                       description_thesisdegreediscipline: description_thesisdegreediscipline,
+                       date_submitted: date_submitted,
+                       contributor_advisor: contributor_advisor,
+                       contributor_committeemember: contributor_committeemember,
+                       description_abstract: description_abstract,
+                       subject_other: subject_other,
+                       description_thesisdegreegrantor: description_thesisdegreegrantor,
+
+                       type_none: type_none,
+                       identifier_other: identifier_other,
+                       subject: subject,
+                       identifier_uri: identifier_uri,
+
+                       title: title ) 
+
+
+          elsif ( work_type == "Doc" )
+
+                     Doc.new( authoremail: authoremail,
+                       contributor: contributor,
+                       creator: creator,
+                       curation_notes_admin: curation_notes_admin,
+                       curation_notes_user: curation_notes_user,
+                       date_coverage: date_coverage,
+                       date_created: date_created,
+                       date_modified: date_modified,
+                       date_uploaded: date_uploaded,
+                       description: description,
+                       doi: doi,
+                       fundedby: fundedby,
+                       fundedby_other: fundedby_other,
+                       grantnumber: grantnumber,
+                       keyword: keyword,
+                       language: language,
+                       methodology: methodology,
+                       prior_identifier: prior_identifier,
+                       referenced_by: referenced_by,
+                       resource_type: resource_type,
+                       rights_license: rights_license,
+                       rights_license_other: rights_license_other,
+                       subject_discipline: subject_discipline,
+
+                       identifier: identifier,
+                       identifier_uniqname: identifier_uniqname,
+                       identifier_orcid: identifier_orcid,
+                       description_thesisdegreename: description_thesisdegreename,
+                       description_thesisdegreediscipline: description_thesisdegreediscipline,
+                       date_submitted: date_submitted,
+                       contributor_advisor: contributor_advisor,
+                       contributor_committeemember: contributor_committeemember,
+                       description_abstract: description_abstract,
+                       subject_other: subject_other,
+                       description_thesisdegreegrantor: description_thesisdegreegrantor,
+
+                       type_none: type_none,
+                       identifier_other: identifier_other,
+                       subject: subject,
+                       identifier_uri: identifier_uri,
+
+
+    other_affiliation: other_affiliation,
+    contributor_affiliationumcampus: contributor_affiliationumcampus,
+    academic_affiliation: academic_affiliation,
+    alt_title: alt_title,
+    identifier_source: identifier_source,
+    publisher: publisher,
+    relation_ispartofseries: relation_ispartofseries,
+    description_sponsorship: description_sponsorship,
+    identifier_citedreference: identifier_citedreference,
+    peerreviewed: peerreviewed,
+    subject_hlbtoplevel: subject_hlbtoplevel,
+    subject_hlbsecondlevel: subject_hlbsecondlevel,
+
+                       title: title )                                   
+          else
+                      DataSet.new( authoremail: authoremail,
                        contributor: contributor,
                        creator: creator,
                        curation_notes_admin: curation_notes_admin,
@@ -1728,6 +1932,7 @@ module Deepblue
                        rights_license_other: rights_license_other,
                        subject_discipline: subject_discipline,
                        title: title )
+          end
         end
       end
 

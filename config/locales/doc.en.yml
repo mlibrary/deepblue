@@ -1,0 +1,8 @@
+en:
+  hyrax:
+    icons:
+      doc:     'fa fa-file-text-o'
+    select_type:
+      doc:
+        description:        "Doc works"
+        name:               "Doc"

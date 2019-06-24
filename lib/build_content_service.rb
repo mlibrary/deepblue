@@ -18,6 +18,7 @@ class BuildContentService < Deepblue::NewContentService
                                    options: options )
     bcs.run
   rescue Exception => e
+    puts "Error parsing yml file: #{e.message}"
     Rails.logger.error "BuildContentService.call(#{path_to_yaml_file}) #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
   end
 

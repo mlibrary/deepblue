@@ -92,5 +92,8 @@ Rails.application.configure do
   # This is to solve issue 362 : logo and banner files not shoing up on public dir
   # But did show up on testing and local
   # https://stackoverflow.com/questions/5914848/ruby-on-rails-error-accessing-to-public-directory
-  config.serve_static_files = true
+  #config.serve_static_files = true
+
+
+  config.public_file_server.enabled = true
 end

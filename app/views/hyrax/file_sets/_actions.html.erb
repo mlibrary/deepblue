@@ -16,11 +16,13 @@
     </li>
 
     <% if can?(:edit, file_set.id) %>
+      <% if defined? @presenter.doi_minted? %>
       <% unless @presenter.doi_minted? && !current_ability.admin? %>
         <li role="menuitem" tabindex="-1">
           <%= link_to t('.edit'), edit_polymorphic_path([main_app, file_set]),
             { title: t('.edit_title', file_set: file_set) } %>
         </li>
+      <% end %>
       <% end %>
 
       <li role="menuitem" tabindex="-1">
@@ -30,12 +32,14 @@
     <% end %>
 
     <% if can?(:destroy, file_set.id) %> 
+      <% if defined? @presenter.doi_minted? %>
       <% unless @presenter.doi_minted? && !current_ability.admin? %>
         <li role="menuitem" tabindex="-1">
           <%= link_to t('.delete'), polymorphic_path([main_app, file_set]),
             method: :delete, title: t('.delete_title', file_set: file_set),
             data: { confirm: t('.delete_confirm', file_set: file_set, application_name: application_name) } %>
         </li>
+      <% end %>
       <% end %>
     <% end %>
   <% elsif @presenter.workflow.state == "deposited" %>

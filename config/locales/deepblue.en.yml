@@ -261,7 +261,7 @@ en:
       fields:
         facet:
           generic_type_sim: Type
-          human_readable_type_sim: Readable
+          human_readable_type_sim: Work Type
           subject_sim: Discipline
         index:
           subject_tesim: Discipline

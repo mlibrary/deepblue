@@ -1,9 +1,13 @@
 <%# See: for attribute_to_html parameter details, see Hyrax gem pp/presenters/hyrax/presents_attributes.rb %>
 <%# parameters: include_empty, label, render_as, search_field, work_type %>
+<% if defined? presenter.methodology %>
+<% unless presenter.methodology.nil? %>
 <% presenter.methodology.each do |methodology| %>
     <tr><th>Methodology</th><td><ul class='tabular'><li class="attribute attribute-methodology"><span itemprop="methodology">
        <%= raw ("<span class=\"more\">" + iconify_auto_link(methodology) + "</span>") %>
     </span></li></ul></td></tr>
+<% end %>
+<% end %>
 <% end %>
 
 <tr><th>Description</th><td><ul class='tabular_list'>
@@ -31,6 +35,7 @@
 <% @presenter.depositor.gsub!('TOMBSTONE-', '') %>
 <%= raw (@presenter.attribute_to_html(:depositor)).gsub!('at_sign_at', '@') %>
 
+
 <%= presenter.attribute_to_html(:authoremail, render_as: :faceted, label: t('show.label.authoremail'), work_type: "DataSet" ) %>
 <%= presenter.attribute_to_html(:contributor, render_as: :faceted) %>
 <%= presenter.attribute_to_html(:subject_discipline, render_as: :faceted, label: t('show.label.subject_discipline')) %>
@@ -40,6 +45,35 @@
 
 <%= presenter.attribute_to_html(:keyword, render_as: :faceted) %>
 
+
+
+
+<%= presenter.attribute_to_html(:title, label: t('show.label.title') ) %>
+<%= presenter.attribute_to_html(:identifier,   label: t('show.label.identifier') ) %>
+<%= presenter.attribute_to_html(:creator,  label: t('show.label.creator') ) %>
+<%= presenter.attribute_to_html(:identifier_orcid,  label: t('show.label.identifier_orcid') ) %>
+<%= presenter.attribute_to_html(:description_thesisdegreename,  label: t('show.label.description_thesisdegreename') ) %>
+<%= presenter.attribute_to_html(:type_snre,  label: t('show.label.type_snre') ) %>
+<%= presenter.attribute_to_html(:description_thesisdegreediscipline,  label: t('show.label.description_thesisdegreediscipline') ) %>
+<%= presenter.attribute_to_html(:date_issued,  label: t('show.label.date_issued') ) %>
+<%= presenter.attribute_to_html(:date_submitted,  label: t('show.label.date_submitted') ) %>
+<%= presenter.attribute_to_html(:contributor_advisor,  label: t('show.label.contributor_advisor') ) %>
+<%= presenter.attribute_to_html(:contributor_committeemember,  label: t('show.label.contributor_committeemember') ) %>
+<%= presenter.attribute_to_html(:description_abstract,  label: t('show.label.description_abstract') ) %>
+<%= presenter.attribute_to_html(:keyword,  label: t('show.label.keyword') ) %>
+<%= presenter.attribute_to_html(:subject_other,  label: t('show.label.subject_other') ) %>
+<%= presenter.attribute_to_html(:description_thesisdegreegrantor,  label: t('show.label.description_thesisdegreegrantor') ) %>
+<%= presenter.attribute_to_html(:rights_statement, label: t('show.label.rights_statement') ) %>
+
+
+<%= presenter.attribute_to_html(:identifier_uri,  label: t('show.label.identifier_uri') ) %>
+<%= presenter.attribute_to_html(:identifier_other,  label: t('show.label.identifier_other') ) %>
+<%= presenter.attribute_to_html(:type_none,  label: t('show.label.type_none') ) %>
+<%= presenter.attribute_to_html(:subject, label: t('show.label.subject') ) %>
+
+
+
+
 <span itemprop="temporalCoverage">
   <%= presenter.attribute_to_html(:date_coverage, label: t('show.label.date_coverage') ) %>
 </span>
@@ -48,6 +82,7 @@
 <%= presenter.attribute_to_html(:publisher, render_as: :faceted) %>
 <%= presenter.attribute_to_html(:resource_type, render_as: :faceted) %>
 
+<% if defined? presenter.curation_notes_user %>
 <% if @presenter.curation_notes_user.present? %>
   <tr><th>Curation notes</th><td><ul class='tabular_list'>
   <% num_para = @presenter.curation_notes_user.count %>
@@ -63,6 +98,8 @@
   <% end %>
   </ul></td></tr>
 <% end %>
+<% end %>
+<% if defined? presenter.curation_notes_admin %>
 <% if @presenter.curation_notes_admin.present? && current_ability.admin? %>
   <tr><th>Admin curation notes</th><td><ul class='tabular_list'>
   <% num_para = @presenter.curation_notes_admin.count %>
@@ -78,6 +115,7 @@
   <% end %>
   </ul></td></tr>
 <% end %>
+<% end %>
 <%= presenter.attribute_to_html(:date_modified, label: t('hyrax.base.show.last_modified') ) %>
 <%= presenter.attribute_to_html(:language, render_as: :faceted, label: t('show.label.language') ) %>
 
@@ -89,16 +127,22 @@
 
 <%= presenter.attribute_to_html(:source) %>
 
+<% if defined? @presenter.doi_the_correct_one %>
 <span itemprop="identifier" itemscope itemtype="http://schema.org/Identifier">
   <% unless @presenter.doi_the_correct_one.nil? %>
     <% @presenter.doi_the_correct_one[0].sub! 'doi:', 'https://doi.org/' %>
   <% end %>
   <%= @presenter.attribute_to_html(:doi_the_correct_one, label: t('show.label.doi'), work_type: "DataSet") %>
 </span>
+<% end %>
 
+<% if defined? presenter.rights_license %>
+<% unless presenter.rights_license.nil? %>
 <span itemprop="license">
   <span class="hide"><%= presenter.rights_license[0] %></span>
 </span>
+<% end %>
+<% end %>
 
 <%= presenter.attribute_to_html(:rights_license, render_as: :rights_license, label: t('show.label.rights_license'), work_type: "DataSet" ) %>
 
@@ -111,13 +155,22 @@
   <%= presenter.attribute_to_html(:prior_identifier, label: t('show.label.prior_identifier') ) %>
 <% end %>
 <%# "secondary" attributes %>
-<%= presenter.attribute_to_html(:description_abstract) %>
+<%= presenter.attribute_to_html(:publisher) %>
+<%= presenter.attribute_to_html(:relation_ispartofseries) %>
+<%= presenter.attribute_to_html(:description_sponsorship) %>
+<%= presenter.attribute_to_html(:identifier_citedreference) %>
+<%= presenter.attribute_to_html(:peerreviewed) %>
+<%= presenter.attribute_to_html(:subject_hlbtoplevel) %>
+<%= presenter.attribute_to_html(:subject_hlbsecondlevel) %>
+
+
+
 <%= presenter.attribute_to_html(:identifier_orcid) %>
 <%= presenter.attribute_to_html(:academic_affiliation) %>
 <%= presenter.attribute_to_html(:other_affiliation) %>
 <%= presenter.attribute_to_html(:contributor_affiliationumcampus) %>
 <%= presenter.attribute_to_html(:alt_title) %>
-<%= presenter.attribute_to_html(:date_issued) %>
+
 <%= presenter.attribute_to_html(:identifier_source) %>
 <%= presenter.attribute_to_html(:peerreviewed) %>
 <%= presenter.attribute_to_html(:bibliographic_citation) %>

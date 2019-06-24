@@ -1,4 +1,6 @@
-<% if f.object.data_set? %>
+<%# byebug %>
+
+<% if f.object.class.to_s == "Hyrax::DataSetForm" %>
   <div>
     <p class="describe_sub"><%= raw t('simple_form.hints.data_set.describe_work') %></p>
   </div>

@@ -1,9 +1,9 @@
 # Generated via
-#  `rails generate hyrax:work Dissertation`
-class Dissertation < ActiveFedora::Base
+#  `rails generate hyrax:work Doc`
+class Doc < ActiveFedora::Base
   include ::Hyrax::WorkBehavior
 
-  self.indexer = DissertationIndexer
+  self.indexer = DocIndexer
   # Change this to restrict which works can be added as a child.
   # self.valid_child_concerns = []
   validates :title, presence: { message: 'Your work must have a title.' }
@@ -26,7 +26,6 @@ class Dissertation < ActiveFedora::Base
   include ::Deepblue::ProvenanceBehavior
   include ::Deepblue::DoiBehavior
   include ::Deepblue::WorkflowEventBehavior
-
 
 
 end

@@ -1,3 +1,8 @@
   <% if presenter.tombstone.present? %>
     <h2 class="alert-warning">This work is Tombstoned. Only the metadata is available for viewing. The reason for tombstoning this work is: <%=presenter.tombstone %></h2>
   <% end %>
+
+<h1 class="work-type-tag">
+  <span class="<%= Hyrax::ModelIcon.css_class_for(presenter.model) %>" aria-hidden="true"></span>
+  <%= presenter.human_readable_type %>
+</h1>

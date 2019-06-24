@@ -144,6 +144,20 @@ class SolrDocument
   end
 
   solrized_methods [
+    'other_affiliation',
+    'contributor_affiliationumcampus',
+    'academic_affiliation',
+    'alt_title',
+    'identifier_source',
+    'publisher',
+    'relation_ispartofseries',
+    'description_sponsorship',
+    'identifier_citedreference',
+    'peerreviewed',
+    'subject_hlbtoplevel',
+    'subject_hlbsecondlevel',
+    'identifier_other',
+    'identifier_uri',
     'abstract',
     'academic_affiliation',
     'additional_information',
