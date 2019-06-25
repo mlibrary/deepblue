@@ -8,6 +8,7 @@ module Hyrax
   # monkey patch methods that don't specify row count to return from search_with_conditions.
   # The default value for row count leads to errors for works with large numbers of files.
   module CollectionBehavior
+    include ::Deepblue::WorkflowEventBehavior
 
     # Compute the sum of each file in the collection using Solr to
     # avoid having to access Fedora
