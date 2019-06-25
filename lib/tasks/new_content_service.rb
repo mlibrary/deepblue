@@ -291,6 +291,22 @@ module Deepblue
         return collection
       end
 
+      def add_work_to_parent_ids( work_hash:, work: )
+        in_collections = work_hash[:in_collections]
+        return if in_collections.blank?
+        in_collections.each do |collection_id|
+          begin
+          next if work.member_of_collection_ids.include? collection_id
+            collection = Collection.find( collection_id )
+            work.member_of_collections << collection
+            log_provenance_add_child( parent: collection, child: work )
+            work.save!
+          rescue ActiveFedora::ObjectNotFoundError
+            puts "Collection #{collection_id} not found. Unable to add work #{work.id} to it."
+          end
+        end
+      end
+
       def admin_set_default
         @admin_set_default ||= AdminSet.find( AdminSet::DEFAULT_ID )
         # @admin_set_default ||= AdminSet.find_or_create_default_admin_set_id
@@ -709,11 +725,12 @@ module Deepblue
         mode = work_hash[:mode]
         mode = MODE_BUILD if id.blank?
         work = nil
-        work = TaskHelper.work_find( id ) if MODE_APPEND == mode
+        work = find_work_using_id( id ) if MODE_APPEND == mode
         work = build_work( id: id, work_hash: work_hash, parent: parent ) if work.nil?
         return nil if work.nil?
         log_object work if work.present?
         add_file_sets_to_work( work_hash: work_hash, work: work )
+        add_work_to_parent_ids( work_hash: work_hash, work: work )
         doi_mint( curation_concern: work )
         return work
       end
@@ -2197,6 +2214,8 @@ module Deepblue
                 puts "#{attr_prefix work}: updated"
                 puts "#{updates.join("\n")}"
               end
+              add_work_to_parent_ids( work_hash: work_hash, work: work )
+              doi_mint( curation_concern: work )
             end
           end
           next if work.blank?
