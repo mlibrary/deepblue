@@ -26,6 +26,7 @@ RSpec.describe DataSet do
       date_coverage
       date_created
       date_modified
+      date_published
       date_updated
       depositor
       description
@@ -250,7 +251,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_mint_doi( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 37,
+                                     size: 38,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -299,7 +300,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_publish( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 38,
+                                     size: 39,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -349,7 +350,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_unpublish( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 37,
+                                     size: 38,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -438,7 +439,7 @@ RSpec.describe DataSet do
       expect( subject.entomb!( epitaph, current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 40,
+                                     size: 41,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -573,6 +574,7 @@ RSpec.describe DataSet do
                                      exp_date_coverage: '',
                                      exp_date_created: '',
                                      exp_date_modified: '',
+                                     exp_date_published: '',
                                      exp_date_updated: [],
                                      exp_depositor: '',
                                      exp_description: [],
@@ -628,6 +630,7 @@ RSpec.describe DataSet do
     validate_expected( rv_key_values, :date_coverage, exp_date_coverage )
     validate_expected( rv_key_values, :date_created, exp_date_created )
     validate_expected( rv_key_values, :date_modified, exp_date_modified )
+    validate_expected( rv_key_values, :date_published, exp_date_published )
     validate_expected( rv_key_values, :date_updated, exp_date_updated )
     validate_expected( rv_key_values, :depositor, exp_depositor )
     validate_expected( rv_key_values, :description, exp_description )

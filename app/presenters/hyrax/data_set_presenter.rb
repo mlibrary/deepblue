@@ -8,6 +8,7 @@ module Hyrax
               :curation_notes_admin,
               :curation_notes_user,
               :date_coverage,
+              :date_published, :date_published2,
               :doi, :doi_the_correct_one,
               :doi_minted?,
               :doi_minting_enabled?,

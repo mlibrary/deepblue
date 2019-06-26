@@ -114,9 +114,11 @@ class CatalogController < ApplicationController
     config.add_show_field solr_name("publisher", :stored_searchable)
     config.add_show_field solr_name("based_near_label", :stored_searchable)
     config.add_show_field solr_name("language", :stored_searchable)
-    config.add_show_field solr_name("date_uploaded", :stored_searchable)
-    config.add_show_field solr_name("date_modified", :stored_searchable)
     config.add_show_field solr_name("date_created", :stored_searchable)
+    config.add_show_field solr_name("date_modified", :stored_searchable)
+    config.add_show_field solr_name("date_published", :stored_searchable), label: "Published"
+    config.add_show_field "date_published_dtsim"
+    config.add_show_field solr_name("date_uploaded", :stored_searchable)
     config.add_show_field solr_name("rights_license", :stored_searchable)
     config.add_show_field solr_name("rights_statement", :stored_searchable)
     config.add_show_field solr_name("license", :stored_searchable)
