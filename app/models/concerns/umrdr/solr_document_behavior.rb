@@ -21,6 +21,14 @@ module Umrdr
       Array(self[Solrizer.solr_name('date_coverage')]).first
     end
 
+    def date_published
+      date_published2
+    end
+
+    def date_published2
+      self[ 'date_published_dtsim' ]
+    end
+
     ## begin DOI methods
 
     def doi

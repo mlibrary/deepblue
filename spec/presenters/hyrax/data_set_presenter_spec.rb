@@ -25,6 +25,7 @@ RSpec.describe Hyrax::DataSetPresenter do
   it { is_expected.to delegate_method(:curation_notes_user).to(:solr_document) }
   it { is_expected.to delegate_method(:date_created).to(:solr_document) }
   it { is_expected.to delegate_method(:date_modified).to(:solr_document) }
+  it { is_expected.to delegate_method(:date_published).to(:solr_document) }
   it { is_expected.to delegate_method(:date_uploaded).to(:solr_document) }
   it { is_expected.to delegate_method(:fundedby).to(:solr_document) }
   it { is_expected.to delegate_method(:fundedby_other).to(:solr_document) }

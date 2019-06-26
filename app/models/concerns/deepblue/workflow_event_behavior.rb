@@ -47,6 +47,26 @@ module Deepblue
                                              "event_note=#{event_note}",
                                              "message=#{message}",
                                              "" ]
+      if respond_to? :date_published
+        # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+        #                                        Deepblue::LoggingHelper.called_from,
+        #                                        "self.date_modified=#{self.date_modified}",
+        #                                        "self.date_published=#{self.date_published}",
+        #                                        "" ]
+        self.date_published = Hyrax::TimeService.time_in_utc
+        self.date_modified = DateTime.now
+        self.save!
+        # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+        #                                        Deepblue::LoggingHelper.called_from,
+        #                                        "self.date_modified=#{self.date_modified}",
+        #                                        "self.date_published=#{self.date_published}",
+        #                                        "" ]
+      else
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "does not respond to :date_published",
+                                               "" ]
+      end
       provenance_publish( current_user: current_user, event_note: event_note, message: message )
       email_rds_publish( current_user: current_user, event_note: event_note, message: message )
     end

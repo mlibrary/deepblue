@@ -17,6 +17,7 @@ en:
           creator_tesim: Creator
           date_created_tesim: Date Created
           date_modified_dtsi: Date Modified
+          date_published_dtsi: Date Published
           date_uploaded_dtsi: Date Uploaded
           description_tesim: Description
           file_format_tesim: File Format
@@ -35,6 +36,7 @@ en:
           creator_tesim: Creator
           date_created_tesim: Date Created
           date_modified_dtsi: Date Modified
+          date_published_dtsi: Date Published
           date_uploaded_dtsi: Date Uploaded
           description_tesim: Description
           file_format_tesim: File Format

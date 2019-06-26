@@ -31,6 +31,7 @@ module Deepblue
                                             date_coverage
                                             date_created
                                             date_modified
+                                            date_published
                                             date_uploaded
                                             depositor
                                             description

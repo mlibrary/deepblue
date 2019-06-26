@@ -264,6 +264,7 @@ module Deepblue
           out << 'Id'
           out << ',' << 'Create date'
           out << ',' << 'Update date'
+          out << ',' << 'Published date'
           out << ',' << 'Depositor'
           out << ',' << 'Author email'
           out << ',' << 'Status'
@@ -280,6 +281,7 @@ module Deepblue
           out << work.id.to_s
           out << ',' << '"' << to_date( work.create_date ) << '"'
           out << ',' << '"' << to_date( work.date_modified ) << '"'
+          out << ',' << '"' << to_date( work.date_published ) << '"'
           out << ',' << '"' << work.depositor << '"'
           out << ',' << '"' << work.authoremail << '"'
           out << ',' << '"' << curation_concern_status( work ) << '"'

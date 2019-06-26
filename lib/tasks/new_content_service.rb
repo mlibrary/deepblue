@@ -20,7 +20,7 @@ module Deepblue
     DEFAULT_DATA_SET_ADMIN_SET_NAME = "DataSet Admin Set"
     DEFAULT_DIFF_ATTRS_SKIP = [ :creator_ordered,
                                 :curation_notes_admin_ordered, :curation_notes_user_ordered,
-                                :date_created, :date_modified, :date_uploaded,
+                                :date_created, :date_modified,
                                 :description_ordered,
                                 :keyword_ordered, :language_ordered,
                                 :referenced_by_ordered, :title_ordered,
@@ -29,6 +29,7 @@ module Deepblue
                                          :curation_notes_admin, :curation_notes_admin_ordered,
                                          :curation_notes_user, :curation_notes_user_ordered,
                                          :checksum_algorithm, :checksum_value,
+                                         :date_published,
                                          :description_ordered,
                                          :doi,
                                          :fundedby_other,
@@ -837,6 +838,7 @@ module Deepblue
         date_coverage = build_date_coverage( hash: work_hash )
         date_created = build_date( hash: work_hash, key: :date_created )
         date_modified = build_date( hash: work_hash, key: :date_modified )
+        date_published = build_date( hash: work_hash, key: :date_published )
         date_uploaded = build_date( hash: work_hash, key: :date_uploaded )
         description = Array( work_hash[:description] )
         description = ["Missing description"] if description.blank?
@@ -866,6 +868,7 @@ module Deepblue
                              date_coverage: date_coverage,
                              date_created: date_created,
                              date_modified: date_modified,
+                             date_published: date_published,
                              date_uploaded: date_uploaded,
                              description: description,
                              doi: doi,
@@ -1218,6 +1221,7 @@ module Deepblue
         diff_attr_value( diffs, work, attr_name: :date_coverage, value: build_date_coverage( hash: work_hash ) )
         diff_attr_value( diffs, work, attr_name: :date_created, value: build_date( hash: work_hash, key: :date_created ) )
         diff_attr_value( diffs, work, attr_name: :date_modified, value: build_date( hash: work_hash, key: :date_modified ) )
+        diff_attr_value( diffs, work, attr_name: :date_published, value: build_date( hash: work_hash, key: :date_published ) )
         diff_attr_value( diffs, work, attr_name: :date_uploaded, value: build_date( hash: work_hash, key: :date_uploaded ) )
         depositor = build_depositor( hash: work_hash )
         diff_attr_value( diffs, work, attr_name: :depositor, value: depositor )
@@ -1677,6 +1681,7 @@ module Deepblue
                         date_coverage:,
                         date_created:,
                         date_modified:,
+                        date_published:,
                         date_uploaded:,
                         description:,
                         doi:,
@@ -1703,6 +1708,7 @@ module Deepblue
                        date_coverage: date_coverage,
                        date_created: date_created,
                        date_modified: date_modified,
+                       date_published: date_published,
                        date_uploaded: date_uploaded,
                        description: description,
                        doi: doi,
@@ -1729,6 +1735,7 @@ module Deepblue
                        date_coverage: date_coverage,
                        date_created: date_created,
                        date_modified: date_modified,
+                       date_published: date_published,
                        date_uploaded: date_uploaded,
                        description: description,
                        doi: doi,
@@ -2159,6 +2166,7 @@ module Deepblue
         update_attr_value( updates, work, attr_name: :date_coverage, value: build_date_coverage(hash: work_hash ) )
         update_attr_value( updates, work, attr_name: :date_created, value: build_date(hash: work_hash, key: :date_created ) )
         update_attr_value( updates, work, attr_name: :date_modified, value: build_date(hash: work_hash, key: :date_modified ) )
+        update_attr_value( updates, work, attr_name: :date_published, value: build_date(hash: work_hash, key: :date_published ) )
         update_attr_value( updates, work, attr_name: :date_uploaded, value: build_date(hash: work_hash, key: :date_uploaded ) )
         depositor = build_depositor( hash: work_hash )
         update_attr_value( updates, work, attr_name: :depositor, value: depositor )

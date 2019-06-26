@@ -55,6 +55,10 @@ class SolrDocument
     self['curation_notes_user_label_ssim']
   end
 
+  def date_published_label
+    self['date_published_dtsim']
+  end
+
   def degree_field_label
     # references to ScholarsArchive raise ActionView::Template::Error (uninitialized constant SolrDocument::ScholarsArchive)
     # ScholarsArchive::LabelParserService.parse_label_uris(self['degree_field_label_ssim'])
@@ -166,6 +170,7 @@ class SolrDocument
     'date_collected',
     'date_copyright',
     'date_issued',
+    'date_published',
     'date_reviewed',
     'date_submitted',
     'date_valid',

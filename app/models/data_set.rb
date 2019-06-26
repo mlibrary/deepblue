@@ -52,6 +52,7 @@ class DataSet < ActiveFedora::Base
       date_coverage
       date_created
       date_modified
+      date_published
       date_updated
       depositor
       description
@@ -109,6 +110,7 @@ class DataSet < ActiveFedora::Base
       creator
       curation_notes_user
       date_coverage
+      date_published
       depositor
       description
       doi
