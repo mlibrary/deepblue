@@ -11,8 +11,8 @@ module Hyrax
           # setup formatted author list
           authors = author_list(work).reject(&:blank?)
           text << "<span class=\"citation-author\">#{format_authors(authors)}</span>"
- 
-          text << "(" + work.date_coverage + "). " if work.date_coverage.present?
+
+          text << "(" + work.date_published2.first[0,4] + "). " if work.date_published2.present?
 
           # setup title
           title_info = setup_title_info(work)
