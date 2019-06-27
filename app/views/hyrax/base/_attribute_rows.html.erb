@@ -101,10 +101,11 @@
   <span class="hide"><%= presenter.rights_license[0] %></span>
 </span>
 
-<%= presenter.attribute_to_html(:rights_license, render_as: :rights_license, label: t('show.label.rights_license'), work_type: "DataSet" ) %>
-
-
-<%= presenter.attribute_to_html(:rights_license_other, label: t('show.label.rights_license_other') ) %>
+<% if presenter.rights_license.first == "Other" %>
+  <%= presenter.attribute_to_html(:rights_license_other, label: t('show.label.rights_license') ) %>
+<% else %>
+  <%= presenter.attribute_to_html(:rights_license, render_as: :rights_license, label: t('show.label.rights_license'), work_type: "DataSet" ) %>
+<% end %>
 
 <%= presenter.attribute_to_html(:rights_statement, render_as: :rights_statement ) %>
 
