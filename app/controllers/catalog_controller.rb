@@ -34,7 +34,7 @@ class CatalogController < ApplicationController
       qt: "search",
       rows: 10,
       # qf: "title_tesim description_tesim creator_tesim keyword_tesim"
-      qf: "title_tesim name_tesim creator_tesim description_tesim grantnumber_tesim methodology_tesim subject_tesim keyword_tesim all_text_timv"
+      qf: "title_tesim name_tesim creator_tesim description_tesim grantnumber_tesim methodology_tesim subject_tesim keyword_tesim referenced_by_tesim all_text_timv"
     }
 
     # solr field configuration for document/show views
@@ -319,11 +319,19 @@ class CatalogController < ApplicationController
       }
     end
 
+    config.add_search_field('referenced_by') do |field|
+      solr_name = solr_name("referenced_by", :stored_searchable)
+      field.solr_local_parameters = {
+          qf: solr_name,
+          pf: solr_name
+      }
+    end
+
     config.add_search_field('resource_type') do |field|
       solr_name = solr_name("resource_type", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
