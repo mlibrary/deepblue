@@ -4,19 +4,18 @@ module Deepblue
 
   require_relative './log_filter'
   require_relative './log_reporter'
-  require_relative './log_filter'
   require_relative  '../../models/concerns/deepblue/abstract_event_behavior.rb'
-
-  class PublishedLogFilter < EventLogFilter
-
-    def initialize
-      super( matching_events: [ AbstractEventBehavior::EVENT_PUBLISH ] )
-    end
-
-  end
 
   # rubocop:disable Metrics/ParameterLists
   class PublicationLogReporter < LogReporter
+
+    class PublishedLogFilter < EventLogFilter
+
+      def initialize
+        super( matching_events: [ AbstractEventBehavior::EVENT_PUBLISH ] )
+      end
+
+    end
 
     attr_reader :published_id, :published_id_to_key_values_map
 
