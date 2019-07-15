@@ -6,6 +6,16 @@ module Umrdr
 
     included do
 
+      property :access_deepblue, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#access_deepblue'), multiple: true do |index|
+        index.type :text
+        index.as :stored_searchable
+      end
+
+      property :access_deepblue_ordered, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#access_deepblue_ordered'), multiple: false do |index|
+        index.type :text
+        index.as :stored_searchable
+      end
+
       property :authoremail, predicate: ::RDF::Vocab::FOAF.mbox, multiple: false do |index|
         index.type :text
         index.as :stored_searchable

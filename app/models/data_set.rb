@@ -44,6 +44,7 @@ class DataSet < ActiveFedora::Base
 
   def metadata_keys_all
     %i[
+      access_deepblue
       admin_set_id
       authoremail
       creator
@@ -106,6 +107,7 @@ class DataSet < ActiveFedora::Base
 
   def metadata_keys_report
     %i[
+      access_deepblue
       authoremail
       creator
       curation_notes_user
@@ -438,6 +440,17 @@ class DataSet < ActiveFedora::Base
     self.referenced_by_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: referenced_by_ordered, values: values )
     super values
   end
+
+  def access_deepblue
+    values = super
+    values = Deepblue::MetadataHelper.ordered( ordered_values: access_deepblue_ordered, values: values )
+    return values
+  end
+
+  def access_deepblue=( values )
+    self.access_deepblue_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: access_deepblue_ordered, values: values )
+    super values
+  end 
 
   # the list of title is ordered
   def title

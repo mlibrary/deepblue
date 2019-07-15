@@ -45,6 +45,8 @@
 </span>
 
 <%= presenter.attribute_to_html(:referenced_by, label: t('show.label.referenced_by') ) %>
+<%= presenter.attribute_to_html(:access_deepblue, label: t('show.label.access_deepblue') ) %>
+
 <%= presenter.attribute_to_html(:publisher, render_as: :faceted) %>
 <%= presenter.attribute_to_html(:resource_type, render_as: :faceted) %>
 

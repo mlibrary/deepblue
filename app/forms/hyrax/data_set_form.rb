@@ -24,6 +24,7 @@ module Hyrax
         subject_discipline
         curation_notes_admin
         curation_notes_user
+        access_deepblue
       ]
 
     self.default_work_primary_terms =
@@ -45,6 +46,7 @@ module Hyrax
         referenced_by
         curation_notes_admin
         curation_notes_user
+        access_deepblue
       ]
 
     self.default_work_secondary_terms = []

@@ -23,6 +23,7 @@ module Hyrax
               :rights_license_other,
               :subject_discipline,
               :total_file_size,
+              :access_deepblue,
               to: :solr_document
 
     # def initialize( solr_document, current_ability, request = nil )

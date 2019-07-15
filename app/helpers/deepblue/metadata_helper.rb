@@ -57,6 +57,8 @@ module Deepblue
                                             title
                                             title_ordered
                                             tombstone
+                                            access_deepblue
+                                            access_deepblue_ordered
                                             total_file_size ].freeze
     ATTRIBUTE_NAMES_ALWAYS_INCLUDE_FILE_SET = %w[ creator
                                                   curation_notes_admin

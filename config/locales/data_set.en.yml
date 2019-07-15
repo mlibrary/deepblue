@@ -45,6 +45,7 @@ en:
         local_upload_no_dir_html: "<p>Upload data files (e.g. .xls, .sas) and documentation files (e.g. codebooks, readme.txt).</p><p>You must include some form of documentation for your dataset to be reviewed and published. See the <a href=\"https://deepblue.lib.umich.edu/data/dbd-documentation-guide\" target=\"_blank\">Guide to Creating Documentation for Your Dataset</a> for more information.</p>"
   show:
     label:
+      access_deepblue:      "Article access in Deep Blue"
       authoremail:          "Contact information"
       creator:              "Creator"
       date_coverage:        "Date coverage"
@@ -95,6 +96,7 @@ en:
           Are you sure you want to delete all Globus files in this works download directory?
     labels:
       data_set:
+        access_deepblue:      "Article access in Deep Blue"
         authoremail:          "Contact Information"
         admin_set_id:         "Add as member of administrative set"
         based_near:           "Location"
@@ -137,6 +139,8 @@ en:
         title:                "Title"
     hints:
       data_set:
+        access_deepblue: >
+          If the article(s) accompanying your dataset are available in <a href='https://deepblue.lib.umich.edu/documents' target='_blank'>Deep Blue</a>, enter the handle for the record(s) here. If you have questions about depositing your article(s) in Deep Blue, please <a href='https://deepblue.lib.umich.edu/data/contact' target='_blank'>contact us</a>.
         authoremail: >
           Enter the contact information (email address) for the individual who can best respond to questions about the
           Work.
