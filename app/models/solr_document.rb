@@ -75,6 +75,10 @@ class SolrDocument
     self['doi_label_ssim']
   end
 
+  def access_deepblue_label
+    self['access_deepblue_label_ssim']
+  end
+
   def fundedby_label
     self['fundedby_label_ssim']
   end

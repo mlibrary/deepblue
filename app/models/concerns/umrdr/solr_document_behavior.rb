@@ -5,6 +5,10 @@ module Umrdr
   module SolrDocumentBehavior
     extend ActiveSupport::Concern
 
+    def access_deepblue 
+      fetch(Solrizer.solr_name('access_deepblue'), [])
+    end
+
     def authoremail
       Array(self[Solrizer.solr_name('authoremail')]).first
     end

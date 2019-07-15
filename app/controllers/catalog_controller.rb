@@ -243,6 +243,15 @@ class CatalogController < ApplicationController
       }
     end
 
+    config.add_search_field('access_deepblue') do |field|
+      field.label = "Article access to Deep Blue"
+      solr_name = solr_name("access_deepblue_label", :stored_searchable)
+      field.solr_local_parameters = {
+        qf: solr_name,
+        pf: solr_name
+      }
+    end
+
     config.add_search_field('fundedby_other') do |field|
       field.label = "Funded By Other"
       solr_name = solr_name("fundedby_other_label", :stored_searchable)
