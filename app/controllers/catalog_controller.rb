@@ -20,6 +20,9 @@ class CatalogController < ApplicationController
     config.view.masonry.partials = [:index]
     config.view.slideshow.partials = [:index]
 
+    # set maximum results per page to support bootstrap page sorting
+    # in dashboard.
+    config.max_per_page = 1000000
 
     config.show.tile_source_field = :content_metadata_image_iiif_info_ssm
     config.show.partials.insert(1, :openseadragon)
