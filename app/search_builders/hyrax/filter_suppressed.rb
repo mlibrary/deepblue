@@ -12,7 +12,6 @@ module Hyrax
       #                                        ::Deepblue::LoggingHelper.called_from,
       #                                        "solr_parameters=#{solr_parameters}",
       #                                        "" ]
-#byebug
       if ( current_ability.admin? || depositor? )
         solr_parameters[:fq] ||= [] 
       else
@@ -26,13 +25,6 @@ module Hyrax
 
       def current_work
         ::SolrDocument.find(blacklight_params[:id])
-      end
-
-      def user_has_active_workflow_role?
-        Hyrax::Workflow::PermissionQuery.scope_permitted_workflow_actions_available_for_current_state(user: current_ability.current_user, entity: current_work).any?
-      rescue PowerConverter::ConversionError
-        # The current_work doesn't have a sipity workflow entity
-        false
       end
 
       def depositor?
