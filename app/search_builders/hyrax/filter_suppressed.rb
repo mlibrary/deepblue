@@ -12,12 +12,18 @@ module Hyrax
       #                                        ::Deepblue::LoggingHelper.called_from,
       #                                        "solr_parameters=#{solr_parameters}",
       #                                        "" ]
-      if ( current_ability.admin? || depositor? )
-        solr_parameters[:fq] ||= [] 
+      unless ( defined?(blacklight_params) == nil )
+        if ( current_ability.admin? || depositor? )
+          solr_parameters[:fq] ||= [] 
+        else
+          solr_parameters[:fq] ||= []
+          solr_parameters[:fq] << '-suppressed_bsi:true'
+        end
       else
         solr_parameters[:fq] ||= []
         solr_parameters[:fq] << '-suppressed_bsi:true'
       end
+
     end
 
 
