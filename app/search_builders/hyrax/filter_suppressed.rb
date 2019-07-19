@@ -12,7 +12,7 @@ module Hyrax
       #                                        ::Deepblue::LoggingHelper.called_from,
       #                                        "solr_parameters=#{solr_parameters}",
       #                                        "" ]
-      if ( !current_ability.admin? )
+      if ( current_ability.admin? )
         solr_parameters[:fq] ||= []   
       elsif ( blacklight_params[:id] == nil )
         solr_parameters[:fq] ||= []
