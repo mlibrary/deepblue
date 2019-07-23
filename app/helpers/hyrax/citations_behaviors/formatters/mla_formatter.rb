@@ -18,7 +18,7 @@ module Hyrax
           title_info = setup_title_info(work)
           text << format_title(title_info)
 
-          text << " [Data set]. University of Michigan Deep Blue Data Repository. "
+          text << " [Data set]. University of Michigan - Deep Blue. "
 
           # Publication - for now, not interested in putting this in
           # pub_info = clean_end_punctuation(setup_pub_info(work, true))
