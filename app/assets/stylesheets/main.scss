@@ -43,21 +43,35 @@ caption {
 
 .btn-primary {
   padding: 0.5rem 1rem;
-  border-radius: 4px;
+  border-radius: 2px;
   border-style: none none solid !important;
   background: rgb(18, 109, 193) !important;
   text-decoration: none;
-  border-bottom: 3px solid rgb(12, 82, 146) !important;
+  font-size: .85em;
 }
 
 .btn-secondary {
   color: rgb(38, 38, 38) !important;
   padding: 0.5rem 1rem;
-  border-radius: 4px !important;
+  border-radius: 2px !important;
   background: transparent;
   text-decoration: none;
   background-color: #fff !important;
   border: 1px solid rgb(78, 78, 78) !important ;
+}
+
+.btn-subtle {
+  color: rgb(38, 38, 38) !important;
+  padding: 0.5rem 1rem;
+  border-radius: 2px !important;
+  background: transparent;
+  text-decoration: none;
+  background: #E5E9ED;
+  font-size: .85em;
+}
+
+.btn-subtle:hover {
+  background: #B2BEC9;
 }
 
 .add-files-link button {
@@ -560,8 +574,11 @@ ul.tabular li.attribute-fundedby {
   }
 }
 
-.panel-edit {
-  margin-bottom: .25em;
+.panel-edit,
+.panel-download,
+.panel-admin,
+.panel-analytics {
+  margin-bottom: 1.25em;
   
   h2 {
     font-size: 1.25em; }
