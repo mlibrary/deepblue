@@ -69,7 +69,9 @@ module Hyrax
         end
 
         def format_title(title_info)
-          title = mla_citation_title(title_info)
+          # So that the title appears just as it was entered.
+          # title = mla_citation_title(title_info)
+          title = title_info
           title.sub! /.$/, ''
           title_info.blank? ? "" : "<i class=\"citation-title\">#{title}</i> "
         end
