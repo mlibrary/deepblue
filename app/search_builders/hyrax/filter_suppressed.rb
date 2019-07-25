@@ -38,7 +38,13 @@ module Hyrax
 
         return false if depositors.nil?
 
-        depositors.first == current_ability.current_user.user_key
+        found = false
+        depositors.each do |depositor|
+           if ( depositor == current_ability.current_user.user_key)
+            found = true
+          end
+        end
+        found
       end
 
   end
