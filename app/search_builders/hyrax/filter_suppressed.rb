@@ -34,10 +34,11 @@ module Hyrax
       end
 
       def depositor?
-        depositors = current_work[DepositSearchBuilder.depositor_field]
+        # This is getting all the depositors to a collection.
+        depositors = current_work["read_access_person_ssim"]
 
         return false if depositors.nil?
-
+        
         found = false
         depositors.each do |depositor|
            if ( depositor == current_ability.current_user.user_key)
