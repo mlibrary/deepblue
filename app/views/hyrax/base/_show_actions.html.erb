@@ -2,14 +2,11 @@
   <% not_tombstoned = @presenter.tombstone.blank? %>
   <% if not_tombstoned %>
 
-    <% if Hyrax.config.analytics? %>
-      <%= link_to t('simple_form.actions.data_set.analytics'),
-                  @presenter.relative_url_root + @presenter.stats_path,
-                  id: 'stats',
-                  class: 'btn btn-secondary btn-analytics',
-                  data: { turbolinks: false } %>
-    <% end %>
-
+  <div class="panel panel-default panel-download">
+  <div class="panel-heading">
+    <h2>Download All Files (To download individual files, select them in the “Files” panel above)</h2>
+  </div>
+  <div class="panel-body">
     <% if Hyrax.config.download_files %>
       <% admin_or_not_embargo = ( @presenter.current_ability.admin? || @presenter.solr_document.visibility != "embargo" ) %>
       <% if @presenter.zip_download_enabled? && admin_or_not_embargo %>
@@ -88,16 +85,20 @@
         <% end %>
       <% end %>
     <% end %>
+    
+    </div>
+    </div> <!--End Download panel-->
 
     <% if ( ( @presenter.editor? && @presenter.workflow.state != "deposited" )|| @presenter.current_ability.admin? ) %>
       <div class="panel panel-default panel-edit">
         <div class="panel-heading">
           <h2>Edit Work</h2>
         </div>
+        <div class="panel-body">
         <div class="button-set">
           <%= link_to t('simple_form.actions.data_set.edit'),
                       edit_polymorphic_path([main_app, @presenter]),
-                      class: 'btn btn-primary' %>
+                      class: 'btn btn-primary' %> 
           <% if ( @presenter.doi_minting_enabled? && !@presenter.doi_minted? ) || @presenter.current_ability.admin? %>
             <%= link_to t('simple_form.actions.data_set.delete'),
                         [main_app, @presenter],
@@ -105,54 +106,78 @@
                         data: { confirm: "Delete this #{@presenter.human_readable_type}?" },
                         method: :delete %>
           <% end %>
-        </div>
-      </div>
+        
       <% if @presenter.doi_minting_enabled? && !@presenter.doi_minted? %>
-        <br>
-        <div class="panel panel-default panel-edit">
-          <div class="panel-heading">
-            <h2>Mint DOI</h2>
-          </div>
-          <div class="panel-body">
-            <p><%= t('simple_form.actions.data_set.mint_help') %></p>
+      <br><br>
             <%= link_to t('simple_form.actions.data_set.mint_doi'),
                     main_app.doi_hyrax_data_set_path(@presenter.id), class: 'btn btn-primary' %>
+              <p><%= t('simple_form.actions.data_set.mint_help') %></p>
           </div>
         </div>
       <% end %>
     <% end %>
+    </div>
 
-    <br></br>
+      <% if Hyrax.config.analytics? %>
 
-    <% if @presenter.current_ability.admin? && @presenter.tombstone_enabled? %>
-      <button class="btn btn-primary btn-sm" data-target="#tombstoneId" data-toggle="modal">
-        <%= t('simple_form.actions.data_set.tombstone') %>
-      </button>
+    <div class="panel panel-default panel-analytics">
+      <div class="panel-heading">
+        <h2>Analytics</h2>
+      </div>
+      <div class="panel-body">
+        <%= link_to t('simple_form.actions.data_set.analytics'),
+                    @presenter.relative_url_root + @presenter.stats_path,
+                    id: 'stats',
+                    class: 'btn btn-subtle btn-analytics',
+                    data: { turbolinks: false } %>
+      </div>
+    </div>
     <% end %>
 
+    <% if @presenter.current_ability.admin? %>
+
+    <div class="panel panel-default panel-admin">
+    <div class="panel-heading">
+    <h2>Admin Actions</h2>
+    </div>
+
+  <div class="panel-body">
+
+
+  <% if @presenter.current_ability.admin?  && @presenter.display_provenance_log_enabled? %>
+    <%= link_to t('simple_form.actions.display_provenance_log'),
+                main_app.display_provenance_log_hyrax_data_set_path(@presenter.id), class: 'btn btn-subtle' %>
+  <% end %>
+    
     <% if @presenter.editor? %>
       <% if @presenter.member_presenters.size > 1 %>
           <%= link_to t("hyrax.file_manager.link_text"),
                       polymorphic_path([main_app, :file_manager, @presenter]),
-                      class: 'btn btn-default' %>
+                      class: 'btn btn-subtle' %>
       <% end %>
     <% end %>
 
     <% if @presenter.work_featurable? %>
         <%= link_to "Feature", hyrax.featured_work_path(@presenter, format: :json),
             data: { behavior: 'feature' },
-            class: @presenter.display_unfeature_link? ? 'btn btn-default collapse' : 'btn btn-default' %>
+            class: @presenter.display_unfeature_link? ? 'btn btn-default collapse' : 'btn btn-subtle' %>
 
         <%= link_to "Unfeature", hyrax.featured_work_path(@presenter, format: :json),
             data: { behavior: 'unfeature' },
-            class: @presenter.display_feature_link? ? 'btn btn-default collapse' : 'btn btn-default' %>
+            class: @presenter.display_feature_link? ? 'btn btn-subtle collapse' : 'btn btn-subtle' %>
     <% end %>
 
   <% end %>
 
-  <% if @presenter.current_ability.admin?  && @presenter.display_provenance_log_enabled? %>
-    <%= link_to t('simple_form.actions.display_provenance_log'),
-                main_app.display_provenance_log_hyrax_data_set_path(@presenter.id), class: 'btn btn-default' %>
+  <% if @presenter.current_ability.admin? && @presenter.tombstone_enabled? %>
+      <button class="btn btn-subtle" data-target="#tombstoneId" data-toggle="modal">
+        <%= t('simple_form.actions.data_set.tombstone') %>
+      </button>
+    <% end %>
+
+  </div>
+  </div> <!-- End Admin panel -->
+
   <% end %>
 
   <!-- COinS hook for Zotero -->
