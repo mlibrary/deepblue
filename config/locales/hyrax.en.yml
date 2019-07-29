@@ -71,6 +71,9 @@ en:
       issue_types:
         size:               "My deposit is larger than 2GB"
     dashboard:
+      my:
+        heading:
+          date_uploaded:    "Date Created"
       review_submissions:
         heading:
           depositor:        "Depositor"
