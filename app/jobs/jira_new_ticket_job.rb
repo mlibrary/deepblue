@@ -25,6 +25,7 @@ class JiraNewTicketJob < ::Hyrax::ApplicationJob
                                            "" ]
   rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "JiraNewTicketJob.perform(#{work_id},#{job_delay}) #{e.class}: #{e.message} at #{e.backtrace[0]}"
+    Rails.logger.error "JiraNewTicketJob.perform(#{work_id},#{job_delay}) #{e.class}: #{e.message} backtrace:\n" + e.backtrace.join("\n" )
     raise
   end
 
