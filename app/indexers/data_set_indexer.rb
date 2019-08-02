@@ -29,6 +29,11 @@ class DataSetIndexer < Hyrax::WorkIndexer
 
       solr_doc[Solrizer.solr_name('creator_ordered', :stored_searchable)] = object.creator_ordered
       solr_doc[Solrizer.solr_name('doi', :symbol)] = object.doi
+
+      # So that we can sort by title.
+      solr_doc[Solrizer.solr_name('title', :stored_searchable,)] = object.title.first
+      solr_doc[Solrizer.solr_name('title', :stored_sortable)] = object.title.first
+
       solr_doc[Solrizer.solr_name('title_ordered', :stored_searchable)] = object.title_ordered
       solr_doc[Solrizer.solr_name('tombstone', :symbol)] = object.tombstone
       # solr_doc[Solrizer.solr_name('total_file_size', Hyrax::FileSetIndexer::STORED_LONG)] = object.total_file_size

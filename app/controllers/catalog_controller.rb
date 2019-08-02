@@ -103,7 +103,8 @@ class CatalogController < ApplicationController
     #config.add_index_field solr_name("embargo_release_date", :stored_sortable, type: :date), label: "Embargo release date", helper_method: :human_readable_date
     #config.add_index_field solr_name("lease_expiration_date", :stored_sortable, type: :date), label: "Lease expiration date", helper_method: :human_readable_date
 
-
+    #To be able to sort by title
+    config.add_index_field solr_name("title", :stored_sortable, type: :string), label: "Title"
 
     # solr fields to be displayed in the show (single result) view
     #   The ordering of the field names is the order of the display
@@ -409,10 +410,14 @@ class CatalogController < ApplicationController
     # except in the relevancy case).
     # label is key, solr field is value
     config.add_sort_field "score desc, #{modified_field} desc", label: "relevance"
-    config.add_sort_field "#{uploaded_field} desc", label: "date uploaded \u25BC"
-    config.add_sort_field "#{uploaded_field} asc", label: "date uploaded \u25B2"
-    config.add_sort_field "#{modified_field} desc", label: "date modified \u25BC"
-    config.add_sort_field "#{modified_field} asc", label: "date modified \u25B2"
+    config.add_sort_field "#{uploaded_field} desc", label: "date created \u25BC"
+    config.add_sort_field "#{uploaded_field} asc", label: "date created \u25B2"
+    config.add_sort_field "#{modified_field} desc", label: "last modified \u25BC"
+    config.add_sort_field "#{modified_field} asc", label: "last modified \u25B2"
+
+    # Need to reindex the collection to be able to use these.
+    # config.add_sort_field "titl_ssi desc", label: "date modified \u25BC"
+    # config.add_sort_field "title_ssi asc", label: "date modified \u25B2"    
 
     # If there are more than this many search results, no spelling ("did you
     # mean") suggestion is offered.
