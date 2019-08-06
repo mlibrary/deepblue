@@ -13,6 +13,12 @@ module Hyrax
       ''
     end
 
+    def page_title
+      part1 = human_readable_type
+      part1 = "Data Set" if part1 == "Work"
+      "#{part1} | #{title.first} | ID: #{id} | #{I18n.t('hyrax.product_name')}"
+    end
+
     def tombstone
       solr_value = @solr_document[Solrizer.solr_name('tombstone', :symbol)]
       return nil if solr_value.blank?

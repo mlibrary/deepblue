@@ -11,6 +11,11 @@ en:
       update: 'Update %{model}'
       submit: 'Save %{model}'
 
+      data_set:
+        create: 'Save Work'
+        update: 'Update Work'
+        submit: 'Save Work'
+
   header:
     dashboard_link: 'Dashboard'
     mlib_home_path: 'http://www.lib.umich.edu'
