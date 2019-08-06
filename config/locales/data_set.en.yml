@@ -43,14 +43,18 @@ en:
       form_files:
         local_upload_html: >
           <p>Upload data files (e.g. .xls, .sas) and documentation files (e.g. codebooks, readme.txt).</p>
-          <p>You must include some form of documentation for your dataset to be published. See the
+          <p>After you have uploaded files and submitted your Work, the system may take a few minutes to process the
+          changes and update the Work page. You will receive an email when file processing is complete. You must
+          include some form of documentation for your dataset to be published. See the
           <a href="/data/dbd-documentation-guide" target="_blank">
           Guide to Creating Documentation for Your Dataset</a>
           or <a href="/data/Deep_Blue_Data_Example_Readme.txt">this Example readme</a> for more information.</p>
           <p>'Add folder...' will upload individual files within the selected folder.</p>
         local_upload_no_dir_html: >
           <p>Upload data files (e.g. .xls, .sas) and documentation files (e.g. codebooks, readme.txt).</p>
-          <p>You must include some form of documentation for your dataset to be reviewed and published. See the
+          <p>After you have uploaded files and submitted your Work, the system may take a few minutes to process the
+          changes and update the Work page. You will receive an email when file processing is complete. You must
+          include some form of documentation for your dataset to be reviewed and published. See the
           <a href="/data/dbd-documentation-guide" target="_blank">
           Guide to Creating Documentation for Your Dataset</a>
           or <a href="/data/Deep_Blue_Data_Example_Readme.txt">this Example readme</a> for more information.</p>

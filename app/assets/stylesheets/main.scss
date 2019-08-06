@@ -846,6 +846,30 @@ div.facets h3 {
   a {
     color: $primary-link;
   }
+
+  /* ul {
+    list-style-type: disc;
+    list-style-position: inside;
+  } */
+  ol {
+    list-style-type: decimal;
+    list-style-position: inside;
+    padding: 0.5em 0.5em 0.5em 1.5em;
+    text-indent: -1.0em;
+  }
+  /*ul ul, ol ul {
+    list-style-type: circle;
+    list-style-position: inside;
+    margin-left: 15px;
+  } */
+  ol ol, ul ol {
+    list-style-type: lower-latin;
+    list-style-position: inside;
+    margin-left: 1em;
+    padding: 0.5em;
+    text-indent: -1.0em;
+  }
+
 }
 
 /** Footer **/
