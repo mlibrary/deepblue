@@ -30,9 +30,14 @@ class DataSetIndexer < Hyrax::WorkIndexer
       solr_doc[Solrizer.solr_name('creator_ordered', :stored_searchable)] = object.creator_ordered
       solr_doc[Solrizer.solr_name('doi', :symbol)] = object.doi
 
+      value = Array( object.referenced_by ).join( " " )
+      solr_doc[Solrizer.solr_name('referenced_by', :stored_searchable)] = value
+      # solr_doc[Solrizer.solr_name('referenced_by', :stored_sortable)] = value
+
       # So that we can sort by title.
-      solr_doc[Solrizer.solr_name('title', :stored_searchable,)] = object.title.first
-      solr_doc[Solrizer.solr_name('title', :stored_sortable)] = object.title.first
+      value = Array( object.title ).join( " " )
+      solr_doc[Solrizer.solr_name('title', :stored_searchable,)] = value
+      solr_doc[Solrizer.solr_name('title', :stored_sortable)] = value
 
       solr_doc[Solrizer.solr_name('title_ordered', :stored_searchable)] = object.title_ordered
       solr_doc[Solrizer.solr_name('tombstone', :symbol)] = object.tombstone
