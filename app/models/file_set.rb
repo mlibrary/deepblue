@@ -135,6 +135,10 @@ class FileSet < ActiveFedora::Base
     Rails.application.routes.url_helpers.hyrax_file_set_path( id: id )
   end
 
+  def title_type
+    human_readable_type
+  end
+
   def map_provenance_attributes_override!( event:, # rubocop:disable Lint/UnusedMethodArgument
                                            attribute:,
                                            ignore_blank_key_values:,

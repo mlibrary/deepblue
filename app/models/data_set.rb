@@ -185,6 +185,14 @@ class DataSet < ActiveFedora::Base
     for_event_route
   end
 
+  def human_readable_type
+    'Work'
+  end
+
+  def title_type
+    'Data Set'
+  end
+
   def map_email_attributes_override!( event:, # rubocop:disable Lint/UnusedMethodArgument
                                       attribute:,
                                       ignore_blank_key_values:,

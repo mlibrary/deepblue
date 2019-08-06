@@ -20,6 +20,10 @@ module Hyrax
       false
     end
 
+    def human_readable_type
+      "Work"
+    end
+
     # def mint_doi_enabled?
     #   false
     # end

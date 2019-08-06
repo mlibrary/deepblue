@@ -147,6 +147,10 @@ class Collection < ActiveFedora::Base
     ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( value, precision: 3 )
   end
 
+  def title_type
+    human_readable_type
+  end
+
   def map_email_attributes_override!( event:, # rubocop:disable Lint/UnusedMethodArgument
                                       attribute:,
                                       ignore_blank_key_values:,
