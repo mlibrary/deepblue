@@ -18,6 +18,7 @@ RSpec.describe DataSet do
   let( :visibility_public ) { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC }
   let( :metadata_keys_all ) {
     %i[
+      access_deepblue
       admin_set_id
       authoremail
       creator
@@ -251,7 +252,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_mint_doi( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 38,
+                                     size: 39,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -300,7 +301,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_publish( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 39,
+                                     size: 40,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -350,7 +351,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_unpublish( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 38,
+                                     size: 39,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -439,7 +440,7 @@ RSpec.describe DataSet do
       expect( subject.entomb!( epitaph, current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 41,
+                                     size: 42,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -566,6 +567,7 @@ RSpec.describe DataSet do
                                      exp_event_note: nil,
                                      exp_class_name:,
                                      exp_id:,
+                                     exp_access_deepblue: '',
                                      exp_admin_set_id: '',
                                      exp_authoremail: '',
                                      exp_creator: [],
