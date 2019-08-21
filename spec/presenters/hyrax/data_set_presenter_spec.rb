@@ -20,7 +20,7 @@ RSpec.describe Hyrax::DataSetPresenter do
   let(:presenter) { described_class.new(solr_document, ability, request) }
 
   it { is_expected.to delegate_method(:to_s).to(:solr_document) }
-  it { is_expected.to delegate_method(:human_readable_type).to(:solr_document) }
+#  it { is_expected.to delegate_method(:human_readable_type).to(:solr_document) }
   it { is_expected.to delegate_method(:curation_notes_admin).to(:solr_document) }
   it { is_expected.to delegate_method(:curation_notes_user).to(:solr_document) }
   it { is_expected.to delegate_method(:date_created).to(:solr_document) }
@@ -327,7 +327,7 @@ RSpec.describe Hyrax::DataSetPresenter do
   describe '#page_title' do
     subject { presenter.page_title }
 
-    it { is_expected.to eq 'Generic Work | foo | ID: 888888 | Deep Blue Data' }
+    it { is_expected.to eq 'Data Set | foo | ID: 888888 | Deep Blue Data' }
   end
 
   #   describe "#valid_child_concerns" do

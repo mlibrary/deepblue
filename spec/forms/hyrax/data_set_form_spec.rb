@@ -48,6 +48,7 @@ RSpec.describe Hyrax::DataSetForm do
     keyword
     language
     referenced_by
+    access_deepblue
   ] }
 
   describe "#required_fields" do
