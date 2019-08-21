@@ -18,7 +18,8 @@ module Hyrax
                                              "" ]
       Hyrax::Actors::EmbargoActor.new(curation_concern).destroy
       flash[:notice] = curation_concern.embargo_history.last
-      if curation_concern.work? && curation_concern.file_sets.present?
+      if curation_concern.work? && curation_concern.file_sets.present? &&
+            DeepBlueDocs::Application.config.embargo_allow_children_unembargo_choice
         redirect_to confirm_permission_path
       else
         redirect_to edit_embargo_path
