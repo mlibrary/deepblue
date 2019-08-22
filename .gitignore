@@ -47,6 +47,7 @@ public/branding/
 # These files should be copied from the $file.yml.sample and tweaked
 # per environment. See bin/setup
 config/analytics.yml
+config/analytics_id.yml
 config/box_config.yml
 config/box_config_init.yml
 config/box_config_init.yml.initialized
