@@ -1,8 +1,12 @@
+# frozen_string_literal: true
+
 module Hyrax
+
   module EmbargoesControllerBehavior
     extend ActiveSupport::Concern
     include Hyrax::ManagesEmbargoes
     include Hyrax::Collections::AcceptsBatches
+    include ::Hyrax::EmbargoHelper
 
     def index
       add_breadcrumb t(:'hyrax.controls.home'), root_path
@@ -15,8 +19,10 @@ module Hyrax
     def destroy
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( "curation_concern", curation_concern ),
                                              "" ]
-      Hyrax::Actors::EmbargoActor.new(curation_concern).destroy
+      # Hyrax::Actors::EmbargoActor.new(curation_concern).destroy
+      deactivate_embargo( curation_concern: curation_concern )
       flash[:notice] = curation_concern.embargo_history.last
       if curation_concern.work? && curation_concern.file_sets.present? &&
             DeepBlueDocs::Application.config.embargo_allow_children_unembargo_choice
@@ -31,14 +37,13 @@ module Hyrax
       filter_docs_with_edit_access!
       copy_visibility = params[:embargoes].values.map { |h| h[:copy_visibility] }
       ActiveFedora::Base.find(batch).each do |curation_concern|
-        Hyrax::Actors::EmbargoActor.new(curation_concern).destroy
-        # if the concern is a FileSet, set its visibility and skip the copy_visibility_to_files, which is built for Works
-        if curation_concern.file_set?
-          curation_concern.visibility = curation_concern.to_solr["visibility_after_embargo_ssim"]
-          curation_concern.save!
-        elsif copy_visibility.include?(curation_concern.id)
-          curation_concern.copy_visibility_to_files
-        end
+        # Hyrax::Actors::EmbargoActor.new(curation_concern).destroy
+        copy_visibility_to_files = if curation_concern.file_set?
+                                     true
+                                   else
+                                     copy_visibility.include?(curation_concern.id)
+                                   end
+        deactivate_embargo( curation_concern: curation_concern, copy_visibility_to_files: copy_visibility_to_files )
       end
       redirect_to embargoes_path, notice: t('.embargo_deactivated')
     end
@@ -54,5 +59,7 @@ module Hyrax
       add_breadcrumb t(:'hyrax.embargoes.index.manage_embargoes'), hyrax.embargoes_path
       add_breadcrumb t(:'hyrax.embargoes.edit.embargo_update'), '#'
     end
+
   end
+
 end
