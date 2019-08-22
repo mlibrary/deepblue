@@ -3,7 +3,6 @@
 module Deepblue
 
   require './lib/upload_logger'
-  require_relative './json_logger_helper'
 
   module UploadHelper
 

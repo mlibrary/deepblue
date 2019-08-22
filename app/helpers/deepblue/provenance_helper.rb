@@ -2,16 +2,10 @@
 
 module Deepblue
 
-  require_relative './json_logger_helper'
-
   module ProvenanceHelper
 
     extend JsonLoggerHelper
     extend JsonLoggerHelper::ClassMethods
-
-    # def self.included( base )
-    #   base.extend( JsonLoggerHelper::ClassMethods )
-    # end
 
     # rubocop:disable Style/ClassVars
     def self.echo_to_rails_logger
