@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module Hyrax
+
   # Presents embargoed objects
   class EmbargoPresenter
     include ModelProxy
@@ -18,7 +21,9 @@ module Hyrax
     end
 
     def embargo_release_date
-      solr_document.embargo_release_date.to_formatted_s(:rfc822)
+      date = solr_document.embargo_release_date
+      return date if date.blank?
+      date.to_formatted_s(:rfc822)
     end
 
     def visibility_after_embargo
@@ -28,5 +33,7 @@ module Hyrax
     def embargo_history
       solr_document['embargo_history_ssim']
     end
+
   end
+
 end
