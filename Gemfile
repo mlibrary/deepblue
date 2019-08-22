@@ -36,6 +36,10 @@ gem 'resque'
 gem 'resque-pool'
 gem 'resque-web', '~> 0.0.7', require: 'resque_web'
 
+gem 'resque-scheduler'
+gem 'resque-scheduler-web'
+gem 'active_scheduler'
+
 # EZID client from Duke
 gem 'ezid-client'
 

@@ -1,4 +1,6 @@
 require 'resque'
+
+
 # We make another client here with the same options as Redis.current, though
 # we may be able to use it directly.
 Resque.redis = Redis.new(Settings.redis.to_h)
