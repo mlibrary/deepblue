@@ -9,6 +9,24 @@ module Deepblue
       Settings.hyrax.contact_email
     end
 
+    def self.curation_concern_url( curation_concern: )
+      if curation_concern.is_a?( DataSet )
+        data_set_url( id: curation_concern.id )
+      elsif curation_concern.is_a?( FileSet )
+        file_set_url( id: curation_concern.id )
+      elsif curation_concern.is_a?( Collection )
+        collection_url( id: curation_concern.id )
+      else
+        ""
+      end
+    end
+
+    def self.collection_url( id: nil, collection: nil )
+      id = collection.id if collection.present?
+      host = hostname
+      Rails.application.routes.url_helpers.hyrax_collection_url( id: id, host: host, only_path: false )
+    end
+
     def self.data_set_url( id: nil, data_set: nil )
       id = data_set.id if data_set.present?
       host = hostname
