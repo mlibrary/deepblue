@@ -7,11 +7,13 @@ module Deepblue
   # rubocop:disable Rails/Output
   class AbstractTask
 
+    DEFAULT_TO_CONSOLE = true
+
     DEFAULT_VERBOSE = false
 
     attr_reader :options
 
-    attr_accessor :verbose, :logger
+    attr_accessor :verbose, :to_console, :logger
 
     def initialize( options: {} )
       @options = TaskHelper.task_options_parse options
@@ -20,12 +22,18 @@ module Deepblue
         puts "options=#{options}" if @options.key? 'error'
         puts "@options=#{@options}" if @options.key? 'error'
       end
+      @to_console = TaskHelper.task_options_value( @options, key: 'to_console', default_value: DEFAULT_VERBOSE )
       @verbose = TaskHelper.task_options_value( @options, key: 'verbose', default_value: DEFAULT_VERBOSE )
       puts "@verbose=#{@verbose}" if @verbose
     end
 
     def logger
       @logger ||= logger_initialize
+    end
+
+    def task_msg( msg )
+      logger.debug msg
+      puts msg if @to_console
     end
 
     def task_options_value( key:, default_value: nil, verbose: false )
