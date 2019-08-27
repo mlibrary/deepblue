@@ -1,11 +1,11 @@
 # config/scheduler_jobs_prod.yml
 
-deactivate_embargoes_job:
+deactivate_expired_embargoes_job:
   # Run once a day, five minutes after midnight
   #      M H
   cron: '5 0 * * *'
   # rails_env: production
-  class: DeactivateEmbargoesJob
+  class: DeactivateExpiredEmbargoesJob
   queue: scheduler
   description: Deactivate embargoes job.
   args:

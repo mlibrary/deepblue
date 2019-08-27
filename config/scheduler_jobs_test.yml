@@ -32,12 +32,12 @@ test_about_to_deactivate_embargoes_job:
     test_mode: true
     verbose: true
 
-test_deactivate_embargoes_job:
+test_deactivate_expired_embargoes_job:
   # Run once a day, five minutes after midnight
   #      M H
   cron: '*/6 * * * *'
   # rails_env: production
-  class: DeactivateEmbargoesJob
+  class: `DeactivateExpiredEmbargoesJob`
   queue: scheduler
   description: Test deactivate embargoes job.
   args:
