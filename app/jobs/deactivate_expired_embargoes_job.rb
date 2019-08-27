@@ -28,10 +28,10 @@ class DeactivateExpiredEmbargoesJob < ::Hyrax::ApplicationJob
     ::Deepblue::LoggingHelper.debug "@skip_file_setss=#{skip_file_sets}" if verbose
     test_mode = jop_options_value( options, key: 'test_mode', default_value: true )
     ::Deepblue::LoggingHelper.debug "test_mode=#{test_mode}" if verbose
-    DeactivateExpiredEmbargoesService.new( email_owner: email_owner,
-                                           skip_file_sets: skip_file_sets,
-                                           test_mode: test_mode,
-                                           verbose: verbose ).run
+    ::Deepblue::DeactivateExpiredEmbargoesService.new( email_owner: email_owner,
+                                                       skip_file_sets: skip_file_sets,
+                                                       test_mode: test_mode,
+                                                       verbose: verbose ).run
   rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
     Rails.logger.error e.backtrace.join("\n")

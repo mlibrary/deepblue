@@ -64,9 +64,9 @@ module Deepblue
         next if @skip_file_sets && "FileSet" == asset.model_name
         embargo_release_date = asset_embargo_release_date( asset: asset )
         embargo_release_date = embargo_release_date.beginning_of_day.strftime "%Y%m%d"
-        run_msg "embargo_release_date=#{embargo_release_date}"
+        run_msg "#{asset.id} embargo_release_date=#{embargo_release_date}"
         if embargo_release_date == lead_date
-          run_msg "about to call about_to_expire_embargo_email" if @test_mode
+          run_msg "about to call about_to_expire_embargo_email for asset #{asset.id}" if @test_mode
           about_to_expire_embargo_email( asset: asset,
                                          expiration_days: lead_days,
                                          email_owner: @email_owner,
