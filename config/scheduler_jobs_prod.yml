@@ -9,7 +9,9 @@ deactivate_embargoes_job:
   queue: scheduler
   description: Deactivate embargoes job.
   args:
-    test_mode: true
+    email_owner: true
+    test_mode: false
+    verbose: true
 
 about_to_deactivate_embargoes_job:
   # Run once a day, fifteen minutes after midnight
@@ -20,29 +22,6 @@ about_to_deactivate_embargoes_job:
   queue: scheduler
   description: About to deactivate embargoes job.
   args:
-    test_mode: true
-
-test_about_to_deactivate_embargoes_job:
-  # Run once a day, fifteen minutes after midnight
-  #      M  H
-  cron: '*/10 * * * *'
-  # rails_env: production
-  class: AboutToExpireEmbargoesJob
-  queue: scheduler
-  description: Test about to deactivate embargoes (running every 10 minutes).
-  args:
-    test_mode: true
+    email_owner: true
+    test_mode: false
     verbose: true
-
-test_deactivate_embargoes_job:
-  # Run once a day, five minutes after midnight
-  #      M H
-  cron: '*/15 * * * *'
-  # rails_env: production
-  class: DeactivateEmbargoesJob
-  queue: scheduler
-  description: Test deactivate embargoes job (running every 15 minutes).
-  args:
-    test_mode: true
-    verbose: true
-
