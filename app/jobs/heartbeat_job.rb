@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class HeartbeatJob < ::Hyrax::ApplicationJob
+  queue_as :scheduler
 
   def self.perform
     ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,

@@ -19,3 +19,14 @@ five_minute_heartbeat_job:
   queue: scheduler
   args:
   description: Write a heartbeat to the scheduler log on the five minute mark.
+
+test_about_to_deactivate_embargoes_job:
+  #      M  H
+  cron: '*/5 * * * *'
+  # rails_env: production
+  class: AboutToExpireEmbargoesJob
+  queue: scheduler
+  description: Test about to deactivate embargoes.
+  args:
+    test_mode: true
+    verbose: true
