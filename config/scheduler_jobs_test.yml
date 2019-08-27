@@ -37,7 +37,7 @@ test_deactivate_expired_embargoes_job:
   #      M H
   cron: '*/6 * * * *'
   # rails_env: production
-  class: `DeactivateExpiredEmbargoesJob`
+  class: DeactivateExpiredEmbargoesJob
   queue: scheduler
   description: Test deactivate embargoes job.
   args:
