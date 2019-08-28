@@ -32,6 +32,7 @@ dump.rdb
 public/assets/
 
 ## Branding assets
+public/branding
 public/branding/
 
 ## Paperclip assets

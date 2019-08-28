@@ -6,6 +6,7 @@ module Hyrax
     include ModelProxy
     include PresentsAttributes
     include ActionView::Helpers::NumberHelper
+    include ::Hyrax::BrandingHelper
     attr_accessor :solr_document, :current_ability, :request
     attr_reader :subcollection_count
     attr_accessor :parent_collections # This is expected to be a Blacklight::Solr::Response with all of the parent collections
@@ -134,41 +135,11 @@ module Hyrax
     end
 
     def banner_file
-      # Find Banner filename
-      ci = CollectionBrandingInfo.where( collection_id: id, role: "banner" )
-      rv = brand_path( collection_branding_info: ci[0] ) unless ci.empty?
-      # rv = relative_url_root + "/" + ci[0].local_path.split("/")[-4..-1].join("/") unless ci.empty?
-      return rv
-    end
-
-    def brand_path( collection_branding_info: )
-      rv = collection_branding_info
-      local_path = collection_branding_info.local_path
-      rv = relative_url_root + "/" + local_path.split("/")[-4..-1].join("/") unless local_path.blank?
-      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-      #                                        Deepblue::LoggingHelper.called_from,
-      #                                        "id = #{id}",
-      #                                        "collection_branding_info = #{collection_branding_info}",
-      #                                        "local_path = #{local_path}",
-      #                                        "rv = #{rv}",
-      #                                        "" ]
-      return rv
+      branding_banner_file( id: id )
     end
 
     def logo_record
-      logo_info = []
-      # Find Logo filename, alttext, linktext
-      cis = CollectionBrandingInfo.where(collection_id: id, role: "logo")
-      return if cis.empty?
-      cis.each do |coll_info|
-        logo_file = File.split(coll_info.local_path).last
-        file_location = brand_path( collection_branding_info: coll_info ) unless logo_file.empty?
-        # file_location = "/" + coll_info.local_path.split("/")[-4..-1].join("/") unless logo_file.empty?
-        alttext = coll_info.alt_text
-        linkurl = coll_info.target_url
-        logo_info << { file: logo_file, file_location: file_location, alttext: alttext, linkurl: linkurl }
-      end
-      logo_info
+      branding_logo_record( id: id )
     end
 
     # A presenter for selecting a work type to create

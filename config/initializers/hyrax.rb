@@ -329,6 +329,10 @@ Hyrax.config do |config|
   # end
   # rubocop#:enable Rails/Output
 
+  # override the path used for branding
+  # the rest of the code assumes that the this path is symlinked to public/branding
+  config.instance_variable_set( :@branding_path, Rails.root.join( 'tmp', 'branding' ) )
+
 end
 
 Date::DATE_FORMATS[:standard] = "%m/%d/%Y"

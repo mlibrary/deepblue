@@ -7,6 +7,7 @@ module Hyrax
     class CollectionForm
       include HydraEditor::Form
       include HydraEditor::Form::Permissions
+      include ::Hyrax::BrandingHelper
       # Used by the search builder
       attr_reader :scope
 
@@ -115,44 +116,11 @@ module Hyrax
       end
 
       def banner_info
-        @banner_info ||= begin
-          # Find Banner filename
-          banner_info = CollectionBrandingInfo.where(collection_id: id).where(role: "banner")
-          banner_file = File.split(banner_info.first.local_path).last unless banner_info.empty?
-          file_location = banner_info.first.local_path unless banner_info.empty?
-          # relative_path = "/" + banner_info.first.local_path.split("/")[-4..-1].join("/") unless banner_info.empty?
-          relative_path = brand_path( collection_branding_info: banner_info.first ) unless banner_info.empty?
-          { file: banner_file, full_path: file_location, relative_path: relative_path }
-        end
-      end
-
-      def brand_path( collection_branding_info: )
-        rv = collection_branding_info
-        local_path = collection_branding_info.local_path
-        rv = relative_url_root + "/" + local_path.split("/")[-4..-1].join("/") unless local_path.blank?
-        # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-        #                                        Deepblue::LoggingHelper.called_from,
-        #                                        "id = #{id}",
-        #                                        "collection_branding_info = #{collection_branding_info}",
-        #                                        "local_path = #{local_path}",
-        #                                        "rv = #{rv}",
-        #                                        "" ]
-        return rv
+        @banner_info ||= branding_banner_info( id: id )
       end
 
       def logo_info
-        @logo_info ||= begin
-          # Find Logo filename, alttext, linktext
-          logos_info = CollectionBrandingInfo.where(collection_id: id).where(role: "logo")
-          logos_info.map do |logo_info|
-            logo_file = File.split(logo_info.local_path).last
-            # relative_path = "/" + logo_info.local_path.split("/")[-4..-1].join("/")
-            relative_path = brand_path( collection_branding_info: logo_info ) unless logo_file.empty?
-            alttext = logo_info.alt_text
-            linkurl = logo_info.target_url
-            { file: logo_file, full_path: logo_info.local_path, relative_path: relative_path, alttext: alttext, linkurl: linkurl }
-          end
-        end
+        @logo_info ||= branding_logo_info( id: id )
       end
 
       # Do not display additional fields if there are no secondary terms
