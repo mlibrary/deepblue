@@ -41,12 +41,12 @@ module Hyrax
                                              "verbose=#{verbose}",
                                              "" ]
       embargo_release_date = asset.embargo_release_date
-      curation_concern = asset.solr_document.to_model
+      curation_concern = ::ActiveFedora::Base.find asset.id
       email = curation_concern.authoremail
       # subject = Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.subject", title: title )
       title = curation_concern.title.join
       subject = "Deepblue Data: Embargo will expire in #{expiration_days} days for #{title}"
-      url = curation_concern_url( curation_concern: curation_concern )
+      url = ::Deepblue::EmailHelper.curation_concern_url( curation_concern: curation_concern )
       Deepblue::LoggingHelper.debug "about_to_expire_embargo_email: curation concern id: #{curation_concern.id} email: #{email} exipration_days: #{expiration_days}" if verbose
       body = []
       body << "The embargo will expire in #{expiration_days} days on #{embargo_release_date} for #{title} (#{curation_concern.id})"
@@ -106,7 +106,7 @@ module Hyrax
       # subject = Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.subject", title: title )
       title = curation_concern.title.join
       subject = "Deepblue Data: Embargo deactivated for #{title}"
-      url = Deepblue::EmailHelper.curation_concern_url( curation_concern: curation_concern )
+      url = ::Deepblue::EmailHelper.curation_concern_url( curation_concern: curation_concern )
       Deepblue::LoggingHelper.debug "deactivate_embargo_email: curation concern id: #{curation_concern.id} email: #{email}" if verbose
       body = []
       body << "The embargo for #{title} (#{curation_concern.id}) has been deactivated by setting its visibility to #{curation_concern.visibility}."
