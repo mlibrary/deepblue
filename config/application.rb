@@ -190,7 +190,7 @@ module DeepBlueDocs
     config.provenance_log_redundant_events = true
 
     config.scheduler_log_echo_to_rails_logger = true
-    config.scheduler_job_file = 'scheduler_jobs_test.yml'
+    config.scheduler_job_file = 'scheduler_jobs_prod.yml'
 
     config.upload_log_echo_to_rails_logger = true
 
