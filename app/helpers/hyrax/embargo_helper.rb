@@ -127,6 +127,27 @@ module Hyrax
       Deepblue::EmailHelper.send_email( to: email, from: email, subject: subject, body: body ) unless test_mode
     end
 
+    def my_assets_with_expired_embargoes( current_user_key )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ]
+      @my_assets_with_expired_embargoes ||= EmbargoService.my_assets_with_expired_embargoes( current_user_key )
+    end
+
+    def my_assets_under_embargo( current_user_key )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ]
+      @my_assets_under_embargo ||= EmbargoService.my_assets_under_embargo( current_user_key )
+    end
+
+    def my_assets_with_deactivated_embargoes( current_user_key )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ]
+      @my_assets_with_deactivated_embargoes ||= EmbargoService.my_assets_with_deactivated_embargoes( current_user_key )
+    end
+
     def warn_deactivate_embargo_email( curation_concern:, days: )
       # TODO
     end
