@@ -81,7 +81,7 @@ module DeepBlueDocs
         File.exist?( config.box_access_and_refresh_token_file ) )
 
     ## configure embargo
-    config.embargo_enforce_future_release_date = false
+    config.embargo_enforce_future_release_date = true # now that we have automated embargo expiration
     config.embargo_visibility_after_default_status = ::Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
     config.embargo_visibility_during_default_status = ::Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
     config.embargo_manage_hide_files = true
