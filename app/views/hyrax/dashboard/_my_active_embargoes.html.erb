@@ -1,0 +1,21 @@
+<table class="embargoes table">
+  <thead>
+    <tr>
+      <%= render partial: 'my_embargo_table_headers' %>
+    </tr>
+  </thead>
+  <tbody>
+  <% hide_files = DeepBlueDocs::Application.config.embargo_manage_hide_files %>
+  <% my_assets_under_embargo( current_ability.current_user.email.to_s ).each do |curation_concern| %>
+    <% hrt = curation_concern.human_readable_type %>
+    <% next if hide_files && hrt == "File" %>
+    <tr>
+      <td class="human-readable-type"><%= hrt %></td>
+      <td class="title"><%= link_to curation_concern, edit_embargo_path(curation_concern) %></td>
+      <td class="current-visibility"><%= visibility_badge(curation_concern.visibility) %></td>
+      <td class="embargo-release-date"><%= curation_concern.embargo_release_date %></td>
+      <td class="visibility-after-embargo"><%= visibility_badge(curation_concern.visibility_after_embargo) %></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
