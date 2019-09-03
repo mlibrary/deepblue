@@ -41,6 +41,9 @@ en:
       required_descriptions_deepblue: Please complete required descriptions
       required_agreement_deepblue: Check deposit agreement below
       form_files:
+        local_upload_contact_html: >
+          <p>If you have more than 100 files or files larger than 2 GB please <a href="%{contact_path}">Contact Us</a>
+          for assistance in uploading your data.</p>
         local_upload_html: >
           <p>Upload data files (e.g. .xls, .sas) and documentation files (e.g. codebooks, readme.txt).</p>
           <p>After you have uploaded files and submitted your Work, the system may take a few minutes to process the
