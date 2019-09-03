@@ -19,7 +19,7 @@ class ProvenanceLogController < ApplicationController
                                            ::Deepblue::LoggingHelper.called_from,
                                            "id=#{id}",
                                            "" ]
-    provenance_log_entries_refresh( id: id )
+    provenance_log_entries_refresh( id: id ) if id_valid? or id_deleted
     @presenter = presenter_class.new( controller: self )
     render 'provenance_log/provenance_log'
   end
