@@ -68,6 +68,7 @@ Rails.application.configure do
   config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 
   # Use a real queuing backend for Active Job (needed for testing resque-scheduler)
-  config.active_job.queue_adapter = :resque
+  # this will force the jobs to be asynchronous (and does not work in dev due to a bug)
+  # config.active_job.queue_adapter = :resque
 
 end
