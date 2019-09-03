@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="<%= t("hyrax.document_language", default: '') %>" prefix="og:http://ogp.me/ns#">
+
+  <head>
+  </head>
+
+  <body>
+    <div>
+      <h2>Provenance Log</h2>
+      <% if @presenter.id.present? %>
+        ID: <%= @presenter.id %>
+        <% unless @presenter.id_valid? %>
+          <%= @presenter.id_msg %>
+        <% end %>
+      <% end %>
+    </div>
+    <% if @presenter.id.present? %>
+      <%= render '/provenance_log_entries2', presenter: @presenter %>
+    <% end %>
+  </body>
+
+</html>

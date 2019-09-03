@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module Hyrax
+
   # Overrides FilterSuppressed filter to hide documents marked as
   # suppressed when the current user is permitted to take no workflow
   # actions for the work's current state
@@ -38,4 +41,5 @@ module Hyrax
         depositors.first == current_ability.current_user.user_key
       end
   end
+
 end
