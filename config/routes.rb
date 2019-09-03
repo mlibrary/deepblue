@@ -129,6 +129,10 @@ Rails.application.routes.draw do
     end
   end
 
+
+  get '/provenance_log/(:id)', to: 'provenance_log#show'
+
+
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
 end

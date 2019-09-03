@@ -96,8 +96,54 @@ module Hyrax
         end
       end
 
+      def presenter
+        @presenter ||= begin
+          curation_concern = search_result_document( params )
+          show_presenter.new( curation_concern, current_ability, request )
+        end
+      end
+
       def show_presenter
         Hyrax::DsFileSetPresenter
+      end
+
+      def search_result_document( search_params )
+        _, document_list = search_results( search_params )
+        return document_list.first unless document_list.empty?
+        # document_not_found!
+        raise CanCan::AccessDenied
+      rescue Blacklight::Exceptions::RecordNotFound => e
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "e=#{e}",
+                                               "" ]
+        begin
+          # check with Fedora to see if the requested id was deleted
+          id = params[:id]
+          ActiveFedora::Base.find( id )
+        rescue Ldp::Gone => gone
+          # it was deleted
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "gone=#{gone.class} #{gone.message} at #{gone.backtrace[0]}",
+                                                 "" ]
+          # okay, since this looks like a deleted curation concern, we can check the provenance log
+          # if admin, redirect to the provenance log controller
+          if current_ability.admin?
+            url = Rails.application.routes.url_helpers.url_for( only_path: true,
+                                                                action: 'show',
+                                                                controller: 'provenance_log',
+                                                                id: id )
+            return redirect_to( url, error: "#{id} was deleted." )
+          end
+        rescue ActiveFedora::ObjectNotFoundError => e2
+          # nope, never existed
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "e2=#{e2.class} #{e2.message} at #{e2.backtrace[0]}",
+                                                 "" ]
+        end
+        raise CanCan::AccessDenied
       end
 
   end
