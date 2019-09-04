@@ -131,7 +131,10 @@ Rails.application.routes.draw do
 
 
   get '/provenance_log/(:id)', to: 'provenance_log#show'
-
+  get '/provenance_log_find/', to: 'provenance_log#show'
+  post '/provenance_log_find/', to: 'provenance_log#find'
+  get '/provenance_log_zip_download/', to: 'provenance_log#log_zip_download'
+  post '/provenance_log_zip_download/', to: 'provenance_log#log_zip_download'
 
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
