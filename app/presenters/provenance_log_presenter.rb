@@ -20,4 +20,8 @@ class ProvenanceLogPresenter
     true
   end
 
+  def url_for( action:, only_path: true, id: nil )
+    Rails.application.routes.url_helpers.url_for( only_path: only_path, action: action, controller: 'provenance_log', id: id )
+  end
+
 end
