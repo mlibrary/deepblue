@@ -24,12 +24,20 @@
           <%= submit_tag( t('simple_form.labels.provenance_log.find_id_submit'), class: 'btn btn-primary') %>
         <% end %>
         <br/><br/>
+        <%= form_tag(@presenter.url_for(action: 'deleted_works'), method: 'post') do %>
+          <%= submit_tag(t('simple_form.actions.provenance_log.deleted_works'), class: 'btn btn-primary') %>
+        <% end %>
+        <br/>
         <% if @presenter.id.present? %>
           <%= render '/provenance_log_entries2', presenter: @presenter %>
         <% end %>
-        <br/><br/>
-        <%= form_tag( @presenter.url_for( action: 'log_zip_download' ), method: 'post') do %>
-          <%= submit_tag( t('simple_form.actions.provenance_log_download'), class: 'btn btn-primary' ) %>
+        <br/>
+        <% if @presenter.deleted_ids.present? %>
+          <%= render '/provenance_log_deleted', presenter: @presenter %>
+        <% end %>
+        <br/>
+        <%= form_tag(@presenter.url_for(action: 'log_zip_download'), method: 'post') do %>
+          <%= submit_tag(t('simple_form.actions.provenance_log.download'), class: 'btn btn-primary') %>
         <% end %>
       <% end %>
     </div>

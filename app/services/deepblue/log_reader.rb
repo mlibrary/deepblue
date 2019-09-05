@@ -10,8 +10,9 @@ module Deepblue
     DEFAULT_END_TIMESTAMP = ''
     DEFAULT_TIMESTAMP_FORMAT = ''
     DEFAULT_VERBOSE = false
+    DEFAULT_VERBOSE_FILTER = false
 
-    attr_accessor :verbose
+    attr_accessor :verbose, :verbose_filter
 
     attr_reader :current_line
     attr_reader :date_range_filter
@@ -37,36 +38,38 @@ module Deepblue
       @input = input
       @options = options
       @verbose = option( key: 'verbose', default_value: DEFAULT_VERBOSE )
+      @verbose_filter = option( key: 'verbose_filter', default_value: DEFAULT_VERBOSE_FILTER )
       add_date_range_filter
     end
 
-    def initialize_filter( filter )
+    def initialize_filter( filter, options: {} )
       return AllLogFilter.new if filter.blank?
-      return AndLogFilter( filters: filter ) if filter.is_a? Array
+      return AndLogFilter( filters: filter, options: options ) if filter.is_a? Array
       filter
     end
 
-    def add_date_range_filter
+    def add_date_range_filter( options: {} )
       begin_timestamp = option( key: 'begin' )
       begin_timestamp = option( key: 'begin_timestamp', default_value: DEFAULT_BEGIN_TIMESTAMP ) unless begin_timestamp.present?
       end_timestamp = option( key: 'end' )
       end_timestamp = option( key: 'end_timestamp', default_value: DEFAULT_END_TIMESTAMP ) unless end_timestamp.present?
       timestamp_format = option( key: 'format' )
       timestamp_format = option( key: 'timestamp_format', default_value: DEFAULT_TIMESTAMP_FORMAT ) unless timestamp_format.present?
-      puts "add_date_range_filter begin_timestamp=#{begin_timestamp} end_timestamp=#{end_timestamp}" if verbose # rubocop:disable Rails/Output
+      puts "add_date_range_filter begin_timestamp=#{begin_timestamp} end_timestamp=#{end_timestamp}" if verbose_filter # rubocop:disable Rails/Output
       return if begin_timestamp.blank? && end_timestamp.blank?
       @date_range_filter = DateLogFilter.new( begin_timestamp: begin_timestamp,
                                               end_timestamp: end_timestamp,
-                                              timestamp_format: timestamp_format )
+                                              timestamp_format: timestamp_format,
+                                              options: options )
       filter_and( new_filters: date_range_filter )
     end
 
-    def filter_and( new_filters:, append: true )
+    def filter_and( new_filters:, append: true, options: {} )
       return if new_filters.blank?
       current_filter = @filter
       @filter = if current_filter.all_log_filter?
                   if new_filters.is_a? Array
-                    AndLogFilter.new( filters: new_filters )
+                    AndLogFilter.new( filters: new_filters, options: options )
                   else
                     new_filters
                   end
@@ -75,12 +78,12 @@ module Deepblue
                 else
                   new_filters = Array( new_filters )
                   new_filters.concat current_filter
-                  AndLogFilter.new( filters: new_filters )
+                  AndLogFilter.new( filters: new_filters, options: options )
                 end
       puts "filter_and @filter=#{@filter}" if verbose # rubocop:disable Rails/Output
     end
 
-    def filter_or( new_filters:, append: true )
+    def filter_or( new_filters:, append: true, options: {} )
       return if new_filters.blank?
       current_filter = @filter
       @filter = if append && current_filter.all_log_filter?
@@ -90,7 +93,7 @@ module Deepblue
                 else
                   new_filters = Array( new_filters )
                   new_filters.concat current_filter
-                  OrLogFilter.new( filters: new_filters )
+                  OrLogFilter.new( filters: new_filters, options: options )
                 end
     end
 

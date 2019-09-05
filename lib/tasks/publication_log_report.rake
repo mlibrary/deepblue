@@ -2,7 +2,7 @@
 
 namespace :deepblue do
 
-  # bundle exec rake deepblue:publication_log_report['{"input":"./log/provenance_production.log"\,"format":"YYYMMDD"\,"begin":"20190101"\,"end":"20200101"}']
+  # bundle exec rake deepblue:publication_log_report['{"format":"YYYMMDD"\,"begin":"20190101"\,"end":"20200101"}']
   # bundle exec rake deepblue:publication_log_report['{"input":"./log/provenance_development.log"\,"format":"YYYMMDD"\,"begin":"20190101"\,"end":"20200101"}']
   desc 'Report on published works using log'
   task :publication_log_report, %i[ options ] => :environment do |_task, args|
@@ -15,10 +15,10 @@ end
 
 module Deepblue
 
-  require 'tasks/abstract_log_task'
+  require 'tasks/abstract_provenance_log_task'
   require_relative '../../app/services/deepblue/publication_log_reporter'
 
-  class PublicationLogReport < AbstractLogTask
+  class PublicationLogReport < AbstractProvenanceLogTask
 
     def initialize( options: )
       super( options: options )

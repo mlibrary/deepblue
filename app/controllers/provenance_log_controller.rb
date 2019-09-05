@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../services/deepblue/deleted_works_from_log'
+
 class ProvenanceLogController < ApplicationController
   include ProvenanceLogControllerBehavior
 
@@ -7,8 +9,8 @@ class ProvenanceLogController < ApplicationController
   self.presenter_class = ProvenanceLogPresenter
 
   attr_accessor :id, :id_msg, :id_invalid, :id_deleted
-
   attr_accessor :find_id
+  attr_accessor :deleted_ids, :deleted_id_to_key_values_map
 
   def show
     raise CanCan::AccessDenied unless current_ability.admin?
@@ -87,6 +89,24 @@ class ProvenanceLogController < ApplicationController
                                            "id=#{id}",
                                            "" ]
     provenance_log_entries_refresh( id: id ) if id_valid? || id_deleted
+    @presenter = presenter_class.new( controller: self )
+    render 'provenance_log/provenance_log'
+  end
+
+  def deleted_works
+    raise CanCan::AccessDenied unless current_ability.admin?
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "" ]
+    runner = ::Deepblue::DeletedWorksFromLog.new( input: ::Deepblue::ProvenanceLogService.provenance_log_path )
+    runner.run
+    @deleted_ids = runner.deleted_ids
+    @deleted_id_to_key_values_map = runner.deleted_id_to_key_values_map
+    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                        ::Deepblue::LoggingHelper.called_from,
+    #                                        "deleted_ids=#{deleted_ids}",
+    #                                        "deleted_id_to_key_values_map=#{deleted_id_to_key_values_map}",
+    #                                        "" ]
     @presenter = presenter_class.new( controller: self )
     render 'provenance_log/provenance_log'
   end

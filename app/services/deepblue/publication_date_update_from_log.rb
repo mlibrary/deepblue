@@ -21,7 +21,7 @@ module Deepblue
 
     def initialize( filter: nil, input:, options: {} )
       super( filter: PublishedLogFilter.new, input: input, extract_parsed_tuple: true, options: options )
-      filter_and( filter ) if filter.present?
+      filter_and( new_filters: filter ) if filter.present?
     end
 
     def run
