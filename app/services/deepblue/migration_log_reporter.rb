@@ -30,7 +30,7 @@ module Deepblue
 
     def initialize( filter: nil, input:, options: {} )
       super( filter: Deepblue::MigrationEventFilter.new, input: input, options: options )
-      filter_and( filter ) if filter.present?
+      filter_and( new_filters: filter ) if filter.present?
       @expected_ids_pathname = option( key: 'expected_ids_pathname', default_value: DEFAULT_EXPECTED_IDS_PATHNAME )
     end
 

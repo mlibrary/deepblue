@@ -184,6 +184,8 @@ module DeepBlueDocs
     config.email_enabled = true
     config.email_log_echo_to_rails_logger = true
 
+    config.provenance_log_name = "provenance_#{Rails.env}.log"
+    config.provenance_log_path = Rails.root.join( 'log', config.provenance_log_name )
     config.provenance_log_echo_to_rails_logger = true
     config.provenance_log_redundant_events = true
 

@@ -2,8 +2,9 @@
 
 namespace :deepblue do
 
+  # bundle exec rake deepblue:publication_date_update_from_log
+  # bundle exec rake deepblue:publication_date_update_from_log['{"verbose":true}']
   # bundle exec rake deepblue:publication_date_update_from_log['{"input":"./log/provenance_production.log"\,"verbose":true}']
-  # bundle exec rake deepblue:publication_date_update_from_log['{"input":"./log/provenance_development.log"\,"verbose":true}']
   desc 'Update works publication dates from log'
   task :publication_date_update_from_log, %i[ options ] => :environment do |_task, args|
     args.with_defaults( options: '{}' )
@@ -15,10 +16,10 @@ end
 
 module Deepblue
 
-  require 'tasks/abstract_log_task'
+  require 'tasks/abstract_provenance_log_task'
   require_relative '../../app/services/deepblue/publication_date_update_from_log'
 
-  class PublicationDateUpdateFromLogTask < AbstractLogTask
+  class PublicationDateUpdateFromLogTask < AbstractProvenanceLogTask
 
     def initialize( options: )
       super( options: options )

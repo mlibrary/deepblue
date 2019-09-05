@@ -9,6 +9,14 @@ module Deepblue
 
   class ProvenanceLogService
 
+    def self.provenance_log_name
+      DeepBlueDocs::Application.config.provenance_log_name
+    end
+
+    def self.provenance_log_path
+      DeepBlueDocs::Application.config.provenance_log_path
+    end
+
     def self.entries( id, refresh: false )
       Deepblue::LoggingHelper.bold_debug "ProvenanceLogService.entries( #{id}, #{refresh} )"
       file_path = Deepblue::ProvenancePath.path_for_reference( id )

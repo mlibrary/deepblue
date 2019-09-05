@@ -7,6 +7,6 @@ class ProvenanceLogger < Logger
 end
 
 # logfile = File.open("#{Rails.root}/log/custom.log", 'a')  # create log file
-logfile = File.open( Rails.root.join( 'log', "provenance_#{Rails.env}.log" ), 'a' ) # create log file
+logfile = File.open( DeepBlueDocs::Application.config.provenance_log_path, 'a' ) # create log file
 logfile.sync = true # automatically flushes data to file
 PROV_LOGGER = ProvenanceLogger.new( logfile ) # constant accessible anywhere

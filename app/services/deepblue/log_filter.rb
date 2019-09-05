@@ -3,11 +3,38 @@
 # rubocop:disable Metrics/ParameterLists
 module Deepblue
 
-  class AbstractArrayOfFilters
+  class AbstractFilter
+
+    attr_accessor :verbose
+
+    def initialize( options: {} )
+      @verbose = options_value( options, key: "verbose_filters", default_value: false )
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "verbose=#{verbose}",
+      #                                        "" ]
+      # puts "#{::Deepblue::LoggingHelper.here} self.class.name=#{self.class.name}"
+      # puts "#{::Deepblue::LoggingHelper.here} options=#{options}"
+      # puts "#{::Deepblue::LoggingHelper.here} verbose=#{verbose}"
+    end
+
+    protected
+
+      def options_value( options, key:, default_value: nil, verbose: false )
+        return default_value if options.blank?
+        return default_value unless options.key? key
+        puts "set key #{key} to #{options[key]}" if verbose
+        return options[key]
+      end
+
+  end
+
+  class AbstractArrayOfFilters < AbstractFilter
 
     attr_reader :filters
 
-    def initialize( filters: [] )
+    def initialize( filters: [], options: {} )
+      super( options: options )
       @filters = Array( filters )
     end
 
@@ -32,8 +59,8 @@ module Deepblue
 
   class AndLogFilter < AbstractArrayOfFilters
 
-    def initialize( filters: [] )
-      super( filters: filters )
+    def initialize( filters: [], options: {} )
+      super( filters: filters, options: options )
     end
 
     def and( new_filters: )
@@ -56,8 +83,8 @@ module Deepblue
 
   class OrLogFilter < AbstractArrayOfFilters
 
-    def initialize( filters: [] )
-      super( filters: filters )
+    def initialize( filters: [], options: {} )
+      super( filters: filters, options: options )
     end
 
     def and( new_filters: )
@@ -78,7 +105,11 @@ module Deepblue
 
   end
 
-  class AbstractLogFilter
+  class AbstractLogFilter < AbstractFilter
+
+    def initializer( options: {} )
+      super( options: options )
+    end
 
     def all_log_filter?
       false
@@ -95,6 +126,7 @@ module Deepblue
     end
 
     def filter_in( _timestamp, _event, _event_note, _class_name, _id, _raw_key_values )
+      puts "#{::Deepblue::LoggingHelper.here} filter_in returning false"
       false
     end
 
@@ -135,7 +167,8 @@ module Deepblue
 
     attr_reader :filter
 
-    def initialize( filter: )
+    def initialize( filter:, options: {} )
+      super( options: options )
       @filter = filter
     end
 
@@ -147,6 +180,10 @@ module Deepblue
   end
 
   class AllLogFilter < AbstractLogFilter
+
+    def initialize( options: {} )
+      super( options: options )
+    end
 
     def all_log_filter?
       true
@@ -162,28 +199,30 @@ module Deepblue
 
     attr_reader :matching_class_names
 
-    def initialize( matching_class_names: [] )
+    def initialize( matching_class_names: [], options: {} )
+      super( options: options )
       @matching_classe_names = arg_to_array matching_class_names
     end
 
-    def filter_in( _timestamp, _event, _event_note, _class_name, _id, _raw_key_values )
-      @matching_classe_names.include? event
+    def filter_in( _timestamp, _event, _event_note, class_name, _id, _raw_key_values )
+      puts "#{@matching_classe_names} include? #{class_name}" if verbose
+      @matching_classe_names.include? class_name
     end
 
   end
 
   class CollectionLogFilter < ClassNameLogFilter
 
-    def initialize
-      super( matching_class_names: [ Collection.name ] )
+    def initialize( options: {} )
+      super( matching_class_names: [ Collection.name ], options: options )
     end
 
   end
 
   class DataSetLogFilter < ClassNameLogFilter
 
-    def initialize
-      super( matching_class_names: [ DataSet.name ] )
+    def initialize( options: {} )
+      super( matching_class_names: [ DataSet.name ], options: options )
     end
 
   end
@@ -205,7 +244,8 @@ module Deepblue
     #
     # filter = Deepblue::DateLogFilter.new( begin_timestamp: Date.new - 2.days )
     #
-    def initialize( begin_timestamp: nil, end_timestamp: nil, timestamp_format: '' )
+    def initialize( begin_timestamp: nil, end_timestamp: nil, timestamp_format: '', options: {} )
+      super( options: options )
       @begin_timestamp = arg_to_timestamp( begin_timestamp, timestamp_format: timestamp_format )
       @end_timestamp = arg_to_timestamp( end_timestamp, timestamp_format: timestamp_format )
     end
@@ -215,6 +255,8 @@ module Deepblue
       before_begin = timestamp < @begin_timestamp if @begin_timestamp.present?
       after_end = false
       after_end = timestamp > @after_timestamp if @after_timestamp.present?
+      puts "#{::Deepblue::LoggingHelper.here} filter_in returning..."
+      puts "#{timestamp} is before_begin? #{before_begin} and #{timestamp} is after_end? #{after_end}"
       return !before_begin && !after_end
     end
 
@@ -245,11 +287,13 @@ module Deepblue
 
     attr_reader :matching_events
 
-    def initialize( matching_events: [] )
+    def initialize( matching_events: [], options: {} )
+      super( options: options )
       @matching_events = arg_to_array matching_events
     end
 
     def filter_in( _timestamp, event, _event_note, _class_name, _id, _raw_key_values )
+      puts "#{@matching_events} include? #{event}" if verbose
       @matching_events.include? event
     end
 
@@ -257,36 +301,38 @@ module Deepblue
 
   class CreateOrDestroyLogFilter < EventLogFilter
 
-    def initialize
-      super( matching_events: [ AbstractEventBehavior::EVENT_CREATE, AbstractEventBehavior::EVENT_DESTROY ] )
+    def initialize( options: {} )
+      super( matching_events: [ AbstractEventBehavior::EVENT_CREATE, AbstractEventBehavior::EVENT_DESTROY ],
+             options: options )
     end
 
   end
 
   class FileSetFilter < ClassNameLogFilter
 
-    def initialize
-      super( matching_class_names: [ FileSet.name ] )
+    def initialize( options: {} )
+      super( matching_class_names: [ FileSet.name ], options: options )
     end
 
   end
 
   class FixityCheckLogFilter < EventLogFilter
 
-    def initialize
-      super( matching_events: [ AbstractEventBehavior::EVENT_FIXITY_CHECK ] )
+    def initialize( options: {} )
+      super( matching_events: [ AbstractEventBehavior::EVENT_FIXITY_CHECK ], options: options )
     end
 
   end
 
   class MigrationEventFilter < EventLogFilter
 
-    def initialize
+    def initialize( options: {} )
       super( matching_events: [ AbstractEventBehavior::EVENT_CHILD_ADD,
                                 AbstractEventBehavior::EVENT_FIXITY_CHECK,
                                 AbstractEventBehavior::EVENT_INGEST,
                                 AbstractEventBehavior::EVENT_MIGRATE,
-                                AbstractEventBehavior::EVENT_VIRUS_SCAN ] )
+                                AbstractEventBehavior::EVENT_VIRUS_SCAN ],
+             options: options )
     end
 
   end
@@ -295,7 +341,8 @@ module Deepblue
 
     attr_reader :matching_ids
 
-    def initialize( matching_ids: [] )
+    def initialize( matching_ids: [], options: {} )
+      super( options: options )
       @matching_ids = arg_to_array matching_ids
     end
 
@@ -330,8 +377,8 @@ module Deepblue
 
   class ChildIdLogFilter < IdLogFilter
 
-    def initialize( matching_ids: [] )
-      super( matching_ids: matching_ids )
+    def initialize( matching_ids: [], options: {} )
+      super( matching_ids: matching_ids, options: options )
     end
 
     def filter_in( _timestamp, _event, _event_note, _class_name, _id, raw_key_values )
@@ -342,8 +389,8 @@ module Deepblue
 
   class IdOrParentIdLogFilter < IdLogFilter
 
-    def initialize( matching_ids: [] )
-      super( matching_ids: matching_ids )
+    def initialize( matching_ids: [], options: {} )
+      super( matching_ids: matching_ids , options: options)
     end
 
     def filter_in( timestamp, event, event_note, class_name, id, raw_key_values )
@@ -355,8 +402,8 @@ module Deepblue
 
   class IdOrParentOrChildIdLogFilter < IdLogFilter
 
-    def initialize( matching_ids: [] )
-      super( matching_ids: matching_ids )
+    def initialize( matching_ids: [], options: {} )
+      super( matching_ids: matching_ids, options: options )
     end
 
     def filter_in( timestamp, event, event_note, class_name, id, raw_key_values )
@@ -368,8 +415,8 @@ module Deepblue
 
   class ParentIdLogFilter < IdLogFilter
 
-    def initialize( matching_ids: [] )
-      super( matching_ids: matching_ids )
+    def initialize( matching_ids: [], options: {} )
+      super( matching_ids: matching_ids, options: options )
     end
 
     def filter_in( _timestamp, _event, _event_note, _class_name, _id, raw_key_values )

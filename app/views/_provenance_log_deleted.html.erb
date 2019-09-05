@@ -1,0 +1,34 @@
+<% if current_ability.admin? && @presenter.present? && @presenter.deleted_ids.present? %>
+  <div class="panel panel-default panel-items panel-provenance-log-entries">
+    <% if @presenter.deleted_ids.present? %>
+      <div class="panel-heading">
+        <h3>Deleted Works (<%= @presenter.deleted_ids.size %>)</h3>
+      </div>
+      <div class="table-scroll--container provenance-log-container">
+        <table class="table table-striped provenance-log-entries">
+          <thead>
+          <tr>
+            <th><%= t('.event_timestamp') %></th>
+            <th><%= t('.id') %></th>
+            <th><%= t('.responsible_user_email') %></th>
+            <th><%= t('.depositor') %></th>
+            <th><%= t('.title') %></th>
+          </tr>
+          </thead>
+          <tbody>
+          <% @presenter.deleted_ids.each do |id| %>
+            <% p = @presenter.deleted_id_to_key_values_map[id] %>
+            <tr>
+              <td><%= p["timestamp"] %></td>
+              <td><a href="<%= @presenter.url_for_deleted( id: id ) %>"><%= id %></td>
+              <td><%= p["user_email"] %></td>
+              <td><%= p["depositor"] %></td>
+              <td><%= @presenter.display_title( p["title"] ) %></td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </div>
+<% end %>
