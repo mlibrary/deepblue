@@ -20,6 +20,10 @@ module Hyrax
       @solr_document = solr_document
     end
 
+    def embargo_depostor
+      solr_document.fetch('depositor_ssim', []).first
+    end
+
     def embargo_release_date
       date = solr_document.embargo_release_date
       return date if date.blank?
