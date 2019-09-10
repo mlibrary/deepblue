@@ -52,12 +52,14 @@
 <%= render 'admin_sets' %>
 
 <div class="panel panel-default my_active_embargoes">
-  <div class="panel-heading">
-    <h3 class="panel-title "><%= t("hyrax.dashboard.my_active_embargoes") %></h3>
-  </div>
-  <div class="panel-body">
-    <%= render 'hyrax/dashboard/my_active_embargoes' %>
-  </div>
+  <% if have_assets_under_embargo?( current_ability.current_user.email.to_s ) %>
+    <div class="panel-heading">
+      <h3 class="panel-title "><%= t("hyrax.dashboard.my_active_embargoes") %></h3>
+    </div>
+    <div class="panel-body">
+      <%= render 'hyrax/dashboard/my_active_embargoes' %>
+    </div>
+  <% end %>
 </div>
 
 <div class="row">
