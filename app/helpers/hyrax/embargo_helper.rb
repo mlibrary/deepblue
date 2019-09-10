@@ -127,24 +127,27 @@ module Hyrax
       Deepblue::EmailHelper.send_email( to: email, from: email, subject: subject, body: body ) unless test_mode
     end
 
+    def have_assets_under_embargo?( current_user_key )
+      embargoes = my_assets_under_embargo( current_user_key )
+      return false if embargoes.blank?
+      hide_files = DeepBlueDocs::Application.config.embargo_manage_hide_files
+      return true unless hide_files
+      embargoes.each do |curation_concern|
+        hrt = curation_concern.human_readable_type
+        return true if hrt != 'File'
+      end
+      return false
+    end
+
     def my_assets_with_expired_embargoes( current_user_key )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "" ]
       @my_assets_with_expired_embargoes ||= EmbargoService.my_assets_with_expired_embargoes( current_user_key )
     end
 
     def my_assets_under_embargo( current_user_key )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "" ]
       @my_assets_under_embargo ||= EmbargoService.my_assets_under_embargo( current_user_key )
     end
 
     def my_assets_with_deactivated_embargoes( current_user_key )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "" ]
       @my_assets_with_deactivated_embargoes ||= EmbargoService.my_assets_with_deactivated_embargoes( current_user_key )
     end
 
