@@ -108,9 +108,12 @@
           <% end %>
         
       <% if @presenter.doi_minting_enabled? && !@presenter.doi_minted? %>
-      <br><br>
-            <%= link_to t('simple_form.actions.data_set.mint_doi'),
-                    main_app.doi_hyrax_data_set_path(@presenter.id), class: 'btn btn-primary' %>
+        <br><br>
+            <button class="btn btn-primary" data-target="#mintDoiId" data-toggle="modal">
+              <%= t('simple_form.actions.data_set.mint_doi') %>
+            </button>
+            <!-- %= link_to t('simple_form.actions.data_set.mint_doi'),
+                    main_app.doi_hyrax_data_set_path(@presenter.id), class: 'btn btn-primary' % -->
               <p><%= t('simple_form.actions.data_set.mint_help') %></p>
           </div>
         </div>
@@ -170,10 +173,10 @@
   <% end %>
 
   <% if @presenter.current_ability.admin? && @presenter.tombstone_enabled? %>
-      <button class="btn btn-subtle" data-target="#tombstoneId" data-toggle="modal">
-        <%= t('simple_form.actions.data_set.tombstone') %>
-      </button>
-    <% end %>
+    <button class="btn btn-subtle" data-target="#tombstoneId" data-toggle="modal">
+      <%= t('simple_form.actions.data_set.tombstone') %>
+    </button>
+  <% end %>
 
   </div>
   </div> <!-- End Admin panel -->
@@ -184,5 +187,5 @@
   <span class="Z3988" title="<%= export_as_openurl_ctx_kev(@presenter) %>"></span>
 </div>
 
+<%= render 'modal_mint_doi', id: @presenter.id %>
 <%= render 'modal_tombstone_work', id: @presenter.id %>
-

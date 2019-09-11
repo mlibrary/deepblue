@@ -90,6 +90,7 @@ Rails.application.routes.draw do
         # post   'confirm'
         get    'display_provenance_log'
         get    'doi'
+        post   'doi'
         post   'globus_download'
         post   'globus_add_email'
         get    'globus_add_email'
