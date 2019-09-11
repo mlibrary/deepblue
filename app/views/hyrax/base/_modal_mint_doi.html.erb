@@ -1,0 +1,25 @@
+<div class="modal fade disable-unless-selected" id="mintDoiId" tabindex="-1" role="dialog" aria-labelledby="doi-work-label">
+  <div class="modal-dialog" role="document" style="text-align: left; display: inline-block">
+    <div class="modal-content">
+      <form action="<%= id %>/doi" method="POST">
+      
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="doi-close"><span aria-hidden="true">&times;</span></button>
+          <h3 class="modal-title">Mint DOI for Work</h3>
+        </div>
+
+        <div class="modal-body" >
+          Are you sure you want to mint a DOI? This action will produce a permanent unique identifier for the work.
+        </div>
+
+        <div class="modal-footer">
+          <div style="text-align: right; display: inline-block">
+            <button type="button" class="btn btn-default" data-dismiss="modal"><%= t('helpers.action.cancel') %></button>
+            <input type="submit" class="btn btn-primary" value="<%= t('simple_form.actions.data_set.mint_doi') %>" />
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
