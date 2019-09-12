@@ -1,0 +1,33 @@
+# works_without_doi_report.yml
+# bundle exec rake deepblue:run_report[./lib/reports/works_without_doi_report.yml]
+# bundle exec rake deepblue:run_report[/deepbluedata-prep/reports/definitions/works_without_doi_report.yml]
+---
+:report:
+  :config:
+    :verbose: true
+  :output:
+    :format: CSV
+    :file: /deepbluedata-prep/reports/works_without_doi_report_out
+  :curation_concern: DataSet
+  :fields:
+    :id            : ID
+    :title         : Title
+    :depositor     : Depositor
+    :doi           : DOI
+    :visibility    : Visibility
+    :date_published : Published
+  :field_accessors:
+    :visibility:
+      :method:
+  :field_formats:
+    :date_published:
+      :date: "%Y-%m-%d %H:%M:%S"
+    :title:
+      :join: ' '
+  :filters:
+    :include:
+      :doi:
+        :blank:
+    :exclude:
+#      :doi:
+#        :blank:

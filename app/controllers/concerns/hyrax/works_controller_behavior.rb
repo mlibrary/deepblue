@@ -37,7 +37,7 @@ module Hyrax
           # okay, since this looks like a deleted curation concern, we can check the provenance log
           # if admin, redirect to the provenance log controller
           if current_ability.admin?
-            url = Rails.application.routes.url_helpers.url_for( only_path: true,
+            url = Rails.application.routes.url_helpers.url_for( only_path: true, 
                                                                 action: 'show',
                                                                 controller: 'provenance_log',
                                                                 id: id )
