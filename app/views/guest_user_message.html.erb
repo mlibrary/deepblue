@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="<%= t("hyrax.document_language", default: '') %>" prefix="og:http://ogp.me/ns#">
+
+  <head>
+  </head>
+
+  <body>
+    <div>
+      <%= form_tag(root_url, method: 'get') do %>
+        <%= submit_tag(t('simple_form.actions.guest_user_message.go_to_main_page'), class: 'btn btn-primary') %>
+      <% end %>
+    </div>
+  </body>
+
+</html>

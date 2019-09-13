@@ -229,6 +229,8 @@ en:
         on_behalf_of: "Deposit on behalf of"
 
     actions:
+      guest_user_message:
+        go_to_main_page:                "Go to main page"
       generic_work:
         confirm:                        "Confirm Your Deposit"
         download:                       "Download All Files"

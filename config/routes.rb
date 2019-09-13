@@ -138,6 +138,7 @@ Rails.application.routes.draw do
   post '/provenance_log_zip_download/', to: 'provenance_log#log_zip_download'
   get '/provenance_log_deleted_works/', to: 'provenance_log#deleted_works'
   post '/provenance_log_deleted_works/', to: 'provenance_log#deleted_works'
+  get '/guest_user_message', to: 'guest_user_message#show'
 
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 

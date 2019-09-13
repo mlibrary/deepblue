@@ -43,7 +43,7 @@ module Hyrax
         # Need to add admin group to current_ability
         # or presenter will not be accessible.
         current_ability.user_groups << "admin"
-        if presenter.tombstone.present? 
+        if presenter&.tombstone.present?
         else
           current_ability.user_groups.delete("admin")
         end
