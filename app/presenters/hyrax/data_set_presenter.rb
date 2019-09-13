@@ -167,6 +167,7 @@ module Hyrax
     # begin tombstone
 
     def tombstone
+      return nil if @solr_document.blank?
       solr_value = @solr_document[Solrizer.solr_name('tombstone', :symbol)]
       return nil if solr_value.blank?
       solr_value.first
