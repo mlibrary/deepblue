@@ -16,7 +16,6 @@ module Hyrax
 
       # Only returns unsuppressed documents the user has read access to
       def search_result_document(search_params)
-        provenance_log_url
         _, document_list = search_results(search_params)
         return document_list.first unless document_list.empty?
         document_not_found!
@@ -26,7 +25,7 @@ module Hyrax
           #                                        ::Deepblue::LoggingHelper.called_from,
           #                                        "about to redirect - 01",
           #                                        "" ]
-          return redirect_to guest_user_message_url, error: "unable to present requested work"
+          return redirect_to guest_user_message_url, alert: "unable to present requested work"
         end
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
         #                                        ::Deepblue::LoggingHelper.called_from,
@@ -68,7 +67,7 @@ module Hyrax
         #                                        ::Deepblue::LoggingHelper.called_from,
         #                                        "about to redirect - 02 - guest_user_message_url=#{guest_user_message_url}",
         #                                        "" ]
-        return redirect_to( guest_user_message_url, error: "unable to present requested work" )
+        return redirect_to( guest_user_message_url, alert: "unable to present requested work" )
       end
 
       def document_not_found!

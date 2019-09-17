@@ -27,10 +27,49 @@ class ApplicationController < ActionController::Base
   #   * ensuring the user will be logged out if REMOTE_USER is not set
   #   * clearing the entire session including flash messages
   def clear_session_user
+    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                        ::Deepblue::LoggingHelper.called_from,
+    #                                        "[AUTHN] clear_session_user: #{current_user.try(:email) || '(no user)'}",
+    #                                        "request=#{request}",
+    #                                        # "request&.keys=#{request&.keys}",
+    #                                        "session=#{session}",
+    #                                        "session&.keys=#{session&.keys}",
+    #                                        "params=#{params}",
+    #                                        "params.keys=#{params.keys}",
+    #                                        "" ]
     return nil_request if request.nil?
+    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                        ::Deepblue::LoggingHelper.called_from,
+    #                                        "[AUTHN] clear_session_user: #{current_user.try(:email) || '(no user)'} request not nil",
+    #                                        "params=#{params}",
+    #                                        "" ]
     search = session[:search].dup if session[:search]
+    flash = session[:flash].dup if session[:flash]
     request.env['warden'].logout unless user_logged_in?
-    session[:search] = search
+    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                        ::Deepblue::LoggingHelper.called_from,
+    #                                        "[AUTHN] clear_session_user: #{current_user.try(:email) || '(no user)'}",
+    #                                        "After: request.env['warden'].logout unless user_logged_in?",
+    #                                        "request=#{request}",
+    #                                        # "request&.keys=#{request&.keys}",
+    #                                        "session=#{session}",
+    #                                        "session&.keys=#{session&.keys}",
+    #                                        "params=#{params}",
+    #                                        "params.keys=#{params.keys}",
+    #                                        "" ]
+    session[:search] = search if search
+    session[:flash] = flash if flash
+    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                        ::Deepblue::LoggingHelper.called_from,
+    #                                        "[AUTHN] clear_session_user: #{current_user.try(:email) || '(no user)'}",
+    #                                        "After: session search and flash restored",
+    #                                        "request=#{request}",
+    #                                        # "request&.keys=#{request&.keys}",
+    #                                        "session=#{session}",
+    #                                        "session&.keys=#{session&.keys}",
+    #                                        "params=#{params}",
+    #                                        "params.keys=#{params.keys}",
+    #                                        "" ]
   end
   
   def user_logged_in?
@@ -38,11 +77,19 @@ class ApplicationController < ActionController::Base
   end
 
   def sso_logout
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "[AUTHN] sso_logout: #{current_user.try(:email) || '(no user)'}",
+                                           "" ]
     redirect_to Hyrax::Engine.config.logout_prefix + logout_now_url
   end
 
   def sso_auto_logout
     Rails.logger.debug "[AUTHN] sso_auto_logout: #{current_user.try(:email) || '(no user)'}"
+    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                        ::Deepblue::LoggingHelper.called_from,
+    #                                        "[AUTHN] sso_auto_logout: #{current_user.try(:email) || '(no user)'}",
+    #                                        "" ]
     sign_out(:user)
     cookies.delete("cosign-" + Hyrax::Engine.config.hostname, path: '/')
     session.destroy
@@ -51,6 +98,10 @@ class ApplicationController < ActionController::Base
 
   Warden::Manager.after_authentication do |user, auth, opts|
     Rails.logger.debug "[AUTHN] Warden after_authentication (clearing flash): #{user}"
+    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                        ::Deepblue::LoggingHelper.called_from,
+    #                                        "[AUTHN] Warden after_authentication (clearing flash): #{user}",
+    #                                        "" ]
     auth.request.flash.clear
   end
 
