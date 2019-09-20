@@ -443,3 +443,8 @@ table.datatable thead th.no-sort {
 .datatable > thead > tr > th[class*="no-sort"]:after{
     content: "" !important;
 }
+
+.dl-horizontal {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
