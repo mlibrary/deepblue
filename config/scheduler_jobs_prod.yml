@@ -1,9 +1,9 @@
 # config/scheduler_jobs_prod.yml
 
 deactivate_expired_embargoes_job:
-  # Run once a day, five minutes after midnight
+  # Run once a day, five minutes after midnight (which is offset by 4, due to GMT)
   #      M H
-  cron: '5 0 * * *'
+  cron: '5 4 * * *'
   # rails_env: production
   class: DeactivateExpiredEmbargoesJob
   queue: scheduler
@@ -14,9 +14,9 @@ deactivate_expired_embargoes_job:
     verbose: true
 
 about_to_deactivate_embargoes_job:
-  # Run once a day, fifteen minutes after midnight
+  # Run once a day, fifteen minutes after midnight (which is offset by 4, due to GMT)
   #      M  H
-  cron: '15 0 * * *'
+  cron: '15 4 * * *'
   # rails_env: production
   class: AboutToExpireEmbargoesJob
   queue: scheduler
