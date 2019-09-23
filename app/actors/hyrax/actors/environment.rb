@@ -7,6 +7,7 @@ module Hyrax
     class EnvironmentAttributes
 
       # IGNORE_KEYS = [].freeze
+      LOG_IT = false
       IGNORE_KEYS = [ :visibility ].freeze
 
       instance_methods.each do |m|
@@ -47,6 +48,7 @@ module Hyrax
       private
 
         def log_it( key_label, key )
+          return unless LOG_IT
           return if IGNORE_KEYS.include? key
           Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                Deepblue::LoggingHelper.called_from,

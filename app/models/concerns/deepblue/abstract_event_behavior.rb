@@ -14,6 +14,7 @@ module Deepblue
     EVENT_CREATE_DERIVATIVE = 'create_derivative'
     EVENT_DESTROY           = 'destroy'
     EVENT_DOWNLOAD          = 'download'
+    EVENT_EMBARGO           = 'embargo'
     EVENT_FIXITY_CHECK      = 'fixity_check'
     EVENT_GLOBUS            = 'globus'
     EVENT_INGEST            = 'ingest'
@@ -21,6 +22,7 @@ module Deepblue
     EVENT_MINT_DOI          = 'mint_doi'
     EVENT_PUBLISH           = 'publish'
     EVENT_TOMBSTONE         = 'tombstone'
+    EVENT_UNEMBARGO         = 'unembargo'
     EVENT_UNPUBLISH         = 'unpublish'
     EVENT_UPDATE            = 'update'
     EVENT_UPDATE_AFTER      = 'update_after'
@@ -38,6 +40,7 @@ module Deepblue
         EVENT_CREATE_DERIVATIVE,
         EVENT_DESTROY,
         EVENT_DOWNLOAD,
+        EVENT_EMBARGO,
         EVENT_FIXITY_CHECK,
         EVENT_GLOBUS,
         EVENT_INGEST,
@@ -45,6 +48,7 @@ module Deepblue
         EVENT_MINT_DOI,
         EVENT_PUBLISH,
         EVENT_TOMBSTONE,
+        EVENT_UNEMBARGO,
         EVENT_UNPUBLISH,
         EVENT_UPDATE,
         EVENT_UPDATE_AFTER,

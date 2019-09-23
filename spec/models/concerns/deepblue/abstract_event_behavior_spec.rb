@@ -22,6 +22,7 @@ RSpec.describe Deepblue::AbstractEventBehavior do
       expect( Deepblue::AbstractEventBehavior::EVENT_CREATE_DERIVATIVE ).to eq 'create_derivative'
       expect( Deepblue::AbstractEventBehavior::EVENT_DESTROY ).to eq 'destroy'
       expect( Deepblue::AbstractEventBehavior::EVENT_DOWNLOAD ).to eq 'download'
+      expect( Deepblue::AbstractEventBehavior::EVENT_EMBARGO ).to eq 'embargo'
       expect( Deepblue::AbstractEventBehavior::EVENT_FIXITY_CHECK ).to eq 'fixity_check'
       expect( Deepblue::AbstractEventBehavior::EVENT_GLOBUS ).to eq 'globus'
       expect( Deepblue::AbstractEventBehavior::EVENT_INGEST ).to eq 'ingest'
@@ -29,6 +30,7 @@ RSpec.describe Deepblue::AbstractEventBehavior do
       expect( Deepblue::AbstractEventBehavior::EVENT_MINT_DOI ).to eq 'mint_doi'
       expect( Deepblue::AbstractEventBehavior::EVENT_PUBLISH ).to eq 'publish'
       expect( Deepblue::AbstractEventBehavior::EVENT_TOMBSTONE ).to eq 'tombstone'
+      expect( Deepblue::AbstractEventBehavior::EVENT_UNEMBARGO ).to eq 'unembargo'
       expect( Deepblue::AbstractEventBehavior::EVENT_UNPUBLISH ).to eq 'unpublish'
       expect( Deepblue::AbstractEventBehavior::EVENT_UPDATE ).to eq 'update'
       expect( Deepblue::AbstractEventBehavior::EVENT_UPDATE_AFTER ).to eq 'update_after'
@@ -45,6 +47,7 @@ RSpec.describe Deepblue::AbstractEventBehavior do
         Deepblue::AbstractEventBehavior::EVENT_CREATE_DERIVATIVE,
         Deepblue::AbstractEventBehavior::EVENT_DESTROY,
         Deepblue::AbstractEventBehavior::EVENT_DOWNLOAD,
+        Deepblue::AbstractEventBehavior::EVENT_EMBARGO,
         Deepblue::AbstractEventBehavior::EVENT_FIXITY_CHECK,
         Deepblue::AbstractEventBehavior::EVENT_GLOBUS,
         Deepblue::AbstractEventBehavior::EVENT_INGEST,
@@ -52,6 +55,7 @@ RSpec.describe Deepblue::AbstractEventBehavior do
         Deepblue::AbstractEventBehavior::EVENT_MINT_DOI,
         Deepblue::AbstractEventBehavior::EVENT_PUBLISH,
         Deepblue::AbstractEventBehavior::EVENT_TOMBSTONE,
+        Deepblue::AbstractEventBehavior::EVENT_UNEMBARGO,
         Deepblue::AbstractEventBehavior::EVENT_UNPUBLISH,
         Deepblue::AbstractEventBehavior::EVENT_UPDATE,
         Deepblue::AbstractEventBehavior::EVENT_UPDATE_AFTER,

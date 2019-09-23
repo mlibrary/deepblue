@@ -13,11 +13,14 @@ module Hydra
 
       # Deactivates the embargo and logs a message to the embargo object.
       # Marks this record as dirty so that it will get reindexed.
-      def deactivate_embargo!
+      def deactivate_embargo!( current_user: nil )
         return if embargo.nil?
         # embargo.deactivate! whipes out work.visibility_after_embargo before it can be applied, so save it and apply it
         vis_after = visibility_after_embargo
         vis_after = visibility_after_embargo_default if vis_after.nil?
+        provenance_unembargo( current_user: Deepblue::ProvenanceHelper.system_as_current_user,
+                              embargo_visibility: visibility,
+                              embargo_visibility_after: vis_after )
         # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
         #                                      Deepblue::LoggingHelper.called_from,
         #                                      "before",

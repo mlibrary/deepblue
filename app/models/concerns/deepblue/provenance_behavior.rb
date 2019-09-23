@@ -46,6 +46,10 @@ module Deepblue
       return attributes_all_for_provenance, USE_BLANK_KEY_VALUES
     end
 
+    def attributes_for_provenance_embargo
+      return attributes_all_for_provenance, USE_BLANK_KEY_VALUES
+    end
+
     def attributes_for_provenance_fixity_check
       return attributes_brief_for_provenance, IGNORE_BLANK_KEY_VALUES
     end
@@ -67,6 +71,10 @@ module Deepblue
     end
 
     def attributes_for_provenance_tombstone
+      return attributes_all_for_provenance, USE_BLANK_KEY_VALUES
+    end
+
+    def attributes_for_provenance_unembargo
       return attributes_all_for_provenance, USE_BLANK_KEY_VALUES
     end
 
@@ -199,10 +207,10 @@ module Deepblue
     end
 
     def map_provenance_attributes_for_update( current_user, event_note, provenance_attribute_values_before_update )
-      Rails.logger.debug ">>>>>>"
-      Rails.logger.debug "map_provenance_attributes_for_update"
-      Rails.logger.debug "provenance_attribute_values_before_update=#{ActiveSupport::JSON.encode provenance_attribute_values_before_update}"
-      Rails.logger.debug ">>>>>>"
+      # Rails.logger.debug ">>>>>>"
+      # Rails.logger.debug "map_provenance_attributes_for_update"
+      # Rails.logger.debug "provenance_attribute_values_before_update=#{ActiveSupport::JSON.encode provenance_attribute_values_before_update}"
+      # Rails.logger.debug ">>>>>>"
       return nil if provenance_attribute_values_before_update.blank?
       attributes, ignore_blank_key_values = attributes_for_provenance_update
       prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes,
@@ -211,15 +219,15 @@ module Deepblue
                                                                   event_note: event_note,
                                                                   ignore_blank_key_values: ignore_blank_key_values )
       # only the changed values
-      Rails.logger.debug ">>>>>>"
-      Rails.logger.debug "map_provenance_attributes_for_update"
-      Rails.logger.debug "before reject=#{ActiveSupport::JSON.encode prov_key_values}"
-      Rails.logger.debug ">>>>>>"
+      # Rails.logger.debug ">>>>>>"
+      # Rails.logger.debug "map_provenance_attributes_for_update"
+      # Rails.logger.debug "before reject=#{ActiveSupport::JSON.encode prov_key_values}"
+      # Rails.logger.debug ">>>>>>"
       prov_key_values.reject! { |attribute, value| value == provenance_attribute_values_before_update[attribute] }
-      Rails.logger.debug ">>>>>>"
-      Rails.logger.debug "map_provenance_attributes_for_update"
-      Rails.logger.debug "after reject=#{ActiveSupport::JSON.encode prov_key_values}"
-      Rails.logger.debug ">>>>>>"
+      # Rails.logger.debug ">>>>>>"
+      # Rails.logger.debug "map_provenance_attributes_for_update"
+      # Rails.logger.debug "after reject=#{ActiveSupport::JSON.encode prov_key_values}"
+      # Rails.logger.debug ">>>>>>"
       prov_key_values
     end
 
@@ -353,6 +361,26 @@ module Deepblue
                             event: EVENT_DESTROY,
                             event_note: event_note,
                             ignore_blank_key_values: ignore_blank_key_values )
+    end
+
+    def provenance_embargo( current_user:, event_note: '', **embargo_values )
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "embargo_values=#{embargo_values}",
+      #                                        "" ]
+      attributes, ignore_blank_key_values = attributes_for_provenance_embargo
+      prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes,
+                                                                  current_user: current_user,
+                                                                  event: EVENT_EMBARGO,
+                                                                  event_note: event_note,
+                                                                  ignore_blank_key_values: ignore_blank_key_values,
+                                                                  **embargo_values )
+      provenance_log_event( attributes: attributes,
+                            current_user: current_user,
+                            event: EVENT_EMBARGO,
+                            event_note: event_note,
+                            ignore_blank_key_values: ignore_blank_key_values,
+                            prov_key_values: prov_key_values )
     end
 
     def provenance_fixity_check( current_user:,
@@ -494,6 +522,24 @@ module Deepblue
                             prov_key_values: prov_key_values )
     end
 
+    def provenance_unembargo( current_user:, event_note: '', message: '', embargo_visibility:, embargo_visibility_after: )
+      attributes, ignore_blank_key_values = attributes_for_provenance_embargo
+      prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes,
+                                                                  current_user: current_user,
+                                                                  event: EVENT_UNEMBARGO,
+                                                                  event_note: event_note,
+                                                                  ignore_blank_key_values: ignore_blank_key_values,
+                                                                  message: message,
+                                                                  embargo_visibility: embargo_visibility,
+                                                                  embargo_visibility_after: embargo_visibility_after )
+      provenance_log_event( attributes: attributes,
+                            current_user: current_user,
+                            event: EVENT_UNEMBARGO,
+                            event_note: event_note,
+                            ignore_blank_key_values: ignore_blank_key_values,
+                            prov_key_values: prov_key_values )
+    end
+
     def provenance_unpublish( current_user:, event_note: '' )
       attributes, ignore_blank_key_values = attributes_for_provenance_unpublish
       provenance_log_event( attributes: attributes,
@@ -504,6 +550,10 @@ module Deepblue
     end
 
     def provenance_update( current_user:, event_note: '', **added_prov_key_values )
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "added_prov_key_values=#{added_prov_key_values}",
+      #                                        "" ]
       attributes, ignore_blank_key_values = attributes_for_provenance_update
       event = EVENT_UPDATE
       prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes,
@@ -520,12 +570,52 @@ module Deepblue
                             prov_key_values: prov_key_values )
     end
 
+    def provenance_update_embargo_key_values( update_attr_key_values: )
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "update_attr_key_values=#{update_attr_key_values}",
+      #                                        "" ]
+      return nil unless update_attr_key_values.present?
+      return nil unless update_attr_key_values.key? :embargo
+      embargo_key_values = update_attr_key_values[:embargo]
+      update_attr_key_values.delete :embargo
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "update_attr_key_values=#{update_attr_key_values}",
+      #                                        "embargo_key_values=#{embargo_key_values}",
+      #                                        "" ]
+      embargo_key_values
+    end
+
+    def update_attribute_changed?( update_attr: )
+      old_value = update_attr[:old_value]
+      new_value = update_attr[:new_value]
+      old_value != new_value
+    end
+
     def provenance_log_update_after( current_user:, event_note: '', update_attr_key_values: nil )
-      # LoggingHelper.bold_debug [ "provenance_log_update_after", 'update_attr_key_values:', update_attr_key_values ]
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "update_attr_key_values=#{update_attr_key_values}",
+      #                                        "" ]
+      embargo_key_values = provenance_update_embargo_key_values( update_attr_key_values: update_attr_key_values )
       update_attr_key_values = ProvenanceHelper.update_attribute_key_values( curation_concern: for_provenance_object,
                                                                              **update_attr_key_values )
-      # LoggingHelper.bold_debug [ "provenance_log_update_after", 'update_attr_key_values:', update_attr_key_values ]
-      provenance_update( current_user: current_user, event_note: event_note, **update_attr_key_values ) if update_attr_key_values.present?
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "update_attr_key_values=#{update_attr_key_values}",
+      #                                        "" ]
+      if update_attr_key_values.present? || embargo_key_values.present?
+        if embargo_key_values.present?
+          embargo_key_values.each_pair do |key, value|
+            update_attr_key_values[key] = value if update_attribute_changed?( update_attr: value )
+          end
+        end
+        provenance_update( current_user: current_user, event_note: event_note, **update_attr_key_values )
+        provenance_embargo( current_user: current_user,
+                            event_note: event_note,
+                            embargo_key_values: embargo_key_values ) if embargo_key_values.present?
+      end
     end
 
     def provenance_log_update_before( form_params: )

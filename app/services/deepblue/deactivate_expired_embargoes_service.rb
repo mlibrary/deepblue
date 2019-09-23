@@ -43,6 +43,7 @@ module Deepblue
         model = ::ActiveFedora::Base.find asset.id
         deactivate_embargo( curation_concern: model,
                             copy_visibility_to_files: true,
+                            current_user: Deepblue::ProvenanceHelper.system_as_current_user,
                             email_owner: @email_owner,
                             test_mode: @test_mode,
                             verbose: @verbose )
