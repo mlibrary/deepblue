@@ -34,7 +34,8 @@ class DataSet < ActiveFedora::Base
   before_destroy :provenance_before_destroy_data_set
 
   def provenance_before_destroy_data_set
-    provenance_destroy( current_user: '' ) # , event_note: 'provenance_before_destroy_data_set' )
+    # workflow_destroy does this
+    # provenance_destroy( current_user: '' ) # , event_note: 'provenance_before_destroy_data_set' )
   end
 
   def set_defaults
