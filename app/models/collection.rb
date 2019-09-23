@@ -21,7 +21,8 @@ class Collection < ActiveFedora::Base
   self.indexer = Hyrax::CollectionWithBasicMetadataIndexer
 
   def provenance_before_destroy_collection
-    provenance_destroy( current_user: '' ) # , event_note: 'provenance_before_destroy_collection' )
+    # workflow_destroy does this
+    # provenance_destroy( current_user: '' ) # , event_note: 'provenance_before_destroy_collection' )
   end
 
   def metadata_keys_all

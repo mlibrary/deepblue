@@ -11,7 +11,8 @@ class FileSet < ActiveFedora::Base
   before_destroy :provenance_before_destroy_file_set
 
   def provenance_before_destroy_file_set
-    provenance_destroy( current_user: '' ) # , event_note: 'provenance_before_destroy_file_set' )
+    # workflow_destroy does this
+    # provenance_destroy( current_user: '' ) # , event_note: 'provenance_before_destroy_file_set' )
   end
 
   def metadata_keys_all
