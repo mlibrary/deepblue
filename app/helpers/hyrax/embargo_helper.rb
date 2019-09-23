@@ -75,7 +75,12 @@ module Hyrax
 
     # Update the visibility of the work to match the correct state of the embargo, then clear the embargo date, etc.
     # Saves the embargo and the work
-    def deactivate_embargo( curation_concern:, copy_visibility_to_files:, email_owner: true, test_mode: false, verbose: false )
+    def deactivate_embargo( curation_concern:,
+                            copy_visibility_to_files:,
+                            current_user:,
+                            email_owner: true,
+                            test_mode: false,
+                            verbose: false )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              ::Deepblue::LoggingHelper.obj_class( "curation_concern", curation_concern ),
@@ -85,13 +90,18 @@ module Hyrax
                                              "verbose=#{verbose}",
                                              "" ]
       # also probably want to lock the model
+      current_user = Deepblue::ProvenanceHelper.system_as_current_user unless current_user.present?
+      embargo_visibility = curation_concern.visibility
       if curation_concern.is_a? FileSet
         ::Deepblue::LoggingHelper.debug "deactivate_embargo for file_set: curation concern id: #{curation_concern.id}" if verbose
         curation_concern.visibility = visibility_on_embargo_deactivation( curation_concern: curation_concern )
+        curation_concern.provenance_unembargo( current_user: Deepblue::ProvenanceHelper.system_as_current_user,
+                                               embargo_visibility: embargo_visibility,
+                                               embargo_visibility_after: curation_concern.visibility )
         curation_concern.save! unless test_mode
       else
         curation_concern.embargo_visibility! unless test_mode # If the embargo has lapsed, update the current visibility.
-        curation_concern.deactivate_embargo! unless test_mode
+        curation_concern.deactivate_embargo!( current_user: Deepblue::ProvenanceHelper.system_as_current_user ) unless test_mode
         curation_concern.embargo.save! unless test_mode
         rv = false
         rv = curation_concern.save! unless test_mode
@@ -125,6 +135,16 @@ module Hyrax
                                  subject: subject,
                                  body: body )
       Deepblue::EmailHelper.send_email( to: email, from: email, subject: subject, body: body ) unless test_mode
+    end
+
+    def embargo_added( curation_concern:, update_attr_key_values: )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( "curation_concern", curation_concern ),
+                                             "curation_concern.id=#{curation_concern.id}",
+                                             "update_attr_key_values=#{update_attr_key_values}",
+                                             "" ]
+      false
     end
 
     def have_assets_under_embargo?( current_user_key )

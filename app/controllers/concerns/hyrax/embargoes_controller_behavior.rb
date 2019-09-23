@@ -22,7 +22,9 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.obj_class( "curation_concern", curation_concern ),
                                              "" ]
       # Hyrax::Actors::EmbargoActor.new(curation_concern).destroy
-      deactivate_embargo( curation_concern: curation_concern, copy_visibility_to_files: false )
+      deactivate_embargo( curation_concern: curation_concern,
+                          current_user: current_user,
+                          copy_visibility_to_files: false )
       flash[:notice] = curation_concern.embargo_history.last
       if curation_concern.work? && curation_concern.file_sets.present? &&
             DeepBlueDocs::Application.config.embargo_allow_children_unembargo_choice
@@ -43,7 +45,9 @@ module Hyrax
                                    else
                                      copy_visibility.include?(curation_concern.id)
                                    end
-        deactivate_embargo( curation_concern: curation_concern, copy_visibility_to_files: copy_visibility_to_files )
+        deactivate_embargo( curation_concern: curation_concern,
+                            current_user: current_user,
+                            copy_visibility_to_files: copy_visibility_to_files )
       end
       redirect_to embargoes_path, notice: t('.embargo_deactivated')
     end

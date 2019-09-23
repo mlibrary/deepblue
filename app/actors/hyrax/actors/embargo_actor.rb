@@ -18,7 +18,7 @@ module Hyrax
                                                ::Deepblue::LoggingHelper.called_from,
                                                ::Deepblue::LoggingHelper.obj_class( "work", work ),
                                                "" ]
-        deactivate_embargo( curation_concern: work, copy_visibility_to_files: false )
+        deactivate_embargo( curation_concern: work, current_user: env.user, copy_visibility_to_files: false )
       end
 
     end

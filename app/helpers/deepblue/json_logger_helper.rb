@@ -15,6 +15,49 @@ module Deepblue
 
     module ClassMethods
 
+      def extract_embargo_form_values( curation_concern:, update_key_prefix:, form_params: )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               ::Deepblue::LoggingHelper.obj_class( "curation_concern", curation_concern ),
+                                               "curation_concern.id=#{curation_concern.id}",
+                                               "update_key_prefix=#{update_key_prefix}",
+                                               "form_params=#{form_params}",
+                                               "" ]
+        embargo_values = {}
+        key = "embargo_release_date"
+        new_value = form_params[key]
+        old_value = curation_concern.embargo_release_date if curation_concern.respond_to? :embargo_release_date
+        update_key = "#{update_key_prefix}#{key}".to_sym
+        embargo_values[update_key] = form_update_attribute( key: :embargo_release_date,
+                                                            old_value: old_value,
+                                                            new_value: new_value )
+
+        key = "visibility_during_embargo"
+        new_value = form_params[key]
+        old_value = curation_concern.visibility_during_embargo if curation_concern.respond_to? :visibility_during_embargo
+        update_key = "#{update_key_prefix}#{key}".to_sym
+        embargo_values[update_key] = form_update_attribute( key: :visibility_during_embargo,
+                                                            old_value: old_value,
+                                                            new_value: new_value )
+
+        key = "visibility_after_embargo"
+        new_value = form_params[key]
+        old_value = curation_concern.visibility_after_embargo if curation_concern.respond_to? :visibility_after_embargo
+        update_key = "#{update_key_prefix}#{key}".to_sym
+        embargo_values[update_key] = form_update_attribute( key: :visibility_after_embargo,
+                                                            old_value: old_value,
+                                                            new_value: new_value )
+
+        embargo_values
+      end
+
+      def form_update_attribute( key:, old_value:, new_value: )
+        old_value = ActiveSupport::JSON.encode old_value
+        old_value = ActiveSupport::JSON.decode old_value
+        attr = { attribute: key, old_value: old_value, new_value: new_value }
+        attr
+      end
+
       def form_params_to_update_attribute_key_values( curation_concern:,
                                                       form_params:,
                                                       update_key_prefix: PREFIX_UPDATE_ATTRIBUTE,
@@ -22,12 +65,16 @@ module Deepblue
 
         attr_key_values = {}
         return attr_key_values if form_params.nil?
+        embargo_values = nil
         form_params.each_pair do |key, value|
           update_key = "#{update_key_prefix}#{key}".to_sym
           key = key.to_sym
           has_old_value = case key
                           when :visibility
                             old_value = curation_concern.visibility
+                            embargo_values = extract_embargo_form_values( curation_concern: curation_concern,
+                                                                          update_key_prefix: update_key_prefix,
+                                                                          form_params: form_params ) if value == "embargo"
                             true
                           else
                             if curation_concern.has_attribute? key
@@ -63,11 +110,9 @@ module Deepblue
             new_value = value
           end
           next if new_value.nil?
-          # do a deep copy
-          old_value = ActiveSupport::JSON.encode old_value
-          old_value = ActiveSupport::JSON.decode old_value
-          attr_key_values[update_key] = { attribute: key, old_value: old_value, new_value: value }
+          attr_key_values[update_key] = form_update_attribute( key: key, old_value: old_value, new_value: value )
         end
+        attr_key_values[:embargo] = embargo_values if embargo_values.present?
         attr_key_values
       end
 

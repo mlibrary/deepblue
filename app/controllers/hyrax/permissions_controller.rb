@@ -10,6 +10,12 @@ module Hyrax
                                            Deepblue::LoggingHelper.called_from,
                                            "" ]
       # intentional noop to display default view
+      embargo_release_date = curation_concern.embargo_release_date if curation_concern.respond_to? :embargo_release_date
+      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                           Deepblue::LoggingHelper.called_from,
+                                           "curation_concern.embargo_release_date=#{embargo_release_date}",
+                                           "" ]
+      copy unless DeepBlueDocs::Application.config.embargo_allow_children_unembargo_choice
     end
 
     def copy
@@ -18,7 +24,7 @@ module Hyrax
                                            "" ]
       authorize! :edit, curation_concern
       VisibilityCopyJob.perform_later(curation_concern)
-      flash_message = 'Updating file permissions. This may take a few minutes. You may want to refresh your browser or return to this record later to see the updated file permissions.'
+      flash_message = I18n.t("hyrax.embargo.copy_visibility_flash_message")
       redirect_to [main_app, curation_concern], notice: flash_message
     end
 
