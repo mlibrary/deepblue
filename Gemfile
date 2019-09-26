@@ -40,6 +40,8 @@ gem 'resque-scheduler'
 gem 'resque-scheduler-web'
 gem 'active_scheduler'
 
+gem 'net-ldap'
+
 # EZID client from Duke
 gem 'ezid-client'
 
