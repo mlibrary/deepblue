@@ -243,6 +243,12 @@ class DataSet < ActiveFedora::Base
     return e.to_s
   end
 
+  def workflow_state
+    wgid = to_global_id.to_s
+    entity = Sipity::Entity.where( proxy_for_global_id: wgid )&.first
+    entity&.workflow_state_name
+  end
+
   def map_provenance_attributes_override!( event:, # rubocop:disable Lint/UnusedMethodArgument
                                            attribute:,
                                            ignore_blank_key_values:,

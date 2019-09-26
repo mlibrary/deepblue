@@ -1,0 +1,88 @@
+# works_for_campus_partnership_report.yml
+# bundle exec rake deepblue:run_report[./lib/reports/works_for_campus_partnership_report.yml]
+# bundle exec rake deepblue:run_report[/deepbluedata-prep/reports/definitions/works_for_campus_partnership_report.yml]
+---
+:report:
+  :config:
+    :verbose: true
+  :output:
+    :format: CSV
+    :file: /deepbluedata-prep/reports/works_for_campus_partnership_out
+  :curation_concern: DataSet
+  :fields:
+    :id             : ID
+    :title          : Title
+    :creator        : Creator
+    :depositor      : Depositor
+    :authoremail    : Author Email
+    :visibility     : Visibility
+    :workflow_state : Workflow
+    :data_set_url   : URL
+    :department     : Department
+  :field_accessors:
+    :data_set_url:
+      :method:
+    :visibility:
+      :method:
+    :workflow_state:
+      :method:
+  :field_formats:
+    :creator:
+      :join: '; '
+    :title:
+      :join: ' '
+  :filters:
+    :include:
+#      :doi:
+#        :blank:
+    :exclude:
+#      :doi:
+#        :blank:
+
+## post-processing to add Department from ldap
+#require 'csv'
+#require 'net-ldap'
+#
+#def uniqname_from( csv_line )
+#  authoremail = csv_line[0][4]
+#  m = authoremail.match /^([^@]+)@umich\.edu$/
+#  return nil if m.nil?
+#  m[1]
+#end
+#
+#def department_from( csv_line )
+#  uniqname = uniqname_from csv_line
+#  return nil if uniqname.blank?
+#  base_dn = "uid=#{uniqname},ou=People,dc=umich,dc=edu"
+#  filter  = 'objectclass=*'
+#  r = @ldap.search(:base => base_dn, :filter => filter)
+#  return nil if r.nil?
+#  r[0][:ou].join( ";" )
+#end
+#
+#input_file = '/Volumes/ulib-dbd-prep/reports/works_for_campus_partnership_out.csv'
+#output_file = '/Volumes/ulib-dbd-prep/reports/works_for_campus_partnership_out2.csv'
+#
+#input_file = '/deepbluedata-prep/reports/works_for_campus_partnership_out.csv'
+#output_file = '/deepbluedata-prep/reports/works_for_campus_partnership_out2.csv'
+#
+#host = 'ldap.umich.edu'
+#port = 389
+#@ldap = Net::LDAP.new :host => host, :port => port #, :auth => :anonymous
+#
+#fout = open( output_file, "w" )
+#File.readlines(input_file).each do |line|
+#  # puts line
+#  csv_line = CSV.parse line
+#  # puts csv_line
+#  id = csv_line[0][0]
+#  if "ID" == id
+#    fout.puts( line.chomp! )
+#  else
+#    department = department_from csv_line
+#    # remove trailing newline and last two characters, which should be two double quotes
+#    fout.puts( "#{line.chomp!.chop!.chop!}\"#{department}\"" )
+#  end
+#end; true
+#fout&.flush
+#fout&.close
