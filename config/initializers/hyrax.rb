@@ -331,7 +331,7 @@ Hyrax.config do |config|
 
   # override the path used for branding
   # the rest of the code assumes that the this path is symlinked to public/branding
-  config.instance_variable_set( :@branding_path, Rails.root.join( 'tmp', 'branding' ) )
+  config.instance_variable_set( :@branding_path, Rails.root.join( 'data', 'branding' ) )
 
 end
 
