@@ -40,32 +40,48 @@ module Hyrax
                                              "test_mode=#{test_mode}",
                                              "verbose=#{verbose}",
                                              "" ]
+      id = curation_concern.id
       embargo_release_date = asset.embargo_release_date
       curation_concern = ::ActiveFedora::Base.find asset.id
-      email = curation_concern.authoremail
-      # subject = Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.subject", title: title )
       title = curation_concern.title.join
-      subject = "Deepblue Data: Embargo will expire in #{expiration_days} days for #{title}"
+      subject = ::Deepblue::EmailHelper.t( "hyrax.email.about_to_expire_embargo.subject", expiration_days: expiration_days, title: title )
+      visibility = visibility_on_embargo_deactivation( curation_concern: curation_concern )
       url = ::Deepblue::EmailHelper.curation_concern_url( curation_concern: curation_concern )
-      Deepblue::LoggingHelper.debug "about_to_expire_embargo_email: curation concern id: #{curation_concern.id} email: #{email} exipration_days: #{expiration_days}" if verbose
+      ::Deepblue::LoggingHelper.debug "about_to_expire_embargo_email: curation concern id: #{curation_concern.id} email: #{email} exipration_days: #{expiration_days}" if verbose
       body = []
-      body << "The embargo will expire in #{expiration_days} days on #{embargo_release_date} for #{title} (#{curation_concern.id})"
-      body << "When the embargo is deactivated, its visibility will be set to #{visibility_on_embargo_deactivation( curation_concern: curation_concern )}."
-      body << ""
-      body << "You may visit it at: #{url}"
-      body = body.join( "\n" )
+      body << ::Deepblue::EmailHelper.t( "hyrax.email.about_to_expire_embargo.for",
+                                         expiration_days: expiration_days,
+                                         embargo_release_date: embargo_release_date,
+                                         title: title,
+                                         id: id )
+      body << ::Deepblue::EmailHelper.t( "hyrax.email.about_to_expire_embargo.visibility", visibility: visibility )
+      body << ::Deepblue::EmailHelper.t( "hyrax.email.about_to_expire_embargo.visit", url: url )
+      body = body.join( '' )
       event_note = "#{expiration_days} days"
       event_note += " test_mode" if test_mode
-      Deepblue::EmailHelper.log( class_name: self.class.name,
-                                 current_user: nil,
-                                 event: "Embargo expiration notification",
-                                 event_note: event_note,
-                                 id: curation_concern.id,
-                                 to: email,
-                                 from: email,
-                                 subject: subject,
-                                 body: body )
-      Deepblue::EmailHelper.send_email( to: email, from: email, subject: subject, body: body ) unless test_mode
+      email = curation_concern.authoremail
+      ::Deepblue::EmailHelper.log( class_name: self.class.name,
+                                   current_user: nil,
+                                   event: "Embargo expiration notification",
+                                   event_note: event_note,
+                                   id: curation_concern.id,
+                                   to: email,
+                                   from: email,
+                                   subject: subject,
+                                   body: body )
+      ::Deepblue::EmailHelper.send_email( to: email, from: email, subject: subject, body: body ) unless test_mode
+      return unless DeepBlueDocs::Application.config.embargo_about_to_expire_email_rds
+      email = ::Deepblue::EmailHelper.notification_email
+      ::Deepblue::EmailHelper.log( class_name: self.class.name,
+                                   current_user: nil,
+                                   event: "Embargo expiration notification",
+                                   event_note: event_note,
+                                   id: curation_concern.id,
+                                   to: email,
+                                   from: email,
+                                   subject: subject,
+                                   body: body )
+      ::Deepblue::EmailHelper.send_email( to: email, from: email, subject: subject, body: body ) unless test_mode
     end
 
     def days_to_embargo_release_date( now: DateTime.now, embargo_release_date: )
@@ -112,29 +128,44 @@ module Hyrax
     end
 
     def deactivate_embargo_email( curation_concern:, test_mode:, verbose: false )
-      email = curation_concern.authoremail
-      # subject = Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.subject", title: title )
+      id = curation_concern.id
       title = curation_concern.title.join
-      subject = "Deepblue Data: Embargo deactivated for #{title}"
+      subject = ::Deepblue::EmailHelper.t( "hyrax.email.deactivate_embargo.subject", title: title )
       url = ::Deepblue::EmailHelper.curation_concern_url( curation_concern: curation_concern )
-      Deepblue::LoggingHelper.debug "deactivate_embargo_email: curation concern id: #{curation_concern.id} email: #{email}" if verbose
       body = []
-      body << "The embargo for #{title} (#{curation_concern.id}) has been deactivated by setting its visibility to #{curation_concern.visibility}."
-      body << ""
-      body << "You may visit it at: #{url}"
-      body = body.join( "\n" )
+      body << ::Deepblue::EmailHelper.t( "hyrax.email.deactivate_embargo.for",
+                                         title: title,
+                                         id: id,
+                                         visibility: curation_concern.visibility )
+      body << ::Deepblue::EmailHelper.t( "hyrax.email.deactivate_embargo.visit", url: url )
+      body = body.join( '' )
       event_note = ''
       event_note = "test_mode" if test_mode
-      Deepblue::EmailHelper.log( class_name: self.class.name,
-                                 current_user: nil,
-                                 event: "Deactivate embargo",
-                                 event_note: event_note,
-                                 id: curation_concern.id,
-                                 to: email,
-                                 from: email,
-                                 subject: subject,
-                                 body: body )
-      Deepblue::EmailHelper.send_email( to: email, from: email, subject: subject, body: body ) unless test_mode
+      email = curation_concern.authoremail
+      ::Deepblue::LoggingHelper.debug "deactivate_embargo_email: curation concern id: #{id} email: #{email}" if verbose
+      ::Deepblue::EmailHelper.log( class_name: self.class.name,
+                                   current_user: nil,
+                                   event: "Deactivate embargo",
+                                   event_note: event_note,
+                                   id: id,
+                                   to: email,
+                                   from: email,
+                                   subject: subject,
+                                   body: body )
+      ::Deepblue::EmailHelper.send_email( to: email, from: email, subject: subject, body: body ) unless test_mode
+      return unless DeepBlueDocs::Application.config.embargo_deactivate_email_rds
+      email = ::Deepblue::EmailHelper.notification_email
+      ::Deepblue::LoggingHelper.debug "deactivate_embargo_email: curation concern id: #{id} email: #{email}" if verbose
+      ::Deepblue::EmailHelper.log( class_name: self.class.name,
+                                   current_user: nil,
+                                   event: "Deactivate embargo",
+                                   event_note: event_note,
+                                   id: id,
+                                   to: email,
+                                   from: email,
+                                   subject: subject,
+                                   body: body )
+      ::Deepblue::EmailHelper.send_email( to: email, from: email, subject: subject, body: body ) unless test_mode
     end
 
     def embargo_added( curation_concern:, update_attr_key_values: )
