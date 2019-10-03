@@ -85,6 +85,15 @@ en:
     directory:
       suffix:               "@example.org"
     email:
+      about_to_expire_embargo:
+        subject:            "Deepblue Data: Embargo will expire in %{expiration_days} days for %{title}"
+        for:                "\nThe embargo will expire in %{expiration_days} days on %{embargo_release_date} for %{title} (#{id})\n"
+        when:               "\nWhen the embargo is deactivated, its visibility will be set to %{visibility}.\n"
+        visit:              "\nYou may visit it at: %{url}\n"
+      deactivate_embargo:
+        subject:            "Deepblue Data: Embargo deactivated for %{title}"
+        for:                "\nThe embargo for %{title} (%{id}) has been deactivated by setting its visibility to %{visibility}.\n"
+        visit:              "\nYou may visit it at: %{url}\n"
       notify_attach_files_to_work_job_complete:
         subject:            "DBD: Files Attached to %{title}"
         one_file_count_phrase:   "file has"

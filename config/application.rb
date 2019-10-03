@@ -86,6 +86,8 @@ module DeepBlueDocs
     config.embargo_visibility_during_default_status = ::Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
     config.embargo_manage_hide_files = true
     config.embargo_allow_children_unembargo_choice = false
+    config.embargo_about_to_expire_email_rds = true
+    config.embargo_deactivate_email_rds = true
 
     ## configure for Globus
     # -- To enable Globus for development, create /deepbluedata-globus/download and /deepbluedata-globus/prep
