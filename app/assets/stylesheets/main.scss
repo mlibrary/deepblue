@@ -976,6 +976,11 @@ div.facets h3 {
   }
 }
 
+.search-group {
+  display: flex; 
+  justify-content: space-between;
+}
+
 @media (max-width: 767px) {
   .dropdown-menu > li > a, .twitter-typeahead .tt-menu > li > a {
     color: #fff !important;
