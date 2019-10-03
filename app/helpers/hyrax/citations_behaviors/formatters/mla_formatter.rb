@@ -33,7 +33,7 @@ module Hyrax
         def format_authors(authors_list = [])
           text = ""
           authors_list.each do |name|
-            name.delete!(' ')
+            name.gsub!(/\,\s+/, ',')
             i = name.index(',') 
             unless ( i.nil? )
               last = name[0..i-1]
