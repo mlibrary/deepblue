@@ -114,7 +114,7 @@
             </button>
             <!-- %= link_to t('simple_form.actions.data_set.mint_doi'),
                     main_app.doi_hyrax_data_set_path(@presenter.id), class: 'btn btn-primary' % -->
-              <p><%= t('simple_form.actions.data_set.mint_help') %></p>
+              <p><%= raw (t('simple_form.actions.data_set.mint_help')) %></p>
           </div>
         </div>
       <% end %>
