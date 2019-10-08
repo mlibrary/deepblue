@@ -24,7 +24,7 @@ module Hyrax
       # Hyrax::Actors::EmbargoActor.new(curation_concern).destroy
       deactivate_embargo( curation_concern: curation_concern,
                           current_user: current_user,
-                          copy_visibility_to_files: false )
+                          copy_visibility_to_files: true )
       flash[:notice] = curation_concern.embargo_history.last
       if curation_concern.work? && curation_concern.file_sets.present? &&
             DeepBlueDocs::Application.config.embargo_allow_children_unembargo_choice
