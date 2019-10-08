@@ -20,6 +20,10 @@ en:
     dashboard_link: 'Dashboard'
     mlib_home_path: 'http://www.lib.umich.edu'
 
+  hyrax:
+    file_manager:
+       link_text: "Re-order Files"
+
   footer:
     umich_phone: '(734) 764-0400'
 
