@@ -90,10 +90,11 @@ en:
   simple_form:
     actions:
       data_set:
-        analytics:                      "Analytics"
+        analytics:                      "View Work Analytics"
         confirm:                        "Confirm Your Deposit"
-        delete:                         "Delete"
+        delete:                         "Delete Work"
         edit:                           "Edit Metadata"
+        edit_work:                      "Edit Work/Add Files"
         globus:                         "Send to Globus to Download"
         globus_add_email:               "Add Email"
         globus_clean_download:          "Clean Globus Download Directory for this Work"
@@ -104,7 +105,7 @@ en:
         globus_download_and_notify_me:  "Download All for Globus and Email Me When Complete"
         globus_download_dont_notify_me: "Don't Add My Email"
         mint_doi:                       "Mint DOI"
-        mint_help:                      "Once you have uploaded your files, you can mint a Digital Object Identifier (<a href=\"https://www.doi.org\">DOI</a>) to provide presistent access to your depoist.  You do not need to wait unitl your depoit is published to mint a DOI.  Questions? <a href=\"https://deepblue.lib.umich.edu/data/contact\">Contact us!</a>"
+        mint_help:                      "Once you have uploaded your files, you can mint a Digital Object Identifier (<a href=\"https://www.doi.org\" target=\"_blank\">DOI</a>) to provide persistent access to your deposit. You do not need to wait until your deposit is published to mint a DOI. Questions? <a href=\"https://deepblue.lib.umich.edu/data/contact\" target=\"_blank\">Contact us!</a>"
         save_metadata:                  "Save Metadata"
         save_metadata_public:           "Save Description (Public)"
         submit_help:                    "Submit your work for review and publication"
@@ -200,7 +201,7 @@ en:
         download_total_work_size_may_be_too_large: >
           Total work file size of %{total_file_size} may be too large to download directly. Consider using Globus (see below).
         download_general_message: >
-          Best for data sets <5GB.  Downloads all fiels plus depoist metadata into a .zip file.
+          Best for data sets < 3 GB. Downloads all files plus metadata into a zip file.
         fundedby: >
           Select the primary funding agency that supported the research and data collection from the drop-down list.
         fundedby_other: >
@@ -215,12 +216,12 @@ en:
         globus_help:
           "More about Globus"
         globus_is_for_large_datasets:
-          "Best for data sets >5GB. Globus is the platform Deep Blue Data uses to make large data sets available."
+          "Best for data sets > 3 GB. Globus is the platform Deep Blue Data uses to make large data sets available."
         globus_is_currently_downloading_submit_email_address: >
           %{title} is currently downloading to Globus. If you would like to be sent an email when the files are
           available via Globus, please submit your email address:
         globus_link:
-          "Link to Globus download directory"
+          "Download Data from Globus"
         grantnumber: >
           If you have one, provide the grant number that was assigned by the University of Michigan’s Office of Research
           and Sponsored Projects (ORSP).
