@@ -193,6 +193,7 @@ module DeepBlueDocs
 
     config.scheduler_log_echo_to_rails_logger = true
     config.scheduler_job_file = 'scheduler_jobs_prod.yml'
+    config.scheduler_heartbeat_email_targets = [ 'fritx@umich.edu' ] # leave empty to disable
 
     config.upload_log_echo_to_rails_logger = true
 
