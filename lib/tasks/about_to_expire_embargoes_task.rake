@@ -35,8 +35,8 @@ module Deepblue
       expiration_lead_days = task_options_value( key: 'expiration_lead_days' )
       task_msg "expiration_lead_days=#{expiration_lead_days}" if @verbose
       skip_file_sets = task_options_value( key: 'skip_file_sets', default_value: true )
-      task_msg "@skip_file_setss=#{skip_file_sets}" if @verbose
-      test_mode = task_options_value( key: 'test_mode', default_value: true )
+      task_msg "@skip_file_sets=#{skip_file_sets}" if @verbose
+      test_mode = task_options_value( key: 'test_mode', default_value: false )
       task_msg "test_mode=#{test_mode}" if @verbose
       AboutToExpireEmbargoesService.new( email_owner: email_owner,
                                          expiration_lead_days: expiration_lead_days,
