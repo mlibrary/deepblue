@@ -21,8 +21,15 @@ en:
     mlib_home_path: 'http://www.lib.umich.edu'
 
   hyrax:
+    embargoes:
+      table_headers:
+        viz_after: Intended Visibility
+    dashboard:
+      my_embargo_table_headers:
+          viz_current: Current Visibility
+          viz_after: Intended Visibility  
     file_manager:
-       link_text: "Re-order Files"
+      link_text: "Re-order Files"
 
   footer:
     umich_phone: '(734) 764-0400'
