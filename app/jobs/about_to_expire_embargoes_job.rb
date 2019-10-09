@@ -27,8 +27,8 @@ class AboutToExpireEmbargoesJob < ::Hyrax::ApplicationJob
     expiration_lead_days = jop_options_value( options, key: 'expiration_lead_days' )
     ::Deepblue::LoggingHelper.debug "expiration_lead_days=#{expiration_lead_days}" if verbose
     skip_file_sets = jop_options_value( options, key: 'skip_file_sets', default_value: true )
-    ::Deepblue::LoggingHelper.debug "@skip_file_setss=#{skip_file_sets}" if verbose
-    test_mode = jop_options_value( options, key: 'test_mode', default_value: true )
+    ::Deepblue::LoggingHelper.debug "@skip_file_sets=#{skip_file_sets}" if verbose
+    test_mode = jop_options_value( options, key: 'test_mode', default_value: false )
     ::Deepblue::LoggingHelper.debug "test_mode=#{test_mode}" if verbose
     ::Deepblue::AboutToExpireEmbargoesService.new( email_owner: email_owner,
                                                    expiration_lead_days: expiration_lead_days,
