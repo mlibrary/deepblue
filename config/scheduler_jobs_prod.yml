@@ -1,5 +1,14 @@
 # config/scheduler_jobs_prod.yml
 
+heartbeat_mail_job:
+  # Run once a day, one minute after midnight (which is offset by 4, due to GMT)
+  #      M H
+  cron: '1 4 * * *'
+  # rails_env: production
+  class: HeartbeatEmailJob
+  queue: scheduler
+  description: Heartbeat email job.
+
 deactivate_expired_embargoes_job:
   # Run once a day, five minutes after midnight (which is offset by 4, due to GMT)
   #      M H
