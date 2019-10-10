@@ -75,7 +75,7 @@ class CatalogController < ApplicationController
     config.add_index_field solr_name("creator", :stored_searchable), itemprop: 'creator', link_to_search: solr_name("creator", :facetable)
     config.add_index_field solr_name("description", :stored_searchable), itemprop: 'description', helper_method: :iconify_auto_link
     config.add_index_field solr_name("keyword", :stored_searchable), itemprop: 'keywords', link_to_search: solr_name("keyword", :facetable)
-    config.add_index_field solr_name("referenced_by", :stored_searchable), itemprop: 'referenced_by', label: "Citation to related publication", link_to_search: solr_name("referenced_by", :facetable)
+    config.add_index_field solr_name("referenced_by", :stored_searchable), itemprop: 'referenced_by', label: "Citation to related publication", helper_method: :iconify_auto_link
     config.add_index_field solr_name("subject_discipline", :stored_searchable), itemprop: 'subject_discipline', label: "Discipline", link_to_search: solr_name("subject_discipline", :facetable)
 
     # This was the default that came with hyrax.
