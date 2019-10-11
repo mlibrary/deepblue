@@ -34,3 +34,17 @@ about_to_deactivate_embargoes_job:
     email_owner: true
     test_mode: false
     verbose: true
+
+about_to_deactivate_embargoes_at_2_days_job:
+  # Run once a day, twenty minutes after midnight (which is offset by 4, due to GMT)
+  #      M  H
+  cron: '20 4 * * *'
+  # rails_env: production
+  class: AboutToExpireEmbargoesJob
+  queue: scheduler
+  description: About to deactivate embargoes job.
+  args:
+    email_owner: true
+    expiration_lead_days: 2
+    test_mode: false
+    verbose: true
