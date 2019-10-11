@@ -33,7 +33,7 @@ class HeartbeatEmailJob < ::Hyrax::ApplicationJob
                                  from: email,
                                  subject: subject,
                                  body: body )
-    ::Deepblue::EmailHelper.send_email( to: email, from: email, subject: subject, body: body ) unless test_mode
+    ::Deepblue::EmailHelper.send_email( to: email, from: email, subject: subject, body: body )
   end
 
 end
