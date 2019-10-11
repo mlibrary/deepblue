@@ -1,6 +1,6 @@
 # config/scheduler_jobs_prod.yml
 
-heartbeat_mail_job:
+heartbeat_email_job:
   # Run once a day, one minute after midnight (which is offset by 4, due to GMT)
   #      M H
   cron: '1 4 * * *'
