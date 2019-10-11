@@ -40,14 +40,14 @@ module Hyrax
                                              "test_mode=#{test_mode}",
                                              "verbose=#{verbose}",
                                              "" ]
-      id = curation_concern.id
       embargo_release_date = asset.embargo_release_date
       curation_concern = ::ActiveFedora::Base.find asset.id
+      id = curation_concern.id
       title = curation_concern.title.join
       subject = ::Deepblue::EmailHelper.t( "hyrax.email.about_to_expire_embargo.subject", expiration_days: expiration_days, title: title )
       visibility = visibility_on_embargo_deactivation( curation_concern: curation_concern )
       url = ::Deepblue::EmailHelper.curation_concern_url( curation_concern: curation_concern )
-      ::Deepblue::LoggingHelper.debug "about_to_expire_embargo_email: curation concern id: #{curation_concern.id} email: #{email} exipration_days: #{expiration_days}" if verbose
+      ::Deepblue::LoggingHelper.debug "about_to_expire_embargo_email: curation concern id: #{id} email: #{email} exipration_days: #{expiration_days}" if verbose
       body = []
       body << ::Deepblue::EmailHelper.t( "hyrax.email.about_to_expire_embargo.for",
                                          expiration_days: expiration_days,
@@ -64,7 +64,7 @@ module Hyrax
                                    current_user: nil,
                                    event: "Embargo expiration notification",
                                    event_note: event_note,
-                                   id: curation_concern.id,
+                                   id: id,
                                    to: email,
                                    from: email,
                                    subject: subject,
@@ -76,7 +76,7 @@ module Hyrax
                                    current_user: nil,
                                    event: "Embargo expiration notification",
                                    event_note: event_note,
-                                   id: curation_concern.id,
+                                   id: id,
                                    to: email,
                                    from: email,
                                    subject: subject,
