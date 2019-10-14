@@ -86,8 +86,11 @@ module DeepBlueDocs
     config.embargo_visibility_during_default_status = ::Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
     config.embargo_manage_hide_files = true
     config.embargo_allow_children_unembargo_choice = false
-    config.embargo_about_to_expire_email_rds = true
-    config.embargo_deactivate_email_rds = true
+    config.embargo_email_rds_hostnames = [ 'testing.deepblue.lib.umich.edu',
+                                           'staging.deepblue.lib.umich.edu',
+                                           'deepblue.lib.umich.edu' ].freeze
+    config.embargo_about_to_expire_email_rds = config.embargo_email_rds_hostnames.include? config.hostname
+    config.embargo_deactivate_email_rds = config.embargo_email_rds_hostnames.include? config.hostname
 
     ## configure for Globus
     # -- To enable Globus for development, create /deepbluedata-globus/download and /deepbluedata-globus/prep

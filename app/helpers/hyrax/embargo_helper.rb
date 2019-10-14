@@ -47,6 +47,7 @@ module Hyrax
       subject = ::Deepblue::EmailHelper.t( "hyrax.email.about_to_expire_embargo.subject", expiration_days: expiration_days, title: title )
       visibility = visibility_on_embargo_deactivation( curation_concern: curation_concern )
       url = ::Deepblue::EmailHelper.curation_concern_url( curation_concern: curation_concern )
+      email = curation_concern.authoremail
       ::Deepblue::LoggingHelper.debug "about_to_expire_embargo_email: curation concern id: #{id} email: #{email} exipration_days: #{expiration_days}" if verbose
       body = []
       body << ::Deepblue::EmailHelper.t( "hyrax.email.about_to_expire_embargo.for",
@@ -59,7 +60,6 @@ module Hyrax
       body = body.join( '' )
       event_note = "#{expiration_days} days"
       event_note += " test_mode" if test_mode
-      email = curation_concern.authoremail
       ::Deepblue::EmailHelper.log( class_name: self.class.name,
                                    current_user: nil,
                                    event: "Embargo expiration notification",
