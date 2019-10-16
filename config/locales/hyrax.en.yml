@@ -87,7 +87,7 @@ en:
     email:
       about_to_expire_embargo:
         subject:            "Deepblue Data: Embargo will expire in %{expiration_days} days for %{title}"
-        for:                "\nThe embargo will expire in %{expiration_days} days on %{embargo_release_date} for %{title} (#{id})\n"
+        for:                "\nThe embargo will expire in %{expiration_days} days on %{embargo_release_date} for %{title} (%{id})\n"
         visibility:         "\nWhen the embargo is deactivated, its visibility will be set to %{visibility}.\n"
         visit:              "\nYou may visit it at: %{url}\n"
       deactivate_embargo:
