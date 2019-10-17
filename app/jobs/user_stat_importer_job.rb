@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class HeartbeatEmailJob < ::Hyrax::ApplicationJob
+class UserStatImporterJob < ::Hyrax::ApplicationJob
   queue_as :scheduler
 
   def perform( *args )
@@ -8,7 +8,7 @@ class HeartbeatEmailJob < ::Hyrax::ApplicationJob
                                            Deepblue::LoggingHelper.called_from,
                                            Deepblue::LoggingHelper.obj_class( 'class', self ),
                                            "" ]
-    ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event: "heartbeat email" )
+    ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event: "user stat importer" )
     options = {}
     args.each { |key,value| options[key] = value }
     ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
@@ -17,34 +17,21 @@ class HeartbeatEmailJob < ::Hyrax::ApplicationJob
                                            "" ]
     verbose = jop_options_value( options, key: 'verbose', default_value: false )
     ::Deepblue::LoggingHelper.debug "verbose=#{verbose}" if verbose
+    logging = jop_options_value( options, key: 'logging', default_value: false )
+    ::Deepblue::LoggingHelper.debug "logging=#{logging}" if verbose
     hostnames = jop_options_value( options, key: 'hostnames', default_value: [] )
     ::Deepblue::LoggingHelper.debug "hostnames=#{hostnames}" if verbose
     hostname = ::DeepBlueDocs::Application.config.hostname
     return unless hostnames.include? hostname
-    ::DeepBlueDocs::Application.config.scheduler_heartbeat_email_targets.each do |email_target|
-      heartbeat_email( email_target: email_target, hostname: hostname )
-    end
+    test = jop_options_value( options, key: 'test', default_value: true )
+    ::Deepblue::LoggingHelper.debug "test=#{test}" if verbose
+    return unless test
+    importer = Hyrax::UserStatImporter.new( verbose: verbose, logging: logging )
+    importer.import
   rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
     Rails.logger.error e.backtrace.join("\n")
     raise e
-  end
-
-  def heartbeat_email( email_target:, hostname: )
-    # subject = ::Deepblue::EmailHelper.t( "hyrax.email.deactivate_embargo.subject", title: title )
-    subject = "DBD scheduler heartbeat from #{hostname}"
-    body = subject
-    email = email_target
-    ::Deepblue::EmailHelper.log( class_name: self.class.name,
-                                 current_user: nil,
-                                 event: "Heartbeat email",
-                                 event_note: '',
-                                 id: 'NA',
-                                 to: email,
-                                 from: email,
-                                 subject: subject,
-                                 body: body )
-    ::Deepblue::EmailHelper.send_email( to: email, from: email, subject: subject, body: body )
   end
 
 end

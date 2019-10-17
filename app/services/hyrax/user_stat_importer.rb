@@ -1,5 +1,27 @@
 # frozen_string_literal: true
 
+module Deepblue
+
+  require 'tasks/abstract_task'
+
+  class UserStatImporter < AbstractTask
+
+    attr_accessor :logging
+
+    def initialize( options: {} )
+      super( options: options )
+      @logging = TaskHelper.task_options_value( @options, key: 'logging', default_value: true )
+    end
+
+    def run
+      importer = Hyrax::UserStatImporter.new( verbose: verbose, logging: logging )
+      importer.import
+    end
+
+  end
+
+end
+
 module Hyrax
 
   require 'retriable'
