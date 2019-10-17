@@ -8,6 +8,11 @@ heartbeat_email_job:
   class: HeartbeatEmailJob
   queue: scheduler
   description: Heartbeat email job.
+  args:
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'staging.deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
 
 deactivate_expired_embargoes_job:
   # Run once a day, five minutes after midnight (which is offset by 4, due to GMT)
@@ -33,6 +38,22 @@ about_to_deactivate_embargoes_job:
   args:
     email_owner: true
     test_mode: false
+    verbose: true
+
+user_stat_importer_job:
+  # Run once a day, thirty minutes after midnight (which is offset by 4, due to GMT)
+  #      M  H
+  cron: '30 4 * * *'
+  # rails_env: production
+  class: UserStatImporterJob
+  queue: scheduler
+  description: Import user stats job.
+  args:
+    test: true
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
+    logging: true
     verbose: true
 
 #about_to_deactivate_embargoes_at_2_days_job:
