@@ -3,6 +3,7 @@
 heartbeat_email_job:
   # Run once a day, one minute after midnight (which is offset by 4, due to GMT)
   #      M H
+  # cron: '*/5 * * * *'
   cron: '1 4 * * *'
   # rails_env: production
   class: HeartbeatEmailJob
@@ -49,12 +50,10 @@ user_stat_importer_job:
   queue: scheduler
   description: Import user stats job.
   args:
-    test: true
+    test: false
     hostnames:
       - 'deepblue.lib.umich.edu'
-      - 'testing.deepblue.lib.umich.edu'
-    logging: true
-    verbose: true
+    verbose: false
 
 #about_to_deactivate_embargoes_at_2_days_job:
 #  # Run once a day, twenty minutes after midnight (which is offset by 4, due to GMT)
