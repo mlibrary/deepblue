@@ -20,13 +20,13 @@ class DeactivateExpiredEmbargoesJob < ::Hyrax::ApplicationJob
                                            "options=#{options}",
                                            Deepblue::LoggingHelper.obj_class( 'options', options ),
                                            "" ]
-    verbose = jop_options_value( options, key: 'verbose', default_value: false )
+    verbose = job_options_value(options, key: 'verbose', default_value: false )
     ::Deepblue::LoggingHelper.debug "verbose=#{verbose}" if verbose
-    email_owner = jop_options_value( options, key: 'email_owner', default_value: true )
+    email_owner = job_options_value(options, key: 'email_owner', default_value: true )
     ::Deepblue::LoggingHelper.debug "email_owner=#{email_owner}" if verbose
-    skip_file_sets = jop_options_value( options, key: 'skip_file_sets', default_value: true )
+    skip_file_sets = job_options_value(options, key: 'skip_file_sets', default_value: true )
     ::Deepblue::LoggingHelper.debug "@skip_file_sets=#{skip_file_sets}" if verbose
-    test_mode = jop_options_value( options, key: 'test_mode', default_value: false )
+    test_mode = job_options_value(options, key: 'test_mode', default_value: false )
     ::Deepblue::LoggingHelper.debug "test_mode=#{test_mode}" if verbose
     ::Deepblue::DeactivateExpiredEmbargoesService.new( email_owner: email_owner,
                                                        skip_file_sets: skip_file_sets,

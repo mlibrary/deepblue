@@ -6,15 +6,30 @@ module Deepblue
 
   class UserStatImporter < AbstractTask
 
-    attr_accessor :logging
+    attr_accessor :delay_secs, :echo_to_stdout, :logging, :number_of_retries, :test
+    # attr_accessor :hostname, :hostnames
 
-    def initialize( options: {} )
+        def initialize( options: {} )
       super( options: options )
-      @logging = TaskHelper.task_options_value( @options, key: 'logging', default_value: true )
+      # @verbose = task_options_value( key: 'verbose', default_value: false )
+      # ::Deepblue::LoggingHelper.debug "verbose=#{verbose}" if verbose
+      # @hostnames = task_options_value( key: 'hostnames', default_value: [], verbose: verbose )
+      # @hostname = ::DeepBlueDocs::Application.config.hostname
+      # return unless @hostnames.include? @hostname
+      @test = task_options_value( key: 'test', default_value: true, verbose: verbose )
+      @echo_to_stdout = task_options_value( key: 'echo_to_stdout', default_value: false, verbose: verbose )
+      @logging = task_options_value( key: 'logging', default_value: false, verbose: verbose )
+      @number_of_retries = task_options_value( key: 'number_of_retries', default_value: nil, verbose: verbose )
+      @delay_secs = task_options_value( key: 'delay_secs', default_value: nil, verbose: verbose )
     end
 
     def run
-      importer = Hyrax::UserStatImporter.new( verbose: verbose, logging: logging )
+      importer = Hyrax::UserStatImporter.new( echo_to_stdout: echo_to_stdout,
+                                              verbose: verbose,
+                                              delay_secs: delay_secs,
+                                              logging: logging,
+                                              number_of_retries: number_of_retries,
+                                              test: test )
       importer.import
     end
 
@@ -32,36 +47,50 @@ module Hyrax
     UserRecord = Struct.new("UserRecord", :id, :user_key, :last_stats_update)
 
     def initialize(options = {})
-      if options[:verbose]
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "" ]
+      if options[:echo_to_stdout]
         stdout_logger = Logger.new(STDOUT)
         stdout_logger.level = Logger::INFO
         Rails.logger.extend(ActiveSupport::Logger.broadcast(stdout_logger))
       end
+      @verbose = options[:verbose]
+      log_message("@verbose=#{@verbose}")
       @logging = options[:logging]
+      log_message("@logging=#{@logging}")
       @delay_secs = options[:delay_secs].to_f
+      log_message("@delay_secs=#{@delay_secs}")
       @number_of_tries = options[:number_of_retries].to_i + 1
+      log_message("@number_of_tries=#{@number_of_tries}")
+      @test = options[:test]
+      log_message("@test=#{@test}")
+      @process_works = true
+      @process_files = false # TODO: reactivate
+      @create_or_update_user_stats = false # TODO: reactivate
     end
 
     delegate :depositor_field, to: DepositSearchBuilder
 
     def import
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "" ]
       log_message('Begin import of User stats.')
 
-      sorted_users.each do |user|
+      users = sorted_users
+      log_message("users.size=#{users.size}")
+      users.each do |user|
         start_date = date_since_last_cache(user)
         log_message( "processing user #{user} with start_date #{start_date}" )
         # this user has already been processed today continue without delay
         next if start_date.to_date >= Time.zone.today
-
         stats = {}
-
-        #
-        # TODO: reactivate
-        # process_files(stats, user, start_date)
-        process_works(stats, user, start_date)
-        #
-        # TODO: reactivate
-        # create_or_update_user_stats(stats, user)
+        process_files(stats, user, start_date) if @process_files
+        process_works(stats, user, start_date) if @process_works
+        create_or_update_user_stats(stats, user) if @create_or_update_user_stats
       end
       log_message('User stats import complete.')
     end
@@ -72,6 +101,7 @@ module Hyrax
       users = []
       ::User.find_each do |user|
         users.push(UserRecord.new(user.id, user.user_key, date_since_last_cache(user)))
+        return users if @test
       end
       users.sort_by(&:last_stats_update)
     end
@@ -79,6 +109,8 @@ module Hyrax
     private
 
       def process_files(stats, user, start_date)
+        log_message("process files user=#{user} start_date=#{start_date}")
+        return if @test
         file_ids_for_user(user).each do |file_id|
           file = ::FileSet.find(file_id)
           view_stats = extract_stats_for(object: file, from: FileViewStat, start_date: start_date, user: user)
@@ -91,6 +123,8 @@ module Hyrax
       end
 
       def process_works(stats, user, start_date)
+        log_message("process works user=#{user} start_date=#{start_date}")
+        return if @test
         work_ids_for_user(user).each do |work_id|
           log_message( "processing user #{user} work #{work_id} with start_date #{start_date}" )
           work = Hyrax::WorkRelation.new.find(work_id)
@@ -164,6 +198,8 @@ module Hyrax
       end
 
       def create_or_update_user_stats(stats, user)
+        log_message("create or update user stats user=#{user}")
+        return if @test
         stats.each do |date_string, data|
           date = Time.zone.parse(date_string)
 
@@ -177,7 +213,8 @@ module Hyrax
       end
 
       def log_message(message)
-        Rails.logger.info "#{self.class}: #{message}" if @logging
+        ::Deepblue::LoggingHelper.debug message if @verbose
+        # Rails.logger.info "#{self.class}: #{message}" if @logging
       end
 
       def retry_options

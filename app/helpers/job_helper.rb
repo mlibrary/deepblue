@@ -2,7 +2,7 @@
 
 module JobHelper
 
-  def jop_options_value( options, key:, default_value: nil, verbose: false )
+  def job_options_value(options, key:, default_value: nil, verbose: false )
     return default_value if options.blank?
     return default_value unless options.key? key
     # if [true, false].include? default_value

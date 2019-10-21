@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class HeartbeatEmailJob < ::Hyrax::ApplicationJob
+  include JobHelper
   queue_as :scheduler
 
   def perform( *args )
@@ -15,10 +16,9 @@ class HeartbeatEmailJob < ::Hyrax::ApplicationJob
                                            "options=#{options}",
                                            Deepblue::LoggingHelper.obj_class( 'options', options ),
                                            "" ]
-    verbose = jop_options_value( options, key: 'verbose', default_value: false )
+    verbose = job_options_value(options, key: 'verbose', default_value: false )
     ::Deepblue::LoggingHelper.debug "verbose=#{verbose}" if verbose
-    hostnames = jop_options_value( options, key: 'hostnames', default_value: [] )
-    ::Deepblue::LoggingHelper.debug "hostnames=#{hostnames}" if verbose
+    hostnames = job_options_value(options, key: 'hostnames', default_value: [], verbose: verbose )
     hostname = ::DeepBlueDocs::Application.config.hostname
     return unless hostnames.include? hostname
     ::DeepBlueDocs::Application.config.scheduler_heartbeat_email_targets.each do |email_target|
