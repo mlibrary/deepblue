@@ -116,6 +116,9 @@ GEM
       bootstrap-sass (~> 3.0)
       openseadragon (>= 0.2.0)
       rails
+    blacklight_advanced_search (6.4.1)
+      blacklight (~> 6.0, >= 6.0.1)
+      parslet
     bootstrap-sass (3.4.1)
       autoprefixer-rails (>= 5.2.1)
       sassc (>= 2.0.0)
@@ -555,6 +558,7 @@ GEM
     parallel (1.12.1)
     parser (2.5.1.2)
       ast (~> 2.4.0)
+    parslet (1.8.2)
     posix-spawn (0.3.13)
     power_converter (0.1.2)
     powerpack (0.1.2)
@@ -890,6 +894,7 @@ PLATFORMS
 
 DEPENDENCIES
   active_scheduler
+  blacklight_advanced_search
   bootstrap-sass (~> 3.4.1)
   byebug
   capybara

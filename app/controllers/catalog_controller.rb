@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class CatalogController < ApplicationController
+  include BlacklightAdvancedSearch::Controller
   include Hydra::Catalog
   include Hydra::Controller::ControllerBehavior
 
@@ -16,6 +17,26 @@ class CatalogController < ApplicationController
   end
 
   configure_blacklight do |config|
+    # default advanced config values
+    config.advanced_search = {
+      qt:'search',
+      url_key: 'advanced',
+      query_parser: 'dismax',
+      form_solr_parameters: {
+        'facet.limit' => 20,
+        'facet.sort' => 'index' # sort by byte order of values
+      }
+    }
+
+
+
+
+#    config.advanced_search ||= Blacklight::OpenStructWithHashAccess.new
+    # config.advanced_search[:qt] ||= 'advanced'
+#    config.advanced_search[:url_key] ||= 'advanced'
+#    config.advanced_search[:query_parser] ||= 'dismax'
+#    config.advanced_search[:form_solr_parameters] ||= {}
+
     config.view.gallery.partials = %i[index_header index]
     config.view.masonry.partials = [:index]
     config.view.slideshow.partials = [:index]
@@ -234,6 +255,7 @@ class CatalogController < ApplicationController
 
     config.add_search_field('format') do |field|
       solr_name = solr_name("format", :stored_searchable)
+      field.include_in_advanced_search = false      
       field.solr_local_parameters = {
         qf: solr_name,
         pf: solr_name
@@ -425,6 +447,8 @@ class CatalogController < ApplicationController
     # If there are more than this many search results, no spelling ("did you
     # mean") suggestion is offered.
     config.spell_max = 5
+    
+
   end
 
   # disable the bookmark control from displaying in gallery view

@@ -8,6 +8,8 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
+gem 'blacklight_advanced_search'
+
 gem 'hyrax', '2.5.1'
 
 gem 'mysql2' # still somehow in 0.x releases...
