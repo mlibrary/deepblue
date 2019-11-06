@@ -2,6 +2,7 @@ development:
   archivist:
     - archivist1@example.com
   admin:
+    - njaffer@umich.edu
     - blancoj@umich.edu
     - fritx@umich.edu
     - fritx2@umich.edu

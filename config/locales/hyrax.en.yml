@@ -213,3 +213,8 @@ en:
         text: Restricted
       open:
         text: Open Access
+  samvera:
+    persona:
+      users:
+        index:
+          title: Manage Users

@@ -1,6 +1,6 @@
 # minimum gem update:
 # bundle update --source name_of_gem
-
+ 
 source 'https://rubygems.org'
 
 git_source(:github) do |repo_name|
@@ -8,6 +8,7 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
+gem 'samvera-persona', '0.1.7'
 gem 'hyrax', '2.5.1'
 
 gem 'mysql2' # still somehow in 0.x releases...
@@ -18,7 +19,7 @@ gem 'config'
 gem 'edtf'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 5.0.6'
+gem 'rails', '~> 5.1.1'
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3', '~> 1.3.6'
 # Use Puma as the app server
@@ -99,7 +100,7 @@ end
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
-gem 'devise'
+gem 'devise', '~> 4.6'
 gem 'devise-guests', '~> 0.6'
 gem 'jira-ruby', '~> 1.1'
 gem 'okcomputer', '~> 1.17'
