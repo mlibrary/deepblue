@@ -61,8 +61,11 @@ Rails.application.routes.draw do
 
   get '/logout_now', to: 'sessions#logout_now'
 
+
   mount Qa::Engine => '/authorities'
   mount Hyrax::Engine, at: '/'
+  mount Zizia::Engine => '/'
+
   resources :welcome, only: 'index'
   root 'hyrax/homepage#index'
   curation_concerns_basic_routes

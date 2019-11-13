@@ -12,6 +12,10 @@ module Deepblue
 
       after_initialize :set_default_visibility
 
+      property :deduplication_key, predicate: "http://curationexperts.com/vocab/predicates#deduplicationKey", multiple: false do |index|
+        index.as :stored_searchable
+      end
+
       def set_default_visibility
         self.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC if new_record?
       end

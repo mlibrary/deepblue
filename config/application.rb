@@ -14,6 +14,8 @@ Bundler.require(*Rails.groups)
 module DeepBlueDocs
 
   class Application < Rails::Application
+    require 'zizia'
+
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.

@@ -25,3 +25,4 @@
 //= require tufts/ensure_upload_fade_in
 
 //= require hyrax
+//= require zizia/application
