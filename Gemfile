@@ -8,7 +8,8 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-gem 'zizia'
+gem 'zizia', '~> 5.0.1'
+gem 'hydra-role-management'
 gem 'hyrax', '2.5.1'
 
 gem 'mysql2' # still somehow in 0.x releases...
@@ -19,7 +20,7 @@ gem 'config'
 gem 'edtf'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 5.0.6'
+gem 'rails', '~> 5.1.4'
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3'
 # Use Puma as the app server

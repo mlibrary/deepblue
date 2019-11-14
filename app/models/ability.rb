@@ -25,10 +25,15 @@ class Ability
 
   # Define any customized permissions here.
   def custom_permissions
-    can :manage, Zizia::CsvImport if current_user.admin?
-    can :manage, Zizia::CsvImportDetail if current_user.admin?
+    #byebug
+    #can :manage, Zizia::CsvImport if current_user.admin?
+    #can :manage, Zizia::CsvImportDetail if current_user.admin?
 
-    
+
+    can :manage, Zizia::CsvImport 
+    can :manage, Zizia::CsvImportDetail 
+
+
     # Limits deleting objects to a the admin user
     #
     # if current_user.admin?
