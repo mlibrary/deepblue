@@ -13,6 +13,9 @@ Rails.application.routes.draw do
 
   get '/concern/generic_works/*rest', to: redirect( '/data/concern/data_sets/%{rest}', status: 302 )
 
+  get 'static/show/:layout/:doc/:file', to: 'hyrax/static#show_layout_doc'
+  get 'static/show/:doc/:file', to: 'hyrax/static#show_doc'
+
   get ':action' => 'hyrax/static#:action', constraints: { action: %r{
                                                                       about|
                                                                       agreement|

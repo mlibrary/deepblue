@@ -1,0 +1,12 @@
+<% sidebar = static_content_sidebar( params ) %>
+<% if sidebar.present? %>
+<aside class="<%= sidebar_classes %> static-page-sidebar ">
+  <%= raw sidebar %>
+</aside>
+<% end %>
+<% main = static_content_main(params) %>
+<% if main.present? %>
+<div class="<%= main_content_classes %> static-page-main">
+  <%= raw static_content_for( @doc, @file ) %>
+</div>
+<% end %>
