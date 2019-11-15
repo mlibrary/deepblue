@@ -1,10 +1,10 @@
 # config/scheduler_jobs_prod.yml
 
 heartbeat_email_job:
-  # Run once a day, one minute after midnight (which is offset by 4, due to GMT)
+  # Run once a day, one minute after midnight (which is offset by 4 or [5 during daylight savints time], due to GMT)
   #      M H
   # cron: '*/5 * * * *'
-  cron: '1 4 * * *'
+  cron: '1 5 * * *'
   # rails_env: production
   class: HeartbeatEmailJob
   queue: scheduler
@@ -12,13 +12,13 @@ heartbeat_email_job:
   args:
     hostnames:
       - 'deepblue.lib.umich.edu'
-      - 'staging.deepblue.lib.umich.edu'
-      - 'testing.deepblue.lib.umich.edu'
+      # - 'staging.deepblue.lib.umich.edu'
+      # - 'testing.deepblue.lib.umich.edu'
 
 deactivate_expired_embargoes_job:
-  # Run once a day, five minutes after midnight (which is offset by 4, due to GMT)
+  # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savints time], due to GMT)
   #      M H
-  cron: '5 4 * * *'
+  cron: '5 5 * * *'
   # rails_env: production
   class: DeactivateExpiredEmbargoesJob
   queue: scheduler
@@ -29,9 +29,9 @@ deactivate_expired_embargoes_job:
     verbose: true
 
 about_to_deactivate_embargoes_job:
-  # Run once a day, fifteen minutes after midnight (which is offset by 4, due to GMT)
+  # Run once a day, fifteen minutes after midnight (which is offset by 4 or [5 during daylight savints time], due to GMT)
   #      M  H
-  cron: '15 4 * * *'
+  cron: '15 5 * * *'
   # rails_env: production
   class: AboutToExpireEmbargoesJob
   queue: scheduler
@@ -42,9 +42,9 @@ about_to_deactivate_embargoes_job:
     verbose: true
 
 user_stat_importer_job:
-  # Run once a day, thirty minutes after midnight (which is offset by 4, due to GMT)
+  # Run once a day, thirty minutes after midnight (which is offset by 4 or [5 during daylight savints time], due to GMT)
   #      M  H
-  cron: '30 4 * * *'
+  cron: '30 5 * * *'
   # rails_env: production
   class: UserStatImporterJob
   queue: scheduler
@@ -56,9 +56,9 @@ user_stat_importer_job:
     verbose: false
 
 #about_to_deactivate_embargoes_at_2_days_job:
-#  # Run once a day, twenty minutes after midnight (which is offset by 4, due to GMT)
+#  # Run once a day, twenty minutes after midnight (which is offset by 4 or [5 during daylight savints time], due to GMT)
 #  #      M  H
-#  cron: '20 4 * * *'
+#  cron: '20 5 * * *'
 #  # rails_env: production
 #  class: AboutToExpireEmbargoesJob
 #  queue: scheduler
