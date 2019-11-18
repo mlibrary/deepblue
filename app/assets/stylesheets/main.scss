@@ -981,6 +981,17 @@ div.facets h3 {
   justify-content: space-between;
 }
 
+.main-search-group {
+  display: flex; 
+  justify-content: space-between;
+}
+
+.input-group-main {
+  display: flex; 
+  justify-content: space-between;
+    margin-bottom: 25px;
+}
+
 @media (max-width: 767px) {
   .dropdown-menu > li > a, .twitter-typeahead .tt-menu > li > a {
     color: #fff !important;
