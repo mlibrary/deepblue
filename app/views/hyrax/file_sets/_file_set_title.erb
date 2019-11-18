@@ -1,0 +1,9 @@
+<% presenter.title.each_with_index do |title, index| %>
+    <% if index == 0 %>
+        <h1 class="ensure-wrapped site-title">
+            <%= title %> 
+        </h1>&nbsp;&nbsp;<%= presenter.permission_badge %>
+    <% else %>
+        <h1 class="ensure-wrapped site-title"><%= title %></h1>
+    <% end %>
+<% end %>
