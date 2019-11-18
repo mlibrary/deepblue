@@ -52,6 +52,7 @@
   <% end %>
 
   <td><%= collection_presenter.total_viewable_items %></td>
+  <td class="date"><%= collection_presenter.create_date.try(:to_formatted_s, :standard) %> </td>  
   <td class="date"><%= collection_presenter.modified_date.try(:to_formatted_s, :standard) %> </td>  
 
   <td class="collection_type">
