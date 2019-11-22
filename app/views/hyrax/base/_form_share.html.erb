@@ -15,6 +15,23 @@
   <%= t('hyrax.account_label') %> to complete adding the permission.
 </p>
 
+<fieldset class="form-group row permission-add-group">
+  <legend class="col-sm-3 permissions-add-group-label">
+    <%= t('hyrax.admin.admin_sets.form_participants.add_group') %>
+  </legend>
+  <div class="col-sm-9 form-inline">
+    <label for="new_group_name_skel" class="sr-only">Group</label>
+    <%= select_tag 'new_group_name_skel', options_for_select(["Select a group"] + current_user.groups), class: 'form-control' %>
+    <label for="new_group_permission_skel" class="sr-only">Access type to grant</label>
+    <%= select_tag 'new_group_permission_skel', options_for_select(Hyrax.config.permission_options), class: 'form-control' %>
+
+    <button class="btn btn-default" id="add_new_group_skel">
+      <span>Add<span class="sr-only"> this group</span></span>
+    </button>
+    <br /><span id="directory_group_result"></span>
+  </div>
+</fieldset>
+
 <fieldset class="form-group row permission-add-user">
   <legend class="col-sm-3 permissions-add-user-label">
     <%= t('hyrax.admin.admin_sets.form_participants.add_user') %>
