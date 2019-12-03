@@ -55,6 +55,23 @@ user_stat_importer_job:
       - 'deepblue.lib.umich.edu'
     verbose: false
 
+works_report_job:
+  # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savints time], due to GMT)
+  #      M H D
+  # cron: '*/5 * * * *'
+  cron: '5 5 1 * *'
+  class: WorksReportJob
+  queue: scheduler
+  description: Works report job.
+  args:
+    report_file_prefix: '%date%.%server%.works_report'
+    report_dir: '/deepbluedata-prep/reports'
+    quiet: true
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'staging.deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
+
 #about_to_deactivate_embargoes_at_2_days_job:
 #  # Run once a day, twenty minutes after midnight (which is offset by 4 or [5 during daylight savints time], due to GMT)
 #  #      M  H
