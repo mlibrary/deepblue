@@ -2,12 +2,18 @@
 
 namespace :deepblue do
 
+  require_relative '../../app/services/deepblue/works_reporter'
+
   # bundle exec rake deepblue:works_report
+  # bundle exec rake deepblue:works_report['{"verbose":true\,"report_dir":"/deepbluedata-prep/reports"}']
+  # bundle exec rake deepblue:works_report['{"verbose":true\,"report_dir":"/deepbluedata-prep/reports"\,"report_file_prefix":"%date%.%time%.%hostname%.works_report"}']
+  # bundle exec rake deepblue:works_report['{"verbose":true\,"report_dir":"/deepbluedata-prep/reports"\,"report_file_prefix":"%timestamp%.%hostname%.works_report"}']
   desc 'Write report of all works'
   task :works_report, %i[ options ] => :environment do |_task, args|
     args.with_defaults( options: '{}' )
     options = args[:options]
-    task = Deepblue::WorksReport.new( options: options )
+    # task = Deepblue::WorksReport.new( options: options )
+    task = Deepblue::WorksReporter.new( rake_task: true, options: options )
     task.run
   end
 
