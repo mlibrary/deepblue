@@ -22,7 +22,7 @@ relative_url_root: /data
 
 # Used to set Rails.configuration.notification_email; should be use directly
 # from Settings unless there is an engine reference somewhere.
-notification_email: <%= "#{ENV['USER']}@umich.edu" %>
+notification_email: deepblue-notifications@default.invalid
 
 # Used to set Rails.configuration.user_email, but value never seems to be set.
 # Should also be used directly from Settings rather than being inserted into
@@ -33,7 +33,7 @@ notification_email: <%= "#{ENV['USER']}@umich.edu" %>
 # initializers/hyrax.rb.
 hyrax:
   # Settings for email contact form and deposit notification
-  contact_email: <%= "#{ENV['USER']}@umich.edu" %>
+  contact_email: deepblue-contact@default.invalid
   minter_statefile: <%= ENV['MINTER_FILE'] || "/tmp/umrdr-minter-#{Time.now.min}#{Time.now.sec}" %>
   # Redis namespace used in both Hyrax and Resque initializers
   redis_namespace: <%= ENV['REDIS_NS'] || 'deepbluedata' %>
