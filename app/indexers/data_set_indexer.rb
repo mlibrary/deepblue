@@ -30,9 +30,9 @@ class DataSetIndexer < Hyrax::WorkIndexer
       solr_doc[Solrizer.solr_name('creator_ordered', :stored_searchable)] = object.creator_ordered
       solr_doc[Solrizer.solr_name('doi', :symbol)] = object.doi
 
-      value = Array( object.referenced_by ).join( " " )
-      solr_doc[Solrizer.solr_name('referenced_by', :stored_searchable)] = value
-      # solr_doc[Solrizer.solr_name('referenced_by', :stored_sortable)] = value
+      # this causes referenced_by to be displayed as a single string, not a list of values
+      # value = Array( object.referenced_by ).join( " " )
+      # solr_doc[Solrizer.solr_name('referenced_by', :stored_searchable)] = value
 
       # So that we can sort by title.
       value = Array( object.title ).join( " " )
