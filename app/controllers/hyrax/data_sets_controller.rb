@@ -200,6 +200,7 @@ module Hyrax
           globus_copy_job( user_email: user_email )
           flash_and_redirect_to_main_cc msg
         else
+          globus_copy_job( user_email: nil )
           render 'globus_download_notify_me_form'
         end
       end
