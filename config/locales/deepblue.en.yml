@@ -190,7 +190,7 @@ en:
       box_link:
         "Link to M-Box deposit directory"
       globus_link:
-        "Link to Globus download directory"
+        "Download Data from Globus"
       globus_files_are_ready:
         "Files are ready"
       globus_help:
@@ -247,7 +247,7 @@ en:
         download:                       "Download All Files"
         globus:                         "Send to Globus to Download"
         globus_add_email:               "Add Email"
-        globus_clean_download:          "Clean Globus Download Directory for this Work"
+        globus_clean_download:          "Remove data from Globus"
         globus_clean_prep:              "Clean Globus Prep Directory for this Work"
         globus_download:                "Send to Globus to Download"
         globus_download_add_email:      "Email Me When Globus Download is Complete"

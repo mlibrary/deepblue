@@ -36,9 +36,9 @@
              <p><%= t('simple_form.hints.data_set.globus_files_are_ready') %> &nbsp;
               <%= link_to t('simple_form.hints.data_set.globus_link'),
                           @presenter.globus_external_url,
-                          class: 'btn btn-default',
+                          class: 'btn btn-primary',
                           target: "_blank",
-                          title: "link to external globus files" %>
+                          title: t('simple_form.hints.data_set.globus_link') %>
               <br/>
               <%= t('simple_form.hints.data_set.globus_is_for_large_datasets') %> &nbsp;
               <a href="<%= main_app.static_path(action: 'globus-help') %>" target="_blank">
