@@ -97,7 +97,7 @@ en:
         edit_work:                      "Edit Work/Add Files"
         globus:                         "Send to Globus to Download"
         globus_add_email:               "Add Email"
-        globus_clean_download:          "Clean Globus Download Directory for this Work"
+        globus_clean_download:          "Remove data from Globus"
         globus_clean_prep:              "Clean Globus Prep Directory for this Work"
         globus_download:                "Send to Globus to Download"
         globus_download_add_email:      "Email Me When Globus Download is Complete"

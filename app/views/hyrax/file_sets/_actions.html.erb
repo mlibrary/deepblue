@@ -64,9 +64,9 @@
              
               <%= link_to t('simple_form.hints.data_set.globus_link'),
                           @presenter.globus_external_url,
-                          class: 'btn btn-default',
+                          class: 'btn btn-primary',
                           target: "_blank",
-                          title: "link to external globus files" %>
+                          title: t('simple_form.hints.data_set.globus_link') %>
               <br/>
 
           <% elsif !@presenter.globus_files_prepping? %>
