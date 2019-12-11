@@ -64,7 +64,7 @@ works_report_job:
   queue: scheduler
   description: Works report job.
   args:
-    report_file_prefix: '%date%.%server%.works_report'
+    report_file_prefix: '%date%.%hostname%.works_report'
     report_dir: '/deepbluedata-prep/reports'
     quiet: true
     hostnames:
