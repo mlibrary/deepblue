@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module Hyrax
+
   # Injects a search builder filter to hide documents marked as suppressed
   module FilterSuppressed
     extend ActiveSupport::Concern
@@ -34,6 +37,14 @@ module Hyrax
       end
 
       def depositor?
+        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+        #                                        ::Deepblue::LoggingHelper.called_from,
+        #                                        "current_ability=#{current_ability}",
+        #                                        "current_ability.current_user=#{current_ability.current_user}",
+        #                                        "current_ability.current_user.user_key=#{current_ability.current_user.user_key}",
+        #                                        "current_ability.current_user.guest?=#{current_ability.current_user.guest?}",
+        #                                        "current_ability.current_user.new_record?=#{current_ability.current_user.new_record?}" ]
+        return false if current_ability.current_user.guest? || current_ability.current_user.new_record?
         # This is getting all the depositors to a collection.
         depositors = current_work["read_access_person_ssim"]
 
@@ -49,4 +60,5 @@ module Hyrax
       end
 
   end
+
 end

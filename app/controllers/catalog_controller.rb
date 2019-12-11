@@ -427,6 +427,20 @@ class CatalogController < ApplicationController
     config.spell_max = 5
   end
 
+  # def facet
+  #   super
+  # rescue Exception => e # rubocop:disable Lint/RescueException
+  #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+  #                                          ::Deepblue::LoggingHelper.called_from ] + e.backtrace
+  #   raise
+  # end
+  #
+  # def invalid_document_id_error(exception)
+  #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+  #                                        ::Deepblue::LoggingHelper.called_from ] + e.backtrace
+  #   super(exception)
+  # end
+
   # disable the bookmark control from displaying in gallery view
   # Hyrax doesn't show any of the default controls on the list view, so
   # this method is not called in that context.
