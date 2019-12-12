@@ -93,6 +93,9 @@ en:
     hints:
       file_set:
         save_version_note: 'You must click "Save Revision" to revert a previous version of this file'
+        select_new_version_note: >
+          When replacing the current version of a file with a new version, you may only select files that match the
+          mime type of the original file. The original mime type is: %{mime_type}
       generic_work:
         describe_work: >
           Please provide information about your data set (referred to as a "work") in the following fields, keeping in
