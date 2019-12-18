@@ -15,16 +15,8 @@ module Deepblue
                                              "event_note=#{event_note}",
                                              "" ]
       provenance_create( current_user: current_user, event_note: event_note )
-      email_rds_create( current_user: current_user, event_note: event_note )
-      # parameters = email_rds_create( current_user: current_user, event_note: event_note, return_email_parameters: true )
-      # summary = "#{parameters[:subject]} - #{parameters[:id]}"
-      # jira_url = JiraHelper.new_ticket( summary: summary, description: parameters[ :body ] )
-      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-      #                                        Deepblue::LoggingHelper.called_from,
-      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
-      #                                        "jira_url=#{jira_url}",
-      #                                        "" ]
-      # return if jira_url.nil?
+      email_event_create_rds( current_user: current_user, event_note: event_note )
+      email_event_create_user( current_user: current_user, event_note: event_note )
       JiraNewTicketJob.perform_later( work_id: id, current_user: current_user )
     end
 
@@ -46,7 +38,7 @@ module Deepblue
                                              "event_note=#{event_note}",
                                              "" ]
       provenance_destroy( current_user: current_user, event_note: event_note )
-      email_rds_destroy( current_user: current_user, event_note: event_note )
+      email_event_destroy_rds( current_user: current_user, event_note: event_note )
     end
 
     def workflow_publish( current_user:, event_note: "", message: "" )
@@ -78,7 +70,7 @@ module Deepblue
                                                "" ]
       end
       provenance_publish( current_user: current_user, event_note: event_note, message: message )
-      email_rds_publish( current_user: current_user, event_note: event_note, message: message )
+      email_event_publish_rds( current_user: current_user, event_note: event_note, message: message )
     end
 
     def workflow_unembargo( current_user:, event_note: "" )
@@ -99,7 +91,7 @@ module Deepblue
                                              "event_note=#{event_note}",
                                              "" ]
       provenance_unpublish( current_user: current_user, event_note: event_note )
-      email_rds_unpublish( current_user: current_user, event_note: event_note )
+      email_event_unpublish_rds( current_user: current_user, event_note: event_note )
     end
 
     def workflow_update_before( current_user:, event_note: "" )

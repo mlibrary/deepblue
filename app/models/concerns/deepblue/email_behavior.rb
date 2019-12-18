@@ -22,28 +22,28 @@ module Deepblue
       %i[]
     end
 
-    def attributes_for_email_rds_create
+    def attributes_for_email_event_create_rds
       return attributes_standard_for_email, USE_BLANK_KEY_VALUES
     end
 
-    def attributes_for_email_rds_destroy
+    def attributes_for_email_event_create_user
+      return attributes_standard_for_email
+    end
+
+    def attributes_for_email_event_destroy_rds
       return attributes_standard_for_email, USE_BLANK_KEY_VALUES
     end
 
-    def attributes_for_email_rds_globus
+    def attributes_for_email_event_globus_rds
       return attributes_brief_for_email, IGNORE_BLANK_KEY_VALUES
     end
 
-    def attributes_for_email_rds_publish
+    def attributes_for_email_event_publish_rds
       return attributes_standard_for_email, USE_BLANK_KEY_VALUES
     end
 
-    def attributes_for_email_rds_unpublish
+    def attributes_for_email_event_unpublish_rds
       return attributes_standard_for_email, USE_BLANK_KEY_VALUES
-    end
-
-    def attributes_for_email_user_create
-      attributes_standard_for_email
     end
 
     def email_attribute_values_for_snapshot( attributes:,
@@ -91,8 +91,8 @@ module Deepblue
       body.string
     end
 
-    def email_rds_create( current_user:, event_note: '', return_email_parameters: false, send_it: true )
-      attributes, ignore_blank_key_values = attributes_for_email_rds_create
+    def email_event_create_rds( current_user:, event_note: '', return_email_parameters: false, send_it: true )
+      attributes, ignore_blank_key_values = attributes_for_email_event_create_rds
       email_key_values = {}
       email_key_values = map_email_attributes!( event: EVENT_CREATE,
                                                 attributes: attributes,
@@ -113,8 +113,35 @@ module Deepblue
                                 email_key_values: email_key_values )
     end
 
-    def email_rds_destroy( current_user:, event_note: '' )
-      attributes, ignore_blank_key_values = attributes_for_email_rds_destroy
+    def email_event_create_user( current_user:, event_note: '' )
+      to_from = email_address_user( current_user )
+      work_title = title.join( ' ' )
+      work_url = data_set_url
+      work_depositor = ::Deepblue::EmailHelper.depositor( curation_concern: self )
+      # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+      #                                      Deepblue::LoggingHelper.called_from,
+      #                                      "to_from=#{to_from}",
+      #                                      "work_title=#{work_title}",
+      #                                      "work_url=#{work_url}",
+      #                                      "work_depositor=#{work_depositor}",
+      #                                      "" ]
+      body = Deepblue::EmailHelper.t( 'hyrax.email.notify_user_work_created_html',
+                                      title: work_title,
+                                      work_url: work_url,
+                                      depositor: work_depositor )
+      email_notification( to: to_from,
+                          from: to_from,
+                          content_type: "text/html",
+                          subject: Deepblue::EmailHelper.t( "hyrax.email.subject.work_created" ),
+                          body: body,
+                          current_user: current_user,
+                          event: EVENT_CREATE,
+                          event_note: event_note,
+                          id: for_email_id )
+    end
+
+    def email_event_destroy_rds( current_user:, event_note: '' )
+      attributes, ignore_blank_key_values = attributes_for_email_event_destroy_rds
       email_event_notification( to: email_address_rds,
                                 to_note: 'RDS',
                                 from: email_address_rds,
@@ -127,8 +154,8 @@ module Deepblue
                                 ignore_blank_key_values: ignore_blank_key_values )
     end
 
-    def email_rds_globus( current_user:, event_note: )
-      attributes, ignore_blank_key_values = attributes_for_email_rds_globus
+    def email_event_globus_rds( current_user:, event_note: )
+      attributes, ignore_blank_key_values = attributes_for_email_event_globus_rds
       email_event_notification( to: email_address_rds,
                                 to_note: 'RDS',
                                 from: email_address_rds,
@@ -141,8 +168,8 @@ module Deepblue
                                 ignore_blank_key_values: ignore_blank_key_values )
     end
 
-    def email_rds_publish( current_user:, event_note: '', message: '' )
-      attributes, ignore_blank_key_values = attributes_for_email_rds_publish
+    def email_event_publish_rds( current_user:, event_note: '', message: '' )
+      attributes, ignore_blank_key_values = attributes_for_email_event_publish_rds
       email_event_notification( to: email_address_rds,
                                 to_note: 'RDS',
                                 from: email_address_rds,
@@ -156,8 +183,8 @@ module Deepblue
                                 ignore_blank_key_values: ignore_blank_key_values )
     end
 
-    def email_rds_unpublish( current_user:, event_note: '' )
-      attributes, ignore_blank_key_values = attributes_for_email_rds_unpublish
+    def email_event_unpublish_rds( current_user:, event_note: '' )
+      attributes, ignore_blank_key_values = attributes_for_email_event_unpublish_rds
       email_event_notification( to: email_address_rds,
                                 to_note: 'RDS',
                                 from: email_address_rds,
@@ -168,19 +195,6 @@ module Deepblue
                                 event_note: event_note,
                                 id: for_email_id,
                                 ignore_blank_key_values: ignore_blank_key_values )
-    end
-
-    def email_user_create( current_user:, event_note: '' )
-      email_event_notification( to: email_address_user( current_user ),
-                                to_note: 'user',
-                                from: email_address_rds,
-                                subject: Deepblue::EmailHelper.t( "hyrax.email.subject.work_created" ),
-                                attributes: attributes_for_email_user_create,
-                                current_user: current_user,
-                                event: EVENT_CREATE,
-                                event_note: event_note,
-                                id: for_email_id,
-                                ignore_blank_key_values: false )
     end
 
     def email_create_to_user( current_user:, event_note: '' ) # TODO: delete this method
@@ -286,6 +300,34 @@ module Deepblue
     end
 
     protected
+
+      def email_notification( to:,
+                              from:,
+                              subject:,
+                              current_user:,
+                              event:,
+                              event_note:,
+                              message: '',
+                              id:,
+                              body:,
+                              content_type: nil,
+                              send_it: true,
+                              email_key_values: {} )
+
+        EmailHelper.send_email( to: to, from: from, subject: subject, body: body, content_type: content_type ) if send_it
+        class_name = for_email_class.name
+        EmailHelper.log( class_name: class_name,
+                         current_user: current_user,
+                         event: event,
+                         event_note: event_note,
+                         id: id,
+                         to: to,
+                         from: from,
+                         subject: subject,
+                         message: message,
+                         body: body,
+                         **email_key_values ) if send_it
+      end
 
       def email_event_notification( to:,
                                     to_note:,

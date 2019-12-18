@@ -157,7 +157,7 @@ class DataSet < ActiveFedora::Base
     metadata_keys_brief
   end
 
-  def attributes_for_email_rds_create
+  def attributes_for_email_event_create_rds
     attributes = %i[ title location creator depositor authoremail subject_discipline id type ]
     return attributes, Deepblue::AbstractEventBehavior::USE_BLANK_KEY_VALUES
   end
