@@ -98,7 +98,9 @@ en:
         subject:            "DBD: Files Attached to %{title}"
         one_file_count_phrase:   "file has"
         many_files_count_phrase: "%{file_count} files have"
-        finished:           "The following %{file_count_phrase} been ingested into Deep Blue Data deposit \"%{title},\" at %{work_url} . Please use this list to confirm all intended files were uploaded:"
+        finished: >
+          The following %{file_count_phrase} been ingested into Deep Blue Data deposit \"%{title},\" at %{work_url} .
+          Please use this list to confirm all intended files were uploaded:
         total_failed:       "\nThe total number of files uploaded and failed was %{file_count}."
         total_success:      "\nThe total number of files uploaded and attached was %{file_count}."
         files_attached:     "\nFiles attached are:"
@@ -106,6 +108,40 @@ en:
         file_list_item:     "'%{file_name}' - %{file_size} bytes"
         file_list_line:     "%{line_count} -- %{file_item}"
         file_line:          "%{line_count} -- '%{file_name}' - %{file_size} bytes"
+      notify_user_work_created_html: >
+        Dear %{depositor},
+        <p>
+        Thank you for your submission to Deep Blue Data. The metadata record for "<a href='%{work_url}'>%{title}</a>"
+        has been created, and we will begin the review process as soon as your data and documentation are complete.
+        (You will receive a separate email confirming your file uploads when this is done).
+        </p>
+        <p>
+        We are happy to provide you with a personalized curation review to ensure your data are as easy as possible to
+        understand and use. This entails:
+        </p>
+        <ul>
+        <li>Review of your data and documentation.</li>
+        <ul>
+        <li>If you would like more information or resources on creating appropriate documentation for your deposit, see our
+        <a href='https://deepblue.lib.umich.edu/data/dbd-documentation-guide'>Documentation Guide</a> and
+        <a href='https://deepblue.lib.umich.edu/data/Deep_Blue_Data_Example_Readme.txt'>example readme</a>.</li>
+        <li>We may work with the Data Curation Network (DCN) to perform the full review of your data set. The DCN is a
+        consortium through which we have access to a broad range of subject and format expertise for curation.</li>
+        </ul>
+        <li>Curation recommendations for your dataset (our usual timeline for review is a week or two; if you are working
+        on a more compressed timeline, let us know).</li>
+        </ul>
+        <p>
+        After the review we may request additional information or revisions to your deposit so that we can best
+        represent your work.
+        </p>
+        <p>
+        Please feel free to contact us at deepblue@umich.edu if you have any questions in the meantime, or if there is
+        anything else we can do to be of help.
+        </p>
+        Sincerely,<br/>
+        <br/>
+        The Deep Blue Data team<br/>
       subject:
         work_created:       "DBD: Work Created"
         work_deleted:       "DBD: Work Deleted"

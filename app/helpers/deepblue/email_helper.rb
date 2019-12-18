@@ -27,6 +27,18 @@ module Deepblue
       Rails.application.routes.url_helpers.hyrax_collection_url( id: id, host: host, only_path: false )
     end
 
+    def self.depositor( curation_concern: )
+      if curation_concern.is_a?( DataSet )
+        curation_concern.authoremail
+      elsif curation_concern.is_a?( FileSet )
+        curation_concern.parent.authoremail
+      elsif curation_concern.is_a?( Collection )
+        curation_concern.depositor
+      else
+        "Depositor"
+      end
+    end
+
     def self.data_set_url( id: nil, data_set: nil )
       id = data_set.id if data_set.present?
       host = hostname
@@ -87,13 +99,18 @@ module Deepblue
       Rails.configuration.notification_email
     end
 
-    def self.send_email( to:, from:, subject:, body:, log: false )
+    def self.send_email( to:, from:, subject:, body:, log: false, content_type: nil )
       email_enabled = DeepBlueDocs::Application.config.email_enabled
       is_enabled = email_enabled ? "is enabled" : "is not enabled"
-      LoggingHelper.bold_debug [ "EmailHelper.send_email #{is_enabled}", "to: #{to} from: #{from} subject: #{subject}\nbody:\n#{body}" ] if log
+      LoggingHelper.bold_debug [ "EmailHelper.send_email #{is_enabled}",
+                                 "to: #{to} from: #{from} subject: #{subject}\nbody:\n#{body}" ] if log
       return if to.blank?
       return unless email_enabled
-      email = DeepblueMailer.send_an_email( to: to, from: from, subject: subject, body: body )
+      email = DeepblueMailer.send_an_email( to: to,
+                                            from: from,
+                                            subject: subject,
+                                            body: body,
+                                            content_type: content_type )
       email.deliver_now
     end
 
