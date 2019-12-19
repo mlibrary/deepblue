@@ -69,7 +69,7 @@ gem 'jbuilder', '~> 2.5'
 # bundle update --source gem-name
 gem 'bootstrap-sass', '~> 3.4.1'
 gem 'loofah', '~> 2.3.1'
-gem 'rack', '~> 2.0.6'
+gem 'rack', '~> 2.0.8'
 gem 'rubyzip', '~> 2.0.0'
 gem 'sassc', '>= 2.0.0'
 gem 'sinatra', '~> 2.0.2'
