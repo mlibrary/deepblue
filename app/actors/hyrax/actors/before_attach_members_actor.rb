@@ -27,12 +27,10 @@ module Hyrax
 
       protected
 
-        # Provenance log for attaching and unattaching members.
         # @param [Hash<Hash>] a collection of members
         def assign_nested_attributes_for_collection( env, attributes_collection )
           return true if attributes_blank? attributes_collection
-          return true unless env.curation_concern.respond_to? :provenance_child_add
-
+          return unless env.current_ability.can?( :edit, member )
           attributes_collection = attributes_collection.first if  attributes_collection.is_a? Array
           attributes_collection = attributes_collection.sort_by { |i, _| i.to_i }.map { |_, attributes| attributes }
           # checking for existing works to avoid rewriting/loading works that are already attached
@@ -52,8 +50,20 @@ module Hyrax
         # along side the FileSets on the show page
         def add( env, id, current_user )
           member = ActiveFedora::Base.find( id )
-          return unless env.current_ability.can?( :edit, member )
-          env.curation_concern.provenance_child_add( current_user: current_user, child_id: id, event_note: 'BeforeAttachMembersActor' )
+          child_title = member.title
+          # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+          #                                      Deepblue::LoggingHelper.called_from,
+          #                                      "provenance_child_add",
+          #                                      "parent.id=#{env.curation_concern.id}",
+          #                                      "child_id=#{id}",
+          #                                      "child_title=#{child_title}",
+          #                                      "event_note=BeforeAttachMembersActor",
+          #                                      "" ]
+          return true unless env.curation_concern.respond_to? :provenance_child_add
+          env.curation_concern.provenance_child_add( current_user: current_user,
+                                                     child_id: id,
+                                                     child_title: child_title,
+                                                     event_note: 'BeforeAttachMembersActor' )
         end
 
         # Determines if a hash contains a truthy _destroy key.
@@ -65,7 +75,18 @@ module Hyrax
 
         # provenance log for: Remove the object from the members set and the ordered members list
         def remove( env, id, current_user )
-          env.curation_concern.provenance_child_remove( current_user: current_user, child_id: id, event_note: 'BeforeAttachMembersActor' )
+          # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+          #                                      Deepblue::LoggingHelper.called_from,
+          #                                      "provenance_child_remove",
+          #                                      "parent.id=#{env.curation_concern.id}",
+          #                                      "child_id=#{id}",
+          #                                      "child_title=#{title}",
+          #                                      "event_note=BeforeAttachMembersActor",
+          #                                      "" ]
+          env.curation_concern.provenance_child_remove( current_user: current_user,
+                                                        child_id: id,
+                                                        child_title: title,
+                                                        event_note: 'BeforeAttachMembersActor' )
         end
 
     end

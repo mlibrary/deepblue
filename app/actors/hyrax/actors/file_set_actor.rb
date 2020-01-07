@@ -27,6 +27,7 @@ module Hyrax
                           from_url: false,
                           continue_job_chain_later: true,
                           uploaded_file_ids: [] )
+
         Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "file=#{file}",
@@ -36,9 +37,7 @@ module Hyrax
                                              "continue_job_chain_later=#{continue_job_chain_later}",
                                              "uploaded_file_ids=#{uploaded_file_ids}",
                                               "" ]
-        # If the file set doesn't have a title or label assigned, set a default.
-        file_set.label ||= label_for(file)
-        file_set.title = [file_set.label] if file_set.title.blank?
+        create_label( file: file )
         return false unless file_set.save # Need to save to get an id
         io_wrapper = wrapper!( file: file, relation: relation )
         if from_url
@@ -93,6 +92,12 @@ module Hyrax
 
       # @!endgroup
 
+      def create_label( file: )
+        # If the file set doesn't have a title or label assigned, set a default.
+        file_set.label ||= label_for( file )
+        file_set.title = [file_set.label] if file_set.title.blank?
+      end
+
       # Adds the appropriate metadata, visibility and relationships to file_set
       # @note In past versions of Hyrax this method did not perform a save because it is mainly used in conjunction with
       #   create_content, which also performs a save.  However, due to the relationship between Hydra::PCDM objects,
@@ -138,6 +143,7 @@ module Hyrax
                                       uploaded_file_id: uploaded_file_id,
                                       work_id: work.id,
                                       work_file_set_count: work.file_set_ids.count )
+          provenance_child_add( work: work )
           Hyrax.config.callback.run(:after_create_fileset, file_set, user)
         end
       rescue Exception => e # rubocop:disable Lint/RescueException
@@ -160,6 +166,25 @@ module Hyrax
       end
       alias attach_file_to_work attach_to_work
       deprecation_deprecate attach_file_to_work: "use attach_to_work instead"
+
+      def provenance_child_add( work: )
+        child_title = file_set.title
+        child_title = file_set.original_file.original_name if child_title.blank?
+        # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+        #                                      Deepblue::LoggingHelper.called_from,
+        #                                      "provenance_child_add",
+        #                                      "parent.id=#{work.id}",
+        #                                      "child_id=#{file_set.id}",
+        #                                      "child_title=#{child_title}",
+        #                                      "event_note=FileSetActor",
+        #                                      "" ]
+        if work.respond_to? :provenance_child_add
+          work.provenance_child_add( current_user: file_set.depositor,
+                                     child_id: file_set.id,
+                                     child_title: child_title,
+                                     event_note: "FileSetActor" )
+        end
+      end
 
       # @param [String] revision_id the revision to revert to
       # @param [Symbol, #to_sym] relation

@@ -29,6 +29,22 @@ module Hyrax
 
     def provenance_log_destroy
       curation_concern.provenance_destroy( current_user: current_user, event_note: 'FileSetsController' )
+      if curation_concern.parent.present?
+        parent = curation_concern.parent
+        # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+        #                                      Deepblue::LoggingHelper.called_from,
+        #                                      "provenance_child_remove",
+        #                                      "parent.id=#{parent.id}",
+        #                                      "child_id=#{curation_concern.id}",
+        #                                      "child_title=#{curation_concern.title}",
+        #                                      "event_note=FileSetsController",
+        #                                      "" ]
+        return unless parent.respond_to? :provenance_child_add
+        parent.provenance_child_remove( current_user: current_user,
+                                        child_id: curation_concern.id,
+                                        child_title: curation_concern.title,
+                                        event_note: "FileSetsController" )
+      end
     end
 
     def provenance_log_update_after

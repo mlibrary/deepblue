@@ -1563,6 +1563,7 @@ module Deepblue
         return unless parent.respond_to? :provenance_child_add
         parent.provenance_child_add( current_user: user,
                                      child_id: child.id,
+                                     child_title: child.title,
                                      ingest_id: ingest_id,
                                      ingester: ingester,
                                      ingest_timestamp: ingest_timestamp )
