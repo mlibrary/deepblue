@@ -287,9 +287,16 @@ module Deepblue
                             prov_key_values: prov_key_values )
     end
 
-    def provenance_child_add( current_user:, child_id:, event_note: '', **added_prov_key_values )
+    def provenance_child_add( current_user:, child_id:, child_title:, event_note: '', **added_prov_key_values )
+      # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+      #                                      Deepblue::LoggingHelper.called_from,
+      #                                      "id=#{id}",
+      #                                      "child_id=#{child_id}",
+      #                                      "child_title=#{child_title}",
+      #                                      "event_note=#{event_note}",
+      #                                      "" ]
       event = EVENT_CHILD_ADD
-      added_prov_key_values = { child_id: child_id }.merge added_prov_key_values
+      added_prov_key_values = { child_id: child_id, child_title: child_title }.merge added_prov_key_values
       attributes, ignore_blank_key_values = attributes_for_provenance_add
       prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes,
                                                                   current_user: current_user,
@@ -305,9 +312,16 @@ module Deepblue
                             prov_key_values: prov_key_values )
     end
 
-    def provenance_child_remove( current_user:, child_id:, event_note: '', **added_prov_key_values )
+    def provenance_child_remove( current_user:, child_id:, child_title:, event_note: '', **added_prov_key_values )
+      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                           Deepblue::LoggingHelper.called_from,
+                                           "id=#{id}",
+                                           "child_id=#{child_id}",
+                                           "child_title=#{child_title}",
+                                           "event_note=#{event_note}",
+                                           "" ]
       event = EVENT_CHILD_REMOVE
-      added_prov_key_values = { child_id: child_id }.merge added_prov_key_values
+      added_prov_key_values = { child_id: child_id, child_title: child_title }.merge added_prov_key_values
       attributes, ignore_blank_key_values = attributes_for_provenance_add
       prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes,
                                                                   current_user: current_user,

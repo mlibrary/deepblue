@@ -214,6 +214,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       actor = Hyrax::Actors::FileSetActor.new( FileSet.create, user )
       actor.file_set.permissions_attributes = work_permissions
       actor.create_metadata( metadata )
+      actor.create_label( file: uploaded_file )
       # when actor.create content is here, and the processing is synchronous, then it fails to add size to the file_set
       # actor.create_content( uploaded_file, continue_job_chain_later: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY )
       actor.attach_to_work( work, uploaded_file_id: Deepblue::UploadHelper.uploaded_file_id( uploaded_file ) )
