@@ -1,12 +1,15 @@
 # batch_ummz_import_report.yml
 # bundle exec rake deepblue:run_report[/deepbluedata-prep/reports/definitions/batch_ummz_import_report.yml]
+# bundle exec rake deepblue:run_report[./lib/reports/batch_ummz_import_report.yml]
 ---
 :report:
   :config:
     :verbose: true
+    :include_children: true
   :output:
     :format: CSV
     :file: /deepbluedata-prep/reports/sample_report_out
+    #:file: ./sample_report_out
   :curation_concern: DataSet
   :fields:
     :id            : ID
@@ -14,6 +17,16 @@
     :doi           : DOI
     :create_date   : Create Date
     :modified_date : Modified Date
+    :data_set_url  : URL
+    :child_file_set_name : File Name
+    :child_file_set_id : File Set ID
+  :field_accessors:
+    :data_set_url:
+      :method:
+    :child_file_set_name:
+      :report_method:
+    :child_file_set_id:
+      :report_method:
   :field_formats:
     :title:
       :join: ' '
@@ -25,7 +38,7 @@
     :include:
       :create_date:
         :begin  : '2019-03-20'
-        :end    : '2019-03-30'
+        :end    : '2020-03-30'
         :format : "%Y-%m-%d"
       :curation_notes_admin:
         :contains: "Batch UMMZ Import"
