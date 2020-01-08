@@ -183,6 +183,33 @@ module Deepblue
                                 ignore_blank_key_values: ignore_blank_key_values )
     end
 
+    def email_event_publish_user( current_user:, event_note: '', message: '' )
+      # to_from = email_address_user( current_user )
+      work_title = title.join( ' ' )
+      work_url = data_set_url
+      work_depositor = ::Deepblue::EmailHelper.depositor( curation_concern: self )
+      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                           Deepblue::LoggingHelper.called_from,
+                                           #"to_from=#{to_from}",
+                                           "work_title=#{work_title}",
+                                           "work_url=#{work_url}",
+                                           "work_depositor=#{work_depositor}",
+                                           "" ]
+      body = Deepblue::EmailHelper.t( 'hyrax.email.notify_user_work_published_html',
+                                      title: work_title,
+                                      work_url: work_url,
+                                      depositor: work_depositor )
+      email_notification( to: work_depositor,
+                          from: work_depositor,
+                          content_type: "text/html",
+                          subject: Deepblue::EmailHelper.t( "hyrax.email.subject.work_published" ),
+                          body: body,
+                          current_user: current_user,
+                          event: EVENT_PUBLISH,
+                          event_note: event_note,
+                          id: for_email_id )
+    end
+
     def email_event_unpublish_rds( current_user:, event_note: '' )
       attributes, ignore_blank_key_values = attributes_for_email_event_unpublish_rds
       email_event_notification( to: email_address_rds,

@@ -71,6 +71,7 @@ module Deepblue
       end
       provenance_publish( current_user: current_user, event_note: event_note, message: message )
       email_event_publish_rds( current_user: current_user, event_note: event_note, message: message )
+      email_event_publish_user( current_user: current_user, event_note: event_note, message: message )
     end
 
     def workflow_unembargo( current_user:, event_note: "" )
