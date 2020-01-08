@@ -142,6 +142,18 @@ en:
         Sincerely,<br/>
         <br/>
         The Deep Blue Data team<br/>
+      notify_user_work_published_html: >
+        Dear %{depositor},
+        <p>
+        Thank you for your submission to Deep Blue Data. Your deposit, <a href='%{work_url}'>%{title}</a>.
+        has been approved and is published (or will be published when your selected embargo expires).
+        </p>
+        Please feel free to contact us at deepblue@umich.edu if you have any questions in the meantime, or if there is
+        anything else we can do to be of help.
+        </p>
+        Sincerely,<br/>
+        <br/>
+        The Deep Blue Data team<br/>
       subject:
         work_created:       "DBD: Work Created"
         work_deleted:       "DBD: Work Deleted"
