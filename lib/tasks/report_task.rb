@@ -118,8 +118,10 @@ module Deepblue
 
   class ReportTask < AbstractReportTask
 
+    attr_reader :current_child, :current_child_index
+
     attr_reader :curation_concern, :config, :fields, :field_formats, :filters, :output
-    attr_reader :filter_exclude, :filter_include
+    attr_reader :filter_exclude, :filter_include, :include_children
     attr_reader :report_definitions, :report_definitions_file
     attr_reader :field_format_strings, :output_file
 
@@ -130,6 +132,7 @@ module Deepblue
       load_report_definitions
       @config = report_sub_hash( key: :config )
       @verbose = hash_value( hash: config, key: :verbose, default_value: verbose )
+      @include_children = hash_value( hash: config, key: :include_children, default_value: false )
       @field_accessors = report_sub_hash( key: :field_accessors )
       @field_accessor_modes = {}
       @curation_concern = report_hash_value( key: :curation_concern )
@@ -175,7 +178,21 @@ module Deepblue
       end
     end
 
+    def child_file_set_id( curation_concern:, attribute: )
+      return "" unless include_children
+      return "" unless current_child.present?
+      current_child.id
+    end
+
+    def child_file_set_name( curation_concern:, attribute: )
+      return "" unless include_children
+      return "" unless current_child.present?
+      current_child.label
+    end
+
     def curation_concern_attribute( curation_concern:, attribute: )
+      # puts "curation_concern=#{curation_concern.id} attribute=#{attribute}"
+      # puts "current_child_index=#{current_child_index} current_child=#{current_child&.id}" if include_children
       access_mode = @field_accessor_modes[attribute]
       if access_mode.nil?
         field_accessor = @field_accessors[attribute]
@@ -186,6 +203,8 @@ module Deepblue
             access_mode = :method
           elsif field_accessor.has_key? :attribute
             access_mode = :attribute
+          elsif field_accessor.has_key? :report_method
+            access_mode = :report_method
           else
             access_mode = :attribute
           end
@@ -196,10 +215,11 @@ module Deepblue
       end
       value = case access_mode
               when :attribute
-                curation_concern.attributes[attribute.to_s]
+                resolve_attribute( curation_concern: curation_concern, attribute: attribute )
               when :method
-                raise unless curation_concern.respond_to? attribute.to_s
-                curation_concern.public_send( attribute.to_s )
+                resolve_method( curation_concern: curation_concern, attribute: attribute )
+              when :report_method
+                resolve_report_method( curation_concern: curation_concern, attribute: attribute )
               end
       # puts "attribute=#{attribute} access_mode=#{access_mode} value=#{value}"
       return value
@@ -220,12 +240,12 @@ module Deepblue
       # puts "field_formats=#{field_formats}"
       formats = hash_value( hash: field_formats, key: attribute )
       # puts "formats=#{formats}"
-      if formats.has_key? :join
+      if formats.has_key? :join && value.respond_to?( :join )
         format_str = formats[:join]
         field_format_strings[attribute] = format_str
         return value.join( format_str )
       end
-      if formats.has_key? :date
+      if formats.has_key? :date && value.present?
         format_str = formats[:date]
         field_format_strings[attribute] = format_str
         return date_to_local_timezone( value ).strftime( format_str )
@@ -300,6 +320,22 @@ module Deepblue
       return hash
     end
 
+    def resolve_attribute( curation_concern:, attribute: )
+      return "" if include_children && current_child_index > 1
+      curation_concern.attributes[attribute.to_s]
+    end
+
+    def resolve_method( curation_concern:, attribute: )
+      return "" if include_children && current_child_index > 1
+      raise unless curation_concern.respond_to? attribute.to_s
+      curation_concern.public_send( attribute.to_s )
+    end
+
+    def resolve_report_method( curation_concern:, attribute: )
+      raise unless respond_to? attribute.to_s
+      public_send( attribute.to_s, { curation_concern: curation_concern, attribute: attribute } )
+    end
+
     def write_report
       puts "curation_concern=#{curation_concern}"
       @output_file = hash_value( hash: output, key: :file )
@@ -322,8 +358,23 @@ module Deepblue
       CSV.open( output_file, "w", {:force_quotes=>true} ) do |csv|
         csv << row_csv_header
         curation_concerns.each do |curation_concern|
+          @current_child = nil
+          @current_child_index = 0
           next if filter_out( curation_concern )
-          csv << row_csv_data( curation_concern )
+          if include_children
+            file_sets = curation_concern.file_sets
+            if file_sets.present?
+              file_sets.each_with_index do |fs,index|
+                @current_child = fs
+                @current_child_index = index + 1
+                csv << row_csv_data( curation_concern )
+              end
+            else
+              csv << row_csv_data( curation_concern )
+            end
+          else
+            csv << row_csv_data( curation_concern )
+          end
         end
       end
     end
