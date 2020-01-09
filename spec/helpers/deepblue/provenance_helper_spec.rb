@@ -25,8 +25,8 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
     let( :depositor ) { authoremail }
     let( :description ) { 'The Description' }
     let( :id ) { '0123458678' }
-    let( :methodology ) { 'The Methodology' }
-    let( :methodology_new ) { 'The New Methodology' }
+    let( :methodology ) { ['The Methodology'] }
+    let( :methodology_new ) { ['The New Methodology'] }
     let( :rights_license ) { 'The Rights License' }
     let( :subject_discipline ) { 'The Subject Discipline' }
     let( :title ) { 'The Title' }
@@ -39,6 +39,7 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
                    date_created: date_created,
                    depositor: depositor,
                    description: [description],
+                   # todo methodology
                    methodology: methodology,
                    rights_license: rights_license,
                    subject_discipline: [subject_discipline],
@@ -538,8 +539,8 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
     let( :depositor ) { authoremail }
     let( :description ) { [ 'The Description' ] }
     let( :id ) { '0123458678' }
-    let( :methodology_new ) { 'The New Methodology' }
-    let( :methodology_old ) { 'The Old Methodology' }
+    let( :methodology_new ) { ['The New Methodology'] }
+    let( :methodology_old ) { ['The Old Methodology'] }
     let( :rights_license ) { 'The Rights License' }
     let( :title ) { [ 'The Title' ] }
     let( :subject_discipline ) { 'The Subject Discipline' }

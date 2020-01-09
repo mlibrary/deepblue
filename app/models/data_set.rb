@@ -442,6 +442,18 @@ class DataSet < ActiveFedora::Base
     super values
   end
 
+  # the list of methodology(s) is ordered
+  def methodology
+    values = super
+    values = Deepblue::MetadataHelper.ordered( ordered_values: methodology_ordered, values: values )
+    return values
+  end
+
+  def methodology=( values )
+    self.methodology_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: methodology_ordered, values: values )
+    super values
+  end
+
   #
   # handle the list of referenced_by as ordered
   #

@@ -23,6 +23,7 @@ module Deepblue
                                 :date_created, :date_modified,
                                 :description_ordered,
                                 :keyword_ordered, :language_ordered,
+                                :methodology_ordered,
                                 :referenced_by_ordered, :title_ordered,
                                 :visibility ].freeze
     DEFAULT_DIFF_ATTRS_SKIP_IF_BLANK = [ :creator_ordered,
@@ -34,6 +35,7 @@ module Deepblue
                                          :doi,
                                          :fundedby_other,
                                          :keyword_ordered, :language_ordered,
+                                         :methodology_ordered,
                                          :prior_identifier,
                                          :referenced_by_ordered, :title_ordered ].freeze
     DEFAULT_DIFF_USER_ATTRS_SKIP = [ :created_at,
@@ -56,6 +58,7 @@ module Deepblue
                                            :checksum_algorithm, :checksum_value,
                                            :description_ordered, :doi,
                                            :fundedby_other, :keyword_ordered, :language_ordered,
+                                           :methodology_ordered,
                                            :prior_identifier,
                                            :referenced_by_ordered, :title_ordered ].freeze
     DEFAULT_UPDATE_COLLECTIONS_RECURSE = false
@@ -850,7 +853,8 @@ module Deepblue
         grantnumber = work_hash[:grantnumber]
         language = Array( work_hash[:language] )
         keyword = Array( work_hash[:keyword] )
-        methodology = work_hash[:methodology] || "No Methodology Available"
+        methodology = Array( work_hash[:methodology] )
+        methodology = [ "No Methodology Available" ] unless methodology.present?
         prior_identifier = build_prior_identifier( hash: work_hash, id: id )
         referenced_by = build_referenced_by( hash: work_hash )
         resource_type = Array( work_hash[:resource_type] || 'Dataset' )
@@ -1239,8 +1243,10 @@ module Deepblue
         diff_attr( diffs, work, work_hash, attr_name: :keyword_ordered, multi: false )
         diff_attr( diffs, work, work_hash, attr_name: :language )
         diff_attr( diffs, work, work_hash, attr_name: :language_ordered, multi: false )
-        methodology = work_hash[:methodology] || "No Methodology Available"
+        methodology = Array( work_hash[:methodology] )
+        methodology = [ "No Methodology Available" ] unless methodology.present?
         diff_attr_value( diffs, work, attr_name: :methodology, value: methodology )
+        diff_attr( diffs, work, work_hash, attr_name: :methodology_ordered, multi: false )
         diff_attr_value( diffs, work, attr_name: :owner, value: depositor )
         diff_attr( diffs, work, work_hash, attr_name: :prior_identifier )
         diff_attr_value( diffs, work, attr_name: :referenced_by, value: build_referenced_by( hash: work_hash ) )
@@ -2184,8 +2190,10 @@ module Deepblue
         update_attr( updates, work, work_hash, attr_name: :keyword_ordered, multi: false )
         update_attr( updates, work, work_hash, attr_name: :language )
         update_attr( updates, work, work_hash, attr_name: :language_ordered, multi: false )
-        methodology = work_hash[:methodology] || "No Methodology Available"
+        methodology = Array( work_hash[:methodology] )
+        methodology = [ "No Methodology Available" ] unless methodology.present?
         update_attr_value( updates, work, attr_name: :methodology, value: methodology )
+        update_attr( updates, work, work_hash, attr_name: :methodology_ordered, multi: false )
         update_attr_value( updates, work, attr_name: :owner, value: depositor )
         update_attr( updates, work, work_hash, attr_name: :prior_identifier )
         update_attr_value( updates, work, attr_name: :referenced_by, value: build_referenced_by(hash: work_hash ) )

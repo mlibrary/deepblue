@@ -99,7 +99,8 @@ module Umrdr
     end
 
     def methodology
-      Array(self[Solrizer.solr_name('methodology')]).first
+      #Array(self[Solrizer.solr_name('methodology')]).first
+      fetch(Solrizer.solr_name('methodology'), [])
     end
 
     def original_checksum

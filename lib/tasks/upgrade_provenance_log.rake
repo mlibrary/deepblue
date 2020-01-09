@@ -496,6 +496,7 @@ module Deepblue
         visibility = fix_property_value_data_set( key: :visibility, value: match[3] )
         title = fix_property_value_data_set( key: :title, value: match[4], splitter: SPLITTER_TITLE )
         rights_license = fix_property_value_data_set( key: :rights_license, value: match[5] )
+        # todo methodology
         methodology = fix_property_value_data_set( key: :methodology, value: match[6] )
         publisher = fix_property_value_data_set( key: :publisher, value: match[7] )
         subject_discipline = fix_property_value_data_set( key: :subject_discipline,
@@ -615,6 +616,7 @@ module Deepblue
         title = fix_property_value_data_set( key: :title, value: match[4], splitter: SPLITTER_TITLE )
         on = match[5]
         rights_license = fix_property_value_data_set( key: :rights_license, value: match[6] )
+        # todo methodology
         methodology = fix_property_value_data_set( key: :methodology, value: match[7] )
         publisher = fix_property_value_data_set( key: :publisher, value: match[8] )
         subject_discipline = fix_property_value_data_set( key: :subject_discipline,

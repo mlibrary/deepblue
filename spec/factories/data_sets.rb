@@ -30,7 +30,7 @@ FactoryBot.define do
 
     authoremail { "test@umich.edu" }
     description { ["This is the description."] }
-    methodology { "The Methodology" }
+    methodology { ["The Methodology"] }
 
     after(:build) do |work, evaluator|
       work.apply_depositor_metadata(evaluator.user.user_key)
