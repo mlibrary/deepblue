@@ -1,10 +1,24 @@
 <%# See: for attribute_to_html parameter details, see Hyrax gem pp/presenters/hyrax/presents_attributes.rb %>
 <%# parameters: include_empty, label, render_as, search_field, work_type %>
-<% presenter.methodology.each do |methodology| %>
-    <tr><th>Methodology</th><td><ul class='tabular'><li class="attribute attribute-methodology"><span itemprop="methodology">
-       <%= raw ("<span class=\"more\">" + iconify_auto_link(methodology) + "</span>") %>
-    </span></li></ul></td></tr>
-<% end %>
+
+<tr>
+  <th>Methodology</th>
+  <td>
+    <ul class='tabular_list'>
+      <% num_para = presenter.methodology.count %>
+      <% presenter.methodology.each do |methodology| %>
+        <li class="attribute attribute-methodology"><span itemprop="methodology">
+   <%= raw ("<span class=\"more\">" + iconify_auto_link(methodology) + "</span>") %>
+   </span>
+          <% if num_para > 1 %>
+            <p></p>
+            <% num_para = num_para - 1 %>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </td>
+</tr>
 
 <tr><th>Description</th><td><ul class='tabular_list'>
 <% num_para = presenter.description.count %>

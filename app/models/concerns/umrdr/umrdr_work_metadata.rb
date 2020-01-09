@@ -108,7 +108,12 @@ module Umrdr
         index.as :stored_searchable
       end
 
-      property :methodology, predicate: ::RDF::URI.new('http://www.ddialliance.org/Specification/DDI-Lifecycle/3.2/XMLSchema/FieldLevelDocumentation/schemas/datacollection_xsd/elements/DataCollectionMethodology.html'), multiple: false do |index|
+      property :methodology, predicate: ::RDF::URI.new('http://www.ddialliance.org/Specification/DDI-Lifecycle/3.2/XMLSchema/FieldLevelDocumentation/schemas/datacollection_xsd/elements/DataCollectionMethodology.html'), multiple: true do |index|
+        index.type :text
+        index.as :stored_searchable
+      end
+
+      property :methodology_ordered, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#methodology_ordered'), multiple: false do |index|
         index.type :text
         index.as :stored_searchable
       end

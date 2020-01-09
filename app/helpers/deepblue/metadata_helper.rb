@@ -293,7 +293,7 @@ module Deepblue
         report_item( out, "ID: ", work.id )
         report_item( out, "Title: ", work.title, one_line: true )
         report_item( out, "Prior Identifier: ", work.prior_identifier, one_line: true )
-        report_item( out, "Methodology: ", work.methodology )
+        report_item( out, "Methodology: ", work.methodology, one_line: false, item_prefix: "\t" )
         report_item( out, "Description: ", work.description, one_line: false, item_prefix: "\t" )
         report_item( out, "Creator: ", work.creator, one_line: false, item_prefix: "\t" )
         report_item( out, "Depositor: ", work.depositor )

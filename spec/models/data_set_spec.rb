@@ -85,7 +85,7 @@ RSpec.describe DataSet do
       subject.depositor = depositor
       subject.date_created = date_created
       subject.description = [description]
-      subject.methodology = methodology
+      subject.methodology = [methodology]
       subject.rights_license = rights_license
       subject.visibility = visibility_public
     end
@@ -139,7 +139,7 @@ RSpec.describe DataSet do
       subject.depositor = depositor
       subject.date_created = date_created
       subject.description = [description]
-      subject.methodology = methodology
+      subject.methodology = [methodology]
       subject.rights_license = rights_license
       subject.visibility = visibility_public
     end
@@ -235,7 +235,7 @@ RSpec.describe DataSet do
       subject.date_created = date_created
       subject.depositor = depositor
       subject.description = [description]
-      subject.methodology = methodology
+      subject.methodology = [methodology]
       subject.rights_license = rights_license
     end
 
@@ -264,7 +264,7 @@ RSpec.describe DataSet do
                                      exp_description: [description],
                                      exp_depositor: exp_despositor,
                                      exp_location: exp_location,
-                                     exp_methodology: methodology,
+                                     exp_methodology: [methodology],
                                      exp_rights_license: rights_license,
                                      exp_visibility: exp_visibility )
     end
@@ -283,7 +283,7 @@ RSpec.describe DataSet do
       subject.date_created = date_created
       subject.depositor = depositor
       subject.description = [description]
-      subject.methodology = methodology
+      subject.methodology = [methodology]
       subject.rights_license = rights_license
       subject.visibility = visibility_public
     end
@@ -314,7 +314,7 @@ RSpec.describe DataSet do
                                      exp_depositor: exp_despositor,
                                      exp_location: exp_location,
                                      exp_message: '',
-                                     exp_methodology: methodology,
+                                     exp_methodology: [methodology],
                                      exp_rights_license: rights_license,
                                      exp_visibility: visibility_public )
     end
@@ -333,7 +333,7 @@ RSpec.describe DataSet do
       subject.date_created = date_created
       subject.depositor = depositor
       subject.description = [description]
-      subject.methodology = methodology
+      subject.methodology = [methodology]
       subject.rights_license = rights_license
       subject.visibility = visibility_private
     end
@@ -363,7 +363,7 @@ RSpec.describe DataSet do
                                      exp_description: [description],
                                      exp_depositor: exp_despositor,
                                      exp_location: exp_location,
-                                     exp_methodology: methodology,
+                                     exp_methodology: [methodology],
                                      exp_rights_license: rights_license,
                                      exp_visibility: visibility_private )
     end
@@ -428,7 +428,7 @@ RSpec.describe DataSet do
       subject.depositor = depositor
       subject.date_created = date_created
       subject.description = [description]
-      subject.methodology = methodology
+      subject.methodology = [methodology]
       subject.rights_license = rights_license
       allow( Rails.logger ).to receive( :debug ).with( any_args )
     end
@@ -452,7 +452,7 @@ RSpec.describe DataSet do
                                      exp_description: [description],
                                      exp_depositor: exp_depositor,
                                      exp_location: exp_location,
-                                     exp_methodology: methodology,
+                                     exp_methodology: [methodology],
                                      exp_rights_license: rights_license,
                                      exp_tombstone: [epitaph],
                                      exp_visibility: exp_visibility,
@@ -473,7 +473,7 @@ RSpec.describe DataSet do
       { "title": [title, ""],
         "creator": [creator, ""],
         "authoremail": authoremail,
-        "methodology": methodology_new,
+        "methodology": [methodology_new, ""],
         "description": [description, ""],
         "rights_license": rights_license,
         "subject_discipline": [subject_discipline, ""],
@@ -498,8 +498,8 @@ RSpec.describe DataSet do
         "curation_notes_admin": [""],
         "curation_notes_user": [""] }
     end
-    let( :expected_attr_key_values ) { { UpdateAttribute_methodology: { attribute: :methodology, old_value: methodology, new_value: methodology_new } } }
-    let( :expected_added_key_values ) { { UpdateAttribute_methodology: { "attribute" => "methodology", "old_value" => "The Methodology", "new_value" => "The New Methodology" } } }
+    let( :expected_attr_key_values ) { { UpdateAttribute_methodology: { attribute: :methodology, old_value: [methodology], new_value: [methodology_new] } } }
+    let( :expected_added_key_values ) { { UpdateAttribute_methodology: { "attribute" => "methodology", "old_value" => ["The Methodology"], "new_value" => ["The New Methodology"] } } }
 
     before do
       subject.id = id
@@ -509,7 +509,7 @@ RSpec.describe DataSet do
       subject.date_created = date_created
       subject.depositor = depositor
       subject.description = [description]
-      subject.methodology = methodology
+      subject.methodology = [methodology]
       subject.rights_license = rights_license
       subject.subject_discipline = [subject_discipline]
       subject.visibility = visibility_public
@@ -524,7 +524,7 @@ RSpec.describe DataSet do
     it 'logs provenance for update' do
       attr_key_values = subject.provenance_log_update_before( form_params: form_params )
       expect( attr_key_values ).to eq expected_attr_key_values
-      subject.methodology = methodology_new
+      subject.methodology = [methodology_new]
 
       prov_logger_received = nil
       allow( PROV_LOGGER ).to receive( :info ) { |msg| prov_logger_received = msg }
@@ -589,7 +589,7 @@ RSpec.describe DataSet do
                                      exp_language: [],
                                      exp_location: '',
                                      exp_message: '',
-                                     exp_methodology: '',
+                                     exp_methodology: [],
                                      exp_prior_identifier: [],
                                      exp_rights_license: '',
                                      exp_rights_license_other: '',
