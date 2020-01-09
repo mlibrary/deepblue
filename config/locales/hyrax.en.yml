@@ -172,6 +172,11 @@ en:
     product_name:           "Deep Blue Data"
     product_twitter_handle: "@SamveraRepo"
     share_button:           "Deposit Your Work"
+    site_logo_href:         "https://www.lib.umich.edu/"
+    site_logo_img_html: >
+     <img class="site-logo"
+          src="https://www.lib.umich.edu/falafel/v0/graphics/mlib_square__transparent.svg"
+          alt="University of Michigan">
     users:
       activity_log:
         date:               "Date"

@@ -1,2 +1,9 @@
-<a href="<%=hyrax.root_path %>" class="site-link site-title-flex"><img class="site-logo" src="https://www.lib.umich.edu/falafel/v0/graphics/mlib_square__transparent.svg" alt="University of Michigan"><span class="site-title"><%= application_name %></span>
-</a>
+<span class="site-title-flex">
+  <a href="<%= t( "hyrax.site_logo_href" ) %>" class="site-link">
+    <%= t( "hyrax.site_logo_img_html" ) %>
+    <!-- span class="site-title"><%= application_name %></span -->
+  </a>
+  <a href='<%= ::DeepBlueDocs::Application.config.relative_url_root %>' class="site-link">
+    <span class="site-title"><%= application_name %></span>
+  </a>
+</span>
