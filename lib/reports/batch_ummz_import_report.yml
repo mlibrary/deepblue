@@ -6,6 +6,9 @@
   :config:
     :verbose: true
     :include_children: true
+    :include_children_parent_columns_blank: true
+    :include_children_parent_columns:
+      :id: true
   :output:
     :format: CSV
     :file: /deepbluedata-prep/reports/sample_report_out
