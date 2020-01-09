@@ -35,10 +35,12 @@ class AppendContentService < Deepblue::NewContentService
   protected
 
     def build_repo_contents
+      do_email_before
       # user = find_or_create_user
       find_works_and_add_files
       # build_collections
       report_measurements( first_label: @first_label )
+      do_email_after
     end
 
 end

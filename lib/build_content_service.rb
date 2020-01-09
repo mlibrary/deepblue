@@ -7,9 +7,11 @@ require 'tasks/new_content_service'
 class BuildContentService < Deepblue::NewContentService
 
   def self.call( path_to_yaml_file:, mode: nil, ingester: nil, first_label: 'id', options: )
+    puts "BuildContentService..."
     cfg_hash = Deepblue::NewContentService.load_yaml_file( path_to_yaml_file )
     return if cfg_hash.nil?
     base_path = File.dirname( path_to_yaml_file )
+    puts "base_path=#{base_path}"
     bcs = BuildContentService.new( path_to_yaml_file: path_to_yaml_file,
                                    cfg_hash: cfg_hash,
                                    base_path: base_path,
@@ -36,9 +38,11 @@ class BuildContentService < Deepblue::NewContentService
   protected
 
     def build_repo_contents
+      do_email_before
       build_works
       build_collections
       report_measurements( first_label: @first_label )
+      do_email_after
     rescue Exception => e
       Rails.logger.error "BuildContentService.build_repo_contents #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
     end
