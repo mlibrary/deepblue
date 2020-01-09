@@ -3,6 +3,7 @@
 require 'hydra/file_characterization'
 require_relative './task_helper'
 require_relative './task_logger'
+require_relative '../../app/helpers/deepblue/email_helper'
 
 Hydra::FileCharacterization::Characterizers::Fits.tool_path = `which fits || which fits.sh`.strip
 
@@ -44,6 +45,15 @@ module Deepblue
                                      :id,
                                      :updated_at ].freeze
     DEFAULT_DIFF_COLLECTIONS_RECURSE = false
+    DEFAULT_EMAIL_AFTER = false
+    DEFAULT_EMAIL_AFTER_ADD_LOG_MSGS = true
+    DEFAULT_EMAIL_BEFORE = false
+    DEFAULT_EMAIL_EACH = false
+    DEFAULT_EMAIL_DEPOSITOR = false
+    DEFAULT_EMAIL_INGESTER = false
+    DEFAULT_EMAIL_OWNER = false
+    DEFAULT_EMAIL_REST = false
+    DEFAULT_EMAIL_TEST_MODE = false
     DEFAULT_UPDATE_ADD_FILES = true
     DEFAULT_UPDATE_ATTRS_SKIP = [ :creator_ordered,
                                   :curation_notes_admin_ordered, :curation_notes_user_ordered,
@@ -105,8 +115,22 @@ module Deepblue
                 :diff_attrs_skip_if_blank,
                 :diff_user_attrs_skip,
                 :diff_collections_recurse,
+                :email_after,
+                :email_after_add_log_msgs,
+                :email_after_msg_lines,
+                :email_before,
+                :email_each,
+                :email_depositor,
+                :email_ingester,
+                :email_owner,
+                :email_rest,
+                :email_test_mode,
+                :emails_after,
+                :emails_before,
+                :emails_rest,
                 :ingest_id,
                 :ingest_timestamp,
+                :ingest_urls,
                 :ingester,
                 :mode,
                 :path_to_yaml_file,
@@ -736,6 +760,7 @@ module Deepblue
         add_file_sets_to_work( work_hash: work_hash, work: work )
         add_work_to_parent_ids( work_hash: work_hash, work: work )
         doi_mint( curation_concern: work )
+        @ingest_urls << work.data_set_url if work.present?
         return work
       end
 
@@ -916,7 +941,6 @@ module Deepblue
           measurement = Benchmark.measure do
             work = build_or_find_work( work_hash: work_hash, parent: nil )
             work_id = work.id if work.present?
-            log_object work if work.present?
           end
           next if work.blank?
           measurement.instance_variable_set( :@label, work_id )
@@ -1291,6 +1315,80 @@ module Deepblue
         end
       end
 
+      def do_email( event: event, id: id, email_to:, subject:, body: )
+        EmailHelper.log( class_name: self.class.name,
+                         current_user: nil,
+                         event: event,
+                         id: id,
+                         to: email_to,
+                         from: email_to,
+                         subject: subject,
+                         body: body )
+        return if email_test_mode
+        EmailHelper.send_email( to: email_to,
+                                from: email_to,
+                                subject: subject,
+                                content_type: "text/html",
+                                body: body )
+      end
+
+      def do_email_after
+        emails_add_from_hash( emails: @emails_after, hash: @cfg_hash[:user] )
+        emails_add_rest( emails: @emails_after )
+        return if @emails_after.blank?
+        # puts "begin email after lines"
+        # @email_after_msg_lines.each do |line|
+        #   puts line
+        # end
+        # puts "end email after lines"
+        event = "New Content Service - After"
+        id = ""
+        template = "hyrax.new_content_service.notify_after_html"
+        pre_lines = @email_after_msg_lines.join( "\n" )
+        ingest_lines = []
+        if ( @ingest_urls.present? )
+          ingest_lines << "<br/>"
+          ingest_lines << "Ingested:<br/>"
+          ingest_lines << "<ul>"
+          @ingest_urls.each do |url|
+            ingest_lines << "<li><a href='#{url}'>#{url}</a></li>"
+          end
+          ingest_lines << "</ul>"
+          ingest_lines << "<br/>"
+        end
+        # puts "begin email after ingest_lines"
+        # ingest_lines.each do |line|
+        #   puts line
+        # end
+        # puts "end email after ingest_lines"
+        body = EmailHelper.t( template,
+                              mode: mode,
+                              path_to_yaml_file: path_to_yaml_file,
+                              ingest_lines: ingest_lines.join("\n"),
+                              pre_lines: pre_lines )
+        subject = EmailHelper.t( "#{template}_subject" )
+        @emails_after.each_pair do |email_to,_value|
+          puts "do_mail_after: send to #{email_to}"
+          do_email( event: event, id: id, email_to: email_to, subject: subject, body: body  )
+        end
+      end
+
+      def do_email_before
+        emails_add_from_hash( emails: @emails_before, hash: @cfg_hash[:user] )
+        emails_add_rest( emails: @emails_after )
+        return if @emails_before.blank?
+        event = "New Content Service - Before"
+        id = ""
+        template = "hyrax.new_content_service.notify_before_html"
+        body = EmailHelper.t( template, mode: mode, path_to_yaml_file: path_to_yaml_file )
+        subject = EmailHelper.t( "#{template}_subject" )
+        @emails_before.each_pair do |email_to,_value|
+          # send the email
+          puts "do_mail_before: send to #{email_to}"
+          do_email( event: event, id: id, email_to: email_to, subject: subject, body: body  )
+        end
+      end
+
       def doi_mint( curation_concern: )
         # return unless allow_mint_doi
         return unless curation_concern.respond_to? :doi_mint
@@ -1311,6 +1409,45 @@ module Deepblue
                                              "e.message=#{e.message}",
                                              "e.backtrace:" ] +
                                                e.backtrace
+      end
+
+      def emails_add_from_hash( emails:, hash: )
+        emails_add( emails: emails, add: hash[:email] ) if email_owner
+        emails_add( emails: emails, add: hash[:ingester] ) if email_ingester
+        emails_add( emails: emails, add: hash[:depositor] ) if email_depositor
+      end
+
+      def emails_add_rest( emails: )
+        emails_rest.each_key { |email| emails_add( emails: emails, add: email ) }
+      end
+
+      def emails_add( emails:, add: )
+        return if add.blank?
+        return if emails.nil?
+        return if emails.has_key? add.to_s
+        emails[add.to_s] = true
+      end
+
+      def email_after_msg_lines_add( lines: )
+        @email_after_msg_lines.concat( Array(lines) )
+      end
+
+      def emails_after_add( email: )
+        return unless email_after
+        @emails_after ||= {}
+        emails_add( emails: @emails_after, add: email )
+      end
+
+      def emails_before_add( email: )
+        return unless email_before
+        @emails_before ||= {}
+        emails_add( emails: @emails_before, add: email )
+      end
+
+      def emails_rest_add( email: )
+        return unless email_rest
+        @emails_rest ||= {}
+        emails_add( emails: @emails_rest, add: email )
       end
 
       def file_from_file_set( file_set: )
@@ -1446,6 +1583,7 @@ module Deepblue
             apply_visibility_and_workflow( work: work, work_hash: work_hash, admin_set: admin_set )
             work.save!
             log_object work
+            @ingest_urls << work.data_set_url if work.present?
           end
           add_measurement measurement
         end
@@ -1486,6 +1624,24 @@ module Deepblue
         @cfg_hash[:user][:ingester]
       end
 
+      def initialize_emails_rest
+        return unless email_rest
+        emails = @cfg_hash[:user][:emails_rest]
+        return unless emails.present?
+        emails.each { |email| emails_rest_add( email: email ) }
+      end
+
+      def initialize_options_value( key:, default_value: )
+        # initialize with default value
+        value = default_value
+        # then, override with the value stored from yaml file
+        value = @cfg_hash[:user][key] if @cfg_hash[:user].key? key
+        # finally, override with value passed in on command line
+        value = TaskHelper.task_options_value( @options, key: key.to_s, default_value: value )
+        puts "initialize_options_value #{key}=#{value}" if @verbose
+        return value
+      end
+
       def initialize_with_msg( options:,
                                path_to_yaml_file:,
                                cfg_hash:,
@@ -1505,17 +1661,24 @@ module Deepblue
           puts "options=#{options}" if @options.key?
           puts "@options=#{@options}" if @options.key?
         end
-        @verbose = TaskHelper.task_options_value( @options, key: 'verbose', default_value: DEFAULT_VERBOSE )
-        puts "@verbose=#{@verbose}" if @verbose
-        @path_to_yaml_file = path_to_yaml_file
+        @base_path = base_path
         @config = {}
         @config.merge!( config ) if config.present?
         @cfg_hash = cfg_hash
-        @base_path = base_path
         @diff_attrs_skip = [] + DEFAULT_DIFF_ATTRS_SKIP
         @diff_attrs_skip_if_blank = [] + DEFAULT_DIFF_ATTRS_SKIP_IF_BLANK
         @diff_user_attrs_skip = [] + DEFAULT_DIFF_USER_ATTRS_SKIP
         @diff_user_attrs_skip.concat Deepblue::MetadataHelper::ATTRIBUTE_NAMES_USER_IGNORE
+        @email_after_msg_lines = []
+        @emails_after = {}
+        @emails_before = {}
+        @emails_rest = {}
+        @ingest_id = File.basename path_to_yaml_file
+        @ingest_timestamp = DateTime.now
+        @ingest_urls = []
+        @ingester = ingester if ingester.present?
+        @mode = mode if mode.present?
+        @path_to_yaml_file = path_to_yaml_file
         @update_add_files = DEFAULT_UPDATE_ADD_FILES
         @update_attrs_skip = [] + DEFAULT_UPDATE_ATTRS_SKIP
         @update_attrs_skip_if_blank = [] + DEFAULT_UPDATE_ATTRS_SKIP_IF_BLANK
@@ -1523,21 +1686,34 @@ module Deepblue
         @update_delete_files = DEFAULT_UPDATE_DELETE_FILES
         @update_user_attrs_skip = [] + DEFAULT_UPDATE_USER_ATTRS_SKIP
         @update_user_attrs_skip.concat Deepblue::MetadataHelper::ATTRIBUTE_NAMES_USER_IGNORE
-        @ingest_id = File.basename path_to_yaml_file
-        @ingest_timestamp = DateTime.now
-        @mode = mode if mode.present?
-        @ingester = ingester if ingester.present?
+        @verbose = initialize_options_value( key: :verbose, default_value: DEFAULT_VERBOSE )
+        log_msg( "@verbose=#{@verbose}", timestamp_it: false ) if @verbose
+        @email_test_mode = initialize_options_value( key: :email_test_mode, default_value: DEFAULT_EMAIL_TEST_MODE )
+        @email_after = initialize_options_value( key: :email_after, default_value: DEFAULT_EMAIL_AFTER )
+        @email_after_add_log_msgs = initialize_options_value( key: :email_after, default_value: DEFAULT_EMAIL_AFTER_ADD_LOG_MSGS )
+        @email_before = initialize_options_value( key: :email_after, default_value: DEFAULT_EMAIL_BEFORE )
+        @email_each = initialize_options_value( key: :email_after, default_value: DEFAULT_EMAIL_EACH )
+        @email_depositor = initialize_options_value( key: :email_depositor, default_value: DEFAULT_EMAIL_DEPOSITOR )
+        @email_ingester = initialize_options_value( key: :email_ingester, default_value: DEFAULT_EMAIL_INGESTER )
+        @email_owner = initialize_options_value( key: :email_owner, default_value: DEFAULT_EMAIL_OWNER )
+        @email_rest = initialize_options_value( key: :email_rest, default_value: DEFAULT_EMAIL_REST )
+        initialize_emails_rest
         @user_create = user_create
         @stop_new_content_service = false
         current_dir = Pathname.new( '.' ).realdirpath
         @stop_new_content_service_file = current_dir.join STOP_NEW_CONTENT_SERVICE_FILE_NAME
         @stop_new_content_service_ppid_file = current_dir.join( "#{Process.ppid}_#{STOP_NEW_CONTENT_SERVICE_FILE_NAME}" )
-        logger.info msg if msg.present?
+        log_msg( msg, timestamp_it: false, not_email_line: true )
       end
 
-      def log_msg( msg )
+      def log_msg( msg, timestamp_it: true, not_email_line: false )
         return if msg.blank?
-        logger.info "#{timestamp_now} #{msg}"
+        if timestamp_it
+          msg = "#{timestamp_now} #{msg}"
+        end
+        logger.info msg
+        return if not_email_line
+        email_after_msg_lines_add( lines: msg ) if email_after_add_log_msgs
       end
 
       def log_object( obj )
@@ -1774,23 +1950,23 @@ module Deepblue
         return if measurements.blank?
         label = first_label
         label += ' ' * (first_id.size - label.size)
-        log_msg "#{label} #{Benchmark::CAPTION.chop}"
+        log_msg "#{label} #{Benchmark::CAPTION.chop}", timestamp_it: false
         format = Benchmark::FORMAT.chop
         measurements.each do |measurement|
           label = measurement.label
-          log_msg measurement.format( "#{label} #{format} is #{TaskHelper.seconds_to_readable(measurement.real)}" )
+          log_msg measurement.format( "#{label} #{format} is #{TaskHelper.seconds_to_readable(measurement.real)}" ), timestamp_it: false
         end
         return if measurements.size == 1
         return if total.blank?
         label = 'total'
         label += ' ' * (first_id.size - label.size)
-        log_msg total.format( "#{label} #{format} is #{TaskHelper.seconds_to_readable(total.real)}" )
+        log_msg total.format( "#{label} #{format} is #{TaskHelper.seconds_to_readable(total.real)}" ), timestamp_it: false
       end
 
       def report_measurements( first_label: )
         return if measurements.blank?
         puts
-        log_msg "Report run time:"
+        log_msg "Report run time:", timestamp_it: false
         m1 = measurements[0]
         first_id = m1.label
         total = nil

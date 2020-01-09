@@ -177,6 +177,25 @@ en:
      <img class="site-logo"
           src="https://www.lib.umich.edu/falafel/v0/graphics/mlib_square__transparent.svg"
           alt="University of Michigan">
+    new_content_service:
+      notify_after_html_subject: "New Content Service Ingest finished"
+      notify_after_html: >
+        <p>The new content service ingest is finished.</p>
+        <br/>
+        Ingest file: <code>%{path_to_yaml_file}</code><br/>
+        Ingest mode: <code>%{mode}</code><br/>
+        %{ingest_lines}
+        <p>The log is:</p>
+        <pre>
+        %{pre_lines}
+        </pre>
+      notify_before_html_subject: "New Content Service Ingest started"
+      notify_before_html: >
+        <p>The the new content service ingest is starting.</p>
+        <br/>
+        Ingest file: <code>%{path_to_yaml_file}</code><br/>
+        Ingest mode: <code>%{mode}</code><br/>
+        <br/>
     users:
       activity_log:
         date:               "Date"
