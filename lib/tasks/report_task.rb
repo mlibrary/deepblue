@@ -121,7 +121,8 @@ module Deepblue
     attr_reader :current_child, :current_child_index
 
     attr_reader :curation_concern, :config, :fields, :field_formats, :filters, :output
-    attr_reader :filter_exclude, :filter_include, :include_children
+    attr_reader :filter_exclude, :filter_include
+    attr_reader :include_children, :include_children_parent_columns_blank, :include_children_parent_columns
     attr_reader :report_definitions, :report_definitions_file
     attr_reader :field_format_strings, :output_file
 
@@ -133,6 +134,12 @@ module Deepblue
       @config = report_sub_hash( key: :config )
       @verbose = hash_value( hash: config, key: :verbose, default_value: verbose )
       @include_children = hash_value( hash: config, key: :include_children, default_value: false )
+      @include_children_parent_columns_blank = hash_value( hash: config,
+                                                           key: :include_children_parent_columns_blank,
+                                                           default_value: false )
+      @include_children_parent_columns = hash_value( hash: config,
+                                                     key: :include_children_parent_columns,
+                                                     default_value: {} )
       @field_accessors = report_sub_hash( key: :field_accessors )
       @field_accessor_modes = {}
       @curation_concern = report_hash_value( key: :curation_concern )
@@ -283,7 +290,12 @@ module Deepblue
     def hash_value( hash:, key:, default_value: nil )
       # puts "hash_value( hash: #{hash['.name']}, key: #{key}, default_value: #{default_value} )"
       rv = default_value
-      rv = hash[key] if hash.key? key
+      if default_value.instance_of? Hash
+        rv = hash[key].deep_dup if hash.key? key
+        # puts "report_hash_value rv=#{rv}"
+      else
+        rv = hash[key] if hash.key? key
+      end
       # puts "report_hash_value rv=#{rv}"
       return rv
     end
@@ -321,12 +333,18 @@ module Deepblue
     end
 
     def resolve_attribute( curation_concern:, attribute: )
-      return "" if include_children && current_child_index > 1
+      if include_children && current_child_index > 1
+        # puts "include_children_parent_columns_blank=#{include_children_parent_columns_blank}"
+        # puts "include_children_parent_columns=#{include_children_parent_columns} attribute=#{attribute} !include_children_parent_columns[attribute]=#{!include_children_parent_columns[attribute]}"
+        return "" if include_children_parent_columns_blank && !include_children_parent_columns[attribute]
+      end
       curation_concern.attributes[attribute.to_s]
     end
 
     def resolve_method( curation_concern:, attribute: )
-      return "" if include_children && current_child_index > 1
+      if include_children && current_child_index > 1
+        return "" if include_children_parent_columns_blank && !include_children_parent_columns[attribute.to_s]
+      end
       raise unless curation_concern.respond_to? attribute.to_s
       curation_concern.public_send( attribute.to_s )
     end
