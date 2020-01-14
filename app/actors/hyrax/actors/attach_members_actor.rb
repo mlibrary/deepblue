@@ -68,14 +68,14 @@ module Hyrax
           return unless can_do_it
           # ::Deepblue::LoggingHelper.bold_debug "AttachMembersActor.add: adding ordered member id = #{id}"
           env.curation_concern.ordered_members << member
-          # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-          #                                      Deepblue::LoggingHelper.called_from,
-          #                                      "provenance_child_add",
-          #                                      "parent.id=#{env.curation_concern.id}",
-          #                                      "child_id=#{id}",
-          #                                      "child_title=#{child_title}",
-          #                                      "event_note=AttachMembersActor",
-          #                                      "" ]
+          Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "provenance_child_add",
+                                               "parent.id=#{env.curation_concern.id}",
+                                               "child_id=#{id}",
+                                               "child_title=#{child_title}",
+                                               "event_note=AttachMembersActor",
+                                               "" ]
           return unless env.curation_concern.respond_to? :provenance_child_add
           current_user = env.user
           env.curation_concern.provenance_child_add( current_user: current_user,
@@ -92,14 +92,14 @@ module Hyrax
           child_title = member.title
           curation_concern.ordered_members.delete(member)
           curation_concern.members.delete(member)
-          # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-          #                                      Deepblue::LoggingHelper.called_from,
-          #                                      "provenance_child_remove",
-          #                                      "parent.id=#{curation_concern.id}",
-          #                                      "child_id=#{id}",
-          #                                      "child_title=#{child_title}",
-          #                                      "event_note=AttachMembersActor",
-          #                                      "" ]
+          Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "provenance_child_remove",
+                                               "parent.id=#{curation_concern.id}",
+                                               "child_id=#{id}",
+                                               "child_title=#{child_title}",
+                                               "event_note=AttachMembersActor",
+                                               "" ]
           return unless curation_concern.respond_to? :provenance_child_remove
           curation_concern.provenance_child_remove( current_user: current_user,
                                                     child_id: id,

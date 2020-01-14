@@ -170,14 +170,14 @@ module Hyrax
       def provenance_child_add( work: )
         child_title = file_set.title
         child_title = file_set.original_file.original_name if child_title.blank?
-        # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-        #                                      Deepblue::LoggingHelper.called_from,
-        #                                      "provenance_child_add",
-        #                                      "parent.id=#{work.id}",
-        #                                      "child_id=#{file_set.id}",
-        #                                      "child_title=#{child_title}",
-        #                                      "event_note=FileSetActor",
-        #                                      "" ]
+        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "provenance_child_add",
+                                             "parent.id=#{work.id}",
+                                             "child_id=#{file_set.id}",
+                                             "child_title=#{child_title}",
+                                             "event_note=FileSetActor",
+                                             "" ]
         if work.respond_to? :provenance_child_add
           work.provenance_child_add( current_user: file_set.depositor,
                                      child_id: file_set.id,

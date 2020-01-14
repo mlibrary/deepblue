@@ -288,13 +288,13 @@ module Deepblue
     end
 
     def provenance_child_add( current_user:, child_id:, child_title:, event_note: '', **added_prov_key_values )
-      # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-      #                                      Deepblue::LoggingHelper.called_from,
-      #                                      "id=#{id}",
-      #                                      "child_id=#{child_id}",
-      #                                      "child_title=#{child_title}",
-      #                                      "event_note=#{event_note}",
-      #                                      "" ]
+      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                           Deepblue::LoggingHelper.called_from,
+                                           "id=#{id}",
+                                           "child_id=#{child_id}",
+                                           "child_title=#{child_title}",
+                                           "event_note=#{event_note}",
+                                           "" ]
       event = EVENT_CHILD_ADD
       added_prov_key_values = { child_id: child_id, child_title: child_title }.merge added_prov_key_values
       attributes, ignore_blank_key_values = attributes_for_provenance_add
