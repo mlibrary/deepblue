@@ -5,6 +5,27 @@ module Deepblue
   module EmailHelper
     extend ActionView::Helpers::TranslationHelper
 
+    REPLACEMENT_CHAR = "?"
+
+    # Replace invalid UTF-8 character sequences with a replacement character
+    #
+    # Returns self as valid UTF-8.
+    def self.clean_str!(str)
+      return str if str.encoding.to_s == "UTF-8"
+      str.force_encoding("binary").encode("UTF-8", :invalid => :replace, :undef => :replace, :replace => REPLACEMENT_CHAR)
+    end
+
+    # Replace invalid UTF-8 character sequences with a replacement character
+    #
+    # Returns a copy of this String as valid UTF-8.
+    def self.clean_str(str)
+      clean_str!(str.dup)
+    end
+
+    def self.needs_cleaning( str )
+      str.encoding.to_s == "UTF-8"
+    end
+
     def self.contact_email
       Settings.hyrax.contact_email
     end
@@ -100,6 +121,8 @@ module Deepblue
     end
 
     def self.send_email( to:, from:, subject:, body:, log: false, content_type: nil )
+      subject = EmailHelper.clean_str subject if EmailHelper.needs_cleaning subject
+      body = EmailHelper.clean_str body if EmailHelper.needs_cleaning body
       email_enabled = DeepBlueDocs::Application.config.email_enabled
       is_enabled = email_enabled ? "is enabled" : "is not enabled"
       LoggingHelper.bold_debug [ "EmailHelper.send_email #{is_enabled}",
