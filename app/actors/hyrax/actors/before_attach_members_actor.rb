@@ -51,14 +51,14 @@ module Hyrax
         def add( env, id, current_user )
           member = ActiveFedora::Base.find( id )
           child_title = member.title
-          # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-          #                                      Deepblue::LoggingHelper.called_from,
-          #                                      "provenance_child_add",
-          #                                      "parent.id=#{env.curation_concern.id}",
-          #                                      "child_id=#{id}",
-          #                                      "child_title=#{child_title}",
-          #                                      "event_note=BeforeAttachMembersActor",
-          #                                      "" ]
+          Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "provenance_child_add",
+                                               "parent.id=#{env.curation_concern.id}",
+                                               "child_id=#{id}",
+                                               "child_title=#{child_title}",
+                                               "event_note=BeforeAttachMembersActor",
+                                               "" ]
           return true unless env.curation_concern.respond_to? :provenance_child_add
           env.curation_concern.provenance_child_add( current_user: current_user,
                                                      child_id: id,
@@ -75,14 +75,14 @@ module Hyrax
 
         # provenance log for: Remove the object from the members set and the ordered members list
         def remove( env, id, current_user )
-          # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-          #                                      Deepblue::LoggingHelper.called_from,
-          #                                      "provenance_child_remove",
-          #                                      "parent.id=#{env.curation_concern.id}",
-          #                                      "child_id=#{id}",
-          #                                      "child_title=#{title}",
-          #                                      "event_note=BeforeAttachMembersActor",
-          #                                      "" ]
+          Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "provenance_child_remove",
+                                               "parent.id=#{env.curation_concern.id}",
+                                               "child_id=#{id}",
+                                               "child_title=#{title}",
+                                               "event_note=BeforeAttachMembersActor",
+                                               "" ]
           env.curation_concern.provenance_child_remove( current_user: current_user,
                                                         child_id: id,
                                                         child_title: title,
