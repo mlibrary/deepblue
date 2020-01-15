@@ -172,11 +172,18 @@ en:
     product_name:           "Deep Blue Data"
     product_twitter_handle: "@SamveraRepo"
     share_button:           "Deposit Your Work"
+    site_copyright:         "© 2020 Regents of the University of Michigan"
     site_logo_href:         "https://www.lib.umich.edu/"
     site_logo_img_html: >
      <img class="site-logo"
           src="https://www.lib.umich.edu/falafel/v0/graphics/mlib_square__transparent.svg"
           alt="University of Michigan">
+    site_marketing_header: "Browse or Deposit Work in Deep Blue Data"
+    site_powered_by_html: >
+      Powered by Samvera
+    site_splash_text: >
+      Deep Blue Data is a repository offered by the University of Michigan Library that provides access and preservation
+      services for digital research data that were developed or used in the support of research activities at U-M.
     new_content_service:
       notify_after_html_subject: "New Content Service Ingest finished"
       notify_after_html: >

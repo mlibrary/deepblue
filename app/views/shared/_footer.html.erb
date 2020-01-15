@@ -4,7 +4,7 @@
         <ul>
           <li><a href="<%= hyrax.help_path('help') %>">Help</a></li>
             <li><a href="<%= hyrax.root_path %>" class="footer-link">Home</a></li>
-            <li><a href="<%= hyrax.agreement_path('agreement')  %> " class="footer-link">Policy &amp; Terms of Use</a></li>
+            <li><a href="<%= hyrax.agreement_path('agreement') %> " class="footer-link">Policy &amp; Terms of Use</a></li>
         </ul>
         <p class="column-two">Questions? Contact us <%= render partial: '/contact_us' %></p>
       </div>
@@ -12,8 +12,8 @@
 
   <div class="footer-subfooter footer--light">
     <div class="footer-container">
-        <p>© 2018 Regents of the University of Michigan</p>
-        <p class="column-two">Powered by Samvera</p>
+        <p><%= t('hyrax.site_copyright') %></p>
+        <p class="column-two"><%= t('hyrax.site_powered_by_html') %></p>
     </div>
   </div>
 </footer>
