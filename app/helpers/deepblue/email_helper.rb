@@ -76,6 +76,10 @@ module Deepblue
       DeepBlueDocs::Application.config.email_log_echo_to_rails_logger
     end
 
+    def self.escape_html(s)
+      ERB::Util.html_escape(s)
+    end
+
     def self.hostname
       rv = Settings.hostname
       return rv unless rv.nil?
@@ -151,6 +155,10 @@ module Deepblue
         user_email = current_user.email
       end
       user_email
+    end
+
+    def self.work_title( work:, join_with: " " )
+      work.title.join( join_with )
     end
 
   end
