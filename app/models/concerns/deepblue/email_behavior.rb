@@ -201,22 +201,10 @@ module Deepblue
                                         title: work_title,
                                         work_url: work_url,
                                         depositor: work_depositor )
+      cc = nil
+      cc = self.depositor unless work_depositor == self.depositor
       email_notification( to: work_depositor,
-                          from: work_depositor,
-                          content_type: "text/html",
-                          subject: Deepblue::EmailHelper.t( "hyrax.email.subject.work_published" ),
-                          body: body,
-                          current_user: current_user,
-                          event: EVENT_PUBLISH,
-                          event_note: event_note,
-                          id: for_email_id )
-      return if work_depositor == self.depositor
-      work_depositor = self.depositor
-      body = Deepblue::EmailHelper.t( 'hyrax.email.notify_user_work_published_html',
-                                      title: work_title,
-                                      work_url: work_url,
-                                      depositor: work_depositor )
-      email_notification( to: work_depositor,
+                          cc: cc,
                           from: work_depositor,
                           content_type: "text/html",
                           subject: Deepblue::EmailHelper.t( "hyrax.email.subject.work_published" ),
@@ -346,6 +334,8 @@ module Deepblue
     protected
 
       def email_notification( to:,
+                              cc: nil,
+                              bcc: nil,
                               from:,
                               subject:,
                               current_user:,
@@ -358,7 +348,13 @@ module Deepblue
                               send_it: true,
                               email_key_values: {} )
 
-        EmailHelper.send_email( to: to, from: from, subject: subject, body: body, content_type: content_type ) if send_it
+        EmailHelper.send_email( to: to,
+                                cc: cc,
+                                bcc: bcc,
+                                from: from,
+                                subject: subject,
+                                body: body,
+                                content_type: content_type ) if send_it
         class_name = for_email_class.name
         EmailHelper.log( class_name: class_name,
                          current_user: current_user,
@@ -366,6 +362,8 @@ module Deepblue
                          event_note: event_note,
                          id: id,
                          to: to,
+                         cc: cc,
+                         bcc: bcc,
                          from: from,
                          subject: subject,
                          message: message,
@@ -375,6 +373,8 @@ module Deepblue
 
       def email_event_notification( to:,
                                     to_note:,
+                                    cc: nil,
+                                    bcc: nil,
                                     from:,
                                     subject:,
                                     attributes:,
@@ -406,6 +406,8 @@ module Deepblue
                          event_note: event_note,
                          id: id,
                          to: to,
+                         cc: cc,
+                         bcc: bcc,
                          from: from,
                          subject: subject,
                          message: message,
@@ -414,6 +416,8 @@ module Deepblue
         return nil unless return_email_parameters
         parameters = { to: to,
                        to_note: to_note,
+                       cc: cc,
+                       bcc: bcc,
                        from: from,
                        subject: subject,
                        message: message,
