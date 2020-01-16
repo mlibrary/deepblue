@@ -94,17 +94,19 @@ module Deepblue
                   timestamp: LoggingHelper.timestamp_now,
                   to:,
                   to_note: '',
+                  cc: nil,
+                  bcc: nil,
                   from:,
                   subject:,
                   message: '',
                   **key_values )
 
       email_enabled = DeepBlueDocs::Application.config.email_enabled
-      added_key_values = if to_note.blank?
-                           { to: to, from: from, subject: subject, message: message, email_enabled: email_enabled }
-                         else
-                           { to: to, to_note: to_note, from: from, subject: subject, message: message, email_enabled: email_enabled }
-                         end
+      added_key_values = { to: to }
+      added_key_values.merge!( { to_note: to_note } ) if to_note.present?
+      added_key_values.merge!( { cc: cc } ) if cc.present?
+      added_key_values.merge!( { bcc: bcc } ) if bcc.present?
+      added_key_values.merge!( { from: from, subject: subject, message: message, email_enabled: email_enabled } )
       key_values.merge! added_key_values
       LoggingHelper.log( class_name: class_name,
                          event: event,
@@ -124,16 +126,24 @@ module Deepblue
       Rails.configuration.notification_email
     end
 
-    def self.send_email( to:, from:, subject:, body:, log: false, content_type: nil )
+    def self.send_email( to:, cc: nil, bcc: nil, from:, subject:, body:, log: false, content_type: nil )
       subject = EmailHelper.clean_str subject if EmailHelper.needs_cleaning subject
       body = EmailHelper.clean_str body if EmailHelper.needs_cleaning body
       email_enabled = DeepBlueDocs::Application.config.email_enabled
       is_enabled = email_enabled ? "is enabled" : "is not enabled"
-      LoggingHelper.bold_debug [ "EmailHelper.send_email #{is_enabled}",
-                                 "to: #{to} from: #{from} subject: #{subject}\nbody:\n#{body}" ] if log
+      LoggingHelper.bold_debug [  Deepblue::LoggingHelper.here,
+                                  Deepblue::LoggingHelper.called_from,
+                                  "to=#{to}",
+                                  "cc=#{cc}",
+                                  "bcc=#{bcc}",
+                                  "from=#{from}",
+                                  "subject=#{subject}",
+                                  "body=#{body}" ] if log
       return if to.blank?
       return unless email_enabled
       email = DeepblueMailer.send_an_email( to: to,
+                                            cc: cc,
+                                            bcc: bcc,
                                             from: from,
                                             subject: subject,
                                             body: body,
