@@ -125,10 +125,10 @@ module Deepblue
       #                                      "work_url=#{work_url}",
       #                                      "work_depositor=#{work_depositor}",
       #                                      "" ]
-      body = Deepblue::EmailHelper.t( 'hyrax.email.notify_user_work_created_html',
-                                      title: work_title,
-                                      work_url: work_url,
-                                      depositor: work_depositor )
+      body = ::Deepblue::EmailHelper.t( 'hyrax.email.notify_user_work_created_html',
+                                        title: ::Deepblue::EmailHelper.escape_html( work_title ),
+                                        work_url: work_url,
+                                        depositor: work_depositor )
       email_notification( to: to_from,
                           from: to_from,
                           content_type: "text/html",
@@ -185,7 +185,8 @@ module Deepblue
 
     def email_event_publish_user( current_user:, event_note: '', message: '' )
       # to_from = email_address_user( current_user )
-      work_title = title.join( ' ' )
+      work_title = ::Deepblue::EmailHelper.work_title work: self
+      work_title = ::Deepblue::EmailHelper.escape_html( work_title )
       work_url = data_set_url
       work_depositor = ::Deepblue::EmailHelper.depositor( curation_concern: self )
       Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
@@ -195,6 +196,22 @@ module Deepblue
                                            "work_url=#{work_url}",
                                            "work_depositor=#{work_depositor}",
                                            "" ]
+      # for the work's authoremail
+      body = ::Deepblue::EmailHelper.t( 'hyrax.email.notify_user_work_published_html',
+                                        title: work_title,
+                                        work_url: work_url,
+                                        depositor: work_depositor )
+      email_notification( to: work_depositor,
+                          from: work_depositor,
+                          content_type: "text/html",
+                          subject: Deepblue::EmailHelper.t( "hyrax.email.subject.work_published" ),
+                          body: body,
+                          current_user: current_user,
+                          event: EVENT_PUBLISH,
+                          event_note: event_note,
+                          id: for_email_id )
+      return if work_depositor == self.depositor
+      work_depositor = self.depositor
       body = Deepblue::EmailHelper.t( 'hyrax.email.notify_user_work_published_html',
                                       title: work_title,
                                       work_url: work_url,
