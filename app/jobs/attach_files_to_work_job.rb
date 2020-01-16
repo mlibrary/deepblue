@@ -121,7 +121,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       notify_user = DeepBlueDocs::Application.config.notify_user_file_upload_and_ingest_are_complete
       notify_managers = DeepBlueDocs::Application.config.notify_managers_file_upload_and_ingest_are_complete
       return unless notify_user || notify_managers
-      work_depositor = ::Deepblue::EmailHelper.depositor( curation_concern: work )
+      work_depositor = ::Deepblue::EmailHelper.cc_depositor( curation_concern: work )
       title = ::Deepblue::EmailHelper.work_title work: work
       lines = []
       file_count = @processed.size

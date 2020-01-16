@@ -117,7 +117,7 @@ module Deepblue
       to_from = email_address_user( current_user )
       work_title = title.join( ' ' )
       work_url = data_set_url
-      work_depositor = ::Deepblue::EmailHelper.depositor( curation_concern: self )
+      work_depositor = ::Deepblue::EmailHelper.cc_depositor( curation_concern: self )
       # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
       #                                      Deepblue::LoggingHelper.called_from,
       #                                      "to_from=#{to_from}",
@@ -188,7 +188,7 @@ module Deepblue
       work_title = ::Deepblue::EmailHelper.work_title work: self
       work_title = ::Deepblue::EmailHelper.escape_html( work_title )
       work_url = data_set_url
-      work_depositor = ::Deepblue::EmailHelper.depositor( curation_concern: self )
+      work_depositor = ::Deepblue::EmailHelper.cc_depositor( curation_concern: self )
       Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
                                            #"to_from=#{to_from}",
@@ -202,7 +202,8 @@ module Deepblue
                                         work_url: work_url,
                                         depositor: work_depositor )
       cc = nil
-      cc = self.depositor unless work_depositor == self.depositor
+      cc_contact_email = ::Deepblue::EmailHelper.cc_contact_email( curation_concern: self )
+      cc = cc_contact_email unless work_depositor == cc_contact_email
       email_notification( to: work_depositor,
                           cc: cc,
                           from: work_depositor,

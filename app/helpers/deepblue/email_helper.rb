@@ -48,11 +48,23 @@ module Deepblue
       Rails.application.routes.url_helpers.hyrax_collection_url( id: id, host: host, only_path: false )
     end
 
-    def self.depositor( curation_concern: )
+    def self.cc_contact_email( curation_concern: )
       if curation_concern.is_a?( DataSet )
         curation_concern.authoremail
       elsif curation_concern.is_a?( FileSet )
         curation_concern.parent.authoremail
+      elsif curation_concern.is_a?( Collection )
+        curation_concern.depositor
+      else
+        "Depositor"
+      end
+    end
+
+    def self.cc_depositor( curation_concern: )
+      if curation_concern.is_a?( DataSet )
+        curation_concern.depositor
+      elsif curation_concern.is_a?( FileSet )
+        curation_concern.parent.depositor
       elsif curation_concern.is_a?( Collection )
         curation_concern.depositor
       else
