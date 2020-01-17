@@ -1336,37 +1336,31 @@ module Deepblue
         emails_add_from_hash( emails: @emails_after, hash: @cfg_hash[:user] )
         emails_add_rest( emails: @emails_after )
         return if @emails_after.blank?
-        # puts "begin email after lines"
-        # @email_after_msg_lines.each do |line|
-        #   puts line
-        # end
-        # puts "end email after lines"
-        event = "New Content Service - After"
-        id = ""
-        template = "hyrax.new_content_service.notify_after_html"
-        pre_lines = @email_after_msg_lines.join( "\n" )
-        ingest_lines = []
+        lines = []
+        lines << EmailHelper.t( "hyrax.new_content_service.notify_after_part_1_html",
+                                 mode: mode,
+                                 path_to_yaml_file: path_to_yaml_file )
         if ( @ingest_urls.present? )
-          ingest_lines << "<br/>"
-          ingest_lines << "Ingested:<br/>"
-          ingest_lines << "<ul>"
+          lines << "<br/>"
+          lines << EmailHelper.t( "hyrax.new_content_service.notify_after_part_2_html" )
+          lines << "<ul>"
           @ingest_urls.each do |url|
-            ingest_lines << "<li><a href='#{url}'>#{url}</a></li>"
+            lines << "<li><a href='#{url}'>#{url}</a></li>"
           end
-          ingest_lines << "</ul>"
-          ingest_lines << "<br/>"
+          lines << "</ul>"
+          lines << "<br/>"
         end
-        # puts "begin email after ingest_lines"
-        # ingest_lines.each do |line|
-        #   puts line
-        # end
-        # puts "end email after ingest_lines"
-        body = EmailHelper.t( template,
-                              mode: mode,
-                              path_to_yaml_file: path_to_yaml_file,
-                              ingest_lines: ingest_lines.join("\n"),
-                              pre_lines: pre_lines )
-        subject = EmailHelper.t( "#{template}_subject" )
+        lines << EmailHelper.t( "hyrax.new_content_service.notify_after_part_3_html" )
+        lines << "<pre>"
+        lines.append @email_after_msg_lines
+        lines << "</pre>"
+        body = lines.join( "\n" )
+        # puts
+        # puts body
+        # puts
+        event = EmailHelper.t( "hyrax.new_content_service.notify_after_event" )
+        id = ""
+        subject = EmailHelper.t( "hyrax.new_content_service.notify_after_subject" )
         @emails_after.each_pair do |email_to,_value|
           puts "do_mail_after: send to #{email_to}"
           do_email( event: event, id: id, email_to: email_to, subject: subject, body: body  )

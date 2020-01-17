@@ -203,24 +203,24 @@ en:
       Deep Blue Data is a repository offered by the University of Michigan Library that provides access and preservation
       services for digital research data that were developed or used in the support of research activities at U-M.
     new_content_service:
-      notify_after_html_subject: "New Content Service Ingest finished"
-      notify_after_html: >
+      notify_after_event: "New Content Service - After"
+      notify_after_part_1_html: >
         <p>The new content service ingest is finished.</p>
         <br/>
         Ingest file: <code>%{path_to_yaml_file}</code><br/>
         Ingest mode: <code>%{mode}</code><br/>
-        %{ingest_lines}
+      notify_after_part_2_html: >
+        Ingested:<br/>
+      notify_after_part_3_html: >
         <p>The log is:</p>
-        <pre>
-        %{pre_lines}
-        </pre>
-      notify_before_html_subject: "New Content Service Ingest started"
+      notify_after_subject: "New Content Service Ingest finished"
       notify_before_html: >
         <p>The the new content service ingest is starting.</p>
         <br/>
         Ingest file: <code>%{path_to_yaml_file}</code><br/>
         Ingest mode: <code>%{mode}</code><br/>
         <br/>
+      notify_before_html_subject: "New Content Service Ingest started"
     users:
       activity_log:
         date:               "Date"
