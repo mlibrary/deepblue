@@ -31,18 +31,24 @@ module Deepblue
       @attribute = attribute
       @begin_date = to_datetime( parms[:begin], parms[:format] )
       @end_date = to_datetime( parms[:end], parms[:format] )
+      # puts "@attribute=#{@attribute} @begin_date=#{@begin_date} and @end_date=#{@end_date}"
     end
 
     def include?( curation_concern:, task: )
+      # puts "CurationConcernFilterDate.include? #{curation_concern.id}"
+      # puts "@attribute=#{@attribute} @begin_date=#{@begin_date} and @end_date=#{@end_date}"
       date =  task.curation_concern_attribute( curation_concern: curation_concern, attribute: @attribute )
+      # puts "date=#{date}"
       return false if date.nil?
       return date >= @begin if @end_date.nil?
       return date <= @end if @begin_date.nil?
       rv = date.between?( @begin_date, @end_date )
+      # puts "rv=#{rv} for #{date} between #{@begin_date} and #{@end_date}"
       return rv
     end
 
   end
+
 
   class CurationConcernFilterBlank < AbstractCurationConcernFilter
 
@@ -198,8 +204,8 @@ module Deepblue
     end
 
     def curation_concern_attribute( curation_concern:, attribute: )
-      # puts "curation_concern=#{curation_concern.id} attribute=#{attribute}"
-      # puts "current_child_index=#{current_child_index} current_child=#{current_child&.id}" if include_children
+      # puts "curation_concern_attribute: curation_concern=#{curation_concern.id} attribute=#{attribute}"
+      # puts "curation_concern_attribute: current_child_index=#{current_child_index} current_child=#{current_child&.id}" if include_children
       access_mode = @field_accessor_modes[attribute]
       if access_mode.nil?
         field_accessor = @field_accessors[attribute]
@@ -227,13 +233,15 @@ module Deepblue
                 resolve_method( curation_concern: curation_concern, attribute: attribute )
               when :report_method
                 resolve_report_method( curation_concern: curation_concern, attribute: attribute )
+              else
+                resolve_attribute( curation_concern: curation_concern, attribute: attribute )
               end
-      # puts "attribute=#{attribute} access_mode=#{access_mode} value=#{value}"
+      # puts "curation_concern_attribute: attribute=#{attribute} access_mode=#{access_mode} value=#{value}"
       return value
     end
 
     def curation_concern_format( attribute:, value: )
-      # puts "attribute=#{attribute} value=#{value}"
+      # puts "curation_concern_format: attribute=#{attribute} value=#{value}"
       return value unless field_formats.has_key? attribute
       return "" if value.nil?
       if value.respond_to? :join
@@ -257,6 +265,11 @@ module Deepblue
         field_format_strings[attribute] = format_str
         return date_to_local_timezone( value ).strftime( format_str )
       end
+      # puts "curation_concern_format: fell through, return value=#{value}"
+      if value.respond_to?( :join )
+        value = value.join( "" )
+      end
+      return value
     end
 
     def curation_concerns
@@ -307,7 +320,7 @@ module Deepblue
     end
 
     def load_report_definitions
-      puts "report_definitions_file=#{report_definitions_file}"
+      # puts "report_definitions_file=#{report_definitions_file}"
       if File.exist? report_definitions_file
         @report_definitions = YAML.load_file( report_definitions_file )
       else
@@ -333,12 +346,19 @@ module Deepblue
     end
 
     def resolve_attribute( curation_concern:, attribute: )
+      # puts "resolve_attribute: curation_concern.id=#{curation_concern.id} attribute: #{attribute}"
       if include_children && current_child_index > 1
         # puts "include_children_parent_columns_blank=#{include_children_parent_columns_blank}"
         # puts "include_children_parent_columns=#{include_children_parent_columns} attribute=#{attribute} !include_children_parent_columns[attribute]=#{!include_children_parent_columns[attribute]}"
-        return "" if include_children_parent_columns_blank && !include_children_parent_columns[attribute]
+        if include_children_parent_columns_blank && !include_children_parent_columns[attribute]
+          rv = ""
+          # puts "resolve_attribute: blankd child column rv=#{rv}"
+          return rv
+        end
       end
-      curation_concern.attributes[attribute.to_s]
+      rv = curation_concern.attributes[attribute.to_s]
+      # puts "resolve_attribute: rv=#{rv}"
+      return rv
     end
 
     def resolve_method( curation_concern:, attribute: )
