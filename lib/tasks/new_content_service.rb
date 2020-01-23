@@ -1315,7 +1315,7 @@ module Deepblue
         end
       end
 
-      def do_email( event: event, id: id, email_to:, subject:, body: )
+      def do_email( event:, id:, email_to:, subject:, body: )
         EmailHelper.log( class_name: self.class.name,
                          current_user: nil,
                          event: event,
