@@ -97,7 +97,7 @@ en:
       notify_attach_files_to_work_job_complete:
         files_attached_html:      "Files attached are:<br/>"
         files_failed_html:        "Files not attached are:<br/>"
-        file_list_item_html:      "<li>&apos;%{file_name}&apos; - %{file_size} bytes</li>"
+        file_list_item_html:      "&apos;%{file_name}&apos; - %{file_size} bytes"
         file_list_line_html:      "<li>%{file_item}</li>"
         file_line_html:           "<li>&apos;%{file_name}&apos; - %{file_size} bytes</li>"
         finished_html: >
