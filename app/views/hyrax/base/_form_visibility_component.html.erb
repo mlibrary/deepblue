@@ -37,14 +37,7 @@
           <br/>
           <%= t('hyrax.visibility.embargo.note_html') %>
           <div class="collapse" id="collapseEmbargo">
-            <div class="form-inline">
-              <input type="hidden" id="data_set_visibility_during_embargo" name="data_set[visibility_during_embargo]" value="restricted" />
-              <input type="hidden" id="data_set_visibility_after_embargo" name="data_set[visibility_after_embargo]" value="open" />
-              <%= "Restricted" %>
-              <%= t('hyrax.works.form.visibility_until') %>
-              <%= f.date_field :embargo_release_date, wrapper: :inline, value: f.object.embargo_release_date || Date.tomorrow, class: 'datepicker form-control' %>
-              <%= "then open it up to " %><bold><%= "Open Access" %></bold>
-            </div>
+            <%= render 'hyrax/base/form_permission_embargo', curation_concern: curation_concern, f: f %>
           </div>
         </label>
       </li>

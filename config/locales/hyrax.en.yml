@@ -238,3 +238,5 @@ en:
         text: Restricted
       open:
         text: Open Access
+      then_change_it_to: "then change it to"
+      until: "until"
