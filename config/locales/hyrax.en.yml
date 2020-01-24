@@ -116,8 +116,8 @@ en:
         total_success_html:       "<p>The total number of files uploaded and attached was %{file_count}.</p>"
         signature_html: >
           <p>
-          Please feel free to contact us at deepblue@umich.edu if you have any questions, or if there is
-          anything else we can do to be of help.
+          Please feel free to contact us at <a href='mailto:deepblue@umich.edu'>deepblue@umich.edu</a> if you have any
+          questions, or if there is anything else we can do to be of help.
           </p>
           Sincerely,<br/>
           <br/>
@@ -140,8 +140,9 @@ en:
         <li>If you would like more information or resources on creating appropriate documentation for your deposit, see our
         <a href='https://deepblue.lib.umich.edu/data/dbd-documentation-guide'>Documentation Guide</a> and
         <a href='https://deepblue.lib.umich.edu/data/Deep_Blue_Data_Example_Readme.txt'>example readme</a>.</li>
-        <li>We may work with the Data Curation Network (DCN) to perform the full review of your data set. The DCN is a
-        consortium through which we have access to a broad range of subject and format expertise for curation.</li>
+        <li>We may work with the <a href='https://datacurationnetwork.org/'>Data Curation Network</a> (DCN) to
+        perform the full review of your data set. The DCN is a consortium through which we have access to a broad
+        range of subject and format expertise for curation.</li>
         </ul>
         <li>Curation recommendations for your dataset (our usual timeline for review is a week or two; if you are working
         on a more compressed timeline, let us know).</li>
@@ -151,21 +152,21 @@ en:
         represent your work.
         </p>
         <p>
-        Please feel free to contact us at deepblue@umich.edu if you have any questions in the meantime, or if there is
-        anything else we can do to be of help.
+        Please feel free to contact us at <a href='mailto:deepblue@umich.edu'>deepblue@umich.edu</a> if you have any
+        questions in the meantime, or if there is anything else we can do to be of help.
         </p>
         Sincerely,<br/>
         <br/>
         The Deep Blue Data team<br/>
       notify_user_work_published_html: >
-        Dear <span style="color:#DE350B">%{depositor}</span>,
+        Dear %{depositor},
         <p>
-        Thank you for your submission to Deep Blue Data. Your deposit,
-        <a href='%{work_url}' style="color:#DE350B">%{title}</a>.
+        Thank you for your submission to Deep Blue Data. Your deposit, <a href='%{work_url}'>%{title}</a>,
         has been approved and is published (or will be published when your selected embargo expires).
         </p>
-        Please feel free to contact us at deepblue@umich.edu if you have any questions in the meantime, or if there is
-        anything else we can do to be of help.
+        <p>
+        Please feel free to contact us at <a href='mailto:deepblue@umich.edu'>deepblue@umich.edu</a> if you have any
+        questions in the meantime, or if there is anything else we can do to be of help.
         </p>
         Sincerely,<br/>
         <br/>
