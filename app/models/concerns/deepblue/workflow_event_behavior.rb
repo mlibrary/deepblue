@@ -13,7 +13,9 @@ module Deepblue
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "current_user=#{current_user}",
                                              "event_note=#{event_note}",
+                                             "id=#{id}",
                                              "" ]
+      return if id.blank?
       provenance_create( current_user: current_user, event_note: event_note )
       email_event_create_rds( current_user: current_user, event_note: event_note )
       email_event_create_user( current_user: current_user, event_note: event_note )

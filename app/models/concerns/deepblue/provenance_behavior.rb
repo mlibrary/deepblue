@@ -537,6 +537,7 @@ module Deepblue
     end
 
     def provenance_unembargo( current_user:, event_note: '', message: '', embargo_visibility:, embargo_visibility_after: )
+      return if id.blank? # this will happen when attempting to set an invalid embargo release date during work creation
       attributes, ignore_blank_key_values = attributes_for_provenance_embargo
       prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes,
                                                                   current_user: current_user,
