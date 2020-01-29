@@ -187,7 +187,7 @@ module Deepblue
       contact_info = curation_concern.authoremail
       creator = Array( curation_concern.creator ).first
       deposit_id = curation_concern.id
-      deposit_url = ::Deepblue::EmailHelper.data_set_url( data_set: curation_concern )
+      deposit_url = ::Deepblue::EmailHelper.curation_concern_url( curation_concern: curation_concern )
       discipline = Array( curation_concern.subject_discipline ).first
       description = Array( curation_concern.title ).join("\n") + "\n\nby #{creator}"
 
