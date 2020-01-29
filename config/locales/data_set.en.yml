@@ -66,7 +66,7 @@ en:
     id:                     "ID:"
   show:
     label:
-      access_deepblue:      "Article access in Deep Blue"
+      access_deepblue:      "Related items in Deep Blue"
       authoremail:          "Contact information"
       creator:              "Creator"
       date_coverage:        "Date coverage"
@@ -105,7 +105,11 @@ en:
         globus_download_and_notify_me:  "Download All for Globus and Email Me When Complete"
         globus_download_dont_notify_me: "Don't Add My Email"
         mint_doi:                       "Mint DOI"
-        mint_help:                      "Once you have uploaded your files, you can mint a Digital Object Identifier (<a href=\"https://www.doi.org\" target=\"_blank\">DOI</a>) to provide persistent access to your deposit. You do not need to wait until your deposit is published to mint a DOI. Questions? <a href=\"https://deepblue.lib.umich.edu/data/contact\" target=\"_blank\">Contact us!</a>"
+        mint_help: >
+          Once you have uploaded your files, you can mint a Digital Object Identifier
+          (<a href=\"https://www.doi.org\" target=\"_blank\">DOI</a>) to provide persistent access to your deposit.
+          You do not need to wait until your deposit is published to mint a DOI. Questions?
+          <a href=\"https://deepblue.lib.umich.edu/data/contact\" target=\"_blank\">Contact us!</a>
         save_metadata:                  "Save Metadata"
         save_metadata_public:           "Save Description (Public)"
         submit_help:                    "Submit your work for review and publication"
@@ -121,7 +125,7 @@ en:
           Are you sure you want to delete all Globus files in this works download directory?
     labels:
       data_set:
-        access_deepblue:      "Article access in Deep Blue"
+        access_deepblue:      "Related items in Deep Blue"
         authoremail:          "Contact Information"
         admin_set_id:         "Add as member of administrative set"
         based_near:           "Location"
@@ -169,7 +173,10 @@ en:
     hints:
       data_set:
         access_deepblue: >
-          If the article(s) accompanying your dataset are available in <a href='https://deepblue.lib.umich.edu/documents' target='_blank'>Deep Blue</a>, enter the handle for the record(s) here. If you have questions about depositing your article(s) in Deep Blue, please <a href='https://deepblue.lib.umich.edu/data/contact' target='_blank'>contact us</a>.
+          If the items(s) accompanying your dataset are available in
+          <a href='https://deepblue.lib.umich.edu/documents' target='_blank'>Deep Blue</a>, enter the handle for the
+          record(s) here. If you have questions about depositing your item(s) in Deep Blue, please
+          <a href='https://deepblue.lib.umich.edu/data/contact' target='_blank'>contact us</a>.
         authoremail: >
           Enter the contact information (email address) for the individual who can best respond to questions about the
           Work.
