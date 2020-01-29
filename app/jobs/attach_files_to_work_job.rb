@@ -89,6 +89,11 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       body = lines.join( "\n" )
       to = email
       from = email
+      email_sent = ::Deepblue::EmailHelper.send_email( to: to,
+                                                       from: from,
+                                                       subject: subject,
+                                                       body: body,
+                                                       content_type: "text/html" )
       ::Deepblue::EmailHelper.log( class_name: self.class.name,
                                    current_user: nil,
                                    event: Deepblue::AbstractEventBehavior::EVENT_UPLOAD,
@@ -97,8 +102,8 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                    to: to,
                                    from: from,
                                    subject: subject,
-                                   body: lines )
-      ::Deepblue::EmailHelper.send_email( to: to, from: from, subject: subject, body: body, content_type: "text/html" )
+                                   body: lines,
+                                   email_sent: email_sent )
     end
 
     def data_set_url( work )

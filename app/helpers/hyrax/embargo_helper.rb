@@ -60,6 +60,11 @@ module Hyrax
       body = body.join( '' )
       event_note = "#{expiration_days} days"
       event_note += " test_mode" if test_mode
+      email_sent = false
+      email_sent = ::Deepblue::EmailHelper.send_email( to: email,
+                                                       from: email,
+                                                       subject: subject,
+                                                       body: body ) unless test_mode
       ::Deepblue::EmailHelper.log( class_name: self.class.name,
                                    current_user: nil,
                                    event: "Embargo expiration notification",
@@ -68,10 +73,15 @@ module Hyrax
                                    to: email,
                                    from: email,
                                    subject: subject,
-                                   body: body )
-      ::Deepblue::EmailHelper.send_email( to: email, from: email, subject: subject, body: body ) unless test_mode
+                                   body: body,
+                                   email_sent: email_sent )
       return unless DeepBlueDocs::Application.config.embargo_about_to_expire_email_rds
       email = ::Deepblue::EmailHelper.notification_email
+      email_sent = false
+      email_sent = ::Deepblue::EmailHelper.send_email( to: email,
+                                                       from: email,
+                                                       subject: subject,
+                                                       body: body ) unless test_mode
       ::Deepblue::EmailHelper.log( class_name: self.class.name,
                                    current_user: nil,
                                    event: "Embargo expiration notification",
@@ -80,8 +90,8 @@ module Hyrax
                                    to: email,
                                    from: email,
                                    subject: subject,
-                                   body: body )
-      ::Deepblue::EmailHelper.send_email( to: email, from: email, subject: subject, body: body ) unless test_mode
+                                   body: body,
+                                   email_sent: email_sent )
     end
 
     def days_to_embargo_release_date( now: DateTime.now, embargo_release_date: )
@@ -142,6 +152,11 @@ module Hyrax
       event_note = ''
       event_note = "test_mode" if test_mode
       email = curation_concern.authoremail
+      email_sent = false
+      email_sent = ::Deepblue::EmailHelper.send_email( to: email,
+                                                       from: email,
+                                                       subject: subject,
+                                                       body: body ) unless test_mode
       ::Deepblue::LoggingHelper.debug "deactivate_embargo_email: curation concern id: #{id} email: #{email}" if verbose
       ::Deepblue::EmailHelper.log( class_name: self.class.name,
                                    current_user: nil,
@@ -151,10 +166,15 @@ module Hyrax
                                    to: email,
                                    from: email,
                                    subject: subject,
-                                   body: body )
-      ::Deepblue::EmailHelper.send_email( to: email, from: email, subject: subject, body: body ) unless test_mode
+                                   body: body,
+                                   email_sent: email_sent )
       return unless DeepBlueDocs::Application.config.embargo_deactivate_email_rds
       email = ::Deepblue::EmailHelper.notification_email
+      email_sent = false
+      email_sent = ::Deepblue::EmailHelper.send_email( to: email,
+                                                       from: email,
+                                                       subject: subject,
+                                                       body: body ) unless test_mode
       ::Deepblue::LoggingHelper.debug "deactivate_embargo_email: curation concern id: #{id} email: #{email}" if verbose
       ::Deepblue::EmailHelper.log( class_name: self.class.name,
                                    current_user: nil,
@@ -164,8 +184,8 @@ module Hyrax
                                    to: email,
                                    from: email,
                                    subject: subject,
-                                   body: body )
-      ::Deepblue::EmailHelper.send_email( to: email, from: email, subject: subject, body: body ) unless test_mode
+                                   body: body,
+                                   email_sent: email_sent )
     end
 
     def embargo_added( curation_concern:, update_attr_key_values: )

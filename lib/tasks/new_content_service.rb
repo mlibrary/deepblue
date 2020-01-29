@@ -1316,6 +1316,14 @@ module Deepblue
       end
 
       def do_email( event:, id:, email_to:, subject:, body: )
+        email_sent = false
+        unless email_test_mode
+          email_sent = EmailHelper.send_email( to: email_to,
+                                               from: email_to,
+                                               subject: subject,
+                                               content_type: "text/html",
+                                               body: body )
+        end
         EmailHelper.log( class_name: self.class.name,
                          current_user: nil,
                          event: event,
@@ -1323,13 +1331,8 @@ module Deepblue
                          to: email_to,
                          from: email_to,
                          subject: subject,
-                         body: body )
-        return if email_test_mode
-        EmailHelper.send_email( to: email_to,
-                                from: email_to,
-                                subject: subject,
-                                content_type: "text/html",
-                                body: body )
+                         body: body,
+                         email_sent: email_sent )
       end
 
       def do_email_after

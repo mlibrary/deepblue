@@ -349,13 +349,14 @@ module Deepblue
                               send_it: true,
                               email_key_values: {} )
 
-        EmailHelper.send_email( to: to,
-                                cc: cc,
-                                bcc: bcc,
-                                from: from,
-                                subject: subject,
-                                body: body,
-                                content_type: content_type ) if send_it
+        email_sent = false
+        email_sent = EmailHelper.send_email( to: to,
+                                             cc: cc,
+                                             bcc: bcc,
+                                             from: from,
+                                             subject: subject,
+                                             body: body,
+                                             content_type: content_type ) if send_it
         class_name = for_email_class.name
         EmailHelper.log( class_name: class_name,
                          current_user: current_user,
@@ -369,6 +370,7 @@ module Deepblue
                          subject: subject,
                          message: message,
                          body: body,
+                         email_sent: email_sent,
                          **email_key_values ) if send_it
       end
 
@@ -399,7 +401,17 @@ module Deepblue
         end
         event_attributes_cache_write( event: event, id: id, behavior: :EmailBehavior )
         body = email_compose_body( message: message, email_key_values: email_key_values )
-        EmailHelper.send_email( to: to, from: from, subject: subject, body: body ) if send_it
+        email_sent = false
+        if send_it
+          email_sent = EmailHelper.send_email( to: to, from: from, subject: subject, body: body )
+          email_event_notification_failed( to: to,
+                                           to_note: to_note,
+                                           from: from,
+                                           subject: subject,
+                                           body: body,
+                                           event: event,
+                                           id: id ) unless email_sent
+        end
         class_name = for_email_class.name
         EmailHelper.log( class_name: class_name,
                          current_user: current_user,
@@ -413,6 +425,7 @@ module Deepblue
                          subject: subject,
                          message: message,
                          body: body,
+                         email_sent: email_sent,
                          **email_key_values ) if send_it
         return nil unless return_email_parameters
         parameters = { to: to,
@@ -429,6 +442,15 @@ module Deepblue
                        id: id,
                        email_key_values: email_key_values }
         return parameters
+      end
+
+      def email_event_notification_failed( to:, to_note:, from:, subject:, body:, event:, id: )
+        return unless event == EVENT_CREATE
+        return unless to_note == 'RDS'
+        EmailHelper.send_email( to: to,
+                                from: from,
+                                subject: "Event create email failed to send",
+                                body: "Event create email failed for id #{id}" )
       end
 
   end
