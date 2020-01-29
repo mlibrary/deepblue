@@ -41,13 +41,22 @@ caption {
 
 /** Buttons **/
 
+.btn-default {
+  font-size: 1em;
+}
+
+.btn-danger {
+  font-size: 1em !important;
+}
+
 .btn-primary {
   padding: 0.5rem 1rem;
   border-radius: 2px;
   border-style: none none solid !important;
   background: rgb(18, 109, 193) !important;
   text-decoration: none;
-  font-size: .85em;
+  /* font-size: .85em; */
+  font-size: 1em;
 }
 
 .btn-secondary {
@@ -58,6 +67,7 @@ caption {
   text-decoration: none;
   background-color: #fff !important;
   border: 1px solid rgb(78, 78, 78) !important ;
+  font-size: 1em;
 }
 
 .btn-subtle {
@@ -67,7 +77,8 @@ caption {
   background: transparent;
   text-decoration: none;
   background: #E5E9ED;
-  font-size: .85em;
+  /* font-size: .85em; */
+  font-size: 1em;
 }
 
 .btn-subtle:hover {
@@ -590,7 +601,7 @@ ul.tabular li.attribute-fundedby {
     padding: .5em;
   }
   .btn.btn-danger {
-    padding: .75em 1em;
+    padding: .5em .75em;
   }
 }
 
