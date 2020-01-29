@@ -93,9 +93,12 @@ en:
     hints:
       file_set:
         save_version_note: 'You must click "Save Revision" to revert a previous version of this file'
-        select_new_version_note: >
-          When replacing the current version of a file with a new version, you may only select files that match the
+        select_new_version_note_html: >
+          <p>When replacing the current version of a file with a new version, you may only select files that match the
           mime type of the original file. The original mime type is: %{mime_type}
+          </p>
+          <p>Please feel free to contact us at <a href='mailto:deepblue@umich.edu'>deepblue@umich.edu</a> if you have
+          any questions.</p>
       generic_work:
         describe_work: >
           Please provide information about your data set (referred to as a "work") in the following fields, keeping in
