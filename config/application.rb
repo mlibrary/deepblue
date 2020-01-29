@@ -66,7 +66,6 @@ module DeepBlueDocs
     # puts "config.hostname=#{config.hostname}"
 
     ## configure box
-
     config.box_enabled = false
     config.box_developer_token = nil # replace this with a developer token to override Single Auth
     # config.box_developer_token = 'IGmQMmqw8coKpuQDN3EG4gBrDzn78sGr'.freeze
@@ -79,6 +78,9 @@ module DeepBlueDocs
     config.box_access_and_refresh_token_file_init = Rails.root.join( 'config', 'box_config_init.yml' ).freeze
     config.box_integration_enabled = config.box_enabled && ( !config.box_developer_token.nil? ||
         File.exist?( config.box_access_and_refresh_token_file ) )
+
+    ## configure email
+    config.email_error_alert_addresses = [ 'fritx@umich.edu', 'blancoj@umich.edu' ].freeze
 
     ## configure embargo
     config.embargo_enforce_future_release_date = true # now that we have automated embargo expiration
@@ -199,7 +201,7 @@ module DeepBlueDocs
 
     config.scheduler_log_echo_to_rails_logger = true
     config.scheduler_job_file = 'scheduler_jobs_prod.yml'
-    config.scheduler_heartbeat_email_targets = [ 'fritx@umich.edu' ] # leave empty to disable
+    config.scheduler_heartbeat_email_targets = [ 'fritx@umich.edu' ].freeze # leave empty to disable
 
     config.upload_log_echo_to_rails_logger = true
 

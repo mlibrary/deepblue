@@ -111,6 +111,7 @@ module Deepblue
                   from:,
                   subject:,
                   message: '',
+                  email_sent:,
                   **key_values )
 
       email_enabled = DeepBlueDocs::Application.config.email_enabled
@@ -118,7 +119,11 @@ module Deepblue
       added_key_values.merge!( { to_note: to_note } ) if to_note.present?
       added_key_values.merge!( { cc: cc } ) if cc.present?
       added_key_values.merge!( { bcc: bcc } ) if bcc.present?
-      added_key_values.merge!( { from: from, subject: subject, message: message, email_enabled: email_enabled } )
+      added_key_values.merge!( { from: from,
+                                 subject: subject,
+                                 message: message,
+                                 email_enabled: email_enabled,
+                                 email_sent: email_sent } )
       key_values.merge! added_key_values
       LoggingHelper.log( class_name: class_name,
                          event: event,
@@ -145,6 +150,7 @@ module Deepblue
       is_enabled = email_enabled ? "is enabled" : "is not enabled"
       LoggingHelper.bold_debug [  Deepblue::LoggingHelper.here,
                                   Deepblue::LoggingHelper.called_from,
+                                  "is_enabled=#{is_enabled}",
                                   "to=#{to}",
                                   "cc=#{cc}",
                                   "bcc=#{bcc}",
@@ -161,6 +167,45 @@ module Deepblue
                                             body: body,
                                             content_type: content_type )
       email.deliver_now
+      true
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
+      send_email_error( to: to,
+                        cc: cc,
+                        bcc: bcc,
+                        from: from,
+                        subject: subject,
+                        body: body,
+                        log: log,
+                        content_type: content_type,
+                        email_enabled: email_enabled,
+                        exception: e )
+      false
+    end
+
+    def self.send_email_error( to:,
+                               cc:,
+                               bcc:,
+                               from:,
+                               subject:,
+                               body:,
+                               log:,
+                               content_type: nil,
+                               email_enabled:,
+                               exception: )
+      return unless email_enabled
+      subject = "Send email error encountered"
+      body = "#{exception.class} #{exception.message} at:\n#{exception.backtrace.join("\n")}"
+      DeepBlueDocs::Application.config.email_error_alert_addresses.each do |to|
+        email = DeepblueMailer.send_an_email( to: to,
+                                              from: to,
+                                              subject: subject,
+                                              body: body,
+                                              content_type: content_type )
+        email.deliver_now
+      end
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
     end
 
     def self.user_email

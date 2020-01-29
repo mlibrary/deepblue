@@ -35,6 +35,7 @@ class HeartbeatEmailJob < ::Hyrax::ApplicationJob
     subject = "DBD scheduler heartbeat from #{hostname}"
     body = subject
     email = email_target
+    email_sent = ::Deepblue::EmailHelper.send_email( to: email, from: email, subject: subject, body: body )
     ::Deepblue::EmailHelper.log( class_name: self.class.name,
                                  current_user: nil,
                                  event: "Heartbeat email",
@@ -43,8 +44,8 @@ class HeartbeatEmailJob < ::Hyrax::ApplicationJob
                                  to: email,
                                  from: email,
                                  subject: subject,
-                                 body: body )
-    ::Deepblue::EmailHelper.send_email( to: email, from: email, subject: subject, body: body )
+                                 body: body,
+                                 email_sent: email_sent )
   end
 
 end

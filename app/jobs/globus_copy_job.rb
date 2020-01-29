@@ -96,16 +96,17 @@ class GlobusCopyJob < GlobusJob
       to = email
       from = email
       subject = 'DBD: Globus Work Files Available'
-      Deepblue::EmailHelper.log( class_name: 'GlobusCopyJob',
-                                 current_user: nil,
-                                 event: Deepblue::AbstractEventBehavior::EVENT_GLOBUS,
-                                 event_note: 'files available',
-                                 id: @globus_concern_id,
-                                 to: to,
-                                 from: from,
-                                 subject: subject,
-                                 body: lines )
-      Deepblue::EmailHelper.send_email( to: to, from: from, subject: subject, body: body )
+      email_sent = Deepblue::EmailHelper.send_email( to: to, from: from, subject: subject, body: body )
+      ::Deepblue::EmailHelper.log( class_name: 'GlobusCopyJob',
+                                   current_user: nil,
+                                   event: Deepblue::AbstractEventBehavior::EVENT_GLOBUS,
+                                   event_note: 'files available',
+                                   id: @globus_concern_id,
+                                   to: to,
+                                   from: from,
+                                   subject: subject,
+                                   body: lines,
+                                   email_sent: email_sent )
     end
 
     def globus_copy_job_email_all( emails: nil, lines: [] )
