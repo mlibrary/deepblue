@@ -30,6 +30,18 @@ module Deepblue
       Settings.hyrax.contact_email
     end
 
+    def self.curation_concern_type( curation_concern: )
+      if curation_concern.is_a?( DataSet )
+        'work'
+      elsif curation_concern.is_a?( FileSet )
+        'file'
+      elsif curation_concern.is_a?( Collection )
+        'collection'
+      else
+        'unknown'
+      end
+    end
+
     def self.curation_concern_url( curation_concern: )
       if curation_concern.is_a?( DataSet )
         data_set_url( id: curation_concern.id )
@@ -224,8 +236,8 @@ module Deepblue
       user_email
     end
 
-    def self.work_title( work:, join_with: " " )
-      work.title.join( join_with )
+    def self.cc_title( curation_concern:, join_with: " " )
+      curation_concern.title.join( join_with )
     end
 
   end

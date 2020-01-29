@@ -98,10 +98,11 @@ module Deepblue
                                                 attributes: attributes,
                                                 ignore_blank_key_values: ignore_blank_key_values,
                                                 **email_key_values )
+      cc_type = EmailHelper.curation_concern_type( curation_concern: self )
       email_event_notification( to: email_address_rds,
                                 to_note: 'RDS',
                                 from: email_address_rds,
-                                subject: Deepblue::EmailHelper.t( "hyrax.email.subject.work_created" ),
+                                subject: Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_created" ),
                                 attributes: attributes,
                                 current_user: current_user,
                                 event: EVENT_CREATE,
@@ -115,24 +116,25 @@ module Deepblue
 
     def email_event_create_user( current_user:, event_note: '' )
       to_from = email_address_user( current_user )
-      work_title = title.join( ' ' )
-      work_url = data_set_url
-      work_depositor = ::Deepblue::EmailHelper.cc_depositor( curation_concern: self )
+      cc_title = EmailHelper.cc_title curation_concern: self
+      cc_type = EmailHelper.curation_concern_type( curation_concern: self )
+      cc_url = EmailHelper.curation_concern_url( curation_concern: self )
+      cc_depositor = EmailHelper.cc_depositor( curation_concern: self )
       # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
       #                                      Deepblue::LoggingHelper.called_from,
       #                                      "to_from=#{to_from}",
-      #                                      "work_title=#{work_title}",
-      #                                      "work_url=#{work_url}",
-      #                                      "work_depositor=#{work_depositor}",
+      #                                      "cc_title=#{cc_title}",
+      #                                      "cc_url=#{cc_url}",
+      #                                      "cc_depositor=#{cc_depositor}",
       #                                      "" ]
-      body = ::Deepblue::EmailHelper.t( 'hyrax.email.notify_user_work_created_html',
-                                        title: ::Deepblue::EmailHelper.escape_html( work_title ),
-                                        work_url: work_url,
-                                        depositor: work_depositor )
+      body = EmailHelper.t( "hyrax.email.notify_user_#{cc_type}_created_html",
+                            title: EmailHelper.escape_html( cc_title ),
+                            url: cc_url,
+                            depositor: cc_depositor )
       email_notification( to: to_from,
                           from: to_from,
                           content_type: "text/html",
-                          subject: Deepblue::EmailHelper.t( "hyrax.email.subject.work_created" ),
+                          subject: Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_created" ),
                           body: body,
                           current_user: current_user,
                           event: EVENT_CREATE,
@@ -142,10 +144,11 @@ module Deepblue
 
     def email_event_destroy_rds( current_user:, event_note: '' )
       attributes, ignore_blank_key_values = attributes_for_email_event_destroy_rds
+      cc_type = EmailHelper.curation_concern_type( curation_concern: self )
       email_event_notification( to: email_address_rds,
                                 to_note: 'RDS',
                                 from: email_address_rds,
-                                subject: Deepblue::EmailHelper.t( "hyrax.email.subject.work_deleted" ),
+                                subject: Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_deleted" ),
                                 attributes: attributes,
                                 current_user: current_user,
                                 event: EVENT_DESTROY,
@@ -170,10 +173,11 @@ module Deepblue
 
     def email_event_publish_rds( current_user:, event_note: '', message: '' )
       attributes, ignore_blank_key_values = attributes_for_email_event_publish_rds
+      cc_type = EmailHelper.curation_concern_type( curation_concern: self )
       email_event_notification( to: email_address_rds,
                                 to_note: 'RDS',
                                 from: email_address_rds,
-                                subject: Deepblue::EmailHelper.t( "hyrax.email.subject.work_published" ),
+                                subject: Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_published" ),
                                 attributes: attributes,
                                 current_user: current_user,
                                 event: EVENT_PUBLISH,
@@ -185,30 +189,32 @@ module Deepblue
 
     def email_event_publish_user( current_user:, event_note: '', message: '' )
       # to_from = email_address_user( current_user )
-      work_title = ::Deepblue::EmailHelper.work_title work: self
-      work_title = ::Deepblue::EmailHelper.escape_html( work_title )
-      work_url = data_set_url
-      work_depositor = ::Deepblue::EmailHelper.cc_depositor( curation_concern: self )
+      cc_title = EmailHelper.cc_title curation_concern: self
+      cc_title = EmailHelper.escape_html( cc_title )
+      cc_type = EmailHelper.curation_concern_type( curation_concern: self )
+      cc_url = EmailHelper.curation_concern_url( curation_concern: self )
+      cc_depositor = EmailHelper.cc_depositor( curation_concern: self )
       Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
                                            #"to_from=#{to_from}",
-                                           "work_title=#{work_title}",
-                                           "work_url=#{work_url}",
-                                           "work_depositor=#{work_depositor}",
+                                           "cc_title=#{cc_title}",
+                                           "cc_type=#{cc_type}",
+                                           "cc_url=#{cc_url}",
+                                           "cc_depositor=#{cc_depositor}",
                                            "" ]
       # for the work's authoremail
-      body = ::Deepblue::EmailHelper.t( 'hyrax.email.notify_user_work_published_html',
-                                        title: work_title,
-                                        work_url: work_url,
-                                        depositor: work_depositor )
+      body = EmailHelper.t( "hyrax.email.notify_user_#{cc_type}_published_html",
+                            title: cc_title,
+                            url: cc_url,
+                            depositor: cc_depositor )
       cc = nil
-      cc_contact_email = ::Deepblue::EmailHelper.cc_contact_email( curation_concern: self )
-      cc = cc_contact_email unless work_depositor == cc_contact_email
-      email_notification( to: work_depositor,
+      cc_contact_email = EmailHelper.cc_contact_email( curation_concern: self )
+      cc = cc_contact_email unless cc_depositor == cc_contact_email
+      email_notification( to: cc_depositor,
                           cc: cc,
-                          from: work_depositor,
+                          from: cc_depositor,
                           content_type: "text/html",
-                          subject: Deepblue::EmailHelper.t( "hyrax.email.subject.work_published" ),
+                          subject: Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_published" ),
                           body: body,
                           current_user: current_user,
                           event: EVENT_PUBLISH,
@@ -218,10 +224,11 @@ module Deepblue
 
     def email_event_unpublish_rds( current_user:, event_note: '' )
       attributes, ignore_blank_key_values = attributes_for_email_event_unpublish_rds
+      cc_type = EmailHelper.curation_concern_type( curation_concern: self )
       email_event_notification( to: email_address_rds,
                                 to_note: 'RDS',
                                 from: email_address_rds,
-                                subject: Deepblue::EmailHelper.t( "hyrax.email.subject.work_unpublished" ),
+                                subject: Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_unpublished" ),
                                 attributes: attributes,
                                 current_user: current_user,
                                 event: EVENT_UNPUBLISH,
