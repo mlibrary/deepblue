@@ -1,6 +1,6 @@
 <div id="versioning_display" class="tab-pane">
   <h2><%= t('.header') %></h2>
-  <%= t( 'simple_form.hints.file_set.select_new_version_note', mime_type: curation_concern.mime_type ) %>
+  <%= t( 'simple_form.hints.file_set.select_new_version_note_html', mime_type: curation_concern.mime_type ) %>
   <%= simple_form_for [main_app, curation_concern], html: { multipart: true } do |f| %>
     <%= hidden_field_tag('redirect_tab', 'versions') %>
     <h3><%= t('.upload') %></h3>
