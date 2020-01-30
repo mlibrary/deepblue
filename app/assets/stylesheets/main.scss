@@ -42,43 +42,60 @@ caption {
 /** Buttons **/
 
 .btn-default {
-  font-size: 1em;
+  border-radius: 4px;
+  font-size: 1em !important;
+  //padding: 0.45rem 0.95rem;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
 }
 
 .btn-danger {
+  border-style: none none solid;
+  border-radius: 4px !important;
+  border-style: none none solid !important;
   font-size: 1em !important;
+  //padding: 0.45rem 0.95rem;
+  padding: 0.5rem 1rem !important;
+  text-decoration: none;
+}
+
+.btn-success {
+  border-radius: 4px !important;
+  border-style: none none solid !important;
+  //background: rgb(18, 109, 193) !important;
+  font-size: 1em !important;
+  padding: 0.55rem 1rem !important;
+  text-decoration: none !important;
 }
 
 .btn-primary {
-  padding: 0.5rem 1rem;
-  border-radius: 2px;
+  border-radius: 4px !important;
   border-style: none none solid !important;
   background: rgb(18, 109, 193) !important;
-  text-decoration: none;
-  /* font-size: .85em; */
-  font-size: 1em;
+  font-size: 1em !important;
+  padding: 0.55rem 1rem !important;
+  text-decoration: none !important;
 }
 
 .btn-secondary {
-  color: rgb(38, 38, 38) !important;
-  padding: 0.5rem 1rem;
-  border-radius: 2px !important;
   background: transparent;
-  text-decoration: none;
   background-color: #fff !important;
   border: 1px solid rgb(78, 78, 78) !important ;
-  font-size: 1em;
+  border-radius: 4px !important;
+  color: rgb(38, 38, 38) !important;
+  //font-size: 1em;
+  //padding: 0.5rem 1rem;
+  //text-decoration: none;
 }
 
 .btn-subtle {
-  color: rgb(38, 38, 38) !important;
-  padding: 0.5rem 1rem;
-  border-radius: 2px !important;
   background: transparent;
-  text-decoration: none;
-  background: #E5E9ED;
-  /* font-size: .85em; */
-  font-size: 1em;
+  background-color: #E5E9ED;
+  border-radius: 3px !important;
+  color: rgb(38, 38, 38) !important;
+  font-size: 1em !important;
+  padding: 0.5rem 1rem !important;
+  text-decoration: none !important;
 }
 
 .btn-subtle:hover {
@@ -599,9 +616,6 @@ ul.tabular li.attribute-fundedby {
   }
   .panel-body {
     padding: .5em;
-  }
-  .btn.btn-danger {
-    padding: .5em .75em;
   }
 }
 
