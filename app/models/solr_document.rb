@@ -71,6 +71,14 @@ class SolrDocument
     self['degree_grantors_label_ssim']
   end
 
+  def description_label
+    self['description_ssim']
+  end
+
+  def description_file_set_label
+    self['description_file_set_ssim']
+  end
+
   def doi_label
     self['doi_label_ssim']
   end
@@ -155,7 +163,6 @@ class SolrDocument
     'abstract',
     'academic_affiliation',
     'additional_information',
-    'description_abstract',
     'language_none',
     'peerreviewed',
     'alt_title',
@@ -183,6 +190,8 @@ class SolrDocument
     'degree_grantors',
     'degree_level',
     'degree_name',
+    'description_abstract',
+    'description_file_set',
     'description_mapping',
     'description_sponsorship',
     'description_thesisdegreediscipline',

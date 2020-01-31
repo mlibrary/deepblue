@@ -252,6 +252,9 @@ en:
     file_sets:
       detail_header:        "File Deepblue Details"
       not_yet_characterized: "not yet characterized"
+      edit:
+        description_file_set: Description (edit)
+        curation_notes_admin: Curation Notes Admin (edit)
     footer:
       copyright_html: "<strong>Copyright &copy; 2017 Samvera</strong> Licensed under the Apache License, Version 2.0"
       service_html: A service of <a href="http://samvera.org/" class="navbar-link" target="_blank">Samvera</a>.

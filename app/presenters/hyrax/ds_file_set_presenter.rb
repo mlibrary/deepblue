@@ -4,7 +4,8 @@ module Hyrax
 
   class DsFileSetPresenter < Hyrax::FileSetPresenter
 
-    delegate :doi, :doi_the_correct_one,
+    delegate :doi,
+             :doi_the_correct_one,
              :doi_minted?,
              :doi_minting_enabled?,
              :doi_pending?,
@@ -17,16 +18,21 @@ module Hyrax
              :virus_scan_status,
              :virus_scan_status_date, to: :solr_document
 
-    # def doi_minted?
-    #   # the first time this is called, doi will not be in solr.
-    #   @solr_document[ Solrizer.solr_name( 'doi', :symbol ) ].first
-    # rescue
-    #   nil
-    # end
-    #
-    # def doi_pending?
-    #   @solr_document[ Solrizer.solr_name( 'doi', :symbol ) ].first == ::Deepblue::DoiBehavior::DOI_PENDING
-    # end
+    def curation_notes_admin
+      rv = @solr_document.curation_notes_admin
+      return rv
+    end
+
+    def curation_notes_user
+      rv = @solr_document.curation_notes_user
+      return rv
+    end
+
+    def description_file_set
+      rv = @solr_document.description_file_set
+      return rv.first if rv.present?
+      rv
+    end
 
     def relative_url_root
       rv = ::DeepBlueDocs::Application.config.relative_url_root

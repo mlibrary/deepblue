@@ -29,6 +29,7 @@ RSpec.describe FileSet do
       date_created
       date_modified
       date_uploaded
+      description_file_set
       file_extension
       files_count
       file_size
@@ -62,6 +63,7 @@ RSpec.describe FileSet do
     %i[
       title
       label
+      description_file_set
       parent_id
       file_extension
       version_count
@@ -165,7 +167,7 @@ RSpec.describe FileSet do
       expect(subject).to respond_to(:contributor)
       expect(subject).to respond_to(:creator)
       expect(subject).to respond_to(:title)
-      expect(subject).to respond_to(:description)
+      expect(subject).to respond_to(:description_file_set)
       expect(subject).to respond_to(:publisher)
       expect(subject).to respond_to(:date_created)
       expect(subject).to respond_to(:date_uploaded)
