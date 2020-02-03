@@ -1,13 +1,14 @@
 <%= simple_form_for [main_app, curation_concern], html: { multipart: true } do |f| %>
-  <fieldset class="required">
-    <span class="control-label">
-      <%= label_tag 'file_set[title][]', t('.title'),  class: "string optional" %>
-    </span>
-    <%= text_field_tag 'file_set[title][]', curation_concern.title.first, class: 'form-control', required: true %>
-  </fieldset>
+  <%# Should the description field be available to edit by the admin? %>
+  <!-- fieldset class="required" -->
+    <!-- span class="control-label" -->
+      <%#= label_tag 'file_set[title][]', t('.title'),  class: "string optional" %>
+    <!-- /span -->
+    <%#= text_field_tag 'file_set[title][]', curation_concern.title.first, class: 'form-control', required: true %>
+  <!-- /fieldset -->
 
   <fieldset class="optional">
-    <legend>Optional Information</legend>
+    <!-- legend>Optional Information</legend -->
     <%= f.input :description_file_set, as: :text, input_html: { rows: '5', type: 'textarea'}, label: "Description (label)" %>
     <% if current_ability.admin? %>
       <%= f.input :curation_notes_user, as: :multi_value, input_html: { rows: '5', type: 'textarea'}, label: "Curation Notes User (label)" %>
