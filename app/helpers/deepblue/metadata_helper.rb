@@ -69,6 +69,7 @@ module Deepblue
                                                   date_modified
                                                   date_uploaded
                                                   depositor
+                                                  description_file_set
                                                   label
                                                   owner
                                                   prior_identifier

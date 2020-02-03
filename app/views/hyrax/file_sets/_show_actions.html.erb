@@ -1,18 +1,11 @@
 <div class="form-actions">
-  <% if Hyrax.config.analytics? %>
-    <%= link_to t('simple_form.actions.file_set.analytics'),
-                @presenter.relative_url_root + @presenter.stats_path,
-                id: 'stats',
-                class: 'btn btn-default',
-                data: { turbolinks: false } %>
-  <% end %>
 
   <% if ( ( @presenter.editor? && @presenter.parent.workflow.state != "deposited" ) ||  current_ability.admin? ) %>
-    <%= link_to "Edit This #{@presenter.human_readable_type}", edit_polymorphic_path([main_app, @presenter]),
-                class: 'btn btn-default' %>
+    <%= link_to t('simple_form.actions.file_set.edit_this'), edit_polymorphic_path([main_app, @presenter]),
+                class: 'btn btn-primary' %>
     <% if ( @presenter.parent_doi_minted? && !current_ability.admin? ) %>
     <% else %>
-      <%= link_to "Delete This #{@presenter.human_readable_type}", [main_app, @presenter],
+      <%= link_to t('simple_form.actions.file_set.delete_this'), [main_app, @presenter],
                   class: 'btn btn-danger', data: { confirm: "Delete this #{@presenter.human_readable_type}?" },
                   method: :delete %>
     <% end %>
@@ -20,7 +13,13 @@
                 hyrax.generate_download_single_use_link_path(@presenter),
                 class: 'btn btn-default generate-single-use-link' %>
   <% end %>
-
+  <% if Hyrax.config.analytics? %>
+    <%= link_to t('simple_form.actions.file_set.analytics'),
+                @presenter.relative_url_root + @presenter.stats_path,
+                id: 'stats',
+                class: 'btn btn-default',
+                data: {turbolinks: false} %>
+  <% end %>
   <% if @presenter.current_ability.admin? && @presenter.display_provenance_log_enabled? %>
     <%= link_to t('simple_form.actions.provenance_log.display'),
                 main_app.display_provenance_log_hyrax_file_set_path(@presenter.id), class: 'btn btn-default' %>

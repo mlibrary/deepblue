@@ -223,6 +223,15 @@ class CatalogController < ApplicationController
       }
     end
 
+    config.add_search_field('description_file_set') do |field|
+      field.label = "Description (file set)"
+      solr_name = solr_name("description_file_set", :stored_searchable)
+      field.solr_local_parameters = {
+          qf: solr_name,
+          pf: solr_name
+      }
+    end
+
     config.add_search_field('doi') do |field|
       field.label = "Doi"
       solr_name = solr_name("doi_label", :stored_searchable)

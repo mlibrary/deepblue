@@ -4,6 +4,40 @@
   <dd itemprop="accountablePerson" itemscope itemtype="http://schema.org/Person">
     <span itemprop="name"><%= link_to_profile @presenter.depositor %></span>
   </dd>
+  <% if @presenter.description_file_set.present? %>
+    <dt><%= t('show.file_set.label.description_file_set') %></dt>
+    <dd itemprop="description_file_set"><%= @presenter.description_file_set %></dd>
+  <% end %>
+  <% if @presenter.curation_notes_user.present? %>
+    <dt><%= t('show.file_set.label.curation_notes_user_html') %></dt>
+    <dd itemprop="curation_notes_user">
+      <% @presenter.curation_notes_user.each_with_index do |note,index| %>
+        <% if index > 0 %>
+          <br/>
+        <% end %>
+        <span class="attribute attribute-curation-notes-user">
+          <span itemprop="curation_notes_user">
+            <%= raw ("<span class=\"more\">" + iconify_auto_link(note) + "</span>") %>
+          </span>
+        </span>
+      <% end %>
+    </dd>
+  <% end %>
+  <% if @presenter.curation_notes_admin.present? && current_ability.admin? %>
+    <dt><%= t('show.file_set.label.curation_notes_admin_html') %></dt>
+    <dd itemprop="curation_notes_admin">
+      <% @presenter.curation_notes_admin.each_with_index do |note,index| %>
+        <% if index > 0 %>
+          <br/>
+        <% end %>
+        <span class="attribute attribute-curation-notes-admin">
+          <span itemprop="curation_notes_admin">
+            <%= raw ("<span class=\"more\">" + iconify_auto_link(note) + "</span>") %>
+          </span>
+        </span>
+      <% end %>
+    </dd>
+  <% end %>
   <dt><%= t('show.file_set.label.date_uploaded') %></dt>
   <dd itemprop="datePublished"><%= @presenter.date_uploaded %></dd>
   <dt><%= t('show.file_set.label.date_modified') %></dt>

@@ -26,6 +26,11 @@ module Deepblue
         index.as :stored_searchable
       end
 
+      property :description_file_set, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#description_file_set'), multiple: false do |index|
+        index.type :text
+        index.as :stored_searchable
+      end
+
       # property :file_size, predicate: ::RDF::Vocab::DC.SizeOrDuration, multiple: false
       property :file_size, predicate: ::RDF::Vocab::DC.SizeOrDuration, multiple: true
 

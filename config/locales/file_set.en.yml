@@ -6,12 +6,16 @@ en:
         characterization:     "Characterization"
         creator:              "Creator"
         curation_notes_admin: "Curation Notes for Admins"
+        curation_notes_admin_html: "Curation Notes<br/> for Admins"
         curation_notes_user:  "Curation Notes for Users"
+        curation_notes_user_html:  "Curation Notes<br/> for Users"
         date_coverage:        "Date Coverage"
         date_created:         "Date Created"
         date_modified:        "Last Modified"
         date_uploaded:        "Original Upload"
         depositor:            "Depositor"
+        description:          "Description"
+        description_file_set: "Description"
         doi:                  "DOI"
         file_format:          "File Format"
         file_size:            "File Size"
@@ -36,6 +40,8 @@ en:
   simple_form:
     actions:
       file_set:
-        analytics:                      "Analytics"
-        delete:                         "Delete"
-        edit:                           "Edit"
+        analytics:            "Analytics"
+        delete:               "Delete"
+        delete_this:          "Delete This File"
+        edit:                 "Edit"
+        edit_this:            "Edit This File"

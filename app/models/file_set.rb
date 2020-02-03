@@ -22,6 +22,7 @@ class FileSet < ActiveFedora::Base
       date_created
       date_modified
       date_uploaded
+      description_file_set
       file_extension
       files_count
       file_size
@@ -56,6 +57,7 @@ class FileSet < ActiveFedora::Base
   def metadata_keys_report
     %i[
       curation_notes_user
+      description_file_set
       file_extension
       files_count
       file_size_human_readable
@@ -72,6 +74,7 @@ class FileSet < ActiveFedora::Base
     %i[
       title
       label
+      description_file_set
       parent_id
       file_extension
       version_count

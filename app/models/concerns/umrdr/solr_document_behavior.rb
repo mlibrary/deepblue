@@ -33,6 +33,10 @@ module Umrdr
       self[ 'date_published_dtsim' ]
     end
 
+    def description_file_set
+      fetch(Solrizer.solr_name('description_file_set'), []).first
+    end
+
     ## begin DOI methods
 
     def doi
