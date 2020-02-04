@@ -616,6 +616,7 @@ module Deepblue
         date_created = Array( build_date( hash: file_set_hash, key: :date_created ) )
         date_modified = build_date( hash: file_set_hash, key: :date_modified )
         date_uploaded = build_date( hash: file_set_hash, key: :date_uploaded )
+        description_file_set = file_set_hash[:description_file_set]
         edit_users = Array( file_set_hash[:edit_users] )
         label = file_set_hash[:label]
         prior_identifier = build_prior_identifier( hash: file_set_hash, id: id )
@@ -629,9 +630,12 @@ module Deepblue
         file_set.date_uploaded = date_uploaded
         file_set.date_modified = date_modified
         file_set.date_created = date_created
-        update_cc_attribute( curation_concern: file_set, attribute: :prior_identifier, value: prior_identifier )
+        update_cc_attribute( curation_concern: file_set, attribute: :description_file_set, value: description_file_set )
         update_cc_edit_users(curation_concern: file_set, edit_users: edit_users )
+        update_cc_attribute( curation_concern: file_set, attribute: :prior_identifier, value: prior_identifier )
         update_visibility( curation_concern: file_set, visibility: visibility )
+        file_set.date_modified = file_set.date_uploaded if file_set.date_modified.blank?
+        file_set.date_modified = DateTime.now if file_set.date_modified.blank?
         file_set.save!
 
         # TODO: move ingest step to after attach to work, this will probably fix file_sets that turn up with missing file sizes
@@ -688,6 +692,8 @@ module Deepblue
                                          fixity_check_note: msg )
           end
         end
+        file_set.date_modified = file_set.date_uploaded if file_set.date_modified.blank?
+        file_set.date_modified = DateTime.now if file_set.date_modified.blank?
         log_msg( "#{build_mode}: finished: #{path}" )
         return file_set
       end
@@ -1117,6 +1123,7 @@ module Deepblue
         diff_attr_value( diffs, file_set, attr_name: :date_uploaded, value: build_date( hash: file_set_hash, key: :date_uploaded ) )
         depositor = build_depositor( hash: file_set_hash )
         diff_attr_value( diffs, file_set, attr_name: :depositor, value: depositor )
+        diff_attr( diffs, file_set, file_set_hash, attr_name: :description_file_set, multi: false )
         diff_edit_users( diffs, file_set, file_set_hash )
         original_name = file_set_hash[:original_name]
         diff_attr( diffs, file_set, file_set_hash, attr_name: :label, multi: false )
@@ -2166,6 +2173,7 @@ module Deepblue
         update_attr_value( updates, file_set, attr_name: :date_uploaded, value: build_date( hash: file_set_hash, key: :date_uploaded ) )
         depositor = build_depositor( hash: file_set_hash )
         update_attr_value( updates, file_set, attr_name: :depositor, value: depositor )
+        update_attr( updates, file_set, file_set_hash, attr_name: :description_file_set )
         update_edit_users( updates, file_set, file_set_hash )
         update_attr( updates, file_set, file_set_hash, attr_name: :label, multi: false )
         original_name = file_set_hash[:original_name]
