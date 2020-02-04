@@ -368,13 +368,16 @@ module Deepblue
           work.save!
           work.reload
         end
+        entity = work.workflow_state
         wf = work.active_workflow
+        if entity.nil?
+          wgid = work.to_global_id.to_s
+          # user = User.find_by_user_key( work.owner )
+          # agent = PowerConverter.convert( user, to: :sipity_agent )
+          entity = Sipity::Entity.create!( proxy_for_global_id: wgid, workflow: wf, workflow_state: nil )
+          # entity = PowerConverter.convert( work, to: :sipity_entity )
+        end
         # puts "wf.name=#{wf.name}"
-        wgid = work.to_global_id.to_s
-        # user = User.find_by_user_key( work.owner )
-        # agent = PowerConverter.convert( user, to: :sipity_agent )
-        entity = Sipity::Entity.create!( proxy_for_global_id: wgid, workflow: wf, workflow_state: nil )
-        # entity = PowerConverter.convert( work, to: :sipity_entity )
         action_name = if "open" == work.visibility
                         "deposited"
                       else
