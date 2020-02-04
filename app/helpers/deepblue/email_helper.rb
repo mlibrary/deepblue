@@ -58,6 +58,9 @@ module Deepblue
       id = collection.id if collection.present?
       host = hostname
       Rails.application.routes.url_helpers.hyrax_collection_url( id: id, host: host, only_path: false )
+    rescue ActionController::UrlGenerationError => e
+      Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
+      return ''
     end
 
     def self.cc_contact_email( curation_concern: )
@@ -88,12 +91,18 @@ module Deepblue
       id = data_set.id if data_set.present?
       host = hostname
       Rails.application.routes.url_helpers.hyrax_data_set_url( id: id, host: host, only_path: false )
+    rescue ActionController::UrlGenerationError => e
+      Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
+      return ''
     end
 
     def self.file_set_url( id: nil, file_set: nil )
       id = file_set.id if file_set.present?
       host = hostname
       Rails.application.routes.url_helpers.hyrax_file_set_url( id: id, host: host, only_path: false )
+    rescue ActionController::UrlGenerationError => e
+      Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
+      return ''
     end
 
     def self.echo_to_rails_logger
