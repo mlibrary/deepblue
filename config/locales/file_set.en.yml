@@ -7,8 +7,8 @@ en:
         creator:              "Creator"
         curation_notes_admin: "Curation Notes for Admins"
         curation_notes_admin_html: "Curation Notes<br/> for Admins"
-        curation_notes_user:  "Curation Notes for Users"
-        curation_notes_user_html:  "Curation Notes<br/> for Users"
+        curation_notes_user:  "Curation Notes"
+        curation_notes_user_html:  "Curation Notes"
         date_coverage:        "Date Coverage"
         date_created:         "Date Created"
         date_modified:        "Last Modified"
@@ -38,6 +38,11 @@ en:
         virus_scan_status_date: "Virus Scan Status Date"
         width:                "Width"
   simple_form:
+    label:
+      file_set:
+        curation_notes_admin: "Curation Notes for Admins"
+        curation_notes_user:  "Curation Notes"
+        description_file_set: "Description"
     actions:
       file_set:
         analytics:            "Analytics"
