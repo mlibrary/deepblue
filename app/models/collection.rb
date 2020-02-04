@@ -117,6 +117,9 @@ class Collection < ActiveFedora::Base
 
   def for_event_route
     Rails.application.routes.url_helpers.hyrax_data_set_path( id: self.id ) # rubocop:disable Style/RedundantSelf
+  rescue ActionController::UrlGenerationError => e
+    Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
+    return ''
   end
 
   def for_provenance_route

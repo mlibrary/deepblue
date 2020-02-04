@@ -137,6 +137,9 @@ class FileSet < ActiveFedora::Base
 
   def for_provenance_route
     Rails.application.routes.url_helpers.hyrax_file_set_path( id: id )
+  rescue ActionController::UrlGenerationError => e
+    Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
+    return ''
   end
 
   def title_type
