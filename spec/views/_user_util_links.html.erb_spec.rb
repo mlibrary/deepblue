@@ -8,7 +8,7 @@ RSpec.describe '/_user_util_links.html.erb', type: :view do
   it 'IU Login should go to CAS' do
     Rails.configuration.authentication_method = "iu"
     render
-    puts rendered
+    # puts rendered
     expect(rendered).to have_link "Login To CAS"
   end
 

@@ -6,7 +6,7 @@ include Warden::Test::Helpers
 # NOTE: If you generated more than one work, you have to set "js: true"
 RSpec.feature 'Create a Dissertation', js: true do
 
-  context 'a logged in user' do
+  xcontext 'a logged in user' do
     let(:user_attributes) do
       { email: 'test@example.com' }
     end
