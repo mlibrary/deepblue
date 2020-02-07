@@ -144,6 +144,8 @@ Rails.application.routes.draw do
   post '/provenance_log_deleted_works/', to: 'provenance_log#deleted_works'
   get '/guest_user_message', to: 'guest_user_message#show'
 
+  get '/work_view_content/:id/:file_id' => 'work_view_content#show', constraint: { id: /[^\/]+/, file_id: /[^\/]+/ }
+
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
 end
