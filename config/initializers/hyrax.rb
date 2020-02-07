@@ -48,7 +48,7 @@ Hyrax.config do |config|
       limitConcurrentUploads: 6,
       maxNumberOfFiles: 100,
       # maxFileSize: 500.megabytes
-      maxFileSize: 2.gigabytes,
+      maxFileSize: 5.gigabytes,
       url: Settings.relative_url_root + '/uploads'
   }
 
