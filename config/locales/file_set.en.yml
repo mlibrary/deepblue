@@ -38,15 +38,17 @@ en:
         virus_scan_status_date: "Virus Scan Status Date"
         width:                "Width"
   simple_form:
-    label:
-      file_set:
-        curation_notes_admin: "Curation Notes for Admins"
-        curation_notes_user:  "Curation Notes"
-        description_file_set: "Description"
     actions:
       file_set:
-        analytics:            "Analytics"
+        analytics:            "View File Analytics"
         delete:               "Delete"
         delete_this:          "Delete This File"
         edit:                 "Edit"
         edit_this:            "Edit This File"
+    label:
+      file_set:
+        admin_actions:        "Admin Actions"
+        analytics:            "Analytics FS"
+        curation_notes_admin: "Curation Notes for Admins"
+        curation_notes_user:  "Curation Notes"
+        description_file_set: "Description"

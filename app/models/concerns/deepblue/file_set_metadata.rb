@@ -31,6 +31,11 @@ module Deepblue
         index.as :stored_searchable
       end
 
+      property :doi, predicate: ::RDF::Vocab::Identifiers.doi, multiple: false do |index|
+        index.type :text
+        index.as :stored_searchable
+      end
+
       # property :file_size, predicate: ::RDF::Vocab::DC.SizeOrDuration, multiple: false
       property :file_size, predicate: ::RDF::Vocab::DC.SizeOrDuration, multiple: true
 

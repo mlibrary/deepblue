@@ -8,6 +8,7 @@ module Deepblue
     #include Hyrax::Controller
     include Hyrax::WorksControllerBehavior
     include Deepblue::ControllerWorkflowEventBehavior
+    include Deepblue::DoiControllerBehavior
 
     def after_update_response
       if curation_concern.file_sets.present?

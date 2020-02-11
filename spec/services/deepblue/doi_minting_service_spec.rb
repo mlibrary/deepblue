@@ -5,7 +5,9 @@ require 'rails_helper'
 describe Deepblue::DoiMintingService do
 
   context "when minting a new doi" do
-    subject { described_class.new( work: work, current_user: "test_doi_minting_service@umich.edu" ) }
+    subject { described_class.new( curation_concern: work,
+                                   current_user: "test_doi_minting_service@umich.edu",
+                                   target_url: work_url ) }
     let(:work) { mock_model(GenericWork, id: '123', title: ['demotitle'],
                                          creator: ['Smith, John', 'Smith, Jane', 'O\'Rielly, Kelly'])}
     let(:work_url) { "umrdr-testing.hydra.lib.umich.edu/concern/work/#{work.id}" }
@@ -19,6 +21,7 @@ describe Deepblue::DoiMintingService do
       allow(work).to receive(:doi).and_return(identifier.id)
       allow(work).to receive(:doi=)
       allow(work).to receive(:provenance_mint_doi)
+      allow(work).to receive(:for_event_url).and_return(work_url)
       allow(subject).to receive(:doi_server_reachable?).and_return(true)
       allow(Ezid::Identifier).to receive(:mint).and_return(identifier)
     end
@@ -64,7 +67,9 @@ describe Deepblue::DoiMintingService do
     let( :current_user ) { "test_doi_minting_service@umich.edu" }
     it "mints a doi" do
       skip unless ENV['INTEGRATION']
-      expect(described_class.mint_doi_for( work: work, current_user: current_user ) ).to start_with 'doi:10.5072/FK2'
+      expect( described_class. mint_doi_for( work: work,
+                                             current_user: current_user,
+                                             target_url: work_url ) ).to start_with 'doi:10.5072/FK2'
     end
   end
 

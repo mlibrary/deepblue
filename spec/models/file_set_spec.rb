@@ -30,6 +30,7 @@ RSpec.describe FileSet do
       date_modified
       date_uploaded
       description_file_set
+      doi
       file_extension
       files_count
       file_size
@@ -160,38 +161,44 @@ RSpec.describe FileSet do
 
   describe 'metadata' do
     it 'has descriptive metadata' do
-      expect(subject).to respond_to(:relative_path)
-      expect(subject).to respond_to(:depositor)
-      expect(subject).to respond_to(:related_url)
       expect(subject).to respond_to(:based_near)
       expect(subject).to respond_to(:contributor)
       expect(subject).to respond_to(:creator)
-      expect(subject).to respond_to(:title)
-      expect(subject).to respond_to(:description_file_set)
-      expect(subject).to respond_to(:publisher)
+      expect(subject).to respond_to(:curation_notes_admin)
+      expect(subject).to respond_to(:curation_notes_user)
       expect(subject).to respond_to(:date_created)
-      expect(subject).to respond_to(:date_uploaded)
       expect(subject).to respond_to(:date_modified)
-      expect(subject).to respond_to(:subject)
+      expect(subject).to respond_to(:date_uploaded)
+      expect(subject).to respond_to(:depositor)
+      expect(subject).to respond_to(:description_file_set)
+      expect(subject).to respond_to(:doi)
+      expect(subject).to respond_to(:identifier)
       expect(subject).to respond_to(:language)
       expect(subject).to respond_to(:license)
+      expect(subject).to respond_to(:prior_identifier)
+      expect(subject).to respond_to(:publisher)
+      expect(subject).to respond_to(:related_url)
+      expect(subject).to respond_to(:relative_path)
       expect(subject).to respond_to(:resource_type)
-      expect(subject).to respond_to(:identifier)
+      expect(subject).to respond_to(:subject)
+      expect(subject).to respond_to(:title)
+      expect(subject).to respond_to(:virus_scan_service)
+      expect(subject).to respond_to(:virus_scan_status)
+      expect(subject).to respond_to(:virus_scan_status_date)
     end
     it 'has properties from characterization metadata' do
-      expect(subject).to respond_to(:format_label)
-      expect(subject).to respond_to(:mime_type)
-      expect(subject).to respond_to(:file_size)
-      expect(subject).to respond_to(:last_modified)
-      expect(subject).to respond_to(:filename)
-      expect(subject).to respond_to(:original_checksum)
-      expect(subject).to respond_to(:well_formed)
-      expect(subject).to respond_to(:page_count)
-      expect(subject).to respond_to(:file_title)
+      expect(subject).to respond_to(:creator) # :creator is characterization metadata?
       expect(subject).to respond_to(:duration)
+      expect(subject).to respond_to(:filename)
+      expect(subject).to respond_to(:file_size)
+      expect(subject).to respond_to(:file_title)
+      expect(subject).to respond_to(:format_label)
+      expect(subject).to respond_to(:last_modified)
+      expect(subject).to respond_to(:mime_type)
+      expect(subject).to respond_to(:original_checksum)
+      expect(subject).to respond_to(:page_count)
       expect(subject).to respond_to(:sample_rate)
-      # :creator is characterization metadata?
-      expect(subject).to respond_to(:creator)
+      expect(subject).to respond_to(:well_formed)
     end
 
     describe 'metadata overrides' do

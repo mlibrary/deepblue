@@ -6,6 +6,7 @@ module Hyrax
 
   # monkey patch FileSetsController
   class FileSetsController < ApplicationController
+    include Deepblue::DoiControllerBehavior
 
     PARAMS_KEY = 'file_set'
     self.show_presenter = Hyrax::DsFileSetPresenter

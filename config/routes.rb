@@ -84,6 +84,8 @@ Rails.application.routes.draw do
     resources :file_sets do
       member do
         get    'display_provenance_log'
+        get    'doi'
+        post   'doi'
       end
     end
   end

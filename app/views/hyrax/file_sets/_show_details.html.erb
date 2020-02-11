@@ -8,6 +8,15 @@
     <dt><%= t('show.file_set.label.description_file_set') %></dt>
     <dd itemprop="description_file_set"><%= @presenter.description_file_set %></dd>
   <% end %>
+  <% if @presenter.doi_the_correct_one.present? %>
+    <dt><%= t('show.file_set.label.doi') %></dt>
+    <dd itemprop="identifier" itemscope itemtype="http://schema.org/Identifier">
+      <% unless @presenter.doi_the_correct_one.nil? %>
+        <% @presenter.doi_the_correct_one[0].sub! 'doi:', 'https://doi.org/' %>
+      <% end %>
+      <%= @presenter.attribute_to_html(:doi_the_correct_one, label: t('show.label.doi'), work_type: "FileSet") %>
+    </dd>
+  <% end %>
   <% if @presenter.curation_notes_user.present? %>
     <dt><%= t('show.file_set.label.curation_notes_user_html') %></dt>
     <dd itemprop="curation_notes_user">
@@ -41,7 +50,13 @@
   <dt><%= t('show.file_set.label.date_uploaded') %></dt>
   <dd itemprop="datePublished"><%= @presenter.date_uploaded %></dd>
   <dt><%= t('show.file_set.label.date_modified') %></dt>
-  <dd itemprop="dateModified"><%= @presenter.date_modified %></dd>
+  <dd itemprop="dateModified">
+    <% if @presenter.date_modified.present? %>
+      <%= @presenter.date_modified %>
+    <% else %>
+      &nbsp;
+    <% end %>
+  </dd>
   <dt><%= t('show.file_set.label.characterization') %></dt>
   <dd>
     <% if @presenter.characterized? %>

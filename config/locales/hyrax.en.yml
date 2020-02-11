@@ -84,6 +84,12 @@ en:
           work:             "Work"
     directory:
       suffix:               "@example.org"
+    doi:
+      mint_doi_modal:
+        header:             "Mint DOI for %{curation_concern}"
+        confirm: >
+            Are you sure you want to mint a DOI? This action will produce a permanent unique identifier for
+            the %{curation_concern}.
     email:
       about_to_expire_embargo:
         subject:            "Deepblue Data: Embargo will expire in %{expiration_days} days for %{title}"
@@ -313,6 +319,12 @@ en:
         text: Open Access
       then_change_it_to: "then change it to"
       until: "until"
+    work:
+      download:
+        header: >
+          Download All Files (To download individual files, select them in the “Files” panel above)
+      update:
+        header: "Edit Work"
   samvera:
     persona:
       users:

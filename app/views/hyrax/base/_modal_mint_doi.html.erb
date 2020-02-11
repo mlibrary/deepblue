@@ -5,11 +5,12 @@
       
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="doi-close"><span aria-hidden="true">&times;</span></button>
-          <h3 class="modal-title">Mint DOI for Work</h3>
+          <h3 class="modal-title"><%= t( "hyrax.doi.mint_doi_modal.header",
+                                         curation_concern: @presenter.human_readable_type.titleize ) %></h3>
         </div>
 
         <div class="modal-body" >
-          Are you sure you want to mint a DOI? This action will produce a permanent unique identifier for the work.
+          <%= t( "hyrax.doi.mint_doi_modal.confirm", curation_concern: @presenter.human_readable_type.downcase ) %>
         </div>
 
         <div class="modal-footer">
