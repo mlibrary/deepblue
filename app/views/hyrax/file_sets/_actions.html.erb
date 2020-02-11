@@ -2,7 +2,11 @@
 <% if file_set.user_can_perform_any_action? %>
   <div class="btn-group">
 
-    <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" type="button" id="dropdownMenu_<%= file_set.id %>" aria-haspopup="true">
+    <button class="btn btn-default dropdown-toggle"
+            data-toggle="dropdown"
+            type="button"
+            id="dropdownMenu_<%= file_set.id %>"
+            aria-haspopup="true">
       <span class="sr-only">Press to </span>
       <%= t('.header') %>
       <span class="caret" aria-hidden="true"></span>

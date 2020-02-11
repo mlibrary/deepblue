@@ -7,6 +7,7 @@ class FileSet < ActiveFedora::Base
   include ::Deepblue::FileSetBehavior
   include ::Deepblue::MetadataBehavior
   include ::Deepblue::ProvenanceBehavior
+  include ::Deepblue::DoiBehavior
 
   before_destroy :provenance_before_destroy_file_set
 
@@ -23,6 +24,7 @@ class FileSet < ActiveFedora::Base
       date_modified
       date_uploaded
       description_file_set
+      doi
       file_extension
       files_count
       file_size
@@ -58,6 +60,7 @@ class FileSet < ActiveFedora::Base
     %i[
       curation_notes_user
       description_file_set
+      doi
       file_extension
       files_count
       file_size_human_readable
@@ -137,6 +140,13 @@ class FileSet < ActiveFedora::Base
 
   def for_provenance_route
     Rails.application.routes.url_helpers.hyrax_file_set_path( id: id )
+  rescue ActionController::UrlGenerationError => e
+    Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
+    return ''
+  end
+
+  def for_event_route
+    Rails.application.routes.url_helpers.hyrax_file_set_path( id: self.id ) # rubocop:disable Style/RedundantSelf
   rescue ActionController::UrlGenerationError => e
     Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
     return ''

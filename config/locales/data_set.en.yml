@@ -95,6 +95,7 @@ en:
         delete:                         "Delete Work"
         edit:                           "Edit Metadata"
         edit_work:                      "Edit Work/Add Files"
+        feature:                        "Feature"
         globus:                         "Send to Globus to Download"
         globus_add_email:               "Add Email"
         globus_clean_download:          "Remove data from Globus"
@@ -114,6 +115,7 @@ en:
         save_metadata_public:           "Save Description (Public)"
         submit_help:                    "Submit your work for review and publication"
         tombstone:                      "Tombstone"
+        unfeature:                      "Unfeature"
         zip_download:                   "Download Zipped Dataset"
       provenance_log:
         deleted_works:                  "Deleted Works"
@@ -125,6 +127,8 @@ en:
           Are you sure you want to delete all Globus files in this works download directory?
     labels:
       data_set:
+        admin_actions:        "Admin Actions"
+        analytics:            "Analytics DS"
         access_deepblue:      "Related items in Deep Blue"
         authoremail:          "Contact Information"
         admin_set_id:         "Add as member of administrative set"
