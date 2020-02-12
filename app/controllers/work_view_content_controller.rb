@@ -1,17 +1,16 @@
 # frozen_string_literal: true
 
 class WorkViewContentController < ApplicationController
+  include Deepblue::StaticContentControllerBehavior
 
   class_attribute :presenter_class
   self.presenter_class = WorkViewContentPresenter
 
-  attr_accessor :file_name, :work_title
-
   def show
-    @work_title = params[:id]
-    @file_name = params[:file_id]
+    work_title = params[:id]
+    file_name = params[:file_id]
     format = params[:format]
-    @file_name = "#{@file_name}.#{format}" unless format.empty?
+    file_name = "#{file_name}.#{format}" unless format.empty?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
@@ -19,25 +18,28 @@ class WorkViewContentController < ApplicationController
                                            "file_name=#{file_name}",
                                            "format=#{format}",
                                            "" ]
-    @presenter = presenter_class.new( controller: self )
-    render 'hyrax/static/work_view_content'
+    file_set = static_content_file_set( work_title, file_name )
+    mime_type = file_set.mime_type if file_set.present?
+    if render_static_content? mime_type: mime_type
+      @presenter = presenter_class.new( controller: self, file_set: file_set, format: format )
+      render 'hyrax/static/work_view_content'
+    else
+      send_static_content( file_set: file_set, format: format )
+    end
   end
 
-  # def id_check
-  #   return if id.blank?
-  #   ActiveFedora::Base.find( id )
-  # rescue Ldp::Gone => g
-  #   @id_msg = "deleted"
-  #   @id_deleted = true
-  # rescue ActiveFedora::ObjectNotFoundError => e2
-  #   @id_msg = "invalid"
-  #   @id_invalid = true
-  # end
-  #
-  # def id_valid?
-  #   return false if id.blank?
-  #   return false if ( id_deleted || id_invalid )
-  #   true
-  # end
+  def render_static_content?( mime_type: )
+    # look up file_set and set mime_type
+    case mime_type
+    when "text/html", "text/plain"
+      true
+    else
+      false
+    end
+  end
+
+  def send_static_content( file_set:, format: )
+    static_content_send_file( file_set: file_set, format: format )
+  end
 
 end
