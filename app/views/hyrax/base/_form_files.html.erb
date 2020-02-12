@@ -7,7 +7,10 @@
           <%= t('hyrax.base.form_files.local_upload_browse_everything_html',
                 contact_href: link_to(t("hyrax.upload.alert.contact_href_text"), hyrax.contact_form_index_path)) %>
         <% else %>
-          <%= t('hyrax.base.form_files.local_upload_contact_html', contact_path: hyrax.contact_path) %>
+          <%= t('hyrax.base.form_files.local_upload_contact_html',
+                contact_path: hyrax.contact_path,
+                files_larger_than: DeepBlueDocs::Application.config.upload_max_file_size_str,
+                max_num_files: DeepBlueDocs::Application.config.upload_max_number_of_files ) %>
           <% if Flipflop.dir_upload? %>
             <%= t('hyrax.base.form_files.local_upload_html') %>
           <% else %>

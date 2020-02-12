@@ -42,8 +42,8 @@ en:
       required_agreement_deepblue: Check deposit agreement below
       form_files:
         local_upload_contact_html: >
-          <p>If you have more than 100 files or files larger than 2 GB please <a href="%{contact_path}">Contact Us</a>
-          for assistance in uploading your data.</p>
+          <p>If you have more than %{max_num_files} files or files larger than %{files_larger_than}
+          please <a href="%{contact_path}">Contact Us</a> for assistance in uploading your data.</p>
         local_upload_html: >
           <p>Upload data files (e.g. .xls, .sas) and documentation files (e.g. codebooks, readme.txt).</p>
           <p>After you have uploaded files and submitted your Work, the system may take a few minutes to process the
@@ -212,7 +212,7 @@ en:
         download_total_work_size_may_be_too_large: >
           Total work file size of %{total_file_size} may be too large to download directly. Consider using Globus (see below).
         download_general_message: >
-          Best for data sets < 3 GB. Downloads all files plus metadata into a zip file.
+          Best for data sets < %{larger_than}. Downloads all files plus metadata into a zip file.
         fundedby: >
           Select the primary funding agency that supported the research and data collection from the drop-down list.
         fundedby_other: >
@@ -226,8 +226,9 @@ en:
           "Files are ready"
         globus_help:
           "More about Globus"
-        globus_is_for_large_datasets:
-          "Best for data sets > 3 GB. Globus is the platform Deep Blue Data uses to make large data sets available."
+        globus_is_for_large_datasets: >
+          Best for data sets > %{larger_than}. Globus is the platform Deep Blue Data uses to make large data sets
+          available.
         globus_is_currently_downloading_submit_email_address: >
           %{title} is currently downloading to Globus. If you would like to be sent an email when the files are
           available via Globus, please submit your email address:

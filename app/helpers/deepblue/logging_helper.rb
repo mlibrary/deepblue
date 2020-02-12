@@ -4,6 +4,25 @@ module Deepblue
 
   module LoggingHelper
 
+    def self.bold_error( msg = nil, label: nil, key_value_lines: true, lines: 1, &block )
+      lines = 1 unless lines.positive?
+      lines.times { Rails.logger.error "<<<<<<<<<< BEGIN ERROR >>>>>>>>>>" }
+      Rails.logger.error label if label.present?
+      if msg.respond_to?( :each )
+        msg.each do |m|
+          if key_value_lines && m.respond_to?( :each_pair )
+            m.each_pair { |k, v| Rails.logger.error "#{k}: #{v}" }
+          else
+            Rails.logger.error m
+          end
+        end
+        Rails.logger.error nil, &block if block_given?
+      else
+        Rails.logger.error msg, &block
+      end
+      lines.times { Rails.logger.error "<<<<<<<<<<< END ERROR >>>>>>>>>>>" }
+    end
+
     def self.bold_debug( msg = nil, label: nil, key_value_lines: true, lines: 1, &block )
       lines = 1 unless lines.positive?
       lines.times { Rails.logger.debug ">>>>>>>>>>" }

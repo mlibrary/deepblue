@@ -124,16 +124,19 @@ module DeepBlueDocs
       config.globus_copy_file_group = nil
     end
     config.globus_copy_file_permissions = "u=rw,g=rw,o=r"
+    config.globus_best_used_gt_size = 3.gigabytes
+    config.globus_best_used_gt_size_str = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert(config.globus_best_used_gt_size, {})
 
     # deposit notification email addresses
     config.notification_email = Settings.notification_email
     config.user_email = Settings.user_email
 
-    config.max_file_size = 2 * ( 1024 ** 3 )
-    config.max_file_size_str = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert(config.max_file_size, {})
+    config.upload_max_number_of_files = 100
+    config.upload_max_file_size = 5.gigabytes
+    config.upload_max_file_size_str = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert(config.upload_max_file_size, {})
 
-    config.max_total_file_size = config.max_file_size * 5
-    config.max_total_file_size_str = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert(config.max_total_file_size, {})
+    config.upload_max_total_file_size = 10.gigabytes
+    config.upload_max_total_file_size_str = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert(config.upload_max_total_file_size, {})
 
     config.max_work_file_size_to_download = 10_000_000_000
     config.min_work_file_size_to_download_warn = 1_000_000_000
