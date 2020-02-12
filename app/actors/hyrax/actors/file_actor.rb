@@ -44,7 +44,19 @@ module Hyrax
                                              io,
                                              relation,
                                              versioning: false )
-        return false unless file_set.save
+        unless file_set.save
+          Deepblue::LoggingHelper.bold_error [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "io=#{io})",
+                                               "user=#{user}",
+                                               "continue_job_chain=#{continue_job_chain}",
+                                               "continue_job_chain_later=#{continue_job_chain_later}",
+                                               "delete_input_file=#{delete_input_file}",
+                                               "uploaded_file_ids=#{uploaded_file_ids}",
+                                               "",
+                                               "file_set failed to save after call to AddFileToFileSet during ingest file",
+                                               "" ]
+        end
         repository_file = related_file
         Hyrax::VersioningService.create( repository_file, current_user )
         pathhint = io.uploaded_file.uploader.path if io.uploaded_file # in case next worker is on same filesystem
