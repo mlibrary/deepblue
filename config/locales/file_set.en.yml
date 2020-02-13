@@ -48,7 +48,7 @@ en:
     label:
       file_set:
         admin_actions:        "Admin Actions"
-        analytics:            "Analytics FS"
+        analytics:            "Analytics"
         curation_notes_admin: "Curation Notes for Admins"
         curation_notes_user:  "Curation Notes"
         description_file_set: "Description"
