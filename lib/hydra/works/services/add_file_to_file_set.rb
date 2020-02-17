@@ -20,8 +20,13 @@ module Hydra::Works
       monkey_call( file_set, file, type, update_existing: update_existing, versioning: versioning )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "file_set&.id=#{file_set&.id}",
                                              "file=#{file}",
-                                             ::Deepblue::LoggingHelper.obj_class( "file", file ) ]
+                                             ::Deepblue::LoggingHelper.obj_class( "file", file ),
+                                             "type=#{type}",
+                                             "update_existing=#{update_existing}",
+                                             "versioning=#{versioning}",
+                                             "" ]
       if file.respond_to? :user_id
         ingester = User.find file.user_id
         ingester = ingester.user_key
@@ -42,6 +47,17 @@ module Hydra::Works
         file_set.virus_scan
       rescue Exception => e # rubocop:disable Lint/RescueException
         Rails.logger.error "AddFileToFileSet #{file_set} #{e.class}: #{e.message} at #{e.backtrace[0]}"
+        ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "file_set&.id=#{file_set&.id}",
+                                             "file=#{file}",
+                                             ::Deepblue::LoggingHelper.obj_class( "file", file ),
+                                             "type=#{type}",
+                                             "update_existing=#{update_existing}",
+                                             "versioning=#{versioning}",
+                                             "",
+                                             "AddFileToFileSet #{file_set} #{e.class}: #{e.message} at #{e.backtrace[0]}",
+                                             "" ] + e.backtrace
       end
       ::Deepblue::LoggingHelper.bold_debug "File attached to file set #{file_set.id}"
     end
