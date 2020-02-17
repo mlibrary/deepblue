@@ -3,6 +3,7 @@
 # development invocation. See config/solr_wrapper_test.yml for test values.
 # Currently, deepblue is not compatible with Solr 8.0+
 # version: 6.6.5
+version: 7.7.1
 port: 8983
 instance_dir: tmp/solr-development
 collection:
