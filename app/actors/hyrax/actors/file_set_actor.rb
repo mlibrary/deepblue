@@ -38,7 +38,20 @@ module Hyrax
                                              "uploaded_file_ids=#{uploaded_file_ids}",
                                               "" ]
         create_label( file: file )
-        return false unless file_set.save # Need to save to get an id
+        # return false unless file_set.save # Need to save to get an id
+        unless file_set.save # Need to save to get an id
+          Deepblue::LoggingHelper.bold_error [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "file=#{file})",
+                                               "relation=#{relation}",
+                                               "from_url=#{from_url}",
+                                               "continue_job_chain_later=#{continue_job_chain_later}",
+                                               "uploaded_file_ids=#{uploaded_file_ids}",
+                                               "",
+                                               "file_set failed to save in creat_content",
+                                               "" ]
+          return false
+        end
         io_wrapper = wrapper!( file: file, relation: relation )
         if from_url
           # If ingesting from URL, don't spawn an IngestJob; instead
@@ -199,19 +212,45 @@ module Hyrax
         # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
         #                                      Deepblue::LoggingHelper.called_from,
         #                                      Deepblue::LoggingHelper.obj_class( "file_actor", file_actor ) ]
-        return false unless file_actor.revert_to revision_id
+        # return false unless file_actor.revert_to revision_id
+        unless file_actor.revert_to revision_id
+          Deepblue::LoggingHelper.bold_error [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "file_set.id=#{file_set.id})",
+                                               "revision_id=#{revision_id})",
+                                               "relation=#{relation}",
+                                               "",
+                                               "file_set failed to revert_to",
+                                               "" ]
+          return false
+        end
+        # enforce_parent_visibility
         Hyrax.config.callback.run(:after_revert_content, file_set, user, revision_id)
         true
       rescue Exception => e # rubocop:disable Lint/RescueException
-        Rails.logger.error "#{e.class} work.id=#{work.id} -- #{e.message} at #{e.backtrace[0]}"
-        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+        Rails.logger.error "#{e.class} revision_id=#{revision_id} -- #{e.message} at #{e.backtrace[0]}"
+        Deepblue::LoggingHelper.bold_error [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "ERROR",
                                              "e=#{e.class.name}",
                                              "e.message=#{e.message}",
-                                             "e.backtrace:" ] +
-                                               e.backtrace
+                                             "e.backtrace:" ] + e.backtrace
         false
+      end
+
+      def enforce_parent_visibility
+        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                           Deepblue::LoggingHelper.called_from,
+                                           "file_set=#{file_set}",
+                                           "file_set.visibility=#{file_set.visibility}",
+                                           "file_set.parent.visibility=#{file_set.parent.visibility}" ]
+        unless file_set.parent.visibility == file_set.visibility
+          Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "enforcing parent visibility}" ]
+          file_set.visibility =  file_set.parent.visibility
+          file_set.save
+        end
       end
 
       def update_metadata(attributes)

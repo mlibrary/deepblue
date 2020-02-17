@@ -4,7 +4,7 @@ module Deepblue
 
   module LoggingHelper
 
-    def self.bold_error( msg = nil, label: nil, key_value_lines: true, lines: 1, &block )
+    def self.bold_error( msg = nil, label: nil, key_value_lines: true, add_stack_trace: false, lines: 1, &block )
       lines = 1 unless lines.positive?
       lines.times { Rails.logger.error "<<<<<<<<<< BEGIN ERROR >>>>>>>>>>" }
       Rails.logger.error label if label.present?
@@ -16,14 +16,19 @@ module Deepblue
             Rails.logger.error m
           end
         end
-        Rails.logger.error nil, &block if block_given?
+        caller_locations(2).each { |m| Rails.logger.debug m } if add_stack_trace
+        Rails.logger.debug nil, &block if block_given?
+      elsif add_stack_trace
+        Rails.logger.debug msg
+        caller_locations(2).each { |m| Rails.logger.debug m } if add_stack_trace
+        Rails.logger.debug nil, &block if block_given?
       else
         Rails.logger.error msg, &block
       end
       lines.times { Rails.logger.error "<<<<<<<<<<< END ERROR >>>>>>>>>>>" }
     end
 
-    def self.bold_debug( msg = nil, label: nil, key_value_lines: true, lines: 1, &block )
+    def self.bold_debug( msg = nil, label: nil, key_value_lines: true, add_stack_trace: false, lines: 1, &block )
       lines = 1 unless lines.positive?
       lines.times { Rails.logger.debug ">>>>>>>>>>" }
       Rails.logger.debug label if label.present?
@@ -35,6 +40,11 @@ module Deepblue
             Rails.logger.debug m
           end
         end
+        caller_locations(2).each { |m| Rails.logger.debug m } if add_stack_trace
+        Rails.logger.debug nil, &block if block_given?
+      elsif add_stack_trace
+        Rails.logger.debug msg
+        caller_locations(2).each { |m| Rails.logger.debug m } if add_stack_trace
         Rails.logger.debug nil, &block if block_given?
       else
         Rails.logger.debug msg, &block

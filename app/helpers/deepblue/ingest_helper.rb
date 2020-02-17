@@ -148,6 +148,19 @@ module Deepblue
         file_set.reload
         file_set.update_index
         file_set.parent.update_index if parent_needs_reindex?(file_set)
+        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "file_set=#{file_set}",
+                                             "file_set.under_embargo?=#{file_set.under_embargo?}",
+                                             "file_set.parent.under_embargo?=#{file_set.parent.under_embargo?}" ]
+        if file_set.under_embargo? && !file_set.parent.under_embargo?
+          file_set.deactivate_embargo!
+          file_set.save
+          Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "file_set=#{file_set}",
+                                               "file_set.under_embargo?=#{file_set.under_embargo?}" ]
+        end
         Rails.logger.debug "Successful create derivative job for file: #{file_name}"
       rescue Exception => e # rubocop:disable Lint/RescueException
         Rails.logger.error "IngestHelper.create_derivatives(#{file_set},#{repository_file_id},#{file_path}) #{e.class}: #{e.message} at #{e.backtrace[0]}"
@@ -196,7 +209,19 @@ module Deepblue
       # If the file set doesn't have a title or label assigned, set a default.
       file_set.label ||= label_for( file )
       file_set.title = [file_set.label] if file_set.title.blank?
-      return false unless file_set.save # Need to save to get an id
+      # return false unless file_set.save # Need to save to get an id
+      unless file_set.save # Need to save to get an id
+        Deepblue::LoggingHelper.bold_error [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "file_set=#{file_set})",
+                                             "file=#{file})",
+                                             "relation=#{relation}",
+                                             "uploaded_file_ids=#{uploaded_file_ids}",
+                                             "",
+                                             "file_set save failed in file_set_actor_create_content",
+                                             "" ]
+        return false
+      end
       # if from_url
       #   # If ingesting from URL, don't spawn an IngestJob; instead
       #   # reach into the FileActor and run the ingest with the file instance in
@@ -218,7 +243,19 @@ module Deepblue
                                            io,
                                            relation,
                                            versioning: false )
-      return false unless file_set.save
+      # return false unless file_set.save
+      unless file_set.save # Need to save to get an id
+        Deepblue::LoggingHelper.bold_error [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "file_set=#{file_set})",
+                                             "file=#{file})",
+                                             "relation=#{relation}",
+                                             "uploaded_file_ids=#{uploaded_file_ids}",
+                                             "",
+                                             "file_set save failed in file_set_actor_create_content after AddFileToFileSet",
+                                             "" ]
+        return false
+      end
       repository_file = related_file( file_set, relation )
       Hyrax::VersioningService.create( repository_file, user )
       virus_scan( file_set )
