@@ -880,3 +880,35 @@ a.site-link {
   padding: 0.5rem;
   text-align: center;
   background: #f1f1f1; }
+
+/*
+begin -- Remove this block when file_sets.sccs is updated with same values
+ */
+input.versioning-files-input {
+    width: 250px;
+}
+
+div.versioning-files-input {
+    text-align: right;
+}
+
+div.versioning-files-row {
+    border-top: solid 1px #dddddd;
+    padding-top: 10px;
+}
+
+div.versioning-files-progress {
+    margin-top: -25px;
+}
+
+button.versioning-files-remove,
+button.versioning-files-remove:hover {
+    background-color: #ffffff;
+    border-color: #ffffff;
+    color: $brand-danger;
+    font-weight: normal;
+    text-decoration: underline;
+}
+/*
+end -- Remove this block when file_sets.sccs is updated with same values
+ */

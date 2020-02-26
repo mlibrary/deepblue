@@ -261,6 +261,19 @@ en:
       edit:
         description_file_set: Description (edit)
         curation_notes_admin: Curation Notes Admin (edit)
+      versioning:
+        choose_file: Choose New Version File
+        current: Current Version
+        header: Versions
+        previous: Previous
+        remove: Remove
+        remove_current_files: Remove Current Files
+        remove_new_version: Remove New Version File
+        restore: Restore Previous Version
+        restore_from: Restore From
+        save: Save Revision
+        save_your_note: You must click &quot;Save Revision&quot; to revert a previous version of this file
+        upload: Upload New Version
     footer:
       copyright_html: "<strong>Copyright &copy; 2017 Samvera</strong> Licensed under the Apache License, Version 2.0"
       service_html: A service of <a href="http://samvera.org/" class="navbar-link" target="_blank">Samvera</a>.
@@ -300,6 +313,21 @@ en:
         Ingest mode: <code>%{mode}</code><br/>
         <br/>
       notify_before_html_subject: "New Content Service Ingest started"
+    uploads:
+      js_templates_versioning:
+        display_label: Display label
+        error: Error
+        previous: previous
+        remove: Remove
+        remove_new_version: Remove New Version File
+        set_all_to_this_resource_type: Set all to this Resource Type
+        start: Start
+        options:
+          messages:
+            accept_file_types:   "File name must match %{file_name}"
+            max_file_size:       "File size exceeds %{max_file_size}"
+            max_number_of_files: Maximum number of files exceeded
+            min_file_size:       File is too small
     users:
       activity_log:
         date:               "Date"
