@@ -106,15 +106,6 @@ module Hyrax
                                                  Deepblue::LoggingHelper.obj_class( "actor", actor ),
                                                  "actor.update_content" ]
             actor.update_content(params[:file_set][:files].first)
-          elsif params.key?(:files_files) # version file already uploaded with ref id in :files_files array
-            Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                                 Deepblue::LoggingHelper.called_from,
-                                                 "params=#{params}",
-                                                 "current_user=#{current_user}",
-                                                 Deepblue::LoggingHelper.obj_class( "actor", actor ),
-                                                 "actor.update_content" ]
-            uploaded_files = Array(Hyrax::UploadedFile.find(params[:files_files]))
-            actor.update_content(uploaded_files.first)
           else
             Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                  Deepblue::LoggingHelper.called_from,
@@ -123,6 +114,15 @@ module Hyrax
                                                  "update_metadata" ]
             update_metadata
           end
+        elsif params.key?(:files_files) # version file already uploaded with ref id in :files_files array
+          Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "params=#{params}",
+                                               "current_user=#{current_user}",
+                                               Deepblue::LoggingHelper.obj_class( "actor", actor ),
+                                               "actor.update_content" ]
+          uploaded_files = Array(Hyrax::UploadedFile.find(params[:files_files]))
+          actor.update_content(uploaded_files.first)
         end
       end
 
