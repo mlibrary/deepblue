@@ -905,7 +905,7 @@ button.versioning-files-remove,
 button.versioning-files-remove:hover {
     background-color: #ffffff;
     border-color: #ffffff;
-    color: $brand-danger;
+    color: #d33a35;
     font-weight: normal;
     text-decoration: underline;
 }
