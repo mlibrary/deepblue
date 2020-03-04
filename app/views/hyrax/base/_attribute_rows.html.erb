@@ -107,10 +107,7 @@
 <%= presenter.attribute_to_html(:source) %>
 
 <span itemprop="identifier" itemscope itemtype="http://schema.org/Identifier">
-  <% unless @presenter.doi_the_correct_one.nil? %>
-    <% @presenter.doi_the_correct_one[0].sub! 'doi:', 'https://doi.org/' %>
-  <% end %>
-  <%= @presenter.attribute_to_html(:doi_the_correct_one, label: t('show.label.doi'), work_type: "DataSet") %>
+  <%= @presenter.attribute_to_html(:doi, label: t('show.label.doi'), work_type: "DataSet", render_as: :doi ) %>
 </span>
 
 <span itemprop="license">

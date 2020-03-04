@@ -5,7 +5,6 @@ module Hyrax
   class DsFileSetPresenter < Hyrax::FileSetPresenter
 
     delegate :doi,
-             :doi_the_correct_one,
              :doi_minted?,
              :doi_minting_enabled?,
              :doi_pending?,
