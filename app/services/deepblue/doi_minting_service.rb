@@ -88,8 +88,12 @@ module Deepblue
           md.datacite_title = curation_concern.title.first
           md.datacite_publisher = PUBLISHER
           md.datacite_publicationyear = Date.today.year.to_s
-          md.datacite_resourcetype= RESOURCE_TYPE
-          md.datacite_creator=curation_concern.creator.join(';')
+          md.datacite_resourcetype = RESOURCE_TYPE
+          md.datacite_creator = if curation_concern.is_work?
+                                  curation_concern.creator.join(';')
+                                else
+                                  curation_concern.parent.creator.join(';')
+                                end
           # md.target = Rails.application.routes.url_helpers.hyrax_data_set_url(id: curation_concern.id)
           md.target = target_url
         end
