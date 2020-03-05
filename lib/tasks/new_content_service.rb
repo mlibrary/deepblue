@@ -368,10 +368,12 @@ module Deepblue
           work.save!
           work.reload
         end
-        entity = work.workflow_state
+        # entity = work.workflow_state
+        wgid = work.to_global_id.to_s
+        entity = Sipity::Entity.where( proxy_for_global_id: wgid )
+        entity = entity.first if entity.present?
         wf = work.active_workflow
         if entity.nil?
-          wgid = work.to_global_id.to_s
           # user = User.find_by_user_key( work.owner )
           # agent = PowerConverter.convert( user, to: :sipity_agent )
           entity = Sipity::Entity.create!( proxy_for_global_id: wgid, workflow: wf, workflow_state: nil )
