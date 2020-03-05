@@ -21,6 +21,7 @@ describe Deepblue::DoiMintingService do
       allow(work).to receive(:doi).and_return(identifier.id)
       allow(work).to receive(:doi=)
       allow(work).to receive(:provenance_mint_doi)
+      allow(work).to receive(:work?).and_return(true)
       allow(work).to receive(:for_event_url).and_return(work_url)
       allow(subject).to receive(:doi_server_reachable?).and_return(true)
       allow(Ezid::Identifier).to receive(:mint).and_return(identifier)

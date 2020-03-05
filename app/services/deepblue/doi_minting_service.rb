@@ -89,7 +89,7 @@ module Deepblue
           md.datacite_publisher = PUBLISHER
           md.datacite_publicationyear = Date.today.year.to_s
           md.datacite_resourcetype = RESOURCE_TYPE
-          md.datacite_creator = if curation_concern.is_work?
+          md.datacite_creator = if curation_concern.work?
                                   curation_concern.creator.join(';')
                                 else
                                   curation_concern.parent.creator.join(';')
