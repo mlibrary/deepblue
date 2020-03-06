@@ -1,0 +1,27 @@
+<!-- @presenter.menu = <%= @presenter.menu %> -->
+<% if @presenter.menu =~ /^(.+)\.html\.erb$/ %>
+  <%= render partial: Regexp.last_match(1).strip %>
+<% elsif @presenter.menu =~ /^(.+)\/(.+)$/ %>
+  <aside class="<%= sidebar_classes %> static-page-sidebar">
+    <h2><%= @presenter.menu_header %></h2>
+    <ul>
+      <% menu_links = @presenter.menu_links( Regexp.last_match(1).strip, Regexp.last_match(2).strip ) %>
+      <% menu_links.each do |link| %>
+        <% case link.strip %>
+        <% when /^(#.*)$/ %>
+          <!--<%= Regexp.last_match(1) %>-->
+        <% when /^link (.+)\s+(hyrax\.menu\..+)$/ %>
+          <li><a href="<%= Regexp.last_match(1).strip %>"><%= Regexp.last_match(2).strip %></a></li>
+        <% when /^(.+)\s+(hyrax\.menu\..+)$/ %>
+          <%= render partial: 'hyrax/static/help_sidebar_link',
+                     locals: {path: Regexp.last_match(1).strip,
+                     label: t(Regexp.last_match(2).strip)} %>
+        <% when /^(.+)\s+(.+)$/ %>
+          <%= render partial: 'hyrax/static/help_sidebar_link',
+                     locals: {path:Regexp.last_match(1).strip,
+                     label: Regexp.last_match(2).strip} %>
+        <% end %>
+      <% end %>
+    </ul>
+  </aside>
+<% end %>

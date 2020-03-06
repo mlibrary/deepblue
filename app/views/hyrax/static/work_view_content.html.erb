@@ -1,1 +1,6 @@
-<%= raw @presenter.static_content %>
+<% if @presenter.has_menu? %>
+  <%= render partial: 'hyrax/static/work_view_content_menu' %>
+<% end %>
+<div class="<%= main_content_classes %> static-page-main">
+  <%= raw @presenter.static_content %>
+</div>

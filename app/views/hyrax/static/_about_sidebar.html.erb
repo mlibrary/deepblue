@@ -1,9 +1,10 @@
 <aside class="<%= sidebar_classes %> static-page-sidebar">
-  <h2>About</h2>
+  <h2><%= t('hyrax.menu.header.about') %></h2>
   <ul>
-    <%= render partial: 'help_sidebar_link', locals: { path: 'about', label: "About Deep Blue Data" } %>
-    <%= render partial: 'help_sidebar_link', locals: { path: 'file-format-preservation', label: "File Formats & Preservation" } %>
-    <%= render partial: 'help_sidebar_link', locals: { path: 'retention', label: "Retention" } %>
-    <%= render partial: 'help_sidebar_link', locals: { path: 'support-for-depositors', label: "Support for Depositors" } %>
+    <%= render partial: 'help_sidebar_link', locals: { path: 'about', label: t('hyrax.menu.about.about') } %>
+    <%= render partial: 'help_sidebar_link', locals: { path: 'file-format-preservation', label:t('hyrax.menu.about.file_formats_and_preservation') } %>
+    <%= render partial: 'help_sidebar_link', locals: { path: 'retention', label: t('hyrax.menu.about.retention')  } %>
+    <%= render partial: 'help_sidebar_link', locals: { path: 'support-for-depositors', label:  t('hyrax.menu.about.support_for_depositors')  } %>
+    <li><a href="<%= hyrax.contact_path %>"><%= t('hyrax.menu.about.contact_us') %></a></li>
   </ul>
 </aside>

@@ -153,12 +153,13 @@ module Deepblue
       return msg
     end
 
-    def static_content_send_file( file_set: nil, id: nil, format: nil )
+    def static_content_send_file( file_set: nil, id: nil, format: nil, options: {} )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "file_set&.id=#{file_set&.id}",
                                              "id=#{id}",
                                              "format=#{format}",
+                                             "options=#{options}",
                                              "" ]
       file_set = ActiveFedora::Base.find id if file_set.nil? && id.present?
       source_uri = nil
@@ -194,7 +195,7 @@ module Deepblue
         end
       end
     rescue Exception => e # rubocop:disable Lint/RescueException
-      msg = "StaticContentControllerBehavior.static_content_read_file #{source_uri} - #{e.class}: #{e.message} at #{e.backtrace[0]}"
+      msg = "StaticContentControllerBehavior.static_content_read_file #{source_uri} - #{e.class}: #{e.message} at #{e.backtrace[0..19].join("\n")}"
       Rails.logger.error msg
       static_content_send_msg msg
     end

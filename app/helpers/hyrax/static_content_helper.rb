@@ -112,22 +112,22 @@ module Hyrax
       file_set = ActiveFedora::Base.find id unless id.blank?
       return "" if file_set.blank?
       file = file_set.files_to_file
-      if file.nil?
-        return "file_set.id #{file_set.id} files[0] is nil"
-      else
-        source_uri = file.uri.value
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "source_uri=#{source_uri}",
-                                               "" ]
-        str = open( source_uri, "r:UTF-8" ) { |io| io.read }
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "str.encoding=#{str.encoding}",
-                                               "" ]
-        return str
-      end
-      return ""
+      rv = if file.nil?
+             "file_set.id #{file_set.id} files[0] is nil"
+           else
+            source_uri = file.uri.value
+            ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                       ::Deepblue::LoggingHelper.called_from,
+                                                       "source_uri=#{source_uri}",
+                                                       "" ]
+            str = open( source_uri, "r:UTF-8" ) { |io| io.read }
+            ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                     ::Deepblue::LoggingHelper.called_from,
+                                                     "str.encoding=#{str.encoding}",
+                                                     "" ]
+            str
+          end
+      return rv
     rescue Exception => e # rubocop:disable Lint/RescueException
       msg = "StaticContentHelper.static_content_read_file #{source_uri} - #{e.class}: #{e.message} at #{e.backtrace[0]}"
       Rails.logger.error msg

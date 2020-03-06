@@ -279,6 +279,25 @@ en:
       service_html: A service of <a href="http://samvera.org/" class="navbar-link" target="_blank">Samvera</a>.
     institution_name:       "Institution"
     institution_name_full:  "The Institution Name"
+    menu:
+      about:
+        about:              "About Deep Blue Data"
+        contact_us:         "Contact Us"
+        file_formats_and_preservation: "File Formats & Preservation"
+        retention:          "Retention"
+        support_for_depositors: "Support for Depositors"
+      header:
+        about:              "About"
+        help:               "Help"
+      help:
+        contact_us:         "Contact Us"
+        dbd_documenation_guidance: "Documentation Guidance"
+        dbd_glossary:       "Deep Blue Data Glossary"
+        globus_help:        "Using Globus"
+        how_to_upload:      "How to Upload"
+        metadata_guidance:  "Metadata Guidance"
+        prepare_data:       "Prepare Your Data"
+        use_downloaded_data: "Use Downloaded Data"
     product_name:           "Deep Blue Data"
     product_twitter_handle: "@SamveraRepo"
     share_button:           "Deposit Your Work"
