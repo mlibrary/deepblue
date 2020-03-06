@@ -1,13 +1,13 @@
 <aside class="<%= sidebar_classes %> static-page-sidebar ">
-  <h2>Help</h2>
+  <h2><%= t('hyrax.menu.header.help') %></h2>
   <ul>
-    <%= render partial: 'help_sidebar_link', locals: { path: 'prepare-your-data', label: "Prepare Your Data" } %>
-    <%= render partial: 'help_sidebar_link', locals: { path: 'dbd-documentation-guide', label: "Documentation Guidance" } %>
-    <%= render partial: 'help_sidebar_link', locals: { path: 'dbd-glossary', label: "Deep Blue Data Glossary" } %>
-    <%= render partial: 'help_sidebar_link', locals: { path: 'metadata-guidance', label: "Metadata Guidance" } %>
-    <%= render partial: 'help_sidebar_link', locals: { path: 'how-to-upload', label: "How to Upload" } %>
-    <%= render partial: 'help_sidebar_link', locals: { path: 'use-downloaded-data', label: "Use Downloaded Data" } %>
-    <%= render partial: 'help_sidebar_link', locals: { path: 'globus-help', label: "Using Globus" } %>
-    <li><a href="<%= hyrax.contact_path %>">Contact Us</a></li>
+    <%= render partial: 'hyrax/static/help_sidebar_link', locals: { path: 'prepare-your-data', label: t('hyrax.menu.help.prepare_data') } %>
+    <%= render partial: 'hyrax/static/help_sidebar_link', locals: { path: 'dbd-documentation-guide', label: t('hyrax.menu.help.dbd_documenation_guidance') } %>
+    <%= render partial: 'hyrax/static/help_sidebar_link', locals: { path: 'dbd-glossary', label: t('hyrax.menu.help.dbd_glossary') } %>
+    <%= render partial: 'hyrax/static/help_sidebar_link', locals: { path: 'metadata-guidance', label: t('hyrax.menu.help.metadata_guidance') } %>
+    <%= render partial: 'hyrax/static/help_sidebar_link', locals: { path: 'how-to-upload', label: t('hyrax.menu.help.how_to_upload') } %>
+    <%= render partial: 'hyrax/static/help_sidebar_link', locals: { path: 'use-downloaded-data', label: t('hyrax.menu.help.use_downloaded_data') } %>
+    <%= render partial: 'hyrax/static/help_sidebar_link', locals: { path: 'globus-help', label: t('hyrax.menu.help.globus_help') } %>
+    <li><a href="<%= hyrax.contact_path %>"><%= t('hyrax.menu.help.contact_us') %></a></li>
   </ul>
 </aside>
