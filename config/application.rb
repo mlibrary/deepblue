@@ -180,32 +180,38 @@ module DeepBlueDocs
     Rails.application.routes.default_url_options[:host] = config.hostname
 
 
+    # ordered list metadata config
+    config.do_ordered_list_hack = true
+    config.do_ordered_list_hack_save = true
 
-    # ingest virus scan config
+    # email config
+    config.email_enabled = true
+    config.email_log_echo_to_rails_logger = true
+    config.action_mailer.smtp_settings ||= {}
+    config.action_mailer.smtp_settings.merge!(Settings.rails&.action_mailer&.smtp_settings || {})
+
+    # provenance log config
+    config.provenance_log_name = "provenance_#{Rails.env}.log"
+    config.provenance_log_path = Rails.root.join( 'log', config.provenance_log_name )
+    config.provenance_log_echo_to_rails_logger = true
+    config.provenance_log_redundant_events = true
+
+    # scheduler log config
+    config.scheduler_log_echo_to_rails_logger = true
+    config.scheduler_job_file = 'scheduler_jobs_prod.yml'
+    config.scheduler_heartbeat_email_targets = [ 'fritx@umich.edu' ].freeze # leave empty to disable
+
+    # static content config
+    config.static_content_enable_cache = false
+
+    # virus scan config
     config.virus_scan_max_file_size = 4_000_000_000
     config.virus_scan_retry = true
     config.virus_scan_retry_on_error = false
     config.virus_scan_retry_on_service_unavailable = true
     config.virus_scan_retry_on_unknown = false
 
-    config.do_ordered_list_hack = true
-    config.do_ordered_list_hack_save = true
-
-    config.email_enabled = true
-    config.email_log_echo_to_rails_logger = true
-
-    config.action_mailer.smtp_settings ||= {}
-    config.action_mailer.smtp_settings.merge!(Settings.rails&.action_mailer&.smtp_settings || {})
-
-    config.provenance_log_name = "provenance_#{Rails.env}.log"
-    config.provenance_log_path = Rails.root.join( 'log', config.provenance_log_name )
-    config.provenance_log_echo_to_rails_logger = true
-    config.provenance_log_redundant_events = true
-
-    config.scheduler_log_echo_to_rails_logger = true
-    config.scheduler_job_file = 'scheduler_jobs_prod.yml'
-    config.scheduler_heartbeat_email_targets = [ 'fritx@umich.edu' ].freeze # leave empty to disable
-
+    # upload log config
     config.upload_log_echo_to_rails_logger = true
 
   end
