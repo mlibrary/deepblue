@@ -4,13 +4,18 @@ class WorkViewContentPresenter
 
   attr_accessor :controller, :file_set
 
-  # delegate :file_name, :work_title, :send_static_content, to: :controller
+  delegate :file_name, :menu_links, :menu_partial, :page_navigation, :work_title, to: :controller
 
   def initialize( controller:, file_set:, format:, options: {} )
     @controller = controller
     @file_set = file_set
     @format = format
     @options = options
+  end
+
+  def current?(path)
+    # TODO - Fix this hard coded path
+    "/data/work_view_content/#{work_title}/#{file_name}" == path
   end
 
   def has_menu?
@@ -26,10 +31,6 @@ class WorkViewContentPresenter
     return 'Missing Header' if rv.blank?
     return MsgHelper.t(rv) if rv =~ /^hyrax\.menu\..+$/
     return rv
-  end
-
-  def menu_links( work_name, file_set_name )
-    @controller.static_content_for( work_name, file_set_name ).split( "\n" )
   end
 
   def static_content
