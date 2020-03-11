@@ -13,6 +13,7 @@ module Deepblue
     FIELD_NAME_DEPOSIT_URL = "customfield_11305".freeze
     FIELD_NAME_DESCRIPTION = "description".freeze
     FIELD_NAME_DISCIPLINE = "customfield_11309".freeze
+    FIELD_NAME_REPORTER = "reporter".freeze
     FIELD_NAME_STATUS = "customfield_12000".freeze
     FIELD_NAME_SUMMARY = "summary".freeze
 
@@ -91,6 +92,59 @@ module Deepblue
         }]
     }.freeze
 
+    def self.jira_allow_create_users
+      DeepBlueDocs::Application.config.jira_allow_create_users
+    end
+
+    def self.jira_client( client: nil )
+      return client unless client.nil?
+      # TODO: catch errors
+      JIRA::Client.new( jira_client_options )
+    end
+
+    def self.jira_client_options
+      return {
+          :username     => Settings.jira.username,
+          :password     => Settings.jira.password,
+          :site         => Settings.jira.site_url,
+          # :site         => 'https://tools.lib.umich.edu',
+          :context_path => '/jira',
+          :auth_type    => :basic
+      }
+    end
+
+    def self.jira_create_customer( email:, client: nil )
+      return false unless jira_allow_create_users
+      client = jira_client( client: client )
+      user_options = { "emailAddress" => email, "displayName" => email, }
+
+      body = user_options
+      headers = {}
+      rv = client.post("#{client.options[:rest_base_path]}/servicedeskapi/customer", body, headers)
+      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                              Deepblue::LoggingHelper.called_from,
+                                              "user.save( #{user_options} ) rv=#{rv}",
+                                              "" ] ) # unless rv
+      return rv
+    end
+
+    def self.jira_create_user( email:, client: nil )
+      return false unless jira_allow_create_users
+      client = jira_client( client: client )
+      user_options = { "name" => email,
+                       "emailAddress" => email,
+                       "displayName" => email,
+                       "active" => true
+      }
+      new_user = client.User.build
+      rv = new_user.save( user_options )
+      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                              Deepblue::LoggingHelper.called_from,
+                                              "user.save( #{user_options} ) rv=#{rv}",
+                                              "" ] ) # unless rv
+      return rv
+    end
+
     def self.jira_enabled
       DeepBlueDocs::Application.config.jira_integration_enabled
     end
@@ -105,6 +159,28 @@ module Deepblue
 
     def self.jira_test_mode
       DeepBlueDocs::Application.config.jira_test_mode
+    end
+
+    def self.jira_user_exists?( user:, client: nil )
+      return true unless jira_enabled
+      client = jira_client( client: client )
+      body = client.get("#{client.options[:rest_base_path]}/user/search?username=#{user}").body
+      rv = body == "[]"
+      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                              Deepblue::LoggingHelper.called_from,
+                                              "jira_user_exists?( user: #{user} ) rv=#{rv}",
+                                              "" ] )
+      return rv
+    end
+
+    def self.reporter( user: nil, client: nil )
+      return { name: user } unless jira_enabled
+      return { name: user } if jira_test_mode
+      return {} if user.nil?
+      client = jira_client( client: client )
+      return { name: user } if jira_user_exists?( user: user, client: client )
+      return {} unless jira_create_user( email: user )
+      return { name: user }
     end
 
     def self.summary_last_name( curation_concern: )
@@ -190,11 +266,13 @@ module Deepblue
       deposit_url = ::Deepblue::EmailHelper.curation_concern_url( curation_concern: curation_concern )
       discipline = Array( curation_concern.subject_discipline ).first
       description = Array( curation_concern.title ).join("\n") + "\n\nby #{creator}"
+      reporter = reporter( user: curation_concern.depositor )
 
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "summary=#{summary}",
+                                             "reporter=#{reporter}",
                                              "description=#{description}",
                                              "" ]
       jira_url = JiraHelper.new_ticket( contact_info: contact_info,
@@ -202,6 +280,7 @@ module Deepblue
                                         deposit_url: deposit_url,
                                         description: description,
                                         discipline: discipline,
+                                        reporter: reporter,
                                         summary: summary )
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
@@ -228,6 +307,7 @@ module Deepblue
                          deposit_url:,
                          description:,
                          discipline:,
+                         reporter:,
                          summary: )
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
@@ -236,17 +316,10 @@ module Deepblue
                                              "project_key=#{project_key}",
                                              "issue_type=#{issue_type}",
                                              "description=#{description}",
+                                             "reporter=#{reporter}",
                                              "jira_enabled=#{jira_enabled}",
                                              "" ]
       return nil unless jira_enabled
-      client_options = {
-          :username     => Settings.jira.username,
-          :password     => Settings.jira.password,
-          :site         => Settings.jira.site_url,
-          # :site         => 'https://tools.lib.umich.edu',
-          :context_path => '/jira',
-          :auth_type    => :basic
-      }
       save_options = {
           "fields" => {
               "project"     => { "key" => project_key },
@@ -256,11 +329,11 @@ module Deepblue
               FIELD_NAME_DEPOSIT_URL => deposit_url,
               FIELD_NAME_DESCRIPTION => description,
               FIELD_NAME_DISCIPLINE => discipline,
+              FIELD_NAME_REPORTER => reporter,
               FIELD_NAME_SUMMARY => summary }
       }
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
-                                             "client_options=#{client_options}",
                                              "save_options=#{save_options}",
                                              "" ]
 
@@ -270,17 +343,18 @@ module Deepblue
       client = JIRA::Client.new( client_options )
       # issue = client.Issue.build
       # rv = issue.save( save_options )
-      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-      #                                        Deepblue::LoggingHelper.called_from,
-      #                                        "issue.save rv=#{rv}",
-      #                                        "" ]
       build_options = {
           "fields" => {
               FIELD_NAME_SUMMARY => summary,
               "project"     => { "key" => project_key },
               "issuetype"   => { "name" => issue_type },
+              FIELD_NAME_REPORTER => reporter,
               FIELD_NAME_DESCRIPTION => description }
       }
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "save_options=#{save_options}",
+                                             "" ]
       issue = client.Issue.build
       rv = issue.save( build_options )
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
