@@ -10,9 +10,13 @@
   </tr>
 <% else %>
   <tr class="<%= dom_class(member) %> attributes">
+    <% ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "member.class=#{member.class.name}",
+                                             ""] %>
     <td class="thumbnail">
       <% if can?(:download, member.id) %>
-        <%= raw (render_thumbnail_tag member).gsub!('data-context-href', 'data-reference').gsub!('concern/file_sets', 'downloads') %>
+        <%= raw (render_thumbnail_tag member)&.gsub!('data-context-href', 'data-reference')&.gsub!('concern/file_sets', 'downloads') %>
       <% else %>
         <%= t( '.no_thumbnail' ) %>
       <% end %>
@@ -43,7 +47,7 @@
     <td class="attribute attribute-file_size"><%= member.file_size_human_readable %></td>
     <td class="attribute attribute-permission"><%= member.permission_badge %></td>
     <td>
-      <%= render 'actions', member: member %>
+      <%= render 'hyrax/file_sets/actions', member: member %>
     </td>
   </tr>
 <% end %>

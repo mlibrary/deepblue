@@ -1,0 +1,59 @@
+<% provide :page_header do %>
+  <h1><%= t("hyrax.dashboard.documentation.title") %></h1>
+<% end %>
+
+<% if @presenter.documentation_collection.present? %>
+<h2><%= link_to @presenter.documentation_collection_title,
+                @presenter.show_path_collection( collection: @presenter.documentation_collection ) %></h2>
+<% else %>
+  <%= @presenter.documentation_collection_title %>
+<% end %>
+
+<!-- pre>
+  documentation collection id: <%= @presenter.documentation_collection&.id %>
+
+  <% if @presenter.documentation_collection.present? %>
+    <% @presenter.documentation_collection.member_works.each do |work| %>
+      <%= work.id %> -- <%= work.title.join(" ") %>
+    <% end %>
+  <% end %>
+
+</pre -->
+
+<% if @presenter.documentation_collection.present? %>
+  <div class="documentation_works">
+  <% @presenter.documentation_collection.member_works.each do |work| %>
+      <div class="documentation_work"><%= link_to work.title.join(" "), @presenter.show_path_data_set( work: work ) %></div>
+      <% @presenter.current_work = work %>
+      <h2><%= work.title.join(" ") %></h2>
+      <% array_of_ids = @presenter.list_of_item_ids_to_display %>
+      <% members = @presenter.member_presenters_for(array_of_ids) %>
+      <% if members.present? %>
+        <table class="table table-striped related-files">
+          <thead>
+          <tr>
+            <th><%= t('.thumbnail') %></th>
+            <th><%= t('.title') %></th>
+            <th><%= t('.date_uploaded') %></th>
+            <th><%= t('.visibility') %></th>
+            <th><%= t('.actions') %></th>
+          </tr>
+          </thead>
+          <tbody>
+          <%= render partial: 'hyrax/base/member', collection: members %>
+          </tbody>
+        </table>
+        <div class="row">
+          <% if false && presenter.total_pages > 1 %>
+            <div class="row record-padding col-md-9">
+              <%= paginate array_of_ids, outer_window: 2, theme: 'blacklight', param_name: :page, route_set: main_app %>
+            </div><!-- /pager -->
+          <% end %>
+        </div>
+      <% elsif can? :edit, presenter.id %>
+        <div class="alert alert-warning" role="alert"><%= t('.empty', type: presenter.human_readable_type) %></div>
+      <% end %>
+  <% end %>
+  </div>
+<% end %>
+
