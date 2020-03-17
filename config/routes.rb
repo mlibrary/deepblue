@@ -147,6 +147,7 @@ Rails.application.routes.draw do
   get '/guest_user_message', to: 'guest_user_message#show'
 
   get '/work_view_content/:id/:file_id' => 'work_view_content#show', constraint: { id: /[^\/]+/, file_id: /[^\/]+/ }
+  get '/work_view_documentation/' => 'work_view_documentation#show'
 
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 

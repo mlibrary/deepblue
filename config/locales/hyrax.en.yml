@@ -58,6 +58,8 @@ en:
             restricted: >
               Private -- depositor can only select private for visibility. Access is restricted to repository
               administrators, managers, and viewers of the set. Must be used with "No embargo" setting above.
+      sidebar:
+        documentation:      "Manage Documentation"
     account_name:           "My Institution Account Id"
     base:
       items:
@@ -71,6 +73,8 @@ en:
       issue_types:
         size:               "My deposit is larger than 2GB"
     dashboard:
+      documentation:
+        title:              "Manage Documentation"
       my_active_embargoes:  "Active Embargoes"
       my:
         heading:
