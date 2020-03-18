@@ -1,0 +1,6 @@
+<%= hidden_field_tag('data_set[nop]') %>
+<%= hidden_field_tag('ingest_base_directory', @presenter.ingest_base_directory ) %>
+<%= hidden_field_tag('ingest_ingester', @presenter.ingest_ingester ) %>
+<%= hidden_field_tag('ingest_file_path_list', @presenter.ingest_file_path_list ) %>
+<label for="ingest_script" class=""><%= t('simple_form.ingest_append.labels.ingest_script') %>:</label>
+<%= text_area_tag :ingest_script, @presenter.ingest_script, rows: 20, cols: 75 %><br/>

@@ -28,6 +28,9 @@ module Hyrax
     protect_from_forgery with: :null_session,    only: [:globus_download]
     protect_from_forgery with: :null_session,    only: [:globus_download_add_email]
     protect_from_forgery with: :null_session,    only: [:globus_download_notify_me]
+    protect_from_forgery with: :null_session,    only: [:ingest_append_generate_script]
+    protect_from_forgery with: :null_session,    only: [:ingest_append_prep]
+    protect_from_forgery with: :null_session,    only: [:ingest_append_run_job]
     protect_from_forgery with: :null_session,    only: [:zip_download]
 
     attr_accessor :user_email_one, :user_email_two
@@ -221,6 +224,205 @@ module Hyrax
     end
 
     ## end Globus
+
+    ## Ingest begin
+    #
+    attr_reader :ingest_script
+
+    def generate_depth( depth: )
+      return "" if depth < 1
+      return "  " * (2 * depth)
+    end
+
+    def generate_ingest_append_script
+      # TODO
+      script = []
+      depth = 0
+      script << "# title of script"
+      script << "---"
+      script << ":user:"
+      depth += 1
+      script << "#{generate_depth( depth: depth )}:visibility: #{ingest_visibility}"
+      script << "#{generate_depth( depth: depth )}:email: '#{curation_concern.depositor}'"
+      script << "#{generate_depth( depth: depth )}:ingester: '#{ingest_ingester}'"
+      script << "#{generate_depth( depth: depth )}:source: DBDv2"
+      script << "#{generate_depth( depth: depth )}:mode: append"
+      script << "#{generate_depth( depth: depth )}:email_after: #{ingest_email_after}"
+      # :email_after_add_log_msgs: true
+      # :email_before: true
+      # :email_ingester: true
+      script << "#{generate_depth( depth: depth )}:email_ingester: #{ingest_email_ingester}"
+      script << "#{generate_depth( depth: depth )}:email_depositor: #{ingest_email_depositor}"
+      # :email_rest: false # set to true to add email notification to the following
+      # :emails_rest:
+      #     - test@umich.edu
+      # - test2@umich.edu
+      script << "#{generate_depth( depth: depth )}:works:"
+      depth += 1
+      script << "#{generate_depth( depth: depth )}:id: '#{curation_concern.id}'"
+      script << "#{generate_depth( depth: depth )}:depositor: '#{curation_concern.depositor}'"
+      # :owner: 'fritx@umich.edu'
+      script << "#{generate_depth( depth: depth )}:filenames:"
+      files = ingest_file_path_list.split("\n")
+      depth += 1
+      files.each do |f|
+        f.strip!
+        filename = ingest_file_path_name( f )
+        msg = ingest_file_path_msg( f )
+        script << "#{generate_depth( depth: depth )}- '#{filename}'#{msg}" if f.present?
+      end
+      depth -= 1
+      script << "#{generate_depth( depth: depth )}:files:"
+      depth += 1
+      files.each do |f|
+        script << "#{generate_depth( depth: depth )}- '#{f}'" if f.present?
+      end
+      script << "# end script"
+
+      return script.join( "\n" )
+    end
+
+    def ingest_append_generate_script
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "params=#{params}",
+                                             "" ]
+      presenter.params = params
+      presenter.ingest_ingester = ingest_ingester
+      presenter.ingest_file_path_list = ingest_file_path_list
+      presenter.ingest_base_directory = ingest_base_directory
+      @ingest_script = generate_ingest_append_script
+      presenter.ingest_script = @ingest_script
+      render 'ingest_append_script_form'
+    end
+
+    def ingest_append_prep
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "params=#{params}",
+                                             "" ]
+      presenter.params = params
+      presenter.ingest_ingester = ingest_ingester
+      presenter.ingest_file_path_list = ingest_file_path_list
+      presenter.ingest_base_directory = ingest_base_directory
+      render 'ingest_append_prep_form'
+    end
+
+    def ingest_append_run_job
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "params=#{params}",
+                                             "" ]
+      # TODO
+      msg = "Testing...append job will start here."
+      redirect_to dashboard_works_path, notice: msg
+    end
+
+    def ingest_base_directory
+      rv = params[:ingest_base_directory]
+      return rv
+    end
+
+    def ingest_email_after
+      "true"
+    end
+
+    def ingest_email_depositor
+      "true"
+    end
+
+    def ingest_email_ingester
+      "true"
+    end
+
+    def ingest_file_path_valid( path )
+      # TODO - dev mode
+      return false if path.blank?
+      return false if path.include? ".."
+      return true if path.to_s.start_with? "/deepbluedata-prep"
+      return true if path.to_s.start_with? "/Volumes/ulib-dbd-prep"
+      false
+    end
+
+    def ingest_file_path_list
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "params=#{params}",
+                                             "params[:ingest_file_path_list]=#{params[:ingest_file_path_list]}",
+                                             "" ]
+      rv = params[:ingest_file_path_list]
+      return params[:ingest_file_path_list] if rv.present?
+      base_dir = ingest_base_directory&.strip
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "base_dir=#{base_dir}",
+                                             "" ]
+      return rv if base_dir.blank?
+      starts_with_path = base_dir
+      starts_with_path = starts_with_path + File::SEPARATOR unless starts_with_path.ends_with? File::SEPARATOR
+      return rv unless ingest_file_path_valid( starts_with_path )
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "starts_with_path=#{starts_with_path}",
+                                             "" ]
+      files = Dir.glob( "#{starts_with_path}*" )
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "files=#{files}",
+                                             "" ]
+      path_list = []
+      files.each do |f|
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "f=#{f}",
+                                               "" ]
+        if File.basename( f ) =~ /^\..*$/
+          next
+        end
+        path_list << f
+      end
+      rv = path_list.join( "\n" )
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "" ]
+      return rv
+    end
+
+    def ingest_file_path_msg( path )
+      return " # is a directory" if Dir.exist?( path )
+      return "" if File.file?( path )
+      return " # file missing"
+    end
+
+    def ingest_file_path_name( path )
+      rv = File.basename path
+      return rv
+    end
+
+    def ingest_file_path_names( path_list )
+      path_list = path_list.split("\n") if path_list.is_a? Array
+      path_names = []
+      path_list.each do |path|
+        path_names << File.basename( path )
+      end
+      path_names
+    end
+
+    def ingest_ingester
+      rv = params[:ingest_ingester]
+      rv = current_user.user_key if rv.blank?
+      rv
+    end
+
+    def ingest_visibility
+      curation_concern.visibility.to_s
+    end
+
+    ## Ingest end
 
     ## Provenance log
 
