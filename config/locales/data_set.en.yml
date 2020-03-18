@@ -105,6 +105,8 @@ en:
         globus_download_notify_me:      "Email Me When Globus Download is Complete"
         globus_download_and_notify_me:  "Download All for Globus and Email Me When Complete"
         globus_download_dont_notify_me: "Don't Add My Email"
+        ingest_append_generate_script:  "Generate Append File Script"
+        ingest_append_run_job:          "Run Append Files Script"
         mint_doi:                       "Mint DOI"
         mint_help: >
           Once you have uploaded your files, you can mint a Digital Object Identifier
@@ -117,6 +119,12 @@ en:
         tombstone:                      "Tombstone"
         unfeature:                      "Unfeature"
         zip_download:                   "Download Zipped Dataset"
+      ingest_append:
+        label:
+          base_directory:               "Base Directory"
+        prep:                           "Append Files"
+        return_to_prep:                 "Return to Append Files"
+        run_job:                        "Run Append Files Script"
       provenance_log:
         deleted_works:                  "Deleted Works"
         display:                        "Display or Update Provenance Log Entries"
