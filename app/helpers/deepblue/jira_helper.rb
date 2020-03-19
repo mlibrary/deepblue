@@ -226,7 +226,7 @@ module Deepblue
       return {} if user.nil?
       client = jira_client( client: client )
       hash = jira_user_as_hash( user: user, client: client )
-      if hash.empty? && jira_allow_create_users
+      if hash.blank? && jira_allow_create_users
         hash = jira_create_user( email: user )
       end
       return hash
