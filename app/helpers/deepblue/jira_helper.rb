@@ -92,8 +92,32 @@ module Deepblue
         }]
     }.freeze
 
-    def self.jira_allow_create_users
-      DeepBlueDocs::Application.config.jira_allow_create_users
+
+    @@_setup_ran = false
+
+    @@jira_integration_hostnames
+    @@jira_integration_hostnames_prod
+    @@jira_integration_enabled
+    @@jira_test_mode
+    @@jira_allow_create_users
+    @@jira_manager_project_key
+    @@jira_manager_issue_type
+
+    mattr_accessor  :jira_integration_hostnames,
+                    :jira_integration_hostnames_prod,
+                    :jira_integration_enabled,
+                    :jira_test_mode,
+                    :jira_allow_create_users,
+                    :jira_manager_project_key,
+                    :jira_manager_issue_type
+
+    def self.setup
+      yield self if @@_setup_ran == false
+      @@_setup_ran = true
+    end
+
+    def self.jira_enabled
+      JiraHelper.jira_integration_enabled
     end
 
     def self.jira_client( client: nil )
@@ -151,22 +175,6 @@ module Deepblue
                                               "user.save( #{user_options} ) rv=#{rv}",
                                               "" ] ) # unless rv
       return rv
-    end
-
-    def self.jira_enabled
-      DeepBlueDocs::Application.config.jira_integration_enabled
-    end
-
-    def self.jira_manager_issue_type
-      DeepBlueDocs::Application.config.jira_manager_issue_type
-    end
-
-    def self.jira_manager_project_key
-      DeepBlueDocs::Application.config.jira_manager_project_key
-    end
-
-    def self.jira_test_mode
-      DeepBlueDocs::Application.config.jira_test_mode
     end
 
     def self.jira_user_exists?( user:, client: nil )
