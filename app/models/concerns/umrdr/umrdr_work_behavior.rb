@@ -4,11 +4,21 @@ module Umrdr
   module UmrdrWorkBehavior
     extend ActiveSupport::Concern
 
+    def globus_complete?
+      ::GlobusJob.copy_complete? curation_concern.id
+    end
+
+    def globus_prepping?
+      ::GlobusJob.files_prepping? curation_concern.id
+    end
+
     def globus_clean_download( start_globus_copy_after_clean: false )
+      return unless ( globus_complete? || globus_prepping? )
       ::GlobusCleanJob.perform_later( id, clean_download: true, start_globus_copy_after_clean: start_globus_copy_after_clean )
     end
 
     def globus_clean_download_then_recopy
+      return unless ( globus_complete? || globus_prepping? )
       ::GlobusCleanJob.perform_later( id, clean_download: true, start_globus_copy_after_clean: true )
     end
 
