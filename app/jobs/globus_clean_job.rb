@@ -20,6 +20,11 @@ class GlobusCleanJob < GlobusJob
     @target_prep_dir_tmp = GlobusJob.target_prep_tmp_dir( @globus_concern_id, prefix: nil )
     @globus_lock_file    = GlobusJob.lock_file @globus_concern_id
 
+    while GlobusJob.files_prepping? concern_id do
+      sleep 1.minute
+      break if GlobusJob.error_file_exists? concern_id
+    end
+
     unless globus_locked?
       GlobusJob.clean_dir( @target_prep_dir_tmp, delete_dir: true )
       GlobusJob.clean_dir( @target_prep_dir, delete_dir: true )
