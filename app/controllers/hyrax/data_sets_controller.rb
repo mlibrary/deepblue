@@ -466,6 +466,7 @@ module Hyrax
       success = curation_concern.entomb!( epitaph, current_user )
       msg = if success
               MsgHelper.t( 'data_set.tombstone_notice', title: curation_concern.title.first.to_s, reason: epitaph.to_s )
+              curation_concern.globus_clean_download if curation_concern.respond_to? :globus_clean_download
             else
               "#{curation_concern.title.first} is already tombstoned."
             end

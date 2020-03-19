@@ -4,6 +4,14 @@ module Umrdr
   module UmrdrWorkBehavior
     extend ActiveSupport::Concern
 
+    def globus_clean_download( start_globus_copy_after_clean: false )
+      ::GlobusCleanJob.perform_later( id, clean_download: true, start_globus_copy_after_clean: start_globus_copy_after_clean )
+    end
+
+    def globus_clean_download_then_recopy
+      ::GlobusCleanJob.perform_later( id, clean_download: true, start_globus_copy_after_clean: true )
+    end
+
     # Calculate the size of all the files in the work
     # @return [Integer] the size in bytes
     def size_of_work
