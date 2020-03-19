@@ -141,21 +141,6 @@ module DeepBlueDocs
     config.max_work_file_size_to_download = 10_000_000_000
     config.min_work_file_size_to_download_warn = 1_000_000_000
 
-    ## configure jira integration
-    config.jira_integration_hostnames = [ 'deepblue.local',
-                                          'testing.deepblue.lib.umich.edu',
-                                          'staging.deepblue.lib.umich.edu',
-                                          'deepblue.lib.umich.edu' ].freeze
-    config.jira_integration_hostnames_prod = [ 'deepblue.lib.umich.edu',
-                                          'testing.deepblue.lib.umich.edu' ].freeze
-    config.jira_integration_enabled = config.jira_integration_hostnames.include? config.hostname
-    config.jira_test_mode = !config.jira_integration_hostnames_prod.include?( config.hostname )
-    config.jira_allow_create_users = false
-    config.jira_manager_project_key = 'DBHELP'
-    config.jira_manager_issue_type = 'Data Deposit'
-    # config.jira_manager_project_key = 'BLUEDOC'
-    # config.jira_manager_issue_type = 'Story'
-
     ### file upload and ingest
     config.notify_user_file_upload_and_ingest_are_complete = true
     config.notify_managers_file_upload_and_ingest_are_complete = true
