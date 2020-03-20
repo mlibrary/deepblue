@@ -2,17 +2,17 @@
 
 class GlobusJob < ::Hyrax::ApplicationJob
 
-  @@globus_era_timestamp = DeepBlueDocs::Application.config.globus_era_timestamp
-  @@globus_era_token = DeepBlueDocs::Application.config.globus_era_token.freeze
+  @@globus_era_timestamp = ::Deepblue::GlobusIntegrationService.globus_era_timestamp
+  @@globus_era_token = ::Deepblue::GlobusIntegrationService.globus_era_token.freeze
 
-  @@globus_enabled = DeepBlueDocs::Application.config.globus_enabled.freeze
-  @@globus_base_file_name = DeepBlueDocs::Application.config.base_file_name.freeze
-  @@globus_base_url = DeepBlueDocs::Application.config.globus_base_url.freeze
-  @@globus_download_dir = DeepBlueDocs::Application.config.globus_download_dir.freeze
-  @@globus_prep_dir = DeepBlueDocs::Application.config.globus_prep_dir.freeze
+  @@globus_enabled = ::Deepblue::GlobusIntegrationService.globus_enabled.freeze
+  @@globus_base_file_name = ::Deepblue::GlobusIntegrationService.globus_base_file_name.freeze
+  @@globus_base_url = ::Deepblue::GlobusIntegrationService.globus_base_url.freeze
+  @@globus_download_dir = ::Deepblue::GlobusIntegrationService.globus_download_dir.freeze
+  @@globus_prep_dir = ::Deepblue::GlobusIntegrationService.globus_prep_dir.freeze
 
-  @@globus_copy_file_group = DeepBlueDocs::Application.config.globus_copy_file_group.freeze
-  @@globus_copy_file_permissions = DeepBlueDocs::Application.config.globus_copy_file_permissions.freeze
+  @@globus_copy_file_group = ::Deepblue::GlobusIntegrationService.globus_copy_file_group.freeze
+  @@globus_copy_file_permissions = ::Deepblue::GlobusIntegrationService.globus_copy_file_permissions.freeze
 
   def self.files_available?( concern_id )
     copy_complete? concern_id

@@ -21,10 +21,10 @@ module Deepblue
           @@c_era_begin_timestamp = Time.now.to_s
           @@c_era_file_base = ".globus_era.#{Socket.gethostname}"
           # log "hostname=#{Socket.gethostname}" if @@c_era_verbose
-          if DeepBlueDocs::Application.config.globus_enabled
+          if ::Deepblue::GlobusIntegrationService.globus_enabled
             log "GlobusEra initializing at #{@@c_era_begin_timestamp}" if @@c_era_verbose
-            # @era_file = Tempfile.new( 'globus_era_', DeepBlueDocs::Application.config.globus_prep_dir )
-            @@c_era_file = DeepBlueDocs::Application.config.globus_prep_dir.join @@c_era_file_base
+            # @era_file = Tempfile.new( 'globus_era_', ::Deepblue::GlobusIntegrationService.globus_prep_dir )
+            @@c_era_file = ::Deepblue::GlobusIntegrationService.globus_prep_dir.join @@c_era_file_base
             log "GlobusEra era file: #{@@c_era_file} -- #{@@c_era_file.class}" if @@c_era_verbose
             read_previous_era_file
             File.open( @@c_era_file, "w" ) { |out| out << @@c_era_begin_timestamp << "\n" }

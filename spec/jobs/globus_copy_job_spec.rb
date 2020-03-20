@@ -5,7 +5,7 @@ require 'uri'
 require_relative '../../app/mailers/deepblue_mailer'
 
 RSpec.configure do |config|
-  config.filter_run_excluding globus_enabled: :true unless DeepBlueDocs::Application.config.globus_enabled
+  config.filter_run_excluding globus_enabled: :true unless ::Deepblue::GlobusIntegrationService.globus_enabled
 end
 
 class MailerMock
@@ -15,10 +15,10 @@ end
 describe GlobusCopyJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do # rubocop:disable RSpec/DescribeMethod
 
   let( :globus_dir ) { Pathname "/tmp/deepbluedata-globus" }
-  let( :globus_download_dir ) { globus_dir.join 'download' }
+  let( :globus_download_dir ) { globus_dir.join( 'download' ).join( 'test' ) }
+  let( :globus_prep_dir ) { globus_dir.join( 'prep' ).join( 'test' ) }
   let( :target_name ) { "DeepBlueData_id321" }
   let( :target_name_prep_dir ) { "#{GlobusJob.server_prefix(str: '_')}#{target_name}" }
-  let( :globus_prep_dir ) { globus_dir.join 'prep' }
   let( :error_file ) { globus_prep_dir.join ".test.error.#{target_name}" }
   let( :job_ready_file ) { globus_prep_dir.join ".test.ready.#{target_name}" }
   let( :lock_file ) { globus_prep_dir.join ".test.lock.#{target_name}" }

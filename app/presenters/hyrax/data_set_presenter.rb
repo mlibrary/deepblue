@@ -93,7 +93,7 @@ module Hyrax
     end
 
     def provenance_log_entries?
-      file_path = Deepblue::ProvenancePath.path_for_reference( id )
+      file_path = ::Deepblue::ProvenancePath.path_for_reference( id )
       File.exist? file_path
     end
 
@@ -102,11 +102,11 @@ module Hyrax
     # begin globus
 
     def globus_download_enabled?
-      DeepBlueDocs::Application.config.globus_enabled
+      ::Deepblue::GlobusIntegrationService.globus_enabled
     end
 
     def globus_enabled?
-      DeepBlueDocs::Application.config.globus_enabled
+      ::Deepblue::GlobusIntegrationService.globus_enabled
     end
 
     def globus_external_url
