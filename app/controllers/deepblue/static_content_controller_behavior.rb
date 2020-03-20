@@ -5,6 +5,9 @@ module Deepblue
   module StaticContentControllerBehavior
     include Deepblue::WorkViewContentService
 
+    mattr_accessor :static_content_controller_behavior_verbose
+    self.static_content_controller_behavior_verbose = false
+
     mattr_accessor :static_content_title_id_cache
     @@static_content_title_id_cache
 
@@ -15,7 +18,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "title=#{title}",
                                              "rv=#{rv}",
-                                             "" ]
+                                             "" ] if static_content_controller_behavior_verbose
       return rv
     end
 
@@ -24,7 +27,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "title=#{title}",
                                              "id=#{id}",
-                                             "" ]
+                                             "" ] if static_content_controller_behavior_verbose
       @@static_content_title_id_cache ||= {}
       @@static_content_title_id_cache[title] = id
     end
@@ -59,7 +62,7 @@ module Deepblue
                                              "work_title=#{work_title}",
                                              "file_set_title=#{file_set_title}",
                                              "options=#{options}",
-                                             "" ]
+                                             "" ] if static_content_controller_behavior_verbose
       if work_view_content_enable_cache
         id = StaticContentControllerBehavior.static_content_title_id_cache( title: "//#{work_title}//#{file_set_title}//" )
         return static_content_read_file( id: id ) unless id.blank?
@@ -79,7 +82,7 @@ module Deepblue
                                              "work_title=#{work_title}",
                                              "file_set_title=#{file_set_title}",
                                              "options=#{options}",
-                                             "" ]
+                                             "" ] if static_content_controller_behavior_verbose
       if work_view_content_enable_cache
         id = StaticContentControllerBehavior.static_content_title_id_cache( title: "//#{work_title}//#{file_set_title}//" )
         return static_content_read_file( id: id ) unless id.blank?
@@ -99,7 +102,7 @@ module Deepblue
                                              "work_title=#{work_title}",
                                              "file_set_title=#{file_set_title}",
                                              "options=#{options}",
-                                             "" ]
+                                             "" ] if static_content_controller_behavior_verbose
       if work_view_content_enable_cache
         id = StaticContentControllerBehavior.static_content_title_id_cache( title: "//#{work_title}//#{file_set_title}//" )
         return static_content_read_file( id: id ) unless id.blank?
@@ -118,7 +121,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "title=#{title}",
                                              "id=#{id}",
-                                             "" ]
+                                             "" ] if static_content_controller_behavior_verbose
       return ActiveFedora::Base.find id unless id.blank?
       if work_view_content_enable_cache
         id = StaticContentControllerBehavior.static_content_title_id_cache( title: title )
@@ -141,7 +144,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "solr_query=#{solr_query}",
-                                             "" ]
+                                             "" ] if static_content_controller_behavior_verbose
       results = ::ActiveFedora::SolrService.query(solr_query, rows: 10 )
       if results.size > 0
         result = results[0] if results
@@ -159,7 +162,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "title=#{title}",
                                              "id=#{id}",
-                                             "" ]
+                                             "" ] if static_content_controller_behavior_verbose
       return ActiveFedora::Base.find id unless id.blank?
       if work_view_content_enable_cache
         id = StaticContentControllerBehavior.static_content_title_id_cache( title: title )
@@ -182,7 +185,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "solr_query=#{solr_query}",
-                                             "" ]
+                                             "" ] if static_content_controller_behavior_verbose
       results = ::ActiveFedora::SolrService.query(solr_query, rows: 10 )
       if results.size > 0
         result = results[0] if results
@@ -200,7 +203,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "file_set=#{id}",
                                              "id=#{id}",
-                                             "" ]
+                                             "" ] if static_content_controller_behavior_verbose
       file_set = ActiveFedora::Base.find id unless id.blank?
       return "" if file_set.blank?
       file = file_set.files_to_file
@@ -211,12 +214,12 @@ module Deepblue
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "source_uri=#{source_uri}",
-                                               "" ]
+                                               "" ] if static_content_controller_behavior_verbose
         str = open( source_uri, "r:UTF-8" ) { |io| io.read }
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "str.encoding=#{str.encoding}",
-                                               "" ]
+                                               "" ] if static_content_controller_behavior_verbose
         return str
       end
       return ""
@@ -233,7 +236,7 @@ module Deepblue
                                              "id=#{id}",
                                              "format=#{format}",
                                              "options=#{options}",
-                                             "" ]
+                                             "" ] if static_content_controller_behavior_verbose
       file_set = ActiveFedora::Base.find id if file_set.nil? && id.present?
       source_uri = nil
       if file_set.nil? && id.blank?
@@ -249,7 +252,7 @@ module Deepblue
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "source_uri=#{source_uri}",
-                                                 "" ]
+                                                 "" ] if static_content_controller_behavior_verbose
 
           case file_set.mime_type
           when "text/html"
@@ -282,7 +285,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "work_title=#{work_title}",
                                              "file_set_title=#{file_set_title}",
-                                             "" ]
+                                             "" ] if static_content_controller_behavior_verbose
       return nil unless work
       return nil unless file_set_title
       if work_view_content_enable_cache
@@ -295,7 +298,7 @@ module Deepblue
                                                ::Deepblue::LoggingHelper.called_from,
                                                "fs.title.join(#{fs.title.join}) ==? file_set_title(#{file_set_title})",
                                                "file_set_title=#{file_set_title}",
-                                               "" ]
+                                               "" ] if static_content_controller_behavior_verbose
         if fs.title.join == file_set_title
           id = fs.id
           if work_view_content_enable_cache
