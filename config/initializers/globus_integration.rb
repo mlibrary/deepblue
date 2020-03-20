@@ -61,8 +61,12 @@ Deepblue::GlobusIntegrationService.setup do |config|
   puts "globus_download_dir=#{config.globus_download_dir}" if verbose_initialization
   puts "globus_prep_dir=#{config.globus_prep_dir}" if verbose_initialization
   #if Rails.env.development? || Rails.env.test?
-  FileUtils.mkdir_p config.globus_download_dir unless Dir.exist? config.globus_download_dir
-  FileUtils.mkdir_p config.globus_prep_dir unless Dir.exist? config.globus_prep_dir
+  begin
+    FileUtils.mkdir_p config.globus_download_dir unless Dir.exist? config.globus_download_dir
+    FileUtils.mkdir_p config.globus_prep_dir unless Dir.exist? config.globus_prep_dir
+  rescue Exception => e # rubocop:disable Lint/RescueException
+    # ignore
+  end
   #end
   config.globus_enabled = true && Dir.exist?( config.globus_download_dir ) && Dir.exist?( config.globus_prep_dir )
   puts "globus_enabled=#{config.globus_enabled}" if verbose_initialization
