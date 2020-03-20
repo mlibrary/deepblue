@@ -1,41 +1,18 @@
 <!-- @presenter.menu = <%= @presenter.menu %> -->
-<!-- @presenter.menu_links = <%= @presenter.menu_links %> -->
+<!-- @presenter.menu_file_format = <%= @presenter.menu_file_format %> -->
 <!-- @presenter.menu_partial = <%= @presenter.menu_partial %> -->
 <!-- @presenter.page_navigation = <%= @presenter.page_navigation %> -->
 <% if @presenter.menu_partial.present? %>
   <%= render partial: @presenter.menu_partial %>
 <% elsif @presenter.menu_links.present? %>
-  <aside class="<%= sidebar_classes %> static-page-sidebar">
-    <h2><%= @presenter.menu_header %></h2>
-    <ul>
-      <% @presenter.menu_links.each do |link| %>
-        <% case link.strip %>
-        <% when /^(#.*)$/ %>
-          <!--<%= Regexp.last_match(1) %>-->
-        <% when /^link (.+)\s+(hyrax\.menu\..+)$/ %>
-          <li><a href="<%= Regexp.last_match(1).strip %>"><%= Regexp.last_match(2).strip %></a></li>
-        <% when /^(.+)\s+(hyrax\.menu\..+)$/ %>
-          <% path = Regexp.last_match(1).strip %>
-          <% label = t(Regexp.last_match(2).strip) %>
-          <% current_path = @presenter.current?(path) %>
-          <li class="<%= current_path ? 'current' : '' %>">
-            <%= link_to label, path %>
-            <% if current_path and @presenter.page_navigation.present? %>
-              <%= raw @presenter.page_navigation %>
-            <% end %>
-          </li>
-        <% when /^(.+)\s+(.+)$/ %>
-          <% path = Regexp.last_match(1).strip %>
-          <% label = Regexp.last_match(2).strip %>
-          <% current_path = @presenter.current?(path) %>
-          <li class="<%= current_path ? 'current' : '' %>">
-            <%= link_to label, path %>
-            <% if current_path and @presenter.page_navigation.present? %>
-              <%= raw @presenter.page_navigation %>
-            <% end %>
-          </li>
-        <% end %>
-      <% end %>
-    </ul>
-  </aside>
+  <% case @presenter.menu_file_format %>
+  <% when '.txt' %>
+    <%= render partial: 'hyrax/static/work_view_content_menu_from_txt' %>
+  <% when '.yml' %>
+    <%= render partial: 'hyrax/static/work_view_content_menu_from_yml' %>
+  <% when '.yaml' %>
+    <%= render partial: 'hyrax/static/work_view_content_menu_from_yml' %>
+  <% else %>
+    Unknown Menu File Format: <%= @presenter.menu_file_format %>
+  <% end %>
 <% end %>

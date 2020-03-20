@@ -1,0 +1,74 @@
+<aside class="<%= sidebar_classes %> static-page-sidebar">
+  <h2><%= @presenter.menu_header %></h2>
+  <ul>
+    <% menu_hash = @presenter.menu_links[:menu] %>
+    <%# ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "menu_hash=#{menu_hash}",
+                                             ""] %>
+
+    <% menu_hash.each_entry do |key,value| %>
+      <%# ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "key=#{key}",
+                                               "value=#{value}",
+                                               "" ] %>
+      <%# if value.is_a?( :Hash ) %>
+      <% if value.class.name == 'Hash' %>
+        <% link = value[:link] %>
+        <% label = value[:label] %>
+        <% submenu_hash = value[:menu] %>
+        <%# ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "#{key}.link=#{link}",
+                                                 "#{key}.label=#{label}",
+                                                 "#{key}.label.class.name=#{label.class.name}",
+                                                 "" ] %>
+        <% if link.present? && label.present? %>
+          <% label = t(label) if label.to_s =~ /^hyrax\..+$/ %>
+          <% current_path = @presenter.current?(link) %>
+          <li class="<%= current_path ? 'current' : '' %>">
+            <a href="<%= link %>"><%= label %></a>
+            <% if current_path and @presenter.page_navigation.present? %>
+            <%= raw @presenter.page_navigation %>
+            <% end %>
+          </li>
+        <% end %>
+        <%# ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "submenu_hash=#{submenu_hash}",
+                                                 ""] %>
+        <% if submenu_hash.present? %>
+          <li>
+            <ul>
+            <% submenu_hash.each_entry do |key, value| %>
+              <%# ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                                       ::Deepblue::LoggingHelper.called_from,
+                                                       "submenu_hash key=#{key}",
+                                                       "submenu_hash value=#{value}", ""] %>
+              <% link = value[:link] %>
+              <% label = value[:label] %>
+                <%# ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                                         ::Deepblue::LoggingHelper.called_from,
+                                                         "#{key}.link=#{link}",
+                                                         "#{key}.label=#{label}",
+                                                         "#{key}.label.class.name=#{label.class.name}",
+                                                         "" ] %>
+              <% if link.present? && label.present? %>
+                <% label = t(label) if label.to_s =~ /^hyrax\..+$/ %>
+                <% current_path = @presenter.current?(link) %>
+                <li class="<%= current_path ? 'current' : '' %>">
+                  <a href="<%= link %>"><%= label %></a>
+                  <% if current_path and @presenter.page_navigation.present? %>
+                    <%= raw @presenter.page_navigation %>
+                  <% end %>
+                </li>
+              <% end %>
+            <% end %>
+            </ul>
+          </li>
+        <% end %>
+      <% end %>
+    <% end %>
+  </ul>
+</aside>

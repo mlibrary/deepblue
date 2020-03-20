@@ -4,7 +4,12 @@ class WorkViewContentPresenter
 
   attr_accessor :controller, :file_set
 
-  delegate :file_name, :menu_links, :menu_partial, :page_navigation, :work_title, to: :controller
+  delegate :file_name,
+           :menu_file_format,
+           :menu_links,
+           :menu_partial,
+           :page_navigation,
+           :work_title, to: :controller
 
   def initialize( controller:, file_set:, format:, options: {} )
     @controller = controller
