@@ -140,7 +140,7 @@ module Hyrax
     end
 
     def globus_copy_job( user_email: nil,
-                         delay_per_file_seconds: DeepBlueDocs::Application.config.globus_debug_delay_per_file_copy_job_seconds )
+                         delay_per_file_seconds: ::Deepblue::GlobusIntegrationService.globus_debug_delay_per_file_copy_job_seconds )
 
       ::GlobusCopyJob.perform_later( curation_concern.id,
                                      user_email: user_email,
@@ -177,7 +177,7 @@ module Hyrax
     end
 
     def globus_download_enabled?
-      DeepBlueDocs::Application.config.globus_enabled
+      ::Deepblue::GlobusIntegrationService.globus_enabled
     end
 
     def globus_download_notify_me
@@ -204,7 +204,7 @@ module Hyrax
     end
 
     def globus_enabled?
-      DeepBlueDocs::Application.config.globus_enabled
+      ::Deepblue::GlobusIntegrationService.globus_enabled
     end
 
     def globus_last_error_msg
@@ -215,7 +215,7 @@ module Hyrax
       ::GlobusJob.files_prepping? curation_concern.id
     end
 
-    def globus_ui_delay( delay_seconds: DeepBlueDocs::Application.config.globus_after_copy_job_ui_delay_seconds )
+    def globus_ui_delay( delay_seconds: ::Deepblue::GlobusIntegrationService.globus_after_copy_job_ui_delay_seconds )
       sleep delay_seconds if delay_seconds.positive?
     end
 
@@ -696,7 +696,7 @@ module Hyrax
       end
 
       def target_dir_name_id( dir, id, ext = '' )
-        dir.join "#{DeepBlueDocs::Application.config.base_file_name}#{id}#{ext}"
+        dir.join "#{::Deepblue::GlobusIntegrationService.globus_base_file_name}#{id}#{ext}"
       end
 
   end

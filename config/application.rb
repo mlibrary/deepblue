@@ -94,38 +94,40 @@ module DeepBlueDocs
     config.embargo_about_to_expire_email_rds = config.embargo_email_rds_hostnames.include? config.hostname
     config.embargo_deactivate_email_rds = config.embargo_email_rds_hostnames.include? config.hostname
 
-    ## configure for Globus
-    # -- To enable Globus for development, create /deepbluedata-globus/download and /deepbluedata-globus/prep
-    config.globus_era_timestamp = Time.now.freeze
-    config.globus_era_token = config.globus_era_timestamp.to_s.freeze
-    if Rails.env.test?
-      config.globus_dir = '/tmp/deepbluedata-globus'
-      Dir.mkdir config.globus_dir unless Dir.exist? config.globus_dir
-    else
-      config.globus_dir = ENV['GLOBUS_DIR'] || '/deepbluedata-globus'
-    end
-    # puts "globus_dir=#{config.globus_dir}"
-    config.globus_dir = Pathname.new config.globus_dir
-    config.globus_download_dir = config.globus_dir.join 'download'
-    config.globus_prep_dir = config.globus_dir.join 'prep'
-    if Rails.env.test?
-      Dir.mkdir config.globus_download_dir unless Dir.exist? config.globus_download_dir
-      Dir.mkdir config.globus_prep_dir unless Dir.exist? config.globus_prep_dir
-    end
-    config.globus_enabled = true && Dir.exist?( config.globus_download_dir ) && Dir.exist?( config.globus_prep_dir )
-    config.base_file_name = "DeepBlueData_"
-    config.globus_base_url = 'https://app.globus.org/file-manager?origin_id=99d8c648-a9ff-11e7-aedd-22000a92523b&origin_path=%2Fdownload%2F'
-    config.globus_restart_all_copy_jobs_quiet = true
-    config.globus_debug_delay_per_file_copy_job_seconds = 0
-    config.globus_after_copy_job_ui_delay_seconds = 3
-    if Rails.env.production?
-      config.globus_copy_file_group = "dbdglobus"
-    else
-      config.globus_copy_file_group = nil
-    end
-    config.globus_copy_file_permissions = "u=rw,g=rw,o=r"
-    config.globus_best_used_gt_size = 3.gigabytes
-    config.globus_best_used_gt_size_str = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert(config.globus_best_used_gt_size, {})
+    ## to configure for Globus integration, see config/initalizers/globus_integration.rb
+    ## to configure for Jira integration, see config/initalizers/jira_integration.rb
+
+    # # -- To enable Globus for development, create /deepbluedata-globus/download and /deepbluedata-globus/prep
+    # config.globus_era_timestamp = Time.now.freeze
+    # config.globus_era_token = config.globus_era_timestamp.to_s.freeze
+    # if Rails.env.test?
+    #   config.globus_dir = '/tmp/deepbluedata-globus'
+    #   Dir.mkdir config.globus_dir unless Dir.exist? config.globus_dir
+    # else
+    #   config.globus_dir = ENV['GLOBUS_DIR'] || '/deepbluedata-globus'
+    # end
+    # # puts "globus_dir=#{config.globus_dir}"
+    # config.globus_dir = Pathname.new config.globus_dir
+    # config.globus_download_dir = config.globus_dir.join 'download'
+    # config.globus_prep_dir = config.globus_dir.join 'prep'
+    # if Rails.env.test?
+    #   Dir.mkdir config.globus_download_dir unless Dir.exist? config.globus_download_dir
+    #   Dir.mkdir config.globus_prep_dir unless Dir.exist? config.globus_prep_dir
+    # end
+    # config.globus_enabled = true && Dir.exist?( config.globus_download_dir ) && Dir.exist?( config.globus_prep_dir )
+    # config.globus_base_file_name = "DeepBlueData_"
+    # config.globus_base_url = 'https://app.globus.org/file-manager?origin_id=99d8c648-a9ff-11e7-aedd-22000a92523b&origin_path=%2Fdownload%2F'
+    # config.globus_restart_all_copy_jobs_quiet = true
+    # config.globus_debug_delay_per_file_copy_job_seconds = 0
+    # config.globus_after_copy_job_ui_delay_seconds = 3
+    # if Rails.env.production?
+    #   config.globus_copy_file_group = "dbdglobus"
+    # else
+    #   config.globus_copy_file_group = nil
+    # end
+    # config.globus_copy_file_permissions = "u=rw,g=rw,o=r"
+    # config.globus_best_used_gt_size = 3.gigabytes
+    # config.globus_best_used_gt_size_str = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert(config.globus_best_used_gt_size, {})
 
     # deposit notification email addresses
     config.notification_email = Settings.notification_email
@@ -187,6 +189,8 @@ module DeepBlueDocs
     config.scheduler_log_echo_to_rails_logger = true
     config.scheduler_job_file = 'scheduler_jobs_prod.yml'
     config.scheduler_heartbeat_email_targets = [ 'fritx@umich.edu' ].freeze # leave empty to disable
+
+    ## to configure work_view_content, see config/initalizers/work_view_content.rb
 
     # static content config
     config.static_content_enable_cache = false

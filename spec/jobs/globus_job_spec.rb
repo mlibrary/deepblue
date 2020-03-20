@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 RSpec.configure do |config|
-  config.filter_run_excluding globus_enabled: :true unless DeepBlueDocs::Application.config.globus_enabled
+  config.filter_run_excluding globus_enabled: :true unless ::Deepblue::GlobusIntegrationService.globus_enabled
 end
 
 describe GlobusJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do # rubocop:disable RSpec/DescribeMethod
 
-  let( :globus_dir ) { Pathname.new "/tmp/deepbluedata-globus" }
-  let( :globus_download_dir ) { globus_dir.join 'download' }
-  let( :globus_prep_dir ) { globus_dir.join 'prep' }
+  let( :globus_dir ) { Pathname.new "/tmp/deepbluedata-globus/" }
+  let( :globus_download_dir ) { globus_dir.join( 'download' ).join( 'test' ) }
+  let( :globus_prep_dir ) { globus_dir.join( 'prep' ).join( 'test' ) }
   let( :globus_target_download_dir ) { globus_download_dir.join 'DeepBlueData_id321' }
   let( :globus_target_prep_dir ) { globus_prep_dir.join "#{GlobusJob.server_prefix(str: '_')}DeepBlueData_id321" }
   let( :globus_target_prep_tmp_dir ) { globus_prep_dir.join "#{GlobusJob.server_prefix(str: '_')}DeepBlueData_id321" }

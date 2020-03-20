@@ -4,7 +4,7 @@ require 'rails_helper'
 # require 'uri'
 
 RSpec.configure do |config|
-  config.filter_run_excluding globus_enabled: :true unless DeepBlueDocs::Application.config.globus_enabled
+  config.filter_run_excluding globus_enabled: :true unless ::Deepblue::GlobusIntegrationService.globus_enabled
 end
 
 describe GlobusRestartAllJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do # rubocop:disable RSpec/DescribeMethod
@@ -12,7 +12,8 @@ describe GlobusRestartAllJob, "GlobusJob globus_enabled: :true", globus_enabled:
   let( :globus_dir ) { Pathname "/tmp/deepbluedata-globus" }
   let( :target_name ) { "DeepBlueData_Restart_All" }
   # let( :target_name_prep_dir ) { "#{GlobusJob.server_prefix(str:'_')}#{target_name}" }
-  let( :globus_prep_dir ) { globus_dir.join 'prep' }
+  let( :globus_download_dir ) { globus_dir.join( 'download' ).join( 'test' ) }
+  let( :globus_prep_dir ) { globus_dir.join( 'prep' ).join( 'test' ) }
   let( :job_complete_file ) { globus_prep_dir.join ".test.restarted.#{target_name}" }
   let( :error_file ) { globus_prep_dir.join ".test.error.#{target_name}" }
   let( :lock_file ) { globus_prep_dir.join ".test.lock.#{target_name}" }

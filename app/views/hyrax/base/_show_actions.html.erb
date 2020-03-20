@@ -24,7 +24,7 @@
                            total_file_size: @presenter.total_file_size_human_readable ) %>
                   </p>
                 <% else %>
-                  <p><%= t('simple_form.hints.data_set.download_general_message', larger_than: DeepBlueDocs::Application.config.globus_best_used_gt_size_str ) %> </p>
+                  <p><%= t('simple_form.hints.data_set.download_general_message', larger_than: ::Deepblue::GlobusIntegrationService.globus_best_used_gt_size_str ) %> </p>
                 <% end %>
               <% end %>
             <% end %>
@@ -40,7 +40,7 @@
                               target: "_blank",
                               title: t('simple_form.hints.data_set.globus_link') %>
                   <br/>
-                  <%= t('simple_form.hints.data_set.globus_is_for_large_datasets', larger_than: DeepBlueDocs::Application.config.globus_best_used_gt_size_str ) %> &nbsp;
+                  <%= t('simple_form.hints.data_set.globus_is_for_large_datasets', larger_than: ::Deepblue::GlobusIntegrationService.globus_best_used_gt_size_str ) %> &nbsp;
                   <a href="<%= main_app.static_path(action: 'globus-help') %>" target="_blank">
                     <%= t('simple_form.hints.data_set.globus_help') %>
                   </a>
@@ -49,7 +49,7 @@
                 <br/>
                 <%= submit_tag(t('simple_form.actions.data_set.globus_download'), class: 'btn btn-primary') %>
                 <br/>
-                <%= t('simple_form.hints.data_set.globus_is_for_large_datasets', larger_than: DeepBlueDocs::Application.config.globus_best_used_gt_size_str ) %> &nbsp;
+                <%= t('simple_form.hints.data_set.globus_is_for_large_datasets', larger_than: ::Deepblue::GlobusIntegrationService.globus_best_used_gt_size_str ) %> &nbsp;
                 <a href="<%= main_app.static_path( action: 'globus-help' ) %>" target="_blank">
                   <%= t('simple_form.hints.data_set.globus_help') %>
                 </a>
@@ -77,7 +77,7 @@
                 <%= t('simple_form.hints.data_set.globus_currently_downloading_html')
                     submit_tag(t('simple_form.actions.data_set.globus_download_add_email'), class: 'btn btn-primary') %>
                 <br/>
-                <%= t('simple_form.hints.data_set.globus_is_for_large_datasets', larger_than: DeepBlueDocs::Application.config.globus_best_used_gt_size_str ) %> &nbsp;
+                <%= t('simple_form.hints.data_set.globus_is_for_large_datasets', larger_than: ::Deepblue::GlobusIntegrationService.globus_best_used_gt_size_str ) %> &nbsp;
                 <a href="<%= main_app.static_path(action: 'globus-help') %>" target="_blank">
                   <%= t('simple_form.hints.data_set.globus_help') %>
                 </a>
