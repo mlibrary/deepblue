@@ -381,9 +381,11 @@ module Deepblue
               FIELD_NAME_DEPOSIT_URL => deposit_url,
               FIELD_NAME_DESCRIPTION => description,
               FIELD_NAME_DISCIPLINE => discipline,
-              FIELD_NAME_REPORTER => reporter,
               FIELD_NAME_SUMMARY => summary }
       }
+      if reporter.present?
+        build_options["fields"].merge!( { FIELD_NAME_REPORTER => reporter } )
+      end
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "save_options=#{save_options}",
@@ -400,9 +402,11 @@ module Deepblue
               FIELD_NAME_SUMMARY => summary,
               "project"     => { "key" => project_key },
               "issuetype"   => { "name" => issue_type },
-              FIELD_NAME_REPORTER => reporter,
               FIELD_NAME_DESCRIPTION => description }
       }
+      if reporter.present?
+        build_options["fields"].merge!( { FIELD_NAME_REPORTER => reporter } )
+      end
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "build_options=#{build_options}",
