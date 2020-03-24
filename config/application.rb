@@ -147,10 +147,6 @@ module DeepBlueDocs
     config.notify_user_file_upload_and_ingest_are_complete = true
     config.notify_managers_file_upload_and_ingest_are_complete = true
 
-    # ingest characterization config
-    config.characterize_excluded_ext_set = { '.csv' => 'text/plain' }.freeze # , '.nc' => 'text/plain' }.freeze
-    config.characterize_enforced_mime_type = { '.csv' => 'text/csv' }.freeze # , '.nc' => 'text/plain' }.freeze
-
     # ingest derivative config
     config.derivative_excluded_ext_set = {}.freeze
     config.derivative_max_file_size = 4_000_000_000 # set to -1 for no limit
