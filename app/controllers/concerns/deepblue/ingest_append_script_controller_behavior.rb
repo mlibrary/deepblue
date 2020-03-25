@@ -17,7 +17,8 @@ module Deepblue
       ingest_script_messages # make sure it is initialized
       script = []
       depth = 0
-      script << "# title of script"
+      script << "# #{ingest_script_title}"
+      script << "# script dir: #{::Deepblue::IngestIntegrationService.ingest_script_dir}"
       script << "---"
       script << ":user:"
       depth += 1
@@ -75,6 +76,10 @@ module Deepblue
       return script.join( "\n" )
     end
 
+    def ingest_allowed_base_directories
+      ::Deepblue::IngestIntegrationService.ingest_append_ui_allowed_base_directories
+    end
+
     def ingest_append_generate_script
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
@@ -102,9 +107,27 @@ module Deepblue
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "params=#{params}",
                                              "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
-      # TODO
-      msg = "Testing...append job will start here."
-      redirect_to dashboard_works_path, notice: msg
+      if params[:ingest_script_textarea].present?
+        begin
+          path_to_script = ingest_script_write
+          rv = ingest_script_run( path_to_script: path_to_script )
+          if rv
+            msg = "Ingest append script job started: '#{path_to_script}'"
+          else
+            msg = "Ingest append script job failed to start: '#{path_to_script}'"
+          end
+          redirect_to [main_app, curation_concern, notice: msg]
+        rescue Exception => e # rubocop:disable Lint/RescueException
+          Rails.logger.error "ingest_append_run_job #{e.class}: #{e.message} at #{e.backtrace[0]}"
+          ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                                "ingest_append_run_job #{e.class}: #{e.message} at #{e.backtrace[0]}",
+                                                 "" ] + e.backtrace
+          msg = "Ingest append script job failed to start because: '#{e.class}: #{e.message} at #{e.backtrace[0]}'"
+          redirect_to [main_app, curation_concern, notice: msg]
+        end
+      else
+        redirect_to [main_app, curation_concern]
+      end
     end
 
     def ingest_base_directory
@@ -191,17 +214,6 @@ module Deepblue
       params[:ingest_email_rest_emails].split( "\n" ).join( " " ).split( /\s+/ )
     end
 
-    def ingest_file_path_valid( path )
-      # TODO - dev mode
-      # TODO - add local data directory
-      return false if path.blank?
-      return false if path.include? ".."
-      ::Deepblue::IngestIntegrationService.ingest_append_ui_allowed_base_directories.each do |base_dir|
-        return true if path.to_s.start_with? base_dir
-      end
-      false
-    end
-
     def ingest_file_path_list
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
@@ -282,6 +294,17 @@ module Deepblue
       path_names
     end
 
+    def ingest_file_path_valid( path )
+      # TODO - dev mode
+      # TODO - add local data directory
+      return false if path.blank?
+      return false if path.include? ".."
+      ::Deepblue::IngestIntegrationService.ingest_append_ui_allowed_base_directories.each do |base_dir|
+        return true if path.to_s.start_with? base_dir
+      end
+      false
+    end
+
     def ingest_ingester
       rv = params[:ingest_ingester]
       rv = current_user.user_key if rv.blank?
@@ -296,6 +319,32 @@ module Deepblue
         @ingest_script_messages = []
       end
       @ingest_script_messages
+    end
+
+    def ingest_script_run( path_to_script: )
+      return true unless ::Deepblue::IngestIntegrationService.ingest_append_ui_allow_scripts_to_run
+      IngestAppendScriptJob.perform_later( path_to_script: path_to_script, ingester: ingest_ingester )
+      true
+    end
+
+    def ingest_script_title
+      "Append Files Script for the work #{curation_concern.id} - #{curation_concern.title.first}"
+    end
+
+    def ingest_script_write
+      base_script_path = ::Deepblue::IngestIntegrationService.ingest_script_dir
+      yyyymmddmmss = Time.now.strftime( "%Y%m%d_%H%M%S" )
+      script_file_name = "#{yyyymmddmmss}_#{curation_concern.id}_append.yml"
+      path_to_script = File.join( base_script_path, script_file_name )
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "path_to_script=#{path_to_script}",
+                                             "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+      File.open( path_to_script, "w" ) do |out|
+        out.puts params[:ingest_script_textarea]
+      end
+      path_to_script
     end
 
     def ingest_use_defaults

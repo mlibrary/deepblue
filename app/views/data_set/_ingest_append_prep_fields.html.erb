@@ -51,7 +51,15 @@
     <% end %>
     <tr>
       <td><label for="ingest_base_directory" class=""><%= t('simple_form.ingest_append.label.ingest_base_directory') %>:</label></td>
-      <td colspan=2><%= text_field_tag :ingest_base_directory, @presenter.ingest_base_directory, size: 75 %></td>
+      <td><%= text_field_tag :ingest_base_directory, @presenter.ingest_base_directory, size: 75 %></td>
+      <td>
+        <label class="">Base directories can be subdirectories of the following directories:</label><br/>
+        <ul>
+        <% @presenter.ingest_allowed_base_directories.each do |dir| %>
+            <li><code><%= dir %></code></li>
+        <% end %>
+        </ul>
+      </td>
     </tr>
     <tr>
       <td><label for="ingest_file_path_list" class=""><%= t('simple_form.ingest_append.label.ingest_file_path_list') %>:</label></td>

@@ -29,6 +29,7 @@ module Hyrax
     attr_accessor :controller
 
     delegate :current_user,
+                  :ingest_allowed_base_directories,
                   :ingest_base_directory,
                   :ingest_depositor,
                   :ingest_email_after,
@@ -41,6 +42,7 @@ module Hyrax
                   :ingest_ingester,
                   :ingest_script,
                   :ingest_script_messages,
+                  :ingest_script_title,
                   :ingest_use_defaults,
                   :params, to: :controller
 

@@ -1,11 +1,9 @@
-<% ::Deepblue::LoggingHelper.bold_debug [Deepblue::LoggingHelper.here,
+<%# ::Deepblue::LoggingHelper.bold_debug [Deepblue::LoggingHelper.here,
                                          Deepblue::LoggingHelper.called_from,
                                          Deepblue::LoggingHelper.obj_class('@presenter.class', @presenter),
                                          ""] %>
-<% id = curation_concern.id %>
-<% title = curation_concern.title.first %>
-<h2><%= "Append Files Script for the work #{id} - #{title}" %></h2>
-<%= form_tag( main_app.ingest_append_prep_hyrax_data_set_path(@curation_concern.id), method: 'post' ) do %>
+<h2><%= @presenter.ingest_script_title %></h2>
+<%= form_tag( main_app.ingest_append_run_job_hyrax_data_set_path(@curation_concern.id), method: 'post' ) do %>
   <%= render partial: 'data_set/ingest_append_script_fields' %>
   <%= submit_tag(t('simple_form.actions.data_set.ingest_append_run_job'), class: 'btn btn-primary') %>
 <% end %>
