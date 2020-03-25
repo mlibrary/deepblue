@@ -384,7 +384,7 @@ module Deepblue
               FIELD_NAME_SUMMARY => summary }
       }
       if reporter.present?
-        build_options["fields"].merge!( { FIELD_NAME_REPORTER => reporter } )
+        save_options["fields"].merge!( { FIELD_NAME_REPORTER => reporter } )
       end
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
