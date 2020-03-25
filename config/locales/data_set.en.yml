@@ -121,7 +121,7 @@ en:
         zip_download:                   "Download Zipped Dataset"
       ingest_append:
         label:
-          base_directory:               "Base Directory"
+          base_directory:        "Base Directory"
         prep:                           "Append Files"
         return_to_prep:                 "Return to Append Files"
         run_job:                        "Run Append Files Script"

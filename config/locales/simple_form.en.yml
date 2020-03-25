@@ -1,0 +1,24 @@
+---
+en:
+  simple_form:
+    error_notification:
+      default_message: 'Please review the problems below:'
+    'no': 'No'
+    required:
+      mark: "*"
+      text: required
+    'yes': 'Yes'
+    ingest_append:
+      label:
+        ingest_base_directory:        "Base directory to find files"
+        ingest_depositor:             "Depositor"
+        ingest_email_after:           "Send emails after script is run"
+        ingest_email_before:          "Send emails before script is run"
+        ingest_email_depositor:       "Email the depositor"
+        ingest_email_ingester:        "Email the ingester"
+        ingest_email_rest:            "Email additional email recipients"
+        ingest_email_rest_emails:     "Additional email recipients"
+        ingest_file_path_list:        "File paths to append"
+        ingest_ingester:              "Ingester"
+        ingest_script:                "Ingest append script"
+        ingest_script_messages:       "Ingest append script messages"

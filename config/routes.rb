@@ -105,6 +105,7 @@ Rails.application.routes.draw do
         get    'globus_download_add_email'
         post   'globus_download_notify_me'
         get    'globus_download_notify_me'
+        get    'ingest_append_generate_script'
         post   'ingest_append_generate_script'
         get    'ingest_append_prep'
         post   'ingest_append_prep'
