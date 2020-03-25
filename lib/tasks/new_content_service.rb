@@ -1657,12 +1657,17 @@ module Deepblue
                                base_path:,
                                mode: nil,
                                ingester: nil,
+                               use_rails_logger: false,
                                user_create: DEFAULT_USER_CREATE,
                                msg: "NEW CONTENT SERVICE AT YOUR ... SERVICE",
                                **config )
 
-        DeepBlueDocs::Application.config.provenance_log_echo_to_rails_logger = false
-        ProvenanceHelper.echo_to_rails_logger = false
+        if use_rails_logger
+          @logger = Rails.logger
+        else
+          DeepBlueDocs::Application.config.provenance_log_echo_to_rails_logger = false
+          ProvenanceHelper.echo_to_rails_logger = false
+        end
 
         @options = TaskHelper.task_options_parse options
         if @options.key?( :error ) || @options.key?( 'error' )

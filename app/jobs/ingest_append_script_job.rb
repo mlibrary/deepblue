@@ -4,14 +4,12 @@ class IngestAppendScriptJob < ::Hyrax::ApplicationJob
   include JobHelper
   queue_as ::Deepblue::IngestIntegrationService.ingest_append_queue_name
 
-  def perform( *args )
+  def perform( path_to_script:, ingester:, **options )
     ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
                                            Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                           "" ]
-    options = {}
-    args.each { |key,value| options[key] = value }
-    ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                           "path_to_script=#{path_to_script}",
+                                           "ingester=#{ingester}",
                                            "options=#{options}",
                                            Deepblue::LoggingHelper.obj_class( 'options', options ),
                                            "" ]
@@ -20,9 +18,22 @@ class IngestAppendScriptJob < ::Hyrax::ApplicationJob
     # hostnames = job_options_value(options, key: 'hostnames', default_value: [], verbose: verbose )
     # hostname = ::DeepBlueDocs::Application.config.hostname
     # return unless hostnames.include? hostname
-    # ::DeepBlueDocs::Application.config.scheduler_heartbeat_email_targets.each do |email_target|
-    #   heartbeat_email( email_target: email_target, hostname: hostname )
-    # end
+
+    rv = ::Deepblue::IngestContentService.call( path_to_yaml_file: path_to_script,
+                                                ingester: ingester,
+                                                mode: 'append',
+                                                options: options )
+
+    ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                           Deepblue::LoggingHelper.called_from,
+                                           Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                           "path_to_script=#{path_to_script}",
+                                           "ingester=#{ingester}",
+                                           "options=#{options}",
+                                           Deepblue::LoggingHelper.obj_class( 'options', options ),
+                                           "INGEST FAILED",
+                                           "" ] unless rv
+
   rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
     Rails.logger.error e.backtrace.join("\n")

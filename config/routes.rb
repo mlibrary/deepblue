@@ -109,7 +109,7 @@ Rails.application.routes.draw do
         post   'ingest_append_generate_script'
         get    'ingest_append_prep'
         post   'ingest_append_prep'
-        post   'ingest_append_run'
+        post   'ingest_append_run_job'
         post   'identifiers'
         post   'tombstone'
         post   'zip_download'
