@@ -9,4 +9,9 @@ Deepblue::IngestIntegrationService.setup do |config|
   config.characterize_mime_type_ext_mismatch = { 'text/plain' => '.html' }.freeze
   config.characterize_mime_type_ext_mismatch_fix = { ".html" => 'text/html' }.freeze
 
+  config.ingest_append_ui_allowed_base_directories = [ "/deepbluedata-prep",
+                                                       "/Volumes/ulib-dbd-prep" ]
+
+  config.ingest_append_queue_name = 'ingest'
+
 end

@@ -26,12 +26,23 @@ module Hyrax
               :access_deepblue,
               to: :solr_document
 
-    attr_accessor :current_user,
+    attr_accessor :controller
+
+    delegate :current_user,
                   :ingest_base_directory,
+                  :ingest_depositor,
+                  :ingest_email_after,
+                  :ingest_email_before,
+                  :ingest_email_depositor,
+                  :ingest_email_ingester,
+                  :ingest_email_rest,
+                  :ingest_email_rest_emails,
                   :ingest_file_path_list,
                   :ingest_ingester,
                   :ingest_script,
-                  :params
+                  :ingest_script_messages,
+                  :ingest_use_defaults,
+                  :params, to: :controller
 
     # def initialize( solr_document, current_ability, request = nil )
     #   ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
