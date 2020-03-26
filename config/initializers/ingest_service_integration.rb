@@ -9,7 +9,7 @@ Deepblue::IngestIntegrationService.setup do |config|
   config.characterize_mime_type_ext_mismatch = { 'text/plain' => '.html' }.freeze
   config.characterize_mime_type_ext_mismatch_fix = { ".html" => 'text/html' }.freeze
 
-  config.ingest_append_queue_name = 'batch_update'
+  config.ingest_append_queue_name = :default
   allowed_dirs = [ "/deepbluedata-prep" ]
   if Rails.env.development?
     allowed_dirs << File.join( Dir.home, 'Downloads' ).to_s

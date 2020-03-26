@@ -306,8 +306,17 @@ module Deepblue
     end
 
     def ingest_ingester
-      rv = params[:ingest_ingester]
-      rv = current_user.user_key if rv.blank?
+      default_value = current_user.user_key
+      rv = if params[:ingest_ingester].blank? && ingest_use_defaults
+             default_value
+           else
+             params[:ingest_ingester]
+           end
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+      rv
     end
 
     def ingest_script_messages

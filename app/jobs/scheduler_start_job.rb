@@ -2,7 +2,7 @@
 
 class SchedulerStartJob < ::Hyrax::ApplicationJob
   include JobHelper
-  # queue_as :default
+  queue_as :default
 
   # job_delay in seconds
   def perform( job_delay: ::Deepblue::SchedulerIntegrationService.scheduler_start_job_default_delay, restart: true, **options )
