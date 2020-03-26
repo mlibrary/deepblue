@@ -21,7 +21,7 @@ class HeartbeatEmailJob < ::Hyrax::ApplicationJob
     hostnames = job_options_value(options, key: 'hostnames', default_value: [], verbose: verbose )
     hostname = ::DeepBlueDocs::Application.config.hostname
     return unless hostnames.include? hostname
-    ::DeepBlueDocs::Application.config.scheduler_heartbeat_email_targets.each do |email_target|
+    ::Deepblue::SchedulerIntegrationService.scheduler_heartbeat_email_targets.each do |email_target|
       heartbeat_email( email_target: email_target, hostname: hostname )
     end
   rescue Exception => e # rubocop:disable Lint/RescueException
@@ -31,7 +31,6 @@ class HeartbeatEmailJob < ::Hyrax::ApplicationJob
   end
 
   def heartbeat_email( email_target:, hostname: )
-    # subject = ::Deepblue::EmailHelper.t( "hyrax.email.deactivate_embargo.subject", title: title )
     subject = "DBD scheduler heartbeat from #{hostname}"
     body = subject
     email = email_target

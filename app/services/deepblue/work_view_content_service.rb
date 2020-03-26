@@ -4,6 +4,8 @@ module Deepblue
 
   module WorkViewContentService
 
+    include ::Deepblue::InitializationConstants
+
     @@_setup_ran = false
 
     @@documentation_collection_title = nil

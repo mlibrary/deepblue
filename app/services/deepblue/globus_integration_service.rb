@@ -4,6 +4,8 @@ module Deepblue
 
   module GlobusIntegrationService
 
+    include ::Deepblue::InitializationConstants
+
     @@_setup_ran = false
 
     @@globus_after_copy_job_ui_delay_seconds = 3

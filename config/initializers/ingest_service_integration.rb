@@ -28,18 +28,18 @@ Deepblue::IngestIntegrationService.setup do |config|
   end
   config.ingest_append_ui_allowed_base_directories = allowed_dirs
   case DeepBlueDocs::Application.config.hostname
-  when HOSTNAME_PROD
-    config.ingest_script_dir = File.join config.ingest_script_dir, 'production'
-  when HOSTNAME_TESTING
-    config.ingest_script_dir = File.join config.ingest_script_dir, 'testing'
-  when HOSTNAME_STAGING
-    config.ingest_script_dir = File.join config.ingest_script_dir, 'staging'
-  when HOSTNAME_TEST
-    config.ingest_script_dir = File.join config.ingest_script_dir, 'test'
-  when HOSTNAME_LOCAL
-    config.ingest_script_dir = File.join config.ingest_script_dir, 'local'
+  when ::Deepblue::InitializationConstants::HOSTNAME_PROD
+    config.ingest_script_dir = File.join config.ingest_script_dir, ::Deepblue::InitializationConstants::PRODUCTION
+  when ::Deepblue::InitializationConstants::HOSTNAME_TESTING
+    config.ingest_script_dir = File.join config.ingest_script_dir, ::Deepblue::InitializationConstants::TESTING
+  when ::Deepblue::InitializationConstants::HOSTNAME_STAGING
+    config.ingest_script_dir = File.join config.ingest_script_dir, ::Deepblue::InitializationConstants::STAGING
+  when ::Deepblue::InitializationConstants::HOSTNAME_TEST
+    config.ingest_script_dir = File.join config.ingest_script_dir, ::Deepblue::InitializationConstants::TEST
+  when ::Deepblue::InitializationConstants::HOSTNAME_LOCAL
+    config.ingest_script_dir = File.join config.ingest_script_dir, ::Deepblue::InitializationConstants::LOCAL
   else
-    config.ingest_script_dir = File.join config.ingest_script_dir, 'unknown'
+    config.ingest_script_dir = File.join config.ingest_script_dir, ::Deepblue::InitializationConstants::UNKNOWN
   end
   FileUtils.mkdir_p config.ingest_script_dir unless Dir.exist? config.ingest_script_dir
 
