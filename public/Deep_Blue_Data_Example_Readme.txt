@@ -83,4 +83,4 @@ This data set is made available under a Creative Commons Public Domain license (
 
 
 To Cite Data: 
-Ward, J.L., Flanner, M.G., Bergin, M., Dibb, J.E., Polashenski, C.M., Soja, A.J., & Thomas, J.L. (2018). Modeled Response of Greenland Snowmelt to the Presence of Biomass Burning-Based Absorbing Aerosols in the Atmosphere and Snow [Data set]. University of Michigan Deep Blue Data Repository. https://doi.org/10.7302/Z24Q7S64
+Ward, J.L., Flanner, M.G., Bergin, M., Dibb, J.E., Polashenski, C.M., Soja, A.J., & Thomas, J.L. (2018). Modeled Response of Greenland Snowmelt to the Presence of Biomass Burning-Based Absorbing Aerosols in the Atmosphere and Snow [Data set]. University of Michigan - Deep Blue. https://doi.org/10.7302/Z24Q7S64
