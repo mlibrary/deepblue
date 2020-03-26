@@ -5,20 +5,6 @@ Deepblue::GlobusIntegrationService.setup do |config|
 
   # TODO: some of these are dependent and can be made readonly
 
-  DOWNLOAD = 'download'.freeze
-  LOCAL = 'local'.freeze
-  PREP = 'prep'.freeze
-  STAGING = 'staging'.freeze
-  TEST = 'test'.freeze
-  TESTING = 'testing'.freeze
-  UNKNOWN = 'unknown'.freeze
-
-  HOSTNAME_LOCAL = 'deepblue.local'.freeze
-  HOSTNAME_PROD = 'deepblue.lib.umich.edu'.freeze
-  HOSTNAME_TEST = 'test.deepblue.lib.umich.edu'.freeze
-  HOSTNAME_TESTING = 'testing.deepblue.lib.umich.edu'.freeze
-  HOSTNAME_STAGING = 'staging.deepblue.lib.umich.edu'.freeze
-
   ## configure for Globus
   # -- To enable Globus for development, create /deepbluedata-globus/download and /deepbluedata-globus/prep
   config.globus_era_timestamp = Time.now.freeze
@@ -35,28 +21,28 @@ Deepblue::GlobusIntegrationService.setup do |config|
   end
   puts "globus_dir=#{config.globus_dir}" if verbose_initialization if verbose_initialization
   config.globus_dir = Pathname.new config.globus_dir
-  config.globus_download_dir = config.globus_dir.join DOWNLOAD
-  config.globus_prep_dir = config.globus_dir.join PREP
+  config.globus_download_dir = config.globus_dir.join ::Deepblue::InitializationConstants::DOWNLOAD
+  config.globus_prep_dir = config.globus_dir.join ::Deepblue::InitializationConstants::PREP
   puts "globus init with hostname = #{DeepBlueDocs::Application.config.hostname}"
   case DeepBlueDocs::Application.config.hostname
-  when HOSTNAME_PROD
-    config.globus_download_dir = config.globus_dir.join DOWNLOAD
-    config.globus_prep_dir = config.globus_dir.join PREP
-  when HOSTNAME_TESTING
-    config.globus_download_dir = config.globus_download_dir.join TESTING
-    config.globus_prep_dir = config.globus_prep_dir.join TESTING
-  when HOSTNAME_STAGING
-    config.globus_download_dir = config.globus_download_dir.join STAGING
-    config.globus_prep_dir = config.globus_prep_dir.join STAGING
-  when HOSTNAME_TEST
-    config.globus_download_dir = config.globus_dir.join( DOWNLOAD ).join( TEST )
-    config.globus_prep_dir = config.globus_dir.join( PREP ).join( TEST )
-  when HOSTNAME_LOCAL
-    config.globus_download_dir = config.globus_dir.join( DOWNLOAD ).join( LOCAL )
-    config.globus_prep_dir = config.globus_dir.join( PREP ).join( LOCAL )
+  when ::Deepblue::InitializationConstants::HOSTNAME_PROD
+    config.globus_download_dir = config.globus_dir.join ::Deepblue::InitializationConstants::DOWNLOAD
+    config.globus_prep_dir = config.globus_dir.join ::Deepblue::InitializationConstants::PREP
+  when ::Deepblue::InitializationConstants::HOSTNAME_TESTING
+    config.globus_download_dir = config.globus_download_dir.join ::Deepblue::InitializationConstants::TESTING
+    config.globus_prep_dir = config.globus_prep_dir.join ::Deepblue::InitializationConstants::TESTING
+  when ::Deepblue::InitializationConstants::HOSTNAME_STAGING
+    config.globus_download_dir = config.globus_download_dir.join ::Deepblue::InitializationConstants::STAGING
+    config.globus_prep_dir = config.globus_prep_dir.join ::Deepblue::InitializationConstants::STAGING
+  when ::Deepblue::InitializationConstants::HOSTNAME_TEST
+    config.globus_download_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::DOWNLOAD ).join( ::Deepblue::InitializationConstants::TEST )
+    config.globus_prep_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::PREP ).join( ::Deepblue::InitializationConstants::TEST )
+  when ::Deepblue::InitializationConstants::HOSTNAME_LOCAL
+    config.globus_download_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::DOWNLOAD ).join( ::Deepblue::InitializationConstants::LOCAL )
+    config.globus_prep_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::PREP ).join( ::Deepblue::InitializationConstants::LOCAL )
   else
-    config.globus_download_dir = config.globus_download_dir.join UNKNOWN
-    config.globus_prep_dir = config.globus_prep_dir.join UNKNOWN
+    config.globus_download_dir = config.globus_download_dir.join ::Deepblue::InitializationConstants::UNKNOWN
+    config.globus_prep_dir = config.globus_prep_dir.join ::Deepblue::InitializationConstants::UNKNOWN
   end
   puts "globus_download_dir=#{config.globus_download_dir}" if verbose_initialization
   puts "globus_prep_dir=#{config.globus_prep_dir}" if verbose_initialization

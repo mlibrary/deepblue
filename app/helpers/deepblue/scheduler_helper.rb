@@ -11,7 +11,7 @@ module Deepblue
 
     # rubocop:disable Style/ClassVars
     def self.echo_to_rails_logger
-      @@echo_to_rails_logger ||= DeepBlueDocs::Application.config.scheduler_log_echo_to_rails_logger
+      @@echo_to_rails_logger ||= ::Deepblue::SchedulerIntegrationService.scheduler_log_echo_to_rails_logger
     end
 
     def self.echo_to_rails_logger=( echo_to_rails_logger )
