@@ -19,7 +19,7 @@ class IngestAppendScriptJob < ::Hyrax::ApplicationJob
     # hostname = ::DeepBlueDocs::Application.config.hostname
     # return unless hostnames.include? hostname
 
-    rv = ::Deepblue::IngestContentService.call( path_to_yaml_file: path_to_script,
+    ::Deepblue::IngestContentService.call( path_to_yaml_file: path_to_script,
                                                 ingester: ingester,
                                                 mode: 'append',
                                                 options: options )
@@ -31,8 +31,7 @@ class IngestAppendScriptJob < ::Hyrax::ApplicationJob
                                            "ingester=#{ingester}",
                                            "options=#{options}",
                                            Deepblue::LoggingHelper.obj_class( 'options', options ),
-                                           "INGEST FAILED",
-                                           "" ] unless rv
+                                           "" ]
 
   rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"

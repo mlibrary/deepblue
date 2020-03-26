@@ -1348,8 +1348,15 @@ module Deepblue
       end
 
       def do_email_after
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "" ]
         emails_add_from_hash( emails: @emails_after, hash: @cfg_hash[:user] )
         emails_add_rest( emails: @emails_after )
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "@emails_after=#{@emails_after}",
+                                               "" ]
         return if @emails_after.blank?
         lines = []
         lines << EmailHelper.t( "hyrax.new_content_service.notify_after_part_1_html",
@@ -1377,14 +1384,26 @@ module Deepblue
         id = ""
         subject = EmailHelper.t( "hyrax.new_content_service.notify_after_subject" )
         @emails_after.each_pair do |email_to,_value|
-          puts "do_mail_after: send to #{email_to}"
+          msg = "do_mail_after: send to #{email_to}"
+          puts msg
+          ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                                 Deepblue::LoggingHelper.called_from,
+                                                 "msg=#{msg}",
+                                                 "" ]
           do_email( event: event, id: id, email_to: email_to, subject: subject, body: body  )
         end
       end
 
       def do_email_before
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "" ]
         emails_add_from_hash( emails: @emails_before, hash: @cfg_hash[:user] )
-        emails_add_rest( emails: @emails_after )
+        emails_add_rest( emails: @emails_before )
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "@emails_before=#{@emails_before}",
+                                               "" ]
         return if @emails_before.blank?
         event = "New Content Service - Before"
         id = ""
@@ -1393,7 +1412,12 @@ module Deepblue
         subject = EmailHelper.t( "#{template}_subject" )
         @emails_before.each_pair do |email_to,_value|
           # send the email
-          puts "do_mail_before: send to #{email_to}"
+          msg = "do_mail_before: send to #{email_to}"
+          puts msg
+          ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                                 Deepblue::LoggingHelper.called_from,
+                                                 "msg=#{msg}",
+                                                 "" ]
           do_email( event: event, id: id, email_to: email_to, subject: subject, body: body  )
         end
       end
@@ -1421,9 +1445,21 @@ module Deepblue
       end
 
       def emails_add_from_hash( emails:, hash: )
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "emails=#{emails}",
+                                               "hash=#{hash}",
+                                               "email_owner=#{email_owner}",
+                                               "email_ingester=#{email_ingester}",
+                                               "email_depositor=#{email_depositor}",
+                                               "" ]
         emails_add( emails: emails, add: hash[:email] ) if email_owner
         emails_add( emails: emails, add: hash[:ingester] ) if email_ingester
         emails_add( emails: emails, add: hash[:depositor] ) if email_depositor
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "emails=#{emails}",
+                                               "" ]
       end
 
       def emails_add_rest( emails: )
@@ -1704,13 +1740,25 @@ module Deepblue
         log_msg( "@verbose=#{@verbose}", timestamp_it: false ) if @verbose
         @email_test_mode = initialize_options_value( key: :email_test_mode, default_value: DEFAULT_EMAIL_TEST_MODE )
         @email_after = initialize_options_value( key: :email_after, default_value: DEFAULT_EMAIL_AFTER )
-        @email_after_add_log_msgs = initialize_options_value( key: :email_after, default_value: DEFAULT_EMAIL_AFTER_ADD_LOG_MSGS )
-        @email_before = initialize_options_value( key: :email_after, default_value: DEFAULT_EMAIL_BEFORE )
-        @email_each = initialize_options_value( key: :email_after, default_value: DEFAULT_EMAIL_EACH )
+        @email_after_add_log_msgs = initialize_options_value( key: :email_after_add_log_msgs, default_value: DEFAULT_EMAIL_AFTER_ADD_LOG_MSGS )
+        @email_before = initialize_options_value( key: :email_before, default_value: DEFAULT_EMAIL_BEFORE )
+        @email_each = initialize_options_value( key: :email_each, default_value: DEFAULT_EMAIL_EACH )
         @email_depositor = initialize_options_value( key: :email_depositor, default_value: DEFAULT_EMAIL_DEPOSITOR )
         @email_ingester = initialize_options_value( key: :email_ingester, default_value: DEFAULT_EMAIL_INGESTER )
         @email_owner = initialize_options_value( key: :email_owner, default_value: DEFAULT_EMAIL_OWNER )
         @email_rest = initialize_options_value( key: :email_rest, default_value: DEFAULT_EMAIL_REST )
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "@email_test_mode=#{@email_test_mode}",
+                                               "@email_after=#{@email_after}",
+                                               "@email_after_add_log_msgs=#{@email_after_add_log_msgs}",
+                                               "@email_before=#{@email_before}",
+                                               "@email_each=#{@email_each}",
+                                               "@email_depositor=#{@email_depositor}",
+                                               "@email_ingester=#{@email_ingester}",
+                                               "@email_owner=#{@email_owner}",
+                                               "@email_rest=#{@email_rest}",
+                                               "" ]
         initialize_emails_rest
         @user_create = user_create
         @stop_new_content_service = false
@@ -1725,6 +1773,10 @@ module Deepblue
         if timestamp_it
           msg = "#{timestamp_now} #{msg}"
         end
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "msg=#{msg}",
+                                               "" ]
         logger.info msg
         return if not_email_line
         email_after_msg_lines_add( lines: msg ) if email_after_add_log_msgs

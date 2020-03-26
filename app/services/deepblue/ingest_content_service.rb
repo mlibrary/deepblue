@@ -25,6 +25,17 @@ module Deepblue
 
     def initialize( options:, path_to_yaml_file:, cfg_hash:, base_path:, ingester:, mode:, first_label: )
       @first_label = first_label
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "options=#{options}",
+                                             "path_to_yaml_file=#{path_to_yaml_file}",
+                                             "base_path=#{base_path}",
+                                             "cfg_hash=#{cfg_hash}",
+                                             "ingester=#{ingester}",
+                                             "mode=#{mode}",
+                                             "first_label=#{first_label}",
+                                             "" ]
       initialize_with_msg( options: options,
                            path_to_yaml_file: path_to_yaml_file,
                            cfg_hash: cfg_hash,
@@ -38,12 +49,22 @@ module Deepblue
     protected
 
       def build_repo_contents
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                               "Starting build_repo_contents...",
+                                               "" ]
         do_email_before
         # user = find_or_create_user
         find_works_and_add_files
         # build_collections
         report_measurements( first_label: @first_label )
         do_email_after
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                               "Finished build_repo_contents.",
+                                               "" ]
       end
 
   end
