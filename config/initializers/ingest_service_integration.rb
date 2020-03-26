@@ -41,8 +41,13 @@ Deepblue::IngestIntegrationService.setup do |config|
   else
     config.ingest_script_dir = File.join config.ingest_script_dir, ::Deepblue::InitializationConstants::UNKNOWN
   end
-  FileUtils.mkdir_p config.ingest_script_dir unless Dir.exist? config.ingest_script_dir
-
+ 
+  begin
+    FileUtils.mkdir_p config.ingest_script_dir unless Dir.exist? config.ingest_script_dir
+  rescue Exception => e # rubocop:disable Lint/RescueException
+    # this will fail during moku build, so catch and ignore
+  end
+  
   config.ingest_append_ui_allow_scripts_to_run = Dir.exist? config.ingest_script_dir
 
 end
