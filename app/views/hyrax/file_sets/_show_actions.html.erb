@@ -40,7 +40,7 @@
         <% end %>
         <% if @presenter.display_provenance_log_enabled? %>
           <%= link_to t('simple_form.actions.provenance_log.display'),
-                      main_app.display_provenance_log_hyrax_data_set_path(@presenter.id), class: 'btn btn-subtle' %>
+                      main_app.display_provenance_log_hyrax_file_set_path(@presenter.id), class: 'btn btn-subtle' %>
         <% end %>
       </div>
     </div> <!-- End Admin panel -->
