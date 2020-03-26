@@ -23,7 +23,7 @@ Deepblue::SchedulerIntegrationService.setup do |config|
     config.scheduler_active = false
   end
 
-  SchedulerStartJob.perform_later( job_delay: 20.seconds, restart: true ) if config.scheduler_active
+  # SchedulerStartJob.perform_later( job_delay: 20.seconds, restart: true ) if config.scheduler_active
   # SchedulerStartJob.perform_later( job_delay: config.scheduler_start_job_default_delay, restart: true ) if config.scheduler_active
 
 end
