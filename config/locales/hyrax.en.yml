@@ -60,6 +60,7 @@ en:
               administrators, managers, and viewers of the set. Must be used with "No embargo" setting above.
       sidebar:
         documentation:      "Manage Documentation"
+        scheduler:          "Manage Scheduler"
     account_name:           "My Institution Account Id"
     base:
       items:
@@ -86,6 +87,8 @@ en:
           status:           "Status"
           submission_date:  "Submission Date"
           work:             "Work"
+      scheduler:
+        title:              "Manage Scheduler"
     directory:
       suffix:               "@example.org"
     doi:
@@ -304,6 +307,11 @@ en:
         use_downloaded_data: "Use Downloaded Data"
     product_name:           "Deep Blue Data"
     product_twitter_handle: "@SamveraRepo"
+    scheduler:
+      active:               "Scheduler is Active on %{hostname}"
+      not_active:           "Scheduler is not Active on %{hostname}"
+      not_running:          "Scheduler is not Running"
+      running:              "Scheduler is Running"
     share_button:           "Deposit Your Work"
     site_copyright:         "© 2020 Regents of the University of Michigan"
     site_logo_href:         "https://www.lib.umich.edu/"

@@ -24,6 +24,10 @@ en:
   simple_form:
     actions:
       data_set:
-        edit:   "Edit"
+        edit:                           "Edit"
+      scheduler:
+        restart:                        "Restart Scheduler"
+        start:                          "Start Scheduler"
+        stop:                           "Stop Scheduler"
 
 

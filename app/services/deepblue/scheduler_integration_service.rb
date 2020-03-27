@@ -25,6 +25,41 @@ module Deepblue
       @@_setup_ran = true
     end
 
+    def self.scheduler_pid
+      `pgrep -fu #{Process.uid} resque-scheduler`
+    end
+
+    def self.scheduler_restart
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "" ]
+      SchedulerStartJob.perform_later( job_delay: 0, restart: true )
+    end
+
+    def scheduler_running
+      scheduler_pid.present?
+    end
+
+    def self.scheduler_start
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "" ]
+      SchedulerStartJob.perform_later( job_delay: 0, restart: false )
+    end
+
+    def self.scheduler_stop
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "scheduler_running=#{scheduler_running}",
+                                             "" ]
+      pid = scheduler_pid
+      `kill -9 #{pid}` if pid.present?
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "scheduler_running=#{scheduler_running}",
+                                             "" ]
+    end
+
   end
 
 end
