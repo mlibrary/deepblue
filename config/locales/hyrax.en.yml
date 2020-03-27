@@ -71,7 +71,7 @@ en:
         download_title:     "link to download this file"
     contact_form:
       issue_types:
-        size:               "My deposit is larger than 2GB"
+        size:               "My deposit is larger than %{max_upload_size}"
     dashboard:
       documentation:
         title:              "Manage Documentation"

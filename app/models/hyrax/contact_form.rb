@@ -29,7 +29,7 @@ module Hyrax
         I18n.t('hyrax.contact_form.issue_types.browsing'),
         I18n.t('hyrax.contact_form.issue_types.reporting'),
         I18n.t('hyrax.contact_form.issue_types.general'),
-        I18n.t('hyrax.contact_form.issue_types.size')
+        I18n.t( 'hyrax.contact_form.issue_types.size', max_upload_size: ::DeepBlueDocs::Application.config.upload_max_file_size_str )
       ]
     end
   end
