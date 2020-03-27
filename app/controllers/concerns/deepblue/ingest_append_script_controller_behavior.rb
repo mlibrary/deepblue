@@ -49,6 +49,7 @@ module Deepblue
       # :owner: 'fritx@umich.edu'
       script << "#{generate_depth( depth: depth )}:filenames:"
       files = ingest_file_path_list.split("\n")
+      files = files.reject { |f| f =~ /^\s+$/ } # remove blank lines
       depth += 1
       @ingest_script_messages << "WARNING: No files found or specified." if files.blank?
       files.each do |f|
@@ -106,27 +107,33 @@ module Deepblue
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "params=#{params}",
+                                             "params[:commit]=#{params[:commit]}",
                                              "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+      commit = params[:commit]
       if params[:ingest_script_textarea].present?
         begin
           path_to_script = ingest_script_write
-          rv = ingest_script_run( path_to_script: path_to_script )
-          if rv
-            msg = "Ingest append script job started: '#{path_to_script}'"
+          if I18n.t( 'simple_form.actions.data_set.ingest_append_run_job' ) == commit
+            rv = ingest_script_run( path_to_script: path_to_script )
+            if rv
+              msg = "Ingest append script job started: '#{path_to_script}'"
+            else
+              msg = "Ingest append script job failed to start: '#{path_to_script}'"
+            end
           else
-            msg = "Ingest append script job failed to start: '#{path_to_script}'"
+            msg = "Ingest append script written to '#{path_to_script}'"
           end
-          redirect_to [main_app, curation_concern, notice: msg]
+          redirect_to [main_app, curation_concern], notice: msg
         rescue Exception => e # rubocop:disable Lint/RescueException
           Rails.logger.error "ingest_append_run_job #{e.class}: #{e.message} at #{e.backtrace[0]}"
           ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
                                                 "ingest_append_run_job #{e.class}: #{e.message} at #{e.backtrace[0]}",
                                                  "" ] + e.backtrace
           msg = "Ingest append script job failed to start because: '#{e.class}: #{e.message} at #{e.backtrace[0]}'"
-          redirect_to [main_app, curation_concern, notice: msg]
+          redirect_to [main_app, curation_concern], notice: msg
         end
       else
-        redirect_to [main_app, curation_concern]
+        redirect_to [main_app, curation_concern], notice: "Script text area empty."
       end
     end
 

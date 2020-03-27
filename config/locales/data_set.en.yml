@@ -107,6 +107,7 @@ en:
         globus_download_dont_notify_me: "Don't Add My Email"
         ingest_append_generate_script:  "Generate Append File Script"
         ingest_append_run_job:          "Run Append Files Script"
+        ingest_append_write_script:     "Write Append Files Script"
         mint_doi:                       "Mint DOI"
         mint_help: >
           Once you have uploaded your files, you can mint a Digital Object Identifier
