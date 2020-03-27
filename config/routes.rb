@@ -152,6 +152,9 @@ Rails.application.routes.draw do
   get '/guest_user_message', to: 'guest_user_message#show'
 
   get '/work_view_content/:id/:file_id' => 'work_view_content#show', constraint: { id: /[^\/]+/, file_id: /[^\/]+/ }
+  get '/scheduler_dashboard/' => 'scheduler_dashboard#show'
+  get '/scheduler_dashboard_action/' => 'scheduler_dashboard#action'
+  post '/scheduler_dashboard_action/' => 'scheduler_dashboard#action'
   get '/work_view_documentation/' => 'work_view_documentation#show'
 
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html

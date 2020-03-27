@@ -27,6 +27,13 @@
     <% end %>
   <% end %>
 
+  <% if can? :read, :admin_dashboard %>
+    <%= menu.nav_link(main_app.scheduler_dashboard_path) do %>
+      <span class="fa fa-flag" aria-hidden="true"></span>
+      <span class="sidebar-action-text"><%= t('hyrax.admin.sidebar.scheduler') %></span>
+    <% end %>
+  <% end %>
+
   <% if defined?(Samvera::Persona) %>
     <% if can? :read, :admin_dashboard %>
       <%= menu.nav_link(main_app.persona_users_path) do %>

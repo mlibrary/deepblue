@@ -1,0 +1,17 @@
+<% provide :page_header do %>
+  <h1><%= t("hyrax.dashboard.scheduler.title") %></h1>
+<% end %>
+
+<h2><%= @presenter.scheduler_active_status %></h2>
+<br/>
+<h2><%= @presenter.scheduler_status %></h2>
+<br/><br/>
+<%= form_tag(main_app.scheduler_dashboard_action_path, method: 'post') do %>
+  <%#= render partial: 'data_set/ingest_append_script_fields' %>
+  <%= submit_tag(t('simple_form.actions.scheduler.restart'), class: 'btn btn-primary',
+                 disabled: @presenter.scheduler_not_active ) %>&nbsp;
+  <%= submit_tag(t('simple_form.actions.scheduler.start'), class: 'btn btn-primary',
+                 disabled: @presenter.scheduler_not_active ) %>&nbsp;
+  <%= submit_tag(t('simple_form.actions.scheduler.stop'), class: 'btn btn-primary',
+                 disabled: @presenter.scheduler_not_active ) %>&nbsp;
+<% end %>
