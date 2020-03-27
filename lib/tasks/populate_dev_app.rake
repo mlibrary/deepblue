@@ -9,6 +9,54 @@ require_relative '../ingest_users_service'
 require_relative '../update_content_service'
 require_relative '../update_users_service'
 
+namespace :deepblue do
+
+  # bundle exec rake deepblue:append[/deepbluedata-prep/w_9019s2443_populate.yml]
+  # bundle exec rake deepblue:append[/deepbluedata-prep/w_9019s2443_populate.yml,'{"ingester":"ingester@umich.edu"}']
+  # bundle exec rake deepblue:append[/deepbluedata-prep/w_9019s2443_populate.yml,'{"verbose":true\,"ingester":"ingester@umich.edu"}']
+  desc "Append files to existing collection or works (takes options hash)."
+  task :append, %i[ path_to_yaml_file options ] => :environment do |_t, args|
+    ENV["RAILS_ENV"] ||= "development"
+    args.with_defaults( options: '{}' )
+    content_append( path_to_yaml_file: args[:path_to_yaml_file], options: args[:options] )
+    puts "Done."
+  end
+
+  # bundle exec rake deepblue:build[/deepbluedata-prep/w_9019s2443_populate.yml]
+  # bundle exec rake deepblue:build[/deepbluedata-prep/w_9019s2443_populate.yml,'{"ingester":"ingester@umich.edu"}']
+  # bundle exec rake deepblue:build[/deepbluedata-prep/w_9019s2443_populate.yml,'{"verbose":true\,"ingester":"ingester@umich.edu"}']
+  desc "Create new collections, works, and files (takes options hash)."
+  task :build, %i[ path_to_yaml_file ingester ] => :environment do |_t, args|
+    ENV["RAILS_ENV"] ||= "development"
+    args.with_defaults( ingester: '' )
+    content_build( path_to_yaml_file: args[:path_to_yaml_file], ingester: args[:ingester] )
+    puts "Done."
+  end
+
+  # bundle exec rake deepblue:populate[/deepbluedata-prep/w_9019s2443_populate.yml]
+  # bundle exec rake deepblue:populate[/deepbluedata-prep/w_9019s2443_populate.yml,'{"ingester":"ingester@umich.edu"}']
+  # bundle exec rake deepblue:populate[/deepbluedata-prep/w_9019s2443_populate.yml,'{"verbose":true\,"ingester":"ingester@umich.edu"}']
+  desc "Create new collections, works, and files (takes options hash)."
+  task :populate, %i[ path_to_yaml_file ingester ] => :environment do |_t, args|
+    ENV["RAILS_ENV"] ||= "development"
+    args.with_defaults( ingester: '' )
+    content_populate( path_to_yaml_file: args[:path_to_yaml_file], ingester: args[:ingester] )
+    puts "Done."
+  end
+
+  # bundle exec rake deepblue:update[/deepbluedata-prep/w_9019s2443_populate.yml]
+  # bundle exec rake deepblue:update[/deepbluedata-prep/w_9019s2443_populate.yml,'{"ingester":"ingester@umich.edu"}']
+  # bundle exec rake deepblue:update[/deepbluedata-prep/w_9019s2443_populate.yml,'{"verbose":true\,"ingester":"ingester@umich.edu"}']
+  desc "Update existing collections, works, and files (takes options hash)."
+  task :update, %i[ path_to_yaml_file options ] => :environment do |_t, args|
+    ENV["RAILS_ENV"] ||= "development"
+    args.with_defaults( options: '{}' )
+    content_update( path_to_yaml_file: args[:path_to_yaml_file], options: args[:options] )
+    puts "Done."
+  end
+
+end
+
 namespace :umrdr do
 
   # See: Rake::TaskArguments for args class
@@ -26,7 +74,7 @@ namespace :umrdr do
 
   # bundle exec rake umrdr:build[/deepbluedata-prep/w_9019s2443_populate.yml]
   # bundle exec rake umrdr:build[/deepbluedata-prep/w_9019s2443_populate.yml,ingester@umich.edu]
-  desc "Build app with  collections, works, and files."
+  desc "Build app with collections, works, and files."
   task :build, %i[ path_to_yaml_file ingester ] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"
     args.with_defaults( ingester: '' )
