@@ -19,6 +19,9 @@ module DeepBlueDocs
     # -- all .rb files in that directory are automatically loaded.
     #
     # reference config values like: DeepBlueDocs::Application.config.variable_name
+    #
+    config.load_timestamp = DateTime.now.freeze
+    config.program_name = File.split($PROGRAM_NAME).last
 
     # Chimera configuration goes here
     # config.authentication_method = "generic"

@@ -8,9 +8,19 @@ Deepblue::SchedulerIntegrationService.setup do |config|
   config.scheduler_start_job_default_delay = 5.minutes.to_i
   config.scheduler_active = false
 
-  # puts "File.split($PROGRAM_NAME).last = #{File.split($PROGRAM_NAME).last}"
+  program_name = DeepBlueDocs::Application.config.program_name
+  ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                         Deepblue::LoggingHelper.called_from,
+                                         "program_name=#{program_name}",
+                                         "" ]
 
-  if File.split($PROGRAM_NAME).last == 'rails'
+  # puts "program_name"
+
+  if program_name == 'rails' || program_name == 'puma'
+    ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                           Deepblue::LoggingHelper.called_from,
+                                           "DeepBlueDocs::Application.config.hostname=#{DeepBlueDocs::Application.config.hostname}",
+                                           "" ]
 
     case DeepBlueDocs::Application.config.hostname
     when ::Deepblue::InitializationConstants::HOSTNAME_PROD
@@ -27,9 +37,13 @@ Deepblue::SchedulerIntegrationService.setup do |config|
       config.scheduler_active = false
     end
 
-    SchedulerStartJob.perform_later( job_delay: 20.seconds.to_i, restart: true ) if config.scheduler_active
+    # SchedulerStartJob.perform_later( job_delay: 20.seconds.to_i, restart: true ) if config.scheduler_active
     # SchedulerStartJob.perform_later( job_delay: config.scheduler_start_job_default_delay, restart: true ) if config.scheduler_active
 
   end
+  ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                         Deepblue::LoggingHelper.called_from,
+                                         "config.scheduler_active=#{config.scheduler_active}",
+                                         "" ]
 
 end
