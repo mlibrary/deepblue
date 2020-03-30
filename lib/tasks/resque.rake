@@ -28,9 +28,10 @@ namespace :resque do
     Resque::Scheduler.dynamic = true
     Deepblue::SchedulerHelper.log( class_name: self.class.name,
                                    event: "setup_schedule",
-                                   scheduler_job_file: ::Deepblue::SchedulerIntegrationService.scheduler_job_file )
+                                   scheduler_job_file_path: ::Deepblue::SchedulerIntegrationService.scheduler_job_file_path )
     # Resque.schedule = YAML.load_file Rails.root.join( 'config', ::Deepblue::SchedulerIntegrationService.scheduler_job_file )
-    yaml_schedule    = YAML.load_file( Rails.root.join( 'config', ::Deepblue::SchedulerIntegrationService.scheduler_job_file ) ) || {}
+    # yaml_schedule    = YAML.load_file( Rails.root.join( 'config', ::Deepblue::SchedulerIntegrationService.scheduler_job_file ) ) || {}
+    yaml_schedule    = YAML.load_file( ::Deepblue::SchedulerIntegrationService.scheduler_job_file_path ) || {}
     wrapped_schedule = ActiveScheduler::ResqueWrapper.wrap yaml_schedule
     Resque.schedule  = wrapped_schedule
   end

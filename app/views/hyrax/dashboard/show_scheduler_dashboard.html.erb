@@ -8,10 +8,34 @@
 <br/><br/>
 <%= form_tag(main_app.scheduler_dashboard_action_path, method: 'post') do %>
   <%#= render partial: 'data_set/ingest_append_script_fields' %>
-  <%= submit_tag(t('simple_form.actions.scheduler.restart'), class: 'btn btn-primary',
+  <%= submit_tag(t('simple_form.actions.scheduler.restart'),
+                 class: 'btn btn-primary',
                  disabled: @presenter.scheduler_not_active ) %>&nbsp;
-  <%= submit_tag(t('simple_form.actions.scheduler.start'), class: 'btn btn-primary',
+  <%= submit_tag(t('simple_form.actions.scheduler.start'),
+                 class: 'btn btn-primary',
                  disabled: @presenter.scheduler_not_active ) %>&nbsp;
-  <%= submit_tag(t('simple_form.actions.scheduler.stop'), class: 'btn btn-primary',
+  <%= submit_tag(t('simple_form.actions.scheduler.stop'),
+                 class: 'btn btn-primary',
                  disabled: @presenter.scheduler_not_active ) %>&nbsp;
+<% end %>
+<br/><br/>
+<%= form_tag(main_app.scheduler_dashboard_update_schedule_path, method: 'post') do %>
+  <%#= render partial: 'data_set/ingest_append_script_fields' %>
+  <table class="edit_schedule table">
+    <tbody>
+    <%# if @presenter.ingest_script_messages.present? %>
+      <!-- td>
+      <td><label for="ingest_script_messages" class=""><%#= t('simple_form.ingest_append.label.ingest_script_messages') %>:</label></td>
+      <td><%#= text_area_tag :ingest_script_messages, @presenter.ingest_script_messages.join("\n"), rows: 5, cols: 75 %></td>
+      </tr-->
+    <%# end %>
+    <td>
+    <td><label for="edit_schedule_textarea" class=""><%= t('simple_form.scheduler_dashboard.label.edit_schedule_textarea') %>:</label></td>
+    <td><%= text_area_tag :edit_schedule_textarea, @presenter.edit_schedule, rows: 40, cols: 75 %></td>
+    </tr>
+    </tbody>
+  </table>
+  <%= submit_tag(t('simple_form.actions.scheduler.update_schedule'),
+                 class: 'btn btn-primary',
+                 data: {confirm: t('simple_form.confirm.scheduler.update_schedule')} ) %>&nbsp;
 <% end %>

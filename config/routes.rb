@@ -155,6 +155,8 @@ Rails.application.routes.draw do
   get '/scheduler_dashboard/' => 'scheduler_dashboard#show'
   get '/scheduler_dashboard_action/' => 'scheduler_dashboard#action'
   post '/scheduler_dashboard_action/' => 'scheduler_dashboard#action'
+  get '/scheduler_dashboard_update_schedule/' => 'scheduler_dashboard#update_schedule'
+  post '/scheduler_dashboard_update_schedule/' => 'scheduler_dashboard#update_schedule'
   get '/work_view_documentation/' => 'work_view_documentation#show'
 
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html

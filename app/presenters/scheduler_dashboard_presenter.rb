@@ -2,7 +2,8 @@
 
 class SchedulerDashboardPresenter
 
-  delegate :scheduler_active,
+  delegate :edit_schedule,
+           :scheduler_active,
            :scheduler_active_status,
            :scheduler_not_active,
            :scheduler_running,

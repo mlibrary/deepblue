@@ -29,5 +29,10 @@ en:
         restart:                        "Restart Scheduler"
         start:                          "Start Scheduler"
         stop:                           "Stop Scheduler"
-
-
+        update_schedule:                "Update Schedule"
+    confirm:
+      scheduler:
+        update_schedule:                "Are you sure you want to update the schedule?"
+    scheduler_dashboard:
+      label:
+        edit_schedule_textarea:         "Edit Schedule"
