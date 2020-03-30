@@ -3,7 +3,6 @@ Deepblue::SchedulerIntegrationService.setup do |config|
 
   # scheduler log config
   config.scheduler_heartbeat_email_targets = [ 'fritx@umich.edu' ].freeze # leave empty to disable
-  config.scheduler_job_file = 'scheduler_jobs_prod.yml'
   config.scheduler_log_echo_to_rails_logger = true
   config.scheduler_start_job_default_delay = 5.minutes.to_i
   config.scheduler_active = false
@@ -13,6 +12,8 @@ Deepblue::SchedulerIntegrationService.setup do |config|
                                          Deepblue::LoggingHelper.called_from,
                                          "program_name=#{program_name}",
                                          "" ]
+
+  config.scheduler_job_file_path = Rails.application.root.join( 'data', 'scheduler', 'scheduler_jobs.yml' )
 
   # puts "program_name"
 
@@ -36,6 +37,8 @@ Deepblue::SchedulerIntegrationService.setup do |config|
     else
       config.scheduler_active = false
     end
+
+    config.scheduler_active = File.exists? config.scheduler_job_file_path
 
     # SchedulerStartJob.perform_later( job_delay: 20.seconds.to_i, restart: true ) if config.scheduler_active
     # SchedulerStartJob.perform_later( job_delay: config.scheduler_start_job_default_delay, restart: true ) if config.scheduler_active

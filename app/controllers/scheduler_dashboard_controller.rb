@@ -49,6 +49,34 @@ class SchedulerDashboardController < ApplicationController
     end
   end
 
+  def edit_schedule
+    @edit_schedule ||= edit_schedule_load
+  end
+
+  def edit_schedule_load
+    return "" unless File.exists? ::Deepblue::SchedulerIntegrationService.scheduler_job_file_path
+    rv = []
+    open( ::Deepblue::SchedulerIntegrationService.scheduler_job_file_path, "r" ) { |f| rv = f.readlines }
+    rv.join("")
+  end
+
+  def edit_schedule_save
+    unless File.exists? ::Deepblue::SchedulerIntegrationService.scheduler_job_file_path
+      parentdir = Pathname( ::Deepblue::SchedulerIntegrationService.scheduler_job_file_path ).parent
+      FileUtils.mkdir_p(parentdir.to_s) unless parentdir.exist?
+    end
+    new_schedule = params[:edit_schedule_textarea]
+    return if new_schedule.blank?
+    open( ::Deepblue::SchedulerIntegrationService.scheduler_job_file_path, "w" ) do |out|
+      out.puts new_schedule
+    end
+  end
+
+  def update_schedule
+    edit_schedule_save
+    redirect_to scheduler_dashboard_path
+  end
+
   def show
     @presenter = presenter_class.new( controller: self, current_ability: current_ability )
     render 'hyrax/dashboard/show_scheduler_dashboard'
