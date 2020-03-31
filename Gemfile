@@ -42,6 +42,7 @@ gem 'resque-web', '~> 0.0.7', require: 'resque_web'
 gem 'resque-scheduler'
 gem 'resque-scheduler-web'
 gem 'active_scheduler'
+gem 'time_difference'
 
 gem 'net-ldap'
 
