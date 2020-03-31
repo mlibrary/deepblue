@@ -10,7 +10,7 @@ Deepblue::IngestIntegrationService.setup do |config|
   config.characterize_mime_type_ext_mismatch_fix = { ".html" => 'text/html' }.freeze
 
   config.ingest_append_queue_name = :default
-  allowed_dirs = [ "/deepbluedata-prep" ]
+  allowed_dirs = [ "/deepbluedata-prep", "/deepbluedata-globus" ]
   if Rails.env.development?
     allowed_dirs << File.join( Dir.home, 'Downloads' ).to_s
     allowed_dirs << Rails.application.root.join( 'data' ).to_s
@@ -41,13 +41,13 @@ Deepblue::IngestIntegrationService.setup do |config|
   else
     config.ingest_script_dir = File.join config.ingest_script_dir, ::Deepblue::InitializationConstants::UNKNOWN
   end
- 
+
   begin
     FileUtils.mkdir_p config.ingest_script_dir unless Dir.exist? config.ingest_script_dir
   rescue Exception => e # rubocop:disable Lint/RescueException
     # this will fail during moku build, so catch and ignore
   end
-  
+
   config.ingest_append_ui_allow_scripts_to_run = Dir.exist? config.ingest_script_dir
 
 end
