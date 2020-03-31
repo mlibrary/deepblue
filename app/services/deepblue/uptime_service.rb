@@ -88,6 +88,8 @@ module Deepblue
       uptime_file = uptime_timestamp_file_path
       open( uptime_file, 'w' ) { |f| f << load_timestamp.to_s }
       File.exist? uptime_file
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      false
     end
 
     def self.uptime_timestamp_file_path_self
