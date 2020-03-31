@@ -21,7 +21,14 @@ module DeepBlueDocs
     # reference config values like: DeepBlueDocs::Application.config.variable_name
     #
     config.load_timestamp = DateTime.now.freeze
-    config.program_name = File.split($PROGRAM_NAME).last
+    puts "Rails.const_defined? 'Console' = #{Rails.const_defined? 'Console'}"
+    puts "Rails.const_defined? 'Server' = #{Rails.const_defined? 'Server'}"
+    if Rails.const_defined? 'Console'
+      config.program_name = 'rails-console'.freeze
+    else
+      config.program_name = "#{File.split($PROGRAM_NAME).last}".freeze
+    end
+    config.program_args = "#{ARGV}".freeze
 
     # Chimera configuration goes here
     # config.authentication_method = "generic"
