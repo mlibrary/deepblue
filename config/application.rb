@@ -28,7 +28,7 @@ module DeepBlueDocs
     else
       config.program_name = "#{File.split($PROGRAM_NAME).last}".freeze
     end
-    config.program_args = "#{ARGV}".freeze
+    config.program_args = ARGV.dup
 
     # Chimera configuration goes here
     # config.authentication_method = "generic"

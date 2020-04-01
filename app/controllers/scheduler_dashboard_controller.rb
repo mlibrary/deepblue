@@ -87,8 +87,8 @@ class SchedulerDashboardController < ApplicationController
   end
 
   def scheduler_active_status
-    return MsgHelper.t( 'hyrax.scheduler.active', hostname: DeepBlueDocs::Application.config.hostname ) if scheduler_active
-    MsgHelper.t( 'hyrax.scheduler.not_active', hostname: DeepBlueDocs::Application.config.hostname )
+    return MsgHelper.t( 'hyrax.scheduler.can_run', hostname: DeepBlueDocs::Application.config.hostname ) if scheduler_active
+    MsgHelper.t( 'hyrax.scheduler.can_not_run_html', hostname: DeepBlueDocs::Application.config.hostname )
   end
 
   def scheduler_not_active
@@ -105,7 +105,7 @@ class SchedulerDashboardController < ApplicationController
 
   def scheduler_status
     return MsgHelper.t( "hyrax.scheduler.running") if scheduler_running
-    MsgHelper.t( 'hyrax.scheduler.not_running' )
+    MsgHelper.t( 'hyrax.scheduler.not_running_html' )
   end
 
   protected
