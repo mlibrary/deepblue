@@ -4,12 +4,20 @@
     <% if @presenter.ingest_script_messages.present? %>
       <td>
         <td><label for="ingest_script_messages" class=""><%= t('simple_form.ingest_append.label.ingest_script_messages') %>:</label></td>
-        <td><%= text_area_tag :ingest_script_messages, @presenter.ingest_script_messages.join("\n"), rows: 5, cols: 75 %></td>
+        <td><%= text_area_tag :ingest_script_messages,
+                              @presenter.ingest_script_messages.join("\n"),
+                              rows: 5,
+                              cols: 85,
+                              class: "monospace-textarea" %></td>
       </tr>
     <% end %>
     <td>
       <td><label for="ingest_script" class=""><%= t('simple_form.ingest_append.label.ingest_script') %>:</label></td>
-      <td><%= text_area_tag :ingest_script_textarea, @presenter.ingest_script, rows: 20, cols: 75 %></td>
+      <td><%= text_area_tag :ingest_script_textarea,
+                            @presenter.ingest_script,
+                            rows: 20,
+                            cols: 85,
+                            class: "monospace-textarea" %></td>
     </tr>
   </tbody>
 </table>

@@ -37,7 +37,11 @@
     </tr>
     <tr>
       <td><label for="ingest_email_rest_emails" class=""><%= t('simple_form.ingest_append.label.ingest_email_rest_emails') %>:</label></td>
-      <td><%= text_area_tag :ingest_email_rest_emails, @presenter.ingest_email_rest_emails.join("\n"), rows: 5, cols: 45 %></td>
+      <td><%= text_area_tag :ingest_email_rest_emails,
+                            @presenter.ingest_email_rest_emails.join("\n"),
+                            rows: 5,
+                            cols: 45,
+                            class: "monospace-textarea" %></td>
       <td>
         <label for="ingest_email_rest" class=""><%= t('simple_form.ingest_append.label.ingest_email_rest') %></label>
         <%= check_box_tag( 'ingest_email_rest', "true", @presenter.ingest_email_rest ) %>
@@ -46,14 +50,18 @@
     <% if @presenter.ingest_script_messages.present? %>
     <tr>
       <td><label for="ingest_script_messages2" class=""><%= t('simple_form.ingest_append.label.ingest_script_messages') %>:</label></td>
-      <td  colspan=2><%= text_area_tag :ingest_script_messages2, @presenter.ingest_script_messages.join("\n"), rows: 5, cols: 75 %></td>
+      <td  colspan=2><%= text_area_tag :ingest_script_messages2,
+                                       @presenter.ingest_script_messages.join("\n"),
+                                       rows: 5,
+                                       cols: 85,
+                                       class: "monospace-textarea" %></td>
     </tr>
     <% end %>
     <tr>
       <td><label for="ingest_base_directory" class=""><%= t('simple_form.ingest_append.label.ingest_base_directory') %>:</label></td>
       <td><%= text_field_tag :ingest_base_directory, @presenter.ingest_base_directory, size: 75 %></td>
       <td>
-        <label class="">Base directories can be subdirectories of the following directories:</label><br/>
+        <label class=""><%= t('simple_form.ingest_append.label.ingest_base_directory_can_be') %></label><br/>
         <ul>
         <% @presenter.ingest_allowed_base_directories.each do |dir| %>
             <li><code><%= dir %></code></li>
@@ -63,7 +71,11 @@
     </tr>
     <tr>
       <td><label for="ingest_file_path_list" class=""><%= t('simple_form.ingest_append.label.ingest_file_path_list') %>:</label></td>
-      <td colspan=2><%= text_area_tag :ingest_file_path_list, @presenter.ingest_file_path_list, rows: 20, cols: 75 %></td>
+      <td colspan=2><%= text_area_tag :ingest_file_path_list,
+                                      @presenter.ingest_file_path_list,
+                                      rows: 20,
+                                      cols: 85,
+                                      class: "monospace-textarea" %></td>
     </tr>
   </tbody>
 </table>
