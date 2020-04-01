@@ -448,3 +448,9 @@ table.datatable thead th.no-sort {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.monospace-textarea {
+    font-family: monospace,monospace;
+    font-size: 16px;
+    overflow-x: scroll;
+}

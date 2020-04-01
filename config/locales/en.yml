@@ -31,6 +31,8 @@ en:
         stop:                           "Stop Scheduler"
         update_schedule:                "Update Schedule"
     confirm:
+      data_set:
+        ingest_append_run_job:          "Are you sure you want to run the append script job?"
       scheduler:
         update_schedule:                "Are you sure you want to update the schedule?"
     scheduler_dashboard:
