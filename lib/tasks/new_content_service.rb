@@ -1613,6 +1613,10 @@ module Deepblue
         return nil, id[0]
       end
 
+      def mode_from_hash( hash: )
+        hash[:mode]
+      end
+
       def find_works_and_add_files
         return unless works
         works.each do |work_hash|
@@ -1620,12 +1624,14 @@ module Deepblue
           work, work_id = find_work( work_hash: work_hash )
           measurement = Benchmark.measure( work_id ) do
             add_file_sets_to_work( work_hash: work_hash, work: work )
-            depositor = build_depositor( hash: work_hash )
-            work.apply_depositor_metadata( depositor )
-            work.owner = depositor
-            admin_set = build_admin_set_work( hash: work_hash )
-            work.admin_set = admin_set
-            apply_visibility_and_workflow( work: work, work_hash: work_hash, admin_set: admin_set )
+            # unless MODE_APPEND == mode_from_hash( hash: work_hash )
+            #   depositor = build_depositor( hash: work_hash )
+            #   work.apply_depositor_metadata( depositor )
+            #   work.owner = depositor
+            #   admin_set = build_admin_set_work( hash: work_hash )
+            #   work.admin_set = admin_set
+            #   apply_visibility_and_workflow( work: work, work_hash: work_hash, admin_set: admin_set )
+            # end
             work.save!
             log_object work
             @ingest_urls << work.data_set_url if work.present?
