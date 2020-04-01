@@ -2,10 +2,18 @@
   <h1><%= t("hyrax.dashboard.scheduler.title") %></h1>
 <% end %>
 
-<h2><%= @presenter.scheduler_active_status %></h2>
+<h2 class="title-header"><%= t('hyrax.scheduler.status_header') %></h2>
+<label><%= raw @presenter.scheduler_active_status %>: <%= raw @presenter.scheduler_status %></label>
 <br/>
-<h2><%= @presenter.scheduler_status %></h2>
-<br/><br/>
+
+<h2 class="title-header"><%= t('hyrax.scheduler.uptime_header') %></h2>
+<% ::Deepblue::UptimeService.uptime_timestamp_files.each do |file| %>
+  <label><%= ::Deepblue::UptimeService.uptime_for_file_human_readable( file: file ) %>:</label>
+  <br/>
+<% end %>
+<br/>
+
+<h2 class="title-header"><%= t('hyrax.scheduler.actions_header') %></h2>
 <%= form_tag(main_app.scheduler_dashboard_action_path, method: 'post') do %>
   <%#= render partial: 'data_set/ingest_append_script_fields' %>
   <%= submit_tag(t('simple_form.actions.scheduler.restart'),
@@ -18,7 +26,9 @@
                  class: 'btn btn-primary',
                  disabled: @presenter.scheduler_not_active ) %>&nbsp;
 <% end %>
-<br/><br/>
+<br/>
+
+<h2 class="title-header"><%= t('hyrax.scheduler.edit_schedule_header') %></h2>
 <%= form_tag(main_app.scheduler_dashboard_update_schedule_path, method: 'post') do %>
   <%#= render partial: 'data_set/ingest_append_script_fields' %>
   <table class="edit_schedule table">
@@ -31,7 +41,13 @@
     <%# end %>
     <td>
     <td><label for="edit_schedule_textarea" class=""><%= t('simple_form.scheduler_dashboard.label.edit_schedule_textarea') %>:</label></td>
-    <td><%= text_area_tag :edit_schedule_textarea, @presenter.edit_schedule, rows: 40, cols: 75 %></td>
+    <td>
+      <%= text_area_tag :edit_schedule_textarea,
+                        @presenter.edit_schedule,
+                        rows: 40,
+                        cols: 85,
+                        class: "monospace-textarea" %></td>
+    </td>
     </tr>
     </tbody>
   </table>

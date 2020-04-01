@@ -6,6 +6,7 @@ module Deepblue
 
     include ::Deepblue::InitializationConstants
 
+    @@_setup_failed = false
     @@_setup_ran = false
 
     @@scheduler_job_file_path
@@ -21,8 +22,13 @@ module Deepblue
                    :scheduler_start_job_default_delay
 
     def self.setup
-      yield self if @@_setup_ran == false
+      return if @@_setup_ran == true
       @@_setup_ran = true
+      begin
+        yield self
+      rescue Exception => e # rubocop:disable Lint/RescueException
+        @@_setup_failed = true
+      end
     end
 
     def self.scheduler_pid

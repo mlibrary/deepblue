@@ -19,7 +19,7 @@ module Deepblue
                    :uptime_dir
 
     def self.setup
-      return if @@_setup_ran == false
+      return if @@_setup_ran == true
       @@_setup_ran = true
       puts "@@_setup_uptime_timestamp_file_written=#{@@_setup_uptime_timestamp_file_written}" if UPDATE_SERVICE_DEBUG_VERBOSE
       begin
@@ -63,6 +63,10 @@ module Deepblue
       program_name == 'rails' || program_name == 'puma'
     end
 
+    def self.is_spring?
+      program_name =~ /^spring.*$/i
+    end
+
     def self.program_args
       DeepBlueDocs::Application.config.program_args
     end
@@ -81,12 +85,31 @@ module Deepblue
       uptime_diff( DateTime.now, program_load_timestamp )
     end
 
-    def self.uptime_in_minutes
-      uptime * 1.minute
+    def self.uptime_for_file_path_to_label( file: )
+      rv = File.basename(file).to_s
+      rv = case rv
+           when /^([a-z-]+)_(\d+).*(\.uptime)?$/i
+             "#{Regexp.last_match(1)} (pid: #{Regexp.last_match(2)})"
+           when /^([a-z-]+).*(\.uptime)?$/i
+             "#{Regexp.last_match(1)}"
+           else
+             rv
+           end
+      rv
+    end
+
+    def self.uptime_for_file_human_readable( file: )
+      up = ::Deepblue::UptimeService.uptime_timestamp_from_file( file: file )
+      label = uptime_for_file_path_to_label( file: file )
+      "#{label} uptime: #{TimeDifference.between( Time.now, up ).humanize}"
     end
 
     def self.uptime_human_readable
       # TODO
+    end
+
+    def self.uptime_in_minutes
+      uptime * 1.minute
     end
 
     def self.uptime_loadtime_of( program_name: )
@@ -114,14 +137,15 @@ module Deepblue
     end
 
     def self.uptime_timestamp_file_write
-      return if is_console?
-      puts "uptime_timestamp_file_write  @@_setup_uptime_timestamp_file_written=#{@@_setup_uptime_timestamp_file_written}" if UPDATE_SERVICE_DEBUG_VERBOSE
+      return false if is_console?
+      return false if is_spring?
+      # puts "uptime_timestamp_file_write  @@_setup_uptime_timestamp_file_written=#{@@_setup_uptime_timestamp_file_written}" if UPDATE_SERVICE_DEBUG_VERBOSE
       return false if @@_setup_uptime_timestamp_file_written
-      puts "uptime_timestamp_file_write after one entry test" if UPDATE_SERVICE_DEBUG_VERBOSE
+      # puts "uptime_timestamp_file_write after one entry test" if UPDATE_SERVICE_DEBUG_VERBOSE
       uptime_file = uptime_timestamp_file_path_self
-      puts "uptime_timestamp_file_write #{uptime_file}" if UPDATE_SERVICE_DEBUG_VERBOSE
+      # puts "uptime_timestamp_file_write #{uptime_file}" if UPDATE_SERVICE_DEBUG_VERBOSE
       open( uptime_file, 'w' ) { |f| f << program_load_timestamp.to_s }
-      puts "File.exist? uptime_file #{File.exist?(uptime_file)}"
+      # puts "File.exist? uptime_file #{File.exist?(uptime_file)}"
       File.exist? uptime_file
     rescue Exception => e # rubocop:disable Lint/RescueException
       puts "e => #{e} #{e.backtrace.join("\n")}" if UPDATE_SERVICE_DEBUG_VERBOSE

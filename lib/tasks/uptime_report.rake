@@ -2,6 +2,7 @@
 
 namespace :deepblue do
 
+  # bundle exec rake deepblue:uptime_report
   # bundle exec rake deepblue:uptime_report['{"verbose":true}']
   # bundle exec rake deepblue:uptime_report['{"sleep":10}']
   desc 'Report on fixity of ingested files'
@@ -43,8 +44,7 @@ module Deepblue
       puts "rails is not running" if uptime_vs_rails.nil?
       puts
       UptimeService.uptime_timestamp_files.each do |file|
-        up = UptimeService.uptime_timestamp_from_file( file: file )
-        puts "File: '#{file}' uptime: #{TimeDifference.between( Time.now, up ).humanize}"
+        puts UptimeService.uptime_for_file_human_readable( file: file )
       end
       puts
       puts "Uptime readable: #{TimeDifference.between( Time.now, UptimeService.program_load_timestamp ).humanize}"
