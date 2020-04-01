@@ -7,6 +7,8 @@ module Deepblue
   module JiraHelper
     extend ActionView::Helpers::TranslationHelper
 
+    JIRA_HELPER_DEBUG_VERBOSE = true
+
     FIELD_NAME_CONTACT_INFO = "customfield_11315".freeze
     FIELD_NAME_CREATOR = "customfield_11304".freeze
     FIELD_NAME_DEPOSIT_ID = "customfield_11303".freeze
@@ -129,7 +131,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
                                               Deepblue::LoggingHelper.called_from,
                                               "client.to_json=#{client.to_json}",
-                                              "" ] )
+                                              "" ] ) if JIRA_HELPER_DEBUG_VERBOSE
       return client
     end
 
@@ -144,36 +146,29 @@ module Deepblue
       }
     end
 
-    def self.jira_create_customer( email:, client: nil )
-      return false unless jira_allow_create_users
-      client = jira_client( client: client )
-      user_options = { "emailAddress" => email, "displayName" => email, }
-
-      body = user_options
-      headers = {}
-      rv = client.post("#{client.options[:rest_base_path]}/servicedeskapi/customer", body, headers)
-      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
-                                              Deepblue::LoggingHelper.called_from,
-                                              "user.save( #{user_options} ) rv=#{rv}",
-                                              "" ] ) # unless rv
-      return rv
-    end
-
     def self.jira_create_user( email:, client: nil )
-      return {} unless jira_allow_create_users
-      # TODO
+      return false unless jira_enabled
+      return false unless jira_allow_create_users
+      return false if email.blank?
       client = jira_client( client: client )
-      user_options = { "name" => email,
-                       "emailAddress" => email,
-                       "displayName" => email,
-                       "active" => true
-      }
-      new_user = client.User.build
-      rv = new_user.save( user_options )
+      if email =~ /^([^@]+)@.+$/
+        username = Regexp.last_match(1)
+      end
+      return false if username.blank?
+      user_options = { "username" => username, "emailAddress" => email, "displayName" => email }
+      path = 'https://tools.lib.umich.edu/jira/rest/mlibrary/1.0/users'
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
                                               Deepblue::LoggingHelper.called_from,
-                                              "user.save( #{user_options} ) rv=#{rv}",
-                                              "" ] ) # unless rv
+                                              "user_options=#{user_options}",
+                                              "path=#{path}",
+                                              "" ] ) if JIRA_HELPER_DEBUG_VERBOSE
+      post_rv = client.post( path, user_options.to_json )
+      rv = post_rv.body.blank?
+      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                              Deepblue::LoggingHelper.called_from,
+                                              "post_rv=#{post_rv}",
+                                              "rv=#{rv}",
+                                              "" ] ) if JIRA_HELPER_DEBUG_VERBOSE
       return rv
     end
 
@@ -181,18 +176,20 @@ module Deepblue
       return true unless jira_enabled
       client = jira_client( client: client )
       path = "#{client.options[:rest_base_path]}/user/search?username=#{user}"
-      body = client.get(path).body
+      get_rv = client.get(path)
+      body = get_rv.body
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
                                               Deepblue::LoggingHelper.called_from,
                                               "jira_user_exists?( user: #{user} )",
                                               "path=#{path}",
+                                              "get_rv=#{get_rv}",
                                               "body=#{body}",
-                                              "" ] )
-      rv = body.present?
+                                              "" ] ) if JIRA_HELPER_DEBUG_VERBOSE
+      rv = get_rv.present?
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
                                               Deepblue::LoggingHelper.called_from,
                                               "jira_user_exists?( user: #{user} ) rv=#{rv}",
-                                              "" ] )
+                                              "" ] ) if JIRA_HELPER_DEBUG_VERBOSE
       return rv
     end
 
@@ -200,13 +197,15 @@ module Deepblue
       return true unless jira_enabled
       client = jira_client( client: client )
       path = "#{client.options[:rest_base_path]}/user/search?username=#{user}"
-      body = client.get(path).body
+      get_rv = client.get(path)
+      body = get_rv.body
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
                                               Deepblue::LoggingHelper.called_from,
                                               "jira_user_as_hash( user: #{user} )",
                                               "path=#{path}",
+                                              "get_rv=#{get_rv}",
                                               "body=#{body}",
-                                              "" ] )
+                                              "" ] ) if JIRA_HELPER_DEBUG_VERBOSE
       rv = if body.blank?
              {}
            else
@@ -216,7 +215,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
                                               Deepblue::LoggingHelper.called_from,
                                               "rv=#{rv}",
-                                              "" ] )
+                                              "" ] ) if JIRA_HELPER_DEBUG_VERBOSE
       return rv
     end
 
@@ -225,10 +224,10 @@ module Deepblue
       return { name: user } if jira_test_mode
       return {} if user.nil?
       client = jira_client( client: client )
-      hash = jira_user_as_hash( user: user, client: client )
-      if hash.blank? && jira_allow_create_users
-        hash = jira_create_user( email: user )
+      unless jira_user_exists?( user: user, client: client )
+        jira_create_user( email: user, client: client )
       end
+      hash = jira_user_as_hash( user: user, client: client )
       return hash
     end
 
@@ -270,7 +269,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
-                                             "" ]
+                                             "" ] if JIRA_HELPER_DEBUG_VERBOSE
 
       # Issue type: Data deposit
       #
@@ -324,7 +323,7 @@ module Deepblue
                                              "summary=#{summary}",
                                              "reporter=#{reporter}",
                                              "description=#{description}",
-                                             "" ]
+                                             "" ] if JIRA_HELPER_DEBUG_VERBOSE
       jira_url = JiraHelper.new_ticket( client: client,
                                         contact_info: contact_info,
                                         deposit_id: deposit_id,
@@ -336,14 +335,14 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "jira_url=#{jira_url}",
-                                             "" ]
+                                             "" ] if JIRA_HELPER_DEBUG_VERBOSE
 
       return if jira_url.nil?
       return unless curation_concern.respond_to? :curation_notes_admin
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "curation_concern.curation_notes_admin=#{curation_concern.curation_notes_admin}",
-                                             "" ]
+                                             "" ] if JIRA_HELPER_DEBUG_VERBOSE
       curation_concern.date_modified = DateTime.now # touch it so it will save updated attributes
       notes = curation_concern.curation_notes_admin
       notes = [] if notes.nil?
@@ -370,7 +369,7 @@ module Deepblue
                                              "description=#{description}",
                                              "reporter=#{reporter}",
                                              "jira_enabled=#{jira_enabled}",
-                                             "" ]
+                                             "" ] if JIRA_HELPER_DEBUG_VERBOSE
       return nil unless jira_enabled
       save_options = {
           "fields" => {
@@ -389,7 +388,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "save_options=#{save_options}",
-                                             "" ]
+                                             "" ] if JIRA_HELPER_DEBUG_VERBOSE
 
       return "https://test.jira.url/#{project_key}" if jira_test_mode
       # return nil if jira_test_mode
@@ -410,14 +409,14 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "build_options=#{build_options}",
-                                             "" ]
+                                             "" ] if JIRA_HELPER_DEBUG_VERBOSE
       issue = client.Issue.build
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              # "client.to_json=#{client.to_json}",
                                              "issue=#{issue}",
                                              "issue&.to_json=#{issue&.to_json}",
-                                             "" ]
+                                             "" ] if JIRA_HELPER_DEBUG_VERBOSE
       rv = issue.save( build_options )
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
@@ -458,7 +457,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "url=#{url}",
-                                             "" ]
+                                             "" ] if JIRA_HELPER_DEBUG_VERBOSE
       return url
     end
 
