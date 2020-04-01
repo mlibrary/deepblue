@@ -23,7 +23,7 @@ Deepblue::GlobusIntegrationService.setup do |config|
   config.globus_dir = Pathname.new config.globus_dir
   config.globus_download_dir = config.globus_dir.join ::Deepblue::InitializationConstants::DOWNLOAD
   config.globus_prep_dir = config.globus_dir.join ::Deepblue::InitializationConstants::PREP
-  puts "globus init with hostname = #{DeepBlueDocs::Application.config.hostname}"
+  puts "globus init with hostname = #{DeepBlueDocs::Application.config.hostname}" if verbose_initialization
   case DeepBlueDocs::Application.config.hostname
   when ::Deepblue::InitializationConstants::HOSTNAME_PROD
     config.globus_download_dir = config.globus_dir.join ::Deepblue::InitializationConstants::DOWNLOAD

@@ -21,8 +21,8 @@ module DeepBlueDocs
     # reference config values like: DeepBlueDocs::Application.config.variable_name
     #
     config.load_timestamp = DateTime.now.freeze
-    puts "Rails.const_defined? 'Console' = #{Rails.const_defined? 'Console'}"
-    puts "Rails.const_defined? 'Server' = #{Rails.const_defined? 'Server'}"
+    # puts "Rails.const_defined? 'Console' = #{Rails.const_defined? 'Console'}"
+    # puts "Rails.const_defined? 'Server' = #{Rails.const_defined? 'Server'}"
     if Rails.const_defined? 'Console'
       config.program_name = 'rails-console'.freeze
     else
