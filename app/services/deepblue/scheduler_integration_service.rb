@@ -42,7 +42,7 @@ module Deepblue
       SchedulerStartJob.perform_later( job_delay: 0, restart: true )
     end
 
-    def scheduler_running
+    def self.scheduler_running
       scheduler_pid.present?
     end
 
