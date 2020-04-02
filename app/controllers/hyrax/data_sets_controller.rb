@@ -61,14 +61,16 @@ module Hyrax
     ## box integration
 
     def box_create_dir_and_add_collaborator
-      return nil unless DeepBlueDocs::Application.config.box_integration_enabled
-      user_email = Deepblue::EmailHelper.user_email_from( current_user )
-      BoxHelper.create_dir_and_add_collaborator( curation_concern.id, user_email: user_email )
+      return nil unless ::Deepblue::BoxIntegrationService.box_integration_enabled
+      # user_email = Deepblue::EmailHelper.user_email_from( current_user )
+      # BoxHelper.create_dir_and_add_collaborator( curation_concern.id, user_email: user_email )
+      nil
     end
 
     def box_link
-      return nil unless DeepBlueDocs::Application.config.box_integration_enabled
-      BoxHelper.box_link( curation_concern.id )
+      # return nil unless ::Deepblue::BoxIntegrationService.box_integration_enabled
+      # BoxHelper.box_link( curation_concern.id )
+      nil
     end
 
     def box_work_created

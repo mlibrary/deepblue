@@ -5,6 +5,7 @@ module Deepblue
   module IngestIntegrationService
 
     @@_setup_ran = false
+    @@_setup_failed = false
 
     @@characterization_service_verbose = false
 
@@ -28,8 +29,13 @@ module Deepblue
                    :ingest_script_dir
 
     def self.setup
-      yield self if @@_setup_ran == false
+      return if @@_setup_ran == true
       @@_setup_ran = true
+      begin
+        yield self
+      rescue Exception => e # rubocop:disable Lint/RescueException
+        @@_setup_failed = true
+      end
     end
 
   end

@@ -41,6 +41,13 @@ module DeepBlueDocs
 
     # config.middleware.insert_before Rack::Runtime, RackMultipartBufSizeSetter
 
+    ## to configure for Box integration, see config/initalizers/box_integration.rb
+    ## to configure for Globus integration, see config/initalizers/globus_service_integration.rb
+    ## to configure for Ingest integration, see config/initalizers/ingest_service_integration.rb
+    ## to configure for Jira integration, see config/initalizers/jira_integration.rb
+    ## to configure for Scheduler integration, see config/initalizers/scheduler_service_integration.rb
+    ## to configure for Uptime integration, see config/initalizers/uptime_service_integration.rb
+
     # config.dbd_version = 'DBDv1'
     config.dbd_version = 'DBDv2'
 
@@ -75,20 +82,6 @@ module DeepBlueDocs
     config.hostname = ENV['APP_HOSTNAME'] || Settings.hostname
     # puts "config.hostname=#{config.hostname}"
 
-    ## configure box
-    config.box_enabled = false
-    config.box_developer_token = nil # replace this with a developer token to override Single Auth
-    # config.box_developer_token = 'IGmQMmqw8coKpuQDN3EG4gBrDzn78sGr'.freeze
-    config.box_dlib_dbd_box_user_id = '3200925346'
-    config.box_ulib_dbd_box_id = '45101723215'
-    config.box_verbose = true
-    config.box_always_report_not_logged_in_errors = true
-    config.box_create_dirs_for_empty_works = true
-    config.box_access_and_refresh_token_file = Rails.root.join( 'config', 'box_config.yml' ).freeze
-    config.box_access_and_refresh_token_file_init = Rails.root.join( 'config', 'box_config_init.yml' ).freeze
-    config.box_integration_enabled = config.box_enabled && ( !config.box_developer_token.nil? ||
-        File.exist?( config.box_access_and_refresh_token_file ) )
-
     ## configure email
     config.email_error_alert_addresses = [ 'fritx@umich.edu', 'blancoj@umich.edu' ].freeze
 
@@ -103,11 +96,6 @@ module DeepBlueDocs
                                            'deepblue.lib.umich.edu' ].freeze
     config.embargo_about_to_expire_email_rds = config.embargo_email_rds_hostnames.include? config.hostname
     config.embargo_deactivate_email_rds = config.embargo_email_rds_hostnames.include? config.hostname
-
-    ## to configure for Globus integration, see config/initalizers/globus_service_integration.rb
-    ## to configure for ingest integration, see config/initalizers/ingest_service_integration.rb
-    ## to configure for Jira integration, see config/initalizers/jira_integration.rb
-    ## to configure for Scheduler integration, see config/initalizers/scheduler_service_integration.rb
 
     # deposit notification email addresses
     config.notification_email = Settings.notification_email
