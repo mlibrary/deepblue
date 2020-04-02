@@ -42,3 +42,12 @@
       <% end %>
     <% end %>
   <% end %>
+
+  <% if defined?(Rails.application.routes.url_helpers.resque_web_path) %>
+    <% if can? :read, :admin_dashboard %>
+      <%= menu.nav_link(Rails.application.routes.url_helpers.resque_web_path) do %>
+        <span class="fa fa-flag" aria-hidden="true"></span>
+        <span class="sidebar-action-text"><%= t('hyrax.admin.sidebar.resque_web') %></span>
+      <% end %>
+    <% end %>
+  <% end %>

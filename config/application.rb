@@ -14,6 +14,13 @@ Bundler.require(*Rails.groups)
 module DeepBlueDocs
 
   class Application < Rails::Application
+
+    # initializer "DeepBlueDocs_initializer", :after => "add_routing_paths" do |app|
+    #   # puts "before: app.routes_reloader.paths=#{app.routes_reloader.paths.join("\n")}"
+    #   app.routes_reloader.paths.delete_if{ |path| path.include?("resque-web") }
+    #   # puts "after: app.routes_reloader.paths=#{app.routes_reloader.paths.join("\n")}"
+    # end
+
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
