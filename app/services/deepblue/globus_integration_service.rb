@@ -7,6 +7,7 @@ module Deepblue
     include ::Deepblue::InitializationConstants
 
     @@_setup_ran = false
+    @@_setup_failed = false
 
     @@globus_after_copy_job_ui_delay_seconds = 3
     @@globus_base_file_name
@@ -17,6 +18,7 @@ module Deepblue
     @@globus_copy_file_permissions
     @@globus_debug_delay_per_file_copy_job_seconds = 0
     @@globus_dir
+    @@globus_dir_modifier
     @@globus_download_dir
     @@globus_enabled = false
     @@globus_era_timestamp
@@ -33,6 +35,7 @@ module Deepblue
                    :globus_copy_file_permissions,
                    :globus_debug_delay_per_file_copy_job_seconds,
                    :globus_dir,
+                   :globus_dir_modifier,
                    :globus_download_dir,
                    :globus_prep_dir,
                    :globus_enabled,
@@ -41,8 +44,13 @@ module Deepblue
                    :globus_restart_all_copy_jobs_quiet
 
     def self.setup
-      yield self if @@_setup_ran == false
+      return if @@_setup_ran == true
       @@_setup_ran = true
+      begin
+        yield self
+      rescue Exception => e # rubocop:disable Lint/RescueException
+        @@_setup_failed = true
+      end
     end
 
     # TODO: some of these are dependent and can be made readonly
