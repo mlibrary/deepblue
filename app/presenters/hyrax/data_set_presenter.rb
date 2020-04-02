@@ -71,22 +71,24 @@ module Hyrax
     # begin box
 
     def box_enabled?
-      DeepBlueDocs::Application.config.box_integration_enabled
+      ::Deepblue::BoxIntegrationService.box_integration_enabled
     end
 
     def box_link( only_if_exists_in_box: false )
       return nil unless box_enabled?
-      concern_id = @solr_document.id
-      return ::BoxHelper.box_link( concern_id, only_if_exists_in_box: only_if_exists_in_box )
+      # concern_id = @solr_document.id
+      # return ::BoxHelper.box_link( concern_id, only_if_exists_in_box: only_if_exists_in_box )
+      nil
     end
 
     def box_link_display_for_work?( current_user )
       return false unless box_enabled?
-      rv = ::BoxHelper.box_link_display_for_work?( work_id: @solr_document.id,
-                                                   work_file_count: total_file_count,
-                                                   is_admin: current_ability.admin?,
-                                                   user_email: Deepblue::EmailHelper.user_email_from( current_user ) )
-      return rv
+      # rv = ::BoxHelper.box_link_display_for_work?( work_id: @solr_document.id,
+      #                                              work_file_count: total_file_count,
+      #                                              is_admin: current_ability.admin?,
+      #                                              user_email: Deepblue::EmailHelper.user_email_from( current_user ) )
+      # return rv
+      false
     end
 
     # end box
