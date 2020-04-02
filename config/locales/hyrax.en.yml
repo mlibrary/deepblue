@@ -60,6 +60,7 @@ en:
               administrators, managers, and viewers of the set. Must be used with "No embargo" setting above.
       sidebar:
         documentation:      "Manage Documentation"
+        resque_web:         "Resque Web Manager"
         scheduler:          "Manage Scheduler"
     account_name:           "My Institution Account Id"
     base:

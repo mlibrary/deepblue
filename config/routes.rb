@@ -11,7 +11,16 @@ Rails.application.routes.draw do
 
   mount Blacklight::Engine => '/'
 
-  get '/concern/generic_works/*rest', to: redirect( '/data/concern/data_sets/%{rest}', status: 302 )
+  if '/data' == Settings.relative_url_root
+    # note that this path assumes a leading /data
+    get '/concern/generic_works/(*rest)', to: redirect( '/data/concern/data_sets/%{rest}', status: 302 )
+    # get '/resque/', to: redirect( '/data/resque/' )
+    # post '/resque/', to: redirect( '/data/resque/' )
+    # get '/resque/(*rest)', to: redirect( '/data/resque/%{rest}' )
+    # post '/resque/(*rest)', to: redirect( '/data/resque/%{rest}' )
+  elsif '/' == Settings.relative_url_root
+    get '/concern/generic_works/(*rest)', to: redirect( '/concern/data_sets/%{rest}', status: 302 )
+  end
 
   get 'static/show/:layout/:doc/:file', to: 'hyrax/static#show_layout_doc'
   get 'static/show/:doc/:file', to: 'hyrax/static#show_doc'
@@ -162,3 +171,40 @@ Rails.application.routes.draw do
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
 end
+
+# # Match IDs with dots in them
+# id_pattern = /[^\/]+/
+#
+# ResqueWeb::Engine.routes.draw do
+#   scope '/data' do
+#   ResqueWeb::Plugins.plugins.each do |p|
+#     mount p::Engine => p.engine_path
+#   end
+#
+#   resource  :overview,  :only => [:show], :controller => :overview
+#   resources :working,   :only => [:index]
+#   resources :queues,    :only => [:index,:show,:destroy], :constraints => {:id => id_pattern} do
+#     member do
+#       put 'clear'
+#     end
+#   end
+#   resources :workers,   :only => [:index,:show], :constraints => {:id => id_pattern}
+#   resources :failures,  :only => [:show,:index,:destroy] do
+#     member do
+#       put 'retry'
+#     end
+#     collection do
+#       put 'retry_all'
+#       delete 'destroy_all'
+#     end
+#   end
+#
+#   get '/stats' => 'stats#index'
+#   get '/stats/resque' => 'stats#resque'
+#   get '/stats/redis' => 'stats#redis'
+#   get '/stats/keys' => 'stats#keys'
+#   get '/stats/keys/:id' => 'stats#keys', :constraints => { :id => id_pattern }, as: :keys_statistic
+#
+#   root :to => 'overview#show'
+#   end
+# end
