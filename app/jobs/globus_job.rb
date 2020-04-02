@@ -10,6 +10,7 @@ class GlobusJob < ::Hyrax::ApplicationJob
   @@globus_base_url = ::Deepblue::GlobusIntegrationService.globus_base_url.freeze
   @@globus_download_dir = ::Deepblue::GlobusIntegrationService.globus_download_dir.freeze
   @@globus_prep_dir = ::Deepblue::GlobusIntegrationService.globus_prep_dir.freeze
+  @@globus_dir_modifier = ::Deepblue::GlobusIntegrationService.globus_dir_modifier.freeze
 
   @@globus_copy_file_group = ::Deepblue::GlobusIntegrationService.globus_copy_file_group.freeze
   @@globus_copy_file_permissions = ::Deepblue::GlobusIntegrationService.globus_copy_file_permissions.freeze
@@ -65,6 +66,7 @@ class GlobusJob < ::Hyrax::ApplicationJob
   end
 
   def self.external_url( id )
+    return "#{@@globus_base_url}#{@@globus_dir_modifier}%2F#{files_target_file_name(id)}%2F" if @@globus_dir_modifier.present?
     "#{@@globus_base_url}#{files_target_file_name(id)}%2F"
   end
 

@@ -21,6 +21,7 @@ Deepblue::GlobusIntegrationService.setup do |config|
   end
   puts "globus_dir=#{config.globus_dir}" if verbose_initialization if verbose_initialization
   config.globus_dir = Pathname.new config.globus_dir
+  config.globus_dir_modifier = ''
   config.globus_download_dir = config.globus_dir.join ::Deepblue::InitializationConstants::DOWNLOAD
   config.globus_prep_dir = config.globus_dir.join ::Deepblue::InitializationConstants::PREP
   puts "globus init with hostname = #{DeepBlueDocs::Application.config.hostname}" if verbose_initialization
@@ -29,18 +30,27 @@ Deepblue::GlobusIntegrationService.setup do |config|
     config.globus_download_dir = config.globus_dir.join ::Deepblue::InitializationConstants::DOWNLOAD
     config.globus_prep_dir = config.globus_dir.join ::Deepblue::InitializationConstants::PREP
   when ::Deepblue::InitializationConstants::HOSTNAME_TESTING
+    config.globus_dir_modifier = ::Deepblue::InitializationConstants::TESTING
     config.globus_download_dir = config.globus_download_dir.join ::Deepblue::InitializationConstants::TESTING
     config.globus_prep_dir = config.globus_prep_dir.join ::Deepblue::InitializationConstants::TESTING
   when ::Deepblue::InitializationConstants::HOSTNAME_STAGING
+    config.globus_dir_modifier = ::Deepblue::InitializationConstants::STAGING
     config.globus_download_dir = config.globus_download_dir.join ::Deepblue::InitializationConstants::STAGING
     config.globus_prep_dir = config.globus_prep_dir.join ::Deepblue::InitializationConstants::STAGING
   when ::Deepblue::InitializationConstants::HOSTNAME_TEST
-    config.globus_download_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::DOWNLOAD ).join( ::Deepblue::InitializationConstants::TEST )
-    config.globus_prep_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::PREP ).join( ::Deepblue::InitializationConstants::TEST )
+    config.globus_dir_modifier = ::Deepblue::InitializationConstants::TEST
+    config.globus_download_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::DOWNLOAD,
+                                                         ::Deepblue::InitializationConstants::TEST )
+    config.globus_prep_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::PREP,
+                                                     ::Deepblue::InitializationConstants::TEST )
   when ::Deepblue::InitializationConstants::HOSTNAME_LOCAL
-    config.globus_download_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::DOWNLOAD ).join( ::Deepblue::InitializationConstants::LOCAL )
-    config.globus_prep_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::PREP ).join( ::Deepblue::InitializationConstants::LOCAL )
+    config.globus_dir_modifier = ::Deepblue::InitializationConstants::LOCAL
+    config.globus_download_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::DOWNLOAD,
+                                                         ::Deepblue::InitializationConstants::LOCAL )
+    config.globus_prep_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::PREP,
+                                                     ::Deepblue::InitializationConstants::LOCAL )
   else
+    config.globus_dir_modifier = ::Deepblue::InitializationConstants::UNKNOWN
     config.globus_download_dir = config.globus_download_dir.join ::Deepblue::InitializationConstants::UNKNOWN
     config.globus_prep_dir = config.globus_prep_dir.join ::Deepblue::InitializationConstants::UNKNOWN
   end
