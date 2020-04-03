@@ -48,7 +48,7 @@ module Deepblue
       filter
     end
 
-    def add_date_range_filter( options: {} )
+    def add_date_range_filter( options: {}, verbose: false )
       begin_timestamp = option( key: 'begin' )
       begin_timestamp = option( key: 'begin_timestamp', default_value: DEFAULT_BEGIN_TIMESTAMP ) unless begin_timestamp.present?
       end_timestamp = option( key: 'end' )
@@ -61,6 +61,7 @@ module Deepblue
                                               end_timestamp: end_timestamp,
                                               timestamp_format: timestamp_format,
                                               options: options )
+      @date_range_filter.verbose = true if verbose
       filter_and( new_filters: date_range_filter )
     end
 
@@ -149,14 +150,16 @@ module Deepblue
         parse_line
         next unless @parsed
         # next @filter_predicate.call( @parsed_timestamp,
-        next unless line_filter.filter_in( @parsed_timestamp,
+        next unless line_filter.filter_in( self,
+                                           @parsed_timestamp,
                                            @parsed_event,
                                            @parsed_event_note,
                                            @parsed_class_name,
                                            @parsed_id,
                                            @parsed_raw_key_values )
         next unless for_filtered_line_block
-        yield( @current_line,
+        yield( self,
+               @current_line,
                @parsed_timestamp,
                @parsed_event,
                @parsed_event_note,

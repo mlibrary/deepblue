@@ -63,8 +63,8 @@ module Deepblue
         @published_id_to_key_values_map = {}
       end
 
-      def line_read( line, timestamp, event, event_note, class_name, id, raw_key_values )
-        super( line, timestamp, event, event_note, class_name, id, raw_key_values )
+      def line_read( reader, line, timestamp, event, event_note, class_name, id, raw_key_values )
+        super( reader, line, timestamp, event, event_note, class_name, id, raw_key_values )
         @published_id << id
         # puts "#{id} raw_key_values=#{raw_key_values}"
         key_values = ProvenanceHelper.parse_log_line_key_values raw_key_values

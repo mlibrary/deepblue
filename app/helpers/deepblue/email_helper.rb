@@ -5,14 +5,14 @@ module Deepblue
   module EmailHelper
     extend ActionView::Helpers::TranslationHelper
 
-    REPLACEMENT_CHAR = "?"
+    # CLEAN_STR_REPLACEMENT_CHAR = "?"
 
     # Replace invalid UTF-8 character sequences with a replacement character
     #
     # Returns self as valid UTF-8.
     def self.clean_str!(str)
       return str if str.encoding.to_s == "UTF-8"
-      str.force_encoding("binary").encode("UTF-8", :invalid => :replace, :undef => :replace, :replace => REPLACEMENT_CHAR)
+      str.force_encoding("binary").encode("UTF-8", :invalid => :replace, :undef => :replace, :replace => '?')
     end
 
     # Replace invalid UTF-8 character sequences with a replacement character

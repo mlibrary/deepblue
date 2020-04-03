@@ -16,7 +16,7 @@ module Deepblue
 
     attr_accessor :begin_timestamp, :end_timestamp, :format_timestamp
 
-    def initialize( options: {} )
+    def initialize( options: {}, pass_all_options: false )
       super( options: options )
 
       @options_to_pass = {}
@@ -32,6 +32,8 @@ module Deepblue
       @options_to_pass['end_timestamp'] = @end_timestamp if @end_timestamp.present?
       @timestamp_format = task_options_value( key: 'format', default_value: DEFAULT_FORMAT )
       @options_to_pass['timestamp_format'] = @format_timestamp if @timestamp_format.present?
+
+      @options_to_pass.merge!( @options ) if pass_all_options
     end
 
     def initialize_input

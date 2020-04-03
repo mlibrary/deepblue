@@ -12,7 +12,7 @@ module Deepblue
       @lines_extracted = []
     end
 
-    def extract_line( line, timestamp, event, event_note, class_name, id, raw_key_values )
+    def extract_line( _reader, line, timestamp, event, event_note, class_name, id, raw_key_values )
       if @extract_parsed_tuple
         @lines_extracted << [line, timestamp, event, event_note, class_name, id, raw_key_values]
       else
@@ -21,8 +21,8 @@ module Deepblue
     end
 
     def run
-      readlines do |line, timestamp, event, event_note, class_name, id, raw_key_values|
-        extract_line line, timestamp, event, event_note, class_name, id, raw_key_values
+      readlines do |reader, line, timestamp, event, event_note, class_name, id, raw_key_values|
+        extract_line( reader, line, timestamp, event, event_note, class_name, id, raw_key_values )
       end
     end
 

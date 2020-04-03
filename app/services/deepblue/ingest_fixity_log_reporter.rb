@@ -37,8 +37,8 @@ module Deepblue
         @fixity_check_passed_id = []
       end
 
-      def line_read( line, timestamp, event, event_note, class_name, id, raw_key_values )
-        super( line, timestamp, event, event_note, class_name, id, raw_key_values )
+      def line_read( reader, line, timestamp, event, event_note, class_name, id, raw_key_values )
+        super( reader, line, timestamp, event, event_note, class_name, id, raw_key_values )
         if 'success' == event_note
           @fixity_check_passed_id << id
         else
