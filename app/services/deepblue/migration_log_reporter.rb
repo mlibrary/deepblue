@@ -147,8 +147,8 @@ module Deepblue
         @unexpected_file_set_ids = []
       end
 
-      def line_read( line, timestamp, event, event_note, class_name, id, raw_key_values )
-        super( line, timestamp, event, event_note, class_name, id, raw_key_values )
+      def line_read( reader, line, timestamp, event, event_note, class_name, id, raw_key_values )
+        super( reader, line, timestamp, event, event_note, class_name, id, raw_key_values )
         @raw_key_values = raw_key_values
         @key_values = nil
         case event

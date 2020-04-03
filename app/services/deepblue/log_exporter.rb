@@ -21,15 +21,15 @@ module Deepblue
       puts "pp_export=#{pp_export}" if verbose
     end
 
-    def export_line( line, timestamp, event, event_note, class_name, id, raw_key_values )
+    def export_line( reader, line, timestamp, event, event_note, class_name, id, raw_key_values )
       if pp_export
-        pretty_print_line line, timestamp, event, event_note, class_name, id, raw_key_values
+        pretty_print_line( reader, line, timestamp, event, event_note, class_name, id, raw_key_values )
       else
         @output.puts line
       end
     end
 
-    def pretty_print_line( line, timestamp, event, event_note, class_name, id, raw_key_values )
+    def pretty_print_line( _reader, _line, timestamp, event, event_note, class_name, id, raw_key_values )
       @output.puts "#{timestamp} #{event}/#{event_note}/#{class_name}/#{id}"
       @output.puts JSON.pretty_generate( JSON.parse( raw_key_values ) )
     end
@@ -41,8 +41,8 @@ module Deepblue
     def run
       @lines_exported = 0
       log_open_output
-      readlines do |line, timestamp, event, event_note, class_name, id, raw_key_values|
-        export_line line, timestamp, event, event_note, class_name, id, raw_key_values
+      readlines do |reader, line, timestamp, event, event_note, class_name, id, raw_key_values|
+        export_line( reader, line, timestamp, event, event_note, class_name, id, raw_key_values )
         @lines_exported += 1
       end
     ensure

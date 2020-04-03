@@ -9,13 +9,15 @@ module Deepblue
 
     def initialize( options: {} )
       @verbose = options_value( options, key: "verbose_filters", default_value: false )
-      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-      #                                        ::Deepblue::LoggingHelper.called_from,
-      #                                        "verbose=#{verbose}",
-      #                                        "" ]
-      # puts "#{::Deepblue::LoggingHelper.here} self.class.name=#{self.class.name}"
-      # puts "#{::Deepblue::LoggingHelper.here} options=#{options}"
-      # puts "#{::Deepblue::LoggingHelper.here} verbose=#{verbose}"
+      # @verbose = options_value( options, key: "verbose_filters", default_value: true )
+      return unless @verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "verbose=#{verbose}",
+                                             "" ]
+      puts "#{::Deepblue::LoggingHelper.here} self.class.name=#{self.class.name}"
+      puts "#{::Deepblue::LoggingHelper.here} options=#{options}"
+      puts "#{::Deepblue::LoggingHelper.here} verbose=#{verbose}"
     end
 
     protected
@@ -72,9 +74,9 @@ module Deepblue
       return new_filter
     end
 
-    def filter_in( timestamp, event, event_note, class_name, id, raw_key_values )
+    def filter_in( reader, timestamp, event, event_note, class_name, id, raw_key_values )
       filters.each do |filter|
-        return false unless filter.filter_in( timestamp, event, event_note, class_name, id, raw_key_values )
+        return false unless filter.filter_in( reader, timestamp, event, event_note, class_name, id, raw_key_values )
       end
       return true
     end
@@ -96,9 +98,9 @@ module Deepblue
       add_filters( new_filters: new_filters )
     end
 
-    def filter_in( timestamp, event, event_note, class_name, id, raw_key_values )
+    def filter_in( reader, timestamp, event, event_note, class_name, id, raw_key_values )
       filters.each do |filter|
-        return true if filter.filter_in( timestamp, event, event_note, class_name, id, raw_key_values )
+        return true if filter.filter_in( reader, timestamp, event, event_note, class_name, id, raw_key_values )
       end
       return false
     end
@@ -125,7 +127,7 @@ module Deepblue
       return new_filter
     end
 
-    def filter_in( _timestamp, _event, _event_note, _class_name, _id, _raw_key_values )
+    def filter_in( _reader, _timestamp, _event, _event_note, _class_name, _id, _raw_key_values )
       puts "#{::Deepblue::LoggingHelper.here} filter_in returning false"
       false
     end
@@ -143,12 +145,14 @@ module Deepblue
 
       def arg_to_timestamp( arg, timestamp_format: )
         timestamp = arg
-        if timestamp_format.blank?
+        return timestamp if timestamp.is_a? DateTime
+        return timestamp.to_datetime if timestamp.is_a? Date
+        if timestamp_format.blank? && arg.is_a?( String )
           return DateTime.strptime( arg, "%Y-%m-%d %H:%M:%S" ) if arg.match?( /\d\d\d\d\-\d\d?\-\d\d? \d\d?:\d\d:\d\d/ )
           return DateTime.strptime( arg, "%m/%d/%Y" ) if arg.match?( /\d\d?\/\d\d?\/\d\d\d\d/ )
           return DateTime.strptime( arg, "%m-%d-%Y" ) if arg.match?( /\d\d?\-\d\d?\-\d\d\d\d/ )
           return DateTime.strptime( arg, "%Y" ) if arg.match?( /\d\d\d\d/ )
-          timestamp = DateTime.parse( arg ) if arg.is_a? String
+          timestamp = DateTime.parse( arg ) if arg.present? && arg.is_a?( String )
         elsif arg.is_a? String
           timestamp = DateTime.strptime( arg, timestamp_format )
         end
@@ -172,8 +176,8 @@ module Deepblue
       @filter = filter
     end
 
-    def filter_in( timestamp, event, event_note, class_name, id, raw_key_values )
-      rv = @filter.filter_in( timestamp, event, event_note, class_name, id, raw_key_values )
+    def filter_in( reader, timestamp, event, event_note, class_name, id, raw_key_values )
+      rv = @filter.filter_in( reader, timestamp, event, event_note, class_name, id, raw_key_values )
       return !rv
     end
 
@@ -189,7 +193,7 @@ module Deepblue
       true
     end
 
-    def filter_in( _timestamp, _event, _event_note, _class_name, _id, _raw_key_values )
+    def filter_in( _reader, _timestamp, _event, _event_note, _class_name, _id, _raw_key_values )
       true
     end
 
@@ -204,7 +208,7 @@ module Deepblue
       @matching_classe_names = arg_to_array matching_class_names
     end
 
-    def filter_in( _timestamp, _event, _event_note, class_name, _id, _raw_key_values )
+    def filter_in( _reader, _timestamp, _event, _event_note, class_name, _id, _raw_key_values )
       puts "#{@matching_classe_names} include? #{class_name}" if verbose
       @matching_classe_names.include? class_name
     end
@@ -250,13 +254,16 @@ module Deepblue
       @end_timestamp = arg_to_timestamp( end_timestamp, timestamp_format: timestamp_format )
     end
 
-    def filter_in( timestamp, _event, _event_note, _class_name, _id, _raw_key_values )
+    def filter_in( _reader, timestamp, _event, _event_note, _class_name, _id, _raw_key_values )
       before_begin = false
       before_begin = timestamp < @begin_timestamp if @begin_timestamp.present?
       after_end = false
       after_end = timestamp > @after_timestamp if @after_timestamp.present?
-      puts "#{::Deepblue::LoggingHelper.here} filter_in returning..."
-      puts "#{timestamp} is before_begin? #{before_begin} and #{timestamp} is after_end? #{after_end}"
+      if verbose
+        puts "@begin_timestamp=#{@begin_timestamp} and @after_timestamp=#{@after_timestamp}"
+        puts "#{::Deepblue::LoggingHelper.here} filter_in returning..."
+        puts "#{timestamp} is before_begin? #{before_begin} and #{timestamp} is after_end? #{after_end}"
+      end
       return !before_begin && !after_end
     end
 
@@ -292,7 +299,7 @@ module Deepblue
       @matching_events = arg_to_array matching_events
     end
 
-    def filter_in( _timestamp, event, _event_note, _class_name, _id, _raw_key_values )
+    def filter_in( _reader, _timestamp, event, _event_note, _class_name, _id, _raw_key_values )
       puts "#{@matching_events} include? #{event}" if verbose
       @matching_events.include? event
     end
@@ -324,6 +331,51 @@ module Deepblue
 
   end
 
+  class LinesFilter < AbstractLogFilter
+
+    attr_reader :begin_line_num, :end_line_num
+
+    def initialize( begin_line: nil, end_line: nil, options: {} )
+      super( options: options )
+      @begin_line_num = begin_line.to_i
+      @end_line_num = end_line.to_i
+    end
+
+    def filter_in( reader, _timestamp, _event, _event_note, _class_name, _id, _raw_key_values )
+      current_line_num = reader.lines_read
+      before_begin = false
+      before_begin = current_line_num < @begin_line_num if @begin_line_num.present?
+      after_end = false
+      after_end = current_line_num > @end_line_num if @end_line_num.present?
+      puts "@begin_line_num=#{@begin_line_num} and @end_line_num=#{@end_line_num}"
+      puts "#{::Deepblue::LoggingHelper.here} filter_in returning..."
+      puts "#{current_line_num} is before_begin? #{before_begin} and #{current_line_num} is after_end? #{after_end}"
+      return !before_begin && !after_end
+    end
+
+    def begin_line_num_label
+      num = begin_line_num
+      return '' if num.blank?
+      num.to_s
+    end
+
+    def end_line_num_label
+      num = end_line_num
+      return '' if num.blank?
+      num.to_s
+    end
+
+    def date_range_label
+      num1 = begin_line_num_label
+      num2 = end_line_num_label
+      return '' if num1.blank? && num2.blank?
+      return num1 if num2.blank?
+      return num2 if num1.blank?
+      return "#{num1}-#{num2}"
+    end
+
+  end
+
   class MigrationEventFilter < EventLogFilter
 
     def initialize( options: {} )
@@ -346,7 +398,7 @@ module Deepblue
       @matching_ids = arg_to_array matching_ids
     end
 
-    def filter_in( _timestamp, _event, _event_note, _class_name, id, _raw_key_values )
+    def filter_in( _reader, _timestamp, _event, _event_note, _class_name, id, _raw_key_values )
       @matching_ids.include? id
     end
 
@@ -381,7 +433,7 @@ module Deepblue
       super( matching_ids: matching_ids, options: options )
     end
 
-    def filter_in( _timestamp, _event, _event_note, _class_name, _id, raw_key_values )
+    def filter_in( _reader, _timestamp, _event, _event_note, _class_name, _id, raw_key_values )
       filter_in_child_id raw_key_values
     end
 
@@ -393,8 +445,8 @@ module Deepblue
       super( matching_ids: matching_ids , options: options)
     end
 
-    def filter_in( timestamp, event, event_note, class_name, id, raw_key_values )
-      return true if super.filter_in( timestamp, event, event_note, class_name, id, raw_key_values )
+    def filter_in( reader, timestamp, event, event_note, class_name, id, raw_key_values )
+      return true if super.filter_in( reader, timestamp, event, event_note, class_name, id, raw_key_values )
       filter_in_parent_id raw_key_values
     end
 
@@ -406,8 +458,8 @@ module Deepblue
       super( matching_ids: matching_ids, options: options )
     end
 
-    def filter_in( timestamp, event, event_note, class_name, id, raw_key_values )
-      return true if super.filter_in( timestamp, event, event_note, class_name, id, raw_key_values )
+    def filter_in( reader, timestamp, event, event_note, class_name, id, raw_key_values )
+      return true if super.filter_in( reader, timestamp, event, event_note, class_name, id, raw_key_values )
       filter_in_parent_or_child_id raw_key_values
     end
 
@@ -419,7 +471,7 @@ module Deepblue
       super( matching_ids: matching_ids, options: options )
     end
 
-    def filter_in( _timestamp, _event, _event_note, _class_name, _id, raw_key_values )
+    def filter_in( _reader, _timestamp, _event, _event_note, _class_name, _id, raw_key_values )
       filter_in_parent_id raw_key_values
     end
 

@@ -36,8 +36,8 @@ module Deepblue
 
     def run
       initialize_report_values
-      readlines do |line, timestamp, event, event_note, class_name, id, raw_key_values|
-        line_read( line, timestamp, event, event_note, class_name, id, raw_key_values )
+      readlines do |reader, line, timestamp, event, event_note, class_name, id, raw_key_values|
+        line_read( reader, line, timestamp, event, event_note, class_name, id, raw_key_values )
       end
     end
 
@@ -56,7 +56,7 @@ module Deepblue
         @ids = {}
       end
 
-      def line_read( _line, timestamp, event, _event_note, class_name, id, _raw_key_values )
+      def line_read( _reader, _line, timestamp, event, _event_note, class_name, id, _raw_key_values )
         @lines_reported += 1
         @timestamp_first = timestamp if @timestamp_first.blank?
         @timestamp_last = timestamp
