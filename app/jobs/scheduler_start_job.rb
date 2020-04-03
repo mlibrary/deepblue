@@ -16,7 +16,7 @@ class SchedulerStartJob < ::Hyrax::ApplicationJob
     restarted = false
     pid = `pgrep -fu #{Process.uid} resque-scheduler`
     if restart
-      `kill -9 #{pid}` if pid.present?
+      `kill -15 #{pid}` if pid.present?
       sleep 1.second
       pid = `pgrep -fu #{Process.uid} resque-scheduler`
       if pid.present?

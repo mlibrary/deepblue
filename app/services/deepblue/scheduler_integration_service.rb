@@ -59,7 +59,7 @@ module Deepblue
                                              "scheduler_running=#{scheduler_running}",
                                              "" ]
       pid = scheduler_pid
-      `kill -9 #{pid}` if pid.present?
+      `kill -15 #{pid}` if pid.present?
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "scheduler_running=#{scheduler_running}",
