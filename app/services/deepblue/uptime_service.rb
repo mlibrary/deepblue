@@ -88,6 +88,8 @@ module Deepblue
     def self.uptime_for_file_path_to_label( file: )
       rv = File.basename(file).to_s
       rv = case rv
+           when /^([a-z-]+)_(\d+)_([a-z-]+).*(\.uptime)?$/i
+             "#{Regexp.last_match(1)} #{Regexp.last_match(3)} (pid: #{Regexp.last_match(2)})"
            when /^([a-z-]+)_(\d+).*(\.uptime)?$/i
              "#{Regexp.last_match(1)} (pid: #{Regexp.last_match(2)})"
            when /^([a-z-]+).*(\.uptime)?$/i
@@ -159,8 +161,8 @@ module Deepblue
 
     def self.uptime_timestamp_file_path_self
       if is_rake?
-        # @@uptime_dir.join( "#{program_name}_#{$PID}_#{@@program_arg1}.uptime" )
-        @@uptime_dir.join( "#{program_name}_#{$PID}.uptime" )
+        @@uptime_dir.join( "#{program_name}_#{$PID}_#{@@program_arg1}.uptime" )
+        # @@uptime_dir.join( "#{program_name}_#{$PID}.uptime" )
       elsif is_console?
         @@uptime_dir.join( "#{program_name}_#{$PID}.uptime" )
       else
