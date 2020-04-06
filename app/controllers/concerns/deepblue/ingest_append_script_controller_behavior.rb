@@ -4,7 +4,7 @@ module Deepblue
 
   module IngestAppendScriptControllerBehavior
 
-    INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE = true
+    INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE = false
 
     attr_reader :ingest_script
 
@@ -25,6 +25,7 @@ module Deepblue
       script << "#{generate_depth( depth: depth )}:visibility: #{ingest_visibility}"
       script << "#{generate_depth( depth: depth )}:email: '#{ingest_depositor}'"
       script << "#{generate_depth( depth: depth )}:ingester: '#{ingest_ingester}'"
+      script << "#{generate_depth( depth: depth )}:depositor: '#{ingest_depositor}'"
       script << "#{generate_depth( depth: depth )}:source: DBDv2"
       script << "#{generate_depth( depth: depth )}:mode: append"
       # :email_after_add_log_msgs: true
