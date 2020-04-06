@@ -1,7 +1,7 @@
 
 Deepblue::GlobusIntegrationService.setup do |config|
 
-  verbose_initialization = true && DeepBlueDocs::Application.config.program_name != 'resque-pool'
+  verbose_initialization = false && DeepBlueDocs::Application.config.program_name != 'resque-pool'
 
   # TODO: some of these are dependent and can be made readonly
 
