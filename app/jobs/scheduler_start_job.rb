@@ -28,22 +28,19 @@ class SchedulerStartJob < ::Hyrax::ApplicationJob
       scheduler_emails( subject: "DBD scheduler already running on #{hostname}" )
       return
     end
-    rails_bin_scheduler = Rails.application.root.join( 'bin' ).join( 'scheduler.sh' )
-    rails_log_scheduler = Rails.application.root.join( 'log' ).join( 'scheduler.sh.out' )
-    cmd = "nohup #{rails_bin_scheduler} 2>&1 >> #{rails_log_scheduler} &"
+    rails_bin_scheduler = Rails.application.root.join( 'bin', 'scheduler.sh' ).to_s
+    rails_log_scheduler = Rails.application.root.join( 'log', 'scheduler.sh.out' ).to_s
     ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
                                            Deepblue::LoggingHelper.obj_class( 'class', self ),
                                            "rails_bin_scheduler=#{rails_bin_scheduler}",
                                            "rails_log_scheduler=#{rails_log_scheduler}",
-                                           "cmd=#{cmd}",
                                            "" ]
-    rv = `#{cmd}`
+    spawn_pid = spawn( rails_bin_scheduler, :out => rails_log_scheduler, :err => rails_log_scheduler )
+    Process.detach( spawn_pid )
     ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
                                            Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                           "cmd=#{cmd}",
-                                           "cmd rv=#{rv}",
                                            "" ]
     retry_count = 0
     while retry_count < 5 # TODO configure retry count
@@ -56,7 +53,7 @@ class SchedulerStartJob < ::Hyrax::ApplicationJob
     msg_lines << "rails_bin_scheduler = #{rails_bin_scheduler}"
     msg_lines << "rails_log_scheduler = #{rails_log_scheduler}"
     msg_lines << ''
-    msg_lines << "cmd rv = #{rv}"
+    msg_lines << "spawn_pid = #{spawn_pid}"
     msg_lines << ''
     msg_lines << "retry_count = #{retry_count}"
     subject = if pid.present?
