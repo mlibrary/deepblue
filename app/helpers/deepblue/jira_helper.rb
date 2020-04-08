@@ -185,7 +185,7 @@ module Deepblue
                                               "get_rv=#{get_rv}",
                                               "body=#{body}",
                                               "" ] ) if JIRA_HELPER_DEBUG_VERBOSE
-      rv = get_rv.present?
+      rv = body.present?
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
                                               Deepblue::LoggingHelper.called_from,
                                               "jira_user_exists?( user: #{user} ) rv=#{rv}",
