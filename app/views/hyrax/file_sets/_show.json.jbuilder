@@ -1,0 +1,18 @@
+json.extract! file_set_presenter, :id,
+              :title,
+              :label,
+              :creator,
+              :date_uploaded,
+              :depositor,
+              :date_modified,
+              :doi,
+              :description,
+              :curation_notes_user,
+              :file_size,
+              :file_size_human_readable,
+              :original_checksum,
+              :mime_type,
+              :virus_scan_service,
+              :virus_scan_status,
+              :virus_scan_status_date
+
