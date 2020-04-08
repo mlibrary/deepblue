@@ -36,6 +36,10 @@ module Hyrax
       false
     end
 
+    def member_presenter_factory
+      MemberPresenterFactory.new(solr_document, current_ability, request)
+    end
+
   end
 
 end
