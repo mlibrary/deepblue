@@ -8,6 +8,10 @@ module Hyrax
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if create was successful
       def create( env )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                              ::Deepblue::LoggingHelper.called_from,
+                                              "env=#{env}",
+                                              "" ]
         env.log_event( next_actor: next_actor )
         next_actor.create( env )
       end

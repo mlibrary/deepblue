@@ -9,7 +9,12 @@ module Hyrax
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if create was successful
-      def create(env)
+      def create( env )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "env=#{env}",
+                                               "" ]
+        env.log_event( next_actor: next_actor )
         uploaded_file_ids = filter_file_ids(env.attributes.delete(:uploaded_files))
         files = uploaded_files(uploaded_file_ids)
         validate_files(files, env) && next_actor.create(env) && attach_files(files, env)
