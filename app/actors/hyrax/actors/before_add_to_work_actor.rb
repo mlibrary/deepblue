@@ -10,10 +10,17 @@ module Hyrax
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if create was successful
       def create( env )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "env=#{env}",
+                                               "" ]
         env.log_event( next_actor: next_actor )
         work_ids = env.attributes.values_at( :in_works_ids )
-        Deepblue::LoggingHelper.bold_debug [ "BeforeAddToWorkActor.create: next_actor = #{next_actor.class.name}",
-                                           "work_ids=#{work_ids}" ]
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "BeforeAddToWorkActor.create: next_actor = #{next_actor.class.name}",
+                                           "work_ids=#{work_ids}",
+                                           "" ]
         actor = next_actor
         actor.create( env ) && add_to_works( env, work_ids )
       end
