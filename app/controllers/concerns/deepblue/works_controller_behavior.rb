@@ -26,7 +26,6 @@ module Deepblue
         end
         wants.json do
           @presenter ||= show_presenter.new(curation_concern, current_ability, request)
-          # render :show, status: :created, location: polymorphic_path([main_app, curation_concern])
           render :show, status: :created
         end
       end
@@ -38,9 +37,32 @@ module Deepblue
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "" ]
       respond_to do |wants|
-        wants.html { redirect_to my_works_path, notice: "Deleted #{title}" }
-        wants.json { render_json_response(response_type: :deleted, message: "Deleted #{curation_concern.id}") }
+        wants.html do
+         redirect_to my_works_path, notice: "Deleted #{title}"
+        end
+        wants.json do
+          # works_render_json_response(response_type: :deleted, message: "Deleted #{curation_concern.id}") # this results in error 500 because of the response_type
+          @presenter ||= show_presenter.new(curation_concern, current_ability, request)
+          # render :delete, status: :delete # this results in an error 500 because of the status
+          render :delete, status: :no_content # this works
+        end
       end
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "" ]
+    end
+
+    # render a json response for +response_type+
+    def works_render_json_response(response_type: :success, message: nil, options: {})
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "response_type=#{response_type}",
+                                             "message=#{message}",
+                                             "options=#{options}",
+                                             "" ]
+      json_body = Hyrax::API.generate_response_body(response_type: response_type, message: message, options: options)
+      render json: json_body, status: response_type
     end
 
     def after_update_response
@@ -83,6 +105,22 @@ module Deepblue
           wants.json { render_json_response(response_type: :unprocessable_entity, options: { errors: curation_concern.errors }) }
         end
       end
+    end
+
+    def destroy
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "" ]
+      title = curation_concern.to_s
+      env = Hyrax::Actors::Environment.new(curation_concern, current_ability, {})
+      return unless actor.destroy(env)
+      Hyrax.config.callback.run(:after_destroy, curation_concern.id, current_user)
+      after_destroy_response(title)
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "" ] # + caller_locations(1,40)
     end
 
     def new
