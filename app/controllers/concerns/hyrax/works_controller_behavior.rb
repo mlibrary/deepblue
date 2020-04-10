@@ -37,10 +37,10 @@ module Hyrax
           ActiveFedora::Base.find( id )
         rescue Ldp::Gone => gone
           # it was deleted
-          # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-          #                                        ::Deepblue::LoggingHelper.called_from,
-          #                                        "gone=#{gone.class} #{gone.message} at #{gone.backtrace[0]}",
-          #                                        "" ]
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "gone=#{gone.class} #{gone.message} at #{gone.backtrace[0]}",
+                                                 "" ]
           # okay, since this looks like a deleted curation concern, we can check the provenance log
           # if admin, redirect to the provenance log controller
           if current_ability.admin?
