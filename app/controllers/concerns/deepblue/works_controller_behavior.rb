@@ -11,13 +11,35 @@ module Deepblue
     include Deepblue::DoiControllerBehavior
     include Deepblue::IngestAppendScriptControllerBehavior
 
+    WORKS_CONTROLLER_BEHAVIOR_VERBOSE = false
+
+    class_methods do
+      def curation_concern_type=(curation_concern_type)
+        # begin monkey
+        # load_and_authorize_resource class: curation_concern_type, instance_name: :curation_concern, except: [:show, :file_manager, :inspect_work, :manifest]
+        # Note that the find_with_rescue(id) method specified catches Ldp::Gone exceptions and returns nil instead,
+        # so if the curation_concern is nil, it's because it wasn't found or it was deleted
+        load_and_authorize_resource class: curation_concern_type, find_by: :find_with_rescue, instance_name: :curation_concern, except: [:show, :file_manager, :inspect_work, :manifest]
+        # end monkey
+
+        # Load the fedora resource to get the etag.
+        # No need to authorize for the file manager, because it does authorization via the presenter.
+        load_resource class: curation_concern_type, instance_name: :curation_concern, only: :file_manager
+
+        self._curation_concern_type = curation_concern_type
+        # We don't want the breadcrumb action to occur until after the concern has
+        # been loaded and authorized
+        before_action :save_permissions, only: :update
+      end
+    end
+
     def after_create_response
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "curation_concern&.id=#{curation_concern&.id}",
                                              "@curation_concern=#{@curation_concern}",
-                                             "" ]
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_VERBOSE
       respond_to do |wants|
         wants.html do
           # Calling `#t` in a controller context does not mark _html keys as html_safe
@@ -35,22 +57,32 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             "" ]
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_VERBOSE
       respond_to do |wants|
         wants.html do
-         redirect_to my_works_path, notice: "Deleted #{title}"
+          if curation_concern.present?
+            msg = "Deleted #{title}"
+          else
+            msg = "Not found #{title}"
+          end
+          redirect_to my_works_path, notice: msg
         end
         wants.json do
-          # works_render_json_response(response_type: :deleted, message: "Deleted #{curation_concern.id}") # this results in error 500 because of the response_type
-          @presenter ||= show_presenter.new(curation_concern, current_ability, request)
-          # render :delete, status: :delete # this results in an error 500 because of the status
-          render :delete, status: :no_content # this works
+          if curation_concern.present?
+            # works_render_json_response(response_type: :deleted, message: "Deleted #{curation_concern.id}") # this results in error 500 because of the response_type
+            @presenter ||= show_presenter.new(curation_concern, current_ability, request)
+            # render :delete, status: :delete # this results in an error 500 because of the status
+            render :delete, status: :no_content # this works
+          else
+            # works_render_json_response( response_type: 410, message: "Already Deleted #{title}" )
+            works_render_json_response( response_type: :not_found, message: "ID #{title}" )
+          end
         end
       end
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             "" ]
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_VERBOSE
     end
 
     # render a json response for +response_type+
@@ -60,7 +92,7 @@ module Deepblue
                                              "response_type=#{response_type}",
                                              "message=#{message}",
                                              "options=#{options}",
-                                             "" ]
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_VERBOSE
       json_body = Hyrax::API.generate_response_body(response_type: response_type, message: message, options: options)
       render json: json_body, status: response_type
     end
@@ -69,7 +101,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             "" ]
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_VERBOSE
       if curation_concern.file_sets.present?
         return redirect_to main_app.copy_access_hyrax_permission_path(curation_concern)  if permissions_changed?
         return redirect_to main_app.confirm_hyrax_permission_path(curation_concern) if curation_concern.visibility_changed?
@@ -93,7 +125,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             "" ]
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_VERBOSE
       if actor.create(actor_environment)
         after_create_response
       else
@@ -111,23 +143,30 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             "" ]
-      title = curation_concern.to_s
-      env = Hyrax::Actors::Environment.new(curation_concern, current_ability, {})
-      return unless actor.destroy(env)
-      Hyrax.config.callback.run(:after_destroy, curation_concern.id, current_user)
-      after_destroy_response(title)
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_VERBOSE
+      if curation_concern.present?
+        title = curation_concern.to_s
+      else
+        title = params[:id]
+      end
+      if curation_concern.nil?
+        after_destroy_response(title)
+      elsif actor.destroy(env)
+        env = Hyrax::Actors::Environment.new(curation_concern, current_ability, {})
+        Hyrax.config.callback.run(:after_destroy, curation_concern&.id, current_user)
+        after_destroy_response(title)
+      end
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             "" ] # + caller_locations(1,40)
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_VERBOSE # + caller_locations(1,40)
     end
 
     def new
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             "" ]
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_VERBOSE
       # TODO: move these lines to the work form builder in Hyrax
       curation_concern.depositor = current_user.user_key
       curation_concern.admin_set_id = admin_set_id_for_new
@@ -140,7 +179,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             "" ]
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_VERBOSE
       @user_collections = user_collections
 
       respond_to do |wants|
@@ -148,16 +187,21 @@ module Deepblue
                                                Deepblue::LoggingHelper.called_from,
                                                Deepblue::LoggingHelper.obj_class( 'wants', wants ),
                                                "wants.format=#{wants.format}",
-                                               "" ]
+                                               "" ] if WORKS_CONTROLLER_BEHAVIOR_VERBOSE
         wants.html do
           presenter && parent_presenter
         end
         wants.json do
           # load and authorize @curation_concern manually because it's skipped for html
-          @curation_concern = _curation_concern_type.find(params[:id]) unless curation_concern
-          presenter
-          authorize! :show, @curation_concern
-          render :show, status: :ok
+          # @curation_concern = _curation_concern_type.find(params[:id]) unless curation_concern
+          @curation_concern = _curation_concern_type.find_with_rescue(params[:id]) unless curation_concern
+          if @curation_concern
+            presenter
+            authorize! :show, @curation_concern
+            render :show, status: :ok
+          else
+            works_render_json_response( response_type: :not_found, message: "ID #{params[:id]}" )
+          end
         end
         additional_response_formats(wants)
         wants.ttl do

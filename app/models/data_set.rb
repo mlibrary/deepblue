@@ -23,6 +23,8 @@ class DataSet < ActiveFedora::Base
   # schema (by adding accepts_nested_attributes)
   include ::Deepblue::DefaultMetadata
 
+  include ::Deepblue::WorkBehavior
+
   include ::Deepblue::MetadataBehavior
   include ::Deepblue::EmailBehavior
   include ::Deepblue::ProvenanceBehavior
@@ -32,6 +34,20 @@ class DataSet < ActiveFedora::Base
   after_initialize :set_defaults
 
   before_destroy :provenance_before_destroy_data_set
+
+  def self.find_with_rescue(id)
+    # TODO move to ::Deepblue::WorkBehavior
+    # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+    #                                        Deepblue::LoggingHelper.called_from,
+    #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
+    #                                        "id=#{id}",
+    #                                        "" ]
+    find id
+  rescue Ldp::Gone => g
+    nil
+  rescue ActiveFedora::ObjectNotFoundError => e
+    nil
+  end
 
   def provenance_before_destroy_data_set
     # workflow_destroy does this

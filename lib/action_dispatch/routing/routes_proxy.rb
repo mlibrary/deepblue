@@ -55,8 +55,10 @@ module ActionDispatch
       def merge_script_names(previous_script_name, new_script_name)
         return new_script_name unless previous_script_name
 
-        #Jose change
+        # begin monkey
+        # Jose change
         return previous_script_name if Rails.application.config.relative_url_root == previous_script_name && new_script_name == "/"
+        # end monkey
 
         resolved_parts = new_script_name.count("/")
         previous_parts = previous_script_name.count("/")

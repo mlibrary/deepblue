@@ -15,6 +15,7 @@ module Deepblue
     end
 
     def workflow_destroy
+      return if curation_concern.nil? # because it has been deleted
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
