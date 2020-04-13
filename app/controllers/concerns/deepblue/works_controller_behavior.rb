@@ -107,8 +107,13 @@ module Deepblue
         return redirect_to main_app.confirm_hyrax_permission_path(curation_concern) if curation_concern.visibility_changed?
       end
       respond_to do |wants|
-        wants.html { redirect_to [main_app, curation_concern], notice: "Work \"#{curation_concern}\" successfully updated." }
-        wants.json { render :show, status: :ok, location: polymorphic_path([main_app, curation_concern]) }
+        wants.html do
+          redirect_to [main_app, curation_concern], notice: "Work \"#{curation_concern}\" successfully updated."
+        end
+        wants.json do
+          @presenter ||= show_presenter.new(curation_concern, current_ability, request)
+          render :show, status: :ok, location: polymorphic_path([main_app, curation_concern])
+        end
       end
     end
 
@@ -213,6 +218,46 @@ module Deepblue
         wants.nt do
           render body: presenter.export_as_nt, content_type: 'application/n-triples'
         end
+      end
+    end
+
+    def update
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_VERBOSE
+      if curation_concern.present? && actor.update(actor_environment)
+        after_update_response
+      else
+        respond_to do |wants|
+          wants.html do
+            build_form
+            render 'edit', status: :unprocessable_entity
+          end
+          wants.json do
+            if curation_concern.present?
+              render_json_response(response_type: :unprocessable_entity, options: { errors: curation_concern.errors })
+            else
+              works_render_json_response( response_type: :not_found, message: "ID #{params[:id]}" )
+            end
+          end
+        end
+      end
+    end
+
+    def save_permissions
+      if curation_concern.present?
+        @saved_permissions = curation_concern.permissions.map(&:to_hash)
+      else
+        @saved_permissions = {}
+      end
+    end
+
+    def permissions_changed?
+      if curation_concern.present?
+        @saved_permissions != curation_concern.permissions.map(&:to_hash)
+      else
+        false
       end
     end
 
