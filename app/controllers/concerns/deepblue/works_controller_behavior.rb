@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../../../actors/hyrax/actors/environment"
+
 module Deepblue
 
   module WorksControllerBehavior
@@ -11,7 +13,7 @@ module Deepblue
     include Deepblue::DoiControllerBehavior
     include Deepblue::IngestAppendScriptControllerBehavior
 
-    WORKS_CONTROLLER_BEHAVIOR_VERBOSE = false
+    WORKS_CONTROLLER_BEHAVIOR_VERBOSE = true
 
     class_methods do
       def curation_concern_type=(curation_concern_type)
@@ -53,7 +55,7 @@ module Deepblue
       end
     end
 
-    def after_destroy_response(title)
+    def after_destroy_response( title )
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
@@ -131,7 +133,7 @@ module Deepblue
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "" ] if WORKS_CONTROLLER_BEHAVIOR_VERBOSE
-      if actor.create(actor_environment)
+      if actor.create( actor_environment )
         after_create_response
       else
         respond_to do |wants|
@@ -155,11 +157,10 @@ module Deepblue
         title = params[:id]
       end
       if curation_concern.nil?
-        after_destroy_response(title)
-      elsif actor.destroy(env)
-        env = Hyrax::Actors::Environment.new(curation_concern, current_ability, {})
-        Hyrax.config.callback.run(:after_destroy, curation_concern&.id, current_user)
-        after_destroy_response(title)
+        after_destroy_response( title )
+      elsif actor.destroy( env )
+        Hyrax.config.callback.run( :after_destroy, curation_concern&.id, current_user )
+        after_destroy_response( title )
       end
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
@@ -225,8 +226,9 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             Deepblue::LoggingHelper.obj_class( 'actor.class', actor ),
                                              "" ] if WORKS_CONTROLLER_BEHAVIOR_VERBOSE
-      if curation_concern.present? && actor.update(actor_environment)
+      if curation_concern.present? && actor.update( actor_environment )
         after_update_response
       else
         respond_to do |wants|
@@ -243,6 +245,24 @@ module Deepblue
           end
         end
       end
+    end
+
+    def attributes_for_actor
+      super
+    end
+
+    def actor_environment
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "params=#{params}",
+                                             "params[:action]=#{params[:action]}",
+                                             "params[:format]=#{params[:format]}",
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_VERBOSE
+      ::Hyrax::Actors::EnvironmentEnhanced.new( curation_concern: curation_concern,
+                                                current_ability: current_ability,
+                                                attributes: attributes_for_actor,
+                                                action: params[:action],
+                                                wants_format: params[:format] )
     end
 
     def save_permissions

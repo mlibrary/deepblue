@@ -13,20 +13,25 @@ module Hyrax
     #
     # @see Hyrax::Actor::AbstractActor
     class BaseActor < AbstractActor
+
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if create was successful
       def create(env)
         apply_creation_data_to_curation_concern(env)
-        apply_save_data_to_curation_concern(env)
-        save(env) && next_actor.create(env) && run_callbacks(:after_create_concern, env)
+        apply_save_data_to_curation_concern(env) &&
+            save(env) &&
+            next_actor.create(env) &&
+            run_callbacks(:after_create_concern, env)
       end
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if update was successful
       def update(env)
         apply_update_data_to_curation_concern(env)
-        apply_save_data_to_curation_concern(env)
-        next_actor.update(env) && save(env) && run_callbacks(:after_update_metadata, env)
+        apply_save_data_to_curation_concern(env) &&
+            next_actor.update(env) &&
+            save(env) &&
+            run_callbacks(:after_update_metadata, env)
       end
 
       # @param [Hyrax::Actors::Environment] env
