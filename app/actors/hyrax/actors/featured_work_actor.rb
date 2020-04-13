@@ -27,6 +27,9 @@ module Hyrax
         end
 
         def check_featureability(curation_concern)
+          # begin monkey
+          return unless curation_concern
+          # end monkey
           return unless curation_concern.private?
           cleanup_featured_works(curation_concern)
         end

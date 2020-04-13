@@ -8,6 +8,26 @@ module Hyrax
     # monkey patch to allow embargo_release_date to be in the past
     class InterpretVisibilityActor < AbstractActor
 
+      # @param [Hyrax::Actors::Environment] env
+      # @return [Boolean] true if create was successful
+      def create(env)
+        intention = Intention.new(env.attributes)
+        attributes = intention.sanitize_params
+        new_env = env.clone_with_new( attributes:  attributes )
+        validate(env, intention, attributes) && apply_visibility(new_env, intention) &&
+            next_actor.create(new_env)
+      end
+
+      # @param [Hyrax::Actors::Environment] env
+      # @return [Boolean] true if update was successful
+      def update(env)
+        intention = Intention.new(env.attributes)
+        attributes = intention.sanitize_params
+        new_env = env.clone_with_new( attributes:  attributes )
+        validate(env, intention, attributes) && apply_visibility(new_env, intention) &&
+            next_actor.update(new_env)
+      end
+
       private
 
         # When specified, validate embargo is a future date that complies with AdminSet template requirements (if any)
