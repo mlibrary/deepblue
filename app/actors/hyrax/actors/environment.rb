@@ -6,6 +6,8 @@ module Hyrax
 
     class EnvironmentAttributes
 
+      ENVIRONMENT_ATTRIBUTES_VERBOSE = false
+
       # IGNORE_KEYS = [].freeze
       LOG_IT = false
       IGNORE_KEYS = [ :visibility ].freeze
@@ -23,7 +25,7 @@ module Hyrax
                                             Deepblue::LoggingHelper.called_from,
                                             "curation_concern_id=#{@curation_concern_id}",
                                             "EnvironmentAttributes.initialized",
-                                            "attributes=#{@hash}" ]
+                                            "attributes=#{@hash}" ] if ENVIRONMENT_ATTRIBUTES_VERBOSE
       end
 
       def respond_to?( symbol, include_priv=false )
@@ -55,7 +57,7 @@ module Hyrax
                                                "called from: #{caller_locations(1, 3)[2]}",
                                               "curation_concern_id=#{@curation_concern_id}",
                                               "#{key_label} key=#{key}",
-                                              "attributes=#{@hash}" ]
+                                              "attributes=#{@hash}" ] if ENVIRONMENT_ATTRIBUTES_VERBOSE
         rescue Exception => e # rubocop:disable Lint/RescueException
           Rails.logger.error "log_it exception - #{e.class}: #{e.message} at #{e.backtrace[0]}"
         end
@@ -89,7 +91,7 @@ module Hyrax
 
     class EnvironmentEnhanced < Environment
 
-      ENVIRONMENT_ENHANCED_VERBOSE = true
+      ENVIRONMENT_ENHANCED_VERBOSE = false
 
       # @param [ActiveFedora::Base] curation_concern work to operate on
       # @param [Ability] current_ability the authorizations of the acting user
@@ -103,6 +105,7 @@ module Hyrax
                                                Deepblue::LoggingHelper.called_from,
                                                "curation_concern=#{curation_concern}",
                                                "current_ability=#{current_ability}",
+                                               "attributes.class.name=#{attributes.class.name}",
                                                "attributes=#{attributes}",
                                                "action=#{action}",
                                                "wants_format=#{wants_format}",

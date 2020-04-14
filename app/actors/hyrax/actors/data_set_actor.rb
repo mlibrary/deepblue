@@ -5,7 +5,7 @@ module Hyrax
 
     class DataSetActor < Hyrax::Actors::BaseActor
 
-      DATA_SET_ACTOR_VERBOSE = true
+      DATA_SET_ACTOR_VERBOSE = false
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if update was successful
@@ -69,24 +69,64 @@ module Hyrax
                                                Deepblue::LoggingHelper.called_from,
                                                Deepblue::LoggingHelper.obj_class( 'class', self ),
                                                "env=#{env}",
+                                               "env.attributes.class.name=#{env.attributes.class.name}",
                                                "env.attributes=#{env.attributes}",
                                                "env.action=#{env.action}",
                                                "env.wants_format=#{env.wants_format}",
                                                "" ] if DATA_SET_ACTOR_VERBOSE
+        return false if env.curation_concern.errors.present?
+        valid = true
         attributes = env.attributes
-        # for testing purposes, prevent updates to title
-        if env.action.to_s == "update" && attributes.key?( :title )
+        curation_concern = env.curation_concern
+        primary_attributes.each do |attr|
+          key = attr.to_s
+          ::Deepblue::LoggingHelper.debug [ "curation_concern[#{attr}].class.name - attributes[{key}]=#{curation_concern[key].class.name} - #{attributes[key]}"
+                                          ] if DATA_SET_ACTOR_VERBOSE
+          next unless attributes.key?( key )
+          value = attributes[key]
+          case curation_concern[attr].class
+          when Array
+            next if value.is_a? Array
+            curation_concern.errors.add( :create, "not an array: #{key}" )
+            valid = false
+          when String
+            next if value.is_a? Array
+            curation_concern.errors.add( :create, "not a string: #{key}" )
+            valid = false
+          else
+            # TODO
+          end
+        end
+        case env.action.to_s
+        when "create"
           ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                  Deepblue::LoggingHelper.called_from,
-                                                 Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                                 "for testing purposes, prevent updates to title",
-                                                 "" ] if DATA_SET_ACTOR_VERBOSE
-          env.curation_concern.errors.add( :update, "for testing purposes, prevent updates to title" )
-          return false
-        elsif env.action == :create
-          # TODO test for all required fields
+                                                 "env.action=#{env.action}",
+                                                 ""
+                                                ] if DATA_SET_ACTOR_VERBOSE
+          required_attributes.each do |attr|
+            key = attr.to_s
+            ::Deepblue::LoggingHelper.debug [ "curation_concern[#{attr}].class.name - attributes[{key}]=#{curation_concern[key].class.name} - #{attributes[key]}"
+                                            ] if DATA_SET_ACTOR_VERBOSE
+            next unless attributes.key? attr
+            curation_concern.errors.add( :create, "required field missing: #{attr}" )
+            valid = false
+          end
+        when "update"
+          ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                                 Deepblue::LoggingHelper.called_from,
+                                                 "env.action=#{env.action}",
+                                                 ""
+                                               ] if DATA_SET_ACTOR_VERBOSE
+          # for testing purposes, prevent updates to title
+          required_attributes.each do |attr|
+            key = attr.to_s
+            ::Deepblue::LoggingHelper.debug [ "curation_concern[#{attr}].class.name - attributes[{key}]=#{curation_concern[key].class.name} - #{attributes[key]}"
+                                            ] if DATA_SET_ACTOR_VERBOSE
+            # check if this will remove the attribute
+          end
         end
-        return true
+        return valid
       end
 
     end
