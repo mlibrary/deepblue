@@ -12,12 +12,15 @@ module Hyrax
     # as possible, because changing ordered_members is slow. This class only
     # writes changes, not the full ordered list.
     class AttachMembersActor < Hyrax::Actors::AbstractActor
+
+      ATTACH_MEMBERS_ACTOR_VERBOSE = false
+
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if update was successful
       def update(env)
         # log_event( env: env )
         attributes_collection = env.attributes.delete(:work_members_attributes)
-        ::Deepblue::LoggingHelper.bold_debug "AttachMembersActor.update: next_actor = #{next_actor.class.name}"
+        ::Deepblue::LoggingHelper.bold_debug "AttachMembersActor.update: next_actor = #{next_actor.class.name}" if ATTACH_MEMBERS_ACTOR_VERBOSE
         assign_nested_attributes_for_collection(env, attributes_collection) &&
           next_actor.update(env)
       end
@@ -75,7 +78,7 @@ module Hyrax
                                                "child_id=#{id}",
                                                "child_title=#{child_title}",
                                                "event_note=AttachMembersActor",
-                                               "" ]
+                                               "" ] if ATTACH_MEMBERS_ACTOR_VERBOSE
           return unless env.curation_concern.respond_to? :provenance_child_add
           current_user = env.user
           env.curation_concern.provenance_child_add( current_user: current_user,
@@ -99,7 +102,7 @@ module Hyrax
                                                "child_id=#{id}",
                                                "child_title=#{child_title}",
                                                "event_note=AttachMembersActor",
-                                               "" ]
+                                               "" ] if ATTACH_MEMBERS_ACTOR_VERBOSE
           return unless curation_concern.respond_to? :provenance_child_remove
           curation_concern.provenance_child_remove( current_user: current_user,
                                                     child_id: id,

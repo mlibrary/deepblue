@@ -7,20 +7,22 @@ module Hyrax
     # provenance logging
     class BeforeAddToWorkActor < AbstractEventActor
 
+      BEFORE_ADD_TO_WORK_ACTOR_VERBOSE = false
+
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if create was successful
       def create( env )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "env=#{env}",
-                                               "" ]
+                                               "" ] if BEFORE_ADD_TO_WORK_ACTOR_VERBOSE
         env.log_event( next_actor: next_actor )
         work_ids = env.attributes.values_at( :in_works_ids )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "BeforeAddToWorkActor.create: next_actor = #{next_actor.class.name}",
                                            "work_ids=#{work_ids}",
-                                           "" ]
+                                           "" ] if BEFORE_ADD_TO_WORK_ACTOR_VERBOSE
         actor = next_actor
         actor.create( env ) && add_to_works( env, work_ids )
       end
@@ -31,7 +33,7 @@ module Hyrax
         env.log_event( next_actor: next_actor )
         work_ids = env.attributes.values_at( :in_works_ids )
         Deepblue::LoggingHelper.bold_debug [ "BeforeAddToWorkActor.update: next_actor = #{next_actor.class.name}",
-                                             "work_ids=#{work_ids}" ]
+                                             "work_ids=#{work_ids}" ] if BEFORE_ADD_TO_WORK_ACTOR_VERBOSE
         actor = next_actor
         add_to_works( env, work_ids ) && actor.update( env )
       end
@@ -50,7 +52,7 @@ module Hyrax
                                                  "child_title=#{env.curation_concern.title}",
                                                  "event_note=BeforeAddToWorkActor",
                                                  "can_edit_both_works?=#{can_edit_both_works?( env, work )}",
-                                                  "" ]
+                                                  "" ] if BEFORE_ADD_TO_WORK_ACTOR_VERBOSE
             next unless work.respond_to? :provenance_child_add
             if can_edit_both_works?( env, work )
               work.provenance_child_add( current_user: env.user,
@@ -82,7 +84,7 @@ module Hyrax
                                                  "child_id=#{env.curation_concern.id}",
                                                  "child_title=#{env.curation_concern.title}",
                                                  "event_note=BeforeAddToWorkActor",
-                                                 "" ]
+                                                 "" ] if BEFORE_ADD_TO_WORK_ACTOR_VERBOSE
             next unless work.respond_to? :provenance_child_remove
             work.provenance_child_remove( current_user: env.user,
                                           child_id: env.curation_concern.id,

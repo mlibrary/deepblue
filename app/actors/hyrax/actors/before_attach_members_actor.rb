@@ -16,12 +16,14 @@ module Hyrax
 
     class BeforeAttachMembersActor < AbstractEventActor
 
+      BEFORE_ATTACH_MEMBER_ACTOR_VERBOSE = false
+
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if update was successful
       def update( env )
         env.log_event( next_actor: next_actor )
         attributes_collection = env.attributes.values_at( :work_members_attributes )
-        Deepblue::LoggingHelper.bold_debug "BeforeAttachMembersActor.update: next_actor = #{next_actor.class.name}"
+        Deepblue::LoggingHelper.bold_debug "BeforeAttachMembersActor.update: next_actor = #{next_actor.class.name}" if BEFORE_ATTACH_MEMBER_ACTOR_VERBOSE
         assign_nested_attributes_for_collection( env, attributes_collection ) && next_actor.update( env )
       end
 
@@ -58,7 +60,7 @@ module Hyrax
                                                "child_id=#{id}",
                                                "child_title=#{child_title}",
                                                "event_note=BeforeAttachMembersActor",
-                                               "" ]
+                                               "" ] if BEFORE_ATTACH_MEMBER_ACTOR_VERBOSE
           return true unless env.curation_concern.respond_to? :provenance_child_add
           env.curation_concern.provenance_child_add( current_user: current_user,
                                                      child_id: id,
@@ -82,7 +84,7 @@ module Hyrax
                                                "child_id=#{id}",
                                                "child_title=#{title}",
                                                "event_note=BeforeAttachMembersActor",
-                                               "" ]
+                                               "" ] if BEFORE_ATTACH_MEMBER_ACTOR_VERBOSE
           env.curation_concern.provenance_child_remove( current_user: current_user,
                                                         child_id: id,
                                                         child_title: title,

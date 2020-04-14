@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../../../actors/hyrax/actors/environment"
+require_relative "../../../../lib/action_controller/metal/parameters_track_errors"
 
 module Deepblue
 
@@ -13,7 +14,7 @@ module Deepblue
     include Deepblue::DoiControllerBehavior
     include Deepblue::IngestAppendScriptControllerBehavior
 
-    WORKS_CONTROLLER_BEHAVIOR_VERBOSE = true
+    WORKS_CONTROLLER_BEHAVIOR_VERBOSE = false
 
     class_methods do
       def curation_concern_type=(curation_concern_type)
@@ -228,9 +229,25 @@ module Deepblue
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              Deepblue::LoggingHelper.obj_class( 'actor.class', actor ),
                                              "" ] if WORKS_CONTROLLER_BEHAVIOR_VERBOSE
-      if curation_concern.present? && actor.update( actor_environment )
-        after_update_response
-      else
+      had_error = false
+      if curation_concern.present?
+        act_env = actor_environment
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "act_env.class.name=#{act_env.class.name}",
+                                               "act_env.attributes.class.name=#{act_env.attributes.class.name}",
+                                               "curation_concern.errors.class.name=#{curation_concern.errors.class.name}",
+                                               "curation_concern.errors.size=#{curation_concern.errors.size}",
+                                               "" ] if WORKS_CONTROLLER_BEHAVIOR_VERBOSE
+        if actor.update( act_env )
+          after_update_response
+          return
+        else
+          had_error = true
+        end
+      end
+
+      if had_error
         respond_to do |wants|
           wants.html do
             build_form
@@ -248,7 +265,34 @@ module Deepblue
     end
 
     def attributes_for_actor
+      return {} unless curation_concern.present?
       super
+    end
+
+    def attributes_for_actor_json
+      return {} unless curation_concern.present?
+      # super
+      raw_params = params[hash_key_for_curation_concern]
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "params.class.name=#{params.class.name}",
+                                             "raw_params.class.name=#{raw_params.class.name}",
+                                             "raw_params=#{raw_params}",
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_VERBOSE
+      attributes = if raw_params
+                     raw_params = ::ActionController::ParametersTrackErrors.new( raw_params )
+                     form_class = work_form_service.form_class(curation_concern)
+                     ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                                            Deepblue::LoggingHelper.called_from,
+                                                            "form_class.name=#{form_class.name}",
+                                                            "" ] if WORKS_CONTROLLER_BEHAVIOR_VERBOSE
+
+                     form_class.model_attributes_json( form_params: raw_params, curation_concern: curation_concern )
+                   else
+                     {}
+                   end
+
+      attributes
     end
 
     def actor_environment
@@ -258,11 +302,45 @@ module Deepblue
                                              "params[:action]=#{params[:action]}",
                                              "params[:format]=#{params[:format]}",
                                              "" ] if WORKS_CONTROLLER_BEHAVIOR_VERBOSE
-      ::Hyrax::Actors::EnvironmentEnhanced.new( curation_concern: curation_concern,
+      attrs_for_actor = if 'json' == params[:format]
+                          attributes_for_actor_json
+                        else
+                          attributes_for_actor
+                        end
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "attrs_for_actor.class.name=#{attrs_for_actor.class.name}",
+                                             "curation_concern.errors.size=#{curation_concern.errors.size}",
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_VERBOSE
+      if attrs_for_actor.respond_to? :errors
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "attrs_for_actor.errors=#{attrs_for_actor.errors}",
+                                               "curation_concern.errors.size=#{curation_concern.errors.size}",
+                                               "" ] if WORKS_CONTROLLER_BEHAVIOR_VERBOSE
+        attrs_for_actor.errors.each do |error|
+          curation_concern.errors.add( params[:action], error )
+        end
+      end
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "attrs_for_actor.class.name=#{attrs_for_actor.class.name}",
+                                             "curation_concern.errors.size=#{curation_concern.errors.size}",
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_VERBOSE
+      env = ::Hyrax::Actors::EnvironmentEnhanced.new( curation_concern: curation_concern,
                                                 current_ability: current_ability,
-                                                attributes: attributes_for_actor,
+                                                attributes: attrs_for_actor,
                                                 action: params[:action],
                                                 wants_format: params[:format] )
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "env=#{env}",
+                                             "env.attributes.class.name=#{env.attributes.class.name}",
+                                             "env.attributes=#{env.attributes}",
+                                             "env.action=#{env.action}",
+                                             "env.wants_format=#{env.wants_format}",
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_VERBOSE
+      return env
     end
 
     def save_permissions
