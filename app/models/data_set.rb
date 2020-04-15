@@ -2,6 +2,8 @@
 
 class DataSet < ActiveFedora::Base
 
+  DATA_SET_DEBUG_VERBOSE = false
+
   include ::Hyrax::WorkBehavior
 
   self.indexer = DataSetIndexer
@@ -95,6 +97,82 @@ class DataSet < ActiveFedora::Base
       total_file_size_human_readable
       visibility
     ]
+  end
+
+  def self.metadata_keys_all
+    @@metadata_keys_all ||= %i[
+      access_deepblue
+      admin_set_id
+      authoremail
+      creator
+      curation_notes_admin
+      curation_notes_user
+      date_coverage
+      date_created
+      date_modified
+      date_published
+      date_updated
+      depositor
+      description
+      doi
+      file_set_ids
+      fundedby
+      fundedby_other
+      grantnumber
+      keyword
+      language
+      location
+      methodology
+      prior_identifier
+      referenced_by
+      rights_license
+      rights_license_other
+      subject_discipline
+      title
+      tombstone
+      total_file_count
+      total_file_size
+      total_file_size_human_readable
+      visibility
+    ].freeze
+  end
+
+  def metadata_keys_browse
+    %i[
+      admin_set_id
+      authoremail
+      creator
+      date_coverage
+      date_created
+      date_modified
+      date_published
+      date_updated
+      depositor
+      description
+      doi
+      keyword
+      language
+      location
+      methodology
+      referenced_by
+      rights_license
+      rights_license_other
+      subject_discipline
+      title
+      total_file_count
+      total_file_size
+      total_file_size_human_readable
+    ]
+  end
+
+  def self.metadata_keys_browse
+    @@metadata_keys_browse ||= %i[
+      creator
+      description
+      keyword
+      subject_discipline
+      title
+    ].freeze
   end
 
   # Title

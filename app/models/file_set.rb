@@ -2,6 +2,8 @@
 
 class FileSet < ActiveFedora::Base
 
+  FILE_SET_DEBUG_VERBOSE = false
+
   include ::Deepblue::FileSetMetadata # must be before `include ::Hyrax::FileSetBehavior`
   include ::Hyrax::FileSetBehavior
   include ::Deepblue::FileSetBehavior
@@ -43,6 +45,54 @@ class FileSet < ActiveFedora::Base
       virus_scan_status
       virus_scan_status_date
       visibility
+    ]
+  end
+
+  def self.metadata_keys_all
+    @@metadata_keys_all ||= %i[
+      curation_notes_admin
+      curation_notes_user
+      date_created
+      date_modified
+      date_uploaded
+      description_file_set
+      doi
+      file_extension
+      files_count
+      file_size
+      file_size_human_readable
+      label
+      location
+      mime_type
+      original_checksum
+      original_name
+      parent_id
+      prior_identifier
+      title
+      uri
+      version_count
+      virus_scan_service
+      virus_scan_status
+      virus_scan_status_date
+      visibility
+    ]
+  end
+
+  def metadata_keys_browse
+    self.metadata_keys_browse
+  end
+
+  def self.metadata_keys_browse
+    @@metadata_keys_browse ||= %i[
+      date_created
+      date_modified
+      file_extension
+      files_count
+      file_size
+      file_size_human_readable
+      label
+      location
+      title
     ]
   end
 

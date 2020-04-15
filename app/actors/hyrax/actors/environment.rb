@@ -91,7 +91,7 @@ module Hyrax
 
     class EnvironmentEnhanced < Environment
 
-      ENVIRONMENT_ENHANCED_VERBOSE = false
+      ENVIRONMENT_ENHANCED_DEBUG_VERBOSE = false
 
       # @param [ActiveFedora::Base] curation_concern work to operate on
       # @param [Ability] current_ability the authorizations of the acting user
@@ -109,7 +109,7 @@ module Hyrax
                                                "attributes=#{attributes}",
                                                "action=#{action}",
                                                "wants_format=#{wants_format}",
-                                               "" ] if ENVIRONMENT_ENHANCED_VERBOSE
+                                               "" ] if ENVIRONMENT_ENHANCED_DEBUG_VERBOSE
         @action = action
         @wants_format = wants_format
       end
@@ -124,7 +124,7 @@ module Hyrax
                                                "curation_concern.class.name=#{curation_concern.class.name}",
                                                "curation_concern.id=#{curation_concern&.id}",
                                                Deepblue::LoggingHelper.obj_class( "next_actor", next_actor ),
-                                               "attributes=#{attributes}" ] if ENVIRONMENT_ENHANCED_VERBOSE
+                                               "attributes=#{attributes}" ] if ENVIRONMENT_ENHANCED_DEBUG_VERBOSE
       rescue Exception => e # rubocop:disable Lint/RescueException
         Rails.logger.error "log_event exception - #{e.class}: #{e.message} at #{e.backtrace[0]}"
       end
@@ -137,7 +137,7 @@ module Hyrax
                                                "attributes=#{attributes}",
                                                "@action=#{@action}",
                                                "@wants_format=#{@wants_format}",
-                                               "" ] if ENVIRONMENT_ENHANCED_VERBOSE
+                                               "" ] if ENVIRONMENT_ENHANCED_DEBUG_VERBOSE
         EnvironmentEnhanced.new( curation_concern: curation_concern,
                                  current_ability: current_ability,
                                  attributes: attributes,

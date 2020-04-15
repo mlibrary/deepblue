@@ -4,6 +4,8 @@ class CatalogController < ApplicationController
   include Hydra::Catalog
   include Hydra::Controller::ControllerBehavior
 
+  CATALOG_CONTROLLER_DEBUG_VERBOSE = false
+
   # This filter applies the hydra access controls
   before_action :enforce_show_permissions, only: :show
 
@@ -457,5 +459,25 @@ class CatalogController < ApplicationController
   def render_bookmarks_control?
     false
   end
+
+  # get search results from the solr index
+  def index
+    (@response, @document_list) = search_results(params)
+
+    respond_to do |format|
+      format.html { store_preferred_view }
+      format.rss  { render :layout => false }
+      format.atom { render :layout => false }
+      format.json do
+        @presenter = ::Deepblue::SearchResultJsonPresenter.new( @response,
+                                                                @document_list,
+                                                                facets_from_request,
+                                                                blacklight_config )
+      end
+      additional_response_formats(format)
+      document_export_formats(format)
+    end
+  end
+
 
 end
