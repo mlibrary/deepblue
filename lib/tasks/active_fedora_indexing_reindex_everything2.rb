@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'tasks/active_fedora_indexing_descendent_fetcher2'
+require_relative './active_fedora_indexing_descendent_fetcher2'
 
 # rubocop:disable Style/SafeNavigation Style/Semicolon
 module ActiveFedora

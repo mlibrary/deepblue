@@ -5,7 +5,7 @@ module Hyrax
 
     class DataSetActor < Hyrax::Actors::BaseActor
 
-      DATA_SET_ACTOR_VERBOSE = false
+      DATA_SET_ACTOR_DEBUG_VERBOSE = false
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if update was successful
@@ -34,14 +34,14 @@ module Hyrax
                                                "env.attributes=#{env.attributes}",
                                                "env.action=#{env.action}",
                                                "env.wants_format=#{env.wants_format}",
-                                               "" ] if DATA_SET_ACTOR_VERBOSE
+                                               "" ] if DATA_SET_ACTOR_DEBUG_VERBOSE
         clean_attrs = clean_attributes(env.attributes)
         ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                Deepblue::LoggingHelper.called_from,
                                                "env.action=#{env.action}",
                                                "env.wants_format=#{env.wants_format}",
                                                "clean_attrs=#{clean_attrs}",
-                                               "" ] if DATA_SET_ACTOR_VERBOSE
+                                               "" ] if DATA_SET_ACTOR_DEBUG_VERBOSE
         if 'json' == env.wants_format
           return false unless valid_save_data( env )
         end
@@ -73,7 +73,7 @@ module Hyrax
                                                "env.attributes=#{env.attributes}",
                                                "env.action=#{env.action}",
                                                "env.wants_format=#{env.wants_format}",
-                                               "" ] if DATA_SET_ACTOR_VERBOSE
+                                               "" ] if DATA_SET_ACTOR_DEBUG_VERBOSE
         return false if env.curation_concern.errors.present?
         valid = true
         attributes = env.attributes
@@ -81,7 +81,7 @@ module Hyrax
         primary_attributes.each do |attr|
           key = attr.to_s
           ::Deepblue::LoggingHelper.debug [ "curation_concern[#{attr}].class.name - attributes[{key}]=#{curation_concern[key].class.name} - #{attributes[key]}"
-                                          ] if DATA_SET_ACTOR_VERBOSE
+                                          ] if DATA_SET_ACTOR_DEBUG_VERBOSE
           next unless attributes.key?( key )
           value = attributes[key]
           case curation_concern[attr].class
@@ -103,11 +103,11 @@ module Hyrax
                                                  Deepblue::LoggingHelper.called_from,
                                                  "env.action=#{env.action}",
                                                  ""
-                                                ] if DATA_SET_ACTOR_VERBOSE
+                                                ] if DATA_SET_ACTOR_DEBUG_VERBOSE
           required_attributes.each do |attr|
             key = attr.to_s
             ::Deepblue::LoggingHelper.debug [ "curation_concern[#{attr}].class.name - attributes[{key}]=#{curation_concern[key].class.name} - #{attributes[key]}"
-                                            ] if DATA_SET_ACTOR_VERBOSE
+                                            ] if DATA_SET_ACTOR_DEBUG_VERBOSE
             next unless attributes.key? attr
             curation_concern.errors.add( :create, "required field missing: #{attr}" )
             valid = false
@@ -117,12 +117,12 @@ module Hyrax
                                                  Deepblue::LoggingHelper.called_from,
                                                  "env.action=#{env.action}",
                                                  ""
-                                               ] if DATA_SET_ACTOR_VERBOSE
+                                               ] if DATA_SET_ACTOR_DEBUG_VERBOSE
           # for testing purposes, prevent updates to title
           required_attributes.each do |attr|
             key = attr.to_s
             ::Deepblue::LoggingHelper.debug [ "curation_concern[#{attr}].class.name - attributes[{key}]=#{curation_concern[key].class.name} - #{attributes[key]}"
-                                            ] if DATA_SET_ACTOR_VERBOSE
+                                            ] if DATA_SET_ACTOR_DEBUG_VERBOSE
             # check if this will remove the attribute
           end
         end

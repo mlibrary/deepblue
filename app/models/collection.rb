@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 class Collection < ActiveFedora::Base
+
+  COLLECTION_DEBUG_VERBOSE = false
+
   include ::Hyrax::CollectionBehavior
 
   # You can replace these metadata if they're not suitable
@@ -26,7 +29,11 @@ class Collection < ActiveFedora::Base
   end
 
   def metadata_keys_all
-    %i[
+    self.metadata_keys_all
+  end
+
+  def self.metadata_keys_all
+    @@metadata_keys_all ||= %i[
       child_collection_ids
       child_collection_count
       child_work_ids
@@ -47,6 +54,19 @@ class Collection < ActiveFedora::Base
       title
       total_file_size
       visibility
+    ]
+  end
+
+  def metadata_keys_browse
+    self.metadata_keys_browse
+  end
+
+  def self.metadata_keys_browse
+    @@metadata_keys_browse ||= %i[
+      creator
+      description
+      subject_discipline
+      title
     ]
   end
 

@@ -2,6 +2,8 @@
 
 class SolrDocument
 
+  SOLR_DOCUMENT_DEBUG_VERBOSE = false
+
   include Blacklight::Solr::Document
   # include BlacklightOaiProvider::SolrDocumentBehavior
 
@@ -39,6 +41,37 @@ class SolrDocument
         self[Solrizer.solr_name(property_name)]
       end
     end
+  end
+
+  def self.all_property_names
+    @@all_property_names
+  end
+
+  def all_property_names
+    @@all_property_names
+  end
+
+  def model_property_names_browse
+    model_name = self['has_model_ssim'].first
+    ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                            Deepblue::LoggingHelper.called_from,
+                                            "model_name=#{model_name}",
+                                            "" ] ) if SOLR_DOCUMENT_DEBUG_VERBOSE
+    rv = case model_name
+         when 'Collection'
+           Collection.metadata_keys_browse
+         when 'DataSet'
+           DataSet.metadata_keys_browse
+         when 'FileSet'
+           FileSet.metadata_keys_browse
+         else
+           []
+         end
+    ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                            Deepblue::LoggingHelper.called_from,
+                                            "rv=#{rv}",
+                                            "" ] ) if SOLR_DOCUMENT_DEBUG_VERBOSE
+    return rv
   end
 
   def academic_affiliation_label
@@ -159,7 +192,7 @@ class SolrDocument
     Time.parse self['system_create_dtsi']
   end
 
-  solrized_methods [
+  @@all_property_names = [
     'abstract',
     'academic_affiliation',
     'additional_information',
@@ -245,6 +278,8 @@ class SolrDocument
     'virus_scan_status',
     'virus_scan_status_date'
   ]
+
+  solrized_methods @@all_property_names
 
   field_semantics.merge!(
     contributor:  [ 'contributor_tesim',
