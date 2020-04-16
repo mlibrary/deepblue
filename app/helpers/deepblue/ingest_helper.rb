@@ -4,7 +4,7 @@ module Deepblue
 
   module IngestHelper
 
-    INGEST_HELPER_VERBOSE = true
+    INGEST_HELPER_VERBOSE = false
 
     # @param [FileSet] file_set
     # @param [String] repository_file_id identifier for a Hydra::PCDM::File

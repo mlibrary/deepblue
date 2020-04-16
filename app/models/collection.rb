@@ -29,7 +29,28 @@ class Collection < ActiveFedora::Base
   end
 
   def metadata_keys_all
-    self.metadata_keys_all
+    %i[
+      child_collection_ids
+      child_collection_count
+      child_work_ids
+      child_work_count
+      collection_type
+      creator
+      curation_notes_admin
+      curation_notes_user
+      date_created
+      date_modified
+      date_updated
+      description
+      keyword
+      language
+      prior_identifier
+      referenced_by
+      subject_discipline
+      title
+      total_file_size
+      visibility
+    ]
   end
 
   def self.metadata_keys_all

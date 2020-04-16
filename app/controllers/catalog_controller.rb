@@ -17,7 +17,41 @@ class CatalogController < ApplicationController
     solr_name('system_modified', :stored_sortable, type: :date)
   end
 
+  def self.configure_facet_fields( config )
+    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                        ::Deepblue::LoggingHelper.called_from,
+    #                                        "config.class.name=#{config.class.name}",
+    #                                        "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+
+    @@facet_solr_name_to_name = {}
+    # solr fields that will be treated as facets by the blacklight application
+    #   The ordering of the field names is the order of the display
+    { "resource_type" => "Resource Type",
+      "creator" => "Creator",
+      "subject_discipline" => "Discipline",
+      "language" => "Language" }.each_pair do |name,label|
+
+      facet_solr_name = solr_name(name, :facetable)
+      config.add_facet_field( facet_solr_name, label: label, limit: 5 )
+      @@facet_solr_name_to_name[facet_solr_name.to_s] = name
+    end
+    # generic_type is a special case
+    name = "generic_type"
+    facet_solr_name = solr_name(name, :facetable)
+    @@facet_solr_name_to_name[facet_solr_name.to_s] = name
+  end
+
+  def self.facet_solr_name_to_name( facet_solr_name )
+    @@facet_solr_name_to_name[facet_solr_name]
+  end
+
   configure_blacklight do |config|
+
+    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                        ::Deepblue::LoggingHelper.called_from,
+    #                                        "config.class.name=#{config.class.name}",
+    #                                        "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+
     config.view.gallery.partials = %i[index_header index]
     config.view.masonry.partials = [:index]
     config.view.slideshow.partials = [:index]
@@ -47,20 +81,22 @@ class CatalogController < ApplicationController
     config.index.display_type_field = solr_name("has_model", :symbol)
     config.index.thumbnail_field = 'thumbnail_path_ss'
 
-    # solr fields that will be treated as facets by the blacklight application
-    #   The ordering of the field names is the order of the display
-    #config.add_facet_field solr_name("human_readable_type", :facetable), label: "Type", limit: 5
-    config.add_facet_field solr_name("resource_type", :facetable), label: "Resource Type", limit: 5
-    config.add_facet_field solr_name("creator", :facetable), limit: 5
-    #config.add_facet_field solr_name("contributor", :facetable), label: "Contributor", limit: 5
-    #config.add_facet_field solr_name("keyword", :facetable), limit: 5
-    #config.add_facet_field solr_name("subject", :facetable), limit: 5
-    config.add_facet_field solr_name("subject_discipline", :facetable), label: "Discipline", limit: 5
-    config.add_facet_field solr_name("language", :facetable), limit: 5
-    #config.add_facet_field solr_name("based_near_label", :facetable), limit: 5
-    #config.add_facet_field solr_name("publisher", :facetable), limit: 5
-    #config.add_facet_field solr_name("file_format", :facetable), limit: 5
-    #config.add_facet_field solr_name('member_of_collections', :symbol), limit: 5, label: 'Collections'
+    # # solr fields that will be treated as facets by the blacklight application
+    # #   The ordering of the field names is the order of the display
+    # #config.add_facet_field solr_name("human_readable_type", :facetable), label: "Type", limit: 5
+    # config.add_facet_field solr_name("resource_type", :facetable), label: "Resource Type", limit: 5
+    # config.add_facet_field solr_name("creator", :facetable), limit: 5
+    # #config.add_facet_field solr_name("contributor", :facetable), label: "Contributor", limit: 5
+    # #config.add_facet_field solr_name("keyword", :facetable), limit: 5
+    # #config.add_facet_field solr_name("subject", :facetable), limit: 5
+    # config.add_facet_field solr_name("subject_discipline", :facetable), label: "Discipline", limit: 5
+    # config.add_facet_field solr_name("language", :facetable), limit: 5
+    # #config.add_facet_field solr_name("based_near_label", :facetable), limit: 5
+    # #config.add_facet_field solr_name("publisher", :facetable), limit: 5
+    # #config.add_facet_field solr_name("file_format", :facetable), limit: 5
+    # #config.add_facet_field solr_name('member_of_collections', :symbol), limit: 5, label: 'Collections'
+
+    configure_facet_fields( config )
 
     # The generic_type isn't displayed on the facet list
     # It's used to give a label to the filter that comes from the user profile
@@ -462,6 +498,44 @@ class CatalogController < ApplicationController
 
   # get search results from the solr index
   def index
+    ActionController::Parameters
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "params=#{params}",
+                                           "@@facet_solr_name_to_name=#{@@facet_solr_name_to_name}",
+                                           "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+    f = params["f"]
+    need_fix = false
+    f.each_pair do |k,_v|
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "k=#{k}",
+                                             "CatalogController.facet_solr_name_to_name(k)=#{CatalogController.facet_solr_name_to_name(k)}",
+                                             "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+      need_fix = true if CatalogController.facet_solr_name_to_name(k).blank?
+    end
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "need_fix=#{need_fix}",
+                                           "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+    if need_fix
+      old_params = params
+      params = old_params.to_unsafe_hash
+      new_f = {}
+      f.each_pair do |k,v|
+        fix_name = CatalogController.facet_solr_name_to_name(k)
+        if fix_name.present?
+          new_f[k] = v
+        else
+          new_f[CatalogController.solr_name(k, :facetable)] = v
+        end
+      end
+      params["f"] = new_f
+    end
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "params=#{params}",
+                                           "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
     (@response, @document_list) = search_results(params)
 
     respond_to do |format|
