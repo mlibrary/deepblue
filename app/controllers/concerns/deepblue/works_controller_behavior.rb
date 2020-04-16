@@ -159,7 +159,7 @@ module Deepblue
       end
       if curation_concern.nil?
         after_destroy_response( title )
-      elsif actor.destroy( env )
+      elsif actor.destroy( actor_environment )
         Hyrax.config.callback.run( :after_destroy, curation_concern&.id, current_user )
         after_destroy_response( title )
       end

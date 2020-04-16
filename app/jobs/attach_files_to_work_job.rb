@@ -5,7 +5,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
   include Rails.application.routes.url_helpers
   queue_as Hyrax.config.ingest_queue_name
 
-  ATTACH_FILES_TO_WORK_JOB_IS_VERBOSE = true
+  ATTACH_FILES_TO_WORK_JOB_IS_VERBOSE = false
   ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY = false
 
   # @param [ActiveFedora::Base] work - the work object

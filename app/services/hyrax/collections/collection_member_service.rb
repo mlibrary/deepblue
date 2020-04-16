@@ -1,7 +1,15 @@
+
+# monkey patch
+
 module Hyrax
   module Collections
     # Responsible for retrieving collection members
     class CollectionMemberService
+
+      # begin monkey
+      COLLECTION_MEMBER_SERVICE_DEBUG = false
+      # end monkey
+
       attr_reader :scope, :params, :collection
       delegate :repository, to: :scope
 
@@ -19,11 +27,13 @@ module Hyrax
       # Collections which are members of the given collection
       # @return [Blacklight::Solr::Response] {up to 50 solr documents}
       def available_member_subcollections
+        # begin monkey
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "subcollections_search_builder=#{subcollections_search_builder}",
                                                "params_for_subcollections=#{params_for_subcollections}",
-                                               "" ]
+                                               "" ] if COLLECTION_MEMBER_SERVICE_DEBUG
+        # end monkey
         query_solr(query_builder: subcollections_search_builder, query_params: params_for_subcollections)
       end
 
@@ -32,11 +42,13 @@ module Hyrax
       # Works which are members of the given collection
       # @return [Blacklight::Solr::Response]
       def available_member_works
+        # begin monkey
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "works_search_builder=#{works_search_builder}",
                                                "params=#{params}",
-                                               "" ]
+                                               "" ] if COLLECTION_MEMBER_SERVICE_DEBUG
+        # end monkey
         query_solr(query_builder: works_search_builder, query_params: params)
       end
 
