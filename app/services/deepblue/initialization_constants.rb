@@ -7,6 +7,7 @@ module Deepblue
     DOWNLOAD = 'download'.freeze
     LOCAL = 'local'.freeze
     PREP = 'prep'.freeze
+    PRODUCTION = 'production'.freeze
     STAGING = 'staging'.freeze
     TEST = 'test'.freeze
     TESTING = 'testing'.freeze

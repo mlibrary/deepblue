@@ -339,7 +339,15 @@ module Deepblue
     end
 
     def ingest_script_run( path_to_script: )
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "path_to_script=#{path_to_script}",
+                                             "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
       return true unless ::Deepblue::IngestIntegrationService.ingest_append_ui_allow_scripts_to_run
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "IngestAppendScriptJob.perform_later( path_to_script: #{path_to_script}, ingester: #{ingest_ingester} )",
+                                             "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
       IngestAppendScriptJob.perform_later( path_to_script: path_to_script, ingester: ingest_ingester )
       true
     end

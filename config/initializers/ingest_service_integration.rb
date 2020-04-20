@@ -1,6 +1,8 @@
 
 Deepblue::IngestIntegrationService.setup do |config|
 
+  INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE = false
+
   config.characterization_service_verbose = false
 
   config.characterize_excluded_ext_set = { '.csv' => 'text/plain' }.freeze # , '.nc' => 'text/plain' }.freeze
@@ -27,6 +29,11 @@ Deepblue::IngestIntegrationService.setup do |config|
     config.ingest_script_dir = '/deepbluedata-prep/scripts'
   end
   config.ingest_append_ui_allowed_base_directories = allowed_dirs
+  ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                         Deepblue::LoggingHelper.called_from,
+                                         "DeepBlueDocs::Application.config.hostname = #{DeepBlueDocs::Application.config.hostname}",
+                                         "" ] if INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE
+
   case DeepBlueDocs::Application.config.hostname
   when ::Deepblue::InitializationConstants::HOSTNAME_PROD
     config.ingest_script_dir = File.join config.ingest_script_dir, ::Deepblue::InitializationConstants::PRODUCTION
@@ -41,6 +48,14 @@ Deepblue::IngestIntegrationService.setup do |config|
   else
     config.ingest_script_dir = File.join config.ingest_script_dir, ::Deepblue::InitializationConstants::UNKNOWN
   end
+  ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                         Deepblue::LoggingHelper.called_from,
+                                         "config.ingest_script_dir = #{config.ingest_script_dir}",
+                                         "" ] if INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE
+  ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                         Deepblue::LoggingHelper.called_from,
+                                         "Dir.exist? #{config.ingest_script_dir} #{Dir.exist? config.ingest_script_dir}",
+                                         "" ] if INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE
 
   begin
     FileUtils.mkdir_p config.ingest_script_dir unless Dir.exist? config.ingest_script_dir
@@ -48,6 +63,16 @@ Deepblue::IngestIntegrationService.setup do |config|
     # this will fail during moku build, so catch and ignore
   end
 
+  ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                         Deepblue::LoggingHelper.called_from,
+                                         "Dir.exist? #{config.ingest_script_dir} #{Dir.exist? config.ingest_script_dir}",
+                                         "" ] if INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE
+
   config.ingest_append_ui_allow_scripts_to_run = Dir.exist? config.ingest_script_dir
+
+  ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                         Deepblue::LoggingHelper.called_from,
+                                         "config.ingest_append_ui_allow_scripts_to_run=#{config.ingest_append_ui_allow_scripts_to_run}",
+                                         "" ] if INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE
 
 end
