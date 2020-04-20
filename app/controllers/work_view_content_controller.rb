@@ -4,10 +4,10 @@ class WorkViewContentController < ApplicationController
   include Deepblue::StaticContentControllerBehavior
 
 
-  class_attribute :work_view_content_controller_verbose
-  self.work_view_content_controller_verbose = false
+  class_attribute :work_view_content_controller_debug_verbose
+  self.work_view_content_controller_debug_verbose = false
 
-  mattr_accessor :static_contet_helper_verbose
+  mattr_accessor :static_content_helper_debug_verbose
 
   class_attribute :presenter_class
   self.presenter_class = WorkViewContentPresenter
@@ -36,19 +36,19 @@ class WorkViewContentController < ApplicationController
                                            "file_id=#{file_name}",
                                            "file_name=#{file_name}",
                                            "format=#{format}",
-                                           "" ] if work_view_content_controller_verbose
+                                           "" ] if work_view_content_controller_debug_verbose
     file_set = static_content_file_set( work_title, file_name )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            ::Deepblue::LoggingHelper.obj_class( "file_set", file_set),
                                            "file_set=#{file_set}",
-                                           "" ] if work_view_content_controller_verbose
+                                           "" ] if work_view_content_controller_debug_verbose
     mime_type = file_set.mime_type if file_set.present?
     options = options_from( file_set: file_set )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "options=#{options}",
-                                           "" ] if work_view_content_controller_verbose
+                                           "" ] if work_view_content_controller_debug_verbose
     if render_static_content? mime_type: mime_type
       @presenter = presenter_class.new( controller: self, file_set: file_set, format: format, options: options )
       render_with = options[:render_with]
@@ -69,13 +69,13 @@ class WorkViewContentController < ApplicationController
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "description=#{description}",
-                                           "" ] if work_view_content_controller_verbose
+                                           "" ] if work_view_content_controller_debug_verbose
     return options if description.blank?
     lines = description.join("\n").split("\n")
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "lines=#{lines}",
-                                           "" ] if work_view_content_controller_verbose
+                                           "" ] if work_view_content_controller_debug_verbose
     lines.each do |line|
       case line.strip
       when /^menu:(.+)$/
@@ -91,7 +91,7 @@ class WorkViewContentController < ApplicationController
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "options=#{options}",
-                                           "" ] if work_view_content_controller_verbose
+                                           "" ] if work_view_content_controller_debug_verbose
     return options
   end
 
@@ -111,12 +111,12 @@ class WorkViewContentController < ApplicationController
                                            ::Deepblue::LoggingHelper.called_from,
                                            "work_title=#{work_title}",
                                            "file_name=#{file_name}",
-                                           "" ] if work_view_content_controller_verbose
+                                           "" ] if work_view_content_controller_debug_verbose
     @menu_file_format = File.extname file_name
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "@menu_file_format=#{@menu_file_format}",
-                                           "" ] if work_view_content_controller_verbose
+                                           "" ] if work_view_content_controller_debug_verbose
     case @menu_file_format
     when '.yml'
       file = static_content_for_read_file( work_title, file_name )
@@ -130,7 +130,7 @@ class WorkViewContentController < ApplicationController
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "@menu_links=#{@menu_links}",
-                                           "" ] if work_view_content_controller_verbose
+                                           "" ] if work_view_content_controller_debug_verbose
   end
 
   def render_static_content?( mime_type: )
