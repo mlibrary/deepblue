@@ -292,12 +292,19 @@ module Deepblue
         id = StaticContentControllerBehavior.static_content_title_id_cache( title: "//#{work_title}//#{file_set_title}//" )
         return static_content_read_file( id: id ) unless id.blank?
       end
-      work.ordered_file_sets.each do |fs|
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "work.id=#{work.id}",
+                                             "work.title=#{work.title}",
+                                             "work.file_set_ids=#{work.file_set_ids}",
+                                             "work.file_sets.size=#{work.file_sets.size}",
+                                             "" ] if static_content_controller_behavior_verbose
+      work.file_sets.each do |fs|
         # TODO: verify
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "fs.title.join(#{fs.title.join}) ==? file_set_title(#{file_set_title})",
-                                               "file_set_title=#{file_set_title}",
+                                               # "file_set_title=#{file_set_title}",
                                                "" ] if static_content_controller_behavior_verbose
         if fs.title.join == file_set_title
           id = fs.id

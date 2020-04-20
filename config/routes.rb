@@ -14,10 +14,6 @@ Rails.application.routes.draw do
   if '/data' == Settings.relative_url_root
     # note that this path assumes a leading /data
     get '/concern/generic_works/(*rest)', to: redirect( '/data/concern/data_sets/%{rest}', status: 302 )
-    # get '/resque/', to: redirect( '/data/resque/' )
-    # post '/resque/', to: redirect( '/data/resque/' )
-    # get '/resque/(*rest)', to: redirect( '/data/resque/%{rest}' )
-    # post '/resque/(*rest)', to: redirect( '/data/resque/%{rest}' )
   elsif '/' == Settings.relative_url_root
     get '/concern/generic_works/(*rest)', to: redirect( '/concern/data_sets/%{rest}', status: 302 )
   end
@@ -25,7 +21,8 @@ Rails.application.routes.draw do
   get 'static/show/:layout/:doc/:file', to: 'hyrax/static#show_layout_doc'
   get 'static/show/:doc/:file', to: 'hyrax/static#show_doc'
 
-  get ':action' => 'hyrax/static#:action', constraints: { action: %r{
+
+  get ':doc', to: 'hyrax/static#show', constraints: { doc: %r{
                                                                       about|
                                                                       agreement|
                                                                       dbd-documentation-guide|
@@ -47,6 +44,29 @@ Rails.application.routes.draw do
                                                                       zotero
                                                                     }x },
       as: :static
+
+  # get ':action' => 'hyrax/static#:action', constraints: { action: %r{
+  #                                                                     about|
+  #                                                                     agreement|
+  #                                                                     dbd-documentation-guide|
+  #                                                                     dbd-glossary|
+  #                                                                     file-format-preservation|
+  #                                                                     globus-help|
+  #                                                                     help|
+  #                                                                     how-to-upload|
+  #                                                                     management-plan-text|
+  #                                                                     mendeley|
+  #                                                                     metadata-guidance|
+  #                                                                     prepare-your-data|
+  #                                                                     retention|
+  #                                                                     subject_libraries|
+  #                                                                     support-for-depositors|
+  #                                                                     terms|
+  #                                                                     use-downloaded-data|
+  #                                                                     versions|
+  #                                                                     zotero
+  #                                                                   }x },
+  #     as: :static
 
   mount Riiif::Engine => 'images', as: :riiif if Hyrax.config.iiif_image_server?
   concern :searchable, Blacklight::Routes::Searchable.new
