@@ -63,11 +63,38 @@ module Hyrax
                                              "params[:doc]=#{params[:doc]}",
                                              "" ] if STATIC_CONTROLLER_DEBUG_VERBOSE
 
-      file_set = static_content_file_set( "DBDDocumentation", "#{params[:doc]}.html" )
-      if file_set
-        redirect_to( "/data/work_view_content/DBDDocumentation/#{params[:doc]}.html" )
+      doc = params[:doc]
+      if doc =~ %r{
+                  about|
+                  agreement|
+                  dbd-documentation-guide|
+                  dbd-glossary|
+                  file-format-preservation|
+                  globus-help|
+                  help|
+                  how-to-upload|
+                  management-plan-text|
+                  mendeley|
+                  metadata-guidance|
+                  prepare-your-data|
+                  retention|
+                  subject_libraries|
+                  support-for-depositors|
+                  terms|
+                  use-downloaded-data|
+                  versions|
+                  zotero
+                  }x
+        # TODO: make this more efficient, probably start with DBDDocumentationCollection
+        if static_content_file_set( "DBDDocumentation", "#{doc}.html" ).present?
+          redirect_to( "/data/work_view_content/DBDDocumentation/#{doc}.html" )
+        elsif static_content_file_set( "DBDDoc-#{doc}", "#{doc}.html" ).present?
+          redirect_to( "/data/work_view_content/DBDDoc-#{doc}/#{doc}.html" )
+        else
+          render "hyrax/static/#{doc}"
+        end
       else
-        render "hyrax/static/#{params[:doc]}"
+        redirect_to( main_app.root_path, status: 404 )
       end
     end
 
