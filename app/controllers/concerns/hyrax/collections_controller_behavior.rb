@@ -6,6 +6,8 @@ module Hyrax
     include Blacklight::AccessControls::Catalog
     include Blacklight::Base
 
+    COLLECTIONS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE = false
+
     included do
       # include the display_trophy_link view helper method
       helper Hyrax::TrophyHelper
@@ -27,49 +29,81 @@ module Hyrax
     end
 
     def create
-      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-      #                                        Deepblue::LoggingHelper.called_from,
-      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
-      #                                        "params[:id]=#{params[:id]}",
-      #                                        "params=#{params}" ]
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "params[:id]=#{params[:id]}",
+                                             "params=#{params}" ] if COLLECTIONS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
       super
     end
 
     def destroy
-      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-      #                                        Deepblue::LoggingHelper.called_from,
-      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
-      #                                        "params[:id]=#{params[:id]}",
-      #                                        "params=#{params}" ]
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "params[:id]=#{params[:id]}",
+                                             "params=#{params}" ] if COLLECTIONS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
       super
     end
 
     def edit
-      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-      #                                        Deepblue::LoggingHelper.called_from,
-      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
-      #                                        "params[:id]=#{params[:id]}",
-      #                                        "params=#{params}" ]
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "params[:id]=#{params[:id]}",
+                                             "params=#{params}" ] if COLLECTIONS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
       super
     end
 
     def show
-      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-      #                                      Deepblue::LoggingHelper.called_from,
-      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
-      #                                      "params[:id]=#{params[:id]}",
-      #                                      "params=#{params}" ]
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                            "params[:id]=#{params[:id]}",
+                                            "params=#{params}" ] if COLLECTIONS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
       @curation_concern ||= ActiveFedora::Base.find(params[:id])
-      presenter
-      query_collection_members
+      if @curation_concern.present?
+        presenter
+        query_collection_members
+      end
+      respond_to do |wants|
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               Deepblue::LoggingHelper.obj_class( 'wants', wants ),
+                                               "wants.format=#{wants.format}",
+                                               "" ] if COLLECTIONS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+        wants.html do
+          ##
+        end
+        wants.json do
+          if @curation_concern
+            # authorize! :show, @curation_concern
+            render :show, status: :ok
+          else
+            collections_render_json_response( response_type: :not_found, message: "ID #{params[:id]}" )
+          end
+        end
+      end
+    end
+
+    # render a json response for +response_type+
+    def collections_render_json_response(response_type: :success, message: nil, options: {})
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "response_type=#{response_type}",
+                                             "message=#{message}",
+                                             "options=#{options}",
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      json_body = Hyrax::API.generate_response_body(response_type: response_type, message: message, options: options)
+      render json: json_body, status: response_type
     end
 
     def update
-      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-      #                                        Deepblue::LoggingHelper.called_from,
-      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
-      #                                        "params[:id]=#{params[:id]}",
-      #                                        "params=#{params}" ]
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "params[:id]=#{params[:id]}",
+                                             "params=#{params}" ] if COLLECTIONS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
       super
     end
 
