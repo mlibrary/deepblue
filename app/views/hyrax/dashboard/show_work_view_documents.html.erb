@@ -27,7 +27,15 @@
       <% @presenter.current_work = work %>
       <h2><%= work.title.join(" ") %></h2>
       <% array_of_ids = @presenter.list_of_item_ids_to_display %>
+      <% ::Deepblue::LoggingHelper.bold_debug [Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "array_of_ids=#{array_of_ids}",
+                                               ""] %>
       <% members = @presenter.member_presenters_for(array_of_ids) %>
+      <% ::Deepblue::LoggingHelper.bold_debug [Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "members.size=#{members.size}",
+                                               ""] %>
       <% if members.present? %>
         <table class="table table-striped related-files">
           <thead>
@@ -47,11 +55,11 @@
           <% if false && presenter.total_pages > 1 %>
             <div class="row record-padding col-md-9">
               <%= paginate array_of_ids, outer_window: 2, theme: 'blacklight', param_name: :page, route_set: main_app %>
-            </div><!-- /pager -->
+            </div>
           <% end %>
         </div>
-      <% elsif can? :edit, presenter.id %>
-        <div class="alert alert-warning" role="alert"><%= t('.empty', type: presenter.human_readable_type) %></div>
+      <%# elsif current_ability.can?( :edit, presenter.id ) %>
+        <%# <div class="alert alert-warning" role="alert" %><%# = t('.empty', type: presenter.human_readable_type) %><%#</div> %>
       <% end %>
   <% end %>
   </div>
