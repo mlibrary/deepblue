@@ -13,6 +13,10 @@ module Hyrax
       include ::Hyrax::BrandingHelper
       include Deepblue::CollectionsControllerBehavior
 
+      # begin monkey
+      COLLECTIONS_CONTROLLER_DEBUG_VERBOSE = false
+      # end monkey
+
       EVENT_NOTE = 'Hyrax::Dashboard::CollectionsController'
       PARAMS_KEY = 'collection'
 
@@ -64,7 +68,7 @@ module Hyrax
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
         #                                        ::Deepblue::LoggingHelper.called_from,
         #                                        "@collection.id = #{@collection.id}",
-        #                                        "" ]
+        #                                        "" ] if COLLECTIONS_CONTROLLER_DEBUG_VERBOSE
         return update_existing_banner if params["banner_unchanged"] == "true"
         remove_banner
         uploaded_file_ids = params["banner_files"]
@@ -75,7 +79,7 @@ module Hyrax
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
         #                                        ::Deepblue::LoggingHelper.called_from,
         #                                        "@collection.id = #{@collection.id}",
-        #                                        "" ]
+        #                                        "" ] if COLLECTIONS_CONTROLLER_DEBUG_VERBOSE
         banner_info = collection_banner_info( id: @collection.id )
         banner_info.first.save(banner_info.first.local_path, false)
       end
@@ -85,13 +89,13 @@ module Hyrax
         #                                        ::Deepblue::LoggingHelper.called_from,
         #                                        "@collection.id = #{@collection.id}",
         #                                        "uploaded_file_ids = #{uploaded_file_ids}",
-        #                                        "" ]
+        #                                        "" ] if COLLECTIONS_CONTROLLER_DEBUG_VERBOSE
         f = uploaded_files(uploaded_file_ids).first
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
         #                                        ::Deepblue::LoggingHelper.called_from,
         #                                        "@collection.id = #{@collection.id}",
         #                                        "f.file_url = #{f.file_url}",
-        #                                        "" ]
+        #                                        "" ] if COLLECTIONS_CONTROLLER_DEBUG_VERBOSE
         banner_info = CollectionBrandingInfo.new(
             collection_id: @collection.id,
             filename: File.split(f.file_url).last,
@@ -106,7 +110,7 @@ module Hyrax
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
         #                                        ::Deepblue::LoggingHelper.called_from,
         #                                        "@collection.id = #{@collection.id}",
-        #                                        "" ]
+        #                                        "" ] if COLLECTIONS_CONTROLLER_DEBUG_VERBOSE
         banner_info = collection_banner_info( id: @collection.id )
         banner_info&.delete_all
       end

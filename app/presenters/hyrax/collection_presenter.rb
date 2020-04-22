@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# monkey override Hyrax::CollectionPresenter in Hyrax gem.
+
 module Hyrax
 
   class CollectionPresenter
@@ -36,16 +38,49 @@ module Hyrax
     end
 
     # Metadata Methods
-    delegate :title, :description, :creator, :contributor, :subject, :publisher, :keyword, :language, :embargo_release_date,
-             :lease_expiration_date, :license, :date_created, :resource_type, :based_near, :related_url, :identifier, :thumbnail_path,
-             :title_or_label, :collection_type_gid, :create_date, :modified_date, :visibility, :edit_groups, :edit_people,
+    delegate :title,
+             :description,
+             :creator,
+             :contributor,
+             :subject,
+             :publisher,
+             :keyword,
+             :language,
+             :embargo_release_date,
+             :lease_expiration_date,
+             :license,
+             :date_created,
+             :resource_type,
+             :based_near,
+             :related_url,
+             :identifier,
+             :thumbnail_path,
+             :title_or_label,
+             :collection_type_gid,
+             :create_date,
+             :modified_date,
+             :visibility,
+             :edit_groups,
+             :edit_people,
              to: :solr_document
 
     # Terms is the list of fields displayed by
     # app/views/collections/_show_descriptions.html.erb
     def self.terms
-      [:total_items, :size, :resource_type, :creator, :contributor, :keyword, :license, :publisher, :date_created, :subject,
-       :language, :identifier, :based_near, :related_url]
+      [:total_items,
+       :size,
+       :resource_type,
+       :creator,
+       :contributor,
+       :keyword,
+       :license,
+       :publisher,
+       :date_created,
+       :subject,
+       :language,
+       :identifier,
+       :based_near,
+       :related_url]
     end
 
     def terms_with_values
@@ -84,6 +119,10 @@ module Hyrax
 
     def size
       number_to_human_size(@solr_document['bytes_lts'])
+    end
+
+    def sorted_methods
+      methods.sort
     end
 
     def total_items
