@@ -6,6 +6,10 @@ module Hyrax
 
   module WorksControllerBehavior
 
+    # begin monkey
+    WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE = false
+    # end monkey
+
     private
 
       def curation_concern_from_search_results
@@ -24,13 +28,13 @@ module Hyrax
           # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
           #                                        ::Deepblue::LoggingHelper.called_from,
           #                                        "about to redirect - 01",
-          #                                        "" ]
+          #                                        "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
           return redirect_to guest_user_message_url, alert: "unable to present requested work"
         end
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
         #                                        ::Deepblue::LoggingHelper.called_from,
         #                                        "e=#{e}",
-        #                                        "" ] # + e.backtrace
+        #                                        "" ] # + e.backtrace if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
         begin
           # check with Fedora to see if the requested id was deleted
           id = params[:id]
@@ -40,7 +44,7 @@ module Hyrax
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "gone=#{gone.class} #{gone.message} at #{gone.backtrace[0]}",
-                                                 "" ]
+                                                 "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
           # okay, since this looks like a deleted curation concern, we can check the provenance log
           # if admin, redirect to the provenance log controller
           if current_ability.admin?
@@ -48,7 +52,7 @@ module Hyrax
             # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
             #                                        ::Deepblue::LoggingHelper.called_from,
             #                                        "about to redirect to url=#{url}",
-            #                                        "" ]
+            #                                        "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
             return redirect_to( provenance_log_url, alert: "\"#{id}\" was deleted." )
           end
         rescue ActiveFedora::ObjectNotFoundError => e2
@@ -59,14 +63,14 @@ module Hyrax
             #                                        ::Deepblue::LoggingHelper.called_from,
             #                                        "e2=#{e2.class} #{e2.message} at #{e2.backtrace[0]}",
             #                                        "about to redirect - 02a - url=#{url}",
-            #                                        "" ]
+            #                                        "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
             return redirect_to( provenance_log_url, alert: "\"#{id}\" not found." )
           end
         end
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
         #                                        ::Deepblue::LoggingHelper.called_from,
         #                                        "about to redirect - 02 - guest_user_message_url=#{guest_user_message_url}",
-        #                                        "" ]
+        #                                        "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
         return redirect_to( guest_user_message_url, alert: "unable to present requested work" )
       end
 
