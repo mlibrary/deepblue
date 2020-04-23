@@ -70,10 +70,10 @@ class CatalogController < ApplicationController
 
     ## Default parameters to send to solr for all search-like requests. See also SolrHelper#solr_search_params
     config.default_solr_params = {
-      qt: "search",
-      rows: 10,
-      # qf: "title_tesim description_tesim creator_tesim keyword_tesim"
-      qf: "title_tesim name_tesim creator_tesim description_tesim grantnumber_tesim methodology_tesim subject_tesim keyword_tesim referenced_by_tesim all_text_timv"
+        qt: "search",
+        rows: 10,
+        # qf: "title_tesim description_tesim creator_tesim keyword_tesim"
+        qf: "title_tesim name_tesim creator_tesim description_tesim grantnumber_tesim methodology_tesim subject_tesim keyword_tesim referenced_by_tesim all_text_timv"
     }
 
     # solr field configuration for document/show views
@@ -194,8 +194,8 @@ class CatalogController < ApplicationController
       all_names = config.show_fields.values.map(&:field).join(" ")
       title_name = solr_name("title", :stored_searchable)
       field.solr_parameters = {
-        qf: "#{all_names} file_format_tesim all_text_timv",
-        pf: title_name.to_s
+          qf: "#{all_names} file_format_tesim all_text_timv",
+          pf: title_name.to_s
       }
     end
 
@@ -209,8 +209,8 @@ class CatalogController < ApplicationController
       field.label = "Location"
       solr_name = solr_name("based_near_label", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
@@ -223,32 +223,32 @@ class CatalogController < ApplicationController
       # See: http://wiki.apache.org/solr/LocalParams
       solr_name = solr_name("contributor", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
     config.add_search_field('creator') do |field|
       solr_name = solr_name("creator", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
     config.add_search_field('date_created') do |field|
       solr_name = solr_name("created", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
     config.add_search_field('depositor') do |field|
       solr_name = solr_name("depositor", :symbol)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
@@ -256,8 +256,8 @@ class CatalogController < ApplicationController
       field.label = "Abstract or Summary"
       solr_name = solr_name("description", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
@@ -274,16 +274,16 @@ class CatalogController < ApplicationController
       field.label = "Doi"
       solr_name = solr_name("doi_label", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
     config.add_search_field('format') do |field|
       solr_name = solr_name("format", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
@@ -291,8 +291,8 @@ class CatalogController < ApplicationController
       field.label = "Funded By"
       solr_name = solr_name("fundedby_label", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
@@ -301,8 +301,8 @@ class CatalogController < ApplicationController
       field.label = MsgHelper.t( 'simple_form.labels.data_set.access_deepblue' )
       solr_name = solr_name("access_deepblue_label", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
@@ -310,8 +310,8 @@ class CatalogController < ApplicationController
       field.label = "Funded By Other"
       solr_name = solr_name("fundedby_other_label", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
@@ -319,40 +319,40 @@ class CatalogController < ApplicationController
       field.label = "Grant number"
       solr_name = solr_name("grantnumber_label", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
     config.add_search_field('identifier') do |field|
       solr_name = solr_name("id", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
     config.add_search_field('keyword') do |field|
       solr_name = solr_name("keyword", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
     config.add_search_field('language') do |field|
       solr_name = solr_name("language", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
     config.add_search_field('license') do |field|
       solr_name = solr_name("license", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
@@ -360,8 +360,8 @@ class CatalogController < ApplicationController
       field.label = "Methodology"
       solr_name = solr_name("methodology_label", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
@@ -369,16 +369,16 @@ class CatalogController < ApplicationController
       field.label = "Prior Identifier"
       solr_name = solr_name("prior_identifier", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
     config.add_search_field('publisher') do |field|
       solr_name = solr_name("publisher", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
@@ -402,56 +402,56 @@ class CatalogController < ApplicationController
     config.add_search_field('rights_license') do |field|
       solr_name = solr_name("rights_license", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
     config.add_search_field('rights_license_other') do |field|
       solr_name = solr_name("rights_license_other", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
     config.add_search_field('rights_statement') do |field|
       solr_name = solr_name("rights_statement", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
     config.add_search_field('subject') do |field|
       solr_name = solr_name("subject", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
     config.add_search_field('subject_discipline') do |field|
       solr_name = solr_name("subject_discipline", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
     config.add_search_field('title') do |field|
       solr_name = solr_name("title", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
     config.add_search_field('total_file_size') do |field|
       solr_name = solr_name("total_file_size", :stored_searchable)
       field.solr_local_parameters = {
-        qf: solr_name,
-        pf: solr_name
+          qf: solr_name,
+          pf: solr_name
       }
     end
 
@@ -468,7 +468,7 @@ class CatalogController < ApplicationController
 
     # Need to reindex the collection to be able to use these.
     # config.add_sort_field "titl_ssi desc", label: "date modified \u25BC"
-    # config.add_sort_field "title_ssi asc", label: "date modified \u25B2"    
+    # config.add_sort_field "title_ssi asc", label: "date modified \u25B2"
 
     # If there are more than this many search results, no spelling ("did you
     # mean") suggestion is offered.
@@ -505,6 +505,7 @@ class CatalogController < ApplicationController
                                            "@@facet_solr_name_to_name=#{@@facet_solr_name_to_name}",
                                            "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
     f = params["f"]
+    return super unless f.present?
     need_fix = false
     f.each_pair do |k,_v|
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

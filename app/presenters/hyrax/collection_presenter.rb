@@ -14,6 +14,8 @@ module Hyrax
     attr_accessor :parent_collections # This is expected to be a Blacklight::Solr::Response with all of the parent collections
     attr_writer :collection_type
 
+    COLLECTION_PRESENTER_DEBUG_VERBOSE = true
+
     class_attribute :create_work_presenter_class
     self.create_work_presenter_class = Hyrax::SelectTypeListPresenter
 
@@ -125,12 +127,42 @@ module Hyrax
       methods.sort
     end
 
+    def member_of_this_collection
+      @member_of_this_collection ||= ActiveFedora::Base.where("member_of_collection_ids_ssim:#{id}")
+    end
+
+    def member_of_this_collection_ids
+      @member_of_this_collection_ids ||= member_of_this_collection.map { |member| member.id }
+    end
+
+    def collection_members_of_this_collection
+      @collection_members_of_this_collection ||= ActiveFedora::Base.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Collection")
+    end
+
+    def collection_members_of_this_collection_ids
+      @collection_members_of_this_collection_ids ||= collection_members_of_this_collection.map { |member| member.id }
+    end
+
+    def work_members_of_this_collection
+      @work_members_of_this_collection ||= ActiveFedora::Base.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Work")
+    end
+    alias collection_member_ids collection_members_of_this_collection_ids
+
+    def work_members_of_this_collection_ids
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "work_members_of_this_collection.first&.class.name=#{work_members_of_this_collection.first&.class.name}",
+                                             "" ] if COLLECTION_PRESENTER_DEBUG_VERBOSE
+      @work_members_of_this_collection_ids ||= work_members_of_this_collection.map { |member| member.id }
+    end
+    alias work_member_ids work_members_of_this_collection_ids
+
     def total_items
-      ActiveFedora::Base.where("member_of_collection_ids_ssim:#{id}").count
+      member_of_this_collection.count
     end
 
     def total_viewable_items
-      ActiveFedora::Base.where("member_of_collection_ids_ssim:#{id}").accessible_by(current_ability).count
+      member_of_this_collection.accessible_by(current_ability).count
     end
 
     def total_viewable_works
@@ -138,12 +170,12 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
                                              "current_ability=#{current_ability}",
-                                             "" ]
-      ActiveFedora::Base.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Work").accessible_by(current_ability).count
+                                             "" ] if COLLECTION_PRESENTER_DEBUG_VERBOSE
+      work_members_of_this_collection.accessible_by(current_ability).count
     end
 
     def total_viewable_collections
-      ActiveFedora::Base.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Collection").accessible_by(current_ability).count
+      collection_members_of_this_collection.accessible_by(current_ability).count
     end
 
     def collection_type_badge
