@@ -4,11 +4,14 @@ class WorkViewContentPresenter
 
   attr_accessor :controller, :file_set
 
-  delegate :file_name,
-           :menu_file_format,
-           :menu_links,
-           :menu_partial,
-           :page_navigation,
+  delegate :documentation_work_title_prefix,
+           :file_name,
+           :static_content_menu,
+           :static_content_menu_file_format,
+           :static_content_menu_header,
+           :static_content_menu_links,
+           :static_content_menu_partial,
+           :static_content_page_navigation,
            :work_title, to: :controller
 
   def initialize( controller:, file_set:, format:, options: {} )
@@ -39,7 +42,7 @@ class WorkViewContentPresenter
   end
 
   def static_content
-    @controller.send_static_content( file_set: @file_set, format: @format, options: @options )
+    @controller.static_content_send( file_set: @file_set, format: @format, options: @options )
   end
 
 end

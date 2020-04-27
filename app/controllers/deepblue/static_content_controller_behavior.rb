@@ -8,6 +8,27 @@ module Deepblue
     mattr_accessor :static_content_controller_behavior_verbose
     self.static_content_controller_behavior_verbose = false
 
+    def self.static_content_documentation_collection_id
+      @@static_content_documentation_collection_id ||= static_content_documentation_collection_id_init&.id
+    end
+
+    def self.static_content_documentation_collection_id_init
+      title = WorkViewContentService.documentation_collection_title
+      collection = nil
+      solr_query = "+generic_type_sim:Collection AND +title_tesim:#{title}"
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "solr_query=#{solr_query}",
+      #                                        "" ] if static_content_controller_behavior_verbose
+      results = ::ActiveFedora::SolrService.query( solr_query, rows: 10 )
+      if results.size > 0
+        result = results[0] if results
+        id = result.id
+        collection = ActiveFedora::Base.find( id )
+      end
+      return collection
+    end
+
     mattr_accessor :static_content_title_id_cache
     @@static_content_title_id_cache
 
@@ -32,68 +53,51 @@ module Deepblue
       @@static_content_title_id_cache[title] = id
     end
 
-    def static_content_main( params )
-      work_title = params[:doc]
-      if params[:format]
-        file_set_title = "#{params[:file]}.#{params[:format]}"
-      else
-        file_set_title = "#{params[:file]}.html"
-      end
-      static_content_for( work_title, file_set_title )
+
+
+    attr_reader :static_content_menu,
+                :static_content_menu_file_format,
+                :static_content_menu_header,
+                :static_content_menu_links,
+                :static_content_menu_partial,
+                :static_content_page_navigation
+
+
+
+    def documentation_work_title_prefix
+      WorkViewContentService.documentation_work_title_prefix
     end
 
-    def static_content_sidebar( params )
-      work_title = params[:doc]
-      if params[:layout]
-        file_set_title = "#{params[:layout]}_sidebar.html"
-      else
-        file_set_title = "#{params[:file]}_sidebar.html"
-      end
-      static_content_for( work_title, file_set_title )
+    def static_content_documentation_collection
+      id = StaticContentControllerBehavior::static_content_documentation_collection_id
+      collection = Collection.find( id )
+      return collection
     end
 
-    def static_content_title( params )
-      ""
-    end
-
-    def static_content_for( work_title, file_set_title, **options )
+    def static_content_find_documentation_work_by_title( title: )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "work_title=#{work_title}",
-                                             "file_set_title=#{file_set_title}",
-                                             "options=#{options}",
+                                             "title=#{title}",
                                              "" ] if static_content_controller_behavior_verbose
-      if work_view_content_enable_cache
-        id = StaticContentControllerBehavior.static_content_title_id_cache( title: "//#{work_title}//#{file_set_title}//" )
-        return static_content_read_file( id: id ) unless id.blank?
-        id = StaticContentControllerBehavior.static_content_title_id_cache( title: work_title )
+      static_content_documentation_collection.member_works.each do |work|
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "#{work.title.first} == #{title} ?",
+                                               "" ] if static_content_controller_behavior_verbose
+        return work if work.title.first == title
       end
-      work = static_content_find_work_by_title(title: work_title, id: id )
-      return "" unless work
-      file_set = static_content_work_file_set_find_by_title( work: work,
-                                                             work_title: work_title,
-                                                             file_set_title: file_set_title )
-      static_content_send_file( file_set: file_set, format: options[:format] )
+      return nil
     end
 
-    def static_content_for_read_file( work_title, file_set_title, **options )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "work_title=#{work_title}",
-                                             "file_set_title=#{file_set_title}",
-                                             "options=#{options}",
-                                             "" ] if static_content_controller_behavior_verbose
-      if work_view_content_enable_cache
-        id = StaticContentControllerBehavior.static_content_title_id_cache( title: "//#{work_title}//#{file_set_title}//" )
-        return static_content_read_file( id: id ) unless id.blank?
-        id = StaticContentControllerBehavior.static_content_title_id_cache( title: work_title )
+    def static_content_find_documentation_file_set( work_title:, file_name: )
+      work = static_content_find_documentation_work_by_title( title: work_title )
+      return nil if work.blank?
+      work.file_sets.each do |fs|
+        if fs.title.first == file_name
+          return fs
+        end
       end
-      work = static_content_find_work_by_title(title: work_title, id: id )
-      return "" unless work
-      file_set = static_content_work_file_set_find_by_title( work: work,
-                                                             work_title: work_title,
-                                                             file_set_title: file_set_title )
-      static_content_read_file( file_set: file_set )
+      return nil
     end
 
     def static_content_file_set( work_title, file_set_title, **options )
@@ -157,7 +161,7 @@ module Deepblue
       return collection
     end
 
-    def static_content_find_work_by_title(title:, id: )
+    def static_content_find_work_by_title( title:, id: )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "title=#{title}",
@@ -181,6 +185,8 @@ module Deepblue
         end
       end
       work = nil
+      work = static_content_find_documentation_work_by_title( title: title ) if title.start_with? documentation_work_title_prefix
+      return work if work.present?
       solr_query = "+generic_type_sim:Work AND +title_tesim:#{title}"
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -196,6 +202,116 @@ module Deepblue
         end
       end
       return work
+    end
+
+    def static_content_for( work_title, file_set_title, **options )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "work_title=#{work_title}",
+                                             "file_set_title=#{file_set_title}",
+                                             "options=#{options}",
+                                             "" ] if static_content_controller_behavior_verbose
+      if work_view_content_enable_cache
+        id = StaticContentControllerBehavior.static_content_title_id_cache( title: "//#{work_title}//#{file_set_title}//" )
+        return static_content_read_file( id: id ) unless id.blank?
+        id = StaticContentControllerBehavior.static_content_title_id_cache( title: work_title )
+      end
+      work = static_content_find_work_by_title(title: work_title, id: id )
+      return "" unless work
+      file_set = static_content_work_file_set_find_by_title( work: work,
+                                                             work_title: work_title,
+                                                             file_set_title: file_set_title )
+      static_content_send_file( file_set: file_set, format: options[:format] )
+    end
+
+    def static_content_for_read_file( work_title:, file_set_title:, **options )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "work_title=#{work_title}",
+                                             "file_set_title=#{file_set_title}",
+                                             "options=#{options}",
+                                             "" ] if static_content_controller_behavior_verbose
+      if work_view_content_enable_cache
+        id = StaticContentControllerBehavior.static_content_title_id_cache( title: "//#{work_title}//#{file_set_title}//" )
+        return static_content_read_file( id: id ) unless id.blank?
+        id = StaticContentControllerBehavior.static_content_title_id_cache( title: work_title )
+      end
+      work = static_content_find_work_by_title(title: work_title, id: id )
+      return "" unless work
+      file_set = static_content_work_file_set_find_by_title( work: work,
+                                                             work_title: work_title,
+                                                             file_set_title: file_set_title )
+      static_content_read_file( file_set: file_set )
+    end
+
+    def static_content_load_menu_file( work_title:, file_name: )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "work_title=#{work_title}",
+                                             "file_name=#{file_name}",
+                                             "" ] if static_content_controller_behavior_verbose
+      @static_content_menu_file_format = File.extname file_name
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "@static_content_menu_file_format=#{@static_content_menu_file_format}",
+                                             "" ] if static_content_controller_behavior_verbose
+      case @static_content_menu_file_format
+      when '.yml'
+        file = static_content_for_read_file( work_title: work_title, file_set_title: file_name )
+        @static_content_menu_links = YAML.load file
+      when '.yaml'
+        file = static_content_for_read_file( work_title: work_title, file_set_title: file_name )
+        @static_content_menu_links = YAML.load file
+      when '.txt'
+        @static_content_menu_links = static_content_for_read_file( work_title: work_title, file_set_title: file_name ).split( "\n" )
+      end
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "@static_content_menu_links=#{@static_content_menu_links}",
+                                             "" ] if static_content_controller_behavior_verbose
+    end
+
+    def static_content_main( params )
+      work_title = params[:doc]
+      if params[:format]
+        file_set_title = "#{params[:file]}.#{params[:format]}"
+      else
+        file_set_title = "#{params[:file]}.html"
+      end
+      static_content_for( work_title, file_set_title )
+    end
+
+    def static_content_options_from( file_set:, work_title: )
+      options = {}
+      return options if file_set.nil?
+      description = Array(file_set.description_file_set)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "description=#{description}",
+                                             "" ] if static_content_controller_behavior_verbose
+      return options if description.blank?
+      lines = description.join("\n").split("\n")
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "lines=#{lines}",
+                                             "" ] if static_content_controller_behavior_verbose
+      lines.each do |line|
+        case line.strip
+        when /^menu:(.+)$/
+          options[:menu] = Regexp.last_match(1).strip
+          static_content_set_menu( value: options[:menu], work_title: work_title )
+        when /^menu_header:(.+)$/
+          @static_content_menu_header = Regexp.last_match(1).strip
+          options[:menu_header] = @static_content_menu_header
+        when /^render_with:(.+)$/
+          options[:render_with] = Regexp.last_match(1).strip
+        end
+      end
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "options=#{options}",
+                                             "" ] if static_content_controller_behavior_verbose
+      return options
     end
 
     def static_content_read_file( file_set: nil, id: nil )
@@ -227,6 +343,20 @@ module Deepblue
       msg = "StaticContentControllerBehavior.static_content_read_file #{source_uri} - #{e.class}: #{e.message} at #{e.backtrace[0]}"
       Rails.logger.error msg
       return msg
+    end
+
+    def static_content_render?( mime_type: )
+      # look up file_set and set mime_type
+      case mime_type
+      when "text/html", "text/plain"
+        true
+      else
+        false
+      end
+    end
+
+    def static_content_send( file_set:, format:, options: {} )
+      static_content_send_file( file_set: file_set, format: format, options: options )
     end
 
     def static_content_send_file( file_set: nil, id: nil, format: nil, options: {} )
@@ -278,6 +408,32 @@ module Deepblue
 
     def static_content_send_msg( msg )
       send_data "<pre>\n#{msg}\n</pre>", disposition: 'inline', type: "text/html"
+    end
+
+    def static_content_set_menu( value:, work_title: )
+      @static_content_menu = value
+      case value
+      when  /^(.+)\.html\.erb$/
+        @static_content_menu_partial = Regexp.last_match(1).strip
+      when  /^(.+)\/(.+)$/
+        static_content_load_menu_file( work_title: Regexp.last_match(1).strip, file_name: Regexp.last_match(2).strip )
+        @static_content_page_navigation = static_content_for_read_file( work_title: work_title,
+                                                         file_set_title: "#{file_id}.page_navigation.#{format}" )
+      end
+    end
+
+    def static_content_sidebar( params )
+      work_title = params[:doc]
+      if params[:layout]
+        file_set_title = "#{params[:layout]}_sidebar.html"
+      else
+        file_set_title = "#{params[:file]}_sidebar.html"
+      end
+      static_content_for( work_title, file_set_title )
+    end
+
+    def static_content_title( params )
+      ""
     end
 
     def static_content_work_file_set_find_by_title( work:, work_title:, file_set_title: )

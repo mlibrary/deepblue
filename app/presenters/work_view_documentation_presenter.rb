@@ -1,10 +1,16 @@
 # frozen_string_literal: true
 
 class WorkViewDocumentationPresenter
+  include Hyrax::CreateWorkPresenterBehavior
 
-  delegate :documentation_collection, :documentation_collection_title, :search_session, to: :controller
+  delegate :static_content_documentation_collection,
+           :documentation_collection_title,
+           :search_session, to: :controller
 
-  delegate :member_presenters, :ordered_ids, :file_set_presenters, :work_presenters, to: :member_presenter_factory
+  delegate :member_presenters,
+           :ordered_ids,
+           :file_set_presenters,
+           :work_presenters, to: :member_presenter_factory
 
   delegate :doi_minted?, :tombstone, to: :current_work
 

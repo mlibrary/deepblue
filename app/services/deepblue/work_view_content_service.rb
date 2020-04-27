@@ -8,8 +8,16 @@ module Deepblue
 
     @@_setup_ran = false
 
-    @@documentation_collection_title = nil
+    @@documentation_collection_title = "DBDDocumentationCollection"
     mattr_accessor :documentation_collection_title
+
+    @@documentation_work_title_prefix = "DBDDoc-"
+    mattr_accessor :documentation_work_title_prefix
+
+
+    @@static_controller_redirect_to_work_view_content = false
+    mattr_accessor :static_controller_redirect_to_work_view_content
+
 
     def self.setup
       yield self if @@_setup_ran == false

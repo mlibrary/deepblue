@@ -1,7 +1,7 @@
 <aside class="<%= sidebar_classes %> static-page-sidebar">
-  <h2><%= @presenter.menu_header %></h2>
+  <h2><%= @presenter.static_content_menu_header %></h2>
   <ul>
-    <% @presenter.menu_links.each do |link| %>
+    <% @presenter.static_content_menu_links.each do |link| %>
       <% case link.strip %>
     <% when /^(#.*)$/ %>
         <!--<%= Regexp.last_match(1) %>-->
@@ -13,8 +13,8 @@
         <% current_path = @presenter.current?(path) %>
         <li class="<%= current_path ? 'current' : '' %>">
           <%= link_to label, path %>
-          <% if current_path and @presenter.page_navigation.present? %>
-            <%= raw @presenter.page_navigation %>
+          <% if current_path and @presenter.static_content_page_navigation.present? %>
+            <%= raw @presenter.static_content_page_navigation %>
           <% end %>
         </li>
       <% when /^(.+)\s+(.+)$/ %>
@@ -23,8 +23,8 @@
         <% current_path = @presenter.current?(path) %>
         <li class="<%= current_path ? 'current' : '' %>">
           <%= link_to label, path %>
-          <% if current_path and @presenter.page_navigation.present? %>
-            <%= raw @presenter.page_navigation %>
+          <% if current_path and @presenter.static_content_page_navigation.present? %>
+            <%= raw @presenter.static_content_page_navigation %>
           <% end %>
         </li>
       <% end %>
