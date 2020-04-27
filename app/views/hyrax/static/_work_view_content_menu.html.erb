@@ -1,11 +1,11 @@
-<!-- @presenter.menu = <%= @presenter.menu %> -->
-<!-- @presenter.menu_file_format = <%= @presenter.menu_file_format %> -->
-<!-- @presenter.menu_partial = <%= @presenter.menu_partial %> -->
-<!-- @presenter.page_navigation = <%= @presenter.page_navigation %> -->
-<% if @presenter.menu_partial.present? %>
-  <%= render partial: @presenter.menu_partial %>
-<% elsif @presenter.menu_links.present? %>
-  <% case @presenter.menu_file_format %>
+<!-- @presenter.static_content_menu = <%= @presenter.static_content_menu %> -->
+<!-- @presenter.static_content_menu_file_format = <%= @presenter.static_content_menu_file_format %> -->
+<!-- @presenter.static_content_menu_partial = <%= @presenter.static_content_menu_partial %> -->
+<!-- @presenter.static_content_page_navigation = <%= @presenter.static_content_page_navigation %> -->
+<% if @presenter.static_content_menu_partial.present? %>
+  <%= render partial: @presenter.static_content_menu_partial %>
+<% elsif @presenter.static_content_menu_links.present? %>
+  <% case @presenter.static_content_menu_file_format %>
   <% when '.txt' %>
     <%= render partial: 'hyrax/static/work_view_content_menu_from_txt' %>
   <% when '.yml' %>
@@ -13,6 +13,6 @@
   <% when '.yaml' %>
     <%= render partial: 'hyrax/static/work_view_content_menu_from_yml' %>
   <% else %>
-    Unknown Menu File Format: <%= @presenter.menu_file_format %>
+    Unknown Menu File Format: <%= @presenter.static_content_menu_file_format %>
   <% end %>
 <% end %>

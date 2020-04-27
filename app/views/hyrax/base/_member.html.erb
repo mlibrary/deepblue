@@ -10,7 +10,7 @@
   </tr>
 <% else %>
   <tr class="<%= dom_class(member) %> attributes">
-    <% ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+    <%# ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "member.class=#{member.class.name}",
                                              ""] %>

@@ -1,7 +1,7 @@
 <aside class="<%= sidebar_classes %> static-page-sidebar">
-  <h2><%= @presenter.menu_header %></h2>
+  <h2><%= @presenter.static_content_menu_header %></h2>
   <ul>
-    <% menu_hash = @presenter.menu_links[:menu] %>
+    <% menu_hash = @presenter.static_content_menu_links[:menu] %>
     <%# ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "menu_hash=#{menu_hash}",
@@ -29,8 +29,8 @@
           <% current_path = @presenter.current?(link) %>
           <li class="<%= current_path ? 'current' : '' %>">
             <a href="<%= link %>"><%= label %></a>
-            <% if current_path and @presenter.page_navigation.present? %>
-            <%= raw @presenter.page_navigation %>
+            <% if current_path and @presenter.static_content_page_navigation.present? %>
+            <%= raw @presenter.static_content_page_navigation %>
             <% end %>
           </li>
         <% end %>
@@ -59,8 +59,8 @@
                 <% current_path = @presenter.current?(link) %>
                 <li class="<%= current_path ? 'current' : '' %>">
                   <a href="<%= link %>"><%= label %></a>
-                  <% if current_path and @presenter.page_navigation.present? %>
-                    <%= raw @presenter.page_navigation %>
+                  <% if current_path and @presenter.static_content_page_navigation.present? %>
+                    <%= raw @presenter.static_content_page_navigation %>
                   <% end %>
                 </li>
               <% end %>
