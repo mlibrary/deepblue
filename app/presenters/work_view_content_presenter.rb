@@ -7,6 +7,7 @@ class WorkViewContentPresenter
   delegate :documentation_work_title_prefix,
            :file_name,
            :static_content_menu,
+           :static_content_menu_debug_verbose,
            :static_content_menu_file_format,
            :static_content_menu_header,
            :static_content_menu_links,
@@ -23,7 +24,20 @@ class WorkViewContentPresenter
 
   def current?(path)
     # TODO - Fix this hard coded path
-    "/data/work_view_content/#{work_title}/#{file_name}" == path
+    doc = if work_title =~ /^DBDDoc-([a-z-]+)$/
+            Regexp.last_match( 1 )
+          else
+            "$UNKOWN$"
+          end
+    rv = case path
+         when "/data/#{doc}"
+           true
+         when "/data/work_view_content/#{work_title}/#{file_name}"
+           true
+         else
+           false
+         end
+    return rv
   end
 
   def has_menu?

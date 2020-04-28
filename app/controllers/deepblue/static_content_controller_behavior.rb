@@ -7,6 +7,8 @@ module Deepblue
 
     mattr_accessor :static_content_controller_behavior_verbose
     self.static_content_controller_behavior_verbose = false
+    mattr_accessor :static_content_controller_behavior_menu_verbose
+    self.static_content_controller_behavior_menu_verbose = false
 
     def self.static_content_documentation_collection_id
       @@static_content_documentation_collection_id ||= static_content_documentation_collection_id_init&.id
@@ -62,7 +64,9 @@ module Deepblue
                 :static_content_menu_partial,
                 :static_content_page_navigation
 
-
+    def static_content_menu_debug_verbose
+      static_content_controller_behavior_menu_verbose
+    end
 
     def documentation_work_title_prefix
       WorkViewContentService.documentation_work_title_prefix
