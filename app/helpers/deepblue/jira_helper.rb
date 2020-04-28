@@ -184,7 +184,16 @@ module Deepblue
                                               "path=#{path}",
                                               "get_rv=#{get_rv}",
                                               "body=#{body}",
+                                              "body.class.name=#{body.class.name}",
                                               "" ] ) if JIRA_HELPER_DEBUG_VERBOSE
+      rv = if "[]" == body
+             false
+           elsif body.present? && body.size > 0
+             true
+           else
+             false
+           end
+
       rv = body.present? && body.size > 0
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
                                               Deepblue::LoggingHelper.called_from,
