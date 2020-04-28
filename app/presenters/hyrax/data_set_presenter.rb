@@ -154,6 +154,10 @@ module Hyrax
       ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( value, precision: 3 )
     end
 
+    def json_metadata_properties
+      ::DataSet.metadata_keys_json
+    end
+
     def label_with_total_file_size( label )
       total = total_file_size
       return label if total.zero?

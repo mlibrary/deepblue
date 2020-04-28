@@ -1,12 +1,4 @@
-json.extract!( @presenter, :id,
-               :title,
-               :description,
-               :keyword,
-               :subject,
-               :create_date,
-               :modified_date,
-               :collection_member_ids,
-               :work_member_ids )
+json.extract!( @presenter, *@presenter.json_metadata_properties )
 
 json.collection_members do
   json.array! @presenter.collection_members_of_this_collection.each do |work|

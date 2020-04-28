@@ -1,0 +1,118 @@
+<h2>Rest API</h2>
+
+<table class="rest-api-table">
+  <tr><th colspan="4">Request</th><th colspan="3">Response</th></tr>
+  <tr>
+    <th>Verb</th>
+    <th>Path*</th>
+    <th>Params</th>
+    <th>Action</th>
+    <th>Status</th>
+    <th>Body</th>
+    <th>Comments</th>
+  </tr>
+  <tr>
+    <td><code>GET</code></td>
+    <td><code>/data/concern/collection/[:id].json</code></td>
+    <td>&nbsp;</td>
+    <td>find</td>
+    <td><code>:ok</code><br/><code>:not_found</code></td>
+    <td>
+<pre>
+{
+:id,
+:title,
+:description,
+:keyword,
+:subject,
+:create_date,
+:modified_date,
+:collection_member_ids,
+:work_member_ids
+:collection_members,
+:collection_works
+}
+</pre>
+    </td>
+    <td>Found component<br/>or<br/>Record not found</td>
+  </tr>
+  <tr>
+    <td><code>GET</code></td>
+    <td><code>/data/concern/data_set/[:id].json</code></td>
+    <td>&nbsp;</td>
+    <td>find</td>
+    <td><code>:ok</code><br/><code>:not_found</code></td>
+    <td>
+<pre>
+{
+:id,
+:admin_set_id,
+:authoremail,
+:creator,
+:curation_notes_admin,
+:curation_notes_user,
+:date_coverage,
+:date_created,
+:date_modified,
+:date_published,
+:date_updated,
+:depositor,
+:description,
+:doi,
+:file_set_ids,
+:fundedby,
+:fundedby_other,
+:grantnumber,
+:keyword,
+:language,
+:methodology,
+:prior_identifier,
+:referenced_by,
+:rights_license,
+:rights_license_other,
+:subject_discipline,
+:title,
+:tombstone,
+:total_file_count,
+:total_file_size,
+:total_file_size_human_readable,
+:visibility,
+:file_set_ids,
+:file_sets
+}
+</pre>
+    </td>
+    <td>Found component<br/>or<br/>Record not found</td>
+  </tr>
+  <tr>
+    <td><code>GET</code></td>
+    <td><code>/data/concern/file_set/[:id].json</code></td>
+    <td>&nbsp;</td>
+    <td>find</td>
+    <td><code>:ok</code><br/><code>:not_found</code></td>
+    <td>
+<pre>
+{
+:id,
+:title,
+:label,
+:creator,
+:date_uploaded,
+:depositor,
+:date_modified,
+:doi,
+:description,
+:curation_notes_user,
+:file_size,
+:file_size_human_readable,
+:original_checksum,
+:mime_type,
+:virus_scan_service,
+:virus_scan_status,
+:virus_scan_status_date
+}
+</pre>
+    </td>
+    <td>Found component<br/>or<br/>Record not found</td>
+  </tr>
+</table>

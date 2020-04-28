@@ -200,6 +200,44 @@ class DataSet < ActiveFedora::Base
     ]
   end
 
+  def self.metadata_keys_json
+    @@metadata_keys_json ||= %i[
+      id
+      access_deepblue
+      admin_set_id
+      authoremail
+      creator
+      curation_notes_admin
+      curation_notes_user
+      date_coverage
+      date_created
+      date_modified
+      date_published
+      date_updated
+      depositor
+      description
+      doi
+      file_set_ids
+      fundedby
+      fundedby_other
+      grantnumber
+      keyword
+      language
+      methodology
+      prior_identifier
+      referenced_by
+      rights_license
+      rights_license_other
+      subject_discipline
+      title
+      tombstone
+      total_file_count
+      total_file_size
+      total_file_size_human_readable
+      visibility
+    ].freeze
+  end
+
   def metadata_keys_report
     %i[
       access_deepblue

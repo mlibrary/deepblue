@@ -1,6 +1,7 @@
-json.extract! @curation_concern,
-              *[:id] + @curation_concern.class.fields.reject { |f| [:has_model].include? f }
+json.extract! @curation_concern, *@presenter.json_metadata_properties
+
 json.extract! @curation_concern, :file_set_ids
+
 json.file_sets do
   json.array! @presenter.member_presenter_factory.file_set_presenters.each do |fsp|
     # json.id fsp.id

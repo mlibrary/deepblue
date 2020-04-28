@@ -24,27 +24,6 @@ module Hyrax
                                              "" ] if STATIC_CONTROLLER_DEBUG_VERBOSE
 
       doc = params[:doc]
-      # if doc =~ %r{
-      #             about|
-      #             agreement|
-      #             dbd-documentation-guide|
-      #             dbd-glossary|
-      #             file-format-preservation|
-      #             globus-help|
-      #             help|
-      #             how-to-upload|
-      #             management-plan-text|
-      #             mendeley|
-      #             metadata-guidance|
-      #             prepare-your-data|
-      #             retention|
-      #             subject_libraries|
-      #             support-for-depositors|
-      #             terms|
-      #             use-downloaded-data|
-      #             versions|
-      #             zotero
-      #             }x
       prefix = documentation_work_title_prefix
       work_title = "#{prefix}#{doc}"
       file_name = "#{doc}.html"
@@ -59,12 +38,32 @@ module Hyrax
         redirect_to( "/data/work_view_content/DBDDocumentation/#{doc}.html" )
       elsif static_content_file_set( "#{prefix}#{doc}", "#{doc}.html" ).present?
         redirect_to( "/data/work_view_content/#{prefix}#{doc}/#{doc}.html" )
-      else
+      elsif doc =~ %r{
+                    about|
+                    agreement|
+                    dbd-documentation-guide|
+                    dbd-glossary|
+                    file-format-preservation|
+                    globus-help|
+                    help|
+                    how-to-upload|
+                    management-plan-text|
+                    mendeley|
+                    metadata-guidance|
+                    prepare-your-data|
+                    rest-api|
+                    retention|
+                    subject_libraries|
+                    support-for-depositors|
+                    terms|
+                    use-downloaded-data|
+                    versions|
+                    zotero
+                    }x
         render "hyrax/static/#{doc}"
+      else
+        redirect_to( main_app.root_path, status: 404 )
       end
-      # else
-      #   redirect_to( main_app.root_path, status: 404 )
-      # end
     end
 
     def show_doc

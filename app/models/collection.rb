@@ -75,7 +75,7 @@ class Collection < ActiveFedora::Base
       title
       total_file_size
       visibility
-    ]
+    ].freeze
   end
 
   def metadata_keys_browse
@@ -88,7 +88,7 @@ class Collection < ActiveFedora::Base
       description
       subject_discipline
       title
-    ]
+    ].freeze
   end
 
   def metadata_keys_brief
@@ -97,6 +97,20 @@ class Collection < ActiveFedora::Base
       title
       visibility
     ]
+  end
+
+  def self.metadata_keys_json
+    @@metadata_keys_json ||= %i[
+      id
+      title
+      description
+      keyword
+      subject
+      create_date
+      modified_date
+      collection_member_ids
+      work_member_ids
+    ].freeze
   end
 
   def metadata_keys_report
