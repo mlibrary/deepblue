@@ -454,3 +454,32 @@ table.datatable thead th.no-sort {
     font-size: 16px;
     overflow-x: scroll;
 }
+
+table.rest-api-table {
+    border: 1px solid #e3e3e3 !important;
+    border-radius: 3px;
+}
+
+table.rest-api-tableXXXX tbody tr th {
+    /* padding: 1em !important; */
+    color: #6e6e6e;
+}
+
+table.rest-api-tableXXX tr {
+    border: 1px solid #e3e3e3 !important;
+}
+
+table.rest-api-table th td {
+    border: 3px solid darkblue !important;
+    padding: .5em !important;
+}
+
+table.rest-api-table code {
+    font-family: monospace,monospace;
+    /* font-size: 16px; */
+    /* color: deeppink; */
+    color: black;
+}
+
+
+

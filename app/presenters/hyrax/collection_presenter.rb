@@ -100,6 +100,10 @@ module Hyrax
       end
     end
 
+    def json_metadata_properties
+      ::Collection.metadata_keys_json
+    end
+
     # begin display_provenance_log
 
     def display_provenance_log_enabled?

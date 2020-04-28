@@ -328,19 +328,21 @@ class SolrDocument
   end
 
   def oai_academic_affiliation_label
-    aa_labels = []
+    labels = []
+    return labels unless academic_affiliation_label
     academic_affiliation_label.each do |a|
-      aa_labels << a["label"]
+      labels << a["label"]
     end
-    aa_labels
+    labels
   end
 
   def oai_other_affiliation_label
-    oa_labels = []
+    labels = []
+    return labels unless other_affiliation_label
     other_affiliation_label.each do |o|
-      oa_labels << o["label"]
+      labels << o["label"]
     end
-    oa_labels
+    labels
   end
 
   # Only return License if present, otherwise Rights

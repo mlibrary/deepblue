@@ -35,6 +35,7 @@ Rails.application.routes.draw do
                                                                       mendeley|
                                                                       metadata-guidance|
                                                                       prepare-your-data|
+                                                                      rest-api|
                                                                       retention|
                                                                       subject_libraries|
                                                                       support-for-depositors|
