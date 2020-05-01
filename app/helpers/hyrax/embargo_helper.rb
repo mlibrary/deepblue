@@ -76,8 +76,8 @@ module Hyrax
                                    subject: subject,
                                    body: body,
                                    email_sent: email_sent )
-      return unless DeepBlueDocs::Application.config.embargo_about_to_expire_email_rds
-      email = ::Deepblue::EmailHelper.notification_email
+      return unless DeepBlueDocs::Application.config.embargo_about_to_expire_email_workflow
+      email = ::Deepblue::EmailHelper.notification_email_workflow_to
       email_sent = false
       email_sent = ::Deepblue::EmailHelper.send_email( to: email,
                                                        from: email,
@@ -156,7 +156,7 @@ module Hyrax
       email = curation_concern.authoremail
       email_sent = false
       email_sent = ::Deepblue::EmailHelper.send_email( to: email,
-                                                       from: email,
+                                                       from: EmailHelper.notification_email_from,
                                                        subject: subject,
                                                        body: body,
                                                        content_type: 'text/html' ) unless test_mode
@@ -171,11 +171,11 @@ module Hyrax
                                    subject: subject,
                                    body: body,
                                    email_sent: email_sent )
-      return unless DeepBlueDocs::Application.config.embargo_deactivate_email_rds
-      email = ::Deepblue::EmailHelper.notification_email
+      return unless DeepBlueDocs::Application.config.embargo_deactivate_email_workflow
+      email = ::Deepblue::EmailHelper.notification_email_workflow_to
       email_sent = false
       email_sent = ::Deepblue::EmailHelper.send_email( to: email,
-                                                       from: email,
+                                                       from: EmailHelper.notification_email_from,
                                                        subject: subject,
                                                        body: body,
                                                        content_type: 'text/html' ) unless test_mode

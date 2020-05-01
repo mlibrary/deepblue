@@ -188,7 +188,7 @@
   <p>Globus has numerous How To guides on its Globus Docs website, including videos, which can be found at
     <a href="https://docs.globus.org/how-to/" target="_blank">https://docs.globus.org/how-to/</a>. You can also contact
     the Research Data Services team by emailing
-    <a href="mailto:<%=t('email.deepblue')%>" target="_blank"><%=t('email.deepblue')%></a>.</p>
+    <%= raw ::Deepblue::EmailHelper.mailto_contact_us_html( new_window: true ) %>.</p>
 
   <h3 id="a-note-about-globus" class="active">A Note about Globus</h3>
 

@@ -201,7 +201,7 @@
 <h4>Support for despositors</h4>
 <p>The Library offers consultation services and best practices documentation to help guide Deep Blue Data users.
   Contact <a href="http://www.lib.umich.edu/research-data-services">Research Data Services</a> for assistance:
-  <a href="mailto:<%=t('email.deepblue')%>"><%=t('email.deepblue')%></a></p>
+  <%= raw ::Deepblue::EmailHelper.mailto_contact_us_html %></p>
 
 <h3 id="collections_content">3. Collections &amp; Content</h3>
 

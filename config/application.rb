@@ -89,24 +89,47 @@ module DeepBlueDocs
     config.hostname = ENV['APP_HOSTNAME'] || Settings.hostname
     # puts "config.hostname=#{config.hostname}"
 
-    ## configure email
-    config.email_error_alert_addresses = [ 'fritx@umich.edu', 'blancoj@umich.edu' ].freeze
-
-    ## configure embargo
+    ## begin configure embargo
     config.embargo_enforce_future_release_date = true # now that we have automated embargo expiration
     config.embargo_visibility_after_default_status = ::Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
     config.embargo_visibility_during_default_status = ::Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
     config.embargo_manage_hide_files = true
     config.embargo_allow_children_unembargo_choice = false
-    config.embargo_email_rds_hostnames = [ 'testing.deepblue.lib.umich.edu',
+    config.embargo_email_workflow_hostnames = [ 'testing.deepblue.lib.umich.edu',
                                            'staging.deepblue.lib.umich.edu',
                                            'deepblue.lib.umich.edu' ].freeze
-    config.embargo_about_to_expire_email_rds = config.embargo_email_rds_hostnames.include? config.hostname
-    config.embargo_deactivate_email_rds = config.embargo_email_rds_hostnames.include? config.hostname
+    config.embargo_about_to_expire_email_workflow = config.embargo_email_workflow_hostnames.include? config.hostname
+    config.embargo_deactivate_email_workflow = config.embargo_email_workflow_hostnames.include? config.hostname
+    ## end configure embargo
 
-    # deposit notification email addresses
-    config.notification_email = Settings.notification_email
-    config.user_email = Settings.user_email
+    ## begin configure email
+    config.email_debug_verbose = true
+
+    config.email_error_alert_addresses = [ 'fritx@umich.edu', 'blancoj@umich.edu' ].freeze
+    # see config/settings/production.yml etc. for real values, it's null in development.yml
+    # config.notification_email = Settings.notification_email
+    config.notification_email_contact_form_to = Settings.notification_email_jira_to
+    config.notification_email_deepbue_to = Settings.notification_email_deepbue_to
+    config.notification_email_from = Settings.notification_email_from
+    config.notification_email_jira_to = Settings.notification_email_jira_to
+    config.notification_email_to = Settings.notification_email_to
+    config.notification_email_workflow_to = Settings.notification_email_workflow_to
+
+    config.contact_us_email = config.notification_email_deepbue_to
+
+    config.use_email_notification_for_creation_events = false
+
+    if config.email_debug_verbose
+      puts "config.notification_email_contact_form_to=#{config.notification_email_contact_form_to}"
+      puts "config.notification_email_deepbue_to=#{config.notification_email_deepbue_to}"
+      puts "config.notification_email_from=#{config.notification_email_from}"
+      puts "config.notification_email_jira_to=#{config.notification_email_jira_to}"
+      puts "config.notification_email_to=#{config.notification_email_to}"
+      puts "config.notification_email_workflow_to=#{config.notification_email_workflow_to}"
+    end
+
+    # see see config/initalizers/jira_integration.rb for deposit notifications through jira flag
+    # end confgure email
 
     config.upload_max_number_of_files = 100
     config.upload_max_file_size = 5.gigabytes

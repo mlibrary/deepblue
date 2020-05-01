@@ -51,6 +51,11 @@ Rails.application.configure do
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
 
-  config.notification_email = 'fake@sample.com'
+  config.notification_email = 'fake_notification_email@sample.com'
+  config.notification_email_deepblue = 'fake_notification_email_deepblue@sample.com'
+  config.notification_email_from = 'fake_notification_email_from@sample.com'
+  config.notification_email_to = 'fake_notification_email_to@sample.com'
+  config.notification_email_jira_to = 'fake_notification_email_jira_to@sample.com'
+  config.notification_email_workflow_to = 'fake_notification_email_workflow_to@sample.com'
 
 end

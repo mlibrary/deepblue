@@ -43,7 +43,7 @@ class GlobusCopyJob < GlobusJob
       Deepblue::LoggingHelper.debug "#{@globus_log_prefix} copy complete" unless @globus_job_quiet
       begin
         globus_copy_job_email_add( user_email )
-        globus_copy_job_email_add( Deepblue::EmailHelper.notification_email )
+        globus_copy_job_email_add( Deepblue::EmailHelper.notification_email_to )
         @email_lines = globus_copy_job_complete_lines( curation_concern )
         globus_copy_job_email_all
         globus_copy_job_email_clean

@@ -170,13 +170,14 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                             file_item: file_item )
       end
       lines << "</ol>"
-      lines << ::Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.signature_html" )
+      lines << ::Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.signature_html",
+                                          contact_us_at: ::Deepblue::EmailHelper.contact_us_at )
       subject = Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.subject", title: title )
       attach_files_to_work_job_complete_email_user( email: user.email,
                                                     lines: lines,
                                                     subject: subject,
                                                     work: work ) if notify_user
-      attach_files_to_work_job_complete_email_user( email: Deepblue::EmailHelper.notification_email,
+      attach_files_to_work_job_complete_email_user( email: Deepblue::EmailHelper.notification_email_to,
                                                     lines: lines,
                                                     subject: subject + " (RDS)",
                                                     work: work ) if notify_managers
