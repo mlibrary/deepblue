@@ -498,44 +498,66 @@ class CatalogController < ApplicationController
 
   # get search results from the solr index
   def index
-    ActionController::Parameters
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
+                                           "params.class.name=#{params.class.name}",
                                            "params=#{params}",
                                            "@@facet_solr_name_to_name=#{@@facet_solr_name_to_name}",
                                            "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
     f = params["f"]
-    return super unless f.present?
-    need_fix = false
-    f.each_pair do |k,_v|
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "k=#{k}",
-                                             "CatalogController.facet_solr_name_to_name(k)=#{CatalogController.facet_solr_name_to_name(k)}",
-                                             "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
-      need_fix = true if CatalogController.facet_solr_name_to_name(k).blank?
-    end
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "need_fix=#{need_fix}",
-                                           "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
-    if need_fix
-      old_params = params
-      params = old_params.to_unsafe_hash
-      new_f = {}
-      f.each_pair do |k,v|
-        fix_name = CatalogController.facet_solr_name_to_name(k)
-        if fix_name.present?
-          new_f[k] = v
-        else
-          new_f[CatalogController.solr_name(k, :facetable)] = v
-        end
-      end
-      params["f"] = new_f
-    end
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
+                                           "f=#{f}",
+                                           "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+    p2 = params.deep_dup
+    if f.present?
+      need_fix = false
+      f.each_pair do |k,_v|
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "k=#{k}",
+                                               "CatalogController.facet_solr_name_to_name(k)=#{CatalogController.facet_solr_name_to_name(k)}",
+                                               "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+        need_fix = true if CatalogController.facet_solr_name_to_name(k).blank?
+      end
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params=#{params}",
+                                             "need_fix=#{need_fix}",
+                                             "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+      if need_fix
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "params=#{params}",
+                                               "fixing...",
+                                               "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+        old_params = params
+        params = old_params.to_unsafe_hash
+        new_f = {}
+        f.each_pair do |k,v|
+          fix_name = CatalogController.facet_solr_name_to_name(k)
+          if fix_name.present?
+            new_f[k] = v
+          else
+            new_f[CatalogController.solr_name(k, :facetable)] = v
+          end
+        end
+        params["f"] = new_f
+      else
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "params=#{params}",
+                                               "skipped fixing",
+                                               "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+      end
+    end
+    # no idea how params becomes nil here, but....
+    params = p2 if params.nil?
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "params=#{params}",
+                                           "p2=#{p2}",
                                            "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
     (@response, @document_list) = search_results(params)
 

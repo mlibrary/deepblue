@@ -102,13 +102,14 @@ class Collection < ActiveFedora::Base
   def self.metadata_keys_json
     @@metadata_keys_json ||= %i[
       id
-      title
-      description
-      keyword
-      subject
+      collection_member_ids
       create_date
       modified_date
-      collection_member_ids
+      description
+      keyword
+      modified_date
+      subject
+      title
       work_member_ids
     ].freeze
   end
