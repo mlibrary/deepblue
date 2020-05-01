@@ -1,6 +1,8 @@
 <div id="versioning_display" class="tab-pane">
   <h2><%= t('.header') %></h2>
-  <%= t( 'simple_form.hints.file_set.select_new_version_note_html', original_file_name: curation_concern.label ) %>
+  <%= t( 'simple_form.hints.file_set.select_new_version_note_html',
+         contact_us_at: ::Deepblue::EmailHelper.contact_us_at,
+         original_file_name: curation_concern.label ) %>
   <%= simple_form_for [main_app, curation_concern], html: { multipart: true, class: 'nav-safety' } do |f| %>
     <div id="fileuploadVersioning">
       <!-- Redirect browsers with JavaScript disabled to the origin page -->

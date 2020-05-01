@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class DeepblueMailer < ApplicationMailer
-  default from: Deepblue::EmailHelper.notification_email
+  default from: Deepblue::EmailHelper.notification_email_from
 
   layout "mailer.html"
 
