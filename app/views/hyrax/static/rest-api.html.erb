@@ -1,5 +1,126 @@
-<h2>Rest API</h2>
+<h2>REST API</h2>
 
+<h3>Catalog</h3>
+<table class="rest-api-table">
+  <tr>
+    <th colspan="4">Request</th>
+    <th colspan="3">Response</th>
+  </tr>
+  <tr>
+    <th>Verb</th>
+    <th>Path*</th>
+    <th>Params</th>
+    <th>Action</th>
+    <th>Status</th>
+    <th>Body</th>
+    <th>Comments</th>
+  </tr>
+  <tr>
+    <td><code>GET</code></td>
+    <td><code>/data/catalog.json</code></td>
+    <td>&nbsp;</td>
+    <td>find</td>
+    <td><code>:ok</code></td>
+    <td>
+<pre>
+{
+  :response =>
+    {
+      :docs =>
+      [
+        {
+          :model => String / "Collection"
+          :id => String
+          :metadata =>
+            {
+              :creator => [ String, ... ]
+              :description  => [ String, ... ]
+              :subject_discipline => [ String, ... ]
+              :title => [ String, ... ]
+            }
+        },
+        {
+          :model => String / "Collection"
+          :id => String
+          :metadata =>
+            {
+              :creator => [ String, ... ]
+              :description  => [ String, ... ]
+              :keyword  => [ String, ... ]
+              :subject_discipline => [ String, ... ]
+              :title => [ String, ... ]
+            }
+        }, ...
+      ],
+      :facets =>
+        [
+          {
+            :name => String
+            :items =>
+              [
+                {
+                  :value => String
+                  :hits => Integer
+                }, ...
+              ]
+          }, ...
+        ]
+      :pages =>
+        {
+          :current_page => Integer
+          :next_page => Integer
+          :prev_page => Integer
+          :total_pages => Integer
+          :limit_value => Integer
+          :offset_value => Integer
+          :total_count => Integer
+          :first_page? => Boolean
+          :last_page? => Boolean
+        }
+    }
+}
+</pre>
+    </td>
+    <td>Found component<br/>or<br/>Record not found</td>
+  </tr>
+  <tr>
+    <td><code>GET</code></td>
+    <td>
+      <code>/data/catalog.json?page=:page_number</code>
+    </td>
+    <td>
+<pre>
+:page_number => Integer
+</pre>
+    </td>
+    <td>find</td>
+    <td><code>:ok</code></td>
+    <td>Response structure same as: <code>/data/catalog.json</code>
+    </td>
+    <td>Found component<br/>or<br/>Record not found</td>
+  </tr>
+  <tr>
+    <td><code>GET</code></td>
+    <td>
+      <code>/data/catalog.json?f%5B:facet_name%5D%5B%5D=:search_criteria</code>
+      <br/>Or
+      <code>/data/catalog.json?f[:facet_name][]=:search_criteria</code>
+    </td>
+    <td>
+<pre>
+:facet_name => String
+:search_criteria => String
+</pre>
+    </td>
+    <td>find</td>
+    <td><code>:ok</code></td>
+    <td>Response structure same as: <code>/data/catalog.json</code>
+    </td>
+    <td>Found component<br/>or<br/>Record not found</td>
+  </tr>
+</table>
+
+<h3>Collections</h3>
 <table class="rest-api-table">
   <tr><th colspan="4">Request</th><th colspan="3">Response</th></tr>
   <tr>
@@ -13,103 +134,180 @@
   </tr>
   <tr>
     <td><code>GET</code></td>
-    <td><code>/data/concern/collection/[:id].json</code></td>
-    <td>&nbsp;</td>
-    <td>find</td>
-    <td><code>:ok</code><br/><code>:not_found</code></td>
+    <td><code>/data/concern/collection/:collection_id.json</code></td>
     <td>
 <pre>
+:collection_id => String
+</pre>
+    </td>
+    <td>find</td>
+    <td><code>:ok</code><br/><code>:not_found</code></td>
+    <td><%# see app/model/collection.rb metadata_keys_json %>
+<pre>
 {
-:id,
-:title,
-:description,
-:keyword,
-:subject,
-:create_date,
-:modified_date,
-:collection_member_ids,
-:work_member_ids
-:collection_members,
-:collection_works
+  :id => String,
+  :collection_member_ids => [ String, ... ],
+  :create_date => String,
+  :description => [ String, ... ],
+  :keyword => [ String, ... ],
+  :modified_date => String,
+  :subject => [ String, ... ],
+  :title => [ String, ... ],
+  :work_member_ids => [ String, ... ],
+  :collection_members =>
+    [
+      {
+        :id => String
+        :title => [ String, ... ],
+      }, ...
+    ]
+  :collection_works =>
+    [
+      {
+        :id => String
+        :title => [ String, ... ],
+      }, ...
+    ]
 }
 </pre>
     </td>
     <td>Found component<br/>or<br/>Record not found</td>
   </tr>
+</table>
+
+<h3>Data Sets</h3>
+<table class="rest-api-table">
+  <tr>
+    <th colspan="4">Request</th>
+    <th colspan="3">Response</th>
+  </tr>
+  <tr>
+    <th>Verb</th>
+    <th>Path*</th>
+    <th>Params</th>
+    <th>Action</th>
+    <th>Status</th>
+    <th>Body</th>
+    <th>Comments</th>
+  </tr>
   <tr>
     <td><code>GET</code></td>
-    <td><code>/data/concern/data_set/[:id].json</code></td>
-    <td>&nbsp;</td>
-    <td>find</td>
-    <td><code>:ok</code><br/><code>:not_found</code></td>
+    <td><code>/data/concern/data_set/:data_set_id.json</code></td>
     <td>
 <pre>
+:data_set_id => String
+</pre>
+    </td>
+    <td>find</td>
+    <td><code>:ok</code><br/><code>:not_found</code></td>
+    <td><%# see app/model/data_set.rb metadata_keys_json %>
+<pre>
 {
-:id,
-:admin_set_id,
-:authoremail,
-:creator,
-:curation_notes_admin,
-:curation_notes_user,
-:date_coverage,
-:date_created,
-:date_modified,
-:date_published,
-:date_updated,
-:depositor,
-:description,
-:doi,
-:file_set_ids,
-:fundedby,
-:fundedby_other,
-:grantnumber,
-:keyword,
-:language,
-:methodology,
-:prior_identifier,
-:referenced_by,
-:rights_license,
-:rights_license_other,
-:subject_discipline,
-:title,
-:tombstone,
-:total_file_count,
-:total_file_size,
-:total_file_size_human_readable,
-:visibility,
-:file_set_ids,
-:file_sets
+  :id => String,
+  :admin_set_id => String,
+  :authoremail => String,
+  :creator => [ String, ... ],
+  :curation_notes_user => [ String, ... ],
+  :date_coverage => String,
+  :date_created => String,
+  :date_modified => String,
+  :date_published => String,
+  :date_updated => String,
+  :depositor => String,
+  :description => [ String, ... ],
+  :doi => String,
+  :file_set_ids => [ String, ... ],
+  :fundedby => [ String, ... ],
+  :fundedby_other => [ String, ... ],
+  :grantnumber => [ String, ... ],
+  :keyword => [ String, ... ],
+  :language => [ String, ... ],
+  :methodology => [ String, ... ],
+  :referenced_by => [ String, ... ],
+  :rights_license => String,
+  :rights_license_other => String,
+  :subject_discipline => [ String, ... ],
+  :title => [ String, ... ],
+  :tombstone => [ String, ... ],
+  :total_file_count => Integer,
+  :total_file_size => Long,
+  :total_file_size_human_readable => String,
+  :visibility => String,
+  :file_set_ids => [ String, ... ],
+  :file_sets =>
+    [
+      {
+        :id => String,
+        :title => [ String, ... ],
+        :label => String,
+        :creator => [ String, ... ],
+        :date_uploaded => String,
+        :date_modified => String,
+        :depositor => String,
+        :doi => String,
+        :description => [ String, ... ],
+        :curation_notes_user => [ String, ... ],
+        :file_size => Integer,
+        :file_size_human_readable => String,
+        :original_checksum => String,
+        :mime_type => String,
+        :virus_scan_service => [ String, ... ],
+        :virus_scan_status => [ String, ... ],
+        :virus_scan_status_date => [ String, ... ]
+      }, ...
+    ]
 }
 </pre>
     </td>
     <td>Found component<br/>or<br/>Record not found</td>
   </tr>
+</table>
+
+<h3>File Sets</h3>
+<table class="rest-api-table">
+  <tr>
+    <th colspan="4">Request</th>
+    <th colspan="3">Response</th>
+  </tr>
+  <tr>
+    <th>Verb</th>
+    <th>Path*</th>
+    <th>Params</th>
+    <th>Action</th>
+    <th>Status</th>
+    <th>Body</th>
+    <th>Comments</th>
+  </tr>
   <tr>
     <td><code>GET</code></td>
-    <td><code>/data/concern/file_set/[:id].json</code></td>
-    <td>&nbsp;</td>
-    <td>find</td>
-    <td><code>:ok</code><br/><code>:not_found</code></td>
+    <td><code>/data/concern/file_set/:file_set_id.json</code></td>
     <td>
 <pre>
+:file_set_id => String
+</pre>
+    </td>
+    <td>find</td>
+    <td><code>:ok</code><br/><code>:not_found</code></td>
+    <td><%# see app/model/file_set.rb metadata_keys_json %>
+<pre>
 {
-:id,
-:title,
-:label,
-:creator,
-:date_uploaded,
-:depositor,
-:date_modified,
-:doi,
-:description,
-:curation_notes_user,
-:file_size,
-:file_size_human_readable,
-:original_checksum,
-:mime_type,
-:virus_scan_service,
-:virus_scan_status,
-:virus_scan_status_date
+  :id => String,
+  :title => [ String, ... ],
+  :label => String,
+  :creator => [ String, ... ],
+  :date_uploaded => String,
+  :date_modified => String,
+  :depositor => String,
+  :doi => String,
+  :description => [ String, ... ],
+  :curation_notes_user => [ String, ... ],
+  :file_size => Integer,
+  :file_size_human_readable => String,
+  :original_checksum => String,
+  :mime_type => String,
+  :virus_scan_service => [ String, ... ],
+  :virus_scan_status => [ String, ... ],
+  :virus_scan_status_date => [ String, ... ]
 }
 </pre>
     </td>

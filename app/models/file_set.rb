@@ -109,19 +109,19 @@ class FileSet < ActiveFedora::Base
   def self.metadata_keys_json
     @@metadata_keys_json ||= %i[
       id
-      title
-      label
       creator
+      curation_notes_user
+      date_modified
       date_uploaded
       depositor
-      date_modified
-      doi
       description
-      curation_notes_user
+      doi
       file_size
       file_size_human_readable
-      original_checksum
+      label
       mime_type
+      title
+      original_checksum
       virus_scan_service
       virus_scan_status
       virus_scan_status_date

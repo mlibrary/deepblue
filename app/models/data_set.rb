@@ -207,7 +207,6 @@ class DataSet < ActiveFedora::Base
       admin_set_id
       authoremail
       creator
-      curation_notes_admin
       curation_notes_user
       date_coverage
       date_created
@@ -224,7 +223,6 @@ class DataSet < ActiveFedora::Base
       keyword
       language
       methodology
-      prior_identifier
       referenced_by
       rights_license
       rights_license_other
