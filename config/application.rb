@@ -103,11 +103,15 @@ module DeepBlueDocs
     ## end configure embargo
 
     ## begin configure email
-    config.email_debug_verbose = true
+    if config.program_name != 'resque-pool'
+      config.email_debug_verbose = true
+    else
+      config.email_debug_verbose = false
+    end
 
     config.email_error_alert_addresses = [ 'fritx@umich.edu', 'blancoj@umich.edu' ].freeze
     # see config/settings/production.yml etc. for real values, it's null in development.yml
-    # config.notification_email = Settings.notification_email
+    config.notification_email = Settings.notification_email
     config.notification_email_contact_form_to = Settings.notification_email_jira_to
     config.notification_email_deepbue_to = Settings.notification_email_deepbue_to
     config.notification_email_from = Settings.notification_email_from
@@ -120,6 +124,7 @@ module DeepBlueDocs
     config.use_email_notification_for_creation_events = false
 
     if config.email_debug_verbose
+      puts "config.notification_email=#{config.notification_email}"
       puts "config.notification_email_contact_form_to=#{config.notification_email_contact_form_to}"
       puts "config.notification_email_deepbue_to=#{config.notification_email_deepbue_to}"
       puts "config.notification_email_from=#{config.notification_email_from}"
