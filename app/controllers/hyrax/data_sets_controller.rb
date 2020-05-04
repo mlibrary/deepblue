@@ -6,7 +6,9 @@ module Hyrax
 
     PARAMS_KEY = 'data_set'
 
-    include Deepblue::WorksControllerBehavior
+    DATA_SETS_CONTROLLER_DEBUG_VERBOSE = true
+
+    include ::Deepblue::WorksControllerBehavior
 
     self.curation_concern_type = ::DataSet
     self.show_presenter = Hyrax::DataSetPresenter
@@ -249,8 +251,10 @@ module Hyrax
     def display_provenance_log
       # load provenance log for this work
       file_path = Deepblue::ProvenancePath.path_for_reference( curation_concern.id )
-      Deepblue::LoggingHelper.bold_debug [ "DataSetsController", "display_provenance_log", file_path ]
-      Deepblue::ProvenanceLogService.entries( curation_concern.id, refresh: true )
+      ::Deepblue::LoggingHelper.bold_debug [ "DataSetsController",
+                                             "display_provenance_log",
+                                             file_path ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+      ::Deepblue::ProvenanceLogService.entries( curation_concern.id, refresh: true )
       # continue on to normal display
       redirect_to [main_app, curation_concern]
     end
@@ -288,10 +292,10 @@ module Hyrax
     ## visibility / publish
 
     def visiblity_changed
-      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-      #                                        Deepblue::LoggingHelper.called_from,
-      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
-      #                                        "" ]
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+      #                                        "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
       return unless curation_concern.present?
       if visibility_to_private?
         mark_as_set_to_private
@@ -301,10 +305,10 @@ module Hyrax
     end
 
     def visibility_changed_update
-      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-      #                                        Deepblue::LoggingHelper.called_from,
-      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
-      #                                        "" ]
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+      #                                        "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
       return unless curation_concern.present?
       if curation_concern.private? && @visibility_changed_to_private
        workflow_unpublish
@@ -314,20 +318,20 @@ module Hyrax
     end
 
     def visibility_to_private?
-      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-      #                                        Deepblue::LoggingHelper.called_from,
-      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
-      #                                        "" ]
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+      #                                        "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
       return unless curation_concern.present?
       return false if curation_concern.private?
       params[PARAMS_KEY]['visibility'] == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
     end
 
     def visibility_to_public?
-      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-      #                                        Deepblue::LoggingHelper.called_from,
-      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
-      #                                        "" ]
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+      #                                        "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
       return unless curation_concern.present?
       return false if curation_concern.public?
       params[PARAMS_KEY]['visibility'] == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
@@ -348,30 +352,59 @@ module Hyrax
     ## begin zip download operations
 
     def zip_download
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params=#{params}",
+                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+
+      if curation_concern.total_file_size > DeepBlueDocs::Application.config.max_work_file_size_to_download
+        respond_to do |wants|
+          wants.html do
+            raise ActiveFedora::IllegalOperation # TODO need better error than this
+          end
+          wants.json do
+            return render_json_response( response_type: :unprocessable_entity, message: "total file size too large to download" )
+          end
+        end
+      end
+
       require 'zip'
       require 'tempfile'
 
       tmp_dir = ENV['TMPDIR'] || "/tmp"
       tmp_dir = Pathname.new tmp_dir
-      # Deepblue::LoggingHelper.debug "Download Zip begin tmp_dir #{tmp_dir}"
-      Deepblue::LoggingHelper.bold_debug [ "zip_download begin", "tmp_dir=#{tmp_dir}" ]
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "zip_download begin",
+                                             "tmp_dir=#{tmp_dir}",
+                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
       target_dir = target_dir_name_id( tmp_dir, curation_concern.id )
-      # Deepblue::LoggingHelper.debug "Download Zip begin copy to folder #{target_dir}"
-      Deepblue::LoggingHelper.bold_debug [ "zip_download", "target_dir=#{target_dir}" ]
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "target_dir=#{target_dir}",
+                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
       Dir.mkdir( target_dir ) unless Dir.exist?( target_dir )
       target_zipfile = target_dir_name_id( target_dir, curation_concern.id, ".zip" )
-      # Deepblue::LoggingHelper.debug "Download Zip begin copy to target_zipfile #{target_zipfile}"
-      Deepblue::LoggingHelper.bold_debug [ "zip_download", "target_zipfile=#{target_zipfile}" ]
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "target_zipfile=#{target_zipfile}",
+                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
       File.delete target_zipfile if File.exist? target_zipfile
       # clean the zip directory if necessary, since the zip structure is currently flat, only
       # have to clean files in the target folder
-      files = Dir.glob( (target_dir.join '*').to_s)
-      Deepblue::LoggingHelper.bold_debug files, label: "zip_download files to delete:"
-      files.each do |file|
+      files_to_delete = Dir.glob( (target_dir.join '*').to_s)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "files_to_delete=#{files_to_delete}",
+                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+      files_to_delete.each do |file|
         File.delete file if File.exist? file
       end
-      Deepblue::LoggingHelper.debug "Download Zip begin copy to folder #{target_dir}"
-      Deepblue::LoggingHelper.bold_debug [ "zip_download", "begin copy target_dir=#{target_dir}" ]
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "target_zipfile=#{target_zipfile}",
+                                             "Download Zip begin copy to folder #{target_dir}",
+                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
       Zip::File.open(target_zipfile.to_s, Zip::File::CREATE ) do |zipfile|
         metadata_filename = curation_concern.metadata_report( dir: target_dir )
         zipfile.add( metadata_filename.basename, metadata_filename )
@@ -379,8 +412,11 @@ module Hyrax
           zipfile.add( target_file_name, target_file )
         end
       end
-      # Deepblue::LoggingHelper.debug "Download Zip copy complete to folder #{target_dir}"
-      Deepblue::LoggingHelper.bold_debug [ "zip_download", "download complete target_dir=#{target_dir}" ]
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "Download complete target_dir=#{target_dir}",
+                                             "target_zipfile=#{target_zipfile}",
+                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
       send_file target_zipfile.to_s
     end
 
@@ -436,17 +472,17 @@ module Hyrax
       end
 
       def flash_and_go_back( msg )
-        Deepblue::LoggingHelper.debug msg
+        ::Deepblue::LoggingHelper.debug msg
         redirect_to :back, notice: msg
       end
 
       def flash_error_and_go_back( msg )
-        Deepblue::LoggingHelper.debug msg
+        ::Deepblue::LoggingHelper.debug msg
         redirect_to :back, error: msg
       end
 
       def flash_and_redirect_to_main_cc( msg )
-        Deepblue::LoggingHelper.debug msg
+        ::Deepblue::LoggingHelper.debug msg
         redirect_to [main_app, curation_concern], notice: msg
       end
 

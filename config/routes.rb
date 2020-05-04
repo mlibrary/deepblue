@@ -142,6 +142,7 @@ Rails.application.routes.draw do
         post   'ingest_append_run_job'
         post   'identifiers'
         post   'tombstone'
+        get    'zip_download'
         post   'zip_download'
       end
     end

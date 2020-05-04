@@ -261,6 +261,25 @@
     </td>
     <td>Found component<br/>or<br/>Record not found</td>
   </tr>
+  <tr>
+    <td><code>GET</code></td>
+    <td><code>/data/concern/data_set/:data_set_id/zip_download.json</code></td>
+    <td>
+  <pre>
+  :data_set_id => String
+  </pre>
+    </td>
+    <td>download</td>
+    <td>
+      <code>:ok</code><br/>
+      <code>:not_found</code><br/>
+      <code>:unprocessible_entity (if too large to download)</code>
+    </td>
+    <td>
+      File sets zip encoded.
+    </td>
+    <td>Found component<br/>or<br/>Record not found</td>
+  </tr>
 </table>
 
 <h3>File Sets</h3>
@@ -310,6 +329,25 @@
   :virus_scan_status_date => [ String, ... ]
 }
 </pre>
+    </td>
+    <td>Found component<br/>or<br/>Record not found</td>
+  </tr>
+  <tr>
+    <td><code>GET</code></td>
+    <td><code>/data/downloads/:file_set_id.json</code></td>
+    <td>
+  <pre>
+  :file_set_id => String
+  </pre>
+    </td>
+    <td>download</td>
+    <td>
+      <code>:ok</code><br/>
+      <code>:not_found</code><br/>
+      <code>:unprocessible_entity (if too large to download)</code>
+    </td>
+    <td>
+      File.
     </td>
     <td>Found component<br/>or<br/>Record not found</td>
   </tr>
