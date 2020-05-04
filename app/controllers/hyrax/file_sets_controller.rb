@@ -6,6 +6,9 @@ module Hyrax
 
   # monkey patch FileSetsController
   class FileSetsController < ApplicationController
+
+    FILE_SETS_CONTROLLER_DEBUG_VERBOSE = true
+
     include Deepblue::DoiControllerBehavior
 
     PARAMS_KEY = 'file_set'
@@ -39,7 +42,7 @@ module Hyrax
                                              "child_id=#{curation_concern.id}",
                                              "child_title=#{curation_concern.title}",
                                              "event_note=FileSetsController",
-                                             "" ]
+                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
         return unless parent.respond_to? :provenance_child_add
         parent.provenance_child_remove( current_user: current_user,
                                         child_id: curation_concern.id,
@@ -95,7 +98,7 @@ module Hyrax
                                                "params=#{params}",
                                                "current_user=#{current_user}",
                                                Deepblue::LoggingHelper.obj_class( "actor", actor ),
-                                               "wants to revert" ]
+                                               "wants to revert" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
           actor.revert_content(params[:revision])
         elsif params.key?(:file_set)
           if params[:file_set].key?(:files)
@@ -104,14 +107,14 @@ module Hyrax
                                                  "params=#{params}",
                                                  "current_user=#{current_user}",
                                                  Deepblue::LoggingHelper.obj_class( "actor", actor ),
-                                                 "actor.update_content" ]
+                                                 "actor.update_content" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
             actor.update_content(params[:file_set][:files].first)
           else
             Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                  Deepblue::LoggingHelper.called_from,
                                                  "params=#{params}",
                                                  "current_user=#{current_user}",
-                                                 "update_metadata" ]
+                                                 "update_metadata" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
             update_metadata
           end
         elsif params.key?(:files_files) # version file already uploaded with ref id in :files_files array
@@ -120,7 +123,7 @@ module Hyrax
                                                "params=#{params}",
                                                "current_user=#{current_user}",
                                                Deepblue::LoggingHelper.obj_class( "actor", actor ),
-                                               "actor.update_content" ]
+                                               "actor.update_content" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
           uploaded_files = Array(Hyrax::UploadedFile.find(params[:files_files]))
           actor.update_content(uploaded_files.first)
         end
@@ -146,7 +149,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "e=#{e}",
-                                               "" ]
+                                               "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
         begin
           # check with Fedora to see if the requested id was deleted
           id = params[:id]
@@ -156,7 +159,7 @@ module Hyrax
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "gone=#{gone.class} #{gone.message} at #{gone.backtrace[0]}",
-                                                 "" ]
+                                                 "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
           # okay, since this looks like a deleted curation concern, we can check the provenance log
           # if admin, redirect to the provenance log controller
           if current_ability.admin?
@@ -171,7 +174,7 @@ module Hyrax
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "e2=#{e2.class} #{e2.message} at #{e2.backtrace[0]}",
-                                                 "" ]
+                                                 "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
         end
         raise CanCan::AccessDenied
       end
