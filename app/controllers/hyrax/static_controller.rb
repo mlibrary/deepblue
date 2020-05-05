@@ -13,9 +13,6 @@ module Hyrax
 
     layout 'homepage'
 
-    # TODO: figure out how to redirect to /data/work_view_content as required from this controller
-
-
     def show
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -23,7 +20,16 @@ module Hyrax
                                              "params[:doc]=#{params[:doc]}",
                                              "" ] if STATIC_CONTROLLER_DEBUG_VERBOSE
 
-      doc = params[:doc]
+      case params[:doc]
+      when "about-top"
+        doc = "about"
+      when "globus-help"
+        return redirect_to( "/data/user-guide#download-globus" )
+      when "help"
+        doc = "faq"
+      else
+        doc = params[:doc]
+      end
       prefix = documentation_work_title_prefix
       work_title = "#{prefix}#{doc}"
       file_name = "#{doc}.html"
@@ -39,27 +45,20 @@ module Hyrax
       elsif static_content_file_set( "#{prefix}#{doc}", "#{doc}.html" ).present?
         redirect_to( "/data/work_view_content/#{prefix}#{doc}/#{doc}.html" )
       elsif doc =~ %r{
-                    about|
-                    agreement|
-                    dbd-documentation-guide|
-                    dbd-glossary|
-                    file-format-preservation|
-                    globus-help|
-                    help|
-                    how-to-upload|
-                    management-plan-text|
-                    mendeley|
-                    metadata-guidance|
-                    prepare-your-data|
-                    rest-api|
-                    retention|
-                    subject_libraries|
-                    support-for-depositors|
-                    terms|
-                    use-downloaded-data|
-                    versions|
-                    zotero
-                    }x
+                      about|
+                      about-top|
+                      agreement|
+                      dbd-glossary|
+                      depositor-guide|
+                      faq|
+                      help|
+                      globus-help|
+                      rest-api|
+                      services|
+                      user-guide|
+                      mendeley|
+                      zotero
+                      }x
         render "hyrax/static/#{doc}"
       else
         redirect_to( main_app.root_path, status: 404 )

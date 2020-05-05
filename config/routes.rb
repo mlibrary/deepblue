@@ -24,27 +24,36 @@ Rails.application.routes.draw do
 
   get ':doc', to: 'hyrax/static#show', constraints: { doc: %r{
                                                                       about|
+                                                                      about-top|
                                                                       agreement|
-                                                                      dbd-documentation-guide|
                                                                       dbd-glossary|
-                                                                      file-format-preservation|
-                                                                      globus-help|
+                                                                      depositor-guide|
+                                                                      faq|
                                                                       help|
-                                                                      how-to-upload|
-                                                                      management-plan-text|
-                                                                      mendeley|
-                                                                      metadata-guidance|
-                                                                      prepare-your-data|
+                                                                      globus-help|
                                                                       rest-api|
-                                                                      retention|
-                                                                      subject_libraries|
-                                                                      support-for-depositors|
-                                                                      terms|
-                                                                      use-downloaded-data|
-                                                                      versions|
+                                                                      services|
+                                                                      user-guide|
+                                                                      delete-to-here|
+                                                                      mendeley|
                                                                       zotero
                                                                     }x },
       as: :static
+
+  # dbd-documentation-guide|
+  #     file-format-preservation|
+  #     globus-help|
+  #     how-to-upload|
+  #     management-plan-text|
+  #     metadata-guidance|
+  #     prepare-your-data|
+  #     retention|
+  #     subject_libraries|
+  #     support-for-depositors|
+  #         terms|
+  #         use-downloaded-data|
+  #         versions|
+
 
   # get ':action' => 'hyrax/static#:action', constraints: { action: %r{
   #                                                                     about|

@@ -91,7 +91,7 @@ module Deepblue
     end
 
     def email_event_create_rds( current_user:, event_note: '', return_email_parameters: false, send_it: true )
-      return unless DeepBlueDocs::Application.use_email_notification_for_creation_events
+      return unless DeepBlueDocs::Application.config.use_email_notification_for_creation_events
       attributes, ignore_blank_key_values = attributes_for_email_event_create_rds
       email_key_values = {}
       email_key_values = map_email_attributes!( event: EVENT_CREATE,
@@ -116,7 +116,7 @@ module Deepblue
     end
 
     def email_event_create_user( current_user:, event_note: '' )
-      return unless DeepBlueDocs::Application.use_email_notification_for_creation_events
+      return unless DeepBlueDocs::Application.config.use_email_notification_for_creation_events
       to, _to_note, from = email_address_user( current_user )
       cc_title = EmailHelper.cc_title curation_concern: self
       cc_type = EmailHelper.curation_concern_type( curation_concern: self )
