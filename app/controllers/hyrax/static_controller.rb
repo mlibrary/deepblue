@@ -11,7 +11,13 @@ module Hyrax
 
     STATIC_CONTROLLER_DEBUG_VERBOSE = false
 
+    attr_reader :file_name, :work_title
+
     layout 'homepage'
+
+    def documentation_work_title_prefix
+      ::Deepblue::WorkViewContentService.documentation_work_title_prefix
+    end
 
     def show
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -31,14 +37,14 @@ module Hyrax
         doc = params[:doc]
       end
       prefix = documentation_work_title_prefix
-      work_title = "#{prefix}#{doc}"
-      file_name = "#{doc}.html"
+      @work_title = "#{prefix}#{doc}"
+      @file_name = "#{doc}.html"
       file_set = static_content_find_documentation_file_set( work_title: work_title, file_name: file_name )
       if file_set.present?
         if ::Deepblue::WorkViewContentService.static_controller_redirect_to_work_view_content
           redirect_to( "/data/work_view_content/#{prefix}#{doc}/#{doc}.html" )
         else
-          show_static_content_doc( work_title: work_title, file_name: file_name, file_set: file_set )
+          show_static_content_doc( work_title: work_title, file_name: file_name, file_set: file_set, doc: doc )
         end
       elsif static_content_file_set( "DBDDocumentation", "#{doc}.html" ).present?
         redirect_to( "/data/work_view_content/DBDDocumentation/#{doc}.html" )
@@ -98,7 +104,7 @@ module Hyrax
       render "show"
     end
 
-    def show_static_content_doc( work_title:, file_name:, file_set: )
+    def show_static_content_doc( work_title:, file_name:, file_set:, doc: )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "work_title=#{work_title}",
@@ -106,13 +112,19 @@ module Hyrax
                                              "file_set=#{file_set}",
                                              "" ] if STATIC_CONTROLLER_DEBUG_VERBOSE
       mime_type = file_set.mime_type if file_set.present?
-      options = static_content_options_from( file_set: file_set, work_title: work_title )
+      options = static_content_options_from( file_set: file_set,
+                                             work_title: work_title,
+                                             file_id: doc,
+                                             format: params[:format] )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "options=#{options}",
                                              "" ] if STATIC_CONTROLLER_DEBUG_VERBOSE
       if static_content_render? mime_type: mime_type
-        @presenter = presenter_class.new( controller: self, file_set: file_set, format: format, options: options )
+        @presenter = presenter_class.new( controller: self,
+                                          file_set: file_set,
+                                          format: params[:format],
+                                          options: options )
         render_with = options[:render_with]
         if render_with.present?
           render render_with
@@ -120,7 +132,7 @@ module Hyrax
           render 'hyrax/static/work_view_content'
         end
       else
-        static_content_send( file_set: file_set, format: format, options: options )
+        static_content_send( file_set: file_set, format: params[:format], options: options )
       end
     end
 

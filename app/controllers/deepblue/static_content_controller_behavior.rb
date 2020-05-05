@@ -285,7 +285,7 @@ module Deepblue
       static_content_for( work_title, file_set_title )
     end
 
-    def static_content_options_from( file_set:, work_title: )
+    def static_content_options_from( file_set:, work_title:, file_id:, format: )
       options = {}
       return options if file_set.nil?
       description = Array(file_set.description_file_set)
@@ -303,7 +303,7 @@ module Deepblue
         case line.strip
         when /^menu:(.+)$/
           options[:menu] = Regexp.last_match(1).strip
-          static_content_set_menu( value: options[:menu], work_title: work_title )
+          static_content_set_menu( value: options[:menu], work_title: work_title, file_id: file_id, format: format )
         when /^menu_header:(.+)$/
           @static_content_menu_header = Regexp.last_match(1).strip
           options[:menu_header] = @static_content_menu_header
@@ -414,7 +414,15 @@ module Deepblue
       send_data "<pre>\n#{msg}\n</pre>", disposition: 'inline', type: "text/html"
     end
 
-    def static_content_set_menu( value:, work_title: )
+    def static_content_set_menu( value:, work_title:, file_id:, format: )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "value=#{value}",
+                                             "work_title=#{work_title}",
+                                             "file_id=#{file_id}",
+                                             "format=#{format}",
+                                             "" ] if static_content_controller_behavior_verbose
+      format = "html" if format.blank?
       @static_content_menu = value
       case value
       when  /^(.+)\.html\.erb$/

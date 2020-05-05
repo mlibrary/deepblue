@@ -37,7 +37,10 @@ class WorkViewContentController < ApplicationController
                                            "file_set=#{file_set}",
                                            "" ] if work_view_content_controller_debug_verbose
     mime_type = file_set.mime_type if file_set.present?
-    options = static_content_options_from( file_set: file_set, work_title: work_title )
+    options = static_content_options_from( file_set: file_set,
+                                           work_title: work_title,
+                                           file_id: @file_id,
+                                           format: @format )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "options=#{options}",

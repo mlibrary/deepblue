@@ -2,6 +2,8 @@
 
 class WorkViewContentPresenter
 
+  WORK_VIEW_CONTENT_PRESENTER_DEBUG_VERBOSE = false
+
   attr_accessor :controller, :file_set
 
   delegate :documentation_work_title_prefix,
@@ -23,12 +25,27 @@ class WorkViewContentPresenter
   end
 
   def current?(path)
-    # TODO - Fix this hard coded path
-    doc = if work_title =~ /^DBDDoc-([a-z-]+)$/
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "path=#{path}",
+                                           "" ] if WORK_VIEW_CONTENT_PRESENTER_DEBUG_VERBOSE
+    prefix = documentation_work_title_prefix
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "prefix=#{prefix}",
+                                           "work_title=#{work_title}",
+                                           "" ] if WORK_VIEW_CONTENT_PRESENTER_DEBUG_VERBOSE
+    doc = if work_title =~ /^#{Regexp.escape(prefix)}([a-z-]+)$/
             Regexp.last_match( 1 )
           else
             "$UNKOWN$"
           end
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "doc=#{doc}",
+                                           "file_name=#{file_name}",
+                                           "work_title=#{work_title}",
+                                           "" ] if WORK_VIEW_CONTENT_PRESENTER_DEBUG_VERBOSE
     rv = case path
          when "/data/#{doc}"
            true
@@ -37,6 +54,10 @@ class WorkViewContentPresenter
          else
            false
          end
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "rv=#{rv}",
+                                           "" ] if WORK_VIEW_CONTENT_PRESENTER_DEBUG_VERBOSE
     return rv
   end
 
