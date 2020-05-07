@@ -142,6 +142,7 @@ module Deepblue
                  human_readable_size( curation_concern.total_file_size ),
                  escape: true )
       yaml_item( out, indent, ":visibility:", curation_concern.visibility )
+      yaml_item( out, indent, ":workflow_state:", curation_concern.workflow_state )
       skip = %w[ prior_identifier rights rights_license subject subject_discipline total_file_size ]
       attribute_names_work.each do |name|
         next if skip.include? name
@@ -215,7 +216,7 @@ module Deepblue
       yaml_line( out, indent, header_type )
     end
 
-    def yaml_header_populate( out, indent:, rake_task: 'umrdr:populate', target_filename: )
+    def yaml_header_populate( out, indent:, rake_task: 'deepblue:append', target_filename: )
       yaml_line( out, indent, target_filename.to_s, comment: true )
       yaml_line( out, indent, "bundle exec rake #{rake_task}[#{target_filename}]", comment: true )
       yaml_line( out, indent, "---" )
@@ -367,7 +368,7 @@ module Deepblue
         log_provenance_migrate( curation_concern: collection ) if MetadataHelper::MODE_MIGRATE == mode
         indent_base = " " * 2
         indent = indent_base * 0
-        yaml_header_populate( out, indent: indent, target_filename: target_filename )
+        yaml_header_populate( out, indent: indent, rake_task: "deepblue:#{mode}", target_filename: target_filename )
         indent = indent_base * 1
         yaml_header( out,
                      indent: indent,
@@ -466,7 +467,7 @@ module Deepblue
         log_provenance_migrate( curation_concern: curation_concern ) if MetadataHelper::MODE_MIGRATE == mode
         indent_base = " " * 2
         indent = indent_base * 0
-        yaml_header_populate( out, indent: indent, target_filename: target_filename )
+        yaml_header_populate( out, indent: indent, rake_task: "deepblue:#{mode}", target_filename: target_filename )
         indent = indent_base * 1
         yaml_header( out,
                      indent: indent,

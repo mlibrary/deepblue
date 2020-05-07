@@ -17,10 +17,13 @@ module Deepblue
 
     def initialize( options: {} )
       @options = TaskHelper.task_options_parse options
-      if @options.key?( :error ) || @options.key?( 'error' )
+      if  @options.key?( :error )
+        puts "WARNING: options error #{@options[:error]}"
+        puts "@options=#{@options}"
+      end
+      if @options.key?( 'error' )
         puts "WARNING: options error #{@options['error']}"
-        puts "options=#{options}" if @options.key? 'error'
-        puts "@options=#{@options}" if @options.key? 'error'
+        puts "@options=#{@options}"
       end
       @to_console = TaskHelper.task_options_value( @options, key: 'to_console', default_value: DEFAULT_VERBOSE )
       @verbose = TaskHelper.task_options_value( @options, key: 'verbose', default_value: DEFAULT_VERBOSE )

@@ -54,6 +54,7 @@ module Deepblue
     DEFAULT_EMAIL_OWNER = false
     DEFAULT_EMAIL_REST = false
     DEFAULT_EMAIL_TEST_MODE = false
+    DEFAULT_SKIP_ADDING_PRIOR_IDENTIFIER = true
     DEFAULT_UPDATE_ADD_FILES = true
     DEFAULT_UPDATE_ATTRS_SKIP = [ :creator_ordered,
                                   :curation_notes_admin_ordered, :curation_notes_user_ordered,
@@ -134,6 +135,7 @@ module Deepblue
                 :ingester,
                 :mode,
                 :path_to_yaml_file,
+                :skip_adding_prior_identifier,
                 :update_add_files,
                 :update_attrs_skip,
                 :update_attrs_skip_if_blank,
@@ -324,7 +326,7 @@ module Deepblue
         return if in_collections.blank?
         in_collections.each do |collection_id|
           begin
-          next if work.member_of_collection_ids.include? collection_id
+            next if work.member_of_collection_ids.include? collection_id
             collection = Collection.find( collection_id )
             work.member_of_collections << collection
             log_provenance_add_child( parent: collection, child: work )
@@ -371,25 +373,26 @@ module Deepblue
         # entity = work.workflow_state
         wgid = work.to_global_id.to_s
         entity = Sipity::Entity.where( proxy_for_global_id: wgid )
-        entity = entity.first if entity.present?
+        # puts "entity=#{entity}"
+        # puts "entity.class.name=#{entity.class.name}"
+        entity = entity.first if entity.is_a? ActiveRecord::Relation
         wf = work.active_workflow
-        if entity.nil?
-          # user = User.find_by_user_key( work.owner )
-          # agent = PowerConverter.convert( user, to: :sipity_agent )
-          entity = Sipity::Entity.create!( proxy_for_global_id: wgid, workflow: wf, workflow_state: nil )
-          # entity = PowerConverter.convert( work, to: :sipity_entity )
-        end
+        entity = Sipity::Entity.create!( proxy_for_global_id: wgid, workflow: wf, workflow_state: nil ) if entity.nil?
+        # puts "entity=#{entity}"
+        # puts "entity.class.name=#{entity.class.name}"
         # puts "wf.name=#{wf.name}"
-        action_name = if "open" == work.visibility
-                        "deposited"
-                      else
-                        "pending_review"
-                      end
+        action_name = work_hash[:workflow_state]
+        if action_name.blank?
+          action_name = if "open" == work.visibility
+                          "deposited"
+                        else
+                          "pending_review"
+                        end
+        end
         # puts "action_name=#{action_name}"
         action = Sipity::WorkflowAction.find_or_create_by!( workflow: wf, name: action_name )
-        action_id = action.id
         wf_state = Sipity::WorkflowState.find_or_create_by!( workflow: wf, name: action_name )
-        entity.update!( workflow_state_id: action_id, workflow_state: wf_state )
+        entity.update!( workflow_state_id: action.id, workflow_state: wf_state )
         log_provenance_workflow( curation_concern: work, workflow: wf, workflow_state: action_name )
       end
 
@@ -777,7 +780,7 @@ module Deepblue
 
       def build_prior_identifier( hash:, id: )
         if SOURCE_DBDv1 == source
-          if MODE_MIGRATE == mode
+          if MODE_MIGRATE == mode || skip_adding_prior_identifier
             []
           else
             Array( id )
@@ -785,6 +788,7 @@ module Deepblue
         else
           arr = Array( hash[:prior_identifier] )
           return arr if MODE_MIGRATE == mode
+          return arr if skip_adding_prior_identifier
           arr << id if id.present?
         end
       end
@@ -1744,9 +1748,12 @@ module Deepblue
         @update_user_attrs_skip.concat Deepblue::MetadataHelper::ATTRIBUTE_NAMES_USER_IGNORE
         @verbose = initialize_options_value( key: :verbose, default_value: DEFAULT_VERBOSE )
         log_msg( "@verbose=#{@verbose}", timestamp_it: false ) if @verbose
+        @skip_adding_prior_identifier = initialize_options_value( key: :skip_adding_prior_identifier,
+                                                                  default_value: DEFAULT_SKIP_ADDING_PRIOR_IDENTIFIER )
         @email_test_mode = initialize_options_value( key: :email_test_mode, default_value: DEFAULT_EMAIL_TEST_MODE )
         @email_after = initialize_options_value( key: :email_after, default_value: DEFAULT_EMAIL_AFTER )
-        @email_after_add_log_msgs = initialize_options_value( key: :email_after_add_log_msgs, default_value: DEFAULT_EMAIL_AFTER_ADD_LOG_MSGS )
+        @email_after_add_log_msgs = initialize_options_value( key: :email_after_add_log_msgs,
+                                                              default_value: DEFAULT_EMAIL_AFTER_ADD_LOG_MSGS )
         @email_before = initialize_options_value( key: :email_before, default_value: DEFAULT_EMAIL_BEFORE )
         @email_each = initialize_options_value( key: :email_each, default_value: DEFAULT_EMAIL_EACH )
         @email_depositor = initialize_options_value( key: :email_depositor, default_value: DEFAULT_EMAIL_DEPOSITOR )
@@ -2554,7 +2561,7 @@ module Deepblue
       def visibility_curation_concern( vis )
         return valid_restricted_vocab( vis,
                                        var: :visibility,
-                                       vocab: %w[open restricted],
+                                       vocab: %w[open institution restricted],
                                        error_class: VisibilityError )
       end
 
