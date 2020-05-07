@@ -5,19 +5,7 @@ module Hyrax
   module StaticContentHelper
 
     @@static_content_helper_verbose = false
-
     mattr_accessor :static_content_helper_verbose
-
-    def self.static_content_title_id_cache( title: )
-      @@static_content_title_id_cache ||= {}
-      rv = @@static_content_title_id_cache[title]
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "title=#{title}",
-                                             "rv=#{rv}",
-                                             "" ] if static_content_helper_verbose
-      return rv
-    end
 
     def self.static_content_cache_title_id( title:, id: )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -27,6 +15,17 @@ module Hyrax
                                              "" ] if static_content_helper_verbose
       @@static_content_title_id_cache ||= {}
       @@static_content_title_id_cache[title] = id
+    end
+
+    def self.static_content_title_id_cache_get( title: )
+      @@static_content_title_id_cache ||= {}
+      rv = @@static_content_title_id_cache[title]
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "title=#{title}",
+                                             "rv=#{rv}",
+                                             "" ] if static_content_helper_verbose
+      return rv
     end
 
     def static_content_main( params )
@@ -60,9 +59,9 @@ module Hyrax
                                              "file_set_title=#{file_set_title}",
                                              "options=#{options}",
                                              "" ] if static_content_helper_verbose
-      id = StaticContentHelper.static_content_title_id_cache( title: "//#{work_title}//#{file_set_title}//" )
+      id = StaticContentHelper.static_content_title_id_cache_get( title: "//#{work_title}//#{file_set_title}//" )
       return static_content_read_file( id: id ) unless id.blank?
-      id = StaticContentHelper.static_content_title_id_cache( title: work_title )
+      id = StaticContentHelper.static_content_title_id_cache_get( title: work_title )
       work = static_content_find_by_title( work_title: work_title, id: id )
       return "" unless work
       file_set = static_content_work_file_set_find_by_title( work: work,
@@ -79,7 +78,7 @@ module Hyrax
                                              "id=#{id}",
                                              "" ] if static_content_helper_verbose
       return ActiveFedora::Base.find id unless id.blank?
-      id = StaticContentHelper.static_content_title_id_cache( title: work_title )
+      id = StaticContentHelper.static_content_title_id_cache_get( title: work_title )
       return ActiveFedora::Base.find id unless id.blank?
       if work_title.size == 9
         begin
@@ -146,8 +145,8 @@ module Hyrax
                                              "" ] if static_content_helper_verbose
       return nil unless work
       return nil unless file_set_title
-      id = StaticContentHelper.static_content_title_id_cache( title: "//#{work_title}//#{file_set_title}//" )
-      return static_content_read_file( id: id ) unless id.blank?
+      id = StaticContentHelper.static_content_title_id_cache_get( title: "//#{work_title}//#{file_set_title}//" )
+      return static_content_find_by_id( id: id ) if id.present?
       work.ordered_file_sets.each do |fs|
         # TODO: verify
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

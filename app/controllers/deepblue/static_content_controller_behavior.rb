@@ -7,8 +7,13 @@ module Deepblue
 
     mattr_accessor :static_content_controller_behavior_verbose
     self.static_content_controller_behavior_verbose = false
+    mattr_accessor :static_content_cache_debug_verbose
+    self.static_content_cache_debug_verbose = false
     mattr_accessor :static_content_controller_behavior_menu_verbose
     self.static_content_controller_behavior_menu_verbose = false
+
+    mattr_accessor :work_view_content_enable_cache
+    self.work_view_content_enable_cache = ::DeepBlueDocs::Application.config.static_content_enable_cache
 
     def self.static_content_documentation_collection_id
       @@static_content_documentation_collection_id ||= static_content_documentation_collection_id_init&.id
@@ -26,35 +31,68 @@ module Deepblue
       if results.size > 0
         result = results[0] if results
         id = result.id
-        collection = ActiveFedora::Base.find( id )
+        collection = static_content_find_by_id( id: id, raise_error: true )
       end
       return collection
     end
 
-    mattr_accessor :static_content_title_id_cache
-    @@static_content_title_id_cache
+    mattr_accessor :static_content_cache
+    @@static_content_cache = {}
 
-    def self.static_content_title_id_cache( title: )
-      @@static_content_title_id_cache ||= {}
-      rv = @@static_content_title_id_cache[title]
+    def self.static_content_cache_id( key:, id: )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "title=#{title}",
-                                             "rv=#{rv}",
-                                             "" ] if static_content_controller_behavior_verbose
-      return rv
-    end
-
-    def self.static_content_cache_title_id( title:, id: )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "title=#{title}",
+                                             ">+++++++++ storing to cache ++++++++++<",
+                                             "key=#{key}",
                                              "id=#{id}",
-                                             "" ] if static_content_controller_behavior_verbose
-      @@static_content_title_id_cache ||= {}
-      @@static_content_title_id_cache[title] = id
+                                             "" ] if static_content_controller_behavior_verbose ||
+                                                     static_content_cache_debug_verbose
+      @@static_content_cache ||= {}
+      @@static_content_cache[key] = id
     end
 
+    def self.static_content_cache_get( key: )
+      @@static_content_cache ||= {}
+      value = @@static_content_cache[key]
+      if value.present?
+        status = ">[[[[[[[[[[[ retrieved from cache ]]]]]]]]]]]<"
+      else
+        status = ">---------- not in cache ----------<"
+      end
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             status,
+                                             "key=#{key}",
+                                             "rv=#{value}",
+                                             "" ] if static_content_controller_behavior_verbose ||
+                                                     static_content_cache_debug_verbose
+      return value
+    end
+
+    def self.static_content_cache_reset
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if static_content_controller_behavior_verbose
+      @@static_content_cache = {}
+      return nil
+    end
+
+    def self.static_content_find_by_id( id:, cache_id_with_key: nil, raise_error: false )
+      return nil if id.blank?
+      content = ActiveFedora::Base.find( id )
+      return content unless work_view_content_enable_cache
+      if content.present? && cache_id_with_key.present?
+        return content if @@static_content_cache.key?( cache_id_with_key )
+        StaticContentControllerBehavior.static_content_cache_id( key: cache_id_with_key, id: content.id )
+      end
+      return content
+    rescue Ldp::Gone
+      raise if raise_error
+      return nil
+    rescue ActiveFedora::ObjectNotFoundError
+      raise if raise_error
+      return nil
+    end
 
 
     attr_reader :static_content_menu,
@@ -83,176 +121,177 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "title=#{title}",
                                              "" ] if static_content_controller_behavior_verbose
+      if work_view_content_enable_cache
+        id = StaticContentControllerBehavior.static_content_cache_get( key: title )
+        work = static_content_find_by_id( id: id )
+        return work if work.present?
+      end
       static_content_documentation_collection.member_works.each do |work|
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "#{work.title.first} == #{title} ?",
                                                "" ] if static_content_controller_behavior_verbose
-        return work if work.title.first == title
+        if work.title.first == title
+          if work_view_content_enable_cache
+            StaticContentControllerBehavior.static_content_cache_id( key: title, id: work.id )
+          end
+          return work
+        end
       end
       return nil
     end
 
-    def static_content_find_documentation_file_set( work_title:, file_name: )
+    def static_content_find_documentation_file_set( work_title:, file_name:, path: )
+      path = "/#{work_title}/#{file_name}" if path.blank?
+      if work_view_content_enable_cache
+        id = StaticContentControllerBehavior.static_content_cache_get( key: path )
+        content = static_content_find_by_id( id: id )
+        return content if content.present?
+      end
       work = static_content_find_documentation_work_by_title( title: work_title )
       return nil if work.blank?
       work.file_sets.each do |fs|
         if fs.title.first == file_name
+          if work_view_content_enable_cache
+            StaticContentControllerBehavior.static_content_cache_id( key: path, id: fs.id )
+          end
           return fs
         end
       end
       return nil
     end
 
-    def static_content_file_set( work_title, file_set_title, **options )
+    def static_content_find_by_id( id:, cache_id_with_key: nil, raise_error: false )
+      StaticContentControllerBehavior.static_content_find_by_id( id: id,
+                                                                 cache_id_with_key: cache_id_with_key,
+                                                                 raise_error: raise_error )
+    end
+
+    def static_content_file_set( work_title:, file_set_title:, path:, **options )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "work_title=#{work_title}",
                                              "file_set_title=#{file_set_title}",
+                                             "path=#{path}",
                                              "options=#{options}",
                                              "" ] if static_content_controller_behavior_verbose
+      path = "/#{work_title}/#{file_set_title}" if path.blank?
       if work_view_content_enable_cache
-        id = StaticContentControllerBehavior.static_content_title_id_cache( title: "//#{work_title}//#{file_set_title}//" )
-        return static_content_read_file( id: id ) unless id.blank?
-        id = StaticContentControllerBehavior.static_content_title_id_cache( title: work_title )
+        id = StaticContentControllerBehavior.static_content_cache_get( key: path )
+        file_set = static_content_find_by_id( id: id ) if id.present?
+        return file_set if file_set.present?
       end
-      work = static_content_find_work_by_title(title: work_title, id: id )
+      work = static_content_find_work_by_title( title: work_title, id: id )
       return nil unless work
       file_set = static_content_work_file_set_find_by_title( work: work,
                                                              work_title: work_title,
-                                                             file_set_title: file_set_title )
+                                                             file_set_title: file_set_title,
+                                                             path: path )
       file_set
     end
 
-    def static_content_find_collection_by_title( title:, id: nil )
+    def static_content_find_by_title( title:, id:, solr_query: )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "title=#{title}",
                                              "id=#{id}",
                                              "" ] if static_content_controller_behavior_verbose
-      return ActiveFedora::Base.find id unless id.blank?
-      if work_view_content_enable_cache
-        id = StaticContentControllerBehavior.static_content_title_id_cache( title: title )
-        return ActiveFedora::Base.find id unless id.blank?
-      end
+      content = static_content_find_by_id( id: id, cache_id_with_key: title ) unless id.blank?
+      return content if content.present?
       if title.size == 9
-        begin
-          # guess that it is an id, and not a title
-          collection = ActiveFedora::Base.find title
-          if work_view_content_enable_cache
-            StaticContentControllerBehavior.static_content_cache_title_id( title: title, id: collection.id )
-          end
-          return collection
-        rescue ActiveFedora::ObjectNotFoundError
-          # ignore and continue
-        end
+        # guess that it is an id, and not a title
+        content = static_content_find_by_id( id: title, cache_id_with_key: title )
+        return content if content.present?
       end
-      collection = nil
-      solr_query = "+generic_type_sim:Collection AND +title_tesim:#{title}"
+      if title.start_with?( documentation_work_title_prefix )
+        content = static_content_find_documentation_work_by_title( title: title )
+        return content if content.present?
+      end
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "solr_query=#{solr_query}",
                                              "" ] if static_content_controller_behavior_verbose
-      results = ::ActiveFedora::SolrService.query(solr_query, rows: 10 )
-      if results.size > 0
-        result = results[0] if results
-        id = result.id
-        collection = ActiveFedora::Base.find id
-        if work_view_content_enable_cache
-          StaticContentControllerBehavior.static_content_cache_title_id( title: title, id: id )
-        end
+      results = ::ActiveFedora::SolrService.query( solr_query, rows: 10 )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "results=#{results}",
+                                             "" ] if static_content_controller_behavior_verbose
+      if results.present? && results.size > 0
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "results[0]=#{results[0]}",
+                                               "results[0].id=#{results[0].id}",
+                                               "" ] if static_content_controller_behavior_verbose
+        id = results[0].id
+        content = static_content_find_by_id( id: id, cache_id_with_key: title )
+        return content if content.present?
       end
-      return collection
+      return nil
+    end
+
+    def static_content_find_collection_by_title( title:, id: nil )
+      static_content_find_by_title( title: title,
+                                    id: id,
+                                    solr_query: "+generic_type_sim:Collection AND +title_tesim:#{title}" )
     end
 
     def static_content_find_work_by_title( title:, id: )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "title=#{title}",
-                                             "id=#{id}",
-                                             "" ] if static_content_controller_behavior_verbose
-      return ActiveFedora::Base.find id unless id.blank?
-      if work_view_content_enable_cache
-        id = StaticContentControllerBehavior.static_content_title_id_cache( title: title )
-        return ActiveFedora::Base.find id unless id.blank?
-      end
-      if title.size == 9
-        begin
-          # guess that it is an id, and not a title
-          work = ActiveFedora::Base.find title
-          if work_view_content_enable_cache
-            StaticContentControllerBehavior.static_content_cache_title_id( title: title, id: work.id )
-          end
-          return work
-        rescue ActiveFedora::ObjectNotFoundError
-          # ignore and continue
-        end
-      end
-      work = nil
-      work = static_content_find_documentation_work_by_title( title: title ) if title.start_with? documentation_work_title_prefix
-      return work if work.present?
-      solr_query = "+generic_type_sim:Work AND +title_tesim:#{title}"
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "solr_query=#{solr_query}",
-                                             "" ] if static_content_controller_behavior_verbose
-      results = ::ActiveFedora::SolrService.query(solr_query, rows: 10 )
-      if results.size > 0
-        result = results[0] if results
-        id = result.id
-        work = ActiveFedora::Base.find id
-        if work_view_content_enable_cache
-          StaticContentControllerBehavior.static_content_cache_title_id( title: title, id: id )
-        end
-      end
-      return work
+      static_content_find_by_title( title: title,
+                                    id: id,
+                                    solr_query: "+generic_type_sim:Work AND +title_tesim:#{title}" )
     end
 
-    def static_content_for( work_title, file_set_title, **options )
+    def static_content_for( work_title:, file_set_title:, path:, **options )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "work_title=#{work_title}",
                                              "file_set_title=#{file_set_title}",
+                                             "path=#{path}",
                                              "options=#{options}",
                                              "" ] if static_content_controller_behavior_verbose
+      path = "/#{work_title}/#{file_set_title}" if path.blank?
       if work_view_content_enable_cache
-        id = StaticContentControllerBehavior.static_content_title_id_cache( title: "//#{work_title}//#{file_set_title}//" )
+        id = StaticContentControllerBehavior.static_content_cache_get( key: path )
         return static_content_read_file( id: id ) unless id.blank?
-        id = StaticContentControllerBehavior.static_content_title_id_cache( title: work_title )
       end
-      work = static_content_find_work_by_title(title: work_title, id: id )
+      work = static_content_find_work_by_title( title: work_title, id: id )
       return "" unless work
       file_set = static_content_work_file_set_find_by_title( work: work,
                                                              work_title: work_title,
-                                                             file_set_title: file_set_title )
-      static_content_send_file( file_set: file_set, format: options[:format] )
+                                                             file_set_title: file_set_title,
+                                                             path: path )
+      static_content_send_file( file_set: file_set, format: options[:format], path: path )
     end
 
-    def static_content_for_read_file( work_title:, file_set_title:, **options )
+    def static_content_for_read_file( work_title:, file_set_title:, path:, **options )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "work_title=#{work_title}",
                                              "file_set_title=#{file_set_title}",
+                                             "path=#{path}",
                                              "options=#{options}",
                                              "" ] if static_content_controller_behavior_verbose
+      path = "/#{work_title}/#{file_set_title}" if path.blank?
       if work_view_content_enable_cache
-        id = StaticContentControllerBehavior.static_content_title_id_cache( title: "//#{work_title}//#{file_set_title}//" )
+        id = StaticContentControllerBehavior.static_content_cache_get( key: path )
         return static_content_read_file( id: id ) unless id.blank?
-        id = StaticContentControllerBehavior.static_content_title_id_cache( title: work_title )
       end
-      work = static_content_find_work_by_title(title: work_title, id: id )
+      work_id = StaticContentControllerBehavior.static_content_cache_get( key: work_title )
+      work = static_content_find_work_by_title( title: work_title, id: work_id )
       return "" unless work
       file_set = static_content_work_file_set_find_by_title( work: work,
                                                              work_title: work_title,
-                                                             file_set_title: file_set_title )
+                                                             file_set_title: file_set_title,
+                                                             path: path )
       static_content_read_file( file_set: file_set )
     end
 
-    def static_content_load_menu_file( work_title:, file_name: )
+    def static_content_load_menu_file( work_title:, file_name:, path: )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "work_title=#{work_title}",
                                              "file_name=#{file_name}",
+                                             "path=#{path}",
                                              "" ] if static_content_controller_behavior_verbose
       @static_content_menu_file_format = File.extname file_name
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -261,13 +300,15 @@ module Deepblue
                                              "" ] if static_content_controller_behavior_verbose
       case @static_content_menu_file_format
       when '.yml'
-        file = static_content_for_read_file( work_title: work_title, file_set_title: file_name )
+        file = static_content_for_read_file( work_title: work_title, file_set_title: file_name, path: path )
         @static_content_menu_links = YAML.load file
       when '.yaml'
-        file = static_content_for_read_file( work_title: work_title, file_set_title: file_name )
+        file = static_content_for_read_file( work_title: work_title, file_set_title: file_name, path: path )
         @static_content_menu_links = YAML.load file
       when '.txt'
-        @static_content_menu_links = static_content_for_read_file( work_title: work_title, file_set_title: file_name ).split( "\n" )
+        @static_content_menu_links = static_content_for_read_file( work_title: work_title,
+                                                                   file_set_title: file_name,
+                                                                   path: path ).split( "\n" )
       end
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -282,7 +323,7 @@ module Deepblue
       else
         file_set_title = "#{params[:file]}.html"
       end
-      static_content_for( work_title, file_set_title )
+      static_content_for( work_title: work_title, file_set_title: file_set_title, path: nil )
     end
 
     def static_content_options_from( file_set:, work_title:, file_id:, format: )
@@ -324,7 +365,7 @@ module Deepblue
                                              "file_set=#{id}",
                                              "id=#{id}",
                                              "" ] if static_content_controller_behavior_verbose
-      file_set = ActiveFedora::Base.find id unless id.blank?
+      file_set = static_content_find_by_id( id: id ) unless id.blank?
       return "" if file_set.blank?
       file = file_set.files_to_file
       if file.nil?
@@ -359,19 +400,20 @@ module Deepblue
       end
     end
 
-    def static_content_send( file_set:, format:, options: {} )
-      static_content_send_file( file_set: file_set, format: format, options: options )
+    def static_content_send( file_set:, format:, path:, options: {} )
+      static_content_send_file( file_set: file_set, format: format, path: path, options: options )
     end
 
-    def static_content_send_file( file_set: nil, id: nil, format: nil, options: {} )
+    def static_content_send_file( file_set: nil, id: nil, format: nil, path:, options: {} )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "file_set&.id=#{file_set&.id}",
                                              "id=#{id}",
                                              "format=#{format}",
+                                             "path=#{path}",
                                              "options=#{options}",
                                              "" ] if static_content_controller_behavior_verbose
-      file_set = ActiveFedora::Base.find id if file_set.nil? && id.present?
+      file_set = static_content_find_by_id( id: id ) if file_set.nil? && id.present?
       source_uri = nil
       if file_set.nil? && id.blank?
         static_content_send_msg "file_set and id both nil"
@@ -428,9 +470,12 @@ module Deepblue
       when  /^(.+)\.html\.erb$/
         @static_content_menu_partial = Regexp.last_match(1).strip
       when  /^(.+)\/(.+)$/
-        static_content_load_menu_file( work_title: Regexp.last_match(1).strip, file_name: Regexp.last_match(2).strip )
+        static_content_load_menu_file( work_title: Regexp.last_match(1).strip,
+                                       file_name: Regexp.last_match(2).strip,
+                                       path: value )
         @static_content_page_navigation = static_content_for_read_file( work_title: work_title,
-                                                         file_set_title: "#{file_id}.page_navigation.#{format}" )
+                                                         file_set_title: "#{file_id}.page_navigation.#{format}",
+                                                                        path: nil )
       end
     end
 
@@ -441,24 +486,25 @@ module Deepblue
       else
         file_set_title = "#{params[:file]}_sidebar.html"
       end
-      static_content_for( work_title, file_set_title )
+      static_content_for( work_title: work_title, file_set_title: file_set_title, path: nil )
     end
 
     def static_content_title( params )
       ""
     end
 
-    def static_content_work_file_set_find_by_title( work:, work_title:, file_set_title: )
+    def static_content_work_file_set_find_by_title( work:, work_title:, file_set_title:, path: )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "work_title=#{work_title}",
                                              "file_set_title=#{file_set_title}",
+                                             "path=#{path}",
                                              "" ] if static_content_controller_behavior_verbose
       return nil unless work
       return nil unless file_set_title
       if work_view_content_enable_cache
-        id = StaticContentControllerBehavior.static_content_title_id_cache( title: "//#{work_title}//#{file_set_title}//" )
-        return static_content_read_file( id: id ) unless id.blank?
+        id = StaticContentControllerBehavior.static_content_cache_get( key: path )
+        return static_content_find_by_id( id: id ) if id.present?
       end
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -477,12 +523,26 @@ module Deepblue
         if fs.title.join == file_set_title
           id = fs.id
           if work_view_content_enable_cache
-            StaticContentControllerBehavior.static_content_cache_title_id( title: "//#{work_title}//#{file_set_title}//", id: id )
+            StaticContentControllerBehavior.static_content_cache_id( key: path, id: id )
           end
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "fs.title.join(#{fs.title.join}) ==? file_set_title(#{file_set_title})",
+                                                 ">>> Found <<<",
+                                                 "" ] if static_content_controller_behavior_verbose
           return fs
         end
       end
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "fs.title.join(#{fs.title.join}) ==? file_set_title(#{file_set_title})",
+                                             ">>> Not found <<<",
+                                             "" ] if static_content_controller_behavior_verbose
       return nil
+    end
+
+    def work_view_content_enable_cache
+      StaticContentControllerBehavior.work_view_content_enable_cache
     end
 
   end

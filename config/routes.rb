@@ -192,6 +192,10 @@ Rails.application.routes.draw do
   get '/guest_user_message', to: 'guest_user_message#show'
 
   get '/work_view_content/:id/:file_id' => 'work_view_content#show', constraint: { id: /[^\/]+/, file_id: /[^\/]+/ }
+
+  get '/work_view_documentation_action/' => 'work_view_documentation#action'
+  post '/work_view_documentation_action/' => 'work_view_documentation#action'
+
   get '/scheduler_dashboard/' => 'scheduler_dashboard#show'
   get '/scheduler_dashboard_action/' => 'scheduler_dashboard#action'
   post '/scheduler_dashboard_action/' => 'scheduler_dashboard#action'

@@ -17,11 +17,12 @@ class WorkViewContentPresenter
            :static_content_page_navigation,
            :work_title, to: :controller
 
-  def initialize( controller:, file_set:, format:, options: {} )
+  def initialize( controller:, file_set:, format:, path:, options: {} )
     @controller = controller
     @file_set = file_set
     @format = format
     @options = options
+    @path = path
   end
 
   def current?(path)
@@ -77,7 +78,7 @@ class WorkViewContentPresenter
   end
 
   def static_content
-    @controller.static_content_send( file_set: @file_set, format: @format, options: @options )
+    @controller.static_content_send( file_set: @file_set, format: @format, path: @path, options: @options )
   end
 
 end

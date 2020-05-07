@@ -187,7 +187,7 @@ module DeepBlueDocs
     ## to configure work_view_content, see config/initalizers/work_view_content.rb
 
     # static content config
-    config.static_content_enable_cache = false
+    config.static_content_enable_cache = true
 
     # virus scan config
     config.virus_scan_max_file_size = 4_000_000_000

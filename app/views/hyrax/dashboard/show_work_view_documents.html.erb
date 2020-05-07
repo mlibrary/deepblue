@@ -1,14 +1,23 @@
 <% provide :page_header do %>
   <h1><%= t("hyrax.dashboard.documentation.title") %></h1>
   <% provide :page_header do %>
-    <% if current_ability.can_create_any_work? %>
-      <div class="pull-right">
-        <%= link_to(
-                t(:'helpers.action.work.new'),
-                new_polymorphic_path([main_app, @presenter.first_work_type]),
-                class: 'btn btn-primary'
-            ) %>
-      </div>
+    <h2 class="title-header"><%= t('hyrax.work_view_documentation.actions_header') %></h2>
+    <br/>
+    <%= form_tag(main_app.work_view_documentation_action_path, method: 'post') do %>
+      <%#= render partial: 'data_set/ingest_append_script_fields' %>
+      <%= submit_tag(t('simple_form.actions.work_view_documentation.clear_cache'), class: 'btn btn-primary') %>&nbsp;
+      <% if @presenter.work_view_content_enable_cache %>
+        <%= submit_tag(t('simple_form.actions.work_view_documentation.cache_off'), class: 'btn btn-primary') %>&nbsp;
+      <% else %>
+        <%= submit_tag(t('simple_form.actions.work_view_documentation.cache_on'), class: 'btn btn-primary') %>&nbsp;
+      <% end %>
+      <% if current_ability.can_create_any_work? %>
+        &nbsp;
+          <%= link_to( t(:'helpers.action.work.new'),
+                       new_polymorphic_path([main_app, @presenter.first_work_type]),
+                       class: 'btn btn-primary',
+                       target: '_blank' ) %>
+      <% end %>
     <% end %>
   <% end %>
 <% end %>

@@ -39,16 +39,21 @@ module Hyrax
       prefix = documentation_work_title_prefix
       @work_title = "#{prefix}#{doc}"
       @file_name = "#{doc}.html"
-      file_set = static_content_find_documentation_file_set( work_title: work_title, file_name: file_name )
+      path = "/#{work_title}/#{file_name}"
+      file_set = static_content_find_documentation_file_set( work_title: work_title, file_name: file_name, path: path )
       if file_set.present?
         if ::Deepblue::WorkViewContentService.static_controller_redirect_to_work_view_content
           redirect_to( "/data/work_view_content/#{prefix}#{doc}/#{doc}.html" )
         else
-          show_static_content_doc( work_title: work_title, file_name: file_name, file_set: file_set, doc: doc )
+          show_static_content_doc( work_title: work_title,
+                                   file_name: file_name,
+                                   file_set: file_set,
+                                   doc: doc,
+                                   path: path )
         end
-      elsif static_content_file_set( "DBDDocumentation", "#{doc}.html" ).present?
+      elsif static_content_file_set( work_title: "DBDDocumentation", file_set_title: "#{doc}.html", path: path ).present?
         redirect_to( "/data/work_view_content/DBDDocumentation/#{doc}.html" )
-      elsif static_content_file_set( "#{prefix}#{doc}", "#{doc}.html" ).present?
+      elsif static_content_file_set( work_title: "#{prefix}#{doc}", file_set_title: "#{doc}.html", path: path ).present?
         redirect_to( "/data/work_view_content/#{prefix}#{doc}/#{doc}.html" )
       elsif doc =~ %r{
                       about|
@@ -104,7 +109,7 @@ module Hyrax
       render "show"
     end
 
-    def show_static_content_doc( work_title:, file_name:, file_set:, doc: )
+    def show_static_content_doc( work_title:, file_name:, file_set:, doc:, path: )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "work_title=#{work_title}",
@@ -124,6 +129,7 @@ module Hyrax
         @presenter = presenter_class.new( controller: self,
                                           file_set: file_set,
                                           format: params[:format],
+                                          path: path,
                                           options: options )
         render_with = options[:render_with]
         if render_with.present?
@@ -132,7 +138,7 @@ module Hyrax
           render 'hyrax/static/work_view_content'
         end
       else
-        static_content_send( file_set: file_set, format: params[:format], options: options )
+        static_content_send( file_set: file_set, format: params[:format], path: path, options: options )
       end
     end
 
