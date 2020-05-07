@@ -70,6 +70,7 @@ module Deepblue
                                                   date_uploaded
                                                   depositor
                                                   description_file_set
+                                                  doi
                                                   label
                                                   owner
                                                   prior_identifier
@@ -682,7 +683,7 @@ module Deepblue
       yaml_line( out, indent, header_type )
     end
 
-    def self.yaml_header_populate( out, indent:, rake_task: 'umrdr:populate', target_filename: )
+    def self.yaml_header_populate( out, indent:, rake_task: 'deepblue:append', target_filename: )
       yaml_line( out, indent, target_filename.to_s, comment: true )
       yaml_line( out, indent, "bundle exec rake #{rake_task}[#{target_filename}]", comment: true )
       yaml_line( out, indent, "---" )

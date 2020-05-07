@@ -104,7 +104,7 @@ module DeepBlueDocs
 
     ## begin configure email
     if config.program_name != 'resque-pool'
-      config.email_debug_verbose = true
+      config.email_debug_verbose = false
     else
       config.email_debug_verbose = false
     end

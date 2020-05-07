@@ -4,8 +4,8 @@ module Deepblue
 
   require_relative './abstract_event_behavior'
 
-  class EmailError < AbstractEventError
-  end
+  # class EmailError < AbstractEventError
+  # end
 
   module EmailBehavior
     include AbstractEventBehavior
@@ -132,7 +132,8 @@ module Deepblue
       body = EmailHelper.t( "hyrax.email.notify_user_#{cc_type}_created_html",
                             title: EmailHelper.escape_html( cc_title ),
                             url: cc_url,
-                            depositor: cc_depositor )
+                            depositor: cc_depositor,
+                            contact_us_at: ::Deepblue::EmailHelper.contact_us_at )
       email_notification( to: to,
                           from: from,
                           content_type: "text/html",
@@ -211,7 +212,8 @@ module Deepblue
       body = EmailHelper.t( "hyrax.email.notify_user_#{cc_type}_published_html",
                             title: cc_title,
                             url: cc_url,
-                            depositor: cc_depositor )
+                            depositor: cc_depositor,
+                            contact_us_at: ::Deepblue::EmailHelper.contact_us_at )
       cc = nil
       cc_contact_email = EmailHelper.cc_contact_email( curation_concern: self )
       cc = cc_contact_email unless cc_depositor == cc_contact_email

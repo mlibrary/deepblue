@@ -8,8 +8,8 @@ module Hydra
 
     # monkey patch Embargoable#deactivate_embargo!
     module Embargoable
-      alias_method :monkey_deactivate_embargo!, :deactivate_embargo!
-      alias_method :monkey_deactivate_lease!, :deactivate_lease!
+      # alias_method :monkey_deactivate_embargo!, :deactivate_embargo!
+      # alias_method :monkey_deactivate_lease!, :deactivate_lease!
 
       # Deactivates the embargo and logs a message to the embargo object.
       # Marks this record as dirty so that it will get reindexed.
