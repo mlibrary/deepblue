@@ -22,6 +22,7 @@ class WorkViewContentController < ApplicationController
     @file_name = @file_id
     @format = params[:format]
     @file_name = "#{file_name}.#{format}" unless format.empty?
+    path = "/#{work_title}/#{file_name}"
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
@@ -29,8 +30,9 @@ class WorkViewContentController < ApplicationController
                                            "file_id=#{file_name}",
                                            "file_name=#{file_name}",
                                            "format=#{format}",
+                                           "path=#{path}",
                                            "" ] if work_view_content_controller_debug_verbose
-    file_set = static_content_file_set( work_title, file_name )
+    file_set = static_content_file_set( work_title: work_title, file_set_title: file_name, path: path )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            ::Deepblue::LoggingHelper.obj_class( "file_set", file_set),
@@ -46,7 +48,11 @@ class WorkViewContentController < ApplicationController
                                            "options=#{options}",
                                            "" ] if work_view_content_controller_debug_verbose
     if static_content_render? mime_type: mime_type
-      @presenter = presenter_class.new( controller: self, file_set: file_set, format: format, options: options )
+      @presenter = presenter_class.new( controller: self,
+                                        file_set: file_set,
+                                        format: format,
+                                        path: path,
+                                        options: options )
       render_with = options[:render_with]
       if render_with.present?
         render render_with
@@ -54,7 +60,7 @@ class WorkViewContentController < ApplicationController
         render 'hyrax/static/work_view_content'
       end
     else
-      static_content_send( file_set: file_set, format: format, options: options )
+      static_content_send( file_set: file_set, format: format, path: path, options: options )
     end
   end
 

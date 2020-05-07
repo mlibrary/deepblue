@@ -30,6 +30,10 @@ en:
         start:                          "Start Scheduler"
         stop:                           "Stop Scheduler"
         update_schedule:                "Update Schedule"
+      work_view_documentation:
+        cache_on:                       "Turn Cache On"
+        cache_off:                      "Turn Cache Off"
+        clear_cache:                    "Clear Cache"
     confirm:
       data_set:
         ingest_append_run_job:          "Are you sure you want to run the append script job?"

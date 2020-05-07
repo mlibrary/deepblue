@@ -4,14 +4,59 @@ class WorkViewDocumentationController < ApplicationController
   include ActiveSupport::Concern
   include Blacklight::Base
   include Blacklight::AccessControls::Catalog
-  include Deepblue::StaticContentControllerBehavior
   include Hyrax::Breadcrumbs
+  include Deepblue::StaticContentControllerBehavior
+  include ActionView::Helpers::TranslationHelper
   with_themed_layout 'dashboard'
   before_action :authenticate_user!
   before_action :build_breadcrumbs, only: [:show]
 
   class_attribute :presenter_class
   self.presenter_class = WorkViewDocumentationPresenter
+
+  attr_reader :action_error
+
+  def action
+    ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                           Deepblue::LoggingHelper.called_from,
+                                           "params=#{params}",
+                                           "params[:commit]=#{params[:commit]}",
+                                           "" ]
+    action = params[:commit]
+    @action_error = false
+    msg = case action
+          when t( 'simple_form.actions.work_view_documentation.clear_cache' )
+            action_clear_cache
+          when t( 'simple_form.actions.work_view_documentation.cache_on' )
+            action_cache_on
+          when t( 'simple_form.actions.work_view_documentation.cache_off' )
+            action_cache_off
+          else
+            @action_error = true
+            "Unkown action #{action}"
+          end
+      if action_error
+        redirect_to work_view_documentation_path, alert: msg
+      else
+        redirect_to work_view_documentation_path, notice: msg
+      end
+
+  end
+
+  def action_clear_cache
+    ::Deepblue::StaticContentControllerBehavior.static_content_cache_reset
+    "Cache cleared."
+  end
+
+  def action_cache_on
+    ::Deepblue::StaticContentControllerBehavior.work_view_content_enable_cache = true
+    "Cache is now on."
+  end
+
+  def action_cache_off
+    ::Deepblue::StaticContentControllerBehavior.work_view_content_enable_cache = false
+    "Cache is now off."
+  end
 
   def documentation_collection
     @documentation_collection ||= find_documentation_collection

@@ -345,6 +345,8 @@ en:
     site_splash_text: >
       Deep Blue Data is a repository offered by the University of Michigan Library that provides access and preservation
       services for digital research data that were developed or used in the support of research activities at U-M.
+    work_view_documentation:
+      actions_header:      "Manage Documentation Actions"
     new_content_service:
       notify_after_event: "New Content Service - After"
       notify_after_part_1_html: >
