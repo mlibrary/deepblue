@@ -455,31 +455,106 @@ table.datatable thead th.no-sort {
     overflow-x: scroll;
 }
 
-table.rest-api-table {
-    border: 1px solid #e3e3e3 !important;
-    border-radius: 3px;
-}
+.documentation-div {
 
-table.rest-api-tableXXXX tbody tr th {
-    /* padding: 1em !important; */
-    color: #6e6e6e;
 }
+/* see: https://www.w3schools.com/cssref/css_default_values.asp */
 
-table.rest-api-tableXXX tr {
-    border: 1px solid #e3e3e3 !important;
-}
 
-table.rest-api-table th td {
-    border: 3px solid darkblue !important;
-    padding: .5em !important;
-}
-
-table.rest-api-table code {
+.documentation-div code {
     font-family: monospace,monospace;
     /* font-size: 16px; */
     /* color: deeppink; */
     color: black;
+    background-color: inherit;
 }
 
+.documentation-div h2 {
+    display: block;
+    font-size: 1.5em;
+    margin-top: 0.83em;
+    margin-bottom: 0.83em;
+    margin-left: 0;
+    margin-right: 0;
+    font-weight: bold;
+}
 
+.documentation-div h3 {
+    display: block;
+    font-size: 1.17em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    margin-left: 0;
+    margin-right: 0;
+    font-weight: bold;
+}
 
+.documentation-div li {
+    display: list-item;
+}
+
+.documentation-div p {
+    display: block;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.documentation-div pre {
+    display: block;
+    font-family: monospace;
+    white-space: pre;
+    margin: 1em 0;
+}
+
+.documentation-div table {
+    display: table;
+    border-collapse: separate;
+    border-spacing: 2px;
+    border-color: gray;
+}
+
+.documentation-div tbody {
+    display: table-row-group;
+    vertical-align: top;
+    border-color: inherit;
+}
+
+.documentation-div td {
+    display: table-cell;
+    vertical-align: top;
+}
+
+.documentation-div th {
+    display: table-cell;
+    vertical-align: inherit;
+    font-weight: bold;
+    text-align: center;
+}
+
+.documentation-div thead {
+    display: table-header-group;
+    vertical-align: middle;
+    border-color: inherit;
+}
+
+.documentation-div tr {
+    display: table-row;
+    vertical-align: inherit;
+    border-color: inherit;
+}
+
+.documentation-div ul {
+    display: block;
+    list-style-type: disc;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 40px;
+}
+
+.documentation-div var {
+    font-style: italic;
+}

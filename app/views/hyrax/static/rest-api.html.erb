@@ -1,6 +1,53 @@
-<h2>REST API</h2>
+<div class="documentation-div">
+<% host_url = "http://#{DeepBlueDocs::Application.config.hostname}" %>
+<h2 id="rest-api">REST API</h2>
+  <ul>
+    <li><a href="#rest-api">REST API</a></li>
+    <li><a href="#rest-api-detailed">REST API - Detailed</a></li>
+    <li><a href="#rest-api-examples">REST API - Examples</a></li>
+  </ul>
 
-<h3>Catalog</h3>
+  <h3>Catalog</h3>
+
+  <ul>
+    <li><code>/data/catalog.json</code></li>
+    <li><code>/data/catalog.json?page=<var>:page_number</var></code></li>
+    <li><code>/data/catalog.json?f[<var>:facet_name</var>][]=<var>:search_criteria</var></code></li>
+  </ul>
+
+  <h3>Collections</h3>
+  <ul>
+    <li><code>/data/concern/collections/<var>:collection_id</var>.json</code></li>
+  </ul>
+
+  <h3>Data Sets</h3>
+  <ul>
+    <li><code>/data/concern/data_sets/<var>:data_set_id</var>.json</code></li>
+  </ul>
+
+  <h3>File sets</h3>
+  <ul>
+    <li><code>/data/concern/file_sets/<var>:file_set_id</var>.json</code></li>
+  </ul>
+
+<h2 id="rest-api-detailed">REST API -- Detailed</h2>
+
+  <ul>
+    <li><a href="#rest-api">REST API</a></li>
+    <li><a href="#rest-api-detailed">REST API - Detailed</a>
+    <ul>
+      <li><a href="#rest-api-detailed-catalog">Catalog</a></li>
+      <li><a href="#rest-api-detailed-collections">Collections</a></li>
+      <li><a href="#rest-api-detailed-data-sets">Data Sets</a></li>
+      <li><a href="#rest-api-detailed-file-sets">File Sets</a></li>
+    </ul>
+    </li>
+    <li><a href="#rest-api-examples">REST API - Examples</a></li>
+  </ul>
+
+
+<h3 id="rest-api-detailed-catalog">Catalog</h3>
+
 <table class="rest-api-table">
   <tr>
     <th colspan="4">Request</th>
@@ -18,7 +65,7 @@
   <tr>
     <td><code>GET</code></td>
     <td><code>/data/catalog.json</code></td>
-    <td>&nbsp;</td>
+    <td>None</td>
     <td>find</td>
     <td><code>:ok</code></td>
     <td>
@@ -103,7 +150,7 @@
     <td><code>GET</code></td>
     <td>
       <code>/data/catalog.json?f%5B:facet_name%5D%5B%5D=:search_criteria</code>
-      <br/>Or
+      <br/>Or<br/>
       <code>/data/catalog.json?f[:facet_name][]=:search_criteria</code>
     </td>
     <td>
@@ -120,7 +167,7 @@
   </tr>
 </table>
 
-<h3>Collections</h3>
+<h3 id="rest-api-detailed-collections">Collections</h3>
 <table class="rest-api-table">
   <tr><th colspan="4">Request</th><th colspan="3">Response</th></tr>
   <tr>
@@ -134,7 +181,7 @@
   </tr>
   <tr>
     <td><code>GET</code></td>
-    <td><code>/data/concern/collection/:collection_id.json</code></td>
+    <td><code>/data/concern/collections/:collection_id.json</code></td>
     <td>
 <pre>
 :collection_id => String
@@ -175,7 +222,7 @@
   </tr>
 </table>
 
-<h3>Data Sets</h3>
+<h3 id="rest-api-detailed-data-sets">Data Sets</h3>
 <table class="rest-api-table">
   <tr>
     <th colspan="4">Request</th>
@@ -192,7 +239,7 @@
   </tr>
   <tr>
     <td><code>GET</code></td>
-    <td><code>/data/concern/data_set/:data_set_id.json</code></td>
+    <td><code>/data/concern/data_sets/:data_set_id.json</code></td>
     <td>
 <pre>
 :data_set_id => String
@@ -263,7 +310,7 @@
   </tr>
   <tr>
     <td><code>GET</code></td>
-    <td><code>/data/concern/data_set/:data_set_id/zip_download.json</code></td>
+    <td><code>/data/concern/data_sets/:data_set_id/zip_download.json</code></td>
     <td>
   <pre>
   :data_set_id => String
@@ -282,7 +329,7 @@
   </tr>
 </table>
 
-<h3>File Sets</h3>
+<h3 id="rest-api-detailed-file-sets">File Sets</h3>
 <table class="rest-api-table">
   <tr>
     <th colspan="4">Request</th>
@@ -299,7 +346,7 @@
   </tr>
   <tr>
     <td><code>GET</code></td>
-    <td><code>/data/concern/file_set/:file_set_id.json</code></td>
+    <td><code>/data/concern/file_sets/:file_set_id.json</code></td>
     <td>
 <pre>
 :file_set_id => String
@@ -352,3 +399,92 @@
     <td>Found component<br/>or<br/>Record not found</td>
   </tr>
 </table>
+
+<h2 id="rest-api-examples">REST API -- Examples</h2>
+
+  <% example_collection_id = "c1234567" %>
+  <% example_data_set_id = "d1234567" %>
+  <% example_file_set_id = "f1234567" %>
+  <ul>
+    <li><a href="#rest-api">REST API</a></li>
+    <li><a href="#rest-api-detailed">REST API - Detailed</a></li>
+    <li><a href="#rest-api-examples">REST API - Examples</a></li>
+  </ul>
+  <h3>Catalog</h3>
+
+  <ul>
+    <li><code>curl '<%=host_url%>/data/catalog.json'</code></li>
+    <li>
+<pre>
+# ruby
+uri = "<%=host_url%>/data/concern/catalog.json"
+response = Net::HTTP.get_response(URI.parse(uri))
+json = JSON.parse( response.body )
+puts JSON.pretty_generate( json )
+</pre>
+    </li>
+    <li><code>curl '<%=host_url%>/data/catalog.json?page=2'</code></li>
+    <li>
+<pre>
+# ruby
+uri = "<%=host_url%>/data/concern/catalog.json?page=2"
+response = Net::HTTP.get_response(URI.parse(uri))
+json = JSON.parse( response.body )
+puts JSON.pretty_generate( json )
+</pre>
+    </li>
+    <li><code>curl '<%=host_url%>/data/catalog.json?f[creator][]=fritx'</code></li>
+    <li>
+<pre>
+# ruby
+uri = "<%=host_url%>/data/concern/catalog.json?f[creator][]=fritx"
+response = Net::HTTP.get_response(URI.parse(uri))
+json = JSON.parse( response.body )
+puts JSON.pretty_generate( json )
+</pre>
+    </li>
+  </ul>
+
+  <h3>Collections</h3>
+  <ul>
+    <li><code>curl '<%=host_url%>/data/concern/collections/<%=example_collection_id%>.json'</code></li>
+    <li>
+<pre>
+# ruby
+uri = "<%=host_url%>/data/concern/collections/<%=example_collection_id%>"
+response = Net::HTTP.get_response(URI.parse(uri))
+json = JSON.parse( response.body )
+puts JSON.pretty_generate( json )
+</pre>
+    </li>
+  </ul>
+
+  <h3>Data Sets</h3>
+  <ul>
+    <li><code>curl '<%=host_url%>/data/concern/data_sets/<%=example_data_set_id%>.json'</code></li>
+    <li>
+<pre>
+# ruby
+uri = "<%=host_url%>/data/concern/data_sets/<%=example_data_set_id%>"
+response = Net::HTTP.get_response(URI.parse(uri))
+json = JSON.parse( response.body )
+puts JSON.pretty_generate( json )
+</pre>
+    </li>
+  </ul>
+
+  <h3>File sets</h3>
+  <ul>
+    <li><code>curl '<%=host_url%>/data/concern/file_sets/<%=example_file_set_id%>.json'</code></li>
+    <li>
+<pre>
+# ruby
+uri = "<%=host_url%>/data/concern/file_sets/<%=example_file_set_id%>"
+response = Net::HTTP.get_response(URI.parse(uri))
+json = JSON.parse( response.body )
+puts JSON.pretty_generate( json )
+</pre>
+    </li>
+  </ul>
+
+</div>
