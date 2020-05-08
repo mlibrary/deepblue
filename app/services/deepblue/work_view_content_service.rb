@@ -97,6 +97,7 @@ module Deepblue
     end
 
     def self.load_email_templates
+      return unless Dir.exist?( './data/' )
       docCollection = content_documentation_collection
       return unless docCollection.present?
       prefix = documentation_email_title_prefix
