@@ -31,6 +31,10 @@ class WorkViewDocumentationController < ApplicationController
             action_cache_on
           when t( 'simple_form.actions.work_view_documentation.cache_off' )
             action_cache_off
+          when t( 'simple_form.actions.work_view_documentation.export_documentation' )
+            action_export_documentation
+          when t( 'simple_form.actions.work_view_documentation.reload_email_templates' )
+            action_reload_email_templates
           else
             @action_error = true
             "Unkown action #{action}"
@@ -56,6 +60,17 @@ class WorkViewDocumentationController < ApplicationController
   def action_cache_off
     ::Deepblue::StaticContentControllerBehavior.work_view_content_enable_cache = false
     "Cache is now off."
+  end
+
+  def action_export_documentation
+    ExportDocumentationJob.perform_later( id: ::Deepblue::WorkViewContentService.content_documentation_collection_id,
+                                          export_path: "./data/" )
+    "Export documentation job started."
+  end
+
+  def action_reload_email_templates
+    ::Deepblue::WorkViewContentService.load_email_templates
+    "Reloaded email templates."
   end
 
   def documentation_collection

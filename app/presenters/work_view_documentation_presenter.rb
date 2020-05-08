@@ -6,6 +6,7 @@ class WorkViewDocumentationPresenter
   delegate :static_content_documentation_collection,
            :documentation_collection_title,
            :search_session,
+           :static_content_controller_behavior_verbose,
            :work_view_content_enable_cache, to: :controller
 
   delegate :member_presenters,

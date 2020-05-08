@@ -5,6 +5,8 @@ module Deepblue
   module StaticContentControllerBehavior
     include Deepblue::WorkViewContentService
 
+    mattr_accessor :static_content_cache
+    @@static_content_cache = {}
     mattr_accessor :static_content_controller_behavior_verbose
     self.static_content_controller_behavior_verbose = false
     mattr_accessor :static_content_cache_debug_verbose
@@ -16,28 +18,8 @@ module Deepblue
     self.work_view_content_enable_cache = ::DeepBlueDocs::Application.config.static_content_enable_cache
 
     def self.static_content_documentation_collection_id
-      @@static_content_documentation_collection_id ||= static_content_documentation_collection_id_init&.id
+      WorkViewContentService.content_documentation_collection_id
     end
-
-    def self.static_content_documentation_collection_id_init
-      title = WorkViewContentService.documentation_collection_title
-      collection = nil
-      solr_query = "+generic_type_sim:Collection AND +title_tesim:#{title}"
-      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-      #                                        ::Deepblue::LoggingHelper.called_from,
-      #                                        "solr_query=#{solr_query}",
-      #                                        "" ] if static_content_controller_behavior_verbose
-      results = ::ActiveFedora::SolrService.query( solr_query, rows: 10 )
-      if results.size > 0
-        result = results[0] if results
-        id = result.id
-        collection = static_content_find_by_id( id: id, raise_error: true )
-      end
-      return collection
-    end
-
-    mattr_accessor :static_content_cache
-    @@static_content_cache = {}
 
     def self.static_content_cache_id( key:, id: )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -108,6 +90,10 @@ module Deepblue
 
     def documentation_work_title_prefix
       WorkViewContentService.documentation_work_title_prefix
+    end
+
+    def documentation_email_title_prefix
+      WorkViewContentService.documentation_email_title_prefix
     end
 
     def static_content_documentation_collection
@@ -362,7 +348,7 @@ module Deepblue
     def static_content_read_file( file_set: nil, id: nil )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "file_set=#{id}",
+                                             "file_set=#{file_set&.id}",
                                              "id=#{id}",
                                              "" ] if static_content_controller_behavior_verbose
       file_set = static_content_find_by_id( id: id ) unless id.blank?

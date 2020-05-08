@@ -34,6 +34,8 @@ en:
         cache_on:                       "Turn Cache On"
         cache_off:                      "Turn Cache Off"
         clear_cache:                    "Clear Cache"
+        export_documentation:           "Export Documentation"
+        reload_email_templates:         "Reload Email Templates"
     confirm:
       data_set:
         ingest_append_run_job:          "Are you sure you want to run the append script job?"
