@@ -5,6 +5,7 @@ module Deepblue
   module WorkViewContentService
 
     WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE = false
+    WORK_VIEW_CONTENT_SERVICE_EMAIL_TEMPLATES_DEBUG_VERBOSE = false
 
     include ::Deepblue::InitializationConstants
 
@@ -25,7 +26,6 @@ module Deepblue
 
     def self.setup
       yield self if @@_setup_ran == false
-      load_email_templates
       @@_setup_ran = true
     end
 
@@ -97,7 +97,13 @@ module Deepblue
     end
 
     def self.load_email_templates
-      return unless Dir.exist?( './data/' )
+      # puts "Current I18n.backend=#{I18n.backend}"
+      # puts "DeepBlueDocs::Application.config.i18n_backend=#{DeepBlueDocs::Application.config.i18n_backend}"
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if WORK_VIEW_CONTENT_SERVICE_EMAIL_TEMPLATES_DEBUG_VERBOSE ||
+                                                     WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
+      return unless Dir.exist?( './data/' ) # skip this unless in real server environment (./data/ does not exist for moku build environment)
       docCollection = content_documentation_collection
       return unless docCollection.present?
       prefix = documentation_email_title_prefix
@@ -107,25 +113,32 @@ module Deepblue
                                                ::Deepblue::LoggingHelper.called_from,
                                                "prefix=#{prefix}",
                                                "work.title.first=#{work.title.first}",
-                                               "" ] if WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
+                                               "" ] if WORK_VIEW_CONTENT_SERVICE_EMAIL_TEMPLATES_DEBUG_VERBOSE ||
+                                                       WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
         if work.title.first.starts_with? prefix
           work.file_sets.each do |fs|
             file_name = fs.label
             if file_name =~ /^(.+)\.txt$/i
               key = Regexp.last_match(1)
               value = content_read_file( file_set: fs )
-              keys_updated << key
-              I18n.backend.store_translations( "en", { key => value }, :escape => false )
+              keys_updated << load_email_templates_store( key: key, value: value )
             elsif file_name =~ /^(.+)\.html$/i
               key = "#{Regexp.last_match(1)}_html"
               value = content_read_file( file_set: fs )
-              keys_updated << key
-              I18n.backend.store_translations( "en", { key => value }, :escape => false )
+              keys_updated << load_email_templates_store( key: key, value: value )
             end
           end
         end
       end
-      if WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
+      load_email_templates_store( key: "hyrax.email.templates.keys_loaded",
+                                  value: keys_updated.join("; ") )
+      load_email_templates_store( key: "hyrax.email.templates.keys_loaded_html",
+                                  value: "<li>#{keys_updated.join("</li>\n<li>")}</li>" )
+      keys_updated << "hyrax.email.templates.keys_loaded"
+      keys_updated << "hyrax.email.templates.keys_loaded_html"
+      keys_updated << load_email_templates_store( key: "hyrax.email.templates.loaded", value: "true" )
+      keys_updated << load_email_templates_store( key: "hyrax.email.templates.last_loaded", value: DateTime.now.to_s )
+      if WORK_VIEW_CONTENT_SERVICE_EMAIL_TEMPLATES_DEBUG_VERBOSE || WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
         keys_updated.each do |key|
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
@@ -135,11 +148,17 @@ module Deepblue
                                                          depositor: "test_depositor",
                                                          title: "test_title",
                                                          url: "test_url"),
-                                                 "" ] if WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
+                                                 "" ] if WORK_VIEW_CONTENT_SERVICE_EMAIL_TEMPLATES_DEBUG_VERBOSE ||
+                                                         WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
         end
       end
     end
 
+    def self.load_email_templates_store( key:, value:, escape: false, locale: "en" )
+      I18n.backend.store_translations( locale, { key => value }, :escape => escape )
+      I18n.backend.store_translations( locale, { key.to_sym => value }, :escape => escape )
+      return key
+    end
 
     def documentation_collection_title
       @@documentation_collection_title

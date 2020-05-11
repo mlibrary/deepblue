@@ -403,6 +403,8 @@ module Deepblue
       end
 
       def build_admin_set_work( hash: )
+        return admin_set_work
+        # TODO: resolve the issue that we really don't normally need to create admin sets
         admin_set_id = hash[:admin_set_id]
         # TODO: admin_set_title = hash[:admin_set_title]
         return admin_set_work if admin_set_id.blank?

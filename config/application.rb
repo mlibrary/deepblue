@@ -199,10 +199,20 @@ module DeepBlueDocs
     # upload log config
     config.upload_log_echo_to_rails_logger = true
 
-    # http://railscasts.com/episodes/256-i18n-backends?view=asciicast
-
     config.key_value_backend = I18n::Backend::KeyValue.new({})
-    I18n.backend = I18n::Backend::Chain.new( config.key_value_backend, I18n.backend )
+    config.i18n.backend = I18n.backend
+    config.after_initialize do
+      # puts ""
+      # puts "Begin after initialize..."
+      # puts
+      # http://railscasts.com/episodes/256-i18n-backends?view=asciicast
+      I18n.backend = I18n::Backend::Chain.new( config.key_value_backend, I18n.backend )
+      config.i18n_backend = I18n.backend
+      # puts I18n.backend
+      # note that the debug statements in load_email_templates will not go to the log when called from here
+      Deepblue::WorkViewContentService.load_email_templates
+      # puts "Finished after initialize."
+    end
 
   end
 
