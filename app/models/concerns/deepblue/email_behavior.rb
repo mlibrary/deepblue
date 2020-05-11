@@ -122,13 +122,14 @@ module Deepblue
       cc_type = EmailHelper.curation_concern_type( curation_concern: self )
       cc_url = EmailHelper.curation_concern_url( curation_concern: self )
       cc_depositor = EmailHelper.cc_depositor( curation_concern: self )
-      # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-      #                                      Deepblue::LoggingHelper.called_from,
-      #                                      "to, to_note, from=#{to}, #{to_note}, #{from}",
-      #                                      "cc_title=#{cc_title}",
-      #                                      "cc_url=#{cc_url}",
-      #                                      "cc_depositor=#{cc_depositor}",
-      #                                      "" ] if EMAIL_BEHAVIOR_DEBUG_VERBOSE
+      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                           Deepblue::LoggingHelper.called_from,
+                                           "to, to_note, from=#{to}, #{_to_note}, #{from}",
+                                           "cc_type=#{cc_type}",
+                                           "cc_title=#{cc_title}",
+                                           "cc_url=#{cc_url}",
+                                           "cc_depositor=#{cc_depositor}",
+                                           "" ] if EMAIL_BEHAVIOR_DEBUG_VERBOSE
       body = EmailHelper.t( "hyrax.email.notify_user_#{cc_type}_created_html",
                             title: EmailHelper.escape_html( cc_title ),
                             url: cc_url,
