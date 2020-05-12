@@ -196,6 +196,11 @@ module DeepBlueDocs
     config.virus_scan_retry_on_service_unavailable = true
     config.virus_scan_retry_on_unknown = false
 
+    # begin rest_api config
+    config.rest_api_allow_mutate = false
+    config.rest_api_allow_read = true
+    # end rest_api config
+
     # upload log config
     config.upload_log_echo_to_rails_logger = true
 
