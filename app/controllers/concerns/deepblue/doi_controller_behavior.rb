@@ -9,6 +9,9 @@ module Deepblue
       respond_to do |wants|
         wants.html { redirect_to [main_app, curation_concern], notice: msg }
         wants.json do
+          unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
+            return render_json_response( response_type: :bad_request, message: "Method not allowed." )
+          end
           render :show,
                  status: :ok,
                  location: polymorphic_path([main_app, curation_concern])

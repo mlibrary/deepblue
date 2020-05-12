@@ -204,7 +204,6 @@ class DataSet < ActiveFedora::Base
     @@metadata_keys_json ||= %i[
       id
       access_deepblue
-      admin_set_id
       authoremail
       creator
       curation_notes_user

@@ -417,7 +417,7 @@
     <li>
 <pre>
 # ruby
-uri = "<%=host_url%>/data/concern/catalog.json"
+uri = "<%=host_url%>/data/catalog.json"
 response = Net::HTTP.get_response(URI.parse(uri))
 json = JSON.parse( response.body )
 puts JSON.pretty_generate( json )
@@ -427,7 +427,7 @@ puts JSON.pretty_generate( json )
     <li>
 <pre>
 # ruby
-uri = "<%=host_url%>/data/concern/catalog.json?page=2"
+uri = "<%=host_url%>/data/catalog.json?page=2"
 response = Net::HTTP.get_response(URI.parse(uri))
 json = JSON.parse( response.body )
 puts JSON.pretty_generate( json )
@@ -437,7 +437,7 @@ puts JSON.pretty_generate( json )
     <li>
 <pre>
 # ruby
-uri = "<%=host_url%>/data/concern/catalog.json?f[creator][]=fritx"
+uri = "<%=host_url%>/data/catalog.json?f[creator][]=fritx"
 response = Net::HTTP.get_response(URI.parse(uri))
 json = JSON.parse( response.body )
 puts JSON.pretty_generate( json )

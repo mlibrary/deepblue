@@ -51,20 +51,26 @@ module Hyrax
         #                                        "" ] if DOWNLOADS_CONTROLLER_DEBUG_VERBOSE
 
         file_size = relation.first.to_i
-        if file_size > DeepBlueDocs::Application.config.max_work_file_size_to_download
-          respond_to do |wants|
-            wants.html do
+        respond_to do |wants|
+          wants.html do
+            if file_size > DeepBlueDocs::Application.config.max_work_file_size_to_download
               raise ActiveFedora::IllegalOperation # TODO need better error than this
             end
-            wants.json do
+            # For original files that are stored in fedora
+            super
+          end
+          wants.json do
+            unless ::DeepBlueDocs::Application.config.rest_api_allow_read
+              return render_json_response( response_type: :bad_request, message: "Method not allowed." )
+            end
+            if file_size > DeepBlueDocs::Application.config.max_work_file_size_to_download
               return render_json_response( response_type: :unprocessable_entity, message: "file too large to download" )
             end
+            # For original files that are stored in fedora
+            super
           end
         end
-
         # end monkey
-        # For original files that are stored in fedora
-        super
       when String
         # For derivatives stored on the local file system
         send_local_content
