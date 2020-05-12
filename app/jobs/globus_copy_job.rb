@@ -75,13 +75,9 @@ class GlobusCopyJob < GlobusJob
 
     def globus_copy_job_complete_lines( curation_concern )
       lines = []
-      lines << "Globus download is now available."
-      lines << "Work: #{MsgHelper.title(curation_concern)}"
-      lines << "At: #{MsgHelper.work_location(curation_concern: curation_concern)}"
-      lines << "By: #{MsgHelper.creator(curation_concern)}"
-      lines << "Deposited by: #{curation_concern.depositor}"
-      lines << "Globus link: #{MsgHelper.globus_link(curation_concern)}"
-      return lines
+      options = ::Deepblue::EmailHelper.template_default_options( curation_concern: curation_concern )
+      lines << ::Deepblue::EmailHelper.t( 'globus_copy_job_complete_html', **options )
+      lines
     rescue Exception => e # rubocop:disable Lint/RescueException
       # msg = "#{@globus_log_prefix} #{e.class}: #{e.message} at #{e.backtrace[0]}"
       msg = "#{@globus_log_prefix} #{e.class}: #{e.message} at #{e.backtrace.join("\n")}"

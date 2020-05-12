@@ -138,6 +138,7 @@ module Deepblue
                                                  **added_prov_key_values )
           return
         end
+        file_set_orig = file_set
         Rails.logger.debug "About to call create derivatives: #{file_name}."
         file_set.create_derivatives( file_name )
         Rails.logger.debug "Create derivatives successful: #{file_name}."
@@ -148,11 +149,16 @@ module Deepblue
         file_set.reload
         file_set.update_index
         file_set.parent.update_index if parent_needs_reindex?(file_set)
+        #
+        # file_set.under_embargo?
+        # looks like file_set becomes nil in here. Does it fail to reload?
+        #
         Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "file_set=#{file_set}",
                                              "file_set.under_embargo?=#{file_set.under_embargo?}",
                                              "file_set.parent.under_embargo?=#{file_set.parent.under_embargo?}" ]
+        file_set = file_set_orig if file_set.nil?
         if file_set.under_embargo? && !file_set.parent.under_embargo?
           file_set.deactivate_embargo!
           file_set.save

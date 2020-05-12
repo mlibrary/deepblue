@@ -146,6 +146,19 @@ module Deepblue
       }
     end
 
+    def self.jira_comment_add
+      # https://tools.lib.umich.edu/jira/plugins/servlet/restbrowser#/resource/api-2-issue-issueidorkey-comment/POST
+      # https://tools.lib.umich.edu/jira/rest/api/2/issue/{issueIdOrKey}/comment
+      # post
+      # {
+      #   "body": "the body of the comment",
+      #   "visibility": {
+      #     "type": "role",
+      #     "value": "Users"
+      #   }
+      # }
+    end
+
     def self.jira_create_user( email:, client: nil )
       return false unless jira_enabled
       return false unless jira_allow_create_users
