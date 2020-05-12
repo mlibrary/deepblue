@@ -154,6 +154,13 @@ en:
           Sincerely,<br/>
           <br/>
           The Deep Blue Data team<br/>
+      globus_copy_job_complete_html: >
+        Globus download is now available.
+        Work: %{title}
+        At: <a href="%{curation_concern_url}">%{curation_concern_url}</a>
+        By: %{creator}
+        Deposited by: %{depositor}
+        Globus link: <a href="%{globus_link}">%{globus_link}</a>
       notify_user_collection_created_html: >
         Dear %{depositor},
         <p>
@@ -207,7 +214,7 @@ en:
         Dear %{depositor},
         <p>
         Thank you for depositing with Deep Blue Data. The record for
-        &quot;<a href='%{url}'>%{title}</a>&quot; and we will begin our
+        &quot;<a href='%{url}'>%{title}</a>&quot; has been created, and we will begin our
         review once your data and documentation uploads are finished.
         You will receive a separate email confirming your file uploads.
         </p>
@@ -226,13 +233,12 @@ en:
         review your data set. The DCN is a consortium through which we have access to a broad
         range of subject and format expertise for curation.</li>
         </ul>
+        <li>Creation of a permanent, unique identifier for your deposit - once you have uploaded your data and
+        documentation, you can generate a DOI for your work using the "Mint DOI" button in the record. Otherwise,
+        we will generate a DOI for you upon publication.</li>
         <li>Recommendations for your deposit - we may request additional information or revisions so that we can best
         represent your work.</li>
         </ul>
-        <p>
-        After the review we may request additional information or revisions to your deposit so that we can best
-        represent your work.
-        </p>
         <p>
         Please feel free to contact us at <a href='mailto:%{contact_us_at}'>%{contact_us_at}</a> if you have any
         questions in the meantime, or if there is anything else we can do to be of help.

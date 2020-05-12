@@ -5,7 +5,7 @@ module Deepblue
   module WorkViewContentService
 
     WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE = false
-    WORK_VIEW_CONTENT_SERVICE_EMAIL_TEMPLATES_DEBUG_VERBOSE = false
+    WORK_VIEW_CONTENT_SERVICE_EMAIL_TEMPLATES_DEBUG_VERBOSE = true
 
     include ::Deepblue::InitializationConstants
 
@@ -140,14 +140,11 @@ module Deepblue
       keys_updated << load_email_templates_store( key: "hyrax.email.templates.last_loaded", value: DateTime.now.to_s )
       if WORK_VIEW_CONTENT_SERVICE_EMAIL_TEMPLATES_DEBUG_VERBOSE || WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
         keys_updated.each do |key|
+          options = EmailHelper.template_default_options( curation_concern: nil )
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "key=#{key}",
-                                                 I18n.t( key,
-                                                         contact_us_at: "test_contact_us",
-                                                         depositor: "test_depositor",
-                                                         title: "test_title",
-                                                         url: "test_url"),
+                                                 I18n.t( key, **options ),
                                                  "" ] if WORK_VIEW_CONTENT_SERVICE_EMAIL_TEMPLATES_DEBUG_VERBOSE ||
                                                          WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
         end

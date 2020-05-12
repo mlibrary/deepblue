@@ -3,7 +3,15 @@
 module Deepblue
 
   module EmailHelper
-    extend ActionView::Helpers::TranslationHelper
+    # extend ActionView::Helpers::TranslationHelper
+
+    def self.t( key, **options )
+      I18n.t( key, options )
+    end
+
+    def self.translate( key, **options )
+      I18n.translate( key, options )
+    end
 
     # CLEAN_STR_REPLACEMENT_CHAR = "?"
 
@@ -75,6 +83,18 @@ module Deepblue
       end
     end
 
+    def self.cc_creator( curation_concern: )
+      if curation_concern.is_a?( DataSet )
+        curation_concern.creator
+      elsif curation_concern.is_a?( FileSet )
+        curation_concern.parent.creator
+      elsif curation_concern.is_a?( Collection )
+        curation_concern.creator
+      else
+        "Creator"
+      end
+    end
+
     def self.cc_depositor( curation_concern: )
       if curation_concern.is_a?( DataSet )
         curation_concern.depositor
@@ -84,6 +104,30 @@ module Deepblue
         curation_concern.depositor
       else
         "Depositor"
+      end
+    end
+
+    def self.cc_globus_link( curation_concern: )
+      if curation_concern.is_a?( DataSet )
+        ::GlobusJob.external_url curation_concern.id
+      elsif curation_concern.is_a?( FileSet )
+        ::GlobusJob.external_url curation_concern.parent.id
+      elsif curation_concern.is_a?( Collection )
+        ""
+      else
+        ""
+      end
+    end
+
+    def self.cc_title( curation_concern:, join_with: " " )
+      if curation_concern.is_a?( DataSet )
+        curation_concern.title.join( join_with )
+      elsif curation_concern.is_a?( FileSet )
+        curation_concern.label
+      elsif curation_concern.is_a?( Collection )
+        curation_concern.title.join( join_with )
+      else
+        "Title"
       end
     end
 
@@ -317,6 +361,20 @@ module Deepblue
       Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
     end
 
+    def self.template_default_options( curation_concern:, starting_options: {} )
+      options = {}
+      options.merge! starting_options if starting_options.present?
+      options[:contact_us_at] = contact_us_at
+      options[:contact_email] = cc_contact_email( curation_concern: curation_concern )
+      options[:creator] = cc_creator( curation_concern: curation_concern )
+      options[:depositor] = cc_depositor( curation_concern: curation_concern )
+      options[:globus_link] = cc_globus_link( curation_concern: curation_concern )
+      options[:title] = cc_title( curation_concern: curation_concern )
+      options[:curation_concern_url] = curation_concern_url( curation_concern: curation_concern )
+      options[:url] = options[:curation_concern_url]
+      options
+    end
+
     def self.user_email
       Rails.configuration.user_email
     end
@@ -331,10 +389,6 @@ module Deepblue
         user_email = current_user.email
       end
       user_email
-    end
-
-    def self.cc_title( curation_concern:, join_with: " " )
-      curation_concern.title.join( join_with )
     end
 
   end
