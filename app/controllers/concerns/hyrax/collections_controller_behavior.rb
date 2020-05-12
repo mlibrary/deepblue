@@ -34,6 +34,13 @@ module Hyrax
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "params[:id]=#{params[:id]}",
                                              "params=#{params}" ] if COLLECTIONS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      respond_to do |wants|
+        wants.json do
+          unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
+            return render_json_response( response_type: :bad_request, message: "Method not allowed." )
+          end
+        end
+      end
       super
     end
 
@@ -43,6 +50,13 @@ module Hyrax
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "params[:id]=#{params[:id]}",
                                              "params=#{params}" ] if COLLECTIONS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      respond_to do |wants|
+        wants.json do
+          unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
+            return render_json_response( response_type: :bad_request, message: "Method not allowed." )
+          end
+        end
+      end
       super
     end
 
@@ -52,6 +66,13 @@ module Hyrax
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "params[:id]=#{params[:id]}",
                                              "params=#{params}" ] if COLLECTIONS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      respond_to do |wants|
+        wants.json do
+          unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
+            return render_json_response( response_type: :bad_request, message: "Method not allowed." )
+          end
+        end
+      end
       super
     end
 
@@ -61,6 +82,13 @@ module Hyrax
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                             "params[:id]=#{params[:id]}",
                                             "params=#{params}" ] if COLLECTIONS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      respond_to do |wants|
+        wants.json do
+          unless ::DeepBlueDocs::Application.config.rest_api_allow_read
+            return render_json_response( response_type: :bad_request, message: "Method not allowed." )
+          end
+        end
+      end
       @curation_concern ||= ActiveFedora::Base.find(params[:id])
       if @curation_concern.present?
         presenter
@@ -104,6 +132,13 @@ module Hyrax
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "params[:id]=#{params[:id]}",
                                              "params=#{params}" ] if COLLECTIONS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      respond_to do |wants|
+        wants.json do
+          unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
+            return render_json_response( response_type: :bad_request, message: "Method not allowed." )
+          end
+        end
+      end
       super
     end
 

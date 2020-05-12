@@ -31,11 +31,25 @@ module Hyrax
       end
 
       def destroy
+        respond_to do |wants|
+          wants.json do
+            unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
+              return render_json_response( response_type: :bad_request, message: "Method not allowed." )
+            end
+          end
+        end
         workflow_destroy
         monkey_destroy
       end
 
       def show
+        respond_to do |wants|
+          wants.json do
+            unless ::DeepBlueDocs::Application.config.rest_api_allow_read
+              return render_json_response( response_type: :bad_request, message: "Method not allowed." )
+            end
+          end
+        end
         if @collection.collection_type.brandable?
           banner_info = collection_banner_info( id: @collection.id )
           @banner = brand_path( collection_branding_info: banner_info.first ) unless banner_info.empty?
