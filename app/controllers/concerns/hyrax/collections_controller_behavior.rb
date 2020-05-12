@@ -35,13 +35,16 @@ module Hyrax
                                              "params[:id]=#{params[:id]}",
                                              "params=#{params}" ] if COLLECTIONS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
       respond_to do |wants|
+        wants.html do
+          super
+        end
         wants.json do
           unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
+          super
         end
       end
-      super
     end
 
     def destroy
@@ -51,13 +54,16 @@ module Hyrax
                                              "params[:id]=#{params[:id]}",
                                              "params=#{params}" ] if COLLECTIONS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
       respond_to do |wants|
+        wants.html do
+          super
+        end
         wants.json do
           unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
+          super
         end
       end
-      super
     end
 
     def edit
@@ -67,13 +73,16 @@ module Hyrax
                                              "params[:id]=#{params[:id]}",
                                              "params=#{params}" ] if COLLECTIONS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
       respond_to do |wants|
+        wants.html do
+          super
+        end
         wants.json do
           unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
+          super
         end
       end
-      super
     end
 
     def show
@@ -83,27 +92,27 @@ module Hyrax
                                             "params[:id]=#{params[:id]}",
                                             "params=#{params}" ] if COLLECTIONS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
       respond_to do |wants|
-        wants.json do
-          unless ::DeepBlueDocs::Application.config.rest_api_allow_read
-            return render_json_response( response_type: :bad_request, message: "Method not allowed." )
-          end
-        end
-      end
-      @curation_concern ||= ActiveFedora::Base.find(params[:id])
-      if @curation_concern.present?
-        presenter
-        query_collection_members
-      end
-      respond_to do |wants|
         ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                Deepblue::LoggingHelper.called_from,
                                                Deepblue::LoggingHelper.obj_class( 'wants', wants ),
                                                "wants.format=#{wants.format}",
                                                "" ] if COLLECTIONS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
         wants.html do
-          ##
+          @curation_concern ||= ActiveFedora::Base.find(params[:id])
+          if @curation_concern.present?
+            presenter
+            query_collection_members
+          end
         end
         wants.json do
+          unless ::DeepBlueDocs::Application.config.rest_api_allow_read
+            return render_json_response( response_type: :bad_request, message: "Method not allowed." )
+          end
+          @curation_concern ||= ActiveFedora::Base.find(params[:id])
+          if @curation_concern.present?
+            presenter
+            query_collection_members
+          end
           if @curation_concern
             # authorize! :show, @curation_concern
             render :show, status: :ok
@@ -133,13 +142,16 @@ module Hyrax
                                              "params[:id]=#{params[:id]}",
                                              "params=#{params}" ] if COLLECTIONS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
       respond_to do |wants|
+        wants.html do
+          super
+        end
         wants.json do
           unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
+          super
         end
       end
-      super
     end
 
     def collection

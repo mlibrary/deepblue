@@ -135,21 +135,23 @@ module Deepblue
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
       respond_to do |wants|
+        wants.html do
+          if actor.create( actor_environment )
+            after_create_response
+          else
+            build_form
+            render 'new', status: :unprocessable_entity
+          end
+        end
         wants.json do
           unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
-        end
-      end
-      if actor.create( actor_environment )
-        after_create_response
-      else
-        respond_to do |wants|
-          wants.html do
-            build_form
-            render 'new', status: :unprocessable_entity
+          if actor.create( actor_environment )
+            after_create_response
+          else
+            render_json_response( response_type: :unprocessable_entity, options: { errors: curation_concern.errors } )
           end
-          wants.json { render_json_response(response_type: :unprocessable_entity, options: { errors: curation_concern.errors }) }
         end
       end
     end
@@ -160,12 +162,26 @@ module Deepblue
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
       respond_to do |wants|
+        wants.html do
+          destroy_rest
+        end
         wants.json do
           unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
+          destroy_rest
         end
       end
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE # + caller_locations(1,40)
+    end
+
+    def destroy_rest
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
       if curation_concern.present?
         title = curation_concern.to_s
       else
@@ -177,10 +193,6 @@ module Deepblue
         Hyrax.config.callback.run( :after_destroy, curation_concern&.id, current_user )
         after_destroy_response( title )
       end
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE # + caller_locations(1,40)
     end
 
     def new
@@ -189,12 +201,22 @@ module Deepblue
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
       respond_to do |wants|
+        wants.html do
+          new_rest
+        end
         wants.json do
           unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
+          new_rest
         end
       end
+    end
+
+    def new_rest
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
       # TODO: move these lines to the work form builder in Hyrax
       curation_concern.depositor = current_user.user_key
       curation_concern.admin_set_id = admin_set_id_for_new
@@ -208,13 +230,6 @@ module Deepblue
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
-      respond_to do |wants|
-        wants.json do
-          unless ::DeepBlueDocs::Application.config.rest_api_allow_read
-            return render_json_response( response_type: :bad_request, message: "Method not allowed." )
-          end
-        end
-      end
       @user_collections = user_collections
 
       respond_to do |wants|
@@ -227,6 +242,9 @@ module Deepblue
           presenter && parent_presenter
         end
         wants.json do
+          unless ::DeepBlueDocs::Application.config.rest_api_allow_read
+            return render_json_response( response_type: :bad_request, message: "Method not allowed." )
+          end
           # load and authorize @curation_concern manually because it's skipped for html
           # @curation_concern = _curation_concern_type.find(params[:id]) unless curation_concern
           @curation_concern = _curation_concern_type.find_with_rescue(params[:id]) unless curation_concern
@@ -258,12 +276,33 @@ module Deepblue
                                              Deepblue::LoggingHelper.obj_class( 'actor.class', actor ),
                                              "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
       respond_to do |wants|
+        wants.html do
+          had_error = upate_rest
+          if had_error
+            build_form
+            render 'edit', status: :unprocessable_entity
+          end
+        end
         wants.json do
           unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
+          had_error = upate_rest
+          if had_error
+            if curation_concern.present?
+              render_json_response( response_type: :unprocessable_entity, options: { errors: curation_concern.errors } )
+            else
+              works_render_json_response( response_type: :not_found, message: "ID #{params[:id]}" )
+            end
+          end
         end
       end
+    end
+
+    def upate_rest
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
       had_error = false
       if curation_concern.present?
         act_env = actor_environment
@@ -281,22 +320,7 @@ module Deepblue
           had_error = true
         end
       end
-
-      if had_error
-        respond_to do |wants|
-          wants.html do
-            build_form
-            render 'edit', status: :unprocessable_entity
-          end
-          wants.json do
-            if curation_concern.present?
-              render_json_response(response_type: :unprocessable_entity, options: { errors: curation_concern.errors })
-            else
-              works_render_json_response( response_type: :not_found, message: "ID #{params[:id]}" )
-            end
-          end
-        end
-      end
+      return had_error
     end
 
     def attributes_for_actor

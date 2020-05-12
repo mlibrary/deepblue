@@ -354,20 +354,31 @@ module Hyrax
     def zip_download
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "params=#{params}",
                                              "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
-
-      if curation_concern.total_file_size > DeepBlueDocs::Application.config.max_work_file_size_to_download
-        respond_to do |wants|
-          wants.html do
+      respond_to do |wants|
+        wants.html do
+          if curation_concern.total_file_size > DeepBlueDocs::Application.config.max_work_file_size_to_download
             raise ActiveFedora::IllegalOperation # TODO need better error than this
           end
-          wants.json do
+          zip_download_rest
+        end
+        wants.json do
+          unless ::DeepBlueDocs::Application.config.rest_api_allow_read
+            return render_json_response( response_type: :bad_request, message: "Method not allowed." )
+          end
+          if curation_concern.total_file_size > DeepBlueDocs::Application.config.max_work_file_size_to_download
             return render_json_response( response_type: :unprocessable_entity, message: "total file size too large to download" )
           end
+          zip_download_rest
         end
       end
+    end
 
+    def zip_download_rest
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params=#{params}",
+                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
       require 'zip'
       require 'tempfile'
 
