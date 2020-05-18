@@ -1337,7 +1337,7 @@ module Deepblue
         email_sent = false
         unless email_test_mode
           email_sent = EmailHelper.send_email( to: email_to,
-                                               from: email_to,
+                                               from: EmailHelper.notification_email_from,
                                                subject: subject,
                                                content_type: "text/html",
                                                body: body )
