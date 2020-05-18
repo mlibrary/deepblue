@@ -88,7 +88,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       # Deepblue::LoggingHelper.debug "attach_files_to_work_job_complete_email_user: work id: #{work.id} email: #{email}"
       body = lines.join( "\n" )
       to = email
-      from = email
+      from = ::Deepblue::EmailHelper.notification_email_from
       email_sent = ::Deepblue::EmailHelper.send_email( to: to,
                                                        from: from,
                                                        subject: subject,

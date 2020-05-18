@@ -90,9 +90,9 @@ class GlobusCopyJob < GlobusJob
       Deepblue::LoggingHelper.debug "#{@globus_log_prefix} globus_copy_job_email_user: work id: #{@globus_concern_id} email: #{email}" unless @globus_job_quiet
       body = lines.join( "\n" )
       to = email
-      from = email
+      from = ::Deepblue::EmailHelper.notification_email_from
       subject = 'DBD: Globus Work Files Available'
-      email_sent = Deepblue::EmailHelper.send_email( to: to, from: from, subject: subject, body: body )
+      email_sent = ::Deepblue::EmailHelper.send_email( to: to, from: from, subject: subject, body: body )
       ::Deepblue::EmailHelper.log( class_name: 'GlobusCopyJob',
                                    current_user: nil,
                                    event: Deepblue::AbstractEventBehavior::EVENT_GLOBUS,

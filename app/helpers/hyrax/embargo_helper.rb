@@ -62,7 +62,7 @@ module Hyrax
       event_note += " test_mode" if test_mode
       email_sent = false
       email_sent = ::Deepblue::EmailHelper.send_email( to: email,
-                                                       from: email,
+                                                       from: ::Deepblue::EmailHelper.notification_email_from,
                                                        subject: subject,
                                                        body: body,
                                                        content_type: 'text/html' ) unless test_mode
@@ -80,7 +80,7 @@ module Hyrax
       email = ::Deepblue::EmailHelper.notification_email_workflow_to
       email_sent = false
       email_sent = ::Deepblue::EmailHelper.send_email( to: email,
-                                                       from: email,
+                                                       from: ::Deepblue::EmailHelper.notification_email_from,
                                                        subject: subject,
                                                        body: body,
                                                        content_type: 'text/html' ) unless test_mode
@@ -156,7 +156,7 @@ module Hyrax
       email = curation_concern.authoremail
       email_sent = false
       email_sent = ::Deepblue::EmailHelper.send_email( to: email,
-                                                       from: EmailHelper.notification_email_from,
+                                                       from: ::Deepblue::EmailHelper.notification_email_from,
                                                        subject: subject,
                                                        body: body,
                                                        content_type: 'text/html' ) unless test_mode
@@ -175,7 +175,7 @@ module Hyrax
       email = ::Deepblue::EmailHelper.notification_email_workflow_to
       email_sent = false
       email_sent = ::Deepblue::EmailHelper.send_email( to: email,
-                                                       from: EmailHelper.notification_email_from,
+                                                       from: ::Deepblue::EmailHelper.notification_email_from,
                                                        subject: subject,
                                                        body: body,
                                                        content_type: 'text/html' ) unless test_mode
