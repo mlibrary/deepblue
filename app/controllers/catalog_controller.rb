@@ -3,6 +3,7 @@
 class CatalogController < ApplicationController
   include Hydra::Catalog
   include Hydra::Controller::ControllerBehavior
+  include BlacklightOaiProvider::Controller
 
   CATALOG_CONTROLLER_DEBUG_VERBOSE = false
 
@@ -46,6 +47,23 @@ class CatalogController < ApplicationController
   end
 
   configure_blacklight do |config|
+
+    # Oai Configuration
+    config.oai = {
+      provider: {
+        repository_name: 'Deep Blue Data',
+        repository_url: 'https://deepblue.lib.umich.edu/data/catalog/oai',
+        record_prefix: 'oai:deepbluedata',
+        admin_email: 'researchdataservices@umich.edu',
+        sample_id: '9s1616317'
+      },
+      document: {
+        limit: 50,
+        set_model: AdminsetSet,
+        set_fields: [{ label: 'admin_set', solr_field: 'admin_set_sim' }]
+      }
+    }
+
 
     # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
     #                                        ::Deepblue::LoggingHelper.called_from,
