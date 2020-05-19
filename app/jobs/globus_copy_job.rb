@@ -76,7 +76,7 @@ class GlobusCopyJob < GlobusJob
     def globus_copy_job_complete_lines( curation_concern )
       lines = []
       options = ::Deepblue::EmailHelper.template_default_options( curation_concern: curation_concern )
-      lines << ::Deepblue::EmailHelper.t( 'globus_copy_job_complete_html', **options )
+      lines << ::Deepblue::EmailHelper.t( 'hyrax.email.globus_copy_job_complete_html', **options )
       lines
     rescue Exception => e # rubocop:disable Lint/RescueException
       # msg = "#{@globus_log_prefix} #{e.class}: #{e.message} at #{e.backtrace[0]}"
@@ -92,7 +92,11 @@ class GlobusCopyJob < GlobusJob
       to = email
       from = ::Deepblue::EmailHelper.notification_email_from
       subject = 'DBD: Globus Work Files Available'
-      email_sent = ::Deepblue::EmailHelper.send_email( to: to, from: from, subject: subject, body: body )
+      email_sent = ::Deepblue::EmailHelper.send_email( to: to,
+                                                       from: from,
+                                                       subject: subject,
+                                                       body: body,
+                                                       content_type: "text/html" )
       ::Deepblue::EmailHelper.log( class_name: 'GlobusCopyJob',
                                    current_user: nil,
                                    event: Deepblue::AbstractEventBehavior::EVENT_GLOBUS,
