@@ -8,6 +8,8 @@ resque_web_constraint = lambda do |request|
 end
 
 Rails.application.routes.draw do
+  concern :oai_provider, BlacklightOaiProvider::Routes.new
+
 
   mount Blacklight::Engine => '/'
 
@@ -82,6 +84,8 @@ Rails.application.routes.draw do
   concern :searchable, Blacklight::Routes::Searchable.new
 
   resource :catalog, only: [:index], as: 'catalog', path: '/catalog', controller: 'catalog' do
+    concerns :oai_provider
+
     concerns :searchable
   end
 

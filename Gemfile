@@ -82,6 +82,9 @@ gem 'sinatra', '~> 2.0.2'
 gem 'sprockets', '~> 3.7.2'
 # End security vulnerability mitigation
 
+# To have OAI
+gem 'blacklight_oai_provider', '6.0.0.pre1'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri

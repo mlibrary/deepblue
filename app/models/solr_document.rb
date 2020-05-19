@@ -5,6 +5,8 @@ class SolrDocument
   SOLR_DOCUMENT_DEBUG_VERBOSE = false
 
   include Blacklight::Solr::Document
+  include BlacklightOaiProvider::SolrDocument
+
   # include BlacklightOaiProvider::SolrDocumentBehavior
 
   include Blacklight::Gallery::OpenseadragonSolrDocument
@@ -49,6 +51,11 @@ class SolrDocument
 
   def all_property_names
     @@all_property_names
+  end
+
+  # Oai - to have sets.
+  def sets
+    AdminsetSet.sets_for(self)
   end
 
   def model_property_names_browse
@@ -280,6 +287,13 @@ class SolrDocument
   ]
 
   solrized_methods @@all_property_names
+
+  # DublinCore uses the semantic field mappings below to assemble an OAI-compliant Dublin Core document
+  # Semantic mappings of solr stored fields. Fields may be multi or
+  # single valued. See Blacklight::Document::SemanticFields#field_semantics
+  # and Blacklight::Document::SemanticFields#to_semantic_values
+  # Recommendation: Use field names from Dublin Core
+  use_extension(Blacklight::Document::DublinCore)
 
   field_semantics.merge!(
     contributor:  [ 'contributor_tesim',
