@@ -83,9 +83,9 @@ module Deepblue
       end
     end
 
-    def self.cc_creator( curation_concern: )
+    def self.cc_creator( curation_concern:, join_with: ", " )
       if curation_concern.is_a?( DataSet )
-        curation_concern.creator
+        curation_concern.creator.join( join_with )
       elsif curation_concern.is_a?( FileSet )
         curation_concern.parent.creator
       elsif curation_concern.is_a?( Collection )
