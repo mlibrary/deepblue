@@ -121,7 +121,7 @@ module DeepBlueDocs
 
     config.contact_us_email = config.notification_email_deepblue_to
 
-    config.use_email_notification_for_creation_events = false
+    config.use_email_notification_for_creation_events = true
 
     if config.email_debug_verbose
       puts "config.notification_email=#{config.notification_email}"
