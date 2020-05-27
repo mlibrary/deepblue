@@ -282,6 +282,8 @@ module Deepblue
           out << ',' << 'Parent ids'
           out << ',' << 'Discipline'
           out << ',' << 'Creators'
+          out << ',' << 'License'
+          out << ',' << 'License Other'
           out << ',' << 'Thumbnail id'
           out << ',' << 'DOI'
         else
@@ -300,6 +302,8 @@ module Deepblue
           out << ',' << '"' << parent_ids.join( ' ' ) << '"'
           out << ',' << '"' << TaskHelper.work_discipline( work: work ).join( '; ' ) << '"'
           out << ',' << '"' << work.creator.join( '; ' ) << '"'
+          out << ',' << '"' << work.rights_license << '"'
+          out << ',' << '"' << work.rights_license_other << '"'
           out << ',' << '"' << (work.thumbnail_id.nil? ? '' : work.thumbnail_id).to_s << '"'
           out << ',' << '"' << (work.doi.nil? ? '' : work.doi).to_s << '"'
         end
