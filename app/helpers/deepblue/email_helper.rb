@@ -36,7 +36,7 @@ module Deepblue
 
     def self.contact_email
       # Settings.hyrax.contact_email
-      notification_email_contact_form_to
+      notification_email_contact_us_to
     end
 
     def self.curation_concern_type( curation_concern: )
@@ -242,19 +242,7 @@ module Deepblue
     end
 
     def self.contact_us_at
-      LoggingHelper.bold_debug [  Deepblue::LoggingHelper.here,
-                                  Deepblue::LoggingHelper.called_from,
-                                  "rv=#{::DeepBlueDocs::Application.config.contact_us_email}",
-                                  "" ] if ::DeepBlueDocs::Application.config.email_debug_verbose
-      ::DeepBlueDocs::Application.config.contact_us_email
-    end
-
-    def self.notification_email_deepblue_to
-      LoggingHelper.bold_debug [  Deepblue::LoggingHelper.here,
-                                  Deepblue::LoggingHelper.called_from,
-                                  "rv=#{::DeepBlueDocs::Application.config.notification_email_deepblue_to}",
-                                  "" ] if ::DeepBlueDocs::Application.config.email_debug_verbose
-      ::DeepBlueDocs::Application.config.notification_email_deepblue_to
+      notification_email_contact_us_to
     end
 
     def self.notification_email_contact_form_to
@@ -263,6 +251,22 @@ module Deepblue
                                   "rv=#{::DeepBlueDocs::Application.config.notification_email_contact_form_to}",
                                   "" ] if ::DeepBlueDocs::Application.config.email_debug_verbose
       ::DeepBlueDocs::Application.config.notification_email_contact_form_to
+    end
+
+    def self.notification_email_contact_us_to
+      LoggingHelper.bold_debug [  Deepblue::LoggingHelper.here,
+                                  Deepblue::LoggingHelper.called_from,
+                                  "rv=#{::DeepBlueDocs::Application.config.notification_email_contact_us_to}",
+                                  "" ] if ::DeepBlueDocs::Application.config.email_debug_verbose
+      ::DeepBlueDocs::Application.config.notification_email_contact_us_to
+    end
+
+    def self.notification_email_deepblue_to
+      LoggingHelper.bold_debug [  Deepblue::LoggingHelper.here,
+                                  Deepblue::LoggingHelper.called_from,
+                                  "rv=#{::DeepBlueDocs::Application.config.notification_email_deepblue_to}",
+                                  "" ] if ::DeepBlueDocs::Application.config.email_debug_verbose
+      ::DeepBlueDocs::Application.config.notification_email_deepblue_to
     end
 
     def self.notification_email_from
@@ -279,6 +283,14 @@ module Deepblue
                                   "rv=#{::DeepBlueDocs::Application.config.notification_email_jira_to}",
                                   "" ] if ::DeepBlueDocs::Application.config.email_debug_verbose
       ::DeepBlueDocs::Application.config.notification_email_jira_to
+    end
+
+    def self.notification_email_rds_to
+      LoggingHelper.bold_debug [  Deepblue::LoggingHelper.here,
+                                  Deepblue::LoggingHelper.called_from,
+                                  "rv=#{::DeepBlueDocs::Application.config.notification_email_rds_to}",
+                                  "" ] if ::DeepBlueDocs::Application.config.email_debug_verbose
+      ::DeepBlueDocs::Application.config.notification_email_rds_to
     end
 
     def self.notification_email_to
