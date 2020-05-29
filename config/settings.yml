@@ -38,7 +38,7 @@ notification_email_workflow_to: deepblue-notifications_workflow_to@default.inval
 # initializers/hyrax.rb.
 hyrax:
   # Settings for email contact form and deposit notification
-  contact_email: deepblue-contact@default.invalid
+  contact_email: hyrax_contact_email@default.invalid
   minter_statefile: <%= ENV['MINTER_FILE'] || "/tmp/umrdr-minter-#{Time.now.min}#{Time.now.sec}" %>
   # Redis namespace used in both Hyrax and Resque initializers
   redis_namespace: <%= ENV['REDIS_NS'] || 'deepbluedata' %>
