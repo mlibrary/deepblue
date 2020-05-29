@@ -30,7 +30,8 @@ Hyrax.config do |config|
 
   # Email recipient of messages sent via the contact form
   # config.contact_email = "repo-admin@example.org"
-  config.contact_email = Settings.hyrax.contact_email
+  # config.contact_email = Settings.hyrax.contact_email
+  config.contact_email = Settings.notification_email_jira_to
 
   # Text prefacing the subject entered in the contact form
   # config.subject_prefix = "Contact form:"

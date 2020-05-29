@@ -17,7 +17,8 @@ module Hyrax
     def headers
       {
         subject: "#{Hyrax.config.subject_prefix} #{subject}",
-        to: Hyrax.config.contact_email,
+        # to: Hyrax.config.contact_email,
+        to: ::Deepblue::EmailHelper.notification_email_contact_form_to,
         from: email
       }
     end

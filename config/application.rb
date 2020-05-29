@@ -110,8 +110,10 @@ module DeepBlueDocs
     end
 
     config.email_error_alert_addresses = [ 'fritx@umich.edu', 'blancoj@umich.edu' ].freeze
+
     # see config/settings/production.yml etc. for real values, it's null in development.yml
     config.notification_email = Settings.notification_email
+    # also set initializers/hyrax.rb config.contact_email = Settings.notification_email_jira_to
     config.notification_email_contact_form_to = Settings.notification_email_jira_to
     config.notification_email_deepblue_to = Settings.notification_email_deepblue_to
     config.notification_email_from = Settings.notification_email_from
@@ -119,7 +121,7 @@ module DeepBlueDocs
     config.notification_email_to = Settings.notification_email_to
     config.notification_email_workflow_to = Settings.notification_email_workflow_to
 
-    config.contact_us_email = config.notification_email_deepblue_to
+    config.contact_us_email = config.notification_email_to
 
     config.use_email_notification_for_creation_events = true
 
