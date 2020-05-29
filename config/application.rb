@@ -113,24 +113,26 @@ module DeepBlueDocs
 
     # see config/settings/production.yml etc. for real values, it's null in development.yml
     config.notification_email = Settings.notification_email
-    # also set initializers/hyrax.rb config.contact_email = Settings.notification_email_jira_to
-    config.notification_email_contact_form_to = Settings.notification_email_jira_to
+    config.notification_email_contact_form_to = Settings.notification_email_contact_form_to
+    # also set initializers/hyrax.rb config.contact_email = Settings.notification_email_contact_us_to
+    config.notification_email_contact_us_to = Settings.notification_email_contact_us_to
     config.notification_email_deepblue_to = Settings.notification_email_deepblue_to
     config.notification_email_from = Settings.notification_email_from
     config.notification_email_jira_to = Settings.notification_email_jira_to
+    config.notification_email_rds_to = Settings.notification_email_rds_to
     config.notification_email_to = Settings.notification_email_to
     config.notification_email_workflow_to = Settings.notification_email_workflow_to
-
-    config.contact_us_email = config.notification_email_to
 
     config.use_email_notification_for_creation_events = true
 
     if config.email_debug_verbose
       puts "config.notification_email=#{config.notification_email}"
       puts "config.notification_email_contact_form_to=#{config.notification_email_contact_form_to}"
+      puts "config.notification_email_contact_us_to=#{config.notification_email_contact_us_to}"
       puts "config.notification_email_deepblue_to=#{config.notification_email_deepblue_to}"
       puts "config.notification_email_from=#{config.notification_email_from}"
       puts "config.notification_email_jira_to=#{config.notification_email_jira_to}"
+      puts "config.notification_email_rds_to=#{config.notification_email_rds_to}"
       puts "config.notification_email_to=#{config.notification_email_to}"
       puts "config.notification_email_workflow_to=#{config.notification_email_workflow_to}"
     end
