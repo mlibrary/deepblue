@@ -126,6 +126,7 @@ module Hyrax
                                                "actor.update_content" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
           uploaded_files = Array(Hyrax::UploadedFile.find(params[:files_files]))
           actor.update_content(uploaded_files.first)
+          update_metadata
         end
       end
 
