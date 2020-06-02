@@ -21,6 +21,13 @@
   <% end %>
 
   <% if can? :read, :admin_dashboard %>
+    <%= menu.nav_link(main_app.email_dashboard_path) do %>
+      <span class="fa fa-flag" aria-hidden="true"></span>
+      <span class="sidebar-action-text"><%= t('hyrax.admin.sidebar.manage_email') %></span>
+    <% end %>
+  <% end %>
+
+  <% if can? :read, :admin_dashboard %>
     <%= menu.nav_link(hyrax.embargoes_path) do %>
       <span class="fa fa-flag" aria-hidden="true"></span>
       <span class="sidebar-action-text"><%= t('hyrax.embargoes.index.manage_embargoes') %></span>

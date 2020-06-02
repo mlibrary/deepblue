@@ -25,6 +25,8 @@ en:
     actions:
       data_set:
         edit:                           "Edit"
+      email_management:
+        reload_email_templates:         "Reload Email Templates"
       scheduler:
         restart:                        "Restart Scheduler"
         start:                          "Start Scheduler"
@@ -41,6 +43,9 @@ en:
         ingest_append_run_job:          "Are you sure you want to run the append script job?"
       scheduler:
         update_schedule:                "Are you sure you want to update the schedule?"
+    email_dashboard:
+      label:
+        edit_email_template_textarea:   "Edit Email Template"
     scheduler_dashboard:
       label:
         edit_schedule_textarea:         "Edit Schedule"

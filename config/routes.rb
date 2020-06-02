@@ -185,7 +185,9 @@ Rails.application.routes.draw do
     end
   end
 
-
+  get '/email_dashboard/' => 'email_dashboard#show'
+  get '/email_dashboard_action/' => 'email_dashboard#action'
+  get '/guest_user_message', to: 'guest_user_message#show'
   get '/provenance_log/(:id)', to: 'provenance_log#show'
   get '/provenance_log_find/', to: 'provenance_log#show'
   post '/provenance_log_find/', to: 'provenance_log#find'
@@ -193,19 +195,15 @@ Rails.application.routes.draw do
   post '/provenance_log_zip_download/', to: 'provenance_log#log_zip_download'
   get '/provenance_log_deleted_works/', to: 'provenance_log#deleted_works'
   post '/provenance_log_deleted_works/', to: 'provenance_log#deleted_works'
-  get '/guest_user_message', to: 'guest_user_message#show'
-
-  get '/work_view_content/:id/:file_id' => 'work_view_content#show', constraint: { id: /[^\/]+/, file_id: /[^\/]+/ }
-
-  get '/work_view_documentation_action/' => 'work_view_documentation#action'
-  post '/work_view_documentation_action/' => 'work_view_documentation#action'
-
   get '/scheduler_dashboard/' => 'scheduler_dashboard#show'
   get '/scheduler_dashboard_action/' => 'scheduler_dashboard#action'
   post '/scheduler_dashboard_action/' => 'scheduler_dashboard#action'
   get '/scheduler_dashboard_update_schedule/' => 'scheduler_dashboard#update_schedule'
   post '/scheduler_dashboard_update_schedule/' => 'scheduler_dashboard#update_schedule'
+  get '/work_view_content/:id/:file_id' => 'work_view_content#show', constraint: { id: /[^\/]+/, file_id: /[^\/]+/ }
   get '/work_view_documentation/' => 'work_view_documentation#show'
+  get '/work_view_documentation_action/' => 'work_view_documentation#action'
+  post '/work_view_documentation_action/' => 'work_view_documentation#action'
 
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 

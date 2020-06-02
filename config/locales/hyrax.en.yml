@@ -60,6 +60,7 @@ en:
               administrators, managers, and viewers of the set. Must be used with "No embargo" setting above.
       sidebar:
         documentation:      "Manage Documentation"
+        manage_email:       "Manage Email"
         resque_web:         "Resque Web Manager"
         scheduler:          "Manage Scheduler"
       work_view_doc_list:
@@ -85,6 +86,12 @@ en:
     dashboard:
       documentation:
         title:              "Manage Documentation"
+      manage_email:
+        heading:
+          email_templates_loaded:       "Email templates loaded:"
+          email_templates_last_loaded:  "Email templates last loaded:"
+          email_template_keys_found:    "Email template keys found:"
+        title:              "Manage Email"
       my_active_embargoes:  "Active Embargoes"
       my:
         heading:
@@ -161,6 +168,17 @@ en:
         By: %{creator}
         Deposited by: %{depositor}
         Globus link: <a href="%{globus_link}">%{globus_link}</a>
+      label:
+        notification_email:                  "Notification email:"
+        notification_email_contact_form_to:  "Notification email contact form to:"
+        notification_email_contact_us_to:    "Notification email contact us to:"
+        notification_email_deepblue_to:      "Notification email deepblue to:"
+        notification_email_from:             "Notification email from:"
+        notification_email_jira_to:          "Notification email jira to:"
+        notification_email_rds_to:           "Notification email rds to:"
+        notification_email_to:               "Notification email to:"
+        notification_email_workflow_to:      "Notification email workflow to:"
+        use_email_notification_for_creation_events:  "Use email notification for creation events:"
       notify_user_collection_created_html: >
         Dear %{depositor},
         <p>
@@ -313,6 +331,8 @@ en:
       service_html: A service of <a href="http://samvera.org/" class="navbar-link" target="_blank">Samvera</a>.
     institution_name:       "Institution"
     institution_name_full:  "The Institution Name"
+    manage_email:
+      actions_header:      "Manage Email Actions"
     menu:
       about:
         about:              "About Deep Blue Data"
