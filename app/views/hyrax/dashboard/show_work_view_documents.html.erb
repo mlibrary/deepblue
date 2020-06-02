@@ -27,11 +27,13 @@
 <% end %>
 <br/>
 <h2 class="title-header">Email Templates</h2>
-<ul>
+<div class='documentation-div'>
+  <ul>
   <li>Email templates loaded: <%= t("hyrax.email.templates.loaded") %></li>
   <li>Email templates last loaded: <%= t("hyrax.email.templates.last_loaded") %></li>
   <li>Email template keys loaded: <ul><%= t("hyrax.email.templates.keys_loaded_html") %></ul></li>
 </ul>
+</div>
 <br/>
 <% if @presenter.static_content_documentation_collection.present? %>
 <h2><%= link_to @presenter.documentation_collection_title,

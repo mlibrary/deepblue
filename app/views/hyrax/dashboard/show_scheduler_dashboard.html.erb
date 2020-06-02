@@ -7,10 +7,13 @@
 <br/>
 
 <h2 class="title-header"><%= t('hyrax.scheduler.uptime_header') %></h2>
-<% ::Deepblue::UptimeService.uptime_timestamp_files.each do |file| %>
-  <label><%= ::Deepblue::UptimeService.uptime_for_file_human_readable( file: file ) %>:</label>
-  <br/>
-<% end %>
+<div class='documentation-div'>
+  <ul>
+  <% ::Deepblue::UptimeService.uptime_timestamp_files.each do |file| %>
+    <li><%= ::Deepblue::UptimeService.uptime_for_file_human_readable( file: file ) %>:</li>
+  <% end %>
+  </ul>
+</div>
 <br/>
 
 <h2 class="title-header"><%= t('hyrax.scheduler.actions_header') %></h2>

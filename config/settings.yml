@@ -25,7 +25,7 @@ relative_url_root: /data
 notification_email: deepblue-notifications@default.invalid
 notification_email_contact_form_to: deepblue-notifications_contact_form_to@default.invalid
 notification_email_contact_us_to: deepblue-notifications_contact_us_to@default.invalid
-notification_email_deepbue_to: deepblue-notifications_deepblue_to@default.invalid
+notification_email_deepblue_to: deepblue-notifications_deepblue_to@default.invalid
 notification_email_from: deepblue-notifications_from@default.invalid
 notification_email_jira_to: deepblue-notifications_jira_to@default.invalid
 notification_email_rds_to: deepblue-notifications_rds_to@default.invalid
