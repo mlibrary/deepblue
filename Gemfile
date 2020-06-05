@@ -8,7 +8,8 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-gem 'hyrax', '2.5.1'
+gem 'hyrax', '2.7.2'
+gem 'linkeddata', '<= 3.1.1'
 
 gem 'mysql2' # still somehow in 0.x releases...
 
