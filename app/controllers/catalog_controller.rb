@@ -6,6 +6,7 @@ class CatalogController < ApplicationController
   include BlacklightOaiProvider::Controller
 
   CATALOG_CONTROLLER_DEBUG_VERBOSE = false
+  CATALOG_CONTROLLER_ALLOW_SEARCH_FIX_FOR_JSON = true
 
   # This filter applies the hydra access controls
   before_action :enforce_show_permissions, only: :show
@@ -518,6 +519,46 @@ class CatalogController < ApplicationController
   def index
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
+                                           "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+    (@response, @document_list) = search_results(index_params)
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "@document_list.size=#{@document_list.size}",
+                                           "@document_list.map(&:id)=#{@document_list.map(&:id)}",
+                                           "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+
+    respond_to do |format|
+      format.html { store_preferred_view }
+      format.rss  { render :layout => false }
+      format.atom { render :layout => false }
+      format.json do
+        @presenter = ::Deepblue::SearchResultJsonPresenter.new( @response,
+                                                                @document_list,
+                                                                facets_from_request,
+                                                                blacklight_config )
+      end
+      additional_response_formats(format)
+      document_export_formats(format)
+    end
+  end
+
+  def index_params
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "params.class.name=#{params.class.name}",
+                                           "params=#{params}",
+                                           "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+    respond_to do |format|
+      format.html { return params }
+      format.rss  { return params }
+      format.atom { return params }
+      format.json { return index_params_json }
+    end
+  end
+
+  def index_params_json
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
                                            "params.class.name=#{params.class.name}",
                                            "params=#{params}",
                                            "@@facet_solr_name_to_name=#{@@facet_solr_name_to_name}",
@@ -529,7 +570,7 @@ class CatalogController < ApplicationController
                                            "f=#{f}",
                                            "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
     p2 = params.deep_dup
-    if f.present?
+    if f.present? && CATALOG_CONTROLLER_ALLOW_SEARCH_FIX_FOR_JSON
       need_fix = false
       f.each_pair do |k,_v|
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -576,22 +617,9 @@ class CatalogController < ApplicationController
                                            ::Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
                                            "p2=#{p2}",
+                                           "search_builder_class.name=#{search_builder_class.name}",
                                            "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
-    (@response, @document_list) = search_results(params)
-
-    respond_to do |format|
-      format.html { store_preferred_view }
-      format.rss  { render :layout => false }
-      format.atom { render :layout => false }
-      format.json do
-        @presenter = ::Deepblue::SearchResultJsonPresenter.new( @response,
-                                                                @document_list,
-                                                                facets_from_request,
-                                                                blacklight_config )
-      end
-      additional_response_formats(format)
-      document_export_formats(format)
-    end
+    return params
   end
 
 

@@ -940,6 +940,7 @@ module Deepblue
         admin_set = build_admin_set_work( hash: work_hash )
         work.update( admin_set: admin_set )
         apply_visibility_and_workflow( work: work, work_hash: work_hash, admin_set: admin_set )
+        log_msg( "About to save work #{title}", timestamp_it: true ) if verbose
         work.save!
         work.reload
         log_provenance_migrate( curation_concern: work ) if MODE_MIGRATE == mode
@@ -1764,6 +1765,7 @@ module Deepblue
         @email_rest = initialize_options_value( key: :email_rest, default_value: DEFAULT_EMAIL_REST )
         ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                Deepblue::LoggingHelper.called_from,
+                                               "mode=#{mode}",
                                                "@email_test_mode=#{@email_test_mode}",
                                                "@email_after=#{@email_after}",
                                                "@email_after_add_log_msgs=#{@email_after_add_log_msgs}",
@@ -1781,6 +1783,7 @@ module Deepblue
         @stop_new_content_service_file = current_dir.join STOP_NEW_CONTENT_SERVICE_FILE_NAME
         @stop_new_content_service_ppid_file = current_dir.join( "#{Process.ppid}_#{STOP_NEW_CONTENT_SERVICE_FILE_NAME}" )
         log_msg( msg, timestamp_it: false, not_email_line: true )
+        log_msg( "mode=#{mode}", timestamp_it: true ) if verbose
       end
 
       def log_msg( msg, timestamp_it: true, not_email_line: false )
