@@ -9,6 +9,12 @@
             <small class="text-muted"><%= @presenter.permission_badge %> <%= presenter.workflow.badge %></small>
           <% end %>
         </h2>
+        <% if presenter.doi.present? %>
+            <% if presenter.doi.first.include? "doi:" %>
+              <span class='altmetric-embed' data-badge-type='large_rectangle' data-doi="<%= presenter.doi.first.sub('doi:', '') %>"></span>
+              <span class="__dimensions_badge_embed__" data-style="large_rectangle" data-doi="<%= presenter.doi.first.sub('doi:', '') %>"></span>
+            <% end %>
+        <% end %>
       <% else %>
         <h2 class="title-header"><%= title %></h2>
       <% end %>
