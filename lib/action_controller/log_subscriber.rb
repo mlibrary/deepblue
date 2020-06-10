@@ -1,4 +1,5 @@
 
+# monkey override actionpack lib/action_controller/log_subscriber.rb
 require File.join(Gem::Specification.find_by_name("actionpack").full_gem_path, "lib/action_controller/log_subscriber.rb")
 
 module ActionController
