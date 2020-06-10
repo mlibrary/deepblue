@@ -12,6 +12,7 @@ Rails.application.routes.draw do
 
 
   mount Blacklight::Engine => '/'
+  mount BrowseEverything::Engine => '/browse'
 
   if '/data' == Settings.relative_url_root
     # note that this path assumes a leading /data

@@ -1,4 +1,6 @@
 
+# monkey override actionpack lib/action_controller/metal/parameters_track_errors.rb
+
 module ActionController
 
   class ParametersTrackErrors < Parameters

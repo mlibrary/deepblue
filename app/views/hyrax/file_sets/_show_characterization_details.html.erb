@@ -1,7 +1,7 @@
 <div>
   <% @presenter.characterization_metadata.keys.each do |term| %>
     <% additional_values = @presenter.secondary_characterization_values(term) %>
-    <%= @presenter.label_for_term( term ) %>: <%= @presenter.primary_characterization_values(term).join("<br />").html_safe %><br/>
+    <%= @presenter.label_for_term( term ) %>: <%= sanitize @presenter.primary_characterization_values(term).join("<br />").html_safe %><br/>
     <% unless additional_values.empty? %>
       <%= render partial: "extra_fields_modal", locals: { name: term, values: additional_values } %>
     <% end %>

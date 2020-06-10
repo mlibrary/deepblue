@@ -19,7 +19,7 @@ export default class SortManager {
     this.element.removeClass("success")
     this.element.removeClass("failure")
     let persisting = $.post(
-      `/data/concern/${this.class_name}/${this.id}.json`,
+      `<%= ::DeepBlueDocs::Application.config.relative_url_root %>/concern/${this.class_name}/${this.id}.json`, // monkey
       this.params()
     ).done((response) => {
       this.element.data('version', response.version)
