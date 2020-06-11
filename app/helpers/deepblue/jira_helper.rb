@@ -187,36 +187,13 @@ module Deepblue
 
     def self.jira_user_exists?( user:, client: nil )
       return true unless jira_enabled
-      client = jira_client( client: client )
-      path = "#{client.options[:rest_base_path]}/user/search?username=#{user}"
-      get_rv = client.get(path)
-      body = get_rv.body
-      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
-                                              Deepblue::LoggingHelper.called_from,
-                                              "jira_user_exists?( user: #{user} )",
-                                              "path=#{path}",
-                                              "get_rv=#{get_rv}",
-                                              "body=#{body}",
-                                              "body.class.name=#{body.class.name}",
-                                              "" ] ) if JIRA_HELPER_DEBUG_VERBOSE
-      rv = if "[]" == body
-             false
-           elsif body.present? && body.size > 0
-             true
-           else
-             false
-           end
-
-      rv = body.present? && body.size > 0
-      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
-                                              Deepblue::LoggingHelper.called_from,
-                                              "jira_user_exists?( user: #{user} ) rv=#{rv}",
-                                              "" ] ) if JIRA_HELPER_DEBUG_VERBOSE
-      return rv
+      hash = jira_user_as_hash( user: user, client: client )
+      return false unless hash.present?
+      hash.size > 0
     end
 
     def self.jira_user_as_hash( user:, client: nil )
-      return true unless jira_enabled
+      return {} unless jira_enabled
       client = jira_client( client: client )
       path = "#{client.options[:rest_base_path]}/user/search?username=#{user}"
       get_rv = client.get(path)
@@ -242,15 +219,22 @@ module Deepblue
     end
 
     def self.reporter( user: nil, client: nil )
+      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                              Deepblue::LoggingHelper.called_from,
+                                              "reporter( user: #{user} )",
+                                              "" ] ) if JIRA_HELPER_DEBUG_VERBOSE
       return { name: user } unless jira_enabled
       return { name: user } if jira_test_mode
       return {} if user.nil?
       client = jira_client( client: client )
-      unless jira_user_exists?( user: user, client: client )
-        jira_create_user( email: user, client: client )
-      end
       hash = jira_user_as_hash( user: user, client: client )
-      return hash
+      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                              Deepblue::LoggingHelper.called_from,
+                                              "hash=#{hash}",
+                                              "" ] ) if JIRA_HELPER_DEBUG_VERBOSE
+      return hash unless hash.empty?
+      jira_create_user( email: user, client: client )
+      jira_user_as_hash( user: user, client: client )
     end
 
     def self.summary_last_name( curation_concern: )
