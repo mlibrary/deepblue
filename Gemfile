@@ -83,6 +83,7 @@ gem 'rubyzip', '~> 2.0.0'
 gem 'sassc', '>= 2.0.0'
 gem 'sinatra', '~> 2.0.2'
 gem 'sprockets', '~> 3.7.2'
+gem 'websocket-extensions', '>= 0.1.5'
 # End security vulnerability mitigation
 
 # To have OAI
