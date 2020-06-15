@@ -1,6 +1,6 @@
 class Hyrax::CatalogSearchBuilder < Hyrax::SearchBuilder
 
-  CATALOG_SEARCH_BUILDER_VERBOSE_DEBUG = false
+  CATALOG_SEARCH_BUILDER_DEBUG_VERBOSE = false
 
   self.default_processor_chain += [
     :add_access_controls_to_solr_params,
@@ -15,7 +15,7 @@ class Hyrax::CatalogSearchBuilder < Hyrax::SearchBuilder
     ::Deepblue::LoggingHelper.bold_debug [Deepblue::LoggingHelper.here,
                                           Deepblue::LoggingHelper.called_from,
                                           "solr_parameters.inspect=#{solr_parameters.inspect}",
-                                          ""] if CATALOG_SEARCH_BUILDER_VERBOSE_DEBUG
+                                          ""] if CATALOG_SEARCH_BUILDER_DEBUG_VERBOSE
     # end monkey
     return if blacklight_params[:q].blank? || blacklight_params[:search_field] != 'all_fields'
     solr_parameters[:user_query] = blacklight_params[:q]
@@ -25,7 +25,7 @@ class Hyrax::CatalogSearchBuilder < Hyrax::SearchBuilder
     ::Deepblue::LoggingHelper.bold_debug [Deepblue::LoggingHelper.here,
                                           Deepblue::LoggingHelper.called_from,
                                           "solr_parameters.inspect=#{solr_parameters.inspect}",
-                                          ""] if CATALOG_SEARCH_BUILDER_VERBOSE_DEBUG
+                                          ""] if CATALOG_SEARCH_BUILDER_DEBUG_VERBOSE
     # end monkey
   end
 
@@ -35,7 +35,7 @@ class Hyrax::CatalogSearchBuilder < Hyrax::SearchBuilder
     ::Deepblue::LoggingHelper.bold_debug [Deepblue::LoggingHelper.here,
                                           Deepblue::LoggingHelper.called_from,
                                           "solr_parameters.inspect=#{solr_parameters.inspect}",
-                                          ""] if CATALOG_SEARCH_BUILDER_VERBOSE_DEBUG
+                                          ""] if CATALOG_SEARCH_BUILDER_DEBUG_VERBOSE
     # end monkey
     solr_parameters[:fq] ||= []
     solr_parameters[:fq] << '-suppressed_bsi:true'
@@ -43,7 +43,7 @@ class Hyrax::CatalogSearchBuilder < Hyrax::SearchBuilder
     ::Deepblue::LoggingHelper.bold_debug [Deepblue::LoggingHelper.here,
                                           Deepblue::LoggingHelper.called_from,
                                           "solr_parameters.inspect=#{solr_parameters.inspect}",
-                                          ""] if CATALOG_SEARCH_BUILDER_VERBOSE_DEBUG
+                                          ""] if CATALOG_SEARCH_BUILDER_DEBUG_VERBOSE
     # end monkey
   end
 
@@ -53,7 +53,7 @@ class Hyrax::CatalogSearchBuilder < Hyrax::SearchBuilder
     ::Deepblue::LoggingHelper.bold_debug [Deepblue::LoggingHelper.here,
                                           Deepblue::LoggingHelper.called_from,
                                           "solr_parameters.inspect=#{solr_parameters.inspect}",
-                                          ""] if CATALOG_SEARCH_BUILDER_VERBOSE_DEBUG
+                                          ""] if CATALOG_SEARCH_BUILDER_DEBUG_VERBOSE
     # end monkey
     return if current_ability.admin?
 
@@ -67,7 +67,7 @@ class Hyrax::CatalogSearchBuilder < Hyrax::SearchBuilder
     ::Deepblue::LoggingHelper.bold_debug [Deepblue::LoggingHelper.here,
                                           Deepblue::LoggingHelper.called_from,
                                           "solr_parameters.inspect=#{solr_parameters.inspect}",
-                                          ""] if CATALOG_SEARCH_BUILDER_VERBOSE_DEBUG
+                                          ""] if CATALOG_SEARCH_BUILDER_DEBUG_VERBOSE
     # end monkey
   end
 
