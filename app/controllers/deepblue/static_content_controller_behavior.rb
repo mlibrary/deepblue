@@ -418,12 +418,15 @@ module Deepblue
 
           case file_set.mime_type
           when "text/html"
-            send_data open( source_uri, "r:UTF-8" ) { |io| io.read }, disposition: 'inline', type: file_set.mime_type
+            send_data static_read_text_from( uri: source_uri ), disposition: 'inline', type: file_set.mime_type
+            # send_data open( source_uri, "r:UTF-8" ) { |io| io.read }, disposition: 'inline', type: file_set.mime_type
           when "text/plain"
             if format == "html"
-              send_data open( source_uri, "r:UTF-8" ) { |io| io.read }, disposition: 'inline', type: "text/html"
+              send_data static_read_text_from( uri: source_uri ), disposition: 'inline', type: "text/html"
+              # send_data open( source_uri, "r:UTF-8" ) { |io| io.read }, disposition: 'inline', type: "text/html"
             else
-              send_data open( source_uri, "r:UTF-8" ) { |io| io.read }, disposition: 'inline', type: file_set.mime_type
+              send_data static_read_text_from( uri: source_uri ), disposition: 'inline', type: file_set.mime_type
+              # send_data open( source_uri, "r:UTF-8" ) { |io| io.read }, disposition: 'inline', type: file_set.mime_type
             end
           when /^image\//
             send_data open( source_uri, "rb" ) { |io| io.read }, disposition: 'inline', type: file_set.mime_type
@@ -436,6 +439,24 @@ module Deepblue
       msg = "StaticContentControllerBehavior.static_content_read_file #{source_uri} - #{e.class}: #{e.message} at #{e.backtrace[0..19].join("\n")}"
       Rails.logger.error msg
       static_content_send_msg msg
+    end
+
+    def static_read_text_from( uri: )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "uri=#{uri}",
+                                             "" ] if static_content_controller_behavior_verbose
+      text = open( uri, "r:UTF-8" ) { |io| io.read }
+      if text =~ /\%/
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "uri=#{uri}",
+                                               "interpolating...",
+                                               "" ] if static_content_controller_behavior_verbose
+        values = ::Deepblue::InterpolationHelper.new_interporlation_values
+        text = ::Deepblue::InterpolationHelper.interpolate( target: text, values: values )
+      end
+      return text
     end
 
     def static_content_send_msg( msg )
