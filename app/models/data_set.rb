@@ -496,6 +496,9 @@ class DataSet < ActiveFedora::Base
     true
   end
 
+  # No idea why these are needed now...
+  attr_accessor :abstract, :rights_notes, :access_right
+
   # begin metadata
 
   # the list of creators is ordered

@@ -12,6 +12,7 @@ gem 'hyrax', '3.0.0.pre.rc1'
 gem 'linkeddata', '<= 3.1.1'
 gem 'rdf-rdfa', '< 3.1.1'
 gem 'rdf-vocab', '<= 3.1.4'
+gem 'solrizer'
 
 
 gem 'mysql2' # still somehow in 0.x releases...

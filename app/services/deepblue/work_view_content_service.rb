@@ -48,6 +48,8 @@ module Deepblue
         return result.id
       end
       return nil
+    rescue Exception => e
+      return "bad_id"
     end
 
     def self.content_documentation_collection

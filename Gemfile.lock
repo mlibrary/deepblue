@@ -898,6 +898,10 @@ GEM
       retriable
       ruby-progressbar
       rubyzip
+    solrizer (4.1.0)
+      activesupport
+      nokogiri
+      xml-simple
     sparql (3.1.1)
       builder (~> 3.2)
       ebnf (~> 1.2)
@@ -983,6 +987,7 @@ GEM
     websocket-driver (0.7.2)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
+    xml-simple (1.1.5)
     xpath (3.2.0)
       nokogiri (~> 1.8)
 
@@ -1050,6 +1055,7 @@ DEPENDENCIES
   shoulda-matchers (~> 3.1)
   sinatra (~> 2.0.2)
   solr_wrapper (~> 2.1.0)
+  solrizer
   spring
   spring-watcher-listen (~> 2.0.0)
   sprockets (~> 3.7.2)
