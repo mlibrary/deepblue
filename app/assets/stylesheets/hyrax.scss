@@ -3,14 +3,21 @@
  *= require select2
  *= require_self
 */
-
+/* hyrax.scss -- begin */
+/* hyrax.scss -- bootstrap-sprockets */
 @import "bootstrap-sprockets";
+/* hyrax.scss -- bootstrap-default-overrides */
 @import "bootstrap-default-overrides";
-@import 'bootstrap';
-@import 'blacklight/blacklight';
+/* hyrax.scss -- bootstrap */
+@import "bootstrap";
+/* hyrax.scss -- blacklight/blacklight */
+@import "blacklight/blacklight";
+/* hyrax.scss -- font-awesome */
 @import "font-awesome";
 @import "blacklight_gallery/gallery";
 @import "blacklight_gallery/masonry";
 @import "blacklight_gallery/slideshow";
 @import "blacklight_gallery/osd_viewer";
-@import 'hyrax/hyrax';
+/* hyrax.scss -- hyrax/hyrax */
+@import "hyrax/hyrax";
+/* hyrax.scss -- end */

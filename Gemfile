@@ -14,7 +14,6 @@ gem 'rdf-rdfa', '< 3.1.1'
 gem 'rdf-vocab', '<= 3.1.4'
 gem 'solrizer'
 
-
 gem 'mysql2' # still somehow in 0.x releases...
 
 gem 'config'
@@ -74,7 +73,7 @@ gem 'jbuilder', '~> 2.5'
 #      https://tools.lib.umich.edu/jira/browse/HELIO-1450
 # gem 'rack', git: 'https://github.com/rack/rack.git', ref: 'ee01748'
 
-gem 'samvera-persona' #, '0.1.7'
+# gem 'samvera-persona' #, '0.1.7'
 
 # Begin security vulnerability mitigation
 # bundle update --source gem-name

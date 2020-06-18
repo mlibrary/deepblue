@@ -110,7 +110,7 @@ Rails.application.routes.draw do
 
   mount Qa::Engine => '/authorities'
   mount Hyrax::Engine, at: '/'
-  mount Samvera::Persona::Engine => '/'
+  # mount Samvera::Persona::Engine => '/'
   resources :welcome, only: 'index'
   root 'hyrax/homepage#index'
   curation_concerns_basic_routes
