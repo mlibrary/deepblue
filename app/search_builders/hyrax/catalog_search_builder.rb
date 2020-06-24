@@ -38,6 +38,7 @@ class Hyrax::CatalogSearchBuilder < Hyrax::SearchBuilder
                                           ""] if CATALOG_SEARCH_BUILDER_DEBUG_VERBOSE
     # end monkey
     solr_parameters[:fq] ||= []
+    return if current_ability.admin? # this allows all works to show up in browse for admins
     solr_parameters[:fq] << '-suppressed_bsi:true'
     # begin monkey
     ::Deepblue::LoggingHelper.bold_debug [Deepblue::LoggingHelper.here,
