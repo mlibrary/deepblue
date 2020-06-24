@@ -232,7 +232,7 @@ module Deepblue
                                               Deepblue::LoggingHelper.called_from,
                                               "hash=#{hash}",
                                               "" ] ) if JIRA_HELPER_DEBUG_VERBOSE
-      return hash unless hash.empty?
+      return hash if hash.present?
       jira_create_user( email: user, client: client )
       jira_user_as_hash( user: user, client: client )
     end
