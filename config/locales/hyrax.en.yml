@@ -60,6 +60,7 @@ en:
               administrators, managers, and viewers of the set. Must be used with "No embargo" setting above.
       sidebar:
         documentation:      "Manage Documentation"
+        google_analytics:   "Google Analytics"
         manage_email:       "Manage Email"
         resque_web:         "Resque Web Manager"
         scheduler:          "Manage Scheduler"
@@ -90,6 +91,8 @@ en:
     dashboard:
       documentation:
         title:              "Manage Documentation"
+      google_analytics:
+        title:              "Google Analytics Dashboard"
       manage_email:
         heading:
           email_templates_loaded:       "Email templates loaded:"
