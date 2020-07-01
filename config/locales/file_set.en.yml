@@ -1,7 +1,7 @@
 en:
   show:
     file_set:
-      label:
+      labels:
         authoremail:          "Contact information"
         characterization:     "Characterization"
         creator:              "Creator"
@@ -45,7 +45,7 @@ en:
         delete_this:          "Delete This File"
         edit:                 "Edit"
         edit_this:            "Edit This File"
-    label:
+    labels:
       file_set:
         admin_actions:        "Admin Actions"
         analytics:            "Analytics"

@@ -1,5 +1,8 @@
-/* make sure we have bootstrap and font-awesome resources */
-@import 'bootstrap-sprockets';
-@import 'bootstrap';
+/* add_boostrap.scss -- make sure we have bootstrap and font-awesome resources */
+/* add_boostrap.scss -- import bootstrap-sprockets */
+@import "bootstrap-sprockets";
+/* add_boostrap.scss -- import bootstrap */
+@import "bootstrap";
+/* add_boostrap.scss -- import font-awesome */
 @import "font-awesome";
-
+/* add_boostrap.scss -- end */

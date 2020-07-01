@@ -12,16 +12,16 @@
     <%= f.input :description_file_set,
                 as: :text,
                 input_html: {rows: '5', type: 'textarea'},
-                label: t('simple_form.label.file_set.description_file_set') %>
+                label: t('simple_form.labels.file_set.description_file_set') %>
     <% if current_ability.admin? %>
       <%= f.input :curation_notes_user,
                   as: :multi_value,
                   input_html: {rows: '5', type: 'textarea'},
-                  label: t('simple_form.label.file_set.curation_notes_user') %>
+                  label: t('simple_form.labels.file_set.curation_notes_user') %>
       <%= f.input :curation_notes_admin,
                   as: :multi_value,
                   input_html: {rows: '5', type: 'textarea'},
-                  label: t('simple_form.label.file_set.curation_notes_admin') %>
+                  label: t('simple_form.labels.file_set.curation_notes_admin') %>
     <% end %>
   </fieldset>
 

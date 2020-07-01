@@ -10,7 +10,7 @@ en:
     'yes': 'Yes'
     ingest_append:
       hint:
-      label:
+      labels:
         ingest_base_directory:        "Base directory to find files"
         ingest_base_directory_can_be: "Base directories can be subdirectories of the following directories:"
         ingest_depositor:             "Depositor"

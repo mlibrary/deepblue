@@ -44,8 +44,8 @@ en:
       scheduler:
         update_schedule:                "Are you sure you want to update the schedule?"
     email_dashboard:
-      label:
+      labels:
         edit_email_template_textarea:   "Edit Email Template"
     scheduler_dashboard:
-      label:
+      labels:
         edit_schedule_textarea:         "Edit Schedule"

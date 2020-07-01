@@ -38,12 +38,12 @@
     <tbody>
     <%# if @presenter.ingest_script_messages.present? %>
       <!-- td>
-      <td><label for="ingest_script_messages" class=""><%#= t('simple_form.ingest_append.label.ingest_script_messages') %>:</label></td>
+      <td><label for="ingest_script_messages" class=""><%#= t('simple_form.ingest_append.labels.ingest_script_messages') %>:</label></td>
       <td><%#= text_area_tag :ingest_script_messages, @presenter.ingest_script_messages.join("\n"), rows: 5, cols: 75 %></td>
       </tr-->
     <%# end %>
     <td>
-    <td><label for="edit_schedule_textarea" class=""><%= t('simple_form.scheduler_dashboard.label.edit_schedule_textarea') %>:</label></td>
+    <td><label for="edit_schedule_textarea" class=""><%= t('simple_form.scheduler_dashboard.labels.edit_schedule_textarea') %>:</label></td>
     <td>
       <%= text_area_tag :edit_schedule_textarea,
                         @presenter.edit_schedule,

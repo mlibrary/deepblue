@@ -34,15 +34,21 @@
         <% (tabs - ['share']).each_with_index do | tab, i | %>
           <% if i == 0 %>
             <div role="tabpanel" class="tab-pane active" id="<%= tab %>">
+              <div class="form-tab-content">
+                <% # metadata_tab is sometimes provided %>
+                <%= yield "#{tab}_tab".to_sym if content_for? "#{tab}_tab".to_sym %>
+                <%= render "form_#{tab}", f: f %>
+              </div>
+            </div>
           <% else %>
             <div role="tabpanel" class="tab-pane" id="<%= tab %>">
-          <% end %>
-            <div class="form-tab-content">
-              <% # metadata_tab is sometimes provided %>
-              <%= yield "#{tab}_tab".to_sym if content_for? "#{tab}_tab".to_sym %>
-              <%= render "form_#{tab}", f: f %>
+              <div class="form-tab-content">
+                <% # metadata_tab is sometimes provided %>
+                <%= yield "#{tab}_tab".to_sym if content_for? "#{tab}_tab".to_sym %>
+                <%= render "form_#{tab}", f: f %>
+              </div>
             </div>
-          </div>
+          <% end %>
         <% end %>
 
         <div role="tabpanel" class="tab-pane" id="share" data-param-key="<%= f.object.model_name.param_key %>">

@@ -1,18 +1,18 @@
 <h2><%= t('hyrax.file_sets.detail_header') %></h2>
 <dl class="dl-horizontal file-show-term file-show-details">
-  <dt><%= t('show.file_set.label.depositor') %></dt>
+  <dt><%= t('show.file_set.labels.depositor') %></dt>
   <dd itemprop="accountablePerson" itemscope itemtype="http://schema.org/Person">
     <span itemprop="name"><%= link_to_profile @presenter.depositor %></span>
   </dd>
   <%= @presenter.attribute_to_html(:description_file_set,
-                                   label: t('show.file_set.label.description_file_set'),
+                                   label: t('show.file_set.labels.description_file_set'),
                                    work_type: "FileSet",
                                    html_dt: true) %>
   <span itemprop="identifier" itemscope itemtype="http://schema.org/Identifier">
-    <%= @presenter.attribute_to_html(:doi, label: t('show.label.doi'), work_type: "FileSet", render_as: :doi, html_dt: true) %>
+    <%= @presenter.attribute_to_html(:doi, label: t('show.labels.doi'), work_type: "FileSet", render_as: :doi, html_dt: true) %>
   </span>
   <% if @presenter.curation_notes_user.present? %>
-    <dt><%= t('show.file_set.label.curation_notes_user_html') %></dt>
+    <dt><%= t('show.file_set.labels.curation_notes_user_html') %></dt>
     <dd itemprop="curation_notes_user">
       <% @presenter.curation_notes_user.each_with_index do |note,index| %>
         <% if index > 0 %>
@@ -27,7 +27,7 @@
     </dd>
   <% end %>
   <% if @presenter.curation_notes_admin.present? && current_ability.admin? %>
-    <dt><%= t('show.file_set.label.curation_notes_admin_html') %></dt>
+    <dt><%= t('show.file_set.labels.curation_notes_admin_html') %></dt>
     <dd itemprop="curation_notes_admin">
       <% @presenter.curation_notes_admin.each_with_index do |note,index| %>
         <% if index > 0 %>
@@ -42,15 +42,15 @@
     </dd>
   <% end %>
   <%= @presenter.attribute_to_html(:date_uploaded,
-                                   label: t('show.file_set.label.date_uploaded'),
+                                   label: t('show.file_set.labels.date_uploaded'),
                                    work_type: "FileSet",
                                    html_dt: true) %>
   <%= @presenter.attribute_to_html(:date_modified,
-                                   label: t('show.file_set.label.date_modified'),
+                                   label: t('show.file_set.labels.date_modified'),
                                    work_type: "FileSet",
                                    html_dt: true,
                                    include_empty: true ) %>
-  <dt><%= t('show.file_set.label.characterization') %></dt>
+  <dt><%= t('show.file_set.labels.characterization') %></dt>
   <dd>
     <% if @presenter.characterized? %>
       <%= render 'show_characterization_details' %>
