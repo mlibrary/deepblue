@@ -1,0 +1,9 @@
+<% if DeepBlueDocs::Application.config.google_analytics_embed_url.present? %>
+<div style="height:1300px;">
+  <iframe style="border:0; position: relative; height: 100%; width: 100%;"
+          src="<%= DeepBlueDocs::Application.config.google_analytics_embed_url %>"
+          frameborder="0"
+          allowfullscreen>
+  </iframe>
+</div>
+<% end %>

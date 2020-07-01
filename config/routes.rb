@@ -188,6 +188,7 @@ Rails.application.routes.draw do
 
   get '/email_dashboard/' => 'email_dashboard#show'
   get '/email_dashboard_action/' => 'email_dashboard#action'
+  get '/google_analytics_dashboard/' => 'google_analytics_dashboard#show'
   get '/guest_user_message', to: 'guest_user_message#show'
   get '/provenance_log/(:id)', to: 'provenance_log#show'
   get '/provenance_log_find/', to: 'provenance_log#show'

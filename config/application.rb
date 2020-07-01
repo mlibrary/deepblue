@@ -171,6 +171,8 @@ module DeepBlueDocs
     # Set the default host for resolving _url methods
     Rails.application.routes.default_url_options[:host] = config.hostname
 
+    # google analytics
+    config.google_analytics_embed_url = 'https://datastudio.google.com/embed/reporting/89e13288-f0f5-4cf7-95a1-4587d76208b7/page/6zXD'
 
     # ordered list metadata config
     config.do_ordered_list_hack = true

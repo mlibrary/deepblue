@@ -6,6 +6,13 @@
     <% end %>
   <% end %>
 
+  <% if can? :read, :admin_dashboard %>
+    <%= menu.nav_link(main_app.google_analytics_dashboard_path) do %>
+      <span class="fa fa-flag" aria-hidden="true"></span>
+      <span class="sidebar-action-text"><%= t('hyrax.admin.sidebar.google_analytics') %></span>
+    <% end %>
+  <% end %>
+
   <% if can? :manage, User %>
     <%= menu.nav_link(hyrax.admin_users_path) do %>
       <span class="fa fa-user" aria-hidden="true"></span>
