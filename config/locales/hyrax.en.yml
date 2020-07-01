@@ -76,10 +76,14 @@ en:
       items:
         date_modified:      "Last Modified"
         date_uploaded:      "Original Upload"
+        empty: >
+          This %{type} has no files associated with it currently. Recent file attachements may not be visible yet.
+          Click "edit" to add more files.
         file_size:          "File Size"
         visibility:         "Access"
       member:
         download_title:     "link to download this file"
+    browse:                 "Browse"
     contact_form:
       issue_types:
         size:               "My deposit is larger than %{max_upload_size}"
@@ -95,6 +99,7 @@ en:
       my_active_embargoes:  "Active Embargoes"
       my:
         heading:
+          date_created:     "Date Created"
           date_uploaded:    "Date Created"
       review_submissions:
         heading:
@@ -168,7 +173,7 @@ en:
         By: %{creator}
         Deposited by: %{depositor}
         Globus link: <a href="%{globus_link}">%{globus_link}</a>
-      label:
+      labels:
         notification_email:                  "Notification email:"
         notification_email_contact_form_to:  "Notification email contact form to:"
         notification_email_contact_us_to:    "Notification email contact us to:"

@@ -85,7 +85,7 @@ module Hyrax
     end
 
     def label_for_term( term )
-      MsgHelper.t( "show.file_set.label.#{term}", raise: true )
+      MsgHelper.t( "show.file_set.labels.#{term}", raise: true )
     rescue I18n::MissingTranslationData => e
       term.to_s.titleize
     end

@@ -61,6 +61,8 @@ en:
           <a href="/data/dbd-documentation-guide" target="_blank">
           Guide to Creating Documentation for Your Dataset</a>
           or <a href="/data/Deep_Blue_Data_Example_Readme.txt">this Example readme</a> for more information.</p>
+      form_progress:
+        cancel:             "Cancel"
   provenance_log:
     title:                  "Provenance Log"
     id:                     "ID:"

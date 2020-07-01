@@ -7,7 +7,7 @@
       <td>&nbsp;</td>
       <td>&nbsp;</td>
       <td>
-        <label for="ingest_email_before" class=""><%= t('simple_form.ingest_append.label.ingest_email_before') %></label>
+        <label for="ingest_email_before" class=""><%= t('simple_form.ingest_append.labels.ingest_email_before') %></label>
         <%= check_box_tag( 'ingest_email_before', "true", @presenter.ingest_email_before ) %>
       </td>
     </tr>
@@ -15,41 +15,41 @@
       <td>&nbsp;</td>
       <td>&nbsp;</td>
       <td>
-        <label for="ingest_email_after" class=""><%= t('simple_form.ingest_append.label.ingest_email_after') %></label>
+        <label for="ingest_email_after" class=""><%= t('simple_form.ingest_append.labels.ingest_email_after') %></label>
         <%= check_box_tag( 'ingest_email_after', "true", @presenter.ingest_email_after ) %>
       </td>
     </tr>
     <tr>
-      <td><label for="ingest_ingester" class=""><%= t('simple_form.ingest_append.label.ingest_ingester') %>:</label></td>
+      <td><label for="ingest_ingester" class=""><%= t('simple_form.ingest_append.labels.ingest_ingester') %>:</label></td>
       <td><%= text_field_tag :ingest_ingester, @presenter.ingest_ingester, size: 75 %></td>
       <td>
-        <label for="ingest_email_ingester" class=""><%= t('simple_form.ingest_append.label.ingest_email_ingester') %></label>
+        <label for="ingest_email_ingester" class=""><%= t('simple_form.ingest_append.labels.ingest_email_ingester') %></label>
         <%= check_box_tag( 'ingest_email_ingester', "true", @presenter.ingest_email_ingester ) %>
       </td>
     </tr>
     <tr>
-      <td><label for="ingest_depositor" class=""><%= t('simple_form.ingest_append.label.ingest_depositor') %>:</label></td>
+      <td><label for="ingest_depositor" class=""><%= t('simple_form.ingest_append.labels.ingest_depositor') %>:</label></td>
       <td><%= text_field_tag :ingest_depositor, @presenter.ingest_depositor, size: 75, disabled: true %></td>
       <td>
-        <label for="ingest_email_depositor" class=""><%= t('simple_form.ingest_append.label.ingest_email_depositor') %></label>
+        <label for="ingest_email_depositor" class=""><%= t('simple_form.ingest_append.labels.ingest_email_depositor') %></label>
         <%= check_box_tag( 'ingest_email_depositor', "true", @presenter.ingest_email_depositor ) %>
       </td>
     </tr>
     <tr>
-      <td><label for="ingest_email_rest_emails" class=""><%= t('simple_form.ingest_append.label.ingest_email_rest_emails') %>:</label></td>
+      <td><label for="ingest_email_rest_emails" class=""><%= t('simple_form.ingest_append.labels.ingest_email_rest_emails') %>:</label></td>
       <td><%= text_area_tag :ingest_email_rest_emails,
                             @presenter.ingest_email_rest_emails.join("\n"),
                             rows: 5,
                             cols: 45,
                             class: "monospace-textarea" %></td>
       <td>
-        <label for="ingest_email_rest" class=""><%= t('simple_form.ingest_append.label.ingest_email_rest') %></label>
+        <label for="ingest_email_rest" class=""><%= t('simple_form.ingest_append.labels.ingest_email_rest') %></label>
         <%= check_box_tag( 'ingest_email_rest', "true", @presenter.ingest_email_rest ) %>
       </td>
     </tr>
     <% if @presenter.ingest_script_messages.present? %>
     <tr>
-      <td><label for="ingest_script_messages2" class=""><%= t('simple_form.ingest_append.label.ingest_script_messages') %>:</label></td>
+      <td><label for="ingest_script_messages2" class=""><%= t('simple_form.ingest_append.labels.ingest_script_messages') %>:</label></td>
       <td  colspan=2><%= text_area_tag :ingest_script_messages2,
                                        @presenter.ingest_script_messages.join("\n"),
                                        rows: 5,
@@ -58,10 +58,10 @@
     </tr>
     <% end %>
     <tr>
-      <td><label for="ingest_base_directory" class=""><%= t('simple_form.ingest_append.label.ingest_base_directory') %>:</label></td>
+      <td><label for="ingest_base_directory" class=""><%= t('simple_form.ingest_append.labels.ingest_base_directory') %>:</label></td>
       <td><%= text_field_tag :ingest_base_directory, @presenter.ingest_base_directory, size: 75 %></td>
       <td>
-        <label class=""><%= t('simple_form.ingest_append.label.ingest_base_directory_can_be') %></label><br/>
+        <label class=""><%= t('simple_form.ingest_append.labels.ingest_base_directory_can_be') %></label><br/>
         <ul>
         <% @presenter.ingest_allowed_base_directories.each do |dir| %>
             <li><code><%= dir %></code></li>
@@ -70,7 +70,7 @@
       </td>
     </tr>
     <tr>
-      <td><label for="ingest_file_path_list" class=""><%= t('simple_form.ingest_append.label.ingest_file_path_list') %>:</label></td>
+      <td><label for="ingest_file_path_list" class=""><%= t('simple_form.ingest_append.labels.ingest_file_path_list') %>:</label></td>
       <td colspan=2><%= text_area_tag :ingest_file_path_list,
                                       @presenter.ingest_file_path_list,
                                       rows: 20,
