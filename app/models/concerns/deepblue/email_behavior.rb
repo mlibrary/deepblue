@@ -201,6 +201,8 @@ module Deepblue
       cc_type = EmailHelper.curation_concern_type( curation_concern: self )
       cc_url = EmailHelper.curation_concern_url( curation_concern: self )
       cc_depositor = EmailHelper.cc_depositor( curation_concern: self )
+      cc_contact_email = EmailHelper.cc_contact_email( curation_concern: self ) # i.e. authoremail for works
+      template_key = "hyrax.email.notify_user_#{cc_type}_published_html"
       Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
                                            #"to_from=#{to_from}",
@@ -208,21 +210,34 @@ module Deepblue
                                            "cc_type=#{cc_type}",
                                            "cc_url=#{cc_url}",
                                            "cc_depositor=#{cc_depositor}",
+                                           "cc_contact_email=#{cc_contact_email}",
+                                           "template_key=#{template_key}",
                                            "" ] if EMAIL_BEHAVIOR_DEBUG_VERBOSE
       # for the work's authoremail
-      body = EmailHelper.t( "hyrax.email.notify_user_#{cc_type}_published_html",
+      body = EmailHelper.t( template_key,
                             title: cc_title,
                             url: cc_url,
                             depositor: cc_depositor,
                             contact_us_at: ::Deepblue::EmailHelper.contact_us_at )
-      cc = nil
-      cc_contact_email = EmailHelper.cc_contact_email( curation_concern: self )
-      cc = cc_contact_email unless cc_depositor == cc_contact_email
       email_notification( to: cc_depositor,
-                          cc: cc,
                           from: EmailHelper.notification_email_from,
                           content_type: "text/html",
-                          subject: Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_published" ),
+                          subject: Deepblue::EmailHelper.t( template_key ),
+                          body: body,
+                          current_user: current_user,
+                          event: EVENT_PUBLISH,
+                          event_note: event_note,
+                          id: for_email_id )
+      return if cc_contact_email.blank? || cc_depositor == cc_contact_email
+      body = EmailHelper.t( template_key,
+                            title: cc_title,
+                            url: cc_url,
+                            depositor: cc_contact_email,
+                            contact_us_at: ::Deepblue::EmailHelper.contact_us_at )
+      email_notification( to: cc_contact_email,
+                          from: EmailHelper.notification_email_from,
+                          content_type: "text/html",
+                          subject: Deepblue::EmailHelper.t( template_key ),
                           body: body,
                           current_user: current_user,
                           event: EVENT_PUBLISH,
