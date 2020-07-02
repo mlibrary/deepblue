@@ -80,7 +80,7 @@ module Deepblue
       elsif curation_concern.is_a?( Collection )
         curation_concern.depositor
       else
-        "Depositor"
+        nil
       end
     end
 
