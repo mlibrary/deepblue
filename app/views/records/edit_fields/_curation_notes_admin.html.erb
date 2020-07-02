@@ -1,0 +1,5 @@
+<% if f.object.class.multiple? key %>
+  <%= f.input :curation_notes_admin, as: :multi_value, input_html: { rows: '5', type: 'textarea'}, required: false, force_single: true %>
+<% else %>
+  <%= f.input :curation_notes_admin, as: :text, input_html: { rows: '5' } %>
+<% end %>

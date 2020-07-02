@@ -13,6 +13,8 @@ describe Hyrax::Forms::CollectionForm do
       collection_type_gid
       contributor
       creator
+      curation_notes_admin
+      curation_notes_user
       date_coverage
       date_created
       description

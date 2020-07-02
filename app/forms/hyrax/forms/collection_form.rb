@@ -11,7 +11,14 @@ module Hyrax
       # Used by the search builder
       attr_reader :scope
 
-      delegate :id, :depositor, :permissions, :human_readable_type, :member_ids, :nestable?, to: :model
+      delegate :id,
+               :curation_notes_admin,
+               :curation_notes_user,
+               :depositor,
+               :permissions,
+               :human_readable_type,
+               :member_ids,
+               :nestable?, to: :model
 
       class_attribute :membership_service_class, :default_work_primary_terms, :default_work_secondary_terms
 
@@ -30,6 +37,8 @@ module Hyrax
         collection_type_gid
         contributor
         creator
+        curation_notes_admin
+        curation_notes_user
         date_coverage
         date_created
         description
@@ -62,7 +71,9 @@ module Hyrax
           subject_discipline
           language
           referenced_by
-        ]
+          curation_notes_admin
+          curation_notes_user
+          ]
 
       self.default_work_secondary_terms = []
 
