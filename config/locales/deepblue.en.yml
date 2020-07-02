@@ -30,6 +30,13 @@ en:
         depositor: "Depositor"
         viz_current: "Current Visibility"
         viz_after: "Intended Visibility"
+    homepage:
+      featured_works:
+        document:
+          creator_label: Creator
+          creator_missing: no creator value
+          depositor_label: Depositor
+          depositor_missing: no depositor value
     file_manager:
       link_text: "Re-order Files"
 
