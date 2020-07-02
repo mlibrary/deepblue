@@ -321,6 +321,7 @@ en:
       edit:
         description_file_set: Description (edit)
         curation_notes_admin: Curation Notes Admin (edit)
+        curation_notes_user: Curation Notes Admin (edit)
       versioning:
         choose_file: Choose New Version File
         current: Current Version
