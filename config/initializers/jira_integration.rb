@@ -6,7 +6,8 @@ Deepblue::JiraHelper.setup do |config|
                                         'testing.deepblue.lib.umich.edu',
                                         'staging.deepblue.lib.umich.edu',
                                         'deepblue.lib.umich.edu' ].freeze
-  config.jira_integration_hostnames_prod = [ 'deepblue.lib.umich.edu' ].freeze
+  config.jira_integration_hostnames_prod = [ 'deepblue.lib.umich.edu',
+                                             'testing.deepblue.lib.umich.edu' ].freeze
   config.jira_integration_enabled = config.jira_integration_hostnames.include?( DeepBlueDocs::Application.config.hostname )
   config.jira_test_mode = !config.jira_integration_hostnames_prod.include?( DeepBlueDocs::Application.config.hostname )
   config.jira_allow_create_users = true

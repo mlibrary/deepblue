@@ -94,6 +94,32 @@ module Deepblue
         }]
     }.freeze
 
+    CUSTOM_REQUEST_TYPE_DATA_DEPOSIT = {
+        "customfield_10001" => {
+          "requestType" => {
+            "id" => "174",
+            "_links" => {
+                "self" => "https://tools.lib.umich.edu/jira/rest/servicedeskapi/servicedesk/19/requesttype/174"
+            },
+            "name" => "Data Deposit",
+            "description" => "",
+            "helpText" => "",
+            "serviceDeskId" => "19",
+            "groupIds" => [ "37" ],
+            "icon" => {
+              "id" => "10522",
+              "_links" => {
+                  "iconUrls" => {
+                    "48x48" => "https://tools.lib.umich.edu/jira/secure/viewavatar?avatarType=SD_REQTYPE&size=large&avatarId=10522",
+                    "24x24" => "https://tools.lib.umich.edu/jira/secure/viewavatar?avatarType=SD_REQTYPE&size=small&avatarId=10522",
+                    "16x16" => "https://tools.lib.umich.edu/jira/secure/viewavatar?avatarType=SD_REQTYPE&size=xsmall&avatarId=10522",
+                    "32x32" => "https://tools.lib.umich.edu/jira/secure/viewavatar?avatarType=SD_REQTYPE&size=medium&avatarId=10522"
+                  }
+                }
+              }
+            },
+          }
+        }.freeze
 
     @@_setup_ran = false
 
@@ -310,6 +336,10 @@ module Deepblue
       #
       # * discipline field name: "customfield_11309"
       #
+      # # # TODO: new field
+      #
+      # customer request type: "customfield_10001" => "requestType"
+      #
       summary_title = summary_title( curation_concern: curation_concern )
       summary_last_name = summary_last_name( curation_concern: curation_concern )
       summary = "#{summary_last_name}_#{summary_title}_#{curation_concern.id}"
@@ -452,6 +482,13 @@ module Deepblue
                                               "issue.attrs=#{issue.attrs}",
                                               "" ] ) unless rv
       sopts = { "fields" => { FIELD_NAME_DISCIPLINE => FIELD_VALUES_DISCIPLINE_MAP[discipline] } }
+      rv = issue.save( sopts )
+      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                              Deepblue::LoggingHelper.called_from,
+                                              "issue.save( #{sopts} ) rv=#{rv}",
+                                              "issue.attrs=#{issue.attrs}",
+                                              "" ] ) unless rv
+      sopts = { "fields" => CUSTOM_REQUEST_TYPE_DATA_DEPOSIT }
       rv = issue.save( sopts )
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
                                               Deepblue::LoggingHelper.called_from,
