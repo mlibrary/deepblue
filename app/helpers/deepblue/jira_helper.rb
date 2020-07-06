@@ -481,6 +481,13 @@ module Deepblue
                                               "issue.save( #{sopts} ) rv=#{rv}",
                                               "issue.attrs=#{issue.attrs}",
                                               "" ] ) unless rv
+      sopts = { "fields" => { FIELD_NAME_DISCIPLINE => FIELD_VALUES_DISCIPLINE_MAP[discipline] } }
+      rv = issue.save( sopts )
+      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                              Deepblue::LoggingHelper.called_from,
+                                              "issue.save( #{sopts} ) rv=#{rv}",
+                                              "issue.attrs=#{issue.attrs}",
+                                              "" ] ) unless rv
       sopts = { "fields" => CUSTOM_REQUEST_TYPE_DATA_DEPOSIT }
       rv = issue.save( sopts )
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
@@ -488,7 +495,6 @@ module Deepblue
                                               "issue.save( #{sopts} ) rv=#{rv}",
                                               "issue.attrs=#{issue.attrs}",
                                               "" ] ) unless rv
-      sopts = { "fields" => { FIELD_NAME_DISCIPLINE => FIELD_VALUES_DISCIPLINE_MAP[discipline] } }
       # if rv is false, the save failed.
       url = ticket_url( client: client, issue: issue )
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
