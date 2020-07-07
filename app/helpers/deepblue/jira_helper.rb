@@ -7,8 +7,6 @@ module Deepblue
   module JiraHelper
     extend ActionView::Helpers::TranslationHelper
 
-    JIRA_HELPER_DEBUG_VERBOSE = true
-
     FIELD_NAME_CONTACT_INFO = "customfield_11315".freeze
     FIELD_NAME_CREATOR = "customfield_11304".freeze
     FIELD_NAME_DEPOSIT_ID = "customfield_11303".freeze
@@ -19,125 +17,35 @@ module Deepblue
     FIELD_NAME_STATUS = "customfield_12000".freeze
     FIELD_NAME_SUMMARY = "summary".freeze
 
-    FIELD_VALUES_DISCIPLINE_MAP = {
-        "Arts" =>
-        [{
-            # "self" => "https://tools.lib.umich.edu/jira/rest/api/2/customFieldOption/11303",
-            "value" => "Arts",
-            "id" => "11303"
-        }],
-        "Business" =>
-        [{
-            # "self" => "https://tools.lib.umich.edu/jira/rest/api/2/customFieldOption/10820",
-            "value" => "Business",
-            "id" => "10820"
-        }],
-        "Engineering" =>
-        [{
-            # "self" => "https://tools.lib.umich.edu/jira/rest/api/2/customFieldOption/10821",
-            "value" => "Engineering",
-            "id" => "10821"
-        }],
-        "General Information Sources" =>
-        [{
-            # "self" => "https://tools.lib.umich.edu/jira/rest/api/2/customFieldOption/11304",
-            "value" => "General Information Sources",
-            "id" => "11304"
-        }],
-        "Government, Politics, and Law" =>
-        [{
-            # "self" => "https://tools.lib.umich.edu/jira/rest/api/2/customFieldOption/11305",
-            "value" => "Government, Politics, and Law",
-            "id" => "11305"
-        }],
-        "Health Sciences" =>
-        [{
-            # "self" => "https://tools.lib.umich.edu/jira/rest/api/2/customFieldOption/10822",
-            "value" => "Health Sciences",
-            "id" => "10822"
-        }],
-        "Humanities" =>
-        [{
-            # "self" => "https://tools.lib.umich.edu/jira/rest/api/2/customFieldOption/11306",
-            "value" => "Humanities",
-            "id" => "11306"
-        }],
-        "International Studies" =>
-        [{
-            # "self" => "https://tools.lib.umich.edu/jira/rest/api/2/customFieldOption/11307",
-            "value" => "International Studies",
-            "id" => "11307"
-        }],
-        "News and Current Events" =>
-        [{
-            # "self" => "https://tools.lib.umich.edu/jira/rest/api/2/customFieldOption/11308",
-            "value" => "News and Current Events",
-            "id" => "11308"
-        }],
-        "Science" =>
-        [{
-            # "self" => "https://tools.lib.umich.edu/jira/rest/api/2/customFieldOption/10824",
-            "value" => "Science",
-            "id" => "10824"
-        }],
-        "Social Sciences" =>
-        [{
-            # "self" => "https://tools.lib.umich.edu/jira/rest/api/2/customFieldOption/10825",
-            "value" => "Social Sciences",
-            "id" => "10825"
-        }],
-        "Other" =>
-        [{
-            # "self" => "https://tools.lib.umich.edu/jira/rest/api/2/customFieldOption/10823",
-            "value" => "Other",
-            "id" => "10823"
-        }]
-    }.freeze
-
-    CUSTOM_REQUEST_TYPE_DATA_DEPOSIT = {
-        "customfield_10001" => {
-          "requestType" => {
-            "id" => "174",
-            "_links" => {
-                "self" => "https://tools.lib.umich.edu/jira/rest/servicedeskapi/servicedesk/19/requesttype/174"
-            },
-            "name" => "Data Deposit",
-            "description" => "",
-            "helpText" => "",
-            "serviceDeskId" => "19",
-            "groupIds" => [ "37" ],
-            "icon" => {
-              "id" => "10522",
-              "_links" => {
-                  "iconUrls" => {
-                    "48x48" => "https://tools.lib.umich.edu/jira/secure/viewavatar?avatarType=SD_REQTYPE&size=large&avatarId=10522",
-                    "24x24" => "https://tools.lib.umich.edu/jira/secure/viewavatar?avatarType=SD_REQTYPE&size=small&avatarId=10522",
-                    "16x16" => "https://tools.lib.umich.edu/jira/secure/viewavatar?avatarType=SD_REQTYPE&size=xsmall&avatarId=10522",
-                    "32x32" => "https://tools.lib.umich.edu/jira/secure/viewavatar?avatarType=SD_REQTYPE&size=medium&avatarId=10522"
-                  }
-                }
-              }
-            },
-          }
-        }.freeze
-
     @@_setup_ran = false
 
+    @@jira_allow_create_users
+    @@jira_field_values_discipline_map
+    @@jira_helper_debug_verbose
     @@jira_integration_hostnames
     @@jira_integration_hostnames_prod
     @@jira_integration_enabled
-    @@jira_test_mode
-    @@jira_allow_create_users
     @@jira_manager_project_key
     @@jira_manager_issue_type
+    @@jira_rest_url
+    @@jira_rest_api_url
+    @@jira_rest_create_users_url
+    @@jira_test_mode
+    @@jira_url
 
-    mattr_accessor  :jira_integration_hostnames,
+    mattr_accessor  :jira_allow_create_users,
+                    :jira_field_values_discipline_map,
+                    :jira_helper_debug_verbose,
+                    :jira_integration_hostnames,
                     :jira_integration_hostnames_prod,
                     :jira_integration_enabled,
-                    :jira_test_mode,
-                    :jira_allow_create_users,
                     :jira_manager_project_key,
-                    :jira_manager_issue_type
+                    :jira_manager_issue_type,
+                    :jira_rest_url,
+                    :jira_rest_api_url,
+                    :jira_rest_create_users_url,
+                    :jira_test_mode,
+                    :jira_url
 
     def self.setup
       yield self if @@_setup_ran == false
@@ -157,7 +65,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
                                               Deepblue::LoggingHelper.called_from,
                                               "client.to_json=#{client.to_json}",
-                                              "" ] ) if JIRA_HELPER_DEBUG_VERBOSE
+                                              "" ] ) if jira_helper_debug_verbose
       return client
     end
 
@@ -166,23 +74,9 @@ module Deepblue
           :username     => Settings.jira.username,
           :password     => Settings.jira.password,
           :site         => Settings.jira.site_url,
-          # :site         => 'https://tools.lib.umich.edu',
           :context_path => '/jira',
           :auth_type    => :basic
       }
-    end
-
-    def self.jira_comment_add
-      # https://tools.lib.umich.edu/jira/plugins/servlet/restbrowser#/resource/api-2-issue-issueidorkey-comment/POST
-      # https://tools.lib.umich.edu/jira/rest/api/2/issue/{issueIdOrKey}/comment
-      # post
-      # {
-      #   "body": "the body of the comment",
-      #   "visibility": {
-      #     "type": "role",
-      #     "value": "Users"
-      #   }
-      # }
     end
 
     def self.jira_create_user( email:, client: nil )
@@ -195,19 +89,19 @@ module Deepblue
       end
       return false if username.blank?
       user_options = { "username" => username, "emailAddress" => email, "displayName" => email }
-      path = 'https://tools.lib.umich.edu/jira/rest/mlibrary/1.0/users'
+      path = jira_rest_create_users_url
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
                                               Deepblue::LoggingHelper.called_from,
                                               "user_options=#{user_options}",
                                               "path=#{path}",
-                                              "" ] ) if JIRA_HELPER_DEBUG_VERBOSE
+                                              "" ] ) if jira_helper_debug_verbose
       post_rv = client.post( path, user_options.to_json )
       rv = post_rv.body.blank?
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
                                               Deepblue::LoggingHelper.called_from,
                                               "post_rv=#{post_rv}",
                                               "rv=#{rv}",
-                                              "" ] ) if JIRA_HELPER_DEBUG_VERBOSE
+                                              "" ] ) if jira_helper_debug_verbose
       return rv
     end
 
@@ -230,7 +124,7 @@ module Deepblue
                                               "path=#{path}",
                                               "get_rv=#{get_rv}",
                                               "body=#{body}",
-                                              "" ] ) if JIRA_HELPER_DEBUG_VERBOSE
+                                              "" ] ) if jira_helper_debug_verbose
       rv = if body.blank?
              {}
            else
@@ -240,7 +134,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
                                               Deepblue::LoggingHelper.called_from,
                                               "rv=#{rv}",
-                                              "" ] ) if JIRA_HELPER_DEBUG_VERBOSE
+                                              "" ] ) if jira_helper_debug_verbose
       return rv
     end
 
@@ -248,7 +142,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
                                               Deepblue::LoggingHelper.called_from,
                                               "reporter( user: #{user} )",
-                                              "" ] ) if JIRA_HELPER_DEBUG_VERBOSE
+                                              "" ] ) if jira_helper_debug_verbose
       return { name: user } unless jira_enabled
       return { name: user } if jira_test_mode
       return {} if user.nil?
@@ -257,7 +151,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
                                               Deepblue::LoggingHelper.called_from,
                                               "hash=#{hash}",
-                                              "" ] ) if JIRA_HELPER_DEBUG_VERBOSE
+                                              "" ] ) if jira_helper_debug_verbose
       return hash if hash.present?
       jira_create_user( email: user, client: client )
       jira_user_as_hash( user: user, client: client )
@@ -301,7 +195,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
-                                             "" ] if JIRA_HELPER_DEBUG_VERBOSE
+                                             "" ] if jira_helper_debug_verbose
 
       # Issue type: Data deposit
       #
@@ -336,8 +230,6 @@ module Deepblue
       #
       # * discipline field name: "customfield_11309"
       #
-      # # # TODO: new field
-      #
       # customer request type: "customfield_10001" => "requestType"
       #
       summary_title = summary_title( curation_concern: curation_concern )
@@ -359,7 +251,7 @@ module Deepblue
                                              "summary=#{summary}",
                                              "reporter=#{reporter}",
                                              "description=#{description}",
-                                             "" ] if JIRA_HELPER_DEBUG_VERBOSE
+                                             "" ] if jira_helper_debug_verbose
       jira_url = JiraHelper.new_ticket( client: client,
                                         contact_info: contact_info,
                                         deposit_id: deposit_id,
@@ -371,19 +263,58 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "jira_url=#{jira_url}",
-                                             "" ] if JIRA_HELPER_DEBUG_VERBOSE
+                                             "" ] if jira_helper_debug_verbose
 
       return if jira_url.nil?
       return unless curation_concern.respond_to? :curation_notes_admin
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "curation_concern.curation_notes_admin=#{curation_concern.curation_notes_admin}",
-                                             "" ] if JIRA_HELPER_DEBUG_VERBOSE
+                                             "" ] if jira_helper_debug_verbose
       curation_concern.date_modified = DateTime.now # touch it so it will save updated attributes
       notes = curation_concern.curation_notes_admin
       notes = [] if notes.nil?
       curation_concern.curation_notes_admin = notes << "Jira ticket: #{jira_url}"
       curation_concern.save!
+    end
+
+    def self.build_customer_request_type( client:, issue: )
+      issue_id = issue.id if issue.respond_to? :id
+      issue_key = issue.key if issue.respond_to? :key
+      jira_url = "#{client.options[:site]}#{client.options[:context_path]}/"
+      rv = {}
+      rv["customfield_10001"] =
+          {
+            "_links": {
+              "jiraRest": "#{jira_url}rest/api/2/issue/#{issue_id}",
+              "web": "#{jira_url}servicedesk/customer/portal/19/#{issue_key}",
+              "self": "#{jira_url}rest/servicedeskapi/request/#{issue_id}"
+            },
+            "requestType" => {
+              "id" => "174",
+              "_links" => {
+                "self" => "#{jira_url}rest/servicedeskapi/servicedesk/19/requesttype/174"
+              },
+              "name" => "Data Deposit",
+              "description" => "",
+              "helpText" => "",
+              "serviceDeskId" => "19",
+              "groupIds" => [ "37" ],
+              "icon" => {
+                "id" => "10522",
+                "_links" => {
+                  "iconUrls" => {
+                    "48x48" => "#{jira_url}secure/viewavatar?avatarType=SD_REQTYPE&size=large&avatarId=10522",
+                    "24x24" => "#{jira_url}secure/viewavatar?avatarType=SD_REQTYPE&size=small&avatarId=10522",
+                    "16x16" => "#{jira_url}secure/viewavatar?avatarType=SD_REQTYPE&size=xsmall&avatarId=10522",
+                    "32x32" => "#{jira_url}secure/viewavatar?avatarType=SD_REQTYPE&size=medium&avatarId=10522"
+                  }
+                }
+              }
+            },
+            "currentStatus" => nil
+          }
+      return rv
     end
 
     def self.new_ticket( client: nil,
@@ -405,7 +336,7 @@ module Deepblue
                                              "description=#{description}",
                                              "reporter=#{reporter}",
                                              "jira_enabled=#{jira_enabled}",
-                                             "" ] if JIRA_HELPER_DEBUG_VERBOSE
+                                             "" ] if jira_helper_debug_verbose
       return nil unless jira_enabled
       save_options = {
           "fields" => {
@@ -424,7 +355,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "save_options=#{save_options}",
-                                             "" ] if JIRA_HELPER_DEBUG_VERBOSE
+                                             "" ] if jira_helper_debug_verbose
 
       return "https://test.jira.url/#{project_key}" if jira_test_mode
       # return nil if jira_test_mode
@@ -445,14 +376,14 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "build_options=#{build_options}",
-                                             "" ] if JIRA_HELPER_DEBUG_VERBOSE
+                                             "" ] if jira_helper_debug_verbose
       issue = client.Issue.build
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              # "client.to_json=#{client.to_json}",
                                              "issue=#{issue}",
                                              "issue&.to_json=#{issue&.to_json}",
-                                             "" ] if JIRA_HELPER_DEBUG_VERBOSE
+                                             "" ] if jira_helper_debug_verbose
       rv = issue.save( build_options )
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
@@ -481,14 +412,14 @@ module Deepblue
                                               "issue.save( #{sopts} ) rv=#{rv}",
                                               "issue.attrs=#{issue.attrs}",
                                               "" ] ) unless rv
-      sopts = { "fields" => { FIELD_NAME_DISCIPLINE => FIELD_VALUES_DISCIPLINE_MAP[discipline] } }
+      sopts = { "fields" => { FIELD_NAME_DISCIPLINE => jira_field_values_discipline_map[discipline] } }
       rv = issue.save( sopts )
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
                                               Deepblue::LoggingHelper.called_from,
                                               "issue.save( #{sopts} ) rv=#{rv}",
                                               "issue.attrs=#{issue.attrs}",
                                               "" ] ) unless rv
-      sopts = { "fields" => CUSTOM_REQUEST_TYPE_DATA_DEPOSIT }
+      sopts = { "fields" => build_customer_request_type( client: client, issue: issue ) }
       rv = issue.save( sopts )
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
                                               Deepblue::LoggingHelper.called_from,
@@ -500,11 +431,12 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "url=#{url}",
-                                             "" ] if JIRA_HELPER_DEBUG_VERBOSE
+                                             "" ] if jira_helper_debug_verbose
       return url
     end
 
     def self.ticket_url( client:, issue: )
+      client = jira_client( client: client )
       issue_key = issue.key if issue.respond_to? :key
       "#{client.options[:site]}#{client.options[:context_path]}/browse/#{issue_key}"
     end
