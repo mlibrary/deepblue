@@ -67,7 +67,7 @@ en:
     title:                  "Provenance Log"
     id:                     "ID:"
   show:
-    label:
+    labels:
       access_deepblue:      "Related items in Deep Blue"
       authoremail:          "Contact information"
       creator:              "Creator"
@@ -123,7 +123,7 @@ en:
         unfeature:                      "Unfeature"
         zip_download:                   "Download Zipped Dataset"
       ingest_append:
-        label:
+        labels:
           base_directory:               "Base Directory"
         prep:                           "Append Files"
         return_to_prep:                 "Return to Append Files"
