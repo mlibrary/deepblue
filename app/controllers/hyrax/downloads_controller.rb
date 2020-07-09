@@ -5,7 +5,7 @@ module Hyrax
   class DownloadsController < ApplicationController
 
     # begin monkey
-    DOWNLOADS_CONTROLLER_DEBUG_VERBOSE = true
+    DOWNLOADS_CONTROLLER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.downloads_controller_debug_verbose
     # end monkey
 
     include Hydra::Controller::DownloadBehavior

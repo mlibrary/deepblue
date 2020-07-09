@@ -10,7 +10,7 @@ module Deepblue
   module EmailBehavior
     include AbstractEventBehavior
 
-    EMAIL_BEHAVIOR_DEBUG_VERBOSE = true
+    EMAIL_BEHAVIOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.email_behavior_debug_verbose
 
     def attributes_all_for_email
       %i[]

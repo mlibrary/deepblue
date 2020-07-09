@@ -203,7 +203,7 @@ module DeepBlueDocs
     config.virus_scan_retry_on_unknown = false
 
     # begin rest_api config
-    config.rest_api_allow_mutate = false
+    config.rest_api_allow_mutate = true
     config.rest_api_allow_read = true
     # end rest_api config
 
@@ -224,6 +224,18 @@ module DeepBlueDocs
       Deepblue::WorkViewContentService.load_email_templates
       # puts "Finished after initialize."
     end
+
+    # debug_verbose flags
+    config.collection_presenter_debug_verbose = true # COLLECTION_PRESENTER_DEBUG_VERBOSE = true
+    config.data_sets_controller_debug_verbose = true # DATA_SETS_CONTROLLER_DEBUG_VERBOSE = true
+    config.downloads_controller_debug_verbose = true # DOWNLOADS_CONTROLLER_DEBUG_VERBOSE = true
+    config.email_behavior_debug_verbose = true # EMAIL_BEHAVIOR_DEBUG_VERBOSE = true
+    config.file_sets_controller_debug_verbose = true # FILE_SETS_CONTROLLER_DEBUG_VERBOSE = true
+    config.interpolation_helper_debug_verbose = true # INTERPOLATION_HELPER_DEBUG_VERBOSE = true
+    config.works_controller_behavior_debug_verbose = true # WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE = true
+    config.work_view_content_service_debug_verbose = false # WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE = false
+    config.work_view_content_service_email_templates_debug_verbose = true # WORK_VIEW_CONTENT_SERVICE_EMAIL_TEMPLATES_DEBUG_VERBOSE = true
+
 
   end
 

@@ -15,7 +15,7 @@ module Hyrax
     attr_accessor :parent_collections # This is expected to be a Blacklight::Solr::Response with all of the parent collections
     attr_writer :collection_type
 
-    COLLECTION_PRESENTER_DEBUG_VERBOSE = true
+    COLLECTION_PRESENTER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.collection_presenter_debug_verbose
 
     class_attribute :create_work_presenter_class
     self.create_work_presenter_class = Hyrax::SelectTypeListPresenter
