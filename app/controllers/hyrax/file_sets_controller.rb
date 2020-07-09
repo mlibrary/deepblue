@@ -7,7 +7,7 @@ module Hyrax
   # monkey patch FileSetsController
   class FileSetsController < ApplicationController
 
-    FILE_SETS_CONTROLLER_DEBUG_VERBOSE = true
+    FILE_SETS_CONTROLLER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.file_sets_controller_debug_verbose
 
     include Deepblue::DoiControllerBehavior
 

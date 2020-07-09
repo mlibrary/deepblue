@@ -6,7 +6,7 @@ module Hyrax
 
     PARAMS_KEY = 'data_set'
 
-    DATA_SETS_CONTROLLER_DEBUG_VERBOSE = true
+    DATA_SETS_CONTROLLER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.data_sets_controller_debug_verbose
 
     include ::Deepblue::WorksControllerBehavior
 

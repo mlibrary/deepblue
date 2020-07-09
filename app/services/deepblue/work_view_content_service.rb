@@ -4,8 +4,8 @@ module Deepblue
 
   module WorkViewContentService
 
-    WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE = false
-    WORK_VIEW_CONTENT_SERVICE_EMAIL_TEMPLATES_DEBUG_VERBOSE = true
+    WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.work_view_content_service_debug_verbose
+    WORK_VIEW_CONTENT_SERVICE_EMAIL_TEMPLATES_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.work_view_content_service_email_templates_debug_verbose
 
     include ::Deepblue::InitializationConstants
 

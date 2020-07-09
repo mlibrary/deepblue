@@ -4,7 +4,7 @@ module Deepblue
 
   module InterpolationHelper
 
-    INTERPOLATION_HELPER_DEBUG_VERBOSE = true
+    INTERPOLATION_HELPER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.interpolation_helper_debug_verbose
 
     INTERPOLATION_PATTERN = I18n::INTERPOLATION_PATTERN
 
