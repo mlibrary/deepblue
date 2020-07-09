@@ -52,3 +52,7 @@ en:
         curation_notes_admin: "Curation Notes for Admins"
         curation_notes_user:  "Curation Notes"
         description_file_set: "Description"
+    hints:
+      file_set:
+        too_large_to_download_directly: >
+          This file is too large to download directly. Consider using Globus.

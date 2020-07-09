@@ -96,6 +96,10 @@ module Deepblue
       WorkViewContentService.documentation_email_title_prefix
     end
 
+    def documentation_i18n_title_prefix
+      WorkViewContentService.documentation_i18n_title_prefix
+    end
+
     def static_content_documentation_collection
       id = StaticContentControllerBehavior::static_content_documentation_collection_id
       collection = Collection.find( id )
