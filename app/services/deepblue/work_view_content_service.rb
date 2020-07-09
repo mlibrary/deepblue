@@ -6,6 +6,7 @@ module Deepblue
 
     WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.work_view_content_service_debug_verbose
     WORK_VIEW_CONTENT_SERVICE_EMAIL_TEMPLATES_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.work_view_content_service_email_templates_debug_verbose
+    WORK_VIEW_CONTENT_SERVICE_I18N_TEMPLATES_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.work_view_content_service_email_templates_debug_verbose
 
     include ::Deepblue::InitializationConstants
 
@@ -19,6 +20,9 @@ module Deepblue
 
     @@documentation_work_title_prefix = "DBDEmail-"
     mattr_accessor :documentation_email_title_prefix
+
+    @@documentation_work_title_prefix = "DBDI18n-"
+    mattr_accessor :documentation_i18n_title_prefix
 
     @@static_controller_redirect_to_work_view_content = false
     mattr_accessor :static_controller_redirect_to_work_view_content
@@ -121,23 +125,23 @@ module Deepblue
             if file_name =~ /^(.+)\.txt$/i
               key = Regexp.last_match(1)
               value = content_read_file( file_set: fs )
-              keys_updated << load_email_templates_store( key: key, value: value )
+              keys_updated << load_templates_store( key: key, value: value )
             elsif file_name =~ /^(.+)\.html$/i
               key = "#{Regexp.last_match(1)}_html"
               value = content_read_file( file_set: fs )
-              keys_updated << load_email_templates_store( key: key, value: value )
+              keys_updated << load_templates_store( key: key, value: value )
             end
           end
         end
       end
-      load_email_templates_store( key: "hyrax.email.templates.keys_loaded",
-                                  value: keys_updated.join("; ") )
-      load_email_templates_store( key: "hyrax.email.templates.keys_loaded_html",
-                                  value: "<li>#{keys_updated.join("</li>\n<li>")}</li>" )
+      load_templates_store( key: "hyrax.email.templates.keys_loaded",
+                           value: keys_updated.join("; ") )
+      load_templates_store( key: "hyrax.email.templates.keys_loaded_html",
+                           value: "<li>#{keys_updated.join("</li>\n<li>")}</li>" )
       keys_updated << "hyrax.email.templates.keys_loaded"
       keys_updated << "hyrax.email.templates.keys_loaded_html"
-      keys_updated << load_email_templates_store( key: "hyrax.email.templates.loaded", value: "true" )
-      keys_updated << load_email_templates_store( key: "hyrax.email.templates.last_loaded", value: DateTime.now.to_s )
+      keys_updated << load_templates_store( key: "hyrax.email.templates.loaded", value: "true" )
+      keys_updated << load_templates_store( key: "hyrax.email.templates.last_loaded", value: DateTime.now.to_s )
       if WORK_VIEW_CONTENT_SERVICE_EMAIL_TEMPLATES_DEBUG_VERBOSE || WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
         keys_updated.each do |key|
           options = EmailHelper.template_default_options( curation_concern: nil )
@@ -151,10 +155,96 @@ module Deepblue
       end
     end
 
-    def self.load_email_templates_store( key:, value:, escape: false, locale: "en" )
+    def self.load_templates_store( key:, value:, escape: false, locale: "en" )
       I18n.backend.store_translations( locale, { key => value }, :escape => escape )
       I18n.backend.store_translations( locale, { key.to_sym => value }, :escape => escape )
       return key
+    end
+
+    def self.load_i18n_templates
+      # puts "Current I18n.backend=#{I18n.backend}"
+      # puts "DeepBlueDocs::Application.config.i18n_backend=#{DeepBlueDocs::Application.config.i18n_backend}"
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if WORK_VIEW_CONTENT_SERVICE_I18N_TEMPLATES_DEBUG_VERBOSE ||
+          WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
+      return unless Dir.exist?( './data/' ) # skip this unless in real server environment (./data/ does not exist for moku build environment)
+      docCollection = content_documentation_collection
+      return unless docCollection.present?
+      prefix = documentation_i18n_title_prefix
+      # keys_updated = []
+      docCollection.member_works.each do |work|
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "prefix=#{prefix}",
+                                               "work.title.first=#{work.title.first}",
+                                               "" ] if WORK_VIEW_CONTENT_SERVICE_I18N_TEMPLATES_DEBUG_VERBOSE ||
+            WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
+        if work.title.first.starts_with? prefix
+          work.file_sets.each do |fs|
+            file_name = fs.label
+            if file_name =~ /^(.+)\.yml$/i
+              key = Regexp.last_match(1)
+              value = content_read_file( file_set: fs )
+              load_i18n_templates_process( key: key, value: value )
+            end
+          end
+        end
+      end
+      load_templates_store( key: "hyrax.i18n.templates.loaded", value: "true" )
+      load_templates_store( key: "hyrax.i18n.templates.last_loaded", value: DateTime.now.to_s )
+    end
+
+    def self.load_i18n_templates_process( key:, value: )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "key=#{key}",
+                                             "value=#{value}",
+                                             "" ] if WORK_VIEW_CONTENT_SERVICE_I18N_TEMPLATES_DEBUG_VERBOSE ||
+          WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
+      # convert value from yaml to hash of hashes
+      hash = YAML.load( value )
+      # walk hash and store values
+      load_i18n_templates_hash_walk( hash: hash )
+    end
+
+    def self.load_i18n_templates_hash_walk( hash:, key_path: '', key: '', locale: '' )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "hash=#{hash}",
+                                             "key_path=#{key_path}",
+                                             "key=#{key}",
+                                             "locale=#{locale}",
+                                             "" ] if WORK_VIEW_CONTENT_SERVICE_I18N_TEMPLATES_DEBUG_VERBOSE ||
+          WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
+      prefix = key_path.to_s
+      if locale.blank?
+        locale = key
+      else
+        prefix = "#{prefix}#{key}." if key.present?
+      end
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             "prefix=#{prefix}",
+                                             "locale=#{locale}",
+                                             "" ] if WORK_VIEW_CONTENT_SERVICE_I18N_TEMPLATES_DEBUG_VERBOSE ||
+          WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
+      hash.each do |key,value|
+        if value.is_a?( Hash )
+          load_i18n_templates_hash_walk( hash: value, key_path: prefix, key: key, locale: locale )
+        else
+          put_key = prefix
+          put_key = "#{prefix}#{key}" if prefix.present?
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "key=#{key}",
+                                                 "value=#{value}",
+                                                 "put_key=#{put_key}",
+                                                 "locale=#{locale}",
+                                                 "" ] if WORK_VIEW_CONTENT_SERVICE_I18N_TEMPLATES_DEBUG_VERBOSE ||
+              WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
+          load_templates_store( key: put_key, value: value, locale: locale )
+        end
+      end
     end
 
     def documentation_collection_title

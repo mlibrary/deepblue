@@ -46,6 +46,18 @@ module DeepBlueDocs
       g.test_framework :rspec, spec: true
     end
 
+    # debug_verbose flags
+    config.collection_presenter_debug_verbose = true # COLLECTION_PRESENTER_DEBUG_VERBOSE = true
+    config.data_sets_controller_debug_verbose = true # DATA_SETS_CONTROLLER_DEBUG_VERBOSE = true
+    config.downloads_controller_debug_verbose = true # DOWNLOADS_CONTROLLER_DEBUG_VERBOSE = true
+    config.email_behavior_debug_verbose = true # EMAIL_BEHAVIOR_DEBUG_VERBOSE = true
+    config.file_sets_controller_debug_verbose = true # FILE_SETS_CONTROLLER_DEBUG_VERBOSE = true
+    config.interpolation_helper_debug_verbose = true # INTERPOLATION_HELPER_DEBUG_VERBOSE = true
+    config.works_controller_behavior_debug_verbose = true # WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE = true
+    config.work_view_content_service_debug_verbose = false # WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE = false
+    config.work_view_content_service_email_templates_debug_verbose = true # WORK_VIEW_CONTENT_SERVICE_EMAIL_TEMPLATES_DEBUG_VERBOSE = true
+    config.work_view_content_service_i18n_templates_debug_verbose = false # WORK_VIEW_CONTENT_SERVICE_I18N_TEMPLATES_DEBUG_VERBOSE = true
+
     # config.middleware.insert_before Rack::Runtime, RackMultipartBufSizeSetter
 
     ## to configure for Box integration, see config/initalizers/box_integration.rb
@@ -223,19 +235,8 @@ module DeepBlueDocs
       # note that the debug statements in load_email_templates will not go to the log when called from here
       Deepblue::WorkViewContentService.load_email_templates
       # puts "Finished after initialize."
+      Deepblue::WorkViewContentService.load_i18n_templates
     end
-
-    # debug_verbose flags
-    config.collection_presenter_debug_verbose = true # COLLECTION_PRESENTER_DEBUG_VERBOSE = true
-    config.data_sets_controller_debug_verbose = true # DATA_SETS_CONTROLLER_DEBUG_VERBOSE = true
-    config.downloads_controller_debug_verbose = true # DOWNLOADS_CONTROLLER_DEBUG_VERBOSE = true
-    config.email_behavior_debug_verbose = true # EMAIL_BEHAVIOR_DEBUG_VERBOSE = true
-    config.file_sets_controller_debug_verbose = true # FILE_SETS_CONTROLLER_DEBUG_VERBOSE = true
-    config.interpolation_helper_debug_verbose = true # INTERPOLATION_HELPER_DEBUG_VERBOSE = true
-    config.works_controller_behavior_debug_verbose = true # WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE = true
-    config.work_view_content_service_debug_verbose = false # WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE = false
-    config.work_view_content_service_email_templates_debug_verbose = true # WORK_VIEW_CONTENT_SERVICE_EMAIL_TEMPLATES_DEBUG_VERBOSE = true
-
 
   end
 

@@ -27,7 +27,7 @@ en:
     globus_files_when_available_email:
       "%{user_email} will be sent an email when the files are available for download via Globus."
     globus_success:
-      'Your dowload all files to Globus was successful!'
+      'Your download all files to Globus was successful!'
     tombstone_notice:
       "Tombstoned: \"%{title}\" for this reason: %{reason}"
   hyrax:
@@ -294,9 +294,6 @@ en:
         title: >
           Provide a descriptive name for the Work. Consider including the words “data” or “dataset” and terms related to
           the methods, discipline, and topic associated with your research.
-      file_set:
-        too_large_to_download_directly: >
-          This file is too large to download directly. Consider using Globus.
   rights_license:
     http://creativecommons_org/publicdomain/zero/1_0/:
       description: >

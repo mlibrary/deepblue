@@ -38,6 +38,7 @@ en:
         clear_cache:                    "Clear Cache"
         export_documentation:           "Export Documentation"
         reload_email_templates:         "Reload Email Templates"
+        reload_i18n_templates:          "Reload I18n Templates"
     confirm:
       data_set:
         ingest_append_run_job:          "Are you sure you want to run the append script job?"

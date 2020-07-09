@@ -35,6 +35,8 @@ class WorkViewDocumentationController < ApplicationController
             action_export_documentation
           when t( 'simple_form.actions.work_view_documentation.reload_email_templates' )
             action_reload_email_templates
+          when t( 'simple_form.actions.work_view_documentation.reload_i18n_templates' )
+            action_reload_i18n_templates
           else
             @action_error = true
             "Unkown action #{action}"
@@ -71,6 +73,11 @@ class WorkViewDocumentationController < ApplicationController
   def action_reload_email_templates
     ::Deepblue::WorkViewContentService.load_email_templates
     "Reloaded email templates."
+  end
+
+  def action_reload_i18n_templates
+    ::Deepblue::WorkViewContentService.load_i18n_templates
+    "Reloaded i18n templates."
   end
 
   def documentation_collection
