@@ -2,7 +2,7 @@
 
 module Deepblue
 
-  require 'jira-ruby'
+  require 'jira-ruby' # https://github.com/sumoheavy/jira-ruby
 
   module JiraHelper
     extend ActionView::Helpers::TranslationHelper
@@ -52,8 +52,43 @@ module Deepblue
       @@_setup_ran = true
     end
 
-    def self.jira_enabled
-      JiraHelper.jira_integration_enabled
+    def self.build_customer_request_type( client:, issue: )
+      issue_id = issue.id if issue.respond_to? :id
+      issue_key = issue.key if issue.respond_to? :key
+      jira_url = "#{client.options[:site]}#{client.options[:context_path]}/"
+      rv = {}
+      rv["customfield_10001"] =
+          {
+              "_links": {
+                  "jiraRest": "#{jira_url}rest/api/2/issue/#{issue_id}",
+                  "web": "#{jira_url}servicedesk/customer/portal/19/#{issue_key}",
+                  "self": "#{jira_url}rest/servicedeskapi/request/#{issue_id}"
+              },
+              "requestType" => {
+                  "id" => "174",
+                  "_links" => {
+                      "self" => "#{jira_url}rest/servicedeskapi/servicedesk/19/requesttype/174"
+                  },
+                  "name" => "Data Deposit",
+                  "description" => "",
+                  "helpText" => "",
+                  "serviceDeskId" => "19",
+                  "groupIds" => [ "37" ],
+                  "icon" => {
+                      "id" => "10522",
+                      "_links" => {
+                          "iconUrls" => {
+                              "48x48" => "#{jira_url}secure/viewavatar?avatarType=SD_REQTYPE&size=large&avatarId=10522",
+                              "24x24" => "#{jira_url}secure/viewavatar?avatarType=SD_REQTYPE&size=small&avatarId=10522",
+                              "16x16" => "#{jira_url}secure/viewavatar?avatarType=SD_REQTYPE&size=xsmall&avatarId=10522",
+                              "32x32" => "#{jira_url}secure/viewavatar?avatarType=SD_REQTYPE&size=medium&avatarId=10522"
+                          }
+                      }
+                  }
+              },
+              "currentStatus" => nil
+          }
+      return rv
     end
 
     def self.jira_client( client: nil )
@@ -105,43 +140,171 @@ module Deepblue
       return rv
     end
 
-    def self.jira_user_exists?( user:, client: nil )
-      return true unless jira_enabled
-      hash = jira_user_as_hash( user: user, client: client )
-      return false unless hash.present?
-      hash.size > 0
+    def self.jira_enabled
+      JiraHelper.jira_integration_enabled
     end
 
-    def self.jira_user_as_hash( user:, client: nil )
-      return {} unless jira_enabled
+    def self.jira_new_ticket( client: nil,
+                              project_key: jira_manager_project_key,
+                              issue_type: jira_manager_issue_type,
+                              contact_info:,
+                              deposit_id:,
+                              deposit_url:,
+                              description:,
+                              discipline:,
+                              reporter:,
+                              summary: )
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "summary=#{summary}",
+                                             "project_key=#{project_key}",
+                                             "issue_type=#{issue_type}",
+                                             "description=#{description}",
+                                             "reporter=#{reporter}",
+                                             "jira_enabled=#{jira_enabled}",
+                                             "" ] if jira_helper_debug_verbose
+      return nil unless jira_enabled
+
+      # reporter is a structure, we need to pass reporter_email, but since raiseOnBehalfOf and requestParticipants
+      # don't seem to do anything, we'll skip it
+      issue = jira_service_desk_request( client: client, summary: summary )
+      return nil unless issue.present?
+
+      # TODO: test issue for validity
+
+      jira_new_ticket_add_fields( client: client,
+                                  issue: issue,
+                                  contact_info: contact_info,
+                                  deposit_id: deposit_id,
+                                  deposit_url: deposit_url,
+                                  description: description,
+                                  discipline: discipline,
+                                  reporter: reporter )
+
+      url = ticket_url( client: client, issue: issue )
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "url=#{url}",
+                                             "" ] if jira_helper_debug_verbose
+      return url
+    end
+
+    def self.jira_new_ticket_add_fields( client:,
+                                         issue:,
+                                         contact_info:,
+                                         deposit_id:,
+                                         deposit_url:,
+                                         description:,
+                                         discipline:,
+                                         merge_updates: false,
+                                         reporter: )
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "contact_info=#{contact_info}",
+                                             "deposit_id=#{deposit_id}",
+                                             "deposit_url=#{deposit_url}",
+                                             "description=#{description}",
+                                             "discipline=#{discipline}",
+                                             "reporter=#{reporter}",
+                                             "merge_updates=#{merge_updates}",
+                                             "" ] if jira_helper_debug_verbose
+      return nil unless jira_enabled
+      # Do one by one so we know what fails
+      sopts = { "fields" => { FIELD_NAME_DESCRIPTION => description } }
+      rv = issue.save( sopts )
+      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                              Deepblue::LoggingHelper.called_from,
+                                              "issue.save( #{sopts} ) rv=#{rv}",
+                                              "issue.attrs=#{issue.attrs}",
+                                              "" ] ) unless rv
+      if reporter.present?
+        sopts = { "fields" => { FIELD_NAME_REPORTER => reporter } }
+        rv = issue.save( sopts )
+        ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                                Deepblue::LoggingHelper.called_from,
+                                                "issue.save( #{sopts} ) rv=#{rv}",
+                                                "issue.attrs=#{issue.attrs}",
+                                                "" ] ) unless rv
+      end
+      sopts = { "fields" => { FIELD_NAME_CONTACT_INFO => contact_info } }
+      rv = issue.save( sopts )
+      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                              Deepblue::LoggingHelper.called_from,
+                                              "issue.save( #{sopts} ) rv=#{rv}",
+                                              "issue.attrs=#{issue.attrs}",
+                                              "" ] ) unless rv
+      sopts = { "fields" => { FIELD_NAME_CONTACT_INFO => contact_info } }
+      rv = issue.save( sopts )
+      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                              Deepblue::LoggingHelper.called_from,
+                                              "issue.save( #{sopts} ) rv=#{rv}",
+                                              "issue.attrs=#{issue.attrs}",
+                                              "" ] ) unless rv
+      sopts = { "fields" => { FIELD_NAME_DEPOSIT_ID => deposit_id } }
+      rv = issue.save( sopts )
+      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                              Deepblue::LoggingHelper.called_from,
+                                              "issue.save( #{sopts} ) rv=#{rv}",
+                                              "issue.attrs=#{issue.attrs}",
+                                              "" ] ) unless rv
+      sopts = { "fields" => { FIELD_NAME_DEPOSIT_URL => deposit_url } }
+      rv = issue.save( sopts )
+      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                              Deepblue::LoggingHelper.called_from,
+                                              "issue.save( #{sopts} ) rv=#{rv}",
+                                              "issue.attrs=#{issue.attrs}",
+                                              "" ] ) unless rv
+      sopts = { "fields" => { FIELD_NAME_DISCIPLINE => jira_field_values_discipline_map[discipline] } }
+      rv = issue.save( sopts )
+      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                              Deepblue::LoggingHelper.called_from,
+                                              "issue.save( #{sopts} ) rv=#{rv}",
+                                              "issue.attrs=#{issue.attrs}",
+                                              "" ] ) unless rv
+      return issue
+    end
+
+    def self.jira_new_ticket_service_desk_request( client: nil, reporter_email: nil, summary: )
+      # raiseOnBehalfOf and requestParticipants don't seem to do anything
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "summary=#{summary}",
+                                             "reporter_email=#{reporter_email}",
+                                             "jira_enabled=#{jira_enabled}",
+                                             "" ] if jira_helper_debug_verbose
+      return nil unless jira_enabled
+      request_options = {
+          "serviceDeskId": "19",
+          "requestTypeId": "174",
+          "requestFieldValues": { "summary": summary }
+      }
+      request_options.merge!( { "raiseOnBehalfOf": reporter_email } ) if reporter_email.present?
+      request_options.merge!( { "requestParticipants": [ reporter_email ] } ) if reporter_email.present?
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             "request_options=#{request_options}",
+                                             "" ] if jira_helper_debug_verbose
+      uri = "#{JiraHelper.jira_rest_url}servicedeskapi/request"
+      uri_parsed = URI.parse(uri)
+      request = Net::HTTP::Post.new( uri_parsed )
+      request.basic_auth( Settings.jira.username, Settings.jira.password )
+      request.content_type = "application/json"
+      request.body = JSON.dump( data )
+      req_options = { use_ssl: uri_parsed.scheme == "https" }
+      response = Net::HTTP.start( uri_parsed.hostname, uri_parsed.port, req_options) do |http|
+        http.request( request )
+      end
+      json = JSON.parse( response.body )
+      puts JSON.pretty_generate( json )
+      issueKey = json["issueKey"]
       client = jira_client( client: client )
-      path = "#{client.options[:rest_base_path]}/user/search?username=#{user}"
-      get_rv = client.get(path)
-      body = get_rv.body
-      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
-                                              Deepblue::LoggingHelper.called_from,
-                                              "jira_user_as_hash( user: #{user} )",
-                                              "path=#{path}",
-                                              "get_rv=#{get_rv}",
-                                              "body=#{body}",
-                                              "" ] ) if jira_helper_debug_verbose
-      rv = if body.blank?
-             {}
-           else
-             arr = JSON.parse body
-             arr.first
-           end
-      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
-                                              Deepblue::LoggingHelper.called_from,
-                                              "rv=#{rv}",
-                                              "" ] ) if jira_helper_debug_verbose
-      return rv
+      issue = client.Issue.find( issueKey )
+      return issue
     end
 
-    def self.reporter( user: nil, client: nil )
+    def self.jira_reporter( user: nil, client: nil )
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
                                               Deepblue::LoggingHelper.called_from,
-                                              "reporter( user: #{user} )",
+                                              "jira_reporter( user: #{user} )",
                                               "" ] ) if jira_helper_debug_verbose
       return { name: user } unless jira_enabled
       return { name: user } if jira_test_mode
@@ -153,42 +316,8 @@ module Deepblue
                                               "hash=#{hash}",
                                               "" ] ) if jira_helper_debug_verbose
       return hash if hash.present?
-      jira_create_user( email: user, client: client )
-      jira_user_as_hash( user: user, client: client )
-    end
-
-    def self.summary_last_name( curation_concern: )
-      name = Array( curation_concern.creator ).first
-      return "" if name.blank?
-      match = name.match( /^([^,]+),.*$/ ) # first non-comma substring
-      return match[1] if match
-      match = name.match( /^.* ([^ ]+)$/ ) # last non-space substring
-      return match[1] if match
-      return name
-    end
-
-    def self.summary_description( curation_concern: )
-      description = Array( curation_concern.description ).first
-      return "" if description.blank?
-      match = description.match( /^([^ ]+) +([^ ]+) [^ ].*$/ ) # three plus words
-      return "#{match[1]}#{match[2]}" if match
-      match = description.match( /^([^ ]+) +([^ ]+)$/ ) # two words
-      return "#{match[1]}#{match[2]}" if match
-      match = description.match( /^[^ ]+$/ ) # one word
-      return description if match
-      return description
-    end
-
-    def self.summary_title( curation_concern: )
-      title = Array( curation_concern.title ).first
-      return "" if title.blank?
-      match = title.match( /^([^ ]+) +([^ ]+) [^ ].*$/ ) # three plus words
-      return "#{match[1]}#{match[2]}" if match
-      match = title.match( /^([^ ]+) +([^ ]+)$/ ) # two words
-      return "#{match[1]}#{match[2]}" if match
-      match = title.match( /^[^ ]+$/ ) # one word
-      return title if match
-      return title
+      return user if jira_create_user( email: user, client: client )
+      return nil
     end
 
     def self.jira_ticket_for_create( curation_concern: )
@@ -243,7 +372,7 @@ module Deepblue
       discipline = Array( curation_concern.subject_discipline ).first
       description = Array( curation_concern.title ).join("\n") + "\n\nby #{creator}"
       client = jira_client( client: client )
-      reporter = reporter( user: curation_concern.depositor, client: client )
+      reporter = jira_reporter( user: curation_concern.depositor, client: client )
 
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
@@ -252,7 +381,7 @@ module Deepblue
                                              "reporter=#{reporter}",
                                              "description=#{description}",
                                              "" ] if jira_helper_debug_verbose
-      jira_url = JiraHelper.new_ticket( client: client,
+      jira_url = JiraHelper.jira_new_ticket( client: client,
                                         contact_info: contact_info,
                                         deposit_id: deposit_id,
                                         deposit_url: deposit_url,
@@ -278,55 +407,138 @@ module Deepblue
       curation_concern.save!
     end
 
-    def self.build_customer_request_type( client:, issue: )
-      issue_id = issue.id if issue.respond_to? :id
-      issue_key = issue.key if issue.respond_to? :key
-      jira_url = "#{client.options[:site]}#{client.options[:context_path]}/"
-      rv = {}
-      rv["customfield_10001"] =
-          {
-            "_links": {
-              "jiraRest": "#{jira_url}rest/api/2/issue/#{issue_id}",
-              "web": "#{jira_url}servicedesk/customer/portal/19/#{issue_key}",
-              "self": "#{jira_url}rest/servicedeskapi/request/#{issue_id}"
-            },
-            "requestType" => {
-              "id" => "174",
-              "_links" => {
-                "self" => "#{jira_url}rest/servicedeskapi/servicedesk/19/requesttype/174"
-              },
-              "name" => "Data Deposit",
-              "description" => "",
-              "helpText" => "",
-              "serviceDeskId" => "19",
-              "groupIds" => [ "37" ],
-              "icon" => {
-                "id" => "10522",
-                "_links" => {
-                  "iconUrls" => {
-                    "48x48" => "#{jira_url}secure/viewavatar?avatarType=SD_REQTYPE&size=large&avatarId=10522",
-                    "24x24" => "#{jira_url}secure/viewavatar?avatarType=SD_REQTYPE&size=small&avatarId=10522",
-                    "16x16" => "#{jira_url}secure/viewavatar?avatarType=SD_REQTYPE&size=xsmall&avatarId=10522",
-                    "32x32" => "#{jira_url}secure/viewavatar?avatarType=SD_REQTYPE&size=medium&avatarId=10522"
-                  }
-                }
-              }
-            },
-            "currentStatus" => nil
-          }
+    # TODO: delete this
+    def self.jira_ticket_for_create_old( curation_concern: )
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "curation_concern.id=#{curation_concern.id}",
+                                             "" ] if jira_helper_debug_verbose
+
+      # Issue type: Data deposit
+      #
+      # * issue type field name: "issuetype"
+      #
+      # Status: New
+      #
+      # * status field name: "customfield_12000"
+      #
+      # Summary: [Depositor last name] _ [First two words of deposit] _ [deposit ID] - e.g., Nasser_BootAcceleration_n583xv03w
+      #
+      # * summary field name: "summary"
+      #
+      # Requester/contact: "Creator", "Contact information" fields in DBD - e.g., Meurer, William wmeurer@med.umich.edu
+      #
+      # * creator field name: "customfield_11304"
+      # * contact information field name: "customfield_11315"
+      #
+      # Unique Identifier: Deposit ID (from deposit URL) - e.g., n583xv03w
+      #
+      # * unique identifier field name: "customfield_11303"
+      #
+      # URL in Deep Blue Data: Deposit URL - e.g., https://deepblue.lib.umich.edu/data/concern/data_sets/4x51hj04n
+      #
+      # * deposit url field name: "customfield_11305"
+      #
+      # Description: "Title of deposit" - e.g., Effect of financial incentives on head CT use dataset"
+      #
+      # * description field name: "description"
+      #
+      # Discipline: "Discipline" field in DBD - e.g., Health sciences
+      #
+      # * discipline field name: "customfield_11309"
+      #
+      # customer request type: "customfield_10001" => "requestType"
+      #
+      summary_title = summary_title( curation_concern: curation_concern )
+      summary_last_name = summary_last_name( curation_concern: curation_concern )
+      summary = "#{summary_last_name}_#{summary_title}_#{curation_concern.id}"
+
+      contact_info = curation_concern.authoremail
+      creator = Array( curation_concern.creator ).first
+      deposit_id = curation_concern.id
+      deposit_url = ::Deepblue::EmailHelper.curation_concern_url( curation_concern: curation_concern )
+      discipline = Array( curation_concern.subject_discipline ).first
+      description = Array( curation_concern.title ).join("\n") + "\n\nby #{creator}"
+      client = jira_client( client: client )
+      reporter = reporter_old( user: curation_concern.depositor, client: client )
+
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "summary=#{summary}",
+                                             "reporter=#{reporter}",
+                                             "description=#{description}",
+                                             "" ] if jira_helper_debug_verbose
+      jira_url = JiraHelper.new_ticket_old( client: client,
+                                            contact_info: contact_info,
+                                            deposit_id: deposit_id,
+                                            deposit_url: deposit_url,
+                                            description: description,
+                                            discipline: discipline,
+                                            reporter: reporter,
+                                            summary: summary )
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "jira_url=#{jira_url}",
+                                             "" ] if jira_helper_debug_verbose
+
+      return if jira_url.nil?
+      return unless curation_concern.respond_to? :curation_notes_admin
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "curation_concern.curation_notes_admin=#{curation_concern.curation_notes_admin}",
+                                             "" ] if jira_helper_debug_verbose
+      curation_concern.date_modified = DateTime.now # touch it so it will save updated attributes
+      notes = curation_concern.curation_notes_admin
+      notes = [] if notes.nil?
+      curation_concern.curation_notes_admin = notes << "Jira ticket: #{jira_url}"
+      curation_concern.save!
+    end
+
+    def self.jira_user_as_hash( user:, client: nil )
+      return {} unless jira_enabled
+      client = jira_client( client: client )
+      path = "#{client.options[:rest_base_path]}/user/search?username=#{user}"
+      get_rv = client.get(path)
+      body = get_rv.body
+      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                              Deepblue::LoggingHelper.called_from,
+                                              "jira_user_as_hash( user: #{user} )",
+                                              "path=#{path}",
+                                              "get_rv=#{get_rv}",
+                                              "body=#{body}",
+                                              "" ] ) if jira_helper_debug_verbose
+      rv = if body.blank?
+             {}
+           else
+             arr = JSON.parse body
+             arr.first
+           end
+      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                              Deepblue::LoggingHelper.called_from,
+                                              "rv=#{rv}",
+                                              "" ] ) if jira_helper_debug_verbose
       return rv
     end
 
-    def self.new_ticket( client: nil,
-                         project_key: jira_manager_project_key,
-                         issue_type: jira_manager_issue_type,
-                         contact_info:,
-                         deposit_id:,
-                         deposit_url:,
-                         description:,
-                         discipline:,
-                         reporter:,
-                         summary: )
+    def self.jira_user_exists?( user:, client: nil )
+      return true unless jira_enabled
+      hash = jira_user_as_hash( user: user, client: client )
+      return false unless hash.present?
+      hash.size > 0
+    end
+
+    # TODO: delete this
+    def self.new_ticket_old( client: nil,
+                             project_key: jira_manager_project_key,
+                             issue_type: jira_manager_issue_type,
+                             contact_info:,
+                             deposit_id:,
+                             deposit_url:,
+                             description:,
+                             discipline:,
+                             reporter:,
+                             summary: )
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
@@ -338,31 +550,27 @@ module Deepblue
                                              "jira_enabled=#{jira_enabled}",
                                              "" ] if jira_helper_debug_verbose
       return nil unless jira_enabled
-      save_options = {
-          "fields" => {
-              "project"     => { "key" => project_key },
-              "issuetype"   => { "name" => issue_type },
-              FIELD_NAME_CONTACT_INFO => contact_info,
-              FIELD_NAME_DEPOSIT_ID => deposit_id,
-              FIELD_NAME_DEPOSIT_URL => deposit_url,
-              FIELD_NAME_DESCRIPTION => description,
-              FIELD_NAME_DISCIPLINE => discipline,
-              FIELD_NAME_SUMMARY => summary }
-      }
-      if reporter.present?
-        save_options["fields"].merge!( { FIELD_NAME_REPORTER => reporter } )
-      end
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             "save_options=#{save_options}",
-                                             "" ] if jira_helper_debug_verbose
+      # save_options = {
+      #     "fields" => {
+      #         "project"     => { "key" => project_key },
+      #         "issuetype"   => { "name" => issue_type },
+      #         FIELD_NAME_CONTACT_INFO => contact_info,
+      #         FIELD_NAME_DEPOSIT_ID => deposit_id,
+      #         FIELD_NAME_DEPOSIT_URL => deposit_url,
+      #         FIELD_NAME_DESCRIPTION => description,
+      #         FIELD_NAME_DISCIPLINE => discipline,
+      #         FIELD_NAME_SUMMARY => summary }
+      # }
+      # if reporter.present?
+      #   save_options["fields"].merge!( { FIELD_NAME_REPORTER => reporter } )
+      # end
+      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+      #                                        Deepblue::LoggingHelper.called_from,
+      #                                        "save_options=#{save_options}",
+      #                                        "" ] if jira_helper_debug_verbose
 
       return "https://test.jira.url/#{project_key}" if jira_test_mode
-      # return nil if jira_test_mode
-
       client = jira_client( client: client )
-      # issue = client.Issue.build
-      # rv = issue.save( save_options )
       build_options = {
           "fields" => {
               FIELD_NAME_SUMMARY => summary,
@@ -386,18 +594,18 @@ module Deepblue
                                              "" ] if jira_helper_debug_verbose
       rv = issue.save( build_options )
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             # "client.to_json=#{client.to_json}",
-                                             "issue.save( #{build_options} ) rv=#{rv}",
-                                             "issue.attrs=#{issue.attrs}",
-                                             "" ] ) unless rv
+                                              Deepblue::LoggingHelper.called_from,
+                                              # "client.to_json=#{client.to_json}",
+                                              "issue.save( #{build_options} ) rv=#{rv}",
+                                              "issue.attrs=#{issue.attrs}",
+                                              "" ] ) unless rv
       sopts = { "fields" => { FIELD_NAME_CONTACT_INFO => contact_info } }
       rv = issue.save( sopts )
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             "issue.save( #{sopts} ) rv=#{rv}",
+                                              Deepblue::LoggingHelper.called_from,
+                                              "issue.save( #{sopts} ) rv=#{rv}",
                                               "issue.attrs=#{issue.attrs}",
-                                             "" ] ) unless rv
+                                              "" ] ) unless rv
       sopts = { "fields" => { FIELD_NAME_DEPOSIT_ID => deposit_id } }
       rv = issue.save( sopts )
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
@@ -435,6 +643,59 @@ module Deepblue
       return url
     end
 
+    # TODO: delete this
+    def self.reporter_old( user: nil, client: nil )
+      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                              Deepblue::LoggingHelper.called_from,
+                                              "reporter_old( user: #{user} )",
+                                              "" ] ) if jira_helper_debug_verbose
+      return { name: user } unless jira_enabled
+      return { name: user } if jira_test_mode
+      return {} if user.nil?
+      client = jira_client( client: client )
+      hash = jira_user_as_hash( user: user, client: client )
+      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                              Deepblue::LoggingHelper.called_from,
+                                              "hash=#{hash}",
+                                              "" ] ) if jira_helper_debug_verbose
+      return hash if hash.present?
+      jira_create_user( email: user, client: client )
+      jira_user_as_hash( user: user, client: client )
+    end
+
+    def self.summary_last_name( curation_concern: )
+      name = Array( curation_concern.creator ).first
+      return "" if name.blank?
+      match = name.match( /^([^,]+),.*$/ ) # first non-comma substring
+      return match[1] if match
+      match = name.match( /^.* ([^ ]+)$/ ) # last non-space substring
+      return match[1] if match
+      return name
+    end
+
+    def self.summary_description( curation_concern: )
+      description = Array( curation_concern.description ).first
+      return "" if description.blank?
+      match = description.match( /^([^ ]+) +([^ ]+) [^ ].*$/ ) # three plus words
+      return "#{match[1]}#{match[2]}" if match
+      match = description.match( /^([^ ]+) +([^ ]+)$/ ) # two words
+      return "#{match[1]}#{match[2]}" if match
+      match = description.match( /^[^ ]+$/ ) # one word
+      return description if match
+      return description
+    end
+
+    def self.summary_title( curation_concern: )
+      title = Array( curation_concern.title ).first
+      return "" if title.blank?
+      match = title.match( /^([^ ]+) +([^ ]+) [^ ].*$/ ) # three plus words
+      return "#{match[1]}#{match[2]}" if match
+      match = title.match( /^([^ ]+) +([^ ]+)$/ ) # two words
+      return "#{match[1]}#{match[2]}" if match
+      match = title.match( /^[^ ]+$/ ) # one word
+      return title if match
+      return title
+    end
     def self.ticket_url( client:, issue: )
       client = jira_client( client: client )
       issue_key = issue.key if issue.respond_to? :key

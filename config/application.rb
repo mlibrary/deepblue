@@ -55,7 +55,7 @@ module DeepBlueDocs
     config.interpolation_helper_debug_verbose = true # INTERPOLATION_HELPER_DEBUG_VERBOSE = true
     config.works_controller_behavior_debug_verbose = true # WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE = true
     config.work_view_content_service_debug_verbose = false # WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE = false
-    config.work_view_content_service_email_templates_debug_verbose = true # WORK_VIEW_CONTENT_SERVICE_EMAIL_TEMPLATES_DEBUG_VERBOSE = true
+    config.work_view_content_service_email_templates_debug_verbose = false # WORK_VIEW_CONTENT_SERVICE_EMAIL_TEMPLATES_DEBUG_VERBOSE = true
     config.work_view_content_service_i18n_templates_debug_verbose = false # WORK_VIEW_CONTENT_SERVICE_I18N_TEMPLATES_DEBUG_VERBOSE = true
 
     # config.middleware.insert_before Rack::Runtime, RackMultipartBufSizeSetter
