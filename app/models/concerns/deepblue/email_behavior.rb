@@ -150,16 +150,18 @@ module Deepblue
       attributes, ignore_blank_key_values = attributes_for_email_event_destroy_rds
       cc_type = EmailHelper.curation_concern_type( curation_concern: self )
       to, to_note, from = email_address_workflow
-      email_event_notification( to: to,
-                                to_note: to_note,
-                                from: from,
-                                subject: Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_deleted" ),
-                                attributes: attributes,
-                                current_user: current_user,
-                                event: EVENT_DESTROY,
-                                event_note: event_note,
-                                id: for_email_id,
-                                ignore_blank_key_values: ignore_blank_key_values )
+      body = email_event_notification( to: to,
+                                       to_note: to_note,
+                                       from: from,
+                                       subject: Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_deleted" ),
+                                       attributes: attributes,
+                                       current_user: current_user,
+                                       event: EVENT_DESTROY,
+                                       event_note: event_note,
+                                       id: for_email_id,
+                                       ignore_blank_key_values: ignore_blank_key_values,
+                                       return_email_body: true )
+      ::Deepblue::JiraHelper.jira_add_comment( curation_concern: self, event: EVENT_DESTROY, comment: body )
     end
 
     def email_event_globus_rds( current_user:, event_note: )
@@ -228,6 +230,7 @@ module Deepblue
                           event: EVENT_PUBLISH,
                           event_note: event_note,
                           id: for_email_id )
+      ::Deepblue::JiraHelper.jira_add_comment( curation_concern: self, event: EVENT_PUBLISH, comment: body )
       return if cc_contact_email.blank? || cc_depositor == cc_contact_email
       body = EmailHelper.t( template_key,
                             title: cc_title,
@@ -249,16 +252,18 @@ module Deepblue
       attributes, ignore_blank_key_values = attributes_for_email_event_unpublish_rds
       cc_type = EmailHelper.curation_concern_type( curation_concern: self )
       to, to_note, from = email_address_workflow
-      email_event_notification( to: to,
-                                to_note: to_note,
-                                from: from,
-                                subject: Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_unpublished" ),
-                                attributes: attributes,
-                                current_user: current_user,
-                                event: EVENT_UNPUBLISH,
-                                event_note: event_note,
-                                id: for_email_id,
-                                ignore_blank_key_values: ignore_blank_key_values )
+      body = email_event_notification( to: to,
+                                       to_note: to_note,
+                                       from: from,
+                                       subject: Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_unpublished" ),
+                                       attributes: attributes,
+                                       current_user: current_user,
+                                       event: EVENT_UNPUBLISH,
+                                       event_note: event_note,
+                                       id: for_email_id,
+                                       ignore_blank_key_values: ignore_blank_key_values,
+                                       return_email_body: true )
+      ::Deepblue::JiraHelper.jira_add_comment( curation_concern: self, event: EVENT_UNPUBLISH, comment: body )
     end
 
     def email_create_to_user( current_user:, event_note: '' ) # TODO: delete this method
@@ -419,6 +424,7 @@ module Deepblue
                                     ignore_blank_key_values:,
                                     id:,
                                     return_email_parameters: false,
+                                    return_email_body: false,
                                     send_it: true,
                                     email_key_values: nil )
 
@@ -458,6 +464,7 @@ module Deepblue
                          body: body,
                          email_sent: email_sent,
                          **email_key_values ) if send_it
+        return body if return_email_body
         return nil unless return_email_parameters
         parameters = { to: to,
                        to_note: to_note,

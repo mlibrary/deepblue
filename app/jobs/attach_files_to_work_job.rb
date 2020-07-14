@@ -181,6 +181,9 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                                     lines: lines,
                                                     subject: subject + " (RDS)",
                                                     work: work ) if notify_managers
+      ::Deepblue::JiraHelper.jira_add_comment( curation_concern: self,
+                                               event: "Attach Files to Work",
+                                               comment: lines.join( "\n" ) )
     rescue Exception => e # rubocop:disable Lint/RescueException
       Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
