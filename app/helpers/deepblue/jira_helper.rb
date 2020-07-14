@@ -19,6 +19,7 @@ module Deepblue
 
     @@_setup_ran = false
 
+    @@jira_allow_add_comment
     @@jira_allow_create_users
     @@jira_field_values_discipline_map
     @@jira_helper_debug_verbose
@@ -33,7 +34,8 @@ module Deepblue
     @@jira_test_mode
     @@jira_url
 
-    mattr_accessor  :jira_allow_create_users,
+    mattr_accessor  :jira_allow_add_comment,
+                    :jira_allow_create_users,
                     :jira_field_values_discipline_map,
                     :jira_helper_debug_verbose,
                     :jira_integration_hostnames,
@@ -52,44 +54,30 @@ module Deepblue
       @@_setup_ran = true
     end
 
-    # TODO: delete this method (or repurpose it for customfield_10002 / request participants)
-    def self.build_customer_request_type( client:, issue: )
-      issue_id = issue.id if issue.respond_to? :id
-      issue_key = issue.key if issue.respond_to? :key
-      jira_url = "#{client.options[:site]}#{client.options[:context_path]}/"
-      rv = {}
-      rv["customfield_10001"] =
-          {
-              "_links": {
-                  "jiraRest": "#{jira_url}rest/api/2/issue/#{issue_id}",
-                  "web": "#{jira_url}servicedesk/customer/portal/19/#{issue_key}",
-                  "self": "#{jira_url}rest/servicedeskapi/request/#{issue_id}"
-              },
-              "requestType" => {
-                  "id" => "174",
-                  "_links" => {
-                      "self" => "#{jira_url}rest/servicedeskapi/servicedesk/19/requesttype/174"
-                  },
-                  "name" => "Data Deposit",
-                  "description" => "",
-                  "helpText" => "",
-                  "serviceDeskId" => "19",
-                  "groupIds" => [ "37" ],
-                  "icon" => {
-                      "id" => "10522",
-                      "_links" => {
-                          "iconUrls" => {
-                              "48x48" => "#{jira_url}secure/viewavatar?avatarType=SD_REQTYPE&size=large&avatarId=10522",
-                              "24x24" => "#{jira_url}secure/viewavatar?avatarType=SD_REQTYPE&size=small&avatarId=10522",
-                              "16x16" => "#{jira_url}secure/viewavatar?avatarType=SD_REQTYPE&size=xsmall&avatarId=10522",
-                              "32x32" => "#{jira_url}secure/viewavatar?avatarType=SD_REQTYPE&size=medium&avatarId=10522"
-                          }
-                      }
-                  }
-              },
-              "currentStatus" => nil
-          }
-      return rv
+    def self.jira_add_comment( curation_concern:, event:, comment: )
+      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                              Deepblue::LoggingHelper.called_from,
+                                              "jira_enabled=#{jira_enabled}",
+                                              "jira_allow_add_comment=#{jira_allow_add_comment}",
+                                              "" ] ) if jira_helper_debug_verbose
+      return unless jira_enabled
+      return unless jira_allow_add_comment
+      # jira url is stored:
+      curation_concern.curation_notes_admin.each do |note|
+        if note =~ /^\s*Jira ticket: https?:[^\s](DBHELP\-\d+).*$/
+          issue_key = Regexp.last_match(1)
+          ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                                  "issue_key=#{issue_key}",
+                                                  "" ] ) if jira_helper_debug_verbose
+          if comment.blank?
+            comment = event
+          else
+            comment = "#{event}\n\n#{comment}"
+          end
+          return jira_service_desk_request_comment( issue_key: issue_key, comment: comment )
+        end
+      end
+      return false
     end
 
     def self.jira_client( client: nil )
@@ -168,7 +156,7 @@ module Deepblue
 
       # reporter is a structure, we need to pass reporter_email, but since raiseOnBehalfOf and requestParticipants
       # don't seem to do anything, we'll skip it
-      issue = jira_new_ticket_service_desk_request( client: client, summary: summary )
+      issue = jira_service_desk_request_new_ticket( client: client, summary: summary )
       return nil unless issue.present?
 
       # TODO: test issue for validity
@@ -265,43 +253,6 @@ module Deepblue
       return issue
     end
 
-    def self.jira_new_ticket_service_desk_request( client: nil, reporter_email: nil, summary: )
-      # raiseOnBehalfOf and requestParticipants don't seem to do anything
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             "summary=#{summary}",
-                                             "reporter_email=#{reporter_email}",
-                                             "jira_enabled=#{jira_enabled}",
-                                             "" ] if jira_helper_debug_verbose
-      return nil unless jira_enabled
-      request_options = {
-          "serviceDeskId": "19",
-          "requestTypeId": "174",
-          "requestFieldValues": { "summary": summary }
-      }
-      request_options.merge!( { "raiseOnBehalfOf": reporter_email } ) if reporter_email.present?
-      request_options.merge!( { "requestParticipants": [ reporter_email ] } ) if reporter_email.present?
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             "request_options=#{request_options}",
-                                             "" ] if jira_helper_debug_verbose
-      uri = "#{JiraHelper.jira_rest_url}servicedeskapi/request"
-      uri_parsed = URI.parse( uri )
-      request = Net::HTTP::Post.new( uri_parsed )
-      request.basic_auth( Settings.jira.username, Settings.jira.password )
-      request.content_type = "application/json"
-      request.body = JSON.dump( request_options )
-      req_options = { use_ssl: uri_parsed.scheme == "https" }
-      response = Net::HTTP.start( uri_parsed.hostname, uri_parsed.port, req_options) do |http|
-        http.request( request )
-      end
-      json = JSON.parse( response.body )
-      puts JSON.pretty_generate( json )
-      issueKey = json["issueKey"]
-      client = jira_client( client: client )
-      issue = client.Issue.find( issueKey )
-      return issue
-    end
-
     def self.jira_reporter( user: nil, client: nil )
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
                                               Deepblue::LoggingHelper.called_from,
@@ -319,6 +270,79 @@ module Deepblue
       return hash if hash.present?
       return user if jira_create_user( email: user, client: client )
       return nil
+    end
+
+    def self.jira_service_desk_request_comment( client: nil, issue_key:, comment:, public_comment: true )
+      # raiseOnBehalfOf and requestParticipants don't seem to do anything
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "jira_enabled=#{jira_enabled}",
+                                             "issue_key=#{issue_key}",
+                                             "comment=#{comment}",
+                                             "public_comment=#{public_comment}",
+                                             "" ] if jira_helper_debug_verbose
+      return nil unless jira_enabled
+      data = {
+          "comment": comment,
+          "public": public_comment,
+      }
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             "data=#{data}",
+                                             "" ] if jira_helper_debug_verbose
+      uri = "#{JiraHelper.jira_rest_url}servicedeskapi/request/#{issue_key}/comment"
+      uri_parsed = URI.parse( uri )
+      request = Net::HTTP::Post.new( uri_parsed )
+      request.basic_auth( Settings.jira.username, Settings.jira.password )
+      request.content_type = "application/json"
+      request.body = JSON.dump( data )
+      req_options = { use_ssl: uri_parsed.scheme == "https" }
+      response = Net::HTTP.start( uri_parsed.hostname, uri_parsed.port, req_options) do |http|
+        http.request( request )
+      end
+      status = response.code
+      return true if '201' == status
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "response.code=#{response.code}",
+                                             "response.body=#{response.body}",
+                                             "" ] if jira_helper_debug_verbose
+      return false
+    end
+
+    def self.jira_service_desk_request_new_ticket( client: nil, reporter_email: nil, summary: )
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "jira_enabled=#{jira_enabled}",
+                                             "summary=#{summary}",
+                                             "reporter_email=#{reporter_email}",
+                                             "" ] if jira_helper_debug_verbose
+      return nil unless jira_enabled
+      data = {
+          "serviceDeskId": "19",
+          "requestTypeId": "174",
+          "requestFieldValues": { "summary": summary }
+      }
+      # raiseOnBehalfOf and requestParticipants don't seem to do anything
+      data.merge!( { "raiseOnBehalfOf": reporter_email } ) if reporter_email.present?
+      data.merge!( { "requestParticipants": [ reporter_email ] } ) if reporter_email.present?
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             "data=#{data}",
+                                             "" ] if jira_helper_debug_verbose
+      uri = "#{JiraHelper.jira_rest_url}servicedeskapi/request"
+      uri_parsed = URI.parse( uri )
+      request = Net::HTTP::Post.new( uri_parsed )
+      request.basic_auth( Settings.jira.username, Settings.jira.password )
+      request.content_type = "application/json"
+      request.body = JSON.dump( data )
+      req_options = { use_ssl: uri_parsed.scheme == "https" }
+      response = Net::HTTP.start( uri_parsed.hostname, uri_parsed.port, req_options) do |http|
+        http.request( request )
+      end
+      json = JSON.parse( response.body )
+      issueKey = json["issueKey"]
+      client = jira_client( client: client )
+      issue = client.Issue.find( issueKey )
+      return issue
     end
 
     def self.jira_ticket_for_create( curation_concern: )

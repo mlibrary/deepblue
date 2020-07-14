@@ -14,6 +14,7 @@ Deepblue::JiraHelper.setup do |config|
   config.jira_integration_enabled = config.jira_integration_hostnames.include?( DeepBlueDocs::Application.config.hostname )
   config.jira_test_mode = !config.jira_integration_hostnames_prod.include?( DeepBlueDocs::Application.config.hostname )
 
+  config.jira_allow_add_comment = true
   config.jira_allow_create_users = true
   config.jira_manager_project_key = 'DBHELP'
   config.jira_manager_issue_type = 'Data Deposit'
