@@ -62,9 +62,17 @@ module Deepblue
                                               "" ] ) if jira_helper_debug_verbose
       return unless jira_enabled
       return unless jira_allow_add_comment
+      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                              Deepblue::LoggingHelper.called_from,
+                                              "curation_concern.id=#{curation_concern.id}",
+                                              "curation_concern.curation_notes_admin=#{curation_concern.curation_notes_admin}",
+                                              "" ] ) if jira_helper_debug_verbose
       # jira url is stored:
       curation_concern.curation_notes_admin.each do |note|
-        if note =~ /^\s*Jira ticket: https?:[^\s](DBHELP\-\d+).*$/
+        ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+                                                "note=#{note}",
+                                                "" ] ) if jira_helper_debug_verbose
+        if note =~ /^\s*Jira ticket: https?:[^\s]+(DBHELP\-\d+).*$/
           issue_key = Regexp.last_match(1)
           ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
                                                   "issue_key=#{issue_key}",
@@ -283,7 +291,7 @@ module Deepblue
                                              "" ] if jira_helper_debug_verbose
       return nil unless jira_enabled
       data = {
-          "comment": comment,
+          "body": comment,
           "public": public_comment,
       }
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
