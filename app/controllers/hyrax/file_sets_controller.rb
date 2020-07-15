@@ -23,7 +23,43 @@ module Hyrax
     after_action :provenance_log_create,         only: [:create]
     after_action :provenance_log_update_after,   only: [:update]
 
+    protect_from_forgery with: :null_session,    only: [:file_contents]
     protect_from_forgery with: :null_session,    only: [:display_provenance_log]
+
+    def file_contents
+      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                           Deepblue::LoggingHelper.called_from,
+                                           "file_set.id=#{file_set.id}",
+                                           "file_set.mime_type=#{file_set.mime_type}",
+                                           "file_set.original_file.size=#{file_set.original_file.size}",
+                                           "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      allowed = display_file_contents_allowed?
+      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                           Deepblue::LoggingHelper.called_from,
+                                           "file_set.id=#{file_set.id}",
+                                           "file_set.mime_type=#{file_set.mime_type}",
+                                           "file_set.original_file.size=#{file_set.original_file.size}",
+                                           "allowed=#{allowed}",
+                                           "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      redirect_to [main_app, curation_concern] unless allowed
+      presenter # make sure presenter is created
+      render action: 'show_contents'
+    end
+
+    def display_file_contents_allowed?
+      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                           Deepblue::LoggingHelper.called_from,
+                                           "file_set.id=#{file_set.id}",
+                                           "file_set.mime_type=#{file_set.mime_type}",
+                                           "file_set.original_file.size=#{file_set.original_file.size}",
+                                           "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      return false unless ::DeepBlueDocs::Application.config.file_sets_contents_view_allow
+      return false unless ( current_ability.admin? ) # || current_ability.can?(:read, id) )
+      return false unless ::DeepBlueDocs::Application.config.file_sets_contents_view_mime_types.include?( file_set.mime_type )
+      return false if file_set.original_file.size.blank?
+      return false if file_set.original_file.size > ::DeepBlueDocs::Application.config.file_sets_contents_view_max_size
+      return true
+    end
 
     ## Provenance log
 

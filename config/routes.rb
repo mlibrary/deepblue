@@ -130,6 +130,7 @@ Rails.application.routes.draw do
         get    'display_provenance_log'
         get    'doi'
         post   'doi'
+        get    'file_contents'
       end
     end
   end
