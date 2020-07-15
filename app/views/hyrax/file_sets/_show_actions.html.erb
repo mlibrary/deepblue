@@ -34,13 +34,23 @@
       </div>
       <div class="panel-body">
         <% if @presenter.doi_minting_enabled? && !@presenter.doi_pending? && !@presenter.doi_minted? %>
-          <button class="btn btn-primary" data-target="#mintDoiId" data-toggle="modal">
-            <%= t('simple_form.actions.data_set.mint_doi') %>
-          </button>
+          <p>
+            <button class="btn btn-primary" data-target="#mintDoiId" data-toggle="modal">
+              <%= t('simple_form.actions.file_set.mint_doi') %>
+            </button>
+          </p>
+        <% end %>
+        <% if @presenter.display_file_contents_allowed? %>
+          <p>
+          <%= link_to t('simple_form.actions.file_set.contents'),
+                      main_app.file_contents_hyrax_file_set_path(@presenter.id), class: 'btn btn-subtle' %>
+          </p>
         <% end %>
         <% if @presenter.display_provenance_log_enabled? %>
+          <p>
           <%= link_to t('simple_form.actions.provenance_log.display'),
                       main_app.display_provenance_log_hyrax_file_set_path(@presenter.id), class: 'btn btn-subtle' %>
+          </p>
         <% end %>
       </div>
     </div> <!-- End Admin panel -->

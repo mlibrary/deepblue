@@ -41,10 +41,12 @@ en:
     actions:
       file_set:
         analytics:            "View File Analytics"
+        contents:             "View File Contents"
         delete:               "Delete"
         delete_this:          "Delete This File"
         edit:                 "Edit"
         edit_this:            "Edit This File"
+        mint_doi:             "Mint File DOI"
     labels:
       file_set:
         admin_actions:        "Admin Actions"

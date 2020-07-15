@@ -4,6 +4,8 @@ module Hyrax
 
   class DsFileSetPresenter < Hyrax::FileSetPresenter
 
+    DS_FILE_SET_PRESENTER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.ds_file_set_presenter_debug_verbose
+
     delegate :doi,
              :doi_minted?,
              :doi_minting_enabled?,
@@ -42,6 +44,32 @@ module Hyrax
         rv = link_to
       end
       return rv
+    end
+
+    def display_file_contents_allowed?
+      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                           Deepblue::LoggingHelper.called_from,
+                                           "id=#{id}",
+                                           "mime_type=#{mime_type}",
+                                           "file_size=#{file_size}",
+                                           "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      return false unless ::DeepBlueDocs::Application.config.file_sets_contents_view_allow
+      return false unless ( current_ability.admin? ) # || current_ability.can?(:read, id) )
+      return false unless ::DeepBlueDocs::Application.config.file_sets_contents_view_mime_types.include?( mime_type )
+      return false if file_size.blank?
+      return false if file_size > ::DeepBlueDocs::Application.config.file_sets_contents_view_max_size
+      return true
+    end
+
+    def file_set
+      @file_set ||= ::Deepblue::WorkViewContentService.content_find_by_id( id: id )
+    end
+
+    def file_contents
+      return "" unless file_set.present?
+      content = ::Deepblue::WorkViewContentService.content_read_file( file_set: file_set )
+      return "" if content.nil?
+      return content
     end
 
     def file_size_too_large_to_download?

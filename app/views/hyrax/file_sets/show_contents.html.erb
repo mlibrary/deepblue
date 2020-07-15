@@ -1,0 +1,28 @@
+<% provide :page_title, @presenter.page_title %>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-xs-12 col-sm-4">
+      <header>
+        <%= render 'file_set_title', presenter: @presenter %>
+      </header>
+      <p><%= link_to "Return to file set details", [main_app, curation_concern] %></p>
+      <% unless @presenter.file_size_too_large_to_download? %>
+        <% if Hyrax.config.display_media_download_link? %>
+          <p>
+            <%= link_to t('hyrax.file_set.show.download'),
+                          hyrax.download_path(@presenter.file_set),
+                          id: "file_download",
+                          data: {label: @presenter.id},
+                          target: "_new" %>
+          </p>
+        <% end %>
+      <% end %>
+      <div class='documentation-div'>
+        <textarea class='monospace-textarea' rows="40" cols="85" readonly>
+          <%=@presenter.file_contents%>
+        </textarea>
+      </div>
+    </div>
+  </div>
+</div>

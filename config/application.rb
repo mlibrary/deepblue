@@ -50,6 +50,7 @@ module DeepBlueDocs
     config.collection_presenter_debug_verbose = true # COLLECTION_PRESENTER_DEBUG_VERBOSE = true
     config.data_sets_controller_debug_verbose = true # DATA_SETS_CONTROLLER_DEBUG_VERBOSE = true
     config.downloads_controller_debug_verbose = true # DOWNLOADS_CONTROLLER_DEBUG_VERBOSE = true
+    config.ds_file_set_presenter_debug_verbose = true # FILE_SETS_CONTROLLER_DEBUG_VERBOSE = true
     config.email_behavior_debug_verbose = true # EMAIL_BEHAVIOR_DEBUG_VERBOSE = true
     config.file_sets_controller_debug_verbose = true # FILE_SETS_CONTROLLER_DEBUG_VERBOSE = true
     config.interpolation_helper_debug_verbose = true # INTERPOLATION_HELPER_DEBUG_VERBOSE = true
@@ -70,7 +71,7 @@ module DeepBlueDocs
     # config.dbd_version = 'DBDv1'
     config.dbd_version = 'DBDv2'
 
-    config.show_masthead_announcement = false
+    config.show_masthead_announcement = false # TODO: move this to a FlipFlop admin control
 
     # puts "config.time_zone=#{config.time_zone}"
     config.timezone_offset = DateTime.now.offset
@@ -195,6 +196,11 @@ module DeepBlueDocs
     config.email_log_echo_to_rails_logger = true
     config.action_mailer.smtp_settings ||= {}
     config.action_mailer.smtp_settings.merge!(Settings.rails&.action_mailer&.smtp_settings || {})
+
+    # file_set contents config
+    config.file_sets_contents_view_allow = true
+    config.file_sets_contents_view_max_size = 500.kilobytes
+    config.file_sets_contents_view_mime_types = [ "text/html", "text/plain" ].freeze
 
     # provenance log config
     config.provenance_log_name = "provenance_#{Rails.env}.log"
