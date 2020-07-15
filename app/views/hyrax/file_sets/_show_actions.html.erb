@@ -2,8 +2,7 @@
   <% if ( ( @presenter.editor? && @presenter.parent.workflow.state != "deposited" ) ||  current_ability.admin? ) %>
     <%= link_to t('simple_form.actions.file_set.edit'), edit_polymorphic_path([main_app, @presenter]),
                 class: 'btn btn-primary' %>
-    <% if ( @presenter.parent_doi_minted? && !current_ability.admin? ) %>
-    <% else %>
+    <% unless ( @presenter.parent_doi_minted? || @presenter.doi_minted? ) %>
       <%= link_to t('simple_form.actions.file_set.delete'), [main_app, @presenter],
                   class: 'btn btn-danger', data: { confirm: "Delete this #{@presenter.human_readable_type}?" },
                   method: :delete %>
