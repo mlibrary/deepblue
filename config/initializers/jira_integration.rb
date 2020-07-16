@@ -9,8 +9,9 @@ Deepblue::JiraHelper.setup do |config|
                                         'testing.deepblue.lib.umich.edu',
                                         'staging.deepblue.lib.umich.edu',
                                         'deepblue.lib.umich.edu' ].freeze
+  # testing is disabled
   config.jira_integration_hostnames_prod = [ 'deepblue.lib.umich.edu',
-                                             'testing.deepblue.lib.umich.edu' ].freeze
+                                             'disable.testing.deepblue.lib.umich.edu' ].freeze
   config.jira_integration_enabled = config.jira_integration_hostnames.include?( DeepBlueDocs::Application.config.hostname )
   config.jira_test_mode = !config.jira_integration_hostnames_prod.include?( DeepBlueDocs::Application.config.hostname )
 
@@ -25,7 +26,6 @@ Deepblue::JiraHelper.setup do |config|
   config.jira_rest_create_users_url = "#{config.jira_url}/jira/rest/mlibrary/1.0/users".freeze
   config.jira_rest_url = "#{config.jira_url}/jira/rest/".freeze
   config.jira_rest_api_url = "#{config.jira_url}/jira/rest/api/2/".freeze
-
 
   config.jira_field_values_discipline_map = {
       "Arts" =>
