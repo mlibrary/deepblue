@@ -46,18 +46,21 @@ module DeepBlueDocs
       g.test_framework :rspec, spec: true
     end
 
-    # debug_verbose flags
-    config.collection_presenter_debug_verbose = true # COLLECTION_PRESENTER_DEBUG_VERBOSE = true
-    config.data_sets_controller_debug_verbose = true # DATA_SETS_CONTROLLER_DEBUG_VERBOSE = true
-    config.downloads_controller_debug_verbose = true # DOWNLOADS_CONTROLLER_DEBUG_VERBOSE = true
-    config.ds_file_set_presenter_debug_verbose = true # FILE_SETS_CONTROLLER_DEBUG_VERBOSE = true
-    config.email_behavior_debug_verbose = true # EMAIL_BEHAVIOR_DEBUG_VERBOSE = true
-    config.file_sets_controller_debug_verbose = true # FILE_SETS_CONTROLLER_DEBUG_VERBOSE = true
-    config.interpolation_helper_debug_verbose = true # INTERPOLATION_HELPER_DEBUG_VERBOSE = true
-    config.works_controller_behavior_debug_verbose = true # WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE = true
-    config.work_view_content_service_debug_verbose = false # WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE = false
-    config.work_view_content_service_email_templates_debug_verbose = false # WORK_VIEW_CONTENT_SERVICE_EMAIL_TEMPLATES_DEBUG_VERBOSE = true
-    config.work_view_content_service_i18n_templates_debug_verbose = false # WORK_VIEW_CONTENT_SERVICE_I18N_TEMPLATES_DEBUG_VERBOSE = true
+    # begin _debug_verbose flags
+    config.collection_presenter_debug_verbose = false
+    config.data_sets_controller_debug_verbose = false
+    config.downloads_controller_debug_verbose = true
+    config.ds_file_set_presenter_debug_verbose = true
+    # config.email_debug_verbose -- see configure email below
+    config.email_behavior_debug_verbose = false
+    config.file_sets_controller_debug_verbose = true
+    config.interpolation_helper_debug_verbose = false
+    # config.jira_helper_debug_verbose -- see integration/jira_integration
+    config.works_controller_behavior_debug_verbose = true
+    config.work_view_content_service_debug_verbose = false
+    config.work_view_content_service_email_templates_debug_verbose = false
+    config.work_view_content_service_i18n_templates_debug_verbose = false
+    # end _debug_verbose flags
 
     # config.middleware.insert_before Rack::Runtime, RackMultipartBufSizeSetter
 
@@ -116,6 +119,8 @@ module DeepBlueDocs
     ## end configure embargo
 
     ## begin configure email
+    config.email_enabled = true
+
     if config.program_name != 'resque-pool'
       config.email_debug_verbose = false
     else
@@ -136,6 +141,9 @@ module DeepBlueDocs
     config.notification_email_to = Settings.notification_email_to
     config.notification_email_workflow_to = Settings.notification_email_workflow_to
 
+    config.email_log_echo_to_rails_logger = true
+    config.action_mailer.smtp_settings ||= {}
+    config.action_mailer.smtp_settings.merge!(Settings.rails&.action_mailer&.smtp_settings || {})
     config.use_email_notification_for_creation_events = true
 
     if config.email_debug_verbose
@@ -151,6 +159,7 @@ module DeepBlueDocs
     end
 
     # see see config/initalizers/jira_integration.rb for deposit notifications through jira flag
+
     # end confgure email
 
     config.upload_max_number_of_files = 100
@@ -190,12 +199,6 @@ module DeepBlueDocs
     # ordered list metadata config
     config.do_ordered_list_hack = true
     config.do_ordered_list_hack_save = true
-
-    # email config
-    config.email_enabled = true
-    config.email_log_echo_to_rails_logger = true
-    config.action_mailer.smtp_settings ||= {}
-    config.action_mailer.smtp_settings.merge!(Settings.rails&.action_mailer&.smtp_settings || {})
 
     # file_set contents config
     config.file_sets_contents_view_allow = true
