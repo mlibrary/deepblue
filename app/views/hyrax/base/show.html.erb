@@ -36,7 +36,8 @@
           <%= render 'work_title', presenter: @presenter %>
         </span>
       </div>
-      <% if !@presenter.tombstone.present? && @presenter.workflow.state != "deposited" && !can?( :edit, @presenter.id ) %>
+
+      <% if !@presenter.tombstone.present? && @presenter.workflow.state != "deposited" && !can?( :edit, @presenter.id ) && !current_ability.current_user.user_approver?( current_ability.current_user ) %>
       &nbsp;
       <% else %>
       <div class="panel-body">

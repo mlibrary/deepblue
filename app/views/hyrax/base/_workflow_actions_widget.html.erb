@@ -1,6 +1,6 @@
 <div class="col-xs-12">
   <div class="workflow-actions">
-  	<% if current_ability.admin? || @presenter.depositor == current_ability.current_user.email %>
+  	<% if current_ability.admin? || @presenter.depositor == current_ability.current_user.email || current_ability.current_user.user_approver?( current_ability.current_user )%>
       <% if @presenter.workflow.actions.present? %>
         <%= render 'workflow_actions', presenter: @presenter %>
       <% else %>
