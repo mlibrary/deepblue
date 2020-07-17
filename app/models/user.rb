@@ -45,6 +45,15 @@ class User < ApplicationRecord
     email
   end
 
+  def user_approver? (user)
+    approving_role = Sipity::Role.find_by(name: Hyrax::RoleRegistry::APPROVING)
+    return false unless approving_role
+    Hyrax::Workflow::PermissionQuery.scope_processing_agents_for(user: user).any? do |agent|
+      agent.workflow_responsibilities.joins(:workflow_role)
+             .where('sipity_workflow_roles.role_id' => approving_role.id).any?
+    end
+  end
+
   # helper for IU auth
   def self.find_for_iu_cas(auth)
     where(provider: auth.provider, uid: auth.uid).first_or_create! do |user|
