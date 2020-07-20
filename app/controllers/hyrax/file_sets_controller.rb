@@ -46,6 +46,32 @@ module Hyrax
       render action: 'show_contents'
     end
 
+    ## User access begin
+
+    def current_user_can_edit?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "current_user&.email=#{current_user&.email}",
+                                             "curation_concern&.parent.edit_users=#{curation_concern&.parent.edit_users}",
+                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      return unless current_user.present?
+      return unless curation_concern.parent.present?
+      curation_concern.parent.edit_users.contains? current_user.email
+    end
+
+    def current_user_can_read?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "current_user&.email=#{current_user&.email}",
+                                             "curation_concern&.parent.read_users=#{curation_concern&.parent.read_users}",
+                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      return unless current_user.present?
+      return unless curation_concern.parent.present?
+      curation_concern.parent.read_users.contains? current_user.email
+    end
+
+    ## User access end
+
     def display_file_contents_allowed?
       Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
