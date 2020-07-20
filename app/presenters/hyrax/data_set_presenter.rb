@@ -29,6 +29,8 @@ module Hyrax
     attr_accessor :controller
 
     delegate :current_user,
+                  :current_user_can_edit?,
+                  :current_user_can_read?,
                   :ingest_allowed_base_directories,
                   :ingest_base_directory,
                   :ingest_depositor,

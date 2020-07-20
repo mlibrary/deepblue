@@ -56,6 +56,7 @@ module DeepBlueDocs
     config.file_sets_controller_debug_verbose = true
     config.interpolation_helper_debug_verbose = false
     # config.jira_helper_debug_verbose -- see integration/jira_integration
+    config.solr_document_debug_verbose = false
     config.works_controller_behavior_debug_verbose = true
     config.work_view_content_service_debug_verbose = false
     config.work_view_content_service_email_templates_debug_verbose = false
@@ -203,7 +204,7 @@ module DeepBlueDocs
     # file_set contents config
     config.file_sets_contents_view_allow = true
     config.file_sets_contents_view_max_size = 500.kilobytes
-    config.file_sets_contents_view_mime_types = [ "text/html", "text/plain" ].freeze
+    config.file_sets_contents_view_mime_types = [ "text/html", "text/plain", "text/x-yaml", "text/xml" ].freeze
 
     # provenance log config
     config.provenance_log_name = "provenance_#{Rails.env}.log"

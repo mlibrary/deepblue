@@ -2,7 +2,7 @@
 
 class SolrDocument
 
-  SOLR_DOCUMENT_DEBUG_VERBOSE = false
+  SOLR_DOCUMENT_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.solr_document_debug_verbose
 
   include Blacklight::Solr::Document
   include BlacklightOaiProvider::SolrDocument

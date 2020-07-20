@@ -92,15 +92,40 @@ module Hyrax
         'File'
       end
     end
+    ## User access begin
+
+    def current_user_can_edit?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "current_user&.email=#{current_user&.email}",
+                                             "parent_data_set.edit_users=#{parent_data_set.edit_users}",
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      return unless current_user.present?
+      parent_data_set.edit_users.contains? current_user.email
+    end
+
+    def current_user_can_read?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "current_user&.email=#{current_user&.email}",
+                                             "parent_data_set.read_users=#{parent_data_set.read_users}",
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      return unless current_user.present?
+      parent_data_set.read_users.contains? current_user.email
+    end
+
+    ## User access end
+
+    def parent_data_set
+      @parent_data_set ||= DataSet.find parent.id
+    end
 
     def parent_doi_minted?
-      g = DataSet.find parent.id
-      g.doi_minted?
+      parent_data_set.doi_minted?
     end
 
     def parent_public?
-      g = DataSet.find parent.id
-      g.public?
+      parent_data_set.public?
     end
 
     def relative_url_root
