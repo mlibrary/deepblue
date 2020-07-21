@@ -150,6 +150,7 @@ module Deepblue
                               description:,
                               discipline:,
                               reporter:,
+                              reporter_email:,
                               summary: )
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
@@ -158,6 +159,7 @@ module Deepblue
                                              "issue_type=#{issue_type}",
                                              "description=#{description}",
                                              "reporter=#{reporter}",
+                                             "reporter_email=#{reporter_email}",
                                              "jira_enabled=#{jira_enabled}",
                                              "" ] if jira_helper_debug_verbose
       return nil unless jira_enabled
@@ -176,7 +178,8 @@ module Deepblue
                                   deposit_url: deposit_url,
                                   description: description,
                                   discipline: discipline,
-                                  reporter: reporter )
+                                  reporter: reporter,
+                                  reporter_email: reporter_email )
 
       url = ticket_url( client: client, issue: issue )
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
@@ -194,7 +197,8 @@ module Deepblue
                                          description:,
                                          discipline:,
                                          merge_updates: false,
-                                         reporter: )
+                                         reporter:,
+                                         reporter_email: )
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "contact_info=#{contact_info}",
@@ -203,6 +207,7 @@ module Deepblue
                                              "description=#{description}",
                                              "discipline=#{discipline}",
                                              "reporter=#{reporter}",
+                                             "reporter_email=#{reporter_email}",
                                              "merge_updates=#{merge_updates}",
                                              "" ] if jira_helper_debug_verbose
       return nil unless jira_enabled
@@ -223,20 +228,20 @@ module Deepblue
                                                 "issue.attrs=#{issue.attrs}",
                                                 "" ] ) unless rv
       end
-      sopts = { "fields" => { FIELD_NAME_CONTACT_INFO => contact_info } }
+      sopts = { "fields" => { FIELD_NAME_CONTACT_INFO => reporter_email } }
       rv = issue.save( sopts )
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
                                               Deepblue::LoggingHelper.called_from,
                                               "issue.save( #{sopts} ) rv=#{rv}",
                                               "issue.attrs=#{issue.attrs}",
                                               "" ] ) unless rv
-      sopts = { "fields" => { FIELD_NAME_CONTACT_INFO => contact_info } }
-      rv = issue.save( sopts )
-      ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
-                                              Deepblue::LoggingHelper.called_from,
-                                              "issue.save( #{sopts} ) rv=#{rv}",
-                                              "issue.attrs=#{issue.attrs}",
-                                              "" ] ) unless rv
+      # sopts = { "fields" => { FIELD_NAME_CONTACT_INFO => contact_info } }
+      # rv = issue.save( sopts )
+      # ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
+      #                                         Deepblue::LoggingHelper.called_from,
+      #                                         "issue.save( #{sopts} ) rv=#{rv}",
+      #                                         "issue.attrs=#{issue.attrs}",
+      #                                         "" ] ) unless rv
       sopts = { "fields" => { FIELD_NAME_DEPOSIT_ID => deposit_id } }
       rv = issue.save( sopts )
       ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
@@ -406,12 +411,14 @@ module Deepblue
       description = Array( curation_concern.title ).join("\n") + "\n\nby #{creator}"
       client = jira_client( client: client )
       reporter = jira_reporter( user: curation_concern.depositor, client: client )
+      reporter_email = curation_concern.depositor
 
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "summary=#{summary}",
                                              "reporter=#{reporter}",
+                                             "reporter_email=#{reporter_email}",
                                              "description=#{description}",
                                              "" ] if jira_helper_debug_verbose
       jira_url = JiraHelper.jira_new_ticket( client: client,
@@ -421,6 +428,7 @@ module Deepblue
                                         description: description,
                                         discipline: discipline,
                                         reporter: reporter,
+                                        reporter_email: reporter_email,
                                         summary: summary )
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
