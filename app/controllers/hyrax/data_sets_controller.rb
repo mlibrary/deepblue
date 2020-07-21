@@ -298,7 +298,7 @@ module Hyrax
                                              "curation_concern.edit_users=#{curation_concern.edit_users}",
                                              "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
       return unless current_user.present?
-      curation_concern.edit_users.contains? current_user.email
+      curation_concern.edit_users.include? current_user.email
     end
 
     def current_user_can_read?
@@ -313,7 +313,7 @@ module Hyrax
                                              "current_user&.email=#{current_user&.email}",
                                              "curation_concern&.read_users=#{curation_concern&.read_users}",
                                              "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
-      curation_concern.read_users.contains? current_user.email
+      curation_concern.read_users.include? current_user.email
     end
 
     ## User access end
