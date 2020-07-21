@@ -305,9 +305,14 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "current_user&.email=#{current_user&.email}",
-                                             "curation_concern.read_users=#{curation_concern.read_users}",
                                              "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
       return unless current_user.present?
+      @curation_concern = _curation_concern_type.find(params[:id]) unless curation_concern.present?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "current_user&.email=#{current_user&.email}",
+                                             "curation_concern&.read_users=#{curation_concern&.read_users}",
+                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
       curation_concern.read_users.contains? current_user.email
     end
 

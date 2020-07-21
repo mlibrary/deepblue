@@ -240,6 +240,12 @@ module Deepblue
                                                "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
         wants.html do
           presenter && parent_presenter
+          presenter.controller = self
+          ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                                 Deepblue::LoggingHelper.called_from,
+                                                 Deepblue::LoggingHelper.obj_class( 'wants', wants ),
+                                                 "presenter.controller.class=#{presenter.controller.class}",
+                                                 "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
         end
         wants.json do
           unless ::DeepBlueDocs::Application.config.rest_api_allow_read
