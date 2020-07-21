@@ -16,7 +16,7 @@
 
   <% if ( ( @presenter.editor? && @presenter.workflow.state != "deposited" )|| @presenter.current_ability.admin? ) %>
     <li>
-      <%= link_to 'View Details', polymorphic_path([main_app, member]), method: :get %>
+      <%= link_to t('.view_details'), polymorphic_path([main_app, member]), method: :get %>
     </li>
 
     <% if can?(:edit, member.id) %>
@@ -42,9 +42,13 @@
         </li>
       <% end %>
     <%# end %>
+  <% elsif @presenter.workflow.state != "deposited" && @presenter.current_user_can_read? %>
+    <li>
+      <%= link_to t('.view_details'), polymorphic_path([main_app, member]), method: :get %>
+    </li>
   <% elsif @presenter.workflow.state == "deposited" %>
     <li>
-      <%= link_to 'View Details', polymorphic_path([main_app, member]), method: :get %>
+      <%= link_to t('.view_details'), polymorphic_path([main_app, member]), method: :get %>
     </li>
   <% end %>
 

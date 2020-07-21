@@ -316,8 +316,10 @@ en:
         history_empty: This %{cc} has no previous embargoes applied to it.
         manage_embargoes_html: Manage Embargoes for %{cc} <span class='human_readable_type'>(%{cc_type})</span>
     file_sets:
-      detail_header:        "File Details"
-      not_yet_characterized: "not yet characterized"
+      actions:
+        view_details:         "View Details"
+      detail_header:          "File Details"
+      not_yet_characterized:  "not yet characterized"
       edit:
         description_file_set: Description (edit)
         curation_notes_admin: Curation Notes Admin (edit)
