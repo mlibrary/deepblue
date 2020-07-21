@@ -40,15 +40,6 @@
         </span>
       </div>
 
-      <% ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "@presenter=#{@presenter}",
-                                               "@presenter.class.name=#{@presenter.class.name}",
-                                               ""] %>
-      <% ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "@presenter.current_user_can_read?=#{@presenter.current_user_can_read?}",
-                                               ""] %>
       <% if !@presenter.tombstone.present? &&
           @presenter.workflow.state != "deposited" &&
           !can?( :edit, @presenter.id ) &&
