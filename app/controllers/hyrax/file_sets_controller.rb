@@ -56,7 +56,7 @@ module Hyrax
                                              "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
       return unless current_user.present?
       return unless curation_concern.parent.present?
-      curation_concern.parent.edit_users.contains? current_user.email
+      curation_concern.parent.edit_users.include? current_user.email
     end
 
     def current_user_can_read?
@@ -67,7 +67,7 @@ module Hyrax
                                              "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
       return unless current_user.present?
       return unless curation_concern.parent.present?
-      curation_concern.parent.read_users.contains? current_user.email
+      curation_concern.parent.read_users.include? current_user.email
     end
 
     ## User access end

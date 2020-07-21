@@ -101,7 +101,7 @@ module Hyrax
                                              "parent_data_set.edit_users=#{parent_data_set.edit_users}",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
       return unless current_user.present?
-      parent_data_set.edit_users.contains? current_user.email
+      parent_data_set.edit_users.include? current_user.email
     end
 
     def current_user_can_read?
@@ -111,7 +111,7 @@ module Hyrax
                                              "parent_data_set.read_users=#{parent_data_set.read_users}",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
       return unless current_user.present?
-      parent_data_set.read_users.contains? current_user.email
+      parent_data_set.read_users.include? current_user.email
     end
 
     ## User access end
