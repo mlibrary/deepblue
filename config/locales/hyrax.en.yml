@@ -381,6 +381,28 @@ en:
       status_header:        "Scheduler Status"
       uptime_header:        "Uptimes"
     share_button:           "Deposit Your Work"
+    single_use_links:
+      button:               "Create Single-Use Link"
+      button_with_type:     "Create %{link_type} Single-Use Link"
+      copy:
+        button:             "Copy"
+        tooltip:            "Copied!"
+      delete:               "Delete"
+      download:
+        type:               "Download"
+      expiration:
+        lesser_time:        "in less than one hour"
+        time:               "in %{value} hours"
+      expiration_message:   "%{link_type} Link %{link} expires %{time}"
+      show:
+        type:               "Show"
+      table:
+        actions:            "Actions"
+        expires:            "Expires"
+        key:                "Key"
+        link:               "Link"
+        no_links:           "No links have been generated"
+      title:                "Single-Use Links"
     site_copyright:         "© 2020 Regents of the University of Michigan"
     site_logo_href:         "https://www.lib.umich.edu/"
     site_logo_img_html: >

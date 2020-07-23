@@ -52,20 +52,23 @@
     </li>
   <% end %>
 
-    <% if can?(:download, member.id) %>
+    <% if can?(:download, member.id) || @presenter.single_use_show? %>
 
     <% unless member.file_size_too_large_to_download? %>
 
       <li role="menuitem" tabindex="-1">
         <%= link_to t('.download'),
-                    hyrax.download_path(member),
+                    @presenter.download_link,
                     title: t('.download_title', file_set: member),
                     target: "_blank",
                     id: "file_download",
                     data: { label: member.id } %>
       </li>
     <% else %>
-    <% if @presenter.respond_to?( 'globus_enabled?' ) && @presenter.globus_enabled? && @presenter.solr_document.visibility != "embargo" %>
+    <% if @presenter.respond_to?( 'globus_enabled?' ) &&
+        @presenter.globus_enabled? &&
+        @presenter.solr_document.visibility != "embargo" %>
+
         <%= form_tag( main_app.globus_download_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
           <%= hidden_field_tag('data_set[nop]') %>
            <% if @presenter.globus_files_available? %>

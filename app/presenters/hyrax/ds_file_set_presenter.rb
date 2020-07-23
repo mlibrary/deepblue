@@ -19,6 +19,39 @@ module Hyrax
              :virus_scan_status,
              :virus_scan_status_date, to: :solr_document
 
+    attr_accessor :single_use_link
+
+    def single_use_show?
+      single_use_link.present?
+    end
+
+    def single_use_link_download( curation_concern )
+      @single_use_link_download ||= create_single_use_link_download( curation_concern )
+    end
+
+    def create_single_use_link_download( curation_concern )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "curation_concern.id=#{curation_concern.id}",
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      rv = SingleUseLink.create( itemId: curation_concern.id, path: "/data/download/#{curation_concern.id}" )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      return rv
+    end
+
+    def download_path_link( curation_concern )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "single_use_show?=#{single_use_show?}",
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      return single_use_link_download( curation_concern ) if single_use_show?
+      "/data/download/#{curation_concern.id}" # TODO: fix
+    end
+
     def curation_notes_admin
       rv = @solr_document.curation_notes_admin
       return rv
@@ -146,6 +179,16 @@ module Hyrax
     end
 
     # end display_provenance_log
+
+    def tombstone
+      solr_value = @solr_document[Solrizer.solr_name('tombstone', :symbol)]
+      return nil if solr_value.blank?
+      solr_value.first
+    end
+
+    def tombstone_enabled?
+      true
+    end
 
   end
 

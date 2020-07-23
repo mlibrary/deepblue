@@ -131,6 +131,7 @@ Rails.application.routes.draw do
         get    'doi'
         post   'doi'
         get    'file_contents'
+        get    'single_use_link/:link_id', action: :single_use_link
       end
     end
   end
