@@ -10,6 +10,7 @@ module Hyrax
     FILE_SETS_CONTROLLER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.file_sets_controller_debug_verbose
 
     include Deepblue::DoiControllerBehavior
+    include Deepblue::SingleUseLinkControllerBehavior
 
     PARAMS_KEY = 'file_set'
     self.show_presenter = Hyrax::DsFileSetPresenter
@@ -44,6 +45,40 @@ module Hyrax
       redirect_to [main_app, curation_concern] unless allowed
       presenter # make sure presenter is created
       render action: 'show_contents'
+    end
+
+    # GET file_sets/:id/single_use_link/:link_id
+    def single_use_link
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params[:id]=#{params[:id]}",
+                                             "params[:link_id]=#{params[:link_id]}",
+                                             "file_set.id=#{file_set.id}",
+                                             "" ] if true || FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      su_link = single_use_link_obj( link_id: params[:link_id] )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "su_link=#{su_link}",
+                                             "su_link.valid?=#{su_link.valid?}",
+                                             "su_link.itemId=#{su_link.itemId}",
+                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      unless su_link.present? &&
+          su_link.valid? &&
+          su_link.itemId == file_set.id &&
+          su_link.destroy!
+
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "redirect because unauthorized",
+                                               "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+        authorize! :read, file_set
+      end
+      raise ::Hyrax::SingleUseError.new('Single-Use Link Not Found') unless su_link.path == polymorphic_path([main_app, curation_concern])
+      respond_to do |wants|
+        wants.html { presenter.single_use_link = su_link }
+        wants.json { presenter.single_use_link = su_link }
+        additional_response_formats(wants)
+      end
     end
 
     ## User access begin
@@ -192,8 +227,26 @@ module Hyrax
         end
       end
 
+      def decide_layout
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+        layout = if 'show' == action_name || params[:link_id].present?
+                   '1_column'
+                 else
+                   'dashboard'
+                 end
+        File.join(theme, layout)
+      end
+
       def presenter
         @presenter ||= begin
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+          # _, document_list = search_results(params)
+          # curation_concern = document_list.first
+          # raise CanCan::AccessDenied unless curation_concern
           curation_concern = search_result_document( params )
           show_presenter.new( curation_concern, current_ability, request )
         end
@@ -204,6 +257,9 @@ module Hyrax
       end
 
       def search_result_document( search_params )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
         _, document_list = search_results( search_params )
         return document_list.first unless document_list.empty?
         # document_not_found!

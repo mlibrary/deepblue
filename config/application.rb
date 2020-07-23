@@ -49,6 +49,7 @@ module DeepBlueDocs
     # begin _debug_verbose flags
     config.collection_presenter_debug_verbose = false
     config.data_sets_controller_debug_verbose = false
+    config.deep_blue_presenter_debug_verbose = true
     config.downloads_controller_debug_verbose = true
     config.ds_file_set_presenter_debug_verbose = true
     # config.email_debug_verbose -- see configure email below
@@ -56,6 +57,9 @@ module DeepBlueDocs
     config.file_sets_controller_debug_verbose = true
     config.interpolation_helper_debug_verbose = false
     # config.jira_helper_debug_verbose -- see integration/jira_integration
+    config.single_use_link_controller_behavior_debug_verbose = true
+    config.single_use_links_controller_debug_verbose = true
+    config.single_use_links_viewer_controller_debug_verbose = true
     config.solr_document_debug_verbose = false
     config.works_controller_behavior_debug_verbose = true
     config.work_view_content_service_debug_verbose = false
@@ -211,6 +215,9 @@ module DeepBlueDocs
     config.provenance_log_path = Rails.root.join( 'log', config.provenance_log_name )
     config.provenance_log_echo_to_rails_logger = true
     config.provenance_log_redundant_events = true
+
+    # single use link config
+    config.enable_single_use_links = true
 
     ## to configure work_view_content, see config/initalizers/work_view_content.rb
 
