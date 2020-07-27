@@ -19,8 +19,14 @@ module Hyrax
     def download
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "single_use_link=#{single_use_link}",
+                                             "single_use_link.path=#{single_use_link.path}",
+                                             "@asset&.id=#{@asset&.id}",
+                                             "hyrax.download_path(id: @asset)=#{hyrax.download_path(id: @asset)}",
                                              "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
-      raise not_found_exception unless single_use_link.path == hyrax.download_path(id: @asset)
+      # authorize! :read, @asset
+      raise not_found_exception unless single_use_link.itemId == @asset.id
+      # raise not_found_exception unless single_use_link.itemId == hyrax.download_path(id: @asset)
       send_content
     end
 
@@ -116,7 +122,13 @@ module Hyrax
 
           @single_use_link = single_use_link
           can :read, [ActiveFedora::Base, ::SolrDocument] do |obj|
-            single_use_link.valid? && single_use_link.itemId == obj.id # && single_use_link.destroy! # TODO
+            ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                   ::Deepblue::LoggingHelper.called_from,
+                                                   "single_use_link&.valid?=#{single_use_link&.valid?}",
+                                                   "single_use_link&.itemId=#{single_use_link&.itemId}",
+                                                   "obj.id=#{obj.id}",
+                                                   "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
+            single_use_link.valid? && single_use_link.itemId == obj.id && single_use_link.destroy!
           end
         end
       end

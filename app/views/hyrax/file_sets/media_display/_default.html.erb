@@ -1,4 +1,4 @@
-<% if @presenter&.respond_to? :download_path %>
+<% if @presenter&.respond_to? :download_path_link %>
   <% download_path_link = @presenter.download_path_link( file_set ) %>
 <% else %>
   <% download_path_link = hyrax.download_path( file_set ) %>

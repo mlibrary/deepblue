@@ -101,7 +101,7 @@ module Hyrax
                                              "id=#{id}",
                                              "single_use_show?=#{single_use_show?}",
                                              "" ] if DATA_SET_PRESENTER_DEBUG_VERBOSE
-      return single_use_link_download( curation_concern ) if single_use_show?
+      return single_use_link_download( curation_concern ).path if single_use_show?
       "/data/download/#{curation_concern.id}" # TODO: fix
     end
 

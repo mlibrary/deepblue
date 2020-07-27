@@ -42,7 +42,7 @@ module Hyrax
                                            "file_set.original_file.size=#{file_set.original_file.size}",
                                            "allowed=#{allowed}",
                                            "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
-      redirect_to [main_app, curation_concern] unless allowed
+      return redirect_to [main_app, curation_concern] unless allowed
       presenter # make sure presenter is created
       render action: 'show_contents'
     end
@@ -54,14 +54,22 @@ module Hyrax
                                              "params[:id]=#{params[:id]}",
                                              "params[:link_id]=#{params[:link_id]}",
                                              "file_set.id=#{file_set.id}",
-                                             "" ] if true || FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
       su_link = single_use_link_obj( link_id: params[:link_id] )
+      msg = "Single Use Link Expired or Not Found\nDeep Blue Data could not locate the single use link. This link either expired or had been used previously. We apologize for the inconvenience. You might be interested in using the help page for looking up solutions."
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "su_link=#{su_link}",
-                                             "su_link.valid?=#{su_link.valid?}",
-                                             "su_link.itemId=#{su_link.itemId}",
+                                             "su_link.class.name=#{su_link.class.name}",
                                              "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      return redirect_to main_app.root_path, alert: msg unless su_link.is_a?( SingleUseLink )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "su_link&.valid?=#{su_link&.valid?}",
+                                             "su_link&.itemId=#{su_link&.itemId}",
+                                             "su_link&.path=#{su_link&.path}",
+                                             "polymorphic_path([main_app, curation_concern])=#{polymorphic_path([main_app, curation_concern])}",
+                                             "" ] if su_link.is_a?( SingleUseLink ) && FILE_SETS_CONTROLLER_DEBUG_VERBOSE
       unless su_link.present? &&
           su_link.valid? &&
           su_link.itemId == file_set.id &&
@@ -73,7 +81,8 @@ module Hyrax
                                                "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
         authorize! :read, file_set
       end
-      raise ::Hyrax::SingleUseError.new('Single-Use Link Not Found') unless su_link.path == polymorphic_path([main_app, curation_concern])
+      return redirect_to main_app.root_path, alert: msg unless su_link.path == polymorphic_path([main_app, curation_concern])
+      # raise ::Hyrax::SingleUseError.new('Single-Use Link Not Found - this should redirect') unless su_link.path == polymorphic_path([main_app, curation_concern])
       respond_to do |wants|
         wants.html { presenter.single_use_link = su_link }
         wants.json { presenter.single_use_link = su_link }
