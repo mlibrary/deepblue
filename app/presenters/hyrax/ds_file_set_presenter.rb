@@ -38,6 +38,9 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
+                                             "rv.downloadKey=#{rv.downloadKey}",
+                                             "rv.itemId=#{rv.itemId}",
+                                             "rv.path=#{rv.path}",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
       return rv
     end
@@ -48,8 +51,22 @@ module Hyrax
                                              "id=#{id}",
                                              "single_use_show?=#{single_use_show?}",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
-      return single_use_link_download( curation_concern ) if single_use_show?
-      "/data/download/#{curation_concern.id}" # TODO: fix
+      return "/data/download/#{curation_concern.id}" unless single_use_show? # TODO: fix
+      su_link = single_use_link_download( curation_concern )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "su_link=#{su_link}",
+                                             "su_link.downloadKey=#{su_link.downloadKey}",
+                                             "su_link.itemId=#{su_link.itemId}",
+                                             "su_link.path=#{su_link.path}",
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      rv = "/data/single_use_link/download/#{su_link.downloadKey}" # TODO: fix
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      # return "/data/download/#{curation_concern.id}/single_use_link/#{su_link.downloadKey}" # TODO: fix
+      return rv
     end
 
     def curation_notes_admin
