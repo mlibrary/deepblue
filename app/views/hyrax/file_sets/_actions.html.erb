@@ -58,7 +58,7 @@
 
       <li role="menuitem" tabindex="-1">
         <%= link_to t('.download'),
-                    @presenter.download_link,
+                    @presenter.download_path_link( member ),
                     title: t('.download_title', file_set: member),
                     target: "_blank",
                     id: "file_download",

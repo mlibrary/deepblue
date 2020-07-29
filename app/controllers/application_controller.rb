@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 class ApplicationController < ActionController::Base
+
+  APPLICATION_CONTROLLER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.application_controller_debug_verbose
+
   helper Openseadragon::OpenseadragonHelper
   # Adds a few additional behaviors into the application controller
   include Blacklight::Controller
@@ -27,26 +30,26 @@ class ApplicationController < ActionController::Base
   #   * ensuring the user will be logged out if REMOTE_USER is not set
   #   * clearing the entire session including flash messages
   def clear_session_user
-    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                        ::Deepblue::LoggingHelper.called_from,
-    #                                        "[AUTHN] clear_session_user: #{current_user.try(:email) || '(no user)'}",
-    #                                        "request=#{request}",
-    #                                        # "request&.keys=#{request&.keys}",
-    #                                        "session=#{session}",
-    #                                        "session&.keys=#{session&.keys}",
-    #                                        "params=#{params}",
-    #                                        "params.keys=#{params.keys}",
-    #                                        "" ]
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "[AUTHN] clear_session_user: #{current_user.try(:email) || '(no user)'}",
+                                           "request=#{request}",
+                                           # "request&.keys=#{request&.keys}",
+                                           "session=#{session}",
+                                           "session&.keys=#{session&.keys}",
+                                           "params=#{params}",
+                                           "params.keys=#{params.keys}",
+                                           "" ] if APPLICATION_CONTROLLER_DEBUG_VERBOSE
     return nil_request if request.nil?
     # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
     #                                        ::Deepblue::LoggingHelper.called_from,
     #                                        "[AUTHN] clear_session_user: #{current_user.try(:email) || '(no user)'} request not nil",
     #                                        "params=#{params}",
-    #                                        "" ]
+    #                                        "" ] if APPLICATION_CONTROLLER_DEBUG_VERBOSE
     search = session[:search].dup if session[:search]
     flash = session[:flash].dup if session[:flash]
-    request.env['warden'].logout unless user_logged_in?
-    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    request.env['warden'].logout unless single_use_link_request? || user_logged_in?
+        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
     #                                        ::Deepblue::LoggingHelper.called_from,
     #                                        "[AUTHN] clear_session_user: #{current_user.try(:email) || '(no user)'}",
     #                                        "After: request.env['warden'].logout unless user_logged_in?",
@@ -56,7 +59,7 @@ class ApplicationController < ActionController::Base
     #                                        "session&.keys=#{session&.keys}",
     #                                        "params=#{params}",
     #                                        "params.keys=#{params.keys}",
-    #                                        "" ]
+    #                                        "" ] if APPLICATION_CONTROLLER_DEBUG_VERBOSE
     session[:search] = search if search
     session[:flash] = flash if flash
     # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -69,27 +72,35 @@ class ApplicationController < ActionController::Base
     #                                        "session&.keys=#{session&.keys}",
     #                                        "params=#{params}",
     #                                        "params.keys=#{params.keys}",
-    #                                        "" ]
+    #                                        "" ] if APPLICATION_CONTROLLER_DEBUG_VERBOSE
   end
   
   def user_logged_in?
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "" ] if APPLICATION_CONTROLLER_DEBUG_VERBOSE
     user_signed_in? && ( valid_user?(request.headers) || Rails.env.test?)
+  end
+
+  # override this as necessary to support single_use_link requests
+  def single_use_link_request?
+    return false
   end
 
   def sso_logout
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "[AUTHN] sso_logout: #{current_user.try(:email) || '(no user)'}",
-                                           "" ]
+                                           "" ] if APPLICATION_CONTROLLER_DEBUG_VERBOSE
     redirect_to Hyrax::Engine.config.logout_prefix + logout_now_url
   end
 
   def sso_auto_logout
-    Rails.logger.debug "[AUTHN] sso_auto_logout: #{current_user.try(:email) || '(no user)'}"
-    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                        ::Deepblue::LoggingHelper.called_from,
-    #                                        "[AUTHN] sso_auto_logout: #{current_user.try(:email) || '(no user)'}",
-    #                                        "" ]
+    # Rails.logger.debug "[AUTHN] sso_auto_logout: #{current_user.try(:email) || '(no user)'}" if APPLICATION_CONTROLLER_DEBUG_VERBOSE
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "[AUTHN] sso_auto_logout: #{current_user.try(:email) || '(no user)'}",
+                                           "" ] if APPLICATION_CONTROLLER_DEBUG_VERBOSE
     sign_out(:user)
     cookies.delete("cosign-" + Hyrax::Engine.config.hostname, path: '/')
     session.destroy
@@ -97,11 +108,11 @@ class ApplicationController < ActionController::Base
   end
 
   Warden::Manager.after_authentication do |user, auth, opts|
-    Rails.logger.debug "[AUTHN] Warden after_authentication (clearing flash): #{user}"
-    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                        ::Deepblue::LoggingHelper.called_from,
-    #                                        "[AUTHN] Warden after_authentication (clearing flash): #{user}",
-    #                                        "" ]
+    # Rails.logger.debug "[AUTHN] Warden after_authentication (clearing flash): #{user}" if APPLICATION_CONTROLLER_DEBUG_VERBOSE
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "[AUTHN] Warden after_authentication (clearing flash): #{user}",
+                                           "" ] if APPLICATION_CONTROLLER_DEBUG_VERBOSE
     auth.request.flash.clear
   end
 

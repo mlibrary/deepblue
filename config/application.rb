@@ -47,6 +47,7 @@ module DeepBlueDocs
     end
 
     # begin _debug_verbose flags
+    config.application_controller_debug_verbose = true
     config.collection_presenter_debug_verbose = false
     config.data_sets_controller_debug_verbose = false
     config.deep_blue_presenter_debug_verbose = true
