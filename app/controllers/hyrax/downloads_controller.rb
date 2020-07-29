@@ -50,7 +50,8 @@ module Hyrax
         #                                        "relation.first.to_i=#{relation.first.to_i}",
         #                                        "" ] if DOWNLOADS_CONTROLLER_DEBUG_VERBOSE
 
-        file_size = relation.first.to_i
+        file_size = 0
+        file_size = relation.first.to_i if relation.present?
         respond_to do |wants|
           wants.html do
             if file_size > DeepBlueDocs::Application.config.max_work_file_size_to_download
