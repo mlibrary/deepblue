@@ -18,6 +18,8 @@ module Hyrax
     alias_method :monkey_attempt_update, :attempt_update
     # alias_method :monkey_update_metadata, :update_metadata
 
+    # skip_before_action :authorize_download!, only: :single_use_link
+
     before_action :provenance_log_destroy,       only: [:destroy]
     before_action :provenance_log_update_before, only: [:update]
 
@@ -305,6 +307,19 @@ module Hyrax
                                                  "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
         end
         raise CanCan::AccessDenied
+      end
+
+      def single_use_link_request?
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "params=#{params}",
+                                               "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+        rv = params[:action] == 'single_use_link'
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "rv=#{rv}",
+                                               "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+        return rv
       end
 
   end

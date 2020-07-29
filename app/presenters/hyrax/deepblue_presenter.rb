@@ -3,7 +3,7 @@
 module Hyrax
 
   class DeepbluePresenter < Hyrax::WorkShowPresenter
-
+    include Rails.application.routes.url_helpers
     include ActionDispatch::Routing::PolymorphicRoutes
 
     DEEP_BLUE_PRESENTER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.deep_blue_presenter_debug_verbose
