@@ -23,6 +23,7 @@ module Hyrax
     # monkey begin
     before_action :provenance_log_destroy,       only: [:destroy]
     before_action :provenance_log_update_before, only: [:update]
+    before_action :single_use_link_debug, only: [:single_use_link]
 
     after_action :provenance_log_create,         only: [:create]
     after_action :provenance_log_update_after,   only: [:update]
@@ -97,6 +98,12 @@ module Hyrax
     def citation; end
 
     # monkey begin
+
+    def single_use_link_debug
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+    end
 
     def file_contents
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -254,11 +261,11 @@ module Hyrax
     protected
 
     def attempt_update
-      # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-      #                                      Deepblue::LoggingHelper.called_from,
-      #                                      "params=#{params}",
-      #                                      "current_user=#{current_user}",
-      #                                      Deepblue::LoggingHelper.obj_class( "actor", actor ) ]
+      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                           Deepblue::LoggingHelper.called_from,
+                                           "params=#{params}",
+                                           "current_user=#{current_user}",
+                                           Deepblue::LoggingHelper.obj_class( "actor", actor ) ]
       if wants_to_revert?
         Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
@@ -306,13 +313,19 @@ module Hyrax
                else
                  'dashboard'
                end
-      File.join(theme, layout)
+      rv = File.join(theme, layout)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      return rv
     end
 
     def presenter
       @presenter ||= begin
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
+                                               "params=#{params}",
                                                "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
         # _, document_list = search_results(params)
         # curation_concern = document_list.first
@@ -329,8 +342,32 @@ module Hyrax
     def search_result_document( search_params )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "search_params=#{search_params}",
                                              "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
-      _, document_list = search_results( search_params )
+      _, document_list = search_results( search_params ) do |builder|
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "builder.class.name=#{builder.class.name}",
+                                               "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "builder.processor_chain.size=#{builder.processor_chain.size}",
+                                               "builder.processor_chain=#{builder.processor_chain}",
+                                               "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+        if params[:action] == "single_use_link"
+          builder.processor_chain.delete :add_access_controls_to_solr_params
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "builder.processor_chain.size=#{builder.processor_chain.size}",
+                                                 "builder.processor_chain=#{builder.processor_chain}",
+                                                 "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+        end
+        builder # need to return a builder
+      end
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "document_list.first=#{document_list.first}",
+      #                                        "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
       return document_list.first unless document_list.empty?
       # document_not_found!
       raise CanCan::AccessDenied
