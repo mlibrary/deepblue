@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module Hyrax
+
   class SingleUseLinksController < ApplicationController
 
     SINGLE_USE_LINKS_CONTROLLER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.single_use_links_controller_debug_verbose
@@ -77,5 +80,7 @@ module Hyrax
       def asset_show_path
         polymorphic_path([main_app, fetch(params[:id]).last])
       end
+
   end
+
 end

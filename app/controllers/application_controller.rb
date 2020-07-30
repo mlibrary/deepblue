@@ -49,17 +49,17 @@ class ApplicationController < ActionController::Base
     search = session[:search].dup if session[:search]
     flash = session[:flash].dup if session[:flash]
     request.env['warden'].logout unless single_use_link_request? || user_logged_in?
-        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                        ::Deepblue::LoggingHelper.called_from,
-    #                                        "[AUTHN] clear_session_user: #{current_user.try(:email) || '(no user)'}",
-    #                                        "After: request.env['warden'].logout unless user_logged_in?",
-    #                                        "request=#{request}",
-    #                                        # "request&.keys=#{request&.keys}",
-    #                                        "session=#{session}",
-    #                                        "session&.keys=#{session&.keys}",
-    #                                        "params=#{params}",
-    #                                        "params.keys=#{params.keys}",
-    #                                        "" ] if APPLICATION_CONTROLLER_DEBUG_VERBOSE
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "[AUTHN] clear_session_user: #{current_user.try(:email) || '(no user)'}",
+                                           "After: request.env['warden'].logout unless user_logged_in?",
+                                           "request=#{request}",
+                                           # "request&.keys=#{request&.keys}",
+                                           "session=#{session}",
+                                           "session&.keys=#{session&.keys}",
+                                           "params=#{params}",
+                                           "params.keys=#{params.keys}",
+                                           "" ] if APPLICATION_CONTROLLER_DEBUG_VERBOSE
     session[:search] = search if search
     session[:flash] = flash if flash
     # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

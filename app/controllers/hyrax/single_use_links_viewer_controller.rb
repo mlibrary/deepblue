@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module Hyrax
+
   class SingleUseLinksViewerController < DownloadsController
 
     SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.single_use_links_viewer_controller_debug_verbose
@@ -21,12 +24,17 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "single_use_link=#{single_use_link}",
                                              "single_use_link.path=#{single_use_link.path}",
-                                             "@asset&.id=#{@asset&.id}",
-                                             "hyrax.download_path(id: @asset)=#{hyrax.download_path(id: @asset)}",
                                              "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
-      # authorize! :read, @asset
-      raise not_found_exception unless single_use_link.itemId == @asset.id
-      # raise not_found_exception unless single_use_link.itemId == hyrax.download_path(id: @asset)
+      raise not_found_exception unless single_use_link_valid?( single_use_link, destroy_if_not_valid: true )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "single_use_link=#{single_use_link}",
+                                             "single_use_link.path=#{single_use_link.path}",
+                                             "asset&.id=#{asset&.id}",
+                                             # "hyrax.download_path(id: asset)=#{hyrax.download_path(id: asset)}",
+                                             "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
+      raise not_found_exception unless single_use_link_valid?( single_use_link, item_id: asset&.id, destroy_if_not_valid: true )
+      single_use_link_destroy! single_use_link
       send_content
     end
 
@@ -34,9 +42,15 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",
+                                             "single_use_link.class.name=#{single_use_link.class.name}",
+                                             "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
+      raise not_found_exception unless single_use_link_valid?( single_use_link, destroy_if_not_valid: true )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params[:id]=#{params[:id]}",
                                              "single_use_link.itemId=#{single_use_link.itemId}",
                                              "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
-      _, document_list = search_results(id: single_use_link.itemId)
+      _, document_list = search_results( id: single_use_link.itemId )
       solr_doc = document_list.first
       model = solr_doc['has_model_ssim'].first
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -83,7 +97,11 @@ module Hyrax
       end
 
       def asset
-        @asset ||= ActiveFedora::Base.find(single_use_link.itemId)
+        @asset ||= if single_use_link.is_a? SingleUseLink
+                     ActiveFedora::Base.find(single_use_link.itemId)
+                   else
+                     ''
+                   end
       end
 
       def current_ability
@@ -93,11 +111,6 @@ module Hyrax
                                                "single_use_link=#{single_use_link}",
                                                "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
         @current_ability ||= SingleUseLinksViewerController::Ability.new current_user, single_use_link
-      end
-
-      def render_single_use_error(exception)
-        logger.error("Rendering PAGE due to exception: #{exception.inspect} - #{exception.backtrace if exception.respond_to? :backtrace}")
-        render 'single_use_error', layout: "error", status: 404
       end
 
       def _prefixes
@@ -128,9 +141,12 @@ module Hyrax
                                                    "single_use_link&.itemId=#{single_use_link&.itemId}",
                                                    "obj.id=#{obj.id}",
                                                    "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
-            single_use_link.valid? && single_use_link.itemId == obj.id && single_use_link.destroy!
+            single_use_link.valid? && single_use_link.itemId == obj.id # && single_use_link.destroy!
           end
         end
+
       end
+
   end
+
 end
