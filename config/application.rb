@@ -217,8 +217,10 @@ module DeepBlueDocs
     config.provenance_log_echo_to_rails_logger = true
     config.provenance_log_redundant_events = true
 
-    # single use link config
+    # begin single use link config
     config.enable_single_use_links = true
+    config.single_use_link_but_not_really = false
+    # end single use link config
 
     ## to configure work_view_content, see config/initalizers/work_view_content.rb
 

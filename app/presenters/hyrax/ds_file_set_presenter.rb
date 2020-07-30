@@ -21,6 +21,24 @@ module Hyrax
 
     attr_accessor :single_use_link
 
+    def single_use_links
+      @single_use_links ||= init_single_use_links
+    end
+
+    def init_single_use_links
+      su_links = SingleUseLink.where( itemId: id )
+      su_links.each do |su_link|
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "su_link=#{su_link}",
+                                               "su_link.valid?=#{su_link.valid?}",
+                                               "su_link.itemId=#{su_link.itemId}",
+                                               "su_link.path=#{su_link.path}",
+                                               "" ] if true || DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      end
+      su_links.map { |link| link_presenter_class.new(link) }
+    end
+
     def single_use_show?
       single_use_link.present?
     end

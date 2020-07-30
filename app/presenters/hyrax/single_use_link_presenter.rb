@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module Hyrax
+
   class SingleUseLinkPresenter
     include ActionView::Helpers::TranslationHelper
 
@@ -49,4 +52,5 @@ module Hyrax
         (link.expires - Time.zone.now).to_i / 3600
       end
   end
+
 end
