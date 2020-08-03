@@ -8,7 +8,7 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-gem 'hyrax', '2.7.2'
+gem 'hyrax', '2.9'
 gem 'linkeddata', '<= 3.1.1'
 gem 'rdf-rdfa', '< 3.1.1'
 gem 'rdf-vocab', '<= 3.1.4'
@@ -21,7 +21,7 @@ gem 'config'
 gem 'edtf'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 5.1.7'
+gem 'rails', '>= 5.2'
 gem 'redis-rails'
 gem 'json', '>= 2.1.0'
 
