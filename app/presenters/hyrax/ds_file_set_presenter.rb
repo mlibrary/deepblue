@@ -21,6 +21,13 @@ module Hyrax
 
     attr_accessor :single_use_link
 
+    def initialize( solr_document, current_ability, request = nil )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      super( solr_document, current_ability, request )
+    end
+
     def single_use_links
       @single_use_links ||= init_single_use_links
     end
@@ -34,7 +41,7 @@ module Hyrax
                                                "su_link.valid?=#{su_link.valid?}",
                                                "su_link.itemId=#{su_link.itemId}",
                                                "su_link.path=#{su_link.path}",
-                                               "" ] if true || DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                               "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
       end
       su_links.map { |link| link_presenter_class.new(link) }
     end

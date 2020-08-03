@@ -1,5 +1,5 @@
 <% provide :page_title, @presenter.page_title %>
-<% contents_hidden = ( !@presenter.parent.tombstone.present? && @presenter.parent.workflow.state != "deposited" && !can?(:edit, @presenter.id) ) %>
+<% contents_hidden = ( @presenter.parent.tombstone.present? ) %>
 <br/>
 <div class="container-fluid">
   <div class="row">
