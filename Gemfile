@@ -8,7 +8,7 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-gem 'hyrax', '2.7.2'
+gem 'hyrax', '2.9'
 gem 'linkeddata', '<= 3.1.1'
 gem 'rdf-rdfa', '< 3.1.1'
 gem 'rdf-vocab', '<= 3.1.4'
@@ -21,7 +21,7 @@ gem 'config'
 gem 'edtf'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 5.1.7'
+gem 'rails', '>= 5.2'
 gem 'redis-rails'
 gem 'json', '>= 2.1.0'
 
@@ -72,7 +72,8 @@ gem 'jbuilder', '~> 2.5'
 #      https://tools.lib.umich.edu/jira/browse/HELIO-1450
 # gem 'rack', git: 'https://github.com/rack/rack.git', ref: 'ee01748'
 
-gem 'samvera-persona' #, '0.1.7'
+# gem 'samvera-persona' #, '0.1.7'
+gem 'samvera-persona', :github => 'samvera-labs/samvera-persona', :branch => 'remove-generator-config'
 
 # Begin security vulnerability mitigation
 # bundle update --source gem-name
