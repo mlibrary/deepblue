@@ -4,6 +4,8 @@ class WorkViewContentPresenter
 
   WORK_VIEW_CONTENT_PRESENTER_DEBUG_VERBOSE = false
 
+  include Deepblue::DeepbluePresenterBehavior
+
   attr_accessor :controller, :file_set
 
   delegate :documentation_work_title_prefix,
