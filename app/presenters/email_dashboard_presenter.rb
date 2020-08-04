@@ -2,6 +2,8 @@
 
 class EmailDashboardPresenter
 
+  include Deepblue::DeepbluePresenterBehavior
+
   attr_accessor :controller, :current_ability
 
   def initialize( controller:, current_ability: )

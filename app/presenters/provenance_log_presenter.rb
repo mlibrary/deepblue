@@ -2,6 +2,8 @@
 
 class ProvenanceLogPresenter
 
+  include Deepblue::DeepbluePresenterBehavior
+
   attr_accessor :controller
 
   delegate :id, :id_msg, :id_invalid, :id_deleted, :id_valid?,

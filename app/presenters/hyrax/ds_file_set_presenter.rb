@@ -6,6 +6,8 @@ module Hyrax
 
     DS_FILE_SET_PRESENTER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.ds_file_set_presenter_debug_verbose
 
+    include Deepblue::DeepbluePresenterBehavior
+
     delegate :doi,
              :doi_minted?,
              :doi_minting_enabled?,
@@ -77,6 +79,10 @@ module Hyrax
                                              "single_use_show?=#{single_use_show?}",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
       return "/data/download/#{curation_concern.id}" unless single_use_show? # TODO: fix
+      # return Rails.application.routes.url_helpers.url_for( only_path: true,
+      #                                                      action: 'show',
+      #                                                      controller: 'downloads',
+      #                                                      id: curation_concern.id ) unless single_use_show?
       su_link = single_use_link_download( curation_concern )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

@@ -2,6 +2,7 @@
 
 class WorkViewDocumentationPresenter
   include Hyrax::CreateWorkPresenterBehavior
+  include Deepblue::DeepbluePresenterBehavior
 
   delegate :static_content_documentation_collection,
            :documentation_collection_title,

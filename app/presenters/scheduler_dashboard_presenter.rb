@@ -2,6 +2,8 @@
 
 class SchedulerDashboardPresenter
 
+  include Deepblue::DeepbluePresenterBehavior
+
   delegate :edit_schedule,
            :scheduler_active,
            :scheduler_active_status,

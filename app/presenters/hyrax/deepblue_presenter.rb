@@ -3,8 +3,11 @@
 module Hyrax
 
   class DeepbluePresenter < Hyrax::WorkShowPresenter
-    include Rails.application.routes.url_helpers
-    include ActionDispatch::Routing::PolymorphicRoutes
+
+    include Deepblue::DeepbluePresenterBehavior
+
+    # include Rails.application.routes.url_helpers
+    # include ActionDispatch::Routing::PolymorphicRoutes
 
     DEEP_BLUE_PRESENTER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.deep_blue_presenter_debug_verbose
 
@@ -20,14 +23,14 @@ module Hyrax
       false
     end
 
-    def download_path_link( curation_concern )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "curation_concern.class.name=#{curation_concern.class.name}",
-                                             "curation_concern&.id=#{curation_concern&.id}",
-                                             "" ] if DEEP_BLUE_PRESENTER_DEBUG_VERBOSE
-      "/data/download/#{curation_concern.id}" # TODO: fix
-    end
+    # def download_path_link( curation_concern )
+    #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                          ::Deepblue::LoggingHelper.called_from,
+    #                                          "curation_concern.class.name=#{curation_concern.class.name}",
+    #                                          "curation_concern&.id=#{curation_concern&.id}",
+    #                                          "" ] if DEEP_BLUE_PRESENTER_DEBUG_VERBOSE
+    #   "/data/download/#{curation_concern.id}" # TODO: fix
+    # end
 
     def globus_download_enabled?
       false
