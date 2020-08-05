@@ -51,13 +51,14 @@ module DeepBlueDocs
     config.collection_presenter_debug_verbose = false
     config.data_sets_controller_debug_verbose = false
     config.deep_blue_presenter_debug_verbose = true
+    # config.doi_minting_service_debug_verbose -- see config/integration/doi_minting_service_integration
     config.downloads_controller_debug_verbose = true
     config.ds_file_set_presenter_debug_verbose = true
     # config.email_debug_verbose -- see configure email below
     config.email_behavior_debug_verbose = false
     config.file_sets_controller_debug_verbose = true
     config.interpolation_helper_debug_verbose = false
-    # config.jira_helper_debug_verbose -- see integration/jira_integration
+    # config.jira_helper_debug_verbose -- see config/integration/jira_integration
     config.single_use_link_controller_behavior_debug_verbose = true
     config.single_use_links_controller_debug_verbose = true
     config.single_use_links_viewer_controller_debug_verbose = true
@@ -66,6 +67,7 @@ module DeepBlueDocs
     config.work_view_content_service_debug_verbose = false
     config.work_view_content_service_email_templates_debug_verbose = false
     config.work_view_content_service_i18n_templates_debug_verbose = false
+    config.workflow_event_behavior_debug_verbose = true
     # end _debug_verbose flags
 
     # config.middleware.insert_before Rack::Runtime, RackMultipartBufSizeSetter

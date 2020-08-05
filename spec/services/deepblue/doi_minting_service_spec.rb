@@ -29,9 +29,9 @@ describe Deepblue::DoiMintingService do
 
     it "has expected metadata" do
       expect(subject.metadata.datacite_title).to eq(work.title.first)
-      expect(subject.metadata.datacite_publisher).to eq(described_class::PUBLISHER)
+      expect(subject.metadata.datacite_publisher).to eq(described_class.doi_publisher_name)
       expect(subject.metadata.datacite_publicationyear).to eq(Date.today.year.to_s)
-      expect(subject.metadata.datacite_resourcetype).to eq(described_class::RESOURCE_TYPE)
+      expect(subject.metadata.datacite_resourcetype).to eq(described_class.doi_resource_type)
       expect(subject.metadata.datacite_creator).to eq(work.creator.join(';'))
       expect(subject.metadata.target).not_to be_empty
     end
