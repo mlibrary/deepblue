@@ -28,7 +28,13 @@ module Deepblue
       lines.times { Rails.logger.error "<<<<<<<<<<< END ERROR >>>>>>>>>>>" }
     end
 
-    def self.bold_debug( msg = nil, label: nil, key_value_lines: true, add_stack_trace: false, lines: 1, &block )
+    def self.bold_debug( msg = nil, bold_puts: false, label: nil, key_value_lines: true, add_stack_trace: false, lines: 1, &block )
+      bold_puts( msg,
+                  label: label,
+                  key_value_lines: key_value_lines,
+                  add_stack_trace: add_stack_trace,
+                  lines: lines,
+                  &block ) if bold_puts
       lines = 1 unless lines.positive?
       lines.times { Rails.logger.debug ">>>>>>>>>>" }
       Rails.logger.debug label if label.present?
@@ -50,6 +56,43 @@ module Deepblue
         Rails.logger.debug msg, &block
       end
       lines.times { Rails.logger.debug ">>>>>>>>>>" }
+    end
+
+    def self.bold_puts( msg = nil,
+        bold_debug: false,
+        label: nil,
+        key_value_lines: true,
+        add_stack_trace: false,
+        lines: 1,
+        &block )
+
+      bold_debug( msg,
+                  label: label,
+                  key_value_lines: key_value_lines,
+                  add_stack_trace: add_stack_trace,
+                  lines: lines,
+                  &block ) if bold_debug
+      lines = 1 unless lines.positive?
+      lines.times { puts ">>>>>>>>>>" }
+      puts label if label.present?
+      if msg.respond_to?( :each )
+        msg.each do |m|
+          if key_value_lines && m.respond_to?( :each_pair )
+            m.each_pair { |k, v| puts "#{k}: #{v}" }
+          else
+            puts m
+          end
+        end
+        caller_locations(2).each { |m| puts m } if add_stack_trace
+        # Rails.logger.debug nil, &block if block_given?
+      elsif add_stack_trace
+        puts msg
+        caller_locations(2).each { |m| puts m } if add_stack_trace
+        # Rails.logger.debug nil, &block if block_given?
+      else
+        # Rails.logger.debug msg, &block
+      end
+      lines.times { puts ">>>>>>>>>>" }
     end
 
     def self.called_from

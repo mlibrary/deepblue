@@ -49,16 +49,37 @@ module Deepblue
     protected
 
       def submit_test_jira_ticket
-        client = JiraHelper.jira_client( jira_is_enabled: true )
-        summary = "#{@summary}\nAt: #{DateTime.new()}"
-        JiraHelper.jira_new_ticket( client: client,
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "@deposit_id=#{@deposit_id}",
+                                               "@deposit_url=#{@deposit_url}",
+                                               "@description=#{@description}",
+                                               "@discipline=#{@discipline}",
+                                               "@reporter=#{@reporter}",
+                                               "@reporter_email=#{@reporter_email}",
+                                               "@summary=#{@summary}",
+                                               "" ], bold_puts: @verbose
+        client = JiraHelper.jira_client( jira_is_enabled: true, bold_puts: @verbose )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "client&.to_json=#{client&.to_json}",
+                                               "" ], bold_puts: @verbose
+        summary = "#{@summary}\nAt: #{DateTime.now}"
+        url = JiraHelper.jira_new_ticket( client: client,
                                     deposit_id: @deposit_id,
                                     deposit_url: @deposit_url,
                                     description: @description,
                                     discipline: @discipline,
                                     reporter: @reporter,
                                     reporter_email: @reporter_email,
-                                    summary: summary )
+                                    summary: summary,
+                                    bold_puts: @verbose )
+        if url.present?
+          puts "Jira ticket url:"
+          puts url
+        else
+          puts "Failed to generate jira ticket."
+        end
       end
 
   end
