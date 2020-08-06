@@ -64,15 +64,15 @@ module Deepblue
                                                ::Deepblue::LoggingHelper.called_from,
                                                "client&.to_json=#{client&.to_json}",
                                                "" ], bold_puts: @verbose
-        summary = "#{@summary}\nAt: #{DateTime.now}"
+        description = "#{@description}\nAt: #{DateTime.now}"
         url = JiraHelper.jira_new_ticket( client: client,
                                     deposit_id: @deposit_id,
                                     deposit_url: @deposit_url,
-                                    description: @description,
+                                    description: description,
                                     discipline: @discipline,
                                     reporter: @reporter,
                                     reporter_email: @reporter_email,
-                                    summary: summary,
+                                    summary: @summary,
                                     bold_puts: @verbose )
         if url.present?
           puts "Jira ticket url:"
