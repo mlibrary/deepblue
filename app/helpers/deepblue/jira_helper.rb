@@ -209,12 +209,10 @@ module Deepblue
 
       return nil if client.blank? && !jira_enabled
 
+      summary = summary.gsub( /\n/, ' ' ) if summary.present?
       # reporter is a structure, we need to pass reporter_email, but since raiseOnBehalfOf and requestParticipants
       # don't seem to do anything, we'll skip it
-      issue = jira_service_desk_request_new_ticket( client: client,
-                                                    reporter_email: reporter_email,
-                                                    summary: summary,
-                                                    bold_puts: bold_puts )
+      issue = jira_service_desk_request_new_ticket( client: client, summary: summary, bold_puts: bold_puts )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "summary=#{summary}",
@@ -387,13 +385,12 @@ module Deepblue
       return false
     end
 
-    def self.jira_service_desk_request_new_ticket( client: nil, reporter_email: nil, summary:, bold_puts: false )
+    def self.jira_service_desk_request_new_ticket( client: nil, summary:, bold_puts: false )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "return if client.blank? #{client.blank?} && !jira_enabled=#{!jira_enabled}",
                                              "client&.to_json=#{client&.to_json}",
                                              "summary=#{summary}",
-                                             "reporter_email=#{reporter_email}",
                                              "" ], bold_puts: bold_puts if jira_helper_debug_verbose
       return nil if client.blank? && !jira_enabled
       data = {
@@ -401,9 +398,9 @@ module Deepblue
           "requestTypeId": "174", # TODO: move to config
           "requestFieldValues": { "summary": summary }
       }
-      # raiseOnBehalfOf and requestParticipants don't seem to do anything
-      data.merge!( { "raiseOnBehalfOf": reporter_email } ) if reporter_email.present?
-      data.merge!( { "requestParticipants": [ reporter_email ] } ) if reporter_email.present?
+      # # raiseOnBehalfOf and requestParticipants don't seem to do anything
+      # data.merge!( { "raiseOnBehalfOf": reporter_email } ) if reporter_email.present?
+      # data.merge!( { "requestParticipants": [ reporter_email ] } ) if reporter_email.present?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              "data=#{data}",
                                              "" ], bold_puts: bold_puts if jira_helper_debug_verbose
@@ -429,12 +426,40 @@ module Deepblue
                                              "response.message=#{response.message}",
                                              # "response.methods.sort=#{response.methods.sort.join("\n")}",
                                              "" ], bold_puts: bold_puts if jira_helper_debug_verbose
-      ::Deepblue::LoggingHelper.bold_debug [ "",
-                                             "response.body=",
-                                             "\n#{::Deepblue::LoggingHelper.strip_html_for_debug_dump(response.body)}",
+      case response.content_type
+      when "text/html"
+        ::Deepblue::LoggingHelper.bold_debug [ "",
+                                               "response.body=",
+                                               "\n#{::Deepblue::LoggingHelper.strip_html_for_debug_dump(response.body)}",
+                                               "" ],
+                                             bold_puts: bold_puts if jira_helper_debug_verbose
+      when "application/json"
+        ::Deepblue::LoggingHelper.bold_debug [ "",
+                                             "response.body.to_json=",
+                                             "\n#{::Deepblue::LoggingHelper.strip_html_for_debug_dump(response.body.to_json)}",
                                              "" ],
-                                           bold_puts: bold_puts if response.content_type == "text/html" && jira_helper_debug_verbose
-      return nil if [ '401' ].include? response.code
+                                            bold_puts: bold_puts if jira_helper_debug_verbose
+      else
+        ::Deepblue::LoggingHelper.bold_debug [ "",
+                                               "response.body=",
+                                               "\n#{response.body}",
+                                               "" ],
+                                             bold_puts: bold_puts if jira_helper_debug_verbose
+      end
+      if '400' == response.code && 'application/json' == response.content_type
+        json = JSON.parse( response.body )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "json[\"errorMessage\"]=#{json["errorMessage"]}",
+                                               "" ],
+                                             bold_puts: bold_puts if jira_helper_debug_verbose
+        if json["errorMessage"].starts_with?( "Sorry, but the following usernames could not be added as participant to this request:" )
+          # retry without the user
+          return jira_service_desk_request_new_ticket( client: client, summary: summary, bold_puts: bold_puts )
+        end
+      end
+
+      return nil if [ '400', '401' ].include? response.code
       json = JSON.parse( response.body )
       issueKey = json["issueKey"]
       client = jira_client( client: client )
