@@ -200,6 +200,43 @@ module Deepblue
       "#{label}.to_json=#{obj.to_json}"
     end
 
+    def self.strip_html_for_debug_dump( html )
+      rv = []
+      in_script = false
+      html.split("\n").each do |line|
+        case line
+        when /^\s*$/
+          # strip
+          # rv << "strip whitespace: " + line
+        when /^\s*\<link .+\>\s*$/
+          # strip
+          # rv << "strip link: " + line
+        when /^\s*\<meta .+\>\s*$/
+          # strip
+          # rv << "strip meta: " + line
+        when /^\s*\<script.+\<\/script\>\s*$/
+          # strip
+          # rv << "strip single script: " + line
+        when /^\s*\<script.*$/
+          # strip
+          in_script = true
+          # rv << "strip start script: " + line
+        when /^.*\<\/script\>\s*$/
+          # strip
+          in_script = false
+          # rv << "strip end script: " + line
+        else
+          # strip trailing comment:
+          if line =~ /^(.*)\<\!\-\-.*\-\->\s*$/
+            line = Regexp.last_match[1]
+          end
+          rv << line unless in_script
+          # rv << "strip in_script: " + line if in_script
+        end
+      end
+      rv.join( "\n" )
+    end
+
     def self.system_as_current_user
       "Deepblue"
     end
