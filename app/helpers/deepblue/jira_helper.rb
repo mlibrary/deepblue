@@ -338,16 +338,16 @@ module Deepblue
       return nil
     end
 
-    def self.jira_service_desk_request_comment( client: nil, issue_key:, comment:, public_comment: true )
+    def self.jira_service_desk_request_comment( client: nil, issue_key:, comment:, public_comment: true, bold_puts: false )
       # raiseOnBehalfOf and requestParticipants don't seem to do anything
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "jira_enabled=#{jira_enabled}",
+                                             "return if client.blank? #{client.blank?} && !jira_enabled=#{!jira_enabled}",
                                              "issue_key=#{issue_key}",
                                              "comment=#{comment}",
                                              "public_comment=#{public_comment}",
                                              "" ] if jira_helper_debug_verbose
-      return nil unless jira_enabled
+      return nil if client.blank? && !jira_enabled
       data = {
           "body": comment,
           "public": public_comment,
@@ -369,9 +369,21 @@ module Deepblue
       return true if '201' == status
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "client&.to_json=#{client&.to_json}",
                                              "response.code=#{response.code}",
-                                             "response.body=#{response.body}",
-                                             "" ] if jira_helper_debug_verbose
+                                             "response.code_type=#{response.code_type}",
+                                             "response.header=#{response.header}",
+                                             "response.error_type=#{response.error_type}",
+                                             "response.content_length=#{response.content_length}",
+                                             "response.content_type=#{response.content_type}",
+                                             "response.message=#{response.message}",
+                                             # "response.methods.sort=#{response.methods.sort.join("\n")}",
+                                             "" ], bold_puts: bold_puts if jira_helper_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ "",
+                                             "response.body=",
+                                             "\n#{::Deepblue::LoggingHelper.strip_html_for_debug_dump(response.body)}",
+                                             "" ],
+                                           bold_puts: bold_puts if response.content_type == "text/html" && jira_helper_debug_verbose
       return false
     end
 
@@ -407,9 +419,21 @@ module Deepblue
       end
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "client&.to_json=#{client&.to_json}",
                                              "response.code=#{response.code}",
+                                             "response.code_type=#{response.code_type}",
+                                             "response.header=#{response.header}",
+                                             "response.error_type=#{response.error_type}",
+                                             "response.content_length=#{response.content_length}",
+                                             "response.content_type=#{response.content_type}",
+                                             "response.message=#{response.message}",
                                              # "response.methods.sort=#{response.methods.sort.join("\n")}",
                                              "" ], bold_puts: bold_puts if jira_helper_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ "",
+                                             "response.body=",
+                                             "\n#{::Deepblue::LoggingHelper.strip_html_for_debug_dump(response.body)}",
+                                             "" ],
+                                           bold_puts: bold_puts if response.content_type == "text/html" && jira_helper_debug_verbose
       return nil if [ '401' ].include? response.code
       json = JSON.parse( response.body )
       issueKey = json["issueKey"]
