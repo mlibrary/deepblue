@@ -64,36 +64,11 @@
 <%= presenter.attribute_to_html(:publisher, render_as: :faceted) %>
 <%= presenter.attribute_to_html(:resource_type, render_as: :faceted) %>
 
-<% if @presenter.curation_notes_user.present? %>
-  <tr><th>Curation notes</th><td><ul class='tabular_list'>
-  <% num_para = @presenter.curation_notes_user.count %>
-  <% @presenter.curation_notes_user.each do |note| %>
-    <li class="attribute attribute-curation_note_user"><span itemprop="curation_notes_user">
-     <%= raw ("<span class=\"more\">" + iconify_auto_link(note) + "</span>") %>
-     </span>
-      <% if num_para > 1 %>
-        <p></p>
-        <% num_para = num_para - 1 %>
-      <% end %>
-    </li>
-  <% end %>
-  </ul></td></tr>
-<% end %>
-<% if @presenter.curation_notes_admin.present? && current_ability.admin? %>
-  <tr><th>Admin curation notes</th><td><ul class='tabular_list'>
-  <% num_para = @presenter.curation_notes_admin.count %>
-  <% @presenter.curation_notes_admin.each do |note| %>
-    <li class="attribute attribute-curation-notes-admin"><span itemprop="curation_notes_admin">
-     <%= raw ("<span class=\"more\">" + iconify_auto_link(note) + "</span>") %>
-     </span>
-      <% if num_para > 1 %>
-        <p></p>
-        <% num_para = num_para - 1 %>
-      <% end %>
-    </li>
-  <% end %>
-  </ul></td></tr>
-<% end %>
+<%= render partial: 'shared/show_curation_notes',
+           locals: { mode: 'table',
+                     i18n_label_admin: 'show.labels.curation_notes_admin',
+                     i18n_label_user: 'show.labels.curation_notes_user' } %>
+
 <%= presenter.attribute_to_html(:date_modified, label: t('show.labels.date_modified') ) %>
 <%= presenter.attribute_to_html(:date_published2, render_as: :date_attribute, label: t('show.labels.date_published') ) %>
 <%= presenter.attribute_to_html(:language, render_as: :faceted, label: t('show.labels.language') ) %>

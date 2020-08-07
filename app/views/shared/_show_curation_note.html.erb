@@ -1,0 +1,10 @@
+<% curation_notes.each_with_index do |note, index| %>
+  <% if index > 0 %>
+    <br/>
+  <% end %>
+  <<%=tag%> class=<%=tag_class%>>
+    <span itemprop=<%=itemprop%>>
+      <%= raw ("<span class=\"more\">" + iconify_auto_link(note) + "</span>") %>
+    </span>
+  </<%=tag%>>
+<% end %>

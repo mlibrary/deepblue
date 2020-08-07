@@ -41,30 +41,32 @@ module Hyrax
     end
 
     # Metadata Methods
-    delegate :title,
-             :description,
-             :creator,
-             :contributor,
-             :subject,
-             :publisher,
-             :keyword,
-             :language,
-             :embargo_release_date,
-             :lease_expiration_date,
-             :license,
-             :date_created,
-             :resource_type,
-             :based_near,
-             :related_url,
-             :identifier,
-             :thumbnail_path,
-             :title_or_label,
+    delegate :based_near,
              :collection_type_gid,
+             :contributor,
              :create_date,
-             :modified_date,
-             :visibility,
+             :creator,
+             :curation_notes_admin,
+             :curation_notes_user,
+             :date_created,
+             :description,
              :edit_groups,
              :edit_people,
+             :embargo_release_date,
+             :identifier,
+             :keyword,
+             :language,
+             :lease_expiration_date,
+             :license,
+             :modified_date,
+             :publisher,
+             :related_url,
+             :resource_type,
+             :subject,
+             :thumbnail_path,
+             :title,
+             :title_or_label,
+             :visibility,
              to: :solr_document
 
     # Terms is the list of fields displayed by
@@ -83,7 +85,7 @@ module Hyrax
        :language,
        :identifier,
        :based_near,
-       :related_url]
+       :related_url ]
     end
 
     def terms_with_values

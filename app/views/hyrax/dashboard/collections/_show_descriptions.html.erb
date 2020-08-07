@@ -1,23 +1,17 @@
-<dl>
+<h2 class="sr-only"><%= t('hyrax.dashboard.collections.show.description') %></h2>
+<dl class="dl-horizontal metadata-collections">
   <% present_terms(@presenter, @presenter.terms_with_values) do |r, term| %>
-    <div>
       <dt><%= r.label(term) %></dt>
       <dd><%= r.value(term) %></dd>
-    </div>
   <% end %>
-
   <% unless @presenter.total_viewable_items.blank? %>
     <% unless @presenter.modified_date.blank? %>
-      <div>
-        <dt><%= t('hyrax.dashboard.collections.show.last_updated') %></dt>
-        <dd><%= @presenter.modified_date %></dd>
-      </div>
+      <dt><%= t('hyrax.dashboard.collections.show.last_updated') %></dt>
+      <dd><%= @presenter.modified_date %></dd>
     <% end %>
   <% end %>
-
   <%= render partial: 'shared/show_curation_notes',
-             locals: { mode: 'div_list',
+             locals: { mode: 'list',
                        i18n_label_admin: 'hyrax.dashboard.collections.show.curation_notes_admin',
                        i18n_label_user: 'hyrax.dashboard.collections.show.curation_notes_user' } %>
-
 </dl>
