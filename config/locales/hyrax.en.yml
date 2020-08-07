@@ -89,6 +89,12 @@ en:
       issue_types:
         size:               "My deposit is larger than %{max_upload_size}"
     dashboard:
+      collections:
+        show:
+          curation_notes_admin: "Curation Notes Admin"
+          curation_notes_user:  "Curation Notes"
+          description:          "Description"
+          last_updated:         "Last Updated"
       documentation:
         title:              "Manage Documentation"
       google_analytics:

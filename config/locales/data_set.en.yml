@@ -71,6 +71,8 @@ en:
       access_deepblue:      "Related items in Deep Blue"
       authoremail:          "Contact information"
       creator:              "Creator"
+      curation_notes_admin: "Curation notes admin"
+      curation_notes_user:  "Curation notes"
       date_coverage:        "Date coverage"
       date_created:         "Date created"
       date_modified:        "Last modified"

@@ -1,0 +1,123 @@
+<!-- Curation note(s) -->
+<% case mode %>
+<% when 'list' %>
+  <!-- Curation notes as list -->
+  <% if @presenter.curation_notes_user.present? %>
+    <dt><%= t( i18n_label_user ) %></dt>
+    <dd itemprop="curation_notes_user">
+      <%= render partial: 'shared/show_curation_note', locals: { curation_notes: @presenter.curation_notes_user,
+                                                                 itemprop: "curation_notes_user",
+                                                                 tag_class: "attribute attribute-curation-notes-user",
+                                                                 tag: 'span' } %>
+    </dd>
+  <% end %>
+  <% if @presenter.curation_notes_admin.present? && current_ability.admin? %>
+    <dt><%= t( i18n_label_admin ) %></dt>
+    <dd itemprop="curation_notes_admin">
+      <%= render partial: 'shared/show_curation_note', locals: { curation_notes: @presenter.curation_notes_admin,
+                                                                 itemprop: "curation_notes_admin",
+                                                                 tag_class: "attribute attribute-curation-notes-admin",
+                                                                 tag: 'span'} %>
+    </dd>
+  <% end %>
+<% when 'div' %>
+  <!-- Curation notes as div -->
+  <% if @presenter.curation_notes_user.present? %>
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h2><%= t( i18n_label_user ) %></h2>
+          </div>
+          <%= render partial: 'shared/show_curation_note', locals: { curation_notes: @presenter.curation_notes_user,
+                                                                     itemprop: "curation_notes_user",
+                                                                     tag_class: "attribute attribute-curation-notes-user",
+                                                                     tag: 'p' } %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+  <% if @presenter.curation_notes_admin.present? && current_ability.admin? %>
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h2><%= t( i18n_label_admin ) %></h2>
+          </div>
+          <%= render partial: 'shared/show_curation_note', locals: { curation_notes: @presenter.curation_notes_admin,
+                                                                     itemprop: "curation_notes_admin",
+                                                                     tag_class: "attribute attribute-curation-notes-admin",
+                                                                     tag: 'p'} %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+<% when 'div_list' %>
+  <!-- Curation notes as list -->
+  <% if @presenter.curation_notes_user.present? %>
+    <div>
+    <dt><%= t(i18n_label_user) %></dt>
+    <dd itemprop="curation_notes_user">
+      <%= render partial: 'shared/show_curation_note', locals: {curation_notes: @presenter.curation_notes_user,
+                                                                itemprop: "curation_notes_user",
+                                                                tag_class: "attribute attribute-curation-notes-user",
+                                                                tag: 'span'} %>
+    </dd>
+    </div>
+  <% end %>
+  <% if @presenter.curation_notes_admin.present? && current_ability.admin? %>
+    <div>
+    <dt><%= t(i18n_label_admin) %></dt>
+    <dd itemprop="curation_notes_admin">
+      <%= render partial: 'shared/show_curation_note', locals: {curation_notes: @presenter.curation_notes_admin,
+                                                                itemprop: "curation_notes_admin",
+                                                                tag_class: "attribute attribute-curation-notes-admin",
+                                                                tag: 'span'} %>
+    </dd>
+    </div>
+  <% end %><% when 'table' %>
+  <!-- Curation notes as table -->
+  <% if @presenter.curation_notes_user.present? %>
+    <tr>
+      <th><%= t( i18n_label_user ) %></th>
+      <td>
+        <ul class='tabular_list'>
+          <% num_para = @presenter.curation_notes_user.count %>
+          <% @presenter.curation_notes_user.each do |note| %>
+            <li class="attribute attribute-curation_note_user"><span itemprop="curation_notes_user">
+     <%= raw ("<span class=\"more\">" + iconify_auto_link(note) + "</span>") %>
+     </span>
+              <% if num_para > 1 %>
+                <p></p>
+                <% num_para = num_para - 1 %>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      </td>
+    </tr>
+  <% end %>
+  <% if @presenter.curation_notes_admin.present? && current_ability.admin? %>
+    <tr>
+      <th><%= t( i18n_label_admin ) %></th>
+      <td>
+        <ul class='tabular_list'>
+          <% num_para = @presenter.curation_notes_admin.count %>
+          <% @presenter.curation_notes_admin.each do |note| %>
+            <li class="attribute attribute-curation-notes-admin"><span itemprop="curation_notes_admin">
+     <%= raw ("<span class=\"more\">" + iconify_auto_link(note) + "</span>") %>
+     </span>
+              <% if num_para > 1 %>
+                <p></p>
+                <% num_para = num_para - 1 %>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      </td>
+    </tr>
+  <% end %>
+<% else %>
+  <!-- Curation notes as default -->
+  <p>Don't know how to process <%= mode %> mode.</p>
+<% end %>
