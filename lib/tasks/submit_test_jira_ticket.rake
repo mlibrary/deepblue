@@ -59,7 +59,7 @@ module Deepblue
                                                "@reporter_email=#{@reporter_email}",
                                                "@summary=#{@summary}",
                                                "" ], bold_puts: @verbose
-        client = JiraHelper.jira_client( jira_is_enabled: true, bold_puts: @verbose )
+        client = JiraHelper.jira_client( jira_is_enabled: true, is_verbose: @verbose )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "client&.to_json=#{client&.to_json}",
@@ -73,7 +73,7 @@ module Deepblue
                                     reporter: @reporter,
                                     reporter_email: @reporter_email,
                                     summary: @summary,
-                                    bold_puts: @verbose )
+                                    is_verbose: @verbose )
         if url.present?
           puts "Jira ticket url:"
           puts url
