@@ -95,7 +95,7 @@ module Deepblue
       return rv
     end
 
-    def self.jira_client( client: nil, jira_is_enabled: jira_enabled, bold_puts: false )
+    def self.jira_client( client: nil, jira_is_enabled: jira_enabled, is_verbose: false )
       return client if client.present?
       return client unless jira_is_enabled
       return client if jira_test_mode && !jira_is_enabled
@@ -104,7 +104,8 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug( [ ::Deepblue::LoggingHelper.here,
                                               ::Deepblue::LoggingHelper.called_from,
                                               "client.to_json=#{client.to_json}",
-                                              "" ], bold_puts: bold_puts ) if jira_helper_debug_verbose
+                                              "" ],
+                                            bold_puts: is_verbose ) if is_verbose || jira_helper_debug_verbose
       return client
     end
 
@@ -118,7 +119,7 @@ module Deepblue
       }
     end
 
-    def self.jira_create_user( email:, client: nil )
+    def self.jira_create_user( email:, client: nil, is_verbose: false )
       return false unless jira_enabled
       return false unless jira_allow_create_users
       return false if email.blank?
@@ -133,56 +134,21 @@ module Deepblue
                                               ::Deepblue::LoggingHelper.called_from,
                                               "user_options=#{user_options}",
                                               "path=#{path}",
-                                              "" ] ) if jira_helper_debug_verbose
+                                              "" ],
+                                            bold_puts: is_verbose ) if is_verbose || jira_helper_debug_verbose
       post_rv = client.post( path, user_options.to_json )
       rv = post_rv.body.blank?
       ::Deepblue::LoggingHelper.bold_debug( [ ::Deepblue::LoggingHelper.here,
                                               ::Deepblue::LoggingHelper.called_from,
                                               "post_rv=#{post_rv}",
                                               "rv=#{rv}",
-                                              "" ] ) if jira_helper_debug_verbose
+                                              "" ],
+                                            bold_puts: is_verbose ) if is_verbose || jira_helper_debug_verbose
       return rv
     end
 
     def self.jira_enabled
       JiraHelper.jira_integration_enabled
-    end
-
-    def self.jira_bold_debug( msg = nil,
-                              jira_verbose: false,
-                              label: nil,
-                              key_value_lines: true,
-                              add_stack_trace: false,
-                              lines: 1,
-                              &block )
-      ::Deepblue::LoggingHelper.bold_debug( msg,
-                                            label: label,
-                                            key_value_lines: key_value_lines,
-                                            add_stack_trace: add_stack_trace,
-                                            lines: lines,
-                                            &block ) if jira_helper_debug_verbose
-      return unless jira_verbose
-      lines = 1 unless lines.positive?
-      lines.times { puts ">>>>>>>>>>" }
-      puts label if label.present?
-      if msg.respond_to?( :each )
-        msg.each do |m|
-          if key_value_lines && m.respond_to?( :each_pair )
-            m.each_pair { |k, v| puts "#{k}: #{v}" }
-          else
-            puts m
-          end
-        end
-        ::Deepblue::LoggingHelper.caller_locations(2).each { |m| puts m } if add_stack_trace
-        # Rails.logger.debug nil, &block if block_given?
-      elsif add_stack_trace
-        puts msg
-        ::Deepblue::LoggingHelper.caller_locations(2).each { |m| puts m } if add_stack_trace
-        # Rails.logger.debug nil, &block if block_given?
-      else
-        # Rails.logger.debug msg, &block
-      end
-      lines.times { puts ">>>>>>>>>>" }
     end
 
     def self.jira_new_ticket( client: nil,
@@ -193,7 +159,8 @@ module Deepblue
                               reporter:,
                               reporter_email:,
                               summary:,
-                              bold_puts: false )
+                              is_verbose: false )
+
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "return if client.blank? #{client.blank?} && !jira_enabled=#{!jira_enabled}",
@@ -205,14 +172,15 @@ module Deepblue
                                              "reporter_email=#{reporter_email}",
                                              "summary=#{summary}",
                                              "jira_enabled=#{jira_enabled}",
-                                             "" ], bold_puts: bold_puts if jira_helper_debug_verbose
+                                             "" ],
+                                           bold_puts: is_verbose if is_verbose || jira_helper_debug_verbose
 
       return nil if client.blank? && !jira_enabled
 
       summary = summary.gsub( /\n/, ' ' ) if summary.present?
       # reporter is a structure, we need to pass reporter_email, but since raiseOnBehalfOf and requestParticipants
       # don't seem to do anything, we'll skip it
-      issue = jira_service_desk_request_new_ticket( client: client, summary: summary, bold_puts: bold_puts )
+      issue = jira_service_desk_request_new_ticket( client: client, summary: summary, is_verbose: is_verbose )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "summary=#{summary}",
@@ -220,12 +188,14 @@ module Deepblue
                                              "reporter=#{reporter}",
                                              "reporter_email=#{reporter_email}",
                                              "issue.present?=#{issue.present?}",
-                                             "" ], bold_puts: bold_puts if jira_helper_debug_verbose
+                                             "" ],
+                                           bold_puts: is_verbose if is_verbose || jira_helper_debug_verbose
       return nil unless issue.present?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "issue.attrs=#{issue.attrs}",
-                                             "" ], bold_puts: bold_puts if jira_helper_debug_verbose
+                                             "" ],
+                                           bold_puts: is_verbose if is_verbose || jira_helper_debug_verbose
 
       # TODO: test issue for validity
 
@@ -237,13 +207,14 @@ module Deepblue
                                   discipline: discipline,
                                   reporter: reporter,
                                   reporter_email: reporter_email,
-                                  bold_puts: bold_puts )
+                                  is_verbose: is_verbose )
 
       url = ticket_url( client: client, issue: issue )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "url=#{url}",
-                                             "" ], bold_puts: bold_puts if jira_helper_debug_verbose
+                                             "" ],
+                                           bold_puts: is_verbose if is_verbose || jira_helper_debug_verbose
       return url
     end
 
@@ -256,7 +227,8 @@ module Deepblue
                                          merge_updates: false,
                                          reporter:,
                                          reporter_email:,
-                                         bold_puts: false )
+                                         is_verbose: false )
+
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "return if client.blank? #{client.blank?} && !jira_enabled=#{!jira_enabled}",
@@ -267,7 +239,8 @@ module Deepblue
                                              "reporter=#{reporter}",
                                              "reporter_email=#{reporter_email}",
                                              "merge_updates=#{merge_updates}",
-                                             "" ], bold_puts: bold_puts if jira_helper_debug_verbose
+                                             "" ],
+                                           bold_puts: is_verbose if is_verbose || jira_helper_debug_verbose
       return nil if client.blank? && !jira_enabled
       # Do one by one so we know what fails
       sopts = { "fields" => { FIELD_NAME_DESCRIPTION => description } }
@@ -276,7 +249,8 @@ module Deepblue
                                               ::Deepblue::LoggingHelper.called_from,
                                               "issue.save( #{sopts} ) rv=#{rv}",
                                               "issue.attrs=#{issue.attrs}",
-                                              "" ], bold_puts: bold_puts ) unless rv
+                                              "" ],
+                                            bold_puts: is_verbose ) unless rv
       if reporter.present?
         sopts = { "fields" => { FIELD_NAME_REPORTER => reporter } }
         rv = issue.save( sopts )
@@ -284,7 +258,8 @@ module Deepblue
                                                 ::Deepblue::LoggingHelper.called_from,
                                                 "issue.save( #{sopts} ) rv=#{rv}",
                                                 "issue.attrs=#{issue.attrs}",
-                                                "" ], bold_puts: bold_puts ) unless rv
+                                                "" ],
+                                              bold_puts: is_verbose ) unless rv
       end
       sopts = { "fields" => { FIELD_NAME_CONTACT_INFO => reporter_email } }
       rv = issue.save( sopts )
@@ -292,28 +267,32 @@ module Deepblue
                                               ::Deepblue::LoggingHelper.called_from,
                                               "issue.save( #{sopts} ) rv=#{rv}",
                                               "issue.attrs=#{issue.attrs}",
-                                              "" ], bold_puts: bold_puts ) unless rv
+                                              "" ],
+                                            bold_puts: is_verbose ) unless rv
       sopts = { "fields" => { FIELD_NAME_DEPOSIT_ID => deposit_id } }
       rv = issue.save( sopts )
       ::Deepblue::LoggingHelper.bold_debug( [ ::Deepblue::LoggingHelper.here,
                                               ::Deepblue::LoggingHelper.called_from,
                                               "issue.save( #{sopts} ) rv=#{rv}",
                                               "issue.attrs=#{issue.attrs}",
-                                              "" ], bold_puts: bold_puts ) unless rv
+                                              "" ],
+                                            bold_puts: is_verbose ) unless rv
       sopts = { "fields" => { FIELD_NAME_DEPOSIT_URL => deposit_url } }
       rv = issue.save( sopts )
       ::Deepblue::LoggingHelper.bold_debug( [ ::Deepblue::LoggingHelper.here,
                                               ::Deepblue::LoggingHelper.called_from,
                                               "issue.save( #{sopts} ) rv=#{rv}",
                                               "issue.attrs=#{issue.attrs}",
-                                              "" ], bold_puts: bold_puts ) unless rv
+                                              "" ],
+                                            bold_puts: is_verbose ) unless rv
       sopts = { "fields" => { FIELD_NAME_DISCIPLINE => jira_field_values_discipline_map[discipline] } }
       rv = issue.save( sopts )
       ::Deepblue::LoggingHelper.bold_debug( [ ::Deepblue::LoggingHelper.here,
                                               ::Deepblue::LoggingHelper.called_from,
                                               "issue.save( #{sopts} ) rv=#{rv}",
                                               "issue.attrs=#{issue.attrs}",
-                                              "" ], bold_puts: bold_puts ) unless rv
+                                              "" ],
+                                            bold_puts: is_verbose ) unless rv
       return issue
     end
 
@@ -336,7 +315,12 @@ module Deepblue
       return nil
     end
 
-    def self.jira_service_desk_request_comment( client: nil, issue_key:, comment:, public_comment: true, bold_puts: false )
+    def self.jira_service_desk_request_comment( client: nil,
+                                                issue_key:,
+                                                comment:,
+                                                public_comment: true,
+                                                is_verbose: false )
+
       # raiseOnBehalfOf and requestParticipants don't seem to do anything
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -344,7 +328,8 @@ module Deepblue
                                              "issue_key=#{issue_key}",
                                              "comment=#{comment}",
                                              "public_comment=#{public_comment}",
-                                             "" ] if jira_helper_debug_verbose
+                                             "" ],
+                                           bold_puts: is_verbose if is_verbose || jira_helper_debug_verbose
       return nil if client.blank? && !jira_enabled
       data = {
           "body": comment,
@@ -352,7 +337,8 @@ module Deepblue
       }
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              "data=#{data}",
-                                             "" ] if jira_helper_debug_verbose
+                                             "" ],
+                                           bold_puts: is_verbose if is_verbose || jira_helper_debug_verbose
       uri = "#{JiraHelper.jira_rest_url}servicedeskapi/request/#{issue_key}/comment"
       uri_parsed = URI.parse( uri )
       request = Net::HTTP::Post.new( uri_parsed )
@@ -376,22 +362,24 @@ module Deepblue
                                              "response.content_type=#{response.content_type}",
                                              "response.message=#{response.message}",
                                              # "response.methods.sort=#{response.methods.sort.join("\n")}",
-                                             "" ], bold_puts: bold_puts if jira_helper_debug_verbose
+                                             "" ],
+                                           bold_puts: is_verbose if is_verbose || jira_helper_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ "",
                                              "response.body=",
                                              "\n#{::Deepblue::LoggingHelper.strip_html_for_debug_dump(response.body)}",
                                              "" ],
-                                           bold_puts: bold_puts if response.content_type == "text/html" && jira_helper_debug_verbose
+                                           bold_puts: is_verbose if response.content_type == "text/html" && jira_helper_debug_verbose
       return false
     end
 
-    def self.jira_service_desk_request_new_ticket( client: nil, summary:, bold_puts: false )
+    def self.jira_service_desk_request_new_ticket( client: nil, summary:, is_verbose: false )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "return if client.blank? #{client.blank?} && !jira_enabled=#{!jira_enabled}",
                                              "client&.to_json=#{client&.to_json}",
                                              "summary=#{summary}",
-                                             "" ], bold_puts: bold_puts if jira_helper_debug_verbose
+                                             "" ],
+                                           bold_puts: is_verbose if is_verbose || jira_helper_debug_verbose
       return nil if client.blank? && !jira_enabled
       data = {
           "serviceDeskId": "19", # TODO: move to config
@@ -403,7 +391,7 @@ module Deepblue
       # data.merge!( { "requestParticipants": [ reporter_email ] } ) if reporter_email.present?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              "data=#{data}",
-                                             "" ], bold_puts: bold_puts if jira_helper_debug_verbose
+                                             "" ], bold_puts: is_verbose if is_verbose || jira_helper_debug_verbose
       uri = "#{JiraHelper.jira_rest_url}servicedeskapi/request"
       uri_parsed = URI.parse( uri )
       request = Net::HTTP::Post.new( uri_parsed )
@@ -425,26 +413,27 @@ module Deepblue
                                              "response.content_type=#{response.content_type}",
                                              "response.message=#{response.message}",
                                              # "response.methods.sort=#{response.methods.sort.join("\n")}",
-                                             "" ], bold_puts: bold_puts if jira_helper_debug_verbose
+                                             "" ],
+                                           bold_puts: is_verbose if is_verbose || jira_helper_debug_verbose
       case response.content_type
       when "text/html"
         ::Deepblue::LoggingHelper.bold_debug [ "",
                                                "response.body=",
                                                "\n#{::Deepblue::LoggingHelper.strip_html_for_debug_dump(response.body)}",
                                                "" ],
-                                             bold_puts: bold_puts if jira_helper_debug_verbose
+                                             bold_puts: is_verbose if is_verbose || jira_helper_debug_verbose
       when "application/json"
         ::Deepblue::LoggingHelper.bold_debug [ "",
                                              "response.body.to_json=",
                                              "\n#{::Deepblue::LoggingHelper.strip_html_for_debug_dump(response.body.to_json)}",
                                              "" ],
-                                            bold_puts: bold_puts if jira_helper_debug_verbose
+                                            bold_puts: is_verbose if is_verbose || jira_helper_debug_verbose
       else
         ::Deepblue::LoggingHelper.bold_debug [ "",
                                                "response.body=",
                                                "\n#{response.body}",
                                                "" ],
-                                             bold_puts: bold_puts if jira_helper_debug_verbose
+                                             bold_puts: is_verbose if is_verbose || jira_helper_debug_verbose
       end
       if '400' == response.code && 'application/json' == response.content_type
         json = JSON.parse( response.body )
@@ -452,10 +441,10 @@ module Deepblue
                                                ::Deepblue::LoggingHelper.called_from,
                                                "json[\"errorMessage\"]=#{json["errorMessage"]}",
                                                "" ],
-                                             bold_puts: bold_puts if jira_helper_debug_verbose
+                                             bold_puts: is_verbose if is_verbose || jira_helper_debug_verbose
         if json["errorMessage"].starts_with?( "Sorry, but the following usernames could not be added as participant to this request:" )
           # retry without the user
-          return jira_service_desk_request_new_ticket( client: client, summary: summary, bold_puts: bold_puts )
+          return jira_service_desk_request_new_ticket( client: client, summary: summary, is_verbose: is_verbose )
         end
       end
 
@@ -470,7 +459,8 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "e.class.name=#{e.class.name}",
                                              "e.message=#{e.message}",
-                                             "" ] + e.backtrace[0..20], bold_puts: bold_puts if jira_helper_debug_verbose
+                                             "" ] + e.backtrace[0..20],
+                                           bold_puts: is_verbose if is_verbose || jira_helper_debug_verbose
       Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
       return nil
     rescue JSON::ParserError => e2
@@ -478,7 +468,8 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "client&.to_json=#{client&.to_json}",
                                              "e2.class.name=#{e2.class.name}",
-                                             "" ] + e2.backtrace[0..20], bold_puts: bold_puts if jira_helper_debug_verbose
+                                             "" ] + e2.backtrace[0..20],
+                                           bold_puts: is_verbose if is_verbose || jira_helper_debug_verbose
       Rails.logger.error "#{e2.class.name} at #{e2.backtrace[0]}"
       return nil
     rescue Exception => e3
@@ -486,7 +477,8 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "e3.class.name=#{e3.class.name}",
                                              "e3.message=#{e3.message}",
-                                             "" ] + e3.backtrace[0..20], bold_puts: bold_puts if jira_helper_debug_verbose
+                                             "" ] + e3.backtrace[0..20],
+                                           bold_puts: is_verbose if is_verbose || jira_helper_debug_verbose
       Rails.logger.error "#{e3.class} #{e3.message} at #{e3.backtrace[0]}"
       return nil
     end
@@ -627,6 +619,7 @@ module Deepblue
       return title if match
       return title
     end
+
     def self.ticket_url( client:, issue: )
       client = jira_client( client: client )
       issue_key = issue.key if issue.respond_to? :key
