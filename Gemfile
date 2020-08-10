@@ -73,7 +73,8 @@ gem 'jbuilder', '~> 2.5'
 # gem 'rack', git: 'https://github.com/rack/rack.git', ref: 'ee01748'
 
 # gem 'samvera-persona' #, '0.1.7'
-gem 'samvera-persona', :github => 'samvera-labs/samvera-persona', :branch => 'remove-generator-config'
+# gem 'samvera-persona', :github => 'samvera-labs/samvera-persona', :branch => 'remove-generator-config'
+gem 'samvera-persona'
 
 # Begin security vulnerability mitigation
 # bundle update --source gem-name
