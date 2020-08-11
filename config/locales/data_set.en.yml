@@ -141,7 +141,7 @@ en:
     labels:
       data_set:
         admin_actions:        "Admin Actions"
-        analytics:            "Analytics DS"
+        analytics:            "Analytics"
         access_deepblue:      "Related items in Deep Blue"
         authoremail:          "Contact Information"
         admin_set_id:         "Add as member of administrative set"
