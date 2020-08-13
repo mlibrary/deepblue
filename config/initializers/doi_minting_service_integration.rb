@@ -3,7 +3,7 @@ Deepblue::DoiMintingService.setup do |config|
 
   ## configure doi minting service
 
-  config.doi_minting_service_debug_verbose = true
+  config.doi_minting_service_debug_verbose = false
 
   config.doi_minting_service_integration_hostnames = [ 'deepblue.local',
                                         'testing.deepblue.lib.umich.edu',

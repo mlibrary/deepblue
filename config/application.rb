@@ -47,7 +47,7 @@ module DeepBlueDocs
     end
 
     # begin _debug_verbose flags
-    config.application_controller_debug_verbose = true
+    config.application_controller_debug_verbose = false
     config.collection_presenter_debug_verbose = false
     config.data_sets_controller_debug_verbose = false
     config.deep_blue_presenter_debug_verbose = true
@@ -63,7 +63,7 @@ module DeepBlueDocs
     config.single_use_links_controller_debug_verbose = true
     config.single_use_links_viewer_controller_debug_verbose = true
     config.solr_document_debug_verbose = false
-    config.works_controller_behavior_debug_verbose = true
+    config.works_controller_behavior_debug_verbose = false
     config.work_view_content_service_debug_verbose = false
     config.work_view_content_service_email_templates_debug_verbose = false
     config.work_view_content_service_i18n_templates_debug_verbose = false
