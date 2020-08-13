@@ -33,7 +33,7 @@ module Deepblue
     @@jira_rest_create_users_url
     @@jira_test_mode
     @@jira_url
-    @@jira_use_authoremail_as_reporter = false
+    @@jira_use_authoremail_as_requester = false
 
     mattr_accessor  :jira_allow_add_comment,
                     :jira_allow_create_users,
@@ -49,7 +49,7 @@ module Deepblue
                     :jira_rest_create_users_url,
                     :jira_test_mode,
                     :jira_url,
-                    :jira_use_authoremail_as_reporter
+                    :jira_use_authoremail_as_requester
 
     def self.setup
       yield self if @@_setup_ran == false
@@ -199,8 +199,8 @@ module Deepblue
                               deposit_url:,
                               description:,
                               discipline:,
-                              reporter:,
-                              reporter_email:,
+                              requester:,
+                              requester_email:,
                               summary:,
                               is_verbose: false )
 
@@ -211,8 +211,8 @@ module Deepblue
                                              "deposit_url=#{deposit_url}",
                                              "description=#{description}",
                                              "discipline=#{discipline}",
-                                             "reporter=#{reporter}",
-                                             "reporter_email=#{reporter_email}",
+                                             "requester=#{requester}",
+                                             "requester_email=#{requester_email}",
                                              "summary=#{summary}",
                                              "jira_enabled=#{jira_enabled}",
                                              "" ],
@@ -221,15 +221,15 @@ module Deepblue
       return nil if client.blank? && !jira_enabled
 
       summary = summary.gsub( /\n/, ' ' ) if summary.present?
-      # reporter is a structure, we need to pass reporter_email, but since raiseOnBehalfOf and requestParticipants
+      # requester is a structure, we need to pass requester_email, but since raiseOnBehalfOf and requestParticipants
       # don't seem to do anything, we'll skip it
       issue = jira_service_desk_request_new_ticket( client: client, summary: summary, is_verbose: is_verbose )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "summary=#{summary}",
                                              "description=#{description}",
-                                             "reporter=#{reporter}",
-                                             "reporter_email=#{reporter_email}",
+                                             "requester=#{requester}",
+                                             "requester_email=#{requester_email}",
                                              "issue.present?=#{issue.present?}",
                                              "" ],
                                            bold_puts: is_verbose if is_verbose || jira_helper_debug_verbose
@@ -248,8 +248,8 @@ module Deepblue
                                   deposit_url: deposit_url,
                                   description: description,
                                   discipline: discipline,
-                                  reporter: reporter,
-                                  reporter_email: reporter_email,
+                                  requester: requester,
+                                  requester_email: requester_email,
                                   is_verbose: is_verbose )
 
       url = ticket_url( client: client, issue: issue )
@@ -268,8 +268,8 @@ module Deepblue
                                          description:,
                                          discipline:,
                                          merge_updates: false,
-                                         reporter:,
-                                         reporter_email:,
+                                         requester:,
+                                         requester_email:,
                                          is_verbose: false )
 
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -279,8 +279,8 @@ module Deepblue
                                              "deposit_url=#{deposit_url}",
                                              "description=#{description}",
                                              "discipline=#{discipline}",
-                                             "reporter=#{reporter}",
-                                             "reporter_email=#{reporter_email}",
+                                             "requester=#{requester}",
+                                             "requester_email=#{requester_email}",
                                              "merge_updates=#{merge_updates}",
                                              "" ],
                                            bold_puts: is_verbose if is_verbose || jira_helper_debug_verbose
@@ -294,8 +294,8 @@ module Deepblue
                                               "issue.attrs=#{issue.attrs}",
                                               "" ],
                                             bold_puts: is_verbose ) unless rv
-      if reporter.present?
-        sopts = { "fields" => { FIELD_NAME_REPORTER => reporter } }
+      if requester.present?
+        sopts = { "fields" => { FIELD_NAME_REPORTER => requester } }
         rv = issue.save( sopts )
         ::Deepblue::LoggingHelper.bold_debug( [ ::Deepblue::LoggingHelper.here,
                                                 ::Deepblue::LoggingHelper.called_from,
@@ -304,7 +304,7 @@ module Deepblue
                                                 "" ],
                                               bold_puts: is_verbose ) unless rv
       end
-      sopts = { "fields" => { FIELD_NAME_CONTACT_INFO => reporter_email } }
+      sopts = { "fields" => { FIELD_NAME_CONTACT_INFO => requester_email } }
       rv = issue.save( sopts )
       ::Deepblue::LoggingHelper.bold_debug( [ ::Deepblue::LoggingHelper.here,
                                               ::Deepblue::LoggingHelper.called_from,
@@ -339,10 +339,10 @@ module Deepblue
       return issue
     end
 
-    def self.jira_reporter( client: nil, user: nil, is_verbose: false )
+    def self.jira_requester( client: nil, user: nil, is_verbose: false )
       ::Deepblue::LoggingHelper.bold_debug( [ ::Deepblue::LoggingHelper.here,
                                               ::Deepblue::LoggingHelper.called_from,
-                                              "jira_reporter( user: #{user} )",
+                                              "jira_requester( user: #{user} )",
                                               "" ] ) if jira_helper_debug_verbose
       return { name: user } unless jira_enabled
       return { name: user } if jira_test_mode
@@ -428,8 +428,8 @@ module Deepblue
           "requestFieldValues": { "summary": summary }
       }
       # # raiseOnBehalfOf and requestParticipants don't seem to do anything
-      # data.merge!( { "raiseOnBehalfOf": reporter_email } ) if reporter_email.present?
-      # data.merge!( { "requestParticipants": [ reporter_email ] } ) if reporter_email.present?
+      # data.merge!( { "raiseOnBehalfOf": requester_email } ) if requester_email.present?
+      # data.merge!( { "requestParticipants": [ requester_email ] } ) if requester_email.present?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              "data=#{data}",
                                              "" ], bold_puts: is_verbose if is_verbose || jira_helper_debug_verbose
@@ -524,12 +524,12 @@ module Deepblue
       discipline = Array( curation_concern.subject_discipline ).first
       description = Array( curation_concern.title ).join("\n") + "\n\nby #{creator}"
       client = jira_client( client: client )
-      if jira_use_authoremail_as_reporter
-        reporter = jira_reporter( user: curation_concern.authoremail, client: client, is_verbose: is_verbose )
-        reporter_email = curation_concern.authoremail
+      if jira_use_authoremail_as_requester
+        requester = jira_requester( user: curation_concern.authoremail, client: client, is_verbose: is_verbose )
+        requester_email = curation_concern.authoremail
       else
-        reporter = jira_reporter( user: curation_concern.depositor, client: client, is_verbose: is_verbose )
-        reporter_email = curation_concern.depositor
+        requester = jira_requester( user: curation_concern.depositor, client: client, is_verbose: is_verbose )
+        requester_email = curation_concern.depositor
       end
       summary = jira_build_summary_for( curation_concern: curation_concern )
 
@@ -537,8 +537,8 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "summary=#{summary}",
-                                             "reporter=#{reporter}",
-                                             "reporter_email=#{reporter_email}",
+                                             "requester=#{requester}",
+                                             "requester_email=#{requester_email}",
                                              "description=#{description}",
                                              "" ] if jira_helper_debug_verbose
       jira_url = JiraHelper.jira_new_ticket( client: client,
@@ -546,8 +546,8 @@ module Deepblue
                                              deposit_url: deposit_url,
                                              description: description,
                                              discipline: discipline,
-                                             reporter: reporter,
-                                             reporter_email: reporter_email,
+                                             requester: requester,
+                                             requester_email: requester_email,
                                              summary: summary )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
