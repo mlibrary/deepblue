@@ -14,7 +14,7 @@
 
     <ul role="menu" class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu_<%= member.id %>">
 
-  <% if ( ( @presenter.editor? && @presenter.workflow.state != "deposited" )|| @presenter.current_ability.admin? ) %>
+  <% if @presenter.can_edit? %>
     <li>
       <%= link_to t('.view_details'), polymorphic_path([main_app, member]), method: :get %>
     </li>
@@ -33,15 +33,13 @@
       </li>
     <% end %>
 
-    <%# if can?(:destroy, member.id) %>
-      <% unless @presenter.doi_minted? || member.doi_minted? %>
-        <li role="menuitem" tabindex="-1">
-          <%= link_to t('.delete'), polymorphic_path([main_app, member]),
-            method: :delete, title: t('.delete_title', file_set: member),
-            data: { confirm: t('.delete_confirm', file_set: member, application_name: application_name) } %>
-        </li>
-      <% end %>
-    <%# end %>
+    <% unless member.can_delete? %>
+      <li role="menuitem" tabindex="-1">
+        <%= link_to t('.delete'), polymorphic_path([main_app, member]),
+          method: :delete, title: t('.delete_title', file_set: member),
+          data: { confirm: t('.delete_confirm', file_set: member, application_name: application_name) } %>
+      </li>
+    <% end %>
   <% elsif @presenter.workflow.state != "deposited" && @presenter.current_user_can_read? %>
     <li>
       <%= link_to t('.view_details'), polymorphic_path([main_app, member]), method: :get %>

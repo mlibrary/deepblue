@@ -15,6 +15,21 @@ module Hyrax
       false
     end
 
+    def can_delete?
+      return true if current_ability.admin?
+      can_edit?
+    end
+
+    def can_mint_doi?
+      false
+    end
+
+    def can_edit?
+      return true if current_ability.admin?
+      return true if editor? && parent.workflow.state != 'deposited'
+      false
+    end
+
     def display_provenance_log_enabled?
       false
     end
