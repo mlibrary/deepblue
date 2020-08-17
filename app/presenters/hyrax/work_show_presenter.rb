@@ -7,16 +7,35 @@ module Hyrax
 
   class WorkShowPresenter
 
-    def relative_url_root
-      rv = ::DeepBlueDocs::Application.config.relative_url_root
-      return rv if rv
-      ''
+    def can_delete?
+      return false if doi_minted?
+      return true if current_ability.admin?
+      can_edit?
+    end
+
+    def can_edit?
+      return true if current_ability.admin?
+      return true if editor? && parent.workflow.state != 'deposited'
+      false
+    end
+
+    def can_mint_doi?
+      return false unless current_ability.admin?
+      return false unless doi_minting_enabled?
+      return false if doi_pending? || doi_minted?
+      true
     end
 
     def page_title
       part1 = human_readable_type
       part1 = "Data Set" if part1 == "Work"
       "#{part1} | #{title.first} | ID: #{id} | #{I18n.t('hyrax.product_name')}"
+    end
+
+    def relative_url_root
+      rv = ::DeepBlueDocs::Application.config.relative_url_root
+      return rv if rv
+      ''
     end
 
     def tombstone

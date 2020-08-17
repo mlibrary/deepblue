@@ -197,6 +197,26 @@ module Hyrax
 
     ## User access end
 
+    def can_delete?
+      return false if doi_minted?
+      return true if current_ability.admin?
+      return false if parent_doi_minted?
+      can_edit?
+    end
+
+    def can_edit?
+      return true if current_ability.admin?
+      return true if editor? && parent.workflow.state != 'deposited'
+      false
+    end
+
+    def can_mint_doi?
+      return false unless current_ability.admin?
+      return false unless doi_minting_enabled?
+      return false if doi_pending? || doi_minted?
+      true
+    end
+
     def parent_data_set
       @parent_data_set ||= DataSet.find parent.id
     end
