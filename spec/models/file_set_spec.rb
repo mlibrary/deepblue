@@ -285,41 +285,42 @@ RSpec.describe FileSet do
     # end
   end
 
-  # describe '#indexer' do
-  #   subject { described_class.indexer }
-  #
-  #   it { is_expected.to eq Hyrax::FileSetIndexer }
-  #
-  #   describe "setting" do
-  #     before do
-  #       class AltFile < ActiveFedora::Base
-  #         include Hyrax::FileSetBehavior
-  #       end
-  #     end
-  #     after do
-  #       Object.send(:remove_const, :AltFile)
-  #     end
-  #     let(:klass) { Class.new }
-  #
-  #     subject { AltFile.new }
-  #
-  #     it 'is settable' do
-  #       AltFile.indexer = klass
-  #       expect(AltFile.indexer).to eq klass
-  #     end
-  #   end
-  # end
-  #
+  describe '#indexer' do
+    subject { described_class.indexer }
+
+    it { is_expected.to eq Hyrax::FileSetIndexer }
+
+    describe "setting" do
+      before do
+        class AltFile < ActiveFedora::Base
+          include Hyrax::FileSetBehavior
+        end
+      end
+      after do
+        Object.send(:remove_const, :AltFile)
+      end
+      let(:klass) { Class.new }
+
+      subject { AltFile.new }
+
+      it 'is settable' do
+        AltFile.indexer = klass
+        expect(AltFile.indexer).to eq klass
+      end
+    end
+  end
+
   # it 'supports multi-valued fields in solr' do
   #   subject.keyword = %w[keyword1 keyword2]
   #   expect { subject.save }.not_to raise_error
   #   subject.delete
   # end
-  #
+
   # it 'supports setting and getting the relative_path value' do
   #   subject.relative_path = 'documents/research/NSF/2010'
   #   expect(subject.relative_path).to eq 'documents/research/NSF/2010'
   # end
+  #
   # describe 'create_thumbnail' do
   #   let(:file_set) do
   #     described_class.new do |f|

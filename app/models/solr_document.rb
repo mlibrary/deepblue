@@ -315,7 +315,8 @@ class SolrDocument
     source:       ['source_tesim', 'isBasedOnUrl_tesim'],
     subject:      ['subject_tesim', 'keyword_tesim'],
     title:        'title_tesim',
-    type:         'resource_type_tesim'
+    type:         'resource_type_tesim',
+    doi:          'doi_tesim'
   )
 
 
