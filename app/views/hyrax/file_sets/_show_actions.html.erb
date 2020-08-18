@@ -1,8 +1,8 @@
 <div class="form-actions">
-  <% if @presenter.can_edit? %>
+  <% if @presenter.can_edit_file? %>
     <%= link_to t('simple_form.actions.file_set.edit'), edit_polymorphic_path([main_app, @presenter]), class: 'btn btn-primary' %>
   <% end %>
-  <% if !@presenter.can_delete? %>
+  <% if @presenter.can_delete_file? %>
     <%= link_to t('simple_form.actions.file_set.delete'), [main_app, @presenter],
                 class: 'btn btn-danger', data: { confirm: "Delete this #{@presenter.human_readable_type}?" },
                 method: :delete %>
@@ -31,7 +31,7 @@
         <h2><%= t('simple_form.labels.file_set.admin_actions') %></h2>
       </div>
       <div class="panel-body">
-        <% if @presenter.can_mint_doi? %>
+        <% if @presenter.can_mint_doi_file? %>
           <p>
             <button class="btn btn-primary" data-target="#mintDoiId" data-toggle="modal">
               <%= t('simple_form.actions.file_set.mint_doi') %>

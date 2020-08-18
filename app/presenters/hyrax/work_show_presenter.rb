@@ -7,19 +7,39 @@ module Hyrax
 
   class WorkShowPresenter
 
-    def can_delete?
+    WORK_SHOW_PRESENTER_DEBUG_VERBOSE = true || ::DeepBlueDocs::Application.config.work_show_presenter_debug_verbose
+
+    def can_delete_work?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "doi_minted?=#{doi_minted?}",
+                                             "current_ability.admin?=#{current_ability.admin?}",
+                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       return false if doi_minted?
       return true if current_ability.admin?
-      can_edit?
+      can_edit_work?
     end
 
-    def can_edit?
+    def can_edit_work?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "current_ability.admin?=#{current_ability.admin?}",
+                                             "editor?=#{editor?}",
+                                             "workflow.state != 'deposited'=#{workflow.state != 'deposited'}",
+                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       return true if current_ability.admin?
-      return true if editor? && parent.workflow.state != 'deposited'
+      return true if editor? && workflow.state != 'deposited'
       false
     end
 
-    def can_mint_doi?
+    def can_mint_doi_work?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "current_ability.admin?=#{current_ability.admin?}",
+                                             "doi_minting_enabled?=#{doi_minting_enabled?}",
+                                             "doi_pending?=#{doi_pending?}",
+                                             "doi_minted?=#{doi_minted?}",
+                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       return false unless current_ability.admin?
       return false unless doi_minting_enabled?
       return false if doi_pending? || doi_minted?

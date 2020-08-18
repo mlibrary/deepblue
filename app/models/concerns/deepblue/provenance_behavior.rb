@@ -4,11 +4,11 @@ module Deepblue
 
   require_relative './abstract_event_behavior'
 
-  class ProvenanceLogError < AbstractEventError
-  end
-
   module ProvenanceBehavior
     include AbstractEventBehavior
+
+    class ProvenanceLogError < AbstractEventError
+    end
 
     def attributes_all_for_provenance
       %i[]

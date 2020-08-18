@@ -64,6 +64,7 @@ module DeepBlueDocs
     config.single_use_links_viewer_controller_debug_verbose = true
     config.solr_document_debug_verbose = false
     config.works_controller_behavior_debug_verbose = false
+    config.work_show_presenter_debug_verbose = true
     config.work_view_content_service_debug_verbose = false
     config.work_view_content_service_email_templates_debug_verbose = false
     config.work_view_content_service_i18n_templates_debug_verbose = false
