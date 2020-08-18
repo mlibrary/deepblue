@@ -4,7 +4,7 @@ module Hyrax
 
   class DsFileSetPresenter < Hyrax::FileSetPresenter
 
-    DS_FILE_SET_PRESENTER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.ds_file_set_presenter_debug_verbose
+    DS_FILE_SET_PRESENTER_DEBUG_VERBOSE = true || ::DeepBlueDocs::Application.config.ds_file_set_presenter_debug_verbose
 
     include Deepblue::DeepbluePresenterBehavior
 
@@ -197,20 +197,53 @@ module Hyrax
 
     ## User access end
 
-    def can_delete?
+    def can_delete_file?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "doi_minted?=#{doi_minted?}",
+                                             "current_ability.admin?=#{current_ability.admin?}",
+                                             "parent_doi_minted?=#{parent_doi_minted?}",
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
       return false if doi_minted?
       return true if current_ability.admin?
       return false if parent_doi_minted?
-      can_edit?
+      can_edit_file?
     end
 
-    def can_edit?
+    def can_edit_file?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "current_ability.admin?=#{current_ability.admin?}",
+                                             "editor?=#{editor?}",
+                                             "parent.workflow.state != 'deposited'=#{parent.workflow.state != 'deposited'}",
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
       return true if current_ability.admin?
       return true if editor? && parent.workflow.state != 'deposited'
       false
     end
 
-    def can_mint_doi?
+    def can_mint_doi_file?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "current_ability.admin?=#{current_ability.admin?}",
+                                             "doi_minting_enabled?=#{doi_minting_enabled?}",
+                                             "doi_pending?=#{doi_pending?}",
+                                             "doi_minted?=#{doi_minted?}",
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      return false unless current_ability.admin?
+      return false unless doi_minting_enabled?
+      return false if doi_pending? || doi_minted?
+      true
+    end
+
+    def can_view_file?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "current_ability.admin?=#{current_ability.admin?}",
+                                             "doi_minting_enabled?=#{doi_minting_enabled?}",
+                                             "doi_pending?=#{doi_pending?}",
+                                             "doi_minted?=#{doi_minted?}",
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
       return false unless current_ability.admin?
       return false unless doi_minting_enabled?
       return false if doi_pending? || doi_minted?
