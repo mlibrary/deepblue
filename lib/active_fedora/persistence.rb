@@ -187,6 +187,10 @@ module ActiveFedora
           @ldp_source = @ldp_source.create
         rescue Ldp::Conflict
           _create_record_ldp_source_create_retry
+        rescue Ldp::Gone
+          ::Deepblue::LoggingHelper.debug "Ldp::Gone"
+          puts ">>>>>>>>>>> Ldp::Gone <<<<<<<<<<<<<" if Rails.env.test?
+          raise
         end
         assign_uri_to_contained_resources
         save_contained_resources
@@ -207,6 +211,10 @@ module ActiveFedora
           rescue Ldp::Conflict
             attempts += 1
             raise if attempts > 99
+          rescue Ldp::Gone
+            ::Deepblue::LoggingHelper.debug "Ldp::Gone #{new_id}"
+            puts ">>>>>>>>>>> Ldp::Gone #{new_id} <<<<<<<<<<<<<" if Rails.env.test?
+            raise
           end
         end
       end

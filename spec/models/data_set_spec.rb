@@ -76,6 +76,19 @@ RSpec.describe DataSet do
     end
   end
 
+  # it 'supports ordered multi-valued fields' do
+  #   let(:work) { create(:work_with_files) }
+  #   keywords = %w[keyword5 keyword4 keyword3 keyword2 keyword1]
+  #   work.keyword = keywords
+  #   work.date_modified = ::Hyrax::TimeService.time_in_utc
+  #   work.save
+  #   # expect( subject.keyword ).to eq keywords
+  #   work.reload
+  #   expect( work.keyword ).to eq keywords
+  #   work.delete
+  # end
+
+
   describe 'metadata overrides' do
     before do
       subject.id = id
