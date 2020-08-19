@@ -1,12 +1,9 @@
 <% provide :page_title, @presenter.page_title %>
-<% contents_hidden = ( !@presenter.parent.tombstone.present? && @presenter.parent.workflow.state != "deposited" && !can?(:edit, @presenter.id) ) %>
 <br/>
 <div class="container-fluid">
   <div class="row">
     <div class="col-xs-12 col-sm-4">
-      <% if contents_hidden %>
-        &nbsp;
-      <% else %>
+      <% if @presenter.can_view_file? %>
         <%= media_display @presenter %>
         <%= render 'show_actions', presenter: @presenter %>
         <% if ::DeepBlueDocs::Application.config.enable_single_use_links %>
@@ -14,23 +11,11 @@
         <% end %>
       <% end %>
     </div>
-
-<%  if @presenter.parent.respond_to? :itemtype %>
-<%    unless @presenter.parent.itemtype == "http://schema.org/Dataset" %>
-<%      itemtype = "http://schema.org/CreativeWork" %>
-<%    else %>
-<%      itemtype = "http://schema.org/Dataset" %>
-<%    end %>
-<%  end %>
-
-    <div itemscope itemtype="<%= itemtype %>" class="col-xs-12 col-sm-8">
+    <div itemscope itemtype="<%= @presenter.itemscope_itemtype %>" class="col-xs-12 col-sm-8">
       <header>
         <%= render 'file_set_title', presenter: @presenter %>
       </header>
-
-      <% if contents_hidden %>
-        &nbsp;
-      <% else %>
+      <% if @presenter.can_view_file? %>
         <%# TODO: render 'show_descriptions' See https://github.com/samvera/hyrax/issues/1481 %>
         <%= render 'show_details' %>
         <%= render 'hyrax/users/activity_log', events: @presenter.events %>

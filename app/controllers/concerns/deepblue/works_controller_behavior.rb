@@ -12,6 +12,7 @@ module Deepblue
     include Hyrax::WorksControllerBehavior
     include Deepblue::ControllerWorkflowEventBehavior
     include Deepblue::DoiControllerBehavior
+    include Deepblue::SingleUseLinkControllerBehavior
     include Deepblue::IngestAppendScriptControllerBehavior
 
     WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.works_controller_behavior_debug_verbose
@@ -221,6 +222,80 @@ module Deepblue
       curation_concern.depositor = current_user.user_key
       curation_concern.admin_set_id = admin_set_id_for_new
       build_form
+    end
+
+    # GET file_sets/:id/single_use_link/:link_id
+    def single_use_link
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params[:id]=#{params[:id]}",
+                                             "params[:link_id]=#{params[:link_id]}",
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      @curation_concern ||= ::Deepblue::WorkViewContentService.content_find_by_id( id: params[:id] )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params[:id]=#{params[:id]}",
+                                             "params[:link_id]=#{params[:link_id]}",
+                                             "curation_concern.id=#{curation_concern.id}",
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      su_link = single_use_link_obj( link_id: params[:link_id] )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "su_link=#{su_link}",
+                                             "su_link.class.name=#{su_link.class.name}",
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      curation_concern_path = polymorphic_path([main_app, curation_concern] )
+      unless single_use_link_valid?( su_link, item_id: curation_concern.id, path: curation_concern_path )
+        single_use_link_destroy! su_link
+        return redirect_to main_app.root_path, alert: single_use_link_expired_msg
+      end
+      single_use_link_destroy! su_link
+      # respond_to do |wants|
+      #   wants.html { presenter.single_use_link = su_link }
+      #   wants.json { presenter.single_use_link = su_link }
+      #   additional_response_formats(wants)
+      # end
+      @user_collections = user_collections
+
+      respond_to do |wants|
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               Deepblue::LoggingHelper.obj_class( 'wants', wants ),
+                                               "wants.format=#{wants.format}",
+                                               "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+        wants.any do
+          presenter && parent_presenter
+          presenter.controller = self
+          presenter.single_use_link = su_link
+          ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                                 Deepblue::LoggingHelper.called_from,
+                                                 Deepblue::LoggingHelper.obj_class( 'wants', wants ),
+                                                 "wants.format=#{wants.format}",
+                                                 "presenter.controller.class=#{presenter.controller.class}",
+                                                 "presenter.single_use_link=#{presenter.single_use_link}",
+                                                 "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+          render :show, status: :ok
+        end
+      end
+    end
+
+    def single_use_link_debug
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+    end
+
+    def single_use_link_request?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params=#{params}",
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      rv = params[:action] == 'single_use_link'
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      return rv
     end
 
     # Finds a solr document matching the id and sets @presenter

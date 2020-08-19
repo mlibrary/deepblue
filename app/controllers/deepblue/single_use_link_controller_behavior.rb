@@ -32,7 +32,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv = su_link.destroy!=#{rv}",
                                              "" ] if SINGLE_USE_LINK_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
-      return
+      return rv
     end
 
     def single_use_link_expired_msg

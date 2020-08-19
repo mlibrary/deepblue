@@ -29,6 +29,16 @@ module Hyrax
     def create_download
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "params[:id]=#{params[:id]}",
+                                             "" ] if SINGLE_USE_LINKS_CONTROLLER_DEBUG_VERBOSE
+      @su = SingleUseLink.create itemId: params[:id], path: hyrax.download_path(id: params[:id])
+      render plain: hyrax.download_single_use_link_url(@su.downloadKey)
+    end
+
+    def create_zip_download
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params[:id]=#{params[:id]}",
                                              "" ] if SINGLE_USE_LINKS_CONTROLLER_DEBUG_VERBOSE
       @su = SingleUseLink.create itemId: params[:id], path: hyrax.download_path(id: params[:id])
       render plain: hyrax.download_single_use_link_url(@su.downloadKey)
@@ -37,6 +47,7 @@ module Hyrax
     def create_show
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "params[:id]=#{params[:id]}",
                                              "" ] if SINGLE_USE_LINKS_CONTROLLER_DEBUG_VERBOSE
       @su = SingleUseLink.create(itemId: params[:id], path: asset_show_path)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -54,6 +65,7 @@ module Hyrax
     def index
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "params[:id]=#{params[:id]}",
                                              "" ] if SINGLE_USE_LINKS_CONTROLLER_DEBUG_VERBOSE
       links = SingleUseLink.where(itemId: params[:id]).map { |link| show_presenter.new(link) }
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -66,6 +78,7 @@ module Hyrax
     def destroy
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "params[:link_id]=#{params[:link_id]}",
                                              "" ] if SINGLE_USE_LINKS_CONTROLLER_DEBUG_VERBOSE
       SingleUseLink.find_by_downloadKey(params[:link_id]).destroy
       head :ok
