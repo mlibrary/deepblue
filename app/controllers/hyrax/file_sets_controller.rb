@@ -99,12 +99,6 @@ module Hyrax
 
     # monkey begin
 
-    def single_use_link_debug
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
-    end
-
     def file_contents
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -156,6 +150,12 @@ module Hyrax
         wants.json { presenter.single_use_link = su_link }
         additional_response_formats(wants)
       end
+    end
+
+    def single_use_link_debug
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
     end
 
     ## User access begin

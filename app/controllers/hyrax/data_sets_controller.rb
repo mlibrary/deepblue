@@ -15,15 +15,16 @@ module Hyrax
 
     before_action :assign_date_coverage,         only: %i[create update]
     before_action :assign_admin_set,             only: %i[create update]
-    before_action :workflow_destroy,             only: [:destroy]
+    before_action :prepare_permissions,          only: [:show, :single_use_link]
     before_action :provenance_log_update_before, only: [:update]
+    before_action :single_use_link_debug,        only: [:single_use_link]
     before_action :visiblity_changed,            only: [:update]
-    before_action :prepare_permissions,          only: [:show]
+    before_action :workflow_destroy,             only: [:destroy]
 
-    after_action :workflow_create,               only: [:create]
-    after_action :visibility_changed_update,     only: [:update]
     after_action :provenance_log_update_after,   only: [:update]
-    after_action :reset_permissions,             only: [:show]
+    after_action :reset_permissions,             only: [:show, :single_use_link]
+    after_action :visibility_changed_update,     only: [:update]
+    after_action :workflow_create,               only: [:create]
 
     protect_from_forgery with: :null_session,    only: [:display_provenance_log]
     protect_from_forgery with: :null_session,    only: [:globus_add_email]
@@ -58,7 +59,6 @@ module Hyrax
     def reset_permissions
       current_ability.user_groups.delete("admin")
     end
-
 
     ## box integration
 

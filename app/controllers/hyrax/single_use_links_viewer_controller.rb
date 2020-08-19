@@ -24,6 +24,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "single_use_link=#{single_use_link}",
                                              "single_use_link.path=#{single_use_link.path}",
+                                             "single_use_link.class.name=#{single_use_link.class.name}",
                                              "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
       raise not_found_exception unless single_use_link_valid?( single_use_link, destroy_if_not_valid: true )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -34,6 +35,7 @@ module Hyrax
                                              # "hyrax.download_path(id: asset)=#{hyrax.download_path(id: asset)}",
                                              "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
       raise not_found_exception unless single_use_link_valid?( single_use_link, item_id: asset&.id, destroy_if_not_valid: true )
+      # if ends in .zip
       single_use_link_destroy! single_use_link
       send_content
     end

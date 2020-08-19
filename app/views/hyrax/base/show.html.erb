@@ -10,79 +10,11 @@
     <%= render 'work_type', presenter: @presenter %>
   </div>
   <div class="col-xs-12">&nbsp;</div>
-
-<% if @presenter.respond_to? :itemtype %>
-<%   unless @presenter.itemtype == "http://schema.org/Dataset" %>
-<%     itemtype = "http://schema.org/CreativeWork" %>
-<%   else %>
-<%     itemtype = "http://schema.org/Dataset"   %>
-<%   end %>
-<% end %>
-
-  <div itemscope itemtype="<%= itemtype %>" class="col-xs-12">
+  <div itemscope itemtype="<%= @presenter.itemscope_itemtype %>" class="col-xs-12">
     <div class="panel panel-default work-details-container">
-      <div class="panel-heading work-description-panel-heading">
-        <div class="row">
-          <div class="col-sm-12">
-            <span class="work-description-title">
-              <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                <path fill="none" d="M0 0h24v24H0z"/>
-                <path fill="#0c5292" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm-1 4l6 6v10c0 1.1-.9 2-2 2H7.99C6.89 23 6 22.1 6 21l.01-14c0-1.1.89-2 1.99-2h7zm-1 7h5.5L14 6.5V12z"/>
-              </svg>
-              <h1 class="work-description">Work Description</h1>
-            </span>
-          </div>
-        </div>
-      </div>
-      <div class="panel-heading work-panel-heading">
-        <span itemprop="name">
-          <%= render 'work_title', presenter: @presenter %>
-        </span>
-      </div>
-
-      <% if !@presenter.tombstone.present? &&
-          @presenter.workflow.state != "deposited" &&
-          !can?( :edit, @presenter.id ) &&
-          @presenter.current_user_can_read? &&
-          !current_ability.current_user.user_approver?( current_ability.current_user ) %>
-        <%# don't show it %>&nbsp;
-      <% else %>
-      <div class="panel-body">
-        <div class="row">
-          <%= render 'workflow_actions_widget', presenter: @presenter %>
-          <% if @presenter.iiif_viewer? %>
-            <div class="col-sm-12">
-              <%= render 'representative_media', presenter: @presenter, viewer: true %>
-            </div>
-          <% end %>
-          <div class="col-sm-12">
-            <table class="table table-striped data-set-table">
-              <thead>
-              <tr>
-                <th scope="col">Attribute</th>
-                <th scope="col">Value</th>
-              </tr>
-            </thead>
-            <%= render 'work_description', presenter: @presenter %>
-            <%= render 'metadata', presenter: @presenter %>
-            </table>
-          </div>
-          <div class="col-sm-12">
-            <%= render 'citations', presenter: @presenter %>
-          </div>
-          <div class="col-sm-12">
-            <%= render 'relationships', presenter: @presenter %>
-            <%= render 'items', presenter: @presenter %>
-            <%# TODO: we may consider adding these partials in the future %>
-            <%# = render 'sharing_with', presenter: @presenter %>
-            <%# = render 'user_activity', presenter: @presenter %>
-            <%= render '/provenance_log_entries', presenter: @presenter %>
-          </div>
-          <div class="button-panel--show col-sm-12 panel">
-            <%= render "show_actions", presenter: @presenter %>
-          </div>
-        </div>
-      </div>
+      <%= render 'work_description_and_title', presenter: @presenter %>
+      <% if @presenter.can_view_work? %>
+        <%= render 'show_work_body' %>
       <% end %>
     </div>
   </div>

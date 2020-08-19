@@ -18,6 +18,27 @@ module Hyrax
         search_result_document(search_params)
       end
 
+      def decide_layout
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "action_name=#{action_name}",
+                                               "params[:link_id].present?=#{params[:link_id].present?}",
+                                               "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+        layout = if 'show' == action_name || params[:link_id].present?
+                   '1_column'
+                 elsif 'single_use_link' == action_name
+                   '1_column'
+                 else
+                   'dashboard'
+                 end
+        rv = File.join(theme, layout)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "rv=#{rv}",
+                                               "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+        return rv
+      end
+
       # Only returns unsuppressed documents the user has read access to
       def search_result_document(search_params)
         _, document_list = search_results(search_params)
