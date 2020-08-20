@@ -15,7 +15,7 @@
     <div class="form_actions">
       <% if @presenter.can_download_zip_maybe? && @presenter.can_download_zip_confirm? %>
         <%= link_to t('hyrax.single_use_links.button_with_type', link_type: 'Download' ),
-                    Rails.application.routes.url_helpers.url_for( only_path: true, action: 'create_zip_download', controller: 'single_use_links', id: @presenter.id ),
+                    hyrax.generate_download_single_use_link_path( @presenter ),
                     class: 'btn btn-default generate-single-use-link' %>
       <% end %>
       <%= link_to t('hyrax.single_use_links.button_with_type', link_type: 'Show' ),

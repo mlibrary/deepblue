@@ -314,6 +314,13 @@ class DataSet < ActiveFedora::Base
     return ''
   end
 
+  def for_zip_download_route
+    Rails.application.routes.url_helpers.hyrax_data_set_path( id: id ) + "/zip_download" # TODO: fix
+  rescue ActionController::UrlGenerationError => e
+    Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
+    return ''
+  end
+
   def for_provenance_route
     for_event_route
   end

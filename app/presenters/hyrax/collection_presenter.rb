@@ -107,7 +107,16 @@ module Hyrax
       ::Collection.metadata_keys_json
     end
 
+    def can_download_using_globus_maybe?
+      false
+    end
+
     # begin display_provenance_log
+
+    def can_display_provenance_log?
+      return false unless display_provenance_log_enabled?
+      current_ability.admin?
+    end
 
     def display_provenance_log_enabled?
       true

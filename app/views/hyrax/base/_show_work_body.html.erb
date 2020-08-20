@@ -32,7 +32,7 @@
     <div class="button-panel--show col-sm-12 panel">
       <%= render "show_actions", presenter: @presenter %>
       <% if ::DeepBlueDocs::Application.config.enable_single_use_links %>
-        <%= render 'single_use_links', presenter: @presenter if @presenter.editor? %>
+        <%= render 'single_use_links', presenter: @presenter if @presenter.can_edit_work? %>
       <% end %>
     </div>
   </div>

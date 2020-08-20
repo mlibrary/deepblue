@@ -20,6 +20,7 @@ module Hyrax
     copy_blacklight_config_from(::CatalogController)
 
     def download
+      path = single_use_link.path
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "single_use_link=#{single_use_link}",
@@ -34,10 +35,20 @@ module Hyrax
                                              "asset&.id=#{asset&.id}",
                                              # "hyrax.download_path(id: asset)=#{hyrax.download_path(id: asset)}",
                                              "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
-      raise not_found_exception unless single_use_link_valid?( single_use_link, item_id: asset&.id, destroy_if_not_valid: true )
-      # if ends in .zip
-      single_use_link_destroy! single_use_link
-      send_content
+      raise not_found_exception unless single_use_link_valid?( single_use_link,
+                                                               item_id: asset&.id,
+                                                               destroy_if_not_valid: true )
+      if path =~ /concern\/file_sets/
+        single_use_link_destroy! single_use_link
+        send_content
+      else
+        url = "#{path}/#{params[:id]}"
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "url=#{url}",
+                                               "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
+        redirect_to url, notice: "Single Use Link" # TODO: internationlize
+      end
     end
 
     def show
@@ -70,7 +81,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "url=#{url}",
                                              "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
-      redirect_to url
+      redirect_to url, notice: "Single Use Link" # TODO: internationlize
     end
 
     private

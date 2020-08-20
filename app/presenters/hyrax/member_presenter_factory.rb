@@ -21,6 +21,9 @@ module Hyrax
     # @param [Class] presenter_class the type of presenter to build
     # @return [Array<presenter_class>] presenters for the ordered_members (not filtered by class)
     def member_presenters(ids = ordered_ids, presenter_class = composite_presenter_class)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ]
       PresenterFactory.build_for(ids: ids,
                                  presenter_class: presenter_class,
                                  presenter_args: presenter_factory_arguments)
@@ -28,6 +31,9 @@ module Hyrax
 
     # @return [Array<FileSetPresenter>] presenters for the orderd_members that are FileSets
     def file_set_presenters
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if @file_set_presenters.blank?
       @file_set_presenters ||= member_presenters(ordered_ids & file_set_ids)
     end
 
@@ -46,7 +52,7 @@ module Hyrax
                        end
     end
 
-    private
+    # private
 
       # These are the file sets that belong to this work, but not necessarily
       # in order.
