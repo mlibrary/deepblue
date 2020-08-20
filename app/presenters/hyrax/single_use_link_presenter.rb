@@ -45,7 +45,7 @@ module Hyrax
     private
 
       def download?
-        link.path =~ /downloads/
+        link.path =~ /downloads|zip_download/
       end
 
       def hours

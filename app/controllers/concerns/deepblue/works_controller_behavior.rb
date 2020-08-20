@@ -23,7 +23,15 @@ module Deepblue
         # load_and_authorize_resource class: curation_concern_type, instance_name: :curation_concern, except: [:show, :file_manager, :inspect_work, :manifest]
         # Note that the find_with_rescue(id) method specified catches Ldp::Gone exceptions and returns nil instead,
         # so if the curation_concern is nil, it's because it wasn't found or it was deleted
-        load_and_authorize_resource class: curation_concern_type, find_by: :find_with_rescue, instance_name: :curation_concern, except: [:show, :file_manager, :inspect_work, :manifest]
+        load_and_authorize_resource class: curation_concern_type,
+                                    find_by: :find_with_rescue,
+                                    instance_name: :curation_concern,
+                                    except: [:show,
+                                             :file_manager,
+                                             :inspect_work,
+                                             :manifest,
+                                             :single_use_link,
+                                             :single_use_link_zip_download]
         # end monkey
 
         # Load the fedora resource to get the etag.
@@ -250,11 +258,6 @@ module Deepblue
         return redirect_to main_app.root_path, alert: single_use_link_expired_msg
       end
       single_use_link_destroy! su_link
-      # respond_to do |wants|
-      #   wants.html { presenter.single_use_link = su_link }
-      #   wants.json { presenter.single_use_link = su_link }
-      #   additional_response_formats(wants)
-      # end
       @user_collections = user_collections
 
       respond_to do |wants|
@@ -266,17 +269,48 @@ module Deepblue
         wants.any do
           presenter && parent_presenter
           presenter.controller = self
-          presenter.single_use_link = su_link
+          presenter.cc_single_use_link = su_link
           ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                  Deepblue::LoggingHelper.called_from,
                                                  Deepblue::LoggingHelper.obj_class( 'wants', wants ),
                                                  "wants.format=#{wants.format}",
                                                  "presenter.controller.class=#{presenter.controller.class}",
-                                                 "presenter.single_use_link=#{presenter.single_use_link}",
+                                                 "presenter.cc_single_use_link=#{presenter.cc_single_use_link}",
                                                  "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
           render :show, status: :ok
         end
       end
+    end
+
+    attr_accessor :cc_single_use_link
+
+    def single_use_link_zip_download
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params[:id]=#{params[:id]}",
+                                             "params[:link_id]=#{params[:link_id]}",
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      @curation_concern ||= ::Deepblue::WorkViewContentService.content_find_by_id( id: params[:id] )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params[:id]=#{params[:id]}",
+                                             "params[:link_id]=#{params[:link_id]}",
+                                             "curation_concern.id=#{curation_concern.id}",
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      su_link = single_use_link_obj( link_id: params[:link_id] )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "su_link=#{su_link}",
+                                             "su_link.class.name=#{su_link.class.name}",
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      @cc_single_use_link = su_link
+      curation_concern_path = polymorphic_path([main_app, curation_concern] )
+      unless single_use_link_valid?( su_link, item_id: curation_concern.id, path: curation_concern_path )
+        single_use_link_destroy! su_link
+        return redirect_to main_app.root_path, alert: single_use_link_expired_msg
+      end
+      single_use_link_destroy! su_link
+      zip_download
     end
 
     def single_use_link_debug

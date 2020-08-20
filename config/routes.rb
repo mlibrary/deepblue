@@ -125,7 +125,7 @@ Rails.application.routes.draw do
   # get 'single_use_link/generated/:id' => 'single_use_links#index', as: :generated_single_use_links
   # delete 'single_use_link/:id/delete/:link_id' => 'single_use_links#destroy', as: :delete_single_use_link
 
-  post 'single_use_link/generate_zip_download/:id' => 'single_use_links#create_zip_download', as: :generate_zip_download_single_use_link
+  # post 'single_use_link/generate_zip_download/:id' => 'single_use_links#create_zip_download', as: :generate_zip_download_single_use_link
 
   namespace :hyrax, path: :concern do
     resources :collections do
@@ -169,6 +169,7 @@ Rails.application.routes.draw do
         post   'ingest_append_run_job'
         post   'identifiers'
         get    'single_use_link/:link_id', action: :single_use_link
+        get    'single_use_link_zip_download/:link_id', action: :single_use_link_zip_download
         post   'tombstone'
         get    'zip_download'
         post   'zip_download'

@@ -4,7 +4,6 @@ module Deepblue
 
   module DeepbluePresenterBehavior
 
-    # TODO: change to deep_blue_presenter_behavior_debug_verbose
     DEEP_BLUE_PRESENTER_BEHAVIOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.deep_blue_presenter_debug_verbose
 
     include Rails.application.routes.url_helpers

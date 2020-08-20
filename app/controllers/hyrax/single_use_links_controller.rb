@@ -30,17 +30,23 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",
+                                             "params[:link_type]=#{params[:link_type]}",
                                              "" ] if SINGLE_USE_LINKS_CONTROLLER_DEBUG_VERBOSE
-      @su = SingleUseLink.create itemId: params[:id], path: hyrax.download_path(id: params[:id])
-      render plain: hyrax.download_single_use_link_url(@su.downloadKey)
-    end
-
-    def create_zip_download
+      asset_path = asset_show_path
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "params[:id]=#{params[:id]}",
+                                             "asset_path=#{asset_path}",
                                              "" ] if SINGLE_USE_LINKS_CONTROLLER_DEBUG_VERBOSE
-      @su = SingleUseLink.create itemId: params[:id], path: hyrax.download_path(id: params[:id])
+      if asset_path =~ /concern\/file_sets/
+        @su = SingleUseLink.create itemId: params[:id], path: hyrax.download_path(id: params[:id])
+      else
+        asset_path = asset_path.gsub( /\?locale\=.+$/, '/single_use_link_zip_download' )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "asset_path=#{asset_path}",
+                                               "" ] if SINGLE_USE_LINKS_CONTROLLER_DEBUG_VERBOSE
+        @su = SingleUseLink.create itemId: params[:id], path: asset_path
+      end
       render plain: hyrax.download_single_use_link_url(@su.downloadKey)
     end
 
@@ -66,13 +72,32 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",
+                                             "params[:link_type]=#{params[:link_type]}",
                                              "" ] if SINGLE_USE_LINKS_CONTROLLER_DEBUG_VERBOSE
       links = SingleUseLink.where(itemId: params[:id]).map { |link| show_presenter.new(link) }
+      pres = links.first
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "links=#{links}",
+                                             "pres=#{pres}",
+                                             "pres.link=#{pres.link}",
+                                             "pres.link_type=#{pres.link_type}",
                                              "" ] if SINGLE_USE_LINKS_CONTROLLER_DEBUG_VERBOSE
-      render partial: 'hyrax/file_sets/single_use_link_rows', locals: { single_use_links: links }
+      su_link = pres.link
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "su_link.path=#{su_link.path}",
+                                             "" ] if SINGLE_USE_LINKS_CONTROLLER_DEBUG_VERBOSE
+      if su_link =~ /concern\/file_sets/
+        partial_path = 'hyrax/file_sets/single_use_link_rows'
+      else
+        partial_path = 'hyrax/base/single_use_link_rows'
+      end
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "partial_path=#{partial_path}",
+                                             "" ] if SINGLE_USE_LINKS_CONTROLLER_DEBUG_VERBOSE
+      render partial: partial_path, locals: { single_use_links: links }
     end
 
     def destroy

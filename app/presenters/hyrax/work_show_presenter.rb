@@ -9,27 +9,32 @@ module Hyrax
 
     WORK_SHOW_PRESENTER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.work_show_presenter_debug_verbose
 
-    attr_accessor :single_use_link
+    attr_accessor :cc_single_use_link
+
+    def zip_download_hyrax_data_set_path( curation_concern = nil )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+      return "id is nil" if id.nil?
+      curation_concern = ActiveFedora::Base.find( id ) if curation_concern.nil?
+      return "curation_concern.nil?=#{curation_concern.nil?}"
+      url = zip_download_path_link( curation_concern )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "url=#{url}",
+                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+      return url
+    end
 
     def single_use_link_create_download( curation_concern )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "curation_concern.id=#{curation_concern.id}",
+                                             "id=#{id}",
                                              "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
-      rv = SingleUseLink.create( itemId: curation_concern.id, path: "/data/download/#{curation_concern.id}" )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "rv=#{rv}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
-      return rv
-    end
-
-    def single_use_link_create_zip_download( curation_concern )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "curation_concern.id=#{curation_concern.id}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
-      rv = SingleUseLink.create( itemId: curation_concern.id, path: "/data/download/#{curation_concern.id}.zip" )
+      rv = SingleUseLink.create( itemId: curation_concern.id,
+                                 path: "/data/concerns/data_sets/#{id}/single_use_link_zip_download" )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
@@ -41,8 +46,32 @@ module Hyrax
       @single_use_link_download ||= single_use_link_create_download( curation_concern )
     end
 
-    def single_use_link_zip_download( curation_concern )
-      @single_use_link_download ||= single_use_link_create_zip_download( curation_concern )
+    def zip_download_path_link( curation_concern )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "single_use_show?=#{single_use_show?}",
+                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+      return curation_concern.for_zip_download_route unless single_use_show?
+      # return Rails.application.routes.url_helpers.url_for( only_path: true,
+      #                                                      action: 'show',
+      #                                                      controller: 'downloads',
+      #                                                      id: curation_concern.id ) unless single_use_show?
+      su_link = single_use_link_download( curation_concern )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "su_link=#{su_link}",
+                                             "su_link.downloadKey=#{su_link.downloadKey}",
+                                             "su_link.itemId=#{su_link.itemId}",
+                                             "su_link.path=#{su_link.path}",
+                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+      rv = "/data/single_use_link/download/#{su_link.downloadKey}" # TODO: fix
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+      # return "/data/download/#{curation_concern.id}/single_use_link/#{su_link.downloadKey}" # TODO: fix
+      return rv
     end
 
     def single_use_links
@@ -64,18 +93,34 @@ module Hyrax
     end
 
     def single_use_show?
-      false
+      cc_single_use_link.present?
     end
 
     def can_delete_work?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "return false if single_use_show?=#{single_use_show?}",
                                              "doi_minted?=#{doi_minted?}",
                                              "current_ability.admin?=#{current_ability.admin?}",
                                              "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+      return false if single_use_show?
       return false if doi_minted?
       return true if current_ability.admin?
       can_edit_work?
+    end
+
+    def can_display_provenance_log?
+      return false unless display_provenance_log_enabled?
+      return false if single_use_show?
+      current_ability.admin?
+    end
+
+    def can_download_using_globus?
+      return false unless globus_enabled?
+      return false if single_use_show?
+      return true if current_ability.admin?
+      return false if solr_document.visibility == "embargo"
+      true
     end
 
     def can_download_zip_confirm?
@@ -90,9 +135,9 @@ module Hyrax
     def can_download_zip_maybe?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "zip_download_enabled?=#{zip_download_enabled?}",
-                                             "current_ability.admin?=#{current_ability.admin?}",
-                                             "solr_document.visibility == 'embargo'=#{solr_document.visibility == 'embargo'}",
+                                             "false if zip_download_enabled?=#{zip_download_enabled?}",
+                                             "true if current_ability.admin?=#{current_ability.admin?}",
+                                             "false if solr_document.visibility == 'embargo'=#{solr_document.visibility == 'embargo'}",
                                              "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       return false unless zip_download_enabled?
       return true if current_ability.admin?
@@ -103,10 +148,12 @@ module Hyrax
     def can_edit_work?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "current_ability.admin?=#{current_ability.admin?}",
-                                             "editor?=#{editor?}",
-                                             "workflow.state != 'deposited'=#{workflow.state != 'deposited'}",
+                                             "false if single_use_show?=#{single_use_show?}",
+                                             "true if current_ability.admin?=#{current_ability.admin?}",
+                                             "true if editor?=#{editor?}",
+                                             "and workflow.state != 'deposited'=#{workflow.state != 'deposited'}",
                                              "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+      return false if single_use_show?
       return true if current_ability.admin?
       return true if editor? && workflow.state != 'deposited'
       false
@@ -118,11 +165,14 @@ module Hyrax
                                              "false unless doi_minting_enabled?=#{doi_minting_enabled?}",
                                              "true if doi_pending?=#{doi_pending?}",
                                              "true if doi_minted?=#{doi_minted?}",
+                                             "false if single_use_show?=#{single_use_show?}",
+                                             "true if current_ability.admin?=#{current_ability.admin?}",
                                              "current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
                                              "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       return false unless doi_minting_enabled?
       return false if tombstone.present?
       return false if doi_pending? || doi_minted?
+      return false if single_use_show?
       return true if current_ability.admin?
       current_ability.can?( :edit, id )
     end
@@ -131,27 +181,29 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false if tombstone.present?=#{tombstone.present?}",
+                                             "true if single_use_show?=#{single_use_show?}",
                                              "true if current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
                                              "true if current_user.user_approver?( current_user )=#{current_user.user_approver?( current_user )}",
                                              "false if workflow.state != 'deposited'=#{workflow.state != 'deposited'}",
                                              "current_user_can_read?=#{current_user_can_read?}",
                                              "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       return false if tombstone.present?
+      return true if single_use_show?
       return true if current_ability.can?( :edit, id )
       return true if current_user.user_approver?( current_user )
       return false if workflow.state != 'deposited'
       current_user_can_read?
     end
 
-    def download_path_link( curation_concern )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "id=#{id}",
-                                             "single_use_show?=#{single_use_show?}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
-      return single_use_link_download( curation_concern ).path if single_use_show?
-      "/data/download/#{curation_concern.id}" # TODO: fix
-    end
+    # def download_path_link( curation_concern )
+    #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                          ::Deepblue::LoggingHelper.called_from,
+    #                                          "id=#{id}",
+    #                                          "single_use_show?=#{single_use_show?}",
+    #                                          "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+    #   return single_use_link_download( curation_concern ).path if single_use_show?
+    #   "/data/download/#{curation_concern.id}" # TODO: fix
+    # end
 
     def itemscope_itemtype
       if itemtype == "http://schema.org/Dataset"
@@ -159,6 +211,36 @@ module Hyrax
       else
         "http://schema.org/Dataset"
       end
+    end
+
+    def member_presenters( ids = member_presenter_factory.ordered_ids,
+                           presenter_class = member_presenter_factory.composite_presenter_class )
+      @work_show_member_presenters ||= member_presenters_init( ids, presenter_class )
+    end
+
+    def member_presenters_init( ids = member_presenter_factory.ordered_ids,
+                                presenter_class = member_presenter_factory.composite_presenter_class )
+
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "cc_single_use_link=#{cc_single_use_link}",
+                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+      presenters = member_presenter_factory.member_presenters( ids, presenter_class )
+      return presenters if cc_single_use_link.blank?
+      presenters.each do |member_presenter|
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "member_presenter.class.name=#{member_presenter.class.name}",
+                                               "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+        if member_presenter.respond_to? :cc_parent_single_use_link
+          member_presenter.cc_parent_single_use_link = cc_single_use_link
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "member_presenter.cc_parent_single_use_link=#{member_presenter.cc_parent_single_use_link}",
+                                                 "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+        end
+      end
+      presenters
     end
 
     def page_title

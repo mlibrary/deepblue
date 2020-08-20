@@ -10,7 +10,7 @@
 
   <%#= render 'social_media' %>
 
-  <% if Hyrax.config.analytics? %>
+  <% if Hyrax.config.analytics? && !@presenter.single_use_show? %>
     <div class="panel panel-default panel-analytics">
       <div class="panel-heading">
         <h2><%= t('simple_form.labels.file_set.analytics') %></h2>
@@ -25,7 +25,7 @@
     </div>
   <% end %>
 
-  <% if @presenter.current_ability.admin? %>
+  <% if !@presenter.single_use_show? && @presenter.current_ability.admin? %>
     <div class="panel panel-default panel-admin">
       <div class="panel-heading">
         <h2><%= t('simple_form.labels.file_set.admin_actions') %></h2>
@@ -38,7 +38,7 @@
             </button>
           </p>
         <% end %>
-        <% if @presenter.display_file_contents_allowed? %>
+        <% if @presenter.can_display_file_contents? %>
           <p>
           <%= link_to t('simple_form.actions.file_set.contents'),
                       main_app.file_contents_hyrax_file_set_path(@presenter.id), class: 'btn btn-subtle' %>

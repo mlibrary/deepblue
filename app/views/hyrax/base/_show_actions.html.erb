@@ -10,7 +10,18 @@
         <% if Hyrax.config.download_files %>
           <% admin_or_not_embargo = ( @presenter.current_ability.admin? || @presenter.solr_document.visibility != "embargo" ) %>
           <% if @presenter.zip_download_enabled? && admin_or_not_embargo %>
-            <%= form_tag( main_app.zip_download_hyrax_data_set_path( @presenter.id ), method: 'post' ) do %>
+            <%#= form_tag( main_app.zip_download_hyrax_data_set_path( @presenter.id ), method: 'post' ) do %>
+            <%# zip_download_url = @presenter.zip_download_hyrax_data_set_path( curation_concern ) %>
+            <% zip_download_url = main_app.zip_download_hyrax_data_set_path( @presenter.id )
+
+               ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                                     ::Deepblue::LoggingHelper.called_from,
+                                                     # "@presenter.zip_download_hyrax_data_set_path( nil )=#{@presenter.zip_download_hyrax_data_set_path( nil )}",
+                                                     "zip_download_url=#{zip_download_url}",
+                                                     ""]
+
+            %>
+            <%= form_tag( zip_download_url, method: 'post' ) do %>
               <%= hidden_field_tag('data_set[nop]') %>
               <% if DeepBlueDocs::Application.config.max_work_file_size_to_download < @presenter.total_file_size %>
                 <p><%= t('simple_form.hints.data_set.download_total_work_size_too_large',
@@ -29,7 +40,7 @@
               <% end %>
             <% end %>
           <% end %>
-          <% if @presenter.respond_to?( 'globus_enabled?' ) && @presenter.globus_enabled? && admin_or_not_embargo %>
+          <% if @presenter.can_download_using_globus_maybe? %>
             <%= form_tag( main_app.globus_download_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
               <%= hidden_field_tag('data_set[nop]') %>
               <% if @presenter.globus_files_available? %>
@@ -123,7 +134,7 @@
       </div>
     <% end %>
 
-    <% if Hyrax.config.analytics? %>
+    <% if Hyrax.config.analytics? && !@presenter.single_use_show? %>
       <div class="panel panel-default panel-analytics">
         <div class="panel-heading">
           <h2><%= t('simple_form.labels.data_set.analytics') %></h2>
@@ -138,7 +149,7 @@
       </div> <!-- End Analytics panel -->
     <% end %>
 
-    <% if @presenter.current_ability.admin? %>
+    <% if !@presenter.single_use_show? && @presenter.current_ability.admin? %>
       <div class="panel panel-default panel-admin">
         <div class="panel-heading">
           <h2><%= t('simple_form.labels.data_set.admin_actions') %></h2>

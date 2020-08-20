@@ -106,7 +106,7 @@ module Hyrax
                                              "file_set.mime_type=#{file_set.mime_type}",
                                              "file_set.original_file.size=#{file_set.original_file.size}",
                                              "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
-      allowed = display_file_contents_allowed?
+      allowed = can_display_file_contents?
       Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
                                            "file_set.id=#{file_set.id}",
@@ -118,6 +118,8 @@ module Hyrax
       presenter # make sure presenter is created
       render action: 'show_contents'
     end
+
+    attr_accessor :cc_single_use_link
 
     # GET file_sets/:id/single_use_link/:link_id
     def single_use_link
@@ -134,6 +136,7 @@ module Hyrax
                                              "file_set.id=#{file_set.id}",
                                              "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
       su_link = single_use_link_obj( link_id: params[:link_id] )
+      @cc_single_use_link = su_link
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "su_link=#{su_link}",
@@ -146,8 +149,8 @@ module Hyrax
       end
       single_use_link_destroy! su_link
       respond_to do |wants|
-        wants.html { presenter.single_use_link = su_link }
-        wants.json { presenter.single_use_link = su_link }
+        wants.html { presenter.cc_single_use_link = su_link }
+        wants.json { presenter.cc_single_use_link = su_link }
         additional_response_formats(wants)
       end
     end
@@ -156,6 +159,25 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+    end
+
+    def single_use_show?
+      cc_single_use_link.present?
+    end
+
+    def can_display_file_contents?
+      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                           Deepblue::LoggingHelper.called_from,
+                                           "file_set.id=#{file_set.id}",
+                                           "file_set.mime_type=#{file_set.mime_type}",
+                                           "file_set.original_file.size=#{file_set.original_file.size}",
+                                           "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      return false unless ::DeepBlueDocs::Application.config.file_sets_contents_view_allow
+      return false unless ( current_ability.admin? ) # || current_ability.can?(:read, id) )
+      return false unless ::DeepBlueDocs::Application.config.file_sets_contents_view_mime_types.include?( file_set.mime_type )
+      return false if file_set.original_file.size.blank?
+      return false if file_set.original_file.size > ::DeepBlueDocs::Application.config.file_sets_contents_view_max_size
+      return true
     end
 
     ## User access begin
@@ -183,21 +205,6 @@ module Hyrax
     end
 
     ## User access end
-
-    def display_file_contents_allowed?
-      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           Deepblue::LoggingHelper.called_from,
-                                           "file_set.id=#{file_set.id}",
-                                           "file_set.mime_type=#{file_set.mime_type}",
-                                           "file_set.original_file.size=#{file_set.original_file.size}",
-                                           "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
-      return false unless ::DeepBlueDocs::Application.config.file_sets_contents_view_allow
-      return false unless ( current_ability.admin? ) # || current_ability.can?(:read, id) )
-      return false unless ::DeepBlueDocs::Application.config.file_sets_contents_view_mime_types.include?( file_set.mime_type )
-      return false if file_set.original_file.size.blank?
-      return false if file_set.original_file.size > ::DeepBlueDocs::Application.config.file_sets_contents_view_max_size
-      return true
-    end
 
     ## Provenance log
 
