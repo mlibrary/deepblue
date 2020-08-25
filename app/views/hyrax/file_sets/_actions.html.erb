@@ -13,91 +13,88 @@
     </button>
 
     <ul role="menu" class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu_<%= member.id %>">
+    <% if member.can_edit_file? %>
+      <li>
+        <%= link_to t('.view_details'), member.show_path_link( curation_concern ), method: :get %>
+      </li>
+      <% if can?(:edit, member.id) %>
+        <% unless @presenter.doi_minted? && !current_ability.admin? %>
+          <li role="menuitem" tabindex="-1">
+            <%= link_to t('.edit'), edit_polymorphic_path([main_app, member]),
+              { title: t('.edit_title', file_set: member) } %>
+          </li>
+        <% end %>
 
-  <% if member.can_edit_file? %>
-    <li>
-      <%= link_to t('.view_details'), member.show_path_link( curation_concern ), method: :get %>
-    </li>
-    <% if can?(:edit, member.id) %>
-      <% unless @presenter.doi_minted? && !current_ability.admin? %>
         <li role="menuitem" tabindex="-1">
-          <%= link_to t('.edit'), edit_polymorphic_path([main_app, member]),
-            { title: t('.edit_title', file_set: member) } %>
+          <%= link_to t('.versions'),  edit_polymorphic_path([main_app, member], anchor: 'versioning_display'),
+            { title: t('.versions_title') } %>
         </li>
       <% end %>
-
-      <li role="menuitem" tabindex="-1">
-        <%= link_to t('.versions'),  edit_polymorphic_path([main_app, member], anchor: 'versioning_display'),
-          { title: t('.versions_title') } %>
+      <% if member.can_delete_file? %>
+        <li role="menuitem" tabindex="-1">
+          <%= link_to t('.delete'), polymorphic_path([main_app, member]),
+            method: :delete, title: t('.delete_title', file_set: member),
+            data: { confirm: t('.delete_confirm', file_set: member, application_name: application_name) } %>
+        </li>
+      <% end %>
+    <% elsif @presenter.workflow.state != "deposited" && @presenter.current_user_can_read? %>
+      <li>
+        <%= link_to t('.view_details'), member.show_path_link( curation_concern ), method: :get %>
+      </li>
+    <% elsif @presenter.workflow.state == "deposited" %>
+      <li>
+        <%= link_to t('.view_details'), member.show_path_link( curation_concern ), method: :get %>
+      </li>
+    <% elsif member.can_view_file? && member.single_use_show? %>
+      <li>
+        <%= link_to t('.view_details'), member.show_path_link( curation_concern ), method: :get %>
       </li>
     <% end %>
 
-    <% if member.can_delete_file? %>
-      <li role="menuitem" tabindex="-1">
-        <%= link_to t('.delete'), polymorphic_path([main_app, member]),
-          method: :delete, title: t('.delete_title', file_set: member),
-          data: { confirm: t('.delete_confirm', file_set: member, application_name: application_name) } %>
-      </li>
-    <% end %>
-  <% elsif @presenter.workflow.state != "deposited" && @presenter.current_user_can_read? %>
-    <li>
-      <%= link_to t('.view_details'), member.show_path_link( curation_concern ), method: :get %>
-    </li>
-  <% elsif @presenter.workflow.state == "deposited" %>
-    <li>
-      <%= link_to t('.view_details'), member.show_path_link( curation_concern ), method: :get %>
-    </li>
-  <% elsif member.can_view_file? && member.single_use_show? %>
-    <li>
-      <%= link_to t('.view_details'), member.show_path_link( curation_concern ), method: :get %>
-    </li>
-  <% end %>
+    <% if can?(:download, member.id) || @presenter.single_use_show? %>
 
-  <% if can?(:download, member.id) || @presenter.single_use_show? %>
+      <% unless member.file_size_too_large_to_download? %>
+          <li role="menuitem" tabindex="-1">
+          <%= link_to t('.download'),
+                      @presenter.download_path_link( member ),
+                      title: t('.download_title', file_set: member),
+                      target: "_blank",
+                      id: "file_download",
+                      data: { label: member.id } %>
+        </li>
+      <% else %>
 
-    <% unless member.file_size_too_large_to_download? %>
+        <% if @presenter.respond_to?( 'globus_enabled?' ) &&
+            @presenter.globus_enabled? &&
+            @presenter.solr_document.visibility != "embargo" %>
 
-      <li role="menuitem" tabindex="-1">
-        <%= link_to t('.download'),
-                    @presenter.download_path_link( member ),
-                    title: t('.download_title', file_set: member),
-                    target: "_blank",
-                    id: "file_download",
-                    data: { label: member.id } %>
-      </li>
-    <% else %>
-    <% if @presenter.respond_to?( 'globus_enabled?' ) &&
-        @presenter.globus_enabled? &&
-        @presenter.solr_document.visibility != "embargo" %>
-
-        <%= form_tag( main_app.globus_download_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
-          <%= hidden_field_tag('data_set[nop]') %>
-           <% if @presenter.globus_files_available? %>
-             
+          <%= form_tag( main_app.globus_download_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
+            <%= hidden_field_tag('data_set[nop]') %>
+            <% if @presenter.globus_files_available? %>
               <%= link_to t('simple_form.hints.data_set.globus_link'),
                           @presenter.globus_external_url,
                           class: 'btn btn-primary',
                           target: "_blank",
                           title: t('simple_form.hints.data_set.globus_link') %>
               <br/>
+            <% elsif !@presenter.globus_files_prepping? %>
+              <br/>
+              <%= submit_tag(t('simple_form.actions.data_set.globus_download'), class: 'btn btn-primary') %>
+              <br/>
+            <% end %>
+          <% end %>
+          <% if @presenter.globus_files_prepping? %>
+            <%= form_tag( main_app.globus_download_add_email_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
+              <br/>
+              <%= hidden_field_tag('data_set[nop]') %>
+              <%= submit_tag(t('simple_form.actions.data_set.globus_download_add_email'), class: 'btn btn-primary') %>
+              <br/>
+            <% end %>
+          <% end %>
+        <% end %>
 
-          <% elsif !@presenter.globus_files_prepping? %>
-            <br/>
-            <%= submit_tag(t('simple_form.actions.data_set.globus_download'), class: 'btn btn-primary') %>
-            <br/>
-          <% end %>
-        <% end %>
-        <% if @presenter.globus_files_prepping? %>
-          <%= form_tag( main_app.globus_download_add_email_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
-            <br/>
-            <%= hidden_field_tag('data_set[nop]') %>
-            <%=  submit_tag(t('simple_form.actions.data_set.globus_download_add_email'), class: 'btn btn-primary') %>
-            <br/>
-          <% end %>
-        <% end %>
       <% end %>
     <% end %>
-  <% end %>
 
     </ul>
   </div>

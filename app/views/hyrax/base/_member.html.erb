@@ -15,17 +15,22 @@
                                              "member.class=#{member.class.name}",
                                              ""] %>
     <td class="thumbnail">
-      <% if can?(:download, member.id) %>
-        <%= raw (render_thumbnail_tag member)&.gsub!('data-context-href', 'data-reference')&.gsub!('concern/file_sets', 'downloads') %>
-      <% else %>
-        <%= t( '.no_thumbnail' ) %>
-      <% end %>
+      <%# if member.can_download_file? %>
+        <%#= raw (render_thumbnail_tag member)&.gsub!('data-context-href', 'data-reference')&.gsub!('concern/file_sets', 'downloads') %>
+      <%# else %>
+        <%#= t( '.no_thumbnail' ) %>
+      <%# end %>
+      <% thumbnail_tag = render_thumbnail_tag( member,
+                                               @presenter.member_thumbnail_image_options( member ),
+                                               @presenter.member_thumbnail_url_options( member ) ) %>
+      <%= raw @presenter.member_thumbnail_post_process( member, thumbnail_tag ) %>
     </td>
-    <% if can?(:download, member.id) %>
+    <%# if can?(:download, member.id) %>
+    <% if member.can_download_file? %>
       <% unless member.file_size_too_large_to_download? %>
         <td role="menuitem" tabindex="-1">
           <%= link_to truncate(member.link_name, length: 40, omission: "...#{member.link_name[-5, 5]}"),
-                      hyrax.download_path(member),
+                      @presenter.download_path_link( member ),
                       title: t('.download_title', file_set: member),
                       target: "_blank",
                       id: "file_download",
