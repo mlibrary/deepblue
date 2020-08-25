@@ -60,7 +60,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
-      rv = SingleUseLink.create( itemId: curation_concern.id, path: "/data/download/#{curation_concern.id}" )
+      rv = SingleUseLink.create( itemId: curation_concern.id, path: "/data/downloads/#{curation_concern.id}" )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
@@ -260,7 +260,7 @@ module Hyrax
                                              "id=#{id}",
                                              "single_use_show?=#{single_use_show?}",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
-      return "/data/download/#{curation_concern.id}" unless single_use_show? # TODO: fix
+      return "/data/downloads/#{curation_concern.id}" unless single_use_show? # TODO: fix
       # return Rails.application.routes.url_helpers.url_for( only_path: true,
       #                                                      action: 'show',
       #                                                      controller: 'downloads',
@@ -278,7 +278,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
-      # return "/data/download/#{curation_concern.id}/single_use_link/#{su_link.downloadKey}" # TODO: fix
+      # return "/data/downloads/#{curation_concern.id}/single_use_link/#{su_link.downloadKey}" # TODO: fix
       return rv
     end
 
@@ -302,7 +302,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
-      # return "/data/download/#{curation_concern.id}/single_use_link/#{su_link.downloadKey}" # TODO: fix
+      # return "/data/downloads/#{curation_concern.id}/single_use_link/#{su_link.downloadKey}" # TODO: fix
       return rv
     end
 
@@ -386,6 +386,32 @@ module Hyrax
       rv = ::DeepBlueDocs::Application.config.relative_url_root
       return rv if rv
       ''
+    end
+
+    def thumbnail_post_process( tag )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "tag.class.name=#{tag.class.name}",
+                                             "tag=#{tag}",
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      return tag if tag.blank?
+      rv = tag.to_s.dup
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "rv.class.name=#{rv.class.name}",
+                                             "rv=#{rv}",
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      rv.gsub!( 'data-context-href', 'data-reference' )
+      if single_use_show?
+        rv.gsub!( /concern\/file_sets\/[^\?]+(\?locale=[^"']+)?/, download_path_link( solr_document ) )
+      else
+        rv.gsub!( 'concern/file_sets', 'downloads' )
+      end
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      return rv
     end
 
     # begin display_provenance_log

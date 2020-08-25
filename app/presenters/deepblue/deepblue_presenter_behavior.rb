@@ -25,7 +25,7 @@ module Deepblue
       #                                               action: 'show',
       #                                               controller: 'downloads',
       #                                               id: curation_concern.id )
-      return "/data/download/#{curation_concern.id}" # TODO: fix
+      return "/data/downloads/#{curation_concern.id}" # TODO: fix
     end
 
     def member_thumbnail_image_options( member )
@@ -33,7 +33,7 @@ module Deepblue
     end
 
     def member_thumbnail_url_options( member )
-      { suppress_link: member.can_download_file? }
+      { suppress_link: !member.can_download_file? }
     end
 
     def member_thumbnail_post_process( member, tag )
@@ -45,6 +45,7 @@ module Deepblue
                                              "tag=#{tag}",
                                              "" ] if DEEP_BLUE_PRESENTER_BEHAVIOR_DEBUG_VERBOSE
       return tag if tag.blank?
+      return member.thumbnail_post_process( tag ) if member.respond_to? :thumbnail_post_process
       rv = tag.to_s.dup
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
