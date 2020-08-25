@@ -51,6 +51,9 @@ module Deepblue
                                              "su_link.valid?=#{su_link.valid?}",
                                              "su_link.itemId=#{su_link.itemId}",
                                              "su_link.path=#{su_link.path}",
+                                             "item_id=#{item_id}",
+                                             "path=#{path}",
+                                             "destroy_if_not_valid=#{destroy_if_not_valid}",
                                              "" ] if SINGLE_USE_LINK_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
       return destroy_and_return_rv( destroy_flag: destroy_if_not_valid, rv: false, su_link: su_link ) unless su_link.valid?
       if item_id.present?
@@ -58,6 +61,7 @@ module Deepblue
                                                ::Deepblue::LoggingHelper.called_from,
                                                "item_id=#{item_id}",
                                                "su_link.itemId=#{su_link.itemId}",
+                                               "destroy unless?=#{su_link.itemId == item_id}",
                                                "" ] if SINGLE_USE_LINK_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
         return destroy_and_return_rv( destroy_flag: destroy_if_not_valid, rv: false, su_link: su_link ) unless su_link.itemId == item_id
       end
@@ -68,6 +72,7 @@ module Deepblue
                                                ::Deepblue::LoggingHelper.called_from,
                                                "path=#{path}",
                                                "su_link_path=#{su_link_path}",
+                                               "destroy unless?=#{su_link_path == path}",
                                                "" ] if SINGLE_USE_LINK_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
         return destroy_and_return_rv( destroy_flag: destroy_if_not_valid, rv: false, su_link: su_link ) unless su_link_path == path
       end
@@ -77,6 +82,11 @@ module Deepblue
     private
 
       def destroy_and_return_rv( destroy_flag:, rv:, su_link: )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "rv=#{rv}",
+                                               "destroy_flag=#{destroy_flag}",
+                                               "" ] if SINGLE_USE_LINK_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
         return rv unless destroy_flag
         single_use_link_destroy! su_link
         return rv

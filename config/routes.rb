@@ -127,6 +127,8 @@ Rails.application.routes.draw do
 
   # post 'single_use_link/generate_zip_download/:id' => 'single_use_links#create_zip_download', as: :generate_zip_download_single_use_link
 
+  post 'single_use_link/download/:id' => 'hyrax/single_use_links_viewer#download', as: :download_single_use_link
+
   namespace :hyrax, path: :concern do
     resources :collections do
       member do

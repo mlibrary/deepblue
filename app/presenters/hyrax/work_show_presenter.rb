@@ -11,14 +11,14 @@ module Hyrax
 
     attr_accessor :cc_single_use_link
 
-    def zip_download_hyrax_data_set_path( curation_concern = nil )
+    def zip_download_link( curation_concern = solr_document )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
                                              "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       return "id is nil" if id.nil?
       curation_concern = ActiveFedora::Base.find( id ) if curation_concern.nil?
-      return "curation_concern.nil?=#{curation_concern.nil?}"
+      # return "curation_concern.nil?=#{curation_concern.nil?}"
       url = zip_download_path_link( curation_concern )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -34,7 +34,7 @@ module Hyrax
                                              "id=#{id}",
                                              "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       rv = SingleUseLink.create( itemId: curation_concern.id,
-                                 path: "/data/concerns/data_sets/#{id}/single_use_link_zip_download" )
+                                 path: "/data/concern/data_sets/#{id}/single_use_link_zip_download" )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
@@ -70,7 +70,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
                                              "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
-      # return "/data/download/#{curation_concern.id}/single_use_link/#{su_link.downloadKey}" # TODO: fix
+      # return "/data/downloads/#{curation_concern.id}/single_use_link/#{su_link.downloadKey}" # TODO: fix
       return rv
     end
 
@@ -202,7 +202,7 @@ module Hyrax
     #                                          "single_use_show?=#{single_use_show?}",
     #                                          "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
     #   return single_use_link_download( curation_concern ).path if single_use_show?
-    #   "/data/download/#{curation_concern.id}" # TODO: fix
+    #   "/data/downloads/#{curation_concern.id}" # TODO: fix
     # end
 
     def itemscope_itemtype
