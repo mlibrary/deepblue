@@ -1,6 +1,5 @@
 <div class="show-actions">
-  <% not_tombstoned = @presenter.tombstone.blank? %>
-  <% if not_tombstoned %>
+  <% if @presenter.tombstone.blank? %>
 
     <div class="panel panel-default panel-download">
       <div class="panel-heading">
@@ -11,6 +10,11 @@
           <% admin_or_not_embargo = ( @presenter.current_ability.admin? || @presenter.solr_document.visibility != "embargo" ) %>
           <% if @presenter.zip_download_enabled? && admin_or_not_embargo %>
             <%#= form_tag( main_app.zip_download_hyrax_data_set_path( @presenter.id ), method: 'post' ) do %>
+            <% ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                                     ::Deepblue::LoggingHelper.called_from,
+                                                     "@presenter.class.name=#{@presenter.class.name}",
+                                                     "@presenter&.id=#{@presenter&.id}",
+                                                     ""] %>
             <%# zip_download_url = @presenter.zip_download_hyrax_data_set_path( curation_concern ) %>
             <% zip_download_url = main_app.zip_download_hyrax_data_set_path( @presenter.id )
 
