@@ -325,7 +325,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params=#{params}",
                                              "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
-      rv = params[:action] == 'single_use_link'
+      rv = ( params[:action] == 'single_use_link' || params[:link_id].present? )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",

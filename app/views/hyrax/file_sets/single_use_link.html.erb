@@ -7,9 +7,9 @@
       <% if @presenter.can_view_file? %>
         <%= media_display @presenter %>
         <%= render 'show_actions', presenter: @presenter %>
-        <% if ::DeepBlueDocs::Application.config.enable_single_use_links %>
-          <%= render 'single_use_links', presenter: @presenter if @presenter.editor? %>
-        <% end %>
+        <%# if ::DeepBlueDocs::Application.config.enable_single_use_links %>
+          <%#= render 'single_use_links', presenter: @presenter if @presenter.editor? %>
+        <%# end %>
       <% end %>
     </div>
     <div itemscope itemtype="<%= @presenter.itemscope_itemtype %>" class="col-xs-12 col-sm-8">
@@ -19,8 +19,8 @@
       <% if @presenter.can_view_file? %>
         <%# TODO: render 'show_descriptions' See https://github.com/samvera/hyrax/issues/1481 %>
         <%= render 'show_details' %>
-        <%= render 'hyrax/users/activity_log', events: @presenter.events %>
-        <%= render '/provenance_log_entries', presenter: @presenter %>
+        <%#= render 'hyrax/users/activity_log', events: @presenter.events %>
+        <%#= render '/provenance_log_entries', presenter: @presenter %>
       <% end %>
     </div><!-- /columns second -->
   </div> <!-- /.row -->

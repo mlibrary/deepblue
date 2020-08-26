@@ -105,7 +105,8 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:link_id]=#{params[:link_id]}",
                                              "" ] if SINGLE_USE_LINKS_CONTROLLER_DEBUG_VERBOSE
-      SingleUseLink.find_by_downloadKey(params[:link_id]).destroy
+      su_link = SingleUseLink.find_by_downloadKey(params[:link_id])
+      su_link.destroy if su_link.present?
       head :ok
     end
 

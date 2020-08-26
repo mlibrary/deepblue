@@ -15,7 +15,7 @@
     <ul role="menu" class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu_<%= member.id %>">
     <% if member.can_edit_file? %>
       <li>
-        <%= link_to t('.view_details'), member.show_path_link( curation_concern ), method: :get %>
+        <%= link_to t('.view_details'), member.show_path_link, method: :get %>
       </li>
       <% if can?(:edit, member.id) %>
         <% unless @presenter.doi_minted? && !current_ability.admin? %>
@@ -39,15 +39,15 @@
       <% end %>
     <% elsif @presenter.workflow.state != "deposited" && @presenter.current_user_can_read? %>
       <li>
-        <%= link_to t('.view_details'), member.show_path_link( curation_concern ), method: :get %>
+        <%= link_to t('.view_details'), member.show_path_link, method: :get %>
       </li>
     <% elsif @presenter.workflow.state == "deposited" %>
       <li>
-        <%= link_to t('.view_details'), member.show_path_link( curation_concern ), method: :get %>
+        <%= link_to t('.view_details'), member.show_path_link, method: :get %>
       </li>
     <% elsif member.can_view_file? && member.single_use_show? %>
       <li>
-        <%= link_to t('.view_details'), member.show_path_link( curation_concern ), method: :get %>
+        <%= link_to t('.view_details'), member.show_path_link, method: :get %>
       </li>
     <% end %>
 
