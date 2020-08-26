@@ -101,7 +101,7 @@ module Deepblue
       end
 
       def su_link_strip_locale( path )
-        if path =~ /^(.+)\&.+/
+        if path =~ /^(.+)\?.+/
           return Regexp.last_match[1]
         end
         return path

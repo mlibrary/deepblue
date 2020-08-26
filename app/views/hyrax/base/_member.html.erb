@@ -15,12 +15,7 @@
                                              "member.class=#{member.class.name}",
                                              ""] %>
     <td class="thumbnail">
-      <%# if member.can_download_file? %>
-        <%#= raw (render_thumbnail_tag member)&.gsub!('data-context-href', 'data-reference')&.gsub!('concern/file_sets', 'downloads') %>
-      <%# else %>
-        <%#= t( '.no_thumbnail' ) %>
-      <%# end %>
-      <% thumbnail_tag = render_thumbnail_tag( member,
+      <% thumbnail_tag = render_thumbnail_tag( member.solr_document,
                                                @presenter.member_thumbnail_image_options( member ),
                                                @presenter.member_thumbnail_url_options( member ) ) %>
       <%= raw @presenter.member_thumbnail_post_process( member, thumbnail_tag ) %>

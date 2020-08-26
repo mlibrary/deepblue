@@ -29,7 +29,7 @@ module Hyrax
       super( solr_document, current_ability, request )
     end
 
-    def single_use_link_download( curation_concern )
+    def single_use_link_download( curation_concern = solr_document )
       @single_use_link_download ||= single_use_link_create_download( curation_concern )
     end
 
@@ -37,7 +37,7 @@ module Hyrax
       @single_use_links ||= single_use_links_init
     end
 
-    def single_use_link_show( curation_concern )
+    def single_use_link_show( curation_concern = solr_document )
       @single_use_link_show ||= single_use_link_create_show( curation_concern )
     end
 
@@ -55,7 +55,7 @@ module Hyrax
       su_links.map { |link| link_presenter_class.new(link) }
     end
 
-    def single_use_link_create_download( curation_concern )
+    def single_use_link_create_download( curation_concern = solr_document )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
@@ -71,9 +71,10 @@ module Hyrax
       return rv
     end
 
-    def single_use_link_create_show( curation_concern )
+    def single_use_link_create_show( curation_concern = solr_document )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "curation_concern.class.name=#{curation_concern.class.name}",
                                              "curation_concern.id=#{curation_concern.id}",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
       path = "/data/concern/file_sets/#{curation_concern.id}" # TODO: fix
@@ -254,7 +255,7 @@ module Hyrax
       rv
     end
 
-    def download_path_link( curation_concern )
+    def download_path_link( curation_concern = solr_document )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
@@ -282,9 +283,10 @@ module Hyrax
       return rv
     end
 
-    def show_path_link( curation_concern )
+    def show_path_link( curation_concern = solr_document )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "curation_concern.class.name=#{curation_concern.class.name}",
                                              "id=#{id}",
                                              "single_use_show?=#{single_use_show?}",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
@@ -403,7 +405,7 @@ module Hyrax
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
       rv.gsub!( 'data-context-href', 'data-reference' )
       if single_use_show?
-        rv.gsub!( /concern\/file_sets\/[^\?]+(\?locale=[^"']+)?/, download_path_link( solr_document ) )
+        rv.gsub!( /\/(data\/)?concern\/file_sets\/[^\?]+(\?locale=[^"']+)?/, download_path_link( solr_document ) )
       else
         rv.gsub!( 'concern/file_sets', 'downloads' )
       end
