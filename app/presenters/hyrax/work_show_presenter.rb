@@ -177,33 +177,31 @@ module Hyrax
       current_ability.can?( :edit, id )
     end
 
+    def can_perform_workflow_actions?
+      return true if current_ability.admin?
+      return false unless current_ability.current_user.present?
+      return true if depositor == current_ability.current_user.email
+      return true if current_ability.current_user.user_approver?( current_ability.current_user )
+      return false
+    end
+
     def can_view_work?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false if tombstone.present?=#{tombstone.present?}",
                                              "true if single_use_show?=#{single_use_show?}",
                                              "true if current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
-                                             "true if current_user.user_approver?( current_user )=#{current_user.user_approver?( current_user )}",
+                                             "true if current_user.present? && current_user.user_approver?( current_user )=#{current_user.present? && current_user.user_approver?( current_user )}",
                                              "false if workflow.state != 'deposited'=#{workflow.state != 'deposited'}",
                                              "current_user_can_read?=#{current_user_can_read?}",
                                              "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       return false if tombstone.present?
       return true if single_use_show?
       return true if current_ability.can?( :edit, id )
-      return true if current_user.user_approver?( current_user )
+      return true if current_user.present? && current_user.user_approver?( current_user )
       return false if workflow.state != 'deposited'
       current_user_can_read?
     end
-
-    # def download_path_link( curation_concern )
-    #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                          ::Deepblue::LoggingHelper.called_from,
-    #                                          "id=#{id}",
-    #                                          "single_use_show?=#{single_use_show?}",
-    #                                          "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
-    #   return single_use_link_download( curation_concern ).path if single_use_show?
-    #   "/data/downloads/#{curation_concern.id}" # TODO: fix
-    # end
 
     def itemscope_itemtype
       if itemtype == "http://schema.org/Dataset"
