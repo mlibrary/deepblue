@@ -11,11 +11,6 @@ module Deepblue
     self.static_content_controller_behavior_verbose = false
     mattr_accessor :static_content_cache_debug_verbose
     self.static_content_cache_debug_verbose = false
-    mattr_accessor :static_content_controller_behavior_menu_verbose
-    self.static_content_controller_behavior_menu_verbose = false
-
-    mattr_accessor :work_view_content_enable_cache
-    self.work_view_content_enable_cache = ::DeepBlueDocs::Application.config.static_content_enable_cache
 
     def self.static_content_documentation_collection_id
       WorkViewContentService.content_documentation_collection_id
@@ -84,10 +79,6 @@ module Deepblue
                 :static_content_menu_partial,
                 :static_content_page_navigation
 
-    def static_content_menu_debug_verbose
-      static_content_controller_behavior_menu_verbose
-    end
-
     def documentation_work_title_prefix
       WorkViewContentService.documentation_work_title_prefix
     end
@@ -98,6 +89,10 @@ module Deepblue
 
     def documentation_i18n_title_prefix
       WorkViewContentService.documentation_i18n_title_prefix
+    end
+
+    def static_content_menu_debug_verbose
+      ::Deepblue::WorkViewContentService.static_content_controller_behavior_menu_verbose
     end
 
     def static_content_documentation_collection
@@ -553,7 +548,11 @@ module Deepblue
     end
 
     def work_view_content_enable_cache
-      StaticContentControllerBehavior.work_view_content_enable_cache
+      ::Deepblue::WorkViewContentService.static_content_enable_cache
+    end
+
+    def self.work_view_content_enable_cache
+      ::Deepblue::WorkViewContentService.static_content_enable_cache
     end
 
   end

@@ -24,9 +24,20 @@ module Deepblue
     @@documentation_work_title_prefix = "DBDI18n-"
     mattr_accessor :documentation_i18n_title_prefix
 
+    @@static_content_controller_behavior_menu_verbose = false
+    mattr_accessor :static_content_controller_behavior_menu_verbose
+
+    @@static_content_enable_cache = true
+    mattr_accessor :static_content_enable_cache
+
+    @@static_content_interpolation_pattern
+    mattr_accessor :static_content_interpolation_pattern
+
     @@static_controller_redirect_to_work_view_content = false
     mattr_accessor :static_controller_redirect_to_work_view_content
 
+    @@interpolation_helper_debug_verbose = false
+    mattr_accessor :interpolation_helper_debug_verbose
 
     def self.setup
       yield self if @@_setup_ran == false

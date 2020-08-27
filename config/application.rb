@@ -58,7 +58,7 @@ module DeepBlueDocs
     # config.email_debug_verbose -- see configure email below
     config.email_behavior_debug_verbose = false
     config.file_sets_controller_debug_verbose = true
-    config.interpolation_helper_debug_verbose = false
+    # config.interpolation_helper_debug_verbose = false -- see config/integration/work_view_content.rb
     # config.jira_helper_debug_verbose -- see config/integration/jira_integration
     config.single_use_link_controller_behavior_debug_verbose = true
     config.single_use_links_controller_debug_verbose = true
@@ -227,9 +227,6 @@ module DeepBlueDocs
     # end single use link config
 
     ## to configure work_view_content, see config/initalizers/work_view_content.rb
-
-    # static content config
-    config.static_content_enable_cache = true
 
     # virus scan config
     config.virus_scan_max_file_size = 4_000_000_000
