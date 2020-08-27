@@ -8,6 +8,8 @@ module Deepblue
 
     INVALID_SINGLE_USE_LINK = ''.freeze
 
+    include ActionView::Helpers::TranslationHelper
+
     def render_single_use_error( exception )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -36,8 +38,7 @@ module Deepblue
     end
 
     def single_use_link_expired_msg
-      # TODO: i18n for this msg
-      "Single Use Link Expired or Not Found\nDeep Blue Data could not locate the single use link. This link either expired or had been used previously. We apologize for the inconvenience. You might be interested in using the help page for looking up solutions."
+      t('hyrax.single_use_links.expired_html')
     end
 
     def single_use_link_obj( link_id: )

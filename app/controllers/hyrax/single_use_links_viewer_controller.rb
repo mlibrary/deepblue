@@ -6,6 +6,7 @@ module Hyrax
 
     SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.single_use_links_viewer_controller_debug_verbose
 
+    include ActionView::Helpers::TranslationHelper
     include Blacklight::Base
     include Blacklight::AccessControls::Catalog
     include ActionDispatch::Routing::PolymorphicRoutes
@@ -50,7 +51,7 @@ module Hyrax
                                                ::Deepblue::LoggingHelper.called_from,
                                                "url=#{url}",
                                                "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
-        redirect_to url, notice: "Single Use Link" # TODO: internationlize
+        redirect_to url, notice: t('hyrax.single_use_links.notice')
       end
     end
 
@@ -84,7 +85,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "url=#{url}",
                                              "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
-      redirect_to url, notice: "Single Use Link" # TODO: internationlize
+      redirect_to url, notice: t('hyrax.single_use_links.notice')
     end
 
     private
@@ -109,7 +110,7 @@ module Hyrax
     end
 
     def not_found_exception
-      SingleUseError.new('Single-Use Link Not Found')
+      SingleUseError.new( t('hyrax.single_use_links.error.not_found') )
     end
 
     def asset

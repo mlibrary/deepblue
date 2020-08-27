@@ -402,6 +402,8 @@ en:
       uptime_header:        "Uptimes"
     share_button:           "Deposit Your Work"
     single_use_links:
+      alert:
+        insufficient_privileges: "You do not have sufficient privileges to create links to this document"
       button:               "Create Single-Use Link"
       button_with_type:     "Create %{link_type} Single-Use Link"
       copy:
@@ -410,10 +412,17 @@ en:
       delete:               "Delete"
       download:
         type:               "Download"
+      expired_html: >
+        Single Use Link Expired or Not Found<br/>Deep Blue Data could not locate the single use link.
+        This link either expired or had been used previously.
+        We apologize for the inconvenience.
+      error:
+        not_found:          "Single-Use Link Not Found"
       expiration:
         lesser_time:        "in less than one hour"
         time:               "in %{value} hours"
       expiration_message:   "%{link_type} Link %{link} expires %{time}"
+      notice:               "Single Use Link"
       show:
         type:               "Show"
       table:

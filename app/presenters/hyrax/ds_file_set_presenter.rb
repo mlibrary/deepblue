@@ -372,6 +372,11 @@ module Hyrax
       end
     end
 
+    def member_thumbnail_url_options( member )
+      suppress_link = !member.can_download_file? && !single_use_show?
+      { suppress_link: suppress_link }
+    end
+
     def parent_data_set
       @parent_data_set ||= DataSet.find parent.id
     end
