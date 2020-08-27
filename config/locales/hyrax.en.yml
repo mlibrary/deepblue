@@ -323,7 +323,21 @@ en:
         manage_embargoes_html: Manage Embargoes for %{cc} <span class='human_readable_type'>(%{cc_type})</span>
     file_sets:
       actions:
+        contents:             "View File Contents"
+        contents_title:       "Display file contents in seperate page"
+        delete:               "Delete"
+        delete_confirm: >
+          Deleting %{file_set} from %{application_name} is permanent.
+          Click OK to delete this from %{application_name}, or Cancel to cancel this operation
+        delete_title:         Delete %{file_set}
+        download:             Download
+        download_title:       Download %{file_set}
+        edit:                 Edit
+        edit_title:           Edit %{file_set}
+        header:               Select an action
         view_details:         "View Details"
+        versions:             "Versions"
+        versions_title:       "Display previous versions"
       detail_header:          "File Details"
       not_yet_characterized:  "not yet characterized"
       edit:
