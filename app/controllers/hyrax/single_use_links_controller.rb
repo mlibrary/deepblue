@@ -6,6 +6,7 @@ module Hyrax
 
     SINGLE_USE_LINKS_CONTROLLER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.single_use_links_controller_debug_verbose
 
+    include ActionView::Helpers::TranslationHelper
     include Blacklight::SearchHelper
     class_attribute :show_presenter
     self.show_presenter = Hyrax::SingleUseLinkPresenter
@@ -19,7 +20,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if SINGLE_USE_LINKS_CONTROLLER_DEBUG_VERBOSE
       if current_user&.persisted?
-        redirect_to main_app.root_url, alert: "You do not have sufficient privileges to create links to this document"
+        redirect_to main_app.root_url, alert:  t('hyrax.single_use_links.alert.insufficient_privileges')
       else
         session["user_return_to"] = request.url
         redirect_to new_user_session_url, alert: exception.message
