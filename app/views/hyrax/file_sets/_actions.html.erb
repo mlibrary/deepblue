@@ -20,21 +20,30 @@
       <% if can?(:edit, member.id) %>
         <% unless @presenter.doi_minted? && !current_ability.admin? %>
           <li role="menuitem" tabindex="-1">
-            <%= link_to t('.edit'), edit_polymorphic_path([main_app, member]),
-              { title: t('.edit_title', file_set: member) } %>
+            <%= link_to t('.edit'),
+                        edit_polymorphic_path([main_app, member]),
+                        { title: t('.edit_title', file_set: member) } %>
           </li>
         <% end %>
-
+        <% if member.can_display_file_contents? %>
+          <li role="menuitem" tabindex="-1">
+            <%= link_to t('.contents'),
+                        main_app.file_contents_hyrax_file_set_path( member.id ),
+                        { title: t('.contents_title') } %>
+          </li>
+        <% end %>
         <li role="menuitem" tabindex="-1">
-          <%= link_to t('.versions'),  edit_polymorphic_path([main_app, member], anchor: 'versioning_display'),
-            { title: t('.versions_title') } %>
+          <%= link_to t('.versions'),
+                      edit_polymorphic_path([main_app, member], anchor: 'versioning_display'),
+                      { title: t('.versions_title') } %>
         </li>
       <% end %>
       <% if member.can_delete_file? %>
         <li role="menuitem" tabindex="-1">
-          <%= link_to t('.delete'), polymorphic_path([main_app, member]),
-            method: :delete, title: t('.delete_title', file_set: member),
-            data: { confirm: t('.delete_confirm', file_set: member, application_name: application_name) } %>
+          <%= link_to t('.delete'),
+                      polymorphic_path([main_app, member]),
+                      method: :delete, title: t('.delete_title', file_set: member),
+                      data: { confirm: t('.delete_confirm', file_set: member, application_name: application_name) } %>
         </li>
       <% end %>
     <% elsif @presenter.workflow.state != "deposited" && @presenter.current_user_can_read? %>
