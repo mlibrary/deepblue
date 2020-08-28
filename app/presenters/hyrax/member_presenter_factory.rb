@@ -20,9 +20,11 @@ module Hyrax
     # @param [Array<String>] ids a list of ids to build presenters for
     # @param [Class] presenter_class the type of presenter to build
     # @return [Array<presenter_class>] presenters for the ordered_members (not filtered by class)
-    def member_presenters(ids = ordered_ids, presenter_class = composite_presenter_class)
+    def member_presenters( ids = ordered_ids, presenter_class = composite_presenter_class )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "ids=#{ids}",
+                                             "presenter_class=#{presenter_class}",
                                              "" ]
       PresenterFactory.build_for(ids: ids,
                                  presenter_class: presenter_class,
@@ -33,6 +35,8 @@ module Hyrax
     def file_set_presenters
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "ordered_ids=#{ordered_ids}",
+                                             "file_set_ids=#{file_set_ids}",
                                              "" ] if @file_set_presenters.blank?
       @file_set_presenters ||= member_presenters(ordered_ids & file_set_ids)
     end
@@ -42,14 +46,18 @@ module Hyrax
       @work_presenters ||= member_presenters(ordered_ids - file_set_ids, work_presenter_class)
     end
 
-    # TODO: Extract this to ActiveFedora::Aggregations::ListSource
+    # # TODO: Extract this to ActiveFedora::Aggregations::ListSource
+    # def ordered_ids
+    #   @ordered_ids ||= begin
+    #                      ActiveFedora::SolrService.query("proxy_in_ssi:#{id}",
+    #                                                      rows: 10_000,
+    #                                                      fl: "ordered_targets_ssim")
+    #                                               .flat_map { |x| x.fetch("ordered_targets_ssim", []) }
+    #                    end
+    # end
+
     def ordered_ids
-      @ordered_ids ||= begin
-                         ActiveFedora::SolrService.query("proxy_in_ssi:#{id}",
-                                                         rows: 10_000,
-                                                         fl: "ordered_targets_ssim")
-                                                  .flat_map { |x| x.fetch("ordered_targets_ssim", []) }
-                       end
+      @ordered_ids ||= Hyrax::SolrDocument::OrderedMembers.decorate(@work).ordered_member_ids
     end
 
     # private
