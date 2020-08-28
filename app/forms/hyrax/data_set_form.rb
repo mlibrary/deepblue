@@ -20,6 +20,7 @@ module Hyrax
         grantnumber
         keyword
         methodology
+        tombstone
         referenced_by
         rights_license
         rights_license_other
@@ -35,6 +36,7 @@ module Hyrax
         creator
         authoremail
         methodology
+        tombstone
         description
         date_coverage
         rights_license

@@ -269,6 +269,8 @@ en:
           or formal languages, such as programming languages.
         methodology: >
           Explain the methods you used to collect and process <span class="text-bold">the data</span> included in this Work.
+        tombstone: >
+          The reason the work was tombstoned.           
         on_behalf_of_html: >
            If you are depositing data on behalf of someone else, please select the email of that person below.
            <a href="/data/dashboard">More information on proxies</a>
