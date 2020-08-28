@@ -30,6 +30,6 @@
       </table>
     </div>
 </div>
-<% elsif @presenter.can_edit? %>
+<% elsif @presenter.can_edit_work? %>
     <div class="alert alert-warning" role="alert"><%= t('.empty', type: @presenter.human_readable_type) %></div>
 <% end %>
