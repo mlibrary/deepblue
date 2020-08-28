@@ -1,0 +1,7 @@
+<% if f.object.tombstone[0] != "" %>
+  <% if f.object.class.multiple? key %>
+    <%= f.input :tombstone, as: :multi_value, input_html: { rows: '5', type: 'textarea'}, required: true, force_single: true %>
+  <% else %>
+    <%= f.input :tombstone, as: :text, input_html: { rows: '5' } %>
+  <% end %>
+<% end %>
