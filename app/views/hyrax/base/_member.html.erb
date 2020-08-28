@@ -10,10 +10,12 @@
   </tr>
 <% else %>
   <tr class="<%= dom_class(member) %> attributes">
-    <%# ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "member.class=#{member.class.name}",
-                                             ""] %>
+    <%#
+      ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                            ::Deepblue::LoggingHelper.called_from,
+                                            "member.class=#{member.class.name}",
+                                            ""]
+    %>
     <td class="thumbnail">
       <% thumbnail_tag = render_thumbnail_tag( member.solr_document,
                                                @presenter.member_thumbnail_image_options( member ),

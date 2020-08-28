@@ -29,70 +29,6 @@ module Hyrax
       super( solr_document, current_ability, request )
     end
 
-    def single_use_link_download( curation_concern = solr_document )
-      @single_use_link_download ||= single_use_link_create_download( curation_concern )
-    end
-
-    def single_use_links
-      @single_use_links ||= single_use_links_init
-    end
-
-    def single_use_link_show( curation_concern = solr_document )
-      @single_use_link_show ||= single_use_link_create_show( curation_concern )
-    end
-
-    def single_use_links_init
-      su_links = SingleUseLink.where( itemId: id )
-      su_links.each do |su_link|
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "su_link=#{su_link}",
-                                               "su_link.valid?=#{su_link.valid?}",
-                                               "su_link.itemId=#{su_link.itemId}",
-                                               "su_link.path=#{su_link.path}",
-                                               "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
-      end
-      su_links.map { |link| link_presenter_class.new(link) }
-    end
-
-    def single_use_link_create_download( curation_concern = solr_document )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "curation_concern.id=#{curation_concern.id}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
-      rv = SingleUseLink.create( itemId: curation_concern.id, path: "/data/downloads/#{curation_concern.id}" )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "rv=#{rv}",
-                                             "rv.downloadKey=#{rv.downloadKey}",
-                                             "rv.itemId=#{rv.itemId}",
-                                             "rv.path=#{rv.path}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
-      return rv
-    end
-
-    def single_use_link_create_show( curation_concern = solr_document )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "curation_concern.class.name=#{curation_concern.class.name}",
-                                             "curation_concern.id=#{curation_concern.id}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
-      path = "/data/concern/file_sets/#{curation_concern.id}" # TODO: fix
-      rv = SingleUseLink.create( itemId: curation_concern.id, path: path )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "rv=#{rv}",
-                                             "rv.downloadKey=#{rv.downloadKey}",
-                                             "rv.itemId=#{rv.itemId}",
-                                             "rv.path=#{rv.path}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
-      return rv
-    end
-
-    def single_use_show?
-      cc_single_use_link.present? || cc_parent_single_use_link.present?
-    end
-
     def current_user_can_edit?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -373,6 +309,7 @@ module Hyrax
     end
 
     def member_thumbnail_url_options( member )
+      # TODO: make sure that icon does not have a download link
       suppress_link = !member.can_download_file? && !single_use_show?
       { suppress_link: suppress_link }
     end
@@ -395,6 +332,70 @@ module Hyrax
       ''
     end
 
+    def single_use_link_create_download( curation_concern = solr_document )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "curation_concern.id=#{curation_concern.id}",
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      rv = SingleUseLink.create( itemId: curation_concern.id, path: "/data/downloads/#{curation_concern.id}" )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "rv.downloadKey=#{rv.downloadKey}",
+                                             "rv.itemId=#{rv.itemId}",
+                                             "rv.path=#{rv.path}",
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      return rv
+    end
+
+    def single_use_link_create_show( curation_concern = solr_document )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "curation_concern.class.name=#{curation_concern.class.name}",
+                                             "curation_concern.id=#{curation_concern.id}",
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      path = "/data/concern/file_sets/#{curation_concern.id}" # TODO: fix
+      rv = SingleUseLink.create( itemId: curation_concern.id, path: path )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "rv.downloadKey=#{rv.downloadKey}",
+                                             "rv.itemId=#{rv.itemId}",
+                                             "rv.path=#{rv.path}",
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      return rv
+    end
+
+    def single_use_link_download( curation_concern = solr_document )
+      @single_use_link_download ||= single_use_link_create_download( curation_concern )
+    end
+
+    def single_use_link_show( curation_concern = solr_document )
+      @single_use_link_show ||= single_use_link_create_show( curation_concern )
+    end
+
+    def single_use_links
+      @single_use_links ||= single_use_links_init
+    end
+
+    def single_use_links_init
+      su_links = SingleUseLink.where( itemId: id )
+      su_links.each do |su_link|
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "su_link=#{su_link}",
+                                               "su_link.valid?=#{su_link.valid?}",
+                                               "su_link.itemId=#{su_link.itemId}",
+                                               "su_link.path=#{su_link.path}",
+                                               "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      end
+      su_links.map { |link| link_presenter_class.new(link) }
+    end
+
+    def single_use_show?
+      cc_single_use_link.present? || cc_parent_single_use_link.present?
+    end
+
     def thumbnail_post_process( tag )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -409,6 +410,7 @@ module Hyrax
                                              "rv=#{rv}",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
       rv.gsub!( 'data-context-href', 'data-reference' )
+      # TODO: make sure that icon does not have a download link
       if single_use_show?
         rv.gsub!( /\/(data\/)?concern\/file_sets\/[^\?]+(\?locale=[^"']+)?/, download_path_link( solr_document ) )
       else
