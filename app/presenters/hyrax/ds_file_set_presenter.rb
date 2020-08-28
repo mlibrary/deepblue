@@ -309,8 +309,12 @@ module Hyrax
     end
 
     def member_thumbnail_url_options( member )
-      # TODO: make sure that icon does not have a download link
-      suppress_link = !member.can_download_file? && !single_use_show?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "member.can_download_file?=#{member.can_download_file?}",
+                                             "member.single_use_show?=#{member.single_use_show?}",
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      suppress_link = !member.can_download_file? || member.single_use_show?
       { suppress_link: suppress_link }
     end
 
