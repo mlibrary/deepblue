@@ -118,12 +118,14 @@
                           polymorphic_path([main_app, :file_manager, @presenter]),
                           class: 'btn btn-subtle' %>
             <% end %>
-            <% if @presenter.can_delete_work? %>
-              <%= link_to t('simple_form.actions.data_set.delete'),
-                          [main_app, @presenter],
-                          class: 'btn btn-danger',
-                          data: { confirm: "Delete this #{@presenter.human_readable_type}?" },
-                          method: :delete %>
+            <% if @presenter.can_mint_doi_work? %>
+              <% if @presenter.can_delete_work? %>
+                <%= link_to t('simple_form.actions.data_set.delete'),
+                            [main_app, @presenter],
+                            class: 'btn btn-danger',
+                            data: { confirm: "Delete this #{@presenter.human_readable_type}?" },
+                            method: :delete %>
+              <% end %>
             <% end %>
 
             <% if @presenter.can_mint_doi_work? %>
