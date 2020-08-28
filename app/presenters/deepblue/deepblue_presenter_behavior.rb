@@ -33,6 +33,9 @@ module Deepblue
     end
 
     def member_thumbnail_url_options( member )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if DEEP_BLUE_PRESENTER_BEHAVIOR_DEBUG_VERBOSE
       { suppress_link: !member.can_download_file? }
     end
 

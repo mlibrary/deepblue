@@ -14,12 +14,13 @@
       ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
                                             ::Deepblue::LoggingHelper.called_from,
                                             "member.class=#{member.class.name}",
+                                            "member.member_thumbnail_url_options( member )=#{member.member_thumbnail_url_options( member )}",
                                             ""]
     %>
     <td class="thumbnail">
       <% thumbnail_tag = render_thumbnail_tag( member.solr_document,
-                                               @presenter.member_thumbnail_image_options( member ),
-                                               @presenter.member_thumbnail_url_options( member ) ) %>
+                                               member.member_thumbnail_image_options( member ),
+                                               member.member_thumbnail_url_options( member ) ) %>
       <%= raw @presenter.member_thumbnail_post_process( member, thumbnail_tag ) %>
     </td>
     <%# if can?(:download, member.id) %>
