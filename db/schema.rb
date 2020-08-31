@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20191122185851) do
+ActiveRecord::Schema.define(version: 2020_08_28_174733) do
 
   create_table "bookmarks", force: :cascade do |t|
     t.integer "user_id", null: false
@@ -299,6 +299,8 @@ ActiveRecord::Schema.define(version: 20191122185851) do
     t.datetime "expires"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "user_id"
+    t.text "user_comment"
   end
 
   create_table "sipity_agents", force: :cascade do |t|
