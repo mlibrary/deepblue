@@ -37,6 +37,7 @@ RSpec.describe Hyrax::DataSetForm do
     creator
     authoremail
     methodology
+    tombstone
     description
     date_coverage
     rights_license

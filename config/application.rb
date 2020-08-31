@@ -60,7 +60,7 @@ module DeepBlueDocs
     config.file_sets_controller_debug_verbose = true
     # config.interpolation_helper_debug_verbose = false -- see config/integration/work_view_content.rb
     # config.jira_helper_debug_verbose -- see config/integration/jira_integration
-    config.single_use_link_controller_behavior_debug_verbose = true
+    config.single_use_link_controller_behavior_debug_verbose = true ## TODO: move to SingleUseLinkService
     config.single_use_links_controller_debug_verbose = true
     config.single_use_links_viewer_controller_debug_verbose = true
     config.solr_document_debug_verbose = false
