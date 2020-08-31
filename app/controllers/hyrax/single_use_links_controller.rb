@@ -39,14 +39,18 @@ module Hyrax
                                              "asset_path=#{asset_path}",
                                              "" ] if SINGLE_USE_LINKS_CONTROLLER_DEBUG_VERBOSE
       if asset_path =~ /concern\/file_sets/
-        @su = SingleUseLink.create itemId: params[:id], path: hyrax.download_path(id: params[:id])
+        @su = SingleUseLink.create( itemId: params[:id],
+                                    path: hyrax.download_path(id: params[:id]),
+                                    user_id: current_ability.current_user.id )
       else
         asset_path = asset_path.gsub( /\?locale\=.+$/, '/single_use_link_zip_download' )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "asset_path=#{asset_path}",
                                                "" ] if SINGLE_USE_LINKS_CONTROLLER_DEBUG_VERBOSE
-        @su = SingleUseLink.create itemId: params[:id], path: asset_path
+        @su = SingleUseLink.create( itemId: params[:id],
+                                    path: asset_path,
+                                    user_id: current_ability.current_user.id )
       end
       render plain: hyrax.download_single_use_link_url(@su.downloadKey)
     end
@@ -56,7 +60,9 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",
                                              "" ] if SINGLE_USE_LINKS_CONTROLLER_DEBUG_VERBOSE
-      @su = SingleUseLink.create(itemId: params[:id], path: asset_show_path)
+      @su = SingleUseLink.create( itemId: params[:id],
+                                  path: asset_show_path,
+                                  user_id: current_ability.current_user.id )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "@su=#{@su}",
@@ -74,8 +80,11 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",
                                              "params[:link_type]=#{params[:link_type]}",
+                                             "current_ability.current_user.id=#{current_ability.current_user.id}",
                                              "" ] if SINGLE_USE_LINKS_CONTROLLER_DEBUG_VERBOSE
-      links = SingleUseLink.where(itemId: params[:id]).map { |link| show_presenter.new(link) }
+      links = SingleUseLink.where( itemId: params[:id], user_id: current_ability.current_user.id ).map do |link|
+        show_presenter.new( link )
+      end
       pres = links.first
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -88,6 +97,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "su_link.path=#{su_link.path}",
+                                             "su_link.user_id=#{su_link.user_id}",
                                              "" ] if SINGLE_USE_LINKS_CONTROLLER_DEBUG_VERBOSE
       if su_link =~ /concern\/file_sets/
         partial_path = 'hyrax/file_sets/single_use_link_rows'
