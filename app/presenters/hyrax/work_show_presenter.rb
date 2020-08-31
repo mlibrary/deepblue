@@ -237,8 +237,11 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
                                              "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+      user_id = nil
+      user_id = current_ability.current_user.id unless single_use_show?
       rv = SingleUseLink.create( itemId: curation_concern.id,
-                                 path: "/data/concern/data_sets/#{id}/single_use_link_zip_download" )
+                                 path: "/data/concern/data_sets/#{id}/single_use_link_zip_download",
+                                 user_id: user_id )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
@@ -255,7 +258,7 @@ module Hyrax
     end
 
     def single_use_links_init
-      su_links = SingleUseLink.where( itemId: id )
+      su_links = SingleUseLink.where( itemId: id, user_id: current_ability.current_user.id )
       su_links.each do |su_link|
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
@@ -263,6 +266,7 @@ module Hyrax
                                                "su_link.valid?=#{su_link.valid?}",
                                                "su_link.itemId=#{su_link.itemId}",
                                                "su_link.path=#{su_link.path}",
+                                               "su_link.user_id=#{su_link.user_id}",
                                                "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       end
       su_links.map { |link| link_presenter_class.new(link) }
