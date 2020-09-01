@@ -32,6 +32,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",
                                              "params[:link_type]=#{params[:link_type]}",
+                                             "params=#{params}",
                                              "" ] if SINGLE_USE_LINKS_CONTROLLER_DEBUG_VERBOSE
       asset_path = asset_show_path
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -41,7 +42,8 @@ module Hyrax
       if asset_path =~ /concern\/file_sets/
         @su = SingleUseLink.create( itemId: params[:id],
                                     path: hyrax.download_path(id: params[:id]),
-                                    user_id: current_ability.current_user.id )
+                                    user_id: current_ability.current_user.id,
+                                    user_comment: params[:user_comment] )
       else
         asset_path = asset_path.gsub( /\?locale\=.+$/, '/single_use_link_zip_download' )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -50,7 +52,8 @@ module Hyrax
                                                "" ] if SINGLE_USE_LINKS_CONTROLLER_DEBUG_VERBOSE
         @su = SingleUseLink.create( itemId: params[:id],
                                     path: asset_path,
-                                    user_id: current_ability.current_user.id )
+                                    user_id: current_ability.current_user.id,
+                                    user_comment: params[:user_comment] )
       end
       render plain: hyrax.download_single_use_link_url(@su.downloadKey)
     end
@@ -59,10 +62,12 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",
+                                             "params=#{params}",
                                              "" ] if SINGLE_USE_LINKS_CONTROLLER_DEBUG_VERBOSE
       @su = SingleUseLink.create( itemId: params[:id],
                                   path: asset_show_path,
-                                  user_id: current_ability.current_user.id )
+                                  user_id: current_ability.current_user.id,
+                                  user_comment: params[:user_comment] )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "@su=#{@su}",

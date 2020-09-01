@@ -3,7 +3,7 @@
                                          Deepblue::LoggingHelper.obj_class('@presenter', @presenter),
                                          ""] %>
 <h2><%= @presenter.ingest_script_title %></h2>
-</p>
+<p/>
 <%= form_tag(main_app.ingest_append_generate_script_hyrax_data_set_path(@curation_concern.id), method: 'post') do %>
   <%= render partial: 'data_set/ingest_append_prep_fields' %>
   <%= submit_tag(t('simple_form.actions.data_set.ingest_append_generate_script'), class: 'btn btn-primary') %>

@@ -433,6 +433,7 @@ en:
         link:               "Link"
         no_links:           "No links have been generated"
       title:                "Single-Use Links"
+      user_comment_label:   "With note:"
     site_copyright:         "© 2020 Regents of the University of Michigan"
     site_logo_href:         "https://www.lib.umich.edu/"
     site_logo_img_html: >

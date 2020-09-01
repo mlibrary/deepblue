@@ -29,10 +29,10 @@ class SingleUseLink < ActiveRecord::Base
     end
 
     def set_defaults
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "user_id=#{user_id}",
-                                             "" ] if ::Hyrax::SingleUseLinkService.single_use_link_service_debug_verbose
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "user_id=#{user_id}",
+      #                                        "" ] if ::Hyrax::SingleUseLinkService.single_use_link_service_debug_verbose
       return unless new_record?
       # self.expires ||= DateTime.current.advance( hours: 24 )
       # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

@@ -344,7 +344,7 @@ module Hyrax
       user_id = nil
       user_id = current_ability.current_user.id unless single_use_show?
       rv = SingleUseLink.create( itemId: curation_concern.id,
-                                 path: "/data/downloads/#{curation_concern.id}",
+                                 path: "/data/downloads/#{curation_concern.id}", # TODO: fix
                                  user_id: user_id )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

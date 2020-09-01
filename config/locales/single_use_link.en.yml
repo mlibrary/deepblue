@@ -1,0 +1,9 @@
+en:
+  simple_form:
+    actions:
+      single_use_link:
+        create_download:      "Create Download Single-Use Link"
+        create_show:          "Create Show Single-Use Link"
+    labels:
+      single_use_link:
+        user_comment:         "Note to add to next link created"

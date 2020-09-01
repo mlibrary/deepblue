@@ -7,7 +7,7 @@ module Hyrax
 
     attr_reader :link
 
-    delegate :downloadKey, :expired?, :to_param, to: :link
+    delegate :downloadKey, :expired?, :user_comment, :to_param, to: :link
 
     # @param link [SingleUseLink]
     def initialize(link)
