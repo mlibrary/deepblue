@@ -140,6 +140,7 @@ Rails.application.routes.draw do
   namespace :hyrax, path: :concern do
     resources :file_sets do
       member do
+        post   'create_single_use_link'
         get    'display_provenance_log'
         get    'doi'
         post   'doi'
@@ -153,6 +154,7 @@ Rails.application.routes.draw do
     resources :data_sets do
       member do
         # post   'confirm'
+        post   'create_single_use_link'
         get    'display_provenance_log'
         get    'doi'
         post   'doi'

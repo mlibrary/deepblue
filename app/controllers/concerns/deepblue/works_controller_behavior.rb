@@ -55,7 +55,8 @@ module Deepblue
       respond_to do |wants|
         wants.html do
           # Calling `#t` in a controller context does not mark _html keys as html_safe
-          flash[:notice] = view_context.t('hyrax.works.create.after_create_html', application_name: view_context.application_name)
+          flash[:notice] = view_context.t( 'hyrax.works.create.after_create_html',
+                                           application_name: view_context.application_name )
           redirect_to [main_app, curation_concern]
         end
         wants.json do
@@ -165,6 +166,43 @@ module Deepblue
       end
     end
 
+    def create_single_use_link
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "params=#{params}",
+                                             "params[:commit]=#{params[:commit]}",
+                                             "params[:user_comment]=#{params[:user_comment]}",
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      case params[:commit]
+      when t( 'simple_form.actions.single_use_link.create_download' )
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+        SingleUseLink.create( itemId: curation_concern.id,
+                              path: current_show_path( append: "/single_use_link_zip_download" ),
+                              user_id: current_ability.current_user.id,
+                              user_comment: params[:user_comment] )
+      when t( 'simple_form.actions.single_use_link.create_show' )
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+        SingleUseLink.create( itemId: curation_concern.id,
+                              path: current_show_path,
+                              user_id: current_ability.current_user.id,
+                              user_comment: params[:user_comment] )
+      end
+
+      # continue on to normal display
+      redirect_to current_show_path( append: "#single_use_links" )
+    end
+
+    def current_show_path( append: nil )
+      path = polymorphic_path( [main_app, curation_concern] )
+      path.gsub!( /\?locale=.+$/, '' )
+      return path if append.blank?
+      "#{path}#{append}"
+    end
+
     def destroy
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
@@ -232,7 +270,7 @@ module Deepblue
       build_form
     end
 
-    # GET file_sets/:id/single_use_link/:link_id
+    # GET data_sets/:id/single_use_link/:link_id
     def single_use_link
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

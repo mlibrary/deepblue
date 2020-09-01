@@ -38,6 +38,10 @@ module Hyrax
       true
     end
 
+    def can_download_zip?
+      can_download_zip_maybe? && can_download_zip_confirm?
+    end
+
     def can_download_zip_confirm?
       max_work_file_size_to_download = ::DeepBlueDocs::Application.config.max_work_file_size_to_download
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -267,6 +271,7 @@ module Hyrax
                                                "su_link.itemId=#{su_link.itemId}",
                                                "su_link.path=#{su_link.path}",
                                                "su_link.user_id=#{su_link.user_id}",
+                                               "su_link.user_comment=#{su_link.user_comment}",
                                                "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       end
       su_links.map { |link| link_presenter_class.new(link) }

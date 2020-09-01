@@ -28,6 +28,7 @@ module Hyrax
     after_action :provenance_log_create,         only: [:create]
     after_action :provenance_log_update_after,   only: [:update]
 
+    protect_from_forgery with: :null_session,    only: [:create_single_use_link]
     protect_from_forgery with: :null_session,    only: [:file_contents]
     protect_from_forgery with: :null_session,    only: [:display_provenance_log]
     # monkey end
@@ -54,6 +55,44 @@ module Hyrax
     helper_method :file_set
 
     layout :decide_layout
+
+    def create_single_use_link
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "params=#{params}",
+                                             "params[:commit]=#{params[:commit]}",
+                                             "params[:user_comment]=#{params[:user_comment]}",
+                                             "hyrax.download_path(id: curation_concern.id)=#{hyrax.download_path(id: curation_concern.id)}",
+                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      case params[:commit]
+      when t( 'simple_form.actions.single_use_link.create_download' )
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+        SingleUseLink.create( itemId: curation_concern.id,
+                              path: hyrax.download_path( id: curation_concern.id ),
+                              user_id: current_ability.current_user.id,
+                              user_comment: params[:user_comment] )
+      when t( 'simple_form.actions.single_use_link.create_show' )
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+        SingleUseLink.create( itemId: curation_concern.id,
+                              path: current_show_path,
+                              user_id: current_ability.current_user.id,
+                              user_comment: params[:user_comment] )
+      end
+
+      # continue on to normal display
+      redirect_to current_show_path( append: "#single_use_links" )
+    end
+
+    def current_show_path( append: nil )
+      path = polymorphic_path( [main_app, curation_concern] )
+      path.gsub!( /\?locale=.+$/, '' )
+      return path if append.blank?
+      "#{path}#{append}"
+    end
 
     # GET /concern/file_sets/:id
     def edit

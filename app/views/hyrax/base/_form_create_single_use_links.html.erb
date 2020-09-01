@@ -1,0 +1,7 @@
+<%= form_tag( polymorphic_path([main_app, :create_single_use_link, @presenter]), method: 'post') do %>
+  <%= render partial: 'single_use_link/create_fields' %>
+  <% if @presenter.can_download_zip? %>
+    <%= submit_tag(t('simple_form.actions.single_use_link.create_download'), class: 'btn btn-primary') %>
+  <% end %>
+  <%= submit_tag(t('simple_form.actions.single_use_link.create_show'), class: 'btn btn-primary') %>
+<% end %>

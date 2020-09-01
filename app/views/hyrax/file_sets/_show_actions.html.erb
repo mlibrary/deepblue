@@ -25,34 +25,4 @@
     </div>
   <% end %>
 
-  <% if !@presenter.single_use_show? && @presenter.current_ability.admin? %>
-    <div class="panel panel-default panel-admin">
-      <div class="panel-heading">
-        <h2><%= t('simple_form.labels.file_set.admin_actions') %></h2>
-      </div>
-      <div class="panel-body">
-        <% if @presenter.can_mint_doi_file? %>
-          <p>
-            <button class="btn btn-primary" data-target="#mintDoiId" data-toggle="modal">
-              <%= t('simple_form.actions.file_set.mint_doi') %>
-            </button>
-          </p>
-        <% end %>
-        <% if @presenter.can_display_file_contents? %>
-          <p>
-          <%= link_to t('simple_form.actions.file_set.contents'),
-                      main_app.file_contents_hyrax_file_set_path(@presenter.id), class: 'btn btn-subtle' %>
-          </p>
-        <% end %>
-        <% if @presenter.display_provenance_log_enabled? %>
-          <p>
-          <%= link_to t('simple_form.actions.provenance_log.display'),
-                      main_app.display_provenance_log_hyrax_file_set_path(@presenter.id), class: 'btn btn-subtle' %>
-          </p>
-        <% end %>
-      </div>
-    </div> <!-- End Admin panel -->
-  <% end %>
-
 </div>
-<%= render 'modal_mint_doi', id: @presenter.id %>

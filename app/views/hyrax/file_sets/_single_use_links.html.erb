@@ -1,6 +1,6 @@
 <div class="panel panel-default panel-single-use-links">
   <div class="panel-heading">
-    <h2><%= t('hyrax.single_use_links.title') %></h2>
+    <h2 id="single_use_links"><%= t('hyrax.single_use_links.title') %></h2>
   </div>
   <div class="panel-body">
     <table class="table table-striped table-condensed <%= dom_class( @presenter ) %> single-use-links">
@@ -8,19 +8,12 @@
       <% if @presenter.single_use_links.empty? %>
         <tr><td><%= t('hyrax.single_use_links.table.no_links') %></td></tr>
       <% else %>
-        <%= render 'single_use_link_rows', single_use_links: @presenter.single_use_links %>
+        <%= render 'hyrax/base/single_use_link_rows', single_use_links: @presenter.single_use_links %>
       <% end %>
       </tbody>
     </table>
     <div class="form_actions">
-      <% if @presenter.can_download_file? %>
-        <%= link_to t('hyrax.single_use_links.button_with_type', link_type: 'Download' ),
-                    hyrax.generate_download_single_use_link_path( @presenter ),
-                    class: 'btn btn-default generate-single-use-link' %>
-      <% end %>
-      <%= link_to t('hyrax.single_use_links.button_with_type', link_type: 'Show' ),
-                  hyrax.generate_show_single_use_link_path( @presenter ),
-                  class: 'btn btn-default generate-single-use-link' %>
+      <%= render partial: 'form_create_single_use_links' %>
     </div>
   </div>
 </div>

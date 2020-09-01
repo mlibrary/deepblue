@@ -5,6 +5,10 @@
                                                          time: presenter.human_readable_expiration,
                                                          link_type: presenter.link_type ) %>
       <br/>
+      <% if presenter.user_comment.present? %>
+        <%= t('hyrax.single_use_links.user_comment_label') %>&nbsp;<%= presenter.user_comment %>
+        <br/>
+      <% end %>
       <button class="btn btn-xs btn-default copy-single-use-link"
               data-clipboard-text="<%= hyrax.send(presenter.url_helper, presenter.downloadKey) %>"
               data-toggle="tooltip" data-placement="bottom"
