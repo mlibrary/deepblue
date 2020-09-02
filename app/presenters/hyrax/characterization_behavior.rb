@@ -58,7 +58,9 @@ module Hyrax
     end
 
     def characterized?
-      !characterization_metadata.values.compact.empty?
+      values = characterization_metadata.values.compact
+      return false if values.empty?
+      values != ["0 Bytes"]
     end
 
     def characterization_metadata

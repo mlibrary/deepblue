@@ -111,14 +111,14 @@ module Hyrax
                                              "true if single_use_show?=#{single_use_show?}",
                                              "true if current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
                                              "true if current_user.present? && current_user.user_approver?( current_user )=#{current_user.present? && current_user.user_approver?( current_user )}",
-                                             "true if workflow.state == 'deposited'=#{workflow.state == 'deposited'}",
+                                             "true if workflow.state == 'deposited' && solr_document.visibility == 'open'=#{workflow.state == 'deposited' && solr_document.visibility == 'open'}",
                                              "current_user_can_read?=#{current_user_can_read?}",
                                              "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       return false if tombstone.present?
       return true if single_use_show?
       return true if current_ability.can?( :edit, id )
       return true if current_user.present? && current_user.user_approver?( current_user )
-      return true if workflow.state == 'deposited'
+      return true if workflow.state == 'deposited' && solr_document.visibility == 'open'
       current_user_can_read?
     end
 

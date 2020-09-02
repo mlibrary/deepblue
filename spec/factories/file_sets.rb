@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
+
   factory :file_set do
     transient do
       user { create(:user) }
@@ -28,8 +29,13 @@ FactoryBot.define do
       end
       after(:create) do |file, evaluator|
         Hydra::Works::UploadFileToFileSet.call(file, evaluator.content) if evaluator.content
-        create(:work, user: evaluator.user).members << file
+        create( :data_set_work,
+                creator: [ "Dr. Creator" ],
+                rights_license: "The Rights License",
+                title: ['test title'],
+                user: evaluator.user ).members << file
       end
     end
   end
+
 end
