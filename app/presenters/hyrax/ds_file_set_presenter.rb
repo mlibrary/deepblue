@@ -12,6 +12,7 @@ module Hyrax
              :doi_minted?,
              :doi_minting_enabled?,
              :doi_pending?,
+             :file_size,
              :original_checksum,
              :mime_type,
              :title,
@@ -35,7 +36,7 @@ module Hyrax
                                              "current_user&.email=#{current_user&.email}",
                                              "parent_data_set.edit_users=#{parent_data_set.edit_users}",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
-      return unless current_user.present?
+      return false unless current_user.present?
       parent_data_set.edit_users.include? current_user.email
     end
 
@@ -45,7 +46,7 @@ module Hyrax
                                              "current_user&.email=#{current_user&.email}",
                                              "parent_data_set.read_users=#{parent_data_set.read_users}",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
-      return unless current_user.present?
+      return false unless current_user.present?
       parent_data_set.read_users.include? current_user.email
     end
 
@@ -166,12 +167,12 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false if parent.tombstone.present?=#{parent.tombstone.present?}",
                                              "true if single_use_show?=#{single_use_show?}",
-                                             "true if parent.workflow.state == 'deposited'=#{parent.workflow.state == 'deposited'}",
+                                             "true if parent.workflow.state == 'deposited' && solr_document.visibility == 'open'=#{parent.workflow.state == 'deposited' && solr_document.visibility == 'open'}",
                                              "current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
       return false if parent.tombstone.present?
       return true if single_use_show?
-      return true if parent.workflow.state == 'deposited'
+      return true if parent.workflow.state == 'deposited' && solr_document.visibility == 'open'
       current_ability.can?( :edit, id )
     end
 

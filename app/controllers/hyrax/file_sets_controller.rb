@@ -227,8 +227,8 @@ module Hyrax
                                              "current_user&.email=#{current_user&.email}",
                                              "curation_concern&.parent.edit_users=#{curation_concern&.parent.edit_users}",
                                              "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
-      return unless current_user.present?
-      return unless curation_concern.parent.present?
+      return false unless current_user.present?
+      return false unless curation_concern.parent.present?
       curation_concern.parent.edit_users.include? current_user.email
     end
 
@@ -238,8 +238,8 @@ module Hyrax
                                              "current_user&.email=#{current_user&.email}",
                                              "curation_concern&.parent.read_users=#{curation_concern&.parent.read_users}",
                                              "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
-      return unless current_user.present?
-      return unless curation_concern.parent.present?
+      return false unless current_user.present?
+      return false unless curation_concern.parent.present?
       curation_concern.parent.read_users.include? current_user.email
     end
 
@@ -520,7 +520,7 @@ module Hyrax
       when 'edit'.freeze
         add_breadcrumb I18n.t("hyrax.file_set.browse_view"), main_app.hyrax_file_set_path(params["id"])
       when 'show'.freeze
-        add_breadcrumb presenter.parent.to_s, main_app.polymorphic_path(presenter.parent)
+        add_breadcrumb presenter.parent.to_s, main_app.polymorphic_path(presenter.parent) unless presenter.parent.nil?
         add_breadcrumb presenter.to_s, main_app.polymorphic_path(presenter)
       end
     end
