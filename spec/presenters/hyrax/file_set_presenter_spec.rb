@@ -1,6 +1,6 @@
 require 'iiif_manifest'
 
-RSpec.describe Hyrax::FileSetPresenter do
+RSpec.describe Hyrax::FileSetPresenter, clean_repo: true do
   subject(:presenter) { described_class.new(solr_document, ability) }
   let(:solr_document) { SolrDocument.new(attributes) }
   let(:ability) { Ability.new(user) }

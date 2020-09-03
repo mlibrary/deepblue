@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Hyrax::DataSetPresenter do
+RSpec.describe Hyrax::DataSetPresenter, clean_repo: true do
   subject { described_class.new(double, double) }
   let(:solr_document) { SolrDocument.new(attributes) }
   let(:request) { double(host: 'example.org', base_url: 'http://example.org') }

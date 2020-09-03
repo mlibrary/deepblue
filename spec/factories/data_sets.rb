@@ -25,24 +25,25 @@ FactoryBot.define do
       work.save! if work.member_of_collections.present?
     end
 
-    title { ["Test title"] }
-    visibility { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE }
-
-    authoremail { "test@umich.edu" }
-    description { ["This is the description."] }
-    methodology { ["The Methodology"] }
+    authoremail    { "test@umich.edu" }
+    creator        { ["Dr. Creator"] }
+    description    { ["This is the description."] }
+    methodology    { ["The Methodology"] }
+    rights_license { "The Rights License" }
+    title          { ["Test title"] }
+    visibility     { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE }
 
     after(:build) do |work, evaluator|
       work.apply_depositor_metadata(evaluator.user.user_key)
     end
 
-    factory :public_data_set, aliases: [:public_data_set_data_set], traits: [:public]
+    factory :public_data_set, aliases: [:public_data_set_work], traits: [:public]
 
     trait :public do
       visibility { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC }
     end
 
-    factory :private_data_set do
+    factory :private_data_set, aliases: [:private_data_set_work] do
       # visibility Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
     end
 

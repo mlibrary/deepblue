@@ -136,6 +136,7 @@ group :development, :test do
   gem 'rspec-rails'
   gem 'rspec-retry'
   gem 'selenium-webdriver'
+  gem 'shoulda-callback-matchers', '~> 1.1.1'
   gem 'shoulda-matchers', '~> 3.1'
   gem 'solr_wrapper', '~> 2.1.0'
 end

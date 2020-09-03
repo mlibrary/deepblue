@@ -1,4 +1,5 @@
-RSpec.describe Hyrax::FileSetsController do
+
+RSpec.describe Hyrax::FileSetsController, :clean_repo do
 
   include Devise::Test::ControllerHelpers
   routes { Rails.application.routes }
