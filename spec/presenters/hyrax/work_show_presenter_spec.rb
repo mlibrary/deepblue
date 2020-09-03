@@ -1,4 +1,5 @@
-RSpec.describe Hyrax::WorkShowPresenter do
+
+RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
   let(:solr_document) { SolrDocument.new(attributes) }
   let(:request) { double(host: 'example.org', base_url: 'http://example.org') }
   let(:user_key) { 'a_user_key' }
