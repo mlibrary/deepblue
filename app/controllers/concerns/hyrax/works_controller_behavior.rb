@@ -41,6 +41,10 @@ module Hyrax
 
       # Only returns unsuppressed documents the user has read access to
       def search_result_document(search_params)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "",
+                                               "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
         _, document_list = search_results(search_params)
         return document_list.first unless document_list.empty?
         document_not_found!

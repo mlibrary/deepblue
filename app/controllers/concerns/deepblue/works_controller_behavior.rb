@@ -296,7 +296,7 @@ module Deepblue
         return redirect_to main_app.root_path, alert: single_use_link_expired_msg
       end
       single_use_link_destroy! su_link
-      @user_collections = user_collections
+      @user_collections = [] # anonymous user, so we don't care
 
       respond_to do |wants|
         ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
@@ -305,7 +305,7 @@ module Deepblue
                                                "wants.format=#{wants.format}",
                                                "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
         wants.any do
-          presenter && parent_presenter
+          presenter_init && parent_presenter
           presenter.controller = self
           presenter.cc_single_use_link = su_link
           ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
@@ -320,7 +320,44 @@ module Deepblue
       end
     end
 
+    def single_use_link?
+      params[:link_id].present?
+    end
+
+    def presenter_init
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "current_ability.class.name=#{current_ability.class.name}",
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      rv = presenter
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "presenter.class.name=#{presenter.class.name}",
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      return rv
+    rescue Exception => e
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "" ] + e.backtrace[0..20] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      raise
+    end
+
     attr_accessor :cc_single_use_link
+
+    def search_result_document( search_params )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "search_params=#{search_params}",
+                                             "single_use_link?=#{single_use_link?}",
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      if single_use_link?
+        begin
+          return ::SolrDocument.find( params[:id] )
+        rescue ::Blacklight::Exceptions::RecordNotFound => _ignore_and_fall_through
+        end
+      end
+      super( search_params )
+    end
 
     def single_use_link_zip_download
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -379,15 +416,18 @@ module Deepblue
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
       @user_collections = user_collections
-
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
       respond_to do |wants|
         ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                Deepblue::LoggingHelper.called_from,
                                                Deepblue::LoggingHelper.obj_class( 'wants', wants ),
-                                               "wants.format=#{wants.format}",
+                                               "@user_collections.class.name=#{@user_collections.class.name}",
                                                "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
         wants.html do
-          presenter && parent_presenter
+          presenter_init && parent_presenter
           presenter.controller = self
           ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                  Deepblue::LoggingHelper.called_from,

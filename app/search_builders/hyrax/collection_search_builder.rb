@@ -1,4 +1,5 @@
 module Hyrax
+
   # Our parent class is the generated SearchBuilder descending from Blacklight::SearchBuilder
   # It includes Blacklight::Solr::SearchBuilderBehavior, Hydra::AccessControlsEnforcement, Hyrax::SearchFilters
   # @see https://github.com/projectblacklight/blacklight/blob/master/lib/blacklight/search_builder.rb Blacklight::SearchBuilder parent
@@ -8,13 +9,24 @@ module Hyrax
   #
   # Allows :deposit as a valid type
   class CollectionSearchBuilder < ::SearchBuilder
+
+    COLLECTION_SEARCH_BUILDER_DEBUG_VERBOSE = false
+
     include FilterByType
 
     attr_reader :access
 
     # Overrides Hydra::AccessControlsEnforcement
     def discovery_permissions
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "" ] if COLLECTION_SEARCH_BUILDER_DEBUG_VERBOSE
       @discovery_permissions = extract_discovery_permissions(@access)
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "@discovery_permissions=#{@discovery_permissions}",
+                                             "" ] if COLLECTION_SEARCH_BUILDER_DEBUG_VERBOSE
+      @discovery_permissions
     end
 
     # @return [String] Solr field name indicating default sort order
@@ -43,6 +55,9 @@ module Hyrax
     # deposit or manage access to.
     # @return [Array<String>] a list of filters to apply to the solr query
     def gated_discovery_filters(permission_types = discovery_permissions, ability = current_ability)
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "" ] if COLLECTION_SEARCH_BUILDER_DEBUG_VERBOSE
       return super unless permission_types.include?("deposit")
       ["{!terms f=id}#{collection_ids_for_deposit.join(',')}"]
     end
@@ -50,7 +65,15 @@ module Hyrax
     private
 
       def collection_ids_for_deposit
-        Hyrax::Collections::PermissionsService.collection_ids_for_deposit(ability: current_ability)
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "" ] if COLLECTION_SEARCH_BUILDER_DEBUG_VERBOSE
+        rv = Hyrax::Collections::PermissionsService.collection_ids_for_deposit(ability: current_ability)
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "rv=#{rv}",
+                                               "" ] if COLLECTION_SEARCH_BUILDER_DEBUG_VERBOSE
+        return rv
       end
 
       ACCESS_LEVELS_FOR_LEVEL = ActiveSupport::HashWithIndifferentAccess.new(
@@ -58,9 +81,12 @@ module Hyrax
         deposit: ["deposit"],
         read: ["edit", "read"]
       ).freeze
+
       def extract_discovery_permissions(access)
         access = :read if access.blank?
         ACCESS_LEVELS_FOR_LEVEL.fetch(access)
       end
+
   end
+
 end

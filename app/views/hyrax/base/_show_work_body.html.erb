@@ -22,7 +22,9 @@
       <%= render 'citations', presenter: @presenter %>
     </div>
     <div class="col-sm-12">
-      <%= render 'relationships', presenter: @presenter %>
+      <% unless @presenter.single_use_show? %>
+        <%= render 'relationships', presenter: @presenter %>
+      <% end %>
       <%= render 'items', presenter: @presenter %>
       <%# TODO: we may consider adding these partials in the future %>
       <%# = render 'sharing_with', presenter: @presenter %>
