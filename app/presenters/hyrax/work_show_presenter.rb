@@ -519,7 +519,7 @@ module Hyrax
       solr_document.to_model
     end
 
-    delegate :member_presenters, :ordered_ids, :file_set_presenters, :work_presenters, to: :member_presenter_factory
+    delegate :ordered_ids, :file_set_presenters, :work_presenters, to: :member_presenter_factory
 
     # @return [Array] list to display with Kaminari pagination
     def list_of_item_ids_to_display

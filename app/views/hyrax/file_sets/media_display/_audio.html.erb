@@ -3,7 +3,7 @@
 <% else %>
   <% download_path_link = hyrax.download_path(file_set) %>
 <% end %>
-<% if Hyrax.config.display_media_download_link? %>
+<% if Hyrax.config.display_media_download_link? && @presenter.can_download_file? %>
     <div>
       <h2 class="sr-only"><%= t('hyrax.file_set.show.downloadable_content.heading') %></h2>
       <audio controls="controls" class="audiojs" style="width:100%" controlsList="nodownload" preload="auto">
