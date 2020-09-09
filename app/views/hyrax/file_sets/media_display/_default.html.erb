@@ -3,19 +3,17 @@
 <% else %>
   <% download_path_link = hyrax.download_path( file_set ) %>
 <% end %>
-<% if file_set.respond_to?('file_size_too_large_to_download?') %>
-  <% unless file_set.file_size_too_large_to_download? %>
-    <div class="no-preview">
-      <%= t('hyrax.works.show.no_preview') %>
-      <% if Hyrax.config.display_media_download_link? %>
-        <p /><%= link_to t('hyrax.file_set.show.download'),
-                         download_path_link,
-                         id: "file_download",
-                         data: { label: file_set.id },
-                         target: "_new" %>
-      <% end %>
-    </div>
-  <% end %>
+<% if @presenter.can_download_file? %>
+  <div class="no-preview">
+    <%= t('hyrax.works.show.no_preview') %>
+    <% if Hyrax.config.display_media_download_link? %>
+      <p /><%= link_to t('hyrax.file_set.show.download'),
+                       download_path_link,
+                       id: "file_download",
+                       data: { label: file_set.id },
+                       target: "_new" %>
+    <% end %>
+  </div>
 <% else %>
   <div class="no-preview">
     <%= t('hyrax.works.show.no_preview') %>

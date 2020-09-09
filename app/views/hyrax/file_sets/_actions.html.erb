@@ -17,7 +17,7 @@
       <li>
         <%= link_to t('.view_details'), member.show_path_link, method: :get %>
       </li>
-      <% if can?(:edit, member.id) %>
+      <%# if can?(:edit, member.id) %>
         <% unless @presenter.doi_minted? && !current_ability.admin? %>
           <li role="menuitem" tabindex="-1">
             <%= link_to t('.edit'),
@@ -37,7 +37,7 @@
                       edit_polymorphic_path([main_app, member], anchor: 'versioning_display'),
                       { title: t('.versions_title') } %>
         </li>
-      <% end %>
+      <%# end %>
       <% if member.can_delete_file? %>
         <li role="menuitem" tabindex="-1">
           <%= link_to t('.delete'),
