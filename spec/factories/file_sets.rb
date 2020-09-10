@@ -25,7 +25,7 @@ FactoryBot.define do
 
     factory :file_with_work do
       after(:build) do |file, _evaluator|
-        file.title = ['testfile']
+        file.title ||= ['testfile']
       end
       after(:create) do |file, evaluator|
         Hydra::Works::UploadFileToFileSet.call(file, evaluator.content) if evaluator.content

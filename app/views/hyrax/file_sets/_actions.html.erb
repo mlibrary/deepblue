@@ -46,11 +46,11 @@
                       data: { confirm: t('.delete_confirm', file_set: member, application_name: application_name) } %>
         </li>
       <% end %>
-    <% elsif @presenter.workflow.state != "deposited" && @presenter.current_user_can_read? %>
+    <% elsif member.parent_workflow.state != "deposited" && member.current_user_can_read? %>
       <li>
         <%= link_to t('.view_details'), member.show_path_link, method: :get %>
       </li>
-    <% elsif @presenter.workflow.state == "deposited" %>
+    <% elsif member.parent_workflow.state == "deposited" %>
       <li>
         <%= link_to t('.view_details'), member.show_path_link, method: :get %>
       </li>
@@ -60,7 +60,7 @@
       </li>
     <% end %>
 
-    <% if can?(:download, member.id) || @presenter.single_use_show? %>
+    <% if member.can_download_file_maybe? %>
 
       <% unless member.file_size_too_large_to_download? %>
           <li role="menuitem" tabindex="-1">
