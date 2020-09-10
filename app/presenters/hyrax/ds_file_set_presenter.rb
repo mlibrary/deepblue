@@ -33,21 +33,23 @@ module Hyrax
     def current_user_can_edit?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "current_user&.email=#{current_user&.email}",
+                                             "current_ability.current_user&.email=#{current_ability.current_user&.email}",
                                              "parent_data_set.edit_users=#{parent_data_set.edit_users}",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
-      return false unless current_user.present?
-      parent_data_set.edit_users.include? current_user.email
+      return false unless current_ability.current_user.present?
+      return false unless current_ability.current_user.email.present?
+      parent_data_set.edit_users.include? current_ability.current_user.email
     end
 
     def current_user_can_read?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "current_user&.email=#{current_user&.email}",
+                                             "current_ability.current_user&.email=#{current_ability.current_user&.email}",
                                              "parent_data_set.read_users=#{parent_data_set.read_users}",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
-      return false unless current_user.present?
-      parent_data_set.read_users.include? current_user.email
+      return false unless current_ability.current_user.present?
+      return false unless current_ability.current_user.email.present?
+      parent_data_set.read_users.include? current_ability.current_user.email
     end
 
     def can_delete_file?
@@ -107,18 +109,18 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "max_work_file_size_to_download < size=#{max_work_file_size_to_download < size}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
       max_work_file_size_to_download >= size
     end
 
     def can_download_file_maybe?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "false if single_use_show?=#{single_use_show?}",
+                                             "true if single_use_show?=#{single_use_show?}",
                                              "true current_ability.admin?=#{current_ability.admin?}",
                                              "false if solr_document.visibility == 'embargo'=#{solr_document.visibility == 'embargo'}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
-      return false if single_use_show?
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      return true if single_use_show?
       return true if current_ability.admin?
       return false if solr_document.visibility == 'embargo'
       true
@@ -140,7 +142,7 @@ module Hyrax
       return false if single_use_show?
       return false if parent.tombstone.present?
       return true if current_ability.admin?
-      return true if editor? && parent.workflow.state != 'deposited'
+      return true if editor? && parent.workflow.state != 'deposited' # TODO: this should probably be == 'pending_review'
       false
     end
 
@@ -331,6 +333,10 @@ module Hyrax
       parent_data_set.public?
     end
 
+    def parent_workflow
+      parent.workflow
+    end
+
     def relative_url_root
       rv = ::DeepBlueDocs::Application.config.relative_url_root
       return rv if rv
@@ -435,6 +441,10 @@ module Hyrax
                                              "rv=#{rv}",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
       return rv
+    end
+
+    def user_can_perform_any_action?
+      can_view_file? || can_download_file? || can_edit_file? || can_delete_file?
     end
 
     # begin display_provenance_log

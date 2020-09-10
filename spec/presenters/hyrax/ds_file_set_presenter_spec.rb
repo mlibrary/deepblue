@@ -7,14 +7,34 @@ RSpec.describe Hyrax::DsFileSetPresenter do
   let(:attributes) { file.to_solr }
 
   let(:file) do
-    build(:file_set,
+    build( :file_set,
           id: '123abc',
           user: user,
           title: ["File title"],
           depositor: user.user_key,
-          label: "filename.tif")
+          label: "filename.tif" )
   end
   let(:user) { create(:admin) }
+  let(:user_key) { 'a_user_key' }
+  let( :parent_id ) { '888888' }
+  let( :parent_title ) { ['foo', 'bar'] }
+  let(:parent_attributes) do
+    { "id" => parent_id,
+      "title_tesim" => parent_title,
+      "human_readable_type_tesim" => ["DataSet Work"],
+      "has_model_ssim" => ["DataSet"],
+      "date_created_tesim" => ['an unformatted date'],
+      "depositor_tesim" => user_key }
+  end
+  let( :parent_solr_document ) { SolrDocument.new( parent_attributes ) }
+  let( :request ) { double(host: 'example.org', base_url: 'http://example.org') }
+  let( :parent_presenter ) { Hyrax::DataSetPresenter.new( parent_solr_document, ability, request ) }
+  let( :parent_data_set ) { create( :public_data_set, id: parent_id, user: user, title: parent_title ) }
+
+  before do
+    # parent_work.ordered_members << file
+    allow( presenter ).to receive( :parent ).and_return parent_presenter
+  end
 
   describe 'stats_path' do
     before do
@@ -54,26 +74,290 @@ RSpec.describe Hyrax::DsFileSetPresenter do
     it { is_expected.to be false }
   end
 
+
+  describe "#current_user_can_edit?" do
+    subject { presenter.current_user_can_edit? }
+    let( :current_ability ) { ability }
+    let( :current_user ) { double( "current_user" ) }
+    let( :email ) { "test@email.com" }
+    before do
+      allow( presenter ).to receive( :parent_data_set ).and_return parent_data_set
+      allow( current_user ).to receive( :email ).and_return email
+      allow( current_ability ).to receive( :current_user ).and_return current_user
+    end
+
+    context 'cannot when no current_user' do
+      before do
+        allow( current_ability ).to receive( :current_user ).and_return nil
+      end
+      it { is_expected.to be false }
+    end
+    context 'cannot when current user is not in parent can edit array' do
+      before do
+        allow( parent_data_set ).to receive( :edit_users ).and_return []
+      end
+      it { is_expected.to be false }
+    end
+    context 'can when current user is in parent can edit array' do
+      before do
+        allow( parent_data_set ).to receive( :edit_users ).and_return [email]
+      end
+      it { is_expected.to be true }
+    end
+  end
+
+  describe "#can_delete_file?" do
+    subject { presenter.can_delete_file? }
+    let( :current_ability ) { ability }
+    let ( :workflow ) { double( "workflow" ) }
+    before do
+      allow( presenter ).to receive( :parent_data_set ).and_return parent_data_set
+    end
+
+    context 'cannot when single-use show and admin' do
+      before do
+        allow( presenter ).to receive( :single_use_show? ).and_return true
+        allow( presenter ).to receive( :doi_minted? ).and_return false
+        allow( current_ability ).to receive( :admin? ).and_return true
+      end
+      it { is_expected.to be false }
+    end
+    context 'cannot when single-use show and not admin' do
+      before do
+        allow( presenter ).to receive( :single_use_show? ).and_return true
+        allow( presenter ).to receive( :doi_minted? ).and_return false
+        allow( current_ability ).to receive( :admin? ).and_return false
+      end
+      it { is_expected.to be false }
+    end
+    context 'cannot when doi minted and admin' do
+      before do
+        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :doi_minted? ).and_return true
+        allow( current_ability ).to receive( :admin? ).and_return true
+      end
+      it { is_expected.to be false }
+    end
+    context 'cannot when doi minted and not admin' do
+      before do
+        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :doi_minted? ).and_return true
+        allow( current_ability ).to receive( :admin? ).and_return false
+      end
+      it { is_expected.to be false }
+    end
+    context 'can when admin and not single user show or doi minted' do
+      before do
+        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :doi_minted? ).and_return false
+        allow( current_ability ).to receive( :admin? ).and_return true
+      end
+      it { is_expected.to be true }
+    end
+  end
+
+  describe "#can_download_file?" do
+    subject { presenter.can_download_file? }
+    let(:current_ability) { ability }
+
+    context 'cannot when file size is too large' do
+      before do
+        expect( presenter ).to receive( :file_size_too_large_to_download? ).at_least(:once).and_return true
+        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( current_ability ).to receive( :can? ).with( :download, presenter.id ).and_return true
+      end
+      it { is_expected.to be false }
+    end
+    context 'can when single-use show' do
+      before do
+        allow( presenter ).to receive( :file_size_too_large_to_download? ).and_return false
+        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return true
+        allow( current_ability ).to receive( :can? ).with( :download, presenter.id ).and_return true
+      end
+      it { is_expected.to be true }
+    end
+    context 'can when user can download id' do
+      before do
+        allow( presenter ).to receive( :file_size_too_large_to_download? ).and_return false
+        allow( presenter ).to receive( :single_use_show? ).and_return false
+        expect( current_ability ).to receive( :can? ).at_least(:once).with( :download, presenter.id ).and_return true
+      end
+      it { is_expected.to be true }
+    end
+    context 'cannot when user cannot download id' do
+      before do
+        allow( presenter ).to receive( :file_size_too_large_to_download? ).and_return false
+        allow( presenter ).to receive( :single_use_show? ).and_return false
+        expect( current_ability ).to receive( :can? ).at_least(:once).with( :download, presenter.id ).and_return false
+      end
+      it { is_expected.to be false }
+    end
+  end
+
+  describe "#can_edit_file?" do
+    subject { presenter.can_edit_file? }
+    let(:current_ability) { ability }
+    let ( :workflow ) { double( "workflow" ) }
+
+    context 'cannot when tombstone present' do
+      before do
+        expect( parent_presenter ).to receive( :tombstone ).at_least(:once).and_return "tombstoned"
+        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( current_ability ).to receive( :admin? ).and_return false
+        allow( presenter ).to receive( :editor? ).and_return false
+      end
+      it { is_expected.to be false }
+    end
+    context 'cannot when single-use show' do
+      before do
+        allow( parent_presenter ).to receive( :tombstone ).and_return nil
+        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return true
+        allow( current_ability ).to receive( :admin? ).and_return false
+        allow( presenter ).to receive( :editor? ).and_return false
+      end
+      it { is_expected.to be false }
+    end
+    context 'can when admin and not single-use show or tombstoned' do
+      before do
+        allow( parent_presenter ).to receive( :tombstone ).and_return nil
+        allow( presenter ).to receive( :single_use_show? ).and_return false
+        expect( current_ability ).to receive( :admin? ).at_least(:once).and_return true
+        allow( presenter ).to receive( :editor? ).and_return false
+      end
+      it { is_expected.to be true }
+    end
+    context 'can when editor and not deposited' do
+      before do
+        allow( parent_presenter ).to receive( :tombstone ).and_return nil
+        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( current_ability ).to receive( :admin? ).and_return false
+        expect( presenter ).to receive( :editor? ).at_least(:once).and_return true
+        expect( workflow ).to receive( :state ).at_least(:once).and_return "pending_review"
+        expect( parent_presenter ).to receive( :workflow ).at_least(:once).and_return workflow
+      end
+      it { is_expected.to be true }
+    end
+    context 'cannot when editor and deposited' do
+      before do
+        allow( parent_presenter ).to receive( :tombstone ).and_return nil
+        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( current_ability ).to receive( :admin? ).and_return false
+        expect( presenter ).to receive( :editor? ).at_least(:once).and_return true
+        expect( workflow ).to receive( :state ).at_least(:once).and_return "deposited"
+        expect( parent_presenter ).to receive( :workflow ).at_least(:once).and_return workflow
+      end
+      it { is_expected.to be false }
+    end
+    context 'cannot when not editor' do
+      before do
+        allow( parent_presenter ).to receive( :tombstone ).and_return nil
+        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( current_ability ).to receive( :admin? ).and_return false
+        allow( presenter ).to receive( :editor? ).and_return false
+        allow( workflow ).to receive( :state ).and_return "pending_review"
+        allow( parent_presenter ).to receive( :workflow ).and_return workflow
+      end
+      it { is_expected.to be false }
+    end
+  end
+
+  describe "#can_view_file?" do
+    subject { presenter.can_view_file? }
+    let(:current_ability) { ability }
+    let ( :workflow ) { double( "workflow" ) }
+
+    context 'cannot when tombstone present' do
+      before do
+        expect( parent_presenter ).to receive( :tombstone ).at_least(:once).and_return "tombstoned"
+      end
+      it { is_expected.to be false }
+    end
+    context 'can when single-use show' do
+      before do
+        expect( parent_presenter ).to receive( :tombstone ).at_least(:once).and_return nil
+        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return true
+      end
+      it { is_expected.to be true }
+    end
+    context 'cannot when pending and visible and can not edit' do
+      before do
+        expect( parent_presenter ).to receive( :tombstone ).at_least(:once).and_return nil
+        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
+        expect( workflow ).to receive( :state ).at_least(:once).and_return "pending_review"
+        expect( parent_presenter ).to receive( :workflow ).at_least(:once).and_return workflow
+        expect( current_ability ).to receive( :can? ).at_least(:once).with( :edit, presenter.id ).and_return false
+      end
+      it { is_expected.to be false }
+    end
+    context 'can when pending and visible and can edit' do
+      before do
+        expect( parent_presenter ).to receive( :tombstone ).at_least(:once).and_return nil
+        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
+        expect( workflow ).to receive( :state ).at_least(:once).and_return "pending_review"
+        expect( parent_presenter ).to receive( :workflow ).at_least(:once).and_return workflow
+        expect( current_ability ).to receive( :can? ).at_least(:once).with( :edit, presenter.id ).and_return true
+      end
+      it { is_expected.to be true }
+    end
+    context 'can when deposited and visible' do
+      before do
+        expect( parent_presenter ).to receive( :tombstone ).at_least(:once).and_return nil
+        expect( presenter ).to receive( :single_use_show? ).twice.and_return false
+        expect( workflow ).to receive( :state ).at_least(:once).and_return "deposited"
+        expect( parent_presenter ).to receive( :workflow ).at_least(:once).and_return workflow
+        expect( solr_document ).to receive( :visibility ).at_least(:once).and_return Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
+      end
+      it { is_expected.to be true }
+    end
+  end
+
   describe "#user_can_perform_any_action?" do
     subject { presenter.user_can_perform_any_action? }
     let(:current_ability) { ability }
 
-    context 'when user can perform at least 1 action' do
+    context 'can when user can view file' do
       before do
-        expect(current_ability).to receive(:can?).with(:edit, presenter.id).and_return false
-        expect(current_ability).to receive(:can?).with(:destroy, presenter.id).and_return false
-        expect(current_ability).to receive(:can?).with(:download, presenter.id).and_return true
+        expect( presenter ).to receive( :can_view_file? ).and_return true
+        allow( presenter ).to receive( :can_download_file? ).and_return false
+        allow( presenter ).to receive( :can_edit_file? ).and_return false
+        allow( presenter ).to receive( :can_delete_file? ).and_return false
       end
-
+      it { is_expected.to be true }
+    end
+    context 'can when user can download file' do
+      before do
+        allow( presenter ).to receive( :can_view_file? ).and_return false
+        expect( presenter ).to receive( :can_download_file? ).and_return true
+        allow( presenter ).to receive( :can_edit_file? ).and_return false
+        allow( presenter ).to receive( :can_delete_file? ).and_return false
+      end
+      it { is_expected.to be true }
+    end
+    context 'can when user can edit file' do
+      before do
+        allow( presenter ).to receive( :can_view_file? ).and_return false
+        allow( presenter ).to receive( :can_download_file? ).and_return false
+        expect( presenter ).to receive( :can_edit_file? ).and_return true
+        allow( presenter ).to receive( :can_delete_file? ).and_return false
+      end
+      it { is_expected.to be true }
+    end
+    context 'can when user can delete file' do
+      before do
+        allow( presenter ).to receive( :can_view_file? ).and_return false
+        allow( presenter ).to receive( :can_download_file? ).and_return false
+        allow( presenter ).to receive( :can_edit_file? ).and_return false
+        expect( presenter ).to receive( :can_delete_file? ).and_return true
+      end
       it { is_expected.to be true }
     end
     context 'when user cannot perform any action' do
       before do
-        expect(current_ability).to receive(:can?).with(:edit, presenter.id).and_return false
-        expect(current_ability).to receive(:can?).with(:destroy, presenter.id).and_return false
-        expect(current_ability).to receive(:can?).with(:download, presenter.id).and_return false
+        expect( presenter ).to receive( :can_view_file? ).and_return false
+        expect( presenter ).to receive( :can_download_file? ).and_return false
+        expect( presenter ).to receive( :can_edit_file? ).and_return false
+        expect( presenter ).to receive( :can_delete_file? ).and_return false
       end
-
       it { is_expected.to be false }
     end
   end
