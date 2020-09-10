@@ -6,6 +6,12 @@
   font-family: "Open Sans", sans-serif;
 }
 
+
+/* To remove Pageview legend on Analytics page  */
+#usage-stats .legend {
+  display: none;
+}
+
 /** 
 Design System alert announcements for Warning(orange), Informational(blue), Error(red) 
 **/
