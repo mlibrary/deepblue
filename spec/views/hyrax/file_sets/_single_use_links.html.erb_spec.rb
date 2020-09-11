@@ -15,7 +15,7 @@ RSpec.describe 'hyrax/file_sets/_single_use_links.html.erb', type: :view do
       render 'hyrax/file_sets/single_use_links.html.erb', presenter: presenter
     end
     it "renders a table with no links" do
-      expect(rendered).to include("<tr><td>No links have been generated</td></tr>")
+      expect(rendered).to include("<tr><td>#{I18n.t('hyrax.single_use_links.table.no_links')}</td></tr>")
     end
   end
 
@@ -32,11 +32,14 @@ RSpec.describe 'hyrax/file_sets/_single_use_links.html.erb', type: :view do
       render 'hyrax/file_sets/single_use_links.html.erb', presenter: presenter
     end
     it "renders a table with links" do
-      expect( rendered ).to have_text "Show Link sha2ha expires in 6 days, 23 hours, 59 minutes, and 59.0 seconds"
+      expect( rendered ).to have_text I18n.t('hyrax.single_use_links.expiration_message',
+                                             link_type: "View",
+                                             link: "sha2ha",
+                                             time: "in 6 days, 23 hours, 59 minutes, and 59.0 seconds" )
     end
 
     it "renders note to add to next link" do
-      expect( rendered ).to have_content "Note to add to next link created"
+      expect( rendered ).to have_content I18n.t('simple_form.labels.single_use_link.user_comment')
       # expect( rendered ).to have_content "Create Download Single-Use Link"
     end
   end

@@ -403,18 +403,18 @@ en:
     share_button:           "Deposit Your Work"
     single_use_links:
       alert:
-        insufficient_privileges: "You do not have sufficient privileges to create links to this document"
+        insufficient_privileges: "You do not have sufficient privileges to create single-use links to this document"
       button:               "Create Single-Use Link"
       button_with_type:     "Create %{link_type} Single-Use Link"
       copy:
-        button:             "Copy"
+        button:             "Copy Link"
         tooltip:            "Copied!"
-      delete:               "Delete"
+      delete:               "Delete Link"
       download:
         type:               "Download"
       expired_html: >
-        Single Use Link Expired or Not Found<br/>Deep Blue Data could not locate the single use link.
-        This link either expired or had been used previously.
+        Single Use Link Expired or Not Found<br/>Deep Blue Data could not locate the single-use link.
+        This link either expired or has already been used.
         We apologize for the inconvenience.
       error:
         not_found:          "Single-Use Link Not Found"
@@ -423,15 +423,15 @@ en:
         time:               "in %{value} hours"
         human_readable_time: "in %{value}"
       expiration_message:   "%{link_type} Link %{link} expires %{time}"
-      notice:               "Single Use Link"
+      notice:               "Single-Use Link"
       show:
-        type:               "Show"
+        type:               "View"
       table:
         actions:            "Actions"
         expires:            "Expires"
         key:                "Key"
         link:               "Link"
-        no_links:           "No links have been generated"
+        no_links:           "No active single-use links are available – please click on appropriate create link button"
       title:                "Single-Use Links"
       user_comment_label:   "With note:"
     site_copyright:         "© 2020 Regents of the University of Michigan"

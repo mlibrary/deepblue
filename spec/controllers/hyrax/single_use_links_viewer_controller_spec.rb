@@ -45,7 +45,7 @@ RSpec.describe Hyrax::SingleUseLinksViewerController do
         it "shows the main page with message" do
           get :download, params: { id: download_link_hash }
           expect(response).to redirect_to(root_path)
-          expect(flash[:alert]).to include("Single Use Link Expired or Not Found")
+          expect(flash[:alert]).to include(I18n.t('hyrax.single_use_links.expired_html'))
         end
       end
     end
@@ -55,7 +55,7 @@ RSpec.describe Hyrax::SingleUseLinksViewerController do
       it "renders the file set's show page and deletes the link from the database" do
         get 'show', params: { id: show_link_hash }
         expect(response).to redirect_to( "http://test.host/data/concern/file_sets/#{file.id}/single_use_link/#{show_link_hash}" )
-        expect(flash[:notice]).to include("Single Use Link") # TODO: get correct message
+        expect(flash[:notice]).to include(I18n.t('hyrax.single_use_links.notice'))
         # expect(assigns[:presenter].id).to eq file.id
         # expect { SingleUseLink.find_by_downloadKey!(show_link_hash) }.to raise_error ActiveRecord::RecordNotFound
       end
@@ -65,14 +65,14 @@ RSpec.describe Hyrax::SingleUseLinksViewerController do
         it "redirects to the main page" do
           get :show, params: { id: show_link_hash }
           expect(response).to redirect_to(root_path)
-          expect(flash[:alert]).to include("Single Use Link Expired or Not Found")
+          expect(flash[:alert]).to include(I18n.t('hyrax.single_use_links.expired_html'))
         end
       end
 
       it "shows the main page with message when get show path with download hash" do
         get :show, params: { id: download_link_hash }
         expect(response).to redirect_to( "http://test.host/data/concern/file_sets/#{file.id}/single_use_link/#{download_link_hash}" )
-        expect(flash[:notice]).to include("Single Use Link")
+        expect(flash[:notice]).to include(I18n.t('hyrax.single_use_links.notice'))
       end
     end
 
