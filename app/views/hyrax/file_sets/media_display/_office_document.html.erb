@@ -1,9 +1,9 @@
-<% if @presenter&.respond_to? :download_path_link %>
-  <% download_path_link = @presenter.download_path_link(file_set) %>
-<% else %>
-  <% download_path_link = hyrax.download_path(file_set) %>
-<% end %>
-<% if Hyrax.config.display_media_download_link? && @presenter.can_download_file? %>
+<%# if @presenter&.respond_to? :download_path_link %>
+<%# download_path_link = @presenter.download_path_link( file_set ) %>
+<%# else %>
+<%# download_path_link = hyrax.download_path( file_set ) %>
+<%# end %>
+<% if Hyrax.config.display_media_download_link? && presenter.can_download_file? %>
     <div>
       <h2 class="sr-only"><%= t('hyrax.file_set.show.downloadable_content.heading') %></h2>
       <%= image_tag thumbnail_url(file_set),
@@ -11,7 +11,7 @@
                     alt: "",
                     role: "presentation" %>
       <%= link_to t('hyrax.file_set.show.downloadable_content.office_link'),
-                  download_path_link,
+                  presenter.download_path_link(file_set),
                   target: :_blank,
                   id: "file_download",
                   data: { label: file_set.id } %>

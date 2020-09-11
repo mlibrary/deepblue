@@ -1,18 +1,20 @@
-<% if @presenter&.respond_to? :download_path_link %>
-  <% download_path_link = @presenter.download_path_link(file_set) %>
-<% else %>
-  <% download_path_link = hyrax.download_path(file_set) %>
-<% end %>
-<%
+<%# if @presenter&.respond_to? :download_path_link %>
+  <%# download_path_link = @presenter.download_path_link(file_set) %>
+<%# else %>
+  <%# download_path_link = hyrax.download_path(file_set) %>
+<%# end %>
+<%#
   ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
                                         ::Deepblue::LoggingHelper.called_from,
-                                        "@presenter.class.name=#{@presenter.class.name}",
-                                        "@presenter&.respond_to? :download_path_link=#{@presenter&.respond_to? :download_path_link}",
-                                        "download_path_link=#{download_path_link}",
+                                        "file_set.class.name=#{file_set.class.name}",
+                                        "presenter.class.name=#{presenter.class.name}",
+                                        #"@presenter.class.name=#{@presenter.class.name}",
+                                        #"@presenter&.respond_to? :download_path_link=#{@presenter&.respond_to? :download_path_link}",
+                                        #"download_path_link=#{download_path_link}",
                                         ""]
 %>
 <%# if Hyrax.config.display_media_download_link? && can?(:download, file_set.id) %>
-<% if Hyrax.config.display_media_download_link? && @presenter.can_download_file? %>
+<% if Hyrax.config.display_media_download_link? && presenter.can_download_file? %>
     <div>
       <h2 class="sr-only"><%= t('hyrax.file_set.show.downloadable_content.heading') %></h2>
       <%= image_tag thumbnail_url(file_set),
@@ -20,7 +22,7 @@
                     alt: "",
                     role: "presentation" %>
       <%= link_to t('hyrax.file_set.show.downloadable_content.image_link'),
-                  download_path_link,
+                  presenter.download_path_link(file_set),
                   data: { label: file_set.id },
                   target: :_blank,
                   id: "file_download" %>
