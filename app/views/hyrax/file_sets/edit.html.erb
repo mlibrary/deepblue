@@ -5,7 +5,14 @@
 
 <div class="row">
   <div class="col-xs-12 col-sm-4">
-    <%= media_display curation_concern.to_presenter %>
+    <%
+      ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                            ::Deepblue::LoggingHelper.called_from,
+                                            "@presenter.class.name=#{@presenter.class.name}",
+                                            "curation_concern.class.name=#{curation_concern.class.name}",
+                                            ""]
+    %>
+    <%= media_display( curation_concern.to_presenter, current_ability, @presenter ) %>
   </div>
   <div class="col-xs-12 col-sm-8">
     <div class="panel panel-default tabs">

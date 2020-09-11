@@ -21,6 +21,29 @@ module Deepblue
 
     end
 
+    # Cast to a SolrDocument by querying from Solr
+    def to_presenter
+      ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                            ::Deepblue::LoggingHelper.called_from,
+                                            "id=#{id}",
+                                            ""] if false
+      CatalogController.new.fetch(id).last
+    end
+
+    # def to_ds_file_set_presenter( current_ability )
+    #   ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+    #                                         ::Deepblue::LoggingHelper.called_from,
+    #                                         "id=#{id}",
+    #                                         ""]
+    #   rv = DsFileSetPresenter.new( to_solr, current_ability )
+    #   ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+    #                                         ::Deepblue::LoggingHelper.called_from,
+    #                                         "id=#{id}",
+    #                                         "rv.class.name=#{rv.class.name}",
+    #                                         ""]
+    #   return rv
+    # end
+
     # versioning
 
     def versions
