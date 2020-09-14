@@ -44,7 +44,6 @@ module Hyrax
              :human_readable_type,
              :collection?,
              :to_s,
-             :edit_users,
              to: :solr_document
 
     # Metadata Methods
