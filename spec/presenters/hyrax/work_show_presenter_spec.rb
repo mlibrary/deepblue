@@ -47,6 +47,172 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
     it { is_expected.to eq 'http://example.org/concern/data_sets/888888/manifest' }
   end
 
+  describe "#can_delete_work?" do
+    subject { presenter.can_delete_work? }
+    let( :current_ability ) { ability }
+    let ( :workflow ) { double( "workflow" ) }
+    before do
+      # allow( presenter ).to receive( :parent_data_set ).and_return parent_data_set
+    end
+
+    context 'cannot when single-use show and admin' do
+      before do
+        allow( presenter ).to receive( :single_use_show? ).and_return true
+        allow( presenter ).to receive( :doi_minted? ).and_return false
+        allow( current_ability ).to receive( :admin? ).and_return true
+      end
+      it { is_expected.to be false }
+    end
+    context 'cannot when single-use show and not admin' do
+      before do
+        allow( presenter ).to receive( :single_use_show? ).and_return true
+        allow( presenter ).to receive( :doi_minted? ).and_return false
+        allow( current_ability ).to receive( :admin? ).and_return false
+      end
+      it { is_expected.to be false }
+    end
+    context 'cannot when doi minted and admin' do
+      before do
+        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :doi_minted? ).and_return true
+        allow( current_ability ).to receive( :admin? ).and_return true
+      end
+      it { is_expected.to be false }
+    end
+    context 'cannot when doi minted and not admin' do
+      before do
+        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( solr_document ).to receive( :doi_minted? ).and_return true
+        allow( current_ability ).to receive( :admin? ).and_return false
+      end
+      it { is_expected.to be false }
+    end
+    context 'can when admin and not single user show or doi minted' do
+      before do
+        allow( current_ability ).to receive( :can? ).with( id: solr_document.id ).and_return true
+        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( solr_document ).to receive( :doi_minted? ).and_return false
+        allow( current_ability ).to receive( :admin? ).and_return true
+      end
+      it { is_expected.to be true }
+    end
+  end
+
+  describe "#can_edit_work?" do
+    subject { presenter.can_edit_work? }
+    let(:current_ability) { ability }
+    let ( :workflow ) { double( "workflow" ) }
+
+    context 'cannot when single-use show' do
+      before do
+        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return true
+        allow( current_ability ).to receive( :admin? ).and_return false
+        allow( presenter ).to receive( :editor? ).and_return false
+      end
+      it { is_expected.to be false }
+    end
+    context 'can when admin and not single-use show or tombstoned' do
+      before do
+        allow( presenter ).to receive( :single_use_show? ).and_return false
+        expect( current_ability ).to receive( :admin? ).at_least(:once).and_return true
+        allow( presenter ).to receive( :editor? ).and_return false
+      end
+      it { is_expected.to be true }
+    end
+    context 'can when editor and not deposited' do
+      before do
+        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( current_ability ).to receive( :admin? ).and_return false
+        expect( presenter ).to receive( :editor? ).at_least(:once).and_return true
+        expect( workflow ).to receive( :state ).at_least(:once).and_return "pending_review"
+        expect( presenter ).to receive( :workflow ).at_least(:once).and_return workflow
+      end
+      it { is_expected.to be true }
+    end
+    context 'cannot when editor and deposited' do
+      before do
+        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( current_ability ).to receive( :admin? ).and_return false
+        expect( presenter ).to receive( :editor? ).at_least(:once).and_return true
+        expect( workflow ).to receive( :state ).at_least(:once).and_return "deposited"
+        expect( presenter ).to receive( :workflow ).at_least(:once).and_return workflow
+      end
+      it { is_expected.to be false }
+    end
+    context 'cannot when not editor' do
+      before do
+        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( current_ability ).to receive( :admin? ).and_return false
+        allow( presenter ).to receive( :editor? ).and_return false
+        allow( workflow ).to receive( :state ).and_return "pending_review"
+        allow( presenter ).to receive( :workflow ).and_return workflow
+      end
+      it { is_expected.to be false }
+    end
+  end
+
+  describe "#can_view_work_detail?" do
+    subject { presenter.can_view_work_details? }
+    let(:current_ability) { ability }
+    let ( :workflow ) { double( "workflow" ) }
+    let( :current_user ) { double( "current_user" ) }
+    let( :email ) { "test@email.com" }
+    before do
+      allow( current_user ).to receive( :email ).and_return email
+      allow( current_ability ).to receive( :current_user ).and_return current_user
+      allow( current_user ).to receive( :user_approver? ).with( current_user ).and_return false
+    end
+
+    context 'cannot when tombstone present' do
+      before do
+        expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true
+        expect( presenter ).to receive( :tombstone ).at_least(:once).and_return "tombstoned"
+      end
+      it { is_expected.to be false }
+    end
+    context 'can when single-use show' do
+      before do
+        expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true
+        expect( presenter ).to receive( :tombstone ).at_least(:once).and_return nil
+        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return true
+      end
+      it { is_expected.to be true }
+    end
+    context 'cannot when pending and visible and can not edit' do
+      before do
+        expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true
+        expect( presenter ).to receive( :tombstone ).at_least(:once).and_return nil
+        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
+        expect( workflow ).to receive( :state ).at_least(:once).and_return "pending_review"
+        expect( presenter ).to receive( :workflow ).at_least(:once).and_return workflow
+        expect( current_ability ).to receive( :can? ).at_least(:once).with( :edit, presenter.id ).and_return false
+      end
+      it { is_expected.to be false }
+    end
+    context 'can when pending and visible and can edit' do
+      before do
+        expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true
+        expect( presenter ).to receive( :tombstone ).at_least(:once).and_return nil
+        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
+        expect( workflow ).to receive( :state ).at_least(:once).and_return "pending_review"
+        expect( presenter ).to receive( :workflow ).at_least(:once).and_return workflow
+        expect( current_ability ).to receive( :can? ).at_least(:once).with( :edit, presenter.id ).and_return true
+      end
+      it { is_expected.to be true }
+    end
+    context 'can when deposited and visible' do
+      before do
+        expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true
+        expect( presenter ).to receive( :tombstone ).at_least(:once).and_return nil
+        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
+        expect( workflow ).to receive( :state ).at_least(:once).and_return "deposited"
+        expect( presenter ).to receive( :workflow ).at_least(:once).and_return workflow
+        expect( solr_document ).to receive( :visibility ).at_least(:once).and_return Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
+      end
+      it { is_expected.to be true }
+    end
+  end
+
   describe '#iiif_viewer?' do
     let(:id_present) { false }
     let(:representative_presenter) { double('representative', present?: false) }

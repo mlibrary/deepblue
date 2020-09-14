@@ -74,7 +74,6 @@ RSpec.describe Hyrax::DsFileSetPresenter do
     it { is_expected.to be false }
   end
 
-
   describe "#current_user_can_edit?" do
     subject { presenter.current_user_can_edit? }
     let( :current_ability ) { ability }
