@@ -1,41 +1,47 @@
 <div class="panel-body">
   <div class="row">
-    <%= render 'workflow_actions_widget', presenter: @presenter %>
-    <% if @presenter.iiif_viewer? %>
+    <% if @presenter.can_view_work_details? %>
+      <%= render 'workflow_actions_widget', presenter: @presenter %>
+      <% if @presenter.iiif_viewer? %>
+        <div class="col-sm-12">
+          <%= render 'representative_media', presenter: @presenter, viewer: true %>
+        </div>
+      <% end %>
+    <% end %>
+    <% if @presenter.can_view_work_metadata? %>
       <div class="col-sm-12">
-        <%= render 'representative_media', presenter: @presenter, viewer: true %>
+        <table class="table table-striped data-set-table">
+          <thead>
+          <tr>
+            <th scope="col">Attribute</th>
+            <th scope="col">Value</th>
+          </tr>
+          </thead>
+          <%= render 'work_description', presenter: @presenter %>
+          <%= render 'metadata', presenter: @presenter %>
+        </table>
       </div>
     <% end %>
-    <div class="col-sm-12">
-      <table class="table table-striped data-set-table">
-        <thead>
-        <tr>
-          <th scope="col">Attribute</th>
-          <th scope="col">Value</th>
-        </tr>
-        </thead>
-        <%= render 'work_description', presenter: @presenter %>
-        <%= render 'metadata', presenter: @presenter %>
-      </table>
-    </div>
-    <div class="col-sm-12">
-      <%= render 'citations', presenter: @presenter %>
-    </div>
-    <div class="col-sm-12">
-      <% unless @presenter.single_use_show? %>
-        <%= render 'relationships', presenter: @presenter %>
-      <% end %>
-      <%= render 'items', presenter: @presenter %>
-      <%# TODO: we may consider adding these partials in the future %>
-      <%# = render 'sharing_with', presenter: @presenter %>
-      <%# = render 'user_activity', presenter: @presenter %>
-      <%= render '/provenance_log_entries', presenter: @presenter %>
-    </div>
-    <div class="button-panel--show col-sm-12 panel">
-      <%= render "show_actions", presenter: @presenter %>
-      <% if ::DeepBlueDocs::Application.config.enable_single_use_links && !@presenter.single_use_show? %>
-        <%= render 'single_use_links', presenter: @presenter if @presenter.can_edit_work? %>
-      <% end %>
-    </div>
+    <% if @presenter.can_view_work_metadata? %>
+      <div class="col-sm-12">
+        <%= render 'citations', presenter: @presenter %>
+      </div>
+      <div class="col-sm-12">
+        <% unless @presenter.single_use_show? %>
+          <%= render 'relationships', presenter: @presenter %>
+        <% end %>
+        <%= render 'items', presenter: @presenter %>
+        <%# TODO: we may consider adding these partials in the future %>
+        <%# = render 'sharing_with', presenter: @presenter %>
+        <%# = render 'user_activity', presenter: @presenter %>
+        <%= render '/provenance_log_entries', presenter: @presenter %>
+      </div>
+      <div class="button-panel--show col-sm-12 panel">
+        <%= render "show_actions", presenter: @presenter %>
+        <% if ::DeepBlueDocs::Application.config.enable_single_use_links && !@presenter.single_use_show? %>
+          <%= render 'single_use_links', presenter: @presenter if @presenter.can_edit_work? %>
+        <% end %>
+      </div>
+    <% end %>
   </div>
 </div>

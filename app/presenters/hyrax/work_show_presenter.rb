@@ -40,14 +40,33 @@ module Hyrax
     end
 
     # CurationConcern methods
-    delegate :stringify_keys, :human_readable_type, :collection?, :to_s,
+    delegate :stringify_keys,
+             :human_readable_type,
+             :collection?,
+             :to_s,
+             :edit_users,
              to: :solr_document
 
     # Metadata Methods
-    delegate :title, :date_created, :description,
-             :creator, :contributor, :subject, :publisher, :language, :embargo_release_date,
-             :lease_expiration_date, :license, :source, :rights_statement, :thumbnail_id, :representative_id,
-             :rendering_ids, :member_of_collection_ids, to: :solr_document
+    delegate :title,
+             :date_created,
+             :description,
+             :creator,
+             :contributor,
+             :subject,
+             :publisher,
+             :language,
+             :embargo_release_date,
+             :lease_expiration_date,
+             :license, :source,
+             :rights_statement,
+             :thumbnail_id,
+             :representative_id,
+             :rendering_ids,
+             :member_of_collection_ids,
+        :doi_minted?,
+        :doi_pending?,
+        :doi_minting_enable?, to: :solr_document
 
     attr_accessor :cc_single_use_link
 
@@ -144,22 +163,66 @@ module Hyrax
       return false
     end
 
-    def can_view_work?
+    def can_view_work_details?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false if tombstone.present?=#{tombstone.present?}",
                                              "true if single_use_show?=#{single_use_show?}",
                                              "true if current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
-                                             "true if current_user.present? && current_user.user_approver?( current_user )=#{current_user.present? && current_user.user_approver?( current_user )}",
+                                             "true if current_ability.current_user.present? && current_ability.current_user.user_approver?( current_ability.current_user )=#{current_ability.current_user.present? && current_ability.current_user.user_approver?( current_ability.current_user )}",
+                                             "true if workflow.state == 'deposited' && solr_document.visibility == 'open'=#{workflow.state == 'deposited' && solr_document.visibility == 'open'}",
+                                             "current_ability.current_user_can_read?=#{current_user_can_read?}",
+                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+      return false if tombstone.present?
+      return true if workflow.state == 'deposited' && solr_document.visibility == 'open'
+      return true if single_use_show?
+      return true if current_ability.can?( :edit, id )
+      return true if current_ability.current_user.present? && current_ability.current_user.user_approver?( current_ability.current_user )
+      current_user_can_read?
+    end
+
+    def can_view_work_metadata?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "true if tombstone.present?=#{tombstone.present?}",
+                                             "true if single_use_show?=#{single_use_show?}",
+                                             "true if current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
+                                             "true if current_ability.current_user.present? && current_ability.current_user.user_approver?( current_ability.current_user )=#{current_ability.current_user.present? && current_ability.current_user.user_approver?( current_ability.current_user )}",
                                              "true if workflow.state == 'deposited' && solr_document.visibility == 'open'=#{workflow.state == 'deposited' && solr_document.visibility == 'open'}",
                                              "current_user_can_read?=#{current_user_can_read?}",
                                              "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
-      return false if tombstone.present?
+      return true if workflow.state == 'deposited' && solr_document.visibility == 'open'
+      return true if tombstone.present?
       return true if single_use_show?
       return true if current_ability.can?( :edit, id )
-      return true if current_user.present? && current_user.user_approver?( current_user )
-      return true if workflow.state == 'deposited' && solr_document.visibility == 'open'
+      return true if current_ability.current_user.present? && current_ability.current_user.user_approver?( current_ability.current_user )
       current_user_can_read?
+    end
+
+    def current_user_can_edit?
+      return false
+      # TODO: do we need to fix this?
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "current_ability.current_user&.email=#{current_ability.current_user&.email}",
+      #                                        "edit_users=#{edit_users}",
+      #                                        "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+      # return false unless current_ability.current_user.present?
+      # return false unless current_ability.current_user.email.present?
+      # edit_users.include? current_ability.current_user.email
+    end
+
+    def current_user_can_read?
+      return false
+      # TODO: do we need to fix this?
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "current_ability.current_user&.email=#{current_ability.current_user&.email}",
+      #                                        "read_users=#{read_users}",
+      #                                        "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+      # return false unless current_ability.current_user.present?
+      # return false unless current_ability.current_user.email.present?
+      # read_users.include? current_ability.current_user.email
     end
 
     def itemscope_itemtype
