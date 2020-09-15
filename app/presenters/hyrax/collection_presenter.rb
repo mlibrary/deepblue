@@ -285,7 +285,11 @@ module Hyrax
     def allow_batch?
       return true if current_ability.can?(:edit, solr_document)
       false
-    end    
+    end
+
+    def tombstone_permissions_hack?
+      false
+    end
 
   end
 

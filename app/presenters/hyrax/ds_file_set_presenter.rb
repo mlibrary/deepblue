@@ -443,6 +443,10 @@ module Hyrax
       return rv
     end
 
+    def tombstone_permissions_hack?
+      false
+    end
+
     def user_can_perform_any_action?
       can_view_file? || can_download_file? || can_edit_file? || can_delete_file?
     end

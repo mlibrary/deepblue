@@ -15,14 +15,14 @@ module Hyrax
 
     before_action :assign_date_coverage,         only: %i[create update]
     before_action :assign_admin_set,             only: %i[create update]
-    before_action :prepare_permissions,          only: [:show]
+    before_action :prepare_tombstone_permissions,only: [:show]
     before_action :provenance_log_update_before, only: [:update]
     before_action :single_use_link_debug,        only: [:single_use_link]
     before_action :visiblity_changed,            only: [:update]
     before_action :workflow_destroy,             only: [:destroy]
 
     after_action :provenance_log_update_after,   only: [:update]
-    after_action :reset_permissions,             only: [:show]
+    after_action :reset_tombstone_permissions,   only: [:show]
     after_action :visibility_changed_update,     only: [:update]
     after_action :workflow_create,               only: [:create]
 
@@ -41,24 +41,42 @@ module Hyrax
 
     attr_accessor :provenance_log_entries
 
+    attr_accessor :tombstone_permissions_hack
+    @tombstone_permissions_hack = false
+
     # These methods (prepare_permissions, and reset_permissions) are used so that
     # when viewing a tombstoned work, and the user is not admin, the user 
     # will be able to see the metadata.
-    def prepare_permissions
-      if current_ability.admin?
-      else
+    def prepare_tombstone_permissions
+      unless current_ability.admin?
         # Need to add admin group to current_ability
         # or presenter will not be accessible.
         current_ability.user_groups << "admin"
         if presenter&.tombstone.present?
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "setting @tombstone_permissions_hack true",
+                                                 "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+          @tombstone_permissions_hack = true
         else
           current_ability.user_groups.delete("admin")
         end
       end
     end
 
-    def reset_permissions
-      current_ability.user_groups.delete("admin")
+    def reset_tombstone_permissions
+      if @tombstone_permissions_hack
+        current_ability.user_groups.delete("admin")
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "setting @tombstone_permissions_hack false",
+                                               "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+        @tombstone_permissions_hack = false
+      end
+    end
+
+    def tombstone_permissions_hack?
+      @tombstone_permissions_hack
     end
 
     ## box integration
@@ -252,9 +270,10 @@ module Hyrax
     def display_provenance_log
       # load provenance log for this work
       file_path = Deepblue::ProvenancePath.path_for_reference( curation_concern.id )
-      ::Deepblue::LoggingHelper.bold_debug [ "DataSetsController",
-                                             "display_provenance_log",
-                                             file_path ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "file_path=#{file_path}",
+                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
       ::Deepblue::ProvenanceLogService.entries( curation_concern.id, refresh: true )
       # continue on to normal display
       redirect_to [main_app, curation_concern]

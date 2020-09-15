@@ -98,7 +98,7 @@
 
 <%= presenter.attribute_to_html(:rights_statement, render_as: :rights_statement ) %>
 
-<% if presenter.current_ability.admin? %>
+<% if presenter.current_ability.admin? && !presenter.tombstone_permissions_hack? %>
   <%= presenter.attribute_to_html(:prior_identifier, label: t('show.labels.prior_identifier') ) %>
 <% end %>
 <%# "secondary" attributes %>

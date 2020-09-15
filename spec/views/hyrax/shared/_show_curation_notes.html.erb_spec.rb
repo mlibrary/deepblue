@@ -32,7 +32,7 @@ RSpec.describe 'hshared/show_curation_notes.html.erb' do
 
   context 'with just user notes' do
     let( :presenter ) do
-      Hyrax::WorkShowPresenter.new( solr_document_user_only, ability )
+      Hyrax::DataSetPresenter.new( solr_document_user_only, ability )
     end
     before do
       allow(view).to receive(:current_ability).and_return(ability)
@@ -54,12 +54,13 @@ RSpec.describe 'hshared/show_curation_notes.html.erb' do
 
   context 'with just admin notes' do
     let( :presenter ) do
-      Hyrax::WorkShowPresenter.new( solr_document_admin_only, ability )
+      Hyrax::DataSetPresenter.new( solr_document_admin_only, ability )
     end
 
     it 'notes are visible when admin' do
       allow(view).to receive(:current_ability).and_return(ability)
       allow( ability ).to receive( :admin? ).and_return true
+      allow( presenter ).to receive( :tombstone_permissions_hack? ).and_return false
       assign( :presenter, presenter )
       # allow( presenter ).to receive( :curation_notes_admin ).and_return curation_notes_admin
       # allow( presenter ).to receive( :curation_notes_user ).and_return nil
