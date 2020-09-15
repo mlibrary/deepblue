@@ -35,15 +35,15 @@
 </ul></td></tr>
 
 <span itemprop="url">
-  <span class="hide"><%= main_app.hyrax_data_set_url %></span>
+  <span class="hide"><%= Rails.application.routes.url_helpers.hyrax_data_set_url( id: presenter.id ) %></span>
 </span>
 
 <%= presenter.attribute_to_html(:creator, render_as: :faceted, label: t('show.labels.creator') ) %>
 
 
-<% @presenter.depositor.gsub!('@', 'at_sign_at') %>
-<% @presenter.depositor.gsub!('TOMBSTONE-', '') %>
-<%= raw (@presenter.attribute_to_html(:depositor)).gsub!('at_sign_at', '@') %>
+<% presenter.depositor.gsub!('@', 'at_sign_at') %>
+<% presenter.depositor.gsub!('TOMBSTONE-', '') %>
+<%= raw (presenter.attribute_to_html(:depositor)).gsub!('at_sign_at', '@') %>
 
 <%= presenter.attribute_to_html(:authoremail, label: t('show.labels.authoremail'), work_type: "DataSet" ) %>
 <%= presenter.attribute_to_html(:contributor, render_as: :faceted) %>
@@ -65,7 +65,8 @@
 <%= presenter.attribute_to_html(:resource_type, render_as: :faceted) %>
 
 <%= render partial: 'shared/show_curation_notes',
-           locals: { mode: 'table',
+           locals: { presenter: presenter,
+                     mode: 'table',
                      i18n_label_admin: 'show.labels.curation_notes_admin',
                      i18n_label_user: 'show.labels.curation_notes_user' } %>
 
@@ -82,7 +83,7 @@
 <%= presenter.attribute_to_html(:source) %>
 
 <span itemprop="identifier" itemscope itemtype="http://schema.org/Identifier">
-  <%= @presenter.attribute_to_html(:doi, label: t('show.labels.doi'), work_type: "DataSet", render_as: :doi ) %>
+  <%= presenter.attribute_to_html(:doi, label: t('show.labels.doi'), work_type: "DataSet", render_as: :doi ) %>
 </span>
 
 <span itemprop="license">
@@ -97,7 +98,7 @@
 
 <%= presenter.attribute_to_html(:rights_statement, render_as: :rights_statement ) %>
 
-<% if current_ability.admin? %>
+<% if presenter.current_ability.admin? %>
   <%= presenter.attribute_to_html(:prior_identifier, label: t('show.labels.prior_identifier') ) %>
 <% end %>
 <%# "secondary" attributes %>

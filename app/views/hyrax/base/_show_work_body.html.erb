@@ -22,7 +22,7 @@
         </table>
       </div>
     <% end %>
-    <% if @presenter.can_view_work_metadata? %>
+    <% if @presenter.can_view_work_details? %>
       <div class="col-sm-12">
         <%= render 'citations', presenter: @presenter %>
       </div>

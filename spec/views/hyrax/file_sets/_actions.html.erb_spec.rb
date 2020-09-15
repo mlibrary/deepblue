@@ -62,8 +62,6 @@ RSpec.describe 'hyrax/file_sets/_actions.html.erb', type: :view do
   end
 
   context 'with no permission' do
-    let(:current_ability) { ability }
-
     before do
       allow( presenter ).to receive(:user_can_perform_any_action?).and_return false
       render 'hyrax/file_sets/actions', member: presenter

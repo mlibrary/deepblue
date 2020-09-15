@@ -16,7 +16,8 @@
   <% end %>
 
   <%= render partial: 'shared/show_curation_notes',
-             locals: { mode: 'div_list',
+             locals: { presenter: @presenter,
+                       mode: 'div_list',
                        i18n_label_admin: 'hyrax.dashboard.collections.show.curation_notes_admin',
                        i18n_label_user: 'hyrax.dashboard.collections.show.curation_notes_user' } %>
 

@@ -12,7 +12,8 @@
     <%= @presenter.attribute_to_html(:doi, label: t('show.labels.doi'), work_type: "FileSet", render_as: :doi, html_dt: true) %>
   </span>
   <%= render partial: 'shared/show_curation_notes',
-             locals: { mode: 'list',
+             locals: { presenter: @presenter,
+                       mode: 'list',
                        i18n_label_admin: 'show.file_set.labels.curation_notes_admin_html',
                        i18n_label_user: 'show.file_set.labels.curation_notes_user_html' } %>
   <%= @presenter.attribute_to_html(:date_uploaded,
