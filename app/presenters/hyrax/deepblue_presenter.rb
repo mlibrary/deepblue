@@ -43,6 +43,10 @@ module Hyrax
       MemberPresenterFactory.new( solr_document, current_ability, request )
     end
 
+    def tombstone_permissions_hack?
+      false
+    end
+
     def zip_download_enabled?
       false
     end

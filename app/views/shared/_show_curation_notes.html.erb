@@ -75,7 +75,8 @@
                                                                 tag: 'span'} %>
     </dd>
     </div>
-  <% end %><% when 'table' %>
+  <% end %>
+<% when 'table' %>
   <!-- Curation notes as table -->
   <% if presenter.curation_notes_user.present? %>
     <tr>
@@ -103,7 +104,7 @@
                                            "presenter.current_ability.admin?=#{presenter.current_ability.admin?}",
                                            ""]
   %>
-  <% if presenter.curation_notes_admin.present? && presenter.current_ability.admin? %>
+  <% if presenter.curation_notes_admin.present? && presenter.current_ability.admin? && !presenter.tombstone_permissions_hack? %>
     <tr>
       <th><%= t( i18n_label_admin ) %></th>
       <td>

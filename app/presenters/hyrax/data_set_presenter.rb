@@ -48,7 +48,8 @@ module Hyrax
                   :ingest_script_messages,
                   :ingest_script_title,
                   :ingest_use_defaults,
-                  :params, to: :controller
+                  :params,
+                  :tombstone_permissions_hack?, to: :controller
 
     # def initialize( solr_document, current_ability, request = nil )
     #   ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,

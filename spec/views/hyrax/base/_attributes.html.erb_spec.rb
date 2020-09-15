@@ -27,13 +27,14 @@ RSpec.describe 'hyrax/base/_attributes.html.erb' do
   end
   let(:ability) { double(admin?: true) }
   let(:presenter) do
-    Hyrax::WorkShowPresenter.new( solr_document, ability )
+    Hyrax::DataSetPresenter.new( solr_document, ability )
   end
   let(:doc) { Nokogiri::HTML(rendered) }
 
   before do
     allow(presenter).to receive(:id).and_return id
     allow(presenter).to receive(:member_of_collection_presenters).and_return([])
+    allow( presenter ).to receive( :tombstone_permissions_hack? ).and_return false
     allow(view).to receive(:dom_class) { '' }
 
     stub_template 'shared/_show_curation_notes.html.erb' => ''
