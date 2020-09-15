@@ -47,25 +47,32 @@ module Hyrax
              to: :solr_document
 
     # Metadata Methods
-    delegate :title,
-             :date_created,
-             :description,
-             :creator,
+    delegate :authoremail,
              :contributor,
-             :subject,
-             :publisher,
+             :creator,
+             :curation_notes_admin,
+             :curation_notes_user,
+             :date_created,
+             :depositor,
+             :description,
+             :doi_minted?,
+             :doi_minting_enable?,
+             :doi_pending?,
              :language,
              :embargo_release_date,
              :lease_expiration_date,
              :license, :source,
-             :rights_statement,
-             :thumbnail_id,
-             :representative_id,
-             :rendering_ids,
              :member_of_collection_ids,
-        :doi_minted?,
-        :doi_pending?,
-        :doi_minting_enable?, to: :solr_document
+             :methodology,
+             :publisher,
+             :rights_license,
+             :rights_statement,
+             :rendering_ids,
+             :representative_id,
+             :subject,
+             :title,
+             :thumbnail_id,
+             to: :solr_document
 
     attr_accessor :cc_single_use_link
 
