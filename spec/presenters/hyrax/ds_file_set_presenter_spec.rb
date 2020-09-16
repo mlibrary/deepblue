@@ -301,7 +301,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
     context 'can when deposited and visible' do
       before do
         expect( parent_presenter ).to receive( :tombstone ).at_least(:once).and_return nil
-        expect( presenter ).to receive( :single_use_show? ).twice.and_return false
+        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
         expect( workflow ).to receive( :state ).at_least(:once).and_return "deposited"
         expect( parent_presenter ).to receive( :workflow ).at_least(:once).and_return workflow
         expect( solr_document ).to receive( :visibility ).at_least(:once).and_return Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
