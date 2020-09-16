@@ -49,27 +49,27 @@ module DeepBlueDocs
     # begin _debug_verbose flags
     config.application_controller_debug_verbose = false
     config.collection_presenter_debug_verbose = false
-    config.data_set_presenter_debug_verbose = true
+    config.data_set_presenter_debug_verbose = false
     config.data_sets_controller_debug_verbose = false
-    config.deep_blue_presenter_debug_verbose = true
+    config.deep_blue_presenter_debug_verbose = false
     # config.doi_minting_service_debug_verbose -- see config/integration/doi_minting_service_integration
-    config.downloads_controller_debug_verbose = true
-    config.ds_file_set_presenter_debug_verbose = true
+    config.downloads_controller_debug_verbose = false
+    config.ds_file_set_presenter_debug_verbose = false
     # config.email_debug_verbose -- see configure email below
     config.email_behavior_debug_verbose = false
-    config.file_sets_controller_debug_verbose = true
+    config.file_sets_controller_debug_verbose = false
     # config.interpolation_helper_debug_verbose = false -- see config/integration/work_view_content.rb
     # config.jira_helper_debug_verbose -- see config/integration/jira_integration
-    config.single_use_link_controller_behavior_debug_verbose = true ## TODO: move to SingleUseLinkService
-    config.single_use_links_controller_debug_verbose = true
-    config.single_use_links_viewer_controller_debug_verbose = true
+    config.single_use_link_controller_behavior_debug_verbose = false ## TODO: move to SingleUseLinkService
+    config.single_use_links_controller_debug_verbose = false
+    config.single_use_links_viewer_controller_debug_verbose = false
     config.solr_document_debug_verbose = false
-    config.works_controller_behavior_debug_verbose = true
-    config.work_show_presenter_debug_verbose = true
+    config.works_controller_behavior_debug_verbose = false
+    config.work_show_presenter_debug_verbose = false
     config.work_view_content_service_debug_verbose = false
     config.work_view_content_service_email_templates_debug_verbose = false
     config.work_view_content_service_i18n_templates_debug_verbose = false
-    config.workflow_event_behavior_debug_verbose = true
+    config.workflow_event_behavior_debug_verbose = false
     # end _debug_verbose flags
 
     # config.middleware.insert_before Rack::Runtime, RackMultipartBufSizeSetter

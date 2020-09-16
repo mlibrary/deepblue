@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 class SchedulerDashboardController < ApplicationController
+
+  SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE = false
+
   include ActiveSupport::Concern
   include Blacklight::Base
   include Blacklight::AccessControls::Catalog
@@ -19,7 +22,7 @@ class SchedulerDashboardController < ApplicationController
                                            Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
                                            "params[:commit]=#{params[:commit]}",
-                                           "" ]
+                                           "" ] if SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE
     if scheduler_active
       action = params[:commit]
       @action_error = false
@@ -44,7 +47,7 @@ class SchedulerDashboardController < ApplicationController
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "msg=#{msg}",
-                                             "" ]
+                                             "" ] if SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE
       redirect_to scheduler_dashboard_path, alert: msg
     end
   end
@@ -113,21 +116,21 @@ class SchedulerDashboardController < ApplicationController
     def action_restart
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
-                                             "" ]
+                                             "" ] if SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE
       ::Deepblue::SchedulerIntegrationService.scheduler_restart
     end
 
     def action_start
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
-                                             "" ]
+                                             "" ] if SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE
       ::Deepblue::SchedulerIntegrationService.scheduler_start
     end
 
     def action_stop
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
-                                             "" ]
+                                             "" ] if SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE
       ::Deepblue::SchedulerIntegrationService.scheduler_stop
     end
 

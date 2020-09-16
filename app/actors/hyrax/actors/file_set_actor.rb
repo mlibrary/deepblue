@@ -7,6 +7,9 @@ module Hyrax
 
     # Actions are decoupled from controller logic so that they may be called from a controller or a background job.
     class FileSetActor
+
+      FILE_SET_ACTOR_DEBUG_VERBOSE = false
+
       include Lockable
       attr_reader :file_set, :user, :attributes
 
@@ -36,7 +39,7 @@ module Hyrax
                                              "from_url=#{from_url}",
                                              "continue_job_chain_later=#{continue_job_chain_later}",
                                              "uploaded_file_ids=#{uploaded_file_ids}",
-                                              "" ]
+                                              "" ] if FILE_SET_ACTOR_DEBUG_VERBOSE
         create_label( file: file )
         # return false unless file_set.save # Need to save to get an id
         unless file_set.save # Need to save to get an id
@@ -49,7 +52,7 @@ module Hyrax
                                                "uploaded_file_ids=#{uploaded_file_ids}",
                                                "",
                                                "file_set failed to save in creat_content",
-                                               "" ]
+                                               "" ] # error
           return false
         end
         io_wrapper = wrapper!( file: file, relation: relation )
@@ -86,7 +89,7 @@ module Hyrax
                                              "user=#{user}",
                                              "file_set.id=#{file_set.id}",
                                              "file=#{file}",
-                                             "relation=#{relation}" ]
+                                             "relation=#{relation}" ] if FILE_SET_ACTOR_DEBUG_VERBOSE
         current_version = file_set.latest_version
         prior_revision_id = current_version.label
         prior_create_date = current_version.created
@@ -190,7 +193,7 @@ module Hyrax
                                              "child_id=#{file_set.id}",
                                              "child_title=#{child_title}",
                                              "event_note=FileSetActor",
-                                             "" ]
+                                             "" ] if FILE_SET_ACTOR_DEBUG_VERBOSE
         if work.respond_to? :provenance_child_add
           work.provenance_child_add( current_user: file_set.depositor,
                                      child_id: file_set.id,
@@ -221,7 +224,7 @@ module Hyrax
                                                "relation=#{relation}",
                                                "",
                                                "file_set failed to revert_to",
-                                               "" ]
+                                               "" ] # error
           return false
         end
         # enforce_parent_visibility
@@ -234,7 +237,7 @@ module Hyrax
                                              "ERROR",
                                              "e=#{e.class.name}",
                                              "e.message=#{e.message}",
-                                             "e.backtrace:" ] + e.backtrace
+                                             "e.backtrace:" ] + e.backtrace # error
         false
       end
 

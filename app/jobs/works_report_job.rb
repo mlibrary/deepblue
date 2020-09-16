@@ -3,6 +3,9 @@
 require_relative '../services/deepblue/works_reporter'
 
 class WorksReportJob < ::Hyrax::ApplicationJob
+
+  WORKS_REPORT_JOB_DEBUG_VERBOSE = false
+
   include JobHelper
   queue_as :scheduler
 
@@ -10,14 +13,14 @@ class WorksReportJob < ::Hyrax::ApplicationJob
     ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
                                            Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                           "" ]
+                                           "" ] if WORKS_REPORT_JOB_DEBUG_VERBOSE
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event: "works report job" )
     options = {}
     args.each { |key,value| options[key] = value }
     ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            "options=#{options}",
                                            Deepblue::LoggingHelper.obj_class( 'options', options ),
-                                           "" ]
+                                           "" ] if WORKS_REPORT_JOB_DEBUG_VERBOSE
     quiet = job_options_value( options, key: 'quiet', default_value: false, verbose: true )
     if quiet
       verbose = false

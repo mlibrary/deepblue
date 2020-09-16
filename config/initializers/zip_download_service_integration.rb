@@ -1,7 +1,7 @@
 
 Deepblue::ZipDownloadService.setup do |config|
 
-  config.zip_download_service_debug_verbose = true
+  config.zip_download_service_debug_verbose = false
 
   # ToDo: convert from these to new variables
   # config.max_work_file_size_to_download = 10_000_000_000

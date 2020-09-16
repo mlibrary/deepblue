@@ -43,7 +43,7 @@ class DataSet < ActiveFedora::Base
     #                                        Deepblue::LoggingHelper.called_from,
     #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
     #                                        "id=#{id}",
-    #                                        "" ]
+    #                                        "" ] if DATA_SET_DEBUG_VERBOSE
     find id
   rescue Ldp::Gone => g
     nil

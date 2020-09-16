@@ -7,6 +7,9 @@ module Hyrax
     # Actions for a file identified by file_set and relation (maps to use predicate)
     # @note Spawns asynchronous jobs
     class FileActor
+
+      FILE_ACTOR_DEBUG_VERBOSE = false
+
       attr_reader :file_set, :relation, :user
 
       # @param [FileSet] file_set the parent FileSet
@@ -38,7 +41,7 @@ module Hyrax
                                              "continue_job_chain=#{continue_job_chain}",
                                              "continue_job_chain_later=#{continue_job_chain_later}",
                                              "delete_input_file=#{delete_input_file}",
-                                             "uploaded_file_ids=#{uploaded_file_ids}" ]
+                                             "uploaded_file_ids=#{uploaded_file_ids}" ] if FILE_ACTOR_DEBUG_VERBOSE
         # Skip versioning because versions will be minted by VersionCommitter as necessary during save_characterize_and_record_committer.
         Hydra::Works::AddFileToFileSet.call( file_set,
                                              io,
@@ -55,7 +58,7 @@ module Hyrax
                                                "uploaded_file_ids=#{uploaded_file_ids}",
                                                "",
                                                "file_set failed to save after call to AddFileToFileSet during ingest file",
-                                               "" ]
+                                               "" ] # error
           return false
         end
         repository_file = related_file
@@ -88,7 +91,7 @@ module Hyrax
                                              "user=#{user}",
                                              "file_set.id=#{file_set.id}",
                                              "relation=#{relation}",
-                                             "revision_id=#{revision_id}" ]
+                                             "revision_id=#{revision_id}" ] if FILE_ACTOR_DEBUG_VERBOSE
         repository_file = related_file
         current_version = file_set.latest_version
         prior_revision_id = current_version.label
@@ -110,7 +113,7 @@ module Hyrax
                                                "uploaded_file_ids=#{uploaded_file_ids}",
                                                "",
                                                "file_set failed to save after call to restore version during revert to",
-                                               "" ]
+                                               "" ] # error
           return false
         end
         current_version = file_set.latest_version

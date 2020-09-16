@@ -3,6 +3,9 @@
 module Hyrax
 
   class UploadsController < ApplicationController
+
+    UPLOADS_CONTROLLER_DEBUG_VERBOSE = false
+
     load_and_authorize_resource class: Hyrax::UploadedFile
 
     def create
@@ -18,7 +21,8 @@ module Hyrax
                                            # "file.instance_variables=#{file.instance_variables}",
                                            # "file.tempfile.class=#{file.tempfile.class}",
                                            # "file.tempfile.methods=#{file.tempfile.methods.sort}",
-                                           "current_user=#{current_user}" ]
+                                           "current_user=#{current_user}",
+                                         "" ] if UPLOADS_CONTROLLER_DEBUG_VERBOSE
       @upload.attributes = { file: file, user: current_user }
       @upload.save!
       Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
@@ -34,7 +38,7 @@ module Hyrax
                                            # Deepblue::LoggingHelper.obj_instance_variables( "@upload", @upload ),
                                            # Deepblue::LoggingHelper.obj_attribute_names( "@upload", @upload ),
                                            Deepblue::LoggingHelper.obj_to_json( "@upload", @upload ),
-                                           "" ]
+                                           "" ] if UPLOADS_CONTROLLER_DEBUG_VERBOSE
       upload_json = @upload.to_json
       Deepblue::UploadHelper.log( class_name: self.class.name,
                                   event: "create",
@@ -60,7 +64,8 @@ module Hyrax
       Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
-                                           Deepblue::LoggingHelper.obj_to_json( "@upload", @upload ) ]
+                                           Deepblue::LoggingHelper.obj_to_json( "@upload", @upload ),
+                                           "" ] if UPLOADS_CONTROLLER_DEBUG_VERBOSE
       upload_json = @upload.to_json
       Deepblue::UploadHelper.log( class_name: self.class.name,
                                   event: "destroy",

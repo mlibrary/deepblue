@@ -5,13 +5,15 @@ module Hyrax
 
     class BeforeModelActor < AbstractEventActor
 
+      BEFORE_MODEL_ACTOR_DEBUG_VERBOSE = false
+
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if create was successful
       def create( env )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "env=#{env}",
-                                               "" ]
+                                               "" ] if BEFORE_MODEL_ACTOR_DEBUG_VERBOSE
         env.log_event( next_actor: next_actor )
         next_actor.create(env)
       end

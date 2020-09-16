@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 class WorkViewDocumentationController < ApplicationController
+
+  WORK_VIEW_DOCUMENTATION_CONTROLLER_DEBUG_VERBOSE = false
+
   include ActiveSupport::Concern
   include Blacklight::Base
   include Blacklight::AccessControls::Catalog
@@ -21,7 +24,7 @@ class WorkViewDocumentationController < ApplicationController
                                            Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
                                            "params[:commit]=#{params[:commit]}",
-                                           "" ]
+                                           "" ] if WORK_VIEW_DOCUMENTATION_CONTROLLER_DEBUG_VERBOSE
     action = params[:commit]
     @action_error = false
     msg = case action
@@ -96,12 +99,12 @@ class WorkViewDocumentationController < ApplicationController
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "documentation_collection_title=#{documentation_collection_title}",
-                                           "" ]
+                                           "" ] if WORK_VIEW_DOCUMENTATION_CONTROLLER_DEBUG_VERBOSE
     rv =   static_content_find_collection_by_title( title: documentation_collection_title )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "rv&.id=#{rv&.id}",
-                                           "" ]
+                                           "" ] if WORK_VIEW_DOCUMENTATION_CONTROLLER_DEBUG_VERBOSE
 
     rv
   end

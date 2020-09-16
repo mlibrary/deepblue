@@ -44,13 +44,16 @@ module Hyrax
   # Cache work view, file view & file download stats for all users
   # this is called by 'rake hyrax:stats:user_stats'
   class UserStatImporter
+
+    USER_STAT_IMPORTER_DEBUG_VERBOSE = false
+
     UserRecord = Struct.new("UserRecord", :id, :user_key, :last_stats_update)
 
     def initialize(options = {})
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             "" ]
+                                             "" ] if USER_STAT_IMPORTER_DEBUG_VERBOSE
       if options[:echo_to_stdout]
         stdout_logger = Logger.new(STDOUT)
         stdout_logger.level = Logger::INFO
@@ -77,7 +80,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             "" ]
+                                             "" ] if USER_STAT_IMPORTER_DEBUG_VERBOSE
       log_message('Begin import of User stats.')
 
       users = sorted_users

@@ -4,6 +4,8 @@ module Hyrax
 
   module BrandingHelper
 
+    BRANDING_HELPER_DEBUG_VERBOSE = false
+
     def branding_banner_file( id: )
       # Find Banner filename
       ci = CollectionBrandingInfo.where( collection_id: id, role: "banner" )
@@ -35,12 +37,12 @@ module Hyrax
                                              "collection_branding_info = #{collection_branding_info}",
                                              "local_path = #{local_path}",
                                              "local_path_relative=#{local_path_relative}",
-                                             "" ]
+                                             "" ] if BRANDING_HELPER_DEBUG_VERBOSE
       rv = ::DeepBlueDocs::Application.config.relative_url_root + "/" + local_path_relative
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv = #{rv}",
-                                             "" ]
+                                             "" ] if BRANDING_HELPER_DEBUG_VERBOSE
       return rv
     end
 

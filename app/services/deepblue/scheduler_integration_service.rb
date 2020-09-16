@@ -4,6 +4,8 @@ module Deepblue
 
   module SchedulerIntegrationService
 
+    SCHEDULER_INTEGRATION_SERVICE_DEBUG_VERBOSE = false
+
     include ::Deepblue::InitializationConstants
 
     @@_setup_failed = false
@@ -40,7 +42,7 @@ module Deepblue
     def self.scheduler_restart
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
-                                             "" ]
+                                             "" ] if SCHEDULER_INTEGRATION_SERVICE_DEBUG_VERBOSE
       SchedulerStartJob.perform_later( job_delay: 0, restart: true )
     end
 
@@ -51,7 +53,7 @@ module Deepblue
     def self.scheduler_start
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
-                                             "" ]
+                                             "" ] if SCHEDULER_INTEGRATION_SERVICE_DEBUG_VERBOSE
       SchedulerStartJob.perform_later( job_delay: 0, restart: false )
     end
 
@@ -59,13 +61,13 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "scheduler_running=#{scheduler_running}",
-                                             "" ]
+                                             "" ] if SCHEDULER_INTEGRATION_SERVICE_DEBUG_VERBOSE
       pid = scheduler_pid
       `kill -15 #{pid}` if pid.present?
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "scheduler_running=#{scheduler_running}",
-                                             "" ]
+                                             "" ] if SCHEDULER_INTEGRATION_SERVICE_DEBUG_VERBOSE
     end
 
   end

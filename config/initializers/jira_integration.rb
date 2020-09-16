@@ -3,7 +3,7 @@ Deepblue::JiraHelper.setup do |config|
 
   ## configure jira integration
 
-  config.jira_helper_debug_verbose = true
+  config.jira_helper_debug_verbose = false
 
   config.jira_integration_hostnames = [ 'deepblue.local',
                                         'testing.deepblue.lib.umich.edu',

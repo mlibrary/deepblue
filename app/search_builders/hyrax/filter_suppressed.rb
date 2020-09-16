@@ -4,6 +4,9 @@ module Hyrax
 
   # Injects a search builder filter to hide documents marked as suppressed
   module FilterSuppressed
+
+    FILTER_SUPPRESSED_DEBUG_VERBOSE = false
+
     extend ActiveSupport::Concern
 
     included do
@@ -14,7 +17,7 @@ module Hyrax
       # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
       #                                        ::Deepblue::LoggingHelper.called_from,
       #                                        "solr_parameters=#{solr_parameters}",
-      #                                        "" ]
+      #                                        "" ] if FILTER_SUPPRESSED_DEBUG_VERBOSE
       if ( current_ability.admin? )
         solr_parameters[:fq] ||= []   
       elsif ( blacklight_params[:id] == nil )
@@ -43,7 +46,7 @@ module Hyrax
         #                                        "current_ability.current_user=#{current_ability.current_user}",
         #                                        "current_ability.current_user.user_key=#{current_ability.current_user.user_key}",
         #                                        "current_ability.current_user.guest?=#{current_ability.current_user.guest?}",
-        #                                        "current_ability.current_user.new_record?=#{current_ability.current_user.new_record?}" ]
+        #                                        "current_ability.current_user.new_record?=#{current_ability.current_user.new_record?}" ] if FILTER_SUPPRESSED_DEBUG_VERBOSE
         return false if current_ability.current_user.guest? || current_ability.current_user.new_record?
         # This is getting all the depositors to a collection.
         depositors = current_work["read_access_person_ssim"]

@@ -7,6 +7,8 @@ module Hydra::Works
   # monkey patch Hyrdra::Works::AddFileToFileSet
   class AddFileToFileSet
 
+    ADD_FILE_TO_FILE_SET_DEBUG_VERBOSE = false
+
     class << self
       alias_method :monkey_call, :call
     end
@@ -26,7 +28,7 @@ module Hydra::Works
                                              "type=#{type}",
                                              "update_existing=#{update_existing}",
                                              "versioning=#{versioning}",
-                                             "" ]
+                                             "" ] if ADD_FILE_TO_FILE_SET_DEBUG_VERBOSE
       if file.respond_to? :user_id
         ingester = User.find file.user_id
         ingester = ingester.user_key
@@ -57,7 +59,7 @@ module Hydra::Works
                                              "versioning=#{versioning}",
                                              "",
                                              "AddFileToFileSet #{file_set} #{e.class}: #{e.message} at #{e.backtrace[0]}",
-                                             "" ] + e.backtrace
+                                             "" ] + e.backtrace # error
       end
       ::Deepblue::LoggingHelper.bold_debug "File attached to file set #{file_set.id}"
     end

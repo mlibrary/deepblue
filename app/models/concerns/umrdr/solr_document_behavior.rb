@@ -3,6 +3,9 @@
 module Umrdr
 
   module SolrDocumentBehavior
+
+    SOLR_DOCUMENT_BEHAVIOR_DEBUG_VERBOSE = false
+
     extend ActiveSupport::Concern
 
     def access_deepblue 
@@ -47,7 +50,7 @@ module Umrdr
       #                                        Deepblue::LoggingHelper.called_from,
       #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
       #                                        "rv = #{rv}",
-      #                                        "" ]
+      #                                        "" ] if SOLR_DOCUMENT_BEHAVIOR_DEBUG_VERBOSE
       return nil unless rv.present?
       return Array( rv ).first
     end

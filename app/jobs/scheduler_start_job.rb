@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 class SchedulerStartJob < ::Hyrax::ApplicationJob
+
+  SCHEDULER_START_JOB_DEBUG_VERBOSE = false
+
   include JobHelper
   queue_as :default
 
@@ -10,7 +13,7 @@ class SchedulerStartJob < ::Hyrax::ApplicationJob
                                            Deepblue::LoggingHelper.called_from,
                                            Deepblue::LoggingHelper.obj_class( 'class', self ),
                                            "options=#{options}",
-                                           "" ]
+                                           "" ] if SCHEDULER_START_JOB_DEBUG_VERBOSE
 
     sleep job_delay if job_delay > 0
     restarted = false
@@ -35,13 +38,13 @@ class SchedulerStartJob < ::Hyrax::ApplicationJob
                                            Deepblue::LoggingHelper.obj_class( 'class', self ),
                                            "rails_bin_scheduler=#{rails_bin_scheduler}",
                                            "rails_log_scheduler=#{rails_log_scheduler}",
-                                           "" ]
+                                           "" ] if SCHEDULER_START_JOB_DEBUG_VERBOSE
     spawn_pid = spawn( rails_bin_scheduler, :out => rails_log_scheduler, :err => rails_log_scheduler )
     Process.detach( spawn_pid )
     ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
                                            Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                           "" ]
+                                           "" ] if SCHEDULER_START_JOB_DEBUG_VERBOSE
     retry_count = 0
     while retry_count < 5 # TODO configure retry count
       retry_count += 1

@@ -225,7 +225,7 @@ module Deepblue
                                              "uploaded_file_ids=#{uploaded_file_ids}",
                                              "",
                                              "file_set save failed in file_set_actor_create_content",
-                                             "" ]
+                                             "" ] # error
         return false
       end
       # if from_url
@@ -259,7 +259,7 @@ module Deepblue
                                              "uploaded_file_ids=#{uploaded_file_ids}",
                                              "",
                                              "file_set save failed in file_set_actor_create_content after AddFileToFileSet",
-                                             "" ]
+                                             "" ] # error
         return false
       end
       repository_file = related_file( file_set, relation )

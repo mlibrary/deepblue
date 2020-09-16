@@ -6,6 +6,9 @@ module Deepblue
   require_relative '../../helpers/hyrax/embargo_helper'
 
   class AboutToExpireEmbargoesService
+
+    ABOUT_TO_EXPIRE_EMBARGOES_SERVICE_DEBUG_VERBOSE = false
+
     include ::Hyrax::EmbargoHelper
 
     def initialize( email_owner: true, expiration_lead_days: nil, skip_file_sets: true, test_mode: true, to_console: false, verbose: false )
@@ -18,7 +21,7 @@ module Deepblue
                                  "test_mode=#{test_mode}",
                                  "to_console=#{to_console}",
                                  "verbose=#{verbose}",
-                                 "" ]
+                                 "" ] if ABOUT_TO_EXPIRE_EMBARGOES_SERVICE_DEBUG_VERBOSE
       @email_owner = email_owner
       @expiration_lead_days = expiration_lead_days
       @skip_file_sets = skip_file_sets
@@ -37,7 +40,7 @@ module Deepblue
                                  "@test_mode=#{@test_mode}",
                                  "@to_console=#{@to_console}",
                                  "@verbose=#{@verbose}",
-                                 "" ]
+                                 "" ] if ABOUT_TO_EXPIRE_EMBARGOES_SERVICE_DEBUG_VERBOSE
       @now = DateTime.now
       @assets = Array( assets_under_embargo )
       if @expiration_lead_days.blank?

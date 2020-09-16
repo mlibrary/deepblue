@@ -6,6 +6,9 @@ module Deepblue
   require_relative '../../helpers/hyrax/embargo_helper'
 
   class DeactivateExpiredEmbargoesService
+
+    DEACTIVATE_EXPIRED_EMBARGOES_SERVICE_DEBUG_VERBOSE = false
+
     include ::Hyrax::EmbargoHelper
 
     def initialize( email_owner: true, skip_file_sets: true, test_mode: true, to_console: false, verbose: false )
@@ -17,7 +20,7 @@ module Deepblue
                                  "test_mode=#{test_mode}",
                                  "to_console=#{to_console}",
                                  "verbose=#{verbose}",
-                                 "" ]
+                                 "" ] if DEACTIVATE_EXPIRED_EMBARGOES_SERVICE_DEBUG_VERBOSE
       @email_owner = email_owner
       @skip_file_sets = skip_file_sets
       @test_mode = test_mode
@@ -32,7 +35,7 @@ module Deepblue
                                  "@email_owner=#{@email_owner}",
                                  "@skip_file_sets=#{@skip_file_sets}",
                                  "@test_mode=#{@test_mode}",
-                                 "" ]
+                                 "" ] if DEACTIVATE_EXPIRED_EMBARGOES_SERVICE_DEBUG_VERBOSE
       @now = DateTime.now
       @assets = Array( assets_with_expired_embargoes )
       run_msg "The number of assets with expired embargoes is: #{@assets.size}" if @verbose

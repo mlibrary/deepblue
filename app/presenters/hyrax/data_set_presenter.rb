@@ -59,7 +59,7 @@ module Hyrax
     #                                          "solr_document.class.name = #{solr_document.class.name}",
     #                                          "current_ability = #{current_ability}",
     #                                          "request = #{request}",
-    #                                          "" ]
+    #                                          "" ] if DATA_SET_PRESENTER_DEBUG_VERBOSE
     #   super( solr_document, current_ability, request )
     #   ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
     #                                          Deepblue::LoggingHelper.called_from,
@@ -70,7 +70,7 @@ module Hyrax
     #                                          "@solr_document.doi_minted? = #{@solr_document.doi_minted?}",
     #                                          "@solr_document.doi_minting_enabled? = #{@solr_document.doi_minting_enabled?}",
     #                                          "@solr_document.doi_pending? = #{@solr_document.doi_pending?}",
-    #                                          "" ]
+    #                                          "" ] if DATA_SET_PRESENTER_DEBUG_VERBOSE
     # end
 
     # begin box

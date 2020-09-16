@@ -4,7 +4,7 @@ module Deepblue
 
   class DoiMintingService
 
-    @@doi_minting_service_debug_verbose = true
+    @@doi_minting_service_debug_verbose = false
 
     @@doi_mint_on_publication_event
     @@doi_minting_service_integration_enabled

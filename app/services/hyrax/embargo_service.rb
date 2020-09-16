@@ -4,6 +4,8 @@ module Hyrax
 
   class EmbargoService < RestrictionService
 
+    HYRAX_EMBARGO_SERVICE_DEBUG_VERBOSE = false
+
     class << self
       #
       # Methods for Querying Repository to find Embargoed Objects
@@ -13,7 +15,7 @@ module Hyrax
       def assets_with_expired_embargoes
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "" ]
+                                               "" ] if HYRAX_EMBARGO_SERVICE_DEBUG_VERBOSE
         builder = Hyrax::ExpiredEmbargoSearchBuilder.new(self)
         presenters(builder)
       end
@@ -24,7 +26,7 @@ module Hyrax
       def assets_under_embargo
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "" ]
+                                               "" ] if HYRAX_EMBARGO_SERVICE_DEBUG_VERBOSE
         builder = Hyrax::EmbargoSearchBuilder.new(self)
         presenters(builder)
       end
@@ -33,7 +35,7 @@ module Hyrax
       def assets_with_deactivated_embargoes
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "" ]
+                                               "" ] if HYRAX_EMBARGO_SERVICE_DEBUG_VERBOSE
         builder = Hyrax::DeactivatedEmbargoSearchBuilder.new(self)
         presenters(builder)
       end
@@ -42,7 +44,7 @@ module Hyrax
       def my_assets_with_expired_embargoes( current_user_key )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "" ]
+                                               "" ] if HYRAX_EMBARGO_SERVICE_DEBUG_VERBOSE
         builder = Hyrax::My::ExpiredEmbargoSearchBuilder.new(self)
         builder.current_user_key = current_user_key
         presenters(builder)
@@ -54,7 +56,7 @@ module Hyrax
       def my_assets_under_embargo( current_user_key )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "" ]
+                                               "" ] if HYRAX_EMBARGO_SERVICE_DEBUG_VERBOSE
         builder = Hyrax::My::EmbargoSearchBuilder.new(self)
         builder.current_user_key = current_user_key
         presenters(builder)
@@ -64,7 +66,7 @@ module Hyrax
       def my_assets_with_deactivated_embargoes( current_user_key )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "" ]
+                                               "" ] if HYRAX_EMBARGO_SERVICE_DEBUG_VERBOSE
         builder = Hyrax::My::DeactivatedEmbargoSearchBuilder.new(self)
         builder.current_user_key = current_user_key
         presenters(builder)
