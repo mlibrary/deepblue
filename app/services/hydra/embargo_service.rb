@@ -4,6 +4,8 @@ module Hydra
 
   module EmbargoService
 
+    HYDRA_EMBARGO_SERVICE_DEBUG_VERBOSE = false
+
     class << self
       #
       # Methods for Querying Repository to find Embargoed Objects
@@ -13,7 +15,7 @@ module Hydra
       def assets_with_expired_embargoes
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "" ]
+                                               "" ] if HYDRA_EMBARGO_SERVICE_DEBUG_VERBOSE
         ActiveFedora::Base.where("#{Hydra.config.permissions.embargo.release_date}:[* TO NOW]")
       end
 
@@ -23,7 +25,7 @@ module Hydra
       def assets_under_embargo
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "" ]
+                                               "" ] if HYDRA_EMBARGO_SERVICE_DEBUG_VERBOSE
         ActiveFedora::Base.where("#{Hydra.config.permissions.embargo.release_date}:[* TO *]")
       end
 
@@ -31,7 +33,7 @@ module Hydra
       def assets_with_deactivated_embargoes
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "" ]
+                                               "" ] if HYDRA_EMBARGO_SERVICE_DEBUG_VERBOSE
         ActiveFedora::Base.where("#{Hydra.config.permissions.embargo.history}:*")
       end
 

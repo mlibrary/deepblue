@@ -27,6 +27,9 @@ module Hyrax
     #     end
     #   end
     class AbstractNotification
+
+      ABSTRACT_NOTIFICATION_DEBUG_VERBOSE = false
+
       include ActionView::Helpers::UrlHelper
 
       def self.send_notification( entity:, comment:, user:, recipients: )
@@ -36,7 +39,7 @@ module Hyrax
                                                "comment=#{comment}",
                                                "user=#{user}",
                                                "recipients=#{recipients}",
-                                               "" ]
+                                               "" ] if ABSTRACT_NOTIFICATION_DEBUG_VERBOSE
         new( entity, comment, user, recipients ).call
       end
 

@@ -5,6 +5,8 @@ module Deepblue
 
   class AbstractFilter
 
+    ABSTRACT_FILTER_DEBUG_VERBOSE = false
+
     attr_accessor :verbose
 
     def initialize( options: {} )
@@ -14,7 +16,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "verbose=#{verbose}",
-                                             "" ]
+                                             "" ] if ABSTRACT_FILTER_DEBUG_VERBOSE
       puts "#{::Deepblue::LoggingHelper.here} self.class.name=#{self.class.name}"
       puts "#{::Deepblue::LoggingHelper.here} options=#{options}"
       puts "#{::Deepblue::LoggingHelper.here} verbose=#{verbose}"

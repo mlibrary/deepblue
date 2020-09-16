@@ -3,6 +3,8 @@
 class IngestJob < ::Hyrax::ApplicationJob
   # monkey patch
 
+  INGEST_JOB_DEBUG_VERBOSE = false
+
   queue_as Hyrax.config.ingest_queue_name
 
   after_perform do |job|
@@ -40,7 +42,7 @@ class IngestJob < ::Hyrax::ApplicationJob
                                            Deepblue::LoggingHelper.obj_to_json( "uploaded_file", uploaded_file ),
                                            "uploaded_file.id=#{Deepblue::UploadHelper.uploaded_file_id( uploaded_file )}",
                                            "uploaded_file_ids=#{uploaded_file_ids}",
-                                           "" ]
+                                           "" ] if INGEST_JOB_DEBUG_VERBOSE
     wrapper.ingest_file( continue_job_chain: continue_job_chain,
                          continue_job_chain_later: continue_job_chain_later,
                          delete_input_file: delete_input_file,

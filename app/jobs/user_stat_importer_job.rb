@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 class UserStatImporterJob < ::Hyrax::ApplicationJob
+
+  USER_STAT_IMPORTER_JOB_DEBUG_VERBOSE = false
+
   include JobHelper
   queue_as :scheduler
 
@@ -8,14 +11,14 @@ class UserStatImporterJob < ::Hyrax::ApplicationJob
     ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
                                            Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                           "" ]
+                                           "" ] if USER_STAT_IMPORTER_JOB_DEBUG_VERBOSE
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event: "user stat importer" )
     options = {}
     args.each { |key,value| options[key] = value }
     ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            "options=#{options}",
                                            Deepblue::LoggingHelper.obj_class( 'options', options ),
-                                           "" ]
+                                           "" ] if USER_STAT_IMPORTER_JOB_DEBUG_VERBOSE
     verbose = job_options_value(options, key: 'verbose', default_value: false )
     ::Deepblue::LoggingHelper.debug "verbose=#{verbose}" if verbose
     hostnames = job_options_value(options, key: 'hostnames', default_value: [], verbose: verbose )

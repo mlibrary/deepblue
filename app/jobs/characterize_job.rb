@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 class CharacterizeJob < ::Hyrax::ApplicationJob
+
+  CHARACTERIZE_JOB_DEBUG_VERBOSE = false
+
   queue_as Hyrax.config.ingest_queue_name
 
   # @param [FileSet] file_set
@@ -25,7 +28,7 @@ class CharacterizeJob < ::Hyrax::ApplicationJob
                                          "current_user=#{current_user}",
                                          "delete_input_file=#{delete_input_file}",
                                          "uploaded_file_ids=#{uploaded_file_ids}",
-                                         "" ]
+                                         "" ] if CHARACTERIZE_JOB_DEBUG_VERBOSE
     Deepblue::IngestHelper.characterize( file_set,
                                          repository_file_id,
                                          filepath,

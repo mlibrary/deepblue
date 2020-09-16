@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 class IngestAppendScriptJob < ::Hyrax::ApplicationJob
+
+  INGEST_APPEND_JOB_DEBUG_VERBOSE = false
+
   include JobHelper
   queue_as ::Deepblue::IngestIntegrationService.ingest_append_queue_name
 
@@ -12,7 +15,7 @@ class IngestAppendScriptJob < ::Hyrax::ApplicationJob
                                            "ingester=#{ingester}",
                                            "options=#{options}",
                                            Deepblue::LoggingHelper.obj_class( 'options', options ),
-                                           "" ]
+                                           "" ] if INGEST_APPEND_JOB_DEBUG_VERBOSE
     # verbose = job_options_value(options, key: 'verbose', default_value: false )
     # ::Deepblue::LoggingHelper.debug "verbose=#{verbose}" if verbose
     # hostnames = job_options_value(options, key: 'hostnames', default_value: [], verbose: verbose )
@@ -31,7 +34,7 @@ class IngestAppendScriptJob < ::Hyrax::ApplicationJob
                                            "ingester=#{ingester}",
                                            "options=#{options}",
                                            Deepblue::LoggingHelper.obj_class( 'options', options ),
-                                           "" ]
+                                           "" ] if INGEST_APPEND_JOB_DEBUG_VERBOSE
 
   rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"

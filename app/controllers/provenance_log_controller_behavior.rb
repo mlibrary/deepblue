@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 module ProvenanceLogControllerBehavior
+
+  PROVENANCE_LOG_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE = false
+
   include Deepblue::ControllerWorkflowEventBehavior
 
   attr_accessor :provenance_log_entries
@@ -22,7 +25,7 @@ module ProvenanceLogControllerBehavior
                                             ::Deepblue::LoggingHelper.called_from,
                                            "id=#{id}",
                                            "file_path=#{file_path}",
-                                            "" ]
+                                            "" ] if PROVENANCE_LOG_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
     ::Deepblue::ProvenanceLogService.entries( id, refresh: true )
   end
 

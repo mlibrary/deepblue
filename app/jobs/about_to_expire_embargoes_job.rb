@@ -3,6 +3,9 @@
 require_relative '../services/deepblue/about_to_expire_embargoes_service'
 
 class AboutToExpireEmbargoesJob < ::Hyrax::ApplicationJob
+
+  ABOUT_TO_EXPIRE_EMBARGOES_JOB_DEBUG_VERBOSE = false
+
   include JobHelper
   queue_as :scheduler
 
@@ -12,14 +15,14 @@ class AboutToExpireEmbargoesJob < ::Hyrax::ApplicationJob
                                            Deepblue::LoggingHelper.obj_class( 'class', self ),
                                            "args=#{args}",
                                            Deepblue::LoggingHelper.obj_class( 'args', args ),
-                                           "" ]
+                                           "" ] if ABOUT_TO_EXPIRE_EMBARGOES_JOB_DEBUG_VERBOSE
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name,  event: "about_to_expire_embargoes" )
     options = {}
     args.each { |key,value| options[key] = value }
     ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            "options=#{options}",
                                            Deepblue::LoggingHelper.obj_class( 'options', options ),
-                                           "" ]
+                                           "" ] if ABOUT_TO_EXPIRE_EMBARGOES_JOB_DEBUG_VERBOSE
     verbose = job_options_value(options, key: 'verbose', default_value: false )
     ::Deepblue::LoggingHelper.debug "verbose=#{verbose}" if verbose
     email_owner = job_options_value(options, key: 'email_owner', default_value: true )

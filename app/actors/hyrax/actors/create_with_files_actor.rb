@@ -7,13 +7,15 @@ module Hyrax
     # Creates a work and attaches files to the work
     class CreateWithFilesActor < Hyrax::Actors::AbstractActor
 
+      CREATE_WITH_FILES_ACTOR_DEBUG_VERBOSE = false
+
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if create was successful
       def create( env )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "env=#{env}",
-                                               "" ]
+                                               "" ] if CREATE_WITH_FILES_ACTOR_DEBUG_VERBOSE
         env.log_event( next_actor: next_actor )
         uploaded_file_ids = filter_file_ids(env.attributes.delete(:uploaded_files))
         files = uploaded_files(uploaded_file_ids)

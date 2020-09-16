@@ -4,6 +4,8 @@ module Hyrax
 
   module EmbargoHelper
 
+    EMBARGO_HELPER_DEBUG_VERBOSE = false
+
     def asset_embargo_release_date( asset: )
       rv = "#{asset.embargo_release_date} #{Time.zone}"
       DateTime.parse rv
@@ -12,21 +14,21 @@ module Hyrax
     def assets_with_expired_embargoes
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ]
+                                             "" ] if EMBARGO_HELPER_DEBUG_VERBOSE
       @assets_with_expired_embargoes ||= EmbargoService.assets_with_expired_embargoes
     end
 
     def assets_under_embargo
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ]
+                                             "" ] if EMBARGO_HELPER_DEBUG_VERBOSE
       @assets_under_embargo ||= EmbargoService.assets_under_embargo
     end
 
     def assets_with_deactivated_embargoes
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ]
+                                             "" ] if EMBARGO_HELPER_DEBUG_VERBOSE
       @assets_with_deactivated_embargoes ||= EmbargoService.assets_with_deactivated_embargoes
     end
 
@@ -39,7 +41,7 @@ module Hyrax
                                              "email_owner=#{email_owner}",
                                              "test_mode=#{test_mode}",
                                              "verbose=#{verbose}",
-                                             "" ]
+                                             "" ] if EMBARGO_HELPER_DEBUG_VERBOSE
       embargo_release_date = asset.embargo_release_date
       curation_concern = ::ActiveFedora::Base.find asset.id
       id = curation_concern.id
@@ -116,7 +118,7 @@ module Hyrax
                                              "email_owner=#{email_owner}",
                                              "test_mode=#{test_mode}",
                                              "verbose=#{verbose}",
-                                             "" ]
+                                             "" ] if EMBARGO_HELPER_DEBUG_VERBOSE
       # also probably want to lock the model
       current_user = Deepblue::ProvenanceHelper.system_as_current_user unless current_user.present?
       embargo_visibility = curation_concern.visibility
@@ -198,7 +200,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.obj_class( "curation_concern", curation_concern ),
                                              "curation_concern.id=#{curation_concern.id}",
                                              "update_attr_key_values=#{update_attr_key_values}",
-                                             "" ]
+                                             "" ] if EMBARGO_HELPER_DEBUG_VERBOSE
       false
     end
 

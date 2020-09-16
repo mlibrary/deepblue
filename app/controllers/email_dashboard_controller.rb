@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 class EmailDashboardController < ApplicationController
+
+  EMAIL_DASHBOARD_DEBUG_VERBOSE = false
+
   include ActiveSupport::Concern
   include Blacklight::Base
   include Blacklight::AccessControls::Catalog
@@ -19,7 +22,7 @@ class EmailDashboardController < ApplicationController
                                            Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
                                            "params[:commit]=#{params[:commit]}",
-                                           "" ]
+                                           "" ] if EMAIL_DASHBOARD_DEBUG_VERBOSE
     action = params[:commit]
     @action_error = false
     msg = case action

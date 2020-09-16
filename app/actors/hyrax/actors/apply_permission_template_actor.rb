@@ -3,13 +3,16 @@ module Hyrax
     # Responsible for "applying" the various edit and read attributes to the given curation concern.
     # @see Hyrax::AdminSetService for release_date interaction
     class ApplyPermissionTemplateActor < Hyrax::Actors::AbstractActor
+
+      APPLY_PERMISSIONS_TEMPLATE_ACTOR_DEBUG_VERBOSE = false
+
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if create was successful
       def create(env)
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "env=#{env}",
-                                               "" ]
+                                               "" ] if APPLY_PERMISSIONS_TEMPLATE_ACTOR_DEBUG_VERBOSE
         add_edit_users(env)
         next_actor.create(env)
       end

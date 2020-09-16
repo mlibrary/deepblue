@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 class ExportDocumentationJob < ::Hyrax::ApplicationJob
+
+  EXPORT_DOCUMENTATION_JOB_DEBUG_VERBOSE = false
+
   include JobHelper
   queue_as :default
 
@@ -12,7 +15,7 @@ class ExportDocumentationJob < ::Hyrax::ApplicationJob
                                            "target_path=#{target_path}",
                                            "options=#{options}",
                                            Deepblue::LoggingHelper.obj_class( 'options', options ),
-                                           "" ]
+                                           "" ] if EXPORT_DOCUMENTATION_JOB_DEBUG_VERBOSE
     options = { "target_dir" => target_path,
                 "export_files" => true,
                 "mode" => "build" }

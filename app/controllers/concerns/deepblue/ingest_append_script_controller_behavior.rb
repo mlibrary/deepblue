@@ -129,7 +129,7 @@ module Deepblue
           Rails.logger.error "ingest_append_run_job #{e.class}: #{e.message} at #{e.backtrace[0]}"
           ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
                                                 "ingest_append_run_job #{e.class}: #{e.message} at #{e.backtrace[0]}",
-                                                 "" ] + e.backtrace
+                                                 "" ] + e.backtrace # error
           msg = "Ingest append script job failed to start because: '#{e.class}: #{e.message} at #{e.backtrace[0]}'"
           redirect_to [main_app, curation_concern], notice: msg
         end

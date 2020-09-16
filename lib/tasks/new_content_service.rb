@@ -18,6 +18,8 @@ module Deepblue
   # rubocop:disable Rails/Output
   class NewContentService
 
+    NEW_CONTENT_SERVICE_DEBUG_VERBOSE = false
+
     DEFAULT_DATA_SET_ADMIN_SET_NAME = "DataSet Admin Set"
     DEFAULT_DIFF_ATTRS_SKIP = [ :creator_ordered,
                                 :curation_notes_admin_ordered, :curation_notes_user_ordered,
@@ -1357,13 +1359,13 @@ module Deepblue
       def do_email_after
         ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                Deepblue::LoggingHelper.called_from,
-                                               "" ]
+                                               "" ] if NEW_CONTENT_SERVICE_DEBUG_VERBOSE
         emails_add_from_hash( emails: @emails_after, hash: @cfg_hash[:user] )
         emails_add_rest( emails: @emails_after )
         ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                Deepblue::LoggingHelper.called_from,
                                                "@emails_after=#{@emails_after}",
-                                               "" ]
+                                               "" ] if NEW_CONTENT_SERVICE_DEBUG_VERBOSE
         return if @emails_after.blank?
         lines = []
         lines << EmailHelper.t( "hyrax.new_content_service.notify_after_part_1_html",
@@ -1396,7 +1398,7 @@ module Deepblue
           ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                  Deepblue::LoggingHelper.called_from,
                                                  "msg=#{msg}",
-                                                 "" ]
+                                                 "" ] if NEW_CONTENT_SERVICE_DEBUG_VERBOSE
           do_email( event: event, id: id, email_to: email_to, subject: subject, body: body  )
         end
       end
@@ -1404,13 +1406,13 @@ module Deepblue
       def do_email_before
         ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                Deepblue::LoggingHelper.called_from,
-                                               "" ]
+                                               "" ] if NEW_CONTENT_SERVICE_DEBUG_VERBOSE
         emails_add_from_hash( emails: @emails_before, hash: @cfg_hash[:user] )
         emails_add_rest( emails: @emails_before )
         ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                Deepblue::LoggingHelper.called_from,
                                                "@emails_before=#{@emails_before}",
-                                               "" ]
+                                               "" ] if NEW_CONTENT_SERVICE_DEBUG_VERBOSE
         return if @emails_before.blank?
         event = "New Content Service - Before"
         id = ""
@@ -1424,7 +1426,7 @@ module Deepblue
           ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                  Deepblue::LoggingHelper.called_from,
                                                  "msg=#{msg}",
-                                                 "" ]
+                                                 "" ] if NEW_CONTENT_SERVICE_DEBUG_VERBOSE
           do_email( event: event, id: id, email_to: email_to, subject: subject, body: body  )
         end
       end
@@ -1448,7 +1450,7 @@ module Deepblue
                                              "e=#{e.class.name}",
                                              "e.message=#{e.message}",
                                              "e.backtrace:" ] +
-                                               e.backtrace
+                                               e.backtrace if NEW_CONTENT_SERVICE_DEBUG_VERBOSE
       end
 
       def emails_add_from_hash( emails:, hash: )
@@ -1459,14 +1461,14 @@ module Deepblue
                                                "email_owner=#{email_owner}",
                                                "email_ingester=#{email_ingester}",
                                                "email_depositor=#{email_depositor}",
-                                               "" ]
+                                               "" ] if NEW_CONTENT_SERVICE_DEBUG_VERBOSE
         emails_add( emails: emails, add: hash[:email] ) if email_owner
         emails_add( emails: emails, add: hash[:ingester] ) if email_ingester
         emails_add( emails: emails, add: hash[:depositor] ) if email_depositor
         ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                Deepblue::LoggingHelper.called_from,
                                                "emails=#{emails}",
-                                               "" ]
+                                               "" ] if NEW_CONTENT_SERVICE_DEBUG_VERBOSE
       end
 
       def emails_add_rest( emails: )
@@ -1775,7 +1777,7 @@ module Deepblue
                                                "@email_ingester=#{@email_ingester}",
                                                "@email_owner=#{@email_owner}",
                                                "@email_rest=#{@email_rest}",
-                                               "" ]
+                                               "" ] if NEW_CONTENT_SERVICE_DEBUG_VERBOSE
         initialize_emails_rest
         @user_create = user_create
         @stop_new_content_service = false
@@ -1794,7 +1796,7 @@ module Deepblue
         ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                Deepblue::LoggingHelper.called_from,
                                                "msg=#{msg}",
-                                               "" ]
+                                               "" ] if NEW_CONTENT_SERVICE_DEBUG_VERBOSE
         logger.info msg
         return if not_email_line
         email_after_msg_lines_add( lines: msg ) if email_after_add_log_msgs

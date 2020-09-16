@@ -4,6 +4,8 @@ module Hyrax
 
   class LockManager
 
+    LOCK_MANAGER_DEBUG_VERBOSE = false
+
     class UnableToAcquireLockError < StandardError; end
 
     attr_reader :client
@@ -18,7 +20,7 @@ module Hyrax
                                              "retry_count=#{retry_count}",
                                              "retry_delay=#{retry_delay}",
                                              "servers=#{[Redis.current]}",
-                                             "" ]
+                                             "" ] if LOCK_MANAGER_DEBUG_VERBOSE
       @ttl = time_to_live
       @client = Redlock::Client.new([Redis.current], retry_count: retry_count, retry_delay: retry_delay)
     end
@@ -30,24 +32,24 @@ module Hyrax
                                              "@ttl=#{@ttl}",
                                              "@client=#{@client}",
                                              "key=#{key}",
-                                             "" ]
+                                             "" ] if LOCK_MANAGER_DEBUG_VERBOSE
       returned_from_block = nil
       client.lock(key, @ttl) do |locked|
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "locked=#{locked}",
-                                               "" ]
+                                               "" ] if LOCK_MANAGER_DEBUG_VERBOSE
         raise UnableToAcquireLockError unless locked
         returned_from_block = yield
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "yield successful",
-                                               "" ]
+                                               "" ] if LOCK_MANAGER_DEBUG_VERBOSE
       end
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "returned_from_block=#{returned_from_block}",
-                                             "" ]
+                                             "" ] if LOCK_MANAGER_DEBUG_VERBOSE
       returned_from_block
     end
 

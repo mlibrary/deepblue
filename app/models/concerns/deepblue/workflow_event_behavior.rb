@@ -71,7 +71,7 @@ module Deepblue
         ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                Deepblue::LoggingHelper.called_from,
                                                "does not respond to :date_published",
-                                               "" ]
+                                               "" ] if WORKFLOW_EVENT_BEHAVIOR_DEBUG_VERBOSE
       end
       provenance_publish( current_user: current_user, event_note: event_note, message: message )
       doi_mint( current_user: current_user, event_note: event_note )

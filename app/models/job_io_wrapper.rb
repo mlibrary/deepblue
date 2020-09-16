@@ -18,6 +18,9 @@
 #  however, the uploaded_file is used preferentially for default original_name and mime_type,
 #  because it already has that information.
 class JobIoWrapper < ApplicationRecord
+
+  JOB_IO_WRAPPER_DEBUG_VERBOSE = false
+
   belongs_to :user, optional: false
   belongs_to :uploaded_file, optional: true, class_name: 'Hyrax::UploadedFile'
   validates :uploaded_file, presence: true, if: proc { |x| x.path.blank? }
@@ -84,7 +87,7 @@ class JobIoWrapper < ApplicationRecord
                                          "continue_job_chain_later=#{continue_job_chain_later}",
                                          "delete_input_file=#{delete_input_file}",
                                          "uploaded_file_ids=#{uploaded_file_ids}",
-                                         "" ]
+                                         "" ] if JOB_IO_WRAPPER_DEBUG_VERBOSE
 
     user_key = nil
     unless user_id.nil?

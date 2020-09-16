@@ -1,4 +1,6 @@
 
+SCHEDULER_INTEGRATION_SERVICE_DEBUG_VERBOSE = false
+
 Deepblue::SchedulerIntegrationService.setup do |config|
 
   # scheduler log config
@@ -11,7 +13,7 @@ Deepblue::SchedulerIntegrationService.setup do |config|
   ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                          Deepblue::LoggingHelper.called_from,
                                          "program_name=#{program_name}",
-                                         "" ]
+                                         "" ] if SCHEDULER_INTEGRATION_SERVICE_DEBUG_VERBOSE
 
   config.scheduler_job_file_path = Rails.application.root.join( 'data', 'scheduler', 'scheduler_jobs.yml' )
 
@@ -21,7 +23,7 @@ Deepblue::SchedulerIntegrationService.setup do |config|
     ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
                                            "DeepBlueDocs::Application.config.hostname=#{DeepBlueDocs::Application.config.hostname}",
-                                           "" ]
+                                           "" ] if SCHEDULER_INTEGRATION_SERVICE_DEBUG_VERBOSE
 
     case DeepBlueDocs::Application.config.hostname
     when ::Deepblue::InitializationConstants::HOSTNAME_PROD
@@ -47,6 +49,6 @@ Deepblue::SchedulerIntegrationService.setup do |config|
   ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                          Deepblue::LoggingHelper.called_from,
                                          "config.scheduler_active=#{config.scheduler_active}",
-                                         "" ]
+                                         "" ] if SCHEDULER_INTEGRATION_SERVICE_DEBUG_VERBOSE
 
 end

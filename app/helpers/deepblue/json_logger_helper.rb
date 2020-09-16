@@ -7,6 +7,8 @@ module Deepblue
 
   module JsonLoggerHelper
 
+    JSON_LOGGING_HELPER_DEBUG_VERBOSE = false
+
     TIMESTAMP_FORMAT = '\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d'.freeze
     RE_TIMESTAMP_FORMAT = Regexp.compile "^#{TIMESTAMP_FORMAT}$".freeze
     # Format: Date Timestamp Event/Event_detail_possibly_empty/ClassName/ID_possibly_empty Rest_in_form_of_JSON_hash
@@ -22,7 +24,7 @@ module Deepblue
                                                "curation_concern.id=#{curation_concern.id}",
                                                "update_key_prefix=#{update_key_prefix}",
                                                "form_params=#{form_params}",
-                                               "" ]
+                                               "" ] if JSON_LOGGING_HELPER_DEBUG_VERBOSE
         embargo_values = {}
         key = "embargo_release_date"
         new_value = form_params[key]

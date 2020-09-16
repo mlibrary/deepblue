@@ -9,6 +9,9 @@ module Hyrax
   # @see https://github.com/samvera/hyrax/blob/master/app/search_builders/hyrax/README.md SearchBuilders README
   # @note the default_processor_chain defined by Blacklight::Solr::SearchBuilderBehavior provides many possible points of override
   class FileSetSearchBuilder < ::SearchBuilder
+
+    FILE_SET_SEARCH_BUILDER_DEBUG_VERBOSE = false
+
     include SingleResult
 
     def initialize(*options)
@@ -16,13 +19,13 @@ module Hyrax
       # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
       #                                        ::Deepblue::LoggingHelper.called_from,
       #                                        "options=#{options}",
-      #                                        "" ]
+      #                                        "" ] if FILE_SET_SEARCH_BUILDER_DEBUG_VERBOSE
       super(*options)
       # Really big output!
       # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
       #                                        ::Deepblue::LoggingHelper.called_from,
       #                                        "options=#{options}",
-      #                                        "" ]
+      #                                        "" ] if FILE_SET_SEARCH_BUILDER_DEBUG_VERBOSE
     end
 
     # This overrides the models in FilterByType
