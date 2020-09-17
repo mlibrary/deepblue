@@ -4,7 +4,7 @@ module Deepblue
 
   module IngestHelper
 
-    INGEST_HELPER_VERBOSE = false
+    INGEST_HELPER_VERBOSE = true
 
     # @param [FileSet] file_set
     # @param [String] repository_file_id identifier for a Hydra::PCDM::File
@@ -60,7 +60,7 @@ module Deepblue
       begin
         proxy = file_set.characterization_proxy
         Hydra::Works::CharacterizationService.run( proxy, file_name )
-        Rails.logger.debug "Ran characterization on #{proxy.id} (#{proxy.mime_type})"
+        Rails.logger.debug "Ran characterization on #{proxy.id} (#{proxy.mime_type})" if INGEST_HELPER_VERBOSE
         file_set.provenance_characterize( current_user: current_user,
                                           calling_class: name,
                                           **added_prov_key_values )
@@ -109,11 +109,12 @@ module Deepblue
                                            "" ] if INGEST_HELPER_VERBOSE
       # See Hyrax gem: app/job/create_derivatives_job.rb
       file_name = Hyrax::WorkingDirectory.find_or_retrieve( repository_file_id, file_set.id, file_path )
-      Rails.logger.warn "Create derivatives for: #{file_name}."
+      Rails.logger.info "Create derivatives for: #{file_name}."
       begin
         file_ext = File.extname file_set.label
         if DeepBlueDocs::Application.config.derivative_excluded_ext_set.key? file_ext
           Rails.logger.info "Skipping derivative of file with extension #{file_ext}: #{file_name}"
+          file_set.add_curation_note_admin( note: "Skipping derivative for file with extension #{file_ext}e." ) if INGEST_HELPER_VERBOSE
           file_set.provenance_create_derivative( current_user: current_user,
                                                  event_note: "skipped_extension #{file_ext}",
                                                  calling_class: name,
@@ -122,6 +123,7 @@ module Deepblue
         end
         if file_set.video? && !Hyrax.config.enable_ffmpeg
           Rails.logger.info "Skipping video derivative job for file: #{file_name}"
+          file_set.add_curation_note_admin( note: "Skipping derivative for video file." ) if INGEST_HELPER_VERBOSE
           file_set.provenance_create_derivative( current_user: current_user,
                                                  event_note: "skipped_extension #{file_ext}",
                                                  calling_class: name,
@@ -132,6 +134,7 @@ module Deepblue
         if threshold_file_size > -1 && File.exist?(file_name) && File.size(file_name) > threshold_file_size
           human_readable = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( threshold_file_size, precision: 3 )
           Rails.logger.info "Skipping file larger than #{human_readable} for create derivative job file: #{file_name}"
+          file_set.add_curation_note_admin( note: "Skipping derivative for file larger than #{human_readable}." ) if INGEST_HELPER_VERBOSE
           file_set.provenance_create_derivative( current_user: current_user,
                                                  event_note: "skipped_file_size #{File.size(file_name)}",
                                                  calling_class: name,
@@ -139,9 +142,9 @@ module Deepblue
           return
         end
         file_set_orig = file_set
-        Rails.logger.debug "About to call create derivatives: #{file_name}."
+        Rails.logger.debug "About to call create derivatives: #{file_name}." if INGEST_HELPER_VERBOSE
         file_set.create_derivatives( file_name )
-        Rails.logger.debug "Create derivatives successful: #{file_name}."
+        Rails.logger.debug "Create derivative successful: #{file_name}." if INGEST_HELPER_VERBOSE
         file_set.provenance_create_derivative( current_user: current_user,
                                                calling_class: name,
                                                **added_prov_key_values )
@@ -157,7 +160,8 @@ module Deepblue
                                              Deepblue::LoggingHelper.called_from,
                                              "file_set=#{file_set}",
                                              "file_set.under_embargo?=#{file_set.under_embargo?}",
-                                             "file_set.parent.under_embargo?=#{file_set.parent.under_embargo?}" ]
+                                             "file_set.parent.under_embargo?=#{file_set.parent.under_embargo?}",
+                                             "" ] if INGEST_HELPER_VERBOSE
         file_set = file_set_orig if file_set.nil?
         if file_set.under_embargo? && !file_set.parent.under_embargo?
           file_set.deactivate_embargo!
@@ -165,11 +169,35 @@ module Deepblue
           Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                Deepblue::LoggingHelper.called_from,
                                                "file_set=#{file_set}",
-                                               "file_set.under_embargo?=#{file_set.under_embargo?}" ]
+                                               "file_set.under_embargo?=#{file_set.under_embargo?}",
+                                               "" ] if INGEST_HELPER_VERBOSE
         end
-        Rails.logger.debug "Successful create derivative job for file: #{file_name}"
+        Rails.logger.debug "Successful create derivative job for file: #{file_name}" if INGEST_HELPER_VERBOSE
+        file_set.add_curation_note_admin( note: "Create derivative successful." ) if INGEST_HELPER_VERBOSE
+      rescue Hydra::Derivatives::TimeoutError => te # rubocop:disable Lint/RescueException
+        msg = "IngestHelper.create_derivatives(#{file_set},#{repository_file_id},#{file_path}) #{te.class}: #{te.message} at #{te.backtrace[0]}"
+        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "error msg=#{error_msg}",
+                                             "" ] if INGEST_HELPER_VERBOSE
+        file_set.add_curation_note_admin( note: msg ) if ::DeepBlueDocs::Application.config.derivative_create_error_report_to_curation_notes_admin
+        Rails.logger.error msg
+      rescue Timeout::Error => te2 # rubocop:disable Lint/RescueException
+        msg = "IngestHelper.create_derivatives(#{file_set},#{repository_file_id},#{file_path}) #{te2.class}: #{te2.message} at #{te2.backtrace[0]}"
+        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "error msg=#{error_msg}",
+                                             "" ] if INGEST_HELPER_VERBOSE
+        file_set.add_curation_note_admin( note: msg ) if ::DeepBlueDocs::Application.config.derivative_create_error_report_to_curation_notes_admin
+        Rails.logger.error msg
       rescue Exception => e # rubocop:disable Lint/RescueException
-        Rails.logger.error "IngestHelper.create_derivatives(#{file_set},#{repository_file_id},#{file_path}) #{e.class}: #{e.message} at #{e.backtrace[0]}"
+        msg = "IngestHelper.create_derivatives(#{file_set},#{repository_file_id},#{file_path}) #{e.class}: #{e.message} at #{e.backtrace[0]}"
+        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "error msg=#{error_msg}",
+                                             "" ] if INGEST_HELPER_VERBOSE
+        file_set.add_curation_note_admin( note: msg ) if ::DeepBlueDocs::Application.config.derivative_create_error_report_to_curation_notes_admin
+        Rails.logger.error msg
       ensure
         # This is the last step in the process ( ingest job -> characterization job -> create derivative (last step))
         # So now it's safe to remove the file uploaded file.
@@ -185,7 +213,7 @@ module Deepblue
       return unless delete_file_flag
       return unless File.exist? file_path
       File.delete file_path
-      Rails.logger.debug "#{msg_prefix}file deleted: #{file_path}"
+      Rails.logger.debug "#{msg_prefix}file deleted: #{file_path}" if INGEST_HELPER_VERBOSE
     end
 
     # @param [FileSet] file_set
@@ -377,7 +405,7 @@ module Deepblue
     end
 
     def self.virus_scan( file_set )
-      LoggingHelper.bold_debug "IngestHelper.virus_scan #{file_set}"
+      LoggingHelper.bold_debug "IngestHelper.virus_scan #{file_set}" if INGEST_HELPER_VERBOSE
       file_set.virus_scan
     rescue Exception => e # rubocop:disable Lint/RescueException
       Rails.logger.error "IngestHelper.virus_scan(#{file_set}) #{e.class}: #{e.message} at #{e.backtrace[0]}"

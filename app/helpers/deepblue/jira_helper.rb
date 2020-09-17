@@ -555,16 +555,17 @@ module Deepblue
                                              "" ] if jira_helper_debug_verbose
 
       return if jira_url.nil?
-      return unless curation_concern.respond_to? :curation_notes_admin
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "curation_concern.curation_notes_admin=#{curation_concern.curation_notes_admin}",
-                                             "" ] if jira_helper_debug_verbose
-      curation_concern.date_modified = DateTime.now # touch it so it will save updated attributes
-      notes = curation_concern.curation_notes_admin
-      notes = [] if notes.nil?
-      curation_concern.curation_notes_admin = notes << "Jira ticket: #{jira_url}"
-      curation_concern.save!
+      curation_concern.add_curation_note_admin( note: "Jira ticket: #{jira_url}" ) if curation_concern.respond_to? :add_curation_note_admin
+      # return unless curation_concern.respond_to? :curation_notes_admin
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "curation_concern.curation_notes_admin=#{curation_concern.curation_notes_admin}",
+      #                                        "" ] if jira_helper_debug_verbose
+      # curation_concern.date_modified = DateTime.now # touch it so it will save updated attributes
+      # notes = curation_concern.curation_notes_admin
+      # notes = [] if notes.nil?
+      # curation_concern.curation_notes_admin = notes << "Jira ticket: #{jira_url}"
+      # curation_concern.save!
     end
 
     def self.jira_user_as_hash( user:, client: nil, is_verbose: false )

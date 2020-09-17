@@ -187,7 +187,9 @@ module DeepBlueDocs
     config.notify_managers_file_upload_and_ingest_are_complete = true
 
     # ingest derivative config
+    config.derivative_create_error_report_to_curation_notes_admin = true
     config.derivative_excluded_ext_set = {}.freeze # format: { '.xslx' => true }.freeze
+    config.derivative_timeout = 5.minutes # want to raise this for production to, say 1 or 2.hours
     config.derivative_max_file_size = 4_000_000_000 # set to -1 for no limit
     config.derivative_max_file_size_str = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert(config.derivative_max_file_size, precision: 3 )
 

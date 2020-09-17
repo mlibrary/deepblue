@@ -1,6 +1,13 @@
+
+# monkey
+
 module Hydra
+
   module Derivatives
     class Runner
+
+      HYDRA_DERIVATIVES_RUNNER_DEBUG_VERBOSE = true # monkey
+
       class << self
         attr_writer :output_file_service
       end
@@ -19,12 +26,32 @@ module Hydra
         @source_file_service || Hydra::Derivatives.source_file_service
       end
 
+      # @param [String, ActiveFedora::Base] object_or_filename path to the source file, or an object
+      # @param [Hash] options options to pass to the encoder
+      # @options options [Array] :outputs a list of desired outputs, each entry is a hash that has :label (optional), :format and :url
       def self.create(object_or_filename, options)
+        # begin monkey
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "self.class.name=#{self.class.name}",
+                                               "object_or_filename=#{object_or_filename}",
+                                               "options=#{options}",
+                                               "" ] if HYDRA_DERIVATIVES_RUNNER_DEBUG_VERBOSE # + caller_locations(1,40)
+        # monkey end
         source_file(object_or_filename, options) do |f|
           transform_directives(options.delete(:outputs)).each do |instructions|
-            processor_class.new(f.path,
-                                instructions.merge(source_file_service: source_file_service),
-                                output_file_service: output_file_service).process
+            # begin monkey
+            processor = processor_class.new(f.path,
+                                            instructions.merge(source_file_service: source_file_service),
+                                            output_file_service: output_file_service)
+            processor.class.timeout = ::DeepBlueDocs::Application.config.derivative_timeout
+            ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                                   Deepblue::LoggingHelper.called_from,
+                                                   "processor.class.name=#{processor.class.name}",
+                                                   "processor.class.timeout=#{processor.class.timeout}",
+                                                   "" ] if HYDRA_DERIVATIVES_RUNNER_DEBUG_VERBOSE
+            processor.process
+            # monkey end
           end
         end
       end
@@ -43,4 +70,5 @@ module Hydra
       end
     end
   end
+
 end
