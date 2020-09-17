@@ -1,5 +1,6 @@
+  <li class="h5"><%= t('hyrax.admin.sidebar.tasks') %></li>
+
   <% if can? :review, :submissions %>
-    <li class="h5"><%= t('hyrax.admin.sidebar.tasks') %></li>
     <%= menu.nav_link(hyrax.admin_workflows_path) do %>
       <span class="fa fa-flag" aria-hidden="true"></span>
       <span class="sidebar-action-text"><%= t('hyrax.admin.sidebar.workflow_review') %></span>
