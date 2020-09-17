@@ -7,10 +7,38 @@ module Deepblue
 
   module MetadataBehavior
 
+    METADATA_BEHAVIOR_DEBUG_VERBOSE = true
+
     METADATA_FIELD_SEP = '; '
     METADATA_REPORT_DEFAULT_DEPTH = 2
     METADATA_REPORT_DEFAULT_FILENAME_POST = '_metadata_report'
     METADATA_REPORT_DEFAULT_FILENAME_EXT = '.txt'
+
+    def add_curation_note_admin( note: )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "self.curation_notes_admin=#{self.curation_notes_admin}",
+                                             "note=#{note}",
+                                             "" ] if METADATA_BEHAVIOR_DEBUG_VERBOSE
+      self.date_modified = DateTime.now # touch it so it will save updated attributes
+      notes = self.curation_notes_admin
+      notes = [] if notes.nil?
+      self.curation_notes_admin = notes << note
+      save!
+    end
+
+    def add_curation_note_user( note: )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "self.curation_notes_user=#{self.curation_notes_user}",
+                                             "note=#{note}",
+                                             "" ] if METADATA_BEHAVIOR_DEBUG_VERBOSE
+      self.date_modified = DateTime.now # touch it so it will save updated attributes
+      notes = self.curation_notes_user
+      notes = [] if notes.nil?
+      self.curation_notes_user = notes << note
+      save!
+    end
 
     def for_metadata_id
       self.id

@@ -5,6 +5,10 @@ module Hydra::Derivatives::Processors
     class_attribute :timeout
 
     def process
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "timeout=#{timeout}",
+                                             "" ] + caller_locations(1,20)
       timeout ? process_with_timeout : create_resized_image
     end
 

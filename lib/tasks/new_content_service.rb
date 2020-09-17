@@ -18,7 +18,7 @@ module Deepblue
   # rubocop:disable Rails/Output
   class NewContentService
 
-    NEW_CONTENT_SERVICE_DEBUG_VERBOSE = false
+    NEW_CONTENT_SERVICE_DEBUG_VERBOSE = true
 
     DEFAULT_DATA_SET_ADMIN_SET_NAME = "DataSet Admin Set"
     DEFAULT_DIFF_ATTRS_SKIP = [ :creator_ordered,

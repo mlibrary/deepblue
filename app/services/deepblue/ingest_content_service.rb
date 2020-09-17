@@ -7,7 +7,7 @@ module Deepblue
   # Given a configuration hash read from a yaml file, build the contents in the repository.
   class IngestContentService < NewContentService
 
-    INGEST_CONTENT_SERVICE_DEBUG_VERBOSE = false
+    INGEST_CONTENT_SERVICE_DEBUG_VERBOSE = true
 
     def self.call( path_to_yaml_file:, ingester: nil, mode: nil, first_label: 'work_id', options: )
       cfg_hash = Deepblue::NewContentService.load_yaml_file( path_to_yaml_file )
