@@ -564,3 +564,7 @@ table.datatable thead th.no-sort {
 .documentation-div var {
     font-style: italic;
 }
+
+.dropdown-menu-indent {
+    padding-left: 2em;
+}
