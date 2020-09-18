@@ -2,13 +2,17 @@ require 'mini_magick'
 
 module Hydra::Derivatives::Processors
   class Image < Processor
+
+    HYDRA_DERIVATIVES_PROCESSORS_IMAGE_DEBUG_VERBOSE = true
+
     class_attribute :timeout
 
     def process
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "timeout=#{timeout}",
-                                             "" ] + caller_locations(1,20)
+                                             # "" ] + caller_locations(1,20) if HYDRA_DERIVATIVES_PROCESSORS_IMAGE_DEBUG_VERBOSE
+                                             "" ] if HYDRA_DERIVATIVES_PROCESSORS_IMAGE_DEBUG_VERBOSE
       timeout ? process_with_timeout : create_resized_image
     end
 

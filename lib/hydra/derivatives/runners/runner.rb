@@ -31,12 +31,13 @@ module Hydra
       # @options options [Array] :outputs a list of desired outputs, each entry is a hash that has :label (optional), :format and :url
       def self.create(object_or_filename, options)
         # begin monkey
-        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
                                                "self.class.name=#{self.class.name}",
                                                "object_or_filename=#{object_or_filename}",
                                                "options=#{options}",
-                                               "" ] if HYDRA_DERIVATIVES_RUNNER_DEBUG_VERBOSE # + caller_locations(1,40)
+                                               # "" ]  + caller_locations(1,40) if HYDRA_DERIVATIVES_RUNNER_DEBUG_VERBOSE
+                                               "" ] if HYDRA_DERIVATIVES_RUNNER_DEBUG_VERBOSE
         # monkey end
         source_file(object_or_filename, options) do |f|
           transform_directives(options.delete(:outputs)).each do |instructions|
@@ -45,8 +46,8 @@ module Hydra
                                             instructions.merge(source_file_service: source_file_service),
                                             output_file_service: output_file_service)
             processor.class.timeout = ::DeepBlueDocs::Application.config.derivative_timeout
-            ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                                   Deepblue::LoggingHelper.called_from,
+            ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                   ::Deepblue::LoggingHelper.called_from,
                                                    "processor.class.name=#{processor.class.name}",
                                                    "processor.class.timeout=#{processor.class.timeout}",
                                                    "" ] if HYDRA_DERIVATIVES_RUNNER_DEBUG_VERBOSE

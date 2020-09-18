@@ -9,10 +9,11 @@ module Hydra::Derivatives::Processors
     include ShellBasedProcessor
 
     def self.encode(path, format, outdir)
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "timeout=#{timeout}",
-                                             "" ] + caller_locations(1,20)
+                                             # "" ] + caller_locations(1,20) if HYDRA_DERIVATIVES_PROCESSORS_DOCUMENT_DEBUG_VERBOSE
+                                             "" ] if HYDRA_DERIVATIVES_PROCESSORS_DOCUMENT_DEBUG_VERBOSE
       execute "#{Hydra::Derivatives.libreoffice_path} --invisible --headless --convert-to #{format} --outdir #{outdir} #{Shellwords.escape(path)}"
     end
 
@@ -34,8 +35,8 @@ module Hydra::Derivatives::Processors
           # begin monkey
           processor = Hydra::Derivatives::Processors::Image.new(converted_file, directives)
           processor.timeout = timeout
-          ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                                 Deepblue::LoggingHelper.called_from,
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
                                                  "timeout=#{timeout}",
                                                  "processor.timeout=#{processor.timeout}",
                                                  "" ] if HYDRA_DERIVATIVES_PROCESSORS_DOCUMENT_DEBUG_VERBOSE

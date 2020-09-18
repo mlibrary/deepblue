@@ -84,19 +84,27 @@ module Hyrax
     end
 
     def create_derivatives(filename)
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+      # begin monkey
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "About to call create_derivatives(#{filename})",
-                                             "" ] + caller_locations(0,10) if FILE_SET_DERIVATIVES_SERVICE_DEBUG_VERBOSE
+                                             # "" ] + caller_locations(0,20) if FILE_SET_DERIVATIVES_SERVICE_DEBUG_VERBOSE
+                                             "" ] if FILE_SET_DERIVATIVES_SERVICE_DEBUG_VERBOSE
       create_derivatives_monkey(filename)
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "Returned from call create_derivatives(#{filename})",
                                              "" ] if FILE_SET_DERIVATIVES_SERVICE_DEBUG_VERBOSE
     rescue Exception => e # rubocop:disable Lint/RescueException
       # TODO: remove this in favor of higher catch (or make it configurable)
-      Rails.logger.error "create_derivatives error #{filename} - #{e.class}: #{e.message}" + caller_locations(0,10).join("\n")
+      # Rails.logger.error "create_derivatives error #{filename} - #{e.class}: #{e.message}" + caller_locations(0,10).join("\n")
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "create_derivatives error #{filename} - #{e.class}: #{e.message}",
+                                             # "" ] + caller_locations(0,20) if FILE_SET_DERIVATIVES_SERVICE_DEBUG_VERBOSE
+                                             "" ] if FILE_SET_DERIVATIVES_SERVICE_DEBUG_VERBOSE
       raise
+      # monkey end
     end
 
     def create_derivatives_monkey(filename)
