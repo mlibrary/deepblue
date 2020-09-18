@@ -1,0 +1,16 @@
+<div class="panel panel-default tabs">
+  <ul class="nav nav-tabs" role="tablist">
+    <li id="items_display_link" class="active">
+      <a href="#items_display" data-toggle="tab"> <%#= t('.items') %>Items</a>
+    </li>
+    <li id="read_me_display_link">
+      <a href="#read_me_display" data-toggle="tab"> <%#= t('.read_me') %>Read Me</a>
+    </li>
+  </ul>
+  <div class="tab-content">
+    <div id="items_display" class="tab-pane active">
+      <%= render 'items', presenter: @presenter %>
+    </div>
+    <%= render "read_me", presenter: @presenter %>
+  </div>
+</div>
