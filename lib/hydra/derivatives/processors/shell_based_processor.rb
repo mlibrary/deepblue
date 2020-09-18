@@ -5,6 +5,9 @@ require 'open3'
 
 module Hydra::Derivatives::Processors
   module ShellBasedProcessor
+
+    SHELL_BASED_PROCESSOR_DEBUG_VERBOSE = true
+
     extend ActiveSupport::Concern
 
     BLOCK_SIZE = 1024
@@ -49,10 +52,10 @@ module Hydra::Derivatives::Processors
       end
 
       def execute_with_timeout(timeout, command, context)
-        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
                                                "timeout=#{timeout}",
-                                               "" ]
+                                               "" ] if SHELL_BASED_PROCESSOR_DEBUG_VERBOSE
         Timeout.timeout(timeout) do
           execute_without_timeout(command, context)
         end
@@ -63,9 +66,9 @@ module Hydra::Derivatives::Processors
       end
 
       def execute_without_timeout(command, context)
-        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
-                                               "" ]
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if SHELL_BASED_PROCESSOR_DEBUG_VERBOSE
         err_str = ''
         stdin, stdout, stderr, wait_thr = popen3(command)
         context[:pid] = wait_thr[:pid]

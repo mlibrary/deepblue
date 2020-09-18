@@ -39,7 +39,7 @@ module Hydra::Works
       end
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "ingester=#{ingester}" ]
+                                             "ingester=#{ingester}" ] if ADD_FILE_TO_FILE_SET_DEBUG_VERBOSE
       file_set.provenance_ingest( current_user: Deepblue::ProvenanceHelper.system_as_current_user,
                                   calling_class: 'Hydra::Works::AddFileToFileSet',
                                   ingest_id: '',
@@ -61,7 +61,7 @@ module Hydra::Works
                                              "AddFileToFileSet #{file_set} #{e.class}: #{e.message} at #{e.backtrace[0]}",
                                              "" ] + e.backtrace # error
       end
-      ::Deepblue::LoggingHelper.bold_debug "File attached to file set #{file_set.id}"
+      ::Deepblue::LoggingHelper.bold_debug "File attached to file set #{file_set.id}" if ADD_FILE_TO_FILE_SET_DEBUG_VERBOSE
     end
 
   end
