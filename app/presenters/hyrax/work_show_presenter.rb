@@ -377,7 +377,7 @@ module Hyrax
                                                ::Deepblue::LoggingHelper.called_from,
                                                "su_link=#{su_link}",
                                                "su_link.valid?=#{su_link.valid?}",
-                                               "su_link.expired?=#{su_link.valid?}",
+                                               "su_link.expired?=#{su_link.expired?}",
                                                "su_link.itemId=#{su_link.itemId}",
                                                "su_link.path=#{su_link.path}",
                                                "su_link.user_id=#{su_link.user_id}",
