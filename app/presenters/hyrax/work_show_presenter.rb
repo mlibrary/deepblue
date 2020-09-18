@@ -372,16 +372,23 @@ module Hyrax
 
     def single_use_links_init
       su_links = SingleUseLink.where( itemId: id, user_id: current_ability.current_user.id )
-      su_links.each do |su_link|
+      su_links = su_links.select do |su_link|
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "su_link=#{su_link}",
                                                "su_link.valid?=#{su_link.valid?}",
+                                               "su_link.expired?=#{su_link.valid?}",
                                                "su_link.itemId=#{su_link.itemId}",
                                                "su_link.path=#{su_link.path}",
                                                "su_link.user_id=#{su_link.user_id}",
                                                "su_link.user_comment=#{su_link.user_comment}",
                                                "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+        if su_link.expired?
+          su_link.delete
+          false
+        else
+          true
+        end
       end
       su_links.map { |link| link_presenter_class.new(link) }
     end
