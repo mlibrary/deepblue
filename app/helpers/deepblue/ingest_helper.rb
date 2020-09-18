@@ -144,7 +144,13 @@ module Deepblue
         file_set_orig = file_set
         Rails.logger.debug "About to call create derivatives: #{file_name}." if INGEST_HELPER_VERBOSE
         file_set.create_derivatives( file_name )
-        Rails.logger.debug "Create derivative successful: #{file_name}." if INGEST_HELPER_VERBOSE
+        # Rails.logger.debug "Create derivative successful: #{file_name}." if INGEST_HELPER_VERBOSE
+        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "Create derivative successful",
+                                             "file_name=#{file_name}",
+                                             "file_set.create_derivatives_duration=#{file_set.create_derivatives_duration}",
+                                             "" ] if INGEST_HELPER_VERBOSE
         file_set.provenance_create_derivative( current_user: current_user,
                                                calling_class: name,
                                                **added_prov_key_values )
@@ -173,28 +179,28 @@ module Deepblue
                                                "" ] if INGEST_HELPER_VERBOSE
         end
         Rails.logger.debug "Successful create derivative job for file: #{file_name}" if INGEST_HELPER_VERBOSE
-        file_set.add_curation_note_admin( note: "Create derivative successful." ) if INGEST_HELPER_VERBOSE
+        file_set.add_curation_note_admin( note: "Create derivative successful in #{ActiveSupport::Duration.build(file_set.create_derivatives_duration).inspect}." ) if INGEST_HELPER_VERBOSE
       rescue Hydra::Derivatives::TimeoutError => te # rubocop:disable Lint/RescueException
-        msg = "IngestHelper.create_derivatives(#{file_set},#{repository_file_id},#{file_path}) #{te.class}: #{te.message} at #{te.backtrace[0]}"
+        msg = "IngestHelper.create_derivatives(#{file_set},#{repository_file_id},#{file_path}) #{te.class}: #{te.message} at #{te.backtrace[0]} in #{ActiveSupport::Duration.build(file_set.create_derivatives_duration).inspect}"
         Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
-                                             "error msg=#{error_msg}",
+                                             "error msg=#{msg}",
                                              "" ] if INGEST_HELPER_VERBOSE
         file_set.add_curation_note_admin( note: msg ) if ::DeepBlueDocs::Application.config.derivative_create_error_report_to_curation_notes_admin
         Rails.logger.error msg
       rescue Timeout::Error => te2 # rubocop:disable Lint/RescueException
-        msg = "IngestHelper.create_derivatives(#{file_set},#{repository_file_id},#{file_path}) #{te2.class}: #{te2.message} at #{te2.backtrace[0]}"
+        msg = "IngestHelper.create_derivatives(#{file_set},#{repository_file_id},#{file_path}) #{te2.class}: #{te2.message} at #{te2.backtrace[0]} in #{ActiveSupport::Duration.build(file_set.create_derivatives_duration).inspect}"
         Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
-                                             "error msg=#{error_msg}",
+                                             "error msg=#{msg}",
                                              "" ] if INGEST_HELPER_VERBOSE
         file_set.add_curation_note_admin( note: msg ) if ::DeepBlueDocs::Application.config.derivative_create_error_report_to_curation_notes_admin
         Rails.logger.error msg
       rescue Exception => e # rubocop:disable Lint/RescueException
-        msg = "IngestHelper.create_derivatives(#{file_set},#{repository_file_id},#{file_path}) #{e.class}: #{e.message} at #{e.backtrace[0]}"
+        msg = "IngestHelper.create_derivatives(#{file_set},#{repository_file_id},#{file_path}) #{e.class}: #{e.message} at #{e.backtrace[0]} in #{ActiveSupport::Duration.build(file_set.create_derivatives_duration).inspect}"
         Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
-                                             "error msg=#{error_msg}",
+                                             "error msg=#{msg}",
                                              "" ] if INGEST_HELPER_VERBOSE
         file_set.add_curation_note_admin( note: msg ) if ::DeepBlueDocs::Application.config.derivative_create_error_report_to_curation_notes_admin
         Rails.logger.error msg
