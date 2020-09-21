@@ -217,6 +217,13 @@ module DeepBlueDocs
     config.file_sets_contents_view_max_size = 500.kilobytes
     config.file_sets_contents_view_mime_types = [ "text/html", "text/plain", "text/x-yaml", "text/xml" ].freeze
 
+    # read_me file set config
+    config.read_me_file_set_enabled = true
+    config.read_me_file_set_auto_read_me_attach = true
+    config.read_me_file_set_file_name_regexp = /read[_ ]?me/i
+    config.read_me_file_set_view_max_size = 500.kilobytes
+    config.read_me_file_set_view_mime_types = [ "text/plain" ].freeze
+
     # provenance log config
     config.provenance_log_name = "provenance_#{Rails.env}.log"
     config.provenance_log_path = Rails.root.join( 'log', config.provenance_log_name )

@@ -141,6 +141,8 @@ module Deepblue
         index.as :stored_searchable
       end
 
+      # property :read_me_file_set_idb -- see app/models/concerns/umrdr/umrdr_work_metadata.rb
+
       property :related_url, predicate: ::RDF::RDFS.seeAlso do |index|
         index.as :stored_searchable
       end

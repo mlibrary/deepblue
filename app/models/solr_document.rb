@@ -179,6 +179,10 @@ class SolrDocument
     self['prior_identifier_label_ssim']
   end
 
+  def read_me_file_set_id_label
+    self['read_me_file_set_id_label_ssim']
+  end
+
   def rights_license_label
     self['rights_license_label_ssim']
   end
@@ -271,6 +275,7 @@ class SolrDocument
     'methodology',
     'other_affiliation',
     'prior_identifier',
+    'read_me_file_set_id',
     'relation_ispartofseries',
     'replaces',
     'rights_license',

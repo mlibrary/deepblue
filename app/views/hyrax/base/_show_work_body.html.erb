@@ -30,8 +30,11 @@
         <% unless @presenter.single_use_show? %>
           <%= render 'relationships', presenter: @presenter %>
         <% end %>
-        <%= render 'items', presenter: @presenter %>
-        <%#= render 'show_work_body_tabbed', presenter: @presenter %>
+        <% if @presenter.is_tabbed? %>
+          <%= render 'show_work_body_tabbed', presenter: @presenter %>
+        <% else %>
+          <%= render 'items', presenter: @presenter %>
+        <% end %>
         <%# TODO: we may consider adding these partials in the future %>
         <%# = render 'sharing_with', presenter: @presenter %>
         <%# = render 'user_activity', presenter: @presenter %>

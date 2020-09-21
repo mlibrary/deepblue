@@ -86,6 +86,7 @@ class DataSet < ActiveFedora::Base
       location
       methodology
       prior_identifier
+      read_me_file_set_id
       referenced_by
       rights_license
       rights_license_other
@@ -124,6 +125,7 @@ class DataSet < ActiveFedora::Base
       location
       methodology
       prior_identifier
+      read_me_file_set_id
       referenced_by
       rights_license
       rights_license_other
@@ -154,6 +156,7 @@ class DataSet < ActiveFedora::Base
       language
       location
       methodology
+      read_me_file_set_id
       referenced_by
       rights_license
       rights_license_other
@@ -222,6 +225,7 @@ class DataSet < ActiveFedora::Base
       keyword
       language
       methodology
+      read_me_file_set_id
       referenced_by
       rights_license
       rights_license_other
@@ -252,6 +256,7 @@ class DataSet < ActiveFedora::Base
       keyword
       language
       methodology
+      read_me_file_set_id
       referenced_by
       rights_license
       rights_license_other

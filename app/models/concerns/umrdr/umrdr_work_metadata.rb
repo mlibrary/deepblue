@@ -83,6 +83,11 @@ module Umrdr
 
       property :hdl, predicate: ::RDF::Vocab::Identifiers.hdl, multiple: false
 
+      property :read_me_file_set_id, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#read_me_file_set_id'), multiple: false do |index|
+        index.type :text
+        index.as :stored_searchable
+      end
+
       property :referenced_by, predicate: ::RDF::Vocab::DC.isReferencedBy, multiple: true do |index|
         index.type :text
         index.as :stored_searchable

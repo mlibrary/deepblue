@@ -322,6 +322,7 @@ module Hyrax
           work = file_set.parent
           # monkey patch
           work.total_file_size_subtract_file_set! file_set
+          work.read_me_delete( file_set: file_set )
           # monkey patch
           return unless work && (work.thumbnail_id == file_set.id || work.representative_id == file_set.id || work.rendering_ids.include?(file_set.id))
           work.thumbnail = nil if work.thumbnail_id == file_set.id

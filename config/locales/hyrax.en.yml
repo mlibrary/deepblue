@@ -324,6 +324,8 @@ en:
         manage_embargoes_html: Manage Embargoes for %{cc} <span class='human_readable_type'>(%{cc_type})</span>
     file_sets:
       actions:
+        assign_read_me:       "Assign as Readme"
+        assign_read_me_title: "Assign this file set as readme."
         contents:             "View File Contents"
         contents_title:       "Display file contents in seperate page"
         delete:               "Delete"
@@ -345,6 +347,11 @@ en:
         description_file_set: Description (edit)
         curation_notes_admin: Curation Notes Admin (edit)
         curation_notes_user: Curation Notes Admin (edit)
+      notifications:
+        assigned_as_read_me: >
+          Assigned "%{filename}" as readme.
+        insufficient_rights_to_assign_as_read_me: >
+          You do not have the rights to assigned "%{filename}" as readme.
       versioning:
         choose_file: Choose New Version File
         current: Current Version

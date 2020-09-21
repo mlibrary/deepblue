@@ -65,6 +65,7 @@ module Hyrax
              :member_of_collection_ids,
              :methodology,
              :publisher,
+             :read_me_file_set_id,
              :rights_license,
              :rights_statement,
              :rendering_ids,

@@ -20,6 +20,7 @@ module Hyrax
               :grantnumber,
               :methodology,
               :prior_identifier,
+              :read_me_file_set_id,
               :referenced_by,
               :rights_license,
               :rights_license_other,
@@ -30,7 +31,9 @@ module Hyrax
 
     attr_accessor :controller
 
-    delegate :current_user,
+    delegate :can_display_provenance_log?,
+                  :can_display_read_me?,
+                  :current_user,
                   :current_user_can_edit?,
                   :current_user_can_read?,
                   :ingest_allowed_base_directories,
@@ -48,7 +51,9 @@ module Hyrax
                   :ingest_script_messages,
                   :ingest_script_title,
                   :ingest_use_defaults,
+                  :is_tabbed?,
                   :params,
+                  :read_me_text,
                   :tombstone_permissions_hack?, to: :controller
 
     # def initialize( solr_document, current_ability, request = nil )

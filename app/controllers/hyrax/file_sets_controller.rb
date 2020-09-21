@@ -28,6 +28,7 @@ module Hyrax
     after_action :provenance_log_create,         only: [:create]
     after_action :provenance_log_update_after,   only: [:update]
 
+    protect_from_forgery with: :null_session,    only: [:assign_to_work_as_read_me]
     protect_from_forgery with: :null_session,    only: [:create_single_use_link]
     protect_from_forgery with: :null_session,    only: [:file_contents]
     protect_from_forgery with: :null_session,    only: [:display_provenance_log]
@@ -56,9 +57,34 @@ module Hyrax
 
     layout :decide_layout
 
+    def assign_to_work_as_read_me
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params=#{params}",
+                                             "curation_concern.id=#{curation_concern.id}",
+                                             "curation_concern.parent.class.name=#{curation_concern.parent.class.name}",
+                                             "curation_concern.parent.read_me_file_set_id=#{curation_concern.parent.read_me_file_set_id}",
+                                             "" ] if true || FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      if current_ability.can( :edit, curation_concern.id )
+        curation_concern.parent.read_me_update( file_set: curation_concern )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "curation_concern.id=#{curation_concern.id}",
+                                               "curation_concern.parent.read_me_file_set_id=#{curation_concern.parent.read_me_file_set_id}",
+                                               "" ] if true || FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+        redirect_to [main_app, curation_concern.parent],
+                    notice: I18n.t('hyrax.file_sets.notifications.assigned_as_read_me',
+                                   filename: curation_concern.label )
+      else
+        redirect_to [main_app, curation_concern.parent],
+                    error: I18n.t('hyrax.file_sets.notifications.insufficient_rights_to_assign_as_read_me',
+                                  filename: curation_concern.label )
+      end
+    end
+
     def create_single_use_link
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "params=#{params}",
                                              "params[:commit]=#{params[:commit]}",
                                              "params[:user_comment]=#{params[:user_comment]}",
@@ -66,16 +92,16 @@ module Hyrax
                                              "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
       case params[:commit]
       when t( 'simple_form.actions.single_use_link.create_download' )
-        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
                                                "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
         SingleUseLink.create( itemId: curation_concern.id,
                               path: hyrax.download_path( id: curation_concern.id ),
                               user_id: current_ability.current_user.id,
                               user_comment: params[:user_comment] )
       when t( 'simple_form.actions.single_use_link.create_show' )
-        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
                                                "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
         SingleUseLink.create( itemId: curation_concern.id,
                               path: current_show_path,
@@ -255,8 +281,8 @@ module Hyrax
       curation_concern.provenance_destroy( current_user: current_user, event_note: 'FileSetsController' )
       if curation_concern.parent.present?
         parent = curation_concern.parent
-        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+        Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "provenance_child_remove",
                                              "parent.id=#{parent.id}",
                                              "child_id=#{curation_concern.id}",
@@ -288,8 +314,11 @@ module Hyrax
     def display_provenance_log
       # load provenance log for this work
       file_path = Deepblue::ProvenancePath.path_for_reference( curation_concern.id )
-      Deepblue::LoggingHelper.bold_debug [ "DataSetsController", "display_provenance_log", file_path ]
-      Deepblue::ProvenanceLogService.entries( curation_concern.id, refresh: true )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "file_path=#{file_path}",
+                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      ::Deepblue::ProvenanceLogService.entries( curation_concern.id, refresh: true )
       # continue on to normal display
       redirect_to [main_app, curation_concern]
     end

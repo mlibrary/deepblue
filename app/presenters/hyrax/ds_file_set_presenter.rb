@@ -30,26 +30,21 @@ module Hyrax
       super( solr_document, current_ability, request )
     end
 
-    def current_user_can_edit?
+    def can_assign_to_work_as_read_me?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "current_ability.current_user&.email=#{current_ability.current_user&.email}",
-                                             "parent_data_set.edit_users=#{parent_data_set.edit_users}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
-      return false unless current_ability.current_user.present?
-      return false unless current_ability.current_user.email.present?
-      parent_data_set.edit_users.include? current_ability.current_user.email
-    end
-
-    def current_user_can_read?
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "current_ability.current_user&.email=#{current_ability.current_user&.email}",
-                                             "parent_data_set.read_users=#{parent_data_set.read_users}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
-      return false unless current_ability.current_user.present?
-      return false unless current_ability.current_user.email.present?
-      parent_data_set.read_users.include? current_ability.current_user.email
+                                             "parent.class.name=#{parent.class.name}",
+                                             "parent.read_me_file_set_id=#{parent.read_me_file_set_id}",
+                                             "id=#{id}",
+                                             "false if Array( parent.read_me_file_set_id ).first == id=#{Array( parent.read_me_file_set_id ).first == id}",
+                                             "false unless not right mime_type=#{::DeepBlueDocs::Application.config.read_me_file_set_view_mime_types.include? mime_type}",
+                                             "false if too big=#{file_size > ::DeepBlueDocs::Application.config.read_me_file_set_view_max_size}",
+                                             "" ] if true || DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      return false unless ::DeepBlueDocs::Application.config.read_me_file_set_enabled
+      return false if Array( parent.read_me_file_set_id ).first == id
+      return false unless ::DeepBlueDocs::Application.config.read_me_file_set_view_mime_types.include? mime_type
+      return false if file_size > ::DeepBlueDocs::Application.config.read_me_file_set_view_max_size
+      return can_edit_file?
     end
 
     def can_delete_file?
@@ -186,6 +181,28 @@ module Hyrax
     def curation_notes_user
       rv = @solr_document.curation_notes_user
       return rv
+    end
+
+    def current_user_can_edit?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "current_ability.current_user&.email=#{current_ability.current_user&.email}",
+                                             "parent_data_set.edit_users=#{parent_data_set.edit_users}",
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      return false unless current_ability.current_user.present?
+      return false unless current_ability.current_user.email.present?
+      parent_data_set.edit_users.include? current_ability.current_user.email
+    end
+
+    def current_user_can_read?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "current_ability.current_user&.email=#{current_ability.current_user&.email}",
+                                             "parent_data_set.read_users=#{parent_data_set.read_users}",
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      return false unless current_ability.current_user.present?
+      return false unless current_ability.current_user.email.present?
+      parent_data_set.read_users.include? current_ability.current_user.email
     end
 
     def description_file_set
