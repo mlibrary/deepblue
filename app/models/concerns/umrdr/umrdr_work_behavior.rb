@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
 module Umrdr
+
   module UmrdrWorkBehavior
+
+    UMRDR_WORK_BEHAVIOR_DEBUG_VERBOSE = true
+
     extend ActiveSupport::Concern
 
     def globus_complete?
@@ -20,6 +24,38 @@ module Umrdr
     def globus_clean_download_then_recopy
       return unless ( globus_complete? || globus_prepping? )
       ::GlobusCleanJob.perform_later( id, clean_download: true, start_globus_copy_after_clean: true )
+    end
+
+    def read_me?
+      read_me_file_set_id.present?
+    end
+
+    # def read_me_text
+    #   return nil
+    # end
+
+    def read_me_delete( file_set: )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "read_me_file_set_id=#{read_me_file_set_id}",
+                                             "file_set.id=#{file_set.id}",
+                                             "" ] if true || UMRDR_WORK_BEHAVIOR_DEBUG_VERBOSE
+      return unless Array( read_me_file_set_id ).first == file_set.id
+      self[:read_me_file_set_id] = nil
+      save!
+    end
+
+    def read_me_update( file_set: )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "read_me_file_set_id=#{read_me_file_set_id}",
+                                             "file_set.id=#{file_set.id}",
+                                             "" ] if true || UMRDR_WORK_BEHAVIOR_DEBUG_VERBOSE
+      return if Array( read_me_file_set_id ).first == file_set.id
+      self[:read_me_file_set_id] = file_set.id
+      save!
     end
 
     # Calculate the size of all the files in the work
@@ -114,4 +150,5 @@ module Umrdr
       end
 
   end
+
 end

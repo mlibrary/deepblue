@@ -104,6 +104,16 @@ module Umrdr
       Array(self[Solrizer.solr_name('original_checksum')]).first
     end
 
+    def read_me_file_set_id
+      rv = self[ Solrizer.solr_name( 'read_me_file_set_id' ) ] #, :symbol ) ]
+      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+      #                                        Deepblue::LoggingHelper.called_from,
+      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
+      #                                        "rv = #{rv}",
+      #                                        "" ] if SOLR_DOCUMENT_BEHAVIOR_DEBUG_VERBOSE
+      return Array( rv ).first
+    end
+
     def referenced_by
       # Array(self[Solrizer.solr_name('referenced_by')]).first
       fetch(Solrizer.solr_name('referenced_by'), [])

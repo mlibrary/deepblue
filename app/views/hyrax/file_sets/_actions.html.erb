@@ -25,6 +25,13 @@
                         { title: t('.edit_title', file_set: member) } %>
           </li>
         <% end %>
+        <% if member.can_assign_to_work_as_read_me? %>
+          <li role="menuitem" tabindex="-1">
+            <%= link_to t('.assign_read_me'),
+                        main_app.assign_to_work_as_read_me_hyrax_file_set_path( member.id ),
+                        { title: t('.assign_read_me_title') } %>
+          </li>
+        <% end %>
         <% if member.can_display_file_contents? %>
           <li role="menuitem" tabindex="-1">
             <%= link_to t('.contents'),

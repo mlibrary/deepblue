@@ -140,6 +140,7 @@ Rails.application.routes.draw do
   namespace :hyrax, path: :concern do
     resources :file_sets do
       member do
+        get    'assign_to_work_as_read_me'
         post   'create_single_use_link'
         get    'display_provenance_log'
         get    'doi'

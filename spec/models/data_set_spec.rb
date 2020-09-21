@@ -41,6 +41,7 @@ RSpec.describe DataSet do
       location
       methodology
       prior_identifier
+      read_me_file_set_id
       referenced_by
       rights_license
       rights_license_other
@@ -265,7 +266,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_mint_doi( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 39,
+                                     size: 40,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -314,7 +315,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_publish( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 40,
+                                     size: 41,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -364,7 +365,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_unpublish( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 39,
+                                     size: 40,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -453,7 +454,7 @@ RSpec.describe DataSet do
       expect( subject.entomb!( epitaph, current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 42,
+                                     size: 43,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -597,13 +598,14 @@ RSpec.describe DataSet do
                                      exp_fundedby: '',
                                      exp_fundedby_other: '',
                                      exp_grantnumber: '',
-                                     exp_referenced_by: [],
                                      exp_keyword: [],
                                      exp_language: [],
                                      exp_location: '',
                                      exp_message: '',
                                      exp_methodology: [],
                                      exp_prior_identifier: [],
+                                     exp_read_me_file_set_id: '',
+                                     exp_referenced_by: [],
                                      exp_rights_license: '',
                                      exp_rights_license_other: '',
                                      exp_subject_discipline: [],
@@ -653,13 +655,14 @@ RSpec.describe DataSet do
     validate_expected( rv_key_values, :fundedby, exp_fundedby )
     validate_expected( rv_key_values, :fundedby_other, exp_fundedby_other )
     validate_expected( rv_key_values, :grantnumber, exp_grantnumber )
-    validate_expected( rv_key_values, :referenced_by, exp_referenced_by )
     validate_expected( rv_key_values, :keyword, exp_keyword )
     validate_expected( rv_key_values, :language, exp_language )
     validate_expected( rv_key_values, :location, exp_location )
     validate_expected( rv_key_values, :message, exp_message )
     validate_expected( rv_key_values, :methodology, exp_methodology )
     validate_expected( rv_key_values, :prior_identifier, exp_prior_identifier )
+    validate_expected( rv_key_values, :read_me_file_set_id, exp_read_me_file_set_id )
+    validate_expected( rv_key_values, :referenced_by, exp_referenced_by )
     validate_expected( rv_key_values, :rights_license, exp_rights_license )
     validate_expected( rv_key_values, :rights_license_other, exp_rights_license_other )
     validate_expected( rv_key_values, :subject_discipline, exp_subject_discipline )

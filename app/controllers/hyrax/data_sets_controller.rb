@@ -120,6 +120,40 @@ module Hyrax
 
     # end date_coverage
 
+    attr_accessor :read_me_file_set
+
+    def can_display_provenance_log?
+      # TODO:
+    end
+
+    def can_display_read_me?
+      @curation_concern = _curation_concern_type.find(params[:id]) unless curation_concern.present?
+      read_me_file_set_id = curation_concern.read_me_file_set_id
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "read_me_file_set_id=#{read_me_file_set_id}",
+                                              "" ] if true || DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+      return false unless ::DeepBlueDocs::Application.config.read_me_file_set_enabled
+      return true if current_ability.admin?
+      return true if can?( :edit, curration_concern.id )
+      return true if read_me_file_set_id.present?
+      return false
+    end
+
+    def is_tabbed?
+      can_display_read_me?
+    end
+
+    def read_me_file_set
+      @read_me_file_set ||= ::Deepblue::FileContentHelper.read_me_file_set( work: curation_concern )
+    end
+
+    def read_me_text
+      @curation_concern = _curation_concern_type.find(params[:id]) unless curation_concern.present?
+      return MsgHelper.t( 'data_set.read_me_file_set_assignment_missing' ) if read_me_file_set.blank?
+      ::Deepblue::FileContentHelper.read_file( file_set: read_me_file_set )
+    end
+
     ## Globus
 
     def globus_add_email

@@ -49,6 +49,7 @@ module Deepblue
                                             methodology
                                             owner
                                             prior_identifier
+                                            read_me_file_set_id
                                             referenced_by
                                             referenced_by_ordered
                                             rights_license_other
