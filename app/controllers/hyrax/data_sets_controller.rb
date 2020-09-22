@@ -8,6 +8,7 @@ module Hyrax
 
     DATA_SETS_CONTROLLER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.data_sets_controller_debug_verbose
 
+    include ActionView::Helpers::TextHelper
     include ::Deepblue::WorksControllerBehavior
 
     self.curation_concern_type = ::DataSet
@@ -150,19 +151,32 @@ module Hyrax
 
     def read_me_text
       @curation_concern = _curation_concern_type.find(params[:id]) unless curation_concern.present?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "@curation_concern.id=#{@curation_concern.id}",
+                                             "" ] if true || DATA_SETS_CONTROLLER_DEBUG_VERBOSE
       return MsgHelper.t( 'data_set.read_me_file_set_assignment_missing' ) if read_me_file_set.blank?
       ::Deepblue::FileContentHelper.read_file( file_set: read_me_file_set )
     end
 
     def read_me_text_simple_format( html_options = {}, options = {} )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "@curation_concern.id=#{@curation_concern.id}",
+                                             "" ] if true || DATA_SETS_CONTROLLER_DEBUG_VERBOSE
       text = read_me_text
-      read_me_text_simple_format( text, html_options, options )
+      read_me_simple_format( text, html_options, options )
     end
 
     def read_me_simple_format( text, html_options = {}, options = {} )
       simple_format( text, html_options, options )
-    rescue ActionView::Template::Error # invalid byte sequence in UTF-8
-      # try to fix text
+    rescue ActionView::Template::Error => e # invalid byte sequence in UTF-8
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "rescued error e=#{e}",
+                                             "" ] if true || DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+      # TODO: try to fix text
+      "An error has occurred."
     end
 
     ## Globus
