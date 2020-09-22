@@ -154,6 +154,17 @@ module Hyrax
       ::Deepblue::FileContentHelper.read_file( file_set: read_me_file_set )
     end
 
+    def read_me_text_simple_format( html_options = {}, options = {} )
+      text = read_me_text
+      read_me_text_simple_format( text, html_options, options )
+    end
+
+    def read_me_simple_format( text, html_options = {}, options = {} )
+      simple_format( text, html_options, options )
+    rescue ActionView::Template::Error # invalid byte sequence in UTF-8
+      # try to fix text
+    end
+
     ## Globus
 
     def globus_add_email
