@@ -135,7 +135,7 @@ module Hyrax
                                               "" ] if true || DATA_SETS_CONTROLLER_DEBUG_VERBOSE
       return false unless ::DeepBlueDocs::Application.config.read_me_file_set_enabled
       return true if current_ability.admin?
-      return true if can?( :edit, curration_concern.id )
+      return true if can?( :edit, curation_concern.id )
       return true if read_me_file_set_id.present?
       return false
     end
