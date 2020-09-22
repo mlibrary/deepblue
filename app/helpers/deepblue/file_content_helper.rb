@@ -14,7 +14,7 @@ module Deepblue
       I18n.translate( key, options )
     end
 
-    def self.find_read_me_file_set( work: )
+    def self.find_read_me_file_set( work:, raise_error: false )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "work.id=#{work.id}",
@@ -46,6 +46,9 @@ module Deepblue
       return nil if candidates.empty?
       # TODO: want to report this out
       return candidates.first
+    rescue Exception => e
+      raise if raise_error
+      nil
     end
 
     def self.send_file( id:, format: nil, path:, options: {} )
@@ -105,7 +108,7 @@ module Deepblue
                                                ::Deepblue::LoggingHelper.called_from,
                                                "source_uri=#{source_uri}",
                                                "" ] if FILE_CONTENT_HELPER_DEBUG_VERBOSE
-        str = open( source_uri, "r:UTF-8" ) { |io| io.read }
+        str = open( source_uri, "r" ) { |io| io.read.encode( "UTF-8", invalid: :replace, replace: '<byte>' ) }
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "str.encoding=#{str.encoding}",
@@ -128,7 +131,7 @@ module Deepblue
       return text
     end
 
-    def self.read_me_file_set( work: )
+    def self.read_me_file_set( work:, raise_error: false )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "work.id=#{work.id}",
@@ -138,7 +141,7 @@ module Deepblue
       if id.present?
         FileSet.find id
       elsif ::DeepBlueDocs::Application.config.read_me_file_set_auto_read_me_attach
-        fs = find_read_me_file_set( work: work )
+        fs = find_read_me_file_set( work: work, raise_error: raise_error )
         return nil if fs.blank?
         work.read_me_file_set_id = fs.id
         # TODO: might have to touch the file
