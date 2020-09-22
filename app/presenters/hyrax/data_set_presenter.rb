@@ -54,6 +54,7 @@ module Hyrax
                   :is_tabbed?,
                   :params,
                   :read_me_text,
+                  :read_me_text_simple_format,
                   :tombstone_permissions_hack?, to: :controller
 
     # def initialize( solr_document, current_ability, request = nil )
