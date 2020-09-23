@@ -568,3 +568,8 @@ table.datatable thead th.no-sort {
 .dropdown-menu-indent {
     padding-left: 2em;
 }
+
+.read-me-container {
+    /* font-size: 0.9rem; */
+    padding: 0.9em;
+}
