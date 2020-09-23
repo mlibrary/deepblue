@@ -3,6 +3,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
   let(:solr_document) { SolrDocument.new(attributes) }
   let(:request) { double(host: 'example.org', base_url: 'http://example.org') }
   let(:user_key) { 'a_user_key' }
+  let(:debug_verbose) {::DeepBlueDocs::Application.config.work_show_presenter_debug_verbose}
 
   let(:attributes) do
     { "id" => '888888',
@@ -165,14 +166,14 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
 
     context 'cannot when tombstone present' do
       before do
-        # expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true
+        expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true if debug_verbose
         expect( presenter ).to receive( :tombstone ).at_least(:once).and_return "tombstoned"
       end
       it { is_expected.to be false }
     end
     context 'can when single-use show' do
       before do
-        # expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true
+        expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true if debug_verbose
         expect( presenter ).to receive( :tombstone ).at_least(:once).and_return nil
         expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return true
       end
@@ -185,7 +186,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
         expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
         expect( workflow ).to receive( :state ).at_least(:once).and_return "pending_review"
         expect( presenter ).to receive( :workflow ).at_least(:once).and_return workflow
-        # expect( current_ability ).to receive( :can? ).at_least(:once).with( :edit, presenter.id ).and_return false
+        expect( current_ability ).to receive( :can? ).at_least(:once).with( :edit, presenter.id ).and_return false if debug_verbose
       end
       it { is_expected.to be false }
     end
@@ -196,15 +197,15 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
         expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
         expect( workflow ).to receive( :state ).at_least(:once).and_return "pending_review"
         expect( presenter ).to receive( :workflow ).at_least(:once).and_return workflow
-        # expect( current_ability ).to receive( :can? ).at_least(:once).with( :edit, presenter.id ).and_return true
+        expect( current_ability ).to receive( :can? ).at_least(:once).with( :edit, presenter.id ).and_return true if debug_verbose
       end
       it { is_expected.to be true }
     end
     context 'can when deposited and visible' do
       before do
-        # expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true
+        expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true if debug_verbose
         expect( presenter ).to receive( :tombstone ).at_least(:once).and_return nil
-        # expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
+        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false if debug_verbose
         expect( workflow ).to receive( :state ).at_least(:once).and_return "deposited"
         expect( presenter ).to receive( :workflow ).at_least(:once).and_return workflow
         expect( solr_document ).to receive( :visibility ).at_least(:once).and_return Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
@@ -227,14 +228,14 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
 
     context 'can when tombstone present' do
       before do
-        # expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true
+        expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true if debug_verbose
         expect( presenter ).to receive( :tombstone ).at_least(:once).and_return "tombstoned"
       end
       it { is_expected.to be true }
     end
     context 'can when single-use show' do
       before do
-        # expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true
+        expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true if debug_verbose
         expect( presenter ).to receive( :tombstone ).at_least(:once).and_return nil
         expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return true
       end
@@ -242,7 +243,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
     end
     context 'cannot when pending and visible and can not edit' do
       before do
-        expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return false
+        expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).at_least(:once).and_return false
         expect( presenter ).to receive( :tombstone ).at_least(:once).and_return nil
         expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
         expect( workflow ).to receive( :state ).at_least(:once).and_return "pending_review"
@@ -253,7 +254,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
     end
     context 'can when pending and visible and can edit' do
       before do
-        expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true
+        expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).at_least(:once).and_return true
         expect( presenter ).to receive( :tombstone ).at_least(:once).and_return nil
         expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
         expect( workflow ).to receive( :state ).at_least(:once).and_return "pending_review"
@@ -264,7 +265,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
     end
     context 'can when deposited and visible' do
       before do
-        # expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true
+        expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true if debug_verbose
         # expect( presenter ).to receive( :tombstone ).at_least(:once).and_return nil
         # expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
         expect( workflow ).to receive( :state ).at_least(:once).and_return "deposited"
