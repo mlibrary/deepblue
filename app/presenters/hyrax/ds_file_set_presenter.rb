@@ -39,7 +39,7 @@ module Hyrax
                                              "false if Array( parent.read_me_file_set_id ).first == id=#{Array( parent.read_me_file_set_id ).first == id}",
                                              "false unless not right mime_type=#{::DeepBlueDocs::Application.config.read_me_file_set_view_mime_types.include? mime_type}",
                                              "false if too big=#{file_size > ::DeepBlueDocs::Application.config.read_me_file_set_view_max_size}",
-                                             "" ] if true || DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
       return false unless ::DeepBlueDocs::Application.config.read_me_file_set_enabled
       return false if Array( parent.read_me_file_set_id ).first == id
       return false unless ::DeepBlueDocs::Application.config.read_me_file_set_view_mime_types.include? mime_type
@@ -113,11 +113,11 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "true if single_use_show?=#{single_use_show?}",
                                              "true current_ability.admin?=#{current_ability.admin?}",
-                                             "false if solr_document.visibility == 'embargo'=#{solr_document.visibility == 'embargo'}",
+                                             "false if embargoed?=#{embargoed?}",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
       return true if single_use_show?
       return true if current_ability.admin?
-      return false if solr_document.visibility == 'embargo'
+      return false if embargoed?
       true
     end
 
@@ -132,12 +132,12 @@ module Hyrax
                                              "false if parent.tombstone.present?=#{parent.tombstone.present?}",
                                              "true current_ability.admin?=#{current_ability.admin?}",
                                              "true editor?=#{editor?}",
-                                             "and parent.workflow.state != 'deposited'=#{parent.workflow.state != 'deposited'}",
+                                             "and pending_publication?=#{pending_publication?}",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
       return false if single_use_show?
       return false if parent.tombstone.present?
       return true if current_ability.admin?
-      return true if editor? && parent.workflow.state != 'deposited' # TODO: this should probably be == 'pending_review'
+      return true if editor? && pending_publication?
       false
     end
 
@@ -163,13 +163,15 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false if parent.tombstone.present?=#{parent.tombstone.present?}",
+                                             "false if parent.embargoed?=#{parent.embargoed?}",
                                              "true if single_use_show?=#{single_use_show?}",
-                                             "true if parent.workflow.state == 'deposited' && solr_document.visibility == 'open'=#{parent.workflow.state == 'deposited' && solr_document.visibility == 'open'}",
+                                             "true if published?=#{published?}",
                                              "current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
       return false if parent.tombstone.present?
+      return false if parent.embargoed?
       return true if single_use_show?
-      return true if parent.workflow.state == 'deposited' && solr_document.visibility == 'open'
+      return true if published?
       current_ability.can?( :edit, id )
     end
 
@@ -237,6 +239,14 @@ module Hyrax
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
       # return "/data/downloads/#{curation_concern.id}/single_use_link/#{su_link.downloadKey}" # TODO: fix
       return rv
+    end
+
+    def embargoed?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "solr_document.visibility=#{solr_document.visibility}",
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      solr_document.visibility == 'embargo'
     end
 
     def show_path_link( curation_concern = solr_document )
@@ -352,6 +362,14 @@ module Hyrax
 
     def parent_workflow
       parent.workflow
+    end
+
+    def pending_publication?
+      parent.workflow.state != 'deposited'
+    end
+
+    def published?
+      parent.workflow.state == 'deposited' && solr_document.visibility == 'open'
     end
 
     def relative_url_root

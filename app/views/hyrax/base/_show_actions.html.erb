@@ -9,7 +9,7 @@
       </div>
       <div class="panel-body">
         <% if Hyrax.config.download_files %>
-          <% admin_or_not_embargo = ( @presenter.current_ability.admin? || @presenter.solr_document.visibility != "embargo" ) %>
+          <% admin_or_not_embargo = ( @presenter.current_ability.admin? || !@presenter.embargoed? ) %>
           <% if @presenter.zip_download_enabled? && admin_or_not_embargo %>
             <%#= form_tag( main_app.zip_download_hyrax_data_set_path( @presenter.id ), method: 'post' ) do %>
             <% ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,

@@ -49,12 +49,12 @@ module DeepBlueDocs
     # begin _debug_verbose flags
     config.application_controller_debug_verbose = false
     config.collection_presenter_debug_verbose = false
-    config.data_set_presenter_debug_verbose = false
+    config.data_set_presenter_debug_verbose = true
     config.data_sets_controller_debug_verbose = false
     config.deep_blue_presenter_debug_verbose = false
     # config.doi_minting_service_debug_verbose -- see config/integration/doi_minting_service_integration
     config.downloads_controller_debug_verbose = false
-    config.ds_file_set_presenter_debug_verbose = false
+    config.ds_file_set_presenter_debug_verbose = true
     # config.email_debug_verbose -- see configure email below
     config.email_behavior_debug_verbose = false
     config.file_sets_controller_debug_verbose = false
@@ -65,7 +65,7 @@ module DeepBlueDocs
     config.single_use_links_viewer_controller_debug_verbose = false
     config.solr_document_debug_verbose = false
     config.works_controller_behavior_debug_verbose = false
-    config.work_show_presenter_debug_verbose = false
+    config.work_show_presenter_debug_verbose = true
     config.work_view_content_service_debug_verbose = false
     config.work_view_content_service_email_templates_debug_verbose = false
     config.work_view_content_service_i18n_templates_debug_verbose = false

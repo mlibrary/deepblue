@@ -100,7 +100,7 @@ module Hyrax
       return false unless globus_enabled?
       return false if single_use_show?
       return true if current_ability.admin?
-      return false if solr_document.visibility == "embargo"
+      return false if embargoed?
       true
     end
 
@@ -122,11 +122,11 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false if zip_download_enabled?=#{zip_download_enabled?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
-                                             "false if solr_document.visibility == 'embargo'=#{solr_document.visibility == 'embargo'}",
+                                             "false if embargoed?=#{embargoed?}",
                                              "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       return false unless zip_download_enabled?
       return true if current_ability.admin?
-      return false if solr_document.visibility == 'embargo'
+      return false if embargoed?
       true
     end
 
@@ -148,6 +148,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false unless doi_minting_enabled?=#{doi_minting_enabled?}",
+                                             "false if tombstoned?=#{tombstoned?}",
                                              "true if doi_pending?=#{doi_pending?}",
                                              "true if doi_minted?=#{doi_minted?}",
                                              "false if single_use_show?=#{single_use_show?}",
@@ -155,7 +156,7 @@ module Hyrax
                                              "current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
                                              "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       return false unless doi_minting_enabled?
-      return false if tombstone.present?
+      return false if tombstoned?
       return false if doi_pending? || doi_minted?
       return false if single_use_show?
       return true if current_ability.admin?
@@ -163,6 +164,7 @@ module Hyrax
     end
 
     def can_perform_workflow_actions?
+      return false if tombstoned?
       return true if current_ability.admin?
       return false unless current_ability.current_user.present?
       return true if depositor == current_ability.current_user.email
@@ -173,33 +175,37 @@ module Hyrax
     def can_view_work_details?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "false if tombstone.present?=#{tombstone.present?}",
+                                             "false if tombstoned?=#{tombstoned?}",
                                              "true if single_use_show?=#{single_use_show?}",
                                              "true if current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
                                              "true if current_ability.current_user.present? && current_ability.current_user.user_approver?( current_ability.current_user )=#{current_ability.current_user.present? && current_ability.current_user.user_approver?( current_ability.current_user )}",
                                              "true if workflow.state == 'deposited' && solr_document.visibility == 'open'=#{workflow.state == 'deposited' && solr_document.visibility == 'open'}",
+                                             "false if embargoed?=#{embargoed?}",
                                              "current_ability.current_user_can_read?=#{current_user_can_read?}",
                                              "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
-      return false if tombstone.present?
+      return false if tombstoned?
       return true if workflow.state == 'deposited' && solr_document.visibility == 'open'
       return true if single_use_show?
       return true if current_ability.can?( :edit, id )
       return true if current_ability.current_user.present? && current_ability.current_user.user_approver?( current_ability.current_user )
+      return false if embargoed?
       current_user_can_read?
     end
 
     def can_view_work_metadata?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "true if tombstone.present?=#{tombstone.present?}",
+                                             "true if workflow.state == 'deposited' && solr_document.visibility == 'open'=#{workflow.state == 'deposited' && solr_document.visibility == 'open'}",
+                                             "true if embargoed?=#{embargoed?}",
+                                             "true if tombstoned?=#{tombstoned?}",
                                              "true if single_use_show?=#{single_use_show?}",
                                              "true if current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
                                              "true if current_ability.current_user.present? && current_ability.current_user.user_approver?( current_ability.current_user )=#{current_ability.current_user.present? && current_ability.current_user.user_approver?( current_ability.current_user )}",
-                                             "true if workflow.state == 'deposited' && solr_document.visibility == 'open'=#{workflow.state == 'deposited' && solr_document.visibility == 'open'}",
                                              "current_user_can_read?=#{current_user_can_read?}",
                                              "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       return true if workflow.state == 'deposited' && solr_document.visibility == 'open'
-      return true if tombstone.present?
+      return true if embargoed?
+      return true if tombstoned?
       return true if single_use_show?
       return true if current_ability.can?( :edit, id )
       return true if current_ability.current_user.present? && current_ability.current_user.user_approver?( current_ability.current_user )
@@ -207,29 +213,21 @@ module Hyrax
     end
 
     def current_user_can_edit?
+      # override with something more useful
       return false
-      # TODO: do we need to fix this?
-      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-      #                                        ::Deepblue::LoggingHelper.called_from,
-      #                                        "current_ability.current_user&.email=#{current_ability.current_user&.email}",
-      #                                        "edit_users=#{edit_users}",
-      #                                        "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
-      # return false unless current_ability.current_user.present?
-      # return false unless current_ability.current_user.email.present?
-      # edit_users.include? current_ability.current_user.email
-    end
+     end
 
     def current_user_can_read?
+      # override with something more useful
       return false
-      # TODO: do we need to fix this?
-      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-      #                                        ::Deepblue::LoggingHelper.called_from,
-      #                                        "current_ability.current_user&.email=#{current_ability.current_user&.email}",
-      #                                        "read_users=#{read_users}",
-      #                                        "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
-      # return false unless current_ability.current_user.present?
-      # return false unless current_ability.current_user.email.present?
-      # read_users.include? current_ability.current_user.email
+    end
+
+    def embargoed?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "solr_document.visibility=#{solr_document.visibility}",
+                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+      solr_document.visibility == 'embargo'
     end
 
     def itemscope_itemtype
@@ -399,6 +397,11 @@ module Hyrax
     end
 
     def tombstone
+      @tombstone ||= tombstone_init
+    end
+
+    def tombstone_init
+      return nil unless tombstone_enabled?
       solr_value = @solr_document[Solrizer.solr_name('tombstone', :symbol)]
       return nil if solr_value.blank?
       solr_value.first
@@ -406,6 +409,10 @@ module Hyrax
 
     def tombstone_enabled?
       true
+    end
+
+    def tombstoned?
+      tombstone.present?
     end
 
     def zip_download_link( curation_concern = solr_document )

@@ -82,7 +82,7 @@
 
         <% if @presenter.respond_to?( 'globus_enabled?' ) &&
             @presenter.globus_enabled? &&
-            @presenter.solr_document.visibility != "embargo" %>
+            !@presenter.embargoed? %>
 
           <%= form_tag( main_app.globus_download_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
             <%= hidden_field_tag('data_set[nop]') %>
