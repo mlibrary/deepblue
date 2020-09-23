@@ -30,7 +30,10 @@ en:
       'Your download all files to Globus was successful!'
     read_me_file_set_assignment_missing: >
       No read me file set has been assigned to this work. Please upload a readme file or select one the existing
-      files and assign it as the readme file.
+      files and assign it as the readme file using the file's pull down action menu. Readme files must be plain
+      text and less than %{size} in size. If a plain text file name contains "readme" (case insensitive) and there
+      is no readme file assigned to the work, it will automatically be assigned as the readme upon upload and no
+      further action is required.
     tombstone_notice:
       "Tombstoned: \"%{title}\" for this reason: %{reason}"
   hyrax:
@@ -92,6 +95,8 @@ en:
       rights_license:       "License"
       rights_license_other: "Other License"
       subject_discipline:   "Discipline"
+      tab_item:             "Files"
+      tab_read_me:          "Readme"
       total_file_size:      "Total file size"
       total_file_size_human_readable: "Total file size"
   simple_form:

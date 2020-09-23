@@ -155,7 +155,9 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "@curation_concern.id=#{@curation_concern.id}",
                                              "" ] if true || DATA_SETS_CONTROLLER_DEBUG_VERBOSE
-      return MsgHelper.t( 'data_set.read_me_file_set_assignment_missing' ) if read_me_file_set.blank?
+      return MsgHelper.t( 'data_set.read_me_file_set_assignment_missing',
+                          size: ActiveSupport::NumberHelper.number_to_human_size( DeepBlueDocs::Application.config.read_me_file_set_view_max_size )
+                        ) if read_me_file_set.blank?
       ::Deepblue::FileContentHelper.read_file( file_set: read_me_file_set )
     end
 
