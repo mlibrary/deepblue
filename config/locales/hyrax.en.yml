@@ -436,25 +436,21 @@ en:
         show:               "Single-Use Link"
         show_work_html: >
           Single-Use Link<br/>
-          This link is now expired, and if you reload the page, you will be receive an expired single-use
-          link message.<br/>
+          Reloading this page will result in being redirected to the Deep Blue Data home page and an expired single-use link message.<br/>
           You may view or download the attached files once or the zip download of all attached files once.<br/>
         show_file_html: >
           Single-Use Link<br/>
-          This link is now expired, and if you reload the page, you will be receive an expired single-use
-          link message.<br/>
+          Reloading this page will result in being redirected to the Deep Blue Data home page and an expired single-use link message.<br/>
           You may download the attached file once.<br/>
         show_work_with_help_link_html: >
           Single-Use Link<br/>
-          This link is now expired, and if you reload the page, you will be receive an expired single-use
-          link message.<br/>
+          Reloading this page will result in being redirected to the Deep Blue Data home page and an expired single-use link message.<br/>
           You may view or download the attached files once or the zip download of all attached files once.<br/>
           Open the <a href="%{help_link}" target="_blank" rel="noopener noreferrer">this link</a> in a new
           window for a more detailed explanation of single-use links.
         show_file_with_help_link_html: >
           Single-Use Link<br/>
-          This link is now expired, and if you reload the page, you will be receive an expired single-use
-          link message.<br/>
+          Reloading this page will result in being redirected to the Deep Blue Data home page and an expired single-use link message.<br/>
           You may download the attached file once.<br/>
           Open the <a href="%{help_link}" target="_blank" rel="noopener noreferrer">this link</a> in a new
           window for a more detailed explanation of single-use links.
