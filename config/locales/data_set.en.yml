@@ -29,7 +29,7 @@ en:
     globus_success:
       'Your download all files to Globus was successful!'
     read_me_file_set_assignment_missing: >
-      No read me file set has been assigned to this work. Please upload a readme file or select one the existing
+      No readme file set has been assigned to this work. Please upload a readme file or select one the existing
       files and assign it as the readme file using the file's pull down action menu. Readme files must be plain
       text and less than %{size} in size. If a plain text file name contains "readme" (case insensitive) and there
       is no readme file assigned to the work, it will automatically be assigned as the readme upon upload and no
