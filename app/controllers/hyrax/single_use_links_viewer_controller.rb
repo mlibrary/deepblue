@@ -51,7 +51,7 @@ module Hyrax
                                                ::Deepblue::LoggingHelper.called_from,
                                                "url=#{url}",
                                                "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
-        redirect_to url, notice: t('hyrax.single_use_links.notice')
+        redirect_to url, notice: t('hyrax.single_use_links.notice.download')
       end
     end
 
@@ -74,18 +74,22 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "model=#{model}",
                                              "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
-      url = if 'FileSet' == model
-              # TODO: properly generate this route
-              "/data/concern/file_sets/#{solr_doc.id}/single_use_link/#{params[:id]}"
-            else
-              # TODO: properly generate this route
-              "/data/concern/data_sets/#{solr_doc.id}/single_use_link/#{params[:id]}"
-            end
+      if 'FileSet' == model
+        # TODO: properly generate this route
+        url = "/data/concern/file_sets/#{solr_doc.id}/single_use_link/#{params[:id]}"
+        flash_msg =  t('hyrax.single_use_links.notice.show_file_html')
+        # flash_msg =  t('hyrax.single_use_links.notice.show_file_with_help_link_html', help_link: "/data/help" )
+      else
+        # TODO: properly generate this route
+        url = "/data/concern/data_sets/#{solr_doc.id}/single_use_link/#{params[:id]}"
+        flash_msg =  t('hyrax.single_use_links.notice.show_work_html')
+        # flash_msg =  t('hyrax.single_use_links.notice.show_work_with_help_link_html', help_link: "/data/help" )
+      end
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "url=#{url}",
                                              "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
-      redirect_to url, notice: t('hyrax.single_use_links.notice')
+      redirect_to url, notice: flash_msg
     end
 
     private

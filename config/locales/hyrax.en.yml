@@ -367,7 +367,7 @@ en:
         upload: Upload New Version
     footer:
       copyright_html: "<strong>Copyright &copy; 2017 Samvera</strong> Licensed under the Apache License, Version 2.0"
-      service_html: A service of <a href="http://samvera.org/" class="navbar-link" target="_blank">Samvera</a>.
+      service_html: A service of <a href="http://samvera.org/" class="navbar-link" target="_blank" rel="noopener noreferrer">Samvera</a>.
     i18n:
       templates:
         keys_loaded:        "N/A"
@@ -431,7 +431,33 @@ en:
         time:               "in %{value} hours"
         human_readable_time: "in %{value}"
       expiration_message:   "%{link_type} Link %{link} expires %{time}"
-      notice:               "Single-Use Link"
+      notice:
+        download:           "Single-Use Download"
+        show:               "Single-Use Link"
+        show_work_html: >
+          Single-Use Link<br/>
+          This link is now expired, and if you reload the page, you will be receive an expired single-use
+          link message.<br/>
+          You may view or download the attached files once or the zip download of all attached files once.<br/>
+        show_file_html: >
+          Single-Use Link<br/>
+          This link is now expired, and if you reload the page, you will be receive an expired single-use
+          link message.<br/>
+          You may download the attached file once.<br/>
+        show_work_with_help_link_html: >
+          Single-Use Link<br/>
+          This link is now expired, and if you reload the page, you will be receive an expired single-use
+          link message.<br/>
+          You may view or download the attached files once or the zip download of all attached files once.<br/>
+          Open the <a href="%{help_link}" target="_blank" rel="noopener noreferrer">this link</a> in a new
+          window for a more detailed explanation of single-use links.
+        show_file_with_help_link_html: >
+          Single-Use Link<br/>
+          This link is now expired, and if you reload the page, you will be receive an expired single-use
+          link message.<br/>
+          You may download the attached file once.<br/>
+          Open the <a href="%{help_link}" target="_blank" rel="noopener noreferrer">this link</a> in a new
+          window for a more detailed explanation of single-use links.
       show:
         type:               "View"
       table:
