@@ -3,7 +3,7 @@
 class IngestJob < ::Hyrax::ApplicationJob
   # monkey patch
 
-  INGEST_JOB_DEBUG_VERBOSE = true
+  INGEST_JOB_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.ingest_job_debug_verbose
 
   queue_as Hyrax.config.ingest_queue_name
 

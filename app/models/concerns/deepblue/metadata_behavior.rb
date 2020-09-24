@@ -7,7 +7,7 @@ module Deepblue
 
   module MetadataBehavior
 
-    METADATA_BEHAVIOR_DEBUG_VERBOSE = true
+    METADATA_BEHAVIOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.metadata_behavior_debug_verbose
 
     METADATA_FIELD_SEP = '; '
     METADATA_REPORT_DEFAULT_DEPTH = 2

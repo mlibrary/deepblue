@@ -6,7 +6,7 @@ module Hydra
   module Derivatives
     class Runner
 
-      HYDRA_DERIVATIVES_RUNNER_DEBUG_VERBOSE = true # monkey
+      HYDRA_DERIVATIVES_RUNNER_DEBUG_VERBOSE = false # ::DeepBlueDocs::Application.config.hydra_derivatives_runner_debug_verbose # monkey
 
       class << self
         attr_writer :output_file_service
