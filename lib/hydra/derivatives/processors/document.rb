@@ -4,7 +4,7 @@ module Hydra::Derivatives::Processors
 
   class Document < Processor
 
-    HYDRA_DERIVATIVES_PROCESSORS_DOCUMENT_DEBUG_VERBOSE = true
+    HYDRA_DERIVATIVES_PROCESSORS_DOCUMENT_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.hydra_derivatives_processors_document_debug_verbose
 
     include ShellBasedProcessor
 

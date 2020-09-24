@@ -1,7 +1,7 @@
 
 Deepblue::IngestIntegrationService.setup do |config|
 
-  INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE = true
+  INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE = false
 
   config.characterization_service_verbose = false
 

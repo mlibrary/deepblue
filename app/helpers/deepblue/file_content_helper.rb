@@ -4,7 +4,7 @@ module Deepblue
 
   module FileContentHelper
 
-    FILE_CONTENT_HELPER_DEBUG_VERBOSE = true
+    FILE_CONTENT_HELPER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.file_content_helper_debug_verbose
 
     def self.t( key, **options )
       I18n.t( key, options )

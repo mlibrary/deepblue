@@ -4,7 +4,7 @@ module Umrdr
 
   module UmrdrWorkBehavior
 
-    UMRDR_WORK_BEHAVIOR_DEBUG_VERBOSE = true
+    UMRDR_WORK_BEHAVIOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.umrdr_work_behavior_debug_verbose
 
     extend ActiveSupport::Concern
 
