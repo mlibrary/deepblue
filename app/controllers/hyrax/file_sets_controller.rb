@@ -64,14 +64,14 @@ module Hyrax
                                              "curation_concern.id=#{curation_concern.id}",
                                              "curation_concern.parent.class.name=#{curation_concern.parent.class.name}",
                                              "curation_concern.parent.read_me_file_set_id=#{curation_concern.parent.read_me_file_set_id}",
-                                             "" ] if true || FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
       if current_ability.can( :edit, curation_concern.id )
         curation_concern.parent.read_me_update( file_set: curation_concern )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "curation_concern.id=#{curation_concern.id}",
                                                "curation_concern.parent.read_me_file_set_id=#{curation_concern.parent.read_me_file_set_id}",
-                                               "" ] if true || FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                               "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
         redirect_to [main_app, curation_concern.parent],
                     notice: I18n.t('hyrax.file_sets.notifications.assigned_as_read_me',
                                    filename: curation_concern.label )
