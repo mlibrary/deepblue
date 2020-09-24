@@ -4,7 +4,7 @@ module Hyrax
 
   class SingleUseLinksViewerController < DownloadsController
 
-    SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.single_use_links_viewer_controller_debug_verbose
+    SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE = true || ::DeepBlueDocs::Application.config.single_use_links_viewer_controller_debug_verbose
 
     include ActionView::Helpers::TranslationHelper
     include Blacklight::Base
@@ -20,6 +20,12 @@ module Hyrax
     self.presenter_class = DsFileSetPresenter
     copy_blacklight_config_from(::CatalogController)
 
+    def tombstoned?
+      return false unless asset.respond_to? :parent
+      return false unless asset.parent.respond_to? :tombstone
+      asset.parent.tombstone.present?
+    end
+
     def download
       path = single_use_link.path
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -33,6 +39,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "single_use_link=#{single_use_link}",
                                              "single_use_link.path=#{single_use_link.path}",
+                                             "asset.class.name=#{asset.class.name}",
                                              "asset&.id=#{asset&.id}",
                                              # "hyrax.download_path(id: asset)=#{hyrax.download_path(id: asset)}",
                                              "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
@@ -41,9 +48,11 @@ module Hyrax
                                                                destroy_if_not_valid: true )
       if path =~ /concern\/file_sets/
         single_use_link_destroy! single_use_link
+        raise not_found_exception if tombstoned?
         send_content
       elsif path =~ /downloads\//
         single_use_link_destroy! single_use_link
+        raise not_found_exception if tombstoned?
         send_content
       else
         url = "#{path}/#{params[:id]}"
