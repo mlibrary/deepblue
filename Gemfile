@@ -91,6 +91,12 @@ gem 'websocket-extensions', '>= 0.1.5'
 # To have OAI
 gem 'blacklight_oai_provider', '6.0.0.pre1'
 
+# markdown gems
+# gem 'kramdown'
+gem 'reverse_markdown'
+# gem 'redcarpet', '~> 3.3.4'
+gem 'redcarpet'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
