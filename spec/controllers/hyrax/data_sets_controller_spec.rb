@@ -239,6 +239,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
         let(:document) { instance_double(SolrDocument) }
         before do
           allow(document).to receive(:[]).and_return(nil)
+          allow(controller).to receive(:read_me_file_set).and_return("this should be a file set");
         end
 
         it 'renders without the unauthorized message' do

@@ -4,7 +4,7 @@ module Deepblue
 
   module FileContentHelper
 
-    FILE_CONTENT_HELPER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.file_content_helper_debug_verbose
+    FILE_CONTENT_HELPER_DEBUG_VERBOSE = true || ::DeepBlueDocs::Application.config.file_content_helper_debug_verbose
 
     def self.t( key, **options )
       I18n.t( key, options )
@@ -49,6 +49,15 @@ module Deepblue
     rescue Exception => e
       raise if raise_error
       nil
+    end
+
+    def self.find_read_me_file_set_if_necessary( work:, raise_error: false )
+      return unless ::DeepBlueDocs::Application.config.read_me_file_set_auto_read_me_attach
+      return if work.read_me_file_set_id.present?
+      fs = find_read_me_file_set( work: work, raise_error: raise_error )
+      return if fs.blank?
+      work.read_me_file_set_id = fs.id
+      work.save!
     end
 
     def self.send_file( id:, format: nil, path:, options: {} )

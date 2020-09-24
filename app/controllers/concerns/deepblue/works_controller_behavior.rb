@@ -15,7 +15,7 @@ module Deepblue
     include Deepblue::SingleUseLinkControllerBehavior
     include Deepblue::IngestAppendScriptControllerBehavior
 
-    WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.works_controller_behavior_debug_verbose
+    WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE = true || ::DeepBlueDocs::Application.config.works_controller_behavior_debug_verbose
 
     class_methods do
       def curation_concern_type=(curation_concern_type)
@@ -331,8 +331,14 @@ module Deepblue
     def presenter_init
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
+                                             "curation_concern.class.name=#{curation_concern.class.name}",
                                              "current_ability.class.name=#{current_ability.class.name}",
                                              "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      if respond_to? :read_me_file_set
+        # first make sure that the curation concern is loaded
+        @curation_concern = _curation_concern_type.find_with_rescue(params[:id]) unless curation_concern
+        read_me_file_set # preemptively load
+      end
       rv = presenter
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,

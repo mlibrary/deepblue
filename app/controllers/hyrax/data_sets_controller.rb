@@ -133,7 +133,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "read_me_file_set_id=#{read_me_file_set_id}",
-                                              "" ] if true || DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+                                              "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
       return false unless ::DeepBlueDocs::Application.config.read_me_file_set_enabled
       return true if current_ability.admin?
       return true if can?( :edit, curation_concern.id )
@@ -154,7 +154,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "@curation_concern.id=#{@curation_concern.id}",
-                                             "" ] if true || DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
       return MsgHelper.t( 'data_set.read_me_file_set_assignment_missing',
                           size: ActiveSupport::NumberHelper.number_to_human_size( DeepBlueDocs::Application.config.read_me_file_set_view_max_size )
                         ) if read_me_file_set.blank?
@@ -165,7 +165,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "@curation_concern.id=#{@curation_concern.id}",
-                                             "" ] if true || DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
       text = read_me_text
       read_me_simple_format( text, html_options, options )
     end
@@ -176,7 +176,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rescued error e=#{e}",
-                                             "" ] if true || DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
       # TODO: try to fix text
       "An error has occurred."
     end
