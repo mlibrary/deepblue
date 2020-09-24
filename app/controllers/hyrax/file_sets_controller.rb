@@ -207,6 +207,10 @@ module Hyrax
                                              "su_link=#{su_link}",
                                              "su_link.class.name=#{su_link.class.name}",
                                              "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      if @file_set.parent.tombstone.present?
+        single_use_link_destroy! su_link
+        return redirect_to main_app.root_path, alert: single_use_link_expired_msg
+      end
       curation_concern_path = polymorphic_path([main_app, curation_concern] )
       unless single_use_link_valid?( su_link, item_id: file_set.id, path: curation_concern_path )
         single_use_link_destroy! su_link

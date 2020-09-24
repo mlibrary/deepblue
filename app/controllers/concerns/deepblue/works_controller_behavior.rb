@@ -290,6 +290,10 @@ module Deepblue
                                              "su_link=#{su_link}",
                                              "su_link.class.name=#{su_link.class.name}",
                                              "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      if @curation_concern.tombstone.present?
+        single_use_link_destroy! su_link
+        return redirect_to main_app.root_path, alert: single_use_link_expired_msg
+      end
       curation_concern_path = polymorphic_path([main_app, curation_concern] )
       unless single_use_link_valid?( su_link, item_id: curation_concern.id, path: curation_concern_path )
         single_use_link_destroy! su_link
@@ -378,6 +382,10 @@ module Deepblue
                                              "su_link=#{su_link}",
                                              "su_link.class.name=#{su_link.class.name}",
                                              "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      if @curation_concern.tombstone.present?
+        single_use_link_destroy! su_link
+        return redirect_to main_app.root_path, alert: single_use_link_expired_msg
+      end
       @cc_single_use_link = su_link
       curation_concern_path = polymorphic_path( [main_app, curation_concern] )
       curation_concern_path.gsub!( /\?locale=.+$/, '' )
