@@ -291,7 +291,7 @@ module Hyrax
       return rv
     end
 
-    def member_presenters( ids = member_presenter_factory.file_set_ids,
+    def member_presenters( ids = member_presenter_factory.ordered_ids,
                            presenter_class = member_presenter_factory.composite_presenter_class )
       # monkey -- replace delegation to member_presenter_factory.member_presenters with member_presenters_init
       # monkey -- add debug
