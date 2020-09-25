@@ -203,11 +203,68 @@ module Deepblue
       "#{path}#{append}"
     end
 
+    # TODO: move to work_permissions_behavior
+    def can_delete_work?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "false if single_use_link?=#{single_use_link?}",
+                                             "false if doi_minted?=#{doi?}",
+                                             "false if tombstoned?=#{tombstoned?}",
+                                             "true if current_ability.admin?=#{current_ability.admin?}",
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      return false if single_use_link?
+      return false if doi?
+      return false if tombstoned?
+      return true if current_ability.admin?
+      can_edit_work?
+    end
+
+    # TODO: move to work_permissions_behavior
+    def can_edit_work?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "false if single_use_link?=#{single_use_link?}",
+                                             "true if current_ability.admin?=#{current_ability.admin?}",
+                                             "true if editor?=#{editor?}",
+                                             "and workflow_state != 'deposited'=#{workflow_state != 'deposited'}",
+                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      return false if single_use_link?
+      return true if current_ability.admin?
+      return true if editor? && workflow_state != 'deposited'
+      false
+    end
+
+    # TODO: move to work_permissions_behavior
+    def editor?
+      return false if single_use_link?
+      current_ability.can?(:edit, @curation_concern.id)
+    end
+
+    # TODO: move to work_permissions_behavior
+    def doi?
+      return false unless @curation_concern.respond_to? :doi
+      @curation_concern.doi.present?
+    end
+
+    # TODO: move to work_permissions_behavior
+    def tombstoned?
+      return false unless @curation_concern.respond_to? :tombstone
+      @curation_concern.tombstone.present?
+    end
+
+    # TODO: move to work_permissions_behavior
+    def workflow_state
+      return false unless @curation_concern.respond_to? :workflow_state
+      @curation_concern.workflow_state
+    end
+
     def destroy
+      @curation_concern ||= ::Deepblue::WorkViewContentService.content_find_by_id( id: params[:id] )
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      return redirect_to my_works_path, notice: "You do not have sufficient privileges for this action." unless can_delete_work?
       respond_to do |wants|
         wants.html do
           destroy_rest
@@ -478,11 +535,13 @@ module Deepblue
     end
 
     def update
+      @curation_concern ||= ::Deepblue::WorkViewContentService.content_find_by_id( id: params[:id] )
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              Deepblue::LoggingHelper.obj_class( 'actor.class', actor ),
                                              "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      return redirect_to my_works_path, notice: "You do not have sufficient privileges for this aciton." unless can_edit_work?
       respond_to do |wants|
         wants.html do
           had_error = upate_rest

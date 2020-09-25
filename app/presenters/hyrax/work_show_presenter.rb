@@ -80,12 +80,14 @@ module Hyrax
     def can_delete_work?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "return false if single_use_show?=#{single_use_show?}",
-                                             "doi_minted?=#{doi_minted?}",
-                                             "current_ability.admin?=#{current_ability.admin?}",
+                                             "false if single_use_show?=#{single_use_show?}",
+                                             "false if doi_minted?=#{doi_minted?}",
+                                             "false if tombstoned?=#{tombstoned?}",
+                                             "true if current_ability.admin?=#{current_ability.admin?}",
                                              "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       return false if single_use_show?
       return false if doi_minted?
+      return false if tombstoned?
       return true if current_ability.admin?
       can_edit_work?
     end
@@ -94,6 +96,23 @@ module Hyrax
       return false unless display_provenance_log_enabled?
       return false if single_use_show?
       current_ability.admin?
+    end
+
+    def can_display_trophy_link?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "false if single_use_show?=#{single_use_show?}",
+                                             "false if tombstoned?=#{tombstoned?}",
+                                             # "true if current_ability.admin?=#{current_ability.admin?}",
+                                             "false if workflow.state != 'deposited'=#{workflow.state != 'deposited'}",
+                                             "true if current_ability.can?( :transfer, id )=#{current_ability.can?( :transfer, id )}",
+                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+      return false if single_use_show?
+      return false if tombstoned?
+      # return true if current_ability.admin?
+      return false if workflow.state != 'deposited'
+      return true if current_ability.can?( :transfer, id ) # on the assumption that this indicates ownership
+      false
     end
 
     def can_download_using_globus?
@@ -135,11 +154,13 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false if single_use_show?=#{single_use_show?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
+                                             "false if tombstoned?=#{tombstoned?}",
                                              "true if editor?=#{editor?}",
                                              "and workflow.state != 'deposited'=#{workflow.state != 'deposited'}",
                                              "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       return false if single_use_show?
       return true if current_ability.admin?
+      return false if tombstoned?
       return true if editor? && workflow.state != 'deposited'
       false
     end
@@ -170,6 +191,21 @@ module Hyrax
       return true if depositor == current_ability.current_user.email
       return true if current_ability.current_user.user_approver?( current_ability.current_user )
       return false
+    end
+
+    def can_transfer_work?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "false if single_use_show?=#{single_use_show?}",
+                                             "false if tombstoned?=#{tombstoned?}",
+                                             "true if current_ability.admin?=#{current_ability.admin?}",
+                                             "true if current_ability.can?( :transfer, id )=#{current_ability.can?( :transfer, id )}",
+                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+      return false if single_use_show?
+      return false if tombstoned?
+      return true if current_ability.admin?
+      return true if current_ability.can?( :transfer, id )
+      false
     end
 
     def can_view_work_details?
@@ -314,6 +350,14 @@ module Hyrax
       part1 = human_readable_type
       part1 = "Data Set" if part1 == "Work"
       "#{part1} | #{title.first} | ID: #{id} | #{I18n.t('hyrax.product_name')}"
+    end
+
+    def pending_publication?
+      workflow.state != 'deposited'
+    end
+
+    def published?
+      workflow.state == 'deposited' && solr_document.visibility == 'open'
     end
 
     def relative_url_root

@@ -459,6 +459,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     context "when the user has write access to the file" do
       before do
         allow(controller).to receive(:authorize!).with(:update, work).and_return(true)
+        allow(controller.current_ability).to receive(:can?).with(:edit, work.id).and_return(true)
       end
       context "when the work has no file sets" do
         it 'updates the work' do
@@ -470,6 +471,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
       context "when the work has file sets attached" do
         before do
           allow(work).to receive(:file_sets).and_return(double(present?: true))
+          allow(controller.current_ability).to receive(:can?).with(:edit, work.id).and_return(true)
         end
         it 'updates the work' do
           patch :update, params: { id: work, data_set: { title: ['First Title'] } }
@@ -494,6 +496,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
         context 'when the work has file sets attached' do
           before do
             allow(work).to receive(:file_sets).and_return(double(present?: true))
+            allow(controller.current_ability).to receive(:can?).with(:edit, work.id).and_return(true)
           end
           it 'prompts to change the files access' do
             patch :update, params: { id: work, data_set: { title: ['First Title'] } }
