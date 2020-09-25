@@ -53,12 +53,12 @@ module Hyrax
                                              "false if single_use_show?=#{single_use_show?}",
                                              "false if doi_minted?=#{doi_minted?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
-                                             "false if parent_doi_minted?=#{parent_doi_minted?}",
+                                             # "false if parent_doi_minted?=#{parent_doi_minted?}",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
       return false if single_use_show?
       return false if doi_minted?
       return true if current_ability.admin?
-      return false if parent_doi_minted?
+      # return false if parent_doi_minted?
       can_edit_file?
     end
 

@@ -120,8 +120,70 @@ module Hyrax
       "#{path}#{append}"
     end
 
+    # TODO: move to work_permissions_behavior
+    def editor?
+      return false if single_use_link?
+      current_ability.can?(:edit, curation_concern.id)
+    end
+
+    # TODO: move to work_permissions_behavior
+    def doi?
+      return false unless curation_concern.respond_to? :doi
+      curation_concern.doi.present?
+    end
+
+    # TODO: move to file_set_permissions_behavior
+    def parent_tombstoned?
+      return false unless curation_concern.parent.respond_to? :tombstone
+      curation_concern.parent.tombstone.present?
+    end
+
+    # TODO: move to file_set_permissions_behavior
+    def pending_publication?
+      curation_concern.parent.workflow_state != 'deposited'
+    end
+
+    # TODO: move to file_set_permissions_behavior
+    def published?
+      curation_concern.parent.workflow_state == 'deposited' && curation_concern.visibility == 'open'
+    end
+
+    def single_use_link?
+      params[:link_id].present?
+    end
+
+    def can_delete_file?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "false if single_use_link?=#{single_use_link?}",
+                                             "false if doi_minted?=#{doi?}",
+                                             "true if current_ability.admin?=#{current_ability.admin?}",
+                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      return false if single_use_link?
+      return false if doi?
+      return true if current_ability.admin?
+      can_edit_file?
+    end
+
+    def can_edit_file?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "false if single_use_link?=#{single_use_link?}",
+                                             "false if parent_tombstoned?=#{parent_tombstoned?}",
+                                             "true current_ability.admin?=#{current_ability.admin?}",
+                                             "true editor?=#{editor?}",
+                                             "and pending_publication?=#{pending_publication?}",
+                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      return false if single_use_link?
+      return false if parent_tombstoned?
+      return true if current_ability.admin?
+      return true if editor? && pending_publication?
+      false
+    end
+
     # GET /concern/file_sets/:id
     def edit
+      return redirect_to [main_app, curation_concern], notice: "You do not have sufficient privileges for this action." unless can_edit_file?
       initialize_edit_form
     end
 
@@ -137,6 +199,7 @@ module Hyrax
     # DELETE /concern/file_sets/:id
     def destroy
       parent = curation_concern.parent
+      return redirect_to [main_app, curation_concern], notice: "You do not have sufficient privileges for this action." unless can_delete_file?
       actor.destroy
       redirect_to [main_app, parent], notice: 'The file has been deleted.'
     end

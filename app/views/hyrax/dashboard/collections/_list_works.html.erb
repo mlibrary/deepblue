@@ -8,7 +8,7 @@
   <td>
     <div class='media'>
       <%= link_to [main_app, document], class: 'media-left', 'aria-hidden' => true do %>
-        <%= render_thumbnail_tag document, {class: 'hidden-xs file_listing_thumbnail'}, {suppress_link: true} %>
+        <%= render_thumbnail_tag document, { class: 'hidden-xs file_listing_thumbnail' }, { suppress_link: true } %>
       <% end %>
 
       <div class='media-body'>
@@ -21,7 +21,7 @@
             <%= document.title_or_label %>
           <% end %>
 
-          <br/>
+          <br />
           <%= render_collection_links(document) %>
 
         </div>
@@ -31,11 +31,13 @@
 
   <td class="date"><%= document.date_uploaded %></td>
   <td class='text-center'>
-    <span class="fa <%= current_user.trophies.where(work_id: document.id).exists? ? 'fa-star highlighted-work' : 'fa-star-o trophy-off' %>" aria-hidden="true"></span>
+    <span class="fa <%= current_user.trophies.where(work_id: document.id).exists? ? 'fa-star highlighted-work' : 'fa-star-o trophy-off' %>"
+          aria-hidden="true"></span>
   </td>
   <td><%= render_visibility_link document %></td>
 
   <td>
-    <%= render 'work_action_menu', document: document %>
+    <%= render 'work_action_menu', presenter: presenter, document: document %>
   </td>
+
 </tr>
