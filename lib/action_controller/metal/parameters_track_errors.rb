@@ -25,17 +25,64 @@ module ActionController
     end
 
     def permit(*filters)
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "" ] if PARAMETERS_TRACK_ERRORS_VERBOSE
       params = super( *filters )
+      # params = permit_monkey( *filters )
       params.errors = errors.dup
       return params
     end
 
+    def permit_monkey(*filters)
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "" ] if PARAMETERS_TRACK_ERRORS_VERBOSE
+      params = self.class.new
+
+      filters.flatten.each do |filter|
+        case filter
+        when Symbol, String
+          permitted_scalar_filter(params, filter)
+        when Hash
+          hash_filter(params, filter)
+        end
+      end
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "params.class.name=#{params.class.name}",
+                                             "params.keys=#{params.keys}",
+                                             "" ] if PARAMETERS_TRACK_ERRORS_VERBOSE
+
+      unpermitted_parameters!(params) if self.class.action_on_unpermitted_parameters
+
+      params.permit!
+    end
+
     def unpermitted_parameters!( params )
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "params=#{params}",
+                                             "" ] if PARAMETERS_TRACK_ERRORS_VERBOSE
       unpermitted_keys = unpermitted_keys( params )
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "unpermitted_keys=#{unpermitted_keys}",
+                                             "" ] if PARAMETERS_TRACK_ERRORS_VERBOSE
       if unpermitted_keys.any?
         @errors << "unpermitted_keys: #{unpermitted_keys}"
       end
       super( params )
+    end
+
+    def unpermitted_keys(params)
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "keys=#{keys}",
+                                             "keys=#{params.keys}",
+                                             "always_permitted_parameters=#{always_permitted_parameters}",
+                                             "" ] if PARAMETERS_TRACK_ERRORS_VERBOSE
+      keys - params.keys - always_permitted_parameters
     end
 
     private

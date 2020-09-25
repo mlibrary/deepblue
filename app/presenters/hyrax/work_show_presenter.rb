@@ -106,12 +106,16 @@ module Hyrax
                                              # "true if current_ability.admin?=#{current_ability.admin?}",
                                              "false if workflow.state != 'deposited'=#{workflow.state != 'deposited'}",
                                              "true if current_ability.can?( :transfer, id )=#{current_ability.can?( :transfer, id )}",
+                                             "current_ability.user.email=#{current_ability.user.email}",
+                                             "@curation_concern.depositor=#{@curation_concern.depositor}",
+                                             "true if current_ability.user.email == @curation_concern.depositor=#{current_ability.user.email == @curation_concern.depositor}",
                                              "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       return false if single_use_show?
       return false if tombstoned?
       # return true if current_ability.admin?
       return false if workflow.state != 'deposited'
       return true if current_ability.can?( :transfer, id ) # on the assumption that this indicates ownership
+      return true if current_ability.user.email == @curation_concern.depositor
       false
     end
 

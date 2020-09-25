@@ -534,6 +534,11 @@ module Deepblue
       end
     end
 
+    def update_allow_json?
+      return true if data_set_version?
+      return ::DeepBlueDocs::Application.config.rest_api_allow_mutate
+    end
+
     def update
       @curation_concern ||= ::Deepblue::WorkViewContentService.content_find_by_id( id: params[:id] )
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
@@ -551,9 +556,12 @@ module Deepblue
           end
         end
         wants.json do
-          unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
+          unless update_allow_json?
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
+          ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                                 Deepblue::LoggingHelper.called_from,
+                                                 "" ] if true || WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
           had_error = upate_rest
           if had_error
             if curation_concern.present?
@@ -621,6 +629,12 @@ module Deepblue
       attributes
     end
 
+    def data_set_version?
+      return false unless params[:data_set].present?
+      return true if params[:data_set][:version].present?
+      return false
+    end
+
     def actor_environment
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
@@ -628,7 +642,9 @@ module Deepblue
                                              "params[:action]=#{params[:action]}",
                                              "params[:format]=#{params[:format]}",
                                              "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
-      attrs_for_actor = if 'json' == params[:format]
+      attrs_for_actor = if data_set_version?
+                          attributes_for_actor
+                        elsif 'json' == params[:format]
                           attributes_for_actor_json
                         else
                           attributes_for_actor
