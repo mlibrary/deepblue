@@ -22,6 +22,7 @@ module Hyrax
 
     attr_accessor :cc_single_use_link
     attr_accessor :cc_parent_single_use_link
+    attr_accessor :parent_presenter
 
     def initialize( solr_document, current_ability, request = nil )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -34,7 +35,8 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "parent.class.name=#{parent.class.name}",
-                                             "parent.read_me_file_set_id=#{parent.read_me_file_set_id}",
+                                             "parent.id=#{parent.id}",
+                                             "Array( parent.read_me_file_set_id ).first=#{Array( parent.read_me_file_set_id ).first}",
                                              "id=#{id}",
                                              "false if Array( parent.read_me_file_set_id ).first == id=#{Array( parent.read_me_file_set_id ).first == id}",
                                              "false unless not right mime_type=#{::DeepBlueDocs::Application.config.read_me_file_set_view_mime_types.include? mime_type}",
@@ -346,6 +348,26 @@ module Hyrax
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
       suppress_link = !member.can_download_file? || member.single_use_show?
       { suppress_link: suppress_link }
+    end
+
+    def parent
+      parent_presenter
+    end
+
+    def parent_presenter
+      @parent_presenter ||= fetch_parent_presenter
+    end
+
+    def fetch_parent_presenter
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      ids = ActiveFedora::SolrService.query("{!field f=member_ids_ssim}#{id}",
+                                            fl: ActiveFedora.id_field)
+                .map { |x| x.fetch(ActiveFedora.id_field) }
+      Hyrax::PresenterFactory.build_for(ids: ids,
+                                        presenter_class: WorkShowPresenter,
+                                        presenter_args: current_ability).first
     end
 
     def parent_data_set

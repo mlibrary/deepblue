@@ -323,7 +323,7 @@ module Hyrax
     def member_presenters_init( ids = member_presenter_factory.ordered_ids,
                                 presenter_class = member_presenter_factory.composite_presenter_class )
       # replace direct reference to member_presenter_factory.member_presenters with the following initialization
-      # that transfers the single use flag to all member presenters
+      # that transfers the single use flag to all member presenters, as well as the parent_presenter
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "ids=#{ids}",
@@ -335,13 +335,20 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "presenters.size=#{presenters.size}",
                                              "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
-      return presenters if cc_single_use_link.blank?
+      # return presenters if cc_single_use_link.blank?
       presenters.each do |member_presenter|
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "member_presenter.class.name=#{member_presenter.class.name}",
                                                "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
-        if member_presenter.respond_to? :cc_parent_single_use_link
+        if member_presenter.respond_to? :parent_presenter
+          member_presenter.parent_presenter = self
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "member_presenter.parent_presenter.id=#{member_presenter.parent_presenter.id}",
+                                                 "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+        end
+        if cc_single_use_link.present? && member_presenter.respond_to?( :cc_parent_single_use_link )
           member_presenter.cc_parent_single_use_link = cc_single_use_link
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,

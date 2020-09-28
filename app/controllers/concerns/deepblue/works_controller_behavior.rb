@@ -15,7 +15,7 @@ module Deepblue
     include Deepblue::SingleUseLinkControllerBehavior
     include Deepblue::IngestAppendScriptControllerBehavior
 
-    WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE = true || ::DeepBlueDocs::Application.config.works_controller_behavior_debug_verbose
+    WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.works_controller_behavior_debug_verbose
 
     class_methods do
       def curation_concern_type=(curation_concern_type)
@@ -561,7 +561,7 @@ module Deepblue
           end
           ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                  Deepblue::LoggingHelper.called_from,
-                                                 "" ] if true || WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                                 "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
           had_error = upate_rest
           if had_error
             if curation_concern.present?
