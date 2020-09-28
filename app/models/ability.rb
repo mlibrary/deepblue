@@ -10,8 +10,9 @@ class Ability
   def deepblue_abilities
     can [:doi], ActiveFedora::Base
 
-    alias_action :file_contents,             to: :read
+    alias_action :create_single_use_link,    to: :update
     alias_action :display_provenance_log,    to: :read
+    alias_action :file_contents,             to: :read
     alias_action :globus_clean_download,     to: :delete
     alias_action :globus_download,           to: :read
     alias_action :globus_add_email,          to: :read
