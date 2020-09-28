@@ -119,8 +119,17 @@ module Hyrax
     end
 
     def provenance_log_entries?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if DATA_SET_PRESENTER_DEBUG_VERBOSE
       file_path = ::Deepblue::ProvenancePath.path_for_reference( id )
-      File.exist? file_path
+      rv = File.exist?( file_path )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "file_path=#{file_path}",
+                                             "rv=#{rv}",
+                                             "" ] if DATA_SET_PRESENTER_DEBUG_VERBOSE
+      return rv
     end
 
     # end display_provenance_log

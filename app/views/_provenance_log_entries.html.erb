@@ -1,3 +1,9 @@
+<%# ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                          ::Deepblue::LoggingHelper.called_from,
+                                          "@presenter.class.name=#{@presenter.class.name}",
+                                          "@presenter.present?=#{@presenter.present?}",
+                                          "@presenter.can_display_provenance_log?=#{@presenter.can_display_provenance_log?}",
+                                          "" ] %>
 <% if @presenter.present? && @presenter.can_display_provenance_log? %>
   <div class="panel panel-default panel-items panel-provenance-log-entries">
     <% if @presenter.provenance_log_entries? %>

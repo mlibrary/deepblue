@@ -124,7 +124,15 @@ module Hyrax
     attr_accessor :read_me_file_set
 
     def can_display_provenance_log?
-      # TODO:
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "false unless display_provenance_log_enabled?=#{display_provenance_log_enabled?}",
+                                             "false if single_use_link_request?=#{single_use_link_request?}",
+                                             "true if current_ability.admin?=#{current_ability.admin?}",
+                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+      return false unless display_provenance_log_enabled?
+      return false if single_use_link_request?
+      current_ability.admin?
     end
 
     def can_display_read_me?
