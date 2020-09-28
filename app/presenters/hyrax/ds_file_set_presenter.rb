@@ -39,13 +39,13 @@ module Hyrax
                                              "Array( parent.read_me_file_set_id ).first=#{Array( parent.read_me_file_set_id ).first}",
                                              "id=#{id}",
                                              "false if Array( parent.read_me_file_set_id ).first == id=#{Array( parent.read_me_file_set_id ).first == id}",
-                                             "false unless not right mime_type=#{::DeepBlueDocs::Application.config.read_me_file_set_view_mime_types.include? mime_type}",
-                                             "false if too big=#{file_size > ::DeepBlueDocs::Application.config.read_me_file_set_view_max_size}",
+                                             "false unless not right mime_type=#{::Deepblue::FileContentHelper.read_me_file_set_view_mime_types.include? mime_type}",
+                                             "false if too big=#{file_size > ::Deepblue::FileContentHelper.read_me_file_set_view_max_size}",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
-      return false unless ::DeepBlueDocs::Application.config.read_me_file_set_enabled
+      return false unless ::Deepblue::FileContentHelper.read_me_file_set_enabled
       return false if Array( parent.read_me_file_set_id ).first == id
-      return false unless ::DeepBlueDocs::Application.config.read_me_file_set_view_mime_types.include? mime_type
-      return false if file_size > ::DeepBlueDocs::Application.config.read_me_file_set_view_max_size
+      return false unless ::Deepblue::FileContentHelper.read_me_file_set_view_mime_types.include? mime_type
+      return false if file_size > ::Deepblue::FileContentHelper.read_me_file_set_view_max_size
       return can_edit_file?
     end
 

@@ -4,7 +4,27 @@ module Deepblue
 
   module FileContentHelper
 
-    FILE_CONTENT_HELPER_DEBUG_VERBOSE = true || ::DeepBlueDocs::Application.config.file_content_helper_debug_verbose
+    @@_setup_ran = false
+
+    def self.setup
+      yield self if @@_setup_ran == false
+      @@_setup_ran = true
+    end
+
+    @@file_content_helper_debug_verbose = false
+    @@read_me_file_set_enabled = true
+    @@read_me_file_set_auto_read_me_attach = true
+    @@read_me_file_set_file_name_regexp = /read[_ ]?me/i
+    @@read_me_file_set_view_max_size = 500.kilobytes
+    @@read_me_file_set_view_mime_types = [ "text/plain" ].freeze
+
+    mattr_accessor  :file_content_helper_debug_verbose,
+                    :read_me_file_set_enabled,
+                    :read_me_file_set_auto_read_me_attach,
+                    :read_me_file_set_file_name_regexp,
+                    :read_me_file_set_view_max_size,
+                    :read_me_file_set_view_mime_types
+
 
     def self.t( key, **options )
       I18n.t( key, options )
@@ -14,27 +34,39 @@ module Deepblue
       I18n.translate( key, options )
     end
 
+    def self.can_assign_as_read_me?( id1:, id2:, file_size: )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "false unless not right mime_type=#{read_me_file_set_view_mime_types.include? mime_type}",
+                                             "false if too big=#{file_size > read_me_file_set_view_max_size}",
+                                             "" ] if file_content_helper_debug_verbose
+      return false unless read_me_file_set_enabled
+      return false unless read_me_file_set_view_mime_types.include? mime_type
+      return false if file_size > read_me_file_set_view_max_size
+      return can_edit_file?
+    end
+
     def self.find_read_me_file_set( work:, raise_error: false )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "work.id=#{work.id}",
                                              "work.read_me_file_set_id=#{work.read_me_file_set_id}",
-                                             "" ] if FILE_CONTENT_HELPER_DEBUG_VERBOSE
-      regexp = ::DeepBlueDocs::Application.config.read_me_file_set_file_name_regexp
+                                             "" ] if file_content_helper_debug_verbose
+      regexp = read_me_file_set_file_name_regexp
       candidates = work.file_sets.select do |fs|
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
         #                                        ::Deepblue::LoggingHelper.called_from,
         #                                        "fs.mime_type=#{File.basename( fs.mime_type )}",
         #                                        "fs.original_file.size=#{fs.original_file.size}",
         #                                        "File.basename( fs.label )=#{File.basename( fs.label )}",
-        #                                        "" ] if FILE_CONTENT_HELPER_DEBUG_VERBOSE
-        if ::DeepBlueDocs::Application.config.read_me_file_set_view_mime_types.include? fs.mime_type
-          if fs.original_file.size <= ::DeepBlueDocs::Application.config.read_me_file_set_view_max_size
+        #                                        "" ] if file_content_helper_debug_verbose
+        if read_me_file_set_view_mime_types.include? fs.mime_type
+          if fs.original_file.size <= read_me_file_set_view_max_size
             rv = File.basename( fs.label ) =~ regexp
             ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                    ::Deepblue::LoggingHelper.called_from,
                                                    "File.basename( fs.label )=#{File.basename( fs.label )}",
-                                                   "" ] if rv && FILE_CONTENT_HELPER_DEBUG_VERBOSE
+                                                   "" ] if rv && file_content_helper_debug_verbose
             rv
           else
             false
@@ -52,7 +84,7 @@ module Deepblue
     end
 
     def self.find_read_me_file_set_if_necessary( work:, raise_error: false )
-      return unless ::DeepBlueDocs::Application.config.read_me_file_set_auto_read_me_attach
+      return unless read_me_file_set_auto_read_me_attach
       return if work.read_me_file_set_id.present?
       fs = find_read_me_file_set( work: work, raise_error: raise_error )
       return if fs.blank?
@@ -67,7 +99,7 @@ module Deepblue
                                              "format=#{format}",
                                              "path=#{path}",
                                              "options=#{options}",
-                                             "" ] if FILE_CONTENT_HELPER_DEBUG_VERBOSE
+                                             "" ] if file_content_helper_debug_verbose
       file_set = FileSet.find id
       source_uri = nil
       file = file_set.files_to_file
@@ -78,7 +110,7 @@ module Deepblue
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "source_uri=#{source_uri}",
-                                               "" ] if FILE_CONTENT_HELPER_DEBUG_VERBOSE
+                                               "" ] if file_content_helper_debug_verbose
 
         case file_set.mime_type
         when "text/html"
@@ -107,7 +139,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "file_set=#{file_set.id}",
-                                             "" ] if FILE_CONTENT_HELPER_DEBUG_VERBOSE
+                                             "" ] if file_content_helper_debug_verbose
       file = file_set.files_to_file
       if file.nil?
         return nil
@@ -116,7 +148,7 @@ module Deepblue
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "source_uri=#{source_uri}",
-                                               "" ] if FILE_CONTENT_HELPER_DEBUG_VERBOSE
+                                               "" ] if file_content_helper_debug_verbose
         str = open( source_uri, "r" ) { |io| io.read }
         # str = open( source_uri, "r" ) { |io| io.read.encode( "UTF-8",
         #                                                      invalid: :replace,
@@ -125,7 +157,7 @@ module Deepblue
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "str.encoding=#{str.encoding}",
-                                               "" ] if FILE_CONTENT_HELPER_DEBUG_VERBOSE
+                                               "" ] if file_content_helper_debug_verbose
         case str.encoding.name
         when 'UTF-8'
           # do nothing
@@ -143,13 +175,13 @@ module Deepblue
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "Unspecified encoding '#{str.encoding}' trying generic conversion to UTF-8",
-                                                 "" ] if FILE_CONTENT_HELPER_DEBUG_VERBOSE
+                                                 "" ] if file_content_helper_debug_verbose
           str = str.encode( 'UTF-8', invalid: :replace, undef: :replace )
         end
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "str.encoding=#{str.encoding}",
-                                               "" ] if FILE_CONTENT_HELPER_DEBUG_VERBOSE
+                                               "" ] if file_content_helper_debug_verbose
         return str
       end
       return nil
@@ -163,7 +195,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "uri=#{uri}",
-                                             "" ] if FILE_CONTENT_HELPER_DEBUG_VERBOSE
+                                             "" ] if file_content_helper_debug_verbose
       text = open( uri, "r:UTF-8" ) { |io| io.read }
       return text
     end
@@ -173,11 +205,11 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "work.id=#{work.id}",
                                              "work.read_me_file_set_id=#{work.read_me_file_set_id}",
-                                             "" ] if FILE_CONTENT_HELPER_DEBUG_VERBOSE
+                                             "" ] if file_content_helper_debug_verbose
       id = work.read_me_file_set_id
       if id.present?
         FileSet.find id
-      elsif ::DeepBlueDocs::Application.config.read_me_file_set_auto_read_me_attach
+      elsif read_me_file_set_auto_read_me_attach
         fs = find_read_me_file_set( work: work, raise_error: raise_error )
         return nil if fs.blank?
         work.read_me_file_set_id = fs.id
