@@ -93,6 +93,12 @@ module Hyrax
     end
 
     def can_display_provenance_log?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "false unless display_provenance_log_enabled?=#{display_provenance_log_enabled?}",
+                                             "false if single_use_show?=#{single_use_show?}",
+                                             "true if current_ability.admin?=#{current_ability.admin?}",
+                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       return false unless display_provenance_log_enabled?
       return false if single_use_show?
       current_ability.admin?
