@@ -40,7 +40,7 @@ module Umrdr
                                              "id=#{id}",
                                              "read_me_file_set_id=#{read_me_file_set_id}",
                                              "file_set.id=#{file_set.id}",
-                                             "" ] if true || UMRDR_WORK_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if UMRDR_WORK_BEHAVIOR_DEBUG_VERBOSE
       return unless Array( read_me_file_set_id ).first == file_set.id
       self[:read_me_file_set_id] = nil
       save!
@@ -52,7 +52,7 @@ module Umrdr
                                              "id=#{id}",
                                              "read_me_file_set_id=#{read_me_file_set_id}",
                                              "file_set.id=#{file_set.id}",
-                                             "" ] if true || UMRDR_WORK_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if UMRDR_WORK_BEHAVIOR_DEBUG_VERBOSE
       return if Array( read_me_file_set_id ).first == file_set.id
       self[:read_me_file_set_id] = file_set.id
       save!
