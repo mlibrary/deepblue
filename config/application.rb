@@ -53,12 +53,12 @@ module DeepBlueDocs
     config.data_set_presenter_debug_verbose = false
     config.data_sets_controller_debug_verbose = false
     config.deep_blue_presenter_debug_verbose = false
-    # config.doi_minting_service_debug_verbose -- see config/integration/doi_minting_service_integration
+    # config.doi_minting_service_debug_verbose -- see config/integration/doi_minting_service_integration.rb
     config.downloads_controller_debug_verbose = false
     config.ds_file_set_presenter_debug_verbose = false
     # config.email_debug_verbose -- see configure email below
     config.email_behavior_debug_verbose = false
-    config.file_content_helper_debug_verbose = false
+    # config.file_content_helper_debug_verbose -- see config/integration/file_content_integration.rb
     config.file_set_derivatives_service_debug_verbose = false
     config.file_sets_controller_debug_verbose = false
     config.hydra_derivatives_processors_document_debug_verbose = false
@@ -230,13 +230,6 @@ module DeepBlueDocs
     config.file_sets_contents_view_allow = true
     config.file_sets_contents_view_max_size = 500.kilobytes
     config.file_sets_contents_view_mime_types = [ "text/html", "text/plain", "text/x-yaml", "text/xml" ].freeze
-
-    # read_me file set config
-    config.read_me_file_set_enabled = true
-    config.read_me_file_set_auto_read_me_attach = true
-    config.read_me_file_set_file_name_regexp = /read[_ ]?me/i
-    config.read_me_file_set_view_max_size = 500.kilobytes
-    config.read_me_file_set_view_mime_types = [ "text/plain" ].freeze
 
     # provenance log config
     config.provenance_log_name = "provenance_#{Rails.env}.log"
