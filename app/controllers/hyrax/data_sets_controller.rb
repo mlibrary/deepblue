@@ -169,6 +169,18 @@ module Hyrax
       ::Deepblue::FileContentHelper.read_file( file_set: read_me_file_set )
     end
 
+    def read_me_text_html
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "@curation_concern.id=#{@curation_concern.id}",
+                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+      ::Deepblue::FileContentHelper.read_file_as_html( file_set: read_me_file_set )
+    end
+
+    def read_me_text_is_html?
+      ::Deepblue::FileContentHelper.read_me_is_html?( file_set: read_me_file_set )
+    end
+
     def read_me_text_simple_format( html_options = {}, options = {} )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

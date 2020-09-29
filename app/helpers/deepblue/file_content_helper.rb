@@ -17,13 +17,15 @@ module Deepblue
     @@read_me_file_set_file_name_regexp = /read[_ ]?me/i
     @@read_me_file_set_view_max_size = 500.kilobytes
     @@read_me_file_set_view_mime_types = [ "text/plain" ].freeze
+    @@read_me_file_set_ext_as_html = [ ".md" ].freeze
 
     mattr_accessor  :file_content_helper_debug_verbose,
                     :read_me_file_set_enabled,
                     :read_me_file_set_auto_read_me_attach,
                     :read_me_file_set_file_name_regexp,
                     :read_me_file_set_view_max_size,
-                    :read_me_file_set_view_mime_types
+                    :read_me_file_set_view_mime_types,
+                    :read_me_file_set_ext_as_html
 
 
     def self.t( key, **options )
@@ -191,6 +193,11 @@ module Deepblue
       return nil
     end
 
+    def self.read_file_as_html( file_set: )
+      text = read_file( file_set: file_set )
+      ::Deepblue::MarkdownService.markdown text
+    end
+
     def self.read_from( uri: )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -198,6 +205,12 @@ module Deepblue
                                              "" ] if file_content_helper_debug_verbose
       text = open( uri, "r:UTF-8" ) { |io| io.read }
       return text
+    end
+
+    def self.read_me_is_html?( file_set: )
+      return false unless file_set.present?
+      ext = File.extname file_set.label
+      [ ".md" ].include? ext.downcase
     end
 
     def self.read_me_file_set( work:, raise_error: false )

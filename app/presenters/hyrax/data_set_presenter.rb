@@ -53,7 +53,9 @@ module Hyrax
                   :ingest_use_defaults,
                   :is_tabbed?,
                   :params,
+                  :read_me_text_is_html?,
                   :read_me_text,
+                  :read_me_text_html,
                   :read_me_text_simple_format,
                   :tombstone_permissions_hack?, to: :controller
 
