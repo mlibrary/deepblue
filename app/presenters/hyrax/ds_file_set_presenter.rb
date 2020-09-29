@@ -165,16 +165,18 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false if parent.tombstone.present?=#{parent.tombstone.present?}",
-                                             "false if parent.embargoed?=#{parent.embargoed?}",
                                              "true if single_use_show?=#{single_use_show?}",
+                                             "true if current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
                                              "true if published?=#{published?}",
-                                             "current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
+                                             "false if parent.embargoed?=#{parent.embargoed?}",
+                                             "else false",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
       return false if parent.tombstone.present?
-      return false if parent.embargoed?
       return true if single_use_show?
+      return true if current_ability.can?( :edit, id )
       return true if published?
-      current_ability.can?( :edit, id )
+      return false if parent.embargoed?
+      false
     end
 
     def curation_notes_admin
@@ -391,6 +393,11 @@ module Hyrax
     end
 
     def published?
+      # ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "parent.workflow.state=#{parent.workflow.state}",
+      #                                        "solr_document.visibility=#{solr_document.visibility}",
+      #                                        "" ] DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
       parent.workflow.state == 'deposited' && solr_document.visibility == 'open'
     end
 

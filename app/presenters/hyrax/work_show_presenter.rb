@@ -150,11 +150,14 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false if zip_download_enabled?=#{zip_download_enabled?}",
-                                             "true if current_ability.admin?=#{current_ability.admin?}",
+                                             "true if single_use_show?=#{single_use_show?}",
+                                             "true if can_edit_work?=#{can_edit_work?}",
                                              "false if embargoed?=#{embargoed?}",
+                                             "else true",
                                              "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       return false unless zip_download_enabled?
-      return true if current_ability.admin?
+      return true if single_use_show?
+      return true if can_edit_work?
       return false if embargoed?
       true
     end
@@ -374,6 +377,11 @@ module Hyrax
     end
 
     def published?
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "workflow.state=#{workflow.state}",
+      #                                        "solr_document.visibility=#{solr_document.visibility}",
+      #                                        "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       workflow.state == 'deposited' && solr_document.visibility == 'open'
     end
 

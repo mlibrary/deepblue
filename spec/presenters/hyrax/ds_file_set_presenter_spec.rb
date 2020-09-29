@@ -5,6 +5,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
   let(:solr_document) { SolrDocument.new(attributes) }
   let(:ability) { Ability.new(user) }
   let(:attributes) { file.to_solr }
+  let(:debug_verbose) {false}
 
   let(:file) do
     build( :file_set,
@@ -285,6 +286,8 @@ RSpec.describe Hyrax::DsFileSetPresenter do
         expect( workflow ).to receive( :state ).at_least(:once).and_return "pending_review"
         expect( parent_presenter ).to receive( :workflow ).at_least(:once).and_return workflow
         expect( current_ability ).to receive( :can? ).at_least(:once).with( :edit, presenter.id ).and_return false
+        allow( solr_document ).to receive( :visibility ).and_return 'open'
+        puts 'cannot when pending and visible and can not edit' if debug_verbose
       end
       it { is_expected.to be false }
     end
@@ -292,11 +295,38 @@ RSpec.describe Hyrax::DsFileSetPresenter do
       before do
         expect( parent_presenter ).to receive( :tombstone ).at_least(:once).and_return nil
         expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
-        expect( workflow ).to receive( :state ).at_least(:once).and_return "pending_review"
-        expect( parent_presenter ).to receive( :workflow ).at_least(:once).and_return workflow
+        allow( workflow ).to receive( :state ).and_return "pending_review"
+        allow( parent_presenter ).to receive( :workflow ).and_return workflow
         expect( current_ability ).to receive( :can? ).at_least(:once).with( :edit, presenter.id ).and_return true
+        allow( parent_presenter ).to receive( :embargoed? ).and_return false
+        puts 'can when pending and visible and can edit' if debug_verbose
       end
       it { is_expected.to be true }
+    end
+    context 'can when embargoed and can edit' do
+      before do
+        expect( parent_presenter ).to receive( :tombstone ).at_least(:once).and_return nil
+        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
+        allow( workflow ).to receive( :state ).and_return "pending_review"
+        allow( parent_presenter ).to receive( :workflow ).and_return workflow
+        expect( current_ability ).to receive( :can? ).at_least(:once).with( :edit, presenter.id ).and_return true
+        allow( parent_presenter ).to receive( :embargoed? ).and_return true
+        # TODO: expect( parent_presenter ).to receive( :embargoed? ).at_least(:once).and_return true
+        puts 'can when embargoed and can edit' if debug_verbose
+      end
+      it { is_expected.to be true }
+    end
+    context 'cannot when embargoed and can not edit' do
+      before do
+        expect( parent_presenter ).to receive( :tombstone ).at_least(:once).and_return nil
+        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
+        expect( workflow ).to receive( :state ).at_least(:once).and_return "pending_review"
+        expect( parent_presenter ).to receive( :workflow ).at_least(:once).and_return workflow
+        expect( current_ability ).to receive( :can? ).at_least(:once).with( :edit, presenter.id ).and_return false
+        expect( parent_presenter ).to receive( :embargoed? ).at_least(:once).and_return true
+        puts 'cannot when embargoed and can not edit' if debug_verbose
+      end
+      it { is_expected.to be false }
     end
     context 'can when deposited and visible' do
       before do
@@ -304,7 +334,9 @@ RSpec.describe Hyrax::DsFileSetPresenter do
         expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
         expect( workflow ).to receive( :state ).at_least(:once).and_return "deposited"
         expect( parent_presenter ).to receive( :workflow ).at_least(:once).and_return workflow
-        expect( solr_document ).to receive( :visibility ).at_least(:once).and_return Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
+        expect( current_ability ).to receive( :can? ).at_least(:once).with( :edit, presenter.id ).and_return false
+        expect( solr_document ).to receive( :visibility ).at_least(:once).and_return 'open'
+        puts 'can when deposited and visible' if debug_verbose
       end
       it { is_expected.to be true }
     end

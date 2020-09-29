@@ -9,20 +9,16 @@
       </div>
       <div class="panel-body">
         <% if Hyrax.config.download_files %>
-          <% admin_or_not_embargo = ( @presenter.current_ability.admin? || !@presenter.embargoed? ) %>
-          <% if @presenter.zip_download_enabled? && admin_or_not_embargo %>
-            <%#= form_tag( main_app.zip_download_hyrax_data_set_path( @presenter.id ), method: 'post' ) do %>
+          <% if @presenter.can_download_zip_maybe? %>
             <% ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
                                                      ::Deepblue::LoggingHelper.called_from,
                                                      "@presenter.class.name=#{@presenter.class.name}",
                                                      "@presenter&.id=#{@presenter&.id}",
                                                      ""] if show_actions_DEBUG_VERBOSE %>
-            <%# zip_download_url = @presenter.zip_download_hyrax_data_set_path( curation_concern ) %>
             <% zip_download_url = @presenter.zip_download_link( curation_concern )
 
                ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
                                                      ::Deepblue::LoggingHelper.called_from,
-                                                     # "@presenter.zip_download_link( nil )=#{@presenter.zip_download_link( nil )}",
                                                      "zip_download_url=#{zip_download_url}",
                                                      "" ] if show_actions_DEBUG_VERBOSE
 

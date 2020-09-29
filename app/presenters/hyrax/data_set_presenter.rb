@@ -57,7 +57,8 @@ module Hyrax
                   :read_me_text,
                   :read_me_text_html,
                   :read_me_text_simple_format,
-                  :tombstone_permissions_hack?, to: :controller
+                  :tombstone_permissions_hack?,
+                  :zip_download_enabled?, to: :controller
 
     # def initialize( solr_document, current_ability, request = nil )
     #   ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
@@ -218,14 +219,6 @@ module Hyrax
     def total_file_size_human_readable
       human_readable( total_file_size )
     end
-
-    # begin zip download
-
-    def zip_download_enabled?
-      true
-    end
-
-    # end zip download
 
   end
 
