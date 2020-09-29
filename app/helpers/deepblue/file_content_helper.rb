@@ -16,7 +16,7 @@ module Deepblue
     @@read_me_file_set_auto_read_me_attach = true
     @@read_me_file_set_file_name_regexp = /read[_ ]?me/i
     @@read_me_file_set_view_max_size = 500.kilobytes
-    @@read_me_file_set_view_mime_types = [ "text/plain" ].freeze
+    @@read_me_file_set_view_mime_types = [ "text/plain", "text/markdown" ].freeze
     @@read_me_file_set_ext_as_html = [ ".md" ].freeze
 
     mattr_accessor  :file_content_helper_debug_verbose,
@@ -46,6 +46,26 @@ module Deepblue
       return false unless read_me_file_set_view_mime_types.include? mime_type
       return false if file_size > read_me_file_set_view_max_size
       return can_edit_file?
+    end
+
+    def self.downgrade_html_headers!( html_text: )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "html_text=#{html_text}",
+                                             "" ] if file_content_helper_debug_verbose
+      html_text.gsub!(/<h6( [^<>]*)?>/, '<em>')
+      html_text.gsub!(/<\/h6( [^<>]*)?>/, '</em><br />')
+      html_text.gsub!(/<h5( [^<>]*)?>/, '<h6>')
+      html_text.gsub!(/<\/h5( [^<>]*)?>/, '</h6>')
+      html_text.gsub!(/<h4( [^<>]*)?>/, '<h5>')
+      html_text.gsub!(/<\/h4( [^<>]*)?>/, '</h5>')
+      html_text.gsub!(/<h3( [^<>]*)?>/, '<h4>')
+      html_text.gsub!(/<\/h3( [^<>]*)?>/, '</h4>')
+      html_text.gsub!(/<h2( [^<>]*)?>/, '<h3>')
+      html_text.gsub!(/<\/h2( [^<>]*)?>/, '</h3>')
+      html_text.gsub!(/<h1( [^<>]*)?>/, '<h2>')
+      html_text.gsub!(/<\/h1( [^<>]*)?>/, '</h2>')
+      html_text
     end
 
     def self.find_read_me_file_set( work:, raise_error: false )
@@ -92,49 +112,6 @@ module Deepblue
       return if fs.blank?
       work.read_me_file_set_id = fs.id
       work.save!
-    end
-
-    def self.send_file( id:, format: nil, path:, options: {} )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "id=#{id}",
-                                             "format=#{format}",
-                                             "path=#{path}",
-                                             "options=#{options}",
-                                             "" ] if file_content_helper_debug_verbose
-      file_set = FileSet.find id
-      source_uri = nil
-      file = file_set.files_to_file
-      if file.nil?
-        file_content_send_msg "file_set.id #{file_set.id} files_to_file returned nil"
-      else
-        source_uri = file.uri.value
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "source_uri=#{source_uri}",
-                                               "" ] if file_content_helper_debug_verbose
-
-        case file_set.mime_type
-        when "text/html"
-          send_data read_from( uri: source_uri ), disposition: 'inline', type: file_set.mime_type
-          # send_data open( source_uri, "r:UTF-8" ) { |io| io.read }, disposition: 'inline', type: file_set.mime_type
-        when "text/plain"
-          if format == "html"
-            send_data read_from( uri: source_uri ), disposition: 'inline', type: "text/html"
-            # send_data open( source_uri, "r:UTF-8" ) { |io| io.read }, disposition: 'inline', type: "text/html"
-          else
-            send_data read_from( uri: source_uri ), disposition: 'inline', type: file_set.mime_type
-            # send_data open( source_uri, "r:UTF-8" ) { |io| io.read }, disposition: 'inline', type: file_set.mime_type
-          end
-        when /^image\//
-          send_data open( source_uri, "rb" ) { |io| io.read }, disposition: 'inline', type: file_set.mime_type
-        else
-          file_content_send_msg "Unhandled mime type for file_set.id #{file_set.id} #{file_set.mime_type}"
-        end
-      end
-    rescue Exception => e # rubocop:disable Lint/RescueException
-      msg = "FileContentHelpoer.read_file #{source_uri} - #{e.class}: #{e.message} at #{e.backtrace[0..19].join("\n")}"
-      Rails.logger.error msg
     end
 
     def self.read_file( file_set: )
@@ -194,8 +171,18 @@ module Deepblue
     end
 
     def self.read_file_as_html( file_set: )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "file_set.id=#{file_set.id}",
+                                             "" ] if file_content_helper_debug_verbose
       text = read_file( file_set: file_set )
-      ::Deepblue::MarkdownService.markdown text
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "text=#{text}",
+      #                                        "" ] if file_content_helper_debug_verbose
+      return text if text.blank?
+      html_text = ::Deepblue::MarkdownService.markdown text
+      downgrade_html_headers! html_text: html_text
     end
 
     def self.read_from( uri: )
@@ -232,6 +219,49 @@ module Deepblue
       else
         nil
       end
+    end
+
+    def self.send_file( id:, format: nil, path:, options: {} )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "format=#{format}",
+                                             "path=#{path}",
+                                             "options=#{options}",
+                                             "" ] if file_content_helper_debug_verbose
+      file_set = FileSet.find id
+      source_uri = nil
+      file = file_set.files_to_file
+      if file.nil?
+        file_content_send_msg "file_set.id #{file_set.id} files_to_file returned nil"
+      else
+        source_uri = file.uri.value
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "source_uri=#{source_uri}",
+                                               "" ] if file_content_helper_debug_verbose
+
+        case file_set.mime_type
+        when "text/html"
+          send_data read_from( uri: source_uri ), disposition: 'inline', type: file_set.mime_type
+          # send_data open( source_uri, "r:UTF-8" ) { |io| io.read }, disposition: 'inline', type: file_set.mime_type
+        when "text/plain"
+          if format == "html"
+            send_data read_from( uri: source_uri ), disposition: 'inline', type: "text/html"
+            # send_data open( source_uri, "r:UTF-8" ) { |io| io.read }, disposition: 'inline', type: "text/html"
+          else
+            send_data read_from( uri: source_uri ), disposition: 'inline', type: file_set.mime_type
+            # send_data open( source_uri, "r:UTF-8" ) { |io| io.read }, disposition: 'inline', type: file_set.mime_type
+          end
+        when /^image\//
+          send_data open( source_uri, "rb" ) { |io| io.read }, disposition: 'inline', type: file_set.mime_type
+        else
+          file_content_send_msg "Unhandled mime type for file_set.id #{file_set.id} #{file_set.mime_type}"
+        end
+      end
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      msg = "FileContentHelpoer.read_file #{source_uri} - #{e.class}: #{e.message} at #{e.backtrace[0..19].join("\n")}"
+      Rails.logger.error msg
     end
 
   end
