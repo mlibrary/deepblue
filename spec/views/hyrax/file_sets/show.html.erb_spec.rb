@@ -1,8 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe 'hyrax/file_sets/show.html.erb', type: :view do
+
+  include Devise::Test::ControllerHelpers
+
   let(:user) { double(user_key: 'sarah', twitter_handle: 'test') }
-  let(:ability) { double }
+  let(:ability) { double( "ability" ) }
   let(:doc) do
     {
       "has_model_ssim" => ["FileSet"],
@@ -39,6 +42,8 @@ RSpec.describe 'hyrax/file_sets/show.html.erb', type: :view do
     allow(ability).to receive(:can?).with(:edit, SolrDocument).and_return(false)
     allow(view).to receive(:can?).with(:edit, "123").and_return(false)
     allow(ability).to receive(:can?).with(:edit, "123").and_return(false)
+    allow(ability).to receive(:can?).with(:download, "123").and_return(false)
+    allow(ability).to receive(:admin?).and_return(false)
     # TODO - allow(presenter).to receive(:fixity_status).and_return(mock_metadata)
     assign(:presenter, presenter)
     assign(:document, solr_doc)
@@ -47,6 +52,7 @@ RSpec.describe 'hyrax/file_sets/show.html.erb', type: :view do
 
   describe 'title heading' do
     before do
+      stub_template 'hyrax/base/_modal_mint_doi' => 'Modal Mint'
       stub_template 'shared/_title_bar.html.erb' => 'Title Bar'
       stub_template 'shared/_citations.html.erb' => 'Citation'
       render

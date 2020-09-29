@@ -61,7 +61,7 @@
       <li>
         <%= link_to t('.view_details'), member.show_path_link, method: :get %>
       </li>
-    <% elsif member.can_view_file? && member.single_use_show? %>
+    <% elsif member.can_view_file? || member.single_use_show? %>
       <li>
         <%= link_to t('.view_details'), member.show_path_link, method: :get %>
       </li>

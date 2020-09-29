@@ -145,6 +145,11 @@ module Hyrax
 
     # TODO: move to file_set_permissions_behavior
     def published?
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "curation_concern.parent.workflow_state=#{curation_concern.parent.workflow_state}",
+      #                                        "curation_concern.visibility == 'open'=#{curation_concern.visibility == 'open'}",
+      #                                        "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
       curation_concern.parent.workflow_state == 'deposited' && curation_concern.visibility == 'open'
     end
 

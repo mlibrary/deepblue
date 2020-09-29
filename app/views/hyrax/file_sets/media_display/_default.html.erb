@@ -19,7 +19,7 @@
     <%= t('hyrax.works.show.no_preview') %>
     <% if Hyrax.config.display_media_download_link? %>
       <p /><%= link_to t('hyrax.file_set.show.download'),
-                       download_path_link,
+                       presenter.download_path_link(file_set),
                        id: "file_download",
                        data: { label: file_set.id },
                        target: "_new" %>
