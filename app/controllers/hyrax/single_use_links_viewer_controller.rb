@@ -13,6 +13,8 @@ module Hyrax
     include Deepblue::SingleUseLinkControllerBehavior
 
     skip_before_action :authorize_download!, only: :show
+    skip_before_action :verify_authenticity_token, only: :download
+
     rescue_from SingleUseError, with: :render_single_use_error
     rescue_from CanCan::AccessDenied, with: :render_single_use_error
     rescue_from ActiveRecord::RecordNotFound, with: :render_single_use_error
