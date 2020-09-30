@@ -5,7 +5,7 @@ module Hyrax
 
     class DataSetActor < Hyrax::Actors::BaseActor
 
-      DATA_SET_ACTOR_DEBUG_VERBOSE = false
+      DATA_SET_ACTOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.data_set_actor_debug_verbose
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if update was successful

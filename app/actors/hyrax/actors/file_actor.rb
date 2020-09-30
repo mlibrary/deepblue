@@ -8,7 +8,7 @@ module Hyrax
     # @note Spawns asynchronous jobs
     class FileActor
 
-      FILE_ACTOR_DEBUG_VERBOSE = false
+      FILE_ACTOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.file_actor_debug_verbose
 
       attr_reader :file_set, :relation, :user
 

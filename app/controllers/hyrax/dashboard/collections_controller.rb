@@ -14,7 +14,7 @@ module Hyrax
       include Deepblue::CollectionsControllerBehavior
 
       # begin monkey
-      COLLECTIONS_CONTROLLER_DEBUG_VERBOSE = false
+      COLLECTIONS_CONTROLLER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.collections_controller_debug_verbose
       # end monkey
 
       EVENT_NOTE = 'Hyrax::Dashboard::CollectionsController'

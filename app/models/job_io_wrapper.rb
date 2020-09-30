@@ -19,7 +19,7 @@
 #  because it already has that information.
 class JobIoWrapper < ApplicationRecord
 
-  JOB_IO_WRAPPER_DEBUG_VERBOSE = false
+  JOB_IO_WRAPPER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.job_io_wrapper_debug_verbose
 
   belongs_to :user, optional: false
   belongs_to :uploaded_file, optional: true, class_name: 'Hyrax::UploadedFile'

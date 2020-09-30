@@ -2,7 +2,7 @@ module Hyrax
   # Creates the presenters of the members (member works and file sets) of a specific object
   class MemberPresenterFactory
 
-    MEMBER_PRESENTER_FACTORY_DEBUG_VERBOSE = true
+    MEMBER_PRESENTER_FACTORY_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.member_presenter_factory_debug_verbose
 
     class_attribute :file_presenter_class, :work_presenter_class
     # modify this attribute to use an alternate presenter class for the files

@@ -4,7 +4,7 @@ module Umrdr
 
   module SolrDocumentBehavior
 
-    SOLR_DOCUMENT_BEHAVIOR_DEBUG_VERBOSE = false
+    SOLR_DOCUMENT_BEHAVIOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.solr_document_behavior_debug_verbose
 
     extend ActiveSupport::Concern
 

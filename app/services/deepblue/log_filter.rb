@@ -5,7 +5,7 @@ module Deepblue
 
   class AbstractFilter
 
-    ABSTRACT_FILTER_DEBUG_VERBOSE = false
+    ABSTRACT_FILTER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.abstract_filter_debug_verbose
 
     attr_accessor :verbose
 

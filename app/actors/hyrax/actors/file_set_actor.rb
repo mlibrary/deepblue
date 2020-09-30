@@ -8,7 +8,7 @@ module Hyrax
     # Actions are decoupled from controller logic so that they may be called from a controller or a background job.
     class FileSetActor
 
-      FILE_SET_ACTOR_DEBUG_VERBOSE = false
+      FILE_SET_ACTOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.file_set_actor_debug_verbose
 
       include Lockable
       attr_reader :file_set, :user, :attributes

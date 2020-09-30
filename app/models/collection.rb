@@ -2,7 +2,7 @@
 
 class Collection < ActiveFedora::Base
 
-  COLLECTION_DEBUG_VERBOSE = false
+  COLLECTION_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.collection_debug_verbose
 
   include ::Hyrax::CollectionBehavior
 

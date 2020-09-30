@@ -25,7 +25,7 @@ module DeepBlueDocs
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
     #
-    # reference config values like: DeepBlueDocs::Application.config.variable_name
+    # reference config values like: ::DeepBlueDocs::Application.config.variable_name
     #
     config.load_timestamp = DateTime.now.freeze
     # puts "Rails.const_defined? 'Console' = #{Rails.const_defined? 'Console'}"
@@ -48,8 +48,21 @@ module DeepBlueDocs
 
     # begin _debug_verbose flags
     # look for true || before production release
+    # look for DEBUG_VERBOSE = true before production release
+    config.abstract_notification_debug_verbose = false
+    config.abstract_filter_debug_verbose = false
+    config.add_file_to_file_set_debug_verbose = false
+    config.after_optimistic_lock_validator_debug_verbose = false
     config.application_controller_debug_verbose = false
+    config.before_model_actor_debug_verbose = false
+    config.catalog_controller_debug_verbose = false
+    config.characterize_job_debug_verbose = false
+    config.collection_debug_verbose = false
     config.collection_presenter_debug_verbose = false
+    config.collections_controller_debug_verbose = false
+    config.collections_controller_behavior_debug_verbose = false
+    config.data_set_actor_debug_verbose = false
+    config.data_set_debug_verbose = false
     config.data_set_presenter_debug_verbose = false
     config.data_sets_controller_debug_verbose = false
     config.deep_blue_presenter_debug_verbose = false
@@ -58,7 +71,10 @@ module DeepBlueDocs
     config.ds_file_set_presenter_debug_verbose = false
     # config.email_debug_verbose -- see configure email below
     config.email_behavior_debug_verbose = false
+    config.file_actor_debug_verbose = false
     # config.file_content_helper_debug_verbose -- see config/integration/file_content_integration.rb
+    config.file_set_actor_debug_verbose = false
+    config.file_set_debug_verbose = false
     config.file_set_derivatives_service_debug_verbose = false
     config.file_sets_controller_debug_verbose = false
     config.hydra_derivatives_processors_document_debug_verbose = false
@@ -70,20 +86,25 @@ module DeepBlueDocs
     config.ingest_job_debug_verbose = false
     # config.interpolation_helper_debug_verbose = false -- see config/integration/work_view_content.rb
     # config.jira_helper_debug_verbose -- see config/integration/jira_integration
+    config.job_io_wrapper_debug_verbose = false
+    config.member_presenter_factory_debug_verbose = false
     config.metadata_behavior_debug_verbose = false
     config.new_content_service_debug_verbose = false
+    config.provenance_behavior_debug_verbose = false
     config.shell_based_processor_debug_verbose = false
     config.single_use_link_controller_behavior_debug_verbose = false ## TODO: move to SingleUseLinkService
     config.single_use_links_controller_debug_verbose = false
     config.single_use_links_viewer_controller_debug_verbose = false
+    config.solr_document_behavior_debug_verbose = false
     config.solr_document_debug_verbose = false
     config.umrdr_work_behavior_debug_verbose = false
-    config.works_controller_behavior_debug_verbose = false
+    config.user_stat_importer_debug_verbose = false
     config.work_show_presenter_debug_verbose = false
     config.work_view_content_service_debug_verbose = false
     config.work_view_content_service_email_templates_debug_verbose = false
     config.work_view_content_service_i18n_templates_debug_verbose = false
     config.workflow_event_behavior_debug_verbose = false
+    config.works_controller_behavior_debug_verbose = false
     # end _debug_verbose flags
 
     # config.middleware.insert_before Rack::Runtime, RackMultipartBufSizeSetter
