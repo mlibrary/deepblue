@@ -1,7 +1,7 @@
 
 Deepblue::FileContentHelper.setup do |config|
 
-  config.file_content_helper_debug_verbose = true
+  config.file_content_helper_debug_verbose = false
 
   # read_me file set config
   config.read_me_file_set_enabled = true

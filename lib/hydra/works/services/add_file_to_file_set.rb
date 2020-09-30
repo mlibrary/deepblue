@@ -7,7 +7,7 @@ module Hydra::Works
   # monkey patch Hyrdra::Works::AddFileToFileSet
   class AddFileToFileSet
 
-    ADD_FILE_TO_FILE_SET_DEBUG_VERBOSE = false
+    ADD_FILE_TO_FILE_SET_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.add_file_to_file_set_debug_verbose
 
     class << self
       alias_method :monkey_call, :call

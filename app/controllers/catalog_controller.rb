@@ -5,7 +5,7 @@ class CatalogController < ApplicationController
   include Hydra::Controller::ControllerBehavior
   include BlacklightOaiProvider::Controller
 
-  CATALOG_CONTROLLER_DEBUG_VERBOSE = false
+  CATALOG_CONTROLLER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.catalog_controller_debug_verbose
   CATALOG_CONTROLLER_ALLOW_SEARCH_FIX_FOR_JSON = true
 
   # This filter applies the hydra access controls

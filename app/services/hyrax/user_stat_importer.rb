@@ -45,7 +45,7 @@ module Hyrax
   # this is called by 'rake hyrax:stats:user_stats'
   class UserStatImporter
 
-    USER_STAT_IMPORTER_DEBUG_VERBOSE = false
+    USER_STAT_IMPORTER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.user_stat_importer_debug_verbose
 
     UserRecord = Struct.new("UserRecord", :id, :user_key, :last_stats_update)
 

@@ -2,7 +2,7 @@
 
 class FileSet < ActiveFedora::Base
 
-  FILE_SET_DEBUG_VERBOSE = false
+  FILE_SET_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.file_set_debug_verbose
 
   include ::Deepblue::FileSetMetadata # must be before `include ::Hyrax::FileSetBehavior`
   include ::Hyrax::FileSetBehavior

@@ -6,7 +6,7 @@ module Deepblue
 
   module ProvenanceBehavior
 
-    PROVENANCE_BEHAVIOR_DEBUG_VERBOSE = false
+    PROVENANCE_BEHAVIOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.provenance_behavior_debug_verbose
 
     include AbstractEventBehavior
 

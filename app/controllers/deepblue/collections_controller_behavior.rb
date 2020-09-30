@@ -4,7 +4,7 @@ module Deepblue
 
   module CollectionsControllerBehavior
 
-    COLLECTIONS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE = false
+    COLLECTIONS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.collections_controller_behavior_debug_verbose
 
     include Deepblue::ControllerWorkflowEventBehavior
 

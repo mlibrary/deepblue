@@ -28,7 +28,7 @@ module Hyrax
     #   end
     class AbstractNotification
 
-      ABSTRACT_NOTIFICATION_DEBUG_VERBOSE = false
+      ABSTRACT_NOTIFICATION_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.abstract_notification_debug_verbose
 
       include ActionView::Helpers::UrlHelper
 

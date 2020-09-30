@@ -2,7 +2,7 @@
 
 class DataSet < ActiveFedora::Base
 
-  DATA_SET_DEBUG_VERBOSE = false
+  DATA_SET_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.data_set_debug_verbose
 
   include ::Hyrax::WorkBehavior
 
