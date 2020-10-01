@@ -11,7 +11,7 @@ Deepblue::JiraHelper.setup do |config|
                                         'deepblue.lib.umich.edu' ].freeze
   # testing jira integration is disabled
   config.jira_integration_hostnames_prod = [ 'deepblue.lib.umich.edu',
-                                             'testing.deepblue.lib.umich.edu' ].freeze
+                                             'disabled.testing.deepblue.lib.umich.edu' ].freeze
   config.jira_integration_enabled = config.jira_integration_hostnames.include?( DeepBlueDocs::Application.config.hostname )
   config.jira_test_mode = !config.jira_integration_hostnames_prod.include?( DeepBlueDocs::Application.config.hostname )
 
