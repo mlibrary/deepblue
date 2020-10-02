@@ -4,7 +4,7 @@ require_relative '../services/deepblue/about_to_expire_embargoes_service'
 
 class AboutToExpireEmbargoesJob < ::Hyrax::ApplicationJob
 
-  ABOUT_TO_EXPIRE_EMBARGOES_JOB_DEBUG_VERBOSE = ::Deepblue::JobTaskHelper..about_to_expire_embargoes_job_debug_verbose
+  ABOUT_TO_EXPIRE_EMBARGOES_JOB_DEBUG_VERBOSE = ::Deepblue::JobTaskHelper.about_to_expire_embargoes_job_debug_verbose
 
 SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 
