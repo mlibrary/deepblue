@@ -4,7 +4,29 @@ require_relative '../services/deepblue/works_reporter'
 
 class WorksReportJob < ::Hyrax::ApplicationJob
 
-  WORKS_REPORT_JOB_DEBUG_VERBOSE = false
+  WORKS_REPORT_JOB_DEBUG_VERBOSE = ::Deepblue::JobTaskHelper.works_report_job_debug_verbose
+
+SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
+
+works_report_job:
+  # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savints time], due to GMT)
+  #      M H D
+  # cron: '*/5 * * * *'
+  cron: '5 5 1 * *'
+  class: WorksReportJob
+  queue: scheduler
+  description: Works report job.
+  args:
+    report_file_prefix: '%date%.%hostname%.works_report'
+    report_dir: '/deepbluedata-prep/reports'
+    quiet: true
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'staging.deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
+
+END_OF_SCHEDULER_ENTRY
+
 
   include JobHelper
   queue_as :scheduler

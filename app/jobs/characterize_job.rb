@@ -2,7 +2,7 @@
 
 class CharacterizeJob < ::Hyrax::ApplicationJob
 
-  CHARACTERIZE_JOB_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.characterize_job_debug_verbose
+  CHARACTERIZE_JOB_DEBUG_VERBOSE = ::Deepblue::JobTaskHelper.characterize_job_debug_verbose
 
   queue_as Hyrax.config.ingest_queue_name
 

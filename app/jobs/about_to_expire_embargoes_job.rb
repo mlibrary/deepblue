@@ -4,7 +4,24 @@ require_relative '../services/deepblue/about_to_expire_embargoes_service'
 
 class AboutToExpireEmbargoesJob < ::Hyrax::ApplicationJob
 
-  ABOUT_TO_EXPIRE_EMBARGOES_JOB_DEBUG_VERBOSE = false
+  ABOUT_TO_EXPIRE_EMBARGOES_JOB_DEBUG_VERBOSE = ::Deepblue::JobTaskHelper..about_to_expire_embargoes_job_debug_verbose
+
+SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
+
+about_to_deactivate_embargoes_job:
+  # Run once a day, fifteen minutes after midnight (which is offset by 4 or [5 during daylight savints time], due to GMT)
+  #      M  H
+  cron: '15 5 * * *'
+  # rails_env: production
+  class: AboutToExpireEmbargoesJob
+  queue: scheduler
+  description: About to deactivate embargoes job.
+  args:
+    email_owner: true
+    test_mode: false
+    verbose: true
+
+END_OF_SCHEDULER_ENTRY
 
   include JobHelper
   queue_as :scheduler
@@ -23,16 +40,12 @@ class AboutToExpireEmbargoesJob < ::Hyrax::ApplicationJob
                                            "options=#{options}",
                                            Deepblue::LoggingHelper.obj_class( 'options', options ),
                                            "" ] if ABOUT_TO_EXPIRE_EMBARGOES_JOB_DEBUG_VERBOSE
-    verbose = job_options_value(options, key: 'verbose', default_value: false )
+    verbose = job_options_value( options, key: 'verbose', default_value: false, verbose: verbose )
     ::Deepblue::LoggingHelper.debug "verbose=#{verbose}" if verbose
-    email_owner = job_options_value(options, key: 'email_owner', default_value: true )
-    ::Deepblue::LoggingHelper.debug "email_owner=#{email_owner}" if verbose
-    expiration_lead_days = job_options_value(options, key: 'expiration_lead_days' )
-    ::Deepblue::LoggingHelper.debug "expiration_lead_days=#{expiration_lead_days}" if verbose
-    skip_file_sets = job_options_value(options, key: 'skip_file_sets', default_value: true )
-    ::Deepblue::LoggingHelper.debug "@skip_file_sets=#{skip_file_sets}" if verbose
-    test_mode = job_options_value(options, key: 'test_mode', default_value: false )
-    ::Deepblue::LoggingHelper.debug "test_mode=#{test_mode}" if verbose
+    email_owner = job_options_value( options, key: 'email_owner', default_value: true, verbose: verbose )
+    expiration_lead_days = job_options_value( options, key: 'expiration_lead_days', verbose: verbose )
+    skip_file_sets = job_options_value( options, key: 'skip_file_sets', default_value: true, verbose: verbose )
+    test_mode = job_options_value( options, key: 'test_mode', default_value: false, verbose: verbose )
     ::Deepblue::AboutToExpireEmbargoesService.new( email_owner: email_owner,
                                                    expiration_lead_days: expiration_lead_days,
                                                    skip_file_sets: skip_file_sets,
