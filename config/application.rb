@@ -49,6 +49,7 @@ module DeepBlueDocs
     # begin _debug_verbose flags
     # look for true || before production release
     # look for DEBUG_VERBOSE = true before production release
+    # TODO: move this section into a debug_initializer
     config.abstract_notification_debug_verbose = false
     config.abstract_filter_debug_verbose = false
     config.add_file_to_file_set_debug_verbose = false
@@ -56,7 +57,6 @@ module DeepBlueDocs
     config.application_controller_debug_verbose = false
     config.before_model_actor_debug_verbose = false
     config.catalog_controller_debug_verbose = false
-    config.characterize_job_debug_verbose = false
     config.collection_debug_verbose = false
     config.collection_presenter_debug_verbose = false
     config.collections_controller_debug_verbose = false
@@ -83,7 +83,6 @@ module DeepBlueDocs
     config.hydra_works_derivatives_debug_verbose = false
     config.ingest_content_service_debug_verbose = false
     # config.ingest_integration_service_setup_debug_verbose = false
-    config.ingest_job_debug_verbose = false
     # config.interpolation_helper_debug_verbose = false -- see config/integration/work_view_content.rb
     # config.jira_helper_debug_verbose -- see config/integration/jira_integration
     config.job_io_wrapper_debug_verbose = false

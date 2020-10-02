@@ -4,7 +4,25 @@ require_relative '../services/deepblue/deactivate_expired_embargoes_service'
 
 class DeactivateExpiredEmbargoesJob < ::Hyrax::ApplicationJob
 
-  DEACTIVATE_EXPIRED_EMBARGOES_JOB_DEBUG_VERBOSE = false
+  DEACTIVATE_EXPIRED_EMBARGOES_JOB_DEBUG_VERBOSE = ::Deepblue::JobTaskHelper.deactivate_expired_embargoes_job_debug_verbose
+
+SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
+
+deactivate_expired_embargoes_job:
+  # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savints time], due to GMT)
+  #      M H
+  cron: '5 5 * * *'
+  # rails_env: production
+  class: DeactivateExpiredEmbargoesJob
+  queue: scheduler
+  description: Deactivate embargoes job.
+  args:
+    email_owner: true
+    test_mode: false
+    verbose: true
+
+END_OF_SCHEDULER_ENTRY
+
 
   include JobHelper
   queue_as :scheduler

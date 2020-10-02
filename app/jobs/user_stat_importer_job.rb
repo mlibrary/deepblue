@@ -2,7 +2,26 @@
 
 class UserStatImporterJob < ::Hyrax::ApplicationJob
 
-  USER_STAT_IMPORTER_JOB_DEBUG_VERBOSE = false
+  USER_STAT_IMPORTER_JOB_DEBUG_VERBOSE = ::Deepblue::JobTaskHelper.user_stat_importer_debug_verbose
+
+SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
+
+user_stat_importer_job:
+  # Run once a day, thirty minutes after midnight (which is offset by 4 or [5 during daylight savints time], due to GMT)
+  #      M  H
+  cron: '30 5 * * *'
+  # rails_env: production
+  class: UserStatImporterJob
+  queue: scheduler
+  description: Import user stats job.
+  args:
+    test: false
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+    verbose: false
+
+END_OF_SCHEDULER_ENTRY
+
 
   include JobHelper
   queue_as :scheduler
