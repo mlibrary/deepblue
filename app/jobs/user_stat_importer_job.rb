@@ -2,7 +2,7 @@
 
 class UserStatImporterJob < ::Hyrax::ApplicationJob
 
-  USER_STAT_IMPORTER_JOB_DEBUG_VERBOSE = ::Deepblue::JobTaskHelper.user_stat_importer_job_debug_verbose
+  USER_STAT_IMPORTER_JOB_DEBUG_VERBOSE = false # ::Deepblue::JobTaskHelper.user_stat_importer_job_debug_verbose
 
 SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 
