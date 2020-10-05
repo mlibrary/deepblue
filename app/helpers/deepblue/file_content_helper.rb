@@ -18,6 +18,7 @@ module Deepblue
     @@read_me_file_set_view_max_size = 500.kilobytes
     @@read_me_file_set_view_mime_types = [ "text/plain", "text/markdown" ].freeze
     @@read_me_file_set_ext_as_html = [ ".md" ].freeze
+    @@read_me_max_find_file_sets = 40
 
     mattr_accessor  :file_content_helper_debug_verbose,
                     :read_me_file_set_enabled,
@@ -25,7 +26,8 @@ module Deepblue
                     :read_me_file_set_file_name_regexp,
                     :read_me_file_set_view_max_size,
                     :read_me_file_set_view_mime_types,
-                    :read_me_file_set_ext_as_html
+                    :read_me_file_set_ext_as_html,
+                    :read_me_max_find_file_sets
 
 
     def self.t( key, **options )
@@ -75,7 +77,9 @@ module Deepblue
                                              "work.read_me_file_set_id=#{work.read_me_file_set_id}",
                                              "" ] if file_content_helper_debug_verbose
       regexp = read_me_file_set_file_name_regexp
-      candidates = work.file_sets.select do |fs|
+      candidates = []
+      work.file_sets.each_with_index do |fs,index|
+        break if index > read_me_max_find_file_sets
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
         #                                        ::Deepblue::LoggingHelper.called_from,
         #                                        "fs.mime_type=#{File.basename( fs.mime_type )}",
@@ -89,12 +93,8 @@ module Deepblue
                                                    ::Deepblue::LoggingHelper.called_from,
                                                    "File.basename( fs.label )=#{File.basename( fs.label )}",
                                                    "" ] if rv && file_content_helper_debug_verbose
-            rv
-          else
-            false
+            candidates << fs
           end
-        else
-          false
         end
       end
       return nil if candidates.empty?
