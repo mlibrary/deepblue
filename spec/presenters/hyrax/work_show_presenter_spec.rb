@@ -276,6 +276,45 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
     end
   end
 
+  describe "#editor?" do
+    subject { presenter.editor? }
+    let( :current_ability ) { ability }
+
+    context 'true when can edit' do
+      before do
+        allow( current_ability ).to receive( :can? ).with( :edit, solr_document ).and_return true
+      end
+      it { is_expected.to be true }
+    end
+
+    context 'false when cannot edit' do
+      before do
+        allow( current_ability ).to receive( :can? ).with( :edit, solr_document ).and_return false
+      end
+      it { is_expected.to be false }
+    end
+
+  end
+
+  describe "#embargoed?" do
+    subject { presenter.embargoed? }
+
+    context 'true when visibility is embargoed' do
+      before do
+        expect( solr_document ).to receive( :visibility ).at_least(:once).and_return Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_EMBARGO
+      end
+      it { is_expected.to be true }
+    end
+
+    context 'false when visibility is not embargoed' do
+      before do
+        expect( solr_document ).to receive( :visibility ).at_least(:once).and_return Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
+      end
+      it { is_expected.to be false }
+    end
+
+  end
+
   describe '#iiif_viewer?' do
     let(:id_present) { false }
     let(:representative_presenter) { double('representative', present?: false) }

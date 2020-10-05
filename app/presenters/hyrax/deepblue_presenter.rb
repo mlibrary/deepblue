@@ -15,14 +15,6 @@ module Hyrax
       false
     end
 
-    def can_download_using_globus_maybe?
-      false
-    end
-
-    def can_display_provenance_log?
-      false
-    end
-
     def display_provenance_log_enabled?
       false
     end
@@ -44,10 +36,6 @@ module Hyrax
     end
 
     def tombstone_permissions_hack?
-      false
-    end
-
-    def zip_download_enabled?
       false
     end
 
