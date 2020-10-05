@@ -125,12 +125,15 @@ module Hyrax
       false
     end
 
-    def can_download_using_globus?
+    def can_download_using_globus_maybe?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "false unless globus_enabled?=#{globus_enabled?}",
+                                             "false unless globus_enabled?=#{globus_enabled?}",
+                                             "true if can_download_zip_maybe?=#{can_download_zip_maybe?}",
+                                             "" ] if true || WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       return false unless globus_enabled?
-      return false if single_use_show?
-      return true if current_ability.admin?
-      return false if embargoed?
-      true
+      can_download_zip_maybe?
     end
 
     def can_download_zip?
@@ -722,6 +725,10 @@ module Hyrax
     # @return true if the user can deposit to at least one collection OR if the user can create a collection; otherwise, false
     def show_deposit_for?(collections:)
       collections.present? || current_ability.can?(:create_any, Collection)
+    end
+
+    def zip_download_enabled?
+      true
     end
 
     private

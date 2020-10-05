@@ -68,18 +68,18 @@ FactoryBot.define do
       end
     end
 
-    factory :data_set_with_one_child do
-      before(:create) do |work, evaluator|
-        work.ordered_members << create(:work, user: evaluator.user, title: ['A Contained Work'])
-      end
-    end
-
-    factory :data_set_with_two_children do
-      before(:create) do |work, evaluator|
-        work.ordered_members << create(:work, user: evaluator.user, title: ['A Contained Work'], id: "BlahBlah1")
-        work.ordered_members << create(:work, user: evaluator.user, title: ['Another Contained Work'], id: "BlahBlah2")
-      end
-    end
+    # factory :data_set_with_one_child do
+    #   before(:create) do |work, evaluator|
+    #     work.ordered_members << create(:work, user: evaluator.user, title: ['A Contained Work'])
+    #   end
+    # end
+    #
+    # factory :data_set_with_two_children do
+    #   before(:create) do |work, evaluator|
+    #     work.ordered_members << create(:work, user: evaluator.user, title: ['A Contained Work'], id: "BlahBlah1")
+    #     work.ordered_members << create(:work, user: evaluator.user, title: ['Another Contained Work'], id: "BlahBlah2")
+    #   end
+    # end
 
     factory :data_set_with_representative_file do
       before(:create) do |work, evaluator|
