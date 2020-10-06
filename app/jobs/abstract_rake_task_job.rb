@@ -6,7 +6,14 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
 
   include JobHelper
 
-  attr_accessor :email_results_to, :hostname, :hostnames, :options, :timestamp_begin, :timestamp_end, :verbose
+  attr_accessor :email_results_to,
+                :hostname,
+                :hostnames,
+                :job_delay,
+                :options,
+                :timestamp_begin,
+                :timestamp_end,
+                :verbose
 
   def default_value_is( value, default_value )
     return value if value.present?
@@ -29,6 +36,10 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
     @verbose = job_options_value( options,
                                   key: 'verbose',
                                   default_value: default_value_is( verbose, false ) )
+    @job_delay = job_options_value( options,
+                                  key: 'job_delay',
+                                  default_value: default_value_is( job_delay, 0 ),
+                                  verbose: verbose )
     ::Deepblue::LoggingHelper.debug "verbose=#{verbose}" if verbose
     @email_results_to = job_options_value( options,
                                            key: 'email_results_to',
@@ -41,6 +52,15 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
     return true if hostnames.blank?
     @hostname = ::DeepBlueDocs::Application.config.hostname
     hostnames.include? hostname
+  end
+
+  def run_job_delay
+    return if job_delay.blank?
+    return if 0 >= job_delay
+    Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                         "sleeping #{job_delay} seconds",
+                                         "" ] if verbose || ABSTRACT_RAKE_TASK_JOB_DEBUG_VERBOSE
+    sleep job_delay
   end
 
 end

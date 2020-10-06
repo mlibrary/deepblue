@@ -1,7 +1,7 @@
 # config/scheduler_jobs_prod.yml
 
 heartbeat_email_job:
-  # Run once a day, one minute after midnight (which is offset by 4 or [5 during daylight savints time], due to GMT)
+  # Run once a day, one minute after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M H
   # cron: '*/5 * * * *'
   cron: '1 5 * * *'
@@ -12,11 +12,43 @@ heartbeat_email_job:
   args:
     hostnames:
       - 'deepblue.lib.umich.edu'
-      # - 'staging.deepblue.lib.umich.edu'
-      # - 'testing.deepblue.lib.umich.edu'
+
+clean_tmp:
+# Run once a week on Saturday, 6 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
+#       M H D
+  cron: '6 5 * * 6'
+  class: RakeTaskJob
+  queue: scheduler
+  description: Run rake tmp:clean (Saturdays
+    args:
+      rake_task: 'tmp:clean'
+      hostnames:
+        - 'deepblue.lib.umich.edu'
+        - 'staging.deepblue.lib.umich.edu'
+        - 'testing.deepblue.lib.umich.edu'
+      email_results_to:
+        - 'fritx@umich.edu'
+      job_delay: 0
+      verbose: true
+
+clean_tmp2:
+# Run once a week on Saturday, 6 minutes after noon (which is offset by 4 or [5 during daylight savings time], due to GMT)
+#       M H D
+  cron: '6 17 * * *'
+  class: RakeTaskJob
+  queue: scheduler
+  description: Run rake tmp:clean (daily on testing)
+    args:
+      rake_task: 'tmp:clean'
+      hostnames:
+        - 'testing.deepblue.lib.umich.edu'
+      email_results_to:
+        - 'fritx@umich.edu'
+      job_delay: 0
+      verbose: true
 
 deactivate_expired_embargoes_job:
-  # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savints time], due to GMT)
+  # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M H
   cron: '5 5 * * *'
   # rails_env: production
@@ -29,7 +61,7 @@ deactivate_expired_embargoes_job:
     verbose: true
 
 about_to_deactivate_embargoes_job:
-  # Run once a day, fifteen minutes after midnight (which is offset by 4 or [5 during daylight savints time], due to GMT)
+  # Run once a day, fifteen minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M  H
   cron: '15 5 * * *'
   # rails_env: production
@@ -42,7 +74,7 @@ about_to_deactivate_embargoes_job:
     verbose: true
 
 user_stat_importer_job:
-  # Run once a day, thirty minutes after midnight (which is offset by 4 or [5 during daylight savints time], due to GMT)
+  # Run once a day, thirty minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M  H
   cron: '30 5 * * *'
   # rails_env: production
@@ -56,7 +88,7 @@ user_stat_importer_job:
     verbose: false
 
 works_report_job:
-  # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savints time], due to GMT)
+  # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M H D
   # cron: '*/5 * * * *'
   cron: '5 5 1 * *'
@@ -72,16 +104,18 @@ works_report_job:
       - 'staging.deepblue.lib.umich.edu'
       - 'testing.deepblue.lib.umich.edu'
 
-#about_to_deactivate_embargoes_at_2_days_job:
-#  # Run once a day, twenty minutes after midnight (which is offset by 4 or [5 during daylight savints time], due to GMT)
-#  #      M  H
-#  cron: '20 5 * * *'
-#  # rails_env: production
-#  class: AboutToExpireEmbargoesJob
-#  queue: scheduler
-#  description: About to deactivate embargoes job.
-#  args:
-#    email_owner: true
-#    expiration_lead_days: 2
-#    test_mode: false
-#    verbose: true
+about_to_deactivate_embargoes_at_2_days_job:
+  # Run once a day, twenty minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  #      M  H
+  cron: '20 5 * * *'
+  # rails_env: production
+  class: AboutToExpireEmbargoesJob
+  queue: scheduler
+  description: About to deactivate embargoes job.
+  args:
+    email_owner: true
+    expiration_lead_days: 2
+    test_mode: false
+    verbose: true
+    hostnames:
+      - 'testing.deepblue.lib.umich.edu'
