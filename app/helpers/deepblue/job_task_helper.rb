@@ -12,6 +12,7 @@ module Deepblue
     end
 
     @@job_task_helper_debug_verbose = false
+    @@run_job_task_debug_verbose = false
 
     mattr_accessor  :job_task_helper_debug_verbose
 
@@ -25,7 +26,8 @@ module Deepblue
     @@rake_task_job_debug_verbose = false
     @@works_report_job_debug_verbose = false
 
-    mattr_accessor  :about_to_expire_embargoes_job_debug_verbose,
+    mattr_accessor  :run_job_task_debug_verbose,
+                    :about_to_expire_embargoes_job_debug_verbose,
                     :abstract_rake_task_job_debug_verbose,
                     :characterize_job_debug_verbose,
                     :deactivate_expired_embargoes_job_debug_verbose,

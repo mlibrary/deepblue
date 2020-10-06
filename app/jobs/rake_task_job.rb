@@ -4,7 +4,7 @@ require "abstract_rake_task_job"
 
 class RakeTaskJob < AbstractRakeTaskJob
 
-  # bundle exec rake deepblue:run_job['{"job_class":"RakeTaskJob"\,"verbose":true\,"rake_task":"-T"\,"email_results_to":["fritx@umich.edu"]}']
+  # bundle exec rake deepblue:run_job['{"job_class":"RakeTaskJob"\,"verbose":true\,"rake_task":"-T"\,"email_results_to":["fritx@umich.edu"]\,"job_delay":0}']
   # bundle exec rake deepblue:run_job['{"job_class":"RakeTaskJob"\,"verbose":true\,"rake_task":"tmp:clear"\,"email_results_to":["fritx@umich.edu"]}']
 
   RAKE_TASK_JOB_DEBUG_VERBOSE = ::Deepblue::JobTaskHelper.rake_task_job_debug_verbose
@@ -53,12 +53,14 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
                                            "hostnames=#{hostnames}",
                                            "email_results_to=#{email_results_to}",
                                            "initialized=#{initialized}",
+                                           "job_delay=#{job_delay}",
                                            "rake_task=#{rake_task}",
                                            "allowed_job_tasks.include? #{rake_task}=#{::Deepblue::JobTaskHelper.allowed_job_tasks.include? rake_task}",
                                            "" ] if RAKE_TASK_JOB_DEBUG_VERBOSE
     return unless initialized
     return if rake_task.blank?
     return unless ::Deepblue::JobTaskHelper.allowed_job_tasks.include? rake_task
+    run_job_delay
     exec_str = "bundle exec rake #{rake_task}"
     rv = `#{exec_str}`
     timestamp_end = DateTime.now
