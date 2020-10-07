@@ -50,7 +50,7 @@ module Deepblue
 
     def update_total_file_size!
       update_total_file_size
-      save!
+      save( validate: false )
     end
 
     private
@@ -71,10 +71,10 @@ module Deepblue
       def total_file_size_add!( file_size )
         if 1 == file_sets.size
           total_file_size_set file_size
-          save!
+          save( validate: false )
         elsif 0 != file_size
           total_file_size_add file_size
-          save!
+          save( validate: false )
         end
       end
 

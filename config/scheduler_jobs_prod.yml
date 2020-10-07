@@ -32,7 +32,7 @@ clean_tmp:
       verbose: true
 
 clean_tmp2:
-# Run once a week on Saturday, 6 minutes after noon (which is offset by 4 or [5 during daylight savings time], due to GMT)
+# Run once daily at 6 minutes after noon (which is offset by 4 or [5 during daylight savings time], due to GMT)
 #       M H D
   cron: '6 17 * * *'
   class: RakeTaskJob

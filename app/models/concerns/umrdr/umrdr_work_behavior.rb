@@ -43,7 +43,7 @@ module Umrdr
                                              "" ] if UMRDR_WORK_BEHAVIOR_DEBUG_VERBOSE
       return unless Array( read_me_file_set_id ).first == file_set.id
       self[:read_me_file_set_id] = nil
-      save!
+      save!( validate: false )
     end
 
     def read_me_update( file_set: )
@@ -55,7 +55,7 @@ module Umrdr
                                              "" ] if UMRDR_WORK_BEHAVIOR_DEBUG_VERBOSE
       return if Array( read_me_file_set_id ).first == file_set.id
       self[:read_me_file_set_id] = file_set.id
-      save!
+      save!( validate: false )
     end
 
     # Calculate the size of all the files in the work
@@ -116,7 +116,7 @@ module Umrdr
 
     def update_total_file_size!
       update_total_file_size
-      save!
+      save!( validate: false )
     end
 
     private
@@ -138,10 +138,10 @@ module Umrdr
       def total_file_size_add!( file_size )
         if 1 == file_sets.size
           total_file_size_set file_size
-          save!
+          save!( validate: false )
         elsif 0 != file_size
           total_file_size_add file_size
-          save!
+          save!( validate: false )
         end
       end
 

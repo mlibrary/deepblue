@@ -59,16 +59,43 @@ module Deepblue
                                  rv:,
                                  event:,
                                  event_note: '',
+                                 messages: [],
                                  timestamp_begin: nil,
                                  timestamp_end: DateTime.now )
 
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "targets=#{targets}",
+                                             "exec_str=#{exec_str}",
+                                             "rv=#{rv}",
+                                             "event=#{event}",
+                                             "event_note=#{event_note}",
+                                             "messages=#{messages}",
+                                             "timestamp_begin=#{timestamp_begin}",
+                                             "timestamp_end=#{timestamp_end}",
+                                             "" ] if job_task_helper_debug_verbose
       return if targets.blank?
-      # TODO: integrate timestamps
-      body = "#{exec_str} returned:\n<pre>\n#{rv}\n</pre>\n";
+      body =<<-END_BODY
+#{timestamp_begin.blank? ? "" : "Began: #{timestamp_begin}<br/>"}
+#{timestamp_end.blank? ? "" : "Ended: #{timestamp_end}<br/>"}
+#{messages.empty? ? "" : "Messages:<br/>\n<pre>\n#{messages.join("\n")}\n</pre><br/>"}
+<br/>
+#{exec_str} returned:<br/>
+<pre>
+#{rv}
+</pre>
+END_BODY
+      subject = "DBD rake #{exec_str} from #{hostname} failed"
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "subject=#{subject}",
+                                             "body=#{body}",
+                                             "" ] if job_task_helper_debug_verbose
       targets.each do |email|
         send_email( email_target: email,
                     content_type: 'text/html',
                     task_name: exec_str,
+                    subject: subject,
                     body: body,
                     event: event,
                     event_note: event_note,
@@ -82,24 +109,102 @@ module Deepblue
                             exception:,
                             event:,
                             event_note: '',
+                            messages: [],
                             timestamp_begin: nil,
                             timestamp_end: DateTime.now )
 
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "targets=#{targets}",
+                                             "task_name=#{task_name}",
+                                             "exception=#{exception}",
+                                             "event=#{event}",
+                                             "event_note=#{event_note}",
+                                             "messages=#{messages}",
+                                             "timestamp_begin=#{timestamp_begin}",
+                                             "timestamp_end=#{timestamp_end}",
+                                             "" ] if job_task_helper_debug_verbose
       return if targets.blank?
-      # TODO: integrate timestamps
-      error_body = "#{exception.class} #{exception.message}\n\n#{exception.backtrace[0..20].join("\n")}"
-      body = "#{exec_str} returned:\n<pre>#{error_body}\n</pre>\n";
+      body =<<-END_BODY
+#{task_name} on #{hostname} failed.<br/>
+#{timestamp_begin.blank? ? "" : "Began: #{timestamp_begin}<br/>"}
+#{timestamp_end.blank? ? "" : "Ended: #{timestamp_end}<br/>"}
+<br/>
+Exception raised:<br/>
+<pre>
+#{exception.class} #{exception.message}
+
+#{exception.backtrace[0..20].join("\n")}
+</pre>
+<br/>
+#{messages.empty? ? "" : "Messages:<br/>\n<pre>\n#{messages.join("\n")}\n</pre><br/>"}
+END_BODY
+      subject = "DBD #{task_name} from #{hostname} failed"
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "subject=#{subject}",
+                                             "body=#{body}",
+                                             "" ] if job_task_helper_debug_verbose
       targets.each do |email|
         send_email( email_target: email,
                     content_type: 'text/html',
                     task_name: task_name,
-                    subject: "DBD #{task_name} from #{hostname} failed",
+                    subject: subject,
                     body: body,
                     event: event,
                     event_note: event_note,
                     timestamp_begin: timestamp_begin,
                     timestamp_end: timestamp_end )
       end
+    end
+
+    def self.email_results( targets:,
+                            task_name:,
+                            event:,
+                            event_note: '',
+                            messages: [],
+                            timestamp_begin: nil,
+                            timestamp_end: DateTime.now )
+
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "targets=#{targets}",
+                                             "task_name=#{task_name}",
+                                             "event=#{event}",
+                                             "event_note=#{event_note}",
+                                             "messages=#{messages}",
+                                             "timestamp_begin=#{timestamp_begin}",
+                                             "timestamp_end=#{timestamp_end}",
+                                             "" ] if job_task_helper_debug_verbose
+      return if targets.blank?
+      body =<<-END_BODY
+#{task_name} on #{hostname} ran successfully.<br/>
+#{timestamp_begin.blank? ? "" : "Began: #{timestamp_begin}<br/>"}
+#{timestamp_end.blank? ? "" : "Ended: #{timestamp_end}<br/>"}
+<br/>
+#{messages.empty? ? "" : "Messages:<br/>\n<pre>\n#{messages.join("\n")}\n</pre><br/>"}
+      END_BODY
+      subject = "DBD #{task_name} on #{hostname} was successful"
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "subject=#{subject}",
+                                             "body=#{body}",
+                                             "" ] if job_task_helper_debug_verbose
+      targets.each do |email|
+        send_email( email_target: email,
+                    content_type: 'text/html',
+                    task_name: task_name,
+                    subject: subject,
+                    body: body,
+                    event: event,
+                    event_note: event_note,
+                    timestamp_begin: timestamp_begin,
+                    timestamp_end: timestamp_end )
+      end
+    end
+
+    def self.hostname
+      ::DeepBlueDocs::Application.config.hostname
     end
 
     def self.send_email( email_target:,
