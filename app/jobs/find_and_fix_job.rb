@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 require "abstract_rake_task_job"
+require "find_and_fix_empty_file_sizes_behavior"
 
-class RakeTaskJob < AbstractRakeTaskJob
+class FindAndFixJob < AbstractRakeTaskJob
+  include FindAndFixEmptyFileSizes
 
-  # bundle exec rake deepblue:run_job['{"job_class":"RakeTaskJob"\,"verbose":true\,"rake_task":"-T"\,"email_results_to":["fritx@umich.edu"]\,"job_delay":0}']
-  # bundle exec rake deepblue:run_job['{"job_class":"RakeTaskJob"\,"verbose":true\,"rake_task":"tmp:clear"\,"email_results_to":["fritx@umich.edu"]}']
+  # bundle exec rake deepblue:run_job['{"job_class":"FindAndFixJob"\,"verbose":true\,"email_results_to":["fritx@umich.edu"]\,"job_delay":0}']
 
-  RAKE_TASK_JOB_DEBUG_VERBOSE = ::Deepblue::JobTaskHelper.rake_task_job_debug_verbose
+  FIND_AND_FIX_JOB_DEBUG_VERBOSE = true
 
   # queue_as :scheduler
 
@@ -41,7 +42,7 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "args=#{args}",
-                                           "" ] if RAKE_TASK_JOB_DEBUG_VERBOSE
+                                           "" ] if FIND_AND_FIX_JOB_DEBUG_VERBOSE
     initialized = initialize_from_args( *args )
     rake_task = job_options_value( options, key: 'rake_task', default_value: "", verbose: verbose )
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event_note: rake_task )
@@ -54,26 +55,30 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
                                            "email_results_to=#{email_results_to}",
                                            "initialized=#{initialized}",
                                            "job_delay=#{job_delay}",
-                                           "rake_task=#{rake_task}",
-                                           "allowed_job_tasks.include? #{rake_task}=#{::Deepblue::JobTaskHelper.allowed_job_tasks.include? rake_task}",
-                                           "" ] if RAKE_TASK_JOB_DEBUG_VERBOSE
+                                           "" ] if FIND_AND_FIX_JOB_DEBUG_VERBOSE
     return unless initialized
-    return if rake_task.blank?
-    return unless ::Deepblue::JobTaskHelper.allowed_job_tasks.include? rake_task
     run_job_delay
-    exec_str = "bundle exec rake #{rake_task}"
-    rv = `#{exec_str}`
-    timestamp_end = DateTime.now
+    file_set_ids_fixed = []
+    find_and_fix_empty_file_sizes( messages: msg_queue, ids_fixed: file_set_ids_fixed, verbose: verbose )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "timestamp_end=#{timestamp_end}",
-                                           "rv=#{rv}",
-                                           "" ] if RAKE_TASK_JOB_DEBUG_VERBOSE
-    email_exec_results( exec_str: exec_str, rv: rv, event: 'rake task job', event_note: rake_task )
+                                           "msg_queue=#{msg_queue}",
+                                           "file_set_ids_fixed=#{file_set_ids_fixed}",
+                                           "" ] if FIND_AND_FIX_JOB_DEBUG_VERBOSE
+    # find_and_data_sets_with_order_members_containing_nils
+    timestamp_end = DateTime.now
+    #
+    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                        ::Deepblue::LoggingHelper.called_from,
+    #                                        "timestamp_end=#{timestamp_end}",
+    #                                        "rv=#{rv}",
+    #                                        "" ] if FIND_AND_FIX_JOB_DEBUG_VERBOSE
+    email_results( task_name: "Find and Fix", event: 'find and fix job' )
   rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
     Rails.logger.error e.backtrace[0..20].join("\n")
-    email_failure( task_name: exec_str, exception: e, event: 'rake task job', event_note: rake_task )
+    email_failure( task_name: "find and fix job", exception: e, event: 'find and fix' )
     raise e
   end
 

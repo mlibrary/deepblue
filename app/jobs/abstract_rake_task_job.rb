@@ -10,6 +10,7 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
                 :hostname,
                 :hostnames,
                 :job_delay,
+                :msg_queue,
                 :options,
                 :timestamp_begin,
                 :timestamp_end,
@@ -20,8 +21,40 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
     default_value
   end
 
-  def email_results( exec_str:, rv: )
-    ::Deepblue::JobTaskHelper.email_results( exec_str: exec_str, rv: rv )
+  def email_exec_results( exec_str:, rv:, event:, event_note: '' )
+    ::Deepblue::JobTaskHelper.email_exec_results( targets: email_results_to,
+                                                  exec_str: exec_str,
+                                                  rv: rv,
+                                                  event: event,
+                                                  event_note: event_note,
+                                                  messages: msg_queue,
+                                                  timestamp_begin: timestamp_begin,
+                                                  timestamp_end: timestamp_end )
+  end
+
+  def email_failure( task_name:, exception:, event:, event_note: '' )
+    ::Deepblue::JobTaskHelper.email_failure( targets: email_results_to,
+                                             task_name: task_name,
+                                             exception: exception,
+                                             event: event,
+                                             event_note: event_note,
+                                             messages: msg_queue,
+                                             timestamp_begin: timestamp_begin,
+                                             timestamp_end: timestamp_end )
+  end
+
+  def email_results( task_name:, event:, event_note: '' )
+    ::Deepblue::JobTaskHelper.email_results( targets: email_results_to,
+                                             task_name: task_name,
+                                             event: event,
+                                             event_note: event_note,
+                                             messages: msg_queue,
+                                             timestamp_begin: timestamp_begin,
+                                             timestamp_end: timestamp_end )
+  end
+
+  def msg_queue
+    @msg_queue ||= []
   end
 
   def initialize_from_args( *args )
@@ -57,9 +90,13 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
   def run_job_delay
     return if job_delay.blank?
     return if 0 >= job_delay
-    Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                         "sleeping #{job_delay} seconds",
-                                         "" ] if verbose || ABSTRACT_RAKE_TASK_JOB_DEBUG_VERBOSE
+    if verbose
+      msg = "sleeping #{job_delay} seconds"
+      Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           msg,
+                                           "" ] if ABSTRACT_RAKE_TASK_JOB_DEBUG_VERBOSE
+      msg_queue << msg
+    end
     sleep job_delay
   end
 
