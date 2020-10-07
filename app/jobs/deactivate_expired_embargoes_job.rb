@@ -9,7 +9,7 @@ class DeactivateExpiredEmbargoesJob < ::Hyrax::ApplicationJob
 SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 
 deactivate_expired_embargoes_job:
-  # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savints time], due to GMT)
+  # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M H
   cron: '5 5 * * *'
   # rails_env: production

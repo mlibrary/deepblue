@@ -13,6 +13,24 @@ heartbeat_email_job:
     hostnames:
       - 'deepblue.lib.umich.edu'
 
+find_and_fix_job:
+# Run once a day, 15 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
+#       M H D
+  cron: '15 5 1 * *'
+  class: FindAndFixJob
+  queue: scheduler
+  description: Find and fix problems
+  args:
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'staging.deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
+    email_results_to:
+      - 'fritx@umich.edu'
+    find_and_fix_empty_file_size: true
+    find_and_fix_all_ordered_members_containing_nils: true
+    verbose: true
+
 clean_tmp:
 # Run once a week on Saturday, 6 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
 #       M H D
@@ -20,16 +38,16 @@ clean_tmp:
   class: RakeTaskJob
   queue: scheduler
   description: Run rake tmp:clean (Saturdays
-    args:
-      rake_task: 'tmp:clean'
-      hostnames:
-        - 'deepblue.lib.umich.edu'
-        - 'staging.deepblue.lib.umich.edu'
-        - 'testing.deepblue.lib.umich.edu'
-      email_results_to:
-        - 'fritx@umich.edu'
-      job_delay: 0
-      verbose: true
+  args:
+    rake_task: 'tmp:clean'
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'staging.deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
+    email_results_to:
+      - 'fritx@umich.edu'
+    job_delay: 0
+    verbose: true
 
 clean_tmp2:
 # Run once daily at 6 minutes after noon (which is offset by 4 or [5 during daylight savings time], due to GMT)
@@ -38,14 +56,14 @@ clean_tmp2:
   class: RakeTaskJob
   queue: scheduler
   description: Run rake tmp:clean (daily on testing)
-    args:
-      rake_task: 'tmp:clean'
-      hostnames:
-        - 'testing.deepblue.lib.umich.edu'
-      email_results_to:
-        - 'fritx@umich.edu'
-      job_delay: 0
-      verbose: true
+  args:
+    rake_task: 'tmp:clean'
+    hostnames:
+      - 'testing.deepblue.lib.umich.edu'
+    email_results_to:
+      - 'fritx@umich.edu'
+    job_delay: 0
+    verbose: true
 
 deactivate_expired_embargoes_job:
   # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)

@@ -7,7 +7,7 @@ class HeartbeatEmailJob < ::Hyrax::ApplicationJob
 SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 
 heartbeat_email_job:
-  # Run once a day, one minute after midnight (which is offset by 4 or [5 during daylight savints time], due to GMT)
+  # Run once a day, one minute after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M H
   # cron: '*/5 * * * *'
   cron: '1 5 * * *'

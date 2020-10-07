@@ -14,22 +14,22 @@ class RakeTaskJob < AbstractRakeTaskJob
 EXAMPLE_SCHEDULER_ENTRY = <<-END_OF_EXAMPLE_SCHEDULER_ENTRY
 
 example_rake_task_job:
-# Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savints time], due to GMT)
+# Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
 #       M H D
 # cron: '*/5 * * * *'
   cron: '5 5 1 * *'
   class: RakeTaskJob
   queue: scheduler
   description: Description of rake task job.
-    args:
-      rake_task: 'tmp:clean'
-      hostnames:
-        - 'deepblue.lib.umich.edu'
-        - 'staging.deepblue.lib.umich.edu'
-        - 'testing.deepblue.lib.umich.edu'
-      email_results_to:
-        - 'fritx@umich.edu'
-      verbose: true 
+  args:
+    rake_task: 'tmp:clean'
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'staging.deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
+    email_results_to:
+      - 'fritx@umich.edu'
+    verbose: true 
 
 END_OF_EXAMPLE_SCHEDULER_ENTRY
 

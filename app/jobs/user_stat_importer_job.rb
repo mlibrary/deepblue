@@ -7,7 +7,7 @@ class UserStatImporterJob < ::Hyrax::ApplicationJob
 SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 
 user_stat_importer_job:
-  # Run once a day, thirty minutes after midnight (which is offset by 4 or [5 during daylight savints time], due to GMT)
+  # Run once a day, thirty minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M  H
   cron: '30 5 * * *'
   # rails_env: production

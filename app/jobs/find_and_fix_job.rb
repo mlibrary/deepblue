@@ -16,24 +16,23 @@ class FindAndFixJob < AbstractRakeTaskJob
 
 EXAMPLE_SCHEDULER_ENTRY = <<-END_OF_EXAMPLE_SCHEDULER_ENTRY
 
-example_rake_task_job:
-# Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savints time], due to GMT)
+find_and_fix_job:
+# Run once a day, 15 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
 #       M H D
-# cron: '*/5 * * * *'
-  cron: '5 5 1 * *'
+  cron: '15 5 1 * *'
   class: FindAndFixJob
   queue: scheduler
   description: Find and fix problems
-    args:
-      hostnames:
-        - 'deepblue.lib.umich.edu'
-        - 'staging.deepblue.lib.umich.edu'
-        - 'testing.deepblue.lib.umich.edu'
-      email_results_to:
-        - 'fritx@umich.edu'
-      find_and_fix_empty_file_size: true
-      find_and_fix_all_ordered_members_containing_nils: true
-      verbose: true 
+  args:
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'staging.deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
+    email_results_to:
+      - 'fritx@umich.edu'
+    find_and_fix_empty_file_size: true
+    find_and_fix_all_ordered_members_containing_nils: true
+    verbose: true 
 
 END_OF_EXAMPLE_SCHEDULER_ENTRY
 
