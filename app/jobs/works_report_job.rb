@@ -9,7 +9,7 @@ class WorksReportJob < ::Hyrax::ApplicationJob
 SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 
 works_report_job:
-  # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savints time], due to GMT)
+  # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M H D
   # cron: '*/5 * * * *'
   cron: '5 5 1 * *'
