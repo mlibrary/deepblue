@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module FindAndFixEmptyFileSizes
+module FindAndFixEmptyFileSizesBehavior
 
   FIND_AND_FIX_EMPTY_FILE_SIZES_DEBUG_VERBOSE = true
 
