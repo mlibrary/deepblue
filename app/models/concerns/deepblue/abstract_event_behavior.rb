@@ -7,30 +7,31 @@ module Deepblue
 
   module AbstractEventBehavior
 
-    EVENT_CHARACTERIZE      = 'characterize'
-    EVENT_CHILD_ADD         = 'child_add'
-    EVENT_CHILD_REMOVE      = 'child_remove'
-    EVENT_CREATE            = 'create'
-    EVENT_CREATE_DERIVATIVE = 'create_derivative'
-    EVENT_DESTROY           = 'destroy'
-    EVENT_DOWNLOAD          = 'download'
-    EVENT_EMBARGO           = 'embargo'
-    EVENT_FIXITY_CHECK      = 'fixity_check'
-    EVENT_GLOBUS            = 'globus'
-    EVENT_INGEST            = 'ingest'
-    EVENT_MIGRATE           = 'migrate'
-    EVENT_MINT_DOI          = 'mint_doi'
-    EVENT_PUBLISH           = 'publish'
-    EVENT_TOMBSTONE         = 'tombstone'
-    EVENT_UNEMBARGO         = 'unembargo'
-    EVENT_UNPUBLISH         = 'unpublish'
-    EVENT_UPDATE            = 'update'
-    EVENT_UPDATE_AFTER      = 'update_after'
-    EVENT_UPDATE_BEFORE     = 'update_before'
-    EVENT_UPDATE_VERSION    = 'update_version'
-    EVENT_UPLOAD            = 'upload'
-    EVENT_VIRUS_SCAN        = 'virus_scan'
-    EVENT_WORKFLOW          = 'workflow'
+    EVENT_CHARACTERIZE      = 'characterize'.freeze
+    EVENT_CHILD_ADD         = 'child_add'.freeze
+    EVENT_CHILD_REMOVE      = 'child_remove'.freeze
+    EVENT_CREATE            = 'create'.freeze
+    EVENT_CREATE_DERIVATIVE = 'create_derivative'.freeze
+    EVENT_DESTROY           = 'destroy'.freeze
+    EVENT_DOWNLOAD          = 'download'.freeze
+    EVENT_EMBARGO           = 'embargo'.freeze
+    EVENT_FIXITY_CHECK      = 'fixity_check'.freeze
+    EVENT_GLOBUS            = 'globus'.freeze
+    EVENT_INGEST            = 'ingest'.freeze
+    EVENT_MIGRATE           = 'migrate'.freeze
+    EVENT_MINT_DOI          = 'mint_doi'.freeze
+    EVENT_PUBLISH           = 'publish'.freeze
+    EVENT_TRANSFER          = 'transfer'.freeze
+    EVENT_TOMBSTONE         = 'tombstone'.freeze
+    EVENT_UNEMBARGO         = 'unembargo'.freeze
+    EVENT_UNPUBLISH         = 'unpublish'.freeze
+    EVENT_UPDATE            = 'update'.freeze
+    EVENT_UPDATE_AFTER      = 'update_after'.freeze
+    EVENT_UPDATE_BEFORE     = 'update_before'.freeze
+    EVENT_UPDATE_VERSION    = 'update_version'.freeze
+    EVENT_UPLOAD            = 'upload'.freeze
+    EVENT_VIRUS_SCAN        = 'virus_scan'.freeze
+    EVENT_WORKFLOW          = 'workflow'.freeze
     EVENTS                  =
       [
         EVENT_CHARACTERIZE,
@@ -47,6 +48,7 @@ module Deepblue
         EVENT_MIGRATE,
         EVENT_MINT_DOI,
         EVENT_PUBLISH,
+        EVENT_TRANSFER,
         EVENT_TOMBSTONE,
         EVENT_UNEMBARGO,
         EVENT_UNPUBLISH,

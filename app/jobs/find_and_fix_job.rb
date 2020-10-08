@@ -19,7 +19,7 @@ EXAMPLE_SCHEDULER_ENTRY = <<-END_OF_EXAMPLE_SCHEDULER_ENTRY
 find_and_fix_job:
 # Run once a day, 15 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
 #       M H D
-  cron: '15 5 1 * *'
+  cron: '15 5 * * *'
   class: FindAndFixJob
   queue: scheduler
   description: Find and fix problems

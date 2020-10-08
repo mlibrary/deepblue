@@ -73,6 +73,10 @@ module Deepblue
       return attributes_all_for_provenance, USE_BLANK_KEY_VALUES
     end
 
+    def attributes_for_provenance_transfer
+      return attributes_all_for_provenance, USE_BLANK_KEY_VALUES
+    end
+
     def attributes_for_provenance_tombstone
       return attributes_all_for_provenance, USE_BLANK_KEY_VALUES
     end
@@ -507,6 +511,23 @@ module Deepblue
                                                                   event_note: event_note,
                                                                   ignore_blank_key_values: ignore_blank_key_values,
                                                                   message: message )
+      provenance_log_event( attributes: attributes,
+                            current_user: current_user,
+                            event: EVENT_PUBLISH,
+                            event_note: event_note,
+                            ignore_blank_key_values: ignore_blank_key_values,
+                            prov_key_values: prov_key_values )
+    end
+
+    def provenance_transfer( current_user:, previous_user:, event_note: '', message: '' )
+      attributes, ignore_blank_key_values = attributes_for_provenance_transfer
+      prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes,
+                                                                  current_user: current_user,
+                                                                  event: EVENT_TRANSFER,
+                                                                  event_note: event_note,
+                                                                  ignore_blank_key_values: ignore_blank_key_values,
+                                                                  message: message,
+                                                                  previous_user: previous_user )
       provenance_log_event( attributes: attributes,
                             current_user: current_user,
                             event: EVENT_PUBLISH,
