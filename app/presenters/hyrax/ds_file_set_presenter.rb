@@ -102,12 +102,12 @@ module Hyrax
 
     def can_download_file_confirm?
       size = file_size
-      max_work_file_size_to_download = ::DeepBlueDocs::Application.config.max_work_file_size_to_download
+      max_file_size_to_download = ::DeepBlueDocs::Application.config.max_file_size_to_download
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "max_work_file_size_to_download < size=#{max_work_file_size_to_download < size}",
+                                             "max_file_size_to_download < size=#{max_file_size_to_download < size}",
                                              "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
-      max_work_file_size_to_download >= size
+      max_file_size_to_download >= size
     end
 
     def can_download_file_maybe?
@@ -314,7 +314,7 @@ module Hyrax
     def file_size_too_large_to_download?
       size = @solr_document.file_size
       return false if size.nil?
-      size >= DeepBlueDocs::Application.config.max_work_file_size_to_download
+      size >= DeepBlueDocs::Application.config.max_file_size_to_download
     end
 
     def first_title

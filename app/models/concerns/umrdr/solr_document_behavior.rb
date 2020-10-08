@@ -132,7 +132,9 @@ module Umrdr
     end
 
     def total_file_size
-      Array(self['total_file_size_lts']).first # standard lookup Solrizer.solr_name('total_file_size')] produces solr_document['file_size_tesim']
+      rv = Array(self['total_file_size_lts']).first # standard lookup Solrizer.solr_name('total_file_size')] produces solr_document['file_size_tesim']
+      return 0 if rv.blank?
+      rv
     end
 
     def total_file_size_human_readable

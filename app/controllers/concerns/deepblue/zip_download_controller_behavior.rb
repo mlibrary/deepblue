@@ -7,11 +7,10 @@ module Deepblue
 
   module ZipDownloadControllerBehavior
 
-    # include ::Deepblue::ZipDownloadService
-
-    ZIP_DOWNLOAD_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE = ZipDownloadService.zip_download_service_debug_verbose
+    ZIP_DOWNLOAD_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE = ::Deepblue::ZipDownloadService.zip_download_controller_behavior_debug_verbose
     
     def zip_download
+      # TODO: redirect to main page with error if zip download not enabled.
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
@@ -36,7 +35,7 @@ module Deepblue
     end
 
     def zip_download_enabled?
-      true
+      ::Deepblue::ZipDownloadService.zip_download_enabled
     end
 
     private

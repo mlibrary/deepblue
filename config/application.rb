@@ -213,8 +213,7 @@ module DeepBlueDocs
     config.upload_max_total_file_size = 10.gigabytes
     config.upload_max_total_file_size_str = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert(config.upload_max_total_file_size, {})
 
-    config.max_work_file_size_to_download = 10_000_000_000
-    config.min_work_file_size_to_download_warn = 1_000_000_000
+    config.max_file_size_to_download = 10.gigabytes
 
     ### file upload and ingest
     config.notify_user_file_upload_and_ingest_are_complete = true

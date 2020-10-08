@@ -10,6 +10,7 @@ module Hyrax
 
     include ActionView::Helpers::TextHelper
     include ::Deepblue::WorksControllerBehavior
+    include ::Deepblue::ZipDownloadControllerBehavior
 
     self.curation_concern_type = ::DataSet
     self.show_presenter = Hyrax::DataSetPresenter
@@ -478,119 +479,6 @@ module Hyrax
     end
 
     ## end visibility / publish
-
-    ## begin zip download operations
-
-    def zip_download
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
-      respond_to do |wants|
-        wants.html do
-          if curation_concern.total_file_size > DeepBlueDocs::Application.config.max_work_file_size_to_download
-            raise ActiveFedora::IllegalOperation # TODO need better error than this
-          end
-          zip_download_rest
-        end
-        wants.json do
-          unless ::DeepBlueDocs::Application.config.rest_api_allow_read
-            return render_json_response( response_type: :bad_request, message: "Method not allowed." )
-          end
-          if curation_concern.total_file_size > DeepBlueDocs::Application.config.max_work_file_size_to_download
-            return render_json_response( response_type: :unprocessable_entity, message: "total file size too large to download" )
-          end
-          zip_download_rest
-        end
-      end
-    end
-
-    def zip_download_rest
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "params=#{params}",
-                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
-      require 'zip'
-      require 'tempfile'
-
-      tmp_dir = ENV['TMPDIR'] || "/tmp"
-      tmp_dir = Pathname.new tmp_dir
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "zip_download begin",
-                                             "tmp_dir=#{tmp_dir}",
-                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
-      target_dir = target_dir_name_id( tmp_dir, curation_concern.id )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "target_dir=#{target_dir}",
-                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
-      Dir.mkdir( target_dir ) unless Dir.exist?( target_dir )
-      target_zipfile = target_dir_name_id( target_dir, curation_concern.id, ".zip" )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "target_zipfile=#{target_zipfile}",
-                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
-      File.delete target_zipfile if File.exist? target_zipfile
-      # clean the zip directory if necessary, since the zip structure is currently flat, only
-      # have to clean files in the target folder
-      files_to_delete = Dir.glob( (target_dir.join '*').to_s)
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "files_to_delete=#{files_to_delete}",
-                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
-      files_to_delete.each do |file|
-        File.delete file if File.exist? file
-      end
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "target_zipfile=#{target_zipfile}",
-                                             "Download Zip begin copy to folder #{target_dir}",
-                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
-      Zip::File.open(target_zipfile.to_s, Zip::File::CREATE ) do |zipfile|
-        metadata_filename = curation_concern.metadata_report( dir: target_dir )
-        zipfile.add( metadata_filename.basename, metadata_filename )
-        export_file_sets_to( target_dir: target_dir, log_prefix: "Zip: " ) do |target_file_name, target_file|
-          zipfile.add( target_file_name, target_file )
-        end
-      end
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "Download complete target_dir=#{target_dir}",
-                                             "target_zipfile=#{target_zipfile}",
-                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
-      send_file target_zipfile.to_s
-    end
-
-    def zip_download_enabled?
-      true
-    end
-
-    # end zip download operations
-
-    # # Create EDTF::Interval from form parameters
-    # # Replace the date coverage parameter prior with serialization of EDTF::Interval
-    # def assign_date_coverage
-    #   ##cov_interval = Umrdr::DateCoverageService.params_to_interval params
-    #   ##params['generic_work']['date_coverage'] = cov_interval ? [cov_interval.edtf] : []
-    # end
-    #
-    # def check_recent_uploads
-    #   if params[:uploads_since]
-    #     begin
-    #       @recent_uploads = [];
-    #       uploads_since = Time.at(params[:uploads_since].to_i / 1000.0)
-    #       presenter.file_set_presenters.reverse_each do |file_set|
-    #         date_uploaded = get_date_uploaded_from_solr(file_set)
-    #         if date_uploaded.nil? or date_uploaded < uploads_since
-    #           break
-    #         end
-    #         @recent_uploads.unshift file_set
-    #       end
-    #     rescue Exception => e
-    #       Rails.logger.info "Something happened in check_recent_uploads: #{params[:uploads_since]} : #{e.message}"
-    #     end
-    #   end
-    # end
 
     protected
 

@@ -16,10 +16,12 @@ class GlobusJob < ::Hyrax::ApplicationJob
   @@globus_copy_file_permissions = ::Deepblue::GlobusIntegrationService.globus_copy_file_permissions.freeze
 
   def self.files_available?( concern_id )
+    return false unless @@globus_enabled
     copy_complete? concern_id
   end
 
   def self.copy_complete?( id )
+    return false unless @@globus_enabled
     dir = @@globus_download_dir
     dir = dir.join files_target_file_name( id )
     Dir.exist? dir

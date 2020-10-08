@@ -11,6 +11,8 @@ module Hyrax
 
     include ModelProxy
     include PresentsAttributes
+    include ::Deepblue::TotalFileSizePresenterBehavior
+    include ::Deepblue::ZipDownloadPresenterBehavior
 
     attr_accessor :solr_document, :current_ability, :request
 
@@ -134,35 +136,6 @@ module Hyrax
                                              "" ] if true || WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       return false unless globus_enabled?
       can_download_zip_maybe?
-    end
-
-    def can_download_zip?
-      can_download_zip_maybe? && can_download_zip_confirm?
-    end
-
-    def can_download_zip_confirm?
-      max_work_file_size_to_download = ::DeepBlueDocs::Application.config.max_work_file_size_to_download
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "max_work_file_size_to_download < total_file_size=#{max_work_file_size_to_download < total_file_size}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
-      max_work_file_size_to_download >= total_file_size
-    end
-
-    def can_download_zip_maybe?
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "false if zip_download_enabled?=#{zip_download_enabled?}",
-                                             "true if single_use_show?=#{single_use_show?}",
-                                             "true if can_edit_work?=#{can_edit_work?}",
-                                             "false if embargoed?=#{embargoed?}",
-                                             "else true",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
-      return false unless zip_download_enabled?
-      return true if single_use_show?
-      return true if can_edit_work?
-      return false if embargoed?
-      true
     end
 
     def can_edit_work?
@@ -486,52 +459,6 @@ module Hyrax
     def tombstoned?
       tombstone.present?
     end
-
-    def zip_download_link( curation_concern = solr_document )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "id=#{id}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
-      return "id is nil" if id.nil?
-      curation_concern = ActiveFedora::Base.find( id ) if curation_concern.nil?
-      # return "curation_concern.nil?=#{curation_concern.nil?}"
-      url = zip_download_path_link( curation_concern )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "id=#{id}",
-                                             "url=#{url}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
-      return url
-    end
-
-    def zip_download_path_link( curation_concern )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "id=#{id}",
-                                             "single_use_show?=#{single_use_show?}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
-      return curation_concern.for_zip_download_route unless single_use_show?
-      # return Rails.application.routes.url_helpers.url_for( only_path: true,
-      #                                                      action: 'show',
-      #                                                      controller: 'downloads',
-      #                                                      id: curation_concern.id ) unless single_use_show?
-      su_link = single_use_link_download( curation_concern )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "su_link=#{su_link}",
-                                             "su_link.downloadKey=#{su_link.downloadKey}",
-                                             "su_link.itemId=#{su_link.itemId}",
-                                             "su_link.path=#{su_link.path}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
-      rv = "/data/single_use_link/download/#{su_link.downloadKey}" # TODO: fix
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "rv=#{rv}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
-      # return "/data/downloads/#{curation_concern.id}/single_use_link/#{su_link.downloadKey}" # TODO: fix
-      return rv
-    end
-
 
     def workflow
       # @workflow ||= WorkflowPresenter.new(solr_document, current_ability)

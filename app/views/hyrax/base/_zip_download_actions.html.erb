@@ -1,13 +1,13 @@
 <%= form_tag(main_app.zip_download_hyrax_data_set_path(@presenter.id), method: 'post') do %>
   <%= hidden_field_tag('data_set[nop]') %>
-  <% if DeepBlueDocs::Application.config.max_work_file_size_to_download < @presenter.total_file_size %>
+  <% unless @presenter.can_download_zip_confirm? %>
     <p><%= t('simple_form.hints.data_set.download_total_work_size_too_large',
              total_file_size: @presenter.total_file_size_human_readable) %>
     </p>
   <% else %>
     <%= submit_tag(@presenter.label_with_total_file_size(t('simple_form.actions.data_set.zip_download')),
                    class: 'btn btn-primary') %>
-    <% if DeepBlueDocs::Application.config.min_work_file_size_to_download_warn < @presenter.total_file_size %>
+    <% if @presenter.zip_download_total_file_size_warn? %>
       <p><%= t('simple_form.hints.data_set.download_total_work_size_may_be_too_large',
                total_file_size: @presenter.total_file_size_human_readable) %>
       </p>
