@@ -1,8 +1,13 @@
+# frozen_string_literal: true
+
 # Responsible for persisting the ownership transfer requests and the state of each request.
 # @see ProxyDepositRequest.enum(:status)
 # @see ProxyDepositRequest.work_query_service_class for configuration (defaults to Hyrax::WorkQueryService)
 # @see Hyrax::WorkQueryService
 class ProxyDepositRequest < ActiveRecord::Base
+
+  PROXY_DEPOSIT_REQUEST_DEBUG_VERBOSE = true
+
   include ActionView::Helpers::UrlHelper
 
   class_attribute :work_query_service_class
@@ -132,10 +137,15 @@ class ProxyDepositRequest < ActiveRecord::Base
 
   private
 
-    def fulfill!(status:, comment: nil)
+    def fulfill!( status:, comment: nil )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "status=#{status}",
+                                             "" ] if PROXY_DEPOSIT_REQUEST_DEBUG_VERBOSE
       self.receiver_comment = comment if comment
       self.status = status
       self.fulfillment_date = Time.current
       save!
     end
+
 end

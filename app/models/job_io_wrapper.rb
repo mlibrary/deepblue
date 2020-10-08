@@ -80,14 +80,15 @@ class JobIoWrapper < ApplicationRecord
                    uploaded_file_ids: [] )
 
     actor = file_actor
-    Deepblue::LoggingHelper.bold_debug [ "#{caller_locations(1, 1)[0]}",
-                                         "actor.class=#{actor.class.name}",
-                                         "relation=#{relation}",
-                                         "continue_job_chain=#{continue_job_chain}",
-                                         "continue_job_chain_later=#{continue_job_chain_later}",
-                                         "delete_input_file=#{delete_input_file}",
-                                         "uploaded_file_ids=#{uploaded_file_ids}",
-                                         "" ] if JOB_IO_WRAPPER_DEBUG_VERBOSE
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "actor.class=#{actor.class.name}",
+                                           "relation=#{relation}",
+                                           "continue_job_chain=#{continue_job_chain}",
+                                           "continue_job_chain_later=#{continue_job_chain_later}",
+                                           "delete_input_file=#{delete_input_file}",
+                                           "uploaded_file_ids=#{uploaded_file_ids}",
+                                           "" ] if JOB_IO_WRAPPER_DEBUG_VERBOSE
 
     user_key = nil
     unless user_id.nil?

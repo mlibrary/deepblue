@@ -29,6 +29,7 @@ RSpec.describe Deepblue::AbstractEventBehavior do
       expect( Deepblue::AbstractEventBehavior::EVENT_MIGRATE ).to eq 'migrate'
       expect( Deepblue::AbstractEventBehavior::EVENT_MINT_DOI ).to eq 'mint_doi'
       expect( Deepblue::AbstractEventBehavior::EVENT_PUBLISH ).to eq 'publish'
+      expect( Deepblue::AbstractEventBehavior::EVENT_TRANSFER ).to eq 'transfer'
       expect( Deepblue::AbstractEventBehavior::EVENT_TOMBSTONE ).to eq 'tombstone'
       expect( Deepblue::AbstractEventBehavior::EVENT_UNEMBARGO ).to eq 'unembargo'
       expect( Deepblue::AbstractEventBehavior::EVENT_UNPUBLISH ).to eq 'unpublish'
@@ -54,6 +55,7 @@ RSpec.describe Deepblue::AbstractEventBehavior do
         Deepblue::AbstractEventBehavior::EVENT_MIGRATE,
         Deepblue::AbstractEventBehavior::EVENT_MINT_DOI,
         Deepblue::AbstractEventBehavior::EVENT_PUBLISH,
+        Deepblue::AbstractEventBehavior::EVENT_TRANSFER,
         Deepblue::AbstractEventBehavior::EVENT_TOMBSTONE,
         Deepblue::AbstractEventBehavior::EVENT_UNEMBARGO,
         Deepblue::AbstractEventBehavior::EVENT_UNPUBLISH,
