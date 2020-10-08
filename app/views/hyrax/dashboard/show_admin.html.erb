@@ -49,6 +49,43 @@
     </div>
 </div>
 
+<div class="row">
+
+  <div class="col-md-3">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title text-center"><%= "DBD Disk Usage" %></h3>
+      </div>
+      <div class="panel-body text-center">
+        <div class="h4 info-div"><%= raw ::Deepblue::SystemMonitorHelper.space %></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title text-center"><%= "Globus Disk Usage" %></h3>
+      </div>
+      <div class="panel-body text-center">
+        <div class="h4 info-div"><%= raw ::Deepblue::SystemMonitorHelper.space_globus %></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title text-center"><%= "Prep Disk Usage" %></h3>
+      </div>
+      <div class="panel-body text-center">
+        <div class="h4 info-div"><%= raw ::Deepblue::SystemMonitorHelper.space_prep %></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
 <%= render 'admin_sets' %>
 
 <div class="panel panel-default my_active_embargoes">
