@@ -19,14 +19,18 @@ Deepblue::IngestIntegrationService.setup do |config|
     if Dir.exists? "/Volumes/ulib-dbd-prep"
       allowed_dirs << "/Volumes/ulib-dbd-prep"
       config.ingest_script_dir = "/Volumes/ulib-dbd-prep/scripts"
+      config.deepbluedata_prep = "/Volumes/ulib-dbd-prep"
     else
       allowed_dirs << "/tmp/deepbluedata-prep"
       config.ingest_script_dir = "/tmp/deepbluedata-prep/scripts"
+      config.deepbluedata_prep = "/tmp/deepbluedata-prep"
     end
   elsif Rails.env.test?
     config.ingest_script_dir = '/tmp/deepbluedata-prep/scripts'
+    config.deepbluedata_prep = '/tmp/deepbluedata-prep'
   else
     config.ingest_script_dir = '/deepbluedata-prep/scripts'
+    config.deepbluedata_prep = '/deepbluedata-prep'
   end
   config.ingest_append_ui_allowed_base_directories = allowed_dirs
   ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,

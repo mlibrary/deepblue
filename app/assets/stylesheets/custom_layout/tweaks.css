@@ -595,3 +595,41 @@ table.datatable thead th.no-sort {
   -moz-box-shadow: 0 3px 10px rgba(0,0,0,0.1);
   -webkit-box-shadow: 0 3px 10px rgba(0,0,0,0.1);
 }
+
+.info-div table {
+    display: table;
+    border-collapse: separate;
+    border-spacing: 2px;
+    border-color: gray;
+}
+
+.info-div tbody {
+    display: table-row-group;
+    vertical-align: top;
+    border-color: inherit;
+}
+
+.info-div td {
+    display: table-cell;
+    vertical-align: top;
+    text-align: center;
+}
+
+.info-div th {
+    display: table-cell;
+    vertical-align: inherit;
+    font-weight: bold;
+    text-align: center;
+}
+
+.info-div thead {
+    display: table-header-group;
+    vertical-align: middle;
+    border-color: inherit;
+}
+
+.info-div tr {
+    display: table-row;
+    vertical-align: inherit;
+    border-color: inherit;
+}
