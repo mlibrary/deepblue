@@ -24,7 +24,7 @@ en:
   events:
     actions:
       event_logger_action_error:        "#action should be implemented by class including EventLoggerJob module"
-      content_depositor_change:         "User #{user_from} has transferred #{title} to user #{user_to}"
+      content_depositor_change:         "User %{user_from} has transferred %{title} to user %{user_to}"
   simple_form:
     actions:
       data_set:

@@ -28,9 +28,9 @@ class ContentDepositorChangeEventJob < ContentEventJob
 
   def action
     I18n.t( "events.actions.content_depositor_change",
-            user_to: link_to_profile( work.proxy_depositor ),
-            title: link_to_profile( work.proxy_depositor ),
-            user_from: link_to_profile( depositor ) )
+            user_from: link_to_profile( work.proxy_depositor ),
+            title: link_to_work( work.title.first ),
+            user_to: link_to_profile( depositor ) )
   end
 
   def link_to_work(text)
