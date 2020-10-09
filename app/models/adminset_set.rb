@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AdminsetSet < ::BlacklightOaiProvider::SolrSet
   def description
     if label && value

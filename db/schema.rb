@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_08_28_174733) do
+ActiveRecord::Schema.define(version: 2020_10_09_183555) do
 
   create_table "bookmarks", force: :cascade do |t|
     t.integer "user_id", null: false
@@ -86,6 +86,17 @@ ActiveRecord::Schema.define(version: 2020_08_28_174733) do
     t.index ["parent_id"], name: "index_curation_concerns_operations_on_parent_id"
     t.index ["rgt"], name: "index_curation_concerns_operations_on_rgt"
     t.index ["user_id"], name: "index_curation_concerns_operations_on_user_id"
+  end
+
+  create_table "email_subscriptions", force: :cascade do |t|
+    t.integer "user_id"
+    t.string "email"
+    t.string "subscription_name", null: false
+    t.string "subscription_parameters"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["subscription_name"], name: "index_email_subscriptions_on_subscription_name"
+    t.index ["user_id"], name: "index_email_subscriptions_on_user_id"
   end
 
   create_table "featured_works", force: :cascade do |t|
