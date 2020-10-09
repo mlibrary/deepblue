@@ -84,6 +84,17 @@
     </div>
   </div>
 
+  <div class="col-md-3">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title text-center"><%= t('hyrax.scheduler.status_header') %></h3>
+      </div>
+      <div class="panel-body text-center">
+        <div class="h3"><%= raw ::Deepblue::SchedulerHelper.scheduler_status %></div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <%= render 'admin_sets' %>

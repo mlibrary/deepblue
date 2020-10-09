@@ -42,6 +42,19 @@ module Deepblue
       SCHEDULER_LOGGER.info( msg )
     end
 
+    def self.scheduler_pid
+      ::Deepblue::SchedulerIntegrationService.scheduler_pid
+    end
+
+    def self.scheduler_running
+      scheduler_pid.present?
+    end
+
+    def self.scheduler_status
+      return MsgHelper.t( "hyrax.scheduler.running") if scheduler_running
+      MsgHelper.t( 'hyrax.scheduler.not_running_html' )
+    end
+
   end
 
 end
