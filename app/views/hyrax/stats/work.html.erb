@@ -7,7 +7,9 @@
 //]]>
 </script>
 
+<% show_actions_DEBUG_VERBOSE = false %>
 <%= content_tag :h1, @stats, class: "lower" %>
+
 
 <div class="row">
   <div class="col-sm-12">
@@ -21,3 +23,35 @@
     </div>
   </div>
 </div>
+
+<% ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                         ::Deepblue::LoggingHelper.called_from,
+                                         "@stats.to_flot[0][:data]=#{@stats.to_flot[0][:data]}",
+                                         ""]  if show_actions_DEBUG_VERBOSE %>
+
+
+<% data = @stats.to_flot[0][:data] %> 
+<%# This is what the data looks like:  data = [["1555286400000","1"], ["1555286400000","2"]] %>
+
+<% if data.nil? || data.empty? %>
+<% else %>
+
+  <table border="5"    WIDTH="50%"   CELLPADDING="4" CELLSPACING="3">
+    <tr>
+      <th COLSPAN="2"><br><div style="font-weight: bold;">Item View Counts</div>
+      </th>
+    </tr>
+    <tr>
+      <th>Date of View</th>
+      <th>Number of Views</th>
+    </tr>
+
+    <% data.each do |sub_array| %>
+    <tr>
+      <th><%= Time.at sub_array[0].to_i/1000 %></th>
+      <th><%= sub_array[1] %></th>
+    </tr>
+    <% end %>
+  </table>
+
+<% end %>
