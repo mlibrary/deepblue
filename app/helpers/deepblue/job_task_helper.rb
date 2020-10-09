@@ -75,6 +75,7 @@ module Deepblue
                                              "timestamp_end=#{timestamp_end}",
                                              "" ] if job_task_helper_debug_verbose
       return if targets.blank?
+      timestamp_end = DateTime.now if timestamp_end.blank?
       body =<<-END_BODY
 #{timestamp_begin.blank? ? "" : "Began: #{timestamp_begin}<br/>"}
 #{timestamp_end.blank? ? "" : "Ended: #{timestamp_end}<br/>"}
@@ -125,6 +126,7 @@ END_BODY
                                              "timestamp_end=#{timestamp_end}",
                                              "" ] if job_task_helper_debug_verbose
       return if targets.blank?
+      timestamp_end = DateTime.now if timestamp_end.blank?
       body =<<-END_BODY
 #{task_name} on #{hostname} failed.<br/>
 #{timestamp_begin.blank? ? "" : "Began: #{timestamp_begin}<br/>"}
@@ -177,6 +179,7 @@ END_BODY
                                              "timestamp_end=#{timestamp_end}",
                                              "" ] if job_task_helper_debug_verbose
       return if targets.blank?
+      timestamp_end = DateTime.now if timestamp_end.blank?
       body =<<-END_BODY
 #{task_name} on #{hostname} ran successfully.<br/>
 #{timestamp_begin.blank? ? "" : "Began: #{timestamp_begin}<br/>"}
