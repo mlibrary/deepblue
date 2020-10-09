@@ -1,7 +1,12 @@
+# frozen_string_literal: true
+
 # Log work depositor change to activity streams
 #
 # @attr [Boolean] reset (false) should the access controls be reset. This means revoking edit access from the depositor
 class ContentDepositorChangeEventJob < ContentEventJob
+
+  CONTENT_DEPOSTIOR_CHANGE_EVENT_JOB_DEBUG_VERBOSE = true
+
   include Rails.application.routes.url_helpers
   include ActionDispatch::Routing::PolymorphicRoutes
 
@@ -11,12 +16,21 @@ class ContentDepositorChangeEventJob < ContentEventJob
   # @param [User] user the user the work is being transfered to.
   # @param [TrueClass,FalseClass] reset (false) if true, reset the access controls. This revokes edit access from the depositor
   def perform(work, user, reset = false)
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "work=#{work}",
+                                           "user=#{user}",
+                                           "reset=#{reset}",
+                                           "" ] if CONTENT_DEPOSTIOR_CHANGE_EVENT_JOB_DEBUG_VERBOSE
     @reset = reset
     super(work, user)
   end
 
   def action
-    "User #{link_to_profile work.proxy_depositor} has transferred #{link_to_work work.title.first} to user #{link_to_profile depositor}"
+    I18n.t( "events.actions.content_depositor_change",
+            user_to: link_to_profile( work.proxy_depositor ),
+            title: link_to_profile( work.proxy_depositor ),
+            user_from: link_to_profile( depositor ) )
   end
 
   def link_to_work(text)
@@ -43,4 +57,5 @@ class ContentDepositorChangeEventJob < ContentEventJob
   def proxy_depositor
     @proxy_depositor ||= ::User.find_by_user_key(work.proxy_depositor)
   end
+
 end
