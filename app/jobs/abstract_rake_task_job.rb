@@ -22,6 +22,7 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
   end
 
   def email_exec_results( exec_str:, rv:, event:, event_note: '' )
+    timestamp_end = DateTime.now if timestamp_end.blank?
     ::Deepblue::JobTaskHelper.email_exec_results( targets: email_results_to,
                                                   exec_str: exec_str,
                                                   rv: rv,
@@ -33,6 +34,7 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
   end
 
   def email_failure( task_name:, exception:, event:, event_note: '' )
+    timestamp_end = DateTime.now if timestamp_end.blank?
     ::Deepblue::JobTaskHelper.email_failure( targets: email_results_to,
                                              task_name: task_name,
                                              exception: exception,
@@ -44,6 +46,7 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
   end
 
   def email_results( task_name:, event:, event_note: '' )
+    timestamp_end = DateTime.now if timestamp_end.blank?
     ::Deepblue::JobTaskHelper.email_results( targets: email_results_to,
                                              task_name: task_name,
                                              event: event,
