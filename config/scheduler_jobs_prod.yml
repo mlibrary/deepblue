@@ -29,7 +29,7 @@ find_and_fix_job:
       - 'fritx@umich.edu'
     find_and_fix_empty_file_size: true
     find_and_fix_all_ordered_members_containing_nils: true
-    verbose: true
+    verbose: true 
 
 clean_tmp:
 # Run once a week on Saturday, 6 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
@@ -106,13 +106,13 @@ user_stat_importer_job:
     verbose: false
 
 works_report_job:
-  # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  # Run once a month on the 1st, five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M H D
   # cron: '*/5 * * * *'
   cron: '5 5 1 * *'
   class: WorksReportJob
   queue: scheduler
-  description: Works report job.
+  description: Monthly Works report job.
   args:
     report_file_prefix: '%date%.%hostname%.works_report'
     report_dir: '/deepbluedata-prep/reports'
@@ -120,6 +120,20 @@ works_report_job:
     hostnames:
       - 'deepblue.lib.umich.edu'
       - 'staging.deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
+
+works_report_job2:
+  # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  #      M H D
+  cron: '5 5 * * *'
+  class: WorksReportJob
+  queue: scheduler
+  description: Daily Works report job.
+  args:
+    report_file_prefix: '%date%.%hostname%.works_report'
+    report_dir: '/deepbluedata-prep/reports'
+    quiet: true
+    hostnames:
       - 'testing.deepblue.lib.umich.edu'
 
 about_to_deactivate_embargoes_at_2_days_job:
