@@ -359,7 +359,7 @@ module Hyrax
                                              "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
       ::Deepblue::ProvenanceLogService.entries( curation_concern.id, refresh: true )
       # continue on to normal display
-      redirect_to [main_app, curation_concern]
+      redirect_to current_show_path( append: "#provenance_log_display" )
     end
 
     def display_provenance_log_enabled?

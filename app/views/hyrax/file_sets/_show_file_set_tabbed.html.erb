@@ -1,0 +1,22 @@
+<div class="panel panel-default tabs">
+  <ul class="nav nav-tabs" role="tablist">
+    <li id="user_activity_log_link" class="active">
+      <a href="#user_activity_log" data-toggle="tab"> <%= t('show.labels.tab_user_activity_log') %></a>
+    </li>
+    <!-- % if @presenter.can_display_file_contents? %>
+      <li id="file_contents_display_link">
+        <a href="#file_contents_display" data-toggle="tab"> <%= t('show.labels.tab_file_contents') %></a>
+      </li>
+    < % end % -->
+    <li id="provenance_log_display_link">
+      <a href="#provenance_log_display" data-toggle="tab"> <%= t('show.labels.tab_provenance_log') %></a>
+    </li>
+  </ul>
+  <div class="tab-content">
+    <div id="user_activity_log" class="tab-pane active">
+      <%= render 'hyrax/users/activity_log', events: @presenter.events %>
+    </div>
+    <%#= render 'show_file_contents', presenter: @presenter %>
+    <%= render 'provenance_log', presenter: @presenter %>
+  </div>
+</div>

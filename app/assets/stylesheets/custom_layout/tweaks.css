@@ -633,3 +633,11 @@ table.datatable thead th.no-sort {
     vertical-align: inherit;
     border-color: inherit;
 }
+
+.file-contents-container {
+    min-height: 80px;
+}
+
+.provenance-log-container {
+    min-height: 60px;
+}
