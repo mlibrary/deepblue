@@ -229,7 +229,7 @@ module Hyrax
                                              "current_user_can_read?=#{current_user_can_read?}",
                                              "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       return true if workflow.state == 'deposited' && solr_document.visibility == 'open'
-      return true if embargoed?
+      return true if embargoed? && workflow.state == 'deposited'
       return true if tombstoned?
       return true if single_use_show?
       return true if current_ability.can?( :edit, id )
