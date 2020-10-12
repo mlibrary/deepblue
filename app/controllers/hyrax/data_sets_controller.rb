@@ -151,6 +151,7 @@ module Hyrax
     end
 
     def is_tabbed?
+      return true if current_ability.admin?
       can_display_read_me?
     end
 

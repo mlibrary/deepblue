@@ -168,10 +168,10 @@
         <div class="panel-body">
           <%= link_to t('simple_form.actions.ingest_append.prep'),
                       main_app.ingest_append_prep_hyrax_data_set_path(@presenter.id), class: 'btn btn-subtle' %>
-          <% if @presenter.display_provenance_log_enabled? %>
-            <%= link_to t('simple_form.actions.provenance_log.display'),
+          <%# if @presenter.display_provenance_log_enabled? %>
+            <%#= link_to t('simple_form.actions.provenance_log.display_or_update'),
                         main_app.display_provenance_log_hyrax_data_set_path(@presenter.id), class: 'btn btn-subtle' %>
-          <% end %>
+          <%# end %>
           <% if @presenter.work_featurable? %>
             <%= link_to t('simple_form.actions.data_set.feature'), hyrax.featured_work_path(@presenter, format: :json),
                         data: { behavior: 'feature' },

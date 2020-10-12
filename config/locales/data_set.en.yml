@@ -96,6 +96,7 @@ en:
       rights_license_other: "Other License"
       subject_discipline:   "Discipline"
       tab_item:             "Files"
+      tab_provenance_log:   "Provenence Log"
       tab_read_me:          "Readme"
       total_file_size:      "Total file size"
       total_file_size_human_readable: "Total file size"
@@ -140,8 +141,10 @@ en:
         run_job:                        "Run Append Files Script"
       provenance_log:
         deleted_works:                  "Deleted Works"
-        display:                        "Display or Update Provenance Log Entries"
+        display:                        "Display Provenance Log Entries"
+        display_or_update:              "Display or Update Provenance Log Entries"
         download:                       "Download Provenance Log"
+        update:                         "Update Provenance Log Entries"
     confirm:
       data_set:
         delete_all_globus_download_files: >
