@@ -268,6 +268,7 @@ module Deepblue
         out << ',' << 'File ext'
         out << ',' << 'File name'
         out << ',' << 'Thumbnail id'
+        out << ',' << 'DOI'
       else
         return out if file_set.nil?
         out << file_set.id.to_s
@@ -281,6 +282,7 @@ module Deepblue
         out << ',' << file_ext
         out << ',' << '"' << file_set.label << '"'
         out << ',' << '"' << (file_set.thumbnail_id.nil? ? '' : file_set.thumbnail_id).to_s << '"'
+        out << ',' << '"' << (file_set.doi.nil? ? '' : file_set.doi).to_s << '"'
       end
       out << "\n"
       out
@@ -306,6 +308,7 @@ module Deepblue
         out << ',' << 'License Other'
         out << ',' << 'Thumbnail id'
         out << ',' << 'DOI'
+        out << ',' << 'Tombstone'
       else
         return out if work.nil?
         out << work.id.to_s
@@ -327,6 +330,7 @@ module Deepblue
         out << ',' << '"' << work.rights_license_other << '"'
         out << ',' << '"' << (work.thumbnail_id.nil? ? '' : work.thumbnail_id).to_s << '"'
         out << ',' << '"' << (work.doi.nil? ? '' : work.doi).to_s << '"'
+        out << ',' << '"' << (work.tombsone.nil? ? '' : work.tombstone).to_s << '"'
       end
       out << "\n"
       out
