@@ -1,0 +1,12 @@
+<% if @presenter.can_display_file_contents? %>
+  <div id="file_contents_display" class="tab-pane">
+    <div id="file_contents_container" class="file-contents-container">
+      <div class="documentation-div float-right">
+        <p>
+          <%= link_to t('simple_form.actions.file_set.contents'),
+                      main_app.file_contents_hyrax_file_set_path(@presenter.id), class: 'btn btn-subtle' %>
+        </p>
+      </div>
+    </div>
+  </div>
+<% end %>

@@ -321,6 +321,11 @@ module Hyrax
       title.first
     end
 
+    def is_tabbed?
+      return true if current_ability.admin?
+      false
+    end
+
     def json_metadata_properties
       ::FileSet.metadata_keys_json
     end
