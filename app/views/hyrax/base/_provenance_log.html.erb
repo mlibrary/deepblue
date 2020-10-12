@@ -1,0 +1,16 @@
+<% if @presenter.display_provenance_log_enabled? %>
+  <div id="provenance_log_display" class="tab-pane">
+    <div id="provenance_log_container" class="provenance-log-container">
+      <div class="documentation-div float-right">
+        <% if @presenter.provenance_log_entries? %>
+          <%= link_to t('simple_form.actions.provenance_log.update'),
+                      main_app.display_provenance_log_hyrax_data_set_path(@presenter.id), class: 'btn btn-subtle' %>
+        <% else %>
+          <%= link_to t('simple_form.actions.provenance_log.display'),
+                      main_app.display_provenance_log_hyrax_data_set_path(@presenter.id), class: 'btn btn-subtle' %>
+        <% end %>
+      </div>
+      <%= render '/provenance_log_entries', presenter: @presenter %>
+    </div>
+  </div>
+<% end %>

@@ -21,7 +21,7 @@
         <% end %>
         <% if @presenter.display_provenance_log_enabled? %>
           <p>
-          <%= link_to t('simple_form.actions.provenance_log.display'),
+          <%= link_to t('simple_form.actions.provenance_log.display_or_update'),
                       main_app.display_provenance_log_hyrax_file_set_path(@presenter.id), class: 'btn btn-subtle' %>
           </p>
         <% end %>

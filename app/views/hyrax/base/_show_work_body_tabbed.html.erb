@@ -6,11 +6,15 @@
     <li id="read_me_display_link">
       <a href="#read_me_display" data-toggle="tab"> <%= t('show.labels.tab_read_me') %></a>
     </li>
+    <li id="provenance_log_display_link">
+      <a href="#provenance_log_display" data-toggle="tab"> <%= t('show.labels.tab_provenance_log') %></a>
+    </li>
   </ul>
   <div class="tab-content">
     <div id="items_display" class="tab-pane active">
       <%= render 'items', presenter: @presenter %>
     </div>
     <%= render "read_me", presenter: @presenter %>
+    <%= render "provenance_log", presenter: @presenter %>
   </div>
 </div>
