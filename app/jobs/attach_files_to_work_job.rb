@@ -8,66 +8,84 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
   ATTACH_FILES_TO_WORK_JOB_IS_VERBOSE = false
   ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY = false
 
+  attr_accessor :depositor,
+                :job_status,
+                :processed,
+                :processed_uploaded_file_ids,
+                :uploaded_files,
+                :uploaded_file_ids,
+                :user,
+                :user_key,
+                :work
+
+  def depositor
+    @depositor ||= work_proxy_or_depositor
+  end
+
+  def job_status
+    @job_status ||= job_status_init
+  end
+
+  def job_status_init
+    status = IngestJobStatus.new( job: self )
+    state = status.state_deserialize
+    if state.present?
+      @processed_uploaded_file_ids = state
+      reinitialize_processed
+    end
+    return status
+  end
+
+  def reinitialize_processed
+    @processed = []
+    processed_uploaded_file_ids.each_with_index do |uploaded_file_id,index|
+      @processed << @uploaded_files[index]
+    end
+  end
+
+  def processed
+    @processed ||= []
+  end
+
+  def processed_uploaded_file_ids
+    @processed_uploaded_file_ids ||= []
+  end
+
+  def uploaded_file_ids
+    @uploaded_file_ids ||= uploaded_files.map { |u| u.id }
+  end
+
+  def user
+    # @user ||= User.find_by_user_key( depositor ) # Wrong!, it's actually on the upload file record.
+    @user ||= User.find_by_user_key( user_key )
+  end
+
   # @param [ActiveFedora::Base] work - the work object
   # @param [Array<Hyrax::UploadedFile>] uploaded_files - an array of files to attach
   def perform( work, uploaded_files, user_key, **work_attributes )
-    @processed = []
-    Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                         Deepblue::LoggingHelper.called_from,
-                                         "work=#{work}",
-                                         "user_key=#{user_key}",
-                                         "uploaded_files=#{uploaded_files}",
-                                         "uploaded_files.count=#{uploaded_files.count}",
-                                         "work_attributes=#{work_attributes}" ] if ATTACH_FILES_TO_WORK_JOB_IS_VERBOSE
-    depositor = proxy_or_depositor( work )
-    # user = User.find_by_user_key( depositor ) # Wrong!, it's actually on the upload file record.
-    user = User.find_by_user_key( user_key )
-    uploaded_file_ids = uploaded_files.map { |u| u.id }
-    Deepblue::UploadHelper.log( class_name: self.class.name,
-                                event: "attach_files_to_work",
-                                event_note: "starting",
-                                id: work.id,
-                                uploaded_file_ids: uploaded_file_ids,
-                                uploaded_file_ids_count: uploaded_file_ids.size,
-                                user: user.to_s,
-                                work_id: work.id,
-                                work_file_set_count: work.file_set_ids.count,
-                                asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY)
-    validate_files!(uploaded_files)
-    work_permissions = work.permissions.map( &:to_hash )
-    metadata = visibility_attributes( work_attributes )
-    uploaded_files.each do |uploaded_file|
-      upload_file( work, uploaded_file, user, work_permissions, metadata, uploaded_file_ids: uploaded_file_ids )
-    end
-    failed = uploaded_files - @processed
-    if failed.empty?
-      Deepblue::UploadHelper.log( class_name: self.class.name,
-                                  event: "attach_files_to_work",
-                                  event_note: "finished",
-                                  id: work.id,
-                                  uploaded_file_ids: uploaded_file_ids,
-                                  uploaded_file_ids_count: uploaded_file_ids.size,
-                                  user: user.to_s,
-                                  work_id: work.id,
-                                  work_file_set_count: work.file_set_ids.count,
-                                  asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY)
-    else
-      Rails.logger.error "FAILED to process all uploaded files at #{caller_locations(1, 1)[0]}, count of unprocessed files = #{failed.count}"
-      Deepblue::UploadHelper.log( class_name: self.class.name,
-                                  event: "attach_files_to_work",
-                                  event_note: "finished_with_failed_files",
-                                  id: work.id,
-                                  uploaded_file_ids: uploaded_file_ids,
-                                  uploaded_file_ids_count: uploaded_file_ids.size,
-                                  user: user.to_s,
-                                  work_id: work.id,
-                                  work_file_set_count: work.file_set_ids.count,
-                                  failed: failed,
-                                  asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY )
-    end
-    notify_attach_files_to_work_job_complete( failed_to_upload: failed, uploaded_files: uploaded_files, user: user, work: work )
+    @work = work
+    @user_key = user_key
+    @uploaded_files = Array( uploaded_files )
+    return if job_status.finished?
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "work=#{work}",
+                                           "user_key=#{user_key}",
+                                           "uploaded_files=#{uploaded_files}",
+                                           "uploaded_files.count=#{uploaded_files.count}",
+                                           "work_attributes=#{work_attributes}",
+                                           "job_status=#{job_status}",
+                                           "processed=#{processed}",
+                                           "" ] if ATTACH_FILES_TO_WORK_JOB_IS_VERBOSE
+    perform_log_starting unless job_status.did_log_starting?
+    perform_validate_files unless job_status.did_validate_files?
+    perform_upload_files unless job_status.did_upload_files?
+    perform_notify unless job_status.did_notify?
+    job_status.update_status_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
-    Rails.logger.error "#{e.class} work_id=#{work.id} -- #{e.message} at #{e.backtrace[0]}"
+    msg = "#{e.class} work_id=#{work.id} -- #{e.message} at #{e.backtrace[0]}"
+    Rails.logger.error msg
+    JobStatus.find_or_create( job: self ).add_error!( error: error )
     Deepblue::UploadHelper.log( class_name: self.class.name,
                                 event: "attach_files_to_work",
                                 event_note: "failed",
@@ -82,7 +100,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
 
   private
 
-    def attach_files_to_work_job_complete_email_user( email: nil, lines: [], subject:, work: )
+    def attach_files_to_work_job_complete_email_user( email: nil, lines: [], subject: )
       return if email.blank?
       return if lines.blank?
       # Deepblue::LoggingHelper.debug "attach_files_to_work_job_complete_email_user: work id: #{work.id} email: #{email}"
@@ -106,10 +124,10 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                    email_sent: email_sent )
     end
 
-    def data_set_url( work )
+    def data_set_url
       Deepblue::EmailHelper.data_set_url( data_set: work )
     rescue Exception => e # rubocop:disable Lint/RescueException
-      Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
+      log_error "#{e.class} #{e.message} at #{e.backtrace[0]}"
       return e.to_s
     end
 
@@ -118,25 +136,30 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       file_set = FileSet.find file_set_id
       return file_set.original_name_value, file_set.file_size_value
     rescue Exception => e # rubocop:disable Lint/RescueException
-      Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
+      log_error "#{e.class} #{e.message} at #{e.backtrace[0]}"
       return e.to_s, ''
     end
 
-    def notify_attach_files_to_work_job_complete( failed_to_upload:, uploaded_files:, user:, work: )
+    def log_error( msg )
+      Rails.logger.error msg
+      job_status.add_error! msg
+    end
+
+    def notify_attach_files_to_work_job_complete( failed_to_upload: )
       notify_user = DeepBlueDocs::Application.config.notify_user_file_upload_and_ingest_are_complete
       notify_managers = DeepBlueDocs::Application.config.notify_managers_file_upload_and_ingest_are_complete
       return unless notify_user || notify_managers
       work_depositor = ::Deepblue::EmailHelper.cc_depositor( curation_concern: work )
       title = ::Deepblue::EmailHelper.cc_title curation_concern: work
       lines = []
-      file_count = @processed.size
+      file_count = processed.size
       file_count_phrase = if 1 == file_count
                             ::Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.one_file_count_phrase" )
                           else
                             ::Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.many_files_count_phrase",
                                                      file_count: file_count )
                           end
-      work_url = data_set_url( work )
+      work_url = data_set_url
       lines << ::Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.finished_html",
                                           depositor: work_depositor,
                                           file_count_phrase: file_count_phrase,
@@ -157,7 +180,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
         lines << "</ol>"
       end
       file_list = []
-      @processed.each do |uploaded_file|
+      processed.each do |uploaded_file|
         file_name, file_size = file_stats( uploaded_file )
         file_list << ::Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.file_list_item_html",
                                                 file_name: ::Deepblue::EmailHelper.escape_html( file_name ),
@@ -175,44 +198,107 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       subject = Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.subject", title: title )
       attach_files_to_work_job_complete_email_user( email: user.email,
                                                     lines: lines,
-                                                    subject: subject,
-                                                    work: work ) if notify_user
+                                                    subject: subject ) if notify_user
       attach_files_to_work_job_complete_email_user( email: Deepblue::EmailHelper.notification_email_to,
                                                     lines: lines,
-                                                    subject: subject + " (RDS)",
-                                                    work: work ) if notify_managers
+                                                    subject: subject + " (RDS)" ) if notify_managers
       ::Deepblue::JiraHelper.jira_add_comment( curation_concern: work,
                                                event: "Attach Files to Work",
                                                comment: lines.join( "\n" ) )
     rescue Exception => e # rubocop:disable Lint/RescueException
-      Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
+      log_error "#{e.class} #{e.message} at #{e.backtrace[0]}"
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from ] + e.backtrace
+                                             Deepblue::LoggingHelper.called_from ] + e.backtrace[0..10]
     end
 
-    ##
-    # A work with files attached by a proxy user will set the depositor as the intended user
-    # that the proxy was depositing on behalf of. See tickets #2764, #2902.
-    def proxy_or_depositor(work)
-      work.on_behalf_of.blank? ? work.depositor : work.on_behalf_of
+    def perform_log_starting
+      Deepblue::UploadHelper.log( class_name: self.class.name,
+                                  event: "attach_files_to_work",
+                                  event_note: "starting",
+                                  id: work.id,
+                                  uploaded_file_ids: uploaded_file_ids,
+                                  uploaded_file_ids_count: uploaded_file_ids.size,
+                                  user: user.to_s,
+                                  work_id: work.id,
+                                  work_file_set_count: work.file_set_ids.count,
+                                  asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY)
+      job_status.did_log_starting!
     end
 
-    def upload_file( work, uploaded_file, user, work_permissions, metadata, uploaded_file_ids: [] )
-      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           Deepblue::LoggingHelper.called_from,
-                                           "work.id=#{work.id}",
-                                           "uploaded_file.file=#{uploaded_file.file.path}",
-                                           "uploaded_file.file_set_uri=#{uploaded_file.file_set_uri}",
-                                           # Deepblue::LoggingHelper.obj_methods( "uploaded_file", uploaded_file ),
-                                           # Deepblue::LoggingHelper.obj_instance_variables( "uploaded_file", uploaded_file ),
-                                           Deepblue::LoggingHelper.obj_attribute_names( "uploaded_file", uploaded_file ),
-                                           Deepblue::LoggingHelper.obj_to_json( "uploaded_file", uploaded_file ),
-                                           "uploaded_file.id=#{Deepblue::UploadHelper.uploaded_file_id( uploaded_file )}",
-                                           "user=#{user}",
-                                           "work_permissions=#{work_permissions}",
-                                           "metadata=#{metadata}",
-                                           "uploaded_file_ids=#{uploaded_file_ids}",
-                                           "" ] if ATTACH_FILES_TO_WORK_JOB_IS_VERBOSE
+    def perform_notify
+      failed = uploaded_files - processed
+      if failed.empty?
+        Deepblue::UploadHelper.log( class_name: self.class.name,
+                                    event: "attach_files_to_work",
+                                    event_note: "finished",
+                                    id: work.id,
+                                    uploaded_file_ids: uploaded_file_ids,
+                                    uploaded_file_ids_count: uploaded_file_ids.size,
+                                    user: user.to_s,
+                                    work_id: work.id,
+                                    work_file_set_count: work.file_set_ids.count,
+                                    asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY)
+      else
+        Rails.logger.error "FAILED to process all uploaded files at #{caller_locations(1, 1)[0]}, count of unprocessed files = #{failed.count}"
+        Deepblue::UploadHelper.log( class_name: self.class.name,
+                                    event: "attach_files_to_work",
+                                    event_note: "finished_with_failed_files",
+                                    id: work.id,
+                                    uploaded_file_ids: uploaded_file_ids,
+                                    uploaded_file_ids_count: uploaded_file_ids.size,
+                                    user: user.to_s,
+                                    work_id: work.id,
+                                    work_file_set_count: work.file_set_ids.count,
+                                    failed: failed,
+                                    asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY )
+      end
+      notify_attach_files_to_work_job_complete( failed_to_upload: failed )
+      job_status.did_notify!
+    end
+
+    def perform_upload_files
+      unless job_status.uploading_files?
+        job_status.uploading_files!( state: { "processed_uploaded_file_ids" => processed_uploaded_file_ids } )
+      end
+      work_permissions = work.permissions.map( &:to_hash )
+      metadata = visibility_attributes( work_attributes )
+      uploaded_files.each do |uploaded_file|
+        upload_file( uploaded_file, work_permissions, metadata ) unless processed_uploaded_file? uploaded_file
+      end
+      job_status.did_upload_files!
+    end
+
+    def perform_validate_files
+      uploaded_files.each do |uploaded_file|
+        next if uploaded_file.is_a? Hyrax::UploadedFile
+        msg = "Hyrax::UploadedFile required, but #{uploaded_file.class} received: #{uploaded_file.inspect}"
+        Rails.logger.error msg
+        raise ArgumentError, msg
+      end
+      job_status.did_validate_files!
+    end
+
+    def processed_uploaded_file( uploaded_file )
+      processed_uploaded_file_ids << uploaded_file_id_for( uploaded_file )
+      job_status.uploading_files!( state: { "processed_uploaded_file_ids" => processed_uploaded_file_ids } )
+    end
+
+    def processed_uploaded_file?( uploaded_file )
+      processed_uploaded_file_ids.include? uploaded_file_id_for( uploaded_file )
+    end
+
+    def upload_file( uploaded_file, work_permissions, metadata )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "work.id=#{work.id}",
+                                             "uploaded_file.file=#{uploaded_file.file.path}",
+                                             "uploaded_file.file_set_uri=#{uploaded_file.file_set_uri}",
+                                             "uploaded_file.id=#{uploaded_file_id_for( uploaded_file )}",
+                                             "user=#{user}",
+                                             "work_permissions=#{work_permissions}",
+                                             "metadata=#{metadata}",
+                                             "uploaded_file_ids=#{uploaded_file_ids}",
+                                             "" ] if ATTACH_FILES_TO_WORK_JOB_IS_VERBOSE
       Deepblue::UploadHelper.log( class_name: self.class.name,
                                   event: "upload_file",
                                   id: "NA",
@@ -229,14 +315,14 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       actor.create_label( file: uploaded_file )
       # when actor.create content is here, and the processing is synchronous, then it fails to add size to the file_set
       # actor.create_content( uploaded_file, continue_job_chain_later: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY )
-      actor.attach_to_work( work, uploaded_file_id: Deepblue::UploadHelper.uploaded_file_id( uploaded_file ) )
+      actor.attach_to_work( work, uploaded_file_id: uploaded_file_id_for( uploaded_file ) )
       uploaded_file.update( file_set_uri: actor.file_set.uri )
       actor.create_content( uploaded_file,
                             continue_job_chain_later: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY,
                             uploaded_file_ids: uploaded_file_ids )
-      @processed << uploaded_file
+      processed_uploaded_file uploaded_file
     rescue Exception => e # rubocop:disable Lint/RescueException
-      Rails.logger.error "#{e.class} work.id=#{work.id} -- #{e.message} at #{e.backtrace[0]}"
+      log_error "#{e.class} work.id=#{work.id} -- #{e.message} at #{e.backtrace[0]}"
       file_size = File.size( uploaded_file.file.path ) rescue -1 # in case the file has already disappeared
       Deepblue::UploadHelper.log( class_name: self.class.name,
                                   event: "upload_file",
@@ -251,21 +337,26 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                   asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY )
     end
 
-    # The attributes used for visibility - sent as initial params to created FileSets.
-    def visibility_attributes(attributes)
-      attributes.slice(:visibility, :visibility_during_lease,
-                       :visibility_after_lease, :lease_expiration_date,
-                       :embargo_release_date, :visibility_during_embargo,
-                       :visibility_after_embargo)
+    def uploaded_file_id_for( uploaded_file )
+      Deepblue::UploadHelper.uploaded_file_id( uploaded_file )
     end
 
-    def validate_files!(uploaded_files)
-      uploaded_files.each do |uploaded_file|
-        next if uploaded_file.is_a? Hyrax::UploadedFile
-        msg = "Hyrax::UploadedFile required, but #{uploaded_file.class} received: #{uploaded_file.inspect}"
-        Rails.logger.error msg
-        raise ArgumentError, msg
-      end
+    # The attributes used for visibility - sent as initial params to created FileSets.
+    def visibility_attributes( attributes )
+      attributes.slice( :visibility,
+                        :visibility_during_lease,
+                        :visibility_after_lease,
+                        :lease_expiration_date,
+                        :embargo_release_date,
+                        :visibility_during_embargo,
+                        :visibility_after_embargo )
+    end
+
+    ##
+    # A work with files attached by a proxy user will set the depositor as the intended user
+    # that the proxy was depositing on behalf of. See tickets #2764, #2902.
+    def work_proxy_or_depositor
+      work.on_behalf_of.blank? ? work.depositor : work.on_behalf_of
     end
 
 end

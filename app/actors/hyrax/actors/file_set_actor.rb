@@ -29,31 +29,39 @@ module Hyrax
                           relation = :original_file,
                           from_url: false,
                           continue_job_chain_later: true,
-                          uploaded_file_ids: [] )
+                          uploaded_file_ids: [],
+                          parent_job_id: nil )
 
-        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             "file=#{file}",
-                                             Deepblue::LoggingHelper.obj_to_json( "file", file ),
-                                             "relation=#{relation}",
-                                             "from_url=#{from_url}",
-                                             "continue_job_chain_later=#{continue_job_chain_later}",
-                                             "uploaded_file_ids=#{uploaded_file_ids}",
-                                              "" ] if FILE_SET_ACTOR_DEBUG_VERBOSE
-        create_label( file: file )
-        # return false unless file_set.save # Need to save to get an id
-        unless file_set.save # Need to save to get an id
-          Deepblue::LoggingHelper.bold_error [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
-                                               "file=#{file})",
+        job_status = IngestJobStatus.new_job_status( job_id: parent_job_id )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "file=#{file}",
+                                               ::Deepblue::LoggingHelper.obj_to_json( "file", file ),
                                                "relation=#{relation}",
                                                "from_url=#{from_url}",
                                                "continue_job_chain_later=#{continue_job_chain_later}",
                                                "uploaded_file_ids=#{uploaded_file_ids}",
-                                               "",
-                                               "file_set failed to save in creat_content",
-                                               "" ] # error
-          return false
+                                               "parent_job_id=#{parent_job_id}",
+                                               "job_status=#{job_status}",
+                                               "" ] if FILE_SET_ACTOR_DEBUG_VERBOSE
+
+        unless job_status.present? && job_status.did_file_set_create?
+          create_label( file: file )
+          # return false unless file_set.save # Need to save to get an id
+          unless file_set.save # Need to save to get an id
+            ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                                        ::Deepblue::LoggingHelper.called_from,
+                                                        "file=#{file})",
+                                                        "relation=#{relation}",
+                                                        "from_url=#{from_url}",
+                                                        "continue_job_chain_later=#{continue_job_chain_later}",
+                                                        "uploaded_file_ids=#{uploaded_file_ids}",
+                                                        "",
+                                                        "file_set failed to save in creat_content",
+                                                        "" ] # error
+            return false
+          end
+          job_status.did_file_set_create! if job_status.present?
         end
         io_wrapper = wrapper!( file: file, relation: relation )
         if from_url
@@ -75,8 +83,13 @@ module Hyrax
         else
           IngestJob.perform_now( io_wrapper,
                                  continue_job_chain_later: continue_job_chain_later,
-                                 uploaded_file_ids: uploaded_file_ids )
+                                 uploaded_file_ids: uploaded_file_ids,
+                                 parent_job_id: parent_job_id )
         end
+      end
+
+      def perform_create_content
+
       end
 
       # Spawns asynchronous IngestJob with user notification afterward
@@ -84,12 +97,12 @@ module Hyrax
       # @param [Symbol, #to_s] relation
       # @return [IngestJob] the queued job
       def update_content( file, relation = :original_file )
-        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             "user=#{user}",
-                                             "file_set.id=#{file_set.id}",
-                                             "file=#{file}",
-                                             "relation=#{relation}" ] if FILE_SET_ACTOR_DEBUG_VERBOSE
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "user=#{user}",
+                                               "file_set.id=#{file_set.id}",
+                                               "file=#{file}",
+                                               "relation=#{relation}" ] if FILE_SET_ACTOR_DEBUG_VERBOSE
         current_version = file_set.latest_version
         prior_revision_id = current_version.label
         prior_create_date = current_version.created
@@ -121,9 +134,9 @@ module Hyrax
       # @param [Hash] file_set_params specifying the visibility, lease and/or embargo of the file set.
       #   Without visibility, embargo_release_date or lease_expiration_date, visibility will be copied from the parent.
       def create_metadata( file_set_params = {} )
-        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             "file_set_params=#{file_set_params}" ]
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "file_set_params=#{file_set_params}" ]
         file_set.depositor = depositor_id(user)
         now = TimeService.time_in_utc
         file_set.date_uploaded = now
@@ -139,10 +152,10 @@ module Hyrax
       # Adds a FileSet to the work using ore:Aggregations.
       # Locks to ensure that only one process is operating on the list at a time.
       def attach_to_work( work, file_set_params = {}, uploaded_file_id: nil )
-        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             "work.id=#{work.id}",
-                                             "file_set_params=#{file_set_params}" ]
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "work.id=#{work.id}",
+                                               "file_set_params=#{file_set_params}" ]
         acquire_lock_for( work.id ) do
           # Ensure we have an up-to-date copy of the members association, so that we append to the end of the list.
           work.reload unless work.new_record?

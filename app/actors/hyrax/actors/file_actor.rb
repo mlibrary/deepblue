@@ -32,43 +32,59 @@ module Hyrax
                        continue_job_chain_later: true,
                        current_user: nil,
                        delete_input_file: true,
+                       job_status:,
                        uploaded_file_ids: [] )
 
-        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             "io=#{io})",
-                                             "user=#{user}",
-                                             "continue_job_chain=#{continue_job_chain}",
-                                             "continue_job_chain_later=#{continue_job_chain_later}",
-                                             "delete_input_file=#{delete_input_file}",
-                                             "uploaded_file_ids=#{uploaded_file_ids}" ] if FILE_ACTOR_DEBUG_VERBOSE
-        # Skip versioning because versions will be minted by VersionCommitter as necessary during save_characterize_and_record_committer.
-        Hydra::Works::AddFileToFileSet.call( file_set,
-                                             io,
-                                             relation,
-                                             versioning: false )
-        unless file_set.save
-          Deepblue::LoggingHelper.bold_error [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
                                                "io=#{io})",
                                                "user=#{user}",
                                                "continue_job_chain=#{continue_job_chain}",
                                                "continue_job_chain_later=#{continue_job_chain_later}",
                                                "delete_input_file=#{delete_input_file}",
-                                               "uploaded_file_ids=#{uploaded_file_ids}",
-                                               "",
-                                               "file_set failed to save after call to AddFileToFileSet during ingest file",
-                                               "" ] # error
-          return false
+                                               "job_id=#{job_id}",
+                                               "parent_job_id=#{parent_job_id}",
+                                               "job_status=#{job_status}",
+                                               "uploaded_file_ids=#{uploaded_file_ids}" ] if FILE_ACTOR_DEBUG_VERBOSE
+        unless job_status.did_add_file_to_file_set?
+          # Skip versioning because versions will be minted by VersionCommitter as necessary during
+          # save_characterize_and_record_committer.
+          Hydra::Works::AddFileToFileSet.call( file_set,
+                                               io,
+                                               relation,
+                                               versioning: false )
+          unless file_set.save
+            ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                                        ::Deepblue::LoggingHelper.called_from,
+                                                        "io=#{io})",
+                                                        "user=#{user}",
+                                                        "continue_job_chain=#{continue_job_chain}",
+                                                        "continue_job_chain_later=#{continue_job_chain_later}",
+                                                        "delete_input_file=#{delete_input_file}",
+                                                        "job_id=#{job_id}",
+                                                        "parent_job_id=#{parent_job_id}",
+                                                        "uploaded_file_ids=#{uploaded_file_ids}",
+                                                        "",
+                                                        "file_set failed to save after call to AddFileToFileSet during ingest file",
+                                                        "" ] # error
+            return false
+          end
+          job_status.did_add_file_to_file_set! if job_status.present?
         end
         repository_file = related_file
-        Hyrax::VersioningService.create( repository_file, current_user )
+        unless job_status.did_versioning_service_create?
+          Hyrax::VersioningService.create( repository_file, current_user )
+          job_status.did_versioning_service_create! if job_status.present?
+        end
         pathhint = io.uploaded_file.uploader.path if io.uploaded_file # in case next worker is on same filesystem
+        next_parent_id = job_status.present? ? job_status.job_id : nil
+        job_status.did_file_ingest!
         if continue_job_chain_later
           CharacterizeJob.perform_later( file_set,
                                          repository_file.id,
                                          pathhint || io.path,
                                          current_user: current_user,
+                                         parent_job_id: next_parent_id,
                                          uploaded_file_ids: uploaded_file_ids )
         else
           CharacterizeJob.perform_now( file_set,
@@ -78,6 +94,7 @@ module Hyrax
                                        continue_job_chain_later: continue_job_chain_later,
                                        current_user: current_user,
                                        delete_input_file: delete_input_file,
+                                       parent_job_id: next_parent_id,
                                        uploaded_file_ids: uploaded_file_ids )
         end
       end
@@ -86,12 +103,12 @@ module Hyrax
       # @param [String] revision_id
       # @return [CharacterizeJob, FalseClass] spawned job on success, false on failure
       def revert_to( revision_id )
-        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             "user=#{user}",
-                                             "file_set.id=#{file_set.id}",
-                                             "relation=#{relation}",
-                                             "revision_id=#{revision_id}" ] if FILE_ACTOR_DEBUG_VERBOSE
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "user=#{user}",
+                                               "file_set.id=#{file_set.id}",
+                                               "relation=#{relation}",
+                                               "revision_id=#{revision_id}" ] if FILE_ACTOR_DEBUG_VERBOSE
         repository_file = related_file
         current_version = file_set.latest_version
         prior_revision_id = current_version.label
@@ -103,17 +120,17 @@ module Hyrax
         repository_file.restore_version(revision_id)
         # return false unless file_set.save
         unless file_set.save
-          Deepblue::LoggingHelper.bold_error [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
-                                               "io=#{io})",
-                                               "user=#{user}",
-                                               "continue_job_chain=#{continue_job_chain}",
-                                               "continue_job_chain_later=#{continue_job_chain_later}",
-                                               "delete_input_file=#{delete_input_file}",
-                                               "uploaded_file_ids=#{uploaded_file_ids}",
-                                               "",
-                                               "file_set failed to save after call to restore version during revert to",
-                                               "" ] # error
+          ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                                      ::Deepblue::LoggingHelper.called_from,
+                                                      "io=#{io})",
+                                                      "user=#{user}",
+                                                      "continue_job_chain=#{continue_job_chain}",
+                                                      "continue_job_chain_later=#{continue_job_chain_later}",
+                                                      "delete_input_file=#{delete_input_file}",
+                                                      "uploaded_file_ids=#{uploaded_file_ids}",
+                                                      "",
+                                                      "file_set failed to save after call to restore version during revert to",
+                                                      "" ] # error
           return false
         end
         current_version = file_set.latest_version

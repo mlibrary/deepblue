@@ -77,6 +77,7 @@ class JobIoWrapper < ApplicationRecord
   def ingest_file( continue_job_chain: true,
                    continue_job_chain_later: true,
                    delete_input_file: true,
+                   job_status:,
                    uploaded_file_ids: [] )
 
     actor = file_actor
@@ -87,6 +88,7 @@ class JobIoWrapper < ApplicationRecord
                                            "continue_job_chain=#{continue_job_chain}",
                                            "continue_job_chain_later=#{continue_job_chain_later}",
                                            "delete_input_file=#{delete_input_file}",
+                                           "job_status=#{job_status}",
                                            "uploaded_file_ids=#{uploaded_file_ids}",
                                            "" ] if JOB_IO_WRAPPER_DEBUG_VERBOSE
 
@@ -100,6 +102,7 @@ class JobIoWrapper < ApplicationRecord
                       continue_job_chain_later: continue_job_chain_later,
                       current_user: user_key,
                       delete_input_file: delete_input_file,
+                      job_status: job_status,
                       uploaded_file_ids: uploaded_file_ids )
   end
 
