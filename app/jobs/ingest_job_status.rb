@@ -10,7 +10,7 @@ class IngestJobStatus
   FINISHED_NOTIFY               = 'finished_notify'.freeze
   FINISHED_LOG_STARTING         = 'finished_log_starting'.freeze
   FINISHED_VALIDATE_FILES       = 'finished_validate_files'.freeze
-  FINISHED_VERSIONING_SERVICE_CREATE 'finished_versioning_service_create'.freeze
+  FINISHED_VERSIONING_SERVICE_CREATE = 'finished_versioning_service_create'.freeze
   FINISHED_UPLOAD_FILES         = 'finished_upload_files'.freeze
   UPLOADING_FILES               = 'uploading_files'.freeze
 
