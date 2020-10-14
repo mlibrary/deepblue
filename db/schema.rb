@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_10_12_140534) do
+ActiveRecord::Schema.define(version: 2020_10_13_141924) do
 
   create_table "bookmarks", force: :cascade do |t|
     t.integer "user_id", null: false
@@ -166,6 +166,21 @@ ActiveRecord::Schema.define(version: 2020_10_12_140534) do
     t.datetime "updated_at", null: false
     t.index ["uploaded_file_id"], name: "index_job_io_wrappers_on_uploaded_file_id"
     t.index ["user_id"], name: "index_job_io_wrappers_on_user_id"
+  end
+
+  create_table "job_statuses", force: :cascade do |t|
+    t.string "job_class", null: false
+    t.string "job_id", null: false
+    t.string "parent_job_id"
+    t.string "status"
+    t.text "state"
+    t.text "message"
+    t.text "error"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["job_id"], name: "index_job_statuses_on_job_id"
+    t.index ["parent_job_id"], name: "index_job_statuses_on_parent_job_id"
+    t.index ["status"], name: "index_job_statuses_on_status"
   end
 
   create_table "mailboxer_conversation_opt_outs", force: :cascade do |t|
@@ -490,7 +505,6 @@ ActiveRecord::Schema.define(version: 2020_10_12_140534) do
     t.string "file_set_uri"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.text "ingest_state"
     t.index ["file_set_uri"], name: "index_uploaded_files_on_file_set_uri"
     t.index ["user_id"], name: "index_uploaded_files_on_user_id"
   end
