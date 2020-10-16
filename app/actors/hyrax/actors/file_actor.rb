@@ -8,7 +8,7 @@ module Hyrax
     # @note Spawns asynchronous jobs
     class FileActor
 
-      FILE_ACTOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.file_actor_debug_verbose
+      FILE_ACTOR_DEBUG_VERBOSE = true || ::DeepBlueDocs::Application.config.file_actor_debug_verbose
 
       attr_reader :file_set, :relation, :user
 
@@ -35,15 +35,18 @@ module Hyrax
                        job_status:,
                        uploaded_file_ids: [] )
 
+        job_status.add_message! "FileActor#ingest_file" if job_status.verbose
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "io=#{io})",
+                                               "file_set=#{file_set}",
+                                               "file_set.id=#{file_set.id}",
+                                               "file_set.original_file=#{file_set.original_file}",
+                                               "relation=#{relation}",
                                                "user=#{user}",
+                                               "io=#{io}",
                                                "continue_job_chain=#{continue_job_chain}",
                                                "continue_job_chain_later=#{continue_job_chain_later}",
                                                "delete_input_file=#{delete_input_file}",
-                                               "job_id=#{job_id}",
-                                               "parent_job_id=#{parent_job_id}",
                                                "job_status=#{job_status}",
                                                "uploaded_file_ids=#{uploaded_file_ids}" ] if FILE_ACTOR_DEBUG_VERBOSE
         unless job_status.did_add_file_to_file_set?
@@ -52,8 +55,10 @@ module Hyrax
           Hydra::Works::AddFileToFileSet.call( file_set,
                                                io,
                                                relation,
-                                               versioning: false )
+                                               versioning: false,
+                                               job_status: job_status )
           unless file_set.save
+            job_status.add_error! "file_set.save returned false, exiting FileSet#ingest_file early"
             ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
                                                         ::Deepblue::LoggingHelper.called_from,
                                                         "io=#{io})",
@@ -61,23 +66,22 @@ module Hyrax
                                                         "continue_job_chain=#{continue_job_chain}",
                                                         "continue_job_chain_later=#{continue_job_chain_later}",
                                                         "delete_input_file=#{delete_input_file}",
-                                                        "job_id=#{job_id}",
-                                                        "parent_job_id=#{parent_job_id}",
+                                                        "job_status=#{job_status}",
                                                         "uploaded_file_ids=#{uploaded_file_ids}",
                                                         "",
                                                         "file_set failed to save after call to AddFileToFileSet during ingest file",
                                                         "" ] # error
             return false
           end
-          job_status.did_add_file_to_file_set! if job_status.present?
+          job_status.did_add_file_to_file_set!
         end
         repository_file = related_file
         unless job_status.did_versioning_service_create?
           Hyrax::VersioningService.create( repository_file, current_user )
-          job_status.did_versioning_service_create! if job_status.present?
+          job_status.did_versioning_service_create!
         end
         pathhint = io.uploaded_file.uploader.path if io.uploaded_file # in case next worker is on same filesystem
-        next_parent_id = job_status.present? ? job_status.job_id : nil
+        next_parent_id = job_status.null_job_status? ? nil : job_status.job_id
         job_status.did_file_ingest!
         if continue_job_chain_later
           CharacterizeJob.perform_later( file_set,
@@ -87,6 +91,13 @@ module Hyrax
                                          parent_job_id: next_parent_id,
                                          uploaded_file_ids: uploaded_file_ids )
         else
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "job_status.job_id=#{job_status.job_id}",
+                                                 "job_status.parent_job_id=#{job_status.parent_job_id}",
+                                                 "job_status.message=#{job_status.message}",
+                                                 "job_status.error=#{job_status.error}",
+                                                 "" ] if FILE_ACTOR_DEBUG_VERBOSE
           CharacterizeJob.perform_now( file_set,
                                        repository_file.id,
                                        pathhint || io.path,
@@ -96,6 +107,14 @@ module Hyrax
                                        delete_input_file: delete_input_file,
                                        parent_job_id: next_parent_id,
                                        uploaded_file_ids: uploaded_file_ids )
+          job_status.reload
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "job_status.job_id=#{job_status.job_id}",
+                                                 "job_status.parent_job_id=#{job_status.parent_job_id}",
+                                                 "job_status.message=#{job_status.message}",
+                                                 "job_status.error=#{job_status.error}",
+                                                 "" ] if FILE_ACTOR_DEBUG_VERBOSE
         end
       end
 
@@ -155,6 +174,12 @@ module Hyrax
       end
 
       private
+
+        def log_error( msg )
+          job_status.reload if job_status.present?
+          Rails.logger.error msg
+          job_status.add_error! msg if job_status.present?
+        end
 
         # @return [Hydra::PCDM::File] the file referenced by relation
         def related_file

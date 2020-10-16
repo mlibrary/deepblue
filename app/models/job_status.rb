@@ -8,10 +8,19 @@ class JobStatus < ApplicationRecord
   STARTED = 'started'.freeze
 
   def self.find_or_create( job:, status: nil, message: nil, error: nil, parent_job_id: nil )
-    return if job.nil?
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "job.nil?=#{job.nil?}",
+                                           "job&.job_id=#{job&.job_id}",
+                                           "status=#{status}",
+                                           "message=#{message}",
+                                           "error=#{error}",
+                                           "parent_job_id=#{parent_job_id}",
+                                           "" ] if JOB_STATUS_DEBUG_VERBOSE
+    return nil if job.nil?
     job_id = job.job_id
-    job_class_name = job.class.name
-    job_status = JobStatus.where( job_id: job_id, job_class: job_class_name ).first_or_create
+    job_class = job.class.name
+    job_status = JobStatus.where( job_id: job_id, job_class: job_class ).first_or_create
     if status.present? || message.present? || error.present? || parent_job_id.present?
       job_status.status = status.to_s if status.present?
       job_status.message = message.to_s if message.present?
@@ -19,33 +28,64 @@ class JobStatus < ApplicationRecord
       job_status.parent_job_id = parent_job_id.to_s if parent_job_id.present?
       job_status.save!
     end
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "job.job_id=#{job.job_id}",
+                                           "job_status=#{job_status}",
+                                           "" ] if JOB_STATUS_DEBUG_VERBOSE
     return job_status
   end
 
   def self.find_or_create_job_error( job:, error:, parent_job_id: nil )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "job.nil?=#{job.nil?}",
+                                           "job&.job_id=#{job&.job_id}",
+                                           "error=#{error}",
+                                           "parent_job_id=#{parent_job_id}",
+                                           "" ] if JOB_STATUS_DEBUG_VERBOSE
     return nil if job.nil?
     find_or_create( job: job, error: error, parent_job_id: parent_job_id )
   end
 
   def self.find_or_create_job_finished( job:, message: nil )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "job.nil?=#{job.nil?}",
+                                           "job&.job_id=#{job&.job_id}",
+                                           "message=#{message}",
+                                           "" ] if JOB_STATUS_DEBUG_VERBOSE
     return nil if job.nil?
     find_or_create( job: job, status: FINISHED, message: message )
   end
 
   def self.find_or_create_job_started( job:, message: nil, parent_job_id: nil )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "job.nil?=#{job.nil?}",
+                                           "job&.job_id=#{job&.job_id}",
+                                           "message=#{message}",
+                                           "parent_job_id=#{parent_job_id}",
+                                           "" ] if JOB_STATUS_DEBUG_VERBOSE
     return nil if job.nil?
     find_or_create( job: job, status: STARTED, message: message, parent_job_id: parent_job_id )
   end
 
-  def self.is_finished?( job: nil, job_id: nil )
+  def self.finished?( job: nil, job_id: nil )
     job_id = job.job_id if job.present?
     return false unless job_id.present?
     job_status = JobStatus.find_by_job_id( job_id )
     return false unless job_status.present?
-    job_status.is_finished?
+    job_status.finished?
   end
 
   def self.status?( job: nil, job_id: nil, status: )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "job.nil?=#{job.nil?}",
+                                           "job&.job_id=#{job&.job_id}",
+                                           "status=#{status}",
+                                           "" ] if JOB_STATUS_DEBUG_VERBOSE
     job_id = job.job_id if job.present?
     return false unless job_id.present?
     job_status = JobStatus.find_by_job_id( job_id )
@@ -54,6 +94,15 @@ class JobStatus < ApplicationRecord
   end
 
   def self.update_status( job: nil, job_id: nil, status:, message: nil, error: nil )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "job.nil?=#{job.nil?}",
+                                           "job&.id=#{job&.id}",
+                                           "job_id=#{job_id}",
+                                           "status=#{status}",
+                                           "message=#{message}",
+                                           "error=#{error}",
+                                           "" ] if JOB_STATUS_DEBUG_VERBOSE
     job_id = job.job_id if job.present?
     return nil if job_id.blank?
     job_status = JobStatus.find_by_job_id( job_id )
@@ -73,35 +122,59 @@ class JobStatus < ApplicationRecord
     update_status( job: job, job_id: job_id, status: STARTED, message: message, error: error )
   end
 
-  def add_error!( error:, sep: "\n" )
+  def add_error( error, sep: "\n" )
     if self.error.blank?
       self.error = error
     else
       self.error = "#{self.error}#{sep}#{error}"
     end
+    return self
+  end
+
+  def add_error!( error, sep: "\n" )
+    add_error( error, sep: sep )
     save!
     return self
   end
 
-  def add_message!( message:, sep: "\n" )
+  def add_message( message, sep: "\n" )
     if self.message.blank?
       self.message = message
     else
       self.message = "#{self.message}#{sep}#{message}"
     end
+    return self
+  end
+
+  def add_message!( message, sep: "\n" )
+    add_message( message, sep: sep )
     save!
     return self
   end
 
-  def is_finished?
+  def error!( error: nil )
+    self.error = error.to_s
+    save!
+    return self
+  end
+
+  def finished!( message: nil )
+    status!( FINISHED, message: message )
+  end
+
+  def finished?
     status? FINISHED
   end
 
-  def is_null_job_status?
+  def null_job_status?
     false
   end
 
-  def is_started?
+  def started!( message: nil )
+    status!( STARTED, message: message )
+  end
+
+  def started?
     status? STARTED
   end
 
@@ -125,25 +198,12 @@ class JobStatus < ApplicationRecord
     # TODO
   end
 
-  def status?( status )
-    status == self.status
-  end
-
-  def update_error!( error: nil )
-    self.error = error.to_s
+  def state_serialize!( state )
+    state_serialize( state )
     save!
-    return self
   end
 
-  def update_finished!( message: nil )
-    update_status!( status: FINISHED, message: message )
-  end
-
-  def update_started!( message: nil )
-    update_status!( status: STARTED, message: message )
-  end
-
-  def update_status!( status:, message: nil, error: nil )
+  def status!( status, message: nil, error: nil )
     self.status = status
     self.message = message.to_s if message.present?
     self.error = error.to_s if error.present?
@@ -151,14 +211,26 @@ class JobStatus < ApplicationRecord
     return self
   end
 
+  def status?( status )
+    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                        ::Deepblue::LoggingHelper.called_from,
+    #                                        "job_id=#{job_id}",
+    #                                        "job_class=#{job_class}",
+    #                                        "self.status=#{self.status}",
+    #                                        "status=#{status}",
+    #                                        "status == self.status=#{status == self.status}",
+    #                                        "" ] if JOB_STATUS_DEBUG_VERBOSE
+    status == self.status
+  end
+
 end
 
 class NullJobStatus
 
-  ID = 'nil'
+  ID = nil # 'nil'
 
   def self.instance
-    @@instance || NullJobStatus.new
+    @@instance ||= NullJobStatus.new
   end
 
   def initialize
@@ -193,30 +265,59 @@ class NullJobStatus
     nil
   end
 
-  def add_error!( _error:, _sep: "\n" )
+  def add_error( _error, _sep: "\n" )
     # ignore
     return self
   end
 
-  def add_message!( _message:, _sep: "\n" )
+  def add_error!( _error, _sep: "\n" )
     # ignore
     return self
   end
 
-  def is_finished?
+  def add_message( _message, _sep: "\n" )
+    # ignore
+    return self
+  end
+
+  def add_message!( _message, _sep: "\n" )
+    # ignore
+    return self
+  end
+
+  def error!( _error: nil )
+    # ignore
+    return self
+  end
+
+  def finished!( _message: nil )
+    # ignore
+    return self
+  end
+
+  def finished?
     false
   end
 
-  def is_null_job_status?
+  def null_job_status?
     true
   end
 
-  def is_started?
-    false
+  def reload
+    # ignore
   end
 
   def save!
     # ignore
+  end
+
+  def started!( _message: nil )
+    # ignore
+    return self
+  end
+
+  def started?
+    false
   end
 
   def state_deserialize
@@ -227,28 +328,17 @@ class NullJobStatus
     # ignore
   end
 
+  def state_serialize!( _state )
+    # ignore
+  end
+
+  def status!( _status, _message: nil, _error: nil )
+    # ignore
+    return self
+  end
+
   def status?( _status )
     false
-  end
-
-  def update_error!( _error: nil )
-    # ignore
-    return self
-  end
-
-  def update_finished!( _message: nil )
-    # ignore
-    return self
-  end
-
-  def update_started!( _message: nil )
-    # ignore
-    return self
-  end
-
-  def update_status!( _status:, _message: nil, _error: nil )
-    # ignore
-    return self
   end
 
 end

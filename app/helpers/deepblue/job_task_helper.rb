@@ -18,22 +18,18 @@ module Deepblue
 
     @@about_to_expire_embargoes_job_debug_verbose = false
     @@abstract_rake_task_job_debug_verbose = false
-    @@characterize_job_debug_verbose = false
     @@deactivate_expired_embargoes_job_debug_verbose = false
     @@heartbeat_job_debug_verbose = false
     @@heartbeat_email_job_debug_verbose = false
-    @@ingest_job_debug_verbose = false
     @@rake_task_job_debug_verbose = false
     @@works_report_job_debug_verbose = false
 
     mattr_accessor  :run_job_task_debug_verbose,
                     :about_to_expire_embargoes_job_debug_verbose,
                     :abstract_rake_task_job_debug_verbose,
-                    :characterize_job_debug_verbose,
                     :deactivate_expired_embargoes_job_debug_verbose,
                     :heartbeat_job_debug_verbose,
                     :heartbeat_email_job_debug_verbose,
-                    :ingest_job_debug_verbose,
                     :rake_task_job_debug_verbose,
                     :works_report_job_debug_verbose
 

@@ -19,7 +19,7 @@
 #  because it already has that information.
 class JobIoWrapper < ApplicationRecord
 
-  JOB_IO_WRAPPER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.job_io_wrapper_debug_verbose
+  JOB_IO_WRAPPER_DEBUG_VERBOSE = true || ::DeepBlueDocs::Application.config.job_io_wrapper_debug_verbose
 
   belongs_to :user, optional: false
   belongs_to :uploaded_file, optional: true, class_name: 'Hyrax::UploadedFile'
@@ -42,6 +42,15 @@ class JobIoWrapper < ApplicationRecord
                                               file:,
                                               relation:,
                                               file_set: )
+
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "user=#{user}",
+                                           "file=#{file}",
+                                           "file.class.name=#{file.class.name}",
+                                           "relation=#{relation}",
+                                           "file_set=#{file_set}",
+                                           "" ] if JOB_IO_WRAPPER_DEBUG_VERBOSE
     args = { user: user,
              relation: relation.to_s,
              file_set_id: file_set.id }
@@ -55,7 +64,16 @@ class JobIoWrapper < ApplicationRecord
     else
       raise "Require Hyrax::UploadedFile or File-like object, received #{file.class} object: #{file}"
     end
-    create!(args)
+    rv = create!(args)
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "user=#{user}",
+                                           "file=#{file}",
+                                           "relation=#{relation}",
+                                           "file_set=#{file_set}",
+                                           "rv=#{rv}",
+                                           "" ] if JOB_IO_WRAPPER_DEBUG_VERBOSE
+    return rv
   end
 
   def original_name
@@ -80,6 +98,7 @@ class JobIoWrapper < ApplicationRecord
                    job_status:,
                    uploaded_file_ids: [] )
 
+    job_status.add_message! "JobIoWrapper#ingest_file: #{file_set_id}" if job_status.verbose
     actor = file_actor
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,

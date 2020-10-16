@@ -659,12 +659,14 @@ module Deepblue
         log_object file_set
         log_provenance_migrate( curation_concern: file_set ) if MODE_MIGRATE == build_mode
         repository_file_id = nil
+        job_status = IngestJobStatus.null_ingest_job_status # TODO: can use actual JobStatus to return messages and errors
         IngestHelper.characterize( file_set,
                                    repository_file_id,
                                    path,
                                    delete_input_file: false,
                                    continue_job_chain: false,
                                    current_user: user,
+                                   job_status: job_status,
                                    ingest_id: ingest_id,
                                    ingester: ingester,
                                    ingest_timestamp: ingest_timestamp )
@@ -673,6 +675,7 @@ module Deepblue
                                          path,
                                          delete_input_file: false,
                                          current_user: user,
+                                         job_status: job_status,
                                          ingest_id: ingest_id,
                                          ingester: ingester,
                                          ingest_timestamp: ingest_timestamp )
