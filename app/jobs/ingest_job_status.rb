@@ -1,9 +1,17 @@
+# frozen_string_literal: true
 
 class IngestJobStatus
 
-  CREATED_FILE_SET              = 'created_file_set'.freeze
+  INGEST_JOB_STATUS_DEBUG_VERBOSE = ::Deepblue::IngestIntegrationService.ingest_job_status_debug_verbose
+
+  def self.null_ingest_job_status
+    @@null_ingest_job_status ||= IngestJobStatus.new( job_status: NullJobStatus.instance )
+  end
+
+  CREATE_FILE_SET               = 'create_file_set'.freeze
   DELETE_FILE                   = 'delete_file'.freeze
   FINISHED_ADD_FILE_TO_FILE_SET = 'finished_add_file_to_file_set'.freeze
+  FINISHED_ATTACH_FILE_TO_WORK  = 'finished_attach_file_to_work'.freeze
   FINISHED_CHARACTERIZE         = 'finished_characterize'.freeze
   FINISHED_CREATE_DERIVATIVES   = 'finished_create_derivatives'.freeze
   FINISHED_FILE_INGEST          = 'finished_file_ingest'.freeze
@@ -18,7 +26,8 @@ class IngestJobStatus
                               FINISHED_VALIDATE_FILES,
                               FINISHED_ADD_FILE_TO_FILE_SET,
                               UPLOADING_FILES,
-                              CREATED_FILE_SET,
+                              FINISHED_ATTACH_FILE_TO_WORK,
+                              CREATE_FILE_SET,
                               FINISHED_VERSIONING_SERVICE_CREATE,
                               FINISHED_CHARACTERIZE,
                               FINISHED_CREATE_DERIVATIVES,
@@ -28,53 +37,90 @@ class IngestJobStatus
                               FINISHED_NOTIFY ].freeze
 
   UPLOADING_FILES_STATUS_LIST = [ UPLOADING_FILES,
-                                  CREATED_FILE_SET,
+                                  FINISHED_ATTACH_FILE_TO_WORK,
+                                  CREATE_FILE_SET,
                                   FINISHED_VERSIONING_SERVICE_CREATE,
                                   FINISHED_CHARACTERIZE,
                                   FINISHED_CREATE_DERIVATIVES,
                                   DELETE_FILE,
                                   FINISHED_FILE_INGEST ]
 
-  attr_accessor :job_id, :job_status, :ordered_job_status_list
+  attr_accessor :job_id, :job_status, :ordered_job_status_list, :verbose
 
-  delegate :add_error!,
+  delegate :add_message,
            :add_message!,
            :error,
-           :job_class_name,
+           :error!,
+           :finished?,
+           :job_class,
            :parent_job_id,
            :message,
+           :null_job_status?,
            :save!,
-           :status,
+           :started?,
            :state,
            :state_deserialize,
            :state_serialize,
+           :state_serialize!,
+           :status,
            :status?,
-           :update_status!,
-           :update_finished!,
-           :update_started!,
            to: :job_status
 
-  def self.find_job_status( job_id: nil, parent_job_id: nil, continue_job_chain_later: false )
+  def self.find_job_status( job_id: nil, parent_job_id: nil, continue_job_chain_later: false, verbose: false )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "job_id=#{job_id}",
+                                           "parent_job_id=#{parent_job_id}",
+                                           "continue_job_chain_later=#{continue_job_chain_later}",
+                                           "verbose=#{verbose}",
+                                           "" ] if INGEST_JOB_STATUS_DEBUG_VERBOSE
     # TODO: take continue_job_chain_later into account
     # if the parent_job_id exists, use it
-    return new_job_status( job_id: parent_job_id ) if parent_job_id.present?
-    new_job_status( job_id: job_id )
+    return new_job_status( job_id: parent_job_id, verbose: verbose ) if parent_job_id.present?
+    new_job_status( job_id: job_id, verbose: verbose )
   end
 
-  def self.find_or_create_job_started( job: nil, parent_job_id: nil, continue_job_chain_later: false )
+  def self.find_or_create_job_started( job: nil, parent_job_id: nil, continue_job_chain_later: false, verbose: false )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "job.nil?=#{job.nil?}",
+                                           "job&.job_id=#{job&.job_id}",
+                                           "parent_job_id=#{parent_job_id}",
+                                           "continue_job_chain_later=#{continue_job_chain_later}",
+                                           "verbose=#{verbose}",
+                                           "" ] if INGEST_JOB_STATUS_DEBUG_VERBOSE
     # TODO: take continue_job_chain_later into account
-    return new_job_status( job_id: parent_job_id ) if parent_job_id.present?
-    IngestJobStatus.new( job: job )
+    return new_job_status( job_id: parent_job_id, verbose: verbose ) if parent_job_id.present?
+    IngestJobStatus.new( job: job, verbose: verbose )
   end
 
-  def self.new_job_status( job_id: )
+  def self.new_job_status( job_id:, verbose: false )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "job_id=#{job_id}",
+                                           "verbose=#{verbose}",
+                                           "" ] if INGEST_JOB_STATUS_DEBUG_VERBOSE
     return nil unless job_id.present?
-    IngestJobStatus.new( job_id: job_id )
+    IngestJobStatus.new( job_id: job_id, verbose: verbose )
   end
 
-  def initialize( job: nil, job_id: nil )
-    if job.present?
-      @job_status = JobStatus.find_or_create_job( job: job )
+  # order of instantiation: job_status, job, job_id
+  def initialize( job_status: nil, job: nil, job_id: nil, verbose: false )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "job.nil?=#{job.nil?}",
+                                           "job&.job_id=#{job&.job_id}",
+                                           "job_id=#{job_id}",
+                                           "job_status=#{job_status}",
+                                           "verbose=#{verbose}",
+                                           "" ] if INGEST_JOB_STATUS_DEBUG_VERBOSE
+    # TODO: error if job_status, job, and job_id are all blank?
+    @verbose = verbose
+    if job_status.present?
+      @job_status = job_status
+      @job_id = job_status.job_id
+    elsif job.present?
+      @job_status = JobStatus.find_or_create( job: job )
       @job_id = job.job_id
     elsif job_id.present?
       @job_status = JobStatus.find_by_job_id( job_id )
@@ -85,115 +131,177 @@ class IngestJobStatus
     end
   end
 
-  def did?( status: )
-    return false if status.blank?
-    job_status_status = job_status.status
-    return false if job_status_status.blank?
-    return false if JobStatus::STARTED == job_status_status
-    return true if JobStatus::FINISHED == job_status_status
-    return true if status == job_status_status
-    status_index = ordered_job_status_list.index status
-    job_status_index = ordered_job_status_list.index job_status_status
-    # TODO: does this cover not found? i.e. does index return -1 when not found?
-    return status_index <= job_status_index
+  def add_error( error, sep: "\n" )
+    add_message( error, sep: sep ) if verbose
+    add_error( error, sep: sep )
+    return self
+  end
+
+  def add_error!( error, sep: "\n" )
+    add_message( error, sep: sep ) if verbose
+    add_error!( error, sep: sep )
+    return self
+  end
+
+  def did?( status )
+    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                        ::Deepblue::LoggingHelper.called_from,
+    #                                        "status=#{status}",
+    #                                        "job_status=#{job_status}",
+    #                                        "job_status.job_id=#{job_status.job_id}",
+    #                                        "job_status.job_class=#{job_status.job_class}",
+    #                                        "job_status.status=#{job_status.status}",
+    #                                        "" ] if INGEST_JOB_STATUS_DEBUG_VERBOSE
+    return did_verbose( status,false ) if status.blank?
+    return did_verbose( status,false ) if job_status.blank?
+    current_status = job_status.status
+    return did_verbose( status,false ) if current_status.blank?
+    return did_verbose( status,true ) if status == current_status
+    did_status_index = ordered_job_status_list_index status
+    current_status_index = ordered_job_status_list_index current_status
+    rv = did_status_index <= current_status_index
+    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                        ::Deepblue::LoggingHelper.called_from,
+    #                                        "status=#{status}",
+    #                                        "current_status=#{current_status}",
+    #                                        "did_status_index=#{did_status_index}",
+    #                                        "current_status_index=#{current_status_index}",
+    #                                        "rv = did_status_index <= current_status_index=#{rv}",
+    #                                        "" ] if INGEST_JOB_STATUS_DEBUG_VERBOSE
+    return did_verbose( status,rv )
   end
   alias doing? did?
 
+  def did_verbose( status, rv )
+    add_message!( "did? #{status} returning #{rv}" ) if verbose
+    return rv
+  end
+
   def did_add_file_to_file_set!
-    update_status!( status: FINISHED_ADD_FILE_TO_FILE_SET )
+    did! FINISHED_ADD_FILE_TO_FILE_SET
   end
 
   def did_add_file_to_file_set?
-    did?( status: FINISHED_ADD_FILE_TO_FILE_SET )
+    did? FINISHED_ADD_FILE_TO_FILE_SET
+  end
+
+  def did_attach_file_to_work!
+    did! FINISHED_ATTACH_FILE_TO_WORK
+  end
+
+  def did_attach_file_to_work?
+    did? FINISHED_ATTACH_FILE_TO_WORK
   end
 
   def did_characterize!
-    update_status!( status: FINISHED_CHARACTERIZE )
+    did! FINISHED_CHARACTERIZE
   end
 
   def did_characterize?
-    did?( status: FINISHED_CHARACTERIZE )
+    did? FINISHED_CHARACTERIZE
   end
 
   def did_create_derivatives!
-    update_status!( status: FINISHED_CREATE_DERIVATIVES )
+    did! FINISHED_CREATE_DERIVATIVES
   end
 
   def did_create_derivatives?
-    did?( status: FINISHED_CREATE_DERIVATIVES )
+    did? FINISHED_CREATE_DERIVATIVES
   end
 
-  def did_created_file_set!
-    update_status!( status: CREATED_FILE_SET )
+  def did_create_file_set!
+    did! CREATE_FILE_SET
   end
 
-  def did_created_file_set?
-    did?( status: CREATED_FILE_SET )
+  def did_create_file_set?
+    did? CREATE_FILE_SET
   end
 
   def did_delete_file!
-    update_status!( status: DELETE_FILE )
+    did! DELETE_FILE
   end
 
   def did_delete_file?
-    did?( status: DELETE_FILE )
+    did? DELETE_FILE
   end
 
   def did_file_ingest!
-    update_status!( status: FINISHED_FILE_INGEST )
+    did! FINISHED_FILE_INGEST
   end
 
   def did_file_ingest?
-    did?( status: FINISHED_FILE_INGEST )
+    did? FINISHED_FILE_INGEST
   end
 
   def did_log_starting!
-    update_status!( status: FINISHED_LOG_STARTING )
+    did! FINISHED_LOG_STARTING
   end
 
   def did_log_starting?
-    did?( status: FINISHED_LOG_STARTING )
+    did? FINISHED_LOG_STARTING
   end
 
   def did_notify!
-    update_status!( status: FINISHED_NOTIFY )
+    did! FINISHED_NOTIFY
   end
 
   def did_notify?
-    did?( status: FINISHED_NOTIFY )
+    did? FINISHED_NOTIFY
   end
 
   def did_validate_files!
-    update_status!( status: FINISHED_VALIDATE_FILES )
+    did! FINISHED_VALIDATE_FILES
   end
 
   def did_validate_files?
-    did?( status: FINISHED_VALIDATE_FILES )
+    did? FINISHED_VALIDATE_FILES
   end
 
   def did_versioning_service_create!
-    update_status!( status: FINISHED_VALIDATE_FILES )
+    did! FINISHED_VALIDATE_FILES
   end
 
   def did_versioning_service_create?
-    did?( status: FINISHED_VALIDATE_FILES )
+    did? FINISHED_VALIDATE_FILES
   end
 
   def did_upload_files!
-    update_status!( status: FINISHED_UPLOAD_FILES )
+    did! FINISHED_UPLOAD_FILES
   end
 
   def did_upload_files?
-    did?( status: FINISHED_UPLOAD_FILES )
+    did? FINISHED_UPLOAD_FILES
   end
 
-  def ordered_job_status_list!
+  def finished!( message: nil )
+    job_status.finished!( message: message )
+    add_message! "status changed to: #{JobStatus::FINISHED}" if verbose
+  end
+
+  def reload
+    job_status.reload
+    add_message! "reload" if verbose
+  end
+
+  def ordered_job_status_list
     @ordered_job_status_list ||= ordered_job_status_list_init
   end
 
+  def started!( message: nil )
+    job_status.started!( message: message )
+    add_message! "status changed to: #{JobStatus::STARTED}" if verbose
+  end
+
+  def status!( status )
+    job_status.status = status
+    add_message "status changed to: #{status}" if verbose
+    job_status.save!
+  end
+  alias did! status!
+
   def uploading_files!( state: nil )
     state_serialize( state )
-    update_status!( status: UPLOADING_FILES )
+    status! UPLOADING_FILES
   end
 
   def uploading_files?
@@ -203,8 +311,21 @@ class IngestJobStatus
   private
 
     def ordered_job_status_list_init
-      # TODO: if job_class_name ...
+      # TODO: if job_class ...
       ORDERED_JOB_STATUS_LIST
+    end
+
+    def ordered_job_status_list_index( status )
+      rv = case status
+           when JobStatus::STARTED
+             -1
+           when JobStatus::FINISHED
+             ordered_job_status_list.size
+           else
+             ordered_job_status_list.index status
+           end
+      rv = -2 if rv.blank?
+      return rv
     end
 
 end

@@ -20,7 +20,7 @@ class TestJob < ::Hyrax::ApplicationJob
                                            "" ] if TEST_JOB_DEBUG_VERBOSE
     job_status = JobStatus.find_or_create_job_started( job: self )
     # and some stuff would happen here
-    job_status.update_finished!
+    job_status.finished!
   rescue Exception => e # rubocop:disable Lint/RescueException
     msg = "TestJob.perform(#{args}) #{e.class}: #{e.message}"
     Rails.logger.error msg

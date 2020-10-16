@@ -3,7 +3,7 @@
 class IngestJob < AbstractIngestJob
   # monkey patch
 
-  INGEST_JOB_DEBUG_VERBOSE = ::Deepblue::JobTaskHelper.ingest_job_debug_verbose
+  INGEST_JOB_DEBUG_VERBOSE = true || ::Deepblue::IngestIntegrationService.ingest_job_debug_verbose
 
   queue_as Hyrax.config.ingest_queue_name
 
@@ -26,7 +26,15 @@ class IngestJob < AbstractIngestJob
                parent_job_id: nil,
                uploaded_file_ids: [] )
 
-    find_or_create_job_status_started( parent_job_id: parent_job_id, continue_job_chain_later: continue_job_chain_later )
+    find_or_create_job_status_started( parent_job_id: parent_job_id,
+                                       continue_job_chain_later: continue_job_chain_later,
+                                       verbose: INGEST_JOB_DEBUG_VERBOSE )
+    job_status.add_message!( "#{self.class.name}.perform" ) if job_status.verbose
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "parent_job_id=#{parent_job_id}",
+                                           "job_status.job_id=#{job_status.job_id}",
+                                           "" ] if INGEST_JOB_DEBUG_VERBOSE
     uploaded_file = wrapper.uploaded_file
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
@@ -48,6 +56,19 @@ class IngestJob < AbstractIngestJob
                          delete_input_file: delete_input_file,
                          job_status: job_status,
                          uploaded_file_ids: uploaded_file_ids )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "wrapper=#{wrapper}",
+                                           "uploaded_file_ids=#{uploaded_file_ids}",
+                                           "parent_job_id=#{parent_job_id}",
+                                           "job_status=#{job_status}",
+                                           "job_status.job_id=#{job_status.job_id}",
+                                           "job_status.job_class=#{job_status.job_class}",
+                                           "job_status.status=#{job_status.status}",
+                                           "job_status.state=#{job_status.state}",
+                                           "job_status.message=#{job_status.message}",
+                                           "job_status.error=#{job_status.error}",
+                                           "" ] if INGEST_JOB_DEBUG_VERBOSE
   end
 
 end
