@@ -133,13 +133,13 @@ class IngestJobStatus
 
   def add_error( error, sep: "\n" )
     add_message( error, sep: sep ) if verbose
-    add_error( error, sep: sep )
+    job_status.add_error( error, sep: sep )
     return self
   end
 
   def add_error!( error, sep: "\n" )
     add_message( error, sep: sep ) if verbose
-    add_error!( error, sep: sep )
+    job_status.add_error!( error, sep: sep )
     return self
   end
 
