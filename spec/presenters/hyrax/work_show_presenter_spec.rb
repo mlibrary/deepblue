@@ -779,7 +779,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
       end
 
       before do
-        Hydra::Works::AddFileToFileSet.call(work.file_sets.first,
+        Hydra::Works::AddFileToFileSet.call_enhanced_version(work.file_sets.first,
                                             File.open(fixture_path + '/world.png'), :original_file)
       end
 

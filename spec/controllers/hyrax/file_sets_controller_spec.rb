@@ -60,7 +60,7 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
 
       before do
         binary = StringIO.new("hey")
-        Hydra::Works::AddFileToFileSet.call(file_set, binary, :original_file, versioning: true)
+        Hydra::Works::AddFileToFileSet.call_enhanced_version(file_set, binary, :original_file, versioning: true)
         request.env['HTTP_REFERER'] = 'http://test.host/foo'
       end
 

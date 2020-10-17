@@ -24,26 +24,26 @@ class IngestJobStatus
 
   ORDERED_JOB_STATUS_LIST = [ FINISHED_LOG_STARTING,
                               FINISHED_VALIDATE_FILES,
-                              FINISHED_ADD_FILE_TO_FILE_SET,
                               UPLOADING_FILES,
                               FINISHED_ATTACH_FILE_TO_WORK,
                               CREATE_FILE_SET,
+                              FINISHED_ADD_FILE_TO_FILE_SET,
                               FINISHED_VERSIONING_SERVICE_CREATE,
+                              FINISHED_FILE_INGEST,
                               FINISHED_CHARACTERIZE,
                               FINISHED_CREATE_DERIVATIVES,
                               DELETE_FILE,
-                              FINISHED_FILE_INGEST,
                               FINISHED_UPLOAD_FILES,
                               FINISHED_NOTIFY ].freeze
 
   UPLOADING_FILES_STATUS_LIST = [ UPLOADING_FILES,
-                                  FINISHED_ATTACH_FILE_TO_WORK,
                                   CREATE_FILE_SET,
+                                  FINISHED_ADD_FILE_TO_FILE_SET,
                                   FINISHED_VERSIONING_SERVICE_CREATE,
+                                  FINISHED_FILE_INGEST,
                                   FINISHED_CHARACTERIZE,
                                   FINISHED_CREATE_DERIVATIVES,
-                                  DELETE_FILE,
-                                  FINISHED_FILE_INGEST ]
+                                  DELETE_FILE ]
 
   attr_accessor :job_id, :job_status, :ordered_job_status_list, :verbose
 
@@ -152,11 +152,11 @@ class IngestJobStatus
     #                                        "job_status.job_class=#{job_status.job_class}",
     #                                        "job_status.status=#{job_status.status}",
     #                                        "" ] if INGEST_JOB_STATUS_DEBUG_VERBOSE
-    return did_verbose( status,false ) if status.blank?
-    return did_verbose( status,false ) if job_status.blank?
+    return did_verbose( status, "status is blank",false ) if status.blank?
+    return did_verbose( status, "job_status is blank", false ) if job_status.blank?
     current_status = job_status.status
-    return did_verbose( status,false ) if current_status.blank?
-    return did_verbose( status,true ) if status == current_status
+    return did_verbose( status, "current status is blank",false ) if current_status.blank?
+    return did_verbose( status, "current status is #{current_status}",true ) if status == current_status
     did_status_index = ordered_job_status_list_index status
     current_status_index = ordered_job_status_list_index current_status
     rv = did_status_index <= current_status_index
@@ -168,12 +168,12 @@ class IngestJobStatus
     #                                        "current_status_index=#{current_status_index}",
     #                                        "rv = did_status_index <= current_status_index=#{rv}",
     #                                        "" ] if INGEST_JOB_STATUS_DEBUG_VERBOSE
-    return did_verbose( status,rv )
+    return did_verbose( status, "current status is #{current_status}", rv )
   end
   alias doing? did?
 
-  def did_verbose( status, rv )
-    add_message!( "did? #{status} returning #{rv}" ) if verbose
+  def did_verbose( status, reason, rv )
+    add_message!( "did? #{status} returning #{rv} because #{reason}" ) if verbose
     return rv
   end
 
@@ -258,11 +258,11 @@ class IngestJobStatus
   end
 
   def did_versioning_service_create!
-    did! FINISHED_VALIDATE_FILES
+    did! FINISHED_VERSIONING_SERVICE_CREATE
   end
 
   def did_versioning_service_create?
-    did? FINISHED_VALIDATE_FILES
+    did? FINISHED_VERSIONING_SERVICE_CREATE
   end
 
   def did_upload_files!

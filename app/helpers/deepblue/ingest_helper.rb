@@ -73,14 +73,14 @@ module Deepblue
                                              "added_prov_key_values=#{added_prov_key_values}",
                                              # "wrapper.methods=#{wrapper.methods.sort}",
                                              "" ] if INGEST_HELPER_DEBUG_VERBOSE
+      # See Hyrax gem: app/job/characterize_job.rb
+      file_name = Hyrax::WorkingDirectory.find_or_retrieve( repository_file_id, file_set.id, file_path )
+      unless file_set.characterization_proxy?
+        error_msg = "#{file_set.class.characterization_proxy} was not found"
+        log_error( error_msg, job_status: job_status )
+        raise LoadError, error_msg
+      end
       unless job_status.did_characterize?
-        # See Hyrax gem: app/job/characterize_job.rb
-        file_name = Hyrax::WorkingDirectory.find_or_retrieve( repository_file_id, file_set.id, file_path )
-        unless file_set.characterization_proxy?
-          error_msg = "#{file_set.class.characterization_proxy} was not found"
-          log_error( error_msg, job_status: job_status )
-          raise LoadError, error_msg
-        end
         begin
           proxy = file_set.characterization_proxy
           Hydra::Works::CharacterizationService.run( proxy, file_name )
@@ -96,21 +96,20 @@ module Deepblue
         rescue Exception => e # rubocop:disable Lint/RescueException
           msg = "IngestHelper.characterize(#{file_path}) #{e.class}: #{e.message} at #{e.backtrace[0]}"
           log_error( msg, job_status: job_status )
-        ensure
-          update_total_file_size( file_set, log_prefix: "CharacterizationHelper.characterize()" )
-          perform_create_derivatives_job( file_set,
-                                          repository_file_id,
-                                          file_name,
-                                          file_path,
-                                          continue_job_chain: continue_job_chain,
-                                          continue_job_chain_later: continue_job_chain_later,
-                                          current_user: current_user,
-                                          delete_input_file: delete_input_file,
-                                          job_status: job_status,
-                                          uploaded_file_ids: uploaded_file_ids,
-                                          **added_prov_key_values )
         end
       end
+      update_total_file_size( file_set, log_prefix: "CharacterizationHelper.characterize()", job_status: job_status )
+      perform_create_derivatives_job( file_set,
+                                      repository_file_id,
+                                      file_name,
+                                      file_path,
+                                      continue_job_chain: continue_job_chain,
+                                      continue_job_chain_later: continue_job_chain_later,
+                                      current_user: current_user,
+                                      delete_input_file: delete_input_file,
+                                      job_status: job_status,
+                                      uploaded_file_ids: uploaded_file_ids,
+                                      **added_prov_key_values )
     end
 
     # @param [FileSet] file_set
@@ -316,7 +315,7 @@ module Deepblue
       # FileActor#ingest_file(io)
       # def ingest_file(io)
       # Skip versioning because versions will be minted by VersionCommitter as necessary during save_characterize_and_record_committer.
-      Hydra::Works::AddFileToFileSet.call( file_set,
+      Hydra::Works::AddFileToFileSet.call_enhanced_version( file_set,
                                            io,
                                            relation,
                                            versioning: false,
@@ -342,6 +341,29 @@ module Deepblue
       # pathhint = io.uploaded_file.uploader.path if io.uploaded_file # in case next worker is on same filesystem
       # CharacterizeJob.perform_later(file_set, repository_file.id, pathhint || io.path)
       characterize( file_set, repository_file.id, io.path, job_status: job_status )
+    end
+
+    # @param [FileSet] file_set
+    # @param [String] filepath the cached file within the Hyrax.config.working_path
+    # @param [User] user
+    # @option opts [String] mime_type
+    # @option opts [String] filename
+    # @option opts [String] relation, ex. :original_file
+    def self.ingest( file_set, path, _user, job_status, uploaded_file_ids = [], _opts = {} )
+      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                           Deepblue::LoggingHelper.called_from,
+                                           "file_set=#{file_set}",
+                                           "path=#{path}",
+                                           "uploaded_file_ids=#{uploaded_file_ids}",
+                                           "user=#{_user}",
+                                           "opts=#{opts}",
+                                           # "wrapper.methods=#{wrapper.methods.sort}",
+                                           "" ] if INGEST_HELPER_VERBOSE
+      # launched from Hyrax gem: app/actors/hyrax/actors/file_set_actor.rb  FileSetActor#create_content
+      # See Hyrax gem: app/job/ingest_local_file_job.rb
+      # def perform(file_set, path, user)
+      file_set.label ||= File.basename(path)
+      file_set_actor_create_content( file_set, File.open(path), uploaded_file_ids: uploaded_file_ids, job_status: job_status )
     end
 
     # For the label, use the original_filename or original_name if it's there.
@@ -389,6 +411,7 @@ module Deepblue
                                              uploaded_file_ids: [],
                                              **added_prov_key_values )
 
+      job_status.add_message! "IngestHelper.perform_create_derivatives_job" if job_status.present? && job_status.verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "file_set=#{file_set}",
@@ -421,7 +444,7 @@ module Deepblue
                                                  "job_status.parent_job_id=#{job_status.parent_job_id}",
                                                  "job_status.message=#{job_status.message}",
                                                  "job_status.error=#{job_status.error}",
-                                                 "" ] if FILE_SET_ACTOR_DEBUG_VERBOSE
+                                                 "" ] if INGEST_HELPER_DEBUG_VERBOSE
           create_derivatives( file_set,
                               repository_file_id,
                               file_name,
@@ -437,7 +460,7 @@ module Deepblue
                                                  "job_status.parent_job_id=#{job_status.parent_job_id}",
                                                  "job_status.message=#{job_status.message}",
                                                  "job_status.error=#{job_status.error}",
-                                                 "" ] if FILE_SET_ACTOR_DEBUG_VERBOSE
+                                                 "" ] if INGEST_HELPER_DEBUG_VERBOSE
         end
       else
         delete_file( file_path,
@@ -447,15 +470,15 @@ module Deepblue
       end
     end
 
-    def self.update_total_file_size( file_set, log_prefix: nil )
+    def self.update_total_file_size( file_set, log_prefix: nil, job_status: )
       # this method can be called multiple times during an ingest and it will always improve or leave the state
       # of the parent work the same, thus no need to for job_status to block it if it has already been done
-      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           Deepblue::LoggingHelper.called_from,
-                                           "file_set=#{file_set}",
-                                           "log_prefix=#{log_prefix}",
-                                           # "wrapper.methods=#{wrapper.methods.sort}",
-                                           "" ] if INGEST_HELPER_DEBUG_VERBOSE
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "file_set=#{file_set}",
+                                             "log_prefix=#{log_prefix}",
+                                             # "wrapper.methods=#{wrapper.methods.sort}",
+                                             "" ] if INGEST_HELPER_DEBUG_VERBOSE
       # Rails.logger.info "begin IngestHelper.update_total_file_size"
       # Rails.logger.debug "#{log_prefix} file_set.orginal_file.size=#{file_set.original_file.size}" unless log_prefix.nil?
       # Rails.logger.info "nothing to update, parent is nil" if file_set.parent.nil?
@@ -471,8 +494,10 @@ module Deepblue
       #   file_set.parent.total_file_size_add_file_set! file_set
       # end
       Rails.logger.info "end IngestHelper.update_total_file_size"
+      job_status.add_message! "IngestHelper.update_total_file_size" if job_status.present? && job_status.verbose
     rescue Exception => e # rubocop:disable Lint/RescueException
-      Rails.logger.error "IngestHelper.update_total_file_size(#{file_set}) #{e.class}: #{e.message} at #{e.backtrace[0]}"
+      log_error( "IngestHelper.update_total_file_size(#{file_set}) #{e.class}: #{e.message} at #{e.backtrace[0]}",
+                         job_status: job_status )
     end
 
     def self.virus_scan( file_set:, job_status: )
