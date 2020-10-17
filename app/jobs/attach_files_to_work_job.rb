@@ -353,7 +353,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       processed_uploaded_file_ids.include? uploaded_file_id_for( uploaded_file )
     end
 
-    def git upload_file( uploaded_file, work_permissions, metadata )
+    def upload_file( uploaded_file, work_permissions, metadata )
       job_status.add_message!( "#{self.class.name}.upload_file #{uploaded_file.id}" ) if job_status.verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
