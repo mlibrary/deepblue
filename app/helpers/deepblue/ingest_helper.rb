@@ -151,7 +151,7 @@ module Deepblue
                                                    event_note: "skipped_extension #{file_ext}",
                                                    calling_class: name,
                                                    **added_prov_key_values )
-            JobStatus.performed_job_partial( job_status: job_status, status: FINISHED_CHARACTERIZE )
+            job_status.did_create_derivatives?
             return
           end
           if file_set.video? && !Hyrax.config.enable_ffmpeg
@@ -161,7 +161,7 @@ module Deepblue
                                                    event_note: "skipped_extension #{file_ext}",
                                                    calling_class: name,
                                                    **added_prov_key_values )
-            JobStatus.performed_job_partial( job_status: job_status, status: FINISHED_CHARACTERIZE )
+            job_status.did_create_derivatives?
             return
           end
           threshold_file_size = DeepBlueDocs::Application.config.derivative_max_file_size
@@ -174,7 +174,7 @@ module Deepblue
                                                    event_note: "skipped_file_size #{File.size(file_name)}",
                                                    calling_class: name,
                                                    **added_prov_key_values )
-            JobStatus.performed_job_partial( job_status: job_status, status: FINISHED_CHARACTERIZE )
+            job_status.did_create_derivatives?
             return
           end
           Rails.logger.debug "About to call create derivatives: #{file_name}." if INGEST_HELPER_DEBUG_VERBOSE
@@ -411,7 +411,7 @@ module Deepblue
                                              uploaded_file_ids: [],
                                              **added_prov_key_values )
 
-      job_status.add_message! "IngestHelper.perform_create_derivatives_job" if job_status.present? && job_status.verbose
+      # job_status.add_message! "IngestHelper.perform_create_derivatives_job" if job_status.present? && job_status.verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "file_set=#{file_set}",
@@ -494,7 +494,7 @@ module Deepblue
       #   file_set.parent.total_file_size_add_file_set! file_set
       # end
       Rails.logger.info "end IngestHelper.update_total_file_size"
-      job_status.add_message! "IngestHelper.update_total_file_size" if job_status.present? && job_status.verbose
+      # job_status.add_message! "IngestHelper.update_total_file_size" if job_status.present? && job_status.verbose
     rescue Exception => e # rubocop:disable Lint/RescueException
       log_error( "IngestHelper.update_total_file_size(#{file_set}) #{e.class}: #{e.message} at #{e.backtrace[0]}",
                          job_status: job_status )

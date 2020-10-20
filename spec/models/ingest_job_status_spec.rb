@@ -30,9 +30,10 @@ RSpec.describe IngestJobStatus do
   it { is_expected.to delegate_method( :error!            ).to( :job_status ) }
   it { is_expected.to delegate_method( :finished?         ).to( :job_status ) }
   it { is_expected.to delegate_method( :job_class         ).to( :job_status ) }
-  it { is_expected.to delegate_method( :parent_job_id     ).to( :job_status ) }
+  it { is_expected.to delegate_method( :main_cc_id        ).to( :job_status ) }
   it { is_expected.to delegate_method( :message           ).to( :job_status ) }
   it { is_expected.to delegate_method( :null_job_status?  ).to( :job_status ) }
+  it { is_expected.to delegate_method( :parent_job_id     ).to( :job_status ) }
   it { is_expected.to delegate_method( :save!             ).to( :job_status ) }
   it { is_expected.to delegate_method( :started?          ).to( :job_status ) }
   it { is_expected.to delegate_method( :state             ).to( :job_status ) }
@@ -41,6 +42,7 @@ RSpec.describe IngestJobStatus do
   it { is_expected.to delegate_method( :state_serialize!  ).to( :job_status ) }
   it { is_expected.to delegate_method( :status            ).to( :job_status ) }
   it { is_expected.to delegate_method( :status?           ).to( :job_status ) }
+  it { is_expected.to delegate_method( :user_id           ).to( :job_status ) }
 
   # describe 'started is before every member of job status list' do
   #

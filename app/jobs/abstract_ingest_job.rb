@@ -2,24 +2,30 @@
 
 class AbstractIngestJob < ::Hyrax::ApplicationJob
 
-  ABSTRACT_INGEST_JOB_DEBUG_VERBOSE = true || ::Deepblue::IngestIntegrationService.abstract_ingest_job_debug_verbose
+  ABSTRACT_INGEST_JOB_DEBUG_VERBOSE = ::Deepblue::IngestIntegrationService.abstract_ingest_job_debug_verbose
 
   attr_accessor :job_status
 
   def find_or_create_job_status_started( parent_job_id: nil,
                                          continue_job_chain_later: false,
-                                         verbose: ABSTRACT_INGEST_JOB_DEBUG_VERBOSE )
+                                         verbose: ABSTRACT_INGEST_JOB_DEBUG_VERBOSE,
+                                         main_cc_id: nil,
+                                         user_id: nil  )
 
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "parent_job_id=#{parent_job_id}",
                                            "continue_job_chain_later=#{continue_job_chain_later}",
                                            "verbose=#{verbose}",
+                                           "main_cc_id=#{main_cc_id}",
+                                           "user_id=#{user_id}",
                                            "" ] if ABSTRACT_INGEST_JOB_DEBUG_VERBOSE
     @job_status = IngestJobStatus.find_or_create_job_started( job: self,
                                                               parent_job_id: parent_job_id,
                                                               continue_job_chain_later: continue_job_chain_later,
-                                                              verbose: verbose )
+                                                              verbose: verbose,
+                                                              main_cc_id: main_cc_id,
+                                                              user_id: user_id  )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "parent_job_id=#{parent_job_id}",
@@ -30,7 +36,7 @@ class AbstractIngestJob < ::Hyrax::ApplicationJob
                                            "@job_status.message=#{@job_status.message}",
                                            "@job_status.error=#{@job_status.error}",
                                            "" ] if ABSTRACT_INGEST_JOB_DEBUG_VERBOSE
-    @job_status.add_message! "#{self.class.name}#find_or_create_job_status_started" if verbose
+    # @job_status.add_message! "#{self.class.name}#find_or_create_job_status_started" if verbose
     @job_status
   end
 

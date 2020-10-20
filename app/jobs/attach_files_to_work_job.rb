@@ -5,13 +5,12 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
   include Rails.application.routes.url_helpers
   queue_as Hyrax.config.ingest_queue_name
 
-  ATTACH_FILES_TO_WORK_JOB_DEBUG_VERBOSE = true || ::Deepblue::IngestIntegrationService.attach_files_to_work_job_debug_verbose
+  ATTACH_FILES_TO_WORK_JOB_DEBUG_VERBOSE = ::Deepblue::IngestIntegrationService.attach_files_to_work_job_debug_verbose
   ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY = ::Deepblue::IngestIntegrationService.attach_files_to_work_upload_files_asynchronously
 
   attr_accessor :depositor,
                 :job_status,
                 :processed,
-                :processed_uploaded_file_ids,
                 :uploaded_files,
                 :uploaded_file_ids,
                 :user,
@@ -28,28 +27,21 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
   end
 
   def job_status_init
-    status = IngestJobStatus.new( job: self, verbose: ATTACH_FILES_TO_WORK_JOB_DEBUG_VERBOSE )
-    state = status.state_deserialize
-    if state.present?
-      @processed_uploaded_file_ids = state
-      reinitialize_processed
+    user_id = user.id if user.present?
+    main_cc_id = work.id if work.present?
+    status = IngestJobStatus.find_or_create_job_started( job: self,
+                                                         verbose: ATTACH_FILES_TO_WORK_JOB_DEBUG_VERBOSE,
+                                                         main_cc_id: main_cc_id,
+                                                         user_id: user_id )
+    @processed = []
+    status.processed_uploaded_file_ids.each_with_index do |uploaded_file_id,index|
+      @processed << @uploaded_files[index]
     end
     return status
   end
 
-  def reinitialize_processed
-    @processed = []
-    processed_uploaded_file_ids.each_with_index do |uploaded_file_id,index|
-      @processed << @uploaded_files[index]
-    end
-  end
-
   def processed
     @processed ||= []
-  end
-
-  def processed_uploaded_file_ids
-    @processed_uploaded_file_ids ||= []
   end
 
   def uploaded_file_ids
@@ -69,7 +61,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
     @uploaded_files = Array( uploaded_files )
     @work_attributes = work_attributes
     return if job_status.finished?
-    job_status.add_message!( "#{self.class.name}.perform" ) if job_status.verbose
+    # job_status.add_message!( "#{self.class.name}.perform" ) if job_status.verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "work=#{work}",
@@ -282,7 +274,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                     work_id: work.id,
                                     work_file_set_count: work.file_set_ids.count,
                                     asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY)
-      job_status.add_message( "#{self.class.name}.perform_log_starting" ) if job_status.verbose
+      # job_status.add_message( "#{self.class.name}.perform_log_starting" ) if job_status.verbose
       job_status.did_log_starting!
     end
 
@@ -314,15 +306,15 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                       failed: failed,
                                       asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY )
       end
-      job_status.add_message!( "#{self.class.name}.perform_notify" ) if job_status.verbose
+      # job_status.add_message!( "#{self.class.name}.perform_notify" ) if job_status.verbose
       notify_attach_files_to_work_job_complete( failed_to_upload: failed )
       job_status.did_notify!
     end
 
     def perform_upload_files
-      job_status.add_message!( "#{self.class.name}.perform_upload_files" ) if job_status.verbose
+      # job_status.add_message!( "#{self.class.name}.perform_upload_files" ) if job_status.verbose
       unless job_status.uploading_files?
-        job_status.uploading_files!( state: { "processed_uploaded_file_ids" => processed_uploaded_file_ids } )
+        job_status.uploading_files!
       end
       work_permissions = work.permissions.map( &:to_hash )
       metadata = visibility_attributes( work_attributes )
@@ -344,17 +336,16 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
 
     def processed_uploaded_file( uploaded_file )
       uploaded_file_id = uploaded_file_id_for( uploaded_file )
-      processed_uploaded_file_ids << uploaded_file_id
-      job_status.add_message( "processed uploaded_file: #{uploaded_file_id}" ) if job_status.verbose
-      job_status.uploading_files!( state: { "processed_uploaded_file_ids" => processed_uploaded_file_ids } )
+      job_status.processed_uploaded_file_ids << uploaded_file_id
+      job_status.uploading_files! message: "processed uploaded_file: #{uploaded_file_id}"
     end
 
     def processed_uploaded_file?( uploaded_file )
-      processed_uploaded_file_ids.include? uploaded_file_id_for( uploaded_file )
+      job_status.processed_uploaded_file_ids.include? uploaded_file_id_for( uploaded_file )
     end
 
     def upload_file( uploaded_file, work_permissions, metadata )
-      job_status.add_message!( "#{self.class.name}.upload_file #{uploaded_file.id}" ) if job_status.verbose
+      # job_status.add_message!( "#{self.class.name}.upload_file #{uploaded_file.id}" ) if job_status.verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "work.id=#{work.id}",
@@ -376,13 +367,11 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                     work_id: work.id,
                                     work_file_set_count: work.file_set_ids.count,
                                     asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY)
-      actor = Hyrax::Actors::FileSetActor.new( FileSet.create, user )
+      file_set = FileSet.create
+      actor = Hyrax::Actors::FileSetActor.new( file_set, user )
       actor.file_set.permissions_attributes = work_permissions
       perform_create_metadata( actor: actor, metadata: metadata )
       perform_create_label( actor: actor, uploaded_file: uploaded_file )
-
-
-
       perform_attach_to_work( actor: actor, uploaded_file: uploaded_file )
       perform_create_content( actor: actor, uploaded_file: uploaded_file )
       processed_uploaded_file uploaded_file

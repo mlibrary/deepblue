@@ -8,7 +8,7 @@ module Hyrax
     # Actions are decoupled from controller logic so that they may be called from a controller or a background job.
     class FileSetActor
 
-      FILE_SET_ACTOR_DEBUG_VERBOSE = true || ::DeepBlueDocs::Application.config.file_set_actor_debug_verbose
+      FILE_SET_ACTOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.file_set_actor_debug_verbose
 
       include Lockable
       attr_reader :file_set, :user, :attributes
@@ -66,11 +66,11 @@ module Hyrax
                                                         "" ] # error
             return false
           end
-          job_status.did_create_file_set!
+          job_status.did_create_file_set! file_set: file_set
         end
         io_wrapper = wrapper!( file: file, relation: relation )
         if from_url
-          job_status.add_message! "FileSetActor#create_content from_url" if job_status.verbose
+          # job_status.add_message! "FileSetActor#create_content from_url" if job_status.verbose
           # If ingesting from URL, don't spawn an IngestJob; instead
           # reach into the FileActor and run the ingest with the file instance in
           # hand. Do this because we don't have the underlying UploadedFile instance
@@ -89,7 +89,7 @@ module Hyrax
             InheritPermissionsJob.perform_now( parent )
           end
         else
-          job_status.add_message! "FileSetActor#create_content NOT from_url" if job_status.verbose
+          # job_status.add_message! "FileSetActor#create_content NOT from_url" if job_status.verbose
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "io_wrapper=#{io_wrapper}",
@@ -111,10 +111,6 @@ module Hyrax
                                                  "" ] if FILE_SET_ACTOR_DEBUG_VERBOSE
           job_status.reload
         end
-      end
-
-      def perform_create_content
-
       end
 
       # Spawns asynchronous IngestJob with user notification afterward

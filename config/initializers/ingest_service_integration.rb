@@ -4,6 +4,7 @@ Deepblue::IngestIntegrationService.setup do |config|
   INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE = false
 
   config.abstract_ingest_job_debug_verbose = true
+  config.add_file_to_file_set_debug_verbose = true
   config.attach_files_to_work_job_debug_verbose = true
   config.characterize_job_debug_verbose = true
   config.characterization_service_verbose = false

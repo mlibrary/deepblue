@@ -133,7 +133,7 @@ module Hyrax
                                              "false unless globus_enabled?=#{globus_enabled?}",
                                              "false unless globus_enabled?=#{globus_enabled?}",
                                              "true if can_download_zip_maybe?=#{can_download_zip_maybe?}",
-                                             "" ] if true || WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
       return false unless globus_enabled?
       can_download_zip_maybe?
     end

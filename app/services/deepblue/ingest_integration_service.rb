@@ -8,6 +8,7 @@ module Deepblue
     @@_setup_failed = false
 
     @@abstract_ingest_job_debug_verbose = false
+    @@add_file_to_file_set_debug_verbose = false
     @@attach_files_to_work_job_debug_verbose = false
     @@attach_files_to_work_upload_files_asynchronously = false
     @@characterize_job_debug_verbose = false
@@ -29,6 +30,7 @@ module Deepblue
     @@deepbluedata_prep
 
     mattr_accessor :abstract_ingest_job_debug_verbose,
+                   :add_file_to_file_set_debug_verbose,
                    :attach_files_to_work_job_debug_verbose,
                    :attach_files_to_work_upload_files_asynchronously,
                    :characterize_excluded_ext_set,

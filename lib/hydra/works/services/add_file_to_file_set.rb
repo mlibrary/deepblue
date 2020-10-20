@@ -5,7 +5,7 @@ module Hydra::Works
   # monkey
   class AddFileToFileSet
 
-    ADD_FILE_TO_FILE_SET_DEBUG_VERBOSE = true || ::DeepBlueDocs::Application.config.add_file_to_file_set_debug_verbose
+    ADD_FILE_TO_FILE_SET_DEBUG_VERBOSE = ::Deepblue::IngestIntegrationService.add_file_to_file_set_debug_verbose
 
     # Adds a file to the file_set
     # @param [Hydra::PCDM::FileSet] file_set the file will be added to
@@ -57,6 +57,8 @@ module Hydra::Works
                                              "versioning=#{versioning}",
                                              "job_status.job_id=#{job_status.job_id}",
                                              "job_status.parent_job_id=#{job_status.parent_job_id}",
+                                             "job_status.main_cc_id=#{job_status.main_cc_id}",
+                                             "job_status.user_id=#{job_status.user_id}",
                                              "job_status.message=#{job_status.message}",
                                              "job_status.error=#{job_status.error}",
                                              "" ] if ADD_FILE_TO_FILE_SET_DEBUG_VERBOSE
