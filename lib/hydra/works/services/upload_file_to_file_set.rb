@@ -12,7 +12,7 @@ module Hydra::Works
 
     def self.call(file_set, file, additional_services: [], update_existing: true, versioning: true)
 
-      Hydra::Works::AddFileToFileSet.call(file_set, file, :original_file, update_existing: update_existing, versioning: versioning)
+      Hydra::Works::AddFileToFileSet.call_enhanced_version(file_set, file, :original_file, update_existing: update_existing, versioning: versioning)
 
       # Call any additional services
       additional_services.each do |service|

@@ -52,7 +52,7 @@ module Hyrax
         unless job_status.did_add_file_to_file_set?
           # Skip versioning because versions will be minted by VersionCommitter as necessary during
           # save_characterize_and_record_committer.
-          Hydra::Works::AddFileToFileSet.call( file_set,
+          Hydra::Works::AddFileToFileSet.call_enhanced_version( file_set,
                                                io,
                                                relation,
                                                versioning: false,

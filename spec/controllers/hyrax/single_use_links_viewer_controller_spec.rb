@@ -19,7 +19,7 @@ RSpec.describe Hyrax::SingleUseLinksViewerController do
     end
 
     let :download_link do
-      Hydra::Works::AddFileToFileSet.call( file, File.open(fixture_path + '/world.png'), :original_file )
+      Hydra::Works::AddFileToFileSet.call_enhanced_version( file, File.open(fixture_path + '/world.png'), :original_file )
       SingleUseLink.create itemId: file.id, path: Hyrax::Engine.routes.url_helpers.download_path(id: file, locale: 'en')
     end
 

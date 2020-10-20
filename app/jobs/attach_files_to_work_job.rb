@@ -380,6 +380,9 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       actor.file_set.permissions_attributes = work_permissions
       perform_create_metadata( actor: actor, metadata: metadata )
       perform_create_label( actor: actor, uploaded_file: uploaded_file )
+
+
+
       perform_attach_to_work( actor: actor, uploaded_file: uploaded_file )
       perform_create_content( actor: actor, uploaded_file: uploaded_file )
       processed_uploaded_file uploaded_file
