@@ -128,6 +128,9 @@ gem 'omniauth'
 gem 'omniauth-cas'
 gem 'riiif', '~> 1.1'
 gem 'rsolr', '>= 1.0'
+
+gem 'ahoy_matey' # first-party analytics for Rails
+
 group :development, :test do
   gem 'capybara'
   gem 'chromedriver-helper'
