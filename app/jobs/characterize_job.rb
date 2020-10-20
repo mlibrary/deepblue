@@ -2,7 +2,7 @@
 
 class CharacterizeJob < AbstractIngestJob
 
-  CHARACTERIZE_JOB_DEBUG_VERBOSE = true || ::Deepblue::IngestIntegrationService.characterize_job_debug_verbose
+  CHARACTERIZE_JOB_DEBUG_VERBOSE = ::Deepblue::IngestIntegrationService.characterize_job_debug_verbose
 
   queue_as Hyrax.config.ingest_queue_name
 
@@ -22,7 +22,7 @@ class CharacterizeJob < AbstractIngestJob
     find_or_create_job_status_started( parent_job_id: parent_job_id,
                                        continue_job_chain_later: continue_job_chain_later,
                                        verbose: CHARACTERIZE_JOB_DEBUG_VERBOSE )
-    job_status.add_message!( "#{self.class.name}.perform: #{repository_file_id}" ) if job_status.verbose
+    # job_status.add_message!( "#{self.class.name}.perform: #{repository_file_id}" ) if job_status.verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "file_set=#{file_set})",

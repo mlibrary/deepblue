@@ -5,7 +5,7 @@ class IngestJobStatus
   INGEST_JOB_STATUS_DEBUG_VERBOSE = ::Deepblue::IngestIntegrationService.ingest_job_status_debug_verbose
 
   def self.null_ingest_job_status
-    @@null_ingest_job_status ||= IngestJobStatus.new( job_status: NullJobStatus.instance )
+    @@null_ingest_job_status ||= IngestJobStatus.new( job_status: ::JobStatus::Null.instance )
   end
 
   CREATE_FILE_SET               = 'create_file_set'.freeze
@@ -47,15 +47,18 @@ class IngestJobStatus
 
   attr_accessor :job_id, :job_status, :ordered_job_status_list, :verbose
 
+  attr_accessor :processed_file_set_ids, :processed_uploaded_ids
+
   delegate :add_message,
            :add_message!,
            :error,
            :error!,
            :finished?,
            :job_class,
-           :parent_job_id,
+           :main_cc_id,
            :message,
            :null_job_status?,
+           :parent_job_id,
            :save!,
            :started?,
            :state,
@@ -64,6 +67,7 @@ class IngestJobStatus
            :state_serialize!,
            :status,
            :status?,
+           :user_id,
            to: :job_status
 
   def self.find_job_status( job_id: nil, parent_job_id: nil, continue_job_chain_later: false, verbose: false )
@@ -80,7 +84,13 @@ class IngestJobStatus
     new_job_status( job_id: job_id, verbose: verbose )
   end
 
-  def self.find_or_create_job_started( job: nil, parent_job_id: nil, continue_job_chain_later: false, verbose: false )
+  def self.find_or_create_job_started( job: nil,
+                                       parent_job_id: nil,
+                                       continue_job_chain_later: false,
+                                       verbose: false,
+                                       main_cc_id: nil,
+                                       user_id: nil  )
+
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "job.nil?=#{job.nil?}",
@@ -90,22 +100,25 @@ class IngestJobStatus
                                            "verbose=#{verbose}",
                                            "" ] if INGEST_JOB_STATUS_DEBUG_VERBOSE
     # TODO: take continue_job_chain_later into account
-    return new_job_status( job_id: parent_job_id, verbose: verbose ) if parent_job_id.present?
-    IngestJobStatus.new( job: job, verbose: verbose )
+    return new_job_status( job_id: parent_job_id,
+                           verbose: verbose,
+                           main_cc_id: main_cc_id,
+                           user_id: user_id ) if parent_job_id.present?
+    IngestJobStatus.new( job: job, verbose: verbose, main_cc_id: main_cc_id, user_id: user_id )
   end
 
-  def self.new_job_status( job_id:, verbose: false )
+  def self.new_job_status( job_id:, verbose: false, main_cc_id: nil, user_id: nil  )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "job_id=#{job_id}",
                                            "verbose=#{verbose}",
                                            "" ] if INGEST_JOB_STATUS_DEBUG_VERBOSE
     return nil unless job_id.present?
-    IngestJobStatus.new( job_id: job_id, verbose: verbose )
+    IngestJobStatus.new( job_id: job_id, verbose: verbose, main_cc_id: main_cc_id, user_id: user_id  )
   end
 
   # order of instantiation: job_status, job, job_id
-  def initialize( job_status: nil, job: nil, job_id: nil, verbose: false )
+  def initialize( job_status: nil, job: nil, job_id: nil, verbose: false, main_cc_id: nil, user_id: nil  )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "job.nil?=#{job.nil?}",
@@ -120,16 +133,45 @@ class IngestJobStatus
       @job_status = job_status
       @job_id = job_status.job_id
     elsif job.present?
-      @job_status = JobStatus.find_or_create( job: job )
+      @job_status = JobStatus.find_or_create( job: job, main_cc_id: main_cc_id, user_id: user_id )
       @job_id = job.job_id
     elsif job_id.present?
       @job_status = JobStatus.find_by_job_id( job_id )
       @job_id = job_id
     else
-      @job_status = NullJobStatus.instance
+      @job_status = JobStatus::Null.instance
       @job_id = nil
     end
+
+    reinitialize_processed
   end
+
+  def reinitialize_processed
+    state = state_deserialize
+    if state.present?
+      @processed_file_set_ids = state["processed_file_set_ids"]
+      @processed_uploaded_file_ids = state["processed_uploaded_file_ids"]
+      @verbose = state["verbose"]
+    end
+  end
+
+  def processed_file_set_ids
+    @processed_file_set_ids ||= []
+  end
+
+  def processed_uploaded_file_ids
+    @processed_uploaded_file_ids ||= []
+  end
+
+  def current_state
+    { "processed_file_set_ids" => processed_file_set_ids,
+      "processed_uploaded_file_ids" => processed_uploaded_file_ids,
+      "verbose" => verbose }
+  end
+
+
+
+
 
   def add_error( error, sep: "\n" )
     add_message( error, sep: sep ) if verbose
@@ -209,7 +251,9 @@ class IngestJobStatus
     did? FINISHED_CREATE_DERIVATIVES
   end
 
-  def did_create_file_set!
+  def did_create_file_set!( file_set: )
+    processed_file_set_ids << file_set.id
+    state_serialize( current_state )
     did! CREATE_FILE_SET
   end
 
@@ -280,7 +324,7 @@ class IngestJobStatus
 
   def reload
     job_status.reload
-    add_message! "reload" if verbose
+    # add_message! "reload" if verbose
   end
 
   def ordered_job_status_list
@@ -299,8 +343,9 @@ class IngestJobStatus
   end
   alias did! status!
 
-  def uploading_files!( state: nil )
-    state_serialize( state )
+  def uploading_files!( message: nil )
+    add_message message
+    state_serialize( current_state )
     status! UPLOADING_FILES
   end
 

@@ -19,7 +19,7 @@ module Deepblue
 
   class RunJobTask < AbstractTask
 
-    RUN_JOB_TASK_DEBUG_VERBOSE = true || ::Deepblue::JobTaskHelper.run_job_task_debug_verbose
+    RUN_JOB_TASK_DEBUG_VERBOSE = ::Deepblue::JobTaskHelper.run_job_task_debug_verbose
 
     DEFAULT_PERFORM_LATER = false
 

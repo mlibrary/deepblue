@@ -7,7 +7,14 @@ class JobStatus < ApplicationRecord
   FINISHED = 'finished'.freeze
   STARTED = 'started'.freeze
 
-  def self.find_or_create( job:, status: nil, message: nil, error: nil, parent_job_id: nil )
+  def self.find_or_create( job:,
+                           status: nil,
+                           message: nil,
+                           error: nil,
+                           parent_job_id: nil,
+                           main_cc_id: nil,
+                           user_id: nil )
+
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "job.nil?=#{job.nil?}",
@@ -16,16 +23,20 @@ class JobStatus < ApplicationRecord
                                            "message=#{message}",
                                            "error=#{error}",
                                            "parent_job_id=#{parent_job_id}",
+                                           "main_cc_id=#{main_cc_id}",
+                                           "user_id=#{user_id}",
                                            "" ] if JOB_STATUS_DEBUG_VERBOSE
     return nil if job.nil?
     job_id = job.job_id
     job_class = job.class.name
     job_status = JobStatus.where( job_id: job_id, job_class: job_class ).first_or_create
-    if status.present? || message.present? || error.present? || parent_job_id.present?
+    if status.present? || message.present? || error.present? || parent_job_id.present? || main_cc_id.present? || user_id.present?
       job_status.status = status.to_s if status.present?
       job_status.message = message.to_s if message.present?
       job_status.error = error.to_s if error.present?
       job_status.parent_job_id = parent_job_id.to_s if parent_job_id.present?
+      job_status.main_cc_id = main_cc_id if main_cc_id.present?
+      job_status.user_id = user_id if user_id.present?
       job_status.save!
     end
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -59,16 +70,23 @@ class JobStatus < ApplicationRecord
     find_or_create( job: job, status: FINISHED, message: message )
   end
 
-  def self.find_or_create_job_started( job:, message: nil, parent_job_id: nil )
+  def self.find_or_create_job_started( job:, message: nil, parent_job_id: nil, main_cc_id: nil, user_id: nil )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "job.nil?=#{job.nil?}",
                                            "job&.job_id=#{job&.job_id}",
                                            "message=#{message}",
                                            "parent_job_id=#{parent_job_id}",
+                                           "main_cc_id=#{main_cc_id}",
+                                           "user_id=#{user_id}",
                                            "" ] if JOB_STATUS_DEBUG_VERBOSE
     return nil if job.nil?
-    find_or_create( job: job, status: STARTED, message: message, parent_job_id: parent_job_id )
+    find_or_create( job: job,
+                    status: STARTED,
+                    message: message,
+                    parent_job_id: parent_job_id,
+                    main_cc_id: main_cc_id,
+                    user_id: user_id )
   end
 
   def self.finished?( job: nil, job_id: nil )
@@ -182,7 +200,8 @@ class JobStatus < ApplicationRecord
     if state.blank?
       nil
     else
-      ActiveSupport::JSON.decode state
+      deserialized_state = ActiveSupport::JSON.decode state
+      return deserialized_state
     end
   rescue ActiveSupport::JSON.parse_error # rubocop:disable Lint/HandleExceptions
     nil # TODO
@@ -192,6 +211,7 @@ class JobStatus < ApplicationRecord
     if state.blank?
       self.state = nil
     else
+      # TODO: enforce state is a Hash?
       self.state = ActiveSupport::JSON.encode( state ).to_s
     end
   rescue ActiveSupport::JSON.parse_error # rubocop:disable Lint/HandleExceptions
@@ -223,123 +243,166 @@ class JobStatus < ApplicationRecord
     status == self.status
   end
 
+  class Null
+
+    ID = nil # 'nil'
+
+    def self.instance
+      @@instance ||= ::JobStatus::Null.new
+    end
+
+    def job_class
+      nil
+    end
+
+    def job_class=(_x)
+      # ignore
+    end
+
+    def job_id
+      nil
+    end
+
+    def job_id=(_x)
+      # ignore
+    end
+
+    def parent_job_id
+      nil
+    end
+
+    def parent_job_id=(_x)
+      # ignore
+    end
+
+    def status
+      nil
+    end
+
+    def status=(_x)
+      # ignore
+    end
+
+    def state
+      nil
+    end
+
+    def state=(_x)
+      # ignore
+    end
+
+    def message
+      nil
+    end
+
+    def message=(_x)
+      # ignore
+    end
+
+    def error
+      nil
+    end
+
+    def error=(_x)
+      # ignore
+    end
+
+    def main_cc_id
+      nil
+    end
+
+    def main_cc_id=(_x)
+      # ignore
+    end
+
+    def user_id
+      nil
+    end
+
+    def user_id=(_x)
+      # ignore
+    end
+
+    def initialize
+      # nothing to do
+    end
+
+    def add_error( _error, sep: "\n" )
+      # ignore
+      return self
+    end
+
+    def add_error!( _error, sep: "\n" )
+      # ignore
+      return self
+    end
+
+    def add_message( _message, sep: "\n" )
+      # ignore
+      return self
+    end
+
+    def add_message!( _message, sep: "\n" )
+      # ignore
+      return self
+    end
+
+    def error!( error: nil )
+      # ignore
+      return self
+    end
+
+    def finished!( message: nil )
+      # ignore
+      return self
+    end
+
+    def finished?
+      false
+    end
+
+    def null_job_status?
+      true
+    end
+
+    def reload
+      # ignore
+    end
+
+    def save!
+      # ignore
+    end
+
+    def started!( message: nil )
+      # ignore
+      return self
+    end
+
+    def started?
+      false
+    end
+
+    def state_deserialize
+      nil
+    end
+
+    def state_serialize( _state )
+      # ignore
+    end
+
+    def state_serialize!( _state )
+      # ignore
+    end
+
+    def status!( _status, message: nil, error: nil )
+      # ignore
+      return self
+    end
+
+    def status?( _status )
+      false
+    end
+
+  end
+
 end
-
-class NullJobStatus
-
-  ID = nil # 'nil'
-
-  def self.instance
-    @@instance ||= NullJobStatus.new
-  end
-
-  def initialize
-    # nothing to do
-  end
-
-  def error
-    nil
-  end
-
-  def job_class
-    nil
-  end
-
-  def job_id
-    ID
-  end
-
-  def message
-    nil
-  end
-
-  def parent_job_id
-    nil
-  end
-
-  def state
-    nil
-  end
-
-  def status
-    nil
-  end
-
-  def add_error( _error, _sep: "\n" )
-    # ignore
-    return self
-  end
-
-  def add_error!( _error, _sep: "\n" )
-    # ignore
-    return self
-  end
-
-  def add_message( _message, _sep: "\n" )
-    # ignore
-    return self
-  end
-
-  def add_message!( _message, _sep: "\n" )
-    # ignore
-    return self
-  end
-
-  def error!( _error: nil )
-    # ignore
-    return self
-  end
-
-  def finished!( _message: nil )
-    # ignore
-    return self
-  end
-
-  def finished?
-    false
-  end
-
-  def null_job_status?
-    true
-  end
-
-  def reload
-    # ignore
-  end
-
-  def save!
-    # ignore
-  end
-
-  def started!( _message: nil )
-    # ignore
-    return self
-  end
-
-  def started?
-    false
-  end
-
-  def state_deserialize
-    nil
-  end
-
-  def state_serialize( _state )
-    # ignore
-  end
-
-  def state_serialize!( _state )
-    # ignore
-  end
-
-  def status!( _status, _message: nil, _error: nil )
-    # ignore
-    return self
-  end
-
-  def status?( _status )
-    false
-  end
-
-end
-

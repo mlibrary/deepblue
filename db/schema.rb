@@ -176,11 +176,15 @@ ActiveRecord::Schema.define(version: 2020_10_13_141924) do
     t.text "state"
     t.text "message"
     t.text "error"
+    t.string "main_cc_id"
+    t.integer "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["job_id"], name: "index_job_statuses_on_job_id"
+    t.index ["main_cc_id"], name: "index_job_statuses_on_main_cc_id"
     t.index ["parent_job_id"], name: "index_job_statuses_on_parent_job_id"
     t.index ["status"], name: "index_job_statuses_on_status"
+    t.index ["user_id"], name: "index_job_statuses_on_user_id"
   end
 
   create_table "mailboxer_conversation_opt_outs", force: :cascade do |t|

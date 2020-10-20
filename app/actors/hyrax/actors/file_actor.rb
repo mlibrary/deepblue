@@ -8,7 +8,7 @@ module Hyrax
     # @note Spawns asynchronous jobs
     class FileActor
 
-      FILE_ACTOR_DEBUG_VERBOSE = true || ::DeepBlueDocs::Application.config.file_actor_debug_verbose
+      FILE_ACTOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.file_actor_debug_verbose
 
       attr_reader :file_set, :relation, :user
 
@@ -35,7 +35,7 @@ module Hyrax
                        job_status:,
                        uploaded_file_ids: [] )
 
-        job_status.add_message! "FileActor#ingest_file" if job_status.verbose
+        # job_status.add_message! "FileActor#ingest_file" if job_status.verbose
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "file_set=#{file_set}",

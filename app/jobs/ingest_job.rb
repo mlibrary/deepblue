@@ -3,7 +3,7 @@
 class IngestJob < AbstractIngestJob
   # monkey patch
 
-  INGEST_JOB_DEBUG_VERBOSE = true || ::Deepblue::IngestIntegrationService.ingest_job_debug_verbose
+  INGEST_JOB_DEBUG_VERBOSE = ::Deepblue::IngestIntegrationService.ingest_job_debug_verbose
 
   queue_as Hyrax.config.ingest_queue_name
 
@@ -29,7 +29,7 @@ class IngestJob < AbstractIngestJob
     find_or_create_job_status_started( parent_job_id: parent_job_id,
                                        continue_job_chain_later: continue_job_chain_later,
                                        verbose: INGEST_JOB_DEBUG_VERBOSE )
-    job_status.add_message!( "#{self.class.name}.perform" ) if job_status.verbose
+    # job_status.add_message!( "#{self.class.name}.perform" ) if job_status.verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "parent_job_id=#{parent_job_id}",

@@ -2,7 +2,7 @@
 
 class CreateDerivativesJob < AbstractIngestJob
 
-  CREATE_DERIVATIVES_JOB_DEBUG_VERBOSE = true || ::Deepblue::IngestIntegrationService.create_derivatives_job_debug_verbose
+  CREATE_DERIVATIVES_JOB_DEBUG_VERBOSE = ::Deepblue::IngestIntegrationService.create_derivatives_job_debug_verbose
 
   queue_as Hyrax.config.ingest_queue_name
 
@@ -18,7 +18,7 @@ class CreateDerivativesJob < AbstractIngestJob
                uploaded_file_ids: [] )
 
     find_or_create_job_status_started( parent_job_id: parent_job_id, verbose: CREATE_DERIVATIVES_JOB_DEBUG_VERBOSE )
-    job_status.add_message!( "#{self.class.name}.perform: #{repository_file_id}" ) if job_status.verbose
+    # job_status.add_message!( "#{self.class.name}.perform: #{repository_file_id}" ) if job_status.verbose
     ::Deepblue::IngestHelper.create_derivatives( file_set,
                                                  repository_file_id,
                                                  filepath,
