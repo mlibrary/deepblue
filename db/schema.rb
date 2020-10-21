@@ -10,15 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_10_21_145350) do
+ActiveRecord::Schema.define(version: 2020_10_20_181055) do
 
   create_table "ahoy_events", force: :cascade do |t|
     t.integer "visit_id"
     t.integer "user_id"
     t.string "name"
+    t.string "cc_id"
     t.text "properties"
     t.datetime "time"
-    t.string "cc_id"
     t.index ["cc_id"], name: "index_ahoy_events_on_cc_id"
     t.index ["name", "time"], name: "index_ahoy_events_on_name_and_time"
     t.index ["user_id"], name: "index_ahoy_events_on_user_id"
