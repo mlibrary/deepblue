@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_10_20_181055) do
+ActiveRecord::Schema.define(version: 2020_10_21_145350) do
 
   create_table "ahoy_events", force: :cascade do |t|
     t.integer "visit_id"
@@ -18,6 +18,8 @@ ActiveRecord::Schema.define(version: 2020_10_20_181055) do
     t.string "name"
     t.text "properties"
     t.datetime "time"
+    t.string "cc_id"
+    t.index ["cc_id"], name: "index_ahoy_events_on_cc_id"
     t.index ["name", "time"], name: "index_ahoy_events_on_name_and_time"
     t.index ["user_id"], name: "index_ahoy_events_on_user_id"
     t.index ["visit_id"], name: "index_ahoy_events_on_visit_id"

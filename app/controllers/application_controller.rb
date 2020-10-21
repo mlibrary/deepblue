@@ -26,18 +26,26 @@ class ApplicationController < ActionController::Base
                                            "" ] if ::Deepblue::AnalyticsIntegrationService.event_tracking_debug_verbose
     # ahoy.track self.class.name, request.path_parameters
     # ahoy.track "#{controller_name}##{action_name}", request.filtered_parameters
-    parms = request.filtered_parameters.dup
-    parms[:url] = request.url if ::Deepblue::AnalyticsIntegrationService.event_tracking_include_request_uri
+    properties = request.filtered_parameters.dup
+    properties[:url] = request.url if ::Deepblue::AnalyticsIntegrationService.event_tracking_include_request_uri
     ::Deepblue::AnalyticsIntegrationService.event_tracking_excluded_parameters.each do |excluded|
-      parms.delete excluded
+      properties.delete excluded
     end
-    track_action_update_parms!( parms: parms )
-    ahoy.track "#{self.class.name}##{action_name}", parms
+    track_action_update_parms!( properties: properties )
+    # ahoy.track("#{self.class.name}##{action_name}", properties )
+    cc_id = tracking_cc_id
+    ahoy.track_with_id("#{self.class.name}##{action_name}", cc_id,  properties )
   end
 
   # override this as necessary to add or delete tracked parameters
-  def track_action_update_parms!( parms: )
+  def track_action_update_parms!( properties: )
     # override this as necessary to add or delete tracked parameters
+  end
+
+  def tracking_cc_id
+    return params[:id] if params.has_key? :id
+    return nil unless respond_to? :id
+    id
   end
 
   protect_from_forgery with: :exception
