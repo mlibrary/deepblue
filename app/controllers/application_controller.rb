@@ -18,6 +18,28 @@ class ApplicationController < ActionController::Base
   include Hyrax::ThemedLayoutController
   with_themed_layout '1_column'
 
+  after_action :track_action
+
+  def track_action
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "" ] if ::Deepblue::AnalyticsIntegrationService.event_tracking_debug_verbose
+    # ahoy.track self.class.name, request.path_parameters
+    # ahoy.track "#{controller_name}##{action_name}", request.filtered_parameters
+    parms = request.filtered_parameters.dup
+    parms[:url] = request.url if ::Deepblue::AnalyticsIntegrationService.event_tracking_include_request_uri
+    ::Deepblue::AnalyticsIntegrationService.event_tracking_excluded_parameters.each do |excluded|
+      parms.delete excluded
+    end
+    track_action_update_parms!( parms: parms )
+    ahoy.track "#{self.class.name}##{action_name}", parms
+  end
+
+  # override this as necessary to add or delete tracked parameters
+  def track_action_update_parms!( parms: )
+    # override this as necessary to add or delete tracked parameters
+  end
+
   protect_from_forgery with: :exception
 
   if Rails.configuration.authentication_method == "umich"
