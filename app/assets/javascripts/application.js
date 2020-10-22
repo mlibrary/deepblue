@@ -25,4 +25,7 @@
 //= require validations
 //= require tufts/ensure_upload_fade_in
 
+//= require chartkick
+//= require Chart.bundle
+
 //= require hyrax

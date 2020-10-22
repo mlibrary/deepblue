@@ -82,6 +82,10 @@ module Hyrax
     #                                          "" ] if DATA_SET_PRESENTER_DEBUG_VERBOSE
     # end
 
+    def controller_class
+      controller.class
+    end
+
     # begin box
 
     def box_enabled?

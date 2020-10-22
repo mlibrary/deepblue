@@ -641,3 +641,16 @@ table.datatable thead th.no-sort {
 .provenance-log-container {
     min-height: 60px;
 }
+
+.graph-container {
+    width: 100%;
+    /* max-width: 850px; */
+    padding: 20px 15px 15px 15px;
+    margin: 15px auto 30px auto;
+    border: 1px solid #ddd;
+}
+
+.graph-container-narrow {
+    width: 75%;
+    float: right;
+}
