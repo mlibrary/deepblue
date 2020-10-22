@@ -31,6 +31,10 @@ module Hyrax
       super( solr_document, current_ability, request )
     end
 
+    def controller_class
+      ::Hyrax::FileSetsController
+    end
+
     def can_assign_to_work_as_read_me?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

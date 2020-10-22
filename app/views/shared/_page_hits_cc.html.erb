@@ -1,0 +1,8 @@
+<% if current_ability.admin? %>
+
+<div class="<%= (defined?(css) && css.present?) ? css : 'graph-container' %>">
+  <h2>Page hits by date</h2>
+  <%= line_chart AnalyticsHelper.page_hits_by_date( controller_class: presenter.controller_class, cc_id: presenter.id ) %>
+</div>
+
+<% end %>

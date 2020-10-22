@@ -130,6 +130,8 @@ gem 'riiif', '~> 1.1'
 gem 'rsolr', '>= 1.0'
 
 gem 'ahoy_matey' # first-party analytics for Rails
+gem 'chartkick'
+gem 'groupdate'
 
 group :development, :test do
   gem 'capybara'

@@ -111,6 +111,10 @@ module Hyrax
       false
     end
 
+    def controller_class
+      ::Hyrax::CollectionPresenter
+    end
+
     # begin display_provenance_log
 
     def can_display_provenance_log?
