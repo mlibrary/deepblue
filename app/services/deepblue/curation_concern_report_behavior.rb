@@ -330,7 +330,7 @@ module Deepblue
         out << ',' << '"' << work.rights_license_other << '"'
         out << ',' << '"' << (work.thumbnail_id.nil? ? '' : work.thumbnail_id).to_s << '"'
         out << ',' << '"' << (work.doi.nil? ? '' : work.doi).to_s << '"'
-        out << ',' << '"' << (work.tombstone.nil? ? '' : work.tombstone).to_s << '"'
+        out << ',' << '"' << (Array(work.tombstone).empty? ? '' : Array(work.tombstone).first).to_s << '"'
       end
       out << "\n"
       out
