@@ -14,6 +14,7 @@ module Deepblue
     @@globus_base_url
     @@globus_best_used_gt_size
     @@globus_best_used_gt_size_str
+    @@globus_bounce_external_link_off_server = true
     @@globus_copy_file_group
     @@globus_copy_file_permissions
     @@globus_debug_delay_per_file_copy_job_seconds = 0
@@ -31,6 +32,7 @@ module Deepblue
                    :globus_base_url,
                    :globus_best_used_gt_size,
                    :globus_best_used_gt_size_str,
+                   :globus_bounce_external_link_off_server,
                    :globus_copy_file_group,
                    :globus_copy_file_permissions,
                    :globus_debug_delay_per_file_copy_job_seconds,

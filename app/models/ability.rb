@@ -13,11 +13,12 @@ class Ability
     alias_action :create_single_use_link,    to: :update
     alias_action :display_provenance_log,    to: :read
     alias_action :file_contents,             to: :read
+    alias_action :globus_add_email,          to: :read
     alias_action :globus_clean_download,     to: :delete
     alias_action :globus_download,           to: :read
-    alias_action :globus_add_email,          to: :read
     alias_action :globus_download_add_email, to: :read
     alias_action :globus_download_notify_me, to: :read
+    alias_action :globus_download_redirect,  to: :read
     alias_action :ingest_append_generate_script, to: :read
     alias_action :ingest_append_prep,        to: :read
     alias_action :ingest_append_run_job,     to: :update

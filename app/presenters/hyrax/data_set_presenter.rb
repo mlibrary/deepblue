@@ -143,6 +143,10 @@ module Hyrax
 
     # begin globus
 
+    def globus_bounce_external_link_off_server?
+      ::Deepblue::GlobusIntegrationService.globus_bounce_external_link_off_server
+    end
+
     def globus_download_enabled?
       ::Deepblue::GlobusIntegrationService.globus_enabled
     end

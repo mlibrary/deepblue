@@ -1,4 +1,6 @@
+<% if AnalyticsHelper.show_hit_graph?( current_ability, presenter: presenter ) %>
 <div class="graph-container">
   <h2>Page hits by date</h2>
   <%= line_chart AnalyticsHelper.page_hits_by_date( controller_class: presenter.controller_class ) %>
 </div>
+<% end %>
