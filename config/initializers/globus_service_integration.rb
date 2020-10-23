@@ -81,4 +81,6 @@ Deepblue::GlobusIntegrationService.setup do |config|
   config.globus_best_used_gt_size = 3.gigabytes
   config.globus_best_used_gt_size_str = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert(config.globus_best_used_gt_size, {})
 
+  config.globus_bounce_external_link_off_server = true
+
 end

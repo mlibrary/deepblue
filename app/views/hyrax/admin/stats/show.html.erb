@@ -1,10 +1,12 @@
 <div class="row">
   <div class="col-sm-12">
     <%#= render 'shared/page_hits', presenter: @presenter %>
+    <% if AnalyticsHelper.chartkick? %>
     <div class="graph-container">
       <h2>New users by date</h2>
-      <%= line_chart User.group_by_day(:created_at).count, xtitle: "Date", ytitle: "User Count" %>
+      <%= line_chart( User.group_by_day(:created_at).count, xtitle: "Date", ytitle: "User Count" ) %>
     </div>
+    <% end %>
     <%= render "stats_by_date" %>
     <hr />
     <%= render "top_data" %>

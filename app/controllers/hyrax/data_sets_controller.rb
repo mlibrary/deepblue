@@ -34,6 +34,7 @@ module Hyrax
     protect_from_forgery with: :null_session,    only: [:globus_download]
     protect_from_forgery with: :null_session,    only: [:globus_download_add_email]
     protect_from_forgery with: :null_session,    only: [:globus_download_notify_me]
+    protect_from_forgery with: :null_session,    only: [:globus_download_redirect]
     protect_from_forgery with: :null_session,    only: [:ingest_append_generate_script]
     protect_from_forgery with: :null_session,    only: [:ingest_append_prep]
     protect_from_forgery with: :null_session,    only: [:ingest_append_run_job]
@@ -284,6 +285,10 @@ module Hyrax
 
     def globus_download_enabled?
       ::Deepblue::GlobusIntegrationService.globus_enabled
+    end
+
+    def globus_download_redirect
+      redirect_to ::GlobusJob.external_url( params[:id] )
     end
 
     def globus_download_notify_me

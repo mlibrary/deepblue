@@ -9,6 +9,18 @@ module Ahoy
 
     AHOY_TRACKER_DEBUG_VERBOSE = true
 
+    def track( name, properties = {}, options = {} )
+      cc_id = find_cc_id( name, properties )
+      track_with_id( name, cc_id, properties, options )
+    end
+
+    def find_cc_id( name, properties )
+      cc_id = properties["id"] if properties.has_key? "id"
+      cc_id = properties["ID"] if cc_id.blank? && properties.has_key?( "ID" )
+      cc_id = nil if cc_id.present? && 9 == cc_id.to_s.length # really only care about curation concern ids, and they have a length of 9
+      return cc_id
+    end
+
     def track_with_id( name, cc_id = nil, properties = {}, options = {} )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

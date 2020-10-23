@@ -56,11 +56,19 @@
               <%= hidden_field_tag('data_set[nop]') %>
               <% if @presenter.globus_files_available? %>
                 <p><%= t('simple_form.hints.data_set.globus_files_are_ready') %> &nbsp;
-                  <%= link_to t('simple_form.hints.data_set.globus_link'),
-                              @presenter.globus_external_url,
-                              class: 'btn btn-primary',
-                              target: "_blank",
-                              title: t('simple_form.hints.data_set.globus_link') %>
+                  <% if @presenter.globus_bounce_external_link_off_server? %>
+                    <%= link_to t('simple_form.hints.data_set.globus_link'),
+                                main_app.globus_download_redirect_hyrax_data_set_path(@presenter.id),
+                                class: 'btn btn-primary',
+                                target: "_blank",
+                                title: t('simple_form.hints.data_set.globus_link') %>
+                  <% else %>
+                    <%= link_to t('simple_form.hints.data_set.globus_link'),
+                                @presenter.globus_external_url,
+                                class: 'btn btn-primary',
+                                target: "_blank",
+                                title: t('simple_form.hints.data_set.globus_link') %>
+                  <% end %>
                   <br/>
                   <%= t('simple_form.hints.data_set.globus_is_for_large_datasets', larger_than: ::Deepblue::GlobusIntegrationService.globus_best_used_gt_size_str ) %> &nbsp;
                   <a href="<%= main_app.static_path( doc: 'globus-help') %>" target="_blank">
