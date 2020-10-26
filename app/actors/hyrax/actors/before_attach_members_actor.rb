@@ -51,7 +51,7 @@ module Hyrax
         # provenance log: Adds the item to the ordered members so that it displays in the items
         # along side the FileSets on the show page
         def add( env, id, current_user )
-          member = ActiveFedora::Base.find( id )
+          member = ::PersistHelper.find( id )
           child_title = member.title
           Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                Deepblue::LoggingHelper.called_from,

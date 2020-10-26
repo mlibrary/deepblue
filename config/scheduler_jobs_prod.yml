@@ -12,6 +12,7 @@ heartbeat_email_job:
   args:
     hostnames:
       - 'deepblue.lib.umich.edu'
+    subscription_service_id: heartbeat_email_job
 
 find_and_fix_job:
 # Run once a day, 15 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
@@ -21,15 +22,16 @@ find_and_fix_job:
   queue: scheduler
   description: Find and fix problems
   args:
-    hostnames:
-      - 'deepblue.lib.umich.edu'
-      - 'staging.deepblue.lib.umich.edu'
-      - 'testing.deepblue.lib.umich.edu'
     email_results_to:
       - 'fritx@umich.edu'
     find_and_fix_empty_file_size: true
     find_and_fix_all_ordered_members_containing_nils: true
-    verbose: true 
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'staging.deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
+    subscription_service_id: find_and_fix_job
+    verbose: true
 
 clean_tmp:
 # Run once a week on Saturday, 6 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
@@ -39,7 +41,6 @@ clean_tmp:
   queue: scheduler
   description: Run rake tmp:clean (Saturdays
   args:
-    rake_task: 'tmp:clean'
     hostnames:
       - 'deepblue.lib.umich.edu'
       - 'staging.deepblue.lib.umich.edu'
@@ -47,6 +48,7 @@ clean_tmp:
     email_results_to:
       - 'fritx@umich.edu'
     job_delay: 0
+    rake_task: 'tmp:clean'
     verbose: true
 
 clean_tmp2:
@@ -57,12 +59,12 @@ clean_tmp2:
   queue: scheduler
   description: Run rake tmp:clean (daily on testing)
   args:
-    rake_task: 'tmp:clean'
     hostnames:
       - 'testing.deepblue.lib.umich.edu'
     email_results_to:
       - 'fritx@umich.edu'
     job_delay: 0
+    rake_task: 'tmp:clean'
     verbose: true
 
 deactivate_expired_embargoes_job:
@@ -100,12 +102,27 @@ user_stat_importer_job:
   queue: scheduler
   description: Import user stats job.
   args:
-    test: false
     hostnames:
       - 'deepblue.lib.umich.edu'
     verbose: false
+    test: false
 
-works_report_job:
+works_report_job_daily:
+  # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  #      M H D
+  cron: '5 5 * * *'
+  class: WorksReportJob
+  queue: scheduler
+  description: Daily Works report job.
+  args:
+    hostnames:
+      - 'testing.deepblue.lib.umich.edu'
+    quiet: true
+    report_file_prefix: '%date%.%hostname%.works_report'
+    report_dir: '/deepbluedata-prep/reports'
+    subscription_service_id: works_report_job_daily
+
+works_report_job_monthly:
   # Run once a month on the 1st, five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M H D
   # cron: '*/5 * * * *'
@@ -114,27 +131,14 @@ works_report_job:
   queue: scheduler
   description: Monthly Works report job.
   args:
-    report_file_prefix: '%date%.%hostname%.works_report'
-    report_dir: '/deepbluedata-prep/reports'
-    quiet: true
     hostnames:
       - 'deepblue.lib.umich.edu'
       - 'staging.deepblue.lib.umich.edu'
       - 'testing.deepblue.lib.umich.edu'
-
-works_report_job2:
-  # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
-  #      M H D
-  cron: '5 5 * * *'
-  class: WorksReportJob
-  queue: scheduler
-  description: Daily Works report job.
-  args:
+    quiet: true
     report_file_prefix: '%date%.%hostname%.works_report'
     report_dir: '/deepbluedata-prep/reports'
-    quiet: true
-    hostnames:
-      - 'testing.deepblue.lib.umich.edu'
+    subscription_service_id: works_report_job_monthly
 
 about_to_deactivate_embargoes_at_2_days_job:
   # Run once a day, twenty minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
@@ -148,6 +152,6 @@ about_to_deactivate_embargoes_at_2_days_job:
     email_owner: true
     expiration_lead_days: 2
     test_mode: false
-    verbose: true
     hostnames:
       - 'testing.deepblue.lib.umich.edu'
+    verbose: true

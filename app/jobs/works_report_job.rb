@@ -8,7 +8,7 @@ class WorksReportJob < ::Hyrax::ApplicationJob
 
 SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 
-works_report_job:
+works_report_job_monthly:
   # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M H D
   # cron: '*/5 * * * *'
@@ -17,13 +17,14 @@ works_report_job:
   queue: scheduler
   description: Works report job.
   args:
-    report_file_prefix: '%date%.%hostname%.works_report'
-    report_dir: '/deepbluedata-prep/reports'
-    quiet: true
     hostnames:
       - 'deepblue.lib.umich.edu'
       - 'staging.deepblue.lib.umich.edu'
       - 'testing.deepblue.lib.umich.edu'
+    quiet: true
+    report_file_prefix: '%date%.%hostname%.works_report'
+    report_dir: '/deepbluedata-prep/reports'
+    subscription_service_id: works_report_job_monthly
 
 END_OF_SCHEDULER_ENTRY
 
@@ -32,16 +33,16 @@ END_OF_SCHEDULER_ENTRY
   queue_as :scheduler
 
   def perform( *args )
-    ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           Deepblue::LoggingHelper.called_from,
-                                           Deepblue::LoggingHelper.obj_class( 'class', self ),
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                            "" ] if WORKS_REPORT_JOB_DEBUG_VERBOSE
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event: "works report job" )
     options = {}
     args.each { |key,value| options[key] = value }
-    ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            "options=#{options}",
-                                           Deepblue::LoggingHelper.obj_class( 'options', options ),
+                                           ::Deepblue::LoggingHelper.obj_class( 'options', options ),
                                            "" ] if WORKS_REPORT_JOB_DEBUG_VERBOSE
     quiet = job_options_value( options, key: 'quiet', default_value: false, verbose: true )
     if quiet
@@ -63,7 +64,7 @@ END_OF_SCHEDULER_ENTRY
       to_console = job_options_value( options, key: 'to_console', verbose: verbose )
       options['to_console'] = echo_to_stdout if echo_to_stdout.present? && to_console.blank?
     end
-    reporter = Deepblue::WorksReporter.new( options: options )
+    reporter = ::Deepblue::WorksReporter.new( options: options )
     reporter.run
   rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"

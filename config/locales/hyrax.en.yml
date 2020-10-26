@@ -405,8 +405,10 @@ en:
       can_run:              "Scheduler can run on %{hostname}"
       edit_schedule_header: "Edit Schedule"
       not_running_html:     "Scheduler is <strong>not</strong> Running"
+      run_job:              "Run Scheduler Job Now"
       running:              "Scheduler is Running"
       status_header:        "Scheduler Status"
+      subscribe:            "Subscribe to Scheduler Jobs"
       uptime_header:        "Uptimes"
     share_button:           "Deposit Your Work"
     single_use_links:

@@ -45,7 +45,7 @@ module Deepblue
                                              "id=#{id}",
                                              "" ] if ZIP_DOWNLOAD_PRESENTER_BEHAVIOR_DEBUG_VERBOSE
       return "id is nil" if id.nil?
-      curation_concern = ActiveFedora::Base.find( id ) if curation_concern.nil?
+      curation_concern = ::PersistHelper.find( id ) if curation_concern.nil?
       # return "curation_concern.nil?=#{curation_concern.nil?}"
       url = zip_download_path_link( curation_concern )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

@@ -654,3 +654,7 @@ table.datatable thead th.no-sort {
     width: 75%;
     float: right;
 }
+
+.submit-button-list li {
+    padding: 2px
+}
