@@ -43,7 +43,7 @@ module Hyrax
         def add_new_work_ids_not_already_in_curation_concern( env, new_work_ids )
           # add to new so long as the depositor for the parent and child matches, otherwise igmore
           (new_work_ids - env.curation_concern.in_works_ids).each do |work_id|
-            work = ::ActiveFedora::Base.find( work_id )
+            work = ::PersistHelper.find( work_id )
             Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                  Deepblue::LoggingHelper.called_from,
                                                  "provenance_child_add",
@@ -76,7 +76,7 @@ module Hyrax
 
         def cleanup_ids_to_remove_from_curation_concern( env, new_work_ids )
           (env.curation_concern.in_works_ids - new_work_ids).each do |old_id|
-            work = ::ActiveFedora::Base.find( old_id )
+            work = ::PersistHelper.find( old_id )
             Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                  Deepblue::LoggingHelper.called_from,
                                                  "provenance_child_remove",

@@ -44,7 +44,7 @@ module Hyrax
     end
 
     def curation_concern
-      @collection ||= ActiveFedora::Base.find(params[:id])
+      @collection ||= ::PersistHelper.find( params[:id] )
     end
 
     ## Provenance log
