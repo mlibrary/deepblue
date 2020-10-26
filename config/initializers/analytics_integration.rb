@@ -8,7 +8,7 @@ Deepblue::AnalyticsIntegrationService.setup do |config|
   config.event_tracking_include_request_uri = false
   config.event_tracking_excluded_parameters = [ :authenticity_token ].freeze
 
-  config.enable_chartkick = false
+  config.enable_chartkick = true
   config.enable_collections_hit_graph = false
   config.enable_file_sets_hit_graph = true
   config.enable_works_hit_graph = true
