@@ -221,6 +221,10 @@ Rails.application.routes.draw do
   get '/scheduler_dashboard/' => 'scheduler_dashboard#show'
   get '/scheduler_dashboard_action/' => 'scheduler_dashboard#action'
   post '/scheduler_dashboard_action/' => 'scheduler_dashboard#action'
+  get '/scheduler_dashboard_run_job/' => 'scheduler_dashboard#run_job'
+  post '/scheduler_dashboard_run_job/' => 'scheduler_dashboard#run_job'
+  get '/scheduler_dashboard_subscribe/' => 'scheduler_dashboard#subscribe'
+  post '/scheduler_dashboard_subscribe/' => 'scheduler_dashboard#subscribe'
   get '/scheduler_dashboard_update_schedule/' => 'scheduler_dashboard#update_schedule'
   post '/scheduler_dashboard_update_schedule/' => 'scheduler_dashboard#update_schedule'
   get '/work_view_content/:id/:file_id' => 'work_view_content#show', constraint: { id: /[^\/]+/, file_id: /[^\/]+/ }

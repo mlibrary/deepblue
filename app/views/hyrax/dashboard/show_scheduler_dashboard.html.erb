@@ -31,6 +31,30 @@
 <% end %>
 <br/>
 
+<h2 class="title-header"><%= t('hyrax.scheduler.subscribe') %></h2>
+<%= form_tag(main_app.scheduler_dashboard_subscribe_path, method: 'post') do %>
+  <ul class='submit-button-list'>
+  <% @presenter.scheduler_subscribe_jobs.each do |name_subscribed_pair| %>
+    <% if name_subscribed_pair[1] %>
+      <li><%= submit_tag( name_subscribed_pair[0] + " (unsubscribe)", class: 'btn btn-primary' ) %><li>
+    <% else %>
+      <li><%= submit_tag( name_subscribed_pair[0] + " (subscribe)", class: 'btn btn-primary' ) %><li>
+    <% end %>
+  <% end %>
+  </ul>
+<% end %>
+<br/>
+
+<h2 class="title-header"><%= t('hyrax.scheduler.run_job') %></h2>
+<%= form_tag(main_app.scheduler_dashboard_run_job_path, method: 'post') do %>
+  <ul class='submit-button-list'>
+  <% @presenter.job_schedule_jobs.each do |job| %>
+      <li><%= submit_tag( job, class: 'btn btn-primary' ) %><li>
+  <% end %>
+  </ul>
+<% end %>
+<br/>
+
 <h2 class="title-header"><%= t('hyrax.scheduler.edit_schedule_header') %></h2>
 <%= form_tag(main_app.scheduler_dashboard_update_schedule_path, method: 'post') do %>
   <%#= render partial: 'data_set/ingest_append_script_fields' %>

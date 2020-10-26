@@ -13,7 +13,7 @@ module Deepblue
 
     attr_reader :options
 
-    attr_accessor :verbose, :to_console, :logger, :options_error, :quiet, :rake_task
+    attr_accessor :logger, :options_error, :quiet, :rake_task, :subscription_service_id, :to_console, :verbose
 
     def initialize( rake_task: false, options: {} )
       @rake_task = rake_task
@@ -36,6 +36,7 @@ module Deepblue
         @verbose = task_options_value( key: 'verbose', default_value: DEFAULT_VERBOSE )
       end
       @logger = task_options_value( key: 'logger', default_value: nil ) if @options_error.blank?
+      @subscription_service_id = task_options_value( key: 'subscription_service_id' )
       console_puts "@verbose=#{@verbose}" if @verbose
     end
 

@@ -21,6 +21,7 @@ module Deepblue
     attr_accessor :out_report
     attr_accessor :out_collections, :out_works, :out_file_sets, :prefix
     attr_accessor :report_dir
+    attr_accessor :report_timestamp_begin, :report_timestamp_end
     attr_accessor :tagged_totals
     attr_accessor :totals
     attr_accessor :work_ids_reported, :work_file_count_cache, :work_size_cache
@@ -489,12 +490,47 @@ module Deepblue
       report_tagged_totals( base_tag: 'depositors', status: status )
     end
 
+    def report_email_body
+      out_report.string
+    end
+
+    def report_email_event
+      subscription_service_id
+    end
+
+    def report_email_content_type
+      # 'text/html'
+      nil
+    end
+
+    def report_email_results
+      return if service_scription_id.blank?
+      subscribers = ::Deepblue::EmailSubscriptionService.subscribers_for( subscription_service_id: subscription_service_id )
+      return if subscribers.empth?
+      subscribers.each do |subscriber|
+        ::Deepblue::EmailSubscriptionService.subscription_send_email( email_target: subscriber,
+                                                                      content_type: report_email_content_type,
+                                                                      subject: report_email_subject,
+                                                                      body: report_email_body,
+                                                                      event: report_email_event,
+                                                                      # event_note: event_note,
+                                                                      timestamp_begin: report_timestamp_begin,
+                                                                      timestamp_end: report_timestamp_end,
+                                                                      subscription_service_id: subscription_service_id )
+      end
+    end
+
+    def report_email_subject
+      self.class.name
+    end
+
     def report_extensions( status: nil )
       report_tagged_totals( base_tag: 'extensions', status: status )
     end
 
     def report_finished
-      out_report << "Report finished: " << Time.new.to_s << "\n"
+      report_timestamp_end = Time.new
+      out_report << "Report finished: " << report_timestamp_end.to_s << "\n"
 
       report_all_totals
       report_top_ten
@@ -505,6 +541,7 @@ module Deepblue
       c_print "\n"
       c_print out_report.string
       c_print "\n"
+      report_email_results
     end
 
     def report_tagged_totals( base_tag:, status: nil )

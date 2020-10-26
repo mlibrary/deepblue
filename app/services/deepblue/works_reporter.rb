@@ -27,10 +27,15 @@ module Deepblue
       report
     end
 
+    def report_email_subject
+      "Works Report"
+    end
+
     protected
 
       def report
-        out_report << "Report started: " << Time.new.to_s << "\n"
+        report_timestamp_begin = Time.new
+        out_report << "Report started: " << report_timestamp_begin.to_s << "\n"
         @prefix = "#{Time.now.strftime('%Y%m%d')}_works_report" if @prefix.nil? ## YYYYMMDD
         @works_file = Pathname.new( report_dir ).join "#{prefix}_works.csv"
         @file_sets_file = Pathname.new( report_dir ).join "#{prefix}_file_sets.csv"

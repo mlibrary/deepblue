@@ -24,15 +24,16 @@ find_and_fix_job:
   queue: scheduler
   description: Find and fix problems
   args:
-    hostnames:
-      - 'deepblue.lib.umich.edu'
-      - 'staging.deepblue.lib.umich.edu'
-      - 'testing.deepblue.lib.umich.edu'
     email_results_to:
       - 'fritx@umich.edu'
     find_and_fix_empty_file_size: true
     find_and_fix_all_ordered_members_containing_nils: true
-    verbose: true 
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'staging.deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
+    subscription_service_id: find_and_fix_job
+    verbose: true
 
 END_OF_EXAMPLE_SCHEDULER_ENTRY
 

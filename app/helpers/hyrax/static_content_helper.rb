@@ -77,13 +77,13 @@ module Hyrax
                                              "work_title=#{work_title}",
                                              "id=#{id}",
                                              "" ] if static_content_helper_verbose
-      return ActiveFedora::Base.find id unless id.blank?
+      return ::PersistHelper.find id unless id.blank?
       id = StaticContentHelper.static_content_title_id_cache_get( title: work_title )
-      return ActiveFedora::Base.find id unless id.blank?
+      return ::PersistHelper.find id unless id.blank?
       if work_title.size == 9
         begin
           # guess that it is an id, and not a title
-          work = ActiveFedora::Base.find work_title
+          work = ::PersistHelper.find work_title
           StaticContentHelper.static_content_cache_title_id( title: work_title, id: work.id )
           return work
         rescue ActiveFedora::ObjectNotFoundError
@@ -100,7 +100,7 @@ module Hyrax
       if results.size > 0
         result = results[0] if results
         id = result.id
-        work = ActiveFedora::Base.find id
+        work = ::PersistHelper.find id
         StaticContentHelper.static_content_cache_title_id( title: work_title, id: id )
       end
       return work
@@ -112,7 +112,7 @@ module Hyrax
                                              "file_set=#{id}",
                                              "id=#{id}",
                                              "" ] if static_content_helper_verbose
-      file_set = ActiveFedora::Base.find id unless id.blank?
+      file_set = ::PersistHelper.find id unless id.blank?
       return "" if file_set.blank?
       file = file_set.files_to_file
       rv = if file.nil?

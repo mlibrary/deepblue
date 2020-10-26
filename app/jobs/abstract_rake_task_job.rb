@@ -12,11 +12,12 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
                 :job_delay,
                 :msg_queue,
                 :options,
+                :subscription_service_id,
                 :timestamp_begin,
                 :timestamp_end,
                 :verbose
 
-  def default_value_is( value, default_value )
+  def default_value_is( value, default_value = nil )
     return value if value.present?
     default_value
   end
@@ -24,6 +25,7 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
   def email_exec_results( exec_str:, rv:, event:, event_note: '' )
     timestamp_end = DateTime.now if timestamp_end.blank?
     ::Deepblue::JobTaskHelper.email_exec_results( targets: email_results_to,
+                                                  subscription_service_id: subscription_service_id,
                                                   exec_str: exec_str,
                                                   rv: rv,
                                                   event: event,
@@ -36,6 +38,7 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
   def email_failure( task_name:, exception:, event:, event_note: '' )
     timestamp_end = DateTime.now if timestamp_end.blank?
     ::Deepblue::JobTaskHelper.email_failure( targets: email_results_to,
+                                             subscription_service_id: subscription_service_id,
                                              task_name: task_name,
                                              exception: exception,
                                              event: event,
@@ -48,6 +51,7 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
   def email_results( task_name:, event:, event_note: '' )
     timestamp_end = DateTime.now if timestamp_end.blank?
     ::Deepblue::JobTaskHelper.email_results( targets: email_results_to,
+                                             subscription_service_id: subscription_service_id,
                                              task_name: task_name,
                                              event: event,
                                              event_note: event_note,
@@ -81,6 +85,10 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
                                            key: 'email_results_to',
                                            default_value: default_value_is( email_results_to, [] ),
                                            verbose: verbose )
+    @subscription_service_id = job_options_value( options,
+                                                  key: 'subscription_service_id',
+                                                  default_value: default_value_is( subscription_service_id ),
+                                                  verbose: verbose )
     @hostnames = job_options_value( options,
                                     key: 'hostnames',
                                     default_value: default_value_is( hostnames, [] ),

@@ -51,6 +51,7 @@ module Deepblue
     end
 
     def self.email_exec_results( targets:,
+                                 subscription_service_id: nil,
                                  exec_str:,
                                  rv:,
                                  event:,
@@ -70,6 +71,8 @@ module Deepblue
                                              "timestamp_begin=#{timestamp_begin}",
                                              "timestamp_end=#{timestamp_end}",
                                              "" ] if job_task_helper_debug_verbose
+      targets = ::Deepblue::EmailSubscriptionService.merge_targets_and_subscribers( targets: targets,
+                                                                                    subscription_service_id: subscription_service_id )
       return if targets.blank?
       timestamp_end = DateTime.now if timestamp_end.blank?
       body =<<-END_BODY
@@ -102,6 +105,7 @@ END_BODY
     end
 
     def self.email_failure( targets:,
+                            subscription_service_id:,
                             task_name:,
                             exception:,
                             event:,
@@ -121,6 +125,8 @@ END_BODY
                                              "timestamp_begin=#{timestamp_begin}",
                                              "timestamp_end=#{timestamp_end}",
                                              "" ] if job_task_helper_debug_verbose
+      targets = ::Deepblue::EmailSubscriptionService.merge_targets_and_subscribers( targets: targets,
+                                                                                    subscription_service_id: subscription_service_id )
       return if targets.blank?
       timestamp_end = DateTime.now if timestamp_end.blank?
       body =<<-END_BODY
@@ -157,6 +163,7 @@ END_BODY
     end
 
     def self.email_results( targets:,
+                            subscription_service_id: nil,
                             task_name:,
                             event:,
                             event_note: '',
@@ -167,6 +174,7 @@ END_BODY
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "targets=#{targets}",
+                                             "subscription_service_id=#{subscription_service_id}",
                                              "task_name=#{task_name}",
                                              "event=#{event}",
                                              "event_note=#{event_note}",
@@ -174,6 +182,8 @@ END_BODY
                                              "timestamp_begin=#{timestamp_begin}",
                                              "timestamp_end=#{timestamp_end}",
                                              "" ] if job_task_helper_debug_verbose
+      targets = ::Deepblue::EmailSubscriptionService.merge_targets_and_subscribers( targets: targets,
+                                                                                    subscription_service_id: subscription_service_id )
       return if targets.blank?
       timestamp_end = DateTime.now if timestamp_end.blank?
       body =<<-END_BODY
