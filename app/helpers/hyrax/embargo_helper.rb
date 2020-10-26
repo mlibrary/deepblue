@@ -43,7 +43,7 @@ module Hyrax
                                              "verbose=#{verbose}",
                                              "" ] if EMBARGO_HELPER_DEBUG_VERBOSE
       embargo_release_date = asset.embargo_release_date
-      curation_concern = ::ActiveFedora::Base.find asset.id
+      curation_concern = ::PersistHelper.find asset.id
       id = curation_concern.id
       title = curation_concern.title.join
       subject = ::Deepblue::EmailHelper.t( "hyrax.email.about_to_expire_embargo.subject", expiration_days: expiration_days, title: title )

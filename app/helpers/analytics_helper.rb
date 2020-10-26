@@ -2,7 +2,7 @@
 
 module AnalyticsHelper
 
-  ANALYTICS_HELPER_DEBUG_VERBOSE = true
+  ANALYTICS_HELPER_DEBUG_VERBOSE = ::Deepblue::AnalyticsIntegrationService.analytics_helper_debug_verbose
 
   def self.chartkick?
     ::Deepblue::AnalyticsIntegrationService.enable_chartkick
@@ -32,8 +32,22 @@ module AnalyticsHelper
                                            "" ] if ANALYTICS_HELPER_DEBUG_VERBOSE
 
     # TODO: add date_range constraint
+    if date_range.blank? && ::Deepblue::AnalyticsIntegrationService.hit_graph_day_window > 0
+      date_range = ::Deepblue::AnalyticsIntegrationService.hit_graph_day_window.days.ago..(Date.today + 1.day)
+    end
     if cc_id.present?
-      Ahoy::Event.where( name: "#{controller_class.name}#show", cc_id: cc_id ).group_by_day( :time ).count
+      if date_range.blank?
+        Ahoy::Event.where( name: "#{controller_class.name}#show", cc_id: cc_id ).group_by_day( :time ).count
+      else
+        sql = Ahoy::Event.where( name: "#{controller_class.name}#show", cc_id: cc_id, time: date_range ).group_by_day( :time ).to_sql
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "sql=#{sql}",
+                                               "" ] if ANALYTICS_HELPER_DEBUG_VERBOSE
+        Ahoy::Event.where( name: "#{controller_class.name}#show", cc_id: cc_id, time: date_range ).group_by_day( :time ).count
+      end
+    elsif date_range.present?
+      Ahoy::Event.where( name: "#{controller_class.name}#show", date_created: date_range ).group_by_day( :time ).count
     else
       Ahoy::Event.where( name: "#{controller_class.name}#show" ).group_by_day( :time ).count
     end

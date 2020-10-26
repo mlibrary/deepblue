@@ -57,14 +57,14 @@ module Hyrax
         # Adds the item to the ordered members so that it displays in the items
         # along side the FileSets on the show page
         def add2(env, id)
-          member = PersistHelper.find(id)
+          member = ::PersistHelper.find( id )
           return unless env.current_ability.can?(:edit, member)
           env.curation_concern.ordered_members << member
         end
 
         # Remove the object from the members set and the ordered members list
         def remove2(curation_concern, id)
-          member = PersistHelper.find(id)
+          member = ::PersistHelper.find( id )
           curation_concern.ordered_members.delete(member)
           curation_concern.members.delete(member)
         end
@@ -72,7 +72,7 @@ module Hyrax
         def add( env, id )
           # ::Deepblue::LoggingHelper.bold_debug "AttachMembersActor.add: id = #{id}"
           return if id.blank?
-          member = PersistHelper.find( id )
+          member = ::PersistHelper.find( id )
           child_title = member.title
           # is this check necessary?
           can_do_it = env.current_ability.can?( :edit, member )
@@ -100,7 +100,7 @@ module Hyrax
         def remove( curation_concern, id )
           # ::Deepblue::LoggingHelper.bold_debug "AttachMembersActor.remove: id = #{id}"
           return if id.blank?
-          member = PersistHelper.find(id)
+          member = ::PersistHelper.find( id )
           child_title = member.title
           curation_concern.ordered_members.delete(member)
           curation_concern.members.delete(member)

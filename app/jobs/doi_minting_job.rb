@@ -12,7 +12,7 @@ class DoiMintingJob < ::Hyrax::ApplicationJob
                                          "job_delay=#{job_delay}",
                                          "target_url=#{target_url}" ]
     if 0 < job_delay
-      return unless ActiveFedora::Base.find( id ).doi_pending?
+      return unless ::PersistHelper.find( id ).doi_pending?
       Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
                                            "curation_concern.id=#{id}",
@@ -21,7 +21,7 @@ class DoiMintingJob < ::Hyrax::ApplicationJob
                                            "sleeping #{job_delay} seconds"]
       sleep job_delay
     end
-    curation_concern = ActiveFedora::Base.find( id )
+    curation_concern = ::PersistHelper.find( id )
     Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                          Deepblue::LoggingHelper.called_from,
                                          "curation_concern.id=#{id}",

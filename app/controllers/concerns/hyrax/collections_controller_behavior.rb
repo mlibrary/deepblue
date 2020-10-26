@@ -98,7 +98,7 @@ module Hyrax
                                                "wants.format=#{wants.format}",
                                                "" ] if COLLECTIONS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
         wants.html do
-          @curation_concern ||= ActiveFedora::Base.find(params[:id])
+          @curation_concern ||= ::PersistHelper.find( params[:id] )
           if @curation_concern.present?
             presenter
             query_collection_members
@@ -108,7 +108,7 @@ module Hyrax
           unless ::DeepBlueDocs::Application.config.rest_api_allow_read
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
-          @curation_concern ||= ActiveFedora::Base.find(params[:id])
+          @curation_concern ||= ::PersistHelper.find( params[:id] )
           if @curation_concern.present?
             presenter
             query_collection_members

@@ -526,7 +526,7 @@ module Hyrax
       begin
         # check with Fedora to see if the requested id was deleted
         id = params[:id]
-        ActiveFedora::Base.find( id )
+        ::PersistHelper.find( id )
       rescue Ldp::Gone => gone
         # it was deleted
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

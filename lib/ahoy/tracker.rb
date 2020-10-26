@@ -3,11 +3,13 @@
 # monkey add method ahoy_matey lib/ahoy/tracker.rb
 require File.join( Gem::Specification.find_by_name( "ahoy_matey" ).full_gem_path, "lib/ahoy/tracker.rb" )
 
+require_relative "../../app/services/deepblue/analytics_integration_service"
+
 module Ahoy
 
   class Tracker
 
-    AHOY_TRACKER_DEBUG_VERBOSE = true
+    AHOY_TRACKER_DEBUG_VERBOSE = ::Deepblue::AnalyticsIntegrationService.ahoy_tracker_debug_verbose
 
     def track( name, properties = {}, options = {} )
       cc_id = find_cc_id( name, properties )
