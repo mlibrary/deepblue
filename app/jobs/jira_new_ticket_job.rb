@@ -18,9 +18,9 @@ class JiraNewTicketJob < ::Hyrax::ApplicationJob
                                            "sleeping #{job_delay} seconds"] if JIRA_NEW_TICKET_JOB_DEBUG_VERBOSE
       sleep job_delay
     end
-    work = ActiveFedora::Base.find( work_id )
+    work = ::PersistHelper.find( work_id )
     ::Deepblue::JiraHelper.jira_ticket_for_create( curation_concern: work )
-    work = ActiveFedora::Base.find( work_id )
+    work = ::PersistHelper.find( work_id )
     ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
                                            "work.curation_notes_admin=#{work.curation_notes_admin}",

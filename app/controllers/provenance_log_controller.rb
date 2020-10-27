@@ -33,7 +33,7 @@ class ProvenanceLogController < ApplicationController
 
   def id_check
     return if id.blank?
-    ActiveFedora::Base.find( id )
+    ::PersistHelper.find( id )
   rescue Ldp::Gone => g
     @id_msg = "deleted"
     @id_deleted = true

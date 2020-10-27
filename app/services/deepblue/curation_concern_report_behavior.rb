@@ -39,7 +39,7 @@ module Deepblue
       file_set_count = 0
       total_size = 0
       collection_work_ids.each do |id|
-        w = ActiveFedora::Base.find id
+        w = ::PersistHelper.find id
         next unless w.respond_to? :file_sets
         # c_print 'w'
         w.file_sets do |fs|
@@ -394,7 +394,7 @@ module Deepblue
     def process_curation_concerns(ids: )
       return if ids.blank?
       ids.each do |id|
-        curation_concern = ActiveFedora::Base.find id
+        curation_concern = ::PersistHelper.find id
         process_collection( collection: curation_concern )
         process_work( work: curation_concern )
       end

@@ -17,6 +17,10 @@ module PersistHelper
     false
   end
 
+  def self.uri_to_id( uri )
+    ::ActiveFedora::Base.uri_to_id( uri )
+  end
+
   def self.where( values )
     ::ActiveFedora::Base.where( values )
   end

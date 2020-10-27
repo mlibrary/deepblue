@@ -41,7 +41,7 @@ module Hyrax
     def update
       filter_docs_with_edit_access!
       copy_visibility = params[:embargoes].values.map { |h| h[:copy_visibility] }
-      ActiveFedora::Base.find(batch).each do |curation_concern|
+      ::PersistHelper.find(batch).each do |curation_concern|
         # Hyrax::Actors::EmbargoActor.new(curation_concern).destroy
         copy_visibility_to_files = if curation_concern.file_set?
                                      true

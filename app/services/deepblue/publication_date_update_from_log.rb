@@ -33,7 +33,7 @@ module Deepblue
         date = timestamp
         date = DateTime.parse date if date.is_a? String
         begin
-          work = ActiveFedora::Base.find id
+          work = ::PersistHelper.find id
           next unless work.respond_to? :date_published
           if work.date_published.blank?
             puts "#{work.id}: setting date_published to #{date}" if verbose
