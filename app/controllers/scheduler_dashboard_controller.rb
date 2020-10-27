@@ -130,7 +130,7 @@ class SchedulerDashboardController < ApplicationController
     # Add this hostname to hostnames if it exists
     args['hostnames'] << ::DeepBlueDocs::Application.config.hostname if args.has_key? 'hostnames'
     job_class = job_class_name.constantize
-    job_class.perform_later( args ) if Rails.env.production?
+    job_class.set( queue: :default ).perform_later( *args ) if Rails.env.production?
     job_class.perform_now( args ) if Rails.env.development?
     msg = "Started #{job} to run in the background."
     return redirect_to scheduler_dashboard_path, notice: msg

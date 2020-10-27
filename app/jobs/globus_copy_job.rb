@@ -14,7 +14,7 @@ class GlobusCopyJob < GlobusJob
       @target_download_dir = target_download_dir2 @globus_concern_id
       @target_prep_dir     = target_prep_dir2( @globus_concern_id, prefix: nil, mkdir: true )
       @target_prep_dir_tmp = target_prep_tmp_dir2( @globus_concern_id, prefix: nil, mkdir: true )
-      curation_concern = ActiveFedora::Base.find @globus_concern_id
+      curation_concern = ::PersistHelper.find @globus_concern_id
       globus_email_rds( curation_concern: curation_concern, description: "copy job started for work #{curation_concern.id}" )
       metadata_file = curation_concern.metadata_report( dir: @target_prep_dir_tmp, filename_pre: 'w_' )
       move_destination = GlobusJob.target_file_name( @target_prep_dir, metadata_file.basename )

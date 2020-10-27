@@ -73,7 +73,7 @@ module Deepblue
 
     def self.content_find_by_id( id:, raise_error: false )
       return nil if id.blank?
-      content = ActiveFedora::Base.find( id )
+      content = ::PersistHelper.find( id )
       return content
     rescue Ldp::Gone
       raise if raise_error
