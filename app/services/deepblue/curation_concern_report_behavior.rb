@@ -504,7 +504,7 @@ module Deepblue
     end
 
     def report_email_results
-      return if service_scription_id.blank?
+      return if subscription_service_id.blank?
       subscribers = ::Deepblue::EmailSubscriptionService.subscribers_for( subscription_service_id: subscription_service_id )
       return if subscribers.empth?
       subscribers.each do |subscriber|
