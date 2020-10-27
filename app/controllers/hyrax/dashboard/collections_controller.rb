@@ -78,7 +78,7 @@ module Hyrax
       after_action :provenance_log_update_after, only: [:update]
 
       def curation_concern
-        @collection ||= ActiveFedora::Base.find(params[:id])
+        @collection ||= ::PersistHelper.find(params[:id])
       end
 
       def default_event_note

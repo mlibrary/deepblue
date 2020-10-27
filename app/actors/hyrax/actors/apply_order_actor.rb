@@ -35,7 +35,7 @@ module Hyrax
         def cleanup_ids_to_remove_from_curation_concern(curation_concern, ordered_member_ids)
           ::Deepblue::LoggingHelper.bold_debug "ApplyOrderActor.cleanup_ids_to_remove_from_curation_concern ordered_member_ids = #{ordered_member_ids}" if APPLY_ORDER_ACTOR_VERBOSE
           (curation_concern.ordered_member_ids - ordered_member_ids).each do |old_id|
-            work = ::ActiveFedora::Base.find(old_id)
+            work = ::PersistHelper.find(old_id)
             curation_concern.ordered_members.delete(work)
             curation_concern.members.delete(work)
           end
@@ -44,7 +44,7 @@ module Hyrax
         def add_new_work_ids_not_already_in_curation_concern(env, ordered_member_ids)
           ::Deepblue::LoggingHelper.bold_debug "ApplyOrderActor.add_new_work_ids_not_already_in_curation_concern ordered_member_ids = #{ordered_member_ids}" if APPLY_ORDER_ACTOR_VERBOSE
           (ordered_member_ids - env.curation_concern.ordered_member_ids).each do |work_id|
-            work = ::ActiveFedora::Base.find(work_id)
+            work = ::PersistHelper.find(work_id)
             if can_edit_both_works?(env, work)
               env.curation_concern.ordered_members << work
               env.curation_concern.save!

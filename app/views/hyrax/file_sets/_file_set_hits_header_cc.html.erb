@@ -1,0 +1,8 @@
+<% if AnalyticsHelper.show_hit_graph?( current_ability, presenter: presenter )  %>
+<div class="<%= (defined?(css) && css.present?) ? css : 'graph-container' %>">
+  <%= line_chart( AnalyticsHelper.file_set_hits_by_date( controller_class: presenter.controller_class, cc_id: presenter.id ),
+                                                     height: "8em",
+                                                     ytitle: "Hits",
+                                                     messages: {empty: "No data"} ) %>
+</div>
+<% end %>

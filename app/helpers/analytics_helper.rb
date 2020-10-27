@@ -8,6 +8,18 @@ module AnalyticsHelper
     ::Deepblue::AnalyticsIntegrationService.enable_chartkick
   end
 
+  def self.file_set_hits_by_date( controller_class:, cc_id: nil, date_range: nil )
+    visits = events_by_date( name: "#{controller_class.name}#show",
+                             cc_id: cc_id,
+                             data_name: "visits",
+                             date_range: date_range )
+    downloads = events_by_date( name: "#{::Hyrax::DownloadsController.name}#show",
+                                cc_id: cc_id,
+                                data_name: "downloads",
+                                date_range: date_range )
+    [ visits, downloads ]
+  end
+
   def self.hit_graph_admin?
     # 0 = none, 1 = admin, 2 = editor, 3 = everyone
     0 < ::Deepblue::AnalyticsIntegrationService.hit_graph_view_level
@@ -24,33 +36,66 @@ module AnalyticsHelper
   end
 
   def self.page_hits_by_date( controller_class:, cc_id: nil, date_range: nil )
+    events_by_date( name: "#{controller_class.name}#show", cc_id: cc_id, date_range: date_range )
+  end
+
+  def self.work_hits_by_date( controller_class:, cc_id: nil, date_range: nil )
+    visits = events_by_date( name: "#{controller_class.name}#show",
+                             cc_id: cc_id,
+                             data_name: "visits",
+                             date_range: date_range )
+    zip = events_by_date( name: "#{controller_class.name}#zip_download",
+                             cc_id: cc_id,
+                             data_name: "zip",
+                             date_range: date_range )
+    globus = events_by_date( name: "#{controller_class.name}#globus_download_redirect",
+                             cc_id: cc_id,
+                             data_name: "globus",
+                             date_range: date_range )
+    [ visits, zip, globus ]
+  end
+
+  def self.events_by_date( name:, cc_id: nil, data_name: nil, date_range: nil )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "controller_class.name=#{controller_class.name}",
+                                           "name=#{name}",
                                            "cc_id=#{cc_id}",
+                                           "data_name=#{data_name}",
                                            "date_range=#{date_range}",
                                            "" ] if ANALYTICS_HELPER_DEBUG_VERBOSE
 
-    # TODO: add date_range constraint
     if date_range.blank? && ::Deepblue::AnalyticsIntegrationService.hit_graph_day_window > 0
       date_range = ::Deepblue::AnalyticsIntegrationService.hit_graph_day_window.days.ago..(Date.today + 1.day)
     end
-    if cc_id.present?
-      if date_range.blank?
-        Ahoy::Event.where( name: "#{controller_class.name}#show", cc_id: cc_id ).group_by_day( :time ).count
-      else
-        sql = Ahoy::Event.where( name: "#{controller_class.name}#show", cc_id: cc_id, time: date_range ).group_by_day( :time ).to_sql
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "sql=#{sql}",
-                                               "" ] if ANALYTICS_HELPER_DEBUG_VERBOSE
-        Ahoy::Event.where( name: "#{controller_class.name}#show", cc_id: cc_id, time: date_range ).group_by_day( :time ).count
-      end
-    elsif date_range.present?
-      Ahoy::Event.where( name: "#{controller_class.name}#show", date_created: date_range ).group_by_day( :time ).count
-    else
-      Ahoy::Event.where( name: "#{controller_class.name}#show" ).group_by_day( :time ).count
-    end
+    rv = if cc_id.present?
+           if date_range.blank?
+             Ahoy::Event.where( name: name, cc_id: cc_id ).group_by_day( :time ).count
+           else
+             sql = Ahoy::Event.where( name: name, cc_id: cc_id, time: date_range ).group_by_day( :time ).to_sql
+             ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                    ::Deepblue::LoggingHelper.called_from,
+                                                    "sql=#{sql}",
+                                                    "" ] if ANALYTICS_HELPER_DEBUG_VERBOSE
+             Ahoy::Event.where( name: name,
+                                cc_id: cc_id,
+                                time: date_range ).group_by_day( :time ).count
+           end
+         elsif date_range.present?
+           Ahoy::Event.where( name: name,
+                              date_created: date_range ).group_by_day( :time ).count
+         else
+           Ahoy::Event.where( name: name ).group_by_day( :time ).count
+         end
+    rv = { name: data_name, data: rv } if data_name.present?
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "name=#{name}",
+                                           "cc_id=#{cc_id}",
+                                           "data_name=#{data_name}",
+                                           "date_range=#{date_range}",
+                                           "rv=#{rv}",
+                                           "" ] if ANALYTICS_HELPER_DEBUG_VERBOSE
+    return rv
   end
 
   def self.show_hit_graph?( current_ability, presenter: nil )

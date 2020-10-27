@@ -43,7 +43,7 @@ module Deepblue
       @assets.each_with_index do |asset,i|
         next if @skip_file_sets && "FileSet" == asset.model_name
         run_msg "#{i} - #{asset.id}, #{asset.model_name}, #{asset.human_readable_type}, #{asset.solr_document.title} #{asset.embargo_release_date}, #{asset.visibility_after_embargo}" if @verbose
-        model = ::ActiveFedora::Base.find asset.id
+        model = ::PersistHelper.find asset.id
         deactivate_embargo( curation_concern: model,
                             copy_visibility_to_files: true,
                             current_user: Deepblue::ProvenanceHelper.system_as_current_user,
