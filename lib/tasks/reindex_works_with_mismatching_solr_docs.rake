@@ -39,7 +39,7 @@ module Deepblue
       @logger.info "reindex #{id}" if @verbose
       batch = []
       begin
-        obj = ActiveFedora::Base.find(id)
+        obj = ::PersistHelper.find(id)
         batch << obj.to_solr
       rescue Exception => e # rubocop:disable Lint/RescueException
         @pacifier.pacify '<!b>' unless @pacifier.nil?

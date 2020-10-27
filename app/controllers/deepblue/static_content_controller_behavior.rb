@@ -56,7 +56,7 @@ module Deepblue
 
     def self.static_content_find_by_id( id:, cache_id_with_key: nil, raise_error: false )
       return nil if id.blank?
-      content = ActiveFedora::Base.find( id )
+      content = ::PersistHelper.find( id )
       return content unless work_view_content_enable_cache
       if content.present? && cache_id_with_key.present?
         return content if @@static_content_cache.key?( cache_id_with_key )

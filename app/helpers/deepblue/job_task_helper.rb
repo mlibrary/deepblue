@@ -41,13 +41,18 @@ module Deepblue
 
 
     def self.initialize_options_from( *args )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "args=#{args}",
+                                             "" ] if job_task_helper_debug_verbose
       options = {}
+      args = args[0] if args.is_a?( Array ) && 1 == args.length
       args.each { |key,value| options[key] = value }
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "timestamp_begin=#{timestamp_begin}",
                                              "options=#{options}",
                                              "" ] if job_task_helper_debug_verbose
+      return options
     end
 
     def self.email_exec_results( targets:,

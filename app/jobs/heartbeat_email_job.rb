@@ -37,8 +37,7 @@ END_OF_SCHEDULER_ENTRY
                                            "args=#{args}",
                                            "" ] if HEARTBEAT_EMAIL_JOB_DEBUG_VERBOSE
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event: "heartbeat email" )
-    options = {}
-    args.each { |key,value| options[key] = value }
+    options = ::Deepblue::JobTaskHelper.initialize_options_from *args
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            "options=#{options}",
                                            ::Deepblue::LoggingHelper.obj_class( 'options', options ),
@@ -48,6 +47,7 @@ END_OF_SCHEDULER_ENTRY
     hostnames = job_options_value(options, key: 'hostnames', default_value: [], verbose: verbose )
     hostname = ::DeepBlueDocs::Application.config.hostname
     return unless hostnames.include? hostname
+    subscription_service_id = job_options_value( options, key: 'subscription_service_id', default_value: nil, verbose: verbose )
     targets = ::Deepblue::SchedulerIntegrationService.scheduler_heartbeat_email_targets.dup
     targets = ::Deepblue::EmailSubscriptionService.merge_targets_and_subscribers( targets: targets,
                                                                                   subscription_service_id: subscription_service_id )

@@ -53,7 +53,7 @@ module Deepblue
             print "#{w.id} has #{w.file_set_ids.size} files..."
             STDOUT.flush
             w.file_set_ids.map do |fid|
-              af = ActiveFedora::Base.find fid
+              af = ::PersistHelper.find fid
               if af.nil?
                 nil_af_files << fid
               else
@@ -114,7 +114,7 @@ module Deepblue
           subtotal = 0
           puts "#{w.id} has #{w.file_set_ids.size} files"
           w.file_set_ids.map do |fid|
-            af = ActiveFedora::Base.find fid
+            af = ::PersistHelper.find fid
             nil_af_files << fid if af.nil?
             next if af.nil?
             file = nil

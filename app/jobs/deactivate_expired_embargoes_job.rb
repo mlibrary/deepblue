@@ -35,8 +35,7 @@ END_OF_SCHEDULER_ENTRY
                                            Deepblue::LoggingHelper.obj_class( 'args', args ),
                                            "" ] if DEACTIVATE_EXPIRED_EMBARGOES_JOB_DEBUG_VERBOSE
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name,  event: "deactivate_expired_embargoes" )
-    options = {}
-    args.each { |key,value| options[key] = value }
+    options = ::Deepblue::JobTaskHelper.initialize_options_from *args
     ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            "options=#{options}",
                                            Deepblue::LoggingHelper.obj_class( 'options', options ),

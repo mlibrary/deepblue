@@ -9,7 +9,7 @@ module Hyrax
       private
 
         def curation_concern_notifications( user, message, subject )
-          curation_concern = ActiveFedora::Base.find( work_id )
+          curation_concern = ::PersistHelper.find( work_id )
           current_user = user.user_key
           curation_concern.workflow_publish( current_user: current_user,
                                              event_note: 'DepositedNotification',
@@ -25,7 +25,7 @@ module Hyrax
         end
 
         def users_to_notify
-          user_key = ActiveFedora::Base.find(work_id).depositor
+          user_key = ::PersistHelper.find(work_id).depositor
           super << ::User.find_by(email: user_key)
         end
 

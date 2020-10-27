@@ -130,7 +130,7 @@ module Hyrax
 
     def asset
       @asset ||= if single_use_link.is_a? SingleUseLink
-                   ActiveFedora::Base.find(single_use_link.itemId)
+                   ::PersistHelper.find(single_use_link.itemId)
                  else
                    ''
                  end

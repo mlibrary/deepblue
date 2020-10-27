@@ -84,7 +84,7 @@ module Deepblue
 
     def characterize_file_set( fid )
       pacify '.'
-      af = ActiveFedora::Base.find fid
+      af = ::PersistHelper.find fid
       if nil_original_file? af
         pacify '<of.nil>'
         return
@@ -360,7 +360,7 @@ module Deepblue
             subtotal = 0
             print "#{w.id} has #{w.file_set_ids.size} files ..."; STDOUT.flush
             w.file_set_ids.map do |fid|
-              af = ActiveFedora::Base.find fid
+              af = ::PersistHelper.find fid
               file_count += 1
               if af.nil?
                 track( :nil_af, wid, fid )
@@ -500,7 +500,7 @@ module Deepblue
 
     def thumbnail_fetch( object )
       return object if object.thumbnail_id == object.id
-      ::ActiveFedora::Base.find(object.thumbnail_id)
+      ::PersistHelper.find(object.thumbnail_id)
     rescue ActiveFedora::ObjectNotFoundError
       puts "Couldn't find thumbnail #{object.thumbnail_id} for #{object.id}"
       nil

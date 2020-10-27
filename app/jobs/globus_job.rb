@@ -201,7 +201,7 @@ class GlobusJob < ::Hyrax::ApplicationJob
     end
 
     def globus_email_rds( curation_concern: nil, description: '' )
-      curation_concern = ActiveFedora::Base.find @globus_concern_id if curation_concern.nil?
+      curation_concern = ::PersistHelper.find @globus_concern_id if curation_concern.nil?
       return unless curation_concern.respond_to? :email_event_globus_rds
       curation_concern.email_event_globus_rds( current_user: nil, event_note: description )
     end
