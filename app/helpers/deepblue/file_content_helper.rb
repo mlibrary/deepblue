@@ -201,6 +201,7 @@ module Deepblue
     end
 
     def self.read_me_file_set( work:, raise_error: false )
+      return nil if work.blank?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "work.id=#{work.id}",
