@@ -11,6 +11,7 @@ Deepblue::JobTaskHelper.setup do |config|
   config.heartbeat_job_debug_verbose = false
   config.heartbeat_email_job_debug_verbose = false
   config.rake_task_job_debug_verbose = true
+  config.update_condensed_events_job_debug_verbose = true
   config.works_report_job_debug_verbose = false
 
   config.allowed_job_tasks = [ "-T", "tmp:clear" ].freeze

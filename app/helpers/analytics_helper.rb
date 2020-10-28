@@ -81,8 +81,7 @@ module AnalyticsHelper
                                 time: date_range ).group_by_day( :time ).count
            end
          elsif date_range.present?
-           Ahoy::Event.where( name: name,
-                              date_created: date_range ).group_by_day( :time ).count
+           Ahoy::Event.where( name: name, time: date_range ).group_by_day( :time ).count
          else
            Ahoy::Event.where( name: name ).group_by_day( :time ).count
          end
@@ -114,6 +113,35 @@ module AnalyticsHelper
       true
     else
       false
+    end
+  end
+
+  def self.update_current_month_condensed_events
+    # will there be an issue with daily savings time?
+    beginning_of_month = Time.now.beginning_of_month.beginning_of_day
+    end_of_month = beginning_of_month.end_of_month.end_of_day
+    date_range = beginning_of_month..end_of_month
+    update_condensed_events_for( date_range: date_range )
+  end
+
+  def self.update_condensed_events_for( date_range: )
+    name_cc_ids = Ahoy::Event.select( :name, :cc_id ).where( time: date_range ).distinct.pluck( :name, :cc_id )
+    name_cc_ids.each do |name_cc_id|
+      name = name_cc_id[0]
+      cc_id = name_cc_id[1]
+      condensed_data = Ahoy::Event.where( name: name, cc_id: cc_id, time: date_range ).group_by_day( :time ).count
+      condensed_event = Ahoy::CondensedEvent.find_by( name: name,
+                                                      cc_id: cc_id,
+                                                      date_begin: date_range.first,
+                                                      date_end: date_range.last )
+      if condensed_event.blank?
+        condensed_event = Ahoy::CondensedEvent.new( name: name,
+                                                    cc_id: cc_id,
+                                                    date_begin: date_range.first,
+                                                    date_end: date_range.last )
+      end
+      condensed_event.condensed_event = condensed_data
+      condensed_event.save
     end
   end
 
