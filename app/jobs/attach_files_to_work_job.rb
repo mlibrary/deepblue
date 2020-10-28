@@ -160,7 +160,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
     end
 
     def file_stats( uploaded_file )
-      file_set_id = ActiveFedora::Base.uri_to_id uploaded_file.file_set_uri
+      file_set_id = ::PersistHelper.uri_to_id uploaded_file.file_set_uri
       file_set = FileSet.find file_set_id
       return file_set.original_name_value, file_set.file_size_value
     rescue Exception => e # rubocop:disable Lint/RescueException

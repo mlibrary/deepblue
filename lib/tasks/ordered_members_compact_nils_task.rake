@@ -25,7 +25,7 @@ module Deepblue
     end
 
     def run
-      ActiveFedora::Base.all.each do |cc|
+      ::PersistHelper.all.each do |cc|
         next unless cc.respond_to? :ordered_members
         ord = Array( cc.ordered_members )
         puts "#{cc.id} ord.size=#{ord.size}" if verbose

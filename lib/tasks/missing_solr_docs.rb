@@ -97,7 +97,7 @@ module Deepblue
     end
 
     def uri_to_id( uri )
-      ActiveFedora::Base.uri_to_id(uri)
+      ::PersistHelper.uri_to_id(uri)
     end
 
     def work?( uri, id )

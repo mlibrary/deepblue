@@ -13,7 +13,7 @@ module FindAndFixOrderedMembersBehavior
                                            "ids_fixed=#{ids_fixed}",
                                            "" ] if FIND_AND_FIX_ALL_ORDERED_MEMBERS_CONTAINING_NILS_DEBUG_VERBOSE
 
-    ActiveFedora::Base.all.each do |curation_concern|
+    ::PersistHelper.all.each do |curation_concern|
       next unless curation_concern.respond_to? :ordered_members
       ordered_members = Array( curation_concern.ordered_members )
       next unless ordered_members.include? nil

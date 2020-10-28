@@ -41,8 +41,8 @@ module ActiveFedora
 
           # catch errors
           begin
-            id = ActiveFedora::Base.uri_to_id(uri)
-            obj = ActiveFedora::Base.find(id)
+            id = ::PersistHelper.uri_to_id(uri)
+            obj = ::PersistHelper.find(id)
             batch << obj.to_solr
             batch_uri << uri
           rescue Exception => e # rubocop:disable Lint/RescueException

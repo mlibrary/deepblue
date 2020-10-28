@@ -148,7 +148,7 @@ module Hyrax
     end
 
     def member_of_this_collection
-      @member_of_this_collection ||= ActiveFedora::Base.where("member_of_collection_ids_ssim:#{id}")
+      @member_of_this_collection ||= ::PersistHelper.where("member_of_collection_ids_ssim:#{id}")
     end
 
     def member_of_this_collection_ids
@@ -156,7 +156,7 @@ module Hyrax
     end
 
     def collection_members_of_this_collection
-      @collection_members_of_this_collection ||= ActiveFedora::Base.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Collection")
+      @collection_members_of_this_collection ||= ::PersistHelper.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Collection")
     end
 
     def collection_members_of_this_collection_ids
@@ -164,7 +164,7 @@ module Hyrax
     end
 
     def work_members_of_this_collection
-      @work_members_of_this_collection ||= ActiveFedora::Base.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Work")
+      @work_members_of_this_collection ||= ::PersistHelper.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Work")
     end
     alias collection_member_ids collection_members_of_this_collection_ids
 

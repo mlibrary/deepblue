@@ -2,6 +2,10 @@
 
 module PersistHelper
 
+  def self.all
+    ::ActiveFedora::Base.all
+  end
+
   def self.find( id )
     ::ActiveFedora::Base.find( id )
   end
@@ -15,6 +19,14 @@ module PersistHelper
     true
   rescue ::ActiveFedora::ObjectNotFoundError
     false
+  end
+
+  def self.id_to_uri( id )
+    ::ActiveFedora::Base.id_to_uri( id )
+  end
+
+  def self.search_with_conditions( conditions, opts = {} )
+    ::ActiveFedora::Base.search_with_conditions( conditions, opts )
   end
 
   def self.uri_to_id( uri )
