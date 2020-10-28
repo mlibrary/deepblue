@@ -10,7 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_10_20_181055) do
+ActiveRecord::Schema.define(version: 2020_10_28_141248) do
+
+  create_table "ahoy_condensed_events", force: :cascade do |t|
+    t.string "name"
+    t.string "cc_id"
+    t.datetime "date_begin"
+    t.datetime "date_end"
+    t.text "condensed_event"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cc_id"], name: "index_ahoy_condensed_events_on_cc_id"
+    t.index ["date_begin"], name: "index_ahoy_condensed_events_on_date_begin"
+    t.index ["date_end"], name: "index_ahoy_condensed_events_on_date_end"
+    t.index ["name"], name: "index_ahoy_condensed_events_on_name"
+  end
 
   create_table "ahoy_events", force: :cascade do |t|
     t.integer "visit_id"
