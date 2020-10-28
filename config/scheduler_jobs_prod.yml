@@ -155,3 +155,18 @@ about_to_deactivate_embargoes_at_2_days_job:
     hostnames:
       - 'testing.deepblue.lib.umich.edu'
     verbose: true
+
+update_condensed_events_job_daily:
+  # Run once a day, twenty-five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  #      M H D
+  # cron: '*/5 * * * *'
+  cron: '25 5 1 * *'
+  class: UpdateCondensedEventsJob
+  queue: scheduler
+  description: Update the condensed events job.
+  args:
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'staging.deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
+    quiet: true
