@@ -183,19 +183,19 @@ class Collection < ActiveFedora::Base
   end
 
   def child_collection_count
-    ActiveFedora::Base.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Collection").count
+    ::PersistHelper.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Collection").count
   end
 
   def child_collection_ids
-    ActiveFedora::Base.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Collection").map { |w| w.id } # rubocop:disable Style/SymbolProc
+    ::PersistHelper.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Collection").map { |w| w.id } # rubocop:disable Style/SymbolProc
   end
 
   def child_work_count
-    ActiveFedora::Base.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Work").count
+    ::PersistHelper.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Work").count
   end
 
   def child_work_ids
-    ActiveFedora::Base.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Work").map { |w| w.id } # rubocop:disable Style/SymbolProc
+    ::PersistHelper.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Work").map { |w| w.id } # rubocop:disable Style/SymbolProc
   end
 
   def total_file_size

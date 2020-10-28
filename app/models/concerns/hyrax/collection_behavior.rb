@@ -28,7 +28,7 @@ module Hyrax
     # association has been flipped)
     def member_object_ids
       return [] unless id
-      ActiveFedora::Base.search_with_conditions("member_of_collection_ids_ssim:#{id}", rows: 1000 ).map(&:id)
+      ::PersistHelper.search_with_conditions("member_of_collection_ids_ssim:#{id}", rows: 1000 ).map(&:id)
     end
 
     # Calculate the size of all the files in the work

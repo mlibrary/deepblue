@@ -16,7 +16,7 @@ module Hydra
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if HYDRA_EMBARGO_SERVICE_DEBUG_VERBOSE
-        ActiveFedora::Base.where("#{Hydra.config.permissions.embargo.release_date}:[* TO NOW]")
+        ::PersistHelper.where("#{Hydra.config.permissions.embargo.release_date}:[* TO NOW]")
       end
 
       # Returns all assets with embargo release date set
@@ -26,7 +26,7 @@ module Hydra
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if HYDRA_EMBARGO_SERVICE_DEBUG_VERBOSE
-        ActiveFedora::Base.where("#{Hydra.config.permissions.embargo.release_date}:[* TO *]")
+        ::PersistHelper.where("#{Hydra.config.permissions.embargo.release_date}:[* TO *]")
       end
 
       # Returns all assets that have had embargoes deactivated in the past.
@@ -34,7 +34,7 @@ module Hydra
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if HYDRA_EMBARGO_SERVICE_DEBUG_VERBOSE
-        ActiveFedora::Base.where("#{Hydra.config.permissions.embargo.history}:*")
+        ::PersistHelper.where("#{Hydra.config.permissions.embargo.history}:*")
       end
 
     end
