@@ -2,4 +2,6 @@
 
 class EmailSubscription < ApplicationRecord
 
+  serialize :subscription_parameters, JSON
+
 end

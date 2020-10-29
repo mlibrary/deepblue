@@ -27,6 +27,8 @@ END_OF_SCHEDULER_ENTRY
   include JobHelper
   queue_as :scheduler
 
+  attr_accessor :email_targets, :hostname, :hostnames, :options, :subscription_service_id, :verbose
+
   def self.perform( *args )
     HeartbeatEmailJob.perform_now( *args )
   end
@@ -34,24 +36,14 @@ END_OF_SCHEDULER_ENTRY
   def perform( *args )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "args=#{args}",
                                            "" ] if HEARTBEAT_EMAIL_JOB_DEBUG_VERBOSE
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event: "heartbeat email" )
-    options = ::Deepblue::JobTaskHelper.initialize_options_from *args
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           "options=#{options}",
-                                           ::Deepblue::LoggingHelper.obj_class( 'options', options ),
-                                           "" ] if HEARTBEAT_EMAIL_JOB_DEBUG_VERBOSE
-    verbose = job_options_value( options, key: 'verbose', default_value: false )
-    ::Deepblue::LoggingHelper.debug "verbose=#{verbose}" if verbose
-    hostnames = job_options_value(options, key: 'hostnames', default_value: [], verbose: verbose )
-    hostname = ::DeepBlueDocs::Application.config.hostname
-    return unless hostnames.include? hostname
-    subscription_service_id = job_options_value( options, key: 'subscription_service_id', default_value: nil, verbose: verbose )
-    targets = ::Deepblue::SchedulerIntegrationService.scheduler_heartbeat_email_targets.dup
-    targets = ::Deepblue::EmailSubscriptionService.merge_targets_and_subscribers( targets: targets,
-                                                                                  subscription_service_id: subscription_service_id )
-    targets.each do |email_target|
+    ::Deepblue::JobTaskHelper.has_options( *args, job: self, debug_verbose: HEARTBEAT_EMAIL_JOB_DEBUG_VERBOSE )
+    ::Deepblue::JobTaskHelper.is_verbose( job: self, debug_verbose: HEARTBEAT_EMAIL_JOB_DEBUG_VERBOSE )
+    return unless ::Deepblue::JobTaskHelper.hostname_allowed( job: self, debug_verbose: HEARTBEAT_EMAIL_JOB_DEBUG_VERBOSE )
+    email_targets = ::Deepblue::SchedulerIntegrationService.scheduler_heartbeat_email_targets.dup
+    ::Deepblue::JobTaskHelper.has_email_targets( job: self, debug_verbose: HEARTBEAT_EMAIL_JOB_DEBUG_VERBOSE )
+    email_targets.each do |email_target|
        ::Deepblue::JobTaskHelper.send_email( email_target: email_target,
                                              task_name: "scheduler heartbeat",
                                              event: "Heartbeat email" )

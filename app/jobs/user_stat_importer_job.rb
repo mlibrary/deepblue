@@ -2,7 +2,7 @@
 
 class UserStatImporterJob < ::Hyrax::ApplicationJob
 
-  USER_STAT_IMPORTER_JOB_DEBUG_VERBOSE = false # ::Deepblue::JobTaskHelper.user_stat_importer_job_debug_verbose
+  USER_STAT_IMPORTER_JOB_DEBUG_VERBOSE = ::Deepblue::JobTaskHelper.user_stat_importer_job_debug_verbose
 
 SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 
@@ -26,27 +26,21 @@ END_OF_SCHEDULER_ENTRY
   include JobHelper
   queue_as :scheduler
 
+  attr_accessor :hostname, :hostnames, :options, :verbose
+
   def perform( *args )
-    ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           Deepblue::LoggingHelper.called_from,
-                                           Deepblue::LoggingHelper.obj_class( 'class', self ),
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
                                            "" ] if USER_STAT_IMPORTER_JOB_DEBUG_VERBOSE
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event: "user stat importer" )
-    options = ::Deepblue::JobTaskHelper.initialize_options_from *args
-    ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           "options=#{options}",
-                                           Deepblue::LoggingHelper.obj_class( 'options', options ),
-                                           "" ] if USER_STAT_IMPORTER_JOB_DEBUG_VERBOSE
-    verbose = job_options_value(options, key: 'verbose', default_value: false )
-    ::Deepblue::LoggingHelper.debug "verbose=#{verbose}" if verbose
-    hostnames = job_options_value(options, key: 'hostnames', default_value: [], verbose: verbose )
-    hostname = ::DeepBlueDocs::Application.config.hostname
-    return unless hostnames.include? hostname
-    test = job_options_value(options, key: 'test', default_value: true, verbose: verbose )
-    echo_to_stdout = job_options_value(options, key: 'echo_to_stdout', default_value: false, verbose: verbose )
-    logging = job_options_value(options, key: 'logging', default_value: false, verbose: verbose )
-    number_of_retries = job_options_value(options, key: 'number_of_retries', default_value: nil, verbose: verbose )
-    delay_secs = job_options_value(options, key: 'delay_secs', default_value: nil, verbose: verbose )
+    ::Deepblue::JobTaskHelper.has_options( *args, job: self, debug_verbose: USER_STAT_IMPORTER_JOB_DEBUG_VERBOSE )
+    ::Deepblue::JobTaskHelper.is_verbose( job: self, debug_verbose: USER_STAT_IMPORTER_JOB_DEBUG_VERBOSE )
+    return unless ::Deepblue::JobTaskHelper.hostname_allowed( job: self, debug_verbose: USER_STAT_IMPORTER_JOB_DEBUG_VERBOSE )
+    test = job_options_value( options, key: 'test', default_value: true, verbose: verbose )
+    echo_to_stdout = job_options_value( options, key: 'echo_to_stdout', default_value: false, verbose: verbose )
+    logging = job_options_value( options, key: 'logging', default_value: false, verbose: verbose )
+    number_of_retries = job_options_value( options, key: 'number_of_retries', default_value: nil, verbose: verbose )
+    delay_secs = job_options_value( options, key: 'delay_secs', default_value: nil, verbose: verbose )
     importer = Hyrax::UserStatImporter.new( echo_to_stdout: echo_to_stdout,
                                             verbose: verbose,
                                             delay_secs: delay_secs,

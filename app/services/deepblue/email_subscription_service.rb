@@ -38,6 +38,58 @@ module Deepblue
       return targets
     end
 
+    def self.subscribers_for( subscription_service_id:, include_parameters: false )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "subscription_service_id=#{subscription_service_id}",
+                                             "include_parameters=#{include_parameters}",
+                                             "" ] if email_subscription_service_debug_verbose
+      records = EmailSubscription.where( subscription_name: subscription_service_id )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "records=#{records}",
+                                             "" ] if email_subscription_service_debug_verbose
+      return [] if records.empty?
+      rv = []
+      records.each do |record|
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "record=#{record}",
+                                               "record.email=#{record.email}",
+                                               "record.user_id=#{record.user_id}",
+                                               "record.subscription_parameters=#{record.subscription_parameters}",
+                                               "" ] if email_subscription_service_debug_verbose
+        email = if record.email.present?
+                  record.email
+                elsif record.user_id.present?
+                  begin
+                    user = User.find( record.user_id )
+                    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                           ::Deepblue::LoggingHelper.called_from,
+                                                           "user=#{user}",
+                                                           "user&.email=#{user&.email}",
+                                                           "" ] if email_subscription_service_debug_verbose
+                    user.email
+                  rescue Exception => ignore
+                    nil
+                  end
+                else
+                  nil
+                end
+        if include_parameters
+          rv << [ email, record.subscription_parameters ]
+        else
+          rv << email
+        end
+      end
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "subscription_service_id=#{subscription_service_id}",
+                                             "rv=#{rv}",
+                                             "" ] if email_subscription_service_debug_verbose
+      return rv
+    end
+
     def self.subscription_send_email( email_target:,
                                       content_type: nil,
                                       hostname: nil,
@@ -73,48 +125,6 @@ module Deepblue
                                    subject: subject,
                                    body: body,
                                    email_sent: email_sent )
-    end
-
-    def self.subscribers_for( subscription_service_id: )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "subscription_service_id=#{subscription_service_id}",
-                                             "" ] if email_subscription_service_debug_verbose
-      records = EmailSubscription.where( subscription_name: subscription_service_id )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "records=#{records}",
-                                             "" ] if email_subscription_service_debug_verbose
-      return [] if records.empty?
-      rv = []
-      records.each do |record|
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "record=#{record}",
-                                               "record.email=#{record.email}",
-                                               "record.user_id=#{record.user_id}",
-                                               "" ] if email_subscription_service_debug_verbose
-        if record.email.present?
-          rv << record.email
-        elsif record.user_id.present?
-          begin
-            user = User.find( record.user_id )
-            ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                                   ::Deepblue::LoggingHelper.called_from,
-                                                   "user=#{user}",
-                                                   "user&.email=#{user&.email}",
-                                                   "" ] if email_subscription_service_debug_verbose
-            rv << user.email
-          rescue Exception => ignore
-          end
-        end
-      end
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "subscription_service_id=#{subscription_service_id}",
-                                             "rv=#{rv}",
-                                             "" ] if email_subscription_service_debug_verbose
-      return rv
     end
 
   end

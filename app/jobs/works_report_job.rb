@@ -32,27 +32,17 @@ END_OF_SCHEDULER_ENTRY
   include JobHelper
   queue_as :scheduler
 
+  attr_accessor :echo_to_stdout, :hostname, :hostnames, :options, :quiet, :verbose
+
   def perform( *args )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                            "" ] if WORKS_REPORT_JOB_DEBUG_VERBOSE
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event: "works report job" )
-    options = ::Deepblue::JobTaskHelper.initialize_options_from *args
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           "options=#{options}",
-                                           ::Deepblue::LoggingHelper.obj_class( 'options', options ),
-                                           "" ] if WORKS_REPORT_JOB_DEBUG_VERBOSE
-    quiet = job_options_value( options, key: 'quiet', default_value: false, verbose: true )
-    if quiet
-      verbose = false
-    else
-      verbose = job_options_value( options, key: 'verbose', default_value: false )
-      ::Deepblue::LoggingHelper.debug "verbose=#{verbose}" if verbose
-    end
-    hostnames = job_options_value( options, key: 'hostnames', default_value: [], verbose: verbose )
-    hostname = ::DeepBlueDocs::Application.config.hostname
-    return unless hostnames.include? hostname
+    ::Deepblue::JobTaskHelper.has_options( *args, job: self, debug_verbose: WORKS_REPORT_JOB_DEBUG_VERBOSE )
+    ::Deepblue::JobTaskHelper.is_verbose( job: self, debug_verbose: WORKS_REPORT_JOB_DEBUG_VERBOSE )
+    ::Deepblue::JobTaskHelper.is_quiet( job: self, debug_verbose: WORKS_REPORT_JOB_DEBUG_VERBOSE )
+    return unless ::Deepblue::JobTaskHelper.hostname_allowed( job: self, debug_verbose: WORKS_REPORT_JOB_DEBUG_VERBOSE )
     test = job_options_value( options, key: 'test', default_value: true, verbose: verbose )
     if quiet
       echo_to_stdout = false

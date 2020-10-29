@@ -2,7 +2,7 @@
 
 class SchedulerStartJob < ::Hyrax::ApplicationJob
 
-  SCHEDULER_START_JOB_DEBUG_VERBOSE = false
+  SCHEDULER_START_JOB_DEBUG_VERBOSE = ::Deepblue::JobTaskHelper.scheduler_start_job_debug_verbose
 
   include JobHelper
   queue_as :default
@@ -85,14 +85,13 @@ class SchedulerStartJob < ::Hyrax::ApplicationJob
     body = body
     body = subject if body.empty?
     email = email_target
-    email_sent = ::Deepblue::EmailHelper.send_email( to: email, from: email, subject: subject, body: body )
+    email_sent = ::Deepblue::EmailHelper.send_email( to: email, subject: subject, body: body )
     ::Deepblue::EmailHelper.log( class_name: self.class.name,
                                  current_user: nil,
                                  event: "SchedulerStartJobEmail",
                                  event_note: '',
                                  id: 'NA',
                                  to: email,
-                                 from: email,
                                  subject: subject,
                                  body: body,
                                  email_sent: email_sent )

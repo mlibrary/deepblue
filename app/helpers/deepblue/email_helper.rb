@@ -174,7 +174,7 @@ module Deepblue
                   to_note: '',
                   cc: nil,
                   bcc: nil,
-                  from:,
+                  from: ::Deepblue::EmailHelper.notification_email_from,
                   subject:,
                   message: '',
                   email_sent:,
@@ -309,7 +309,15 @@ module Deepblue
       ::DeepBlueDocs::Application.config.notification_email_workflow_to
     end
 
-    def self.send_email( to:, cc: nil, bcc: nil, from:, subject:, body:, log: false, content_type: nil )
+    def self.send_email( to:,
+                         cc: nil,
+                         bcc: nil,
+                         from: notification_email_from,
+                         subject:,
+                         body:,
+                         log: false,
+                         content_type: nil )
+
       subject = EmailHelper.clean_str subject if EmailHelper.needs_cleaning subject
       body = EmailHelper.clean_str body if EmailHelper.needs_cleaning body
       email_enabled = DeepBlueDocs::Application.config.email_enabled
@@ -352,7 +360,7 @@ module Deepblue
     def self.send_email_error( to:,
                                cc:,
                                bcc:,
-                               from:,
+                               from: notification_email_from,
                                subject:,
                                body:,
                                log:,
@@ -364,7 +372,7 @@ module Deepblue
       body = "#{exception.class} #{exception.message} at:\n#{exception.backtrace.join("\n")}"
       DeepBlueDocs::Application.config.email_error_alert_addresses.each do |to|
         email = DeepblueMailer.send_an_email( to: to,
-                                              from: to,
+                                              from: from,
                                               subject: subject,
                                               body: body,
                                               content_type: content_type )
@@ -386,6 +394,14 @@ module Deepblue
       options[:curation_concern_url] = curation_concern_url( curation_concern: curation_concern )
       options[:url] = options[:curation_concern_url]
       options
+    end
+
+    def self.to_mon( datetime )
+      datetime.strftime("%b")
+    end
+
+    def self.to_month( datetime )
+      datetime.strftime("%B")
     end
 
     def self.user_email

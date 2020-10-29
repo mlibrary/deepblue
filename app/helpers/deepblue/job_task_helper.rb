@@ -12,7 +12,6 @@ module Deepblue
     end
 
     @@job_task_helper_debug_verbose = false
-    @@run_job_task_debug_verbose = false
 
     mattr_accessor  :job_task_helper_debug_verbose
 
@@ -21,8 +20,12 @@ module Deepblue
     @@deactivate_expired_embargoes_job_debug_verbose = false
     @@heartbeat_job_debug_verbose = false
     @@heartbeat_email_job_debug_verbose = false
+    @@monthly_events_report_job_debug_verbose = false
     @@rake_task_job_debug_verbose = false
+    @@run_job_task_debug_verbose = false
+    @@scheduler_start_job_debug_verbose = false
     @@update_condensed_events_job_debug_verbose = false
+    @@user_stat_importer_job_debug_verbose = false
     @@works_report_job_debug_verbose = false
 
     mattr_accessor  :run_job_task_debug_verbose,
@@ -31,8 +34,12 @@ module Deepblue
                     :deactivate_expired_embargoes_job_debug_verbose,
                     :heartbeat_job_debug_verbose,
                     :heartbeat_email_job_debug_verbose,
+                    :monthly_events_report_job_debug_verbose,
                     :rake_task_job_debug_verbose,
+                    :run_job_task_debug_verbose,
+                    :scheduler_start_job_debug_verbose,
                     :update_condensed_events_job_debug_verbose,
+                    :user_stat_importer_job_debug_verbose,
                     :works_report_job_debug_verbose
 
 
@@ -202,10 +209,22 @@ END_BODY
       end
     end
 
+    def self.has_email_targets( job:, options: job.options, debug_verbose: false )
+      subscription_service_id = job.job_options_value( options,
+                                                       key: 'subscription_service_id',
+                                                       default_value: nil,
+                                                       verbose: job.verbose || debug_verbose )
+      job.subscription_service_id = subscription_service_id if job.respond_to? :subscription_service_id=
+      return if subscription_service_id.blank?
+      targets = job.email_targets
+      targets = ::Deepblue::EmailSubscriptionService.merge_targets_and_subscribers( targets: targets,
+                                                                subscription_service_id: subscription_service_id )
+      job.email_targets = targets
+    end
+
     def self.has_options( *args, job:, debug_verbose: false )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "args=#{args}",
                                              "" ] if debug_verbose || job_task_helper_debug_verbose
       job.options = initialize_options_from( *args, debug_verbose: debug_verbose )
     end
@@ -214,8 +233,11 @@ END_BODY
       ::DeepBlueDocs::Application.config.hostname
     end
 
-    def self.hostname_allowed( job:, options:, debug_verbose: false )
-      job.hostnames = job.job_options_value( options, key: 'hostnames', default_value: [], verbose: job.verbose )
+    def self.hostname_allowed( job:, options: job.options, debug_verbose: false )
+      job.hostnames = job.job_options_value( options,
+                                             key: 'hostnames',
+                                             default_value: [],
+                                             verbose: job.verbose || debug_verbose )
       job.hostname = ::DeepBlueDocs::Application.config.hostname
       job.hostnames.include? job.hostname
     end
@@ -235,8 +257,8 @@ END_BODY
       return options
     end
 
-    def self.is_quiet( job:, options:, debug_verbose: false )
-      job.quiet = job.job_options_value( options, key: 'quiet', default_value: false, verbose: true )
+    def self.is_quiet( job:, options: job.options, debug_verbose: false )
+      job.quiet = job.job_options_value( options, key: 'quiet', default_value: false, verbose: debug_verbose )
       if job.quiet
         job.verbose = false
       else
@@ -245,7 +267,13 @@ END_BODY
       end
     end
 
+    def self.is_verbose( job:, options: job.options, default_value: false, debug_verbose: false )
+      job.verbose = job.job_options_value( options, key: 'verbose', default_value: default_value, verbose: debug_verbose )
+      ::Deepblue::LoggingHelper.debug "verbose=#{verbose}" if job.verbose || debug_verbose
+    end
+
     def self.send_email( email_target:,
+                         from: ::Deepblue::EmailHelper.notification_email_from,
                          content_type: nil,
                          hostname: nil,
                          task_name:,
@@ -261,9 +289,8 @@ END_BODY
       subject = "DBD #{task_name} from #{hostname}" if subject.blank?
       # TODO: integrate timestamps
       body = subject if body.blank?
-      email = email_target
-      email_sent = ::Deepblue::EmailHelper.send_email( to: email,
-                                                       from: email,
+      email_sent = ::Deepblue::EmailHelper.send_email( to: email_target,
+                                                       from: from,
                                                        subject: subject,
                                                        body: body,
                                                        content_type: content_type )
@@ -272,8 +299,8 @@ END_BODY
                                    event: event,
                                    event_note: event_note,
                                    id: id,
-                                   to: email,
-                                   from: email,
+                                   to: email_target,
+                                   from: from,
                                    subject: subject,
                                    body: body,
                                    email_sent: email_sent )

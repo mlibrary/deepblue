@@ -1342,18 +1342,13 @@ module Deepblue
       def do_email( event:, id:, email_to:, subject:, body: )
         email_sent = false
         unless email_test_mode
-          email_sent = EmailHelper.send_email( to: email_to,
-                                               from: EmailHelper.notification_email_from,
-                                               subject: subject,
-                                               content_type: "text/html",
-                                               body: body )
+          email_sent = EmailHelper.send_email( to: email_to, subject: subject, content_type: "text/html", body: body )
         end
         EmailHelper.log( class_name: self.class.name,
                          current_user: nil,
                          event: event,
                          id: id,
                          to: email_to,
-                         from: email_to,
                          subject: subject,
                          body: body,
                          email_sent: email_sent )
