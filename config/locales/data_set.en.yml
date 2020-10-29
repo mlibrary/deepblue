@@ -106,6 +106,8 @@ en:
     actions:
       data_set:
         analytics:                      "View Work Analytics"
+        analytics_subscribe:            "Subscribe to Monthly Analytics Report"
+        analytics_unsubscribe:          "Unsubscribe from Monthly Analytics Report"
         confirm:                        "Confirm Your Deposit"
         delete:                         "Delete Work"
         edit:                           "Edit Metadata"

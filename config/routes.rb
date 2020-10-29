@@ -154,6 +154,10 @@ Rails.application.routes.draw do
   namespace :hyrax, path: :concern do
     resources :data_sets do
       member do
+        get    'analytics_subscribe'
+        post   'analytics_subscribe'
+        get    'analytics_unsubscribe'
+        post   'analytics_unsubscribe'
         # post   'confirm'
         post   'create_single_use_link'
         get    'display_provenance_log'
