@@ -19,4 +19,6 @@ Deepblue::AnalyticsIntegrationService.setup do |config|
   end
   config.hit_graph_day_window = -1 # set to < 1 for no limit
 
+  config.monthly_events_report_subscription_id = 'MonthlyEventsReport'
+
 end

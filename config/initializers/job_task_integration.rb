@@ -10,6 +10,7 @@ Deepblue::JobTaskHelper.setup do |config|
   config.deactivate_expired_embargoes_job_debug_verbose = false
   config.heartbeat_job_debug_verbose = false
   config.heartbeat_email_job_debug_verbose = false
+  config.monthly_events_report_job_debug_verbose = true
   config.rake_task_job_debug_verbose = true
   config.update_condensed_events_job_debug_verbose = true
   config.works_report_job_debug_verbose = false

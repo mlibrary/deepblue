@@ -19,6 +19,7 @@ module Deepblue
     @@event_tracking_include_request_uri = false
     @@hit_graph_day_window = 30 # set to < 1 for no limit
     @@hit_graph_view_level = 0 # 0 = none, 1 = admin, 2 = editor, 3 = everyone
+    @@monthly_events_report_subscription_id = 'MonthlyEventsReport'
 
     mattr_accessor :ahoy_tracker_debug_verbose,
                    :analytics_helper_debug_verbose,
@@ -30,7 +31,8 @@ module Deepblue
                    :event_tracking_excluded_parameters,
                    :event_tracking_include_request_uri,
                    :hit_graph_day_window,
-                   :hit_graph_view_level
+                   :hit_graph_view_level,
+                   :monthly_events_report_subscription_id
 
 
                    def self.setup

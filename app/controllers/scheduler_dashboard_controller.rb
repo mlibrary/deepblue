@@ -170,8 +170,14 @@ class SchedulerDashboardController < ApplicationController
                                            "current_ability.current_user=#{current_ability.current_user}",
                                            "" ] if SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE
     record = EmailSubscription.where( subscription_name: subscription_service_id,
-                                      user_id: current_ability.current_user.id )
-    record.delete
+                                      user_id: current_ability.current_user.id ).limit( 1 )
+    return if record.blank?
+    record = record.first
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "record=#{record}",
+                                           "" ] if SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE
+    record.destroy if record.present?
   end
 
   def scheduler_not_active
