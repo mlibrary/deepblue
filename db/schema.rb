@@ -149,7 +149,7 @@ ActiveRecord::Schema.define(version: 2020_10_28_141248) do
     t.integer "user_id"
     t.string "email"
     t.string "subscription_name", null: false
-    t.string "subscription_parameters"
+    t.text "subscription_parameters"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["subscription_name"], name: "index_email_subscriptions_on_subscription_name"
