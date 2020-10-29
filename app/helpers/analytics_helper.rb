@@ -220,6 +220,11 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
                                                     "Hyrax::DataSetsController#globus_download_redirect" ] )
   end
 
+  # convenience method, TODO: move to DataSetsController
+  def self.monthly_events_report_unsubscribe_data_set( user_id:, cc_id: )
+    monthly_events_report_unsubscribe( user_id: user_id, cc_id: cc_id )
+  end
+
   def self.monthly_events_report_subscribers
     ::Deepblue::EmailSubscriptionService.subscribers_for( subscription_service_id: monthly_events_report_subscription_id,
                                                           include_parameters: true )
@@ -227,6 +232,26 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
 
   def self.monthly_events_report_subscription_id
     ::Deepblue::AnalyticsIntegrationService.monthly_events_report_subscription_id
+  end
+
+  def self.monthly_events_report_subscribed?( user_id:, cc_id: )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "user_id=#{user_id}",
+                                           "cc_id=#{cc_id}",
+                                           "" ] if ANALYTICS_HELPER_DEBUG_VERBOSE
+    record = EmailSubscription.find_by( subscription_name: monthly_events_report_subscription_id, user_id: user_id )
+    return false unless record.present?
+    sub_params = record.subscription_parameters
+    return false if sub_params.blank?
+    rv = sub_params.has_key? cc_id
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "user_id=#{user_id}",
+                                           "cc_id=#{cc_id}",
+                                           "rv=#{rv}",
+                                           "" ] if ANALYTICS_HELPER_DEBUG_VERBOSE
+    return rv
   end
 
   def self.monthly_events_report_unsubscribe( user_id:, cc_id: )

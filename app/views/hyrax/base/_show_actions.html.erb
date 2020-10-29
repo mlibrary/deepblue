@@ -156,14 +156,31 @@
     <% if Hyrax.config.analytics? && !@presenter.single_use_show? %>
       <div class="panel panel-default panel-analytics">
         <div class="panel-heading">
-          <h2><%= t('simple_form.labels.data_set.analytics') %></h2>
+          <h2 id="analytics"><%= t('simple_form.labels.data_set.analytics') %></h2>
         </div>
         <div class="panel-body">
+          <div class="button-set">
           <%= link_to t('simple_form.actions.data_set.analytics'),
                       @presenter.relative_url_root + @presenter.stats_path,
                       id: 'stats',
                       class: 'btn btn-subtle btn-analytics',
                       data: { turbolinks: false } %>
+          <% if @presenter.can_edit_work? %>
+              <% if @presenter.analytics_subscribed? %>
+                  <%= link_to t('simple_form.actions.data_set.analytics_unsubscribe'),
+                              "/data/concern/data_sets/#{@presenter.id}/analytics_unsubscribe",
+                        class: 'btn btn-subtle',
+                        data: { confirm: "Unsubscribe from this #{@presenter.human_readable_type}'s analytics report?" },
+                        method: :analytics_subscribe %>
+                <% else %>
+                  <%= link_to t('simple_form.actions.data_set.analytics_subscribe'),
+                              "/data/concern/data_sets/#{@presenter.id}/analytics_subscribe",
+                              class: 'btn btn-subtle',
+                              data: { confirm: "Subscribe to this #{@presenter.human_readable_type}'s analytics report?" },
+                              method: :analytics_subscribe %>
+                <% end %>
+            <% end %>
+          </div>
         </div>
       </div> <!-- End Analytics panel -->
     <% end %>

@@ -28,6 +28,8 @@ module Hyrax
     after_action :visibility_changed_update,     only: [:update]
     after_action :workflow_create,               only: [:create]
 
+    protect_from_forgery with: :null_session,    only: [:analysis_subscribe]
+    protect_from_forgery with: :null_session,    only: [:analysis_unsubscribe]
     protect_from_forgery with: :null_session,    only: [:create_single_use_link]
     protect_from_forgery with: :null_session,    only: [:display_provenance_log]
     protect_from_forgery with: :null_session,    only: [:globus_add_email]
@@ -80,6 +82,18 @@ module Hyrax
 
     def tombstone_permissions_hack?
       @tombstone_permissions_hack
+    end
+
+    def analytics_subscribe
+      ::AnalyticsHelper.monthly_events_report_subscribe_data_set( user_id: current_ability.current_user.id,
+                                                                  cc_id: params[:id] )
+      redirect_to current_show_path( append: "#analytics" )
+    end
+
+    def analytics_unsubscribe
+      ::AnalyticsHelper.monthly_events_report_unsubscribe_data_set( user_id: current_ability.current_user.id,
+                                                                    cc_id: params[:id] )
+      redirect_to current_show_path( append: "#analytics" )
     end
 
     ## box integration

@@ -19,6 +19,7 @@ RSpec.describe 'hyrax/base/_show_actions.html.erb', type: :view do
     assign( :curation_concern, curation_concern )
     presenter.controller = data_set_controller
     # member.controller = controller
+    allow(presenter).to receive(:analytics_subscribed?).and_return false
   end
 
   context "as an unregistered user" do
