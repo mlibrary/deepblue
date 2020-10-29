@@ -4,7 +4,7 @@ class CreateEmailSubscriptions < ActiveRecord::Migration[5.2]
       t.integer :user_id
       t.string :email
       t.string :subscription_name, null: false
-      t.string :subscription_parameters
+      t.text :subscription_parameters
       t.timestamps null: false
     end
 
