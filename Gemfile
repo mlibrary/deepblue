@@ -129,9 +129,21 @@ gem 'omniauth-cas'
 gem 'riiif', '~> 1.1'
 gem 'rsolr', '>= 1.0'
 
+# analytics support
+# https://github.com/ankane/ahoy
 gem 'ahoy_matey' # first-party analytics for Rails
+# https://github.com/ankane/chartkick
 gem 'chartkick'
+# https://github.com/ankane/groupdate
 gem 'groupdate'
+
+# Puma server monitoring
+# https://github.com/yabeda-rb/yabeda-rails
+gem 'yabeda-rails'
+# https://github.com/yabeda-rb/yabeda-prometheus
+gem 'yabeda-prometheus'
+# https://github.com/yabeda-rb/yabeda-puma-plugin
+gem 'yabeda-puma-plugin'
 
 group :development, :test do
   gem 'capybara'
