@@ -51,12 +51,12 @@ class CreateAhoyVisitsAndEvents < ActiveRecord::Migration[5.2]
       t.references :user
 
       t.string :name
-      t.string :cc_id
+      t.string :cc_id # added for DBD
       t.text :properties
       t.datetime :time
     end
 
     add_index :ahoy_events, [:name, :time]
-    add_index :ahoy_events, :cc_id
+    add_index :ahoy_events, :cc_id # added for DBD
   end
 end
