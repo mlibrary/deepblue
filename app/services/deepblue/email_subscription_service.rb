@@ -111,7 +111,6 @@ module Deepblue
       body = subject if body.blank?
       email = email_target
       email_sent = ::Deepblue::EmailHelper.send_email( to: email,
-                                                       from: email,
                                                        subject: subject,
                                                        body: body,
                                                        content_type: content_type )
