@@ -28,8 +28,8 @@ module Hyrax
     after_action :visibility_changed_update,     only: [:update]
     after_action :workflow_create,               only: [:create]
 
-    protect_from_forgery with: :null_session,    only: [:analysis_subscribe]
-    protect_from_forgery with: :null_session,    only: [:analysis_unsubscribe]
+    protect_from_forgery with: :null_session,    only: [:analytics_subscribe]
+    protect_from_forgery with: :null_session,    only: [:analytics_unsubscribe]
     protect_from_forgery with: :null_session,    only: [:create_single_use_link]
     protect_from_forgery with: :null_session,    only: [:display_provenance_log]
     protect_from_forgery with: :null_session,    only: [:globus_add_email]
