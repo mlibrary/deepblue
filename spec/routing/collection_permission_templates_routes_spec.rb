@@ -1,3 +1,5 @@
+require 'rails_helper'
+
 RSpec.describe 'Collection Permission Templates Routes', type: :routing do
   routes { Hyrax::Engine.routes }
 

@@ -8,7 +8,7 @@ describe Deepblue::DoiMintingService do
     subject { described_class.new( curation_concern: work,
                                    current_user: "test_doi_minting_service@umich.edu",
                                    target_url: work_url ) }
-    let(:work) { mock_model(GenericWork, id: '123', title: ['demotitle'],
+    let(:work) { mock_model(DataSet, id: '123', title: ['demotitle'],
                                          creator: ['Smith, John', 'Smith, Jane', 'O\'Rielly, Kelly'])}
     let(:work_url) { "umrdr-testing.hydra.lib.umich.edu/concern/work/#{work.id}" }
     let(:dummy_doi) { "doi:10.5072/FK2DEAD455BEEF" }
@@ -63,7 +63,7 @@ describe Deepblue::DoiMintingService do
   end
 
   context "when actually calling out to service" do
-    let(:work) { GenericWork.new(id: '123', title: ['demotitle'],
+    let(:work) { DataSet.new(id: '123', title: ['demotitle'],
                                  creator: ['Smith, John', 'Smith, Jane', 'O\'Rielly, Kelly'])}
     let( :current_user ) { "test_doi_minting_service@umich.edu" }
     it "mints a doi" do

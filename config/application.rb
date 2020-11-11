@@ -233,6 +233,7 @@ module DeepBlueDocs
     #        /data prefix and the tests break when it is set.
     # See references to: DeepBlueDocs::Application.config.relative_url_root
     config.relative_url_root = Settings.relative_url_root unless Rails.env.test?
+    config.relative_url_root = '' if Rails.env.test?
 
     # Set the default host for resolving _url methods
     Rails.application.routes.default_url_options[:host] = config.hostname

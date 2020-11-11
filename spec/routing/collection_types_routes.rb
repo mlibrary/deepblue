@@ -1,3 +1,5 @@
+require 'rails_helper'
+
 RSpec.describe 'Collection Types Routes', type: :routing do
   routes { Hyrax::Engine.routes }
 

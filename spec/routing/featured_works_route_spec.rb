@@ -1,3 +1,5 @@
+require 'rails_helper'
+
 RSpec.describe "file routes", type: :routing do
   routes { Hyrax::Engine.routes }
 

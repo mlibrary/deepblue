@@ -23,7 +23,7 @@ RSpec.describe 'Creating a new Work', :js, :workflow do
       login_as user
       click_link 'Works'
       click_link "Add new work"
-      choose "payload_concern", option: "GenericWork"
+      choose "payload_concern", option: "DataSet"
       click_button 'Create work'
     end
 
@@ -66,7 +66,7 @@ RSpec.describe 'Creating a new Work', :js, :workflow do
       login_as user
       click_link 'Works'
       click_link "Add new work"
-      choose "payload_concern", option: "GenericWork"
+      choose "payload_concern", option: "DataSet"
       click_button 'Create work'
     end
 
@@ -110,7 +110,7 @@ RSpec.describe 'Creating a new Work', :js, :workflow do
       login_as user
       click_link 'Works'
       click_link "Add new work"
-      choose "payload_concern", option: "GenericWork"
+      choose "payload_concern", option: "DataSet"
       click_button 'Create work'
     end
 

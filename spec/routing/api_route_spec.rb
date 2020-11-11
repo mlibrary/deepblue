@@ -1,3 +1,5 @@
+require 'rails_helper'
+
 RSpec.describe 'routing and paths', type: :routing do
   routes { Hyrax::Engine.routes }
 
