@@ -535,6 +535,11 @@ module Deepblue
       report_all_totals
       report_top_ten
 
+      out_report << "Files written:" << "\n"
+      out_report << works_file
+      out_report << file_sets_file
+      out_report << "\n"
+
       @out_report_file = Pathname.new( report_dir ).join "#{prefix}.txt"
       open( @out_report_file, 'w' ) { |out| out << out_report.string }
       c_print "\n"
