@@ -537,7 +537,7 @@ module Deepblue
                                                                   previous_user: previous_user )
       provenance_log_event( attributes: attributes,
                             current_user: current_user,
-                            event: EVENT_PUBLISH,
+                            event: EVENT_TRANSFER,
                             event_note: event_note,
                             ignore_blank_key_values: ignore_blank_key_values,
                             prov_key_values: prov_key_values )
