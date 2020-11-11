@@ -69,6 +69,8 @@ module Deepblue
       id = content_documentation_collection_id
       collection = content_find_by_id( id: id )
       return collection
+    rescue Exception => ignore
+      return nil
     end
 
     def self.content_find_by_id( id:, raise_error: false )

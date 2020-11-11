@@ -1,3 +1,5 @@
+require 'rails_helper'
+
 RSpec.describe "proxy deposit and transfers routing", type: :routing do
   routes { Hyrax::Engine.routes }
 

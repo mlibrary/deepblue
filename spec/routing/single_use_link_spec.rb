@@ -1,3 +1,5 @@
+require 'rails_helper'
+
 RSpec.describe 'Routes for single use links', type: :routing do
   routes { Hyrax::Engine.routes }
 
