@@ -216,6 +216,7 @@ Rails.application.routes.draw do
   get '/google_analytics_dashboard/' => 'google_analytics_dashboard#show'
   get '/guest_user_message', to: 'guest_user_message#show'
   get '/provenance_log/(:id)', to: 'provenance_log#show'
+  get '/provenance_log/', to: 'provenance_log#show'
   get '/provenance_log_find/', to: 'provenance_log#show'
   post '/provenance_log_find/', to: 'provenance_log#find'
   get '/provenance_log_zip_download/', to: 'provenance_log#show'
