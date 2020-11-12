@@ -50,6 +50,8 @@ RSpec.describe 'hyrax/dashboard/_sidebar.html.erb', type: :view do
     it { is_expected.to have_link t('hyrax.admin.sidebar.documentation') } # added for deepblue
     it { is_expected.to have_link t('hyrax.admin.sidebar.manage_email') } # added for deepblue
     it { is_expected.to have_link t('hyrax.admin.sidebar.scheduler') } # added for deepblue
+    it { is_expected.to have_link t('hyrax.admin.sidebar.users') } # added for deepblue
+    it { is_expected.to have_link t('hyrax.admin.sidebar.provenance_log') } # added for deepblue
     it { is_expected.to have_link t('hyrax.admin.sidebar.resque_web') } # added for deepblue
   end
 

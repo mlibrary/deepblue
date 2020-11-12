@@ -29,6 +29,7 @@ RSpec.describe '/_user_util_links.html.erb', type: :view do
                                           href: main_app.work_view_documentation_path
       expect( rendered ).not_to have_link t('hyrax.admin.sidebar.manage_email'), href: main_app.email_dashboard_path
       expect( rendered ).not_to have_link t('hyrax.admin.sidebar.manage_embargoes'), href: hyrax.embargoes_path
+      expect( rendered ).not_to have_link t('hyrax.admin.sidebar.provenance_log'), href: main_app.scheduler_dashboard_path
       expect( rendered ).not_to have_link t('hyrax.admin.sidebar.scheduler'), href: main_app.scheduler_dashboard_path
       expect( rendered ).not_to have_link t('hyrax.admin.sidebar.users'), href: main_app.persona_users_path
       expect( rendered ).not_to have_link t('hyrax.admin.sidebar.resque_web'),
@@ -94,6 +95,7 @@ RSpec.describe '/_user_util_links.html.erb', type: :view do
       expect( rendered ).to have_link t('hyrax.admin.sidebar.manage_embargoes'), href: hyrax.embargoes_path
       expect( rendered ).to have_link t('hyrax.admin.sidebar.scheduler'), href: main_app.scheduler_dashboard_path
       expect( rendered ).to have_link t('hyrax.admin.sidebar.users'), href: main_app.persona_users_path
+      expect( rendered ).to have_link t('hyrax.admin.sidebar.provenance_log'), href: main_app.provenance_log_path
       expect( rendered ).to have_link t('hyrax.admin.sidebar.resque_web'),
                                           href: Rails.application.routes.url_helpers.resque_web_path
       expect( rendered ).to have_link t("hyrax.toolbar.profile.logout"), href: main_app.destroy_user_session_path

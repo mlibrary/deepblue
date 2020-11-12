@@ -1,46 +1,38 @@
-<!DOCTYPE html>
-<html lang="<%= t("hyrax.document_language", default: '') %>" prefix="og:http://ogp.me/ns#">
-
-  <head>
-  </head>
-
-  <body>
-    <div>
-      <h2><%= t('provenance_log.title') %></h2>
-      <% if current_ability.admin? %>
-        <% if @presenter.id.present? %>
-          <%= t('provenance_log.id') %>&nbsp;<%= @presenter.id %>
-          <% unless @presenter.id_valid? %>
-            <%= @presenter.id_msg %>
-          <% end %>
-        <% end %>
-        <%= form_tag( @presenter.url_for( action: 'find' ), method: 'post' ) do %>
-          <label for="find_id" class=""><%= t('simple_form.labels.provenance_log.find_id') %>:&nbsp;</label>
-          <%= text_field_tag :find_id,
-                             params[:find_id],
-                             size: 10,
-                             placeholder: t('simple_form.labels.provenance_log.find_id_placeholder'),
-                             type: "search" %>&nbsp;
-          <%= submit_tag( t('simple_form.labels.provenance_log.find_id_submit'), class: 'btn btn-primary') %>
-        <% end %>
-        <br/><br/>
-        <%= form_tag(@presenter.url_for(action: 'deleted_works'), method: 'post') do %>
-          <%= submit_tag(t('simple_form.actions.provenance_log.deleted_works'), class: 'btn btn-primary') %>
-        <% end %>
-        <br/>
-        <% if @presenter.id.present? %>
-          <%= render '/provenance_log_entries2', presenter: @presenter %>
-        <% end %>
-        <br/>
-        <% if @presenter.deleted_ids.present? %>
-          <%= render '/provenance_log_deleted', presenter: @presenter %>
-        <% end %>
-        <br/>
-        <%= form_tag(@presenter.url_for(action: 'log_zip_download'), method: 'post') do %>
-          <%= submit_tag(t('simple_form.actions.provenance_log.download'), class: 'btn btn-primary') %>
-        <% end %>
+<% provide :page_header do %>
+  <h1><%= t('provenance_log.title') %></h1>
+<% end %>
+<div>
+  <% if current_ability.admin? %>
+    <% if @presenter.id.present? %>
+      <%= t('provenance_log.id') %>&nbsp;<%= @presenter.id %>
+      <% unless @presenter.id_valid? %>
+        <%= @presenter.id_msg %>
       <% end %>
-    </div>
-  </body>
-
-</html>
+    <% end %>
+    <%= form_tag(@presenter.url_for(action: 'find'), method: 'post') do %>
+      <label for="find_id" class=""><%= t('simple_form.labels.provenance_log.find_id') %>:&nbsp;</label>
+      <%= text_field_tag :find_id,
+                         params[:find_id],
+                         size: 10,
+                         placeholder: t('simple_form.labels.provenance_log.find_id_placeholder'),
+                         type: "search" %>&nbsp;
+      <%= submit_tag(t('simple_form.labels.provenance_log.find_id_submit'), class: 'btn btn-primary') %>
+    <% end %>
+    <br/><br/>
+    <%= form_tag(@presenter.url_for(action: 'deleted_works'), method: 'post') do %>
+      <%= submit_tag(t('simple_form.actions.provenance_log.deleted_works'), class: 'btn btn-primary') %>
+    <% end %>
+    <br/>
+    <% if @presenter.id.present? %>
+      <%= render '/provenance_log_entries2', presenter: @presenter %>
+    <% end %>
+    <br/>
+    <% if @presenter.deleted_ids.present? %>
+      <%= render '/provenance_log_deleted', presenter: @presenter %>
+    <% end %>
+    <br/>
+    <%= form_tag(@presenter.url_for(action: 'log_zip_download'), method: 'post') do %>
+      <%= submit_tag(t('simple_form.actions.provenance_log.download'), class: 'btn btn-primary') %>
+    <% end %>
+  <% end %>
+</div>

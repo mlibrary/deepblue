@@ -63,6 +63,7 @@ en:
         google_analytics:   "Google Analytics"
         manage_email:       "Manage Email"
         manage_embargoes:   "Manage Embargoes"
+        provenance_log:     "Provenance Log"
         resque_web:         "Resque Web Manager"
         scheduler:          "Manage Scheduler"
       work_view_doc_list:
