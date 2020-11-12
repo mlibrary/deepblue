@@ -218,19 +218,19 @@ module Deepblue
 
     def print_collection_line( out, collection: nil, header: false )
       if header
-        out << 'Id'
-        out << ',' << 'Create date'
-        out << ',' << 'Update date'
-        out << ',' << 'Depositor'
-        out << ',' << 'Status'
-        out << ',' << 'Visibility'
-        out << ',' << 'Work count'
-        out << ',' << 'File set count'
-        out << ',' << 'Total size'
-        out << ',' << 'Total size readable'
-        out << ',' << 'Discipline'
-        out << ',' << 'Creators'
-        out << ',' << 'Work ids'
+        out << '"' << I18n.t( "report.curation_concerns.header.collection.id" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.collection.date_created" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.collection.date_modified" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.collection.depositor" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.collection.status" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.collection.visibility" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.collection.work_count" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.collection.file_set_count" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.collection.total_size" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.collection.total_size_print" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.collection.discipline" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.collection.creators" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.collection.work_ids" ) << '"'
       else
         return out if collection.nil?
         out << collection.id.to_s
@@ -258,18 +258,18 @@ module Deepblue
 
     def print_file_set_line( out, work: nil, file_set: nil, file_size: 0, file_ext: '', header: false )
       if header
-        out << 'Id'
-        out << ',' << 'Parent work id'
-        out << ',' << 'Update date'
-        out << ',' << 'Depositor'
-        out << ',' << 'Status'
-        out << ',' << 'Visibility'
-        out << ',' << 'File size'
-        out << ',' << 'File size print'
-        out << ',' << 'File ext'
-        out << ',' << 'File name'
-        out << ',' << 'Thumbnail id'
-        out << ',' << 'DOI'
+        out << '"' << I18n.t( "report.curation_concerns.header.file_set.parent_work_id" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.file_set.date_modified" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.file_set.depositor" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.file_set.status" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.file_set.visibility" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.file_set.file_size" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.file_set.file_size_print" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.file_set.file_ext" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.file_set.file_name" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.file_set.thumbnail_id" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.file_set.doi" ) << '"'
+        # out << ',' << '"' << I18n.t( "report.curation_concerns.header.file_set.tombstone" ) << '"'
       else
         return out if file_set.nil?
         out << file_set.id.to_s
@@ -284,6 +284,7 @@ module Deepblue
         out << ',' << '"' << file_set.label << '"'
         out << ',' << '"' << (file_set.thumbnail_id.nil? ? '' : file_set.thumbnail_id).to_s << '"'
         out << ',' << '"' << (file_set.doi.nil? ? '' : file_set.doi).to_s << '"'
+        # out << ',' << '"' << (Array(file_set.tombstone).empty? ? '' : Array(file_set.tombstone).first).to_s << '"'
       end
       out << "\n"
       out
@@ -291,25 +292,26 @@ module Deepblue
 
     def print_work_line( out, work: nil, work_size: 0, header: false )
       if header
-        out << 'Id'
-        out << ',' << 'Create date'
-        out << ',' << 'Update date'
-        out << ',' << 'Published date'
-        out << ',' << 'Depositor'
-        out << ',' << 'Author email'
-        out << ',' << 'Status'
-        out << ',' << 'Visibility'
-        out << ',' << 'File set count'
-        out << ',' << 'Work size'
-        out << ',' << 'Work size print'
-        out << ',' << 'Parent ids'
-        out << ',' << 'Discipline'
-        out << ',' << 'Creators'
-        out << ',' << 'License'
-        out << ',' << 'License Other'
-        out << ',' << 'Thumbnail id'
-        out << ',' << 'DOI'
-        out << ',' << 'Tombstone'
+        out << '"' << I18n.t( "report.curation_concerns.header.work.id" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.create_date" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.date_modified" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.date_published" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.depositor" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.authoremail" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.status" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.visibility" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.file_set_count" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.work_size" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.work_size_print" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.parent_ids" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.discipline" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.creators" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.license" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.license_other" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.thumbnail_id" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.doi" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.tombstone" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.referenced_by" ) << '"'
       else
         return out if work.nil?
         out << work.id.to_s
@@ -332,6 +334,7 @@ module Deepblue
         out << ',' << '"' << (work.thumbnail_id.nil? ? '' : work.thumbnail_id).to_s << '"'
         out << ',' << '"' << (work.doi.nil? ? '' : work.doi).to_s << '"'
         out << ',' << '"' << (Array(work.tombstone).empty? ? '' : Array(work.tombstone).first).to_s << '"'
+        out << ',' << '"' << work.referenced_by.join( '; ' ) << '"'
       end
       out << "\n"
       out
@@ -535,9 +538,10 @@ module Deepblue
       report_all_totals
       report_top_ten
 
+      out_report << "\n"
       out_report << "Files written:" << "\n"
-      out_report << works_file
-      out_report << file_sets_file
+      out_report << works_file << "\n"
+      out_report << file_sets_file << "\n"
       out_report << "\n"
 
       @out_report_file = Pathname.new( report_dir ).join "#{prefix}.txt"

@@ -93,6 +93,58 @@ en:
       You will be notified once your data set is published.
     use_this_link_to_share_your_work:
       "After publication, use this link to share your work:"
+  report:
+    curation_concerns:
+      header:
+        collection:
+          id:               'Id'
+          date_created:     'Create date'
+          date_modified:    'Update date'
+          depositor:        'Depositor'
+          status:           'Status'
+          visibility:       'Visibility'
+          work_count:       'Work count'
+          file_set_count:   'File set count'
+          total_size:       'Total size'
+          total_size_print: 'Total size print'
+          discipline:       'Discipline'
+          creators:         'Creators'
+          work_ids:         'Work ids'
+        file_set:
+          id:              'Id'
+          parent_work_id:  'Parent work id'
+          date_modified:   'Update date'
+          depositor:       'Depositor'
+          status:          'Status'
+          visibility:      'Visibility'
+          file_size:       'File size'
+          file_size_print: 'File size print'
+          file_ext:        'File ext'
+          file_name:       'File name'
+          thumbnail_id:    'Thumbnail id'
+          doi:             'DOI'
+          tombstone:       'Tombstone'
+        work:
+          id:              'Id'
+          create_date:     'Create date'
+          date_modified:   'Update date'
+          date_published:  'Published date'
+          depositor:       'Depositor'
+          authoremail:     'Author email'
+          status:          'Status'
+          visibility:      'Visibility'
+          file_set_count:  'File set count'
+          work_size:       'Work size'
+          work_size_print: 'Work size print'
+          parent_ids:      'Parent ids'
+          discipline:      'Discipline'
+          creators:        'Creators'
+          license:         'License'
+          license_other:   'License Other'
+          thumbnail_id:    'Thumbnail id'
+          doi:             'DOI'
+          tombstone:       'Tombstone'
+          referenced_by:   'Citations to related material'
   simple_form:
     required:
       html: '<span class="required required-tag">Required</span>'
