@@ -29,7 +29,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
   end
 
   def self.date_range_for_month_previous
-    date_range_for_month_of( Time.now.beginning_of_month - 1.day )
+    date_range_for_month_of( time: Time.now.beginning_of_month - 1.day )
   end
 
   def self.email_to_user_id( email )
