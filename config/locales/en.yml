@@ -25,6 +25,10 @@ en:
     actions:
       event_logger_action_error:        "#action should be implemented by class including EventLoggerJob module"
       content_depositor_change:         "User %{user_from} has transferred %{title} to user %{user_to}"
+  flipflop:
+    feature_description:
+      dir_upload:                       "Allow user to upload files for work from a directory."
+      enable_local_analytics_ui:        "Enable local analytics access through the UI."
   simple_form:
     actions:
       data_set:

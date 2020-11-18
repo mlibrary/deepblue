@@ -42,14 +42,14 @@ END_OF_SCHEDULER_ENTRY
     return unless ::Deepblue::JobTaskHelper.hostname_allowed( job: self, debug_verbose: MONTHLY_EVENTS_REPORT_JOB_DEBUG_VERBOSE )
     this_month = job_options_value( options, key: 'this_month', default_value: false )
     if this_month
-      date_range = AnalyticsHelper.date_range_for_month_of( time: Time.now )
+      date_range = ::AnalyticsHelper.date_range_for_month_of( time: Time.now )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "date_range=#{date_range}",
                                              "" ] if MONTHLY_EVENTS_REPORT_JOB_DEBUG_VERBOSE
-      AnalyticsHelper.monthly_events_report( date_range: date_range )
+      ::AnalyticsHelper.monthly_events_report( date_range: date_range )
     else
-      AnalyticsHelper.monthly_events_report
+      ::AnalyticsHelper.monthly_events_report
     end
   rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"

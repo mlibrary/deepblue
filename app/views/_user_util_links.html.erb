@@ -79,6 +79,10 @@
                                                          Rails.application.routes.url_helpers.resque_web_path %>
           <% end %>
         <% end %>
+        <% if can? :read, :admin_dashboard %>
+          <li class="dropdown-menu-indent"><%= link_to t('hyrax.admin.sidebar.technical'),
+                                               hyrax.admin_features_path %>
+        <% end %>
         <li class="divider"></li>
         <li><%= link_to t("hyrax.toolbar.profile.logout"), main_app.destroy_user_session_path %></li>
 

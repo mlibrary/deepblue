@@ -165,7 +165,7 @@
                       id: 'stats',
                       class: 'btn btn-subtle btn-analytics',
                       data: { turbolinks: false } %>
-          <% if @presenter.can_edit_work? %>
+          <% if @presenter.can_edit_work? && ::AnalyticsHelper.enable_local_analytics_ui? %>
               <% if @presenter.analytics_subscribed? %>
                   <%= link_to t('simple_form.actions.data_set.analytics_unsubscribe'),
                               "/data/concern/data_sets/#{@presenter.id}/analytics_unsubscribe",

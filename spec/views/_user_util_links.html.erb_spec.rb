@@ -21,6 +21,7 @@ RSpec.describe '/_user_util_links.html.erb', type: :view do
       expect( rendered ).to have_link t('hyrax.toolbar.dashboard.menu'), href: hyrax.dashboard_path
       expect( rendered ).to have_link t('hyrax.admin.sidebar.collections'), href: hyrax.my_collections_path
       expect( rendered ).to have_link t('hyrax.admin.sidebar.works'), href: hyrax.my_works_path
+
       expect( rendered ).not_to have_link t('hyrax.admin.sidebar.workflow_review'), href: hyrax.admin_workflows_path
       expect( rendered ).not_to have_link t('hyrax.admin.sidebar.google_analytics'),
                                           href: main_app.google_analytics_dashboard_path
@@ -34,7 +35,10 @@ RSpec.describe '/_user_util_links.html.erb', type: :view do
       expect( rendered ).not_to have_link t('hyrax.admin.sidebar.users'), href: main_app.persona_users_path
       expect( rendered ).not_to have_link t('hyrax.admin.sidebar.resque_web'),
                                           href: Rails.application.routes.url_helpers.resque_web_path
+      expect( rendered ).not_to have_link t('hyrax.admin.sidebar.technical'), href: hyrax.admin_features_path
+
       expect( rendered ).to have_link t("hyrax.toolbar.profile.logout"), href: main_app.destroy_user_session_path
+      expect( rendered ).to have_content t("hyrax.toolbar.profile.logout")
     end
 
     it 'shows the number of outstanding messages' do
@@ -98,7 +102,10 @@ RSpec.describe '/_user_util_links.html.erb', type: :view do
       expect( rendered ).to have_link t('hyrax.admin.sidebar.provenance_log'), href: main_app.provenance_log_path
       expect( rendered ).to have_link t('hyrax.admin.sidebar.resque_web'),
                                           href: Rails.application.routes.url_helpers.resque_web_path
+      expect( rendered ).to have_content t('hyrax.admin.sidebar.technical')
+      expect( rendered ).to have_link t('hyrax.admin.sidebar.technical'), href: hyrax.admin_features_path
       expect( rendered ).to have_link t("hyrax.toolbar.profile.logout"), href: main_app.destroy_user_session_path
+      expect( rendered ).to have_content t("hyrax.toolbar.profile.logout")
     end
 
     it 'shows the number of outstanding messages' do

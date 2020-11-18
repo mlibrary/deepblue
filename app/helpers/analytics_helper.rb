@@ -18,6 +18,7 @@ Your analytics report for the month of %{month}:
 END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
 
   def self.chartkick?
+    return false unless enable_local_analytics_ui?
     ::Deepblue::AnalyticsIntegrationService.enable_chartkick
   end
 
@@ -30,6 +31,10 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
 
   def self.date_range_for_month_previous
     date_range_for_month_of( time: Time.now.beginning_of_month - 1.day )
+  end
+
+  def self.enable_local_analytics_ui?
+    Flipflop.enable_local_analytics_ui?
   end
 
   def self.email_to_user_id( email )
@@ -272,6 +277,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
   end
 
   def self.show_hit_graph?( current_ability, presenter: nil )
+    return false unless enable_local_analytics_ui?
     # 0 = none, 1 = admin, 2 = editor, 3 = everyone
     return false if presenter.respond_to?( :single_use_show? ) && presenter.single_use_show?
     case ::Deepblue::AnalyticsIntegrationService.hit_graph_view_level

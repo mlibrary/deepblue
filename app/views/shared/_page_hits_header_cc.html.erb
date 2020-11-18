@@ -1,8 +1,9 @@
-<% if AnalyticsHelper.show_hit_graph?( current_ability, presenter: presenter )  %>
+<% if ::AnalyticsHelper.show_hit_graph?( current_ability, presenter: presenter )  %>
 <div class="<%= (defined?(css) && css.present?) ? css : 'graph-container' %>">
-  <%= line_chart( AnalyticsHelper.page_hits_by_date( controller_class: presenter.controller_class, cc_id: presenter.id ),
-                                                     height: "5em",
-                                                     ytitle: "Hits",
-                                                     messages: {empty: "No data"} ) %>
+  <%= line_chart( ::AnalyticsHelper.page_hits_by_date( controller_class: presenter.controller_class,
+                                                       cc_id: presenter.id ),
+                                                       height: "5em",
+                                                       ytitle: "Hits",
+                                                       messages: {empty: "No data"} ) %>
 </div>
 <% end %>

@@ -83,7 +83,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
-      AnalyticsHelper::monthly_events_report_subscribed?( user_id: current_ability.current_user.id, cc_id: id )
+      ::AnalyticsHelper::monthly_events_report_subscribed?( user_id: current_ability.current_user.id, cc_id: id )
     end
 
     def can_delete_work?

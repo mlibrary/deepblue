@@ -39,7 +39,7 @@ END_OF_SCHEDULER_ENTRY
     ::Deepblue::JobTaskHelper.has_options( *args, job: self, debug_verbose: UPDATE_CONDENSED_EVENTS_JOB_DEBUG_VERBOSE )
     ::Deepblue::JobTaskHelper.is_quiet( job: self, debug_verbose: UPDATE_CONDENSED_EVENTS_JOB_DEBUG_VERBOSE  )
     return unless ::Deepblue::JobTaskHelper.hostname_allowed( job: self, debug_verbose: UPDATE_CONDENSED_EVENTS_JOB_DEBUG_VERBOSE )
-    AnalyticsHelper.update_current_month_condensed_events
+    ::AnalyticsHelper.update_current_month_condensed_events
   rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
     Rails.logger.error e.backtrace.join("\n")
