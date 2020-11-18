@@ -1,6 +1,8 @@
 
 Deepblue::AnalyticsIntegrationService.setup do |config|
 
+  # see: config/features.rb for Flipflop.enable_local_analytics_ui
+
   config.ahoy_tracker_debug_verbose = true
   config.analytics_helper_debug_verbose = true
 

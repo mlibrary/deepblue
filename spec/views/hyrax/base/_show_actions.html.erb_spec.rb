@@ -79,6 +79,39 @@ RSpec.describe 'hyrax/base/_show_actions.html.erb', type: :view do
       end
     end
 
+
+    describe 'analytics subscribe and unsubscribe buttons' do
+      # let( :flipflop ) { class_double( "Flipflop" ) }
+
+      before do
+        allow( presenter ).to receive( :member_presenters     ).and_return []
+        allow( presenter ).to receive( :analytics_subscribed? ).and_return false
+        allow( presenter ).to receive( :can_edit_work?        ).and_return true
+        allow( ability   ).to receive( :admin?                ).and_return true
+      end
+
+      context "no buttons when Flipflop.enable_local_analytics_ui? is false" do
+        before do
+          allow( AnalyticsHelper ).to receive( :enable_local_analytics_ui? ).and_return false
+          render 'hyrax/base/show_actions.html.erb', presenter: presenter, curation_concern: curation_concern
+        end
+        it "not to have a subscribe button" do
+          expect(rendered).not_to have_text t('simple_form.actions.data_set.analytics_subscribe')
+        end
+      end
+
+      context "buttons when Flipflop.enable_local_analytics_ui? is true" do
+        before do
+          allow( AnalyticsHelper ).to receive( :enable_local_analytics_ui? ).and_return true
+          render 'hyrax/base/show_actions.html.erb', presenter: presenter, curation_concern: curation_concern
+        end
+        it "have a subscribe button" do
+          expect(rendered).to have_text t('simple_form.actions.data_set.analytics_subscribe')
+        end
+      end
+
+    end
+
     # TODO: this test is broken for Deepblue Data
     # context "when the work contains 2 children" do
     #   let(:file_member) { Hyrax::FileSetPresenter.new(file_document, ability) }
