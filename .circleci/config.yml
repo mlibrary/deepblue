@@ -121,7 +121,7 @@ jobs:
       # name: 'samvera/ruby'
       name: 'ruby'
       ruby_version: << parameters.ruby_version >>
-    resource_class: medium+
+    resource_class: small
     environment:
       RAILS_VERSION: << parameters.rails_version >>
       NOKOGIRI_USE_SYSTEM_LIBRARIES: true
@@ -146,7 +146,7 @@ jobs:
     executor:
       name: 'ruby'
       ruby_version: << parameters.ruby_version >>
-    resource_class: medium+
+    resource_class: small
     steps:
       - attach_workspace:
           at: ~/
@@ -167,7 +167,7 @@ jobs:
       # name: 'samvera/ruby'
       name: 'ruby'
       ruby_version: << parameters.ruby_version >>
-    resource_class: medium+
+    resource_class: small
     environment:
       RAILS_VERSION: << parameters.rails_version >>
       NOKOGIRI_USE_SYSTEM_LIBRARIES: true
@@ -196,7 +196,7 @@ jobs:
     executor:
       name: 'ruby_fcrepo_solr_redis'
       ruby_version: << parameters.ruby_version >>
-    resource_class: medium+
+    resource_class: small
     parallelism: 10
     environment:
       COVERALLS_PARALLEL: true
