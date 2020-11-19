@@ -61,16 +61,22 @@ commands:
         name: Save code cache
         paths:
         - .git
+  rubocop:
+    description: Runs rubocop
+    steps:
+    - run:
+        command: bundle exec rubocop
+        name: Call Rubocop
 
 jobs:
   bundle:
     parameters:
       ruby_version:
         type: string
-        default: 2.4.10
+        default: '2.4.10'
       bundler_version:
         type: string
-        default: 2.1.4
+        default: '2.1.4'
       rails_version:
         type: string
         default: '5.2.4.3'
@@ -94,6 +100,20 @@ jobs:
           paths:
           - project/*
           - project/**/*
+
+  lint:
+    parameters:
+      ruby_version:
+        type: string
+        default: '2.4.10'
+    executor:
+      name: 'ruby'
+      ruby_version: << parameters.ruby_version >>
+    resource_class: medium+
+    steps:
+      - attach_workspace:
+          at: ~/
+      - rubocop
 
   build:
     parameters:
@@ -128,6 +148,35 @@ jobs:
           - project/*
           - project/**/*
 
+  test:
+    parameters:
+      ruby_version:
+        type: string
+        default: '2.4.10'
+      bundler_version:
+        type: string
+        default: '2.1.4'
+    executor:
+      name: 'ruby_fcrepo_solr_redis'
+      ruby_version: << parameters.ruby_version >>
+    resource_class: medium+
+    parallelism: 10
+    environment:
+      COVERALLS_PARALLEL: true
+    steps:
+      - attach_workspace:
+          at: ~/
+      - samvera/install_solr_core:
+          solr_config_path: .internal_test_app/solr/config
+      # Rerun bundler in case this is a different ruby version than bundle and build steps
+      - bundle_for_gem:
+          ruby_version: << parameters.ruby_version >>
+          bundler_version: << parameters.bundler_version >>
+          cache_version: '{{ checksum ".regen" }}'
+          project: hyrax
+      - samvera/parallel_rspec
+
+
 executors:
   ruby:
     description: Box just Ruby
@@ -148,6 +197,76 @@ executors:
       ruby_version:
         default: '2.4.10'
         type: string
+  ruby_fcrepo_solr:
+    description: Box running FCRepo, Solr, and Ruby.
+    docker:
+    - image: circleci/<< parameters.ruby_type >>:<< parameters.ruby_version >>-node-browsers-legacy
+    - environment:
+        CATALINA_OPTS: -Djava.awt.headless=true -Dfile.encoding=UTF-8 -server -Xms512m
+          -Xmx1024m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m -XX:MaxPermSize=256m
+          -XX:+DisableExplicitGC
+      image: ualbertalib/docker-fcrepo4:<< parameters.fcrepo_version>>
+    - command: bin/solr -cloud -noprompt -f -p <<parameters.solr_port>>
+      image: solr:7-alpine
+    environment:
+      BUNDLE_JOBS: 4
+      BUNDLE_PATH: vendor/bundle
+      BUNDLE_RETRY: 3
+      FCREPO_TEST_PORT: 8080/fcrepo
+      RACK_ENV: test
+      RAILS_ENV: test
+      SPEC_OPTS: --profile 10 --format RspecJunitFormatter --out /tmp/test-results/rspec.xml
+        --format progress
+    parameters:
+      fcrepo_version:
+        default: '4.7'
+        type: string
+      ruby_type:
+        default: ruby
+        type: string
+      ruby_version:
+        default: '2.4.10'
+        type: string
+      solr_port:
+        default: "8985"
+        type: string
+  ruby_fcrepo_solr_redis:
+    description: Box running FCRepo, Solr, Ruby, and Redis.
+    docker:
+    - image: circleci/<< parameters.ruby_type >>:<< parameters.ruby_version >>-node-browsers-legacy
+    - environment:
+        CATALINA_OPTS: -Djava.awt.headless=true -Dfile.encoding=UTF-8 -server -Xms512m
+          -Xmx1024m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m -XX:MaxPermSize=256m
+          -XX:+DisableExplicitGC
+      image: ualbertalib/docker-fcrepo4:<< parameters.fcrepo_version>>
+    - command: bin/solr -cloud -noprompt -f -p <<parameters.solr_port>>
+      image: solr:7-alpine
+    - image: circleci/redis:<<parameters.redis_version>>
+    environment:
+      BUNDLE_JOBS: 4
+      BUNDLE_PATH: vendor/bundle
+      BUNDLE_RETRY: 3
+      FCREPO_TEST_PORT: 8080/fcrepo
+      RACK_ENV: test
+      RAILS_ENV: test
+      SPEC_OPTS: --profile 10 --format RspecJunitFormatter --out /tmp/test-results/rspec.xml
+        --format progress
+    parameters:
+      fcrepo_version:
+        default: '4.7'
+        type: string
+      redis_version:
+        default: '6'
+        type: string
+      ruby_type:
+        default: ruby
+        type: string
+      ruby_version:
+        default: '2.4.10'
+        type: string
+      solr_port:
+        default: "8985"
+        type: string
 
 workflows:
   version: 2
@@ -156,10 +275,10 @@ workflows:
       - bundle:
           ruby_version: '2.4.10'
           rails_version: '5.2.4.3'
-      - lint:
-          ruby_version: '2.4.10'
-          requires:
-            - bundle
+      # - lint:
+      #    ruby_version: '2.4.10'
+      #    requires:
+      #      - bundle
       - build:
           ruby_version: '2.4.10'
           rails_version: '5.2.4.3'
@@ -170,4 +289,4 @@ workflows:
           ruby_version: '2.4.10'
           requires:
             - build
-            - lint
+            # - lint
