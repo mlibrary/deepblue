@@ -61,6 +61,43 @@ commands:
         name: Save code cache
         paths:
         - .git
+  install_solr_core:
+    description: Installs a solr core into a running Solr docker container.
+    parameters:
+      core_name:
+        default: hydra-test
+        type: string
+      solr_config_path:
+        default: solr/config
+        type: string
+      solr_port:
+        default: "8985"
+        type: string
+    steps:
+    - run:
+        command: dockerize -wait tcp://localhost:<< parameters.solr_port >> -timeout
+          1m
+        name: Wait for Solr
+    - run:
+        command: |
+          cd << parameters.solr_config_path >>
+          zip -1 -r solr_config.zip ./*
+          curl -H "Content-type:application/octet-stream" --data-binary @solr_config.zip "http://localhost:<< parameters.solr_port >>/solr/admin/configs?action=UPLOAD&name=solrconfig"
+          curl -H 'Content-type: application/json' http://localhost:<< parameters.solr_port >>/api/collections/ -d '{create: {name: << parameters.core_name >>, config: solrconfig, numShards: 1}}'
+        name: Load config into solr
+  parallel_rspec:
+    description: Run RSpec in Parallel, storing test_results for CircleCI to parse.
+    steps:
+    - run:
+        command: |
+          mkdir /tmp/test-results
+          bundle exec rspec $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)
+        name: Run rspec in parallel
+    - store_test_results:
+        path: /tmp/test-results
+    - store_artifacts:
+        destination: test-results
+        path: /tmp/test-results
   rubocop:
     description: Runs rubocop
     steps:
@@ -137,7 +174,7 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/
-      - deepblue/bundle_for_gem:
+      - bundle_for_gem:
           ruby_version: << parameters.ruby_version >>
           bundler_version: << parameters.bundler_version >>
           cache_version: '{{ checksum ".regen" }}'
@@ -166,15 +203,15 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/
-      - samvera/install_solr_core:
+      - install_solr_core:
           solr_config_path: .internal_test_app/solr/config
       # Rerun bundler in case this is a different ruby version than bundle and build steps
       - bundle_for_gem:
           ruby_version: << parameters.ruby_version >>
           bundler_version: << parameters.bundler_version >>
           cache_version: '{{ checksum ".regen" }}'
-          project: hyrax
-      - samvera/parallel_rspec
+          project: deepblue
+      - parallel_rspec
 
 
 executors:
