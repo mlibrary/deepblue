@@ -14,6 +14,54 @@ jobs_orig:
           command: bundle -v
       - ruby/bundle-install
 
+commands:
+  bundle_for_gem:
+    description: Bundles and caches a gem.
+    parameters:
+      bundler_version:
+        default: 2.0.1
+        type: string
+      cache_version:
+        default: "1"
+        type: string
+      project:
+        type: string
+      ruby_version:
+        type: string
+    steps:
+    - restore_cache:
+        keys:
+        - v<< parameters.cache_version >>-bundle-{{ checksum "Gemfile" }}--{{ checksum
+          "<< parameters.project >>.gemspec" }}-<< parameters.ruby_version >>
+        name: Restore bundle from cache
+    - run:
+        command: |
+          echo 'export BUNDLER_VERSION=<< parameters.bundler_version >>' >> $BASH_ENV
+          gem install bundler -v << parameters.bundler_version >>
+        name: Update bundler
+    - run:
+        command: bundle check || bundle install
+        name: Install dependencies
+    - save_cache:
+        key: v<< parameters.cache_version >>-bundle-{{ checksum "Gemfile" }}--{{ checksum
+          "<< parameters.project >>.gemspec" }}-<< parameters.ruby_version >>
+        name: Save bundle cache
+        paths:
+        - ~/project/vendor/bundle
+  cached_checkout:
+    description: Perform a cache-enabled git checkout.
+    steps:
+    - restore_cache:
+        keys:
+        - v1-source-{{ .Branch }}-{{ .Revision }}
+        name: Restore code from cache
+    - checkout
+    - save_cache:
+        key: v1-source-{{ .Branch }}-{{ .Revision }}
+        name: Save code cache
+        paths:
+        - .git
+
 jobs:
   bundle:
     parameters:
@@ -35,8 +83,8 @@ jobs:
       RAILS_VERSION: << parameters.rails_version >>
       NOKOGIRI_USE_SYSTEM_LIBRARIES: true
     steps:
-      - deepblue/cached_checkout
-      - deepblue/bundle_for_gem:
+      - cached_checkout
+      - bundle_for_gem:
           ruby_version: << parameters.ruby_version >>
           bundler_version: << parameters.bundler_version >>
           cache_version: '{{ checksum ".regen" }}'
