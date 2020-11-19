@@ -76,7 +76,7 @@ jobs:
         default: '5.2.4.3'
     executor:
       # name: 'samvera/ruby'
-      name: 'ruby/default'
+      name: 'ruby'
       ruby_version: << parameters.ruby_version >>
     resource_class: medium+
     environment:
@@ -108,7 +108,7 @@ jobs:
         default: '5.2.4.3'
     executor:
       # name: 'samvera/ruby'
-      name: 'ruby/default'
+      name: 'ruby'
       ruby_version: << parameters.ruby_version >>
     resource_class: medium+
     environment:
@@ -127,6 +127,27 @@ jobs:
           paths:
           - project/*
           - project/**/*
+
+executors:
+  ruby:
+    description: Box just Ruby
+    docker:
+    - image: circleci/<< parameters.ruby_type >>:<< parameters.ruby_version >>-node-browsers-legacy
+    environment:
+      BUNDLE_JOBS: 4
+      BUNDLE_PATH: vendor/bundle
+      BUNDLE_RETRY: 3
+      RACK_ENV: test
+      RAILS_ENV: test
+      SPEC_OPTS: --profile 10 --format RspecJunitFormatter --out /tmp/test-results/rspec.xml
+        --format progress
+    parameters:
+      ruby_type:
+        default: ruby
+        type: string
+      ruby_version:
+        default: '2.4.10'
+        type: string
 
 workflows:
   version: 2
