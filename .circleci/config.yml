@@ -46,3 +46,36 @@ jobs:
           paths:
           - project/*
           - project/**/*
+
+  build:
+    parameters:
+      ruby_version:
+        type: string
+        default: 2.4.10
+      bundler_version:
+        type: string
+        default: 2.1.4
+      rails_version:
+        type: string
+        default: '5.2.4.3'
+    executor:
+      # name: 'samvera/ruby'
+      name: 'ruby/default'
+      ruby_version: << parameters.ruby_version >>
+    resource_class: medium+
+    environment:
+      RAILS_VERSION: << parameters.rails_version >>
+      NOKOGIRI_USE_SYSTEM_LIBRARIES: true
+    steps:
+      - attach_workspace:
+          at: ~/
+      - deepblue/bundle_for_gem:
+          ruby_version: << parameters.ruby_version >>
+          bundler_version: << parameters.bundler_version >>
+          cache_version: '{{ checksum ".regen" }}'
+          project: deepblue
+      - persist_to_workspace:
+          root: ~/
+          paths:
+          - project/*
+          - project/**/*
