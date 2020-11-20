@@ -4,6 +4,9 @@
 #
 # current:
 # - resource_class: medium
+# -- parallelism: 4
+# -- parallelism: 1 # ?? for small
+# -- parallelism: 10 # for medium+
 # - ruby_version: default: '2.4.10'
 # - bundler_version: default: '2.1.4'
 # - rails_version: default: '5.2.4.3'
@@ -208,7 +211,7 @@ jobs:
       name: 'ruby_fcrepo_solr_redis'
       ruby_version: << parameters.ruby_version >>
     resource_class: medium
-    parallelism: 10
+    parallelism: 4
     environment:
       COVERALLS_PARALLEL: true
     steps:
