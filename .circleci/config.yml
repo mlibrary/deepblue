@@ -1,3 +1,13 @@
+# .circleci/config.yml
+#
+# TODO: generalized parameters, that is can parameters be set for everything once
+#
+# current:
+# - resource_class: medium
+# - ruby_version: default: '2.4.10'
+# - bundler_version: default: '2.1.4'
+# - rails_version: default: '5.2.4.3'
+#
 version: 2.1
 #orbs:
 #  ruby: circleci/ruby@0.1.2
@@ -19,15 +29,16 @@ commands:
     description: Bundles and caches a gem.
     parameters:
       bundler_version:
-        default: 2.0.1
         type: string
+        default: '2.1.4'
       cache_version:
-        default: "1"
         type: string
+        default: "1"
       project:
         type: string
       ruby_version:
         type: string
+        default: '2.4.10'
     steps:
     - restore_cache:
         keys:
@@ -121,7 +132,7 @@ jobs:
       # name: 'samvera/ruby'
       name: 'ruby'
       ruby_version: << parameters.ruby_version >>
-    resource_class: small
+    resource_class: medium
     environment:
       RAILS_VERSION: << parameters.rails_version >>
       NOKOGIRI_USE_SYSTEM_LIBRARIES: true
@@ -146,7 +157,7 @@ jobs:
     executor:
       name: 'ruby'
       ruby_version: << parameters.ruby_version >>
-    resource_class: small
+    resource_class: medium
     steps:
       - attach_workspace:
           at: ~/
@@ -167,7 +178,7 @@ jobs:
       # name: 'samvera/ruby'
       name: 'ruby'
       ruby_version: << parameters.ruby_version >>
-    resource_class: small
+    resource_class: medium
     environment:
       RAILS_VERSION: << parameters.rails_version >>
       NOKOGIRI_USE_SYSTEM_LIBRARIES: true
@@ -196,7 +207,7 @@ jobs:
     executor:
       name: 'ruby_fcrepo_solr_redis'
       ruby_version: << parameters.ruby_version >>
-    resource_class: small
+    resource_class: medium
     parallelism: 10
     environment:
       COVERALLS_PARALLEL: true
