@@ -20,7 +20,7 @@ version: 2.1
 jobs_orig:
   build:
     docker:
-      - image: circleci/ruby:2.6.3-stretch-node
+      - image: 'circleci/ruby:2.4.10-stretch-node'
     executor: ruby/default
     steps:
       - checkout
@@ -146,7 +146,7 @@ jobs:
       - bundle_for_gem:
           ruby_version: << parameters.ruby_version >>
           bundler_version: << parameters.bundler_version >>
-          cache_version: '{{ checksum ".regen" }}'
+          cache_version: '{{ checksum "./.circleci/.force_rebuild" }}'
           project: deepblue
       - persist_to_workspace:
           root: ~/
@@ -193,7 +193,7 @@ jobs:
       - bundle_for_gem:
           ruby_version: << parameters.ruby_version >>
           bundler_version: << parameters.bundler_version >>
-          cache_version: '{{ checksum ".regen" }}'
+          cache_version: '{{ checksum "./.circleci/.force_rebuild" }}'
           project: deepblue
       - persist_to_workspace:
           root: ~/
@@ -225,7 +225,7 @@ jobs:
       - bundle_for_gem:
           ruby_version: << parameters.ruby_version >>
           bundler_version: << parameters.bundler_version >>
-          cache_version: '{{ checksum ".regen" }}'
+          cache_version: '{{ checksum "./.circleci/.force_rebuild" }}'
           project: deepblue
       - parallel_rspec
 
