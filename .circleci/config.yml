@@ -96,18 +96,13 @@ commands:
           1m
         name: Wait for Solr
     - run:
-        command: |
-          cd << parameters.solr_config_path >>
-          # zip -1 -r solr_config.zip ./*
-          curl -H "Content-type:application/octet-stream" --data-binary @solr_config.xml "http://localhost:<< parameters.solr_port >>/solr/admin/configs?action=UPLOAD&name=solrconfig"
-          curl -H 'Content-type: application/json' http://localhost:<< parameters.solr_port >>/api/collections/ -d '{create: {name: << parameters.core_name >>, config: solrconfig, numShards: 1}}'
+      command: |
+        cp -R /opt/solr-7.7.1 ./solr
+        cp config/schema.xml ./solr/example/solr/collection1/conf
+        cp config/solrconfig.xml ./solr/example/solr/collection1/conf
+        cd ./solr/example; java -jar start.jar >> ./solr.log:
+          background: true
         name: Load config into solr
-        # po:
-        # - cp -R /opt/solr-7.7.1 $HOME/solr
-        # - cp config/schema.xml $HOME/solr/example/solr/collection1/conf
-        # # optional: - cp config/solrconfig.xml $HOME/solr/example/solr/collection1/conf
-        # - cd $HOME/solr/example; java -jar start.jar >> $HOME/solr.log:
-        #   background: true
   parallel_rspec:
     description: Run RSpec in Parallel, storing test_results for CircleCI to parse.
     steps:
