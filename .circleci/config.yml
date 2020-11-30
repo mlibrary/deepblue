@@ -1,5 +1,7 @@
 # .circleci/config.yml
 #
+# Updated: 2020/11/30
+#
 # TODO: generalized parameters, that is can parameters be set for everything once
 #
 # current:
@@ -82,7 +84,7 @@ commands:
         default: hydra-test
         type: string
       solr_config_path:
-        default: solr/config
+        default: ./solr/config
         type: string
       solr_port:
         default: "8985"
@@ -218,7 +220,7 @@ jobs:
       - attach_workspace:
           at: ~/
       - install_solr_core:
-          solr_config_path: .internal_test_app/solr/config
+          solr_config_path: ./solr/config
       # Rerun bundler in case this is a different ruby version than bundle and build steps
       - bundle_for_gem:
           ruby_version: << parameters.ruby_version >>
