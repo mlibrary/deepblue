@@ -12,6 +12,7 @@
 # - ruby_version: default: '2.4.10'
 # - bundler_version: default: '2.1.4'
 # - rails_version: default: '5.2.4.3'
+# - solr core name: deepbluedata-dev
 #
 version: 2.1
 #orbs:
@@ -81,7 +82,7 @@ commands:
     description: Installs a solr core into a running Solr docker container.
     parameters:
       core_name:
-        default: hydra-test
+        default: deepbluedata-dev
         type: string
       solr_config_path:
         default: ./solr/config
@@ -97,10 +98,16 @@ commands:
     - run:
         command: |
           cd << parameters.solr_config_path >>
-          zip -1 -r solr_config.zip ./*
-          curl -H "Content-type:application/octet-stream" --data-binary @solr_config.zip "http://localhost:<< parameters.solr_port >>/solr/admin/configs?action=UPLOAD&name=solrconfig"
+          # zip -1 -r solr_config.zip ./*
+          curl -H "Content-type:application/octet-stream" --data-binary @solr_config.xml "http://localhost:<< parameters.solr_port >>/solr/admin/configs?action=UPLOAD&name=solrconfig"
           curl -H 'Content-type: application/json' http://localhost:<< parameters.solr_port >>/api/collections/ -d '{create: {name: << parameters.core_name >>, config: solrconfig, numShards: 1}}'
         name: Load config into solr
+        # po:
+        # - cp -R /opt/solr-7.7.1 $HOME/solr
+        # - cp config/schema.xml $HOME/solr/example/solr/collection1/conf
+        # # optional: - cp config/solrconfig.xml $HOME/solr/example/solr/collection1/conf
+        # - cd $HOME/solr/example; java -jar start.jar >> $HOME/solr.log:
+        #   background: true
   parallel_rspec:
     description: Run RSpec in Parallel, storing test_results for CircleCI to parse.
     steps:
@@ -134,7 +141,6 @@ jobs:
         type: string
         default: '5.2.4.3'
     executor:
-      # name: 'samvera/ruby'
       name: 'ruby'
       ruby_version: << parameters.ruby_version >>
     resource_class: medium
@@ -180,7 +186,6 @@ jobs:
         type: string
         default: '5.2.4.3'
     executor:
-      # name: 'samvera/ruby'
       name: 'ruby'
       ruby_version: << parameters.ruby_version >>
     resource_class: medium
@@ -254,7 +259,7 @@ executors:
     description: Box running FCRepo, Solr, and Ruby.
     docker:
     - image: circleci/<< parameters.ruby_type >>:<< parameters.ruby_version >>-node-browsers-legacy
-    - environment:
+    - xxenvironment:
         CATALINA_OPTS: -Djava.awt.headless=true -Dfile.encoding=UTF-8 -server -Xms512m
           -Xmx1024m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m -XX:MaxPermSize=256m
           -XX:+DisableExplicitGC
@@ -287,7 +292,7 @@ executors:
     description: Box running FCRepo, Solr, Ruby, and Redis.
     docker:
     - image: circleci/<< parameters.ruby_type >>:<< parameters.ruby_version >>-node-browsers-legacy
-    - environment:
+    - xxenvironment:
         CATALINA_OPTS: -Djava.awt.headless=true -Dfile.encoding=UTF-8 -server -Xms512m
           -Xmx1024m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m -XX:MaxPermSize=256m
           -XX:+DisableExplicitGC
