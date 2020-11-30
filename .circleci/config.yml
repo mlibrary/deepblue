@@ -48,7 +48,7 @@ commands:
     - restore_cache:
         keys:
         - v<< parameters.cache_version >>-bundle-{{ checksum "Gemfile" }}--{{ checksum
-          "<< parameters.project >>.gemspec" }}-<< parameters.ruby_version >>
+          "Gemfile.lock" }}-<< parameters.ruby_version >>
         name: Restore bundle from cache
     - run:
         command: |
@@ -60,7 +60,7 @@ commands:
         name: Install dependencies
     - save_cache:
         key: v<< parameters.cache_version >>-bundle-{{ checksum "Gemfile" }}--{{ checksum
-          "<< parameters.project >>.gemspec" }}-<< parameters.ruby_version >>
+          "Gemfile.lock" }}-<< parameters.ruby_version >>
         name: Save bundle cache
         paths:
         - ~/project/vendor/bundle
@@ -241,7 +241,7 @@ executors:
       BUNDLE_RETRY: 3
       RACK_ENV: test
       RAILS_ENV: test
-      SPEC_OPTS: --profile 10 --format RspecJunitFormatter --out /tmp/test-results/rspec.xml
+      SPEC_OPTS: --profile 10 --out /tmp/test-results/rspec.xml
         --format progress
     parameters:
       ruby_type:
@@ -268,7 +268,7 @@ executors:
       FCREPO_TEST_PORT: 8080/fcrepo
       RACK_ENV: test
       RAILS_ENV: test
-      SPEC_OPTS: --profile 10 --format RspecJunitFormatter --out /tmp/test-results/rspec.xml
+      SPEC_OPTS: --profile 10 --out /tmp/test-results/rspec.xml
         --format progress
     parameters:
       fcrepo_version:
@@ -302,7 +302,7 @@ executors:
       FCREPO_TEST_PORT: 8080/fcrepo
       RACK_ENV: test
       RAILS_ENV: test
-      SPEC_OPTS: --profile 10 --format RspecJunitFormatter --out /tmp/test-results/rspec.xml
+      SPEC_OPTS: --profile 10 --out /tmp/test-results/rspec.xml
         --format progress
     parameters:
       fcrepo_version:
