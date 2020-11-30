@@ -254,7 +254,7 @@ executors:
     description: Box running FCRepo, Solr, and Ruby.
     docker:
     - image: circleci/<< parameters.ruby_type >>:<< parameters.ruby_version >>-node-browsers-legacy
-    - xxenvironment:
+    - environment:
         CATALINA_OPTS: -Djava.awt.headless=true -Dfile.encoding=UTF-8 -server -Xms512m
           -Xmx1024m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m -XX:MaxPermSize=256m
           -XX:+DisableExplicitGC
@@ -287,7 +287,7 @@ executors:
     description: Box running FCRepo, Solr, Ruby, and Redis.
     docker:
     - image: circleci/<< parameters.ruby_type >>:<< parameters.ruby_version >>-node-browsers-legacy
-    - xxenvironment:
+    - environment:
         CATALINA_OPTS: -Djava.awt.headless=true -Dfile.encoding=UTF-8 -server -Xms512m
           -Xmx1024m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m -XX:MaxPermSize=256m
           -XX:+DisableExplicitGC
