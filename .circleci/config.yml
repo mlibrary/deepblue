@@ -12,7 +12,7 @@
 # - ruby_version: default: '2.4.10'
 # - bundler_version: default: '2.1.4'
 # - rails_version: default: '5.2.4.3'
-# - solr core name: deepbluedata-dev
+# - solr core name: deepbluedata-test
 #
 version: 2.1
 #orbs:
@@ -82,7 +82,7 @@ commands:
     description: Installs a solr core into a running Solr docker container.
     parameters:
       core_name:
-        default: deepbluedata-dev
+        default: deepbluedata-test
         type: string
       solr_config_path:
         default: ./solr/config
@@ -98,8 +98,8 @@ commands:
     - run:
         command: |
           cd << parameters.solr_config_path >>
-          # zip -1 -r solr_config.zip ./*
-          curl -H "Content-type:application/octet-stream" --data-binary @solr_config.xml "http://localhost:<< parameters.solr_port >>/solr/admin/configs?action=UPLOAD&name=solrconfig"
+          zip -1 -r solr_config.zip ./*
+          curl -H "Content-type:application/octet-stream" --data-binary @solr_config.zip "http://localhost:<< parameters.solr_port >>/solr/admin/configs?action=UPLOAD&name=solrconfig"
           curl -H 'Content-type: application/json' http://localhost:<< parameters.solr_port >>/api/collections/ -d '{create: {name: << parameters.core_name >>, config: solrconfig, numShards: 1}}'
         name: Load config into solr
   parallel_rspec:
