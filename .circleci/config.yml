@@ -96,12 +96,12 @@ commands:
           1m
         name: Wait for Solr
     - run:
-      command: |
-        cp -R /opt/solr-7.7.1 ./solr
-        cp config/schema.xml ./solr/example/solr/collection1/conf
-        cp config/solrconfig.xml ./solr/example/solr/collection1/conf
-        cd ./solr/example; java -jar start.jar >> ./solr.log:
-          background: true
+        command: |
+          cp -R /opt/solr-7.7.1 ./solr
+          cp config/schema.xml ./solr/example/solr/collection1/conf
+          cp config/solrconfig.xml ./solr/example/solr/collection1/conf
+          cd ./solr/example; java -jar start.jar >> ./solr.log:
+            background: true
         name: Load config into solr
   parallel_rspec:
     description: Run RSpec in Parallel, storing test_results for CircleCI to parse.
