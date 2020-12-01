@@ -11,7 +11,7 @@
 # -- parallelism: 10 # for medium+
 # - ruby_version: default: '2.4.10'
 # - bundler_version: default: '2.1.4'
-# - rails_version: default: '5.2.4.3'
+# - rails_version: default: '5.3.4.4'
 # - solr core name: deepbluedata-test
 #
 version: 2.1
@@ -133,7 +133,7 @@ jobs:
         default: '2.1.4'
       rails_version:
         type: string
-        default: '5.2.4.3'
+        default: '5.3.4.4'
     executor:
       name: 'ruby'
       ruby_version: << parameters.ruby_version >>
@@ -178,7 +178,7 @@ jobs:
         default: '2.1.4'
       rails_version:
         type: string
-        default: '5.2.4.3'
+        default: '5.3.4.4'
     executor:
       name: 'ruby'
       ruby_version: << parameters.ruby_version >>
@@ -326,14 +326,14 @@ workflows:
     jobs:
       - bundle:
           ruby_version: '2.4.10'
-          rails_version: '5.2.4.3'
+          rails_version: '5.3.4.4'
       # - lint:
       #    ruby_version: '2.4.10'
       #    requires:
       #      - bundle
       - build:
           ruby_version: '2.4.10'
-          rails_version: '5.2.4.3'
+          rails_version: '5.3.4.4'
           requires:
             - bundle
       - test:
