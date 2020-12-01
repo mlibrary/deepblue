@@ -44,7 +44,17 @@ class ContentDepositorChangeEventJob < ContentEventJob
   alias log_file_set_event log_work_event
 
   def work
-    @work ||= Hyrax::ChangeContentDepositorService.call(repo_object, depositor, reset)
+    @work ||= work_init
+  end
+
+  def work_init
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "repo_object=#{repo_object}",
+                                           "depositor=#{depositor}",
+                                           "reset=#{reset}",
+                                           "" ] if CONTENT_DEPOSTIOR_CHANGE_EVENT_JOB_DEBUG_VERBOSE
+    Hyrax::ChangeContentDepositorService.call(repo_object, depositor, reset)
   end
 
   # overriding default to log the event to the depositor instead of their profile
