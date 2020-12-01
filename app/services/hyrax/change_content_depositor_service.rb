@@ -28,7 +28,7 @@ module Hyrax
                                event_note: "reset=#{reset}" ) if f.respond_to? :provenance_transfer
       end
       work.save!
-      event_note = ChangeContentDepositorService.class.name
+      event_note = ChangeContentDepositorService.name
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "work=#{work}",
