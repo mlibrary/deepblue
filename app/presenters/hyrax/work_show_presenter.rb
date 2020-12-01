@@ -145,6 +145,15 @@ module Hyrax
       can_download_zip_maybe?
     end
 
+    def can_subscribe_to_analytics_reports?
+      return false unless AnalyticsHelper.enable_local_analytics_ui?
+      return false if single_use_show?
+      return true if current_ability.admin? && AnalyticsHelper.analytics_reports_admins_can_subscribe?
+      return true if can_edit_work? && AnalyticsHelper.open_analytics_report_subscriptions?
+      return true if depositor == current_ability.current_user.email && AnalyticsHelper.open_analytics_report_subscriptions?
+      false
+    end
+
     def can_edit_work?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

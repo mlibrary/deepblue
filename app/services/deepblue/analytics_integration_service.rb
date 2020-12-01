@@ -21,8 +21,11 @@ module Deepblue
     @@hit_graph_view_level = 0 # 0 = none, 1 = admin, 2 = editor, 3 = everyone
     @@monthly_events_report_subscription_id = 'MonthlyEventsReport'
 
+    @@analytics_reports_admins_can_subscribe = true
+
     mattr_accessor :ahoy_tracker_debug_verbose,
                    :analytics_helper_debug_verbose,
+                   :analytics_reports_admins_can_subscribe,
                    :enable_chartkick,
                    :enable_collections_hit_graph,
                    :enable_file_sets_hit_graph,

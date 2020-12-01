@@ -103,6 +103,7 @@ RSpec.describe 'hyrax/base/_show_actions.html.erb', type: :view do
       context "buttons when Flipflop.enable_local_analytics_ui? is true" do
         before do
           allow( AnalyticsHelper ).to receive( :enable_local_analytics_ui? ).and_return true
+          allow( AnalyticsHelper ).to receive( :analytics_reports_admins_can_subscribe? ).and_return true
           render 'hyrax/base/show_actions.html.erb', presenter: presenter, curation_concern: curation_concern
         end
         it "have a subscribe button" do
