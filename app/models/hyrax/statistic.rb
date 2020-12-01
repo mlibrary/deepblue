@@ -49,7 +49,7 @@ module Hyrax
       private
 
         def cached_stats(object, start_date, _method)
-          stats = statistics_for(object).order(date: :asc)
+          stats = statistics_for(object).order(date: :desc)
           ga_start_date = stats.any? ? stats[stats.size - 1].date + 1.day : start_date.to_date
           { ga_start_date: ga_start_date, cached_stats: stats.to_a }
         end
