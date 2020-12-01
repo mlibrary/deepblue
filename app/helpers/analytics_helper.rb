@@ -38,7 +38,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
   end
 
   def self.open_analytics_report_subscriptions?
-    Flipflop.open_analytics_report_subscriptions
+    Flipflop.open_analytics_report_subscriptions?
   end
 
   def self.analytics_reports_admins_can_subscribe?
