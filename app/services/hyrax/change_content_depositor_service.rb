@@ -28,9 +28,17 @@ module Hyrax
                                event_note: "reset=#{reset}" ) if f.respond_to? :provenance_transfer
       end
       work.save!
+      event_note = ChangeContentDepositorService.class.name
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "work=#{work}",
+                                             "user=#{user}",
+                                             "previous_user=#{previous_user}",
+                                             "event_note=#{event_note}",
+                                             "" ] if CHANGE_CONTENT_DEPOSITOR_SERVICE_DEBUG_VERBOSE
       work.provenance_transfer( current_user: user,
                                 previous_user: previous_user,
-                                event_note: "reset=#{reset}" ) if work.respond_to? :provenance_transfer
+                                event_note: event_note ) if work.respond_to? :provenance_transfer
       work
     end
 
