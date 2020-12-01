@@ -19,4 +19,8 @@ Flipflop.configure do
           # description: I18n.t( "flipflop.feature_description.enable_local_analytics_ui" )
           description: "Enable local analytics access through the UI."
 
+  feature :open_analytics_report_subscriptions,
+          default: false,
+          description: "Depositors can subscribe to analytic reports."
+
 end

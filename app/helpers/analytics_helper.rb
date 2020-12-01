@@ -37,6 +37,14 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     Flipflop.enable_local_analytics_ui?
   end
 
+  def self.open_analytics_report_subscriptions?
+    Flipflop.open_analytics_report_subscriptions
+  end
+
+  def self.analytics_reports_admins_can_subscribe?
+    ::Deepblue::AnalyticsIntegrationService.analytics_reports_admins_can_subscribe
+  end
+
   def self.email_to_user_id( email )
     return nil unless email.present?
     user = User.find_by_user_key email

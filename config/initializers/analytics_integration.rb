@@ -23,4 +23,6 @@ Deepblue::AnalyticsIntegrationService.setup do |config|
 
   config.monthly_events_report_subscription_id = 'MonthlyEventsReport'
 
+  config.analytics_reports_admins_can_subscribe = true
+
 end
