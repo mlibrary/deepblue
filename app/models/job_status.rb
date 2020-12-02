@@ -2,7 +2,7 @@
 
 class JobStatus < ApplicationRecord
 
-  JOB_STATUS_DEBUG_VERBOSE = true
+  JOB_STATUS_DEBUG_VERBOSE = false
 
   FINISHED = 'finished'.freeze
   STARTED = 'started'.freeze

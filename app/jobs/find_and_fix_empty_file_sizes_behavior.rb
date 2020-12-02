@@ -2,7 +2,7 @@
 
 module FindAndFixEmptyFileSizesBehavior
 
-  FIND_AND_FIX_EMPTY_FILE_SIZES_DEBUG_VERBOSE = true
+  FIND_AND_FIX_EMPTY_FILE_SIZES_DEBUG_VERBOSE = false
 
   def find_and_fix_empty_file_sizes( messages:, ids_fixed: [], test_mode: false, verbose: false )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

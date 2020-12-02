@@ -10,7 +10,7 @@ class FindAndFixJob < AbstractRakeTaskJob
 
   # bundle exec rake deepblue:run_job['{"job_class":"FindAndFixJob"\,"verbose":true\,"email_results_to":["fritx@umich.edu"]\,"job_delay":0}']
 
-  FIND_AND_FIX_JOB_DEBUG_VERBOSE = true
+  FIND_AND_FIX_JOB_DEBUG_VERBOSE = false
 
   # queue_as :scheduler
 

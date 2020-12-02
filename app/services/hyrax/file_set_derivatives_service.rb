@@ -8,7 +8,7 @@
 #
 #   class FileSetDerivativesService
 #
-#     FILE_SET_DERIVATIVES_SERVICE_DEBUG_VERBOSE = true
+#     FILE_SET_DERIVATIVES_SERVICE_DEBUG_VERBOSE = false
 #
 #     alias_method :monkey_create_derivatives, :create_derivatives
 #     alias_method :monkey_create_pdf_derivatives, :create_pdf_derivatives

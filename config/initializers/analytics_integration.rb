@@ -3,10 +3,10 @@ Deepblue::AnalyticsIntegrationService.setup do |config|
 
   # see: config/features.rb for Flipflop.enable_local_analytics_ui
 
-  config.ahoy_tracker_debug_verbose = true
-  config.analytics_helper_debug_verbose = true
+  config.ahoy_tracker_debug_verbose = false
+  config.analytics_helper_debug_verbose = false
 
-  config.event_tracking_debug_verbose = true
+  config.event_tracking_debug_verbose = false
   config.event_tracking_include_request_uri = false
   config.event_tracking_excluded_parameters = [ :authenticity_token ].freeze
 

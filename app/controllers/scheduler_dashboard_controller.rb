@@ -2,7 +2,7 @@
 
 class SchedulerDashboardController < ApplicationController
 
-  SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE = true
+  SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE = false
 
   include ActiveSupport::Concern
   include Blacklight::Base

@@ -6,7 +6,7 @@
 # @see Hyrax::WorkQueryService
 class ProxyDepositRequest < ActiveRecord::Base
 
-  PROXY_DEPOSIT_REQUEST_DEBUG_VERBOSE = true
+  PROXY_DEPOSIT_REQUEST_DEBUG_VERBOSE = false
 
   include ActionView::Helpers::UrlHelper
 

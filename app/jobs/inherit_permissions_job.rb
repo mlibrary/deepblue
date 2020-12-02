@@ -2,7 +2,7 @@
 #
 class InheritPermissionsJob < Hyrax::ApplicationJob
 
-  INHERIT_PERMISSIONS_JOB_DEBUG_VERBOSE = true
+  INHERIT_PERMISSIONS_JOB_DEBUG_VERBOSE = false
 
   # Perform the copy from the work to the contained filesets
   #
