@@ -34,6 +34,7 @@ module Deepblue
     protected
 
       def report
+        out_report << "Report server: #{::DeepBlueDocs::Application.config.hostname}" << "\n"
         report_timestamp_begin = Time.new
         out_report << "Report started: " << report_timestamp_begin.to_s << "\n"
         @prefix = "#{Time.now.strftime('%Y%m%d')}_works_report" if @prefix.nil? ## YYYYMMDD
