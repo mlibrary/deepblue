@@ -2,7 +2,7 @@
 
 class TestJob < ::Hyrax::ApplicationJob
 
-  TEST_JOB_DEBUG_VERBOSE = true
+  TEST_JOB_DEBUG_VERBOSE = false
 
   def perform( *args )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

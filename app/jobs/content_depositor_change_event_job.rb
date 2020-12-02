@@ -5,7 +5,7 @@
 # @attr [Boolean] reset (false) should the access controls be reset. This means revoking edit access from the depositor
 class ContentDepositorChangeEventJob < ContentEventJob
 
-  CONTENT_DEPOSTIOR_CHANGE_EVENT_JOB_DEBUG_VERBOSE = true
+  CONTENT_DEPOSTIOR_CHANGE_EVENT_JOB_DEBUG_VERBOSE = false
 
   include Rails.application.routes.url_helpers
   include ActionDispatch::Routing::PolymorphicRoutes

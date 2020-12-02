@@ -70,9 +70,9 @@ module DeepBlueDocs
     config.ds_file_set_presenter_debug_verbose = false
     # config.email_debug_verbose -- see configure email below
     config.email_behavior_debug_verbose = false
-    config.file_actor_debug_verbose = true
+    config.file_actor_debug_verbose = false
     # config.file_content_helper_debug_verbose -- see config/integration/file_content_integration.rb
-    config.file_set_actor_debug_verbose = true
+    config.file_set_actor_debug_verbose = false
     config.file_set_debug_verbose = false
     config.file_set_derivatives_service_debug_verbose = false
     config.file_sets_controller_debug_verbose = false
@@ -84,7 +84,7 @@ module DeepBlueDocs
     # config.ingest_integration_service_setup_debug_verbose = false
     # config.interpolation_helper_debug_verbose = false -- see config/integration/work_view_content.rb
     # config.jira_helper_debug_verbose -- see config/integration/jira_integration
-    config.job_io_wrapper_debug_verbose = true
+    config.job_io_wrapper_debug_verbose = false
     config.member_presenter_factory_debug_verbose = false
     config.metadata_behavior_debug_verbose = false
     config.new_content_service_debug_verbose = false

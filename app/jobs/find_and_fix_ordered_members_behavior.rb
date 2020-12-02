@@ -2,7 +2,7 @@
 
 module FindAndFixOrderedMembersBehavior
 
-  FIND_AND_FIX_ALL_ORDERED_MEMBERS_CONTAINING_NILS_DEBUG_VERBOSE = true
+  FIND_AND_FIX_ALL_ORDERED_MEMBERS_CONTAINING_NILS_DEBUG_VERBOSE = false
 
   def find_and_fix_all_ordered_members_containing_nils( messages:, ids_fixed: [], test_mode: true, verbose: false )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

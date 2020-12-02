@@ -4,7 +4,7 @@ module Hyrax
 
   class ChangeContentDepositorService
 
-    CHANGE_CONTENT_DEPOSITOR_SERVICE_DEBUG_VERBOSE = true
+    CHANGE_CONTENT_DEPOSITOR_SERVICE_DEBUG_VERBOSE = false
 
     # @param [ActiveFedora::Base] work
     # @param [User] user
