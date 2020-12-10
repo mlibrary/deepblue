@@ -475,18 +475,18 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
     end
   end
 
-  describe "#work_presenters" do
-    let(:obj) { create(:work_with_file_and_work) }
-    let(:attributes) { obj.to_solr }
-
-    it "filters out members that are file sets" do
-      expect(presenter.work_presenters.size).to eq 1
-      expect(presenter.work_presenters.first).to be_instance_of(described_class)
-    end
-  end
+  # describe "#work_presenters" do
+  #   let(:obj) { create(:data_set_with_file_and_work) }
+  #   let(:attributes) { obj.to_solr }
+  #
+  #   it "filters out members that are file sets" do
+  #     expect(presenter.work_presenters.size).to eq 1
+  #     expect(presenter.work_presenters.first).to be_instance_of(described_class)
+  #   end
+  # end
 
   # describe "#member_presenters" do # don't do embedded works in DBD
-  #   let(:obj) { create(:work_with_file_and_work) }
+  #   let(:obj) { create(:data_set_with_file_and_work) }
   #   let(:attributes) { obj.to_solr }
   #
   #   it "returns appropriate classes for each" do
@@ -496,18 +496,18 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
   #   end
   # end
 
-  describe "#member_presenters_for" do
-    let(:obj) { create(:work_with_file_and_work) }
-    let(:attributes) { obj.to_solr }
-    let(:items) { presenter.ordered_ids }
-    let(:subject) { presenter.member_presenters_for(items) }
-
-    it "returns appropriate classes for each item" do
-      expect(subject.size).to eq 2
-      expect(subject.first).to be_instance_of(Hyrax::DsFileSetPresenter)
-      expect(subject.last).to be_instance_of(described_class)
-    end
-  end
+  # describe "#member_presenters_for" do
+  #   let(:obj) { create(:data_set_with_file_and_work) }
+  #   let(:attributes) { obj.to_solr }
+  #   let(:items) { presenter.ordered_ids }
+  #   let(:subject) { presenter.member_presenters_for(items) }
+  #
+  #   it "returns appropriate classes for each item" do
+  #     expect(subject.size).to eq 2
+  #     expect(subject.first).to be_instance_of(Hyrax::DsFileSetPresenter)
+  #     expect(subject.last).to be_instance_of(described_class)
+  #   end
+  # end
 
   describe "#list_of_item_ids_to_display" do
     let(:subject) { presenter.list_of_item_ids_to_display }
@@ -580,7 +580,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
   end
 
   describe "#file_set_presenters" do
-    let(:obj) { create(:work_with_ordered_files) }
+    let(:obj) { create(:data_set_with_ordered_files) }
     let(:attributes) { obj.to_solr }
 
     it "displays them in order" do
@@ -613,7 +613,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
   end
 
   describe "#representative_presenter" do
-    let(:obj) { create(:work_with_representative_file) }
+    let(:obj) { create(:data_set_with_representative_file) }
     let(:attributes) { obj.to_solr }
 
     it "has a representative" do
@@ -653,7 +653,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
     let(:solr_document) { SolrDocument.new(work.to_solr) }
 
     context "with a representative" do
-      let(:work) { create(:work_with_representative_file) }
+      let(:work) { create(:data_set_with_representative_file) }
 
       it { is_expected.to eq "http://#{request.host}/downloads/#{work.representative_id}" }
     end
@@ -770,7 +770,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
   end
 
   describe "#manifest" do
-    let(:work) { create(:work_with_one_file) }
+    let(:work) { create(:data_set_with_one_file) }
     let(:solr_document) { SolrDocument.new(work.to_solr) }
 
     describe "#sequence_rendering" do
@@ -800,7 +800,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
 
       it "returns an array of metadata values" do
         expect(subject[0]['label']).to eq('Title')
-        expect(subject[0]['value']).to include('Test title', 'Another test title')
+        expect(subject[0]['value']).to eq Array( work.title.join( ' ' ) )
       end
     end
   end

@@ -132,20 +132,20 @@ RSpec.describe Hyrax::DataSetPresenter, clean_repo: true do
   describe '#stats_path' do
     let(:user) { 'sarah' }
     let(:ability) { double "Ability" }
-    let(:work) { build(:generic_work, id: '123abc') }
-    let(:attributes) { work.to_solr }
+    let(:data_set) { build(:data_set, id: '123abc') }
+    let(:attributes) { data_set.to_solr }
 
     before do
       # https://github.com/samvera/active_fedora/issues/1251
-      allow(work).to receive(:persisted?).and_return(true)
+      allow(data_set).to receive(:persisted?).and_return(true)
     end
 
-    it { expect(presenter.stats_path).to eq Hyrax::Engine.routes.url_helpers.stats_work_path(id: work, locale: 'en') }
+    it { expect(presenter.stats_path).to eq Hyrax::Engine.routes.url_helpers.stats_work_path(id: data_set, locale: 'en') }
   end
 
   describe '#itemtype' do
-    let(:work) { build(:generic_work, resource_type: type) }
-    let(:attributes) { work.to_solr }
+    let(:data_set) { build(:data_set, resource_type: type) }
+    let(:attributes) { data_set.to_solr }
     let(:ability) { double "Ability" }
 
     subject { presenter.itemtype }
@@ -180,8 +180,8 @@ RSpec.describe Hyrax::DataSetPresenter, clean_repo: true do
       allow( solr_document ).to receive( :visibility ).at_least(:once).and_return Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
     end
 
-    context 'with a new public work' do
-      it 'can feature the work' do
+    context 'with a new public data_set' do
+      it 'can feature the data_set' do
         allow( ability ).to receive(:can?).with( :create, FeaturedWork ).and_return true
         allow(user).to receive(:can?).with(:create, FeaturedWork).and_return(true)
         allow( presenter ).to receive( :single_use_show? ).and_return false
@@ -191,9 +191,9 @@ RSpec.describe Hyrax::DataSetPresenter, clean_repo: true do
       end
     end
 
-    context 'with a featured work' do
+    context 'with a featured data_set' do
       before { FeaturedWork.create(work_id: attributes.fetch('id')) }
-      it 'can unfeature the work' do
+      it 'can unfeature the data_set' do
         allow( ability ).to receive(:can?).with( :create, FeaturedWork ).and_return true
         allow( presenter ).to receive( :single_use_show? ).and_return false
         expect(presenter.work_featurable?).to be true
@@ -237,7 +237,7 @@ RSpec.describe Hyrax::DataSetPresenter, clean_repo: true do
 
   # TODO: since we don't allow works to have children works, commenting this out is probably okay
   # describe "#work_presenters" do
-  #   let(:obj) { create(:work_with_file_and_work) }
+  #   let(:obj) { create(:data_set_with_file_and_work) }
   #   let(:attributes) { obj.to_solr }
   #
   #   it "filters out members that are file sets" do
@@ -248,7 +248,7 @@ RSpec.describe Hyrax::DataSetPresenter, clean_repo: true do
 
   # TODO: fix this
   # describe "#member_presenters" do
-  #   let(:obj) { create(:work_with_file_and_work) }
+  #   let(:obj) { create(:data_set_with_file_and_work) }
   #   let(:attributes) { obj.to_solr }
   #
   #   it "returns appropriate classes for each" do
@@ -259,7 +259,7 @@ RSpec.describe Hyrax::DataSetPresenter, clean_repo: true do
   # end
 
   describe "#file_set_presenters" do
-    let(:obj) { create(:work_with_ordered_files) }
+    let(:obj) { create(:data_set_with_ordered_files) }
     let(:attributes) { obj.to_solr }
 
     it "displays them in order" do
@@ -278,21 +278,21 @@ RSpec.describe Hyrax::DataSetPresenter, clean_repo: true do
     # end
 
     context "when some of the members are not file sets" do
-      let(:another_work) { create(:work) }
+      let(:another_data_set) { create(:data_set) }
 
       before do
-        obj.ordered_members << another_work
+        obj.ordered_members << another_data_set
         obj.save!
       end
 
       it "filters out members that are not file sets" do
-        expect(presenter.file_set_presenters.map(&:id)).not_to include another_work.id
+        expect(presenter.file_set_presenters.map(&:id)).not_to include another_data_set.id
       end
     end
   end
 
   describe "#representative_presenter" do
-    let(:obj) { create(:work_with_representative_file) }
+    let(:obj) { create(:data_set_with_representative_file) }
     let(:attributes) { obj.to_solr }
 
     it "has a representative" do
@@ -305,7 +305,7 @@ RSpec.describe Hyrax::DataSetPresenter, clean_repo: true do
     end
 
     context 'without a representative' do
-      let(:obj) { create(:work) }
+      let(:obj) { create(:data_set) }
 
       it 'has a nil presenter' do
         expect(presenter.representative_presenter).to be_nil
@@ -313,7 +313,7 @@ RSpec.describe Hyrax::DataSetPresenter, clean_repo: true do
     end
 
     context 'when it is its own representative' do
-      let(:obj) { create(:work) }
+      let(:obj) { create(:data_set) }
 
       before do
         obj.representative_id = obj.id
@@ -329,16 +329,16 @@ RSpec.describe Hyrax::DataSetPresenter, clean_repo: true do
   describe "#download_url" do
     subject { presenter.download_url }
 
-    let(:solr_document) { SolrDocument.new(work.to_solr) }
+    let(:solr_document) { SolrDocument.new(data_set.to_solr) }
 
     context "with a representative" do
-      let(:work) { create(:work_with_representative_file) }
+      let(:data_set) { create(:data_set_with_representative_file) }
 
-      it { is_expected.to eq "http://#{request.host}/downloads/#{work.representative_id}" }
+      it { is_expected.to eq "http://#{request.host}/downloads/#{data_set.representative_id}" }
     end
 
     context "without a representative" do
-      let(:work) { create(:work) }
+      let(:data_set) { create(:data_set) }
 
       it { is_expected.to eq '' }
     end
@@ -452,8 +452,8 @@ END_TARGET
   end
 
   # describe "#manifest" do
-  #   let(:work) { create(:work_with_one_file) }
-  #   let(:solr_document) { SolrDocument.new(work.to_solr) }
+  #   let(:data_set) { create(:data_set_with_one_file) }
+  #   let(:solr_document) { SolrDocument.new(data_set.to_solr) }
   #
   #   describe "#sequence_rendering" do
   #     subject do
@@ -461,12 +461,12 @@ END_TARGET
   #     end
   #
   #     before do
-  #       Hydra::Works::AddFileToFileSet.call(work.file_sets.first,
+  #       Hydra::Works::AddFileToFileSet.call(data_set.file_sets.first,
   #                                           File.open(fixture_path + '/world.png'), :original_file)
   #     end
   #
   #     it "returns a hash containing the rendering information" do
-  #       work.rendering_ids = [work.file_sets.first.id]
+  #       data_set.rendering_ids = [data_set.file_sets.first.id]
   #       expect(subject).to be_an Array
   #     end
   #   end
@@ -477,7 +477,7 @@ END_TARGET
   #     end
   #
   #     before do
-  #       work.title = ['Test title', 'Another test title']
+  #       data_set.title = ['Test title', 'Another test title']
   #     end
   #
   #     it "returns an array of metadata values" do

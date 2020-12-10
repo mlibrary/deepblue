@@ -2,7 +2,10 @@
 
 class CreateDerivativesJob < AbstractIngestJob
 
-  CREATE_DERIVATIVES_JOB_DEBUG_VERBOSE = ::Deepblue::IngestIntegrationService.create_derivatives_job_debug_verbose
+  # CREATE_DERIVATIVES_JOB_DEBUG_VERBOSE = ::Deepblue::IngestIntegrationService.create_derivatives_job_debug_verbose
+
+  mattr_accessor :create_derivatives_job_debug_verbose,
+                 default: ::Deepblue::IngestIntegrationService.create_derivatives_job_debug_verbose
 
   queue_as Hyrax.config.ingest_queue_name
 
@@ -17,7 +20,7 @@ class CreateDerivativesJob < AbstractIngestJob
                parent_job_id: nil,
                uploaded_file_ids: [] )
 
-    find_or_create_job_status_started( parent_job_id: parent_job_id, verbose: CREATE_DERIVATIVES_JOB_DEBUG_VERBOSE )
+    find_or_create_job_status_started( parent_job_id: parent_job_id, verbose: create_derivatives_job_debug_verbose )
     # job_status.add_message!( "#{self.class.name}.perform: #{repository_file_id}" ) if job_status.verbose
     ::Deepblue::IngestHelper.create_derivatives( file_set,
                                                  repository_file_id,
@@ -41,7 +44,7 @@ class CreateDerivativesJob < AbstractIngestJob
                                            "job_status.state=#{job_status.state}",
                                            "job_status.message=#{job_status.message}",
                                            "job_status.error=#{job_status.error}",
-                                           "" ] if CREATE_DERIVATIVES_JOB_DEBUG_VERBOSE
+                                           "" ] if create_derivatives_job_debug_verbose
   rescue Exception => e # rubocop:disable Lint/RescueException
     log_error "CreateDerivativesJob.perform(#{file_set},#{repository_file_id},#{filepath}) #{e.class}: #{e.message}"
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -58,7 +61,7 @@ class CreateDerivativesJob < AbstractIngestJob
                                            "job_status.state=#{job_status.state}",
                                            "job_status.message=#{job_status.message}",
                                            "job_status.error=#{job_status.error}",
-                                           "" ] if CREATE_DERIVATIVES_JOB_DEBUG_VERBOSE
+                                           "" ] + e.backtrace[0..8] if create_derivatives_job_debug_verbose
   end
 
 end

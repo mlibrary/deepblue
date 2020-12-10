@@ -10,7 +10,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
 
   attr_accessor :depositor,
                 :job_status,
-                :processed,
+                # :processed,
                 :uploaded_files,
                 :uploaded_file_ids,
                 :user,
@@ -33,16 +33,16 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                                          verbose: ATTACH_FILES_TO_WORK_JOB_DEBUG_VERBOSE,
                                                          main_cc_id: main_cc_id,
                                                          user_id: user_id )
-    @processed = []
-    status.processed_uploaded_file_ids.each_with_index do |uploaded_file_id,index|
-      @processed << @uploaded_files[index]
-    end
+    # @processed = []
+    # status.processed_uploaded_file_ids.each_with_index do |uploaded_file_id,index|
+    #   @processed << @uploaded_files[index]
+    # end
     return status
   end
 
-  def processed
-    @processed ||= []
-  end
+  # def processed
+  #   @processed ||= []
+  # end
 
   def uploaded_file_ids
     @uploaded_file_ids ||= uploaded_files.map { |u| u.id }
@@ -70,7 +70,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                            "uploaded_files.count=#{uploaded_files.count}",
                                            "work_attributes=#{work_attributes}",
                                            "job_status=#{job_status}",
-                                           "processed=#{processed}",
+                                           # "processed=#{processed}",
                                            "" ] if ATTACH_FILES_TO_WORK_JOB_DEBUG_VERBOSE
     perform_log_starting unless job_status.did_log_starting?
     perform_validate_files unless job_status.did_validate_files?
@@ -84,7 +84,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                            "uploaded_files=#{uploaded_files}",
                                            "uploaded_files.count=#{uploaded_files.count}",
                                            "work_attributes=#{work_attributes}",
-                                           "processed=#{processed}",
+                                           # "processed=#{processed}",
                                            "job_status=#{job_status}",
                                            "job_status.job_id=#{job_status.job_id}",
                                            "job_status.job_class=#{job_status.job_class}",
@@ -105,7 +105,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                            "uploaded_files=#{uploaded_files}",
                                            "uploaded_files.count=#{uploaded_files.count}",
                                            "work_attributes=#{work_attributes}",
-                                           "processed=#{processed}",
+                                           # "processed=#{processed}",
                                            "job_status=#{job_status}",
                                            "job_status.job_id=#{job_status.job_id}",
                                            "job_status.job_class=#{job_status.job_class}",
@@ -171,14 +171,14 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       job_status.add_error! msg
     end
 
-    def notify_attach_files_to_work_job_complete( failed_to_upload: )
+    def notify_attach_files_to_work_job_complete( successful_uploads:, failed_uploads: )
       notify_user = DeepBlueDocs::Application.config.notify_user_file_upload_and_ingest_are_complete
       notify_managers = DeepBlueDocs::Application.config.notify_managers_file_upload_and_ingest_are_complete
       return unless notify_user || notify_managers
       work_depositor = ::Deepblue::EmailHelper.cc_depositor( curation_concern: work )
       title = ::Deepblue::EmailHelper.cc_title curation_concern: work
       lines = []
-      file_count = processed.size
+      file_count = successful_uploads.size
       file_count_phrase = if 1 == file_count
                             ::Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.one_file_count_phrase" )
                           else
@@ -192,12 +192,12 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                           title: ::Deepblue::EmailHelper.escape_html( title ),
                                           work_url: work_url )
 
-      unless failed_to_upload.empty?
+      unless failed_uploads.empty?
         lines << ::Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.total_failed_html",
-                                            file_count: failed_to_upload.size )
+                                            file_count: failed_uploads.size )
         lines << ::Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.files_failed_html" )
         lines << "<ol>"
-        failed_to_upload.each do |uploaded_file|
+        failed_uploads.each do |uploaded_file|
           file_name, file_size = file_stats( uploaded_file )
           lines << Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.file_line_html",
                                             file_name: ::Deepblue::EmailHelper.escape_html( file_name ),
@@ -206,7 +206,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
         lines << "</ol>"
       end
       file_list = []
-      processed.each do |uploaded_file|
+      successful_uploads.each do |uploaded_file|
         file_name, file_size = file_stats( uploaded_file )
         file_list << ::Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.file_list_item_html",
                                                 file_name: ::Deepblue::EmailHelper.escape_html( file_name ),
@@ -276,7 +276,40 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
     end
 
     def perform_notify
-      failed = uploaded_files - processed
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "work.id=#{work.id}",
+                                             "uploaded_files=#{uploaded_files}",
+                                             "uploaded_files.count=#{uploaded_files.count}",
+                                             # "processed=#{processed}",
+                                             # "processed.count=#{processed.count}",
+                                             "job_status=#{job_status}",
+                                             "job_status.job_id=#{job_status.job_id}",
+                                             "job_status.job_class=#{job_status.job_class}",
+                                             "job_status.status=#{job_status.status}",
+                                             "job_status.state=#{job_status.state}",
+                                             "job_status.message=#{job_status.message}",
+                                             "job_status.error=#{job_status.error}",
+                                             "" ] if ATTACH_FILES_TO_WORK_JOB_DEBUG_VERBOSE
+      processed_uploaded_file_ids = job_status.state_deserialize['processed_uploaded_file_ids']
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "processed_uploaded_file_ids=#{processed_uploaded_file_ids}",
+                                             "processed_uploaded_file_ids.class.name=#{processed_uploaded_file_ids.class.name}",
+                                             "" ] if ATTACH_FILES_TO_WORK_JOB_DEBUG_VERBOSE
+      failed = uploaded_files.select { |uploaded_file| !processed_uploaded_file_ids.include? uploaded_file.id }
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "failed=#{failed}",
+                                             "failed.count=#{failed.count}",
+                                             "" ] if ATTACH_FILES_TO_WORK_JOB_DEBUG_VERBOSE
+      succeeded = uploaded_files - failed
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "succeeded=#{succeeded}",
+                                             "succeeded.count=#{succeeded.count}",
+                                             "" ] if ATTACH_FILES_TO_WORK_JOB_DEBUG_VERBOSE
+      # failed = uploaded_files - processed
       if failed.empty?
         ::Deepblue::UploadHelper.log( class_name: self.class.name,
                                       event: "attach_files_to_work",
@@ -304,7 +337,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                       asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY )
       end
       # job_status.add_message!( "#{self.class.name}.perform_notify" ) if job_status.verbose
-      notify_attach_files_to_work_job_complete( failed_to_upload: failed )
+      notify_attach_files_to_work_job_complete( successful_uploads: succeeded, failed_uploads: failed )
       job_status.did_notify!
     end
 
