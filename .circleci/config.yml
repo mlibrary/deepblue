@@ -1,6 +1,6 @@
 # .circleci/config.yml
 #
-# Updated: 2020/11/30
+# Updated: 2020/12/11
 #
 # TODO: generalized parameters, that is can parameters be set for everything once
 #
@@ -142,7 +142,15 @@ jobs:
       RAILS_VERSION: << parameters.rails_version >>
       NOKOGIRI_USE_SYSTEM_LIBRARIES: true
     steps:
-      - cached_checkout
+      - run:
+          name: Install the FITS
+          command: |
+            mkdir ~/fits
+            wget "https://github.com/harvard-lts/fits/releases/download/1.4.1/fits-1.4.1.zip"
+            unzip -d ~/fits/ "fits-1.4.1.zip"
+            chmod a+x ~/fits/fits.sh
+            ln -s ~/fits/fits.sh ~/fits/fits
+            rm "fits-1.4.1.zip"      - cached_checkout
       - bundle_for_gem:
           ruby_version: << parameters.ruby_version >>
           bundler_version: << parameters.bundler_version >>
