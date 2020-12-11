@@ -109,7 +109,17 @@ Hyrax.config do |config|
 
   # Path to the file characterization tool
   # config.fits_path = "fits.sh"
-  config.fits_path = system("which", "fits.sh") ? "fits.sh" : "/l/local/fits/fits.sh"
+  if system( "which", "fits.sh" )
+    config.fits_path = "fits.sh"
+  else
+    file_path = File.expand_path '~/fits/fits.sh'
+    if File.exist? file_path
+      config.fits_path = file_path
+    else
+      config.fits_path = "/l/local/fits/fits.sh"
+    end
+  end
+  # config.fits_path = system("which", "fits.sh") ? "fits.sh" : "/l/local/fits/fits.sh"
 
   # Path to the file derivatives creation tool
   # config.libreoffice_path = "soffice"
