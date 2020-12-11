@@ -116,7 +116,8 @@ Hyrax.config do |config|
     if File.exist? file_path
       config.fits_path = file_path
     else
-      config.fits_path = "/l/local/fits/fits.sh"
+      # config.fits_path = "/l/local/fits/fits.sh"
+      config.fits_path = file_path
     end
   end
   # config.fits_path = system("which", "fits.sh") ? "fits.sh" : "/l/local/fits/fits.sh"
