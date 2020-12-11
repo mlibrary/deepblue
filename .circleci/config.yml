@@ -150,7 +150,8 @@ jobs:
             unzip -d ~/fits/ "fits-1.4.1.zip"
             chmod a+x ~/fits/fits.sh
             ln -s ~/fits/fits.sh ~/fits/fits
-            rm "fits-1.4.1.zip"      - cached_checkout
+            rm "fits-1.4.1.zip"
+      - cached_checkout
       - bundle_for_gem:
           ruby_version: << parameters.ruby_version >>
           bundler_version: << parameters.bundler_version >>
