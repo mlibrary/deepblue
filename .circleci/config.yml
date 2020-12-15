@@ -143,13 +143,13 @@ jobs:
       NOKOGIRI_USE_SYSTEM_LIBRARIES: true
     steps:
       - run:
-          name: Install the FITS
+          name: Install FITS
           command: |
-            mkdir /home/circleci/fits
+            mkdir ~/fits
             wget "https://github.com/harvard-lts/fits/releases/download/1.4.1/fits-1.4.1.zip"
-            unzip -d /home/circleci/fits/ "fits-1.4.1.zip"
+            unzip -d ~/fits/ "fits-1.4.1.zip"
             chmod a+x ~/fits/fits.sh
-            ln -s /home/circleci/fits/fits.sh /home/circleci/fits/fits
+            ln -s ~/fits/fits.sh ~/fits/fits
             rm "fits-1.4.1.zip"
       - cached_checkout
       - bundle_for_gem:
@@ -225,6 +225,15 @@ jobs:
     environment:
       COVERALLS_PARALLEL: true
     steps:
+      - run:
+          name: Install FITS
+          command: |
+            mkdir ~/fits
+            wget "https://github.com/harvard-lts/fits/releases/download/1.4.1/fits-1.4.1.zip"
+            unzip -d ~/fits/ "fits-1.4.1.zip"
+            chmod a+x ~/fits/fits.sh
+            ln -s ~/fits/fits.sh ~/fits/fits
+            rm "fits-1.4.1.zip"
       - attach_workspace:
           at: ~/
       - install_solr_core:
