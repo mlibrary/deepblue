@@ -145,11 +145,11 @@ jobs:
       - run:
           name: Install the FITS
           command: |
-            mkdir ~/fits
+            mkdir /home/circleci/fits
             wget "https://github.com/harvard-lts/fits/releases/download/1.4.1/fits-1.4.1.zip"
-            unzip -d ~/fits/ "fits-1.4.1.zip"
+            unzip -d /home/circleci/fits/ "fits-1.4.1.zip"
             chmod a+x ~/fits/fits.sh
-            ln -s ~/fits/fits.sh ~/fits/fits
+            ln -s /home/circleci/fits/fits.sh /home/circleci/fits/fits
             rm "fits-1.4.1.zip"
       - cached_checkout
       - bundle_for_gem:
