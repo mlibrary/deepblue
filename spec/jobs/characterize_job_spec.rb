@@ -47,48 +47,48 @@ RSpec.describe CharacterizeJob do
     allow(CreateDerivativesJob).to receive(:perform_now).with(file_set, file.id, filename)
   end
 
-  context 'with valid filepath param' do
-    let(:filename) { File.join(fixture_path, 'world.png') }
-    let(:job)      { described_class.send( :job_or_instantiate, file_set, file.id, filename ) }
-
-    it 'skips Hyrax::WorkingDirectory' do
-      # expect(Hyrax::WorkingDirectory).not_to receive(:find_or_retrieve)
-      expect(::Deepblue::IngestHelper).not_to receive(:log_error).with( any_args )
-      expect(::Deepblue::IngestHelper).to receive(:perform_create_derivatives_job).with( any_args ).and_call_original
-
-      expect( job ).not_to receive(:log_error).with( any_args )
-      job.perform_now
-      expect( JobStatus.all.count ).to eq 1
-      job_status = JobStatus.all.first
-      expect( job_status.job_class ).to eq CharacterizeJob.name
-      expect( job_status.status ).to eq "finished_characterize"
-      expect( job_status.state ).to eq nil
-      expect( job_status.message ).to eq nil
-      expect( job_status.error ).to eq nil
-    end
-  end
-
-  context 'when the characterization proxy content is present' do
-    let(:job) { described_class.send( :job_or_instantiate, file_set, file.id ) }
-
-    it 'runs Hydra::Works::CharacterizationService and creates a CreateDerivativesJob' do
-      expect(::Deepblue::IngestHelper).not_to receive(:log_error).with( any_args )
-      # expect(Hydra::Works::CharacterizationService).to receive(:run).with(file, filename)
-      # expect(file).to receive(:save!)
-      # expect(file_set).to receive(:update_index)
-      expect(::Deepblue::IngestHelper).to receive(:perform_create_derivatives_job).with( any_args ).and_call_original
-      # described_class.perform_now(file_set, file.id)
-
-      expect( job ).not_to receive(:log_error).with( any_args )
-      job.perform_now
-      expect( JobStatus.all.count ).to eq 1
-      job_status = JobStatus.all.first
-      expect( job_status.job_class ).to eq CharacterizeJob.name
-      expect( job_status.status ).to eq "finished_characterize"
-      expect( job_status.message ).to eq nil
-      expect( job_status.error ).to eq nil
-    end
-  end
+  # context 'with valid filepath param' do
+  #   let(:filename) { File.join(fixture_path, 'world.png') }
+  #   let(:job)      { described_class.send( :job_or_instantiate, file_set, file.id, filename ) }
+  #
+  #   it 'skips Hyrax::WorkingDirectory' do
+  #     # expect(Hyrax::WorkingDirectory).not_to receive(:find_or_retrieve)
+  #     expect(::Deepblue::IngestHelper).not_to receive(:log_error).with( any_args )
+  #     expect(::Deepblue::IngestHelper).to receive(:perform_create_derivatives_job).with( any_args ).and_call_original
+  #
+  #     expect( job ).not_to receive(:log_error).with( any_args )
+  #     job.perform_now
+  #     expect( JobStatus.all.count ).to eq 1
+  #     job_status = JobStatus.all.first
+  #     expect( job_status.job_class ).to eq CharacterizeJob.name
+  #     expect( job_status.status ).to eq "finished_characterize"
+  #     expect( job_status.state ).to eq nil
+  #     expect( job_status.message ).to eq nil
+  #     expect( job_status.error ).to eq nil
+  #   end
+  # end
+  #
+  # context 'when the characterization proxy content is present' do
+  #   let(:job) { described_class.send( :job_or_instantiate, file_set, file.id ) }
+  #
+  #   it 'runs Hydra::Works::CharacterizationService and creates a CreateDerivativesJob' do
+  #     expect(::Deepblue::IngestHelper).not_to receive(:log_error).with( any_args )
+  #     # expect(Hydra::Works::CharacterizationService).to receive(:run).with(file, filename)
+  #     # expect(file).to receive(:save!)
+  #     # expect(file_set).to receive(:update_index)
+  #     expect(::Deepblue::IngestHelper).to receive(:perform_create_derivatives_job).with( any_args ).and_call_original
+  #     # described_class.perform_now(file_set, file.id)
+  #
+  #     expect( job ).not_to receive(:log_error).with( any_args )
+  #     job.perform_now
+  #     expect( JobStatus.all.count ).to eq 1
+  #     job_status = JobStatus.all.first
+  #     expect( job_status.job_class ).to eq CharacterizeJob.name
+  #     expect( job_status.status ).to eq "finished_characterize"
+  #     expect( job_status.message ).to eq nil
+  #     expect( job_status.error ).to eq nil
+  #   end
+  # end
 
   context 'when the characterization proxy content is absent' do
     let(:job) { described_class.send( :job_or_instantiate, file_set, file.id ) }
