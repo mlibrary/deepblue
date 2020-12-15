@@ -4,13 +4,16 @@ module Deepblue
 
   module IngestHelper
 
-    INGEST_HELPER_DEBUG_VERBOSE = ::Deepblue::IngestIntegrationService.ingest_helper_debug_verbose
+    # INGEST_HELPER_DEBUG_VERBOSE = ::Deepblue::IngestIntegrationService.ingest_helper_debug_verbose
+
+    mattr_accessor :ingest_helper_debug_verbose,
+                   default: ::Deepblue::IngestIntegrationService.ingest_helper_debug_verbose
 
     def self.after_create_derivative( file_set:, file_set_orig:, job_status: )
       # Reload from Fedora and reindex for thumbnail and extracted text
       file_set.reload
       file_set.update_index
-      file_set.parent.update_index if parent_needs_reindex?(file_set)
+      file_set.parent.update_index if file_set.parent.present? && parent_needs_reindex?(file_set)
       #
       # file_set.under_embargo?
       # looks like file_set becomes nil in here. Does it fail to reload?
@@ -19,26 +22,26 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "file_set=#{file_set}",
                                              "file_set.under_embargo?=#{file_set.under_embargo?}",
-                                             "file_set.parent.under_embargo?=#{file_set.parent.under_embargo?}",
+                                             "file_set.parent.present? && !file_set.parent.under_embargo?=#{file_set.parent.present? && !file_set.parent.under_embargo?}",
                                              "job_status=#{job_status}",
-                                             "" ] if INGEST_HELPER_DEBUG_VERBOSE
+                                             "" ] if ingest_helper_debug_verbose
       file_set = file_set_orig if file_set.nil?
-      if file_set.under_embargo? && !file_set.parent.under_embargo?
+      if file_set.under_embargo? && (file_set.parent.present? && !file_set.parent.under_embargo?)
         file_set.deactivate_embargo!
         file_set.save
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "file_set=#{file_set}",
                                                "file_set.under_embargo?=#{file_set.under_embargo?}",
-                                               "" ] if INGEST_HELPER_DEBUG_VERBOSE
+                                               "" ] if ingest_helper_debug_verbose
       end
       job_status.did_characterize!
     rescue Exception => e # rubocop:disable Lint/RescueException
-      msg = "IngestHelper.after_create_derivative(#{file_set}) #{e.class}: #{e.message} at #{e.backtrace[0]}"
+      msg = "IngestHelper.after_create_derivative(#{file_set}) #{compose_e_msg( e )}"
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "error msg=#{msg}",
-                                             "" ] + caller_locations(1,4) if INGEST_HELPER_DEBUG_VERBOSE
+                                             "" ] + e.backtrace[0..8] if ingest_helper_debug_verbose
       if ::DeepBlueDocs::Application.config.derivative_create_error_report_to_curation_notes_admin
         file_set.add_curation_note_admin( note: msg )
       end
@@ -72,7 +75,7 @@ module Deepblue
                                              "uploaded_file_ids=#{uploaded_file_ids}",
                                              "added_prov_key_values=#{added_prov_key_values}",
                                              # "wrapper.methods=#{wrapper.methods.sort}",
-                                             "" ] if INGEST_HELPER_DEBUG_VERBOSE
+                                             "" ] if ingest_helper_debug_verbose
       # See Hyrax gem: app/job/characterize_job.rb
       file_name = Hyrax::WorkingDirectory.find_or_retrieve( repository_file_id, file_set.id, file_path )
       unless file_set.characterization_proxy?
@@ -84,7 +87,7 @@ module Deepblue
         begin
           proxy = file_set.characterization_proxy
           Hydra::Works::CharacterizationService.run( proxy, file_name )
-          Rails.logger.debug "Ran characterization on #{proxy.id} (#{proxy.mime_type})" if INGEST_HELPER_DEBUG_VERBOSE
+          Rails.logger.debug "Ran characterization on #{proxy.id} (#{proxy.mime_type})" if ingest_helper_debug_verbose
           file_set.provenance_characterize( current_user: current_user,
                                             calling_class: name,
                                             **added_prov_key_values )
@@ -94,7 +97,7 @@ module Deepblue
           # file_set.parent.in_collections.each( &:update_index ) if file_set.parent
           job_status.did_characterize!
         rescue Exception => e # rubocop:disable Lint/RescueException
-          msg = "IngestHelper.characterize(#{file_path}) #{e.class}: #{e.message} at #{e.backtrace[0]}"
+          msg = "IngestHelper.characterize(#{file_path}) #{compose_e_msg( e )}"
           log_error( msg, job_status: job_status )
         end
       end
@@ -136,17 +139,18 @@ module Deepblue
                                              "uploaded_file_ids=#{uploaded_file_ids}",
                                              "added_prov_key_values=#{added_prov_key_values}",
                                              # "wrapper.methods=#{wrapper.methods.sort}",
-                                             "" ] if INGEST_HELPER_DEBUG_VERBOSE
+                                             "" ] if ingest_helper_debug_verbose
       unless job_status.did_create_derivatives?
         # See Hyrax gem: app/job/create_derivatives_job.rb
         file_name = Hyrax::WorkingDirectory.find_or_retrieve( repository_file_id, file_set.id, file_path )
         Rails.logger.info "Create derivatives for: #{file_name}."
         begin
-          file_ext = File.extname file_set.label
+          file_ext = ''
+          file_ext = File.extname file_set.label if file_set.label.present?
           if DeepBlueDocs::Application.config.derivative_excluded_ext_set.key? file_ext
             Rails.logger.info "Skipping derivative of file with extension #{file_ext}: #{file_name}"
             file_set.add_curation_note_admin( note: "Skipping derivative for file with extension "\
-                                              "#{file_ext}" ) if INGEST_HELPER_DEBUG_VERBOSE
+                                              "#{file_ext}" ) if ingest_helper_debug_verbose
             file_set.provenance_create_derivative( current_user: current_user,
                                                    event_note: "skipped_extension #{file_ext}",
                                                    calling_class: name,
@@ -156,7 +160,7 @@ module Deepblue
           end
           if file_set.video? && !Hyrax.config.enable_ffmpeg
             Rails.logger.info "Skipping video derivative job for file: #{file_name}"
-            file_set.add_curation_note_admin( note: "Skipping derivative for video file." ) if INGEST_HELPER_DEBUG_VERBOSE
+            file_set.add_curation_note_admin( note: "Skipping derivative for video file." ) if ingest_helper_debug_verbose
             file_set.provenance_create_derivative( current_user: current_user,
                                                    event_note: "skipped_extension #{file_ext}",
                                                    calling_class: name,
@@ -169,7 +173,7 @@ module Deepblue
             human_readable = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( threshold_file_size, precision: 3 )
             Rails.logger.info "Skipping file larger than #{human_readable} for create derivative job file: #{file_name}"
             file_set.add_curation_note_admin( note: "Skipping derivative for file larger than "\
-                                              "#{human_readable}." ) if INGEST_HELPER_DEBUG_VERBOSE
+                                              "#{human_readable}." ) if ingest_helper_debug_verbose
             file_set.provenance_create_derivative( current_user: current_user,
                                                    event_note: "skipped_file_size #{File.size(file_name)}",
                                                    calling_class: name,
@@ -177,22 +181,22 @@ module Deepblue
             job_status.did_create_derivatives?
             return
           end
-          Rails.logger.debug "About to call create derivatives: #{file_name}." if INGEST_HELPER_DEBUG_VERBOSE
+          Rails.logger.debug "About to call create derivatives: #{file_name}." if ingest_helper_debug_verbose
           file_set.create_derivatives( file_name )
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "Create derivative successful",
                                                  "file_name=#{file_name}",
                                                  "file_set.create_derivatives_duration=#{file_set.create_derivatives_duration}",
-                                                 "" ] if INGEST_HELPER_DEBUG_VERBOSE
+                                                 "" ] if ingest_helper_debug_verbose
           file_set.provenance_create_derivative( current_user: current_user,
                                                  calling_class: name,
                                                  **added_prov_key_values )
 
           after_create_derivative( file_set: file_set, file_set_orig: file_set_orig, job_status: job_status )
-          Rails.logger.debug "Successful create derivative job for file: #{file_name}" if INGEST_HELPER_DEBUG_VERBOSE
+          Rails.logger.debug "Successful create derivative job for file: #{file_name}" if ingest_helper_debug_verbose
           file_set.add_curation_note_admin( note: "Create derivative successful in"\
-                                      " #{create_derivatives_duration( file_set )}." ) if INGEST_HELPER_DEBUG_VERBOSE
+                                      " #{create_derivatives_duration( file_set )}." ) if ingest_helper_debug_verbose
           job_status.did_create_derivatives!
         rescue Hydra::Derivatives::TimeoutError => te # rubocop:disable Lint/RescueException
           after_create_derivative( file_set: file_set, file_set_orig: file_set_orig, job_status: job_status )
@@ -242,7 +246,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "error msg=#{msg}",
-                                             "" ] + caller_locations(1,4) if INGEST_HELPER_DEBUG_VERBOSE
+                                             "" ] + e.backtrace[0..8] if ingest_helper_debug_verbose
       if ::DeepBlueDocs::Application.config.derivative_create_error_report_to_curation_notes_admin
         file_set.add_curation_note_admin( note: msg )
       end
@@ -255,10 +259,10 @@ module Deepblue
 
     def self.delete_file( file_path, delete_file_flag: false, msg_prefix: '', job_status: )
       return if job_status.did_delete_file?
-      if delete_file_flag && File.exist?( file_path )
+      if delete_file_flag && file_path.present? && File.exist?( file_path )
         File.delete file_path
         job_status.did_delete_file!
-        Rails.logger.debug "#{msg_prefix}file deleted: #{file_path}" if INGEST_HELPER_DEBUG_VERBOSE
+        Rails.logger.debug "#{msg_prefix}file deleted: #{file_path}" if ingest_helper_debug_verbose
       else
         job_status.did_delete_file! # flags that this method has been done and doesn't need to be done again
       end
@@ -278,7 +282,7 @@ module Deepblue
                                              "relation=#{relation}",
                                              "job_status=#{job_status}",
                                              "uploaded_file_ids=#{uploaded_file_ids}",
-                                             "" ] if INGEST_HELPER_DEBUG_VERBOSE
+                                             "" ] if ingest_helper_debug_verbose
 
       # If the file set doesn't have a title or label assigned, set a default.
       file_set.label ||= label_for( file )
@@ -426,7 +430,7 @@ module Deepblue
                                              "uploaded_file_ids=#{uploaded_file_ids}",
                                              "added_prov_key_values=#{added_prov_key_values}",
                                              # "wrapper.methods=#{wrapper.methods.sort}",
-                                             "" ] if INGEST_HELPER_DEBUG_VERBOSE
+                                             "" ] if ingest_helper_debug_verbose
       if continue_job_chain
         if continue_job_chain_later
           # TODO: see about adding **added_prov_key_values to this:
@@ -444,7 +448,7 @@ module Deepblue
                                                  "job_status.parent_job_id=#{job_status.parent_job_id}",
                                                  "job_status.message=#{job_status.message}",
                                                  "job_status.error=#{job_status.error}",
-                                                 "" ] if INGEST_HELPER_DEBUG_VERBOSE
+                                                 "" ] if ingest_helper_debug_verbose
           create_derivatives( file_set,
                               repository_file_id,
                               file_name,
@@ -460,7 +464,7 @@ module Deepblue
                                                  "job_status.parent_job_id=#{job_status.parent_job_id}",
                                                  "job_status.message=#{job_status.message}",
                                                  "job_status.error=#{job_status.error}",
-                                                 "" ] if INGEST_HELPER_DEBUG_VERBOSE
+                                                 "" ] if ingest_helper_debug_verbose
         end
       else
         delete_file( file_path,
@@ -478,7 +482,7 @@ module Deepblue
                                              "file_set=#{file_set}",
                                              "log_prefix=#{log_prefix}",
                                              # "wrapper.methods=#{wrapper.methods.sort}",
-                                             "" ] if INGEST_HELPER_DEBUG_VERBOSE
+                                             "" ] if ingest_helper_debug_verbose
       # Rails.logger.info "begin IngestHelper.update_total_file_size"
       # Rails.logger.debug "#{log_prefix} file_set.orginal_file.size=#{file_set.original_file.size}" unless log_prefix.nil?
       # Rails.logger.info "nothing to update, parent is nil" if file_set.parent.nil?
@@ -496,19 +500,28 @@ module Deepblue
       Rails.logger.info "end IngestHelper.update_total_file_size"
       # job_status.add_message! "IngestHelper.update_total_file_size" if job_status.present? && job_status.verbose
     rescue Exception => e # rubocop:disable Lint/RescueException
-      log_error( "IngestHelper.update_total_file_size(#{file_set}) #{e.class}: #{e.message} at #{e.backtrace[0]}",
+      log_error( "IngestHelper.update_total_file_size(#{file_set}) #{compose_e_msg( e )}",
                          job_status: job_status )
     end
 
     def self.virus_scan( file_set:, job_status: )
       # this is called by a method that is never called
       return if job_status.did_virus_scan?
-      LoggingHelper.bold_debug "IngestHelper.virus_scan #{file_set}" if INGEST_HELPER_DEBUG_VERBOSE
+      LoggingHelper.bold_debug "IngestHelper.virus_scan #{file_set}" if ingest_helper_debug_verbose
       file_set.virus_scan
       job_status.did_virus_scan!
     rescue Exception => e # rubocop:disable Lint/RescueException
-      log_error( "IngestHelper.virus_scan(#{file_set}) #{e.class}: #{e.message} at #{e.backtrace[0]}",
+      log_error( "IngestHelper.virus_scan(#{file_set}) #{compose_e_msg( e )}",
                  job_status: job_status )
+    end
+
+    def compose_e_msg( e )
+      Ingest_helper( e )
+    end
+
+    def self.compose_e_msg( e )
+      return "#{e.class}: #{e.message} at #{e.backtrace[0..4]}" if ingest_helper_debug_verbose
+      "#{e.class}: #{e.message} at #{e.backtrace[0]}"
     end
 
   end

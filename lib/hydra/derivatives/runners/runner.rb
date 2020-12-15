@@ -6,7 +6,7 @@ module Hydra
   module Derivatives
     class Runner
 
-      HYDRA_DERIVATIVES_RUNNER_DEBUG_VERBOSE = false # ::DeepBlueDocs::Application.config.hydra_derivatives_runner_debug_verbose # monkey
+      HYDRA_DERIVATIVES_RUNNER_DEBUG_VERBOSE = true # ::DeepBlueDocs::Application.config.hydra_derivatives_runner_debug_verbose # monkey
 
       class << self
         attr_writer :output_file_service
@@ -45,11 +45,16 @@ module Hydra
             processor = processor_class.new(f.path,
                                             instructions.merge(source_file_service: source_file_service),
                                             output_file_service: output_file_service)
-            processor.class.timeout = ::DeepBlueDocs::Application.config.derivative_timeout
             ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                    ::Deepblue::LoggingHelper.called_from,
                                                    "processor.class.name=#{processor.class.name}",
-                                                   "processor.class.timeout=#{processor.class.timeout}",
+                                                   "" ] if HYDRA_DERIVATIVES_RUNNER_DEBUG_VERBOSE
+            processor_class.timeout = ::DeepBlueDocs::Application.config.derivative_timeout if processor_class.respond_to? :timeout=
+            ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                   ::Deepblue::LoggingHelper.called_from,
+                                                   "processor.class.name=#{processor.class.name}",
+                                                   "processor_class.timeout=#{processor_class.timeout if processor_class.respond_to? :timeout}",
+                                                   # "processor.class.timeout=#{processor.class.timeout if processor.class.respond_to? :timeout}",
                                                    "" ] if HYDRA_DERIVATIVES_RUNNER_DEBUG_VERBOSE
             processor.process
             # monkey end

@@ -93,6 +93,12 @@ module Hydra::Works
       return h
     end
 
+    def extract_metadata(content)
+      Hydra::FileCharacterization.characterize(content, file_name, tools) do |cfg|
+        cfg[:fits] = Hydra::Derivatives.fits_path
+      end
+    end
+
     # Use OM to parse metadata
     def parse_metadata(metadata)
       Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,

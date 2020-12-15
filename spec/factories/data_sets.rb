@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :data_set, aliases: [:data_set_work], class: ::DataSet do
+  factory :data_set, aliases: [:work, :data_set_work], class: ::DataSet do
 
     transient do
       user { create(:user) }
@@ -65,6 +65,13 @@ FactoryBot.define do
       before(:create) do |work, evaluator|
         work.ordered_members << create(:file_set, user: evaluator.user)
         work.ordered_member_proxies.insert_target_at(0, create(:file_set, user: evaluator.user))
+      end
+    end
+
+    factory :data_set_with_file_and_work do
+      before(:create) do |work, evaluator|
+        work.ordered_members << create(:file_set, user: evaluator.user)
+        work.ordered_members << create(:data_set, user: evaluator.user)
       end
     end
 

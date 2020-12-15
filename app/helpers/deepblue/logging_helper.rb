@@ -4,7 +4,15 @@ module Deepblue
 
   module LoggingHelper
 
-    def self.bold_error( msg = nil, label: nil, key_value_lines: true, add_stack_trace: false, lines: 1, &block )
+    mattr_accessor :echo_to_puts, default: false
+
+    def self.bold_error( msg = nil, bold_puts: echo_to_puts, label: nil, key_value_lines: true, add_stack_trace: false, lines: 1, &block )
+      bold_puts( msg,
+                 label: label,
+                 key_value_lines: key_value_lines,
+                 add_stack_trace: add_stack_trace,
+                 lines: lines,
+                 &block ) if bold_puts
       lines = 1 unless lines.positive?
       lines.times { Rails.logger.error "<<<<<<<<<< BEGIN ERROR >>>>>>>>>>" }
       Rails.logger.error label if label.present?
@@ -28,7 +36,7 @@ module Deepblue
       lines.times { Rails.logger.error "<<<<<<<<<<< END ERROR >>>>>>>>>>>" }
     end
 
-    def self.bold_debug( msg = nil, bold_puts: false, label: nil, key_value_lines: true, add_stack_trace: false, lines: 1, &block )
+    def self.bold_debug( msg = nil, bold_puts: echo_to_puts, label: nil, key_value_lines: true, add_stack_trace: false, lines: 1, &block )
       bold_puts( msg,
                   label: label,
                   key_value_lines: key_value_lines,
