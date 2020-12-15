@@ -72,7 +72,7 @@ GEM
       tzinfo (~> 1.1)
     addressable (2.7.0)
       public_suffix (>= 2.0.2, < 5.0)
-    ahoy_matey (3.0.5)
+    ahoy_matey (3.1.0)
       activesupport (>= 5)
       device_detector
       geocoder (>= 1.4.5)
@@ -85,13 +85,13 @@ GEM
     ast (2.4.1)
     atlassian-jwt (0.2.0)
       jwt (~> 2.1.0)
-    autoprefixer-rails (10.0.3.0)
+    autoprefixer-rails (10.1.0.0)
       execjs
     awesome_nested_set (3.2.1)
       activerecord (>= 4.0.0, < 7.0)
     aws-eventstream (1.1.0)
-    aws-partitions (1.400.0)
-    aws-sdk-core (3.109.3)
+    aws-partitions (1.406.0)
+    aws-sdk-core (3.110.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
@@ -99,9 +99,9 @@ GEM
     aws-sdk-kms (1.39.0)
       aws-sdk-core (~> 3, >= 3.109.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.85.0)
+    aws-sdk-s3 (1.86.2)
       aws-sdk-core (~> 3, >= 3.109.0)
-      aws-sdk-kms (~> 1)
+      aws-sdk-kms (~> 1.26)
       aws-sigv4 (~> 1.1)
     aws-sigv4 (1.2.2)
       aws-eventstream (~> 1, >= 1.0.2)
@@ -183,7 +183,7 @@ GEM
     coffee-script-source (1.12.2)
     commonjs (0.2.7)
     concurrent-ruby (1.1.7)
-    config (2.2.1)
+    config (2.2.3)
       deep_merge (~> 1.2, >= 1.2.1)
       dry-validation (~> 1.0, >= 1.0.0)
     connection_pool (2.2.3)
@@ -319,7 +319,7 @@ GEM
     geocoder (1.6.4)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
-    google-api-client (0.50.0)
+    google-api-client (0.52.0)
       addressable (~> 2.5, >= 2.5.1)
       googleauth (~> 0.9)
       httpclient (>= 2.8.1, < 3.0)
@@ -392,7 +392,7 @@ GEM
       hydra-derivatives (~> 3.0)
       hydra-file_characterization (~> 1.0)
       hydra-pcdm (>= 0.9)
-    hyrax (2.9.0)
+    hyrax (2.9.1)
       active-fedora (>= 11.5.2, < 12.2)
       almond-rails (~> 0.1)
       awesome_nested_set (~> 3.1)
@@ -412,7 +412,7 @@ GEM
       font-awesome-rails (~> 4.2)
       hydra-derivatives (~> 3.3)
       hydra-editor (>= 3.3, < 6.0)
-      hydra-head (>= 10.6.1)
+      hydra-head (>= 10.6.1, < 12)
       hydra-works (>= 0.16, < 2.0)
       iiif_manifest (>= 0.3, < 0.6)
       jquery-datatables-rails (~> 3.4)
@@ -429,7 +429,7 @@ GEM
       posix-spawn
       power_converter (~> 0.1, >= 0.1.2)
       pul_uv_rails (~> 2.0)
-      qa (~> 2.0)
+      qa (>= 2.0, < 6.0)
       rails (~> 5.0)
       rails_autolink (~> 1.1)
       rdf-rdfxml
@@ -468,7 +468,7 @@ GEM
       thor (>= 0.14, < 2.0)
     jquery-ui-rails (6.0.1)
       railties (>= 3.2.16)
-    json (2.3.1)
+    json (2.4.0)
     json-canonicalization (0.2.0)
     json-ld (3.1.5)
       htmlentities (~> 4.3)
@@ -513,6 +513,10 @@ GEM
       rdf-turtle
       rdf-vocab (>= 0.8)
       slop
+    ldpath (1.1.0)
+      nokogiri (~> 1.8)
+      parslet
+      rdf (~> 3.0)
     legato (0.7.0)
       multi_json
     less (2.6.0)
@@ -621,6 +625,7 @@ GEM
       activerecord (>= 4.0, < 6.1)
     parser (2.7.2.0)
       ast (~> 2.4.1)
+    parslet (2.0.0)
     posix-spawn (0.3.15)
     power_converter (0.1.2)
     powerpack (0.1.3)
@@ -639,12 +644,14 @@ GEM
     pul_uv_rails (2.0.1)
     puma (4.3.7)
       nio4r (~> 2.0)
-    qa (2.3.0)
+    qa (5.5.2)
       activerecord-import
       deprecation
       faraday
+      geocoder
+      ldpath
       nokogiri (~> 1.6)
-      rails (~> 5.0)
+      rails (>= 5.0, < 6.1)
       rdf
     raabro (1.4.0)
     rack (2.1.4)
@@ -765,7 +772,7 @@ GEM
       redis-store (>= 1.2, < 2)
     redis-store (1.9.0)
       redis (>= 4, < 5)
-    redlock (1.2.0)
+    redlock (1.2.1)
       redis (>= 3.0.0, < 5.0)
     regexp_parser (1.8.2)
     representable (3.0.4)
@@ -1030,7 +1037,7 @@ DEPENDENCIES
   factory_bot
   fcrepo_wrapper
   groupdate
-  hyrax (= 2.9)
+  hyrax (= 2.9.1)
   jbuilder (~> 2.5)
   jira-ruby (~> 1.1)
   jquery-rails
