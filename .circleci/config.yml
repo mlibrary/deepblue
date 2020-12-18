@@ -108,7 +108,10 @@ commands:
     - run:
         command: |
           mkdir /tmp/test-results
-          bundle exec rspec $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)
+          # the full glory of deprecation messages
+          # bundle exec rspec $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)
+          # eliminate the noise by directing error to /dev/null
+          bundle exec rspec $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings) 2>/dev/null
         name: Run rspec in parallel
     - store_test_results:
         path: /tmp/test-results
@@ -142,15 +145,6 @@ jobs:
       RAILS_VERSION: << parameters.rails_version >>
       NOKOGIRI_USE_SYSTEM_LIBRARIES: true
     steps:
-      - run:
-          name: Install FITS
-          command: |
-            mkdir ~/fits
-            wget "https://github.com/harvard-lts/fits/releases/download/1.4.1/fits-1.4.1.zip"
-            unzip -d ~/fits/ "fits-1.4.1.zip"
-            chmod a+x ~/fits/fits.sh
-            ln -s ~/fits/fits.sh ~/fits/fits
-            rm "fits-1.4.1.zip"
       - cached_checkout
       - bundle_for_gem:
           ruby_version: << parameters.ruby_version >>
