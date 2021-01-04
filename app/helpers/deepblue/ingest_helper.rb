@@ -448,6 +448,7 @@ module Deepblue
                                                  "job_status.parent_job_id=#{job_status.parent_job_id}",
                                                  "job_status.message=#{job_status.message}",
                                                  "job_status.error=#{job_status.error}",
+                                                 "job_status.user_id=#{job_status.user_id}",
                                                  "" ] if ingest_helper_debug_verbose
           create_derivatives( file_set,
                               repository_file_id,
@@ -464,6 +465,7 @@ module Deepblue
                                                  "job_status.parent_job_id=#{job_status.parent_job_id}",
                                                  "job_status.message=#{job_status.message}",
                                                  "job_status.error=#{job_status.error}",
+                                                 "job_status.user_id=#{job_status.user_id}",
                                                  "" ] if ingest_helper_debug_verbose
         end
       else

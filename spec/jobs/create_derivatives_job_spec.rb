@@ -4,10 +4,10 @@ require 'rails_helper'
 
 RSpec.describe CreateDerivativesJob do
 
-  DEBUG_VERBOSE = false
+  SPEC_CREATE_DERIVATIVES_JOB_DEBUG_VERBOSE = false
 
   before :all do
-    if DEBUG_VERBOSE
+    if SPEC_CREATE_DERIVATIVES_JOB_DEBUG_VERBOSE
       ::Deepblue::LoggingHelper.echo_to_puts = true
       ::Deepblue::IngestHelper.ingest_helper_debug_verbose = true
       CreateDerivativesJob.create_derivatives_job_debug_verbose = true
@@ -15,7 +15,7 @@ RSpec.describe CreateDerivativesJob do
   end
 
   after :all do
-    if DEBUG_VERBOSE
+    if SPEC_CREATE_DERIVATIVES_JOB_DEBUG_VERBOSE
       ::Deepblue::LoggingHelper.echo_to_puts = false
       ::Deepblue::IngestHelper.ingest_helper_debug_verbose = false
       CreateDerivativesJob.create_derivatives_job_debug_verbose = false
@@ -64,7 +64,7 @@ RSpec.describe CreateDerivativesJob do
         expect( state ).to eq nil
         expect( job_status.state ).to eq nil
         expect( job_status.message ).to eq nil
-        puts job_status.error
+        puts "job_status.error='#{job_status.error}'" if SPEC_CREATE_DERIVATIVES_JOB_DEBUG_VERBOSE
         expect( job_status.error ).to eq nil
       end
     end

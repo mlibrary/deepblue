@@ -92,6 +92,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                            "job_status.state=#{job_status.state}",
                                            "job_status.message=#{job_status.message}",
                                            "job_status.error=#{job_status.error}",
+                                           "job_status.user_id=#{job_status.user_id}",
                                            "" ] if ATTACH_FILES_TO_WORK_JOB_DEBUG_VERBOSE
   rescue Exception => e # rubocop:disable Lint/RescueException
     msg = "#{e.class} work_id=#{work.id} -- #{e.message} at #{e.backtrace[0]}"
@@ -113,6 +114,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                            "job_status.state=#{job_status.state}",
                                            "job_status.message=#{job_status.message}",
                                            "job_status.error=#{job_status.error}",
+                                           "job_status.user_id=#{job_status.user_id}",
                                            "" ] if ATTACH_FILES_TO_WORK_JOB_DEBUG_VERBOSE
     ::Deepblue::UploadHelper.log( class_name: self.class.name,
                                   event: "attach_files_to_work",
@@ -290,6 +292,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                              "job_status.state=#{job_status.state}",
                                              "job_status.message=#{job_status.message}",
                                              "job_status.error=#{job_status.error}",
+                                             "job_status.user_id=#{job_status.user_id}",
                                              "" ] if ATTACH_FILES_TO_WORK_JOB_DEBUG_VERBOSE
       processed_uploaded_file_ids = job_status.state_deserialize['processed_uploaded_file_ids']
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

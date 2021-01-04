@@ -61,6 +61,7 @@ module Hydra::Works
                                              "job_status.user_id=#{job_status.user_id}",
                                              "job_status.message=#{job_status.message}",
                                              "job_status.error=#{job_status.error}",
+                                             "job_status.user_id=#{job_status.user_id}",
                                              "" ] if ADD_FILE_TO_FILE_SET_DEBUG_VERBOSE
       rv = call( file_set, file, type, update_existing: update_existing, versioning: versioning )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

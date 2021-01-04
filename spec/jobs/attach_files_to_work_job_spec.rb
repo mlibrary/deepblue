@@ -4,6 +4,8 @@ require 'rails_helper'
 
 RSpec.describe AttachFilesToWorkJob, perform_enqueued: [AttachFilesToWorkJob] do
 
+  ATTACH_FILES_TO_WORK_JOB_SPEC_DEBUG_VERBOSE = false
+
   let(:file1) { File.open(fixture_path + '/world.png') }
   let(:file2) { File.open(fixture_path + '/image.jp2') }
   let(:uploaded_file1) { build(:uploaded_file, file: file1) }
@@ -22,7 +24,21 @@ RSpec.describe AttachFilesToWorkJob, perform_enqueued: [AttachFilesToWorkJob] do
       expect(uploaded_file1.reload.file_set_uri).not_to be_nil
       expect(ImportUrlJob).not_to have_been_enqueued
       expect( JobStatus.all.count ).to eq 1
-      job_status = JobStatus.all.first
+      # job_status = JobStatus.all.first
+      expect( JobStatus.all.count ).to be_nonzero
+      job_status = JobStatus.all.select { |j| j.user_id == user.id }
+      job_status = job_status.first
+      j = job_status
+      ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+                                            ::Deepblue::LoggingHelper.called_from,
+                                            "j=#{j}",
+                                            "j.job_id=#{j.job_id}",
+                                            "j.parent_job_id=#{j.parent_job_id}",
+                                            "j.message=#{j.message}",
+                                            "j.error=#{j.error}",
+                                            "j.user_id=#{j.user_id}",
+                                            "user.user_key=#{user.user_key}",
+                                            "" ] if ATTACH_FILES_TO_WORK_JOB_SPEC_DEBUG_VERBOSE
       expect( job_status.job_class ).to eq AttachFilesToWorkJob.name
       expect( job_status.status ).to eq 'finished'
       state = job_status.state_deserialize

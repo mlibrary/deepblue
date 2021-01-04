@@ -3,6 +3,7 @@
 class JobStatus < ApplicationRecord
 
   JOB_STATUS_DEBUG_VERBOSE = false
+  mattr_accessor :job_status_debug_verbose, default: JOB_STATUS_DEBUG_VERBOSE
 
   FINISHED = 'finished'.freeze
   STARTED = 'started'.freeze
@@ -25,7 +26,7 @@ class JobStatus < ApplicationRecord
                                            "parent_job_id=#{parent_job_id}",
                                            "main_cc_id=#{main_cc_id}",
                                            "user_id=#{user_id}",
-                                           "" ] if JOB_STATUS_DEBUG_VERBOSE
+                                           "" ] if job_status_debug_verbose
     return nil if job.nil?
     job_id = job.job_id
     job_class = job.class.name
@@ -43,7 +44,7 @@ class JobStatus < ApplicationRecord
                                            ::Deepblue::LoggingHelper.called_from,
                                            "job.job_id=#{job.job_id}",
                                            "job_status=#{job_status}",
-                                           "" ] if JOB_STATUS_DEBUG_VERBOSE
+                                           "" ] if job_status_debug_verbose
     return job_status
   end
 
@@ -54,7 +55,7 @@ class JobStatus < ApplicationRecord
                                            "job&.job_id=#{job&.job_id}",
                                            "error=#{error}",
                                            "parent_job_id=#{parent_job_id}",
-                                           "" ] if JOB_STATUS_DEBUG_VERBOSE
+                                           "" ] if job_status_debug_verbose
     return nil if job.nil?
     find_or_create( job: job, error: error, parent_job_id: parent_job_id )
   end
@@ -65,7 +66,7 @@ class JobStatus < ApplicationRecord
                                            "job.nil?=#{job.nil?}",
                                            "job&.job_id=#{job&.job_id}",
                                            "message=#{message}",
-                                           "" ] if JOB_STATUS_DEBUG_VERBOSE
+                                           "" ] if job_status_debug_verbose
     return nil if job.nil?
     find_or_create( job: job, status: FINISHED, message: message )
   end
@@ -79,7 +80,7 @@ class JobStatus < ApplicationRecord
                                            "parent_job_id=#{parent_job_id}",
                                            "main_cc_id=#{main_cc_id}",
                                            "user_id=#{user_id}",
-                                           "" ] if JOB_STATUS_DEBUG_VERBOSE
+                                           "" ] if job_status_debug_verbose
     return nil if job.nil?
     find_or_create( job: job,
                     status: STARTED,
@@ -103,7 +104,7 @@ class JobStatus < ApplicationRecord
                                            "job.nil?=#{job.nil?}",
                                            "job&.job_id=#{job&.job_id}",
                                            "status=#{status}",
-                                           "" ] if JOB_STATUS_DEBUG_VERBOSE
+                                           "" ] if job_status_debug_verbose
     job_id = job.job_id if job.present?
     return false unless job_id.present?
     job_status = JobStatus.find_by_job_id( job_id )
@@ -120,7 +121,7 @@ class JobStatus < ApplicationRecord
                                            "status=#{status}",
                                            "message=#{message}",
                                            "error=#{error}",
-                                           "" ] if JOB_STATUS_DEBUG_VERBOSE
+                                           "" ] if job_status_debug_verbose
     job_id = job.job_id if job.present?
     return nil if job_id.blank?
     job_status = JobStatus.find_by_job_id( job_id )
@@ -239,7 +240,7 @@ class JobStatus < ApplicationRecord
     #                                        "self.status=#{self.status}",
     #                                        "status=#{status}",
     #                                        "status == self.status=#{status == self.status}",
-    #                                        "" ] if JOB_STATUS_DEBUG_VERBOSE
+    #                                        "" ] if job_status_debug_verbose
     status == self.status
   end
 
