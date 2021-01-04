@@ -97,6 +97,7 @@ module Hyrax
                                                  "job_status.parent_job_id=#{job_status.parent_job_id}",
                                                  "job_status.message=#{job_status.message}",
                                                  "job_status.error=#{job_status.error}",
+                                                 "job_status.user_id=#{job_status.user_id}",
                                                  "" ] if FILE_SET_ACTOR_DEBUG_VERBOSE
           IngestJob.perform_now( io_wrapper,
                                  continue_job_chain_later: continue_job_chain_later,
@@ -108,6 +109,7 @@ module Hyrax
                                                  "job_status.parent_job_id=#{job_status.parent_job_id}",
                                                  "job_status.message=#{job_status.message}",
                                                  "job_status.error=#{job_status.error}",
+                                                 "job_status.user_id=#{job_status.user_id}",
                                                  "" ] if FILE_SET_ACTOR_DEBUG_VERBOSE
           job_status.reload
         end

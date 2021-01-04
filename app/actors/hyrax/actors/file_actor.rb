@@ -97,6 +97,7 @@ module Hyrax
                                                  "job_status.parent_job_id=#{job_status.parent_job_id}",
                                                  "job_status.message=#{job_status.message}",
                                                  "job_status.error=#{job_status.error}",
+                                                 "job_status.user_id=#{job_status.user_id}",
                                                  "" ] if FILE_ACTOR_DEBUG_VERBOSE
           CharacterizeJob.perform_now( file_set,
                                        repository_file.id,
@@ -114,6 +115,7 @@ module Hyrax
                                                  "job_status.parent_job_id=#{job_status.parent_job_id}",
                                                  "job_status.message=#{job_status.message}",
                                                  "job_status.error=#{job_status.error}",
+                                                 "job_status.user_id=#{job_status.user_id}",
                                                  "" ] if FILE_ACTOR_DEBUG_VERBOSE
         end
       end

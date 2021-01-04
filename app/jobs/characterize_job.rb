@@ -22,10 +22,6 @@ class CharacterizeJob < AbstractIngestJob
                parent_job_id: nil,
                uploaded_file_ids: [] )
 
-    find_or_create_job_status_started( parent_job_id: parent_job_id,
-                                       continue_job_chain_later: continue_job_chain_later,
-                                       verbose: characterize_job_debug_verbose )
-    # job_status.add_message!( "#{self.class.name}.perform: #{repository_file_id}" ) if job_status.verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "file_set=#{file_set})",
@@ -36,8 +32,26 @@ class CharacterizeJob < AbstractIngestJob
                                            "current_user=#{current_user}",
                                            "delete_input_file=#{delete_input_file}",
                                            "parent_job_id=#{parent_job_id}",
-                                           "job_status=#{job_status}",
                                            "uploaded_file_ids=#{uploaded_file_ids}",
+                                           "" ] if characterize_job_debug_verbose
+    user_id = user_id_from current_user
+    find_or_create_job_status_started( parent_job_id: parent_job_id,
+                                       continue_job_chain_later: continue_job_chain_later,
+                                       user_id: user_id,
+                                       verbose: characterize_job_debug_verbose )
+    # job_status.add_message!( "#{self.class.name}.perform: #{repository_file_id}" ) if job_status.verbose
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           # "file_set=#{file_set})",
+                                           # "repository_file_id=#{repository_file_id}",
+                                           # "filepath=#{filepath}",
+                                           # "continue_job_chain=#{continue_job_chain}",
+                                           # "continue_job_chain_later=#{continue_job_chain_later}",
+                                           # "current_user=#{current_user}",
+                                           # "delete_input_file=#{delete_input_file}",
+                                           # "parent_job_id=#{parent_job_id}",
+                                           # "uploaded_file_ids=#{uploaded_file_ids}",
+                                           "job_status=#{job_status}",
                                            "" ] if characterize_job_debug_verbose
     ::Deepblue::IngestHelper.characterize( file_set,
                                            repository_file_id,
@@ -62,6 +76,7 @@ class CharacterizeJob < AbstractIngestJob
                                            "job_status.state=#{job_status.state}",
                                            "job_status.message=#{job_status.message}",
                                            "job_status.error=#{job_status.error}",
+                                           "job_status.user_id=#{job_status.user_id}",
                                            "" ] if characterize_job_debug_verbose
   rescue Exception => e # rubocop:disable Lint/RescueException
     log_error "CharacterizeJob.perform(#{file_set},#{repository_file_id},#{filepath}) #{e.class}: #{e.message}"
@@ -79,6 +94,7 @@ class CharacterizeJob < AbstractIngestJob
                                            "job_status.state=#{job_status.state}",
                                            "job_status.message=#{job_status.message}",
                                            "job_status.error=#{job_status.error}",
+                                           "job_status.user_id=#{job_status.user_id}",
                                            "" ] + e.backtrace[0..8] if characterize_job_debug_verbose
   end
 

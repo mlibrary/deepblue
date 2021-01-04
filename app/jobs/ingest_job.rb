@@ -68,6 +68,7 @@ class IngestJob < AbstractIngestJob
                                            "job_status.state=#{job_status.state}",
                                            "job_status.message=#{job_status.message}",
                                            "job_status.error=#{job_status.error}",
+                                           "job_status.user_id=#{job_status.user_id}",
                                            "" ] if INGEST_JOB_DEBUG_VERBOSE
   end
 

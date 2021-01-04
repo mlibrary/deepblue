@@ -74,12 +74,12 @@ module Deepblue
         lines: 1,
         &block )
 
-      bold_debug( msg,
-                  label: label,
-                  key_value_lines: key_value_lines,
-                  add_stack_trace: add_stack_trace,
-                  lines: lines,
-                  &block ) if bold_debug
+      # bold_debug( msg,
+      #             label: label,
+      #             key_value_lines: key_value_lines,
+      #             add_stack_trace: add_stack_trace,
+      #             lines: lines,
+      #             &block ) if bold_debug
       lines = 1 unless lines.positive?
       lines.times { puts ">>>>>>>>>>" }
       puts label if label.present?

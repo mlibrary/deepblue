@@ -44,6 +44,7 @@ class CreateDerivativesJob < AbstractIngestJob
                                            "job_status.state=#{job_status.state}",
                                            "job_status.message=#{job_status.message}",
                                            "job_status.error=#{job_status.error}",
+                                           "job_status.user_id=#{job_status.user_id}",
                                            "" ] if create_derivatives_job_debug_verbose
   rescue Exception => e # rubocop:disable Lint/RescueException
     log_error "CreateDerivativesJob.perform(#{file_set},#{repository_file_id},#{filepath}) #{e.class}: #{e.message}"
@@ -61,6 +62,7 @@ class CreateDerivativesJob < AbstractIngestJob
                                            "job_status.state=#{job_status.state}",
                                            "job_status.message=#{job_status.message}",
                                            "job_status.error=#{job_status.error}",
+                                           "job_status.user_id=#{job_status.user_id}",
                                            "" ] + e.backtrace[0..8] if create_derivatives_job_debug_verbose
   end
 
