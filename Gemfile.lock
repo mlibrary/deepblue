@@ -574,7 +574,7 @@ GEM
     mimemagic (0.3.5)
     mini_magick (4.11.0)
     mini_mime (1.0.2)
-    mini_portile2 (2.4.0)
+    mini_portile2 (2.5.0)
     minitest (5.14.2)
     mono_logger (1.1.0)
     multi_json (1.15.0)
@@ -593,8 +593,9 @@ GEM
     noid-rails (3.0.2)
       actionpack (>= 5.0.0, < 7)
       noid (~> 0.9)
-    nokogiri (1.10.10)
-      mini_portile2 (~> 2.4.0)
+    nokogiri (1.11.0)
+      mini_portile2 (~> 2.5.0)
+      racc (~> 1.4)
     nokogumbo (2.0.4)
       nokogiri (~> 1.8, >= 1.8.4)
     oai (0.4.0)
@@ -654,6 +655,7 @@ GEM
       rails (>= 5.0, < 6.1)
       rdf
     raabro (1.4.0)
+    racc (1.5.2)
     rack (2.1.4)
     rack-protection (2.0.8.1)
       rack
