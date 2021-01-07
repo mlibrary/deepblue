@@ -2,7 +2,7 @@ ENV["RAILS_ENV"] ||= 'test'
 require File.expand_path("../../config/environment", __FILE__)
 
 def coverage_needed?
-  ENV['COVERAGE'] || ENV['TRAVIS']
+  ENV['COVERALLS_REPO_TOKEN']
 end
 
 if coverage_needed?
