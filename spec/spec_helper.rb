@@ -1,5 +1,20 @@
 ENV["RAILS_ENV"] ||= 'test'
 require File.expand_path("../../config/environment", __FILE__)
+
+def coverage_needed?
+  ENV['COVERAGE'] || ENV['TRAVIS']
+end
+
+if coverage_needed?
+  require 'coveralls'
+  Coveralls.wear! do
+    add_filter 'config'
+    add_filter 'lib/spec'
+    add_filter 'spec'
+    add_filter 'lib/tasks'
+  end
+end
+
 require 'rspec/rails'
 require 'factory_bot'
 require 'rspec/its'
