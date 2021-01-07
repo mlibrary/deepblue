@@ -112,7 +112,7 @@ commands:
           # the full glory of deprecation messages
           # bundle exec rspec $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)
           # eliminate the noise by directing error to /dev/null
-          bundle exec rspec $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings) 2>/dev/null
+          COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN bundle exec rspec $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings) 2>/dev/null
         name: Run rspec in parallel
     - store_test_results:
         path: /tmp/test-results
