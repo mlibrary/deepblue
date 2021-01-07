@@ -148,6 +148,7 @@ gem 'yabeda-puma-plugin'
 group :development, :test do
   gem 'capybara'
   gem 'chromedriver-helper'
+  gem 'coveralls', require: false
   gem 'factory_bot', require: false
   gem 'fcrepo_wrapper'
   gem 'pry'
