@@ -4,6 +4,7 @@ University of Michigan Research Data Repository
 
 ![deepblue](https://s3.amazonaws.com/ArchiveImages/LJ/2016/10/161014_DeepBlueData.jpg)
 
+[![Coverage Status](https://coveralls.io/repos/github/mlibrary/deepblue/badge.svg?branch=master)](https://coveralls.io/github/mlibrary/deepblue?branch=master)
 
 ## History
 
