@@ -1,6 +1,26 @@
 ENV["RAILS_ENV"] ||= 'test'
 require File.expand_path("../../config/environment", __FILE__)
 
+# RSpec.configure do |config|
+#   config.before :all do
+#     ENV['PRECOMPILE_ASSETS'] ||= begin
+#                                    case self.class.metadata[:type]
+#                                    when :feature, :view
+#                                      STDOUT.write "Precompiling assets..."
+#                                      Sprockets::StaticCompiler.new(
+#                                        Rails.application.assets,
+#                                        File.join(Rails.public_path, Rails.configuration.assets.prefix),
+#                                        Rails.configuration.assets.precompile,
+#                                        manifest_path: Rails.configuration.assets.manifest,
+#                                        digest: Rails.configuration.assets.digest,
+#                                        manifest: false).compile
+#                                      STDOUT.puts " done."
+#                                      Time.now.to_s
+#                                    end
+#                                  end
+#   end
+# end
+
 def coverage_needed?
   ENV['COVERALLS_REPO_TOKEN']
 end

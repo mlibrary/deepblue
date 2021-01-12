@@ -7,6 +7,9 @@ require "devise/fake_auth_header"
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
+  config.action_controller.asset_host = "file://#{::Rails.root}/public"
+  config.assets.prefix = 'data/assets'
+
   if Rails.configuration.authentication_method == "umich"
     # Middleware to fake authentication header field that would come from apache. ONLY APPLIES TO UMICH AUTHENTICATION
     config.middleware.use FakeAuthHeader
