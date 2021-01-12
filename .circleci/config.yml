@@ -1,6 +1,6 @@
 # .circleci/config.yml
 #
-# Updated: 2021/01/06
+# Updated: 2021/01/12
 #
 # TODO: generalized parameters, that is can parameters be set for everything once
 #
@@ -103,18 +103,18 @@ commands:
           curl -H "Content-type:application/octet-stream" --data-binary @solr_config.zip "http://localhost:<< parameters.solr_port >>/solr/admin/configs?action=UPLOAD&name=solrconfig"
           curl -H 'Content-type: application/json' http://localhost:<< parameters.solr_port >>/api/collections/ -d '{create: {name: << parameters.core_name >>, config: solrconfig, numShards: 1}}'
         name: Load config into solr
-  precompile_assets:
-    description: Precompile the assets and create soft link public directory.
-    steps:
-    - run:
-        command: |
-          bundle exec rake assets:precompile
-        name: Run asset precompile
-    - run:
-        command: |
-          mkdir ~/public/data
-          cp -R ./public/assets ./public/data
-        name: Run create and link public dirs
+  #  precompile_assets:
+  #    description: Precompile the assets and create soft link public directory.
+  #    steps:
+  #    - run:
+  #        command: |
+  #          bundle exec rake assets:precompile
+  #        name: Run asset precompile
+  #    - run:
+  #        command: |
+  #          mkdir ~/public/data
+  #          cp -R ./public/assets ./public/data
+  #        name: Run create and link public dirs
   parallel_rspec:
     description: Run RSpec in Parallel, storing test_results for CircleCI to parse.
     steps:
@@ -251,7 +251,7 @@ jobs:
           bundler_version: << parameters.bundler_version >>
           cache_version: '{{ checksum "./.circleci/.force_rebuild" }}'
           project: deepblue
-      - precompile_assets    
+      # - precompile_assets
       - parallel_rspec
 
 

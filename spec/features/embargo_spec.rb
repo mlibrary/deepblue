@@ -29,8 +29,8 @@ RSpec.describe 'embargo', :clean_repo do
       fill_in 'Keyword', with: 'testing'
       choose 'data_set_rights_license_httpcreativecommonsorgpublicdomainzero10'
       # The following two fields are marked as required, but javascript manages whether they really are or not
-      fill_in 'Other License', with: 'dummy, managed by javascript'
-      fill_in 'Enter other funding agency title', with: 'dummy, managed by javascript'
+      # fill_in 'Other License', with: 'dummy, managed by javascript'
+      # fill_in 'Enter other funding agency title', with: 'dummy, managed by javascript'
       select 'Arts', from: 'Discipline'
       choose 'Embargo'
       fill_in 'data_set_embargo_release_date', with: future_date.to_datetime.strftime("%m/%d/%Y")

@@ -30,7 +30,6 @@ dump.rdb
 ## ASSET PIPELINE
 #.sass-cache/
 public/assets/
-public/assets_test/
 
 ## Branding assets
 public/branding
