@@ -1,3 +1,6 @@
+require 'rails_helper'
+include Warden::Test::Helpers
+
 RSpec.describe 'Creating a new Work', :js, :workflow do
   let(:user) { create(:user) }
   let!(:ability) { ::Ability.new(user) }
