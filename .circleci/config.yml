@@ -106,11 +106,11 @@ commands:
   precompile_assets:
     description: Precompile the assets and create soft link public directory.
     steps:
-      - run:
+    - run:
         command: |
           bundle exec rake assets:precompile
         name: Run asset precompile
-      - run:
+    - run:
         command: |
           mkdir ~/public/data
           cp -R ./public/assets ./public/data
@@ -251,6 +251,7 @@ jobs:
           bundler_version: << parameters.bundler_version >>
           cache_version: '{{ checksum "./.circleci/.force_rebuild" }}'
           project: deepblue
+      - precompile_assets    
       - parallel_rspec
 
 
