@@ -15,13 +15,17 @@ module FindAndFixOrderedMembersBehavior
 
     ::PersistHelper.all.each do |curation_concern|
       next unless curation_concern.respond_to? :ordered_members
-      ordered_members = Array( curation_concern.ordered_members )
-      next unless ordered_members.include? nil
-      messages << "Compacting ordered_members for #{curation_concern.id}." if verbose
-      ordered_members.compact
-      curation_concern.ordered_members = ordered_members
-      curation_concern.save!( validate: false )
-      ids_fixed << curation_concern.id
+      begin
+        ordered_members = Array( curation_concern.ordered_members )
+        next unless ordered_members.include? nil
+        messages << "Compacting ordered_members for #{curation_concern.id}." if verbose
+        ordered_members.compact
+        curation_concern.ordered_members = ordered_members
+        curation_concern.save!( validate: false )
+        ids_fixed << curation_concern.id
+      rescue Exception => e # rubocop:disable Lint/RescueException
+        messages << "Error while processing #{curation_concern.id}: #{e.message} at #{e.backtrace[0]}"
+      end
     end
 
     messages << "Curation concern ids found and fixed: #{ids_fixed}" unless ids_fixed.empty?
