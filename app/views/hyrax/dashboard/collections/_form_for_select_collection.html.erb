@@ -17,13 +17,17 @@
                   <%= text_field_tag 'member_of_collection_label', @add_works_to_collection_label, disabled: true %>
                   <%= hidden_field_tag 'member_of_collection_ids', @add_works_to_collection %>
                 <% else %>
+                  <% if current_ability.admin?
+                       search_path = '/search/collections'
+                     else
+                       search_path = '/search/collections?access=deposit'
+                     end %>
                   <%= text_field_tag 'member_of_collection_ids', nil,
                               prompt: :translate,
                               data: {
                                 placeholder: t('simple_form.placeholders.defaults.member_of_collection_ids'),
                                 autocomplete: 'collection',
-                                # 'autocomplete-url' => Rails.application.routes.url_helpers.qa_path + '/search/collections?access=deposit'
-                                'autocomplete-url' => Rails.application.routes.url_helpers.qa_path + '/search/collections'
+                                'autocomplete-url' => Rails.application.routes.url_helpers.qa_path + search_path
                               } %>
                 <% end %>
               </ul>

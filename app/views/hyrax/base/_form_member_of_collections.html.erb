@@ -15,12 +15,17 @@ HTML Properties:
 
   <div class="form-inline">
       <%= f.label :member_of_collection_ids %>
+      <% if current_ability.admin?
+           search_path = '/search/collections'
+         else
+           search_path = '/search/collections?access=deposit'
+         end %>
       <%= f.input_field :member_of_collection_ids,
                   prompt: :translate,
                   data: {
                     autocomplete: 'collection',
-                    # 'autocomplete-url' => Rails.application.routes.url_helpers.qa_path.gsub('/authorities', '/authorities') + '/search/collections?access=deposit'
-                    'autocomplete-url' => Rails.application.routes.url_helpers.qa_path.gsub('/authorities', '/authorities') + '/search/collections'
+                    'autocomplete-url' => Rails.application.routes.url_helpers.qa_path.gsub('/authorities',
+                                                                                            '/authorities') + search_path
                   } %>
       <a class="btn btn-primary" data-behavior="add-relationship">Add</a>
   </div>
