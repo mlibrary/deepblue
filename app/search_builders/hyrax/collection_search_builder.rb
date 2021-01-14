@@ -55,22 +55,39 @@ module Hyrax
     # deposit or manage access to.
     # @return [Array<String>] a list of filters to apply to the solr query
     def gated_discovery_filters(permission_types = discovery_permissions, ability = current_ability)
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "ability.admin?=#{ability.admin?}",
                                              "" ] if COLLECTION_SEARCH_BUILDER_DEBUG_VERBOSE
-      return super unless permission_types.include?("deposit")
-      ["{!terms f=id}#{collection_ids_for_deposit.join(',')}"]
+      # return [] if ability.admin?
+      permissions = permission_types.include?("deposit")
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "permission_types.include?(\"deposit\")=#{permissions}",
+                                             "" ] if COLLECTION_SEARCH_BUILDER_DEBUG_VERBOSE
+      rv = super unless permissions
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "super=#{rv}",
+                                             "" ] if COLLECTION_SEARCH_BUILDER_DEBUG_VERBOSE
+      return rv unless permissions
+      rv = ["{!terms f=id}#{collection_ids_for_deposit.join(',')}"]
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "" ] if COLLECTION_SEARCH_BUILDER_DEBUG_VERBOSE
+      return rv
     end
 
     private
 
       def collection_ids_for_deposit
-        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
                                                "" ] if COLLECTION_SEARCH_BUILDER_DEBUG_VERBOSE
         rv = Hyrax::Collections::PermissionsService.collection_ids_for_deposit(ability: current_ability)
-        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
                                                "rv=#{rv}",
                                                "" ] if COLLECTION_SEARCH_BUILDER_DEBUG_VERBOSE
         return rv
