@@ -109,6 +109,8 @@ en:
         title:              "Manage Email"
       my_active_embargoes:  "Active Embargoes"
       my:
+        action:
+          add_work_to_collection_note: 'Check one or more works to add them to a collection.'
         heading:
           date_created:     "Date Created"
           date_uploaded:    "Date Created"
