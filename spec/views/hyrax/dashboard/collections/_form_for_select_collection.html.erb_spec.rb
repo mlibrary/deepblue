@@ -22,21 +22,40 @@ RSpec.describe 'hyrax/dashboard/collections/_form_for_select_collection.html.erb
     end
   end
   let( :user_collections ) { solr_collections }
-
   let(:page) { Capybara::Node::Simple.new(rendered) }
 
-  before do
-    # Stub route because view specs don't handle engine routes
-    # allow(view).to receive(:collection_path).and_return("/collection/123")
-    # allow(view).to receive(:new_dashboard_collection_path).and_return("/collection/new")
+  context 'for admin user' do
+    let(:user) { create(:admin) }
+    let(:ability) { Ability.new(user) }
 
-    # allow(view).to receive(:user_collections).and_return(solr_collections)
+    before do
+      allow(ability).to receive(:admin?).and_return true
+      allow(view).to receive(:current_ability).and_return(ability)
+      allow(view).to receive(:current_user).and_return( user )
+    end
+
+    it "uses autocomplete with access deposit when non-admin" do
+      render 'hyrax/dashboard/collections/form_for_select_collection',
+             user_collections: user_collections
+      expect(page).to have_selector('input[data-autocomplete-url="/authorities/search/collections"]')
+    end
   end
 
-  it "uses autocomplete with access deposit when non-admin" do
-    render 'hyrax/dashboard/collections/form_for_select_collection',
-           user_collections: user_collections
-    expect(page).to have_selector('input[data-autocomplete-url="/authorities/search/collections?access=deposit"]')
+  context 'for normal user' do
+    let(:user) { create(:user) }
+    let(:ability) { Ability.new(user) }
+
+    before do
+      allow(ability).to receive(:admin?).and_return false
+      allow(view).to receive(:current_ability).and_return(ability)
+      allow(view).to receive(:current_user).and_return( user )
+    end
+
+    it "uses autocomplete with access deposit when non-admin" do
+      render 'hyrax/dashboard/collections/form_for_select_collection',
+             user_collections: user_collections
+      expect(page).to have_selector('input[data-autocomplete-url="/authorities/search/collections?access=deposit"]')
+    end
   end
 
   context 'when a collection is specified' do
