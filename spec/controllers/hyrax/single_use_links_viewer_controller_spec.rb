@@ -54,7 +54,7 @@ RSpec.describe Hyrax::SingleUseLinksViewerController do
 
       it "renders the file set's show page and deletes the link from the database" do
         get 'show', params: { id: show_link_hash }
-        expect(response).to redirect_to( "http://test.host/data/concern/file_sets/#{file.id}/single_use_link/#{show_link_hash}" )
+        expect(response).to redirect_to( "http://test.host/concern/file_sets/#{file.id}/single_use_link/#{show_link_hash}" )
         expect(flash[:notice]).to include(I18n.t('hyrax.single_use_links.notice.show_file_html'))
         # expect(assigns[:presenter].id).to eq file.id
         # expect { SingleUseLink.find_by_downloadKey!(show_link_hash) }.to raise_error ActiveRecord::RecordNotFound
@@ -71,7 +71,7 @@ RSpec.describe Hyrax::SingleUseLinksViewerController do
 
       it "shows the main page with message when get show path with download hash" do
         get :show, params: { id: download_link_hash }
-        expect(response).to redirect_to( "http://test.host/data/concern/file_sets/#{file.id}/single_use_link/#{download_link_hash}" )
+        expect(response).to redirect_to( "http://test.host/concern/file_sets/#{file.id}/single_use_link/#{download_link_hash}" )
         expect(flash[:notice]).to include(I18n.t('hyrax.single_use_links.notice.show_file_html'))
       end
     end

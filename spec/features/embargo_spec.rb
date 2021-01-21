@@ -1,24 +1,37 @@
 require 'rails_helper'
 include Warden::Test::Helpers
 
-RSpec.describe 'embargo', :clean_repo do
+RSpec.describe 'embargo', type: :feature, js: true, workflow: true, clean_repo: true do
 
   EMBARGO_SPEC_DEBUG_VERBOSE = false
 
   include Devise::Test::IntegrationHelpers
 
   let(:user) { create(:user) }
+  let(:edit_note) { 'Please provide information about your data set (referred to as a "work") in the following fields, keeping in mind that your responses will enable people to discover, identify, and understand your data. If you are uncertain of how to complete any of these fields, we recommend that you read or refer to the Guide to Metadata in Deep Blue Data’s Help pages.' }
 
   before do
     sign_in user
   end
+
   describe 'creating an embargoed object' do
     let(:work_title) { "Embargo test" }
     let(:future_date) { 5.days.from_now }
     let(:later_future_date) { 10.days.from_now }
 
-    it 'can be created, displayed, but not updated', :clean_repo, :workflow, skip: ENV['COVERALLS_REPO_TOKEN'].present? do
+    it 'can be created, displayed, but not updated', :clean_repo, :workflow, skip: ENV['CIRCLECI'].present? do
       visit '/concern/data_sets/new'
+      page.find_link( 'Description', wait: 10 )
+      expect(page).to have_content edit_note
+      within('div#savewidget') do
+        expect(page).to have_checked_field('data_set_visibility_open')
+        expect(page).to have_field('data_set_visibility_embargo')
+        expect(page).to_not have_checked_field('data_set_visibility_embargo')
+        expect(page).to_not have_field('data_set_visibility_authenticated')
+        expect(page).to_not have_field('data_set_visibility_lease')
+        expect(page).to_not have_field('data_set_visibility_restricted')
+      end
+
       # puts "\npage.title=#{page.title}\n"
       # sleep 30 if EMBARGO_SPEC_DEBUG_VERBOSE
       fill_in 'Title', with: work_title
@@ -39,6 +52,8 @@ RSpec.describe 'embargo', :clean_repo do
       # select 'Public', from: 'then open it up to'
       check 'agreement'
       click_button 'Save Work'
+      expect(page).to have_content( 'Work Description', wait: 60 )
+      expect(page).to_not have_link( 'Edit Work/Add Files' )
       # puts "\npage.title=#{page.title}\n"
 
       page.title =~ /^.*ID:\s([^\s]+)\s.*$/
@@ -117,7 +132,7 @@ RSpec.describe 'embargo', :clean_repo do
                     edit_users: [user])
     end
 
-    it 'can be updated with a valid date', skip: ENV['COVERALLS_REPO_TOKEN'].present? do
+    it 'can be updated with a valid date', skip: ENV['CIRCLECI'].present? do
       visit "/concern/data_sets/#{work.id}"
       # sleep 30 if EMBARGO_SPEC_DEBUG_VERBOSE
 
@@ -137,7 +152,7 @@ RSpec.describe 'embargo', :clean_repo do
       # expect(page).to have_content(my_admin_set.title.first)
     end
 
-    it 'cannot be updated with an invalid date', skip: ENV['COVERALLS_REPO_TOKEN'].present? do
+    it 'cannot be updated with an invalid date', skip: ENV['CIRCLECI'].present? do
       visit "/concern/data_sets/#{work.id}"
       # sleep 30 if EMBARGO_SPEC_DEBUG_VERBOSE
 
@@ -153,4 +168,5 @@ RSpec.describe 'embargo', :clean_repo do
       expect(page).to have_content('Release date specified does not match permission template release requirements for selected AdminSet.')
     end
   end
+
 end

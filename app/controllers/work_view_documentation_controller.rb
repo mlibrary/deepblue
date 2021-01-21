@@ -69,7 +69,7 @@ class WorkViewDocumentationController < ApplicationController
 
   def action_export_documentation
     ExportDocumentationJob.perform_later( id: ::Deepblue::WorkViewContentService.content_documentation_collection_id,
-                                          export_path: "./data/" )
+                                          export_path: ".#{::DeepBlueDocs::Application.config.relative_url_root}/" )
     "Export documentation job started."
   end
 

@@ -25,6 +25,11 @@ Hyrax = {
         this.internationalizationHelper();
     },
 
+    // Search for a user to transfer a work to
+    relative_url_root: function () {
+        return "<%= ::DeepBlueDocs::Application.config.relative_url_root %>";
+    },
+
     // Add WYSIWYG editor functionality to editable content blocks
     tinyMCE: function() {
         if (typeof tinyMCE === "undefined")
