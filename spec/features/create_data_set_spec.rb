@@ -1,21 +1,20 @@
 require 'rails_helper'
 include Warden::Test::Helpers
 
-# NOTE: If you generated more than one work, you have to set "js: true"
-RSpec.feature 'Create a DataSet', js: true do
+RSpec.feature 'Create a DataSet', type: :feature, js: true, workflow: true, clean_repo: true, skip: ENV['CIRCLECI'].present? do
 
-  # before(:all ) do
-  #   puts "DataSet ids before=#{DataSet.all.map { |ds| ds.id }}"
-  #   #puts "FileSet ids before=#{FileSet.all.map { |fs| fs.id }}"
-  # end
-  #
-  # after(:all ) do
-  #   #puts "FileSet ids after=#{FileSet.all.map { |fs| fs.id }}"
-  #   puts "DataSet ids after=#{DataSet.all.map { |ds| ds.id }}"
-  #   # clean up created DataSet
-  #   DataSet.all.each { |ds| ds.delete }
-  #   #FileSet.all.each { |fs| fs.delete }
-  # end
+  before(:all ) do
+    # puts "DataSet ids before=#{DataSet.all.map { |ds| ds.id }}"
+    #puts "FileSet ids before=#{FileSet.all.map { |fs| fs.id }}"
+  end
+
+  after(:all ) do
+    #puts "FileSet ids after=#{FileSet.all.map { |fs| fs.id }}"
+    # puts "DataSet ids after=#{DataSet.all.map { |ds| ds.id }}"
+    # clean up created DataSet
+    DataSet.all.each { |ds| ds.delete }
+    #FileSet.all.each { |fs| fs.delete }
+  end
 
   context 'a logged in user' do
     let(:user_attributes) do
@@ -27,6 +26,9 @@ RSpec.feature 'Create a DataSet', js: true do
     let(:admin_set_id) { AdminSet.find_or_create_default_admin_set_id }
     let(:permission_template) { Hyrax::PermissionTemplate.find_or_create_by!(source_id: admin_set_id) }
     let(:workflow) { Sipity::Workflow.create!(active: true, name: 'test-workflow', permission_template: permission_template) }
+    let(:work_title) { 'My Test Work Data Set' }
+    let(:edit_note) { 'Please provide information about your data set (referred to as a "work") in the following fields, keeping in mind that your responses will enable people to discover, identify, and understand your data. If you are uncertain of how to complete any of these fields, we recommend that you read or refer to the Guide to Metadata in Deep Blue Data’s Help pages.' }
+    let(:add_files_note) { 'If you have more than 100 files or files larger than 5 GB please Contact Us for assistance in uploading your data.' }
 
     before do
       # Create a single action that can be taken
@@ -40,48 +42,90 @@ RSpec.feature 'Create a DataSet', js: true do
         access: 'deposit'
       )
       login_as user
+      allow(CharacterizeJob).to receive(:perform_later)
     end
 
     scenario do
-      # visit '/dashboard'
-      # click_link "Works"
-      # expect(page).to have_content "Add new work"
-      # click_link "Add new work"
-      #
-      # # If you generate more than one work uncomment these lines
-      # choose "payload_concern", option: "DataSet"
-      # click_button "Create work"
-      # sleep 2 # seems to make this work
-      # expect(page).to have_content "Add New Data Set"
-      # click_link "Files" # switch tab
-      # expect(page).to have_content "Add files"
+      visit '/dashboard'
+      click_link "Works"
+      expect(page).to have_content "Add new work"
+      click_link "Add new work"
+
+      page.find_link( 'Description', wait: 10 )
+      expect(page).to have_content edit_note
+      within('div#savewidget') do
+        expect(page).to have_checked_field('data_set_visibility_open')
+        expect(page).to have_field('data_set_visibility_embargo')
+        expect(page).to_not have_checked_field('data_set_visibility_embargo')
+        expect(page).to_not have_field('data_set_visibility_authenticated')
+        expect(page).to_not have_field('data_set_visibility_lease')
+        expect(page).to_not have_field('data_set_visibility_restricted')
+      end
+
+      fill_in 'Title', with: work_title
+      fill_in 'Creator', with: 'Dr. Creator'
+      fill_in 'Contact Information', with: user.email
+      fill_in 'Methodology', with: 'The Method.'
+      fill_in 'Description', with: 'The Description.'
+      fill_in 'Keyword', with: 'testing'
+      choose 'data_set_rights_license_httpcreativecommonsorgpublicdomainzero10'
+      select 'Arts', from: 'Discipline'
+
+      click_link "Files" # switch tab
+      expect(page).to have_content( add_files_note, wait: 10 )
+      expect(page).to have_content "Add files"
+      # not in DBD:
       # expect(page).to have_content "Add folder"
-      # within('span#addfiles') do
-      #   attach_file("files[]", "#{Hyrax::Engine.root}/spec/fixtures/image.jp2", visible: false)
-      #   attach_file("files[]", "#{Hyrax::Engine.root}/spec/fixtures/jp2_fits.xml", visible: false)
-      # end
-      # click_link "Descriptions" # switch tab
-      # fill_in('Title', with: 'My Test Work')
-      # fill_in('Creator', with: 'Doe, Jane')
-      # fill_in('Authoremail', with: 'test@test.com' )
-      # fill_in('Keyword', with: 'testing')
-      # fill_in('Abstract or Summary', with: 'This is the description.' )
-      # select('In Copyright', from: 'Rights statement')
-      #
+      within('span#addfiles') do
+        attach_file("files[]", File.join(fixture_path, 'image.jp2'), visible: false)
+        attach_file("files[]", File.join(fixture_path, 'jp2_fits.xml'), visible: false)
+      end
+      expect(page).to have_content( 'image.jp2', wait: 10 )
+      expect(page).to have_content 'jp2_fits.xml'
+
       # # With selenium and the chrome driver, focus remains on the
       # # select box. Click outside the box so the next line can't find
       # # its element
       # find('body').click
+      # This is the default value for DBD
       # choose('data_set_visibility_open')
-      # expect(page).to have_content('Please note, making something visible to the world (i.e. marking this as Public) may be viewed as publishing which could impact your ability to')
-      #
-      # # the upload of files fails with:
-      # # 2018-05-04 12:02:27 -0400: Rack app error handling request { POST /uploads/ }
-      # # #<ActiveRecord::StatementInvalid: SQLite3::BusyException: database is locked: INSERT INTO "uploaded_files" ("file", "user_id", "created_at", "updated_at") VALUES (?, ?, ?, ?)>
-      # # check('agreement')
-      # # click_on('Save')
-      # # expect(page).to have_content('My Test Work')
-      # # expect(page).to have_content "Your files are being processed by Hyrax in the background."
+
+      click_link "Descriptions" # switch tab
+      page.find_link( 'Files', wait: 10 )
+
+      # expect(page).to have_content 'I have read and agree to the Deposit Agreement'
+      check('agreement')
+
+      click_button 'Save Work'
+      expect(page).to have_content( 'Work Description', wait: 60 )
+
+      expect(page).to have_content( work_title )
+      expect(page).to have_content( 'Dr. Creator')
+
+      expect(page).to have_link( 'Review and Approval', wait: 10 )
+      expect(page).to_not have_link( 'Edit Work/Add Files' )
+      expect(page).to_not have_link( 'Delete Work' )
+      # this is not enabled in test
+      # expect(page).to_not have_link( 'Mint DOI' )
+
+      expect(page).to have_link( 'View Work Analytics' )
+      # this is not enabled in test
+      # expect(page).to have_link( 'Subscribe to Monthly Analytics Report' )
+
+      expect(page).to_not have_link( 'Append Files' )
+      expect(page).to_not have_link( 'Feature' )
+      # this is not enabled in test?
+      # expect(page).to_not have_link( 'Tombstone' )
+
+      # this is not enabled in test
+      # expect(page).to have_link( 'Create Download Single-Use Link' )
+      # expect(page).to have_link( 'Create View Single-Use Link' )
+
+      page.title =~ /^.*ID:\s([^\s]+)\s.*$/
+      id = Regexp.last_match 1
+
+      expect(page).to have_content( work_title )
+      expect(page).to have_content "Your files are being processed by Deep Blue Data in the background."
     end
   end
 

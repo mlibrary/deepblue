@@ -53,7 +53,7 @@ class CatalogController < ApplicationController
     config.oai = {
       provider: {
         repository_name: 'Deep Blue Data',
-        repository_url: 'https://deepblue.lib.umich.edu/data/catalog/oai',
+        repository_url: "https://deepblue.lib.umich.edu#{::DeepBlueDocs::Application.config.relative_url_root}/catalog/oai", # monkey: ::DeepBlueDocs::Application.config.relative_url_root
         record_prefix: 'oai:deepbluedata',
         admin_email: 'researchdataservices@umich.edu',
         sample_id: '9s1616317'
