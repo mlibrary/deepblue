@@ -124,4 +124,26 @@ RSpec.describe AnalyticsHelper, type: :helper do
 
   end
 
+  describe '.update_current_month_condensed_events' do
+    let( :month_begin ) { Time.now.beginning_of_month }
+    let( :this_months_date_range ) { month_begin.beginning_of_day..month_begin.end_of_month.end_of_day }
+    let( :return_value ) { []  }
+
+    context 'it calls' do
+      subject { described_class.update_current_month_condensed_events }
+      before do
+        expect( described_class).to receive( :update_condensed_events_for ).with( date_range: this_months_date_range ).and_return return_value
+      end
+      it { expect( subject ).to eq return_value }
+    end
+
+  end
+
+  describe '.update_condensed_events_for', skip: true do
+    # we care about: Ahoy::Event.select( :name, :cc_id ).where( time: date_range )
+    # create events
+    # create date range
+    # Ahoy::CondensedEvent.new( name: name, cc_id: cc_id, date_begin: date_range.first, date_end: date_range.last )
+  end
+
 end
