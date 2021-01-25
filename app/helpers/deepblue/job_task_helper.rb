@@ -238,7 +238,7 @@ END_BODY
                                              key: 'hostnames',
                                              default_value: [],
                                              verbose: job.verbose || debug_verbose )
-      job.hostname = ::DeepBlueDocs::Application.config.hostname
+      job.hostname = self.hostname
       job.hostnames.include? job.hostname
     end
 
@@ -249,7 +249,7 @@ END_BODY
                                              "" ] if debug_verbose || job_task_helper_debug_verbose
       options = {}
       args = args[0] if args.is_a?( Array ) && 1 == args.length
-      args.each { |key,value| options[key] = value }
+      args.each { |key,value| options[key.to_s] = value }
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "options=#{options}",
