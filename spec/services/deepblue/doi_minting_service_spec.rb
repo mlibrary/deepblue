@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Deepblue::DoiMintingService do
+RSpec.describe Deepblue::DoiMintingService do
 
   context "when minting a new doi" do
     subject { described_class.new( curation_concern: work,

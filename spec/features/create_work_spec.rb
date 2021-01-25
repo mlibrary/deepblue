@@ -1,7 +1,7 @@
 require 'rails_helper'
 include Warden::Test::Helpers
 
-RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, clean_repo: true, skip: true || ENV['CIRCLECI'].present? do
+RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, skip: ENV['CIRCLECI'].present? do
 
   include Devise::Test::IntegrationHelpers
 
@@ -351,7 +351,7 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
       end
     end
 
-    context "when a file uploaded and then deleted", skip: true do
+    context "when a file uploaded and then deleted", skip: true || ENV['CIRCLECI'].present? do
       before do
         login_as user
         visit '/'

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe ::Deepblue::AnalyticsIntegrationService do
+RSpec.describe ::Deepblue::AnalyticsIntegrationService do
 
   describe 'constants' do
     it "resolves them" do

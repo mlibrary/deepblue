@@ -2,7 +2,7 @@ require 'rails_helper'
 include Warden::Test::Helpers
 require 'rspec/rails/matchers/have_http_status'
 
-RSpec.describe 'collection', type: :feature, js: true, clean_repo: true do
+RSpec.describe 'collection', type: :feature, js: true, clean_repo: true, skip: ENV['CIRCLECI'].present? do
 
   COLLECTION_SPEC_VERBOSE_DEBUG = false
 

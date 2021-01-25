@@ -147,6 +147,7 @@ RSpec.configure do |config|
   end
 
   config.before do |example|
+    ActiveFedora::Cleaner.clean! if ActiveFedora::Base.count > 0
     # if example.metadata[:type] == :feature && Capybara.current_driver != :rack_test
     #   DatabaseCleaner.strategy = :truncation
     # else
@@ -158,7 +159,7 @@ RSpec.configure do |config|
     # It's important that this comes after DatabaseCleaner.start
     ensure_deposit_available_for(user) if example.metadata[:workflow]
     if example.metadata[:clean_repo]
-      ActiveFedora::Cleaner.clean!
+      # ActiveFedora::Cleaner.clean!
       # The JS is executed in a different thread, so that other thread
       # may think the root path has already been created:
       # ActiveFedora.fedora.connection.send(:init_base_path) if example.metadata[:js]

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../services/deepblue/works_reporter'
-
 class UpdateCondensedEventsJob < ::Hyrax::ApplicationJob
 
   UPDATE_CONDENSED_EVENTS_JOB_DEBUG_VERBOSE = ::Deepblue::JobTaskHelper.update_condensed_events_job_debug_verbose
@@ -34,6 +32,7 @@ END_OF_SCHEDULER_ENTRY
   def perform( *args )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
+                                           "args=#{args}",
                                            "" ] if UPDATE_CONDENSED_EVENTS_JOB_DEBUG_VERBOSE
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event: "update condensed events job" )
     ::Deepblue::JobTaskHelper.has_options( *args, job: self, debug_verbose: UPDATE_CONDENSED_EVENTS_JOB_DEBUG_VERBOSE )
