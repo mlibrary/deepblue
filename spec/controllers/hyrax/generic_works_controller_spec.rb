@@ -1,5 +1,3 @@
-# Generated via
-#  `rails generate hyrax:work GenericWork`
 require 'rails_helper'
 
 RSpec.describe Hyrax::GenericWorksController do
