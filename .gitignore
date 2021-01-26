@@ -71,3 +71,8 @@ config/skylight.yml
 config/settings.local.yml
 config/settings/*.local.yml
 
+
+## coveralls
+coverage/*
+./coverage/.*
+
