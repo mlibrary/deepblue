@@ -1,5 +1,3 @@
-# Generated via
-#  `rails generate hyrax:work Dissertation`
 require 'rails_helper'
 
 RSpec.describe Hyrax::DissertationsController do

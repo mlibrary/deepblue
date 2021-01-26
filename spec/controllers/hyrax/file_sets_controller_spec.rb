@@ -1,3 +1,4 @@
+require 'rails_helper'
 
 RSpec.describe Hyrax::FileSetsController, :clean_repo do
 
