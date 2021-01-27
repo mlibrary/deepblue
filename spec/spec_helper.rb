@@ -28,7 +28,7 @@ end
 if coverage_needed?
   require 'coveralls'
   Coveralls.wear! do
-    add_filter '.bundle'
+    # add_filter '.bundle' # include this since we have tests that cover included gem files
     add_filter 'config'
     add_filter 'lib/spec'
     add_filter 'spec'
