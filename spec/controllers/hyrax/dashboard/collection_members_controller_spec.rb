@@ -1,6 +1,9 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Dashboard::CollectionMembersController, :clean_repo, skip: true do
+RSpec.describe Hyrax::Dashboard::CollectionMembersController, :clean_repo, skip: false do
+
+  include Devise::Test::ControllerHelpers
+
   routes { Hyrax::Engine.routes }
   let(:user)  { create(:user) }
   let(:other) { build(:user) }

@@ -1,7 +1,16 @@
 require 'rails_helper'
 
+
+class MockDeepblueCollectionsControllerBehavior < Hyrax::DeepblueController
+
+  include Deepblue::CollectionsControllerBehavior
+
+end
+
 RSpec.describe Deepblue::CollectionsControllerBehavior do
-  it "has tests" do
-    skip "Add your tests here"
-  end
+
+  subject { MockDeepblueCollectionsControllerBehavior.new }
+
+  it { expect( subject.singleton_class.include? Deepblue::ControllerWorkflowEventBehavior ).to eq true }
+
 end

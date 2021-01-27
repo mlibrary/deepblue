@@ -1,6 +1,9 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Admin::AdminSetsController, skip: true do
+RSpec.describe Hyrax::Admin::AdminSetsController, skip: false do
+
+  include Devise::Test::ControllerHelpers
+
   routes { Hyrax::Engine.routes }
   let(:user) { create(:user) }
 
@@ -254,7 +257,7 @@ RSpec.describe Hyrax::Admin::AdminSetsController, skip: true do
       end
 
       context "with a non-empty admin set" do
-        let(:work) { create(:generic_work, user: user) }
+        let(:work) { create(:data_set, user: user) }
 
         before do
           admin_set.members << work
@@ -266,7 +269,7 @@ RSpec.describe Hyrax::Admin::AdminSetsController, skip: true do
           expect(response).to redirect_to(admin_admin_set_path(admin_set))
           expect(flash[:alert]).to eq "Administrative set cannot be deleted as it is not empty"
           expect(AdminSet.exists?(admin_set.id)).to be true
-          expect(GenericWork.exists?(work.id)).to be true
+          expect(DataSet.exists?(work.id)).to be true
         end
       end
 
