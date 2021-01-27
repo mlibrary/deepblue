@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-class MockJob < ::Hyrax::ApplicationJob
+class MockJobForJobTaskHelper < ::Hyrax::ApplicationJob
 
     include JobHelper
 
@@ -21,7 +21,7 @@ end
 
 RSpec.describe Deepblue::JobTaskHelper, type: :helper do
 
-  let(:job) { MockJob.new }
+  let(:job) { MockJobForJobTaskHelper.new }
   let(:hostname_allowed) { [::DeepBlueDocs::Application.config.hostname] }
 
   before do
