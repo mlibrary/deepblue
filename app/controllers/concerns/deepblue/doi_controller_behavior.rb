@@ -6,6 +6,9 @@ module Deepblue
 
     DOI_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE = false
 
+    mattr_accessor :doi_controller_behavior_debug_verbose
+    @@doi_controller_behavior_debug_verbose = DOI_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+
     def doi
       msg = doi_mint
       respond_to do |wants|
@@ -35,7 +38,7 @@ module Deepblue
                                            "curation_concern.doi_pending?=#{curation_concern.doi_pending?}",
                                            "curation_concern.doi_minted?=#{curation_concern.doi_minted?}",
                                            "curation_concern.work?=#{curation_concern.work?}",
-                                           "" ] if DOI_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                           "" ] if doi_controller_behavior_debug_verbose
       # Do not mint doi if
       #   one already exists
       #   work file_set count is 0.
@@ -56,7 +59,7 @@ module Deepblue
                                            Deepblue::LoggingHelper.obj_class( "curation_concern", curation_concern ),
                                            "curation_concern.id=#{curation_concern.id}",
                                            "msg=#{msg}",
-                                           "" ] if DOI_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                           "" ] if doi_controller_behavior_debug_verbose
       return msg
     end
 

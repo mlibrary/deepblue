@@ -1,7 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe ApplicationController do
-  it "has tests" do
-    skip "Add your tests here"
-  end
+
+  subject { ApplicationController.new }
+
+  it { expect( subject.single_use_link_request? ).to eq false }
+
 end

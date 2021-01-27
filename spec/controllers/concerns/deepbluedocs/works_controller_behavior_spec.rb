@@ -1,7 +1,15 @@
 require 'rails_helper'
 
+class MockDeepbluedocsWorksControllerBehavior < Hyrax::DeepblueController
+
+  include Deepbluedocs::WorksControllerBehavior
+
+end
+
 RSpec.describe Deepbluedocs::WorksControllerBehavior do
-  it "has tests" do
-    skip "Add your tests here"
-  end
+
+  subject { MockDeepbluedocsWorksControllerBehavior.new }
+
+  it { expect( subject.singleton_class.include? Deepblue::WorksControllerBehavior ).to eq true }
+
 end

@@ -4,7 +4,7 @@ class AcceptsBatchesController < ApplicationController
   include Hyrax::Collections::AcceptsBatches
 end
 
-RSpec.describe AcceptsBatchesController, type: :controller, skip: true do
+RSpec.describe AcceptsBatchesController, type: :controller, skip: false do
   describe 'batch' do
     it 'accepts batch from parameters' do
       controller.params['batch_document_ids'] = %w[abc xyz]

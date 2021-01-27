@@ -1,5 +1,7 @@
 require 'rails_helper'
 
+## NOTE: we don't support Arkivo?
+
 RSpec.describe Hyrax::API::ItemsController, type: :controller, skip: true do
   let(:arkivo_actor) { double Hyrax::Arkivo::Actor }
   let!(:user) { create(:user) }
@@ -58,7 +60,7 @@ RSpec.describe Hyrax::API::ItemsController, type: :controller, skip: true do
 
     context 'with a resource not deposited via Arkivo' do
       before do
-        allow_any_instance_of(GenericWork).to receive(:arkivo_checksum) { nil }
+        allow_any_instance_of(DataSet).to receive(:arkivo_checksum) { nil }
         get :show, params: { format: :json, id: default_work.id, token: token }
       end
 
@@ -115,7 +117,7 @@ RSpec.describe Hyrax::API::ItemsController, type: :controller, skip: true do
 
     context 'post with a valid item and matching token' do
       let(:deposited_file) { FileSet.where(label: item_hash['file']['filename']).take }
-      let(:a_work) { build :generic_work, id: '123' }
+      let(:a_work) { build :data_set, id: '123' }
       let!(:token) { user.arkivo_token }
       let(:item) { FactoryBot.json(:post_item, token: token) }
       let(:item_hash) { JSON.parse(item) }
@@ -174,7 +176,7 @@ RSpec.describe Hyrax::API::ItemsController, type: :controller, skip: true do
   context 'with an HTTP PUT' do
     let(:put_item) { FactoryBot.json(:put_item, token: token) }
     let(:token) { user.arkivo_token }
-    let(:gw) { build :generic_work, id: '123' }
+    let(:gw) { build :data_set, id: '123' }
     let(:relation) { double }
 
     before do
@@ -205,7 +207,7 @@ RSpec.describe Hyrax::API::ItemsController, type: :controller, skip: true do
     end
 
     context 'with a valid item, matching token, authorized resource, but not Arkivo-deposited' do
-      let(:non_arkivo_gw) { create :generic_work, id: 'abc123xyz', arkivo_checksum: nil }
+      let(:non_arkivo_gw) { create :data_set, id: 'abc123xyz', arkivo_checksum: nil }
       let(:relation) { double }
 
       before do
@@ -294,7 +296,7 @@ RSpec.describe Hyrax::API::ItemsController, type: :controller, skip: true do
     let(:token) { user.arkivo_token }
     let(:item) { FactoryBot.json(:post_item, token: token) }
     let(:item_hash) { JSON.parse(item) }
-    let(:gw) { build :generic_work, id: '123' }
+    let(:gw) { build :data_set, id: '123' }
     let(:relation) { double }
 
     before do
@@ -345,7 +347,7 @@ RSpec.describe Hyrax::API::ItemsController, type: :controller, skip: true do
     end
 
     context 'with a resource not deposited via Arkivo' do
-      let(:non_arkivo_gw) { create :generic_work, id: 'xyz789abc', arkivo_checksum: nil }
+      let(:non_arkivo_gw) { create :data_set, id: 'xyz789abc', arkivo_checksum: nil }
 
       before do
         # Mock user authorization

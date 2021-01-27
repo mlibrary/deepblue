@@ -2,26 +2,31 @@
 
 class SchedulerStartJob < ::Hyrax::ApplicationJob
 
-  SCHEDULER_START_JOB_DEBUG_VERBOSE = ::Deepblue::JobTaskHelper.scheduler_start_job_debug_verbose
+  mattr_accessor :scheduler_start_job_debug_verbose
+  @@scheduler_start_job_debug_verbose = ::Deepblue::JobTaskHelper.scheduler_start_job_debug_verbose
 
   include JobHelper
   queue_as :default
 
-  # job_delay in seconds
-  def perform( job_delay: ::Deepblue::SchedulerIntegrationService.scheduler_start_job_default_delay, restart: true, **options )
-    ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           Deepblue::LoggingHelper.called_from,
-                                           Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                           "options=#{options}",
-                                           "" ] if SCHEDULER_START_JOB_DEBUG_VERBOSE
+  attr_accessor :rails_bin_scheduler, :rails_log_scheduler
 
-    sleep job_delay if job_delay > 0
+  # job_delay in seconds
+  def perform( job_delay: ::Deepblue::SchedulerIntegrationService.scheduler_start_job_default_delay,
+               restart: true,
+               **options )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                           "options=#{options}",
+                                           "" ] if scheduler_start_job_debug_verbose
+
+    delay_job job_delay
     restarted = false
-    pid = `pgrep -fu #{Process.uid} resque-scheduler`
+    pid = scheduler_pid
     if restart
       `kill -15 #{pid}` if pid.present?
       sleep 1.second
-      pid = `pgrep -fu #{Process.uid} resque-scheduler`
+      pid = scheduler_pid
       if pid.present?
         scheduler_emails( subject: "DBD scheduler failed to kill resque-scheduler on #{hostname}" )
         return
@@ -33,23 +38,18 @@ class SchedulerStartJob < ::Hyrax::ApplicationJob
     end
     rails_bin_scheduler = Rails.application.root.join( 'bin', 'scheduler.sh' ).to_s
     rails_log_scheduler = Rails.application.root.join( 'log', 'scheduler.sh.out' ).to_s
-    ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           Deepblue::LoggingHelper.called_from,
-                                           Deepblue::LoggingHelper.obj_class( 'class', self ),
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                            "rails_bin_scheduler=#{rails_bin_scheduler}",
                                            "rails_log_scheduler=#{rails_log_scheduler}",
-                                           "" ] if SCHEDULER_START_JOB_DEBUG_VERBOSE
-    spawn_pid = spawn( rails_bin_scheduler, :out => rails_log_scheduler, :err => rails_log_scheduler )
-    Process.detach( spawn_pid )
-    ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           Deepblue::LoggingHelper.called_from,
-                                           Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                           "" ] if SCHEDULER_START_JOB_DEBUG_VERBOSE
+                                           "" ] if scheduler_start_job_debug_verbose
+    spawn_pid = scheduler_spawn
     retry_count = 0
     while retry_count < 5 # TODO configure retry count
       retry_count += 1
-      sleep 5.seconds # TODO configure sleep time
-      pid = `pgrep -fu #{Process.uid} resque-scheduler`
+      retry_sleep
+      pid = scheduler_pid
       break if pid.present?
     end
     msg_lines = []
@@ -76,8 +76,16 @@ class SchedulerStartJob < ::Hyrax::ApplicationJob
     raise e
   end
 
+  def delay_job( job_delay )
+    sleep job_delay if job_delay > 0
+  end
+
   def hostname
     DeepBlueDocs::Application.config.hostname
+  end
+
+  def retry_sleep
+    sleep 5.seconds # TODO configure sleep time
   end
 
   def scheduler_email( email_target:, subject:, body: nil )
@@ -101,6 +109,21 @@ class SchedulerStartJob < ::Hyrax::ApplicationJob
     ::Deepblue::SchedulerIntegrationService.scheduler_started_email.each do |email_target|
       scheduler_email( email_target: email_target, subject: subject, body: body )
     end
+  end
+
+  def scheduler_pid
+    `pgrep -fu #{Process.uid} resque-scheduler`
+  end
+
+  def scheduler_spawn
+    spawn_pid = spawn( rails_bin_scheduler, :out => rails_log_scheduler, :err => rails_log_scheduler )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                           "spawn_pid=#{spawn_pid}",
+                                           "" ] if scheduler_start_job_debug_verbose
+    Process.detach( spawn_pid )
+    return spawn_pid
   end
 
 end
