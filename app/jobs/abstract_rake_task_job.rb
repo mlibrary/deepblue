@@ -2,7 +2,9 @@
 
 class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
 
-  ABSTRACT_RAKE_TASK_JOB_DEBUG_VERBOSE = ::Deepblue::JobTaskHelper.abstract_rake_task_job_debug_verbose
+  mattr_accessor :abstract_rake_task_job_debug_verbose
+
+  @@abstract_rake_task_job_debug_verbose = ::Deepblue::JobTaskHelper.abstract_rake_task_job_debug_verbose
 
   include JobHelper
 
@@ -65,14 +67,18 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
   end
 
   def initialize_from_args( *args )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "args=#{args}",
+                                           "" ] if abstract_rake_task_job_debug_verbose
     @timestamp_begin = DateTime.now
     @options = {}
-    args.each { |key,value| @options[key] = value }
+    args.each { |key,value| @options[key.to_s] = value }
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "timestamp_begin=#{timestamp_begin}",
                                            "options=#{options}",
-                                           "" ] if ABSTRACT_RAKE_TASK_JOB_DEBUG_VERBOSE
+                                           "" ] if abstract_rake_task_job_debug_verbose
     @verbose = job_options_value( options,
                                   key: 'verbose',
                                   default_value: default_value_is( verbose, false ) )
@@ -105,7 +111,7 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
       msg = "sleeping #{job_delay} seconds"
       Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            msg,
-                                           "" ] if ABSTRACT_RAKE_TASK_JOB_DEBUG_VERBOSE
+                                           "" ] if abstract_rake_task_job_debug_verbose
       msg_queue << msg
     end
     sleep job_delay
