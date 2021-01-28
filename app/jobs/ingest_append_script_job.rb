@@ -2,20 +2,21 @@
 
 class IngestAppendScriptJob < ::Hyrax::ApplicationJob
 
-  INGEST_APPEND_JOB_DEBUG_VERBOSE = false
+  mattr_accessor :ingest_append_script_job_debug_verbose
+  @@ingest_append_script_job_debug_verbose = false
 
   include JobHelper
   queue_as ::Deepblue::IngestIntegrationService.ingest_append_queue_name
 
   def perform( path_to_script:, ingester:, **options )
-    ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           Deepblue::LoggingHelper.called_from,
-                                           Deepblue::LoggingHelper.obj_class( 'class', self ),
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                            "path_to_script=#{path_to_script}",
                                            "ingester=#{ingester}",
                                            "options=#{options}",
-                                           Deepblue::LoggingHelper.obj_class( 'options', options ),
-                                           "" ] if INGEST_APPEND_JOB_DEBUG_VERBOSE
+                                           ::Deepblue::LoggingHelper.obj_class( 'options', options ),
+                                           "" ] if ingest_append_script_job_debug_verbose
     # verbose = job_options_value(options, key: 'verbose', default_value: false )
     # ::Deepblue::LoggingHelper.debug "verbose=#{verbose}" if verbose
     # hostnames = job_options_value(options, key: 'hostnames', default_value: [], verbose: verbose )
@@ -27,14 +28,14 @@ class IngestAppendScriptJob < ::Hyrax::ApplicationJob
                                                 mode: 'append',
                                                 options: options )
 
-    ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           Deepblue::LoggingHelper.called_from,
-                                           Deepblue::LoggingHelper.obj_class( 'class', self ),
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                            "path_to_script=#{path_to_script}",
                                            "ingester=#{ingester}",
                                            "options=#{options}",
-                                           Deepblue::LoggingHelper.obj_class( 'options', options ),
-                                           "" ] if INGEST_APPEND_JOB_DEBUG_VERBOSE
+                                           ::Deepblue::LoggingHelper.obj_class( 'options', options ),
+                                           "" ] if ingest_append_script_job_debug_verbose
 
   rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"

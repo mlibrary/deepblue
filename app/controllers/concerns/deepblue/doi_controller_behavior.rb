@@ -4,10 +4,8 @@ module Deepblue
 
   module DoiControllerBehavior
 
-    DOI_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE = false
-
     mattr_accessor :doi_controller_behavior_debug_verbose
-    @@doi_controller_behavior_debug_verbose = DOI_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+    @@doi_controller_behavior_debug_verbose = false
 
     def doi
       msg = doi_mint

@@ -4,6 +4,14 @@ require 'rails_helper'
 
 RSpec.describe SchedulerStartJob, skip: false do
 
+  let(:job_delay) { 0 }
+  let(:restart)   { false }
+  let(:options)   { {} }
+  let(:job)       { described_class.send( :job_or_instantiate,
+                                          job_delay: job_delay,
+                                          restart: restart,
+                                          **options ) }
+
   describe 'module debug verbose variables' do
     it "they have the right values" do
       expect( described_class.scheduler_start_job_debug_verbose ).to eq( false )
@@ -11,14 +19,7 @@ RSpec.describe SchedulerStartJob, skip: false do
   end
 
   context 'with valid arguments and scheduler running' do
-    let(:job_delay) { 0 }
-    let(:restart)   { false }
-    let(:options)   { {} }
-    let(:job)       { described_class.send( :job_or_instantiate,
-                                            job_delay: job_delay,
-                                            restart: restart,
-                                            **options ) }
-    let(:hostname)  { DeepBlueDocs::Application.config.hostname }
+    let(:hostname)  { ::DeepBlueDocs::Application.config.hostname }
     let(:sched_pid) { 123 }
 
     before do
@@ -29,9 +30,16 @@ RSpec.describe SchedulerStartJob, skip: false do
       expect( job ).to receive( :scheduler_emails ).with( subject: "DBD scheduler already running on #{hostname}" )
     end
 
-    it 'calls update_current_month_condensed_events' do
+    it 'starts the scheduler' do
       ActiveJob::Base.queue_adapter = :test
       job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
+    end
+
+  end
+
+  describe '.hostname' do
+    it 'returns the application hostname' do
+      expect( job.hostname ).to eq ::DeepBlueDocs::Application.config.hostname
     end
   end
 

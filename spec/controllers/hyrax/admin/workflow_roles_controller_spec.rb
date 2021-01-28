@@ -1,6 +1,12 @@
 require 'rails_helper'
+include Warden::Test::Helpers
 
-RSpec.describe Hyrax::Admin::WorkflowRolesController, skip: true do
+RSpec.describe Hyrax::Admin::WorkflowRolesController, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  routes { Hyrax::Engine.routes }
+  let(:main_app) { Rails.application.routes.url_helpers }
+
   describe '#index' do
     context "when you have permission" do
       before do
@@ -75,4 +81,5 @@ RSpec.describe Hyrax::Admin::WorkflowRolesController, skip: true do
       end
     end
   end
+
 end

@@ -12,6 +12,7 @@ Deepblue::IngestIntegrationService.setup do |config|
   config.ingest_helper_debug_verbose = false
   config.ingest_job_debug_verbose = false
   config.ingest_job_status_debug_verbose = false
+  config.multiple_ingest_scripts_job_debug_verbose = false
 
   config.characterize_excluded_ext_set = { '.csv' => 'text/plain' }.freeze # , '.nc' => 'text/plain' }.freeze
   config.characterize_enforced_mime_type = { '.csv' => 'text/csv' }.freeze # , '.nc' => 'text/plain' }.freeze

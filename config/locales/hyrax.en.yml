@@ -63,6 +63,7 @@ en:
         google_analytics:   "Google Analytics"
         manage_email:       "Manage Email"
         manage_embargoes:   "Manage Embargoes"
+        manage_ingest:      "Manage Ingest"
         provenance_log:     "Provenance Log"
         resque_web:         "Resque Web Manager"
         scheduler:          "Manage Scheduler"
@@ -99,6 +100,8 @@ en:
           last_updated:         "Last Updated"
       documentation:
         title:              "Manage Documentation"
+      ingest:
+        title:              "Manage Ingests"
       google_analytics:
         title:              "Google Analytics Dashboard"
       manage_email:
@@ -377,6 +380,8 @@ en:
         loaded:             "N/A"
         last_loaded:        "N/A"
         last_loaded_html:   "N/A"
+    ingest:
+      ingest_file_paths:    "Ingest File Paths"
     institution_name:       "Institution"
     institution_name_full:  "The Institution Name"
     manage_email:

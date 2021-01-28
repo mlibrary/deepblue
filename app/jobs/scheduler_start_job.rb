@@ -17,6 +17,8 @@ class SchedulerStartJob < ::Hyrax::ApplicationJob
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                           "job_delay=#{job_delay}",
+                                           "restart=#{restart}",
                                            "options=#{options}",
                                            "" ] if scheduler_start_job_debug_verbose
 
@@ -81,7 +83,7 @@ class SchedulerStartJob < ::Hyrax::ApplicationJob
   end
 
   def hostname
-    DeepBlueDocs::Application.config.hostname
+    ::DeepBlueDocs::Application.config.hostname
   end
 
   def retry_sleep
