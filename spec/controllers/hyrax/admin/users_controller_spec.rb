@@ -1,6 +1,11 @@
 require 'rails_helper'
+include Warden::Test::Helpers
 
-RSpec.describe Hyrax::Admin::UsersController, type: :controller, skip: true do
+RSpec.describe Hyrax::Admin::UsersController, type: :controller, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  routes { Hyrax::Engine.routes }
+
   before do
     expect(controller).to receive(:authorize!).with(:read, :admin_dashboard).and_return(true)
   end
@@ -16,4 +21,5 @@ RSpec.describe Hyrax::Admin::UsersController, type: :controller, skip: true do
       expect(assigns[:presenter]).to be_kind_of Hyrax::Admin::UsersPresenter
     end
   end
+
 end

@@ -1,0 +1,27 @@
+<% provide :page_header do %>
+  <h1><%= t("hyrax.dashboard.ingest.title") %></h1>
+<% end %>
+
+<h2 class="title-header"><%= t('hyrax.ingest.ingest_file_paths') %></h2>
+<%= form_tag(main_app.ingest_dashboard_run_ingests_job_path, method: 'post') do %>
+  <%#= render partial: 'data_set/ingest_append_script_fields' %>
+  <table class="ingest_file_paths table">
+    <tbody>
+    <td>
+    <td><label for="ingest_file_paths_textarea" class="">
+      <%= t('simple_form.ingest_dashboard.labels.ingest_file_paths_textarea') %>:</label>
+    </td>
+    <td>
+      <%= text_area_tag :ingest_script_file_paths_textarea,
+                        @presenter.ingest_file_paths,
+                        rows: 20,
+                        cols: 85,
+                        class: "monospace-textarea" %></td>
+    </td>
+    </tr>
+    </tbody>
+  </table>
+  <%= submit_tag(t('simple_form.actions.ingest.run_ingests_job'),
+                 class: 'btn btn-primary',
+                 data: {confirm: t('simple_form.confirm.ingest.run_ingests_job')} ) %>&nbsp;
+<% end %>

@@ -26,39 +26,34 @@
       <span class="fa fa-flag" aria-hidden="true"></span>
       <span class="sidebar-action-text"><%= t('hyrax.admin.sidebar.documentation') %></span>
     <% end %>
-  <% end %>
 
-  <% if can? :read, :admin_dashboard %>
     <%= menu.nav_link(main_app.email_dashboard_path) do %>
       <span class="fa fa-flag" aria-hidden="true"></span>
       <span class="sidebar-action-text"><%= t('hyrax.admin.sidebar.manage_email') %></span>
     <% end %>
-  <% end %>
 
-  <% if can? :read, :admin_dashboard %>
     <%= menu.nav_link(hyrax.embargoes_path) do %>
       <span class="fa fa-flag" aria-hidden="true"></span>
       <span class="sidebar-action-text"><%= t('hyrax.embargoes.index.manage_embargoes') %></span>
     <% end %>
-  <% end %>
 
-  <% if can? :read, :admin_dashboard %>
+    <%= menu.nav_link(main_app.ingest_dashboard_path) do %>
+      <span class="fa fa-flag" aria-hidden="true"></span>
+      <span class="sidebar-action-text"><%= t('hyrax.admin.sidebar.manage_ingest') %></span>
+    <% end %>
+
     <%= menu.nav_link(main_app.scheduler_dashboard_path) do %>
       <span class="fa fa-flag" aria-hidden="true"></span>
       <span class="sidebar-action-text"><%= t('hyrax.admin.sidebar.scheduler') %></span>
     <% end %>
-  <% end %>
 
-  <% if defined?(Samvera::Persona) %>
-    <% if can? :read, :admin_dashboard %>
+    <% if defined?(Samvera::Persona) %>
       <%= menu.nav_link(main_app.persona_users_path) do %>
         <span class="fa fa-flag" aria-hidden="true"></span>
         <span class="sidebar-action-text"><%= t('hyrax.admin.sidebar.users') %></span>
       <% end %>
     <% end %>
-  <% end %>
 
-  <% if can? :read, :admin_dashboard %>
     <%= menu.nav_link(main_app.provenance_log_path) do %>
       <span class="fa fa-flag" aria-hidden="true"></span>
       <span class="sidebar-action-text"><%= t('hyrax.admin.sidebar.provenance_log') %></span>

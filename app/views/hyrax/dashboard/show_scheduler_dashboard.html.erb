@@ -67,7 +67,9 @@
       </tr-->
     <%# end %>
     <td>
-    <td><label for="edit_schedule_textarea" class=""><%= t('simple_form.scheduler_dashboard.labels.edit_schedule_textarea') %>:</label></td>
+    <td>
+      <label for="edit_schedule_textarea" class=""><%= t('simple_form.scheduler_dashboard.labels.edit_schedule_textarea') %>:</label>
+    </td>
     <td>
       <%= text_area_tag :edit_schedule_textarea,
                         @presenter.edit_schedule,

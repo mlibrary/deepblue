@@ -50,36 +50,24 @@
         <% if can? :read, :admin_dashboard %>
           <li class="dropdown-menu-indent"><%= link_to t('hyrax.admin.sidebar.documentation'),
                                                        main_app.work_view_documentation_path %>
-        <% end %>
-        <% if can? :read, :admin_dashboard %>
           <li class="dropdown-menu-indent"><%= link_to t('hyrax.admin.sidebar.manage_email'),
                                                        main_app.email_dashboard_path %>
-        <% end %>
-        <% if can? :read, :admin_dashboard %>
           <li class="dropdown-menu-indent"><%= link_to t('hyrax.admin.sidebar.manage_embargoes'),
                                                        hyrax.embargoes_path %>
-        <% end %>
-        <% if can? :read, :admin_dashboard %>
+          <li class="dropdown-menu-indent"><%= link_to t('hyrax.admin.sidebar.manage_ingest'),
+                                                       main_app.ingest_dashboard_path %>
           <li class="dropdown-menu-indent"><%= link_to t('hyrax.admin.sidebar.scheduler'),
                                                        main_app.scheduler_dashboard_path %>
-        <% end %>
-        <% if defined?(Samvera::Persona) %>
-          <% if can? :read, :admin_dashboard %>
+          <% if defined?(Samvera::Persona) %>
             <li class="dropdown-menu-indent"><%= link_to t('hyrax.admin.sidebar.users'),
                                                          main_app.persona_users_path %>
           <% end %>
-        <% end %>
-        <% if can? :read, :admin_dashboard %>
           <li class="dropdown-menu-indent"><%= link_to t('hyrax.admin.sidebar.provenance_log'),
                                                        main_app.provenance_log_path %>
-        <% end %>
-        <% if defined?(Rails.application.routes.url_helpers.resque_web_path) %>
-          <% if can? :read, :admin_dashboard %>
+          <% if defined?(Rails.application.routes.url_helpers.resque_web_path) %>
             <li class="dropdown-menu-indent"><%= link_to t('hyrax.admin.sidebar.resque_web'),
                                                          Rails.application.routes.url_helpers.resque_web_path %>
           <% end %>
-        <% end %>
-        <% if can? :read, :admin_dashboard %>
           <li class="dropdown-menu-indent"><%= link_to t('hyrax.admin.sidebar.technical'),
                                                hyrax.admin_features_path %>
         <% end %>

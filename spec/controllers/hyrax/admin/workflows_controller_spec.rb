@@ -1,6 +1,11 @@
 require 'rails_helper'
+include Warden::Test::Helpers
 
-RSpec.describe Hyrax::Admin::WorkflowsController, skip: true do
+RSpec.describe Hyrax::Admin::WorkflowsController, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  routes { Hyrax::Engine.routes }
+
   describe "#index" do
     before do
       expect(controller).to receive(:authorize!).with(:review, :submissions).and_return(true)
@@ -17,4 +22,5 @@ RSpec.describe Hyrax::Admin::WorkflowsController, skip: true do
       expect(assigns[:published_list]).to be_kind_of Hyrax::Workflow::StatusListService
     end
   end
+
 end

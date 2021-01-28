@@ -12,7 +12,7 @@ RSpec.describe RakeTaskJob, skip: false do
     end
   end
 
-  describe 'find and fix job' do
+  describe 'rake task job' do
     let(:job)       { described_class.send( :job_or_instantiate, *args ) }
     let(:rake_task) { 'run_this' }
     let(:verbose)   { false }
@@ -62,10 +62,12 @@ RSpec.describe RakeTaskJob, skip: false do
         end
 
       end
+
       it 'runs the job with the options specified' do
         ActiveJob::Base.queue_adapter = :test
         job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
       end
+
     end
 
     describe 'with valid hostname' do
@@ -87,6 +89,13 @@ RSpec.describe RakeTaskJob, skip: false do
 
       it_behaves_like 'it called initialize_from_args during perform job', run_the_job
 
+    end
+
+    describe '.exec_rake_task' do
+      let(:hostnames) { [] } # needed for creation of job
+      it 'execs call to external program' do
+        expect( job.exec_rake_task( "echo this_is_test") ).to eq "this_is_test\n"
+      end
     end
 
   end

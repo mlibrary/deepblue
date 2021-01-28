@@ -2,7 +2,8 @@
 
 class SchedulerDashboardController < ApplicationController
 
-  SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE = false
+  mattr_accessor :scheduler_dashboard_controller_debug_verbose
+  @@scheduler_dashboard_controller_debug_verbose = false
 
   include ActiveSupport::Concern
   include Blacklight::Base
@@ -22,7 +23,7 @@ class SchedulerDashboardController < ApplicationController
                                            ::Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
                                            "params[:commit]=#{params[:commit]}",
-                                           "" ] if SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if scheduler_dashboard_controller_debug_verbose
     if scheduler_active
       action = params[:commit]
       @action_error = false
@@ -47,7 +48,7 @@ class SchedulerDashboardController < ApplicationController
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "msg=#{msg}",
-                                             "" ] if SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if scheduler_dashboard_controller_debug_verbose
       redirect_to scheduler_dashboard_path, alert: msg
     end
   end
@@ -84,7 +85,7 @@ class SchedulerDashboardController < ApplicationController
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "schedule_file=#{schedule_file}",
-                                           "" ] if SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if scheduler_dashboard_controller_debug_verbose
     return {} unless File.exist? schedule_file
     YAML.load_file( schedule_file )
   end
@@ -109,13 +110,13 @@ class SchedulerDashboardController < ApplicationController
                                            ::Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
                                            "params[:commit]=#{params[:commit]}",
-                                           "" ] if SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if scheduler_dashboard_controller_debug_verbose
     job = params[:commit]
     job_entry = job_schedule[job]
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "job_entry=#{job_entry}",
-                                           "" ] if SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if scheduler_dashboard_controller_debug_verbose
     if job_entry.blank?
       msg = "Job #{job} not found."
       return redirect_to scheduler_dashboard_path, alert: msg
@@ -126,7 +127,7 @@ class SchedulerDashboardController < ApplicationController
                                            ::Deepblue::LoggingHelper.called_from,
                                            "job_class_name=#{job_class_name}",
                                            "args=#{args}",
-                                           "" ] if SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if scheduler_dashboard_controller_debug_verbose
     # Add this hostname to hostnames if it exists
     args['hostnames'] << ::DeepBlueDocs::Application.config.hostname if args.has_key? 'hostnames'
     job_class = job_class_name.constantize
@@ -139,7 +140,7 @@ class SchedulerDashboardController < ApplicationController
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "msg=#{msg}",
-                                           "" ] if SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if scheduler_dashboard_controller_debug_verbose
     redirect_to scheduler_dashboard_path, alert: msg + e.backtrace[0..5].join("\n")
   end
 
@@ -157,7 +158,7 @@ class SchedulerDashboardController < ApplicationController
                                            ::Deepblue::LoggingHelper.called_from,
                                            "subscription_service_id=#{subscription_service_id}",
                                            "current_ability.current_user=#{current_ability.current_user}",
-                                           "" ] if SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if scheduler_dashboard_controller_debug_verbose
     record = EmailSubscription.find_or_create_by( subscription_name: subscription_service_id,
                                                   user_id: current_ability.current_user.id )
     record.save
@@ -168,7 +169,7 @@ class SchedulerDashboardController < ApplicationController
                                            ::Deepblue::LoggingHelper.called_from,
                                            "subscription_service_id=#{subscription_service_id}",
                                            "current_ability.current_user=#{current_ability.current_user}",
-                                           "" ] if SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if scheduler_dashboard_controller_debug_verbose
     record = EmailSubscription.where( subscription_name: subscription_service_id,
                                       user_id: current_ability.current_user.id ).limit( 1 )
     return if record.blank?
@@ -176,7 +177,7 @@ class SchedulerDashboardController < ApplicationController
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "record=#{record}",
-                                           "" ] if SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if scheduler_dashboard_controller_debug_verbose
     record.destroy if record.present?
   end
 
@@ -206,13 +207,13 @@ class SchedulerDashboardController < ApplicationController
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "::Deepblue::SchedulerIntegrationService.scheduler_job_file_path.to_s=#{::Deepblue::SchedulerIntegrationService.scheduler_job_file_path.to_s}",
-                                           "" ] if SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if scheduler_dashboard_controller_debug_verbose
     subscription_service_ids = []
     job_schedule.each do |job_name,job_parameters|
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "job_name=#{job_name}",
-                                             "" ] if SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if scheduler_dashboard_controller_debug_verbose
       args = job_parameters['args']
       if args.present? && args['subscription_service_id'].present?
         subscription_service_id = args['subscription_service_id']
@@ -234,7 +235,7 @@ class SchedulerDashboardController < ApplicationController
                                            ::Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
                                            "params[:commit]=#{params[:commit]}",
-                                           "" ] if SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if scheduler_dashboard_controller_debug_verbose
     subscription_service_id = params[:commit]
     case subscription_service_id
     when /^(.+) \(unsubscribe\)$/
@@ -259,21 +260,21 @@ class SchedulerDashboardController < ApplicationController
     def action_restart
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if scheduler_dashboard_controller_debug_verbose
       ::Deepblue::SchedulerIntegrationService.scheduler_restart
     end
 
     def action_start
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if scheduler_dashboard_controller_debug_verbose
       ::Deepblue::SchedulerIntegrationService.scheduler_start
     end
 
     def action_stop
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if SCHEDULER_DASHBOARD_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if scheduler_dashboard_controller_debug_verbose
       ::Deepblue::SchedulerIntegrationService.scheduler_stop
     end
 
