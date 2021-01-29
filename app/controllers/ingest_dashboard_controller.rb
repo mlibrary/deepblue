@@ -16,7 +16,7 @@ class IngestDashboardController < ApplicationController
   class_attribute :presenter_class
   self.presenter_class = IngestDashboardPresenter
 
-  attr_accessor :paths_to_scripts
+  attr_accessor :ingest_mode, :paths_to_scripts
 
   def load_paths_to_scripts
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -36,6 +36,15 @@ class IngestDashboardController < ApplicationController
   end
 
   def run_ingests_job
+    action = params[:commit]
+    @ingest_mode = case action
+                   when MsgHelper.t( 'simple_form.actions.ingest.run_append_ingests_job' )
+                     'append'
+                   when MsgHelper.t( 'simple_form.actions.ingest.run_populate_ingests_job' )
+                     'populate'
+                   else
+                     'error'
+                   end
     load_paths_to_scripts
     msg = valid_paths_to_scripts
     return redirect_to( ingest_dashboard_path, alert: msg ) unless msg.blank?
@@ -62,7 +71,8 @@ class IngestDashboardController < ApplicationController
                                            "paths_to_scripts=#{paths_to_scripts}",
                                            "" ] if ingest_dashboard_controller_debug_verbose
    if paths_to_scripts.present?
-      MultipleIngestScriptsJob.perform_later( ingester: current_user.email,
+      MultipleIngestScriptsJob.perform_later( ingest_mode: ingest_mode,
+                                              ingester: current_user.email,
                                               paths_to_scripts: paths_to_scripts )
       return "Started ingest scripts:<br/>#{paths_to_scripts.join("<br/>")}"
     end

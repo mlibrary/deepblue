@@ -22,6 +22,8 @@ class SchedulerStartJob < ::Hyrax::ApplicationJob
                                            "options=#{options}",
                                            "" ] if scheduler_start_job_debug_verbose
 
+    @rails_bin_scheduler = Rails.application.root.join( 'bin', 'scheduler.sh' ).to_s
+    @rails_log_scheduler = Rails.application.root.join( 'log', 'scheduler.sh.out' ).to_s
     delay_job job_delay
     restarted = false
     pid = scheduler_pid
@@ -38,8 +40,6 @@ class SchedulerStartJob < ::Hyrax::ApplicationJob
       scheduler_emails( subject: "DBD scheduler already running on #{hostname}" )
       return
     end
-    rails_bin_scheduler = Rails.application.root.join( 'bin', 'scheduler.sh' ).to_s
-    rails_log_scheduler = Rails.application.root.join( 'log', 'scheduler.sh.out' ).to_s
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            ::Deepblue::LoggingHelper.obj_class( 'class', self ),

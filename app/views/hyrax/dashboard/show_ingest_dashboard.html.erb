@@ -21,7 +21,11 @@
     </tr>
     </tbody>
   </table>
-  <%= submit_tag(t('simple_form.actions.ingest.run_ingests_job'),
+  <%= submit_tag(t('simple_form.actions.ingest.run_append_ingests_job'),
                  class: 'btn btn-primary',
-                 data: {confirm: t('simple_form.confirm.ingest.run_ingests_job')} ) %>&nbsp;
+                 data: {confirm: t('simple_form.confirm.ingest.run_append_ingests_job')} ) %>&nbsp;
+  &nbsp;
+  <%= submit_tag(t('simple_form.actions.ingest.run_populate_ingests_job'),
+                 class: 'btn btn-primary',
+                 data: {confirm: t('simple_form.confirm.ingest.run_populate_ingests_job')} ) %>&nbsp;
 <% end %>
