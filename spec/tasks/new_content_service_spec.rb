@@ -2,6 +2,8 @@
 
 require 'rails_helper'
 
+require_relative "../../lib/tasks/new_content_service"
+
 RSpec.describe ::Deepblue::NewContentService do
 
   describe 'constants' do
