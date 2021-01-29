@@ -36,6 +36,8 @@ en:
       email_management:
         reload_email_templates:         "Reload Email Templates"
       ingest:
+        run_append_ingests_job:         "Run Append Ingests Job"
+        run_populate_ingests_job:       "Run Populate Ingests Job"
         run_ingests_job:                "Run Ingests Job"
       scheduler:
         restart:                        "Restart Scheduler"
@@ -53,6 +55,8 @@ en:
       data_set:
         ingest_append_run_job:          "Are you sure you want to run the append script job?"
       ingest:
+        run_append_ingests_job:         "Are you sure you want to run append ingests job?"
+        run_populate_ingests_job:       "Are you sure you want to run populate ingests job?"
         run_ingests_job:                "Are you sure you want to run ingests job?"
       scheduler:
         update_schedule:                "Are you sure you want to update the schedule?"

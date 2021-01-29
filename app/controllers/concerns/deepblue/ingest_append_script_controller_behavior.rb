@@ -348,7 +348,9 @@ module Deepblue
                                              Deepblue::LoggingHelper.called_from,
                                              "IngestAppendScriptJob.perform_later( path_to_script: #{path_to_script}, ingester: #{ingest_ingester} )",
                                              "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
-      IngestAppendScriptJob.perform_later( path_to_script: path_to_script, ingester: ingest_ingester )
+      IngestScriptJob.perform_later( ingest_mode: 'append',
+                                     ingester: ingest_ingester,
+                                     path_to_script: path_to_script  )
       true
     end
 

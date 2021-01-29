@@ -35,6 +35,11 @@ RSpec.describe SchedulerStartJob, skip: false do
       job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
     end
 
+    after do
+      expect( job.rails_bin_scheduler ).to eq Rails.application.root.join( 'bin', 'scheduler.sh' ).to_s
+      expect( job.rails_log_scheduler ).to eq Rails.application.root.join( 'log', 'scheduler.sh.out' ).to_s
+    end
+
   end
 
   describe '.hostname' do
