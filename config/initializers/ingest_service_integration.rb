@@ -8,11 +8,14 @@ Deepblue::IngestIntegrationService.setup do |config|
   config.attach_files_to_work_job_debug_verbose = false
   config.characterize_job_debug_verbose = false
   config.characterization_service_verbose = false
+  config.ingest_content_service_debug_verbose = true
   config.create_derivatives_job_debug_verbose = false
   config.ingest_helper_debug_verbose = false
-  config.ingest_job_debug_verbose = false
+  config.ingest_job_debug_verbose = true
   config.ingest_job_status_debug_verbose = false
-  config.multiple_ingest_scripts_job_debug_verbose = false
+  config.ingest_script_job_debug_verbose = true
+  config.multiple_ingest_scripts_job_debug_verbose = true
+  config.new_content_service_debug_verbose = false
 
   config.characterize_excluded_ext_set = { '.csv' => 'text/plain' }.freeze # , '.nc' => 'text/plain' }.freeze
   config.characterize_enforced_mime_type = { '.csv' => 'text/csv' }.freeze # , '.nc' => 'text/plain' }.freeze

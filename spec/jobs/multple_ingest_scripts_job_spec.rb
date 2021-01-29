@@ -11,7 +11,7 @@ RSpec.describe MultipleIngestScriptsJob, skip: false do
 
   describe 'module debug verbose variables' do
     it "they have the right values" do
-      expect( described_class.multiple_ingest_scripts_job_debug_verbose ).to eq( false )
+      expect( described_class.multiple_ingest_scripts_job_debug_verbose ).to eq true
     end
   end
 
@@ -26,7 +26,7 @@ RSpec.describe MultipleIngestScriptsJob, skip: false do
                                                    **options ) }
 
     before do
-      expect( described_class.multiple_ingest_scripts_job_debug_verbose ).to eq false
+      expect( described_class.multiple_ingest_scripts_job_debug_verbose ).to eq true
       expect( job ).to receive( :init_paths_to_scripts ).with( paths_to_scripts ).and_call_original
       expect( job ).to receive( :validate_paths_to_scripts ).with( no_args ).and_return true
       expect( job ).to receive( :ingest_script_run ).with( path_to_script: path1 ).and_call_original

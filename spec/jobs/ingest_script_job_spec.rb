@@ -6,7 +6,7 @@ RSpec.describe IngestScriptJob, skip: false do
 
   describe 'module debug verbose variables' do
     it "they have the right values" do
-      expect( described_class.ingest_script_job_debug_verbose ).to eq(false )
+      expect( described_class.ingest_script_job_debug_verbose ).to eq true
     end
   end
 
@@ -23,7 +23,7 @@ RSpec.describe IngestScriptJob, skip: false do
     let(:hostname)  { DeepBlueDocs::Application.config.hostname }
 
     before do
-      expect( described_class.ingest_script_job_debug_verbose ).to eq false
+      expect( described_class.ingest_script_job_debug_verbose ).to eq true
       expect( ::Deepblue::IngestContentService ).to receive( :call ).with( path_to_yaml_file: path_to_script,
                                                          ingester: ingester,
                                                          mode: ingest_mode,

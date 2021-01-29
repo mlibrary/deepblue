@@ -14,10 +14,13 @@ module Deepblue
     @@characterize_job_debug_verbose = false
     @@characterization_service_verbose = false
     @@create_derivatives_job_debug_verbose = false
+    @@ingest_content_service_debug_verbose = false
     @@ingest_helper_debug_verbose = false
     @@ingest_job_debug_verbose = false
     @@ingest_job_status_debug_verbose = false
+    @@ingest_script_job_debug_verbose = false
     @@multiple_ingest_scripts_job_debug_verbose = false
+    @@new_content_service_debug_verbose = false
 
     @@characterize_excluded_ext_set
     @@characterize_enforced_mime_type
@@ -45,11 +48,14 @@ module Deepblue
                    :ingest_append_ui_allowed_base_directories,
                    :ingest_append_ui_allow_scripts_to_run,
                    :ingest_append_queue_name,
+                   :ingest_content_service_debug_verbose,
                    :ingest_helper_debug_verbose,
                    :ingest_job_debug_verbose,
                    :ingest_job_status_debug_verbose,
                    :ingest_script_dir,
-                   :multiple_ingest_scripts_job_debug_verbose
+                   :ingest_script_job_debug_verbose,
+                   :multiple_ingest_scripts_job_debug_verbose,
+                   :new_content_service_debug_verbose
 
     def self.setup
       return if @@_setup_ran == true
