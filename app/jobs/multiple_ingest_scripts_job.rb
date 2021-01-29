@@ -46,7 +46,7 @@ class MultipleIngestScriptsJob < ::Hyrax::ApplicationJob
     return false if path_to_script.blank?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "IngestAppendScriptJob.perform_later( path_to_script: #{path_to_script}, ingester: #{ingester} )",
+                                           "IngestAppendScriptJob.perform_now( path_to_script: #{path_to_script}, ingester: #{ingester} )",
                                            "" ] if multiple_ingest_scripts_job_debug_verbose
     IngestScriptJob.perform_now( ingest_mode: ingest_mode,
                                  ingester: ingester,

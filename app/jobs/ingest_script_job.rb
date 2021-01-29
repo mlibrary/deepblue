@@ -3,7 +3,7 @@
 class IngestScriptJob < ::Hyrax::ApplicationJob
 
   mattr_accessor :ingest_script_job_debug_verbose
-  @@ingest_script_job_debug_verbose = false
+  @@ingest_script_job_debug_verbose = ::Deepblue::IngestIntegrationService.ingest_script_job_debug_verbose
 
   include JobHelper
   queue_as ::Deepblue::IngestIntegrationService.ingest_append_queue_name
