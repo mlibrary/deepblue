@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
+require_relative './task_logger'
+require_relative './task_helper'
+
 module Deepblue
 
-  require 'tasks/task_logger'
+  #require 'tasks/task_logger'
 
   # rubocop:disable Rails/Output
   class AbstractTask

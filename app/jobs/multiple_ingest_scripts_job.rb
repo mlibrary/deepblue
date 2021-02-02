@@ -5,12 +5,19 @@ class MultipleIngestScriptsJob < ::Hyrax::ApplicationJob
   mattr_accessor :multiple_ingest_scripts_job_debug_verbose
   @@multiple_ingest_scripts_job_debug_verbose = ::Deepblue::IngestIntegrationService.multiple_ingest_scripts_job_debug_verbose
 
+  mattr_accessor :scripts_allowed_path_extensions
+  @@scripts_allowed_path_extensions = [ '.yml', '.yaml' ]
+
+  mattr_accessor :scripts_allowed_path_prefixes
+  @@scripts_allowed_path_prefixes = [ '/deepbluedata-prep/', './data/reports/', '/deepbluedata-globus/upload/' ]
+
   include JobHelper
   queue_as Hyrax.config.ingest_queue_name
 
   attr_accessor :ingest_mode, :ingester, :paths_to_scripts
 
   def perform( ingest_mode:, ingester:, paths_to_scripts:, **options )
+    email_targets << ingester
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            ::Deepblue::LoggingHelper.obj_class( 'class', self ),
@@ -27,9 +34,13 @@ class MultipleIngestScriptsJob < ::Hyrax::ApplicationJob
     self.paths_to_scripts.each do |script_path|
       ingest_script_run( path_to_script: script_path )
     end
+    email_results
   rescue Exception => e # rubocop:disable Lint/RescueException
-    Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
-    Rails.logger.error e.backtrace.join("\n")
+    # Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
+    # Rails.logger.error e.backtrace.join("\n")
+    # raise e
+    queue_exception_msgs e
+    email_failure( exception: e, targets: [ingester] )
     raise e
   end
 
@@ -51,6 +62,7 @@ class MultipleIngestScriptsJob < ::Hyrax::ApplicationJob
     IngestScriptJob.perform_now( ingest_mode: ingest_mode,
                                  ingester: ingester,
                                  path_to_script: path_to_script )
+    job_msg_queue << "Finished processing #{path_to_script} at #{DateTime.now}"
     true
   end
 
@@ -63,8 +75,29 @@ class MultipleIngestScriptsJob < ::Hyrax::ApplicationJob
 
   def validate_paths_to_scripts
     paths_to_scripts.each do |script_path|
-      return false unless File.readable? script_path
+      return false unless validate_path_to_script script_path
     end
+    return true
+  end
+
+  def validate_path_to_script( path )
+    file = path
+    return false unless queue_msg_unless?( file.present?, "ERROR: file path empty." )
+    return false unless queue_msg_unless?( File.exist?( file ), "ERROR: file '#{file}' not found." )
+    ext = File.extname file
+    return false unless queue_msg_unless?( scripts_allowed_path_extensions.include?( ext ),
+                                           "ERROR: expected file '#{file}' to have one of these extensions:",
+                                           more_msgs: scripts_allowed_path_extensions )
+    allowed = false
+    scripts_allowed_path_prefixes.each do |prefix|
+      if file.starts_with prefix
+        allowed = true
+        break
+      end
+    end
+    return false unless queue_msg_unless?( allowed,
+                                           "ERROR: expected file '#{file}' path to start with:",
+                                           more_msgs: scripts_allowed_path_prefixes )
     return true
   end
 

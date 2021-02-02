@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative './task_logger'
+
 module Deepblue
 
   # see: http://ruby-doc.org/stdlib-2.0.0/libdoc/benchmark/rdoc/Benchmark.html
@@ -44,7 +46,7 @@ module Deepblue
 
     def self.hydra_model_work?( hydra_model: )
       if dbd_version_1?
-        'GenericWork' == hyrda_model
+        'GenericWork' == hydra_model
       else
         'DataSet' == hydra_model
       end

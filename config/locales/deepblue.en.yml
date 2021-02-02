@@ -216,6 +216,17 @@ en:
         language: >
           List the language(s) in which the data and supplementary content are written; these could be spoken languages
           or formal languages, such as programming languages.
+      ingest:
+        dashboard_html: >
+          Specify one or more file in the text area. Only yaml files from the following paths are allowed:
+          %{allowed_path_prefixes}
+          Blank lines will be ignored.
+      report:
+        dashboard_html: >
+          Use the report path to specify a yaml report file. Only yaml files from the following paths are allowed:
+          %{allowed_path_prefixes}
+          Press the "%{run_button}" to run the report. It isn't necessary to load the file.<br/>
+          You can also load, edit, and save the file if necessary.
 
       collection:
         title:

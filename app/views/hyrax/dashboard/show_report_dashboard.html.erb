@@ -1,0 +1,38 @@
+<% provide :page_header do %>
+  <h1><%= t("hyrax.dashboard.report.title") %></h1>
+<% end %>
+
+<h2 class="title-header"><%= t('hyrax.report.report_file_paths') %></h2>
+<%= form_tag(main_app.report_dashboard_run_action_path, method: 'post') do %>
+  <p><%= t('simple_form.hints.report.dashboard_html',
+           allowed_path_prefixes: @presenter.allowed_path_prefixes,
+           run_button: @presenter.run_button ) %>
+  </p>
+  <label for="report_file_path" class=""><%= t('simple_form.report_dashboard.labels.report_file_path') %>:</label>
+  <%= text_field_tag :report_file_path, @presenter.report_file_path, size: 85 %>&nbsp;
+  <%= submit_tag(t('simple_form.actions.report.run_load_report_script'), class: 'btn btn-primary') %>&nbsp;
+  <%#= render partial: 'data_set/report_append_script_fields' %>
+  <table class="report_file_paths table">
+    <tbody>
+    <td>
+    <td><label for="edit_report_textarea" class="">
+      <%= t('simple_form.report_dashboard.labels.edit_report_textarea') %>:</label>
+    </td>
+    <td>
+      <%= text_area_tag :edit_report_textarea,
+                        @presenter.edit_report_textarea,
+                        rows: 20,
+                        cols: 85,
+                        class: "monospace-textarea" %></td>
+    </td>
+    </tr>
+    </tbody>
+  </table>
+  <%= submit_tag(t('simple_form.actions.report.run_save_report_script'),
+                 class: 'btn btn-primary',
+                 data: {confirm: t('simple_form.confirm.report.run_save_report_script')} ) %>&nbsp;
+  <%= submit_tag( @presenter.run_button,
+                 class: 'btn btn-primary',
+                 data: {confirm: t('simple_form.confirm.report.run_report_job')} ) %>&nbsp;
+  &nbsp;
+<% end %>

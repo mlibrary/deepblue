@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-class IngestDashboardPresenter
+class ReportDashboardPresenter
 
   include ::Deepblue::DeepbluePresenterBehavior
 
-  delegate :some_method, to: :controller
+  delegate :edit_report_textarea, :report_file_path, to: :controller
 
   attr_accessor :controller, :current_ability
 
@@ -14,11 +14,11 @@ class IngestDashboardPresenter
   end
 
   def allowed_path_prefixes
-    MultipleIngestScriptsJob.scripts_allowed_path_prefixes
+    ReportTaskJob.report_task_allowed_path_prefixes
   end
 
-  def ingest_file_paths
-    "" # initially none, will want to carry them forward in the future
+  def run_button
+    I18n.t('simple_form.actions.report.run_report_job')
   end
 
 end

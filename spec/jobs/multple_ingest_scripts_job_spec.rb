@@ -15,6 +15,15 @@ RSpec.describe MultipleIngestScriptsJob, skip: false do
     end
   end
 
+  describe 'module variables' do
+    it "they have the right values" do
+      expect( described_class.scripts_allowed_path_extensions ).to eq [ '.yml', '.yaml' ]
+      expect( described_class.scripts_allowed_path_prefixes ).to eq [ '/deepbluedata-prep/',
+                                                                      './data/reports/',
+                                                                      '/deepbluedata-globus/upload/' ]
+    end
+  end
+
   context 'with valid arguments and two paths' do
     let(:path1)            { '/some/path/to/script1' }
     let(:path2)            { '/some/path/to/script2' }
@@ -31,10 +40,12 @@ RSpec.describe MultipleIngestScriptsJob, skip: false do
       expect( job ).to receive( :validate_paths_to_scripts ).with( no_args ).and_return true
       expect( job ).to receive( :ingest_script_run ).with( path_to_script: path1 ).and_call_original
       expect( job ).to receive( :ingest_script_run ).with( path_to_script: path2 ).and_call_original
-      expect(ingest_script_job ).to receive(:perform_now ).with( ingest_mode: ingest_mode,
+      expect( job ).to receive( :email_results ).with( no_args )
+      expect( job ).to_not receive( :email_failure ).with( any_args )
+      expect( ingest_script_job ).to receive(:perform_now ).with( ingest_mode: ingest_mode,
                                                                  ingester: ingester,
                                                                  path_to_script: path1 )
-      expect(ingest_script_job ).to receive(:perform_now ).with( ingest_mode: ingest_mode,
+      expect( ingest_script_job ).to receive(:perform_now ).with( ingest_mode: ingest_mode,
                                                                  ingester: ingester,
                                                                  path_to_script: path2 )
     end

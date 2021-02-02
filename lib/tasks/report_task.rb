@@ -3,7 +3,8 @@
 module Deepblue
 
   require 'csv'
-  require 'tasks/abstract_report_task'
+  # require 'tasks/abstract_report_task'
+  require_relative './abstract_report_task'
 
   class AbstractCurationConcernFilter
 
@@ -21,9 +22,66 @@ module Deepblue
 
   class CurationConcernFilterDate < AbstractCurationConcernFilter
 
+    attr_reader :attribute, :begin_date, :end_date
+
     def to_datetime( date, format )
       return nil if date.blank?
-      return DateTime.parse( date ) if format.nil?
+      if format.nil?
+        case date
+        when /^now$/
+          return DateTime.now
+        when /^now\s+([+-])\s*([0-9]+)\s+(days?|weeks?|months?|years?)$/
+          plus_minus = Regexp.last_match 1
+          number = Regexp.last_match 2
+          number = number.to_i
+          units = Regexp.last_match 3
+          if '-' == plus_minus
+            case units
+            when 'day'
+              return DateTime.now - number.day
+            when 'days'
+              return DateTime.now - number.days
+            when 'week'
+              return DateTime.now - number.week
+            when 'weeks'
+              return DateTime.now - number.weeks
+            when 'month'
+              return DateTime.now - number.month
+            when 'months'
+              return DateTime.now - number.months
+            when 'year'
+              return DateTime.now - number.year
+            when 'years'
+              return DateTime.now - number.years
+            else
+              raise RuntimeError 'Should never get here.'
+            end
+          else
+            case units
+            when 'day'
+              return DateTime.now + number.day
+            when 'days'
+              return DateTime.now + number.days
+            when 'week'
+              return DateTime.now + number.week
+            when 'weeks'
+              return DateTime.now + number.weeks
+            when 'month'
+              return DateTime.now + number.month
+            when 'months'
+              return DateTime.now + number.months
+            when 'year'
+              return DateTime.now + number.year
+            when 'years'
+              return DateTime.now + number.years
+            else
+              raise RuntimeError 'Should never get here.'
+            end
+          end
+        else
+          return DateTime.parse( date ) if format.nil?
+        end
+      end
       return DateTime.strptime( date, format )
     end
 
@@ -124,37 +182,54 @@ module Deepblue
 
   class ReportTask < AbstractReportTask
 
-    attr_reader :current_child, :current_child_index
+    DEFAULT_REPORT_EXTENSIONS = [ '.yml', '.yaml' ]
 
+    mattr_accessor :report_task_verbose_debug
+    @@report_task_verbose_debug = false
+
+    attr_reader :allowed_path_extensions
+    attr_reader :allowed_path_prefixes
+    attr_reader :current_child, :current_child_index
     attr_reader :curation_concern, :config, :fields, :field_formats, :filters, :output
     attr_reader :filter_exclude, :filter_include
     attr_reader :include_children, :include_children_parent_columns_blank, :include_children_parent_columns
     attr_reader :report_definitions, :report_definitions_file
     attr_reader :field_format_strings, :output_file
+    attr_reader :reporter
 
-    def initialize( report_definitions_file:, options: {} )
+    def initialize( report_definitions_file: nil,
+                    reporter: nil,
+                    allowed_path_extensions: DEFAULT_REPORT_EXTENSIONS,
+                    allowed_path_prefixes: nil,
+                    options: {} )
+
       super( options: options )
-      @report_format = report_definitions_file
-      @report_definitions_file = report_definitions_file
-      load_report_definitions
-      @config = report_sub_hash( key: :config )
-      @verbose = hash_value( hash: config, key: :verbose, default_value: verbose )
-      @include_children = hash_value( hash: config, key: :include_children, default_value: false )
-      @include_children_parent_columns_blank = hash_value( hash: config,
-                                                           key: :include_children_parent_columns_blank,
-                                                           default_value: false )
-      @include_children_parent_columns = hash_value( hash: config,
-                                                     key: :include_children_parent_columns,
-                                                     default_value: {} )
-      @field_accessors = report_sub_hash( key: :field_accessors )
-      @field_accessor_modes = {}
-      @curation_concern = report_hash_value( key: :curation_concern )
-      @fields = report_sub_hash( key: :fields )
-      @field_formats = report_sub_hash( key: :field_formats )
-      @field_format_strings = {}
-      @filters = report_sub_hash( key: :filters )
-      build_filters
-      @output = report_sub_hash( key: :output )
+      if report_definitions_file.present?
+        @report_format = report_definitions_file
+        @report_definitions_file = report_definitions_file
+        @reporter = reporter
+        @allowed_path_extensions = allowed_path_extensions
+        @allowed_path_prefixes = allowed_path_prefixes
+        load_report_definitions
+        @config = report_sub_hash( key: :config )
+        @verbose = hash_value( hash: config, key: :verbose, default_value: verbose )
+        @include_children = hash_value( hash: config, key: :include_children, default_value: false )
+        @include_children_parent_columns_blank = hash_value( hash: config,
+                                                             key: :include_children_parent_columns_blank,
+                                                             default_value: false )
+        @include_children_parent_columns = hash_value( hash: config,
+                                                       key: :include_children_parent_columns,
+                                                       default_value: {} )
+        @field_accessors = report_sub_hash( key: :field_accessors )
+        @field_accessor_modes = {}
+        @curation_concern = report_hash_value( key: :curation_concern )
+        @fields = report_sub_hash( key: :fields )
+        @field_formats = report_sub_hash( key: :field_formats )
+        @field_format_strings = {}
+        @filters = report_sub_hash( key: :filters )
+        build_filters
+        @output = report_sub_hash( key: :output )
+      end
     end
 
     def build_filters
@@ -321,11 +396,30 @@ module Deepblue
 
     def load_report_definitions
       # puts "report_definitions_file=#{report_definitions_file}"
-      if File.exist? report_definitions_file
+      if report_definitions_file_validate
         @report_definitions = YAML.load_file( report_definitions_file )
       else
         raise "report definitions file not found: '#{report_definitions_file}'"
       end
+    end
+
+    def report_definitions_file_validate
+      file = report_definitions_file
+      return false unless file.present?
+      return false unless File.exist? file
+      ext = File.extname file
+      return false unless allowed_path_extensions.include? ext
+      if allowed_path_prefixes.present?
+        allowed = false
+        allowed_path_prefixes.each do |prefix|
+          if file.starts_with prefix
+            allowed = true
+            break
+          end
+        end
+        return false unless allowed
+      end
+      return true
     end
 
     def report_hash_value( base_key: :report, key:, default_value: nil )
@@ -377,6 +471,13 @@ module Deepblue
     def write_report
       puts "curation_concern=#{curation_concern}"
       @output_file = hash_value( hash: output, key: :file )
+      now = DateTime.now
+      @output_file.gsub!( /%YYYY/, now.year ) if @output_file =~ /%YYYY/
+      @output_file.gsub!( /%MM/, now.month ) if @output_file =~ /%MM/
+      @output_file.gsub!( /%DD/, now.day ) if @output_file =~ /%DD/
+      @output_file.gsub!( /%hh/, now.hour ) if @output_file =~ /%hh/
+      @output_file.gsub!( /%mm/, now.minute ) if @output_file =~ /%mm/
+      @output_file.gsub!( /%ss/, now.second ) if @output_file =~ /%ss/
       puts "output_file=#{output_file}"
       output_format = hash_value( hash: output, key: :format )
       puts "output_format=#{output_format}"
