@@ -14,6 +14,9 @@ module Deepblue
     @@characterize_job_debug_verbose = false
     @@characterization_service_verbose = false
     @@create_derivatives_job_debug_verbose = false
+    @@ingest_allowed_path_prefixes = []
+    @@ingest_append_ui_allowed_base_directories = []
+    @@ingest_append_ui_allow_scripts_to_run = true
     @@ingest_content_service_debug_verbose = false
     @@ingest_helper_debug_verbose = false
     @@ingest_job_debug_verbose = false
@@ -45,6 +48,7 @@ module Deepblue
                    :characterization_service_verbose,
                    :create_derivatives_job_debug_verbose,
                    :deepbluedata_prep,
+                   :ingest_allowed_path_prefixes,
                    :ingest_append_ui_allowed_base_directories,
                    :ingest_append_ui_allow_scripts_to_run,
                    :ingest_append_queue_name,

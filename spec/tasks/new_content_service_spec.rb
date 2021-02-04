@@ -4,7 +4,7 @@ require 'rails_helper'
 
 require_relative "../../lib/tasks/new_content_service"
 
-RSpec.describe ::Deepblue::NewContentService do
+RSpec.describe ::Deepblue::NewContentService, skip: false do
 
   describe 'constants' do
     it "resolves them" do

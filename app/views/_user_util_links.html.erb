@@ -56,6 +56,8 @@
                                                        hyrax.embargoes_path %>
           <li class="dropdown-menu-indent"><%= link_to t('hyrax.admin.sidebar.manage_ingest'),
                                                        main_app.ingest_dashboard_path %>
+          <li class="dropdown-menu-indent"><%= link_to t('hyrax.admin.sidebar.manage_reports'),
+                                                       main_app.report_dashboard_path %>
           <li class="dropdown-menu-indent"><%= link_to t('hyrax.admin.sidebar.scheduler'),
                                                        main_app.scheduler_dashboard_path %>
           <% if defined?(Samvera::Persona) %>

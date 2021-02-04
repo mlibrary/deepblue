@@ -31,6 +31,7 @@ RSpec.describe '/_user_util_links.html.erb', type: :view do
       expect( rendered ).not_to have_link t('hyrax.admin.sidebar.manage_email'), href: main_app.email_dashboard_path
       expect( rendered ).not_to have_link t('hyrax.admin.sidebar.manage_embargoes'), href: hyrax.embargoes_path
       expect( rendered ).not_to have_link t('hyrax.admin.sidebar.manage_ingest'), href: main_app.ingest_dashboard_path
+      expect( rendered ).not_to have_link t('hyrax.admin.sidebar.manage_reports'), href: main_app.report_dashboard_path
       expect( rendered ).not_to have_link t('hyrax.admin.sidebar.scheduler'), href: main_app.scheduler_dashboard_path
       expect( rendered ).not_to have_link t('hyrax.admin.sidebar.provenance_log'), href: main_app.scheduler_dashboard_path
       expect( rendered ).not_to have_link t('hyrax.admin.sidebar.users'), href: main_app.persona_users_path
@@ -99,6 +100,7 @@ RSpec.describe '/_user_util_links.html.erb', type: :view do
       expect( rendered ).to have_link t('hyrax.admin.sidebar.manage_email'), href: main_app.email_dashboard_path
       expect( rendered ).to have_link t('hyrax.admin.sidebar.manage_embargoes'), href: hyrax.embargoes_path
       expect( rendered ).to have_link t('hyrax.admin.sidebar.manage_ingest'), href: main_app.ingest_dashboard_path
+      expect( rendered ).to have_link t('hyrax.admin.sidebar.manage_reports'), href: main_app.report_dashboard_path
       expect( rendered ).to have_link t('hyrax.admin.sidebar.scheduler'), href: main_app.scheduler_dashboard_path
       expect( rendered ).to have_link t('hyrax.admin.sidebar.users'), href: main_app.persona_users_path
       expect( rendered ).to have_link t('hyrax.admin.sidebar.provenance_log'), href: main_app.provenance_log_path

@@ -101,8 +101,14 @@ END_BODY
       end
     end
 
+    def self.email_merge_targets( subscription_service_id:, targets: )
+      return targets unless subscription_service_id.present?
+      ::Deepblue::EmailSubscriptionService.merge_targets_and_subscribers( targets: targets,
+                                                                  subscription_service_id: subscription_service_id )
+    end
+
     def self.email_failure( targets:,
-                            subscription_service_id:,
+                            subscription_service_id: nil,
                             task_name:,
                             exception:,
                             event:,
@@ -122,8 +128,7 @@ END_BODY
                                              "timestamp_begin=#{timestamp_begin}",
                                              "timestamp_end=#{timestamp_end}",
                                              "" ] if job_task_helper_debug_verbose
-      targets = ::Deepblue::EmailSubscriptionService.merge_targets_and_subscribers( targets: targets,
-                                                                                    subscription_service_id: subscription_service_id )
+      targets = email_merge_targets( subscription_service_id: subscription_service_id, targets: targets )
       return if targets.blank?
       timestamp_end = DateTime.now if timestamp_end.blank?
       body =<<-END_BODY
@@ -179,8 +184,7 @@ END_BODY
                                              "timestamp_begin=#{timestamp_begin}",
                                              "timestamp_end=#{timestamp_end}",
                                              "" ] if job_task_helper_debug_verbose
-      targets = ::Deepblue::EmailSubscriptionService.merge_targets_and_subscribers( targets: targets,
-                                                                                    subscription_service_id: subscription_service_id )
+      targets = email_merge_targets( subscription_service_id: subscription_service_id, targets: targets )
       return if targets.blank?
       timestamp_end = DateTime.now if timestamp_end.blank?
       body =<<-END_BODY

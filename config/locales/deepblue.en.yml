@@ -216,7 +216,23 @@ en:
         language: >
           List the language(s) in which the data and supplementary content are written; these could be spoken languages
           or formal languages, such as programming languages.
-
+      ingest:
+        dashboard_part_1_html: >
+          Specify one or more files in the text area below one file per line.<br/>
+          Only yaml files from the following paths are allowed:
+        dashboard_part_2_html: >
+          Blank lines will be ignored.</br>
+          Press the "Populate" button if the ingest files are intended to create works.</br>
+          Press the "Append" button if the ingest files are intended to add files to work(s).</br>
+          You will be emailed when all the ingest files are finished.
+      report:
+        dashboard_part_1_html: >
+          Use the report path to specify a yaml report file.<br/>
+          Only yaml files from the following paths are allowed:
+        dashboard_part_2_html: >
+          Press the "%{run_button}" to generate the report and you will be emailed when it's finishes.</br>
+          It isn't necessary to load the file.<br/>
+          You can also load, edit, and save the report file.
       collection:
         title:
           'Provide a descriptive name for the work. What is it formally known as?'

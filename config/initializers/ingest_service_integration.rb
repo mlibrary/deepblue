@@ -24,7 +24,7 @@ Deepblue::IngestIntegrationService.setup do |config|
   config.characterize_mime_type_ext_mismatch_fix = { ".html" => 'text/html' }.freeze
 
   config.ingest_append_queue_name = :default
-  allowed_dirs = [ "/deepbluedata-prep", "/deepbluedata-globus" ]
+  allowed_dirs = [ "/deepbluedata-prep", "/deepbluedata-globus", "./data/" ]
   if Rails.env.development?
     allowed_dirs << File.join( Dir.home, 'Downloads' ).to_s
     allowed_dirs << Rails.application.root.join( 'data' ).to_s
@@ -45,6 +45,7 @@ Deepblue::IngestIntegrationService.setup do |config|
     config.deepbluedata_prep = '/deepbluedata-prep'
   end
   config.ingest_append_ui_allowed_base_directories = allowed_dirs
+  config.ingest_allowed_path_prefixes = allowed_dirs
   ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                          Deepblue::LoggingHelper.called_from,
                                          "DeepBlueDocs::Application.config.hostname = #{DeepBlueDocs::Application.config.hostname}",

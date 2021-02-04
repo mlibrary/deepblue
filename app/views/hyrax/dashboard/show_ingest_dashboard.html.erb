@@ -4,6 +4,15 @@
 
 <h2 class="title-header"><%= t('hyrax.ingest.ingest_file_paths') %></h2>
 <%= form_tag(main_app.ingest_dashboard_run_ingests_job_path, method: 'post') do %>
+  <div class="documentation-div">
+    <p><%= t('simple_form.hints.ingest.dashboard_part_1_html') %></p>
+    <ul class="">
+      <% @view_presenter.allowed_path_prefixes.each do |path| %>
+        <li><code><%= path %></code></li>
+      <% end %>
+    </ul>
+    <p><%= t('simple_form.hints.ingest.dashboard_part_2_html') %></p>
+  </div>
   <%#= render partial: 'data_set/ingest_append_script_fields' %>
   <table class="ingest_file_paths table">
     <tbody>
@@ -13,7 +22,7 @@
     </td>
     <td>
       <%= text_area_tag :ingest_script_file_paths_textarea,
-                        @presenter.ingest_file_paths,
+                        @view_presenter.ingest_file_paths,
                         rows: 20,
                         cols: 85,
                         class: "monospace-textarea" %></td>

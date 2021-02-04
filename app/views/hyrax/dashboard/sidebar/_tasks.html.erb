@@ -42,6 +42,11 @@
       <span class="sidebar-action-text"><%= t('hyrax.admin.sidebar.manage_ingest') %></span>
     <% end %>
 
+    <%= menu.nav_link(main_app.report_dashboard_path) do %>
+      <span class="fa fa-flag" aria-hidden="true"></span>
+      <span class="sidebar-action-text"><%= t('hyrax.admin.sidebar.manage_reports') %></span>
+    <% end %>
+
     <%= menu.nav_link(main_app.scheduler_dashboard_path) do %>
       <span class="fa fa-flag" aria-hidden="true"></span>
       <span class="sidebar-action-text"><%= t('hyrax.admin.sidebar.scheduler') %></span>

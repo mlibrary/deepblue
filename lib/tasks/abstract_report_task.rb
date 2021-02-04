@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
+require_relative './abstract_task'
+
 module Deepblue
 
-  require 'tasks/abstract_task'
+  #require 'tasks/abstract_task'
 
-  class AbstractReportTask < AbstractTask
+  class AbstractReportTask < ::Deepblue::AbstractTask
 
     DEFAULT_REPORT_FORMAT = 'report.yml'
 

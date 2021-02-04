@@ -64,6 +64,7 @@ en:
         manage_email:       "Manage Email"
         manage_embargoes:   "Manage Embargoes"
         manage_ingest:      "Manage Ingest"
+        manage_reports:     "Manage Reports"
         provenance_log:     "Provenance Log"
         resque_web:         "Resque Web Manager"
         scheduler:          "Manage Scheduler"
@@ -117,6 +118,8 @@ en:
         heading:
           date_created:     "Date Created"
           date_uploaded:    "Date Created"
+      report:
+        title:              "Manage Reports"
       review_submissions:
         heading:
           depositor:        "Depositor"
@@ -405,6 +408,8 @@ en:
         metadata_guidance:  "Metadata Guidance"
         prepare_data:       "Prepare Your Data"
         use_downloaded_data: "Use Downloaded Data"
+    report:
+      report_file_path:     "Report File Path"
     product_name:           "Deep Blue Data"
     product_twitter_handle: "@SamveraRepo"
     scheduler:
