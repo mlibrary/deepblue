@@ -42,6 +42,7 @@ require 'rspec/its'
 require 'rspec/matchers'
 require 'rspec/active_model/mocks'
 require 'rspec/retry'
+require 'support/controller_level_helpers'
 
 def coverage_needed?
   ENV['COVERAGE'] || ENV['TRAVIS']
@@ -228,7 +229,19 @@ RSpec.configure do |config|
   #   # test failures related to randomization by passing the same `--seed` value
   #   # as the one that triggered the failure.
   #   Kernel.srand config.seed
-  #
+
+
+  config.include(ControllerLevelHelpers, type: :view)
+
+  config.before(:each, type: :view) do
+    initialize_controller_helpers(view)
+    # WebMock.disable_net_connect!(allow_localhost: false, allow: 'chromedriver.storage.googleapis.com')
+  end
+
+  config.after(:each, type: :view) do
+    # WebMock.disable_net_connect!(allow_localhost: true, allow: 'chromedriver.storage.googleapis.com')
+  end
+
 end
 
 # Capybara.register_driver :selenium do |app|

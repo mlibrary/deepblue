@@ -17,6 +17,13 @@ class ReportDashboardController < ApplicationController
   self.presenter_class = ReportDashboardPresenter
 
   attr_accessor :edit_report_textarea, :report_file_path
+  # attr_accessor :controller_path, :request
+  # @controller_path = ''
+  # @request = {}
+
+  def report_file_path
+    @report_file_path ||= load_report_file_path
+  end
 
   def load_edit_report_textarea
     return if @edit_report_textarea.present?
@@ -36,6 +43,7 @@ class ReportDashboardController < ApplicationController
                                            "" ] if report_dashboard_controller_debug_verbose
     @report_file_path = ''
     @report_file_path = params[:report_file_path] if params[:report_file_path].present?
+    @report_file_path
   end
 
   def run_action
@@ -60,8 +68,7 @@ class ReportDashboardController < ApplicationController
     rv = []
     open( report_file_path, "r" ) { |f| rv = f.readlines }
     @edit_report_textarea = rv.join("")
-    @presenter = presenter_class.new( controller: self, current_ability: current_ability )
-    render 'hyrax/dashboard/show_report_dashboard'
+    show_render
   end
 
   def run_report_task_job
@@ -81,14 +88,18 @@ class ReportDashboardController < ApplicationController
   def run_save_report_script
     return redirect_to( report_dashboard_path, alert: "No report script file path specfied." ) unless report_file_path.present?
     write_script
-    @presenter = presenter_class.new( controller: self, current_ability: current_ability )
-    render 'hyrax/dashboard/show_report_dashboard'
+    show_render
   end
 
   def show
     load_edit_report_textarea
     load_report_file_path
+    show_render
+  end
+
+  def show_render
     @presenter = presenter_class.new( controller: self, current_ability: current_ability )
+    @view_presenter = @presenter
     render 'hyrax/dashboard/show_report_dashboard'
   end
 

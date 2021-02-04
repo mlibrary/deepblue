@@ -10,6 +10,10 @@ RSpec.describe ReportTaskJob, skip: false do
   let(:task)        { instance_double(::Deepblue::ReportTask ) }
   let(:reporter)    { "reporter@umich.edu" }
   let(:options)     { {} }
+  let(:allowed_path_extensions) { [ '.yml', '.yaml' ] }
+  let(:allowed_path_prefixes)   { [ '/deepbluedata-prep/',
+                                    './data/reports/',
+                                    '/deepbluedata-globus/uploads/' ] }
 
   describe 'module debug verbose variable' do
     it "they have the right values" do
@@ -19,10 +23,8 @@ RSpec.describe ReportTaskJob, skip: false do
 
   describe 'module variables' do
     it "they have the right values" do
-      expect( described_class.report_task_allowed_path_extensions ).to eq [ '.yml', '.yaml' ]
-      expect( described_class.report_task_allowed_path_prefixes ).to eq [ '/deepbluedata-prep/',
-                                                                          './data/reports/',
-                                                                          '/deepbluedata-globus/upload/' ]
+      expect( described_class.report_task_allowed_path_extensions ).to eq allowed_path_extensions
+      expect( described_class.report_task_allowed_path_prefixes ).to eq allowed_path_prefixes
     end
   end
 
@@ -40,7 +42,9 @@ RSpec.describe ReportTaskJob, skip: false do
       expect( job ).to receive( :validate_report_file_path ).with( no_args ).and_return true
       expect( job ).to receive( :email_results ).with( no_args )
       expect( job ).to_not receive( :email_failure ).with( any_args )
-      expect( report_task ).to receive(:new ).with( reporter: reporter,
+      expect( report_task ).to receive(:new ).with( allowed_path_extensions: allowed_path_extensions,
+                                                    allowed_path_prefixes: allowed_path_prefixes,
+                                                    reporter: reporter,
                                                     report_definitions_file: path1,
                                                     options: options ).and_return task
       expect( task ).to receive(:run ).with( no_args )

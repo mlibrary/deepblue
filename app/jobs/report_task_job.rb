@@ -14,7 +14,7 @@ class ReportTaskJob < ::Hyrax::ApplicationJob
   @@report_task_allowed_path_extensions = [ '.yml', '.yaml' ]
 
   mattr_accessor :report_task_allowed_path_prefixes
-  @@report_task_allowed_path_prefixes = [ '/deepbluedata-prep/', './data/reports', '/deepbluedata-globus/uploads/' ]
+  @@report_task_allowed_path_prefixes = [ '/deepbluedata-prep/', './data/reports/', '/deepbluedata-globus/uploads/' ]
 
   include JobHelper
   queue_as :default
@@ -24,18 +24,22 @@ class ReportTaskJob < ::Hyrax::ApplicationJob
   def perform(  reporter:, report_file_path:, **options )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                            "reporter=#{reporter}",
                                            "report_file_path=#{report_file_path}",
                                            "options=#{options}",
                                            "" ] if report_task_job_debug_verbose
     email_targets << reporter
     init_report_file_path report_file_path
+    @reporter = reporterdevise-4.7.3/lib/devise/test/controller_helpers.rb
     @options = options
     return email_failure( exception: nil ) unless queue_msg_unless?( self.report_file_path.present?,
                                                                      "ERROR: Report file path '#{self.report_file_path}' not found." )
     return email_failure( exception: nil ) unless validate_report_file_path
     run_report
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "job_msg_queue=#{job_msg_queue}",
+                                           "" ] if report_task_job_debug_verbose
     email_results
   rescue Exception => e # rubocop:disable Lint/RescueException
     # Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
@@ -79,7 +83,7 @@ class ReportTaskJob < ::Hyrax::ApplicationJob
                                            more_msgs: report_task_allowed_path_extensions )
     allowed = false
     report_task_allowed_path_prefixes.each do |prefix|
-      if file.starts_with prefix
+      if file.start_with? prefix
         allowed = true
         break
       end

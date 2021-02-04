@@ -4,7 +4,7 @@ class IngestDashboardPresenter
 
   include ::Deepblue::DeepbluePresenterBehavior
 
-  delegate :some_method, to: :controller
+  delegate :ingest_mode, :paths_to_scripts, to: :controller
 
   attr_accessor :controller, :current_ability
 

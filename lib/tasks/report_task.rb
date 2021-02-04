@@ -412,7 +412,7 @@ module Deepblue
       if allowed_path_prefixes.present?
         allowed = false
         allowed_path_prefixes.each do |prefix|
-          if file.starts_with prefix
+          if file.start_with? prefix
             allowed = true
             break
           end
@@ -468,16 +468,23 @@ module Deepblue
       public_send( attribute.to_s, { curation_concern: curation_concern, attribute: attribute } )
     end
 
+    def update_output_file_name( regexp, date_int )
+      return unless @output_file =~ regexp
+      replacement = date_int.to_s
+      replacement = "0#{replacement}" if replacement.size < 2
+      @output_file.gsub!( regexp, replacement )
+    end
+
     def write_report
       puts "curation_concern=#{curation_concern}"
       @output_file = hash_value( hash: output, key: :file )
       now = DateTime.now
-      @output_file.gsub!( /%YYYY/, now.year ) if @output_file =~ /%YYYY/
-      @output_file.gsub!( /%MM/, now.month ) if @output_file =~ /%MM/
-      @output_file.gsub!( /%DD/, now.day ) if @output_file =~ /%DD/
-      @output_file.gsub!( /%hh/, now.hour ) if @output_file =~ /%hh/
-      @output_file.gsub!( /%mm/, now.minute ) if @output_file =~ /%mm/
-      @output_file.gsub!( /%ss/, now.second ) if @output_file =~ /%ss/
+      update_output_file_name( /%Y(YYY)?/, now.year )
+      update_output_file_name( /%mm?/, now.month )
+      update_output_file_name( /%dd?/, now.day )
+      update_output_file_name( /%HH?/, now.hour )
+      update_output_file_name( /%MM?/, now.minute )
+      update_output_file_name( /%SS?/, now.second )
       puts "output_file=#{output_file}"
       output_format = hash_value( hash: output, key: :format )
       puts "output_format=#{output_format}"

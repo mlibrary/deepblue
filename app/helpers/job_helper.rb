@@ -3,7 +3,7 @@
 module JobHelper
 
   mattr_accessor :job_helper_debug_verbose
-  @@job_helper_debug_verbose = false
+  @@job_helper_debug_verbose = true
 
   attr_accessor :email_targets
 
@@ -26,6 +26,11 @@ module JobHelper
                      exception:,
                      event: self.class.name,
                      event_note: '' )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "task_name=#{targets}",
+                                           "job_msg_queue=#{job_msg_queue}",
+                                           "" ] if job_helper_debug_verbose
     return unless email_targets.present?
     timestamp_end = DateTime.now if timestamp_end.blank?
     ::Deepblue::JobTaskHelper.email_failure( targets: targets,

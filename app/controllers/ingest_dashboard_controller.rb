@@ -61,7 +61,12 @@ class IngestDashboardController < ApplicationController
   end
 
   def show
+    show_render
+  end
+
+  def show_render
     @presenter = presenter_class.new( controller: self, current_ability: current_ability )
+    @view_presenter = @presenter
     render 'hyrax/dashboard/show_ingest_dashboard'
   end
 

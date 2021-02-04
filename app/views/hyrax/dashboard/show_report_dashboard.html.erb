@@ -4,12 +4,18 @@
 
 <h2 class="title-header"><%= t('hyrax.report.report_file_paths') %></h2>
 <%= form_tag(main_app.report_dashboard_run_action_path, method: 'post') do %>
-  <p><%= t('simple_form.hints.report.dashboard_html',
-           allowed_path_prefixes: @presenter.allowed_path_prefixes,
-           run_button: @presenter.run_button ) %>
-  </p>
+  <div class="documentation-div">
+    <p><%= t('simple_form.hints.report.dashboard_part_1_html') %></p>
+    <ul class="">
+      <% @view_presenter.report_allowed_path_prefixes.each do |path| %>
+        <li><code><%= path %></code></li>
+      <% end %>
+    </ul>
+    <% run_button = @view_presenter.run_button %>
+    <p><%= t('simple_form.hints.report.dashboard_part_2_html', run_button: run_button ) %></p>
+  </div>
   <label for="report_file_path" class=""><%= t('simple_form.report_dashboard.labels.report_file_path') %>:</label>
-  <%= text_field_tag :report_file_path, @presenter.report_file_path, size: 85 %>&nbsp;
+  <%= text_field_tag :report_file_path, @view_presenter.report_file_path, size: 85 %>&nbsp;
   <%= submit_tag(t('simple_form.actions.report.run_load_report_script'), class: 'btn btn-primary') %>&nbsp;
   <%#= render partial: 'data_set/report_append_script_fields' %>
   <table class="report_file_paths table">
@@ -20,7 +26,7 @@
     </td>
     <td>
       <%= text_area_tag :edit_report_textarea,
-                        @presenter.edit_report_textarea,
+                        @view_presenter.edit_report_textarea,
                         rows: 20,
                         cols: 85,
                         class: "monospace-textarea" %></td>
@@ -31,7 +37,7 @@
   <%= submit_tag(t('simple_form.actions.report.run_save_report_script'),
                  class: 'btn btn-primary',
                  data: {confirm: t('simple_form.confirm.report.run_save_report_script')} ) %>&nbsp;
-  <%= submit_tag( @presenter.run_button,
+  <%= submit_tag( @view_presenter.run_button,
                  class: 'btn btn-primary',
                  data: {confirm: t('simple_form.confirm.report.run_report_job')} ) %>&nbsp;
   &nbsp;

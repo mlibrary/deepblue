@@ -4,16 +4,21 @@ class ReportDashboardPresenter
 
   include ::Deepblue::DeepbluePresenterBehavior
 
-  delegate :edit_report_textarea, :report_file_path, to: :controller
+  delegate :edit_report_textarea, to: :controller
+  # delegate :report_file_path, to: :controller
 
   attr_accessor :controller, :current_ability
+
+  def report_file_path
+    controller.report_file_path
+  end
 
   def initialize( controller:, current_ability: )
     @controller = controller
     @current_ability = current_ability
   end
 
-  def allowed_path_prefixes
+  def report_allowed_path_prefixes
     ReportTaskJob.report_task_allowed_path_prefixes
   end
 

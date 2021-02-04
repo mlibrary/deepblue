@@ -90,7 +90,7 @@ class MultipleIngestScriptsJob < ::Hyrax::ApplicationJob
                                            more_msgs: scripts_allowed_path_extensions )
     allowed = false
     scripts_allowed_path_prefixes.each do |prefix|
-      if file.starts_with prefix
+      if file.start_with? prefix
         allowed = true
         break
       end
