@@ -30,7 +30,7 @@ class ReportTaskJob < ::Hyrax::ApplicationJob
                                            "" ] if report_task_job_debug_verbose
     email_targets << reporter
     init_report_file_path report_file_path
-    @reporter = reporterdevise-4.7.3/lib/devise/test/controller_helpers.rb
+    @reporter = reporter
     @options = options
     return email_failure( exception: nil ) unless queue_msg_unless?( self.report_file_path.present?,
                                                                      "ERROR: Report file path '#{self.report_file_path}' not found." )
