@@ -6,11 +6,8 @@ class MockJobForJobTaskHelper < ::Hyrax::ApplicationJob
 
     include JobHelper
 
-    attr_accessor :email_results_to,
-                  :hostname,
-                  :hostnames,
+    attr_accessor :hostnames,
                   :job_delay,
-                  :msg_queue,
                   :options,
                   :subscription_service_id,
                   :timestamp_begin,

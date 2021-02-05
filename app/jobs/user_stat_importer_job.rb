@@ -23,12 +23,13 @@ user_stat_importer_job:
 END_OF_SCHEDULER_ENTRY
 
 
-  include JobHelper
+  include JobHelper # see JobHelper for :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as :scheduler
 
-  attr_accessor :hostname, :hostnames, :options, :verbose
+  attr_accessor :hostnames, :options, :verbose
 
   def perform( *args )
+    timestamp_begin
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "" ] if USER_STAT_IMPORTER_JOB_DEBUG_VERBOSE

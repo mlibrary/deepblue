@@ -16,19 +16,21 @@ class ReportTaskJob < ::Hyrax::ApplicationJob
   mattr_accessor :report_task_allowed_path_prefixes
   @@report_task_allowed_path_prefixes = [ '/deepbluedata-prep/', './data/reports/', '/deepbluedata-globus/uploads/' ]
 
-  include JobHelper
+  include JobHelper # see JobHelper for :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as :default
 
   attr_accessor :options, :reporter, :report_file_path
 
   def perform(  reporter:, report_file_path:, **options )
+    timestamp_begin
+    email_targets << reporter if reporter.present?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "reporter=#{reporter}",
                                            "report_file_path=#{report_file_path}",
                                            "options=#{options}",
+                                           "email_targets=#{email_targets}",
                                            "" ] if report_task_job_debug_verbose
-    email_targets << reporter
     init_report_file_path report_file_path
     @reporter = reporter
     @options = options
@@ -55,7 +57,7 @@ class ReportTaskJob < ::Hyrax::ApplicationJob
                                           ::Deepblue::LoggingHelper.called_from,
                                            "report_file_path=#{report_file_path}",
                                            "" ] if report_task_job_debug_verbose
-    return false if report_file_path.blank?
+    return false if queue_msg_if?( report_file_path.blank?, "ERROR: Report file path is blank." )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "ReportTasktJob.perform_now( report_file_path: #{report_file_path}, reporter: #{reporter} )",
@@ -64,6 +66,8 @@ class ReportTaskJob < ::Hyrax::ApplicationJob
                                        reporter: reporter,
                                        allowed_path_extensions: report_task_allowed_path_extensions,
                                        allowed_path_prefixes: report_task_allowed_path_prefixes,
+                                       msg_queue: job_msg_queue,
+                                       verbose: false,
                                        options: options )
     task.run
     true

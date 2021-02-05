@@ -5,7 +5,7 @@ class SchedulerStartJob < ::Hyrax::ApplicationJob
   mattr_accessor :scheduler_start_job_debug_verbose
   @@scheduler_start_job_debug_verbose = ::Deepblue::JobTaskHelper.scheduler_start_job_debug_verbose
 
-  include JobHelper
+  include JobHelper # see JobHelper for :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as :default
 
   attr_accessor :rails_bin_scheduler, :rails_log_scheduler
@@ -14,9 +14,10 @@ class SchedulerStartJob < ::Hyrax::ApplicationJob
   def perform( job_delay: ::Deepblue::SchedulerIntegrationService.scheduler_start_job_default_delay,
                restart: true,
                **options )
+
+    timestamp_begin
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                            "job_delay=#{job_delay}",
                                            "restart=#{restart}",
                                            "options=#{options}",
@@ -42,7 +43,6 @@ class SchedulerStartJob < ::Hyrax::ApplicationJob
     end
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                            "rails_bin_scheduler=#{rails_bin_scheduler}",
                                            "rails_log_scheduler=#{rails_log_scheduler}",
                                            "" ] if scheduler_start_job_debug_verbose

@@ -44,8 +44,10 @@ RSpec.describe ReportTaskJob, skip: false do
       expect( job ).to_not receive( :email_failure ).with( any_args )
       expect( report_task ).to receive(:new ).with( allowed_path_extensions: allowed_path_extensions,
                                                     allowed_path_prefixes: allowed_path_prefixes,
+                                                    msg_queue: [],
                                                     reporter: reporter,
                                                     report_definitions_file: path1,
+                                                    verbose: false,
                                                     options: options ).and_return task
       expect( task ).to receive(:run ).with( no_args )
     end

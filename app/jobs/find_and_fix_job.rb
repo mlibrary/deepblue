@@ -74,7 +74,7 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
                                            "job_options_keys_found=#{job_options_keys_found}",
                                            "verbose=#{verbose}",
                                            "hostnames=#{hostnames}",
-                                           "email_results_to=#{email_results_to}",
+                                           "email_targets=#{email_targets}",
                                            "initialized=#{initialized}",
                                            "job_delay=#{job_delay}",
                                            "find_and_fix_empty_file_size=#{find_and_fix_empty_file_size}",
@@ -84,39 +84,39 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
     run_job_delay
     if find_and_fix_empty_file_size
       file_set_ids_fixed = []
-      find_and_fix_empty_file_sizes( messages: msg_queue, ids_fixed: file_set_ids_fixed, verbose: verbose )
+      find_and_fix_empty_file_sizes( messages: job_msg_queue, ids_fixed: file_set_ids_fixed, verbose: verbose )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "timestamp_end=#{timestamp_end}",
-                                             "msg_queue=#{msg_queue}",
+                                             "job_msg_queue=#{job_msg_queue}",
                                              "file_set_ids_fixed=#{file_set_ids_fixed}",
                                              "" ] if find_and_fix_job_debug_verbose
     end
     if find_and_fix_over_file_sets
       file_set_ids_fixed = []
-      find_and_fix_over_file_sets( messages: msg_queue, ids_fixed: file_set_ids_fixed, verbose: verbose )
+      find_and_fix_over_file_sets( messages: job_msg_queue, ids_fixed: file_set_ids_fixed, verbose: verbose )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "timestamp_end=#{timestamp_end}",
-                                             "msg_queue=#{msg_queue}",
+                                             "job_msg_queue=#{job_msg_queue}",
                                              "file_set_ids_fixed=#{file_set_ids_fixed}",
                                              "" ] if find_and_fix_job_debug_verbose
     end
     if find_and_fix_all_ordered_members_containing_nils
       curation_concern_ids_fixed = []
-      find_and_fix_all_ordered_members_containing_nils( messages: msg_queue,
+      find_and_fix_all_ordered_members_containing_nils( messages: job_msg_queue,
                                                         ids_fixed: curation_concern_ids_fixed,
                                                         verbose: verbose )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "msg_queue=#{msg_queue}",
+                                             "job_msg_queue=#{job_msg_queue}",
                                              "curation_concern_ids_fixed=#{curation_concern_ids_fixed}",
                                              "" ] if find_and_fix_job_debug_verbose
     end
     timestamp_end = DateTime.now
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "msg_queue=#{msg_queue}",
+                                           "job_msg_queue=#{job_msg_queue}",
                                            "timestamp_end=#{timestamp_end}",
                                            "" ] if find_and_fix_job_debug_verbose
     email_results( task_name: "Find and Fix", event: 'find and fix job' )

@@ -2,9 +2,10 @@
 
 class HeartbeatJob < ::Hyrax::ApplicationJob
 
-  HEARTBEAT_JOB_DEBUG_VERBOSE = ::Deepblue::JobTaskHelper.heartbeat_job_debug_verbose
+  mattr_accessor :heartbeat_job_debug_verbose
+  @@heartbeat_job_debug_verbose = ::Deepblue::JobTaskHelper.heartbeat_job_debug_verbose
 
-  include JobHelper
+  include JobHelper # see JobHelper for :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as :scheduler
 
   # bundle exec rake deepblue:run_job['{"job_class":"HeartBeat"\,"verbose":true}']
@@ -14,20 +15,21 @@ class HeartbeatJob < ::Hyrax::ApplicationJob
   end
 
   def perform( *args )
+    timestamp_begin
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "args=#{args}",
-                                           "" ] if HEARTBEAT_JOB_DEBUG_VERBOSE
+                                           "" ] if heartbeat_job_debug_verbose
     options = ::Deepblue::JobTaskHelper.initialize_options_from( args )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "options=#{options}",
-                                           "" ] if HEARTBEAT_JOB_DEBUG_VERBOSE
+                                           "" ] if heartbeat_job_debug_verbose
     verbose = job_options_value(options, key: 'verbose', default_value: false )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "verbose=#{verbose}",
-                                           "" ] if HEARTBEAT_JOB_DEBUG_VERBOSE
+                                           "" ] if heartbeat_job_debug_verbose
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name,  event: "heartbeat" )
   end
 

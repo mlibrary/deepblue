@@ -24,12 +24,13 @@ update_condensed_events_job_daily:
 END_OF_SCHEDULER_ENTRY
 
 
-  include JobHelper
+  include JobHelper # see JobHelper for :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as :scheduler
 
-  attr_accessor :hostname, :hostnames, :options, :quiet, :verbose
+  attr_accessor :hostnames, :options, :quiet, :verbose
 
   def perform( *args )
+    timestamp_begin
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "args=#{args}",
