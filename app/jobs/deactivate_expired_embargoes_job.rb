@@ -4,7 +4,8 @@ require_relative '../services/deepblue/deactivate_expired_embargoes_service'
 
 class DeactivateExpiredEmbargoesJob < ::Hyrax::ApplicationJob
 
-  DEACTIVATE_EXPIRED_EMBARGOES_JOB_DEBUG_VERBOSE = ::Deepblue::JobTaskHelper.deactivate_expired_embargoes_job_debug_verbose
+  mattr_accessor :deactivate_expired_embargoes_job_debug_verbose
+  deactivate_expired_embargoes_job_debug_verbose = ::Deepblue::JobTaskHelper.deactivate_expired_embargoes_job_debug_verbose
 
 SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 
@@ -24,22 +25,22 @@ deactivate_expired_embargoes_job:
 END_OF_SCHEDULER_ENTRY
 
 
-  include JobHelper
+  include JobHelper # see JobHelper for :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as :scheduler
 
   def perform( *args )
-    ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           Deepblue::LoggingHelper.called_from,
-                                           Deepblue::LoggingHelper.obj_class( 'class', self ),
+    timestamp_begin
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
                                            "args=#{args}",
-                                           Deepblue::LoggingHelper.obj_class( 'args', args ),
-                                           "" ] if DEACTIVATE_EXPIRED_EMBARGOES_JOB_DEBUG_VERBOSE
+                                           ::Deepblue::LoggingHelper.obj_class( 'args', args ),
+                                           "" ] if deactivate_expired_embargoes_job_debug_verbose
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name,  event: "deactivate_expired_embargoes" )
     options = ::Deepblue::JobTaskHelper.initialize_options_from *args
-    ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            "options=#{options}",
-                                           Deepblue::LoggingHelper.obj_class( 'options', options ),
-                                           "" ] if DEACTIVATE_EXPIRED_EMBARGOES_JOB_DEBUG_VERBOSE
+                                           ::Deepblue::LoggingHelper.obj_class( 'options', options ),
+                                           "" ] if deactivate_expired_embargoes_job_debug_verbose
     verbose = job_options_value(options, key: 'verbose', default_value: false )
     ::Deepblue::LoggingHelper.debug "verbose=#{verbose}" if verbose
     email_owner = job_options_value(options, key: 'email_owner', default_value: true )

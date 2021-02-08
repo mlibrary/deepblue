@@ -2,6 +2,9 @@
 
 module Deepblue
 
+  # mattr_accessor :deepblue_report_task_debug_verbose
+  # @@deepblue_report_task_debug_verbose = true
+
   require 'csv'
   # require 'tasks/abstract_report_task'
   require_relative './abstract_report_task'
@@ -89,19 +92,19 @@ module Deepblue
       @attribute = attribute
       @begin_date = to_datetime( parms[:begin], parms[:format] )
       @end_date = to_datetime( parms[:end], parms[:format] )
-      # puts "@attribute=#{@attribute} @begin_date=#{@begin_date} and @end_date=#{@end_date}"
+      # msg_puts "@attribute=#{@attribute} @begin_date=#{@begin_date} and @end_date=#{@end_date}" if verbose
     end
 
     def include?( curation_concern:, task: )
-      # puts "CurationConcernFilterDate.include? #{curation_concern.id}"
-      # puts "@attribute=#{@attribute} @begin_date=#{@begin_date} and @end_date=#{@end_date}"
+      # msg_puts "CurationConcernFilterDate.include? #{curation_concern.id}" if verbose
+      # msg_puts "@attribute=#{@attribute} @begin_date=#{@begin_date} and @end_date=#{@end_date}" if verbose
       date =  task.curation_concern_attribute( curation_concern: curation_concern, attribute: @attribute )
-      # puts "date=#{date}"
+      # msg_puts "date=#{date}" if verbose
       return false if date.nil?
       return date >= @begin if @end_date.nil?
       return date <= @end if @begin_date.nil?
       rv = date.between?( @begin_date, @end_date )
-      # puts "rv=#{rv} for #{date} between #{@begin_date} and #{@end_date}"
+      # msg_puts "rv=#{rv} for #{date} between #{@begin_date} and #{@end_date}" if verbose
       return rv
     end
 
@@ -196,14 +199,35 @@ module Deepblue
     attr_reader :report_definitions, :report_definitions_file
     attr_reader :field_format_strings, :output_file
     attr_reader :reporter
+    attr_reader :msg_queue
 
     def initialize( report_definitions_file: nil,
                     reporter: nil,
                     allowed_path_extensions: DEFAULT_REPORT_EXTENSIONS,
                     allowed_path_prefixes: nil,
+                    msg_queue: nil,
+                    verbose: false,
                     options: {} )
 
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "report_definitions_file=#{report_definitions_file}",
+                                             "reporter=#{reporter}",
+                                             "allowed_path_extensions=#{allowed_path_extensions}",
+                                             "allowed_path_prefixes=#{allowed_path_prefixes}",
+                                             "msg_queue=#{msg_queue}",
+                                             "verbose=#{verbose}",
+                                             "options=#{options}",
+                                             "" ] if report_task_verbose_debug
       super( options: options )
+      self.verbose = verbose
+      @verbose = verbose
+      @msg_queue = msg_queue
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "verbose=#{verbose}",
+                                             "msg_queue=#{msg_queue}",
+                                             "" ] if report_task_verbose_debug
       if report_definitions_file.present?
         @report_format = report_definitions_file
         @report_definitions_file = report_definitions_file
@@ -279,8 +303,8 @@ module Deepblue
     end
 
     def curation_concern_attribute( curation_concern:, attribute: )
-      # puts "curation_concern_attribute: curation_concern=#{curation_concern.id} attribute=#{attribute}"
-      # puts "curation_concern_attribute: current_child_index=#{current_child_index} current_child=#{current_child&.id}" if include_children
+      # msg_puts "curation_concern_attribute: curation_concern=#{curation_concern.id} attribute=#{attribute}" if verbose
+      # msg_puts "curation_concern_attribute: current_child_index=#{current_child_index} current_child=#{current_child&.id}" if verbose && include_children
       access_mode = @field_accessor_modes[attribute]
       if access_mode.nil?
         field_accessor = @field_accessors[attribute]
@@ -311,12 +335,12 @@ module Deepblue
               else
                 resolve_attribute( curation_concern: curation_concern, attribute: attribute )
               end
-      # puts "curation_concern_attribute: attribute=#{attribute} access_mode=#{access_mode} value=#{value}"
+      # msg_puts "curation_concern_attribute: attribute=#{attribute} access_mode=#{access_mode} value=#{value}" if verbose
       return value
     end
 
     def curation_concern_format( attribute:, value: )
-      # puts "curation_concern_format: attribute=#{attribute} value=#{value}"
+      # msg_puts "curation_concern_format: attribute=#{attribute} value=#{value}" if verbose
       return value unless field_formats.has_key? attribute
       return "" if value.nil?
       if value.respond_to? :join
@@ -327,9 +351,9 @@ module Deepblue
         format_str = field_format_strings[ attribute ]
         return date_to_local_timezone( value ).strftime( format_str ) unless format_str.nil?
       end
-      # puts "field_formats=#{field_formats}"
+      # msg_puts "field_formats=#{field_formats}" if verbose
       formats = hash_value( hash: field_formats, key: attribute )
-      # puts "formats=#{formats}"
+      # msg_puts "formats=#{formats}" if verbose
       if formats.has_key? :join && value.respond_to?( :join )
         format_str = formats[:join]
         field_format_strings[attribute] = format_str
@@ -340,7 +364,7 @@ module Deepblue
         field_format_strings[attribute] = format_str
         return date_to_local_timezone( value ).strftime( format_str )
       end
-      # puts "curation_concern_format: fell through, return value=#{value}"
+      # msg_puts "curation_concern_format: fell through, return value=#{value}" if verbose
       if value.respond_to?( :join )
         value = value.join( "" )
       end
@@ -376,15 +400,15 @@ module Deepblue
     end
 
     def hash_value( hash:, key:, default_value: nil )
-      # puts "hash_value( hash: #{hash['.name']}, key: #{key}, default_value: #{default_value} )"
+      # msg_puts "hash_value( hash: #{hash['.name']}, key: #{key}, default_value: #{default_value} )" if verbose
       rv = default_value
       if default_value.instance_of? Hash
         rv = hash[key].deep_dup if hash.key? key
-        # puts "report_hash_value rv=#{rv}"
+        # msg_puts "report_hash_value rv=#{rv}" if verbose
       else
         rv = hash[key] if hash.key? key
       end
-      # puts "report_hash_value rv=#{rv}"
+      # msg_puts "report_hash_value rv=#{rv}" if verbose
       return rv
     end
 
@@ -395,12 +419,32 @@ module Deepblue
     end
 
     def load_report_definitions
-      # puts "report_definitions_file=#{report_definitions_file}"
+      # msg_puts "report_definitions_file=#{report_definitions_file}" if verbose
       if report_definitions_file_validate
         @report_definitions = YAML.load_file( report_definitions_file )
       else
         raise "report definitions file not found: '#{report_definitions_file}'"
       end
+    end
+
+    def msg_puts( msg )
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "verbose=#{verbose}",
+      #                                        "msg=#{msg}",
+      #                                        "msg_queue=#{msg_queue}",
+      #                                        "" ] if report_task_verbose_debug
+      mq = msg_queue
+      if mq.is_a? Array
+        mq << msg
+        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+        #                                        ::Deepblue::LoggingHelper.called_from,
+        #                                        "msg=#{msg}",
+        #                                        "msg_queue=#{msg_queue}",
+        #                                        "" ] if report_task_verbose_debug
+        return
+      end
+      puts msg
     end
 
     def report_definitions_file_validate
@@ -423,12 +467,12 @@ module Deepblue
     end
 
     def report_hash_value( base_key: :report, key:, default_value: nil )
-      # puts "report_hash_value( base_key: #{base_key}, key: #{key}, default_value: #{default_value} )"
+      # msg_puts "report_hash_value( base_key: #{base_key}, key: #{key}, default_value: #{default_value} )"
       rv = default_value
       if @report_definitions.key? base_key
         rv = @report_definitions[base_key][key] if @report_definitions[base_key].key? key
       end
-      # puts "report_hash_value rv=#{rv}"
+      # msg_puts "report_hash_value rv=#{rv}"
       return rv
     end
 
@@ -440,18 +484,18 @@ module Deepblue
     end
 
     def resolve_attribute( curation_concern:, attribute: )
-      # puts "resolve_attribute: curation_concern.id=#{curation_concern.id} attribute: #{attribute}"
+      # msg_puts "resolve_attribute: curation_concern.id=#{curation_concern.id} attribute: #{attribute}"
       if include_children && current_child_index > 1
-        # puts "include_children_parent_columns_blank=#{include_children_parent_columns_blank}"
-        # puts "include_children_parent_columns=#{include_children_parent_columns} attribute=#{attribute} !include_children_parent_columns[attribute]=#{!include_children_parent_columns[attribute]}"
+        # msg_puts "include_children_parent_columns_blank=#{include_children_parent_columns_blank}"
+        # msg_puts "include_children_parent_columns=#{include_children_parent_columns} attribute=#{attribute} !include_children_parent_columns[attribute]=#{!include_children_parent_columns[attribute]}"
         if include_children_parent_columns_blank && !include_children_parent_columns[attribute]
           rv = ""
-          # puts "resolve_attribute: blankd child column rv=#{rv}"
+          # msg_puts "resolve_attribute: blankd child column rv=#{rv}"
           return rv
         end
       end
       rv = curation_concern.attributes[attribute.to_s]
-      # puts "resolve_attribute: rv=#{rv}"
+      # msg_puts "resolve_attribute: rv=#{rv}"
       return rv
     end
 
@@ -476,7 +520,12 @@ module Deepblue
     end
 
     def write_report
-      puts "curation_concern=#{curation_concern}"
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "verbose=#{verbose}",
+                                             "msg_queue=#{msg_queue}",
+                                             "" ] if report_task_verbose_debug
+      msg_puts "curation_concern=#{curation_concern}" if verbose
       @output_file = hash_value( hash: output, key: :file )
       now = DateTime.now
       update_output_file_name( /%Y(YYY)?/, now.year )
@@ -485,18 +534,22 @@ module Deepblue
       update_output_file_name( /%HH?/, now.hour )
       update_output_file_name( /%MM?/, now.minute )
       update_output_file_name( /%SS?/, now.second )
-      puts "output_file=#{output_file}"
+      msg_puts "output_file=#{output_file}" if verbose
       output_format = hash_value( hash: output, key: :format )
-      puts "output_format=#{output_format}"
+      msg_puts "output_format=#{output_format}" if verbose
       fields.each do |name,value|
         next if name.to_s.start_with? '.'
-        puts "field: #{name}=#{value}"
+        msg_puts "field: #{name}=#{value}" if verbose
       end
       case output_format
       when "CSV"
         write_report_csv
       end
-      puts "report written to #{output_file}"
+      msg_puts "report written to #{output_file}"
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "msg_queue=#{msg_queue}",
+                                             "" ] if report_task_verbose_debug
     end
 
     def write_report_csv
