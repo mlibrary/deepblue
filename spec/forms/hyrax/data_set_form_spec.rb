@@ -4,19 +4,6 @@ require 'rails_helper'
 
 RSpec.describe Hyrax::DataSetForm do
 
-  # before(:all ) do
-  #   puts "DataSet ids before=#{DataSet.all.map { |ds| ds.id }}"
-  #   puts "FileSet ids before=#{FileSet.all.map { |fs| fs.id }}"
-  # end
-  #
-  # after(:all ) do
-  #   puts "FileSet ids after=#{FileSet.all.map { |fs| fs.id }}"
-  #   puts "DataSet ids after=#{DataSet.all.map { |ds| ds.id }}"
-  #   # clean up created DataSet
-  #   DataSet.all.each { |ds| ds.delete }
-  #   FileSet.all.each { |fs| fs.delete }
-  # end
-
   subject { form }
   let(:work) { DataSet.new }
   let(:user) { create(:user) }
@@ -106,58 +93,58 @@ RSpec.describe Hyrax::DataSetForm do
   end
 
   describe '.model_attributes' do # rubocop:disable RSpec/EmptyExampleGroup
-    # let(:permission_template) { create(:permission_template, source_id: source_id) }
-    # let!(:workflow) { create(:workflow, active: true, permission_template_id: permission_template.id) }
-    # let(:source_id) { '123' }
-    # let(:file_set) { create(:file_set) }
-    # let(:params) do
-    #   ActionController::Parameters.new(
-    #       title: ['foo'],
-    #       description: [''],
-    #       visibility: 'open',
-    #       source_id: source_id,
-    #       representative_id: '456',
-    #       rendering_ids: [file_set.id],
-    #       thumbnail_id: '789',
-    #       keyword: ['derp'],
-    #       license: ['http://creativecommons.org/licenses/by/3.0/us/'],
-    #       member_of_collection_ids: ['123456', 'abcdef']
-    #   )
-    # end
-    #
-    # subject { described_class.model_attributes(params) }
-    #
-    # it 'permits parameters' do
-    #   expect(subject['title']).to eq ['foo']
-    #   expect(subject['description']).to be_empty
-    #   expect(subject['visibility']).to eq 'open'
-    #   expect(subject['license']).to eq ['http://creativecommons.org/licenses/by/3.0/us/']
-    #   expect(subject['keyword']).to eq ['derp']
-    #   expect(subject['member_of_collection_ids']).to eq ['123456', 'abcdef']
-    #   expect(subject['rendering_ids']).to eq [file_set.id]
-    # end
-    #
-    # context '.model_attributes' do
-    #   let(:params) do
-    #     ActionController::Parameters.new(
-    #         title: [''],
-    #         description: [''],
-    #         keyword: [''],
-    #         license: [''],
-    #         member_of_collection_ids: [''],
-    #         on_behalf_of: 'Melissa'
-    #     )
-    #   end
-    #
-    #   it 'removes blank parameters' do
-    #     expect(subject['title']).to be_empty
-    #     expect(subject['description']).to be_empty
-    #     expect(subject['license']).to be_empty
-    #     expect(subject['keyword']).to be_empty
-    #     expect(subject['member_of_collection_ids']).to be_empty
-    #     expect(subject['on_behalf_of']).to eq 'Melissa'
-    #   end
-    # end
+    let(:permission_template) { create(:permission_template, source_id: source_id) }
+    let!(:workflow) { create(:workflow, active: true, permission_template_id: permission_template.id) }
+    let(:source_id) { '123' }
+    let(:file_set) { create(:file_set) }
+    let(:params) do
+      ActionController::Parameters.new(
+          title: ['foo'],
+          description: [''],
+          visibility: 'open',
+          source_id: source_id,
+          representative_id: '456',
+          rendering_ids: [file_set.id],
+          thumbnail_id: '789',
+          keyword: ['derp'],
+          license: ['http://creativecommons.org/licenses/by/3.0/us/'],
+          member_of_collection_ids: ['123456', 'abcdef']
+      )
+    end
+
+    subject { described_class.model_attributes(params) }
+
+    it 'permits parameters' do
+      expect(subject['title']).to eq ['foo']
+      expect(subject['description']).to be_empty
+      expect(subject['visibility']).to eq 'open'
+      expect(subject['license']).to eq ['http://creativecommons.org/licenses/by/3.0/us/']
+      expect(subject['keyword']).to eq ['derp']
+      expect(subject['member_of_collection_ids']).to eq ['123456', 'abcdef']
+      expect(subject['rendering_ids']).to eq [file_set.id]
+    end
+
+    context '.model_attributes' do
+      let(:params) do
+        ActionController::Parameters.new(
+            title: [''],
+            description: [''],
+            keyword: [''],
+            license: [''],
+            member_of_collection_ids: [''],
+            on_behalf_of: 'Melissa'
+        )
+      end
+
+      it 'removes blank parameters' do
+        expect(subject['title']).to be_empty
+        expect(subject['description']).to be_empty
+        expect(subject['license']).to be_empty
+        expect(subject['keyword']).to be_empty
+        expect(subject['member_of_collection_ids']).to be_empty
+        expect(subject['on_behalf_of']).to eq 'Melissa'
+      end
+    end
   end
 
   describe "#visibility" do

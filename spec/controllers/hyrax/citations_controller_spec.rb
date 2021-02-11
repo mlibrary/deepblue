@@ -1,6 +1,11 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::CitationsController, skip: true do
+RSpec.describe Hyrax::CitationsController, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  routes { Hyrax::Engine.routes }
+  let(:main_app) { Rails.application.routes.url_helpers }
+
   describe "#work" do
     let(:user) { create(:user) }
     let(:work) { create(:work, user: user) }

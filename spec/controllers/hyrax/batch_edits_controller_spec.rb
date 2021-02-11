@@ -1,6 +1,10 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::BatchEditsController, type: :controller, skip: true do
+RSpec.describe Hyrax::BatchEditsController, type: :controller, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  routes { Hyrax::Engine.routes }
+
   let(:user) { create(:user) }
 
   before do
@@ -71,9 +75,9 @@ RSpec.describe Hyrax::BatchEditsController, type: :controller, skip: true do
     it "is successful" do
       put :update, params: { update_type: "delete_all" }
       expect(response).to redirect_to(dashboard_path(locale: 'en'))
-      expect { GenericWork.find(one.id) }.to raise_error(Ldp::Gone)
-      expect { GenericWork.find(two.id) }.to raise_error(Ldp::Gone)
-      expect(GenericWork).to exist(three.id)
+      expect { DataSet.find(one.id) }.to raise_error(Ldp::Gone)
+      expect { DataSet.find(two.id) }.to raise_error(Ldp::Gone)
+      expect(DataSet).to exist(three.id)
     end
 
     it "redirects to the return controller" do
@@ -82,31 +86,31 @@ RSpec.describe Hyrax::BatchEditsController, type: :controller, skip: true do
     end
 
     it "updates the records" do
-      put :update, params: { update_type: "update", generic_work: { subject: ["zzz"] } }
+      put :update, params: { update_type: "update", data_set: { subject: ["zzz"] } }
       expect(response).to be_redirect
-      expect(GenericWork.find(one.id).subject).to eq ["zzz"]
-      expect(GenericWork.find(two.id).subject).to eq ["zzz"]
-      expect(GenericWork.find(three.id).subject).to be_empty
+      expect(DataSet.find(one.id).subject).to eq ["zzz"]
+      expect(DataSet.find(two.id).subject).to eq ["zzz"]
+      expect(DataSet.find(three.id).subject).to be_empty
     end
 
     it "updates permissions" do
-      put :update, params: { update_type: "update", generic_work: { visibility: "authenticated" } }
+      put :update, params: { update_type: "update", data_set: { visibility: "authenticated" } }
       expect(response).to be_redirect
 
-      work1 = GenericWork.find(one.id)
+      work1 = DataSet.find(one.id)
       expect(work1.visibility).to eq "authenticated"
       expect(work1.file_sets.map(&:visibility)).to eq ["authenticated"]
 
-      expect(GenericWork.find(two.id).visibility).to eq "authenticated"
-      expect(GenericWork.find(three.id).visibility).to eq "restricted"
+      expect(DataSet.find(two.id).visibility).to eq "authenticated"
+      expect(DataSet.find(three.id).visibility).to eq "restricted"
     end
 
     it 'creates leases' do
       put :update, params: { update_type: "update",
-                             generic_work: { visibility: "lease", lease_expiration_date: release_date, visibility_during_lease: 'open', visibility_after_lease: 'restricted' } }
+                             data_set: { visibility: "lease", lease_expiration_date: release_date, visibility_during_lease: 'open', visibility_after_lease: 'restricted' } }
       expect(response).to be_redirect
 
-      work1 = GenericWork.find(one.id)
+      work1 = DataSet.find(one.id)
       expect(work1.visibility).to eq "open"
       expect(work1.visibility_during_lease).to eq 'open'
       expect(work1.visibility_after_lease).to eq 'restricted'
@@ -116,13 +120,13 @@ RSpec.describe Hyrax::BatchEditsController, type: :controller, skip: true do
       expect(work1.file_sets.map(&:visibility_after_lease)).to eq ['restricted']
       expect(work1.file_sets.map(&:lease_expiration_date)).to eq [release_date]
 
-      work2 = GenericWork.find(two.id)
+      work2 = DataSet.find(two.id)
       expect(work2.visibility).to eq 'open'
       expect(work2.visibility_during_lease).to eq 'open'
       expect(work2.visibility_after_lease).to eq 'restricted'
       expect(work2.lease_expiration_date).to eq release_date
 
-      work3 = GenericWork.find(three.id)
+      work3 = DataSet.find(three.id)
       expect(work3.visibility).to eq 'restricted'
       expect(work3.visibility_during_lease).to be_nil
       expect(work3.visibility_after_lease).to be_nil
@@ -131,10 +135,10 @@ RSpec.describe Hyrax::BatchEditsController, type: :controller, skip: true do
 
     it 'creates embargoes' do
       put :update, params: { update_type: "update",
-                             generic_work: { visibility: "embargo", embargo_release_date: release_date, visibility_during_embargo: 'authenticated', visibility_after_embargo: 'open' } }
+                             data_set: { visibility: "embargo", embargo_release_date: release_date, visibility_during_embargo: 'authenticated', visibility_after_embargo: 'open' } }
       expect(response).to be_redirect
 
-      work1 = GenericWork.find(one.id)
+      work1 = DataSet.find(one.id)
       expect(work1.visibility).to eq "authenticated"
       expect(work1.visibility_during_embargo).to eq 'authenticated'
       expect(work1.visibility_after_embargo).to eq 'open'
@@ -144,13 +148,13 @@ RSpec.describe Hyrax::BatchEditsController, type: :controller, skip: true do
       expect(work1.file_sets.map(&:visibility_after_embargo)).to eq ['open']
       expect(work1.file_sets.map(&:embargo_release_date)).to eq [release_date]
 
-      work2 = GenericWork.find(two.id)
+      work2 = DataSet.find(two.id)
       expect(work2.visibility).to eq 'authenticated'
       expect(work2.visibility_during_embargo).to eq 'authenticated'
       expect(work2.visibility_after_embargo).to eq 'open'
       expect(work2.embargo_release_date).to eq release_date
 
-      work3 = GenericWork.find(three.id)
+      work3 = DataSet.find(three.id)
       expect(work3.visibility).to eq 'restricted'
       expect(work3.visibility_during_embargo).to be_nil
       expect(work3.visibility_after_embargo).to be_nil
@@ -159,15 +163,15 @@ RSpec.describe Hyrax::BatchEditsController, type: :controller, skip: true do
 
     context 'with roles' do
       it 'updates roles' do
-        put :update, params: { update_type: "update", generic_work: { permissions_attributes: [{ type: 'person', access: 'read', name: 'foo@bar.com' }] } }
+        put :update, params: { update_type: "update", data_set: { permissions_attributes: [{ type: 'person', access: 'read', name: 'foo@bar.com' }] } }
         expect(response).to be_redirect
 
-        work1 = GenericWork.find(one.id)
+        work1 = DataSet.find(one.id)
         expect(work1.read_users).to include "foo@bar.com"
         expect(work1.file_sets.map(&:read_users)).to eq [["foo@bar.com"]]
 
-        expect(GenericWork.find(two.id).read_users).to eq ["foo@bar.com"]
-        expect(GenericWork.find(three.id).read_users).to eq []
+        expect(DataSet.find(two.id).read_users).to eq ["foo@bar.com"]
+        expect(DataSet.find(three.id).read_users).to eq []
       end
     end
   end

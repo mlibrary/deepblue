@@ -1,7 +1,16 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Actors::ApplyOrderActor, skip: true do
-  let(:curation_concern) { create(:work_with_two_children, user: user) }
+RSpec.describe Hyrax::Actors::ApplyOrderActor, skip: false do
+
+  let(:curation_concern) { create(:data_set_with_two_children,
+                                  user: user,
+                                  id: 'id321',
+                                  title: ['test title'],
+                                  creator: ["Dr. Author"],
+                                  description: ["The Description"],
+                                  methodology: ["The Methodology"],
+                                  rights_license: "The Rights License",
+                                  authoremail: "author@umich.edu" ) }
   let(:ability) { ::Ability.new(user) }
   let(:user) { create(:admin) }
   let(:terminator) { Hyrax::Actors::Terminator.new }
@@ -10,7 +19,7 @@ RSpec.describe Hyrax::Actors::ApplyOrderActor, skip: true do
   subject(:middleware) do
     stack = ActionDispatch::MiddlewareStack.new.tap do |middleware|
       middleware.use described_class
-      middleware.use Hyrax::Actors::GenericWorkActor
+      middleware.use Hyrax::Actors::DataSetActor
     end
     stack.build(terminator)
   end
@@ -32,8 +41,16 @@ RSpec.describe Hyrax::Actors::ApplyOrderActor, skip: true do
 
   describe '#update' do
     let(:user) { create(:admin) }
-    let(:curation_concern) { create(:work_with_one_child, user: user) }
-    let(:child) { GenericWork.new }
+    let(:curation_concern) { create( :data_set_with_one_child,
+                                     user: user,
+                                     id: 'id321',
+                                     title: ['test title'],
+                                     creator: ["Dr. Author"],
+                                     description: ["The Description"],
+                                     methodology: ["The Methodology"],
+                                     rights_license: "The Rights License",
+                                     authoremail: "author@umich.edu" ) }
+    let(:child) { FileSet.new }
 
     context 'with ordered_members_ids that arent associated with the curation concern yet.' do
       let(:attributes) { { ordered_member_ids: [child.id] } }
@@ -55,7 +72,7 @@ RSpec.describe Hyrax::Actors::ApplyOrderActor, skip: true do
     end
 
     context 'without an ordered_member_id that was associated with the curation concern' do
-      let(:curation_concern) { create(:work_with_two_children, user: user) }
+      let(:curation_concern) { create(:data_set_with_two_children, user: user) }
       let(:attributes) { { ordered_member_ids: ["BlahBlah2"] } }
 
       before do
@@ -77,7 +94,7 @@ RSpec.describe Hyrax::Actors::ApplyOrderActor, skip: true do
       # set user not a non-admin for this test to ensure the actor disallows adding the child
       let(:user) { create(:user) }
       let(:other_user) { create(:user) }
-      let(:child) { create(:generic_work, user: other_user) }
+      let(:child) { create(:data_set, user: other_user) }
       let(:attributes) { { ordered_member_ids: [child.id] } }
 
       before do

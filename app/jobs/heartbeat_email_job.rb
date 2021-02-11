@@ -34,6 +34,7 @@ END_OF_SCHEDULER_ENTRY
   end
 
   def perform( *args )
+    job_status_init
     timestamp_begin
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
@@ -49,8 +50,9 @@ END_OF_SCHEDULER_ENTRY
                                              task_name: "scheduler heartbeat",
                                              event: "Heartbeat email" )
     end
+    job_status.finished!
   rescue Exception => e # rubocop:disable Lint/RescueException
-    Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
+    job_status_register( exception: e, args: args )
     Rails.logger.error e.backtrace.join("\n")
     raise e
   end

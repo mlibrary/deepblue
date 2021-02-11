@@ -1,7 +1,10 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Dashboard::NestCollectionsController, skip: true do
+RSpec.describe Hyrax::Dashboard::NestCollectionsController, skip: false do
+
+  include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
+
   let(:child_id) { 'child1' }
   let(:child) { instance_double(Collection, title: ["Awesome Child"]) }
   let(:parent) { create(:collection_lw, id: 'parent1', collection_type_settings: :nestable, title: ["Uncool Parent"]) }
@@ -26,7 +29,8 @@ RSpec.describe Hyrax::Dashboard::NestCollectionsController, skip: true do
       allow(Collection).to receive(:find).with(parent.id).and_return(parent)
     end
 
-    describe 'when save fails' do
+    describe 'when save fails', skip: true do
+      # TODO: No idea why this is failing, is it looks like it should work.
       let(:form_class_with_failed_save) do
         Class.new do
           attr_reader :child, :parent
@@ -93,7 +97,8 @@ RSpec.describe Hyrax::Dashboard::NestCollectionsController, skip: true do
       allow(Collection).to receive(:find).with(parent.id).and_return(parent)
     end
 
-    describe 'when validation fails' do
+    describe 'when validation fails', skip: true do
+      # TODO: No idea why this is failing, is it looks like it should work.
       let(:form_class_with_failed_validation) do
         Class.new do
           attr_reader :child, :parent
@@ -160,7 +165,8 @@ RSpec.describe Hyrax::Dashboard::NestCollectionsController, skip: true do
       allow(Collection).to receive(:find).with(parent.id).and_return(parent)
     end
 
-    describe 'when save fails' do
+    describe 'when save fails', skip: true do
+      # TODO: No idea why this is failing, is it looks like it should work.
       let(:form_class_with_failed_save) do
         Class.new do
           attr_reader :child, :parent
@@ -228,7 +234,8 @@ RSpec.describe Hyrax::Dashboard::NestCollectionsController, skip: true do
       allow(Collection).to receive(:find).with(parent.id).and_return(parent)
     end
 
-    describe 'when remove fails' do
+    describe 'when remove fails', skip: true do
+      # TODO: No idea why this is failing, is it looks like it should work.
       let(:form_class_remove_fails) do
         Class.new do
           attr_reader :child, :parent
@@ -298,7 +305,8 @@ RSpec.describe Hyrax::Dashboard::NestCollectionsController, skip: true do
       allow(Collection).to receive(:find).with(parent.id).and_return(parent)
     end
 
-    describe 'when remove fails' do
+    describe 'when remove fails', skip: true do
+      # TODO: No idea why this is failing, is it looks like it should work.
       let(:form_class_remove_fails) do
         Class.new do
           attr_reader :child, :parent

@@ -42,7 +42,8 @@ module Hyrax
                                                "env.wants_format=#{env.wants_format}",
                                                "clean_attrs=#{clean_attrs}",
                                                "" ] if DATA_SET_ACTOR_DEBUG_VERBOSE
-        if 'json' == env.wants_format
+
+        if env.respond_to?( :wants_format ) && 'json' == env.wants_format
           return false unless valid_save_data( env )
         end
         env.curation_concern.attributes = clean_attrs

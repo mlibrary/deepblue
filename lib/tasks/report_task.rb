@@ -27,7 +27,7 @@ module Deepblue
 
     attr_reader :attribute, :begin_date, :end_date
 
-    def to_datetime( date, format )
+    def to_datetime( date, format, entry: )
       return nil if date.blank?
       if format.nil?
         case date
@@ -85,13 +85,20 @@ module Deepblue
           return DateTime.parse( date ) if format.nil?
         end
       end
-      return DateTime.strptime( date, format )
+      rv = nil
+      begin
+        rv = DateTime.strptime( date, format )
+      rescue ArgumentError => e
+        msg_puts "ERROR: ArgumentError in CurationConcernFilterDate.to_datetime( #{date}, #{format}, entry: #{entry} )"
+        raise e
+      end
+      return rv
     end
 
     def initialize( attribute:, parms: )
       @attribute = attribute
-      @begin_date = to_datetime( parms[:begin], parms[:format] )
-      @end_date = to_datetime( parms[:end], parms[:format] )
+      @begin_date = to_datetime( parms[:begin], parms[:format], entry: 'begin_date' )
+      @end_date = to_datetime( parms[:end], parms[:format], entry: 'end_date' )
       # msg_puts "@attribute=#{@attribute} @begin_date=#{@begin_date} and @end_date=#{@end_date}" if verbose
     end
 

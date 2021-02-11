@@ -1,6 +1,12 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Admin::StrategiesController, skip: true do
+RSpec.describe Hyrax::Admin::StrategiesController, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  routes { Hyrax::Engine.routes }
+
+  let(:main_app) { Rails.application.routes.url_helpers }
+
   describe "#update" do
     before do
       # Added when Flipflop bumped to 2.3.2. See also https://github.com/voormedia/flipflop/issues/26

@@ -1,7 +1,10 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::CollectionsController, skip: true do
+RSpec.describe Hyrax::CollectionsController, skip: false do
+
+  include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
+
   let(:user)  { create(:user) }
   let(:other) { build(:user) }
 
@@ -32,7 +35,8 @@ RSpec.describe Hyrax::CollectionsController, skip: true do
         end
       end
 
-      it "returns the collection and its members" do # rubocop:disable RSpec/ExampleLength
+      it "returns the collection and its members", skip: true do # rubocop:disable RSpec/ExampleLength
+        # TODO: fix this
         expect(controller).to receive(:add_breadcrumb).with('Home', Hyrax::Engine.routes.url_helpers.root_path(locale: 'en'))
         expect(controller).to receive(:add_breadcrumb).with(I18n.t('hyrax.dashboard.title'), Hyrax::Engine.routes.url_helpers.dashboard_path(locale: 'en'))
         get :show, params: { id: collection }
@@ -67,7 +71,8 @@ RSpec.describe Hyrax::CollectionsController, skip: true do
         end
       end
 
-      context "without a referer" do
+      context "without a referer", skip: true do
+        # TODO: fix this
         it "sets breadcrumbs" do
           expect(controller).to receive(:add_breadcrumb).with('Home', Hyrax::Engine.routes.url_helpers.root_path(locale: 'en'))
           expect(controller).to receive(:add_breadcrumb).with(I18n.t('hyrax.dashboard.title'), Hyrax::Engine.routes.url_helpers.dashboard_path(locale: 'en'))

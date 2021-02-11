@@ -1,7 +1,11 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Admin::PermissionTemplatesController, skip: true do
+RSpec.describe Hyrax::Admin::PermissionTemplatesController, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  let(:main_app) { Rails.application.routes.url_helpers }
   routes { Hyrax::Engine.routes }
+
   before do
     sign_in create(:user)
     allow(Hyrax::Forms::PermissionTemplateForm).to receive(:new).with(permission_template).and_return(form)

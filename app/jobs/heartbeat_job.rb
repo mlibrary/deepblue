@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class HeartbeatJob < ::Hyrax::ApplicationJob
+class HeartbeatJob < ::Deepblue::DeepblueJob
 
   mattr_accessor :heartbeat_job_debug_verbose
   @@heartbeat_job_debug_verbose = ::Deepblue::JobTaskHelper.heartbeat_job_debug_verbose
@@ -15,6 +15,7 @@ class HeartbeatJob < ::Hyrax::ApplicationJob
   end
 
   def perform( *args )
+    job_status_init
     timestamp_begin
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
@@ -31,10 +32,10 @@ class HeartbeatJob < ::Hyrax::ApplicationJob
                                            "verbose=#{verbose}",
                                            "" ] if heartbeat_job_debug_verbose
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name,  event: "heartbeat" )
+    job_status.finished!
+  rescue Exception => e # rubocop:disable Lint/RescueException
+    job_status_register( exception: e, args: args )
+    raise e
   end
-
-  # def self.queue
-  #   :default
-  # end
 
 end

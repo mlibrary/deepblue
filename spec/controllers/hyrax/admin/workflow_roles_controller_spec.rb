@@ -5,6 +5,7 @@ RSpec.describe Hyrax::Admin::WorkflowRolesController, skip: false do
 
   include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
+
   let(:main_app) { Rails.application.routes.url_helpers }
 
   describe '#index' do

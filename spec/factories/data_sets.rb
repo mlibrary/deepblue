@@ -77,14 +77,14 @@ FactoryBot.define do
 
     # factory :data_set_with_one_child do
     #   before(:create) do |work, evaluator|
-    #     work.ordered_members << create(:work, user: evaluator.user, title: ['A Contained Work'])
+    #     work.ordered_members << create(:data_set, user: evaluator.user, title: ['A Contained Work'])
     #   end
     # end
     #
     # factory :data_set_with_two_children do
     #   before(:create) do |work, evaluator|
-    #     work.ordered_members << create(:work, user: evaluator.user, title: ['A Contained Work'], id: "BlahBlah1")
-    #     work.ordered_members << create(:work, user: evaluator.user, title: ['Another Contained Work'], id: "BlahBlah2")
+    #     work.ordered_members << create(:data_set, user: evaluator.user, title: ['A Contained Work'], id: "BlahBlah1")
+    #     work.ordered_members << create(:data_set, user: evaluator.user, title: ['Another Contained Work'], id: "BlahBlah2")
     #   end
     # end
 
@@ -98,13 +98,34 @@ FactoryBot.define do
     factory :data_set_with_file_and_data_set do
       before(:create) do |work, evaluator|
         work.ordered_members << create(:file_set, user: evaluator.user)
-        work.ordered_members << create(:work, user: evaluator.user)
+        work.ordered_members << create(:file_set, user: evaluator.user)
+      end
+    end
+
+    factory :data_set_with_one_child do
+      before(:create) do |work, evaluator|
+        work.ordered_members << create(:data_set,
+                                       user: evaluator.user,
+                                       title: ['A Contained Work'])
+      end
+    end
+
+    factory :data_set_with_two_children do
+      before(:create) do |work, evaluator|
+        work.ordered_members << create(:data_set,
+                                       user: evaluator.user,
+                                       title: ['A Contained Work'],
+                                       id: "BlahBlah1")
+        work.ordered_members << create(:data_set,
+                                       user: evaluator.user,
+                                       title: ['Another Contained Work'],
+                                       id: "BlahBlah2")
       end
     end
 
     factory :with_embargo_date do
       # build with defaults:
-      # let(:work) { create(:embargoed_data_set) }
+      # let(:data_set) { create(:embargoed_data_set) }
 
       # build with specific values:
       # let(:embargo_attributes) do
@@ -112,7 +133,7 @@ FactoryBot.define do
       #     current_state: Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE,
       #     future_state: Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC }
       # end
-      # let(:work) { create(:embargoed_data_set, with_embargo_attributes: embargo_attributes) }
+      # let(:data_set) { create(:embargoed_data_set, with_embargo_attributes: embargo_attributes) }
 
       transient do
         with_embargo_attributes { false }
@@ -151,7 +172,7 @@ FactoryBot.define do
 
     factory :with_lease_date do
       # build with defaults:
-      # let(:work) { create(:leased_data_set) }
+      # let(:data_set) { create(:leased_data_set) }
 
       # build with specific values:
       # let(:lease_attributes) do
@@ -159,7 +180,7 @@ FactoryBot.define do
       #     current_state: Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC,
       #     future_state: Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_AUTHENTICATED }
       # end
-      # let(:work) { create(:leased_data_set, with_lease_attributes: lease_attributes) }
+      # let(:data_set) { create(:leased_data_set, with_lease_attributes: lease_attributes) }
 
       transient do
         with_lease_attributes { false }
