@@ -16,7 +16,9 @@
   </div>
   <label for="report_file_path" class=""><%= t('simple_form.report_dashboard.labels.report_file_path') %>:</label>
   <%= text_field_tag :report_file_path, @view_presenter.report_file_path, size: 85 %>&nbsp;
-  <%= submit_tag(t('simple_form.actions.report.run_load_report_script'), class: 'btn btn-primary') %>&nbsp;
+  <%= submit_tag( @view_presenter.run_button,
+                  class: 'btn btn-primary',
+                  data: {confirm: t('simple_form.confirm.report.run_report_job')} ) %>&nbsp;
   <%#= render partial: 'data_set/report_append_script_fields' %>
   <table class="report_file_paths table">
     <tbody>
@@ -34,11 +36,8 @@
     </tr>
     </tbody>
   </table>
+  <%= submit_tag(t('simple_form.actions.report.run_load_report_script'), class: 'btn btn-primary') %>&nbsp;
   <%= submit_tag(t('simple_form.actions.report.run_save_report_script'),
                  class: 'btn btn-primary',
-                 data: {confirm: t('simple_form.confirm.report.run_save_report_script')} ) %>&nbsp;
-  <%= submit_tag( @view_presenter.run_button,
-                 class: 'btn btn-primary',
-                 data: {confirm: t('simple_form.confirm.report.run_report_job')} ) %>&nbsp;
-  &nbsp;
+                 data: {confirm: t('simple_form.confirm.report.run_save_report_script')} ) %>
 <% end %>

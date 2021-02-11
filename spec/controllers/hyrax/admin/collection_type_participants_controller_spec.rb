@@ -1,6 +1,11 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Admin::CollectionTypeParticipantsController, type: :controller, skip: true do
+RSpec.describe Hyrax::Admin::CollectionTypeParticipantsController, type: :controller, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  # routes { Rails.application.routes }
+  routes { Hyrax::Engine.routes }
+
   context 'anonymous user' do
     let(:collection_type) { create(:collection_type) }
     let(:valid_attributes) do

@@ -11,13 +11,14 @@ class MultipleIngestScriptsJob < ::Hyrax::ApplicationJob
   mattr_accessor :scripts_allowed_path_prefixes
   @@scripts_allowed_path_prefixes = [ '/deepbluedata-prep/', './data/reports/', '/deepbluedata-globus/upload/' ]
 
-  include JobHelper
+  include JobHelper # see JobHelper for :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as Hyrax.config.ingest_queue_name
 
   attr_accessor :ingest_mode, :ingester, :paths_to_scripts
 
   def perform( ingest_mode:, ingester:, paths_to_scripts:, **options )
-    email_targets << ingester
+    timestamp_begin
+    email_targets << ingester if ingester.present?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            ::Deepblue::LoggingHelper.obj_class( 'class', self ),

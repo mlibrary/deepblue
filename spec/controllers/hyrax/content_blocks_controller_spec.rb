@@ -1,6 +1,10 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::ContentBlocksController, type: :controller, skip: true do
+RSpec.describe Hyrax::ContentBlocksController, type: :controller, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  routes { Hyrax::Engine.routes }
+
   let!(:announcement_text) do
     create(:content_block, name: 'announcement_text')
   end

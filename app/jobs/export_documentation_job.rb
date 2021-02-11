@@ -4,10 +4,11 @@ class ExportDocumentationJob < ::Hyrax::ApplicationJob
 
   EXPORT_DOCUMENTATION_JOB_DEBUG_VERBOSE = false
 
-  include JobHelper
+  include JobHelper # see JobHelper for :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as :default
 
   def perform( id:, target_path:, **options )
+    timestamp_begin
     ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
                                            Deepblue::LoggingHelper.obj_class( 'class', self ),

@@ -17,6 +17,9 @@ RSpec.feature 'Create a DataSet', type: :feature, js: true, workflow: true, clea
   end
 
   context 'a logged in user' do
+    let(:wait_after_click)  { 30 }
+    let(:wait_after_save)   { 60 }
+    let(:wait_after_upload) { 20 }
     let(:user_attributes) do
       { email: 'test@example.com' }
     end
@@ -51,7 +54,7 @@ RSpec.feature 'Create a DataSet', type: :feature, js: true, workflow: true, clea
       expect(page).to have_content "Add new work"
       click_link "Add new work"
 
-      page.find_link( 'Description', wait: 10 )
+      page.find_link( 'Description', wait: wait_after_click )
       expect(page).to have_content edit_note
       within('div#savewidget') do
         expect(page).to have_checked_field('data_set_visibility_open')
@@ -72,7 +75,7 @@ RSpec.feature 'Create a DataSet', type: :feature, js: true, workflow: true, clea
       select 'Arts', from: 'Discipline'
 
       click_link "Files" # switch tab
-      expect(page).to have_content( add_files_note, wait: 10 )
+      expect(page).to have_content( add_files_note, wait: wait_after_click )
       expect(page).to have_content "Add files"
       # not in DBD:
       # expect(page).to have_content "Add folder"
@@ -80,7 +83,7 @@ RSpec.feature 'Create a DataSet', type: :feature, js: true, workflow: true, clea
         attach_file("files[]", File.join(fixture_path, 'image.jp2'), visible: false)
         attach_file("files[]", File.join(fixture_path, 'jp2_fits.xml'), visible: false)
       end
-      expect(page).to have_content( 'image.jp2', wait: 10 )
+      expect(page).to have_content( 'image.jp2', wait: wait_after_upload )
       expect(page).to have_content 'jp2_fits.xml'
 
       # # With selenium and the chrome driver, focus remains on the
@@ -91,13 +94,13 @@ RSpec.feature 'Create a DataSet', type: :feature, js: true, workflow: true, clea
       # choose('data_set_visibility_open')
 
       click_link "Descriptions" # switch tab
-      page.find_link( 'Files', wait: 10 )
+      page.find_link( 'Files', wait: wait_after_click )
 
       # expect(page).to have_content 'I have read and agree to the Deposit Agreement'
-      check('agreement')
+      check('agreement', wait: wait_after_click)
 
       click_button 'Save Work'
-      expect(page).to have_content( 'Work Description', wait: 60 )
+      expect(page).to have_content( 'Work Description', wait: wait_after_save )
 
       expect(page).to have_content( work_title )
       expect(page).to have_content( 'Dr. Creator')

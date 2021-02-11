@@ -1,6 +1,10 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::DashboardController, type: :controller, skip: true do
+RSpec.describe Hyrax::DashboardController, type: :controller, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  routes { Hyrax::Engine.routes }
+
   context "with an unauthenticated user" do
     it "redirects to sign-in page" do
       get :show

@@ -1,30 +1,30 @@
 # frozen_string_literal: true
 
-class TestJob < ::Hyrax::ApplicationJob
+require_relative "./deepblue/deepblue_job"
 
-  TEST_JOB_DEBUG_VERBOSE = false
+class TestJob < ::Deepblue::DeepblueJob
+
+  mattr_accessor :test_job_debug_verbose
+  @@test_job_debug_verbose = false
 
   def perform( *args )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "self.class.name=#{self.class.name}",
                                            "args=#{args}",
-                                           "arguments=#{arguments}",
-                                           "executions=#{executions}",
-                                           "job_id=#{job_id}",
-                                           "locale=#{locale}",
-                                           "priority=#{priority}",
-                                           "provider_job_id=#{provider_job_id}",
-                                           "queue_name=#{queue_name}",
-                                           "scheduled_at=#{scheduled_at}",
-                                           "" ] if TEST_JOB_DEBUG_VERBOSE
-    job_status = JobStatus.find_or_create_job_started( job: self )
+                                           # "arguments=#{arguments}",
+                                           # "executions=#{executions}",
+                                           # "job_id=#{job_id}",
+                                           # "locale=#{locale}",
+                                           # "priority=#{priority}",
+                                           # "provider_job_id=#{provider_job_id}",
+                                           # "queue_name=#{queue_name}",
+                                           # "scheduled_at=#{scheduled_at}",
+                                           "" ] if test_job_debug_verbose
+    job_status_init
     # and some stuff would happen here
     job_status.finished!
   rescue Exception => e # rubocop:disable Lint/RescueException
-    msg = "TestJob.perform(#{args}) #{e.class}: #{e.message}"
-    Rails.logger.error msg
-    JobStatus.find_or_create_job_error( job: self, error: msg )
+    job_status_register( exception: e, args: args )
     raise e
   end
 

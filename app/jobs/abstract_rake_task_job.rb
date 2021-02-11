@@ -3,20 +3,14 @@
 class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
 
   mattr_accessor :abstract_rake_task_job_debug_verbose
-
   @@abstract_rake_task_job_debug_verbose = ::Deepblue::JobTaskHelper.abstract_rake_task_job_debug_verbose
 
-  include JobHelper
+  include JobHelper # see JobHelper for :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
 
-  attr_accessor :email_results_to,
-                :hostname,
-                :hostnames,
+  attr_accessor :hostnames,
                 :job_delay,
-                :msg_queue,
                 :options,
                 :subscription_service_id,
-                :timestamp_begin,
-                :timestamp_end,
                 :verbose
 
   def default_value_is( value, default_value = nil )
@@ -26,45 +20,41 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
 
   def email_exec_results( exec_str:, rv:, event:, event_note: '' )
     timestamp_end = DateTime.now if timestamp_end.blank?
-    ::Deepblue::JobTaskHelper.email_exec_results( targets: email_results_to,
+    ::Deepblue::JobTaskHelper.email_exec_results( targets: email_targets,
                                                   subscription_service_id: subscription_service_id,
                                                   exec_str: exec_str,
                                                   rv: rv,
                                                   event: event,
                                                   event_note: event_note,
-                                                  messages: msg_queue,
+                                                  messages: job_msg_queue,
                                                   timestamp_begin: timestamp_begin,
                                                   timestamp_end: timestamp_end )
   end
 
-  def email_failure( task_name:, exception:, event:, event_note: '' )
-    timestamp_end = DateTime.now if timestamp_end.blank?
-    ::Deepblue::JobTaskHelper.email_failure( targets: email_results_to,
-                                             subscription_service_id: subscription_service_id,
-                                             task_name: task_name,
-                                             exception: exception,
-                                             event: event,
-                                             event_note: event_note,
-                                             messages: msg_queue,
-                                             timestamp_begin: timestamp_begin,
-                                             timestamp_end: timestamp_end )
-  end
-
-  def email_results( task_name:, event:, event_note: '' )
-    timestamp_end = DateTime.now if timestamp_end.blank?
-    ::Deepblue::JobTaskHelper.email_results( targets: email_results_to,
-                                             subscription_service_id: subscription_service_id,
-                                             task_name: task_name,
-                                             event: event,
-                                             event_note: event_note,
-                                             messages: msg_queue,
-                                             timestamp_begin: timestamp_begin,
-                                             timestamp_end: timestamp_end )
-  end
-
-  def msg_queue
-    @msg_queue ||= []
-  end
+  # def email_failure( task_name:, exception:, event:, event_note: '' )
+  #   timestamp_end = DateTime.now if timestamp_end.blank?
+  #   ::Deepblue::JobTaskHelper.email_failure( targets: email_results_to,
+  #                                            subscription_service_id: subscription_service_id,
+  #                                            task_name: task_name,
+  #                                            exception: exception,
+  #                                            event: event,
+  #                                            event_note: event_note,
+  #                                            messages: job_msg_queue,
+  #                                            timestamp_begin: timestamp_begin,
+  #                                            timestamp_end: timestamp_end )
+  # end
+  #
+  # def email_results( task_name:, event:, event_note: '' )
+  #   timestamp_end = DateTime.now if timestamp_end.blank?
+  #   ::Deepblue::JobTaskHelper.email_results( targets: email_results_to,
+  #                                            subscription_service_id: subscription_service_id,
+  #                                            task_name: task_name,
+  #                                            event: event,
+  #                                            event_note: event_note,
+  #                                            messages: job_msg_queue,
+  #                                            timestamp_begin: timestamp_begin,
+  #                                            timestamp_end: timestamp_end )
+  # end
 
   def initialize_from_args( *args )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -87,9 +77,9 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
                                   default_value: default_value_is( job_delay, 0 ),
                                   verbose: verbose )
     ::Deepblue::LoggingHelper.debug "verbose=#{verbose}" if verbose
-    @email_results_to = job_options_value( options,
+    email_targets << job_options_value( options,
                                            key: 'email_results_to',
-                                           default_value: default_value_is( email_results_to, [] ),
+                                           default_value: default_value_is( email_targets, [] ),
                                            verbose: verbose )
     @subscription_service_id = job_options_value( options,
                                                   key: 'subscription_service_id',
@@ -100,7 +90,7 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
                                     default_value: default_value_is( hostnames, [] ),
                                     verbose: verbose )
     return true if hostnames.blank?
-    @hostname = ::DeepBlueDocs::Application.config.hostname
+    # @hostname = ::DeepBlueDocs::Application.config.hostname
     hostnames.include? hostname
   end
 
@@ -112,7 +102,7 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
       Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            msg,
                                            "" ] if abstract_rake_task_job_debug_verbose
-      msg_queue << msg
+      job_msg_queue << msg
     end
     sleep job_delay
   end

@@ -1,6 +1,10 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::BatchUploadsController, skip: true do
+RSpec.describe Hyrax::BatchUploadsController, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  routes { Hyrax::Engine.routes }
+
   let(:user) { create(:user) }
   let(:expected_types) do
     { '1' => 'Article',
@@ -11,10 +15,10 @@ RSpec.describe Hyrax::BatchUploadsController, skip: true do
       '2' => 'bar' }
   end
   let(:expected_shared_params) do
-    { 'keyword' => [], 'visibility' => 'open', :model => 'GenericWork' }
+    { 'keyword' => [], 'visibility' => 'open', :model => 'DataSet' }
   end
   let(:batch_upload_item) do
-    { keyword: [""], visibility: 'open', payload_concern: 'GenericWork' }
+    { keyword: [""], visibility: 'open', payload_concern: 'DataSet' }
   end
   let(:post_params) do
     {
@@ -96,7 +100,8 @@ RSpec.describe Hyrax::BatchUploadsController, skip: true do
       end
     end
 
-    context "when submitting works on behalf of other user" do
+    context "when submitting works on behalf of other user", skip: true do
+      # enable when DBD implements this
       let(:batch_upload_item) do
         {
           payload_concern: NamespacedWorks::NestedWork,

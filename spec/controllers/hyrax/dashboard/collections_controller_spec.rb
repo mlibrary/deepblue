@@ -1,7 +1,10 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: true do
+RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: false do
+
+  include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
+
   let(:user)  { create(:user) }
   let(:other) { build(:user) }
   let(:collection_type_gid) { create(:user_collection_type).gid }
@@ -188,9 +191,9 @@ RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: true 
     end
 
     context 'when moving members between collections' do
-      let(:asset1) { create(:generic_work, user: user) }
-      let(:asset2) { create(:generic_work, user: user) }
-      let(:asset3) { create(:generic_work, user: user) }
+      let(:asset1) { create(:data_set, user: user) }
+      let(:asset2) { create(:data_set, user: user) }
+      let(:asset3) { create(:data_set, user: user) }
       let(:collection2) { create(:collection_lw, title: ['Some Collection'], user: user) }
 
       before do
@@ -246,7 +249,8 @@ RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: true 
         allow(controller).to receive(:repository).and_return(repository)
       end
 
-      it "renders the form again" do
+      it "renders the form again", skip: true do
+        # TODO: fix this
         put :update, params: {
           id: collection,
           collection: collection_attrs
@@ -352,7 +356,8 @@ RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: true 
         end
       end
 
-      it "returns the collection and its members" do
+      it "returns the collection and its members", skip: true do
+        # TODO: fix this
         expect(controller).to receive(:add_breadcrumb).with('Home', Hyrax::Engine.routes.url_helpers.root_path(locale: 'en'))
         expect(controller).to receive(:add_breadcrumb).with(I18n.t('hyrax.dashboard.title'), Hyrax::Engine.routes.url_helpers.dashboard_path(locale: 'en'))
         get :show, params: { id: collection }
@@ -386,7 +391,8 @@ RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: true 
         end
       end
 
-      context "without a referer" do
+      context "without a referer", skip: true do
+        # TODO: fix this
         it "sets breadcrumbs" do
           expect(controller).to receive(:add_breadcrumb).with('Home', Hyrax::Engine.routes.url_helpers.root_path(locale: 'en'))
           expect(controller).to receive(:add_breadcrumb).with(I18n.t('hyrax.dashboard.title'), Hyrax::Engine.routes.url_helpers.dashboard_path(locale: 'en'))
@@ -431,7 +437,8 @@ RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: true 
       end
     end
 
-    context "when not signed in" do
+    context "when not signed in", skip: true do
+      # TODO: fix for DBD login process
       it "redirects to sign in page" do
         get :show, params: { id: collection }
         expect(response).to redirect_to('/users/sign_in')
@@ -484,7 +491,8 @@ RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: true 
       expect(flash[:notice]).to be_nil
     end
 
-    context "without a referer" do
+    context "without a referer", skip: true do
+      # TODO: fix this
       it "sets breadcrumbs" do
         expect(controller).to receive(:add_breadcrumb).with('Home', Hyrax::Engine.routes.url_helpers.root_path(locale: 'en'))
         expect(controller).to receive(:add_breadcrumb).with(I18n.t('hyrax.dashboard.title'), Hyrax::Engine.routes.url_helpers.dashboard_path(locale: 'en'))

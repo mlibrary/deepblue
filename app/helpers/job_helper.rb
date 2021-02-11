@@ -8,7 +8,13 @@ module JobHelper
   attr_accessor :email_targets
 
   def email_targets
-    @email_targets = []
+    @email_targets ||= []
+  end
+
+  attr_accessor :hostname
+
+  def hostname
+    @hostname ||= ::DeepBlueDocs::Application.config.hostname
   end
 
   attr_accessor :job_msg_queue
@@ -17,22 +23,30 @@ module JobHelper
     @job_msg_queue ||= []
   end
 
-  def hostname
-    ::DeepBlueDocs::Application.config.hostname
+  attr_accessor :timestamp_begin, :timestamp_end
+
+  def timestamp_begin
+    @timestamp_begin ||= DateTime.now
+  end
+
+  def timestamp_end
+    @timestamp_end ||= DateTime.now
   end
 
   def email_failure( targets: email_targets,
                      task_name: self.class.name,
                      exception:,
                      event: self.class.name,
-                     event_note: '' )
+                     event_note: '',
+                     timestamp_begin: timestamp_begin,
+                     timestamp_end: timestamp_end )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "task_name=#{targets}",
+                                           "targets=#{email_targets}",
+                                           "task_name=#{task_name}",
                                            "job_msg_queue=#{job_msg_queue}",
                                            "" ] if job_helper_debug_verbose
-    return unless email_targets.present?
-    timestamp_end = DateTime.now if timestamp_end.blank?
+    return unless targets.present?
     ::Deepblue::JobTaskHelper.email_failure( targets: targets,
                                              task_name: task_name,
                                              exception: exception,
@@ -43,9 +57,19 @@ module JobHelper
                                              timestamp_end: timestamp_end )
   end
 
-  def email_results( targets: email_targets, task_name: self.class.name, event: self.class.name, event_note: '' )
-    return unless email_targets.present?
-    timestamp_end = DateTime.now if timestamp_end.blank?
+  def email_results( targets: email_targets,
+                     task_name: self.class.name,
+                     event: self.class.name, event_note: '',
+                     timestamp_begin: timestamp_begin,
+                     timestamp_end: timestamp_end )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "targets=#{targets}",
+                                           "email_targets=#{email_targets}",
+                                           "task_name=#{task_name}",
+                                           "job_msg_queue=#{job_msg_queue}",
+                                           "" ] if job_helper_debug_verbose
+    return unless targets.present?
     ::Deepblue::JobTaskHelper.email_results( targets: targets,
                                              task_name: task_name,
                                              event: event,
@@ -85,20 +109,43 @@ module JobHelper
     e.backtrace.each { |line| job_msg_queue << line }
   end
 
-  def queue_msg_if?( test_result, msg, more_msgs: [] )
-    return test_result unless test_result
-    job_msg_queue << msg
+  def queue_msg_more( test_result, msg:, more_msgs: )
+    jmq = job_msg_queue
+    jmq << msg
+    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                        ::Deepblue::LoggingHelper.called_from,
+    #                                        "test_result=#{test_result}",
+    #                                        "msg=#{msg}",
+    #                                        "more_msgs=#{more_msgs}",
+    #                                        "job_msg_queue=#{job_msg_queue}",
+    #                                        "" ] if job_helper_debug_verbose
     return test_result if more_msgs.blank?
-    Array( more_msgs ).each { |line| job_msg_queue << line }
+    Array( more_msgs ).each { |line| jmq << line }
     return test_result
   end
 
+  def queue_msg_if?( test_result, msg, more_msgs: [] )
+    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                        ::Deepblue::LoggingHelper.called_from,
+    #                                        "test_result=#{test_result}",
+    #                                        "msg=#{msg}",
+    #                                        "more_msgs=#{more_msgs}",
+    #                                        "job_msg_queue=#{job_msg_queue}",
+    #                                        "" ] if job_helper_debug_verbose
+    return test_result unless test_result
+    return queue_msg_more( test_result, msg: msg, more_msgs: more_msgs )
+  end
+
   def queue_msg_unless?( test_result, msg, more_msgs: [] )
+    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                        ::Deepblue::LoggingHelper.called_from,
+    #                                        "test_result=#{test_result}",
+    #                                        "msg=#{msg}",
+    #                                        "more_msgs=#{more_msgs}",
+    #                                        "job_msg_queue=#{job_msg_queue}",
+    #                                        "" ] if job_helper_debug_verbose
     return test_result if test_result
-    job_msg_queue << msg
-    return test_result if more_msgs.blank?
-    Array( more_msgs ).each { |line| job_msg_queue << line }
-    return test_result
+    return queue_msg_more( test_result, msg: msg, more_msgs: more_msgs )
   end
 
 end

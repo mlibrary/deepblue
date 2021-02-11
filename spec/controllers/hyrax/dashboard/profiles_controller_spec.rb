@@ -1,6 +1,10 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Dashboard::ProfilesController, skip: true do
+RSpec.describe Hyrax::Dashboard::ProfilesController, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  routes { Hyrax::Engine.routes }
+
   let(:user) { create(:user) }
 
   before do
@@ -140,7 +144,7 @@ RSpec.describe Hyrax::Dashboard::ProfilesController, skip: true do
     end
 
     context "when removing a trophy" do
-      let(:work) { create(:generic_work, title: ["w1"], user: user) }
+      let(:work) { create(:data_set, title: ["w1"], user: user) }
 
       before do
         user.trophies.create!(work_id: work.id)

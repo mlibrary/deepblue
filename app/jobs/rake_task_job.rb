@@ -54,7 +54,7 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
                                            "job_options_keys_found=#{job_options_keys_found}",
                                            "verbose=#{verbose}",
                                            "hostnames=#{hostnames}",
-                                           "email_results_to=#{email_results_to}",
+                                           "email_targets=#{email_targets}",
                                            "initialized=#{initialized}",
                                            "job_delay=#{job_delay}",
                                            "rake_task=#{rake_task}",

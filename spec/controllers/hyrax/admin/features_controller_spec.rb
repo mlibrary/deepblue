@@ -1,6 +1,11 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Admin::FeaturesController, skip: true do
+RSpec.describe Hyrax::Admin::FeaturesController, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  # routes { Rails.application.routes }
+  routes { Hyrax::Engine.routes }
+
   describe "#index" do
     before do
       sign_in user

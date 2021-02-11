@@ -27,6 +27,12 @@ dump.rdb
 
 ## PROJECT::SPECIFIC
 
+## Public System
+public/system
+
+## Uploads
+public/uploads/
+
 ## ASSET PIPELINE
 #.sass-cache/
 public/assets/

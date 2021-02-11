@@ -1,6 +1,10 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Admin::StatsController, type: :controller, skip: true do
+RSpec.describe Hyrax::Admin::StatsController, type: :controller, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  routes { Hyrax::Engine.routes }
+
   let(:user) { create(:user) }
 
   context "a non admin" do

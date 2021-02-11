@@ -1,6 +1,11 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Admin::CollectionTypesController, type: :controller, clean_repo: true, skip: true do
+RSpec.describe Hyrax::Admin::CollectionTypesController, type: :controller, clean_repo: true, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  # routes { Rails.application.routes }
+  routes { Hyrax::Engine.routes }
+
   context "anonymous user" do
     describe "#index" do
       it "returns http redirect" do
