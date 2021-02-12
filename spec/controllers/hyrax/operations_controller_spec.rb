@@ -1,7 +1,10 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::OperationsController, skip: true do
+RSpec.describe Hyrax::OperationsController, skip: false do
+
+  include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
+
   let(:parent) { create(:operation, :pending, user: user) }
   let!(:child1) { create(:operation, :failing, parent: parent, user: user) }
   let!(:child2) { create(:operation, :pending, parent: parent, user: user) }

@@ -1,7 +1,10 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::FixityChecksController, skip: true do
+RSpec.describe Hyrax::FixityChecksController, skip: false do
+
+  include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
+
   let(:user) { create(:user) }
   let(:file_set) { create(:file_set, user: user) }
   let(:binary) { File.open(fixture_path + '/world.png') }

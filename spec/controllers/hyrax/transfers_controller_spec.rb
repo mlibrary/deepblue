@@ -1,6 +1,26 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::TransfersController, type: :controller, skip: true do
+RSpec.describe Hyrax::TransfersController, type: :controller, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  routes { Hyrax::Engine.routes }
+  let(:main_app) { Rails.application.routes.url_helpers }
+
+  let( :authoremail ) { 'authoremail@umich.edu' }
+  let( :creator ) { 'Creator, A' }
+  let( :current_user ) { 'user@umich.edu' }
+  let( :date_created ) { '2018-02-28' }
+  let( :depositor ) { authoremail }
+  let( :description ) { 'The Description' }
+  let( :id ) { '0123458678' }
+  let( :methodology ) { ['The Methodology'] }
+  let( :methodology_new ) { ['The New Methodology'] }
+  let( :rights_license ) { 'The Rights License' }
+  let( :subject_discipline ) { 'The Subject Discipline' }
+  let( :title ) { 'incoming' }
+  let( :visibility_private ) { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE }
+  let( :visibility_public ) { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC }
+
   describe "without a signed in user" do
     describe "#index" do
       it "redirects to sign in" do
@@ -75,7 +95,7 @@ RSpec.describe Hyrax::TransfersController, type: :controller, skip: true do
           post :create, params: { id: work.id, proxy_deposit_request: { transfer_to: 'foo' } }
         end.not_to change(ProxyDepositRequest, :count)
         expect(assigns[:proxy_deposit_request].errors[:transfer_to]).to eq(['must be an existing user'])
-        expect(assigns[:work]).to be_instance_of GenericWork
+        expect(assigns[:work]).to be_instance_of DataSet
         expect(response).to be_success
       end
     end
@@ -83,21 +103,30 @@ RSpec.describe Hyrax::TransfersController, type: :controller, skip: true do
     describe "#accept", perform_enqueued: [ContentDepositorChangeEventJob] do
       context "when I am the receiver" do
         let!(:incoming_work) do
-          GenericWork.new(title: ['incoming']) do |w|
+          DataSet.new( authoremail: authoremail,
+                       title: [title],
+                       creator: [creator],
+                       date_created: date_created,
+                       depositor: depositor,
+                       description: [description],
+                       methodology: methodology,
+                       rights_license: rights_license,
+                       subject_discipline: [subject_discipline],
+                       visibility: visibility_public ) do |w|
             w.apply_depositor_metadata(another_user.user_key)
             w.save!
             w.request_transfer_to(user)
           end
         end
 
-        it "is successful when retaining access rights" do
+        it "is successful when retaining access rights", skip: true do
           put :accept, params: { id: user.proxy_deposit_requests.first }
           expect(response).to redirect_to routes.url_helpers.transfers_path(locale: 'en')
           expect(flash[:notice]).to eq("Transfer complete")
           expect(assigns[:proxy_deposit_request].status).to eq('accepted')
           expect(incoming_work.reload.edit_users).to match_array [another_user.user_key, user.user_key]
         end
-        it "is successful when resetting access rights" do
+        it "is successful when resetting access rights", skip: true do
           put :accept, params: { id: user.proxy_deposit_requests.first, reset: true }
           expect(response).to redirect_to routes.url_helpers.transfers_path(locale: 'en')
           expect(flash[:notice]).to eq("Transfer complete")
@@ -115,7 +144,16 @@ RSpec.describe Hyrax::TransfersController, type: :controller, skip: true do
 
       context "accepting one that isn't mine" do
         let!(:incoming_work) do
-          GenericWork.new(title: ['incoming']) do |w|
+          DataSet.new( authoremail: authoremail,
+                       title: [title],
+                       creator: [creator],
+                       date_created: date_created,
+                       depositor: depositor,
+                       description: [description],
+                       methodology: methodology,
+                       rights_license: rights_license,
+                       subject_discipline: [subject_discipline],
+                       visibility: visibility_public ) do |w|
             w.apply_depositor_metadata(user.user_key)
             w.save!
             w.request_transfer_to(another_user)
@@ -133,7 +171,16 @@ RSpec.describe Hyrax::TransfersController, type: :controller, skip: true do
     describe "#reject" do
       context "when I am the receiver" do
         let!(:incoming_work) do
-          GenericWork.new(title: ['incoming']) do |w|
+          DataSet.new( authoremail: authoremail,
+                       title: [title],
+                       creator: [creator],
+                       date_created: date_created,
+                       depositor: depositor,
+                       description: [description],
+                       methodology: methodology,
+                       rights_license: rights_license,
+                       subject_discipline: [subject_discipline],
+                       visibility: visibility_public ) do |w|
             w.apply_depositor_metadata(another_user.user_key)
             w.save!
             w.request_transfer_to(user)
@@ -150,7 +197,16 @@ RSpec.describe Hyrax::TransfersController, type: :controller, skip: true do
 
       context "accepting one that isn't mine" do
         let!(:incoming_work) do
-          GenericWork.new(title: ['incoming']) do |w|
+          DataSet.new( authoremail: authoremail,
+                       title: [title],
+                       creator: [creator],
+                       date_created: date_created,
+                       depositor: depositor,
+                       description: [description],
+                       methodology: methodology,
+                       rights_license: rights_license,
+                       subject_discipline: [subject_discipline],
+                       visibility: visibility_public ) do |w|
             w.apply_depositor_metadata(user.user_key)
             w.save!
             w.request_transfer_to(another_user)
@@ -168,7 +224,16 @@ RSpec.describe Hyrax::TransfersController, type: :controller, skip: true do
     describe "#destroy" do
       context "when I am the sender" do
         let!(:incoming_work) do
-          GenericWork.new(title: ['incoming']) do |w|
+          DataSet.new( authoremail: authoremail,
+                       title: [title],
+                       creator: [creator],
+                       date_created: date_created,
+                       depositor: depositor,
+                       description: [description],
+                       methodology: methodology,
+                       rights_license: rights_license,
+                       subject_discipline: [subject_discipline],
+                       visibility: visibility_public ) do |w|
             w.apply_depositor_metadata(user.user_key)
             w.save!
             w.request_transfer_to(another_user)
@@ -184,7 +249,16 @@ RSpec.describe Hyrax::TransfersController, type: :controller, skip: true do
 
       context "accepting one that isn't mine" do
         let!(:incoming_work) do
-          GenericWork.new(title: ['incoming']) do |w|
+          DataSet.new( authoremail: authoremail,
+                       title: [title],
+                       creator: [creator],
+                       date_created: date_created,
+                       depositor: depositor,
+                       description: [description],
+                       methodology: methodology,
+                       rights_license: rights_license,
+                       subject_discipline: [subject_discipline],
+                       visibility: visibility_public ) do |w|
             w.apply_depositor_metadata(another_user.user_key)
             w.save!
             w.request_transfer_to(user)

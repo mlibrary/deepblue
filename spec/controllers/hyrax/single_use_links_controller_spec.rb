@@ -6,6 +6,7 @@ RSpec.describe Hyrax::SingleUseLinksController, type: :controller do
   routes { Hyrax::Engine.routes }
   let(:main_app) { Rails.application.routes.url_helpers }
   let(:hyrax) { Hyrax::Engine.routes.url_helpers }
+
   let(:user) { create(:user) }
   let(:file) { create(:file_set, user: user) }
 
@@ -43,14 +44,14 @@ RSpec.describe Hyrax::SingleUseLinksController, type: :controller do
     end
 
     # TODO: fix
-    # context "GET index" do
-    #   describe "viewing existing links" do
-    #     before { get :index, params: { id: file } }
-    #     subject { response }
-    #
-    #     it { is_expected.to be_success }
-    #   end
-    # end
+    context "GET index", skip: true do
+      describe "viewing existing links" do
+        before { get :index, params: { id: file } }
+        subject { response }
+
+        it { is_expected.to be_success }
+      end
+    end
 
     context "DELETE destroy" do
       let!(:link) { create(:download_link) }

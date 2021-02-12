@@ -1,6 +1,10 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::ResourceSyncController, skip: true do
+RSpec.describe Hyrax::ResourceSyncController, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  routes { Hyrax::Engine.routes }
+
   before do
     Rails.cache.clear
   end

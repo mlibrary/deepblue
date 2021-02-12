@@ -5,8 +5,11 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
   include Rails.application.routes.url_helpers
   queue_as Hyrax.config.ingest_queue_name
 
-  ATTACH_FILES_TO_WORK_JOB_DEBUG_VERBOSE = ::Deepblue::IngestIntegrationService.attach_files_to_work_job_debug_verbose
-  ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY = ::Deepblue::IngestIntegrationService.attach_files_to_work_upload_files_asynchronously
+  mattr_accessor :attach_files_to_work_job_debug_verbose
+  @@attach_files_to_work_job_debug_verbose = ::Deepblue::IngestIntegrationService.attach_files_to_work_job_debug_verbose
+
+  mattr_accessor :attach_files_to_work_upload_files_asynchronously
+  @@attach_files_to_work_upload_files_asynchronously = ::Deepblue::IngestIntegrationService.attach_files_to_work_upload_files_asynchronously
 
   attr_accessor :depositor,
                 :job_status,
@@ -30,7 +33,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
     user_id = user.id if user.present?
     main_cc_id = work.id if work.present?
     status = IngestJobStatus.find_or_create_job_started( job: self,
-                                                         verbose: ATTACH_FILES_TO_WORK_JOB_DEBUG_VERBOSE,
+                                                         verbose: attach_files_to_work_job_debug_verbose,
                                                          main_cc_id: main_cc_id,
                                                          user_id: user_id )
     # @processed = []
@@ -71,7 +74,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                            "work_attributes=#{work_attributes}",
                                            "job_status=#{job_status}",
                                            # "processed=#{processed}",
-                                           "" ] if ATTACH_FILES_TO_WORK_JOB_DEBUG_VERBOSE
+                                           "" ] if attach_files_to_work_job_debug_verbose
     perform_log_starting unless job_status.did_log_starting?
     perform_validate_files unless job_status.did_validate_files?
     perform_upload_files unless job_status.did_upload_files?
@@ -93,7 +96,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                            "job_status.message=#{job_status.message}",
                                            "job_status.error=#{job_status.error}",
                                            "job_status.user_id=#{job_status.user_id}",
-                                           "" ] if ATTACH_FILES_TO_WORK_JOB_DEBUG_VERBOSE
+                                           "" ] if attach_files_to_work_job_debug_verbose
   rescue Exception => e # rubocop:disable Lint/RescueException
     msg = "#{e.class} work_id=#{work.id} -- #{e.message} at #{e.backtrace[0]}"
     Rails.logger.error msg
@@ -115,7 +118,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                            "job_status.message=#{job_status.message}",
                                            "job_status.error=#{job_status.error}",
                                            "job_status.user_id=#{job_status.user_id}",
-                                           "" ] if ATTACH_FILES_TO_WORK_JOB_DEBUG_VERBOSE
+                                           "" ] if attach_files_to_work_job_debug_verbose
     ::Deepblue::UploadHelper.log( class_name: self.class.name,
                                   event: "attach_files_to_work",
                                   event_note: "failed",
@@ -124,7 +127,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                   work_id: work.id,
                                   exception: e.to_s,
                                   backtrace0: e.backtrace[0],
-                                  asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY )
+                                  asynchronous: attach_files_to_work_upload_files_asynchronously )
     raise
   end
 
@@ -247,9 +250,9 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
 
     def perform_create_content( actor:, uploaded_file: )
       # when actor.create content is here, and the processing is synchronous, then it fails to add size to the file_set
-      # actor.create_content( uploaded_file, continue_job_chain_later: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY )
+      # actor.create_content( uploaded_file, continue_job_chain_later: attach_files_to_work_upload_files_asynchronously )
       actor.create_content( uploaded_file,
-                            continue_job_chain_later: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY,
+                            continue_job_chain_later: attach_files_to_work_upload_files_asynchronously,
                             uploaded_file_ids: uploaded_file_ids,
                             job_status: job_status )
     end
@@ -272,7 +275,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                     user: user.to_s,
                                     work_id: work.id,
                                     work_file_set_count: work.file_set_ids.count,
-                                    asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY)
+                                    asynchronous: attach_files_to_work_upload_files_asynchronously)
       # job_status.add_message( "#{self.class.name}.perform_log_starting" ) if job_status.verbose
       job_status.did_log_starting!
     end
@@ -293,25 +296,25 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                              "job_status.message=#{job_status.message}",
                                              "job_status.error=#{job_status.error}",
                                              "job_status.user_id=#{job_status.user_id}",
-                                             "" ] if ATTACH_FILES_TO_WORK_JOB_DEBUG_VERBOSE
+                                             "" ] if attach_files_to_work_job_debug_verbose
       processed_uploaded_file_ids = job_status.state_deserialize['processed_uploaded_file_ids']
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "processed_uploaded_file_ids=#{processed_uploaded_file_ids}",
                                              "processed_uploaded_file_ids.class.name=#{processed_uploaded_file_ids.class.name}",
-                                             "" ] if ATTACH_FILES_TO_WORK_JOB_DEBUG_VERBOSE
+                                             "" ] if attach_files_to_work_job_debug_verbose
       failed = uploaded_files.select { |uploaded_file| !processed_uploaded_file_ids.include? uploaded_file.id }
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "failed=#{failed}",
                                              "failed.count=#{failed.count}",
-                                             "" ] if ATTACH_FILES_TO_WORK_JOB_DEBUG_VERBOSE
+                                             "" ] if attach_files_to_work_job_debug_verbose
       succeeded = uploaded_files - failed
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "succeeded=#{succeeded}",
                                              "succeeded.count=#{succeeded.count}",
-                                             "" ] if ATTACH_FILES_TO_WORK_JOB_DEBUG_VERBOSE
+                                             "" ] if attach_files_to_work_job_debug_verbose
       # failed = uploaded_files - processed
       if failed.empty?
         ::Deepblue::UploadHelper.log( class_name: self.class.name,
@@ -323,7 +326,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                       user: user.to_s,
                                       work_id: work.id,
                                       work_file_set_count: work.file_set_ids.count,
-                                      asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY)
+                                      asynchronous: attach_files_to_work_upload_files_asynchronously)
       else
         Rails.logger.error "FAILED to process all uploaded files at #{caller_locations(1, 1)[0]},"\
                            " count of unprocessed files = #{failed.count}"
@@ -337,7 +340,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                       work_id: work.id,
                                       work_file_set_count: work.file_set_ids.count,
                                       failed: failed,
-                                      asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY )
+                                      asynchronous: attach_files_to_work_upload_files_asynchronously )
       end
       # job_status.add_message!( "#{self.class.name}.perform_notify" ) if job_status.verbose
       notify_attach_files_to_work_job_complete( successful_uploads: succeeded, failed_uploads: failed )
@@ -389,7 +392,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                              "work_permissions=#{work_permissions}",
                                              "metadata=#{metadata}",
                                              "uploaded_file_ids=#{uploaded_file_ids}",
-                                             "" ] if ATTACH_FILES_TO_WORK_JOB_DEBUG_VERBOSE
+                                             "" ] if attach_files_to_work_job_debug_verbose
       ::Deepblue::UploadHelper.log( class_name: self.class.name,
                                     event: "upload_file",
                                     id: "NA",
@@ -399,7 +402,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                     user: user.to_s,
                                     work_id: work.id,
                                     work_file_set_count: work.file_set_ids.count,
-                                    asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY)
+                                    asynchronous: attach_files_to_work_upload_files_asynchronously)
       file_set = FileSet.create
       actor = Hyrax::Actors::FileSetActor.new( file_set, user )
       actor.file_set.permissions_attributes = work_permissions
@@ -421,7 +424,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                     work_id: work.id,
                                     exception: e.to_s,
                                     backtrace0: e.backtrace[0],
-                                    asynchronous: ATTACH_FILES_TO_WORK_UPLOAD_FILES_ASYNCHRONOUSLY )
+                                    asynchronous: attach_files_to_work_upload_files_asynchronously )
     end
 
     def uploaded_file_id_for( uploaded_file )

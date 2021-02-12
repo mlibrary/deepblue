@@ -1,6 +1,10 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::LeasesController, skip: true do
+RSpec.describe Hyrax::LeasesController, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  routes { Hyrax::Engine.routes }
+
   let(:user) { create(:user) }
   let(:a_work) { create(:generic_work, user: user) }
   let(:not_my_work) { create(:generic_work) }
@@ -109,8 +113,8 @@ RSpec.describe Hyrax::LeasesController, skip: true do
 
         it 'deactivates lease, update the visibility and redirect' do
           patch :update, params: { batch_document_ids: [a_work.id], leases: { '0' => { copy_visibility: a_work.id } } }
-          expect(a_work.reload.visibility).to eq Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_AUTHENTICATED
-          expect(file_set.reload.visibility).to eq Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_AUTHENTICATED
+          expect(a_work.reload.visibility).to eq Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
+          expect(file_set.reload.visibility).to eq Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
           expect(response).to redirect_to leases_path
         end
       end

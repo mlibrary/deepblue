@@ -1,6 +1,8 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::HomepageController, type: :controller, skip: true do
+RSpec.describe Hyrax::HomepageController, type: :controller, skip: false do
+
+  include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
 
   describe "#index" do

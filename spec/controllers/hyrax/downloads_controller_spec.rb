@@ -1,6 +1,8 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::DownloadsController, skip: true do
+RSpec.describe Hyrax::DownloadsController, skip: false do
+
+  include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
 
   describe '#show' do
@@ -16,7 +18,7 @@ RSpec.describe Hyrax::DownloadsController, skip: true do
       end.to raise_error Blacklight::Exceptions::InvalidSolrID
     end
 
-    context "when user doesn't have access" do
+    context "when user doesn't have access", skip: true do
       let(:another_user) { create(:user) }
 
       before { sign_in another_user }
@@ -29,7 +31,7 @@ RSpec.describe Hyrax::DownloadsController, skip: true do
       end
     end
 
-    context "when user isn't logged in" do
+    context "when user isn't logged in", skip: true do
       context "and the unauthorized image exists" do
         before do
           allow(File).to receive(:exist?).and_return(true)
@@ -133,7 +135,7 @@ RSpec.describe Hyrax::DownloadsController, skip: true do
           end
         end
 
-        context "that isn't persisted" do
+        context "that isn't persisted", skip: true do
           it "raises an error if the requested file does not exist" do
             expect do
               get :show, params: { id: file_set, file: 'thumbnail' }

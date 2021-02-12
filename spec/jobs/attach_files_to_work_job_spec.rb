@@ -49,41 +49,41 @@ RSpec.describe AttachFilesToWorkJob, perform_enqueued: [AttachFilesToWorkJob] do
     end
   end
 
-  # context "with uploaded files on the filesystem" do
-  #   before do
-  #     data_set.permissions.build(name: 'userz@bbb.ddd', type: 'person', access: 'edit')
-  #     data_set.save
-  #   end
-  #   it_behaves_like 'a file attacher' do
-  #     it 'records the depositor(s) in edit_users' do
-  #       expect(data_set.file_sets.map(&:edit_users)).to all(match_array([data_set.depositor, 'userz@bbb.ddd']))
-  #     end
-  #
-  #     describe 'with existing files' do
-  #       let(:file_set)       { create(:file_set) }
-  #       let(:uploaded_file1) { build(:uploaded_file, file: file1, file_set_uri: 'http://example.com/file_set') }
-  #
-  #       it 'skips files that already have a FileSet' do
-  #         expect { described_class.perform_now(data_set, [uploaded_file1, uploaded_file2], user.user_key, {}) }
-  #           .to change { data_set.file_sets.count }.to eq 1
-  #       end
-  #     end
-  #   end
-  # end
+  context "with uploaded files on the filesystem", skip: true do
+    before do
+      data_set.permissions.build(name: 'userz@bbb.ddd', type: 'person', access: 'edit')
+      data_set.save
+    end
+    it_behaves_like 'a file attacher' do
+      it 'records the depositor(s) in edit_users' do
+        expect(data_set.file_sets.map(&:edit_users)).to all(match_array([data_set.depositor, 'userz@bbb.ddd']))
+      end
 
-  # context "with uploaded files at remote URLs" do
-  #   let(:url1) { 'https://example.com/my/img.png' }
-  #   let(:url2) { URI('https://example.com/other/img.png') }
-  #   let(:fog_file1) { double(CarrierWave::Storage::Abstract, url: url1) }
-  #   let(:fog_file2) { double(CarrierWave::Storage::Abstract, url: url2) }
-  #
-  #   before do
-  #     allow(uploaded_file1.file).to receive(:file).and_return(fog_file1)
-  #     allow(uploaded_file2.file).to receive(:file).and_return(fog_file2)
-  #   end
-  #
-  #   it_behaves_like 'a file attacher'
-  # end
+      describe 'with existing files' do
+        let(:file_set)       { create(:file_set) }
+        let(:uploaded_file1) { build(:uploaded_file, file: file1, file_set_uri: 'http://example.com/file_set') }
+
+        it 'skips files that already have a FileSet' do
+          expect { described_class.perform_now(data_set, [uploaded_file1, uploaded_file2], user.user_key, {}) }
+            .to change { data_set.file_sets.count }.to eq 1
+        end
+      end
+    end
+  end
+
+  context "with uploaded files at remote URLs", skip: true do
+    let(:url1) { 'https://example.com/my/img.png' }
+    let(:url2) { URI('https://example.com/other/img.png') }
+    let(:fog_file1) { double(CarrierWave::Storage::Abstract, url: url1) }
+    let(:fog_file2) { double(CarrierWave::Storage::Abstract, url: url2) }
+
+    before do
+      allow(uploaded_file1.file).to receive(:file).and_return(fog_file1)
+      allow(uploaded_file2.file).to receive(:file).and_return(fog_file2)
+    end
+
+    it_behaves_like 'a file attacher'
+  end
 
   context "deposited on behalf of another user" do
     before do

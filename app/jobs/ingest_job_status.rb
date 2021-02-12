@@ -113,7 +113,7 @@ class IngestJobStatus
                                            "job_id=#{job_id}",
                                            "verbose=#{verbose}",
                                            "" ] if INGEST_JOB_STATUS_DEBUG_VERBOSE
-    return nil unless job_id.present?
+    # return nil unless job_id.present?
     IngestJobStatus.new( job_id: job_id, verbose: verbose, main_cc_id: main_cc_id, user_id: user_id  )
   end
 
@@ -147,12 +147,14 @@ class IngestJobStatus
   end
 
   def reinitialize_processed
+    return self if job_status.null_job_status?
     state = state_deserialize
     if state.present?
       @processed_file_set_ids = state["processed_file_set_ids"]
       @processed_uploaded_file_ids = state["processed_uploaded_file_ids"]
       @verbose = state["verbose"]
     end
+    return self
   end
 
   def processed_file_set_ids
@@ -168,10 +170,6 @@ class IngestJobStatus
       "processed_uploaded_file_ids" => processed_uploaded_file_ids,
       "verbose" => verbose }
   end
-
-
-
-
 
   def add_error( error, sep: "\n" )
     add_message( error, sep: sep ) if verbose

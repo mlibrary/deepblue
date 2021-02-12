@@ -1,6 +1,10 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::UsersController, type: :controller, skip: true do
+RSpec.describe Hyrax::UsersController, type: :controller, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  routes { Hyrax::Engine.routes }
+
   let(:user) { create(:user) }
 
   before { sign_in user }
@@ -125,7 +129,7 @@ RSpec.describe Hyrax::UsersController, type: :controller, skip: true do
           get :index
           expect(flash[:alert]).to eq 'You need to sign in or sign up before continuing.'
           expect(response).to have_http_status(302)
-          expect(response).to redirect_to('/users/sign_in')
+          expect(response).to redirect_to('/login') # DBD specific
         end
 
         it 'does not return .json results' do

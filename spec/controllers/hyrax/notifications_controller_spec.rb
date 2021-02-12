@@ -1,7 +1,12 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::NotificationsController, type: :controller, skip: true do
-  let(:mock_box) { {} }
+RSpec.describe Hyrax::NotificationsController, type: :controller, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  routes { Hyrax::Engine.routes }
+
+  let(:user) { create(:user) }
+  let(:mock_box) { UserMailbox.new(user) }
 
   before do
     allow(controller).to receive(:authenticate_user!).and_return(true)

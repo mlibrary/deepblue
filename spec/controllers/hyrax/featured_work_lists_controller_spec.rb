@@ -1,6 +1,10 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::FeaturedWorkListsController, type: :controller, skip: true do
+RSpec.describe Hyrax::FeaturedWorkListsController, type: :controller, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  routes { Hyrax::Engine.routes }
+
   describe "#create" do
     before do
       expect(controller).to receive(:authorize!).with(:update, FeaturedWork)
