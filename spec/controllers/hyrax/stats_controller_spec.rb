@@ -1,6 +1,11 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::StatsController, skip: true do
+RSpec.describe Hyrax::StatsController, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  routes { Hyrax::Engine.routes }
+  let(:main_app) { Rails.application.routes.url_helpers }
+
   let(:user) { create(:user) }
   let(:usage) { double }
 
@@ -54,7 +59,7 @@ RSpec.describe Hyrax::StatsController, skip: true do
   end
 
   describe 'work' do
-    let(:work) { create(:generic_work, user: user) }
+    let(:work) { create(:data_set, user: user) }
 
     before do
       sign_in user
@@ -66,7 +71,7 @@ RSpec.describe Hyrax::StatsController, skip: true do
       expect(controller).to receive(:add_breadcrumb).with('Home', Hyrax::Engine.routes.url_helpers.root_path(locale: 'en'))
       expect(controller).to receive(:add_breadcrumb).with(I18n.t('hyrax.dashboard.my.works'), Hyrax::Engine.routes.url_helpers.my_works_path(locale: 'en'))
       expect(controller).to receive(:add_breadcrumb).with(I18n.t('hyrax.dashboard.title'), Hyrax::Engine.routes.url_helpers.dashboard_path(locale: 'en'))
-      expect(controller).to receive(:add_breadcrumb).with('Test title', main_app.hyrax_generic_work_path(work, locale: 'en'))
+      expect(controller).to receive(:add_breadcrumb).with('Test title', main_app.hyrax_data_set_path(work, locale: 'en'))
       get :work, params: { id: work }
       expect(response).to be_success
       expect(response).to render_template('stats/work')

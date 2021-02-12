@@ -1,11 +1,13 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::DepositorsController, skip: true do
+RSpec.describe Hyrax::DepositorsController, skip: false do
 
   include Devise::Test::ControllerHelpers
-  routes { Rails.application.routes }
+  routes { Hyrax::Engine.routes }
   let(:main_app) { Rails.application.routes.url_helpers }
   let(:hyrax) { Hyrax::Engine.routes.url_helpers }
+
+
   let(:user) { create(:user) }
   let(:grantee) { create(:user) }
 

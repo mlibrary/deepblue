@@ -7,6 +7,7 @@ RSpec.describe Hyrax::UploadsController do
   routes { Hyrax::Engine.routes }
   let(:main_app) { Rails.application.routes.url_helpers }
   let(:hyrax) { Hyrax::Engine.routes.url_helpers }
+
   let(:user) { create(:user) }
 
   describe "#create" do

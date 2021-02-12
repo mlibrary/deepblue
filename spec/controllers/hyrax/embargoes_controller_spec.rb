@@ -1,9 +1,13 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::EmbargoesController, skip: true do
+RSpec.describe Hyrax::EmbargoesController, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  routes { Hyrax::Engine.routes }
+
   let(:user) { create(:user) }
-  let(:a_work) { create(:generic_work, user: user) }
-  let(:not_my_work) { create(:generic_work) }
+  let(:a_work) { create(:data_set, user: user) }
+  let(:not_my_work) { create(:data_set) }
   before { sign_in user }
 
   describe '#index' do
@@ -63,7 +67,7 @@ RSpec.describe Hyrax::EmbargoesController, skip: true do
 
       let(:actor) { double }
 
-      context 'that has no files' do
+      context 'that has no files', skip: true do
         it 'deactivates embargo and redirects' do
           expect(actor).to receive(:destroy)
           get :destroy, params: { id: a_work }
@@ -77,7 +81,7 @@ RSpec.describe Hyrax::EmbargoesController, skip: true do
           a_work.save!
         end
 
-        it 'deactivates embargo and checks to see if we want to copy the visibility to files' do
+        it 'deactivates embargo and checks to see if we want to copy the visibility to files', skip: true do
           expect(actor).to receive(:destroy)
           get :destroy, params: { id: a_work }
           expect(response).to redirect_to confirm_permission_path(a_work)
@@ -133,7 +137,7 @@ RSpec.describe Hyrax::EmbargoesController, skip: true do
           file_set3.save(validate: false)
         end
 
-        it 'deactivates embargo, updates the visibility and redirects' do
+        it 'deactivates embargo, updates the visibility and redirects', skip: true do
           allow(controller).to receive(:filter_docs_with_edit_access!).and_return(true)
           patch :update, params: { batch_document_ids: batch, embargoes: { '0' => { copy_visibility: file_set2.id }, '1' => { copy_visibility: a_work.id } } }
           expect(a_work.reload.visibility).to eq Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC

@@ -1,6 +1,10 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::TrophiesController, skip: true do
+RSpec.describe Hyrax::TrophiesController, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  routes { Hyrax::Engine.routes }
+
   describe "#toggle_trophy" do
     let(:user) { create(:user) }
     let(:work) { create(:work, user: user) }
