@@ -79,6 +79,7 @@ gem 'samvera-persona'
 # Begin security vulnerability mitigation
 # bundle update --source gem-name
 gem 'bootstrap-sass', '~> 3.4.1'
+gem 'carrierwave', '~> 1.3.2'
 gem 'loofah', '~> 2.3.1'
 gem 'rack', '~> 2.1.4'
 gem 'rubyzip', '~> 2.0.0'
