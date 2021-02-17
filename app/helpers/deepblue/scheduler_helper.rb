@@ -23,10 +23,12 @@ module Deepblue
                   event: 'unknown',
                   event_note: '',
                   id: '',
+                  hostname_allowed: "N/A",
                   timestamp: timestamp_now,
                   echo_to_rails_logger: SchedulerHelper.echo_to_rails_logger,
                   **log_key_values )
 
+      log_key_values = log_key_values.merge( hostname_allowed: hostname_allowed )
       msg = msg_to_log( class_name: class_name,
                         event: event,
                         event_note: event_note,

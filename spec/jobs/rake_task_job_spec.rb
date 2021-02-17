@@ -71,10 +71,7 @@ RSpec.describe RakeTaskJob, skip: false do
     end
 
     describe 'with valid hostname' do
-      let(:hostnames) { [ ::DeepBlueDocs::Application.config.hostname,
-                          'deepblue.lib.umich.edu',
-                          'staging.deepblue.lib.umich.edu',
-                          'testing.deepblue.lib.umich.edu' ] }
+      let(:hostnames) { build(:hostnames_allowed) }
       run_the_job = true
 
       it_behaves_like 'it called initialize_from_args during perform job', run_the_job
@@ -82,9 +79,7 @@ RSpec.describe RakeTaskJob, skip: false do
     end
 
     describe 'without valid hostnames', skip: false do
-      let(:hostnames) { [ 'deepblue.lib.umich.edu',
-                          'staging.deepblue.lib.umich.edu',
-                          'testing.deepblue.lib.umich.edu' ] }
+      let(:hostnames) { build(:hostnames_not_allowed) }
       run_the_job = false
 
       it_behaves_like 'it called initialize_from_args during perform job', run_the_job

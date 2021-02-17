@@ -1,6 +1,10 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::My::HighlightsController, type: :controller, skip: true do
+RSpec.describe Hyrax::My::HighlightsController, type: :controller, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  routes { Hyrax::Engine.routes }
+
   describe "logged in user" do
     let(:user) { create(:user) }
 
@@ -13,10 +17,10 @@ RSpec.describe Hyrax::My::HighlightsController, type: :controller, skip: true do
       end
 
       let(:other_user) { create(:user) }
-      let(:highlighted_work) { create(:generic_work, user: user) }
-      let!(:normal_work) { create(:generic_work, user: user) }
+      let(:highlighted_work) { create(:data_set, user: user) }
+      let!(:normal_work) { create(:data_set, user: user) }
       let(:unrelated_highlighted_work) do
-        create(:generic_work, user: other_user).tap do |r|
+        create(:data_set, user: other_user).tap do |r|
           r.edit_users += [user.user_key]
           r.save!
         end

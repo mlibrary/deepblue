@@ -2,8 +2,6 @@
 
 class AbstractIngestJob < ::Hyrax::ApplicationJob
 
-  ABSTRACT_INGEST_JOB_DEBUG_VERBOSE = ::Deepblue::IngestIntegrationService.abstract_ingest_job_debug_verbose
-
   mattr_accessor :abstract_ingest_job_debug_verbose,
                  default: ::Deepblue::IngestIntegrationService.abstract_ingest_job_debug_verbose
 

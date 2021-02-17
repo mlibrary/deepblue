@@ -1,6 +1,10 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::My::WorksController, type: :controller, skip: true do
+RSpec.describe Hyrax::My::WorksController, type: :controller, skip: false do
+
+  include Devise::Test::ControllerHelpers
+  routes { Hyrax::Engine.routes }
+
   let(:user) { create(:user) }
 
   before { sign_in user }

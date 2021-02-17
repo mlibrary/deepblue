@@ -20,7 +20,10 @@ class CreateDerivativesJob < AbstractIngestJob
                parent_job_id: nil,
                uploaded_file_ids: [] )
 
-    find_or_create_job_status_started( parent_job_id: parent_job_id, verbose: create_derivatives_job_debug_verbose )
+    user_id = current_user.id if current_user.present?
+    find_or_create_job_status_started( parent_job_id: parent_job_id,
+                                       user_id: user_id,
+                                       verbose: create_derivatives_job_debug_verbose )
     # job_status.add_message!( "#{self.class.name}.perform: #{repository_file_id}" ) if job_status.verbose
     ::Deepblue::IngestHelper.create_derivatives( file_set,
                                                  repository_file_id,
