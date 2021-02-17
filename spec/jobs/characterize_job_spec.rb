@@ -4,10 +4,11 @@ require 'rails_helper'
 
 RSpec.describe CharacterizeJob do
 
-  SPEC_CHARACTERIZE_JOB_DEBUG_VERBOSE = false
+  mattr_accessor :spec_characterize_job_debug_verbose
+  @@spec_characterize_job_debug_verbose = false
 
   before :all do
-    if SPEC_CHARACTERIZE_JOB_DEBUG_VERBOSE
+    if spec_characterize_job_debug_verbose
       ::Deepblue::LoggingHelper.echo_to_puts = true
       ::Deepblue::IngestHelper.ingest_helper_debug_verbose = true
       AbstractIngestJob.abstract_ingest_job_debug_verbose = true
@@ -17,7 +18,7 @@ RSpec.describe CharacterizeJob do
   end
 
   after :all do
-    if SPEC_CHARACTERIZE_JOB_DEBUG_VERBOSE
+    if spec_characterize_job_debug_verbose
       ::Deepblue::LoggingHelper.echo_to_puts = false
       ::Deepblue::IngestHelper.ingest_helper_debug_verbose = false
       CharacterizeJob.characterize_job_debug_verbose = false
@@ -49,9 +50,9 @@ RSpec.describe CharacterizeJob do
   end
 
   before do
-    puts "user1=#{user1}, user1.id=#{user1.id}" if SPEC_CHARACTERIZE_JOB_DEBUG_VERBOSE
-    puts "user2=#{user2}, user2.id=#{user2.id}" if SPEC_CHARACTERIZE_JOB_DEBUG_VERBOSE
-    puts "user3=#{user3}, user3.id=#{user3.id}" if SPEC_CHARACTERIZE_JOB_DEBUG_VERBOSE
+    puts "user1=#{user1}, user1.id=#{user1.id}" if spec_characterize_job_debug_verbose
+    puts "user2=#{user2}, user2.id=#{user2.id}" if spec_characterize_job_debug_verbose
+    puts "user3=#{user3}, user3.id=#{user3.id}" if spec_characterize_job_debug_verbose
 
     allow(FileSet).to receive(:find).with(file_set_id).and_return(file_set)
     expect(::Deepblue::IngestHelper).to receive(:characterize).with( any_args ).and_call_original
@@ -61,7 +62,11 @@ RSpec.describe CharacterizeJob do
 
   context 'with valid filepath param' do
     let(:filename) { File.join(fixture_path, 'world.png') }
-    let(:job)      { described_class.send( :job_or_instantiate, file_set, file.id, filename ) }
+    let(:job)      { described_class.send( :job_or_instantiate,
+                                           file_set,
+                                           file.id,
+                                           filename,
+                                           current_user: current_user.user_key ) }
     let(:current_user) { user1 }
 
     before do
@@ -71,7 +76,7 @@ RSpec.describe CharacterizeJob do
                                             "file_name=#{file.id}",
                                             "current_user.id=#{current_user.id}",
                                             "current_user.email=#{current_user.email}",
-                                            "" ] if SPEC_CHARACTERIZE_JOB_DEBUG_VERBOSE
+                                            "" ] if spec_characterize_job_debug_verbose
       allow( CreateDerivativesJob ).to receive(:perform_now).with( file_set,
                                                                    file.id,
                                                                    filename,
@@ -83,10 +88,11 @@ RSpec.describe CharacterizeJob do
       expect(::Deepblue::IngestHelper).not_to receive(:log_error).with( any_args )
       expect(::Deepblue::IngestHelper).to receive(:perform_create_derivatives_job).with( any_args ).and_call_original
 
-      expect( job ).not_to receive(:log_error).with( any_args )
+      expect(job).to receive(:perform_now).with(no_args).and_call_original
+      expect(job).not_to receive(:log_error).with( any_args )
 
       ActiveJob::Base.queue_adapter = :test
-      described_class.perform_now( file_set, file.id, filename, current_user: current_user.user_key )
+      job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
       expect( JobStatus.all.count ).to be_nonzero
       job_status = JobStatus.all.select { |j| j.user_id == current_user.id }
       expect( job_status ).not_to eq nil
@@ -101,15 +107,22 @@ RSpec.describe CharacterizeJob do
       #                                         "j.user_id=#{j.user_id}",
       #                                         "current_user.id=#{current_user.id}",
       #                                         "current_user.email=#{current_user.email}",
-      #                                         "" ] if SPEC_CHARACTERIZE_JOB_DEBUG_VERBOSE
+      #                                         "" ] if spec_characterize_job_debug_verbose
       #
       #   j.user_id == current_user.id
       # end
       job_status = job_status.first
-      expect( job_status.job_class ).to eq CharacterizeJob.name
-      expect( job_status.status ).to eq "finished_characterize"
+      expect(job_status.job_class).to eq CharacterizeJob.name
+      expect(job_status.job_id).to eq job.job_id
+      expect(job_status.parent_job_id).to eq nil
+      expect(job_status.error).to eq nil
+      expect(job_status.message).to eq nil
+      expect(job_status.user_id).to eq current_user.id
+      expect(job_status.main_cc_id).to eq nil
+      #expect(job_status)
+      expect( job_status.status ).to eq IngestJobStatus::FINISHED_CHARACTERIZE
       expect( job_status.state ).to eq nil
-      if SPEC_CHARACTERIZE_JOB_DEBUG_VERBOSE
+      if spec_characterize_job_debug_verbose
         expect( job_status.message ).to eq "did? finished_characterize returning false because current status is blank\nstatus changed to: finished_characterize"
       else
         expect( job_status.message ).to eq nil
@@ -129,7 +142,7 @@ RSpec.describe CharacterizeJob do
                                             "file_name=#{file.id}",
                                             "current_user.id=#{current_user.id}",
                                             "current_user.email=#{current_user.email}",
-                                            "" ] if SPEC_CHARACTERIZE_JOB_DEBUG_VERBOSE
+                                            "" ] if spec_characterize_job_debug_verbose
       allow( job ).to receive(:perform_now).with( any_args ).and_call_original
     end
 
@@ -150,7 +163,7 @@ RSpec.describe CharacterizeJob do
       job_status = job_status.first
       expect( job_status.job_class ).to eq CharacterizeJob.name
       expect( job_status.status ).to eq "finished_characterize"
-      if SPEC_CHARACTERIZE_JOB_DEBUG_VERBOSE
+      if spec_characterize_job_debug_verbose
         expect( job_status.message ).to eq "did? finished_characterize returning false because current status is blank\nstatus changed to: finished_characterize"
       else
         expect( job_status.message ).to eq nil
@@ -170,7 +183,7 @@ RSpec.describe CharacterizeJob do
                                             "file_name=#{file.id}",
                                             "current_user.id=#{current_user.id}",
                                             "current_user.email=#{current_user.email}",
-                                            "" ] if SPEC_CHARACTERIZE_JOB_DEBUG_VERBOSE
+                                            "" ] if spec_characterize_job_debug_verbose
       allow( job ).to receive(:perform_now).with( any_args ).and_call_original
       allow(file_set).to receive(:characterization_proxy?).and_return(false)
     end
@@ -189,7 +202,7 @@ RSpec.describe CharacterizeJob do
       # puts "<<<"
       expect( job_status.job_class ).to eq CharacterizeJob.name
       expect( job_status.status ).to eq nil
-      if SPEC_CHARACTERIZE_JOB_DEBUG_VERBOSE
+      if spec_characterize_job_debug_verbose
         expect( job_status.message ).to start_with "original_file was not found\nCharacterizeJob.perform(No Title"
       else
         expect( job_status.message ).to eq nil

@@ -11,10 +11,7 @@ RSpec.describe UpdateCondensedEventsJob, skip: false do
   context 'with valid arguments' do
     let(:hostname)  { 'some.host.name' }
     let(:job)       { described_class.send( :job_or_instantiate, *args ) }
-    let(:hostnames) { [ ::DeepBlueDocs::Application.config.hostname,
-                        'deepblue.lib.umich.edu',
-                        'staging.deepblue.lib.umich.edu',
-                        'testing.deepblue.lib.umich.edu' ] }
+    let(:hostnames) { build(:hostnames_allowed) }
     let(:args)      { { hostnames: hostnames, quiet: true } }
     let(:options)   { { 'hostnames' => hostnames, 'quiet' => true } }
 

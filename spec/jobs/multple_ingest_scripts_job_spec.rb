@@ -4,10 +4,10 @@ require 'rails_helper'
 
 RSpec.describe MultipleIngestScriptsJob, skip: false do
 
-  let(:ingest_script_job) { class_double(IngestScriptJob ).as_stubbed_const(:transfer_nested_constants => true) }
-  let(:ingest_mode)       { 'populate' }
-  let(:ingester)          { "ingester@umich.edu" }
-  let(:options)           { {} }
+  let(:subject_job) { class_double(IngestScriptJob ).as_stubbed_const(:transfer_nested_constants => true) }
+  let(:ingest_mode) { 'populate' }
+  let(:ingester)    { "ingester@umich.edu" }
+  let(:options)     { {} }
 
   describe 'module debug verbose variables' do
     it "they have the right values" do
@@ -35,17 +35,16 @@ RSpec.describe MultipleIngestScriptsJob, skip: false do
                                                    **options ) }
 
     before do
-      expect( described_class.multiple_ingest_scripts_job_debug_verbose ).to eq true
       expect( job ).to receive( :init_paths_to_scripts ).with( paths_to_scripts ).and_call_original
       expect( job ).to receive( :validate_paths_to_scripts ).with( no_args ).and_return true
       expect( job ).to receive( :ingest_script_run ).with( path_to_script: path1 ).and_call_original
       expect( job ).to receive( :ingest_script_run ).with( path_to_script: path2 ).and_call_original
       expect( job ).to receive( :email_results ).with( no_args )
       expect( job ).to_not receive( :email_failure ).with( any_args )
-      expect( ingest_script_job ).to receive(:perform_now ).with( ingest_mode: ingest_mode,
+      expect( subject_job ).to receive(:perform_now ).with( ingest_mode: ingest_mode,
                                                                  ingester: ingester,
                                                                  path_to_script: path1 )
-      expect( ingest_script_job ).to receive(:perform_now ).with( ingest_mode: ingest_mode,
+      expect( subject_job ).to receive(:perform_now ).with( ingest_mode: ingest_mode,
                                                                  ingester: ingester,
                                                                  path_to_script: path2 )
     end

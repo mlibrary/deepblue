@@ -2,7 +2,8 @@
 
 class IngestJobStatus
 
-  INGEST_JOB_STATUS_DEBUG_VERBOSE = ::Deepblue::IngestIntegrationService.ingest_job_status_debug_verbose
+  mattr_accessor :intest_job_status_debug_verbose
+  @@intest_job_status_debug_verbose = ::Deepblue::IngestIntegrationService.ingest_job_status_debug_verbose
 
   def self.null_ingest_job_status
     @@null_ingest_job_status ||= IngestJobStatus.new( job_status: ::JobStatus::Null.instance )
@@ -77,7 +78,7 @@ class IngestJobStatus
                                            "parent_job_id=#{parent_job_id}",
                                            "continue_job_chain_later=#{continue_job_chain_later}",
                                            "verbose=#{verbose}",
-                                           "" ] if INGEST_JOB_STATUS_DEBUG_VERBOSE
+                                           "" ] if intest_job_status_debug_verbose
     # TODO: take continue_job_chain_later into account
     # if the parent_job_id exists, use it
     return new_job_status( job_id: parent_job_id, verbose: verbose ) if parent_job_id.present?
@@ -98,7 +99,7 @@ class IngestJobStatus
                                            "parent_job_id=#{parent_job_id}",
                                            "continue_job_chain_later=#{continue_job_chain_later}",
                                            "verbose=#{verbose}",
-                                           "" ] if INGEST_JOB_STATUS_DEBUG_VERBOSE
+                                           "" ] if intest_job_status_debug_verbose
     # TODO: take continue_job_chain_later into account
     return new_job_status( job_id: parent_job_id,
                            verbose: verbose,
@@ -112,7 +113,7 @@ class IngestJobStatus
                                            ::Deepblue::LoggingHelper.called_from,
                                            "job_id=#{job_id}",
                                            "verbose=#{verbose}",
-                                           "" ] if INGEST_JOB_STATUS_DEBUG_VERBOSE
+                                           "" ] if intest_job_status_debug_verbose
     # return nil unless job_id.present?
     IngestJobStatus.new( job_id: job_id, verbose: verbose, main_cc_id: main_cc_id, user_id: user_id  )
   end
@@ -126,7 +127,7 @@ class IngestJobStatus
                                            "job_id=#{job_id}",
                                            "job_status=#{job_status}",
                                            "verbose=#{verbose}",
-                                           "" ] if INGEST_JOB_STATUS_DEBUG_VERBOSE
+                                           "" ] if intest_job_status_debug_verbose
     # TODO: error if job_status, job, and job_id are all blank?
     @verbose = verbose
     if job_status.present?
@@ -191,7 +192,7 @@ class IngestJobStatus
     #                                        "job_status.job_id=#{job_status.job_id}",
     #                                        "job_status.job_class=#{job_status.job_class}",
     #                                        "job_status.status=#{job_status.status}",
-    #                                        "" ] if INGEST_JOB_STATUS_DEBUG_VERBOSE
+    #                                        "" ] if intest_job_status_debug_verbose
     return did_verbose( status, "status is blank",false ) if status.blank?
     return did_verbose( status, "job_status is blank", false ) if job_status.blank?
     current_status = job_status.status
@@ -207,7 +208,7 @@ class IngestJobStatus
     #                                        "did_status_index=#{did_status_index}",
     #                                        "current_status_index=#{current_status_index}",
     #                                        "rv = did_status_index <= current_status_index=#{rv}",
-    #                                        "" ] if INGEST_JOB_STATUS_DEBUG_VERBOSE
+    #                                        "" ] if intest_job_status_debug_verbose
     return did_verbose( status, "current status is #{current_status}", rv )
   end
   alias doing? did?

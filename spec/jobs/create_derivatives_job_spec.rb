@@ -77,16 +77,32 @@ RSpec.describe CreateDerivativesJob do
       end
 
       context 'when the file_set is the thumbnail of the parent' do
-        let(:parent) { GenericWork.new(thumbnail_id: id) }
+        let(:parent) { DataSet.new(thumbnail_id: id) }
+        let(:job) { described_class.send( :job_or_instantiate, file_set, file.id, current_user: user ) }
 
         it 'updates the index of the parent object' do
+
+          expect(::Deepblue::IngestHelper).not_to receive(:log_error).with( any_args )
+
           expect(file_set).to receive(:reload)
           expect(parent).to receive(:update_index)
           expect(::Deepblue::IngestHelper).to receive(:create_derivatives).with( any_args ).and_call_original
-          described_class.perform_now(file_set, file.id)
+          #described_class.perform_now(file_set, file.id)
+
+          expect(job).to receive(:perform_now).with(no_args).and_call_original
+          expect(job).not_to receive(:log_error).with( any_args )
+
+          ActiveJob::Base.queue_adapter = :test
+          job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
           expect( JobStatus.all.count ).to eq 1
           job_status = JobStatus.all.first
           expect( job_status.job_class ).to eq CreateDerivativesJob.name
+          expect(job_status.job_id).to eq job.job_id
+          expect(job_status.parent_job_id).to eq nil
+          expect(job_status.error).to eq nil
+          expect(job_status.message).to eq nil
+          expect(job_status.user_id).to eq user.id
+          expect(job_status.main_cc_id).to eq nil
           expect( job_status.status ).to eq "delete_file"
           state = job_status.state_deserialize
           expect( state ).to eq nil
@@ -97,7 +113,7 @@ RSpec.describe CreateDerivativesJob do
       end
 
       context "when the file_set isn't the parent's thumbnail" do
-        let(:parent) { GenericWork.new }
+        let(:parent) { DataSet.new }
 
         it "doesn't update the parent's index" do
           expect(file_set).to receive(:reload)

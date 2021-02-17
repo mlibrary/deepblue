@@ -4,7 +4,10 @@ require 'rails_helper'
 
 RSpec.describe AttachFilesToWorkJob, perform_enqueued: [AttachFilesToWorkJob] do
 
-  ATTACH_FILES_TO_WORK_JOB_SPEC_DEBUG_VERBOSE = false
+  mattr_accessor :attach_files_to_work_job_spec_debug_verbose
+  @@attach_files_to_work_job_spec_debug_verbose = false
+
+  let(:subject_job) { class_double(AttachFilesToWorkJob ).as_stubbed_const(:transfer_nested_constants => true) }
 
   let(:file1) { File.open(fixture_path + '/world.png') }
   let(:file2) { File.open(fixture_path + '/image.jp2') }
@@ -13,11 +16,28 @@ RSpec.describe AttachFilesToWorkJob, perform_enqueued: [AttachFilesToWorkJob] do
   let(:data_set) { create(:public_data_set) }
   let(:user) { create(:user) }
 
+  describe 'module debug verbose variables' do
+    it "they have the right values" do
+      expect( described_class.attach_files_to_work_job_debug_verbose ).to eq false
+    end
+  end
+
   shared_examples 'a file attacher', perform_enqueued: [AttachFilesToWorkJob, IngestJob] do
+    let(:job) { described_class.send( :job_or_instantiate,
+                                      data_set,
+                                      [uploaded_file1, uploaded_file2],
+                                      user.user_key,
+                                      {} ) }
+
     it 'attaches files, copies visibility and permissions and updates the uploaded files' do
       ActiveJob::Base.queue_adapter = :test
       expect(CharacterizeJob).to receive(:perform_now).twice
-      described_class.perform_now(data_set, [uploaded_file1, uploaded_file2], user.user_key, {})
+      #described_class.perform_now(data_set, [uploaded_file1, uploaded_file2], user.user_key, {})
+
+      expect(job).to receive(:perform_now).with(no_args).and_call_original
+      expect(job).not_to receive(:log_error).with( any_args )
+
+      job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
       data_set.reload
       expect(data_set.file_sets.count).to eq 2
       expect(data_set.file_sets.map(&:visibility)).to all(eq 'open')
@@ -28,6 +48,14 @@ RSpec.describe AttachFilesToWorkJob, perform_enqueued: [AttachFilesToWorkJob] do
       expect( JobStatus.all.count ).to be_nonzero
       job_status = JobStatus.all.select { |j| j.user_id == user.id }
       job_status = job_status.first
+      expect(job_status.job_class).to eq AttachFilesToWorkJob.name
+      expect(job_status.job_id).to eq job.job_id
+      expect(job_status.parent_job_id).to eq nil
+      expect(job_status.error).to eq nil
+      expect(job_status.message).to eq "processed uploaded_file: 1\nprocessed uploaded_file: 2"
+      expect(job_status.user_id).to eq user.id
+      expect(job_status.main_cc_id).to eq data_set.id
+      #expect(job_status)
       j = job_status
       ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
                                             ::Deepblue::LoggingHelper.called_from,
@@ -38,7 +66,7 @@ RSpec.describe AttachFilesToWorkJob, perform_enqueued: [AttachFilesToWorkJob] do
                                             "j.error=#{j.error}",
                                             "j.user_id=#{j.user_id}",
                                             "user.user_key=#{user.user_key}",
-                                            "" ] if ATTACH_FILES_TO_WORK_JOB_SPEC_DEBUG_VERBOSE
+                                            "" ] if attach_files_to_work_job_spec_debug_verbose
       expect( job_status.job_class ).to eq AttachFilesToWorkJob.name
       expect( job_status.status ).to eq 'finished'
       state = job_status.state_deserialize

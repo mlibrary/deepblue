@@ -160,7 +160,34 @@ RSpec.describe IngestJobStatus do
 
   end
 
-  describe '#did?' do
+  describe 'default ingest job status' do
+    it "has a null job status" do
+      expect( subject.null_job_status? ).to eq true
+    end
+  end
+
+  describe '.did?' do
+
+    context 'testing arbitrary status' do
+      let( :job ) { TestJob.send( :job_or_instantiate ) }
+      let( :job_id ) { job.job_id }
+      let(:job_status_var) { JobStatus.create( job_id: job_id, job_class: job.class ) }
+      let(:ingest_job_status) { IngestJobStatus.new( job_status: job_status_var ) }
+
+      before do
+        expect(job_status_var.null_job_status?).to eq false
+        expect(ingest_job_status.job_status).to eq job_status_var
+      end
+
+      it 'is true if status found' do
+        ingest_job_status.did! 'something'
+        expect(ingest_job_status.status? 'something').to eq true
+      end
+
+      it 'is false if status not found' do
+        expect(ingest_job_status.status? 'something').to eq false
+      end
+    end
 
     it 'is false for all if status is nil' do
       job_status.status = nil
@@ -201,17 +228,504 @@ RSpec.describe IngestJobStatus do
 
   end
 
-  describe 'default ingest job status' do
-    it "has a null job status" do
-      expect( subject.null_job_status? ).to eq true
+  describe '.did_verbose' do
+    let( :job ) { TestJob.send( :job_or_instantiate ) }
+    let( :job_id ) { job.job_id }
+    let(:job_status_var) { JobStatus.create( job_id: job_id, job_class: job.class ) }
+    let(:ingest_job_status) { IngestJobStatus.new( job_status: job_status_var ) }
+    let(:status) { 'UpdatedStatus' }
+    let(:reason) { "because it's a test!" }
+    let(:rv)     { "this value" }
+
+    before do
+      expect(job_status_var.null_job_status?).to eq false
+      expect(ingest_job_status.job_status).to eq job_status_var
+    end
+
+    it "adds a message if verbose" do
+      ingest_job_status.verbose = true
+      ingest_job_status.did_verbose( status, reason, rv )
+      expect( ingest_job_status.message ).to eq "did? #{status} returning #{rv} because #{reason}"
+    end
+
+    it "doesn't add a message if not verbose" do
+      ingest_job_status.verbose = false
+      ingest_job_status.did_verbose( status, reason, rv )
+      expect( ingest_job_status.message ).to eq nil
+    end
+
+  end
+
+  # describe '.did_verbose2' do
+  #   it "is TODO" do
+  #     skip "the test code goes here"
+  #   end
+  # end
+
+  describe '.did_add_file_to_file_set' do
+    let(:expected_status) { IngestJobStatus::FINISHED_ADD_FILE_TO_FILE_SET }
+    let( :job ) { TestJob.send( :job_or_instantiate ) }
+    let( :job_id ) { job.job_id }
+    let(:job_status_var) { JobStatus.create( job_id: job_id, job_class: job.class ) }
+    let(:ingest_job_status) { IngestJobStatus.new( job_status: job_status_var ) }
+
+    before do
+      expect(job_status_var.null_job_status?).to eq false
+      expect(ingest_job_status.job_status).to eq job_status_var
+    end
+
+    it "set status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.did_add_file_to_file_set! }.to change { JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+    end
+    it "is true when has status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.message ).to eq nil
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.status! expected_status }.to change {  JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+      expect( ingest_job_status.did_add_file_to_file_set? ).to eq true
+    end
+    it "is false when it has another status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      ingest_job_status.started!
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq started
+      expect( ingest_job_status.status? expected_status ).to eq false
+      expect( ingest_job_status.did_add_file_to_file_set? ).to eq false
     end
   end
 
-  describe '.did_verbose' do
-    it "is TODO" do
-      skip "add tests"
+  describe '.did_attach_file_to_work' do
+    let(:expected_status) { IngestJobStatus::FINISHED_ATTACH_FILE_TO_WORK }
+    let( :job ) { TestJob.send( :job_or_instantiate ) }
+    let( :job_id ) { job.job_id }
+    let(:job_status_var) { JobStatus.create( job_id: job_id, job_class: job.class ) }
+    let(:ingest_job_status) { IngestJobStatus.new( job_status: job_status_var ) }
+
+    before do
+      expect(job_status_var.null_job_status?).to eq false
+      expect(ingest_job_status.job_status).to eq job_status_var
+    end
+
+    it "set status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.did_attach_file_to_work! }.to change { JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+    end
+    it "is true when has status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.message ).to eq nil
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.status! expected_status }.to change {  JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+      expect( ingest_job_status.did_attach_file_to_work? ).to eq true
+    end
+    it "is false when it has another status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      ingest_job_status.started!
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq started
+      expect( ingest_job_status.status? expected_status ).to eq false
+      expect( ingest_job_status.did_attach_file_to_work? ).to eq false
     end
   end
+
+  describe '.did_characterize' do
+    let(:expected_status) { IngestJobStatus::FINISHED_CHARACTERIZE }
+    let( :job ) { TestJob.send( :job_or_instantiate ) }
+    let( :job_id ) { job.job_id }
+    let(:job_status_var) { JobStatus.create( job_id: job_id, job_class: job.class ) }
+    let(:ingest_job_status) { IngestJobStatus.new( job_status: job_status_var ) }
+
+    before do
+      expect(job_status_var.null_job_status?).to eq false
+      expect(ingest_job_status.job_status).to eq job_status_var
+    end
+
+    it "set status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.did_characterize! }.to change { JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+    end
+    it "is true when has status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.message ).to eq nil
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.status! expected_status }.to change {  JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+      expect( ingest_job_status.did_characterize? ).to eq true
+    end
+    it "is false when it has another status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      ingest_job_status.started!
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq started
+      expect( ingest_job_status.status? expected_status ).to eq false
+      expect( ingest_job_status.did_characterize? ).to eq false
+    end
+  end
+
+  describe '.did_create_derivatives' do
+    let(:expected_status) { IngestJobStatus::FINISHED_CREATE_DERIVATIVES }
+    let( :job ) { TestJob.send( :job_or_instantiate ) }
+    let( :job_id ) { job.job_id }
+    let(:job_status_var) { JobStatus.create( job_id: job_id, job_class: job.class ) }
+    let(:ingest_job_status) { IngestJobStatus.new( job_status: job_status_var ) }
+
+    before do
+      expect(job_status_var.null_job_status?).to eq false
+      expect(ingest_job_status.job_status).to eq job_status_var
+    end
+
+    it "set status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.did_create_derivatives! }.to change { JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+    end
+    it "is true when has status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.message ).to eq nil
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.status! expected_status }.to change {  JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+      expect( ingest_job_status.did_create_derivatives? ).to eq true
+    end
+    it "is false when it has another status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      ingest_job_status.started!
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq started
+      expect( ingest_job_status.status? expected_status ).to eq false
+      expect( ingest_job_status.did_create_derivatives? ).to eq false
+    end
+  end
+
+  describe '.did_create_file_set' do
+    let(:expected_status) { IngestJobStatus::CREATE_FILE_SET }
+    let( :job ) { TestJob.send( :job_or_instantiate ) }
+    let( :job_id ) { job.job_id }
+    let(:job_status_var) { JobStatus.create( job_id: job_id, job_class: job.class ) }
+    let(:ingest_job_status) { IngestJobStatus.new( job_status: job_status_var ) }
+    let(:file_set) { create(:file_set) }
+
+    before do
+      expect(job_status_var.null_job_status?).to eq false
+      expect(ingest_job_status.job_status).to eq job_status_var
+    end
+
+    it "set status and update processed file sets list" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect( ingest_job_status.processed_file_set_ids ).to eq []
+      expect{ ingest_job_status.did_create_file_set!( file_set: file_set ) }.to change { JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+      expect( ingest_job_status.processed_file_set_ids ).to eq [file_set.id]
+    end
+    it "is true when has status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.message ).to eq nil
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.status! expected_status }.to change {  JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+      expect( ingest_job_status.did_create_file_set? ).to eq true
+    end
+    it "is false when it has another status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      ingest_job_status.started!
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq started
+      expect( ingest_job_status.status? expected_status ).to eq false
+      expect( ingest_job_status.did_create_file_set? ).to eq false
+    end
+  end
+
+  describe '.did_delete_file' do
+    let(:expected_status) { IngestJobStatus::DELETE_FILE }
+    let( :job ) { TestJob.send( :job_or_instantiate ) }
+    let( :job_id ) { job.job_id }
+    let(:job_status_var) { JobStatus.create( job_id: job_id, job_class: job.class ) }
+    let(:ingest_job_status) { IngestJobStatus.new( job_status: job_status_var ) }
+
+    before do
+      expect(job_status_var.null_job_status?).to eq false
+      expect(ingest_job_status.job_status).to eq job_status_var
+    end
+
+    it "set status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.did_delete_file! }.to change { JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+    end
+    it "is true when has status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.message ).to eq nil
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.status! expected_status }.to change {  JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+      expect( ingest_job_status.did_delete_file? ).to eq true
+    end
+    it "is false when it has another status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      ingest_job_status.started!
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq started
+      expect( ingest_job_status.status? expected_status ).to eq false
+      expect( ingest_job_status.did_delete_file? ).to eq false
+    end
+  end
+
+  describe '.did_file_ingest' do
+    let(:expected_status) { IngestJobStatus::FINISHED_FILE_INGEST }
+    let( :job ) { TestJob.send( :job_or_instantiate ) }
+    let( :job_id ) { job.job_id }
+    let(:job_status_var) { JobStatus.create( job_id: job_id, job_class: job.class ) }
+    let(:ingest_job_status) { IngestJobStatus.new( job_status: job_status_var ) }
+
+    before do
+      expect(job_status_var.null_job_status?).to eq false
+      expect(ingest_job_status.job_status).to eq job_status_var
+    end
+
+    it "set status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.did_file_ingest! }.to change { JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+    end
+    it "is true when has status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.message ).to eq nil
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.status! expected_status }.to change {  JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+      expect( ingest_job_status.did_file_ingest? ).to eq true
+    end
+    it "is false when it has another status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      ingest_job_status.started!
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq started
+      expect( ingest_job_status.status? expected_status ).to eq false
+      expect( ingest_job_status.did_file_ingest? ).to eq false
+    end
+  end
+
+  describe '.did_log_starting' do
+    let(:expected_status) { IngestJobStatus::FINISHED_LOG_STARTING }
+    let( :job ) { TestJob.send( :job_or_instantiate ) }
+    let( :job_id ) { job.job_id }
+    let(:job_status_var) { JobStatus.create( job_id: job_id, job_class: job.class ) }
+    let(:ingest_job_status) { IngestJobStatus.new( job_status: job_status_var ) }
+
+    before do
+      expect(job_status_var.null_job_status?).to eq false
+      expect(ingest_job_status.job_status).to eq job_status_var
+    end
+
+    it "set status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.did_log_starting! }.to change { JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+    end
+    it "is true when has status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.message ).to eq nil
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.status! expected_status }.to change {  JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+      expect( ingest_job_status.did_log_starting? ).to eq true
+    end
+    it "is false when it has another status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      ingest_job_status.started!
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq started
+      expect( ingest_job_status.status? expected_status ).to eq false
+      expect( ingest_job_status.did_log_starting? ).to eq false
+    end
+  end
+
+  describe '.did_notify' do
+    let(:expected_status) { IngestJobStatus::FINISHED_NOTIFY }
+    let( :job ) { TestJob.send( :job_or_instantiate ) }
+    let( :job_id ) { job.job_id }
+    let(:job_status_var) { JobStatus.create( job_id: job_id, job_class: job.class ) }
+    let(:ingest_job_status) { IngestJobStatus.new( job_status: job_status_var ) }
+
+    before do
+      expect(job_status_var.null_job_status?).to eq false
+      expect(ingest_job_status.job_status).to eq job_status_var
+    end
+
+    it "set status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.did_notify! }.to change { JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+    end
+    it "is true when has status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.message ).to eq nil
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.status! expected_status }.to change {  JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+      expect( ingest_job_status.did_notify? ).to eq true
+    end
+    it "is false when it has another status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      ingest_job_status.started!
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq started
+      expect( ingest_job_status.status? expected_status ).to eq false
+      expect( ingest_job_status.did_notify? ).to eq false
+    end
+  end
+
+  describe '.did_validate_files' do
+    let(:expected_status) { IngestJobStatus::FINISHED_VALIDATE_FILES }
+    let( :job ) { TestJob.send( :job_or_instantiate ) }
+    let( :job_id ) { job.job_id }
+    let(:job_status_var) { JobStatus.create( job_id: job_id, job_class: job.class ) }
+    let(:ingest_job_status) { IngestJobStatus.new( job_status: job_status_var ) }
+
+    before do
+      expect(job_status_var.null_job_status?).to eq false
+      expect(ingest_job_status.job_status).to eq job_status_var
+    end
+
+    it "set status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.did_validate_files! }.to change { JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+    end
+    it "is true when has status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.message ).to eq nil
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.status! expected_status }.to change {  JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+      expect( ingest_job_status.did_validate_files? ).to eq true
+    end
+    it "is false when it has another status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      ingest_job_status.started!
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq started
+      expect( ingest_job_status.status? expected_status ).to eq false
+      expect( ingest_job_status.did_validate_files? ).to eq false
+    end
+  end
+
+  describe '.did_versioning_service_create' do
+    let(:expected_status) { IngestJobStatus::FINISHED_VERSIONING_SERVICE_CREATE }
+    let( :job ) { TestJob.send( :job_or_instantiate ) }
+    let( :job_id ) { job.job_id }
+    let(:job_status_var) { JobStatus.create( job_id: job_id, job_class: job.class ) }
+    let(:ingest_job_status) { IngestJobStatus.new( job_status: job_status_var ) }
+
+    before do
+      expect(job_status_var.null_job_status?).to eq false
+      expect(ingest_job_status.job_status).to eq job_status_var
+    end
+
+    it "set status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.did_versioning_service_create! }.to change { JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+    end
+    it "is true when has status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.message ).to eq nil
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.status! expected_status }.to change {  JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+      expect( ingest_job_status.did_versioning_service_create? ).to eq true
+    end
+    it "is false when it has another status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      ingest_job_status.started!
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq started
+      expect( ingest_job_status.status? expected_status ).to eq false
+      expect( ingest_job_status.did_versioning_service_create? ).to eq false
+    end
+  end
+
+  describe '.did_upload_files' do
+    let(:expected_status) { IngestJobStatus::FINISHED_UPLOAD_FILES }
+    let( :job ) { TestJob.send( :job_or_instantiate ) }
+    let( :job_id ) { job.job_id }
+    let(:job_status_var) { JobStatus.create( job_id: job_id, job_class: job.class ) }
+    let(:ingest_job_status) { IngestJobStatus.new( job_status: job_status_var ) }
+
+    before do
+      expect(job_status_var.null_job_status?).to eq false
+      expect(ingest_job_status.job_status).to eq job_status_var
+    end
+
+    it "set status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.did_upload_files! }.to change { JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+    end
+    it "is true when has status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.message ).to eq nil
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.status! expected_status }.to change {  JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+      expect( ingest_job_status.did_upload_files? ).to eq true
+    end
+    it "is false when it has another status" do
+      expect( ingest_job_status.null_job_status? ).to eq false
+      ingest_job_status.started!
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq started
+      expect( ingest_job_status.status? expected_status ).to eq false
+      expect( ingest_job_status.did_upload_files? ).to eq false
+    end
+  end
+
+  # describe '.did_add_file_to_file_set?' do
+  #   it "is TODO" do
+  #     skip "the test code goes here"
+  #   end
+  # end
 
   describe '.finished!' do
     let(:expected_status) { finished }
@@ -264,18 +778,77 @@ RSpec.describe IngestJobStatus do
     end
   end
 
-  describe '.started!' do
-    it "status updated" do
-      skip "add tests"
+  describe '.started! and alias .did!' do
+    let(:expected_status) { started }
+    let( :job ) { TestJob.send( :job_or_instantiate ) }
+    let( :job_id ) { job.job_id }
+    let(:job_status_var) { JobStatus.create( job_id: job_id, job_class: job.class ) }
+    let(:ingest_job_status) { IngestJobStatus.new( job_status: job_status_var ) }
+
+    before do
+      expect(job_status_var.null_job_status?).to eq false
+      expect(ingest_job_status.job_status).to eq job_status_var
     end
-    it "status and message updated when verbose" do
-      skip "add tests"
+
+    it "started with no message" do
+      ingest_job_status.verbose = false
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.verbose ).to eq false
+      expect( ingest_job_status.message ).to eq nil
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.started! }.to change { JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+      expect( ingest_job_status.message ).to eq nil
+    end
+    it "started with message and not verbose" do
+      ingest_job_status.verbose = false
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.verbose ).to eq false
+      expect( ingest_job_status.message ).to eq nil
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.started!( message: message1 ) }.to change {  JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+      expect( ingest_job_status.message ).to eq message1
+    end
+    it "started with message and verbose" do
+      ingest_job_status.verbose = true
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.verbose ).to eq true
+      expect( ingest_job_status.message ).to eq nil
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.started!( message: message1 ) }.to change {  JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+      expect( ingest_job_status.message ).to eq "#{message1}\nstatus changed to: started"
     end
   end
 
   describe '.status!' do
-    it "is TODO" do
-      skip "add tests"
+
+    let(:a_status) { 'SomeStatus' }
+    let(:expected_status) { a_status }
+    let( :job ) { TestJob.send( :job_or_instantiate ) }
+    let( :job_id ) { job.job_id }
+    let(:job_status_var) { JobStatus.create( job_id: job_id, job_class: job.class ) }
+    let(:ingest_job_status) { IngestJobStatus.new( job_status: job_status_var ) }
+
+    before do
+      expect(job_status_var.null_job_status?).to eq false
+      expect(ingest_job_status.job_status).to eq job_status_var
+    end
+
+    it "status is updated" do
+      ingest_job_status.verbose = false
+      expect( ingest_job_status.null_job_status? ).to eq false
+      expect( ingest_job_status.verbose ).to eq false
+      expect( ingest_job_status.message ).to eq nil
+      expect( ingest_job_status.status ).to_not eq expected_status
+      expect{ ingest_job_status.status!( a_status ) }.to change { JobStatus.count }.by 0
+      ingest_job_status.reload
+      expect( ingest_job_status.status ).to eq expected_status
+      expect( ingest_job_status.message ).to eq nil
     end
   end
 

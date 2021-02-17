@@ -18,6 +18,7 @@ module Deepblue
     @@about_to_expire_embargoes_job_debug_verbose = false
     @@abstract_rake_task_job_debug_verbose = false
     @@deactivate_expired_embargoes_job_debug_verbose = false
+    @@deepblue_job_debug_verbose = false
     @@heartbeat_job_debug_verbose = false
     @@heartbeat_email_job_debug_verbose = false
     @@monthly_events_report_job_debug_verbose = false
@@ -32,6 +33,7 @@ module Deepblue
                     :about_to_expire_embargoes_job_debug_verbose,
                     :abstract_rake_task_job_debug_verbose,
                     :deactivate_expired_embargoes_job_debug_verbose,
+                    :deepblue_job_debug_verbose,
                     :heartbeat_job_debug_verbose,
                     :heartbeat_email_job_debug_verbose,
                     :monthly_events_report_job_debug_verbose,
@@ -252,6 +254,7 @@ END_BODY
                                              "args=#{args}",
                                              "" ] if debug_verbose || job_task_helper_debug_verbose
       options = {}
+      return options unless args.present?
       args = args[0] if args.is_a?( Array ) && 1 == args.length
       args.each { |key,value| options[key.to_s] = value }
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

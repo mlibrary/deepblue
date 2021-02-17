@@ -478,13 +478,13 @@ RSpec.describe JobStatus, type: :model do
 
   describe "serialize and deserialize state" do
     it "is TODO" do
-      skip "add tests"
+      skip "the test code goes here"
     end
   end
 
   describe "null job state" do
     it "is TODO" do
-      skip "add tests"
+      skip "the test code goes here"
     end
   end
 

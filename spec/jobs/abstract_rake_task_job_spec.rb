@@ -21,4 +21,28 @@ RSpec.describe AbstractRakeTaskJob, skip: false do
     end
   end
 
+  describe ".default_value_is" do
+    it "is TODO" do
+      skip "the test code goes here"
+    end
+  end
+
+  describe ".email_exec_results" do
+    it "is TODO" do
+      skip "the test code goes here"
+    end
+  end
+
+  describe ".initialize_from_args" do
+    it "is TODO" do
+      skip "the test code goes here"
+    end
+  end
+
+  describe ".run_job_delay" do
+    it "is TODO" do
+      skip "the test code goes here"
+    end
+  end
+
 end
