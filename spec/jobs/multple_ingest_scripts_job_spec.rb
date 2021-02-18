@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
+# keywords: create_job invoke_job perform_job class_double
+
 require 'rails_helper'
 
 RSpec.describe MultipleIngestScriptsJob, skip: false do
 
-  let(:subject_job) { class_double(IngestScriptJob ).as_stubbed_const(:transfer_nested_constants => true) }
+  let(:subject_job) { class_double(IngestScriptJob).as_stubbed_const(:transfer_nested_constants => true) }
   let(:ingest_mode) { 'populate' }
   let(:ingester)    { "ingester@umich.edu" }
   let(:options)     { {} }

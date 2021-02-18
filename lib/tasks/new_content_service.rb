@@ -64,6 +64,7 @@ module Deepblue
                                   :curation_notes_admin_ordered, :curation_notes_user_ordered,
                                   :date_created, :date_modified, :date_uploaded,
                                   :edit_users,
+                                  :read_users,
                                   :keyword_ordered, :language_ordered,
                                   :original_name,
                                   :referenced_by_ordered, :title_ordered,
@@ -138,6 +139,7 @@ module Deepblue
                 :ingest_urls,
                 :ingester,
                 :mode,
+                :options,
                 :path_to_yaml_file,
                 :skip_adding_prior_identifier,
                 :update_add_files,
@@ -448,6 +450,7 @@ module Deepblue
         description = ["Missing description"] if [nil] == description
         doi = build_doi( hash: collection_hash )
         edit_users = Array( collection_hash[:edit_users] )
+        read_users = Array( collection_hash[:read_users] )
         keyword = Array( collection_hash[:keyword] )
         language = Array( collection_hash[:language] )
         prior_identifier = build_prior_identifier( hash: collection_hash, id: id )
@@ -477,6 +480,7 @@ module Deepblue
         depositor = build_depositor( hash: collection_hash )
         collection.apply_depositor_metadata( depositor )
         update_cc_edit_users(curation_concern: collection, edit_users: edit_users )
+        update_cc_read_users(curation_concern: collection, read_users: read_users )
         collection.visibility = visibility_from_hash( hash: collection_hash )
         collection.save!
         collection.reload
@@ -629,6 +633,7 @@ module Deepblue
         date_uploaded = build_date( hash: file_set_hash, key: :date_uploaded )
         description_file_set = file_set_hash[:description_file_set]
         edit_users = Array( file_set_hash[:edit_users] )
+        read_users = Array( file_set_hash[:read_users] )
         label = file_set_hash[:label]
         prior_identifier = build_prior_identifier( hash: file_set_hash, id: id )
         title = Array( file_set_hash[:title] )
@@ -643,6 +648,7 @@ module Deepblue
         file_set.date_created = date_created
         update_cc_attribute( curation_concern: file_set, attribute: :description_file_set, value: description_file_set )
         update_cc_edit_users(curation_concern: file_set, edit_users: edit_users )
+        update_cc_read_users(curation_concern: file_set, read_users: read_users )
         update_cc_attribute( curation_concern: file_set, attribute: :prior_identifier, value: prior_identifier )
         update_visibility( curation_concern: file_set, visibility: visibility )
         file_set.date_modified = file_set.date_uploaded if file_set.date_modified.blank?
@@ -897,6 +903,7 @@ module Deepblue
         description = ["Missing description"] if [nil] == description
         doi = build_doi( hash: work_hash )
         edit_users = Array( work_hash[:edit_users] )
+        read_users = Array( work_hash[:read_users] )
         fundedby = build_fundedby( hash: work_hash )
         fundedby_other = work_hash[:fundedby_other]
         grantnumber = work_hash[:grantnumber]
@@ -943,6 +950,7 @@ module Deepblue
         depositor = build_depositor( hash: work_hash )
         work.apply_depositor_metadata( depositor )
         update_cc_edit_users(curation_concern: work, edit_users: edit_users )
+        update_cc_read_users(curation_concern: work, read_users: read_users )
         work.owner = depositor
         admin_set = build_admin_set_work( hash: work_hash )
         work.update( admin_set: admin_set )
@@ -1047,6 +1055,7 @@ module Deepblue
         diff_attr( diffs, collection, collection_hash, attr_name: :description_ordered, multi: false )
         diff_attr( diffs, collection, collection_hash, attr_name: :doi, multi: false )
         diff_edit_users( diffs, collection, collection_hash )
+        diff_read_users( diffs, collection, collection_hash )
         diff_attr( diffs, collection, collection_hash, attr_name: :keyword )
         diff_attr( diffs, collection, collection_hash, attr_name: :keyword_ordered, multi: false )
         diff_attr( diffs, collection, collection_hash, attr_name: :language )
@@ -1067,6 +1076,19 @@ module Deepblue
         attr_name = :edit_users
         return diffs unless diff_attr? attr_name
         current_value = cc_or_fs.edit_users
+        value = Array( cc_or_fs_hash[attr_name] )
+        return diffs unless diff_attr_if_blank?( attr_name, value: value )
+        xor = current_value + value - ( current_value & value )
+        return diffs if xor.empty?
+        diffs << "#{attr_prefix cc_or_fs}: #{attr_name} '#{current_value}' vs. '#{value}'"
+      rescue Exception => e # rubocop:disable Lint/RescueException
+        diffs << "#{attr_prefix cc_or_fs}: #{attr_name} -- Exception: #{e.class}: #{e.message} at #{e.backtrace[0]}"
+      end
+
+      def diff_read_users( diffs, cc_or_fs, cc_or_fs_hash )
+        attr_name = :read_users
+        return diffs unless diff_attr? attr_name
+        current_value = cc_or_fs.read_users
         value = Array( cc_or_fs_hash[attr_name] )
         return diffs unless diff_attr_if_blank?( attr_name, value: value )
         xor = current_value + value - ( current_value & value )
@@ -1141,6 +1163,7 @@ module Deepblue
         diff_attr_value( diffs, file_set, attr_name: :depositor, value: depositor )
         diff_attr( diffs, file_set, file_set_hash, attr_name: :description_file_set, multi: false )
         diff_edit_users( diffs, file_set, file_set_hash )
+        diff_read_users( diffs, file_set, file_set_hash )
         original_name = file_set_hash[:original_name]
         diff_attr( diffs, file_set, file_set_hash, attr_name: :label, multi: false )
         diff_value_value( diffs, file_set, attr_name: :orignal_name, current_value: file_set.original_name_value, value: original_name )
@@ -1286,6 +1309,7 @@ module Deepblue
         diff_attr( diffs, work, work_hash, attr_name: :description_ordered, multi: false )
         diff_attr( diffs, work, work_hash, attr_name: :doi, multi: false )
         diff_edit_users( diffs, work, work_hash )
+        diff_read_users( diffs, work, work_hash )
         diff_attr_value( diffs, work, attr_name: :fundedby, value: build_fundedby( hash: work_hash ) )
         diff_attr( diffs, work, work_hash, attr_name: :fundedby_other )
         diff_attr( diffs, work, work_hash, attr_name: :grantnumber, multi: false )
@@ -2125,7 +2149,13 @@ module Deepblue
       def update_cc_edit_users( curation_concern:, edit_users: )
         return if edit_users.blank?
         user_create_users( emails: edit_users )
-        curation_concern.edit_users = edit_users
+        curation_concern.edit_users = Array( curation_concern.edit_users ) | edit_users
+      end
+
+      def update_cc_read_users( curation_concern:, read_users: )
+        return if read_users.blank?
+        user_create_users( emails: read_users )
+        curation_concern.read_users = Array( curation_concern.read_users ) | read_users
       end
 
       def update_collection_from_hash( collection_hash:, collection: )
@@ -2154,6 +2184,7 @@ module Deepblue
         update_attr( updates, collection, collection_hash, attr_name: :description_ordered, multi: false )
         # update_attr_doi( updates, collection, collection_hash )
         update_edit_users( updates, collection, collection_hash )
+        update_read_users( updates, collection, collection_hash )
         update_attr( updates, collection, collection_hash, attr_name: :keyword )
         update_attr( updates, collection, collection_hash, attr_name: :keyword_ordered, multi: false )
         update_attr( updates, collection, collection_hash, attr_name: :language )
@@ -2236,6 +2267,20 @@ module Deepblue
         updates << "#{attr_prefix cc_or_fs}: #{attr_name} -- Exception: #{e.class}: #{e.message} at #{e.backtrace[0]}"
       end
 
+      def update_read_users( updates, cc_or_fs, cc_or_fs_hash )
+        attr_name = :read_users
+        return updates unless diff_attr? attr_name
+        current_value = cc_or_fs.read_users
+        value = Array( cc_or_fs_hash[attr_name] )
+        return updates unless diff_attr_if_blank?( attr_name, value: value )
+        xor = current_value + value - ( current_value & value )
+        return updates if xor.empty?
+        cc_or_fs.read_users = value
+        updates << "#{attr_prefix cc_or_fs}: #{attr_name} '#{current_value}' updated to '#{value}'"
+      rescue Exception => e # rubocop:disable Lint/RescueException
+        updates << "#{attr_prefix cc_or_fs}: #{attr_name} -- Exception: #{e.class}: #{e.message} at #{e.backtrace[0]}"
+      end
+
       def update_file_set( updates:, file_set:, file_set_hash:, parent: nil )
         return updates unless continue_new_content_service
         updates_in = updates
@@ -2254,6 +2299,7 @@ module Deepblue
         update_attr_value( updates, file_set, attr_name: :depositor, value: depositor )
         update_attr( updates, file_set, file_set_hash, attr_name: :description_file_set )
         update_edit_users( updates, file_set, file_set_hash )
+        update_read_users( updates, file_set, file_set_hash )
         update_attr( updates, file_set, file_set_hash, attr_name: :label, multi: false )
         original_name = file_set_hash[:original_name]
         update_value_value( updates, file_set, attr_name: :orignal_name, current_value: file_set.original_name_value, value: original_name )
@@ -2446,6 +2492,7 @@ module Deepblue
         update_attr_value( updates, work, attr_name: :description, value: description )
         update_attr( updates, work, work_hash, attr_name: :description_ordered, multi: false )
         update_edit_users( updates, work, work_hash )
+        update_read_users( updates, work, work_hash )
         update_attr_value( updates, work, attr_name: :fundedby, value: build_fundedby(hash: work_hash ) )
         update_attr( updates, work, work_hash, attr_name: :fundedby_other )
         update_attr( updates, work, work_hash, attr_name: :grantnumber, multi: false )

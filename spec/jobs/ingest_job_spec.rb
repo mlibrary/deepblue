@@ -11,4 +11,5 @@ RSpec.describe IngestJob do
   it "is TODO" do
     skip "the test code goes here"
   end
+
 end
