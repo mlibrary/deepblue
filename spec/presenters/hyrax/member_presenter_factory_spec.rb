@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::MemberPresenterFactory, skip: true do
+RSpec.describe Hyrax::MemberPresenterFactory, skip: false do
   describe "#file_set_presenters" do
     describe "getting presenters from factory" do
       let(:solr_document) { SolrDocument.new(attributes) }

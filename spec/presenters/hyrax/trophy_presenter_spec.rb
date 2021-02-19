@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::TrophyPresenter, skip: true do
+RSpec.describe Hyrax::TrophyPresenter, skip: false do
   describe "find_by_user" do
     let(:user) { create(:user) }
     let(:work1) { create(:work, user: user) }
@@ -19,7 +19,7 @@ RSpec.describe Hyrax::TrophyPresenter, skip: true do
   end
 
   let(:presenter) { described_class.new(solr_document) }
-  let(:solr_document) { SolrDocument.new(id: '123456', has_model_ssim: 'GenericWork', title_tesim: ['A Title']) }
+  let(:solr_document) { SolrDocument.new(id: '123456', has_model_ssim: 'DataSet', title_tesim: ['A Title']) }
 
   describe "id" do
     subject { presenter.id }
@@ -36,7 +36,7 @@ RSpec.describe Hyrax::TrophyPresenter, skip: true do
   describe "model_name" do
     subject { presenter.model_name }
 
-    it { is_expected.to eq GenericWork.model_name }
+    it { is_expected.to eq DataSet.model_name }
   end
 
   describe 'thumbnail_path' do

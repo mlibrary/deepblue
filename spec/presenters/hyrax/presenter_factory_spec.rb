@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::PresenterFactory, skip: true do
+RSpec.describe Hyrax::PresenterFactory, skip: false do
   describe "#build_for" do
     let(:presenter_class) { Hyrax::FileSetPresenter }
 

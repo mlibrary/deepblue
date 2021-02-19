@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe Hyrax::Admin::DashboardPresenter, skip: true do
+RSpec.describe Hyrax::Admin::DashboardPresenter, skip: false do
   let(:instance) { described_class.new }
 
   describe "#user_count" do

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::VersionPresenter, skip: true do
+RSpec.describe Hyrax::VersionPresenter, skip: false do
   let(:resource_version) do
     ActiveFedora::VersionsGraph::ResourceVersion.new.tap do |v|
       v.uri = 'http://example.com/version1'

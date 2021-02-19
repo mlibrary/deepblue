@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::SingleUseLinkPresenter, skip: true do
+RSpec.describe Hyrax::SingleUseLinkPresenter, skip: false do
   subject { described_class.new(link) }
 
   context "with any kind of link" do
@@ -8,11 +8,13 @@ RSpec.describe Hyrax::SingleUseLinkPresenter, skip: true do
 
     describe "#human_readable_expiration" do
       context "in more than one hour" do
-        its(:human_readable_expiration) { is_expected.to eq("in 23 hours") }
+        # its(:human_readable_expiration) { is_expected.to eq("in 23 hours") }
+        its(:human_readable_expiration) { is_expected.to eq("in 6 days, 23 hours, 59 minutes, and 59.0 seconds") }
       end
       context "in less than an hour" do
         before { allow(link).to receive(:expires).and_return(Time.zone.now) }
-        its(:human_readable_expiration) { is_expected.to eq("in less than one hour") }
+        # its(:human_readable_expiration) { is_expected.to eq("in less than one hour") }
+        its(:human_readable_expiration) { is_expected.to eq("in 0 seconds") }
       end
     end
 
@@ -37,7 +39,8 @@ RSpec.describe Hyrax::SingleUseLinkPresenter, skip: true do
   context "with a show link" do
     let(:link)        { create(:show_link) }
 
-    its(:link_type)   { is_expected.to eq("Show") }
+    # its(:link_type)   { is_expected.to eq("Show") }
+    its(:link_type)   { is_expected.to eq("View") }
     its(:url_helper)  { is_expected.to eq("show_single_use_link_url") }
   end
 end

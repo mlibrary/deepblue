@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::MenuPresenter, skip: true do
+RSpec.describe Hyrax::MenuPresenter, skip: false do
   let(:instance) { described_class.new(context) }
   let(:context) { ActionView::TestCase::TestController.new.view_context }
   let(:controller_name) { controller.controller_name }

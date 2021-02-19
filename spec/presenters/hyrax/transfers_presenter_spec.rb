@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::TransfersPresenter, skip: true do
+RSpec.describe Hyrax::TransfersPresenter, skip: false do
   let(:context) { ActionView::TestCase::TestController.new.view_context }
   let(:user) { create(:user) }
   let(:instance) { described_class.new(user, context) }

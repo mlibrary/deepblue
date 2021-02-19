@@ -1,7 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe Deepblue::TotalFileSizePresenterBehavior do
-  it "has tests" do
-    skip "Add your tests here"
+
+  it "is TODO" do
+    skip "the test code goes here"
   end
+
 end

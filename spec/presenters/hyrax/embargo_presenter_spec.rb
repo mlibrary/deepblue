@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::EmbargoPresenter, skip: true do
+RSpec.describe Hyrax::EmbargoPresenter, skip: false do
   let(:document) { SolrDocument.new(attributes) }
   let(:presenter) { described_class.new(document) }
   let(:attributes) { {} }

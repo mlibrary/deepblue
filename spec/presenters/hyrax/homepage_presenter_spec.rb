@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe Hyrax::HomepagePresenter, skip: true do
+RSpec.describe Hyrax::HomepagePresenter, skip: false do
   let(:presenter) { described_class.new(ability, collections) }
   let(:ability) { Ability.new(user) }
   let(:collections) { double }

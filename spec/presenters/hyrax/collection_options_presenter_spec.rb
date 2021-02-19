@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::CollectionOptionsPresenter, skip: true do
+RSpec.describe Hyrax::CollectionOptionsPresenter, skip: false do
   before { allow(Deprecation).to receive(:warn) }
 
   let(:instance) { described_class.new(service) }

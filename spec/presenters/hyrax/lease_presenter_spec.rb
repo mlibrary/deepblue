@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::LeasePresenter, skip: true do
+RSpec.describe Hyrax::LeasePresenter, skip: false do
   let(:document) { SolrDocument.new(attributes) }
   let(:presenter) { described_class.new(document) }
   let(:attributes) { {} }

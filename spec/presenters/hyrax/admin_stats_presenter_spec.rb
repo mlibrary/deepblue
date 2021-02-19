@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::AdminStatsPresenter, skip: true do
+RSpec.describe Hyrax::AdminStatsPresenter, skip: false do
   let(:user1) { create(:user) }
   let(:user2) { create(:user) }
 

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::WorkUsage, type: :model, skip: true do
+RSpec.describe Hyrax::WorkUsage, type: :model, skip: false do
   let!(:work) { create(:work, id: 'abc12345xy') }
 
   let(:dates) do
@@ -35,7 +35,7 @@ RSpec.describe Hyrax::WorkUsage, type: :model, skip: true do
   end
 
   let(:usage) do
-    allow_any_instance_of(GenericWork).to receive(:create_date).and_return((Time.zone.today - 4.days).to_s)
+    allow_any_instance_of(DataSet).to receive(:create_date).and_return((Time.zone.today - 4.days).to_s)
     allow(WorkViewStat).to receive(:ga_statistics).and_return(sample_pageview_statistics)
     described_class.new(work.id)
   end
@@ -94,7 +94,7 @@ RSpec.describe Hyrax::WorkUsage, type: :model, skip: true do
 
       describe "create date before earliest date set" do
         let(:usage) do
-          allow_any_instance_of(GenericWork).to receive(:create_date).and_return(create_date.to_s)
+          allow_any_instance_of(DataSet).to receive(:create_date).and_return(create_date.to_s)
           described_class.new(work.id)
         end
 
@@ -105,7 +105,7 @@ RSpec.describe Hyrax::WorkUsage, type: :model, skip: true do
 
       describe "create date after earliest" do
         let(:usage) do
-          allow_any_instance_of(GenericWork).to receive(:create_date).and_return((Time.zone.today - 4.days).to_s)
+          allow_any_instance_of(DataSet).to receive(:create_date).and_return((Time.zone.today - 4.days).to_s)
           Hyrax.config.analytic_start_date = earliest
           described_class.new(work.id)
         end
@@ -121,7 +121,7 @@ RSpec.describe Hyrax::WorkUsage, type: :model, skip: true do
       end
 
       let(:usage) do
-        allow_any_instance_of(GenericWork).to receive(:create_date).and_return(create_date.to_s)
+        allow_any_instance_of(DataSet).to receive(:create_date).and_return(create_date.to_s)
         described_class.new(work.id)
       end
 

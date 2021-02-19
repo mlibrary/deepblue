@@ -24,7 +24,7 @@ describe "new_content_from_yaml task" do
     before do
       expect( Deepblue::NewContentFromYaml ).to receive(:new).with(base_file_names: base_file_names,
                                                                    options: options).at_least(:once).and_return importer
-      expect(importer).to receive(:run).with(no_args)
+      expect(importer).to receive(:run).with(no_args).at_least(:once)
     end
 
 

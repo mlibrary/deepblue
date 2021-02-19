@@ -2,8 +2,6 @@
 
 class CreateDerivativesJob < AbstractIngestJob
 
-  # CREATE_DERIVATIVES_JOB_DEBUG_VERBOSE = ::Deepblue::IngestIntegrationService.create_derivatives_job_debug_verbose
-
   mattr_accessor :create_derivatives_job_debug_verbose,
                  default: ::Deepblue::IngestIntegrationService.create_derivatives_job_debug_verbose
 
@@ -66,7 +64,7 @@ class CreateDerivativesJob < AbstractIngestJob
                                            "job_status.message=#{job_status.message}",
                                            "job_status.error=#{job_status.error}",
                                            "job_status.user_id=#{job_status.user_id}",
-                                           "" ] + e.backtrace[0..8] if create_derivatives_job_debug_verbose
+                                           "" ] + e.backtrace[0..28] if create_derivatives_job_debug_verbose
   end
 
 end

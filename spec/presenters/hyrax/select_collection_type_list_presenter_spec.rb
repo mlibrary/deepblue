@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::SelectCollectionTypeListPresenter, :clean_repo, skip: true do
+RSpec.describe Hyrax::SelectCollectionTypeListPresenter, :clean_repo, skip: false do
   let(:user) { create(:user) }
   let(:instance) { described_class.new(user) }
   let(:collection_type) { create(:collection_type, creator_user: user) }

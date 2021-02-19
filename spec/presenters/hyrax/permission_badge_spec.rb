@@ -1,6 +1,9 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::PermissionBadge, skip: true do
+RSpec.describe Hyrax::PermissionBadge, skip: false do
+  let(:public)  { 'Open Access' }
+  let(:private) { 'Restricted' }
+
   context "with a SolrDocument" do
     let(:badge) { described_class.new(solr_doc.visibility) }
     let(:solr_doc) { SolrDocument.new(attributes) }
@@ -24,7 +27,7 @@ RSpec.describe Hyrax::PermissionBadge, skip: true do
       context "when open-access" do
         let(:attributes) { { read_access_group_ssim: ['public'] } }
 
-        it { is_expected.to eq "<span class=\"label label-success\">Public</span>" }
+        it { is_expected.to eq "<span class=\"label label-success\">#{public}</span>" }
       end
 
       context "when registered" do
@@ -34,7 +37,7 @@ RSpec.describe Hyrax::PermissionBadge, skip: true do
       end
 
       context "when private" do
-        it { is_expected.to eq "<span class=\"label label-danger\">Private</span>" }
+        it { is_expected.to eq "<span class=\"label label-danger\">#{private}</span>" }
       end
     end
   end
@@ -60,7 +63,7 @@ RSpec.describe Hyrax::PermissionBadge, skip: true do
       context "when open-access" do
         let(:value) { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC }
 
-        it { is_expected.to eq "<span class=\"label label-success\">Public</span>" }
+        it { is_expected.to eq "<span class=\"label label-success\">#{public}</span>" }
       end
 
       context "when registered" do
@@ -72,7 +75,7 @@ RSpec.describe Hyrax::PermissionBadge, skip: true do
       context "when private" do
         let(:value) { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE }
 
-        it { is_expected.to eq "<span class=\"label label-danger\">Private</span>" }
+        it { is_expected.to eq "<span class=\"label label-danger\">#{private}</span>" }
       end
     end
   end
