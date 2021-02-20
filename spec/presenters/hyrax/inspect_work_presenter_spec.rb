@@ -1,10 +1,10 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::InspectWorkPresenter, skip: true do
+RSpec.describe Hyrax::InspectWorkPresenter, skip: false do
   let(:solr_document) { SolrDocument.new(attributes) }
   let(:attributes) do
     { "id" => '888888',
-      "has_model_ssim" => ["GenericWork"] }
+      "has_model_ssim" => ["DataSet"] }
   end
 
   let(:user) { create(:user) }

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::UserProfilePresenter, skip: true do
+RSpec.describe Hyrax::UserProfilePresenter, skip: false do
   let(:user) { create(:user) }
   let(:ability) { Ability.new(user) }
   let(:presenter) { described_class.new(user, ability) }

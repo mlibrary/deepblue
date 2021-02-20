@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe Hyrax::Admin::UsersPresenter, skip: true do
+RSpec.describe Hyrax::Admin::UsersPresenter, skip: false do
   let(:instance) { described_class.new }
   let!(:user) { create(:user) }
   let!(:admin_user) { create(:user, groups: 'admin') }

@@ -11,7 +11,7 @@ RSpec.describe Hyrax::DataSetPresenter, clean_repo: true do
   let(:attributes) do
     { "id" => '888888',
       "title_tesim" => ['foo', 'bar'],
-      "human_readable_type_tesim" => ["Generic Work"],
+      "human_readable_type_tesim" => ["Work"],
       "has_model_ssim" => ["DataSet"],
       "date_created_tesim" => ['an unformatted date'],
       "depositor_tesim" => user_key }

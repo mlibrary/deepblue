@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe Hyrax::Admin::RepositoryObjectPresenter, skip: true do
+RSpec.describe Hyrax::Admin::RepositoryObjectPresenter, skip: false do
   let(:instance) { described_class.new }
 
   describe "#as_json" do

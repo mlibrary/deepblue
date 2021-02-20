@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe Hyrax::Admin::UserActivityPresenter, skip: true do
+RSpec.describe Hyrax::Admin::UserActivityPresenter, skip: false do
   let(:instance) { described_class.new }
 
   describe "#to_json" do

@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 # Note: test app generates multiple work types (concerns) now
-RSpec.describe Hyrax::SelectTypeListPresenter, skip: true do
+RSpec.describe Hyrax::SelectTypeListPresenter, skip: false do
   let(:instance) { described_class.new(user) }
   let(:user) { nil }
 
@@ -34,6 +34,6 @@ RSpec.describe Hyrax::SelectTypeListPresenter, skip: true do
 
     subject { instance.first_model }
 
-    it { is_expected.to be GenericWork }
+    it { is_expected.to be DataSet }
   end
 end

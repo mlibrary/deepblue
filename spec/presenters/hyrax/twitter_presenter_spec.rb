@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 module Hyrax
-  RSpec.describe TwitterPresenter, skip: true do
+  RSpec.describe TwitterPresenter, skip: false do
     describe '.twitter_handle_for' do
       let(:user_key) { 'user_key' }
 

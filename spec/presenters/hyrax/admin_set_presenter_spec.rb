@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::AdminSetPresenter, skip: true do
+RSpec.describe Hyrax::AdminSetPresenter, skip: false do
   let(:admin_set) do
     mock_model(AdminSet,
                id: '123',

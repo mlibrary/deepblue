@@ -4,8 +4,6 @@ module Deepblue
 
   module IngestHelper
 
-    # INGEST_HELPER_DEBUG_VERBOSE = ::Deepblue::IngestIntegrationService.ingest_helper_debug_verbose
-
     mattr_accessor :ingest_helper_debug_verbose,
                    default: ::Deepblue::IngestIntegrationService.ingest_helper_debug_verbose
 
@@ -168,8 +166,7 @@ module Deepblue
             job_status.did_create_derivatives?
             return
           end
-          threshold_file_size = DeepBlueDocs::Application.config.derivative_max_file_size
-          if threshold_file_size > -1 && File.exist?(file_name) && File.size(file_name) > threshold_file_size
+          if file_too_big(file_name)
             human_readable = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( threshold_file_size, precision: 3 )
             Rails.logger.info "Skipping file larger than #{human_readable} for create derivative job file: #{file_name}"
             file_set.add_curation_note_admin( note: "Skipping derivative for file larger than "\
@@ -229,6 +226,11 @@ module Deepblue
       end
     end
 
+    def self.file_too_big(file_name)
+      threshold_file_size = DeepBlueDocs::Application.config.derivative_max_file_size
+      threshold_file_size > -1 && File.exist?(file_name) && File.size(file_name) > threshold_file_size
+    end
+
     def self.create_derivatives_duration( file_set )
       ActiveSupport::Duration.build( file_set.create_derivatives_duration ).inspect
     end
@@ -246,7 +248,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "error msg=#{msg}",
-                                             "" ] + e.backtrace[0..8] if ingest_helper_debug_verbose
+                                             "" ] + exception.backtrace[0..8] if ingest_helper_debug_verbose
       if ::DeepBlueDocs::Application.config.derivative_create_error_report_to_curation_notes_admin
         file_set.add_curation_note_admin( note: msg )
       end
@@ -518,7 +520,7 @@ module Deepblue
     end
 
     def compose_e_msg( e )
-      Ingest_helper( e )
+      IngestHelper.compose_e_msg( e )
     end
 
     def self.compose_e_msg( e )

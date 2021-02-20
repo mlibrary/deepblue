@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe Hyrax::Admin::WorkflowRolesPresenter, skip: true do
+RSpec.describe Hyrax::Admin::WorkflowRolesPresenter, skip: false do
   let(:presenter) { described_class.new }
 
   describe "#users" do

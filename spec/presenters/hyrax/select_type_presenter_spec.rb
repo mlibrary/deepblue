@@ -1,8 +1,8 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::SelectTypePresenter, skip: true do
+RSpec.describe Hyrax::SelectTypePresenter, skip: false do
   let(:instance) { described_class.new(model) }
-  let(:model) { GenericWork }
+  let(:model) { DataSet }
 
   describe "#icon_class" do
     subject { instance.icon_class }
@@ -13,13 +13,13 @@ RSpec.describe Hyrax::SelectTypePresenter, skip: true do
   describe "#description" do
     subject { instance.description }
 
-    it { is_expected.to eq 'Generic work works' }
+    it { is_expected.to eq 'Data set works' }
   end
 
   describe "#name" do
     subject { instance.name }
 
-    it { is_expected.to eq 'Generic Work' }
+    it { is_expected.to eq 'Data Set' }
   end
 
   describe '#switch_to_new_work_path' do

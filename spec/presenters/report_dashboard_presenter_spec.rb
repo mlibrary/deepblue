@@ -2,9 +2,9 @@
 #
 require 'rails_helper'
 
-RSpec.describe ReportDashboardPresenter, skip: true do
+RSpec.describe ReportDashboardPresenter, skip: false do
 
-  include Devise::Test::ControllerHelpers
+  # include Devise::Test::ControllerHelpers
 
   # let( :controller ) { instance_double( ReportDashboardController ) }
   # let( :controller2 ) { ReportDashboardController.new }

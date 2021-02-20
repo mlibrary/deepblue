@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe Hyrax::FileUsage, type: :model, skip: true do
+RSpec.describe Hyrax::FileUsage, type: :model, skip: false do
   let(:user) { build(:user) }
   let(:file) do
     create(:file_set, user: user)

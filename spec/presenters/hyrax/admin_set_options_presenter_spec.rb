@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe Hyrax::AdminSetOptionsPresenter, skip: true do
+RSpec.describe Hyrax::AdminSetOptionsPresenter, skip: false do
   let(:service) { instance_double(Hyrax::AdminSetService) }
   let(:presenter) { described_class.new(service) }
 

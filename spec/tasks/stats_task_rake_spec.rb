@@ -22,8 +22,8 @@ describe "stat_task" do
     let(:importer) { Deepblue::UserStatImporter.new(options: options) }
 
     before do
-      expect( Deepblue::UserStatImporter ).to receive(:new).with(options: options).and_return importer
-      expect(importer).to receive(:run).with(no_args)
+      expect( Deepblue::UserStatImporter ).to receive(:new).with(options: options).at_least(:once).and_return importer
+      expect(importer).to receive(:run).with(no_args).at_least(:once)
     end
 
     after do

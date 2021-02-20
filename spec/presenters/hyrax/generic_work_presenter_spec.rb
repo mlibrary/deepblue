@@ -1,9 +1,11 @@
-# Generated via
-#  `rails generate hyrax:work GenericWork`
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Hyrax::GenericWorkPresenter do
-  it "has tests" do
-    skip "Add your tests here"
+
+  it "is TODO" do
+    skip "the test code goes here"
   end
+
 end
