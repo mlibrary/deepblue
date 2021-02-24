@@ -18,7 +18,17 @@ class CreateDerivativesJob < AbstractIngestJob
                parent_job_id: nil,
                uploaded_file_ids: [] )
 
-    user_id = current_user.id if current_user.present?
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "file_set.id=#{file_set.id}",
+                                           "repository_file_id=#{repository_file_id}",
+                                           "filepath=#{filepath}",
+                                           "current_user=#{current_user}",
+                                           "delete_input_file=#{delete_input_file}",
+                                           "parent_job_id=#{parent_job_id}",
+                                           "" ] if create_derivatives_job_debug_verbose
+                                           # "" ] + caller_locations(0,50) if create_derivatives_job_debug_verbose
+    user_id = user_id_from current_user
     find_or_create_job_status_started( parent_job_id: parent_job_id,
                                        user_id: user_id,
                                        verbose: create_derivatives_job_debug_verbose )

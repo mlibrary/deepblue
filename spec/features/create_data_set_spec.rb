@@ -16,43 +16,41 @@ RSpec.feature 'Create a DataSet', type: :feature, js: true, workflow: true, clea
     #FileSet.all.each { |fs| fs.delete }
   end
 
+  let(:wait_after_click)  { 30 }
+  let(:wait_after_save)   { 60 }
+  let(:wait_after_upload) { 20 }
+
   context 'a logged in user' do
-    let(:wait_after_click)  { 30 }
-    let(:wait_after_save)   { 60 }
-    let(:wait_after_upload) { 20 }
     let(:user_attributes) do
       { email: 'test@example.com' }
     end
     let(:user) do
       User.new(user_attributes) { |u| u.save(validate: false) }
     end
-    let(:admin_set_id) { AdminSet.find_or_create_default_admin_set_id }
-    let(:permission_template) { Hyrax::PermissionTemplate.find_or_create_by!(source_id: admin_set_id) }
-    let(:workflow) { Sipity::Workflow.create!(active: true, name: 'test-workflow', permission_template: permission_template) }
+    let(:ability) { ::Ability.new(user) }
+    let(:permission_template) { create(:permission_template, with_admin_set: true, with_active_workflow: true) }
+
     let(:work_title) { 'My Test Work Data Set' }
     let(:edit_note) { 'Please provide information about your data set (referred to as a "work") in the following fields, keeping in mind that your responses will enable people to discover, identify, and understand your data. If you are uncertain of how to complete any of these fields, we recommend that you read or refer to the Guide to Metadata in Deep Blue Data’s Help pages.' }
     let(:add_files_note) { 'If you have more than 100 files or files larger than 5 GB please Contact Us for assistance in uploading your data.' }
 
     before do
-      # Create a single action that can be taken
-      Sipity::WorkflowAction.create!(name: 'submit', workflow: workflow)
-
-      # Grant the user access to deposit into the admin set.
-      Hyrax::PermissionTemplateAccess.create!(
-        permission_template_id: permission_template.id,
-        agent_type: 'user',
-        agent_id: user.user_key,
-        access: 'deposit'
-      )
+      expect(permission_template).to_not eq nil
+      create(:permission_template_access,
+             :deposit,
+             permission_template: permission_template,
+             agent_type: 'user',
+             agent_id: user.user_key)
       login_as user
-      allow(CharacterizeJob).to receive(:perform_later)
+      allow(IngestJob).to receive(:perform_later)
+      allow(IngestJob).to receive(:perform_now)
     end
 
     scenario do
       visit '/dashboard'
-      click_link "Works"
-      expect(page).to have_content "Add new work"
-      click_link "Add new work"
+      click_link( "Works", wait: wait_after_click )
+      expect(page).to have_content "Add new work" # if this fails, the admin set may be missing
+      click_link( "Add new work", wait: wait_after_click )
 
       page.find_link( 'Description', wait: wait_after_click )
       expect(page).to have_content edit_note
@@ -99,7 +97,7 @@ RSpec.feature 'Create a DataSet', type: :feature, js: true, workflow: true, clea
       # expect(page).to have_content 'I have read and agree to the Deposit Agreement'
       check('agreement', wait: wait_after_click)
 
-      click_button 'Save Work'
+      click_button( 'Save Work', wait: wait_after_save )
       expect(page).to have_content( 'Work Description', wait: wait_after_save )
 
       expect(page).to have_content( work_title )

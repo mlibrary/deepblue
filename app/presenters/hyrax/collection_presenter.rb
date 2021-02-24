@@ -60,6 +60,7 @@ module Hyrax
              :license,
              :modified_date,
              :publisher,
+             :referenced_by,
              :related_url,
              :resource_type,
              :subject,
@@ -85,6 +86,7 @@ module Hyrax
        :language,
        :identifier,
        :based_near,
+       :referenced_by,
        :related_url ]
     end
 

@@ -100,9 +100,9 @@ RSpec.describe AnalyticsHelper, type: :helper do
   end
 
   describe '.show_hit_graph?' do
-    let( :analytics_integration_service ) { class_double( Deepblue::AnalyticsIntegrationService ) }
-    let( :user ) { FactoryBot.create(:admin) }
-    let( :ability ) { Ability.new user }
+    let(:analytics_integration_service ) { class_double( Deepblue::AnalyticsIntegrationService ) }
+    let(:user ) { FactoryBot.create(:admin) }
+    let(:ability ) { Ability.new user }
 
     context "is false when Flipflop.enable_local_analytics_ui? is false" do
       before do

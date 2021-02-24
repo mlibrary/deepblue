@@ -5,6 +5,9 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
 
   include Devise::Test::IntegrationHelpers
 
+  let(:wait_after_click)  { 30 }
+  let(:wait_after_save)   { 60 }
+  let(:wait_after_upload) { 20 }
   let(:file1) { File.open(fixture_path + '/world.png') }
   let(:file2) { File.open(fixture_path + '/image.jp2') }
   let!(:uploaded_file1) { Hyrax::UploadedFile.create(file: file1, user: user) }
@@ -12,6 +15,7 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
   let(:work_title) { 'My Test Work' }
   let(:edit_note) { 'Please provide information about your data set (referred to as a "work") in the following fields, keeping in mind that your responses will enable people to discover, identify, and understand your data. If you are uncertain of how to complete any of these fields, we recommend that you read or refer to the Guide to Metadata in Deep Blue Data’s Help pages.' }
   let(:add_files_note) { 'If you have more than 100 files or files larger than 5 GB please Contact Us for assistance in uploading your data.' }
+  let(:permission_template) { create(:permission_template, with_admin_set: true, with_active_workflow: true) }
 
   describe 'as normal user' do
 
@@ -19,13 +23,15 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
     let!(:ability) { ::Ability.new(user) }
 
     before do
+      expect(permission_template).to_not eq nil
       # Grant the user access to deposit into an admin set.
       create(:permission_template_access,
              :deposit,
-             permission_template: create(:permission_template, with_admin_set: true, with_active_workflow: true),
+             permission_template: permission_template,
              agent_type: 'user',
              agent_id: user.user_key)
-      allow(CharacterizeJob).to receive(:perform_later)
+      allow(IngestJob).to receive(:perform_later)
+      allow(IngestJob).to receive(:perform_now)
     end
 
     context "when the user is not a proxy" do
@@ -62,7 +68,7 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
         select 'Arts', from: 'Discipline'
 
         click_link "Files" # switch tab
-        expect(page).to have_content( add_files_note, wait: 10 )
+        expect(page).to have_content( add_files_note, wait: wait_after_upload )
         expect(page).to have_content "Add files"
         expect(page).to_not have_content "Add folder"
         expect(page).to_not have_content 'image.jp2'
@@ -71,7 +77,7 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
           attach_file("files[]", File.join(fixture_path, 'image.jp2'), visible: false)
           attach_file("files[]", File.join(fixture_path, 'jp2_fits.xml'), visible: false)
         end
-        expect(page).to have_content( 'image.jp2', wait: 10 )
+        expect(page).to have_content( 'image.jp2', wait: wait_after_upload )
         expect(page).to have_content 'jp2_fits.xml'
 
         # # With selenium and the chrome driver, focus remains on the
@@ -90,8 +96,8 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
         # puts "Required metadata: #{page.evaluate_script(%{$('#form-progress').data('save_work_control').requiredFields.areComplete})}"
         # puts "Required files: #{page.evaluate_script(%{$('#form-progress').data('save_work_control').uploads.hasFiles})}"
         # puts "Agreement : #{page.evaluate_script(%{$('#form-progress').data('save_work_control').depositAgreement.isAccepted})}"
-        click_button 'Save Work'
-        expect(page).to have_content( 'Work Description', wait: 60 )
+        click_button( 'Save Work', wait: wait_after_save )
+        expect(page).to have_content( 'Work Description', wait: wait_after_save )
         expect(page).to_not have_link( 'Edit Work/Add Files' )
 
         page.title =~ /^.*ID:\s([^\s]+)\s.*$/
@@ -158,12 +164,12 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
         # puts "Required metadata: #{page.evaluate_script(%{$('#form-progress').data('save_work_control').requiredFields.areComplete})}"
         # puts "Required files: #{page.evaluate_script(%{$('#form-progress').data('save_work_control').uploads.hasFiles})}"
         # puts "Agreement : #{page.evaluate_script(%{$('#form-progress').data('save_work_control').depositAgreement.isAccepted})}"
-        click_on('Save')
+        click_on('Save', wait: wait_after_save )
         expect(page).to have_content('My Test Work')
         expect(page).to have_content "Your files are being processed by Hyrax in the background."
 
         sign_in second_user
-        click_link 'Works'
+        click_link( 'Works', wait: wait_after_click )
         expect(page).to have_content "My Test Work"
       end
     end
@@ -173,7 +179,7 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
         login_as user
         visit '/'
         page.find_link( 'Deposit Your Work', exact: false ).click()
-        page.find_link( 'Description', wait: 10 )
+        page.find_link( 'Description', wait: wait_after_click )
         expect(page).to have_content edit_note
         within('div#savewidget') do
           expect(page).to have_checked_field('data_set_visibility_open')
@@ -253,7 +259,10 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
              agent_type: 'user',
              agent_id: user.user_key)
       # stub out characterization. Travis doesn't have fits installed, and it's not relevant to the test.
+      allow(IngestJob).to receive(:perform_later)
+      allow(IngestJob).to receive(:perform_now)
       allow(CharacterizeJob).to receive(:perform_later)
+      allow(CharacterizeJob).to receive(:perform_now)
     end
 
     context "normal create work" do
@@ -351,7 +360,7 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
       end
     end
 
-    context "when a file uploaded and then deleted", skip: true || ENV['CIRCLECI'].present? do
+    context "when a file uploaded and then deleted", skip: ENV['CIRCLECI'].present? do
       before do
         login_as user
         visit '/'

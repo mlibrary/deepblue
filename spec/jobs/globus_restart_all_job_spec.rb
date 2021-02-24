@@ -66,17 +66,17 @@ describe GlobusRestartAllJob, "GlobusJob globus_enabled: :true", globus_enabled:
         File.delete job_complete_file if File.exist? job_complete_file
         allow( Rails.logger ).to receive( :debug ).with( any_args )
         allow( Dir ).to receive( :glob ).with( any_args ).and_return( files )
-        allow( GlobusCopyJob ).to receive( :perform_later ).with( any_args )
+        allow( GlobusCopyJob ).to receive(:perform_later).with( any_args )
       end
       it "calls globus block." do
         described_class.perform_now
         # expect( Rails.logger ).to have_received( :debug ).with( 'bogus so we can look at the logger output' )
-        expect( GlobusCopyJob ).to have_received( :perform_later ).with( id01 )
-        expect( GlobusCopyJob ).to have_received( :perform_later ).with( id02 )
-        expect( GlobusCopyJob ).to have_received( :perform_later ).with( id03 )
-        expect( GlobusCopyJob ).to have_received( :perform_later ).with( id04 )
-        expect( GlobusCopyJob ).to have_received( :perform_later ).with( id05 )
-        expect( GlobusCopyJob ).to have_received( :perform_later ).exactly( 5 ).times
+        expect( GlobusCopyJob ).to have_received(:perform_later).with( id01 )
+        expect( GlobusCopyJob ).to have_received(:perform_later).with( id02 )
+        expect( GlobusCopyJob ).to have_received(:perform_later).with( id03 )
+        expect( GlobusCopyJob ).to have_received(:perform_later).with( id04 )
+        expect( GlobusCopyJob ).to have_received(:perform_later).with( id05 )
+        expect( GlobusCopyJob ).to have_received(:perform_later).exactly( 5 ).times
         expect( Rails.logger ).to have_received( :debug ).with( "#{log_prefix}restart all complete" )
         # expect( Rails.logger ).to have_received( :debug ).with( 'bogus so we can look at the logger output' )
         # expect( Rails.logger ).not_to have_received( :error )
