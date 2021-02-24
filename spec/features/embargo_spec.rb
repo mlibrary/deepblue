@@ -3,7 +3,8 @@ include Warden::Test::Helpers
 
 RSpec.describe 'embargo', type: :feature, js: true, workflow: true, clean_repo: true do
 
-  EMBARGO_SPEC_DEBUG_VERBOSE = false
+  mattr_accessor :embargo_spec_debug_verbose
+  @@embargo_spec_debug_verbose = false
 
   include Devise::Test::IntegrationHelpers
 
@@ -33,7 +34,7 @@ RSpec.describe 'embargo', type: :feature, js: true, workflow: true, clean_repo: 
       end
 
       # puts "\npage.title=#{page.title}\n"
-      # sleep 30 if EMBARGO_SPEC_DEBUG_VERBOSE
+      # sleep 30 if embargo_spec_debug_verbose
       fill_in 'Title', with: work_title
       fill_in 'Creator', with: 'Dr. Creator'
       fill_in 'Contact Information', with: user.email
@@ -59,13 +60,13 @@ RSpec.describe 'embargo', type: :feature, js: true, workflow: true, clean_repo: 
       page.title =~ /^.*ID:\s([^\s]+)\s.*$/
       id = Regexp.last_match 1
 
-      sleep 30 if EMBARGO_SPEC_DEBUG_VERBOSE
+      sleep 30 if embargo_spec_debug_verbose
 
       # chosen embargo date is on the show page
       expect(page).to have_content('Embargo release date')
       # puts "\nlater_future_date.to_date.to_datetime.strftime(\"%m/%d/%Y\")=#{later_future_date.to_datetime.strftime("%m/%d/%Y")}\n"
       expect(page).to have_content(future_date.to_datetime.strftime("%m/%d/%Y"))
-      sleep 30 if EMBARGO_SPEC_DEBUG_VERBOSE
+      sleep 30 if embargo_spec_debug_verbose
 
       # NOTE: normal depositors don't have edit access to works after adding them due to moderated deposit
       visit "/embargoes/#{id}/edit"
@@ -98,10 +99,10 @@ RSpec.describe 'embargo', type: :feature, js: true, workflow: true, clean_repo: 
       expect(page).to have_xpath("//input[@name='data_set[embargo_release_date]' and @value='#{future_date.to_datetime.strftime("%Y-%m-%d")}']")
 
       fill_in 'data_set_embargo_release_date', with: later_future_date.to_datetime.strftime("%m/%d/%Y")
-      sleep 30 if EMBARGO_SPEC_DEBUG_VERBOSE
+      sleep 30 if embargo_spec_debug_verbose
 
       click_button 'Update Embargo'
-      sleep 30 if EMBARGO_SPEC_DEBUG_VERBOSE
+      sleep 30 if embargo_spec_debug_verbose
       # puts "\npage.title=#{page.title}\n"
       expect(page).to have_content("You do not have sufficient privileges for this")
       # expect(page).to have_content("Embargo release date")
@@ -135,7 +136,7 @@ RSpec.describe 'embargo', type: :feature, js: true, workflow: true, clean_repo: 
 
     it 'can be updated with a valid date', skip: ENV['CIRCLECI'].present? do
       visit "/concern/data_sets/#{work.id}"
-      # sleep 30 if EMBARGO_SPEC_DEBUG_VERBOSE
+      # sleep 30 if embargo_spec_debug_verbose
 
       click_link 'Edit'
       click_link 'Embargo Management Page'
@@ -155,7 +156,7 @@ RSpec.describe 'embargo', type: :feature, js: true, workflow: true, clean_repo: 
 
     it 'cannot be updated with an invalid date', skip: ENV['CIRCLECI'].present? do
       visit "/concern/data_sets/#{work.id}"
-      # sleep 30 if EMBARGO_SPEC_DEBUG_VERBOSE
+      # sleep 30 if embargo_spec_debug_verbose
 
       click_link 'Edit'
       click_link 'Embargo Management Page'

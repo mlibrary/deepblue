@@ -38,8 +38,8 @@ module JobHelper
                      exception:,
                      event: self.class.name,
                      event_note: '',
-                     timestamp_begin: timestamp_begin,
-                     timestamp_end: timestamp_end )
+                     timestamp_begin: self.timestamp_begin,
+                     timestamp_end: self.timestamp_end )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "targets=#{email_targets}",
@@ -60,8 +60,8 @@ module JobHelper
   def email_results( targets: email_targets,
                      task_name: self.class.name,
                      event: self.class.name, event_note: '',
-                     timestamp_begin: timestamp_begin,
-                     timestamp_end: timestamp_end )
+                     timestamp_begin: self.timestamp_begin,
+                     timestamp_end: self.timestamp_end )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "targets=#{targets}",

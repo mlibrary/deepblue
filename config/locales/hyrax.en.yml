@@ -99,6 +99,8 @@ en:
           curation_notes_user:  "Curation Notes"
           description:          "Description"
           last_updated:         "Last Updated"
+          referenced_by:        "Referenced By"
+          total_items:          "Total Items"
       documentation:
         title:              "Manage Documentation"
       ingest:
@@ -353,9 +355,9 @@ en:
       detail_header:          "File Details"
       not_yet_characterized:  "not yet characterized"
       edit:
-        description_file_set: Description (edit)
-        curation_notes_admin: Curation Notes Admin (edit)
-        curation_notes_user: Curation Notes Admin (edit)
+        description_file_set: "Description"
+        curation_notes_admin: "Curation Notes Admin"
+        curation_notes_user:  "Curation Notes"
       notifications:
         assigned_as_read_me: >
           Assigned "%{filename}" as readme.

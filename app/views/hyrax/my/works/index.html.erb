@@ -17,6 +17,8 @@
   <h1><span class="fa fa-file"></span> <%= t("hyrax.admin.sidebar.works") %></h1>
   <% if current_ability.can_create_any_work? %>
     <div class="pull-right">
+      <%# puts "@create_work_presenter.many?=#{@create_work_presenter.many?}" %>
+      <%# puts "!Flipflop.only_use_data_set_work_type?=#{!Flipflop.only_use_data_set_work_type?}" %>
       <% if @create_work_presenter.many? && !Flipflop.only_use_data_set_work_type?  %>
         <% if Flipflop.batch_upload? %>
           <%= link_to(

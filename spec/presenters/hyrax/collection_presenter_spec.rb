@@ -8,7 +8,9 @@ RSpec.describe Hyrax::CollectionPresenter, skip: false do
       is_expected.to eq [:total_items, :size, :resource_type, :creator,
                          :contributor, :keyword, :license, :publisher,
                          :date_created, :subject, :language, :identifier,
-                         :based_near, :related_url]
+                         :based_near,
+                         :referenced_by,
+                         :related_url]
     end
   end
 
@@ -20,6 +22,7 @@ RSpec.describe Hyrax::CollectionPresenter, skip: false do
           title: ['A clever title'],
           keyword: ['neologism'],
           resource_type: ['Collection'],
+          referenced_by: ['Referenced by This'],
           related_url: ['http://example.com/'],
           date_created: 'some date')
   end
@@ -86,6 +89,7 @@ RSpec.describe Hyrax::CollectionPresenter, skip: false do
                          :keyword,
                          :date_created,
                          :based_near,
+                         :referenced_by,
                          :related_url]
     end
   end

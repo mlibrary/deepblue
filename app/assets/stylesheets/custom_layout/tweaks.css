@@ -453,6 +453,13 @@ table.datatable thead th.no-sort {
 .dl-horizontal {
     overflow: hidden;
     text-overflow: ellipsis;
+    /* background-color: lightskyblue; */
+}
+
+.dl-horizontal dt {
+    /* background-color: lightblue; */
+    line-break: normal !important;
+    white-space: normal !important;
 }
 
 .monospace-textarea {

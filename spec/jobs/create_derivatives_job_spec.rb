@@ -2,8 +2,7 @@
 
 require 'rails_helper'
 
-# TODO: this needs to be fixed
-RSpec.describe CreateDerivativesJob, skip: true do
+RSpec.describe CreateDerivativesJob, skip: false do
 
   mattr_accessor :spec_create_derivatives_job_debug_verbose
   @@spec_create_derivatives_job_debug_verbose = false
@@ -34,6 +33,7 @@ RSpec.describe CreateDerivativesJob, skip: true do
   end
 
   context "with an audio file" do
+    # ignore the fact that file has a .png name, the mimetype is audio
     let(:id)       { '123' }
     let(:file_set) { FileSet.new }
 
@@ -49,9 +49,10 @@ RSpec.describe CreateDerivativesJob, skip: true do
       allow(FileSet).to receive(:find).with(id).and_return(file_set)
       allow(file_set).to receive(:id).and_return(id)
       allow(file_set).to receive(:mime_type).and_return('audio/x-wav')
+      allow(file_set).to receive(:add_curation_note_admin)
     end
 
-    context "with a file name" do
+    context "with a file name", skip: false do
       it 'calls create_derivatives and save on a file set' do
         expect(Hydra::Derivatives::AudioDerivatives).to receive(:create)
         expect(file_set).to receive(:reload)
@@ -65,7 +66,7 @@ RSpec.describe CreateDerivativesJob, skip: true do
         state = job_status.state_deserialize
         expect( state ).to eq nil
         expect( job_status.state ).to eq nil
-        expect( job_status.message ).to eq nil
+        expect( job_status.message ).to eq nil unless spec_create_derivatives_job_debug_verbose
         puts "job_status.error='#{job_status.error}'" if spec_create_derivatives_job_debug_verbose
         expect( job_status.error ).to eq nil
       end
@@ -76,8 +77,9 @@ RSpec.describe CreateDerivativesJob, skip: true do
       let(:filename)    { Rails.root.join('tmp', 'uploads', 'ab', 'c1', '23', '45', 'abc12345', 'picture.png').to_s }
       let(:file_set) do
         FileSet.new(id: file_set_id).tap do |fs|
-          allow(fs).to receive(:original_file).and_return(file)
+          allow(fs).to receive(:original_file).and_return file
           allow(fs).to receive(:update_index)
+          allow(fs).to receive(:under_embargo?).and_return false
         end
       end
       # let(:io)          { JobIoWrapper.new(file_set_id: file_set.id, user: create(:user), path: filename) }
@@ -94,24 +96,42 @@ RSpec.describe CreateDerivativesJob, skip: true do
       let(:filepath)           { filename }
       let(:current_user)       { user }
       let(:delete_input_file)  { true }
+      let(:parent_job_id)      { nil }
       let(:uploaded_file_ids)  { []  }
+      let(:file_exist)         { true }
+      let(:file_size)          { 111 }
 
       before do
         allow(FileSet).to receive(:find).with(file_set_id).and_return(file_set)
-        expect(::Deepblue::IngestHelper).to receive(:characterize).with( any_args ).and_call_original
+        # expect(::Deepblue::IngestHelper).to receive(:characterize).with( any_args ).and_call_original
         allow(file_set).to receive(:parent).and_return(parent)
         # Stub out the actual derivative creation
         allow(file_set).to receive(:create_derivatives)
+        allow(file_set).to receive(:add_curation_note_admin)
+        allow(file_set).to receive(:provenance_create_derivative).with( current_user: current_user,
+                                                                        calling_class: Deepblue::IngestHelper.class.name )
+        expect(::Deepblue::IngestHelper).not_to receive(:log_error).with( any_args ) unless spec_create_derivatives_job_debug_verbose
       end
 
       context 'when the file_set is the thumbnail of the parent' do
         let(:parent) { DataSet.new(thumbnail_id: id) }
-        let(:parent_job_id) { nil }
-        let(:job)    { described_class.send( :job_or_instantiate, file_set, file.id, current_user: user ) }
+        let(:job)    { CreateDerivativesJob.send( :job_or_instantiate,
+                                                  file_set,
+                                                  repository_file_id,
+                                                  filepath,
+                                                  current_user: current_user,
+                                                  delete_input_file: delete_input_file,
+                                                  parent_job_id: parent_job_id,
+                                                  uploaded_file_ids: uploaded_file_ids ) }
 
         before do
-          expect(::Deepblue::IngestHelper).not_to receive(:log_error).with( any_args )
-          expect(file_set).to receive(:reload)
+          # expect( job.send( :arguments ) ).to eq []
+          expect(File).to receive(:size).with(filepath).at_least(:once).and_return file_size
+          expect(File).to receive(:delete).with(filepath)
+          expect(File).to receive(:exist?).with(filepath).at_least(:once).and_return file_exist
+          expect(Hyrax::WorkingDirectory).to receive(:find_or_retrieve).with( repository_file_id,
+                                                                              file_set.id,
+                                                                              filepath ).and_call_original
           expect(::Deepblue::IngestHelper).to receive(:create_derivatives) do |args|
             expect(args[0]).to eq anything
             expect(args[1]).to eq filepath
@@ -125,6 +145,7 @@ RSpec.describe CreateDerivativesJob, skip: true do
           expect(job).to receive(:find_or_create_job_status_started).with(parent_job_id: parent_job_id,
                               user_id: user.id,
                               verbose: CreateDerivativesJob.create_derivatives_job_debug_verbose).and_call_original
+          expect(file_set).to receive(:reload)
           expect(JobStatus.all.count).to eq 0
         end
 
@@ -132,32 +153,45 @@ RSpec.describe CreateDerivativesJob, skip: true do
           expect(parent).to receive(:update_index)
           ActiveJob::Base.queue_adapter = :test
           job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
+          ### expect( job.send( :arguments ) ).to eq []
           expect(JobStatus.all.count).to eq 1
           job_status = JobStatus.all.first
           expect(job_status.job_class).to eq CreateDerivativesJob.name
           expect(job_status.job_id).to eq job.job_id
           expect(job_status.parent_job_id).to eq parent_job_id
           expect(job_status.error).to eq nil
-          expect(job_status.message).to eq nil
+          expect(job_status.message).to eq nil unless spec_create_derivatives_job_debug_verbose
           expect(job_status.user_id).to eq user.id
           expect(job_status.main_cc_id).to eq nil
           expect(job_status.status).to eq "delete_file"
           state = job_status.state_deserialize
           expect( state ).to eq nil
           expect( job_status.state ).to eq nil
-          expect( job_status.message ).to eq nil
+          expect( job_status.message ).to eq nil unless spec_create_derivatives_job_debug_verbose
           expect( job_status.error ).to eq nil
         end
       end
 
-      context "when the file_set isn't the parent's thumbnail" do
+      context "when the file_set isn't the parent's thumbnail", skip: false do
         let(:parent) { DataSet.new }
         let(:parent_job_id) { nil }
-        let(:job) { described_class.send( :job_or_instantiate, file_set, file.id, current_user: user ) }
+        let(:job)    { CreateDerivativesJob.send( :job_or_instantiate,
+                                                  file_set,
+                                                  repository_file_id,
+                                                  filepath,
+                                                  current_user: current_user,
+                                                  delete_input_file: delete_input_file,
+                                                  parent_job_id: parent_job_id,
+                                                  uploaded_file_ids: uploaded_file_ids ) }
 
         before do
           expect(::Deepblue::IngestHelper).not_to receive(:log_error).with( any_args )
-          expect(file_set).to receive(:reload)
+          expect(File).to receive(:size).with(filepath).at_least(:once).and_return file_size
+          expect(File).to receive(:delete).with(filepath)
+          expect(File).to receive(:exist?).with(filepath).at_least(:once).and_return file_exist
+          expect(Hyrax::WorkingDirectory).to receive(:find_or_retrieve).with( repository_file_id,
+                                                                              file_set.id,
+                                                                              filepath ).and_call_original
           expect(::Deepblue::IngestHelper).to receive(:create_derivatives) do |args|
             expect(args[0]).to eq anything
             expect(args[1]).to eq filepath
@@ -171,6 +205,7 @@ RSpec.describe CreateDerivativesJob, skip: true do
           expect(job).to receive(:find_or_create_job_status_started).with(parent_job_id: parent_job_id,
                                                                           user_id: user.id,
                                                                           verbose: CreateDerivativesJob.create_derivatives_job_debug_verbose).and_call_original
+          expect(file_set).to receive(:reload)
           expect(JobStatus.all.count).to eq 0
         end
 
@@ -183,14 +218,14 @@ RSpec.describe CreateDerivativesJob, skip: true do
           expect(job_status.job_id).to eq job.job_id
           expect(job_status.parent_job_id).to eq parent_job_id
           expect(job_status.error).to eq nil
-          expect(job_status.message).to eq nil
+          expect(job_status.message).to eq nil unless spec_create_derivatives_job_debug_verbose
           expect(job_status.user_id).to eq user.id
           expect(job_status.main_cc_id).to eq nil
           expect(job_status.status).to eq "delete_file"
           state = job_status.state_deserialize
           expect( state ).to eq nil
           expect( job_status.state ).to eq nil
-          expect( job_status.message ).to eq nil
+          expect( job_status.message ).to eq nil unless spec_create_derivatives_job_debug_verbose
           expect( job_status.error ).to eq nil
         end
       end
@@ -200,7 +235,7 @@ RSpec.describe CreateDerivativesJob, skip: true do
 
   end
 
-  context "with a pdf file" do
+  context "with a pdf file", skip: true do
     let(:file_set) { create(:file_set) }
 
     let(:file) do

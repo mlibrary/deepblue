@@ -1,6 +1,11 @@
 en:
 
   helpers:
+    action:
+      batch:
+        new: "Add work batch"
+      work:
+        new: "Add new work"
     select:
       # Default value for :prompt => true in FormOptionsHelper
       prompt: "Please select"

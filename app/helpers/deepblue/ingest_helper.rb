@@ -187,7 +187,7 @@ module Deepblue
                                                  "file_set.create_derivatives_duration=#{file_set.create_derivatives_duration}",
                                                  "" ] if ingest_helper_debug_verbose
           file_set.provenance_create_derivative( current_user: current_user,
-                                                 calling_class: name,
+                                                 calling_class: IngestHelper.class.name,
                                                  **added_prov_key_values )
 
           after_create_derivative( file_set: file_set, file_set_orig: file_set_orig, job_status: job_status )
@@ -248,7 +248,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "error msg=#{msg}",
-                                             "" ] + exception.backtrace[0..8] if ingest_helper_debug_verbose
+                                             "" ] + exception.backtrace[0..28] if ingest_helper_debug_verbose
       if ::DeepBlueDocs::Application.config.derivative_create_error_report_to_curation_notes_admin
         file_set.add_curation_note_admin( note: msg )
       end
