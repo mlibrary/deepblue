@@ -46,6 +46,41 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     end
   end
 
+  describe '#doi' do
+    # see doi_controller_behavior.rb
+    before do
+      create(:sipity_entity, proxy_for_global_id: work.to_global_id.to_s)
+    end
+
+    context 'private work no doi' do
+      let(:work) do
+        w = create(:data_set_with_one_file, user: user, depositor: user.email, doi: nil)
+        w.depositor = user.email
+        w
+      end
+
+      it 'redirects' do
+        expect(controller).to receive(:doi_mint)
+        # expect(work).to receive(:doi_mint).with( current_user: user, event_note: DataSet.class.name )
+        get :doi, params: { id: work }
+        expect(response).to redirect_to main_app.hyrax_data_set_path(work, locale: 'en')
+      end
+
+    end
+
+    context 'private work pending doi' do
+      let(:work) { create(:private_data_set, user: user, title: ['test title'], doi: ::Deepblue::DoiBehavior::DOI_PENDING ) }
+
+      it 'redirects' do
+        expect(work).to_not receive(:doi_mint).with( current_user: user, event_note: DataSet.class.name )
+        get :doi, params: { id: work }
+        expect(response).to redirect_to main_app.hyrax_data_set_path(work, locale: 'en')
+      end
+
+    end
+
+  end
+
   describe '#show' do
     before do
       create(:sipity_entity, proxy_for_global_id: work.to_global_id.to_s)

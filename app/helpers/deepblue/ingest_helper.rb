@@ -125,6 +125,7 @@ module Deepblue
                                  uploaded_file_ids: [],
                                  **added_prov_key_values )
 
+      raise ArgumentError, "job_status blank" if job_status.blank?
       file_set_orig = file_set
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -145,7 +146,7 @@ module Deepblue
         begin
           file_ext = ''
           file_ext = File.extname file_set.label if file_set.label.present?
-          if DeepBlueDocs::Application.config.derivative_excluded_ext_set.key? file_ext
+          if derivative_excluded_ext_set? file_ext
             Rails.logger.info "Skipping derivative of file with extension #{file_ext}: #{file_name}"
             file_set.add_curation_note_admin( note: "Skipping derivative for file with extension "\
                                               "#{file_ext}" ) if ingest_helper_debug_verbose
@@ -153,7 +154,7 @@ module Deepblue
                                                    event_note: "skipped_extension #{file_ext}",
                                                    calling_class: name,
                                                    **added_prov_key_values )
-            job_status.did_create_derivatives?
+            job_status.did_create_derivatives!
             return
           end
           if file_set.video? && !Hyrax.config.enable_ffmpeg
@@ -163,7 +164,7 @@ module Deepblue
                                                    event_note: "skipped_extension #{file_ext}",
                                                    calling_class: name,
                                                    **added_prov_key_values )
-            job_status.did_create_derivatives?
+            job_status.did_create_derivatives!
             return
           end
           if file_too_big(file_name)
@@ -175,11 +176,11 @@ module Deepblue
                                                    event_note: "skipped_file_size #{File.size(file_name)}",
                                                    calling_class: name,
                                                    **added_prov_key_values )
-            job_status.did_create_derivatives?
+            job_status.did_create_derivatives!
             return
           end
           Rails.logger.debug "About to call create derivatives: #{file_name}." if ingest_helper_debug_verbose
-          file_set.create_derivatives( file_name )
+          file_set_create_derivatives( file_set, file_name )
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "Create derivative successful",
@@ -226,6 +227,19 @@ module Deepblue
       end
     end
 
+    def self.file_set_create_derivatives( file_set, file_name )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "file_set=#{file_set}",
+                                             "file_name=#{file_name}",
+                                             "" ] if ingest_helper_debug_verbose
+      file_set.create_derivatives( file_name )
+    end
+
+    def self.derivative_excluded_ext_set?( file_ext )
+      DeepBlueDocs::Application.config.derivative_excluded_ext_set.key? file_ext
+    end
+
     def self.file_too_big(file_name)
       threshold_file_size = DeepBlueDocs::Application.config.derivative_max_file_size
       threshold_file_size > -1 && File.exist?(file_name) && File.size(file_name) > threshold_file_size
@@ -248,7 +262,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "error msg=#{msg}",
-                                             "" ] + exception.backtrace[0..28] if ingest_helper_debug_verbose
+                                             "" ] + exception.backtrace[0..50] if ingest_helper_debug_verbose
       if ::DeepBlueDocs::Application.config.derivative_create_error_report_to_curation_notes_admin
         file_set.add_curation_note_admin( note: msg )
       end

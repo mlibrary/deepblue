@@ -54,10 +54,16 @@ class CurationConcernMock
 
 end
 
-RSpec.describe Deepblue::AbstractEventBehavior do
+RSpec.describe Deepblue::MetadataBehavior do
 
   let( :empty_mock ) { CurationConcernEmptyMock.new }
   let( :mock ) { CurationConcernMock.new }
+
+  describe 'module debug verbose variables' do
+    it "they have the right values" do
+      expect( described_class.metadata_behavior_debug_verbose ).to eq( false )
+    end
+  end
 
   describe 'constants' do
     it do

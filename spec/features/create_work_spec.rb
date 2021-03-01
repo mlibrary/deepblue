@@ -378,6 +378,16 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
       end
 
       it 'updates the required file check status' do
+
+        fill_in 'Title', with: work_title
+        fill_in 'Creator', with: 'Dr. Creator'
+        fill_in 'Contact Information', with: user.email
+        fill_in 'Methodology', with: 'The Method.'
+        fill_in 'Description', with: 'The Description.'
+        fill_in 'Keyword', with: 'testing'
+        choose 'data_set_rights_license_httpcreativecommonsorgpublicdomainzero10'
+        select 'Arts', from: 'Discipline'
+
         click_link "Files" # switch to the Files tab
         expect(page).to have_content( add_files_note, wait: 10 )
         expect(page).to have_content "Add files"
@@ -395,7 +405,7 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
         # expect(page).to have_css('ul li#required-files.incomplete', text: 'Add files')
         # page.find_link( 'Add files', exact: false )
 
-        click_button 'Delete' # delete the file
+        click_button( 'Delete', wait: wait_after_click ) # delete the file
         expect(page).to_not have_content( 'image.jp2', wait: 10 )
         click_link "Descriptions" # switch tab back
         page.find_link( 'Files', wait: 10 )
@@ -406,8 +416,8 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
         # puts "Required metadata: #{page.evaluate_script(%{$('#form-progress').data('save_work_control').requiredFields.areComplete})}"
         # puts "Required files: #{page.evaluate_script(%{$('#form-progress').data('save_work_control').uploads.hasFiles})}"
         # puts "Agreement : #{page.evaluate_script(%{$('#form-progress').data('save_work_control').depositAgreement.isAccepted})}"
-        click_button 'Save Work'
-        expect(page).to have_content( 'Work Description', wait: 60 )
+        click_button( 'Save Work', wait: wait_after_click )
+        expect(page).to have_content( 'Work Description', wait: wait_after_click )
         expect(page).to have_link( 'Edit Work/Add Files' )
 
         page.title =~ /^.*ID:\s([^\s]+)\s.*$/

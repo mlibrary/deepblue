@@ -21,7 +21,7 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
   end
 
   def find_all_email_targets( additional_email_targets: [] )
-    self.email_targets = self.email_targets + additional_email_targets
+    self.email_targets = self.email_targets | additional_email_targets # union of arrays and remove duplicates
   end
 
   def hostname_allowed( debug_verbose: deepblue_job_debug_verbose )
