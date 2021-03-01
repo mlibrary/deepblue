@@ -2,7 +2,8 @@
 
 require 'rails_helper'
 
-RSpec.describe FileSetAttachedEventJob do
+RSpec.describe FileSetAttachedEventJob, skip: false do
+
   let(:user) { create(:user) }
   let(:mock_time) { Time.zone.at(1) }
 
@@ -34,6 +35,7 @@ RSpec.describe FileSetAttachedEventJob do
       expect(curation_concern.events.first).to eq(event)
       expect(file_set.events.first).to eq(event)
     end
+
   end
 
 end

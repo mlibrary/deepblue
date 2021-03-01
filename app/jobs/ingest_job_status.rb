@@ -143,11 +143,16 @@ class IngestJobStatus
       @job_status = JobStatus::Null.instance
       @job_id = nil
     end
+    if @job_status.nil?
+      @job_status = JobStatus::Null.instance
+      @job_id = nil
+    end
 
     reinitialize_processed
   end
 
   def reinitialize_processed
+    return self if job_status.blank?
     return self if job_status.null_job_status?
     state = state_deserialize
     if state.present?

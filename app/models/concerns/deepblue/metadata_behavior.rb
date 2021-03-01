@@ -7,7 +7,8 @@ module Deepblue
 
   module MetadataBehavior
 
-    METADATA_BEHAVIOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.metadata_behavior_debug_verbose
+    mattr_accessor :metadata_behavior_debug_verbose
+    @@metadata_behavior_debug_verbose = ::DeepBlueDocs::Application.config.metadata_behavior_debug_verbose
 
     METADATA_FIELD_SEP = '; '
     METADATA_REPORT_DEFAULT_DEPTH = 2
@@ -19,7 +20,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "self.curation_notes_admin=#{self.curation_notes_admin}",
                                              "note=#{note}",
-                                             "" ] if METADATA_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if metadata_behavior_debug_verbose
       self.date_modified = DateTime.now # touch it so it will save updated attributes
       notes = self.curation_notes_admin
       notes = [] if notes.nil?
@@ -32,7 +33,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "self.curation_notes_user=#{self.curation_notes_user}",
                                              "note=#{note}",
-                                             "" ] if METADATA_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if metadata_behavior_debug_verbose
       self.date_modified = DateTime.now # touch it so it will save updated attributes
       notes = self.curation_notes_user
       notes = [] if notes.nil?

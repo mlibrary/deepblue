@@ -13,7 +13,6 @@ RSpec.describe FindAndFixJob, skip: false do
   end
 
   describe 'find and fix job' do
-    let(:job)       { described_class.send( :job_or_instantiate, *args ) }
     let(:find_and_fix_empty_file_size) { true }
     let(:find_and_fix_over_file_sets) { true }
     let(:find_and_fix_all_ordered_members_containing_nils) { true }
@@ -26,6 +25,7 @@ RSpec.describe FindAndFixJob, skip: false do
                      'subscription_service_id' => 'find_and_fix_job',
                      'verbose' => verbose } }
     let(:options) { args }
+    let(:job)       { described_class.send( :job_or_instantiate, *args ) }
 
     RSpec.shared_examples 'it called initialize_from_args during perform job' do |run_the_job|
       before do

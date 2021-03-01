@@ -5,7 +5,7 @@ require_relative '../services/deepblue/deactivate_expired_embargoes_service'
 class DeactivateExpiredEmbargoesJob < ::Hyrax::ApplicationJob
 
   mattr_accessor :deactivate_expired_embargoes_job_debug_verbose
-  deactivate_expired_embargoes_job_debug_verbose = ::Deepblue::JobTaskHelper.deactivate_expired_embargoes_job_debug_verbose
+  @@deactivate_expired_embargoes_job_debug_verbose = ::Deepblue::JobTaskHelper.deactivate_expired_embargoes_job_debug_verbose
 
 SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 

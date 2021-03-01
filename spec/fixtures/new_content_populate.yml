@@ -1,0 +1,48 @@
+# new_content_populate.yml
+# bundle exec rake umrdr:populate[/Users/fritx/Documents/fritz_populate0017a.yml]
+---
+:user:
+  :visibility: open
+  :email: user1@an_institute.edu
+  :source: DBDv2
+  :works:
+    :depositor: user1@an_institute.edu
+    :owner: user1@an_institute.edu
+    :authoremail: user1@an_institute.edu
+    :title:
+      - 'New Content'
+      - '2nd Title'
+    :date_uploaded:
+      - '2021'
+    :isReferencedBy:
+      - 'Referenced by something'
+      - 'And also referenced by another'
+    :methodology:
+      - 'The methodology for new content.'
+    :part_of:
+      - 'part of new content'
+    :creator:
+      - 'Dr. Creator'
+    :keyword:
+      - 'New keyword'
+      - 'Content keywoord'
+    :description:
+      - 'Description of new content.'
+      - 'And some more description of new content.'
+    :rights_license:
+      - https://creativecommons.org/licenses/by-nc-sa/4.0/
+    :date_coverage:
+      - '2020-01-01/2021-01-01'
+    :subject_discipline:
+      - 'Art'
+      - 'Science'
+    :bibliographic_citation:
+      - 'bib citation'
+    :language:
+      - 'English'
+    :filenames:
+      - image.jpg
+      - charter.pdf
+    :files:
+      - ./spec/fixutures/image.jpg
+      - ./spec/fixutures/charter.pdf

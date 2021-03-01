@@ -55,9 +55,14 @@ RSpec.describe CharacterizeJob do
     puts "user3=#{user3}, user3.id=#{user3.id}" if spec_characterize_job_debug_verbose
 
     allow(FileSet).to receive(:find).with(file_set_id).and_return(file_set)
-    expect(::Deepblue::IngestHelper).to receive(:characterize).with( any_args ).and_call_original
     # TODO: need to be able to find the job status, so use the user_id to find it
     # allow(CreateDerivativesJob).to receive(:perform_now).with(file_set, file.id, filename)
+  end
+
+  describe 'module debug verbose variables' do
+    it "they have the right values" do
+      expect( described_class.characterize_job_debug_verbose ).to eq( false )
+    end
   end
 
   context 'with valid filepath param' do
@@ -81,6 +86,7 @@ RSpec.describe CharacterizeJob do
                                                                    file.id,
                                                                    filename,
                                                                    current_user: current_user.user_key ).and_call_original
+      expect(::Deepblue::IngestHelper).to receive(:characterize).with( any_args ).and_call_original
     end
 
     it 'skips Hyrax::WorkingDirectory' do
@@ -144,6 +150,7 @@ RSpec.describe CharacterizeJob do
                                             "current_user.email=#{current_user.email}",
                                             "" ] if spec_characterize_job_debug_verbose
       allow( job ).to receive(:perform_now).with( any_args ).and_call_original
+      expect(::Deepblue::IngestHelper).to receive(:characterize).with( any_args ).and_call_original
     end
 
     it 'runs Hydra::Works::CharacterizationService and creates a CreateDerivativesJob' do
@@ -186,6 +193,7 @@ RSpec.describe CharacterizeJob do
                                             "" ] if spec_characterize_job_debug_verbose
       allow( job ).to receive(:perform_now).with( any_args ).and_call_original
       allow(file_set).to receive(:characterization_proxy?).and_return(false)
+      expect(::Deepblue::IngestHelper).to receive(:characterize).with( any_args ).and_call_original
     end
 
     it 'raises an error' do
