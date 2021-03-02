@@ -9,23 +9,32 @@ module Hyrax
           text = ''
 
           # setup formatted author list
+          text << "<span class=\"citation-author\">"
           authors = author_list(work).reject(&:blank?)
-          text << "<span class=\"citation-author\">#{format_authors(authors)}</span>"
+          formatted_authors = format_authors(authors)
+          text << formatted_authors
+          text << "</span>"
+          text << '.' unless formatted_authors.ends_with? '.'
 
-          text << "(" + work.date_published2.first[0,4] + "). " if work.date_published2.present?
+          if work.respond_to?( :date_published2) && work.date_published2.present?
+            text << "(" + work.date_published2.first[0,4] + "). "
+          end
 
           # setup title
           title_info = setup_title_info(work)
           text << format_title(title_info)
 
-          text << " [Data set]. University of Michigan - Deep Blue. "
+          # text << " [Data set]. University of Michigan - Deep Blue. "
+          text << I18n.t( 'hyrax.citation.work.format.mla_partial', work_type: 'Data set' )
 
           # Publication - for now, not interested in putting this in
           # pub_info = clean_end_punctuation(setup_pub_info(work, true))
           # text << pub_info + "." if pub_info.present?
-          doi = ""
-          doi = ( Array(work.doi).first.sub 'doi:', 'https://doi.org/' ) if work.doi.present?
-	        text << doi
+          if work.respond_to?( :doi ) && work.doi.present?
+            doi = ""
+            doi = ( Array(work.doi).first.sub 'doi:', 'https://doi.org/' )
+            text << doi
+          end
           text.gsub!(URI.regexp, '<a href="\0">\0</a>')
           text.html_safe
         end
@@ -74,8 +83,14 @@ module Hyrax
           title = title_info
           title.gsub! /:/, '&#58;'
           title.sub! /.$/, ''
+          # title = whitewash(title)
           title_info.blank? ? "" : "<i class=\"citation-title\">#{title}</i> "
         end
+
+        # def whitewash(text)
+        #   Loofah.fragment(text.to_s).scrub!(:whitewash).to_s
+        # end
+
       end
     end
   end
