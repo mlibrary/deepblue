@@ -89,6 +89,10 @@ en:
       member:
         download_title:     "link to download this file"
     browse:                 "Browse"
+    citation:
+      work:
+        format:
+          mla_partial:      " [%{work_type}]. University of Michigan - Deep Blue. "
     contact_form:
       issue_types:
         size:               "My deposit is larger than %{max_upload_size}"
