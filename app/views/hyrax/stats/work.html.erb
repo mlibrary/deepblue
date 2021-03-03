@@ -46,7 +46,7 @@
       <th>Number of Views</th>
     </tr>
 
-    <% data.each do |sub_array| %>
+    <% data.uniq.each do |sub_array| %>
     <tr>
       <th><%= Time.at sub_array[0].to_i/1000 %></th>
       <th><%= sub_array[1] %></th>
