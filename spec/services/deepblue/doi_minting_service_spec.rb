@@ -68,7 +68,7 @@ RSpec.describe Deepblue::DoiMintingService do
     let( :current_user ) { "test_doi_minting_service@umich.edu" }
     it "mints a doi" do
       skip unless ENV['INTEGRATION']
-      expect( described_class. mint_doi_for( work: work,
+      expect( described_class. mint_doi_for( curation_concern: work,
                                              current_user: current_user,
                                              target_url: work_url ) ).to start_with 'doi:10.5072/FK2'
     end
