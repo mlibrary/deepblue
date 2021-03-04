@@ -591,7 +591,8 @@ module Hyrax
       end
 
       def target_dir_name_id( dir, id, ext = '' )
-        dir.join "#{::Deepblue::GlobusIntegrationService.globus_base_file_name}#{id}#{ext}"
+        # dir.join "#{::Deepblue::GlobusIntegrationService.globus_base_file_name}#{id}#{ext}"
+        dir.join "#{id}#{ext}"
       end
 
   end

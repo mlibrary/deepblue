@@ -47,12 +47,14 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
   end
 
   describe '#doi' do
+    let(:expected_mint_msg) { "The expected mint message." }
+
     # see doi_controller_behavior.rb
     before do
       create(:sipity_entity, proxy_for_global_id: work.to_global_id.to_s)
     end
 
-    context 'private work no doi' do
+    context 'work with any doi state' do
       let(:work) do
         w = create(:data_set_with_one_file, user: user, depositor: user.email, doi: nil)
         w.depositor = user.email
@@ -60,24 +62,29 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
       end
 
       it 'redirects' do
-        expect(controller).to receive(:doi_mint)
+        # expect(controller).to receive(:doi_mint)
+        allow(ActiveFedora::Base).to receive(:find).with(work.id).and_return(work)
+        expect(controller).to receive(:doi_mint).and_return expected_mint_msg
         # expect(work).to receive(:doi_mint).with( current_user: user, event_note: DataSet.class.name )
         get :doi, params: { id: work }
         expect(response).to redirect_to main_app.hyrax_data_set_path(work, locale: 'en')
+        expect(flash[:notice]).to eq expected_mint_msg
       end
 
     end
 
-    context 'private work pending doi' do
-      let(:work) { create(:private_data_set, user: user, title: ['test title'], doi: ::Deepblue::DoiBehavior::DOI_PENDING ) }
-
-      it 'redirects' do
-        expect(work).to_not receive(:doi_mint).with( current_user: user, event_note: DataSet.class.name )
-        get :doi, params: { id: work }
-        expect(response).to redirect_to main_app.hyrax_data_set_path(work, locale: 'en')
-      end
-
-    end
+    # context 'private work pending doi' do
+    #   let(:work) { create(:private_data_set, user: user, title: ['test title'], doi: ::Deepblue::DoiBehavior::DOI_PENDING ) }
+    #
+    #   it 'redirects' do
+    #     allow(ActiveFedora::Base).to receive(:find).with(work.id).and_return(work)
+    #     expect(controller).to receive(:doi_mint).and_return expected_mint_msg
+    #     # expect(work).to_not receive(:doi_mint).with( current_user: user, event_note: DataSet.class.name )
+    #     get :doi, params: { id: work }
+    #     expect(response).to redirect_to main_app.hyrax_data_set_path(work, locale: 'en')
+    #   end
+    #
+    # end
 
   end
 
@@ -212,13 +219,13 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
         end
 
         # TODO: fix
-        # it 'renders a turtle file' do
-        #   get :show, params: { id: '99999999', format: :ttl }
-        #
-        #   expect(response).to be_successful
-        #   expect(response.body).to eq "ttl graph"
-        #   expect(response.content_type).to eq 'text/turtle'
-        # end
+        it 'renders a turtle file', skip: true do
+          get :show, params: { id: '99999999', format: :ttl }
+
+          expect(response).to be_successful
+          expect(response.body).to eq "ttl graph"
+          expect(response.content_type).to eq 'text/turtle'
+        end
       end
     end
 
@@ -643,6 +650,55 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     end
   end
 
+  describe '#zip_download' do
+    let(:work) { create(:data_set_with_two_children, total_file_size: 1.kilobyte, user: user) }
+
+    before do
+      create(:sipity_entity, proxy_for_global_id: work.to_global_id.to_s)
+    end
+
+    RSpec.shared_examples 'it calls zip_download' do |dbg_verbose|
+
+      before do
+        if dbg_verbose
+          expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(:once)
+        else
+          expect(::Deepblue::LoggingHelper).to_not receive(:bold_debug)
+        end
+        allow(ActiveFedora::Base).to receive(:find).with(work.id).and_return(work)
+      end
+
+      it 'for total file size downloadable' do
+        save_debug_verbose = ::Deepblue::ZipDownloadControllerBehavior.zip_download_controller_behavior_debug_verbose
+        ::Deepblue::ZipDownloadControllerBehavior.zip_download_controller_behavior_debug_verbose = dbg_verbose
+        expect(work).to receive(:total_file_size).and_call_original
+        expect(::Deepblue::ZipDownloadService).to receive(:zip_download_max_total_file_size_to_download).and_call_original
+        expect(controller).to receive(:zip_download_rest).with(curation_concern: work)
+        post :zip_download, params: { id: work }
+        ::Deepblue::ZipDownloadControllerBehavior.zip_download_controller_behavior_debug_verbose = save_debug_verbose
+      end
+
+      it 'for total file size downloadable larger than permitted' do
+        save_debug_verbose = ::Deepblue::ZipDownloadControllerBehavior.zip_download_controller_behavior_debug_verbose
+        ::Deepblue::ZipDownloadControllerBehavior.zip_download_controller_behavior_debug_verbose = dbg_verbose
+        expect(work).to receive(:total_file_size).and_call_original
+        expect(::Deepblue::ZipDownloadService).to receive(:zip_download_max_total_file_size_to_download).and_return 1
+        expect(controller).not_to receive(:zip_download_rest).with(curation_concern: work)
+        expect { post :zip_download, params: { id: work } }.to raise_error ActiveFedora::IllegalOperation
+        ::Deepblue::ZipDownloadControllerBehavior.zip_download_controller_behavior_debug_verbose = save_debug_verbose
+      end
+
+    end
+
+    context 'calls zip_download_rest' do
+
+      it_behaves_like 'it calls zip_download', false
+      it_behaves_like 'it calls zip_download', true
+
+    end
+
+  end
+
   # TODO: reactivate when using IIIF
   # describe '#manifest' do
   #   let(:work) { create(:work_with_one_file, user: user) }
@@ -676,5 +732,28 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
   #     expect(response.body).to eq "{\"test\":\"manifest\"}"
   #   end
   # end
+
+  describe 'private methods' do
+
+    context '.get_date_uploaded_from_solr', skip: true do
+
+    end
+
+    context '.target_dir_name_id', skip: false do
+      let(:dir) { Pathname.new "/test/testing" }
+      let(:id)  { "abc123" }
+      let(:ext) { '.txt' }
+
+      it 'returns correct value with ext' do
+        expect(controller.send(:target_dir_name_id,dir,id,ext).to_s).to eq '/test/testing/abc123.txt'
+      end
+
+      it 'returns correct value without ext' do
+        expect(controller.send(:target_dir_name_id,dir,id).to_s).to eq '/test/testing/abc123'
+      end
+
+    end
+
+  end
 
 end

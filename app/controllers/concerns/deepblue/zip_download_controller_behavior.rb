@@ -7,14 +7,15 @@ module Deepblue
 
   module ZipDownloadControllerBehavior
 
-    ZIP_DOWNLOAD_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE = ::Deepblue::ZipDownloadService.zip_download_controller_behavior_debug_verbose
+    mattr_accessor :zip_download_controller_behavior_debug_verbose
+    @@zip_download_controller_behavior_debug_verbose = ::Deepblue::ZipDownloadService.zip_download_controller_behavior_debug_verbose
     
     def zip_download
       # TODO: redirect to main page with error if zip download not enabled.
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
-                                             "" ] if ZIP_DOWNLOAD_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if zip_download_controller_behavior_debug_verbose
       respond_to do |wants|
         wants.html do
           if curation_concern.total_file_size > ZipDownloadService.zip_download_max_total_file_size_to_download
@@ -44,7 +45,7 @@ module Deepblue
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "params=#{params}",
-                                               "" ] if ZIP_DOWNLOAD_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                               "" ] if zip_download_controller_behavior_debug_verbose
 
         tmp_dir = ENV['TMPDIR'] || "/tmp"
         tmp_dir = Pathname.new tmp_dir
@@ -52,18 +53,18 @@ module Deepblue
                                                ::Deepblue::LoggingHelper.called_from,
                                                "zip_download begin",
                                                "tmp_dir=#{tmp_dir}",
-                                               "" ] if ZIP_DOWNLOAD_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                               "" ] if zip_download_controller_behavior_debug_verbose
         target_dir = target_dir_name_id( tmp_dir, curation_concern.id )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "target_dir=#{target_dir}",
-                                               "" ] if ZIP_DOWNLOAD_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                               "" ] if zip_download_controller_behavior_debug_verbose
         Dir.mkdir( target_dir ) unless Dir.exist?( target_dir )
         target_zipfile = target_dir_name_id( target_dir, curation_concern.id, ".zip" )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "target_zipfile=#{target_zipfile}",
-                                               "" ] if ZIP_DOWNLOAD_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                               "" ] if zip_download_controller_behavior_debug_verbose
         File.delete target_zipfile if File.exist? target_zipfile
         # clean the zip directory if necessary, since the zip structure is currently flat, only
         # have to clean files in the target folder
@@ -71,7 +72,7 @@ module Deepblue
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "files_to_delete=#{files_to_delete}",
-                                               "" ] if ZIP_DOWNLOAD_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                               "" ] if zip_download_controller_behavior_debug_verbose
         files_to_delete.each do |file|
           File.delete file if File.exist? file
         end
@@ -79,7 +80,7 @@ module Deepblue
                                                ::Deepblue::LoggingHelper.called_from,
                                                "target_zipfile=#{target_zipfile}",
                                                "Download Zip begin copy to folder #{target_dir}",
-                                               "" ] if ZIP_DOWNLOAD_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                               "" ] if zip_download_controller_behavior_debug_verbose
         Zip::File.open( target_zipfile.to_s, Zip::File::CREATE ) do |zipfile|
           metadata_filename = curation_concern.metadata_report( dir: target_dir )
           zipfile.add( metadata_filename.basename, metadata_filename )
@@ -87,7 +88,7 @@ module Deepblue
                           file_sets: curation_concern.file_sets,
                           log_prefix: "Zip: ",
                           do_export_predicate: ->(_target_file_name, _target_file) { true },
-                          quiet: !ZIP_DOWNLOAD_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE ) do |target_file_name, target_file|
+                          quiet: !zip_download_controller_behavior_debug_verbose ) do |target_file_name, target_file|
             zipfile.add( target_file_name, target_file )
           end
         end
@@ -95,7 +96,7 @@ module Deepblue
                                                ::Deepblue::LoggingHelper.called_from,
                                                "Download complete target_dir=#{target_dir}",
                                                "target_zipfile=#{target_zipfile}",
-                                               "" ] if ZIP_DOWNLOAD_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                               "" ] if zip_download_controller_behavior_debug_verbose
         send_file target_zipfile.to_s
       end
 
