@@ -59,7 +59,8 @@ module Deepblue
                                                ::Deepblue::LoggingHelper.called_from,
                                                "target_dir=#{target_dir}",
                                                "" ] if zip_download_controller_behavior_debug_verbose
-        Dir.mkdir( target_dir ) unless Dir.exist?( target_dir )
+        FileUtils.mkdir_p( target_dir ) unless Dir.exist?( target_dir )
+        # Dir.mkdir( target_dir ) unless Dir.exist?( target_dir )
         target_zipfile = target_dir_name_id( target_dir, curation_concern.id, ".zip" )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
