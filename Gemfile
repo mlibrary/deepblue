@@ -52,6 +52,9 @@ gem 'net-ldap'
 # EZID client from Duke
 gem 'ezid-client'
 
+# https://github.com/JiscSD/irus_analytics
+gem 'irus_analytics'
+
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
 # Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
