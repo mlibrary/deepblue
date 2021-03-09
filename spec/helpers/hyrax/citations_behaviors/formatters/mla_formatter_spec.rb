@@ -9,4 +9,106 @@ RSpec.describe Hyrax::CitationsBehaviors::Formatters::MlaFormatter, skip: false 
   it 'sanitizes input' do
     expect(formatter.format(presenter).downcase).not_to include '<ScrIPt>prompt'.downcase
   end
+
+  describe '.format_authors' do
+
+    context 'without commas' do
+      it { expect(subject.format_authors ).to eq '' }
+      it { expect(subject.format_authors( ['Name']) ).to eq 'Name.' }
+      it { expect(subject.format_authors( ['Alpha', 'Beta']) ).to eq 'Alpha, Beta.' }
+      it { expect(subject.format_authors( ['First Last']) ).to eq 'First Last.' }
+      it { expect(subject.format_authors( ['First Last', 'First2 Last2']) ).to eq 'First Last, First2 Last2.' }
+    end
+
+    context 'without commas and padded with spaces' do
+      it { expect(subject.format_authors ).to eq '' }
+      it { expect(subject.format_authors( ['Name  ']) ).to eq 'Name.' }
+      it { expect(subject.format_authors( [' Alpha', 'Beta']) ).to eq 'Alpha, Beta.' }
+      it { expect(subject.format_authors( [' First Last ']) ).to eq 'First Last.' }
+      it { expect(subject.format_authors( ['  First Last ', 'First2 Last2']) ).to eq 'First Last, First2 Last2.' }
+    end
+
+    context 'with commas' do
+      it { expect(subject.format_authors( ['Last, First']) ).to eq 'Last, F.' }
+      it { expect(subject.format_authors( ['Last, First', 'Alpha, Beta']) ).to eq 'Last, F., Alpha, B.' }
+    end
+
+    context 'mixed' do
+      it { expect(subject.format_authors( ['Last, First', 'Alpha Beta']) ).to eq 'Last, F., Alpha Beta.' }
+    end
+
+  end
+
+  describe '.format_date' do
+
+    it { expect(subject.format_date( 'Whatever the input is') ).to eq 'Whatever the input is' }
+
+  end
+
+  describe '.format_doi' do
+
+    it { expect(subject.format_doi( [] ) ).to eq '' }
+    it { expect(subject.format_doi( ['doi:xyz'] ) ).to eq 'https://doi.org/xyz' }
+
+  end
+
+  describe '.format_title' do
+
+    context 'title is unmodified' do
+      it { expect(subject.format_title( 'Title') ).to eq "<i class='citation-title'>Title</i> "  }
+      it { expect(subject.format_title( 'title') ).to eq "<i class='citation-title'>title</i> " }
+      it { expect(subject.format_title( 'A Longer Title') ).to eq "<i class='citation-title'>A Longer Title</i> " }
+    end
+
+    context 'title has colons' do
+      it { expect(subject.format_title( 'Title: Subtitle') ).to eq "<i class='citation-title'>Title&#58; Subtitle</i> " }
+    end
+
+    context 'title has trailing period' do
+      it { expect(subject.format_title( 'Title.') ).to eq "<i class='citation-title'>Title</i> " }
+      it { expect(subject.format_title( 'title.') ).to eq "<i class='citation-title'>title</i> " }
+      it { expect(subject.format_title( 'A Longer Title.') ).to eq "<i class='citation-title'>A Longer Title</i> " }
+    end
+
+    context 'title is an array' do
+      it { expect(subject.format_title( ['Title']) ).to eq "<i class='citation-title'>Title</i> " }
+      it { expect(subject.format_title( ['Title', 'title part two']) ).to eq "<i class='citation-title'>Title title part two</i> " }
+    end
+
+    context 'combined' do
+      it { expect(subject.format_title( 'Title: Subtitle.') ).to eq "<i class='citation-title'>Title&#58; Subtitle</i> " }
+    end
+
+  end
+
+  describe '.to_timestamp' do
+    let(:date_published) { DateTime.new(2020,1,1) }
+    it { expect(subject.to_timestamp(date_published)).to eq date_published }
+    it { expect(subject.to_timestamp(date_published.to_s)).to eq date_published.to_s }
+  end
+
+  describe '.format_year' do
+    let(:date_published) { DateTime.new(2020,1,1) }
+    let(:work) { build(:work, creator: ["Doctor Creator"], title: ['The Title'], date_published: date_published )}
+    it { expect(subject.format_year(work)).to eq 2020 }
+  end
+
+  describe '.format' do
+
+    context 'work with creator and title' do
+      let(:work) { build(:work, creator: ["Doctor Creator"], title: ['The Title'] )}
+      it { expect(subject.format(work) ).to eq "<span class='citation-author'>Doctor Creator.</span> <i class='citation-title'>The Title</i> [Data set]. University of Michigan - Deep Blue. " }
+    end
+
+    context 'work with creator and title and date published' do
+      let(:date_published) { DateTime.new(2020,1,1) }
+      let(:work) { build(:work, creator: ["Doctor Creator"], title: ['The Title'], date_published: date_published )}
+      before do
+        expect(work.date_published.is_a?(DateTime)).to eq true
+      end
+      it { expect(subject.format(work) ).to eq "<span class='citation-author'>Doctor Creator.</span> <i class='citation-title'>The Title</i> [Data set], (2020). University of Michigan - Deep Blue. " }
+    end
+
+  end
+
 end

@@ -92,7 +92,8 @@ en:
     citation:
       work:
         format:
-          mla_partial:      " [%{work_type}]. University of Michigan - Deep Blue. "
+          mla_partial:           "[%{work_type}]. University of Michigan - Deep Blue. "
+          mla_partial_with_year: "[%{work_type}], (%{year}). University of Michigan - Deep Blue. "
     contact_form:
       issue_types:
         size:               "My deposit is larger than %{max_upload_size}"
