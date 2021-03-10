@@ -665,3 +665,10 @@ table.datatable thead th.no-sort {
 .submit-button-list li {
     padding: 2px
 }
+
+.citation-author {
+}
+
+.citation-title {
+    font-style: italic;
+}
