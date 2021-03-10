@@ -39,6 +39,7 @@ module Hyrax
           end
           return '' unless timestamp.present?
           timestamp = to_timestamp( timestamp )
+          timestamp = Array(timestamp).first if timestamp.respond_to? :first
           year = ''
           year = timestamp.to_date.year if timestamp.present?
           return year
@@ -46,7 +47,8 @@ module Hyrax
 
 
         def to_timestamp( arg, timestamp_format: nil )
-          timestamp = arg
+          return nil if arg.blank?
+          timestamp = Array( arg ).first
           return timestamp if timestamp.is_a? DateTime
           return timestamp.to_datetime if timestamp.is_a? Date
           if timestamp_format.blank? && arg.is_a?( String )
@@ -125,7 +127,7 @@ module Hyrax
           title.strip!
           # title = whitewash(title)
           return '' if title.blank?
-          "<i class='citation-title'>#{title}</i> "
+          "<span class='citation-title'>#{title}</span> "
         end
 
         # def whitewash(text)
