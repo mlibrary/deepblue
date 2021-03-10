@@ -8,7 +8,7 @@ RSpec.describe ::Deepblue::ReportTask, skip: false do
 
   describe 'constants', skip: false do
     it "resolves them" do
-      expect( described_class.report_task_verbose_debug ).to eq false
+      expect( described_class.report_task_debug_verbose ).to eq false
     end
   end
 

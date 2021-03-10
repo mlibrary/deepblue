@@ -3,7 +3,7 @@
 class ReportDashboardController < ApplicationController
 
   mattr_accessor :report_dashboard_controller_debug_verbose
-  @@report_dashboard_controller_debug_verbose = true
+  @@report_dashboard_controller_debug_verbose = false
 
   include ActiveSupport::Concern
   include Blacklight::Base

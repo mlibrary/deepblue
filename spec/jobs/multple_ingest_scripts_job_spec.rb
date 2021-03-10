@@ -13,7 +13,7 @@ RSpec.describe MultipleIngestScriptsJob, skip: false do
 
   describe 'module debug verbose variables' do
     it "they have the right values" do
-      expect( described_class.multiple_ingest_scripts_job_debug_verbose ).to eq true
+      expect( described_class.multiple_ingest_scripts_job_debug_verbose ).to eq false
     end
   end
 

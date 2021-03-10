@@ -3,7 +3,7 @@
 module JobHelper
 
   mattr_accessor :job_helper_debug_verbose
-  @@job_helper_debug_verbose = true
+  @@job_helper_debug_verbose = false
 
   attr_accessor :email_targets
 

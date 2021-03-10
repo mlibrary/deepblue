@@ -24,6 +24,7 @@ module Deepblue
     @@ingest_script_job_debug_verbose = false
     @@multiple_ingest_scripts_job_debug_verbose = false
     @@new_content_service_debug_verbose = false
+    @@report_task_job_debug_verbose = false
 
     @@characterize_excluded_ext_set
     @@characterize_enforced_mime_type
@@ -59,7 +60,8 @@ module Deepblue
                    :ingest_script_dir,
                    :ingest_script_job_debug_verbose,
                    :multiple_ingest_scripts_job_debug_verbose,
-                   :new_content_service_debug_verbose
+                   :new_content_service_debug_verbose,
+                   :report_task_job_debug_verbose
 
     def self.setup
       return if @@_setup_ran == true
