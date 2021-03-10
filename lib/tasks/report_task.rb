@@ -194,8 +194,8 @@ module Deepblue
 
     DEFAULT_REPORT_EXTENSIONS = [ '.yml', '.yaml' ]
 
-    mattr_accessor :report_task_verbose_debug
-    @@report_task_verbose_debug = false
+    mattr_accessor :report_task_debug_verbose
+    @@report_task_debug_verbose = false
 
     attr_reader :allowed_path_extensions
     attr_reader :allowed_path_prefixes
@@ -225,7 +225,7 @@ module Deepblue
                                              "msg_queue=#{msg_queue}",
                                              "verbose=#{verbose}",
                                              "options=#{options}",
-                                             "" ] if report_task_verbose_debug
+                                             "" ] if report_task_debug_verbose
       super( options: options )
       self.verbose = verbose
       @verbose = verbose
@@ -234,7 +234,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "verbose=#{verbose}",
                                              "msg_queue=#{msg_queue}",
-                                             "" ] if report_task_verbose_debug
+                                             "" ] if report_task_debug_verbose
       if report_definitions_file.present?
         @report_format = report_definitions_file
         @report_definitions_file = report_definitions_file
@@ -440,7 +440,7 @@ module Deepblue
       #                                        "verbose=#{verbose}",
       #                                        "msg=#{msg}",
       #                                        "msg_queue=#{msg_queue}",
-      #                                        "" ] if report_task_verbose_debug
+      #                                        "" ] if report_task_debug_verbose
       mq = msg_queue
       if mq.is_a? Array
         mq << msg
@@ -448,7 +448,7 @@ module Deepblue
         #                                        ::Deepblue::LoggingHelper.called_from,
         #                                        "msg=#{msg}",
         #                                        "msg_queue=#{msg_queue}",
-        #                                        "" ] if report_task_verbose_debug
+        #                                        "" ] if report_task_debug_verbose
         return
       end
       puts msg
@@ -531,7 +531,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "verbose=#{verbose}",
                                              "msg_queue=#{msg_queue}",
-                                             "" ] if report_task_verbose_debug
+                                             "" ] if report_task_debug_verbose
       msg_puts "curation_concern=#{curation_concern}" if verbose
       @output_file = hash_value( hash: output, key: :file )
       now = DateTime.now
@@ -556,7 +556,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "msg_queue=#{msg_queue}",
-                                             "" ] if report_task_verbose_debug
+                                             "" ] if report_task_debug_verbose
     end
 
     def write_report_csv

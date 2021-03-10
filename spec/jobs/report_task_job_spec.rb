@@ -17,7 +17,7 @@ RSpec.describe ReportTaskJob, skip: false do
 
   describe 'module debug verbose variable' do
     it "they have the right values" do
-      expect( described_class.report_task_job_debug_verbose ).to eq true
+      expect( described_class.report_task_job_debug_verbose ).to eq false
     end
   end
 
@@ -37,7 +37,7 @@ RSpec.describe ReportTaskJob, skip: false do
                                                    **options ) }
 
     before do
-      expect( described_class.report_task_job_debug_verbose ).to eq true
+      expect( described_class.report_task_job_debug_verbose ).to eq false
       expect( job ).to receive( :init_report_file_path ).with( report_file_path ).and_call_original
       expect( job ).to receive( :validate_report_file_path ).with( no_args ).and_return true
       expect( job ).to receive( :email_results ).with( no_args )

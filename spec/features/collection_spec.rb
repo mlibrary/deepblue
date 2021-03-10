@@ -4,7 +4,7 @@ require 'rspec/rails/matchers/have_http_status'
 
 RSpec.describe 'collection', type: :feature, js: true, clean_repo: true, skip: ENV['CIRCLECI'].present? do
 
-  COLLECTION_SPEC_VERBOSE_DEBUG = false
+  COLLECTION_SPEC_DEBUG_VERBOSE = false
 
   include Devise::Test::IntegrationHelpers
 
@@ -26,7 +26,7 @@ RSpec.describe 'collection', type: :feature, js: true, clean_repo: true, skip: E
       sign_in user
       visit "/collections/#{collection.id}"
 
-      sleep 30 if COLLECTION_SPEC_VERBOSE_DEBUG
+      sleep 30 if COLLECTION_SPEC_DEBUG_VERBOSE
 
     end
 
@@ -143,7 +143,7 @@ RSpec.describe 'collection', type: :feature, js: true, clean_repo: true, skip: E
     it "shows a collection with a listing of Descriptive Metadata and catalog-style search results" do
       visit "/collections/#{collection.id}"
 
-      # sleep 30 if COLLECTION_SPEC_VERBOSE_DEBUG
+      # sleep 30 if COLLECTION_SPEC_DEBUG_VERBOSE
 
       # page.all('ul').each { |e| puts "e[:class]='#{e[:class]}' (#{e[:class].class.name})" }
       elements = page.all('ul').map { |e| e[:class] }

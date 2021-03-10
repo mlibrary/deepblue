@@ -8,7 +8,7 @@ require_relative '../../lib/tasks/report_task'
 class ReportTaskJob < ::Hyrax::ApplicationJob
 
   mattr_accessor :report_task_job_debug_verbose
-  @@report_task_job_debug_verbose = true # ::Deepblue::IngestIntegrationService.report_task_job_debug_verbose
+  @@report_task_job_debug_verbose = ::Deepblue::IngestIntegrationService.report_task_job_debug_verbose
 
   mattr_accessor :report_task_allowed_path_extensions
   @@report_task_allowed_path_extensions = [ '.yml', '.yaml' ]
