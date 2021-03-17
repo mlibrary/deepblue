@@ -659,33 +659,50 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
 
     RSpec.shared_examples 'it calls zip_download' do |dbg_verbose|
 
-      before do
-        if dbg_verbose
-          expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(:once)
-        else
-          expect(::Deepblue::LoggingHelper).to_not receive(:bold_debug)
+      context 'downloads' do
+
+        before do
+          if true || dbg_verbose
+            expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(:once)
+          else
+            expect(::Deepblue::LoggingHelper).to_not receive(:bold_debug)
+          end
+          allow(ActiveFedora::Base).to receive(:find).with(work.id).and_return(work)
         end
-        allow(ActiveFedora::Base).to receive(:find).with(work.id).and_return(work)
+
+        it 'for total file size downloadable' do
+          save_debug_verbose = ::Deepblue::ZipDownloadControllerBehavior.zip_download_controller_behavior_debug_verbose
+          ::Deepblue::ZipDownloadControllerBehavior.zip_download_controller_behavior_debug_verbose = dbg_verbose
+          expect(work).to receive(:total_file_size).and_call_original
+          expect(::Deepblue::ZipDownloadService).to receive(:zip_download_max_total_file_size_to_download).and_call_original
+          expect(controller).to receive(:zip_download_rest).with(curation_concern: work)
+          post :zip_download, params: { id: work }
+          ::Deepblue::ZipDownloadControllerBehavior.zip_download_controller_behavior_debug_verbose = save_debug_verbose
+        end
+
       end
 
-      it 'for total file size downloadable' do
-        save_debug_verbose = ::Deepblue::ZipDownloadControllerBehavior.zip_download_controller_behavior_debug_verbose
-        ::Deepblue::ZipDownloadControllerBehavior.zip_download_controller_behavior_debug_verbose = dbg_verbose
-        expect(work).to receive(:total_file_size).and_call_original
-        expect(::Deepblue::ZipDownloadService).to receive(:zip_download_max_total_file_size_to_download).and_call_original
-        expect(controller).to receive(:zip_download_rest).with(curation_concern: work)
-        post :zip_download, params: { id: work }
-        ::Deepblue::ZipDownloadControllerBehavior.zip_download_controller_behavior_debug_verbose = save_debug_verbose
-      end
+      context 'no download' do
 
-      it 'for total file size downloadable larger than permitted' do
-        save_debug_verbose = ::Deepblue::ZipDownloadControllerBehavior.zip_download_controller_behavior_debug_verbose
-        ::Deepblue::ZipDownloadControllerBehavior.zip_download_controller_behavior_debug_verbose = dbg_verbose
-        expect(work).to receive(:total_file_size).and_call_original
-        expect(::Deepblue::ZipDownloadService).to receive(:zip_download_max_total_file_size_to_download).and_return 1
-        expect(controller).not_to receive(:zip_download_rest).with(curation_concern: work)
-        expect { post :zip_download, params: { id: work } }.to raise_error ActiveFedora::IllegalOperation
-        ::Deepblue::ZipDownloadControllerBehavior.zip_download_controller_behavior_debug_verbose = save_debug_verbose
+        before do
+          if dbg_verbose
+            expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(:once)
+          else
+            expect(::Deepblue::LoggingHelper).to_not receive(:bold_debug)
+          end
+          allow(ActiveFedora::Base).to receive(:find).with(work.id).and_return(work)
+        end
+
+        it 'for total file size downloadable larger than permitted' do
+          save_debug_verbose = ::Deepblue::ZipDownloadControllerBehavior.zip_download_controller_behavior_debug_verbose
+          ::Deepblue::ZipDownloadControllerBehavior.zip_download_controller_behavior_debug_verbose = dbg_verbose
+          expect(work).to receive(:total_file_size).and_call_original
+          expect(::Deepblue::ZipDownloadService).to receive(:zip_download_max_total_file_size_to_download).and_return 1
+          expect(controller).not_to receive(:zip_download_rest).with(curation_concern: work)
+          expect { post :zip_download, params: { id: work } }.to raise_error ActiveFedora::IllegalOperation
+          ::Deepblue::ZipDownloadControllerBehavior.zip_download_controller_behavior_debug_verbose = save_debug_verbose
+        end
+
       end
 
     end

@@ -6,11 +6,13 @@ module Hyrax
 
     PARAMS_KEY = 'data_set'
 
-    DATA_SETS_CONTROLLER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.data_sets_controller_debug_verbose
+    mattr_accessor :data_sets_controller_debug_verbose
+    @@data_sets_controller_debug_verbose = ::DeepBlueDocs::Application.config.data_sets_controller_debug_verbose
 
     include ActionView::Helpers::TextHelper
     include ::Deepblue::WorksControllerBehavior
     include ::Deepblue::ZipDownloadControllerBehavior
+    include IrusAnalytics::Controller::AnalyticsBehaviour
 
     self.curation_concern_type = ::DataSet
     self.show_presenter = Hyrax::DataSetPresenter
@@ -27,6 +29,7 @@ module Hyrax
     after_action :reset_tombstone_permissions,   only: [:show]
     after_action :visibility_changed_update,     only: [:update]
     after_action :workflow_create,               only: [:create]
+    after_action :zip_download_after_action,     only: [:zip_download]
 
     protect_from_forgery with: :null_session,    only: [:analytics_subscribe]
     protect_from_forgery with: :null_session,    only: [:analytics_unsubscribe]
@@ -61,7 +64,7 @@ module Hyrax
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "setting @tombstone_permissions_hack true",
-                                                 "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+                                                 "" ] if data_sets_controller_debug_verbose
           @tombstone_permissions_hack = true
         else
           current_ability.user_groups.delete("admin")
@@ -75,7 +78,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "setting @tombstone_permissions_hack false",
-                                               "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+                                               "" ] if data_sets_controller_debug_verbose
         @tombstone_permissions_hack = false
       end
     end
@@ -145,7 +148,7 @@ module Hyrax
                                              "false unless display_provenance_log_enabled?=#{display_provenance_log_enabled?}",
                                              "false if single_use_link_request?=#{single_use_link_request?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
-                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if data_sets_controller_debug_verbose
       return false unless display_provenance_log_enabled?
       return false if single_use_link_request?
       current_ability.admin?
@@ -157,7 +160,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "read_me_file_set_id=#{read_me_file_set_id}",
-                                              "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+                                              "" ] if data_sets_controller_debug_verbose
       return false unless ::Deepblue::FileContentHelper.read_me_file_set_enabled
       return true if current_ability.admin?
       return true if can?( :edit, curation_concern.id )
@@ -179,7 +182,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "@curation_concern.id=#{@curation_concern.id}",
-                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if data_sets_controller_debug_verbose
       return MsgHelper.t( 'data_set.read_me_file_set_assignment_missing',
                           size: ActiveSupport::NumberHelper.number_to_human_size( ::Deepblue::FileContentHelper.read_me_file_set_view_max_size )
                         ) if read_me_file_set.blank?
@@ -190,7 +193,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "@curation_concern.id=#{@curation_concern.id}",
-                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if data_sets_controller_debug_verbose
       ::Deepblue::FileContentHelper.read_file_as_html( file_set: read_me_file_set )
     end
 
@@ -202,7 +205,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "@curation_concern.id=#{@curation_concern.id}",
-                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if data_sets_controller_debug_verbose
       text = read_me_text
       read_me_simple_format( text, html_options, options )
     end
@@ -213,7 +216,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rescued error e=#{e}",
-                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if data_sets_controller_debug_verbose
       # TODO: try to fix text
       "An error has occurred."
     end
@@ -375,7 +378,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "file_path=#{file_path}",
-                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if data_sets_controller_debug_verbose
       ::Deepblue::ProvenanceLogService.entries( curation_concern.id, refresh: true )
       # continue on to normal display
       redirect_to current_show_path( append: "#provenance_log_display" )
@@ -418,7 +421,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "current_user&.email=#{current_user&.email}",
                                              "curation_concern.edit_users=#{curation_concern.edit_users}",
-                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if data_sets_controller_debug_verbose
       return false unless current_user.present?
       curation_concern.edit_users.include? current_user.email
     end
@@ -427,14 +430,14 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "current_user&.email=#{current_user&.email}",
-                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if data_sets_controller_debug_verbose
       return false unless current_user.present?
       @curation_concern = _curation_concern_type.find(params[:id]) unless curation_concern.present?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "current_user&.email=#{current_user&.email}",
                                              "curation_concern&.read_users=#{curation_concern&.read_users}",
-                                             "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if data_sets_controller_debug_verbose
       curation_concern.read_users.include? current_user.email
     end
 
@@ -446,7 +449,7 @@ module Hyrax
       # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
       #                                        ::Deepblue::LoggingHelper.called_from,
       #                                        ::Deepblue::LoggingHelper.obj_class( 'class', self ),
-      #                                        "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+      #                                        "" ] if data_sets_controller_debug_verbose
       return unless curation_concern.present?
       if visibility_to_private?
         mark_as_set_to_private
@@ -459,7 +462,7 @@ module Hyrax
       # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
       #                                        ::Deepblue::LoggingHelper.called_from,
       #                                        ::Deepblue::LoggingHelper.obj_class( 'class', self ),
-      #                                        "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+      #                                        "" ] if data_sets_controller_debug_verbose
       return unless curation_concern.present?
       if curation_concern.private? && @visibility_changed_to_private
        workflow_unpublish
@@ -472,7 +475,7 @@ module Hyrax
       # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
       #                                        ::Deepblue::LoggingHelper.called_from,
       #                                        ::Deepblue::LoggingHelper.obj_class( 'class', self ),
-      #                                        "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+      #                                        "" ] if data_sets_controller_debug_verbose
       return unless curation_concern.present?
       return false if curation_concern.private?
       params[PARAMS_KEY]['visibility'] == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
@@ -482,7 +485,7 @@ module Hyrax
       # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
       #                                        ::Deepblue::LoggingHelper.called_from,
       #                                        ::Deepblue::LoggingHelper.obj_class( 'class', self ),
-      #                                        "" ] if DATA_SETS_CONTROLLER_DEBUG_VERBOSE
+      #                                        "" ] if data_sets_controller_debug_verbose
       return unless curation_concern.present?
       return false if curation_concern.public?
       params[PARAMS_KEY]['visibility'] == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
@@ -577,6 +580,19 @@ module Hyrax
       def show_presenter
         Hyrax::DataSetPresenter
       end
+
+    def zip_download_after_action
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if true || data_sets_controller_debug_verbose
+
+      send_analytics
+    end
+
+    def item_identifier
+      return doi if doi.present?
+      current_show_path
+    end
 
     private
 

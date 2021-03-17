@@ -5,7 +5,8 @@ module Hyrax
   class DownloadsController < ApplicationController
 
     # begin monkey
-    DOWNLOADS_CONTROLLER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.downloads_controller_debug_verbose
+    mattr_accessor :downloads_controller_debug_verbose
+    @@downloads_controller_debug_verbose = ::DeepBlueDocs::Application.config.downloads_controller_debug_verbose
     # end monkey
 
     include Hydra::Controller::DownloadBehavior
@@ -23,7 +24,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params=#{params}",
                                              "params[:format]=#{params[:format]}",
-                                             "" ] if DOWNLOADS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if downloads_controller_debug_verbose
       # begin monkey
       case file
       when ActiveFedora::File
@@ -40,7 +41,7 @@ module Hyrax
         #                                        "file.metadata.attributes[::RDF::Vocab::EBUCore.fileSize]=#{file.metadata.attributes[::RDF::Vocab::EBUCore.fileSize]}",
         #                                        "file.metadata.attributes[::RDF::Vocab::EBUCore.fileSize.to_s]=#{file.metadata.attributes[::RDF::Vocab::EBUCore.fileSize.to_s]}",
         #                                        #"file.metadata.methods.sort=#{file.metadata.methods.sort}",
-        #                                        "" ] if DOWNLOADS_CONTROLLER_DEBUG_VERBOSE
+        #                                        "" ] if downloads_controller_debug_verbose
 
         relation = file.metadata.attributes[::RDF::Vocab::EBUCore.fileSize.to_s]
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -48,7 +49,7 @@ module Hyrax
         #                                        "relation.methods.sort=#{relation.methods.sort}",
         #                                        "relation.first=#{relation.first}",
         #                                        "relation.first.to_i=#{relation.first.to_i}",
-        #                                        "" ] if DOWNLOADS_CONTROLLER_DEBUG_VERBOSE
+        #                                        "" ] if downloads_controller_debug_verbose
 
         file_size = 0
         file_size = relation.first.to_i if relation.present?
@@ -124,7 +125,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "params=#{params}",
-                                               "" ] if DOWNLOADS_CONTROLLER_DEBUG_VERBOSE
+                                               "" ] if downloads_controller_debug_verbose
         # begin monkey
         file_reference = params[:file]
         return default_file unless file_reference

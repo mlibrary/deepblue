@@ -4,7 +4,8 @@ module Deepblue
 
   module ZipDownloadPresenterBehavior
 
-    ZIP_DOWNLOAD_PRESENTER_BEHAVIOR_DEBUG_VERBOSE = ::Deepblue::ZipDownloadService.zip_download_presenter_behavior_debug_verbose
+    mattr_accessor :zip_download_presenter_behavior_debug_verbose
+    @@zip_download_presenter_behavior_debug_verbose = ::Deepblue::ZipDownloadService.zip_download_presenter_behavior_debug_verbose
 
     def can_download_zip?
       can_download_zip_maybe? && can_download_zip_confirm?
@@ -14,7 +15,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false if zip_download_total_file_size_too_big?=#{zip_download_total_file_size_too_big?}",
-                                             "" ] if ZIP_DOWNLOAD_PRESENTER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if zip_download_presenter_behavior_debug_verbose
       return false if zip_download_total_file_size_too_big?
       true
     end
@@ -27,7 +28,7 @@ module Deepblue
                                              "true if can_edit_work?=#{can_edit_work?}",
                                              "false if embargoed?=#{embargoed?}",
                                              "else true",
-                                             "" ] if ZIP_DOWNLOAD_PRESENTER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if zip_download_presenter_behavior_debug_verbose
       return false unless zip_download_enabled?
       return true if single_use_show?
       return true if can_edit_work?
@@ -43,7 +44,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
-                                             "" ] if ZIP_DOWNLOAD_PRESENTER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if zip_download_presenter_behavior_debug_verbose
       return "id is nil" if id.nil?
       curation_concern = ::PersistHelper.find( id ) if curation_concern.nil?
       # return "curation_concern.nil?=#{curation_concern.nil?}"
@@ -52,7 +53,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
                                              "url=#{url}",
-                                             "" ] if ZIP_DOWNLOAD_PRESENTER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if zip_download_presenter_behavior_debug_verbose
       return url
     end
 
@@ -69,7 +70,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "solr_document.total_file_size=#{solr_document.total_file_size}",
                                              "true if solr_document.total_file_size.blank? #{solr_document.total_file_size.blank?}",
-                                             "" ] if ZIP_DOWNLOAD_PRESENTER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if zip_download_presenter_behavior_debug_verbose
       return true if solr_document.total_file_size.blank?
       solr_document.total_file_size > zip_download_max_total_file_size_to_download
     end
@@ -79,7 +80,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "solr_document.total_file_size=#{solr_document.total_file_size}",
                                              "false if solr_document.total_file_size.blank? #{solr_document.total_file_size.blank?}",
-                                             "" ] if ZIP_DOWNLOAD_PRESENTER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if zip_download_presenter_behavior_debug_verbose
       return false if solr_document.total_file_size.blank?
       solr_document.total_file_size > zip_download_min_total_file_size_to_download_warn
     end
@@ -89,7 +90,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
                                              "single_use_show?=#{single_use_show?}",
-                                             "" ] if ZIP_DOWNLOAD_PRESENTER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if zip_download_presenter_behavior_debug_verbose
       return curation_concern.for_zip_download_route unless single_use_show?
       # return Rails.application.routes.url_helpers.url_for( only_path: true,
       #                                                      action: 'show',
@@ -102,12 +103,12 @@ module Deepblue
                                              "su_link.downloadKey=#{su_link.downloadKey}",
                                              "su_link.itemId=#{su_link.itemId}",
                                              "su_link.path=#{su_link.path}",
-                                             "" ] if ZIP_DOWNLOAD_PRESENTER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if zip_download_presenter_behavior_debug_verbose
       rv = "/data/single_use_link/download/#{su_link.downloadKey}" # TODO: fix
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
-                                             "" ] if ZIP_DOWNLOAD_PRESENTER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if zip_download_presenter_behavior_debug_verbose
       # return "/data/downloads/#{curation_concern.id}/single_use_link/#{su_link.downloadKey}" # TODO: fix
       return rv
     end
