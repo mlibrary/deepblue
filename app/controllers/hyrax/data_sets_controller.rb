@@ -589,9 +589,18 @@ module Hyrax
       send_analytics
     end
 
+    # irus_analytics: item_identifier
     def item_identifier
-      return doi if doi.present?
-      current_show_path
+      Rails.application.routes.url_helpers.url_for( only_path: false,
+                                                    action: 'show',
+                                                    host: CatalogController.blacklight_config.oai[:provider][:repository_url],
+                                                    controller: 'hyrax/data_sets',
+                                                    id: id )
+    end
+
+    # hook into irus_analytics logger
+    def logger
+      return Rails.logger
     end
 
     private

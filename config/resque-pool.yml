@@ -9,4 +9,5 @@ ingest: 5
 sufia: 1
 doi_minting: 1
 scheduler: 2
+irus_analytics: 1
 "*": 3
