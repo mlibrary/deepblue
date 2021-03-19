@@ -302,7 +302,7 @@ ActiveRecord::Schema.define(version: 2020_10_28_141248) do
     t.string "namespace", default: "default", null: false
     t.string "template", null: false
     t.text "counters"
-    t.integer "seq", limit: 8, default: 0
+    t.integer "seq", default: 0
     t.binary "rand"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

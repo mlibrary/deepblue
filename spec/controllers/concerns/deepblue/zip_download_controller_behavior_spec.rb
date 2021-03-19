@@ -52,7 +52,7 @@ RSpec.describe Deepblue::ZipDownloadControllerBehavior, skip: false do
 
     RSpec.shared_examples 'it calls zip_download_rest' do |debug_verbose|
       let(:work) { create(:data_set_with_two_children, total_file_size: 1.kilobyte, user: user) }
-      let(:doi_msg) { nil }
+      let(:zip_msg) { nil }
       let(:tmp)     { ENV['TMPDIR'] || "/tmp" }
       let(:tmp_dir) { Pathname.new(tmp) }
       let(:target_dir) { tmp_dir.join "#{work.id}" }
@@ -82,7 +82,7 @@ RSpec.describe Deepblue::ZipDownloadControllerBehavior, skip: false do
         # expect(subject).to receive(:zip_download_rest).with(curation_concern: work).and_call_original
         save_debug_verbose = described_class.zip_download_controller_behavior_debug_verbose
         described_class.zip_download_controller_behavior_debug_verbose = debug_verbose
-        expect(subject.zip_download_rest(curation_concern: work)).to eq doi_msg
+        expect(subject.zip_download_rest(curation_concern: work)).to eq zip_msg
         described_class.zip_download_controller_behavior_debug_verbose = save_debug_verbose
       end
 
