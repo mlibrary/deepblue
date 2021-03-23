@@ -2,19 +2,29 @@
 
 module FindAndFixOrderedMembersBehavior
 
-  FIND_AND_FIX_ALL_ORDERED_MEMBERS_CONTAINING_NILS_DEBUG_VERBOSE = false
+  mattr_accessor :find_and_fix_all_ordered_members_nils_debug_verbose
+  @@find_and_fix_all_ordered_members_nils_debug_verbose = false
 
-  def find_and_fix_all_ordered_members_containing_nils( messages:, ids_fixed: [], test_mode: true, verbose: false )
+  def find_and_fix_all_ordered_members_containing_nils( messages:,
+                                                        ids_fixed: [],
+                                                        filter:,
+                                                        test_mode: true,
+                                                        verbose: false )
+
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "verbose=#{verbose}",
                                            "test_mode=#{messages}",
                                            "messages=#{messages}",
                                            "ids_fixed=#{ids_fixed}",
-                                           "" ] if FIND_AND_FIX_ALL_ORDERED_MEMBERS_CONTAINING_NILS_DEBUG_VERBOSE
+                                           "filter.class.name=#{filter.class.name}",
+                                           "" ] if find_and_fix_all_ordered_members_nils_debug_verbose
 
     ::PersistHelper.all.each do |curation_concern|
       next unless curation_concern.respond_to? :ordered_members
+      if filter.present? && curation_concern.date_modified.present?
+        next unless filter.include?( curation_concern.date_modified )
+      end
       begin
         ordered_members = Array( curation_concern.ordered_members )
         next unless ordered_members.include? nil
@@ -36,7 +46,7 @@ module FindAndFixOrderedMembersBehavior
                                            "test_mode=#{messages}",
                                            "messages=#{messages}",
                                            "ids_fixed=#{ids_fixed}",
-                                           "" ] if FIND_AND_FIX_ALL_ORDERED_MEMBERS_CONTAINING_NILS_DEBUG_VERBOSE
+                                           "" ] if find_and_fix_all_ordered_members_nils_debug_verbose
   end
 
 end

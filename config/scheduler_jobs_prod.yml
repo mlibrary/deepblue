@@ -1,5 +1,7 @@
 # config/scheduler_jobs_prod.yml
-
+#
+# last updated: 2020/12/03 - production deployment
+#
 heartbeat_email_job:
   # Run once a day, one minute after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M H
@@ -14,17 +16,100 @@ heartbeat_email_job:
       - 'deepblue.lib.umich.edu'
     subscription_service_id: heartbeat_email_job
 
+heartbeat_email_job_hourly:
+  # Run once a day, one minute after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  #      M H
+  # cron: '*/5 * * * *'
+  cron: '0 * * * *'
+  # rails_env: production
+  class: HeartbeatEmailJob
+  queue: scheduler
+  description: Heartbeat email job hourly.
+  args:
+    hostnames:
+      - 'x.deepblue.lib.umich.edu'
+    subscription_service_id: heartbeat_email_job_hourly
+
 find_and_fix_job:
-# Run once a day, 15 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
-#       M H D
-  cron: '15 5 * * *'
+  # Run once a day, 15 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  #       M H D
+  cron: '15 4 * * *'
   class: FindAndFixJob
   queue: scheduler
   description: Find and fix problems
   args:
     email_results_to:
       - 'fritx@umich.edu'
+    filter_date_begin: now - 7 days
+    filter_date_end: now
     find_and_fix_empty_file_size: true
+    find_and_fix_over_file_sets: true
+    find_and_fix_all_ordered_members_containing_nils: true
+#    hostnames:
+#      - 'deepblue.lib.umich.edu'
+#      - 'staging.deepblue.lib.umich.edu'
+#      - 'testing.deepblue.lib.umich.edu'
+    subscription_service_id: find_and_fix_job
+    verbose: true
+
+find_and_fix_empty_file_size:
+  # Run once a day, 15 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  #       M H D
+  cron: '15 4 * * *'
+  class: FindAndFixJob
+  queue: scheduler
+  description: Find and fix problems - empty file size
+  args:
+    email_results_to:
+      - 'fritx@umich.edu'
+    filter_date_begin: now - 7 days
+    filter_date_end: now
+    find_and_fix_empty_file_size: true
+    find_and_fix_over_file_sets: false
+    find_and_fix_all_ordered_members_containing_nils: false
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'staging.deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
+    subscription_service_id: find_and_fix_job
+    verbose: true
+
+find_and_fix_over_file_sets:
+  # Run once a day, 15 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  #       M H D
+  cron: '15 6 * * *'
+  class: FindAndFixJob
+  queue: scheduler
+  description: Find and fix problems - over file sets
+  args:
+    email_results_to:
+      - 'fritx@umich.edu'
+    filter_date_begin: now - 7 days
+    filter_date_end: now
+    find_and_fix_empty_file_size: false
+    find_and_fix_over_file_sets: true
+    find_and_fix_all_ordered_members_containing_nils: false
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'staging.deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
+    subscription_service_id: find_and_fix_job
+    verbose: true
+
+find_and_fix_all_ordered_members_containing_nils:
+  # Run once a day, 15 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  #       M H D
+  cron: '15 5 * * *'
+  class: FindAndFixJob
+  queue: scheduler
+  description: Find and fix problems - ordered members
+  args:
+    email_results_to:
+      - 'fritx@umich.edu'
+    filter_date_begin: now - 7 days
+    filter_date_end: now
+    find_and_fix_empty_file_size: false
+    find_and_fix_over_file_sets: false
     find_and_fix_all_ordered_members_containing_nils: true
     hostnames:
       - 'deepblue.lib.umich.edu'
@@ -34,9 +119,9 @@ find_and_fix_job:
     verbose: true
 
 clean_tmp:
-# Run once a week on Saturday, 6 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
-#       M H D
-  cron: '6 5 * * 6'
+  # Run once a week on Saturday, 6 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  #       M H D
+  cron: '6 4 * * 6'
   class: RakeTaskJob
   queue: scheduler
   description: Run rake tmp:clean (Saturdays
@@ -52,8 +137,8 @@ clean_tmp:
     verbose: true
 
 clean_tmp2:
-# Run once daily at 6 minutes after noon (which is offset by 4 or [5 during daylight savings time], due to GMT)
-#       M H D
+  # Run once daily at 6 minutes after noon (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  #       M H D
   cron: '6 17 * * *'
   class: RakeTaskJob
   queue: scheduler
@@ -70,7 +155,7 @@ clean_tmp2:
 deactivate_expired_embargoes_job:
   # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M H
-  cron: '5 5 * * *'
+  cron: '5 4 * * *'
   # rails_env: production
   class: DeactivateExpiredEmbargoesJob
   queue: scheduler
@@ -83,7 +168,7 @@ deactivate_expired_embargoes_job:
 about_to_deactivate_embargoes_job:
   # Run once a day, fifteen minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M  H
-  cron: '15 5 * * *'
+  cron: '15 4 * * *'
   # rails_env: production
   class: AboutToExpireEmbargoesJob
   queue: scheduler
@@ -96,7 +181,7 @@ about_to_deactivate_embargoes_job:
 user_stat_importer_job:
   # Run once a day, thirty minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M  H
-  cron: '30 5 * * *'
+  cron: '30 4 * * *'
   # rails_env: production
   class: UserStatImporterJob
   queue: scheduler
@@ -110,7 +195,7 @@ user_stat_importer_job:
 works_report_job_daily:
   # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M H D
-  cron: '5 5 * * *'
+  cron: '5 4 * * *'
   class: WorksReportJob
   queue: scheduler
   description: Daily Works report job.
@@ -126,7 +211,7 @@ works_report_job_monthly:
   # Run once a month on the 1st, five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M H D
   # cron: '*/5 * * * *'
-  cron: '5 5 1 * *'
+  cron: '5 4 1 * *'
   class: WorksReportJob
   queue: scheduler
   description: Monthly Works report job.
@@ -143,7 +228,7 @@ works_report_job_monthly:
 about_to_deactivate_embargoes_at_2_days_job:
   # Run once a day, twenty minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M  H
-  cron: '20 5 * * *'
+  cron: '20 4 * * *'
   # rails_env: production
   class: AboutToExpireEmbargoesJob
   queue: scheduler
@@ -160,7 +245,7 @@ update_condensed_events_job_daily:
   # Run once a day, twenty-five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M H D
   # cron: '*/5 * * * *'
-  cron: '25 5 * * *'
+  cron: '25 4 * * *'
   class: UpdateCondensedEventsJob
   queue: scheduler
   description: Update the condensed events job.
@@ -175,7 +260,7 @@ monthly_events_report_job:
   # Run once a month on the 1st, twenty-five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M H D
   # cron: '*/5 * * * *'
-  cron: '25 5 1 * *'
+  cron: '25 4 1 * *'
   class: MonthlyEventsReportJob
   queue: scheduler
   description: Monthly events report job.

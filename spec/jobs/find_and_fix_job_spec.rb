@@ -51,6 +51,14 @@ RSpec.describe FindAndFixJob, skip: false do
                                                              default_value: [],
                                                              verbose: verbose ).and_call_original
         expect( job ).to receive( :job_options_value ).with( options,
+                                                             key: 'filter_date_begin',
+                                                             default_value: nil,
+                                                             verbose: verbose ).and_call_original
+        expect( job ).to receive( :job_options_value ).with( options,
+                                                             key: 'filter_date_end',
+                                                             default_value: nil,
+                                                             verbose: verbose ).and_call_original
+        expect( job ).to receive( :job_options_value ).with( options,
                                                              key: 'find_and_fix_empty_file_size',
                                                              default_value: true,
                                                              verbose: verbose ).and_call_original
@@ -98,6 +106,35 @@ RSpec.describe FindAndFixJob, skip: false do
 
       it_behaves_like 'it called initialize_from_args during perform job', run_the_job
 
+    end
+
+  end
+
+end
+
+RSpec.describe FindAndFixCurationConcernFilterDate, skip: false do
+
+  describe 'filters' do
+    let(:begin_date)    { 'now - 7 days' }
+    let(:end_date)      { 'now' }
+    let(:test_date_in)  { DateTime.now - 1.day }
+    let(:test_date_out) { DateTime.now - 10.day }
+    let(:filter)        { described_class.new( begin_date: begin_date, end_date: end_date) }
+
+    context 'in' do
+      let(:work)        { build(:work, date_modified: test_date_in ) }
+
+      it 'filters in' do
+        expect( filter.include?( date: work.date_modified ) ).to eq true
+      end
+    end
+
+    context 'out' do
+      let(:work)        { build(:work, date_modified: test_date_out ) }
+
+      it 'filters in' do
+        expect( filter.include?( date: work.date_modified ) ).to eq false
+      end
     end
 
   end

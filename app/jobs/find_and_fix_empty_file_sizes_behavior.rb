@@ -2,16 +2,18 @@
 
 module FindAndFixEmptyFileSizesBehavior
 
-  FIND_AND_FIX_EMPTY_FILE_SIZES_DEBUG_VERBOSE = false
+  mattr_accessor :find_and_fix_empty_file_sizes_debug_verbose
+  @@find_and_fix_empty_file_sizes_debug_verbose = false
 
-  def find_and_fix_empty_file_sizes( messages:, ids_fixed: [], test_mode: false, verbose: false )
+  def find_and_fix_empty_file_sizes( messages:, ids_fixed: [], filter:, test_mode: false, verbose: false )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "verbose=#{verbose}",
                                            "test_mode=#{messages}",
                                            "messages=#{messages}",
                                            "ids_fixed=#{ids_fixed}",
-                                           "" ] if FIND_AND_FIX_EMPTY_FILE_SIZES_DEBUG_VERBOSE
+                                           "filter.class.name=#{filter.class.name}",
+                                           "" ] if find_and_fix_empty_file_sizes_debug_verbose
 
     sparql_template=<<-END_OF_SPARQL_TEMPLATE
 PREFIX ebucore: <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#>
@@ -22,14 +24,19 @@ WHERE { }
 END_OF_SPARQL_TEMPLATE
 
     FileSet.all.each do |file_set|
+      curation_concern = file_set.parent
+      if curation_concern.nil?
+        messages << "#{file_set.id} parent is nil"
+        next
+      end
+      if filter.present? && curation_concern.date_modified.present?
+        next unless filter.include?( curation_concern.date_modified )
+      end
+      if file_set.files.empty?
+        messages << "#{file_set.id} files is empty"
+        next
+      end
       if file_set.file_size.empty?
-        if file_set.parent.nil?
-          messages << "#{file_set.id} parent is nil"
-          next
-        elsif file_set.files.empty?
-          messages << "#{file_set.id} files is empty"
-          next
-        end
         found = nil
         file_set.files.each do |f|
           if f.file_size.empty?
@@ -50,7 +57,7 @@ END_OF_SPARQL_TEMPLATE
             messages << "Updated file size returned status #{rv.status}" if verbose
             # file_set.date_modified = DateTime.now
             # file_set.save!( validate: false )
-            # file_set.parent.update_total_file_size!
+            # curation_concern.update_total_file_size!
             ids_fixed << file_set.id
           end
         else
@@ -77,7 +84,7 @@ END_OF_SPARQL_TEMPLATE
                                            "test_mode=#{messages}",
                                            "messages=#{messages}",
                                            "ids_fixed=#{ids_fixed}",
-                                           "" ] if FIND_AND_FIX_EMPTY_FILE_SIZES_DEBUG_VERBOSE
+                                           "" ] if find_and_fix_empty_file_sizes_debug_verbose
   end
 
 end
