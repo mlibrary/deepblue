@@ -15,17 +15,21 @@ module IrusAnalytics
     attr_accessor :irus_server_address
 
     def initialize(irus_server_address)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "irus_server_address=#{irus_server_address}",
+                                             "" ] if irus_analytics_service_debug_verbose
       @irus_server_address = irus_server_address
       @missing_params = []
     end
 
     def send_analytics(params = {})
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params=#{params}",
+                                             "" ] if irus_analytics_service_debug_verbose
       log_params = params
       transport_reponse_code = nil
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                            ::Deepblue::LoggingHelper.called_from,
-                                            "params=#{params}",
-                                            "" ] if irus_analytics_service_debug_verbose
       if @irus_server_address.to_s.empty?
        raise ArgumentError, "Cannot send analytics: Missing Irus server address"
       end

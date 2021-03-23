@@ -591,11 +591,19 @@ module Hyrax
 
     # irus_analytics: item_identifier
     def item_identifier
-      Rails.application.routes.url_helpers.url_for( only_path: false,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if true || data_sets_controller_debug_verbose
+      rv = Rails.application.routes.url_helpers.url_for( only_path: false,
                                                     action: 'show',
                                                     host: CatalogController.blacklight_config.oai[:provider][:repository_url],
                                                     controller: 'hyrax/data_sets',
                                                     id: id )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "item_identifier=#{rv}",
+                                             "" ] if true || data_sets_controller_debug_verbose
+      rv
     end
 
     # hook into irus_analytics logger
