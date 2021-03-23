@@ -4,7 +4,98 @@ require "abstract_rake_task_job"
 require "find_and_fix_empty_file_sizes_behavior"
 require "find_and_fix_ordered_members_behavior"
 
+class FindAndFixCurationConcernFilterDate
+
+  attr_reader :begin_date, :end_date
+
+  def to_datetime( date, format: nil )
+    return nil if date.blank?
+    date = date.strip
+    date = date.downcase
+    if format.nil?
+      case date
+      when /^now$/
+        return DateTime.now
+      when /^now\s+([+-])\s*([0-9]+)\s+(days?|weeks?|months?|years?)$/
+        plus_minus = Regexp.last_match 1
+        number = Regexp.last_match 2
+        number = number.to_i
+        units = Regexp.last_match 3
+        if '-' == plus_minus
+          case units
+          when 'day'
+            return DateTime.now - number.day
+          when 'days'
+            return DateTime.now - number.days
+          when 'week'
+            return DateTime.now - number.week
+          when 'weeks'
+            return DateTime.now - number.weeks
+          when 'month'
+            return DateTime.now - number.month
+          when 'months'
+            return DateTime.now - number.months
+          when 'year'
+            return DateTime.now - number.year
+          when 'years'
+            return DateTime.now - number.years
+          else
+            raise RuntimeError 'Should never get here.'
+          end
+        else
+          case units
+          when 'day'
+            return DateTime.now + number.day
+          when 'days'
+            return DateTime.now + number.days
+          when 'week'
+            return DateTime.now + number.week
+          when 'weeks'
+            return DateTime.now + number.weeks
+          when 'month'
+            return DateTime.now + number.month
+          when 'months'
+            return DateTime.now + number.months
+          when 'year'
+            return DateTime.now + number.year
+          when 'years'
+            return DateTime.now + number.years
+          else
+            raise RuntimeError 'Should never get here.'
+          end
+        end
+      else
+        return DateTime.parse( date ) if format.nil?
+      end
+    end
+    rv = nil
+    begin
+      rv = DateTime.strptime( date, format )
+    rescue ArgumentError => e
+      msg_puts "ERROR: ArgumentError in FindAndFixCurationConcernFilterDate.to_datetime( #{date}, #{format} )"
+      raise e
+    end
+    return rv
+  end
+
+  def initialize( begin_date:, end_date: )
+    @begin_date = to_datetime( begin_date )
+    @end_date = to_datetime( end_date )
+  end
+
+  def include?( date: )
+    return false if date.nil?
+    return date >= @begin if @end_date.nil?
+    return date <= @end if @begin_date.nil?
+    rv = date.between?( @begin_date, @end_date )
+    return rv
+  end
+
+end
+
+
 class FindAndFixJob < AbstractRakeTaskJob
+
   include FindAndFixEmptyFileSizesBehavior
   include FindAndFixOrderedMembersBehavior
   include FindAndFixOverFileSetsBehavior
@@ -12,7 +103,6 @@ class FindAndFixJob < AbstractRakeTaskJob
   # bundle exec rake deepblue:run_job['{"job_class":"FindAndFixJob"\,"verbose":true\,"email_results_to":["fritx@umich.edu"]\,"job_delay":0}']
 
   mattr_accessor :find_and_fix_job_debug_verbose
-
   @@find_and_fix_job_debug_verbose = false
 
   # queue_as :scheduler
@@ -29,6 +119,8 @@ find_and_fix_job:
   args:
     email_results_to:
       - 'fritx@umich.edu'
+    filter_date_begin: now - 7 days
+    filter_date_end: now
     find_and_fix_empty_file_size: true
     find_and_fix_over_file_sets: true
     find_and_fix_all_ordered_members_containing_nils: true
@@ -45,6 +137,8 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
     RakeTaskJob.perform_now( *args )
   end
 
+  attr_accessor :filter_date_begin, :filter_date_end, :filter_date
+
   def perform( *args )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
@@ -55,6 +149,12 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
                                            ::Deepblue::LoggingHelper.called_from,
                                            "initialized=#{initialized}",
                                            "" ] if find_and_fix_job_debug_verbose
+    @filter_date = nil
+    @filter_date_begin = job_options_value( options, key: 'filter_date_begin', default_value: nil, verbose: verbose )
+    @filter_date_end = job_options_value( options, key: 'filter_date_end', default_value: nil, verbose: verbose )
+    if @filter_date_begin.present? || @filter_date_end
+      @filter_date = FindAndFixCurationConcernFilterDate.new( begin_date: filter_date_begin, end_date: filter_date_end )
+    end
     find_and_fix_empty_file_size = job_options_value( options,
                                                       key: 'find_and_fix_empty_file_size',
                                                       default_value: true,
@@ -84,7 +184,10 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
     run_job_delay
     if find_and_fix_empty_file_size
       file_set_ids_fixed = []
-      find_and_fix_empty_file_sizes( messages: job_msg_queue, ids_fixed: file_set_ids_fixed, verbose: verbose )
+      find_and_fix_empty_file_sizes( filter: @filter_date,
+                                     messages: job_msg_queue,
+                                     ids_fixed: file_set_ids_fixed,
+                                     verbose: verbose )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "timestamp_end=#{timestamp_end}",
@@ -94,7 +197,10 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
     end
     if find_and_fix_over_file_sets
       file_set_ids_fixed = []
-      find_and_fix_over_file_sets( messages: job_msg_queue, ids_fixed: file_set_ids_fixed, verbose: verbose )
+      find_and_fix_over_file_sets( filter: @filter_date,
+                                   messages: job_msg_queue,
+                                   ids_fixed: file_set_ids_fixed,
+                                   verbose: verbose )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "timestamp_end=#{timestamp_end}",
@@ -104,7 +210,8 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
     end
     if find_and_fix_all_ordered_members_containing_nils
       curation_concern_ids_fixed = []
-      find_and_fix_all_ordered_members_containing_nils( messages: job_msg_queue,
+      find_and_fix_all_ordered_members_containing_nils( filter: @filter_date,
+                                                        messages: job_msg_queue,
                                                         ids_fixed: curation_concern_ids_fixed,
                                                         verbose: verbose )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
