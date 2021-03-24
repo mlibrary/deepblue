@@ -152,13 +152,29 @@ module Deepblue
 
   end
 
+  class CurationConcernFilterOr < AbstractCurationConcernFilter
+
+    def initialize( subfilters: )
+      @subfilters = subfilters
+    end
+
+    def include?( curation_concern:, task: )
+      return true if subfilters.blank?
+      @subfilters.each do |subfilter|
+        return true if subfilter.include?( curation_concern: curation_concern, task: task )
+      end
+      return false
+    end
+
+  end
+
   class CurationConcernFilterStringContains < AbstractCurationConcernFilter
 
     def initialize( attribute:, parms: )
       @attribute = attribute
       @value = parms[:contains]
       @ignore_case = false
-      @ignore_case = parms[:igmore_case] if parms.has_key? :ignore_case
+      @ignore_case = parms[:ignore_case] if parms.has_key? :ignore_case
       @value.downcase! if @ignore_case
     end
 
@@ -280,6 +296,17 @@ module Deepblue
           filters << CurationConcernFilterDate.new( attribute: attribute, parms: parms )
         when :modified_date
           filters << CurationConcernFilterDate.new( attribute: attribute, parms: parms )
+        when :fields_contain
+          attributes = []
+          if parms.has_key? :attributes
+            attributes = parms[:attributes]
+          end
+          next if attributes.blank?
+          subfilters = []
+          attributes.each do |attribute|
+            subfilters << CurationConcernFilterStringContains.new( attribute: attribute, parms: parms )
+          end
+          filters << CurationConcernFilterOr.new( subfilters: subfilters )
         else
           if parms.has_key? :blank
             filters << CurationConcernFilterBlank.new( attribute: attribute, parms: parms )
