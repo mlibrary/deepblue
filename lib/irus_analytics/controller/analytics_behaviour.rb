@@ -5,16 +5,19 @@ require 'resque'
 
 module IrusAnalytics
   module Controller
-    module AnalyticsBehaviour 
-      def send_analytics
+    module AnalyticsBehaviour
+
+      def send_irus_analytics(item_identifier=nil)
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
+                                               "self.class.name=#{self.class.name}",
+                                               "item_identifier=#{item_identifier}",
                                                "" ]
         # logger = Logger.new(STDOUT) if logger.nil?
         logger = Rails.logger
         # Retrieve required params from the request
         if request.nil?
-           logger.warn("IrusAnalytics::Controller::AnalyticsBehaviour.send_analytics exited: Request object is nil.")
+           logger.warn("IrusAnalytics::Controller::AnalyticsBehaviour.send_irus_analytics exited: Request object is nil.")
         else
           # Should we filter this request...
           unless filter_request?(request)
@@ -44,12 +47,12 @@ module IrusAnalytics
                                                    "" ]
 
             # These following should defined in the controller class including this module
-            identifier = self.item_identifier if self.respond_to?(:item_identifier)
+            item_identifier = self.item_identifier if self.respond_to?(:item_identifier) && item_identifier.blank?
 
             analytics_params = { date_stamp: datetime,
                                  client_ip_address: client_ip,
                                  user_agent: user_agent,
-                                 item_oai_identifier: identifier,
+                                 item_oai_identifier: item_identifier,
                                  file_url: file_url,
                                  http_referer: referer,
                                  source_repository: source_repository }

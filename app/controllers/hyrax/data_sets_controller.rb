@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../../../lib/irus_analytics/controller/analytics_behaviour'
+
 module Hyrax
 
   class DataSetsController < DeepblueController
@@ -586,7 +588,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if true || data_sets_controller_debug_verbose
 
-      send_analytics
+      send_irus_analytics item_identifier
     end
 
     # irus_analytics: item_identifier
@@ -598,7 +600,7 @@ module Hyrax
                                                     action: 'show',
                                                     host: CatalogController.blacklight_config.oai[:provider][:repository_url],
                                                     controller: 'hyrax/data_sets',
-                                                    id: id )
+                                                    id: curation_concern.id )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "item_identifier=#{rv}",
