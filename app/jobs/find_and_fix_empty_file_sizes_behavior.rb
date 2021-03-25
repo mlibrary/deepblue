@@ -14,6 +14,7 @@ module FindAndFixEmptyFileSizesBehavior
                                            "ids_fixed=#{ids_fixed}",
                                            "filter.class.name=#{filter.class.name}",
                                            "" ] if find_and_fix_empty_file_sizes_debug_verbose
+    messages << "Started processing find_and_fix_empty_file_sizes at #{DateTime.now}"
 
     sparql_template=<<-END_OF_SPARQL_TEMPLATE
 PREFIX ebucore: <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#>
@@ -85,6 +86,7 @@ END_OF_SPARQL_TEMPLATE
                                            "messages=#{messages}",
                                            "ids_fixed=#{ids_fixed}",
                                            "" ] if find_and_fix_empty_file_sizes_debug_verbose
+    messages << "Finished processing find_and_fix_empty_file_sizes at #{DateTime.now}"
   end
 
 end
