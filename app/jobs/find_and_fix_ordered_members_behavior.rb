@@ -19,6 +19,7 @@ module FindAndFixOrderedMembersBehavior
                                            "ids_fixed=#{ids_fixed}",
                                            "filter.class.name=#{filter.class.name}",
                                            "" ] if find_and_fix_all_ordered_members_nils_debug_verbose
+    messages << "Started processing find_and_fix_all_ordered_members_containing_nils at #{DateTime.now}"
 
     ::PersistHelper.all.each do |curation_concern|
       next unless curation_concern.respond_to? :ordered_members
@@ -47,6 +48,7 @@ module FindAndFixOrderedMembersBehavior
                                            "messages=#{messages}",
                                            "ids_fixed=#{ids_fixed}",
                                            "" ] if find_and_fix_all_ordered_members_nils_debug_verbose
+    messages << "Finished processing find_and_fix_all_ordered_members_containing_nils at #{DateTime.now}"
   end
 
 end

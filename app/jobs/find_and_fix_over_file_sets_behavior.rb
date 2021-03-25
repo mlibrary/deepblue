@@ -20,6 +20,8 @@ module FindAndFixOverFileSetsBehavior
                                            "filter.class.name=#{filter.class.name}",
                                            "" ] if find_and_fix_over_file_sets_debug_verbose
 
+    messages << "Started processing find_and_fix_over_file_sets at #{DateTime.now}"
+
     FileSet.all.each do |file_set|
       curation_concern = file_set.parent
       if curation_concern.nil?
@@ -47,6 +49,7 @@ module FindAndFixOverFileSetsBehavior
                                            "messages=#{messages}",
                                            "ids_fixed=#{ids_fixed}",
                                            "" ] if find_and_fix_over_file_sets_debug_verbose
+    messages << "Finished processing find_and_fix_over_file_sets at #{DateTime.now}"
   end
 
 end

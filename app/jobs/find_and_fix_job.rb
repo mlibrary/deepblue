@@ -154,19 +154,23 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
     @filter_date_end = job_options_value( options, key: 'filter_date_end', default_value: nil, verbose: verbose )
     if @filter_date_begin.present? || @filter_date_end
       @filter_date = FindAndFixCurationConcernFilterDate.new( begin_date: filter_date_begin, end_date: filter_date_end )
+      job_msg_queue << "Filter dates between #{filter_date.begin_date} and #{filter_date_end}."
     end
     find_and_fix_empty_file_size = job_options_value( options,
                                                       key: 'find_and_fix_empty_file_size',
                                                       default_value: true,
                                                       verbose: verbose )
+    job_msg_queue << "find_and_fix_empty_file_size=#{find_and_fix_empty_file_size}"
     find_and_fix_over_file_sets = job_options_value( options,
                                                       key: 'find_and_fix_over_file_sets',
                                                       default_value: true,
                                                       verbose: verbose )
+    job_msg_queue << "find_and_fix_over_file_sets=#{find_and_fix_over_file_sets}"
     find_and_fix_all_ordered_members_containing_nils = job_options_value( options,
                                                       key: 'find_and_fix_all_ordered_members_containing_nils',
                                                       default_value: true,
                                                       verbose: verbose )
+    job_msg_queue << "find_and_fix_all_ordered_members_containing_nils=#{find_and_fix_all_ordered_members_containing_nils}"
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
