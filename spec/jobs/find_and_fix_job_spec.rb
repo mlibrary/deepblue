@@ -125,7 +125,7 @@ RSpec.describe FindAndFixCurationConcernFilterDate, skip: false do
       let(:work)        { build(:work, date_modified: test_date_in ) }
 
       it 'filters in' do
-        expect( filter.include?( date: work.date_modified ) ).to eq true
+        expect( filter.include?( work.date_modified ) ).to eq true
       end
     end
 
@@ -133,7 +133,7 @@ RSpec.describe FindAndFixCurationConcernFilterDate, skip: false do
       let(:work)        { build(:work, date_modified: test_date_out ) }
 
       it 'filters in' do
-        expect( filter.include?( date: work.date_modified ) ).to eq false
+        expect( filter.include?( work.date_modified ) ).to eq false
       end
     end
 

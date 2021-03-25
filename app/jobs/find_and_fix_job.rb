@@ -83,7 +83,7 @@ class FindAndFixCurationConcernFilterDate
     @end_date = to_datetime( end_date )
   end
 
-  def include?( date: )
+  def include?( date )
     return false if date.nil?
     return date >= @begin if @end_date.nil?
     return date <= @end if @begin_date.nil?
