@@ -1,0 +1,43 @@
+# deepblue_links_report.yml
+---
+:report:
+  :config:
+    :verbose: true
+    :include_children: true
+    :include_children_parent_columns_blank: true
+    :include_children_parent_columns:
+      :id: true
+  :output:
+    :format: CSV
+    :file: /deepbluedata-prep/UMMZ/%Y%m%d%H%M%S-deepblue_links_report
+  :curation_concern: DataSet
+  :fields:
+    :id            : ID
+    :title         : Title
+    :doi           : DOI
+    :create_date   : Create Date
+    :modified_date : Modified Date
+    :data_set_url  : URL
+  :field_accessors:
+    :create_date:
+      :method:
+    :data_set_url:
+      :method:
+  :field_formats:
+    :title:
+      :join: ' '
+    :create_date:
+      :date: "%Y-%m-%d %H:%M:%S"
+    :modified_date:
+      :date: "%Y-%m-%d %H:%M:%S"
+  :filters:
+    :include:
+      :fields_contain:
+        :attributes:
+          - 'description'
+          - 'referenced_by'
+          - 'access_deepblue'
+        :contains: "deepblue.lib.umich.edu"
+    :exclude:
+#      :doi:
+#        :blank:

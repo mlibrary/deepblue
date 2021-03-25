@@ -19,10 +19,12 @@ Deepblue::AnalyticsIntegrationService.setup do |config|
   else
     config.hit_graph_view_level = 0 # 0 = none, 1 = admin, 2 = editor, 3 = everyone
   end
-  config.hit_graph_day_window = -1 # set to < 1 for no limit
+  config.hit_graph_day_window = 30 # set to < 1 for no limit
 
   config.monthly_events_report_subscription_id = 'MonthlyEventsReport'
 
   config.analytics_reports_admins_can_subscribe = true
+
+  config.enable_irus_analytics = true
 
 end
