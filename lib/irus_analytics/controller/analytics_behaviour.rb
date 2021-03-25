@@ -7,12 +7,18 @@ module IrusAnalytics
   module Controller
     module AnalyticsBehaviour
 
+      def enable_irus_analytics?
+        ::Deepblue::AnalyticsIntegrationService.enable_irus_analytics
+      end
+
       def send_irus_analytics(item_identifier=nil)
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "self.class.name=#{self.class.name}",
                                                "item_identifier=#{item_identifier}",
+                                               "enable_irus_analytics?=#{enable_irus_analytics?}",
                                                "" ]
+        return unless enable_irus_analytics?
         # logger = Logger.new(STDOUT) if logger.nil?
         logger = Rails.logger
         # Retrieve required params from the request
