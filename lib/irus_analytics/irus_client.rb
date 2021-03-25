@@ -1,3 +1,5 @@
+require_relative './irus_analytics_service'
+
 module IrusAnalytics
   class IrusClient
     @queue = :irus_analytics

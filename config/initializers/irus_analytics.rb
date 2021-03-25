@@ -16,5 +16,5 @@ when "development"
 when "test"
   nil
 else
-  "https://irus.jisc.ac.uk/counter/test/"
+  "http://irus.jisc.ac.uk/counter/test/"
 end

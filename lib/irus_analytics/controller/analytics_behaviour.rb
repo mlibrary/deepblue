@@ -1,7 +1,7 @@
+# monkey override class file
 require 'logger'
 require 'resque'
-
-# monkey override class file
+require_relative '../irus_client'
 
 module IrusAnalytics
   module Controller
