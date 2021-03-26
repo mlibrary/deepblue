@@ -1,6 +1,7 @@
 # monkey override class file
 require 'openurl'
 require_relative './tracker_context_object_builder'
+require_relative '../openurl/transport_https'
 
 module IrusAnalytics
 
@@ -19,7 +20,7 @@ module IrusAnalytics
                                              ::Deepblue::LoggingHelper.called_from,
                                              "irus_server_address=#{irus_server_address}",
                                              "" ] if irus_analytics_service_debug_verbose
-      raise ArgumentError, "Only http is support" if /^https/i =~ irus_server_address
+      # raise ArgumentError, "Only http is support" if /^https/i =~ irus_server_address
 
       @irus_server_address = irus_server_address
       @missing_params = []
@@ -95,7 +96,7 @@ module IrusAnalytics
     end
 
     def  openurl_link_resolver(context_object)
-      OpenURL::Transport.new(@irus_server_address, context_object)
+      OpenURL::TransportHttps.new(@irus_server_address, context_object)
     end
 
   end
