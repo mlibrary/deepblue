@@ -344,6 +344,10 @@ module Deepblue
       return options
     end
 
+    def static_content_read_file_from_source(source)
+      File.open( source, "r:UTF-8" ) { |io| io.read }
+    end
+
     def static_content_read_file( file_set: nil, id: nil )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -361,7 +365,7 @@ module Deepblue
                                                ::Deepblue::LoggingHelper.called_from,
                                                "source_uri=#{source_uri}",
                                                "" ] if static_content_controller_behavior_verbose
-        str = open( source_uri, "r:UTF-8" ) { |io| io.read }
+        str = static_content_read_file_from_source( source_uri )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "str.encoding=#{str.encoding}",
@@ -445,7 +449,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "uri=#{uri}",
                                              "" ] if static_content_controller_behavior_verbose
-      text = open( uri, "r:UTF-8" ) { |io| io.read }
+      text = static_content_read_file_from_source ( uri )
       if text =~ /\%/
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
