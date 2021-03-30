@@ -9,7 +9,7 @@ RSpec.describe Hyrax::SingleUseLinkPresenter, skip: false do
     describe "#human_readable_expiration" do
       context "in more than one hour" do
         # its(:human_readable_expiration) { is_expected.to eq("in 23 hours") }
-        its(:human_readable_expiration) { is_expected.to eq("in 6 days, 23 hours, 59 minutes, and 59.0 seconds") }
+        its(:human_readable_expiration) { is_expected.to eq("in 6 days, 23 hours, 59 minutes, and 59 seconds") }
       end
       context "in less than an hour" do
         before { allow(link).to receive(:expires).and_return(Time.zone.now) }
