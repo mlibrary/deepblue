@@ -1,6 +1,7 @@
 GIT
   remote: https://github.com/mlibrary/irus_analytics
-  revision: 989ba52fc9178597b23f1bcf94b1659fa16d3c37
+  revision: 9cd5dffb97d1ab8e2102433a2727b8a7e55fff49
+  branch: BLUEDOC-1101-pull-updates-from-dbd-to-irus-analytics-gem-2
   specs:
     irus_analytics (0.0.4)
       config_files (>= 0.1.3)
