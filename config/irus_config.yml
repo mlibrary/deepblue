@@ -1,0 +1,12 @@
+development:
+  source_repository: deepblue.lib.umich.edu/data
+  irus_server_address:
+  robots_file: irus_analytics_counter_robot_list.txt
+test:
+  source_repository: deepblue.lib.umich.edu/data
+  irus_server_address:
+  robots_file: irus_analytics_counter_robot_list.txt
+production:
+  source_repository: deepblue.lib.umich.edu/data
+  irus_server_address: https://irus.jisc.ac.uk/counter/test/
+  robots_file: irus_analytics_counter_robot_list.txt

@@ -10,11 +10,11 @@ describe IrusAnalytics::TrackerContextObjectBuilder do
   context "set methods" do
     let(:builder) { IrusAnalytics::TrackerContextObjectBuilder.new }
 
-     describe "OpenURL version" do
-       it "will be defaulted to required version for IRUS" do
-        expect(builder.context_object.kev).to include("url_ver=Z39.88-2004")        
-       end
-     end
+    describe "OpenURL version" do
+      it "will be defaulted to required version for IRUS" do
+        expect(builder.context_object.kev).to include("url_ver=Z39.88-2004")
+      end
+    end
 
     describe "set_event_datestamp" do
       it "will set event datestamp as per IRUS specification" do
@@ -25,11 +25,11 @@ describe IrusAnalytics::TrackerContextObjectBuilder do
     end
 
     describe "set_client_ip_address" do
-       it "will set client ip address as per IRUS specification" do
-         ip_address = "127.0.0.1"
-         builder.set_client_ip_address(ip_address)
-         expect(builder.context_object.kev).to include("req_id=urn%3Aip%3A127.0.0.1") 
-       end
+      it "will set client ip address as per IRUS specification" do
+        ip_address = "127.0.0.1"
+        builder.set_client_ip_address(ip_address)
+        expect(builder.context_object.kev).to include("req_id=urn%3Aip%3A127.0.0.1")
+      end
     end
 
     describe "set_user_agent" do

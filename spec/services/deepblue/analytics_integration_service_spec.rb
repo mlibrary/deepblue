@@ -18,7 +18,6 @@ RSpec.describe ::Deepblue::AnalyticsIntegrationService do
       expect( ::Deepblue::AnalyticsIntegrationService.hit_graph_day_window               ).to eq( 30 )
       expect( ::Deepblue::AnalyticsIntegrationService.hit_graph_view_level               ).to eq( 1 )
       expect( ::Deepblue::AnalyticsIntegrationService.monthly_events_report_subscription_id ).to eq( 'MonthlyEventsReport' )
-      expect( ::Deepblue::AnalyticsIntegrationService.enable_irus_analytics              ).to eq( true )
     end
   end
 
