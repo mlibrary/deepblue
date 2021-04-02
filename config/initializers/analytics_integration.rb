@@ -25,6 +25,4 @@ Deepblue::AnalyticsIntegrationService.setup do |config|
 
   config.analytics_reports_admins_can_subscribe = true
 
-  config.enable_irus_analytics = true
-
 end

@@ -1,0 +1,23 @@
+en:
+  irus_analytics:
+    analytics_behaviour:
+      no_request_object: Request object is nil
+      exited: '%{method} exited'
+      no_server_address: No server address
+      params_extracted: '%{method} parameters extracted'
+      enquing_error: 'Problem enqueing the analytics with Resque. Error: %{error}'
+    tracker_context:
+      handles:
+        event_datestamp: url_tim
+        ip_address: req_id
+        user_agent: req_dat
+        file_url: svc_dat
+        http_referer: rfr_dat
+        source_repository: rfr_id
+      labels:
+        event_datestamp: Usage event datestamp
+        ip_address: Client IP address
+        user_agent: UserAgent
+        file_url: FileURL
+        http_referer: HTTP referer
+        source_repository: Source repository

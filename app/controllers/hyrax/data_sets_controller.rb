@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../../../lib/irus_analytics/controller/analytics_behaviour'
+require 'irus_analytics/controller/analytics_behaviour'
 
 module Hyrax
 
@@ -606,11 +606,6 @@ module Hyrax
                                              "item_identifier=#{rv}",
                                              "" ] if true || data_sets_controller_debug_verbose
       rv
-    end
-
-    # hook into irus_analytics logger
-    def logger
-      return Rails.logger
     end
 
     private

@@ -52,8 +52,10 @@ gem 'net-ldap'
 # EZID client from Duke
 gem 'ezid-client'
 
-# https://github.com/JiscSD/irus_analytics
-gem 'irus_analytics'
+# gem 'irus_analytics', git: 'https://github.com/mlibrary/irus_analytics'
+# gem 'irus_analytics', git: 'https://github.com/mlibrary/irus_analytics', tag: 'v0.0.4'
+gem 'irus_analytics', git: 'https://github.com/mlibrary/irus_analytics', branch: 'BLUEDOC-1101-pull-updates-from-dbd-to-irus-analytics-gem-2'
+# gem 'irus_analytics', git: 'https://github.com/mlibrary/irus_analytics'
 
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
