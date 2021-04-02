@@ -2,8 +2,7 @@
 
 module JobHelper
 
-  mattr_accessor :job_helper_debug_verbose
-  @@job_helper_debug_verbose = false
+  mattr_accessor :job_helper_debug_verbose, default: false
 
   attr_accessor :email_targets
 

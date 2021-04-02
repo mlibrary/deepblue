@@ -24,41 +24,41 @@ RSpec.describe RakeTaskJob, skip: false do
     RSpec.shared_examples 'it called initialize_from_args during perform job' do |run_the_job|
       before do
         expect( described_class.rake_task_job_debug_verbose ).to eq false
-        expect( job ).to receive( :initialize_from_args ).with( any_args ).and_call_original
-        expect( job ).to receive( :job_options_value ).with( options,
+        expect(job).to receive(:initialize_from_args).with( any_args ).and_call_original
+        expect(job).to receive(:job_options_value).with( options,
                                                              key: 'verbose',
                                                              default_value: false ).and_call_original
-        expect( job ).to receive( :job_options_value ).with( options,
+        expect(job).to receive(:job_options_value).with( options,
                                                              key: 'job_delay',
                                                              default_value: 0,
                                                              verbose: verbose ).and_call_original
-        expect( job ).to receive( :job_options_value ).with( options,
+        expect(job).to receive(:job_options_value).with( options,
                                                              key: 'email_results_to',
                                                              default_value: [],
                                                              verbose: verbose ).and_call_original
-        expect( job ).to receive( :job_options_value ).with( options,
+        expect(job).to receive(:job_options_value).with( options,
                                                              key: 'subscription_service_id',
                                                              default_value: nil,
                                                              verbose: verbose ).and_call_original
-        expect( job ).to receive( :job_options_value ).with( options,
+        expect(job).to receive(:job_options_value).with( options,
                                                              key: 'hostnames',
                                                              default_value: [],
                                                              verbose: verbose ).and_call_original
-        expect( job ).to receive( :job_options_value ).with( options,
+        expect(job).to receive(:job_options_value).with( options,
                                                              key: 'rake_task',
                                                              default_value: '',
                                                              verbose: verbose ).and_call_original
         expect(sched_helper).to receive(:log).with( class_name: described_class.name, event_note: rake_task )
         if run_the_job
-          expect( job ).to receive(:allowed_job_task?).with(no_args).and_return true
-          expect( job ).to receive(:run_job_delay).with(no_args) #.and_call_original
-          expect( job ).to receive(:exec_rake_task).with("bundle exec rake #{rake_task}").and_return 'Success!'
-          expect( job ).to receive(:email_exec_results).with(any_args)
+          expect(job).to receive(:allowed_job_task?).with(no_args).and_return true
+          expect(job).to receive(:run_job_delay).with(no_args) #.and_call_original
+          expect(job).to receive(:exec_rake_task).with("bundle exec rake #{rake_task}").and_return 'Success!'
+          expect(job).to receive(:email_exec_results).with(any_args)
         else
-          expect( job ).to_not receive(:allowed_job_task?).with(no_args)
-          expect( job ).to_not receive(:run_job_delay).with(no_args) #.and_call_original
-          expect( job ).to_not receive(:exec_rake_task).with(any_args)
-          expect( job ).to_not receive(:email_exec_results).with(any_args)
+          expect(job).to_not receive(:allowed_job_task?).with(no_args)
+          expect(job).to_not receive(:run_job_delay).with(no_args) #.and_call_original
+          expect(job).to_not receive(:exec_rake_task).with(any_args)
+          expect(job).to_not receive(:email_exec_results).with(any_args)
         end
 
       end

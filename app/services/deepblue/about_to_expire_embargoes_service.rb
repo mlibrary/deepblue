@@ -7,23 +7,33 @@ module Deepblue
 
   class AboutToExpireEmbargoesService
 
-    ABOUT_TO_EXPIRE_EMBARGOES_SERVICE_DEBUG_VERBOSE = false
+    mattr_accessor :about_to_expire_embargoes_service_debug_verbose, default: false
 
     include ::Hyrax::EmbargoHelper
 
-    def initialize( email_owner: true, expiration_lead_days: nil, skip_file_sets: true, test_mode: true, to_console: false, verbose: false )
+    attr_accessor :job_msg_queue
+
+    def initialize( email_owner: true,
+                    expiration_lead_days: nil,
+                    job_msg_queue: nil,
+                    skip_file_sets: true,
+                    test_mode: true,
+                    to_console: false,
+                    verbose: false )
+
       LoggingHelper.bold_debug [ LoggingHelper.here,
                                   LoggingHelper.called_from,
-                                  LoggingHelper.obj_class( 'class', self ),
                                  "email_owner=#{email_owner}",
                                  "expiration_lead_days=#{expiration_lead_days}",
+                                 "job_msg_queue=#{job_msg_queue}",
                                  "skip_file_sets=#{skip_file_sets}",
                                  "test_mode=#{test_mode}",
                                  "to_console=#{to_console}",
                                  "verbose=#{verbose}",
-                                 "" ] if ABOUT_TO_EXPIRE_EMBARGOES_SERVICE_DEBUG_VERBOSE
+                                 "" ] if about_to_expire_embargoes_service_debug_verbose
       @email_owner = email_owner
       @expiration_lead_days = expiration_lead_days
+      @job_msg_queue = job_msg_queue
       @skip_file_sets = skip_file_sets
       @test_mode = test_mode
       @to_console = to_console
@@ -36,11 +46,12 @@ module Deepblue
                                  LoggingHelper.obj_class( 'class', self ),
                                  "@email_owner=#{@email_owner}",
                                  "@expiration_lead_days=#{@expiration_lead_days}",
+                                 "@job_msg_queue=#{@job_msg_queue}",
                                  "@skip_file_sets=#{@skip_file_sets}",
                                  "@test_mode=#{@test_mode}",
                                  "@to_console=#{@to_console}",
                                  "@verbose=#{@verbose}",
-                                 "" ] if ABOUT_TO_EXPIRE_EMBARGOES_SERVICE_DEBUG_VERBOSE
+                                 "" ] if about_to_expire_embargoes_service_debug_verbose
       @now = DateTime.now
       @assets = Array( assets_under_embargo )
       if @expiration_lead_days.blank?
@@ -82,6 +93,7 @@ module Deepblue
     def run_msg( msg )
       LoggingHelper.debug msg
       puts msg if @to_console
+      @job_msg_queue << msg unless @job_msg_queue.nil?
     end
 
   end

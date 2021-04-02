@@ -7,21 +7,30 @@ module Deepblue
 
   class DeactivateExpiredEmbargoesService
 
-    DEACTIVATE_EXPIRED_EMBARGOES_SERVICE_DEBUG_VERBOSE = false
+    mattr_accessor :deactivate_expired_embargoes_service_debug_verbose, default: false
 
     include ::Hyrax::EmbargoHelper
 
-    def initialize( email_owner: true, skip_file_sets: true, test_mode: true, to_console: false, verbose: false )
+    attr_accessor :job_msg_queue
+
+    def initialize( email_owner: true,
+                    job_msg_queue: nil,
+                    skip_file_sets: true,
+                    test_mode: true,
+                    to_console: false,
+                    verbose: false )
+
       LoggingHelper.bold_debug [ LoggingHelper.here,
                                   LoggingHelper.called_from,
-                                  LoggingHelper.obj_class( 'class', self ),
                                  "email_owner=#{email_owner}",
+                                 "job_msg_queue=#{job_msg_queue}",
                                  "skip_file_sets=#{skip_file_sets}",
                                  "test_mode=#{test_mode}",
                                  "to_console=#{to_console}",
                                  "verbose=#{verbose}",
-                                 "" ] if DEACTIVATE_EXPIRED_EMBARGOES_SERVICE_DEBUG_VERBOSE
+                                 "" ] if deactivate_expired_embargoes_service_debug_verbose
       @email_owner = email_owner
+      @job_msg_queue = job_msg_queue
       @skip_file_sets = skip_file_sets
       @test_mode = test_mode
       @to_console = to_console
@@ -35,7 +44,7 @@ module Deepblue
                                  "@email_owner=#{@email_owner}",
                                  "@skip_file_sets=#{@skip_file_sets}",
                                  "@test_mode=#{@test_mode}",
-                                 "" ] if DEACTIVATE_EXPIRED_EMBARGOES_SERVICE_DEBUG_VERBOSE
+                                 "" ] if deactivate_expired_embargoes_service_debug_verbose
       @now = DateTime.now
       @assets = Array( assets_with_expired_embargoes )
       run_msg "The number of assets with expired embargoes is: #{@assets.size}" if @verbose
@@ -56,6 +65,7 @@ module Deepblue
     def run_msg( msg )
       LoggingHelper.debug msg
       puts msg if @to_console
+      @job_msg_queue << msg unless @job_msg_queue.nil?
     end
 
   end

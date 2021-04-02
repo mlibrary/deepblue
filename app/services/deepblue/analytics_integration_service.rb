@@ -23,15 +23,12 @@ module Deepblue
 
     @@analytics_reports_admins_can_subscribe = true
 
-    @@enable_irus_analytics = true
-
     mattr_accessor :ahoy_tracker_debug_verbose,
                    :analytics_helper_debug_verbose,
                    :analytics_reports_admins_can_subscribe,
                    :enable_chartkick,
                    :enable_collections_hit_graph,
                    :enable_file_sets_hit_graph,
-                   :enable_irus_analytics,
                    :enable_works_hit_graph,
                    :event_tracking_debug_verbose,
                    :event_tracking_excluded_parameters,
