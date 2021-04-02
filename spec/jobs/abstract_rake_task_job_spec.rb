@@ -12,7 +12,7 @@ RSpec.describe AbstractRakeTaskJob, skip: false do
   let(:hostname_allowed) { [::DeepBlueDocs::Application.config.hostname] }
 
   before do
-    allow( job ).to receive(:verbose).and_return false
+    allow(job).to receive(:verbose).and_return false
   end
 
   describe 'module debug verbose variables' do
@@ -22,14 +22,23 @@ RSpec.describe AbstractRakeTaskJob, skip: false do
   end
 
   describe ".default_value_is" do
-    it "is TODO" do
-      skip "the test code goes here"
-    end
+    let(:value) { 'some_value' }
+    it { expect(job.default_value_is(nil)).to eq nil }
+    it { expect(job.default_value_is(value)).to eq value }
+    it { expect(job.default_value_is(value, nil)).to eq value }
+    it { expect(job.default_value_is(nil, 'some_default')).to eq 'some_default' }
+    it { expect(job.default_value_is(value, 'some_default')).to eq value }
   end
 
   describe ".email_exec_results" do
     it "is TODO" do
       skip "the test code goes here"
+    end
+  end
+
+  describe ".event_name" do
+    it "returns" do
+      expect(job.event_name).to eq 'mock job for abstract rake task'
     end
   end
 
@@ -39,9 +48,27 @@ RSpec.describe AbstractRakeTaskJob, skip: false do
     end
   end
 
+  describe ".options_value" do
+    let(:key) { 'a_key' }
+    let(:default_value ) { 'default' }
+    before do
+      expect(job).to receive(:options).and_return []
+    end
+    it "returns value" do
+      expect(job).to receive(:job_options_value).with( [], key: key, default_value: default_value, verbose: false )
+      job.options_value(key: key, default_value: default_value)
+    end
+  end
+
   describe ".run_job_delay" do
     it "is TODO" do
       skip "the test code goes here"
+    end
+  end
+
+  describe ".task_name" do
+    it "returns" do
+      expect(job.task_name).to eq 'Mock Job For Abstract Rake Task Job'
     end
   end
 

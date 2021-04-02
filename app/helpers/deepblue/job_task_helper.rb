@@ -4,16 +4,14 @@ module Deepblue
 
   module JobTaskHelper
 
+    mattr_accessor  :job_task_helper_debug_verbose, default: false
+
     @@_setup_ran = false
 
     def self.setup
       yield self if @@_setup_ran == false
       @@_setup_ran = true
     end
-
-    @@job_task_helper_debug_verbose = false
-
-    mattr_accessor  :job_task_helper_debug_verbose
 
     @@about_to_expire_embargoes_job_debug_verbose = false
     @@abstract_rake_task_job_debug_verbose = false

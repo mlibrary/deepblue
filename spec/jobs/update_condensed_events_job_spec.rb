@@ -16,7 +16,7 @@ RSpec.describe UpdateCondensedEventsJob, skip: false do
     let(:options)   { { 'hostnames' => hostnames, 'quiet' => true } }
 
     before do
-      expect( described_class::UPDATE_CONDENSED_EVENTS_JOB_DEBUG_VERBOSE ).to eq false
+      expect( described_class.update_condensed_events_job_debug_verbose ).to eq false
       expect(sched_helper).to receive(:log).with( class_name: described_class.name,
                                                   event: "update condensed events job" )
       expect( analytics_helper ).to receive(:update_current_month_condensed_events)
@@ -43,7 +43,7 @@ RSpec.describe UpdateCondensedEventsJob, skip: false do
     let(:options)   { { 'hostnames' => hostnames, 'quiet' => true } }
 
     before do
-      expect( described_class::UPDATE_CONDENSED_EVENTS_JOB_DEBUG_VERBOSE ).to eq false
+      expect( described_class.update_condensed_events_job_debug_verbose ).to eq false
       expect(sched_helper).to receive(:log).with( class_name: described_class.name,
                                                   event: "update condensed events job" )
       expect( analytics_helper ).to_not receive(:update_current_month_condensed_events)

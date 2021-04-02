@@ -2,7 +2,8 @@
 
 class UpdateCondensedEventsJob < ::Hyrax::ApplicationJob
 
-  UPDATE_CONDENSED_EVENTS_JOB_DEBUG_VERBOSE = ::Deepblue::JobTaskHelper.update_condensed_events_job_debug_verbose
+  mattr_accessor :update_condensed_events_job_debug_verbose,
+                 default: ::Deepblue::JobTaskHelper.update_condensed_events_job_debug_verbose
 
 SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 
@@ -34,11 +35,11 @@ END_OF_SCHEDULER_ENTRY
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "args=#{args}",
-                                           "" ] if UPDATE_CONDENSED_EVENTS_JOB_DEBUG_VERBOSE
+                                           "" ] if update_condensed_events_job_debug_verbose
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event: "update condensed events job" )
-    ::Deepblue::JobTaskHelper.has_options( *args, job: self, debug_verbose: UPDATE_CONDENSED_EVENTS_JOB_DEBUG_VERBOSE )
-    ::Deepblue::JobTaskHelper.is_quiet( job: self, debug_verbose: UPDATE_CONDENSED_EVENTS_JOB_DEBUG_VERBOSE  )
-    return unless ::Deepblue::JobTaskHelper.hostname_allowed( job: self, debug_verbose: UPDATE_CONDENSED_EVENTS_JOB_DEBUG_VERBOSE )
+    ::Deepblue::JobTaskHelper.has_options( *args, job: self, debug_verbose: update_condensed_events_job_debug_verbose )
+    ::Deepblue::JobTaskHelper.is_quiet( job: self, debug_verbose: update_condensed_events_job_debug_verbose  )
+    return unless ::Deepblue::JobTaskHelper.hostname_allowed( job: self, debug_verbose: update_condensed_events_job_debug_verbose )
     ::AnalyticsHelper.update_current_month_condensed_events
   rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
