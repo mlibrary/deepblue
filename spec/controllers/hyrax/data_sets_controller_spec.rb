@@ -643,12 +643,30 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     before do
       create(:sipity_entity, proxy_for_global_id: work.to_global_id.to_s)
     end
+
     it "is successful" do
       get :file_manager, params: { id: work.id }
       expect(response).to be_success
       expect(assigns(:form)).not_to be_blank
     end
+
   end
+
+  describe '#item_identifier' do
+    let(:work) { create(:public_data_set) }
+
+    before do
+      create(:sipity_entity, proxy_for_global_id: work.to_global_id.to_s)
+    end
+
+    it "returns an oai identifier" do
+      get :show, params: { id: work }
+      expect(response).to be_successful
+      expect(controller.item_identifier).to eq "/concern/data_sets/#{work.id}"
+    end
+
+  end
+
 
   describe '#zip_download' do
     let(:work) { create(:data_set_with_two_children, total_file_size: 1.kilobyte, user: user) }
@@ -676,6 +694,10 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
           expect(work).to receive(:total_file_size).and_call_original
           expect(::Deepblue::ZipDownloadService).to receive(:zip_download_max_total_file_size_to_download).and_call_original
           expect(controller).to receive(:zip_download_rest).with(curation_concern: work)
+          expect(controller).to receive(:zip_download_after_action).and_call_original
+          expect(controller).to receive(:item_identifier).and_call_original
+          expect(controller).to receive(:send_irus_analytics).with("/concern/data_sets/#{work.id}")
+
           post :zip_download, params: { id: work }
           ::Deepblue::ZipDownloadControllerBehavior.zip_download_controller_behavior_debug_verbose = save_debug_verbose
         end

@@ -4,7 +4,7 @@ en:
       no_request_object: Request object is nil
       exited: '%{method} exited'
       no_server_address: No server address
-      params_extracted: '%{method} parameters extracted'
+      params_extracted: '%{method} parameters extracted %{params}'
       enquing_error: 'Problem enqueing the analytics with Resque. Error: %{error}'
     tracker_context:
       handles:
