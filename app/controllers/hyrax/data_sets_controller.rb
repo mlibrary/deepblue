@@ -583,30 +583,33 @@ module Hyrax
         Hyrax::DataSetPresenter
       end
 
-    def zip_download_after_action
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if true || data_sets_controller_debug_verbose
 
-      send_irus_analytics item_identifier
-    end
+      def zip_download_after_action
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if ::IrusAnalytics::Configuration.verbose_debug || data_sets_controller_debug_verbose
 
-    # irus_analytics: item_identifier
-    def item_identifier
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if true || data_sets_controller_debug_verbose
-      rv = Rails.application.routes.url_helpers.url_for( only_path: false,
-                                                    action: 'show',
-                                                    host: CatalogController.blacklight_config.oai[:provider][:repository_url],
-                                                    controller: 'hyrax/data_sets',
-                                                    id: curation_concern.id )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "item_identifier=#{rv}",
-                                             "" ] if true || data_sets_controller_debug_verbose
-      rv
-    end
+        send_irus_analytics item_identifier
+      end
+
+    public
+
+      # irus_analytics: item_identifier
+      def item_identifier
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if ::IrusAnalytics::Configuration.verbose_debug || data_sets_controller_debug_verbose
+        rv = Rails.application.routes.url_helpers.url_for( only_path: true,
+                                                      action: 'show',
+                                                      host: CatalogController.blacklight_config.oai[:provider][:repository_url],
+                                                      controller: 'hyrax/data_sets',
+                                                      id: curation_concern.id )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "item_identifier=#{rv}",
+                                               "" ] if ::IrusAnalytics::Configuration.verbose_debug || data_sets_controller_debug_verbose
+        rv
+      end
 
     private
 

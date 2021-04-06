@@ -1,0 +1,21 @@
+development:
+  enabled: true
+  enable_send_logger: true
+  irus_server_address: https://irus.jisc.ac.uk/counter/test/
+  robots_file: irus_analytics_counter_robot_list.txt
+  source_repository: localhost.deepblue.lib.umich.edu/data
+  verbose_debug: true
+test:
+  enabled: true
+  enable_send_logger: true
+  irus_server_address: https://irus.jisc.ac.uk/counter/test/
+  robots_file: irus_analytics_counter_robot_list.txt
+  source_repository: test.deepblue.lib.umich.edu/data
+  verbose_debug: true
+production:
+  enabled: true
+  enable_send_logger: true
+  irus_server_address: https://irus.jisc.ac.uk/counter/test/
+  robots_file: irus_analytics_counter_robot_list.txt
+  source_repository: deepblue.lib.umich.edu/data
+  verbose_debug: true

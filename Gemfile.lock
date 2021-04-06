@@ -1,13 +1,12 @@
 GIT
   remote: https://github.com/mlibrary/irus_analytics
-  revision: 9cd5dffb97d1ab8e2102433a2727b8a7e55fff49
-  branch: BLUEDOC-1101-pull-updates-from-dbd-to-irus-analytics-gem-2
+  revision: c28d4aae5bdbd40c155128776280769d3e0c6387
   specs:
     irus_analytics (0.0.4)
-      config_files (>= 0.1.3)
+      config_files
       i18n
-      openurl (>= 0.5)
-      resque (>= 1.25)
+      openurl
+      resque
 
 GEM
   remote: https://rubygems.org/
