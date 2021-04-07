@@ -694,9 +694,11 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
           expect(work).to receive(:total_file_size).and_call_original
           expect(::Deepblue::ZipDownloadService).to receive(:zip_download_max_total_file_size_to_download).and_call_original
           expect(controller).to receive(:zip_download_rest).with(curation_concern: work)
-          expect(controller).to receive(:zip_download_after_action).and_call_original
-          expect(controller).to receive(:item_identifier).and_call_original
-          expect(controller).to receive(:send_irus_analytics).with("/concern/data_sets/#{work.id}")
+          expect(controller).to receive(:report_irus_analytics_request).and_call_original
+          # expect(controller).to receive(:item_identifier).and_call_original
+          expect(controller).to receive(:skip_send_irus_analytics?).and_call_original
+          expect(controller).to receive(:deposited?).and_return true
+          expect(controller).to receive(:send_irus_analytics).with(no_args) #.with("/concern/data_sets/#{work.id}")
 
           post :zip_download, params: { id: work }
           ::Deepblue::ZipDownloadControllerBehavior.zip_download_controller_behavior_debug_verbose = save_debug_verbose

@@ -144,6 +144,17 @@ module Deepblue
       @form.merge_date_coverage_attributes! cov_params
     end
 
+    # TODO: move to work_permissions_behavior
+    def deposited?
+      'deposited' == workflow_state
+    end
+
+    # TODO: move to work_permissions_behavior
+    def doi?
+      return false unless @curation_concern.respond_to? :doi
+      @curation_concern.doi.present?
+    end
+
     def create
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
@@ -252,12 +263,6 @@ module Deepblue
     def editor?
       return false if single_use_link?
       current_ability.can?(:edit, @curation_concern.id)
-    end
-
-    # TODO: move to work_permissions_behavior
-    def doi?
-      return false unless @curation_concern.respond_to? :doi
-      @curation_concern.doi.present?
     end
 
     # TODO: move to work_permissions_behavior

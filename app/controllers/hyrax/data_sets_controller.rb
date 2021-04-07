@@ -31,7 +31,8 @@ module Hyrax
     after_action :reset_tombstone_permissions,   only: [:show]
     after_action :visibility_changed_update,     only: [:update]
     after_action :workflow_create,               only: [:create]
-    after_action :zip_download_after_action,     only: [:zip_download]
+
+    after_action :report_irus_analytics_request, only: %i[globus_download_redirect zip_download]
 
     protect_from_forgery with: :null_session,    only: [:analytics_subscribe]
     protect_from_forgery with: :null_session,    only: [:analytics_unsubscribe]
@@ -583,13 +584,13 @@ module Hyrax
         Hyrax::DataSetPresenter
       end
 
-
-      def zip_download_after_action
+      def report_irus_analytics_request
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if ::IrusAnalytics::Configuration.verbose_debug || data_sets_controller_debug_verbose
 
-        send_irus_analytics item_identifier
+        return if skip_send_irus_analytics?
+        send_irus_analytics
       end
 
     public
@@ -607,6 +608,15 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "item_identifier=#{rv}",
+                                               "" ] if ::IrusAnalytics::Configuration.verbose_debug || data_sets_controller_debug_verbose
+        rv
+      end
+
+      def skip_send_irus_analytics?
+        rv = !deposited?
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "skip_send_irus_analytics?=#{rv}",
                                                "" ] if ::IrusAnalytics::Configuration.verbose_debug || data_sets_controller_debug_verbose
         rv
       end
