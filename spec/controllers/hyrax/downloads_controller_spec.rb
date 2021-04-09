@@ -10,6 +10,7 @@ RSpec.describe Hyrax::DownloadsController, skip: false do
     let(:file_set) do
       create(:file_with_work, user: user, content: File.open(fixture_path + '/image.png'))
     end
+    let(:work) { file_set.parent }
     let(:default_image) { ActionController::Base.helpers.image_path 'default.png' }
 
     it 'raises an error if the object does not exist' do
@@ -66,7 +67,16 @@ RSpec.describe Hyrax::DownloadsController, skip: false do
       before { sign_in user }
 
       it 'sends the original file' do
-        get :show, params: { id: file_set }
+        expect(work).to_not eq nil
+        expect(controller).to receive(:report_irus_analytics_request).and_call_original
+        expect(controller).to receive(:show_html).at_least(:once).and_call_original
+        expect(controller).to receive(:is_thumbnail_request?).at_least(:once).and_call_original
+        expect(controller).to receive(:skip_send_irus_analytics?).and_return false
+        expect(PersistHelper).to receive(:find).with(file_set.id).and_return file_set
+        expect(file_set.parent).to eq work
+        # expect(file_set.parent).to receive(:workflow_state).at_least(:once).and_return 'deposited'
+        expect(controller).to receive(:send_irus_analytics_request)
+        get :show, params: { id: file_set.id }
         expect(response.body).to eq file_set.original_file.content
       end
 
@@ -77,6 +87,10 @@ RSpec.describe Hyrax::DownloadsController, skip: false do
 
           before do
             allow(Hyrax::DerivativePath).to receive(:derivative_path_for_reference).and_return(fixture_path + '/world.png')
+            expect(controller).to receive(:report_irus_analytics_request).and_call_original
+            expect(controller).to receive(:show_html).at_least(:once).and_call_original
+            expect(controller).to_not receive(:skip_send_irus_analytics?)
+            expect(controller).to_not receive(:send_irus_analytics_request)
           end
 
           it 'sends requested file content' do
@@ -160,4 +174,5 @@ RSpec.describe Hyrax::DownloadsController, skip: false do
 
     it { is_expected.to eq(disposition: 'inline', type: 'image/png') }
   end
+
 end

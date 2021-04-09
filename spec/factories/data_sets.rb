@@ -53,7 +53,10 @@ FactoryBot.define do
 
     factory :data_set_with_one_file do
       before(:create) do |work, evaluator|
-        work.ordered_members << create(:file_set, user: evaluator.user, title: ['A Contained FileSet'], label: 'filename.pdf')
+        work.ordered_members << create(:file_set,
+                                       user: evaluator.user,
+                                       title: ['A Contained FileSet'],
+                                       label: 'filename.pdf')
       end
     end
 

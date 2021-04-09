@@ -1,11 +1,17 @@
 require 'spec_helper'
 
+require 'irus_analytics/elements'
+
 class TestClass
   include IrusAnalytics::Controller::AnalyticsBehaviour
   attr_accessor :request, :item_identifier
 end
 
 describe IrusAnalytics::Controller::AnalyticsBehaviour do
+
+  describe "irus analytics is enabled" do
+    it { expect(::IrusAnalytics::Configuration.enabled).to eq true }
+  end
 
   describe ".send_irus_analytics" do
     before(:each) do
@@ -31,7 +37,9 @@ describe IrusAnalytics::Controller::AnalyticsBehaviour do
        allow(Resque).to receive(:enqueue) .and_return(nil)
        # Should NOT filter this request
        expect(@test_class).to receive(:filter_request?).and_return(false)
-       expect(Resque).to receive(:enqueue).with(IrusAnalytics::IrusClient, "irus-server-address.org", params )
+       expect(Resque).to receive(:enqueue).with(IrusAnalytics::IrusClient,
+                                                "irus-server-address.org",
+                                                params, IrusAnalytics::REQUEST )
        @test_class.send_irus_analytics
     end
 

@@ -1,16 +1,23 @@
 
 # monkey replace the original from Hyrax gem: "app/controllers/hyrax/download_controller.rb"
 
+require 'irus_analytics/controller/analytics_behaviour'
+
 module Hyrax
   class DownloadsController < ApplicationController
 
     # begin monkey
-    mattr_accessor :downloads_controller_debug_verbose
-    @@downloads_controller_debug_verbose = ::DeepBlueDocs::Application.config.downloads_controller_debug_verbose
+    mattr_accessor :downloads_controller_debug_verbose,
+                   default: ::DeepBlueDocs::Application.config.downloads_controller_debug_verbose
     # end monkey
 
     include Hydra::Controller::DownloadBehavior
     include Hyrax::LocalFileDownloadsControllerBehavior
+    include IrusAnalytics::Controller::AnalyticsBehaviour
+
+    after_action :report_irus_analytics_request, only: %i[show]
+
+    attr_reader :show_html
 
     def self.default_content_path
       :original_file
@@ -26,6 +33,7 @@ module Hyrax
                                              "params[:format]=#{params[:format]}",
                                              "" ] if downloads_controller_debug_verbose
       # begin monkey
+      @show_html = false
       case file
       when ActiveFedora::File
         # begin monkey
@@ -59,6 +67,7 @@ module Hyrax
               raise ActiveFedora::IllegalOperation # TODO need better error than this
             end
             # For original files that are stored in fedora
+            @show_html = true
             super
           end
           wants.json do
@@ -153,5 +162,70 @@ module Hyrax
         association = asset.association(file_reference.to_sym)
         association if association && association.is_a?(ActiveFedora::Associations::SingularAssociation)
       end
+
+
+    def report_irus_analytics_request
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params=#{params}",
+                                             "show_html=#{show_html}",
+                                             "" ] if ::IrusAnalytics::Configuration.verbose_debug || downloads_controller_debug_verbose
+      return unless show_html
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "is_thumbnail_request?=#{is_thumbnail_request?}",
+                                             "" ] if ::IrusAnalytics::Configuration.verbose_debug || downloads_controller_debug_verbose
+      return if is_thumbnail_request?
+      @download_obj = PersistHelper.find params[:id]
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "@download_obj.blank?=#{@download_obj.blank?}",
+                                             "@download_obj.respond_to? :parent=#{@download_obj.respond_to? :parent}",
+                                             "@download_obj.parent.blank?=#{@download_obj&.parent.blank?}",
+                                             "" ] if ::IrusAnalytics::Configuration.verbose_debug || downloads_controller_debug_verbose
+      skip = skip_send_irus_analytics?
+      puts "skip=#{skip}"
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "skip_send_irus_analytics?=#{skip}",
+                                             "" ] if ::IrusAnalytics::Configuration.verbose_debug || downloads_controller_debug_verbose
+      return if skip
+      puts "about to call send_irus_analytics_request"
+      send_irus_analytics_request
+    end
+
+    public
+
+      # irus_analytics: item_identifier
+      def item_identifier
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if ::IrusAnalytics::Configuration.verbose_debug || downloads_controller_debug_verbose
+        rv = @download_obj.parent.oai_identifier
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "item_identifier=#{rv}",
+                                               "" ] if ::IrusAnalytics::Configuration.verbose_debug || downloads_controller_debug_verbose
+        rv
+      end
+
+      def is_thumbnail_request?
+        params["file"] == "thumbnail"
+      end
+
+      def skip_send_irus_analytics?
+        return true if @download_obj.blank?
+        puts "not blank"
+        return true unless @download_obj.respond_to? :parent
+        puts "responds to parent, @download_obj.parent=#{@download_obj.parent}"
+        parent = @download_obj.parent
+        return true if parent.blank?
+        puts "parent not blank, parent.respond_to?(:workflow_state)=#{parent.respond_to?(:workflow_state)}"
+        puts "parent.workflow_state=#{parent.workflow_state}"
+        return false if parent.workflow_state == 'deposited'
+        return true
+      end
+
+
   end
 end
