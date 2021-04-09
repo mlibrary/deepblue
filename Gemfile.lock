@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/mlibrary/irus_analytics
-  revision: c28d4aae5bdbd40c155128776280769d3e0c6387
+  revision: d54c2735775f993a4ffd4076998e22339cb566d6
   specs:
-    irus_analytics (0.0.4)
+    irus_analytics (0.0.5)
       config_files
       i18n
       openurl
@@ -100,7 +100,7 @@ GEM
     awesome_nested_set (3.4.0)
       activerecord (>= 4.0.0, < 7.0)
     aws-eventstream (1.1.1)
-    aws-partitions (1.440.0)
+    aws-partitions (1.442.0)
     aws-sdk-core (3.113.1)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
@@ -595,14 +595,14 @@ GEM
     marc (1.0.4)
       scrub_rb (>= 1.0.1, < 2)
       unf
-    marcel (1.0.0)
+    marcel (1.0.1)
     memoist (0.16.2)
     method_source (1.0.0)
     mime-types (3.3.1)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2021.0225)
     mini_magick (4.11.0)
-    mini_mime (1.0.3)
+    mini_mime (1.1.0)
     mini_portile2 (2.5.0)
     minitest (5.14.4)
     mono_logger (1.1.1)
@@ -622,7 +622,7 @@ GEM
     noid-rails (3.0.2)
       actionpack (>= 5.0.0, < 7)
       noid (~> 0.9)
-    nokogiri (1.11.2)
+    nokogiri (1.11.3)
       mini_portile2 (~> 2.5.0)
       racc (~> 1.4)
     nokogumbo (2.0.5)
@@ -631,7 +631,7 @@ GEM
       builder (>= 3.1.0)
       faraday
       faraday_middleware
-    oauth (0.5.5)
+    oauth (0.5.6)
     oauth2 (1.4.7)
       faraday (>= 0.8, < 2.0)
       jwt (>= 1.0, < 3.0)
@@ -846,7 +846,7 @@ GEM
     retriable (3.1.2)
     reverse_markdown (2.0.0)
       nokogiri
-    rexml (3.2.4)
+    rexml (3.2.5)
     riiif (1.7.1)
       deprecation (>= 1.0.0)
       railties (>= 4.2, < 6)

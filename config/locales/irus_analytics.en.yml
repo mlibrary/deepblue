@@ -4,20 +4,27 @@ en:
       no_request_object: Request object is nil
       exited: '%{method} exited'
       no_server_address: No server address
-      params_extracted: '%{method} parameters extracted %{params}'
+      params_extracted: '%{method} parameters extracted'
       enquing_error: 'Problem enqueing the analytics with Resque. Error: %{error}'
     tracker_context:
-      handles:
-        event_datestamp: url_tim
-        ip_address: req_id
-        user_agent: req_dat
-        file_url: svc_dat
-        http_referer: rfr_dat
-        source_repository: rfr_id
+# These transport layer codes don't belong here, see irus_analytics/elements.rb
+#      handles: # see: https://irus.jisc.ac.uk/r5/about/policies/tracker/
+#        event_datestamp:     url_tim
+#        file_url:            svc_dat
+#        http_referer:        rfr_dat
+#        ip_address:          req_id
+#        item_oai_identifier: rft.artnum
+#        openurl_version:     url_ver
+#        source_repository:   rfr_id
+#        usage_event_type:    rft_dat
+#        user_agent:          req_dat
       labels:
-        event_datestamp: Usage event datestamp
-        ip_address: Client IP address
-        user_agent: UserAgent
-        file_url: FileURL
-        http_referer: HTTP referer
-        source_repository: Source repository
+        event_datestamp:     Usage event datestamp
+        file_url:            FileURL
+        http_referer:        HTTP referer
+        ip_address:          Client IP address
+        item_oai_identifier: Item OAI identifier
+        openurl_version:     OpenURL version
+        source_repository:   Source repository
+        usage_event_type:    Usage event type
+        user_agent:          UserAgent

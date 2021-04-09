@@ -33,6 +33,7 @@ module Hyrax
     after_action :workflow_create,               only: [:create]
 
     after_action :report_irus_analytics_request, only: %i[globus_download_redirect zip_download]
+    after_action :report_irus_analytics_investigation, only: %i[show]
 
     protect_from_forgery with: :null_session,    only: [:analytics_subscribe]
     protect_from_forgery with: :null_session,    only: [:analytics_unsubscribe]
@@ -584,13 +585,22 @@ module Hyrax
         Hyrax::DataSetPresenter
       end
 
+      def report_irus_analytics_investigation
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if ::IrusAnalytics::Configuration.verbose_debug || data_sets_controller_debug_verbose
+
+        return if skip_send_irus_analytics?
+        send_irus_analytics_investigation
+      end
+
       def report_irus_analytics_request
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if ::IrusAnalytics::Configuration.verbose_debug || data_sets_controller_debug_verbose
 
         return if skip_send_irus_analytics?
-        send_irus_analytics
+        send_irus_analytics_request
       end
 
     public
@@ -600,11 +610,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if ::IrusAnalytics::Configuration.verbose_debug || data_sets_controller_debug_verbose
-        rv = Rails.application.routes.url_helpers.url_for( only_path: true,
-                                                      action: 'show',
-                                                      host: CatalogController.blacklight_config.oai[:provider][:repository_url],
-                                                      controller: 'hyrax/data_sets',
-                                                      id: curation_concern.id )
+        rv = curation_concern.oai_identifier
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "item_identifier=#{rv}",
