@@ -23,4 +23,12 @@ Flipflop.configure do
           default: false,
           description: "Depositors can subscribe to analytic reports."
 
+  feature :display_standard_message,
+          default: false,
+          description: "Display standard message."
+
+  feature :display_outage_message,
+          default: false,
+          description: "Display outage message."
+
 end
