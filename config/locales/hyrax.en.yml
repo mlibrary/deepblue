@@ -144,6 +144,15 @@ en:
         confirm: >
             Are you sure you want to mint a DOI? This action will produce a permanent unique identifier for
             the %{curation_concern}.
+    masthead_banner:
+      standard_html: >
+        <p class="margin0">We've recently updated Deep Blue Data--for more about our upgrade to Hyrax 2.0, please see
+          <a href="https://www.lib.umich.edu/blogs/bits-and-pieces/change-coming-deep-blue-data">this blog post</a>.
+        </p>
+      outage_banner_html: >
+        <p class="margin0">We are experiencing some technical issues.  It is adviced that no deposits or edits be done at this time.  
+          Once the issue is resolved, this message will be disabled.  Thank you!
+        </p>
     email:
       templates:
         keys_loaded:        "N/A"

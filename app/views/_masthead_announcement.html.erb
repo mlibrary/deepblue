@@ -1,10 +1,16 @@
-<% if DeepBlueDocs::Application.config.show_masthead_announcement %>
+<% if Flipflop.display_standard_message? %>
   <section class="update-alert--warning container-fluid">
     <div class="row ribbon-content">
       <div class="container update-alert-container">
-        <p class="margin0">We've recently updated Deep Blue Data--for more about our upgrade to Hyrax 2.0, please see
-          <a href="https://www.lib.umich.edu/blogs/bits-and-pieces/change-coming-deep-blue-data">this blog post</a>.
-        </p>
+      	<%= t( "hyrax.masthead_banner.standard_html" ) %>
+      </div>
+    </div>
+  </section>
+<% elsif Flipflop.display_outage_message? %>
+  <section class="update-alert--warning container-fluid">
+    <div class="row ribbon-content">
+      <div class="container update-alert-container">
+        <%= t( "hyrax.masthead_banner.outage_banner_html" ) %>
       </div>
     </div>
   </section>
