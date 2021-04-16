@@ -1,0 +1,11 @@
+Description:
+    Inject after action and support methods into target controller
+
+Example:
+    rails generate inject_controller_hooks ModuleName::ControllerClass
+
+    This will create:
+        N/A
+
+    This will update:
+       ModuleName::ControllerClass.rb
