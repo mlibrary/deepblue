@@ -122,7 +122,7 @@ module Deepblue
     end
 
     # return true if the create user was successful
-    def self.jira_create_user( email:, client: nil, is_verbose: false )
+    def self.jira_create_user( email:, client: nil, is_verbose: false, delay_after_create: 0 )
       return false unless jira_enabled
       return false unless jira_allow_create_users
       return false if email.blank?
@@ -148,6 +148,7 @@ module Deepblue
                                               "rv=#{rv}",
                                               "" ],
                                             bold_puts: is_verbose ) if is_verbose || jira_helper_debug_verbose
+      sleep delay_after_create if rv && ( delay_after_create > 0 )
       return rv
     end
 
@@ -339,10 +340,11 @@ module Deepblue
       return issue
     end
 
-    def self.jira_requester( client: nil, user: nil, is_verbose: false )
+    def self.jira_requester( client: nil, user: nil, is_verbose: false, delay_after_create_user: 0 )
       ::Deepblue::LoggingHelper.bold_debug( [ ::Deepblue::LoggingHelper.here,
                                               ::Deepblue::LoggingHelper.called_from,
                                               "jira_requester( user: #{user} )",
+                                              "delay_after_create_user=#{delay_after_create_user}",
                                               "" ] ) if jira_helper_debug_verbose
       return { name: user } unless jira_enabled
       return { name: user } if jira_test_mode
@@ -354,7 +356,10 @@ module Deepblue
                                               "hash=#{hash}",
                                               "" ] ) if jira_helper_debug_verbose
       return hash if hash.present?
-      if jira_create_user( client: client, email: user, is_verbose: is_verbose )
+      if jira_create_user( client: client,
+                           email: user,
+                           is_verbose: is_verbose,
+                           delay_after_create: delay_after_create_user )
         ::Deepblue::LoggingHelper.bold_debug( [ ::Deepblue::LoggingHelper.here,
                                                 ::Deepblue::LoggingHelper.called_from,
                                                 "try jira_user_as_hash after successful create user",
@@ -525,12 +530,13 @@ module Deepblue
       description = Array( curation_concern.title ).join("\n") + "\n\nby #{creator}"
       client = jira_client( client: client )
       if jira_use_authoremail_as_requester
-        requester = jira_requester( user: curation_concern.authoremail, client: client, is_verbose: is_verbose )
-        requester_email = curation_concern.authoremail
+        user = curation_concern.authoremail
       else
-        requester = jira_requester( user: curation_concern.depositor, client: client, is_verbose: is_verbose )
-        requester_email = curation_concern.depositor
+        user = curation_concern.depositor
       end
+      # TODO: make delay_after_create_user a config parameter
+      requester = jira_requester( user: user, client: client, is_verbose: is_verbose, delay_after_create_user: 60 )
+      requester_email = curation_concern.depositor
       summary = jira_build_summary_for( curation_concern: curation_concern )
 
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
