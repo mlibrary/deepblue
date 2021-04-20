@@ -10,7 +10,7 @@ class MockGenerator < Rails::Generators::Base
 end
 
 RSpec.describe GeneratorHelper, type: :helper do
-  let(:tmp_path) { ENV['TMPDIR'] || "/tmp" }
+  let(:tmp_path) { "/tmp" }
   let(:fixture_path) { "./spec/fixtures" }
   let(:filename) { "samples_controller.rb" }
   let(:filename2) { "sample_twos_controller.rb" }
