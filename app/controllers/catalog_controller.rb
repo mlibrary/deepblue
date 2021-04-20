@@ -316,7 +316,6 @@ class CatalogController < ApplicationController
     end
 
     config.add_search_field('access_deepblue') do |field|
-      # field.label = "Related items in Deep Blue"
       field.label = MsgHelper.t( 'simple_form.labels.data_set.access_deepblue' )
       solr_name = solr_name("access_deepblue_label", :stored_searchable)
       field.solr_local_parameters = {
