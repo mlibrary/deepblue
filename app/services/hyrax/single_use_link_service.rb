@@ -6,7 +6,7 @@ module Hyrax
 
     @@single_use_link_service_debug_verbose = false
 
-    @@single_use_link_default_expiration_duration = 24.hours
+    @@single_use_link_default_expiration_duration = 365.days
 
     @@single_use_link_use_detailed_human_readable_time = true
 
