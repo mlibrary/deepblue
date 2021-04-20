@@ -74,7 +74,7 @@ en:
     id:                     "ID:"
   show:
     labels:
-      access_deepblue:      "Related items in Deep Blue"
+      access_deepblue:      "Related items in Deep Blue Documents"
       authoremail:          "Contact information"
       creator:              "Creator"
       curation_notes_admin: "Curation notes admin"
@@ -157,7 +157,7 @@ en:
       data_set:
         admin_actions:        "Admin Actions"
         analytics:            "Analytics"
-        access_deepblue:      "Related items in Deep Blue"
+        access_deepblue:      "Related items in Deep Blue Documents"
         authoremail:          "Contact Information"
         admin_set_id:         "Add as member of administrative set"
         based_near:           "Location"
