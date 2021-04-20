@@ -35,7 +35,7 @@ RSpec.describe 'hyrax/file_sets/_single_use_links.html.erb', type: :view do
       expect( rendered ).to have_text I18n.t('hyrax.single_use_links.expiration_message',
                                              link_type: "View",
                                              link: "sha2ha",
-                                             time: "in 6 days, 23 hours, 59 minutes, and 59 seconds" )
+                                             time: "in 11 months, 4 weeks, 2 days, 4 hours, 39 minutes, and 53 seconds" )
     end
 
     it "renders note to add to next link" do
