@@ -50,11 +50,19 @@ en:
         update_schedule:                "Update Schedule"
       work_view_documentation:
         cache_on:                       "Turn Cache On"
+        cache_now_on:                   "Cache is now on."
         cache_off:                      "Turn Cache Off"
+        cache_now_off:                  "Cache is now off."
         clear_cache:                    "Clear Cache"
+        cleared_cache:                  "Cache cleared."
         export_documentation:           "Export Documentation"
+        export_documentation_started:   "Export documentation job started."
         reload_email_templates:         "Reload Email Templates"
         reload_i18n_templates:          "Reload I18n Templates"
+        reload_view_templates:          "Reload View Templates"
+        reloaded_email_templates:       "Reloaded email Templates."
+        reloaded_i18n_templates:        "Reloaded i18n Templates."
+        reloaded_view_templates:        "Reloaded view Templates."
     confirm:
       data_set:
         ingest_append_run_job:          "Are you sure you want to run the append script job?"

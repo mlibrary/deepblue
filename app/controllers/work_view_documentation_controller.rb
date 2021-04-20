@@ -40,6 +40,8 @@ class WorkViewDocumentationController < ApplicationController
             action_reload_email_templates
           when t( 'simple_form.actions.work_view_documentation.reload_i18n_templates' )
             action_reload_i18n_templates
+          when t( 'simple_form.actions.work_view_documentation.reload_view_templates' )
+            action_reload_view_templates
           else
             @action_error = true
             "Unkown action #{action}"
@@ -54,33 +56,38 @@ class WorkViewDocumentationController < ApplicationController
 
   def action_clear_cache
     ::Deepblue::StaticContentControllerBehavior.static_content_cache_reset
-    "Cache cleared."
+    t( 'simple_form.actions.work_view_documentation.clear_cache' )
   end
 
   def action_cache_on
     ::Deepblue::StaticContentControllerBehavior.work_view_content_enable_cache = true
-    "Cache is now on."
+    t( 'simple_form.actions.work_view_documentation.cache_now_on' )
   end
 
   def action_cache_off
     ::Deepblue::StaticContentControllerBehavior.work_view_content_enable_cache = false
-    "Cache is now off."
+    t( 'simple_form.actions.work_view_documentation.cache_now_off' )
   end
 
   def action_export_documentation
     ExportDocumentationJob.perform_later( id: ::Deepblue::WorkViewContentService.content_documentation_collection_id,
                                           export_path: ".#{::DeepBlueDocs::Application.config.relative_url_root}/" )
-    "Export documentation job started."
+    t( 'simple_form.actions.work_view_documentation.export_documentation_started' )
   end
 
   def action_reload_email_templates
     ::Deepblue::WorkViewContentService.load_email_templates
-    "Reloaded email templates."
+    t( 'simple_form.actions.work_view_documentation.reloaded_email_templates' )
   end
 
   def action_reload_i18n_templates
     ::Deepblue::WorkViewContentService.load_i18n_templates
-    "Reloaded i18n templates."
+    t( 'simple_form.actions.work_view_documentation.reloaded_i18n_templates' )
+  end
+
+  def action_reload_view_templates
+    ::Deepblue::WorkViewContentService.load_view_templates
+    t( 'simple_form.actions.work_view_documentation.reloaded_view_templates' )
   end
 
   def documentation_collection

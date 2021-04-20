@@ -5,6 +5,7 @@ Deepblue::WorkViewContentService.setup do |config|
   config.documentation_work_title_prefix = "DBDDoc-"
   config.documentation_email_title_prefix = "DBDEmail-"
   config.documentation_i18n_title_prefix = "DBDI18n-"
+  config.documentation_view_title_prefix = "DBDView-"
   config.interpolation_helper_debug_verbose = false
   config.static_content_controller_behavior_menu_verbose = false
   config.static_content_enable_cache = true

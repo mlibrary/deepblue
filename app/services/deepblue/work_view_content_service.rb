@@ -4,40 +4,30 @@ module Deepblue
 
   module WorkViewContentService
 
-    WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.work_view_content_service_debug_verbose
-    WORK_VIEW_CONTENT_SERVICE_EMAIL_TEMPLATES_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.work_view_content_service_email_templates_debug_verbose
-    WORK_VIEW_CONTENT_SERVICE_I18N_TEMPLATES_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.work_view_content_service_email_templates_debug_verbose
+    mattr_accessor :work_view_content_service_debug_verbose,
+                   default: ::DeepBlueDocs::Application.config.work_view_content_service_debug_verbose
+    mattr_accessor :work_view_content_service_email_templates_debug_verbose,
+                   default: ::DeepBlueDocs::Application.config.work_view_content_service_email_templates_debug_verbose
+    mattr_accessor :work_view_content_service_i18n_templates_debug_verbose,
+                   default: ::DeepBlueDocs::Application.config.work_view_content_service_i18n_templates_debug_verbose
+    mattr_accessor :work_view_content_service_view_templates_debug_verbose,
+                   default: ::DeepBlueDocs::Application.config.work_view_content_service_view_templates_debug_verbose
 
     include ::Deepblue::InitializationConstants
 
     @@_setup_ran = false
 
-    @@documentation_collection_title = "DBDDocumentationCollection"
-    mattr_accessor :documentation_collection_title
+    mattr_accessor :documentation_collection_title,   default: "DBDDocumentationCollection"
+    mattr_accessor :documentation_work_title_prefix,  default: "DBDDoc-"
+    mattr_accessor :documentation_email_title_prefix, default: "DBDEmail-"
+    mattr_accessor :documentation_i18n_title_prefix,  default: "DBDI18n-"
+    mattr_accessor :documentation_view_title_prefix,  default: "DBDView-"
 
-    @@documentation_work_title_prefix = "DBDDoc-"
-    mattr_accessor :documentation_work_title_prefix
-
-    @@documentation_work_title_prefix = "DBDEmail-"
-    mattr_accessor :documentation_email_title_prefix
-
-    @@documentation_work_title_prefix = "DBDI18n-"
-    mattr_accessor :documentation_i18n_title_prefix
-
-    @@static_content_controller_behavior_menu_verbose = false
-    mattr_accessor :static_content_controller_behavior_menu_verbose
-
-    @@static_content_enable_cache = true
-    mattr_accessor :static_content_enable_cache
-
-    @@static_content_interpolation_pattern
-    mattr_accessor :static_content_interpolation_pattern
-
-    @@static_controller_redirect_to_work_view_content = false
-    mattr_accessor :static_controller_redirect_to_work_view_content
-
-    @@interpolation_helper_debug_verbose = false
-    mattr_accessor :interpolation_helper_debug_verbose
+    mattr_accessor :static_content_controller_behavior_menu_verbose, default: false
+    mattr_accessor :static_content_enable_cache,                     default: true
+    mattr_accessor :static_content_interpolation_pattern,            default: nil
+    mattr_accessor :static_controller_redirect_to_work_view_content, default: false
+    mattr_accessor :interpolation_helper_debug_verbose,              default: false
 
     def self.setup
       yield self if @@_setup_ran == false
@@ -56,7 +46,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "title=#{title}",
                                              "solr_query=#{solr_query}",
-                                             "" ] if WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
+                                             "" ] if work_view_content_service_debug_verbose
       results = ::ActiveFedora::SolrService.query( solr_query, rows: 10 )
       if results.size > 0
         result = results[0] if results
@@ -89,7 +79,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "file_set=#{file_set.id}",
-                                             "" ] if WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
+                                             "" ] if work_view_content_service_debug_verbose
       file = file_set.files_to_file
       if file.nil?
         return nil
@@ -98,12 +88,12 @@ module Deepblue
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "source_uri=#{source_uri}",
-                                               "" ] if WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
+                                               "" ] if work_view_content_service_debug_verbose
         str = open( source_uri, "r:UTF-8" ) { |io| io.read }
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "str.encoding=#{str.encoding}",
-                                               "" ] if WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
+                                               "" ] if work_view_content_service_debug_verbose
         return str
       end
       return nil
@@ -118,8 +108,8 @@ module Deepblue
       # puts "DeepBlueDocs::Application.config.i18n_backend=#{DeepBlueDocs::Application.config.i18n_backend}"
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if WORK_VIEW_CONTENT_SERVICE_EMAIL_TEMPLATES_DEBUG_VERBOSE ||
-                                                     WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
+                                             "" ] if work_view_content_service_email_templates_debug_verbose ||
+                                                     work_view_content_service_debug_verbose
       return unless Dir.exist?( './data/' ) # skip this unless in real server environment (./data/ does not exist for moku build environment)
       docCollection = content_documentation_collection
       return unless docCollection.present?
@@ -130,8 +120,8 @@ module Deepblue
                                                ::Deepblue::LoggingHelper.called_from,
                                                "prefix=#{prefix}",
                                                "work.title.first=#{work.title.first}",
-                                               "" ] if WORK_VIEW_CONTENT_SERVICE_EMAIL_TEMPLATES_DEBUG_VERBOSE ||
-                                                       WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
+                                               "" ] if work_view_content_service_email_templates_debug_verbose ||
+                                                       work_view_content_service_debug_verbose
         if work.title.first.starts_with? prefix
           work.file_sets.each do |fs|
             file_name = fs.label
@@ -155,15 +145,15 @@ module Deepblue
       keys_updated << "hyrax.email.templates.keys_loaded_html"
       keys_updated << load_templates_store( key: "hyrax.email.templates.loaded", value: "true" )
       keys_updated << load_templates_store( key: "hyrax.email.templates.last_loaded", value: DateTime.now.to_s )
-      if WORK_VIEW_CONTENT_SERVICE_EMAIL_TEMPLATES_DEBUG_VERBOSE || WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
+      if work_view_content_service_email_templates_debug_verbose || work_view_content_service_debug_verbose
         keys_updated.each do |key|
           options = EmailHelper.template_default_options( curation_concern: nil )
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "key=#{key}",
                                                  I18n.t( key, **options ),
-                                                 "" ] if WORK_VIEW_CONTENT_SERVICE_EMAIL_TEMPLATES_DEBUG_VERBOSE ||
-                                                         WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
+                                                 "" ] if work_view_content_service_email_templates_debug_verbose ||
+                                                         work_view_content_service_debug_verbose
         end
       end
     end
@@ -175,61 +165,77 @@ module Deepblue
     end
 
     def self.load_i18n_templates
-      # puts "Current I18n.backend=#{I18n.backend}"
-      # puts "DeepBlueDocs::Application.config.i18n_backend=#{DeepBlueDocs::Application.config.i18n_backend}"
+      load_i18n_templates_using_prefix( prefix: documentation_i18n_title_prefix,
+                                        key_prefix: "hyrax.i18n.templates",
+                                        debug_verbose: work_view_content_service_i18n_templates_debug_verbose ||
+                                          work_view_content_service_debug_verbose )
+    end
+
+    def self.load_view_templates
+      load_i18n_templates_using_prefix( prefix: documentation_i18n_title_prefix,
+                                        key_prefix: "hyrax.view.templates",
+                                        debug_verbose: work_view_content_service_view_templates_debug_verbose ||
+                                          work_view_content_service_debug_verbose )
+    end
+
+    def self.load_i18n_templates_using_prefix( prefix:,
+                                               key_prefix:,
+                                               debug_verbose: work_view_content_service_debug_verbose )
+
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if WORK_VIEW_CONTENT_SERVICE_I18N_TEMPLATES_DEBUG_VERBOSE ||
-          WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
+                                             "prefix=#{prefix}",
+                                             "key_prefix=#{key_prefix}",
+                                             "" ] if debug_verbose
       return unless Dir.exist?( './data/' ) # skip this unless in real server environment (./data/ does not exist for moku build environment)
       docCollection = content_documentation_collection
       return unless docCollection.present?
-      prefix = documentation_i18n_title_prefix
-      # keys_updated = []
       docCollection.member_works.each do |work|
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "prefix=#{prefix}",
                                                "work.title.first=#{work.title.first}",
-                                               "" ] if WORK_VIEW_CONTENT_SERVICE_I18N_TEMPLATES_DEBUG_VERBOSE ||
-            WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
+                                               "" ] if debug_verbose
         if work.title.first.starts_with? prefix
           work.file_sets.each do |fs|
             file_name = fs.label
             if file_name =~ /^(.+)\.yml$/i
               key = Regexp.last_match(1)
               value = content_read_file( file_set: fs )
-              load_i18n_templates_process( key: key, value: value )
+              load_i18n_templates_process( key: key, value: value, debug_verbose: debug_verbose )
             end
           end
         end
       end
-      load_templates_store( key: "hyrax.i18n.templates.loaded", value: "true" )
-      load_templates_store( key: "hyrax.i18n.templates.last_loaded", value: DateTime.now.to_s )
+      load_templates_store( key: "#{key_prefix}.loaded", value: "true" )
+      load_templates_store( key: "#{key_prefix}.last_loaded", value: DateTime.now.to_s )
     end
 
-    def self.load_i18n_templates_process( key:, value: )
+    def self.load_i18n_templates_process( key:, value:, debug_verbose: )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "key=#{key}",
                                              "value=#{value}",
-                                             "" ] if WORK_VIEW_CONTENT_SERVICE_I18N_TEMPLATES_DEBUG_VERBOSE ||
-          WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
+                                             "" ] if debug_verbose
       # convert value from yaml to hash of hashes
       hash = YAML.load( value )
       # walk hash and store values
-      load_i18n_templates_hash_walk( hash: hash )
+      load_i18n_templates_hash_walk( hash: hash, debug_verbose: debug_verbose )
     end
 
-    def self.load_i18n_templates_hash_walk( hash:, key_path: '', key: '', locale: '' )
+    def self.load_i18n_templates_hash_walk( hash:,
+                                                         key_path: '',
+                                                         key: '',
+                                                         locale: '',
+                                                         debug_verbose: )
+
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "hash=#{hash}",
                                              "key_path=#{key_path}",
                                              "key=#{key}",
                                              "locale=#{locale}",
-                                             "" ] if WORK_VIEW_CONTENT_SERVICE_I18N_TEMPLATES_DEBUG_VERBOSE ||
-          WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
+                                             "" ] if debug_verbose
       prefix = key_path.to_s
       if locale.blank?
         locale = key
@@ -239,11 +245,14 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              "prefix=#{prefix}",
                                              "locale=#{locale}",
-                                             "" ] if WORK_VIEW_CONTENT_SERVICE_I18N_TEMPLATES_DEBUG_VERBOSE ||
-          WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
+                                             "" ] if debug_verbose
       hash.each do |key,value|
         if value.is_a?( Hash )
-          load_i18n_templates_hash_walk( hash: value, key_path: prefix, key: key, locale: locale )
+          load_i18n_templates_hash_walk( hash: value,
+                                         key_path: prefix,
+                                         key: key,
+                                         locale: locale,
+                                         debug_verbose: debug_verbose )
         else
           put_key = prefix
           put_key = "#{prefix}#{key}" if prefix.present?
@@ -253,8 +262,7 @@ module Deepblue
                                                  "value=#{value}",
                                                  "put_key=#{put_key}",
                                                  "locale=#{locale}",
-                                                 "" ] if WORK_VIEW_CONTENT_SERVICE_I18N_TEMPLATES_DEBUG_VERBOSE ||
-              WORK_VIEW_CONTENT_SERVICE_DEBUG_VERBOSE
+                                                 "" ] if debug_verbose
           load_templates_store( key: put_key, value: value, locale: locale )
         end
       end

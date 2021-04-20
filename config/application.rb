@@ -101,6 +101,7 @@ module DeepBlueDocs
     config.work_view_content_service_debug_verbose = false
     config.work_view_content_service_email_templates_debug_verbose = false
     config.work_view_content_service_i18n_templates_debug_verbose = false
+    config.work_view_content_service_view_templates_debug_verbose = false
     config.workflow_event_behavior_debug_verbose = false
     config.works_controller_behavior_debug_verbose = false
     # end _debug_verbose flags
@@ -292,6 +293,7 @@ module DeepBlueDocs
       Deepblue::WorkViewContentService.load_email_templates
       # puts "Finished after initialize."
       Deepblue::WorkViewContentService.load_i18n_templates
+      Deepblue::WorkViewContentService.load_view_templates
     end
 
   end
