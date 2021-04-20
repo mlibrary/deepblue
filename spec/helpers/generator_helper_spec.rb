@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'rails_helper'
+require_relative '../../app/services/generator_helper'
+
+
 class MockGenerator < Rails::Generators::Base
   hide!
 
@@ -9,7 +13,12 @@ class MockGenerator < Rails::Generators::Base
 
 end
 
-RSpec.describe GeneratorHelper, type: :helper do
+RSpec.describe GeneratorHelper do
+
+  let(:cli_options) { {} }
+  let(:debug_verbose) { false }
+  let(:generator) { MockGenerator.new }
+
   let(:tmp_path) { "/tmp" }
   let(:fixture_path) { "./spec/fixtures" }
   let(:filename) { "samples_controller.rb" }
@@ -33,6 +42,7 @@ RSpec.describe GeneratorHelper, type: :helper do
   end
 
   describe ".already_includes?" do
+    let(:helper) { described_class.new(generator: generator, debug_verbose: debug_verbose, cli_options: cli_options )}
 
     before do
       FileUtils.copy_file( path_to_original_test_file, path_to_test_file )
@@ -44,20 +54,21 @@ RSpec.describe GeneratorHelper, type: :helper do
     end
 
     it "finds existing line" do
-      expect( GeneratorHelper.already_includes?( path_to_test_file, code_class_declaration ) ).to eq true
+      expect( helper.already_includes?( path_to_test_file, code_class_declaration ) ).to eq true
     end
 
     it "it does not find non-existent line" do
-      expect( GeneratorHelper.already_includes?( path_to_test_file, code_class_declaration_missing ) ).to eq false
+      expect( helper.already_includes?( path_to_test_file, code_class_declaration_missing ) ).to eq false
     end
 
     it "it does not find in non-existent file" do
-      expect( GeneratorHelper.already_includes?( path_to_non_existent_file, code_class_declaration ) ).to eq false
+      expect( helper.already_includes?( path_to_non_existent_file, code_class_declaration ) ).to eq false
     end
 
   end
 
   describe ".already_matches?" do
+    let(:helper) { described_class.new(generator: generator, debug_verbose: debug_verbose, cli_options: cli_options )}
 
     before do
       FileUtils.copy_file( path_to_original_test_file2, path_to_test_file )
@@ -69,25 +80,26 @@ RSpec.describe GeneratorHelper, type: :helper do
     end
 
     it "finds existing line" do
-      expect( GeneratorHelper.already_matches?( path_to_test_file, /#{Regexp.escape code_class_declaration2}/ ) ).to eq true
+      expect( helper.already_matches?( path_to_test_file, /#{Regexp.escape code_class_declaration2}/ ) ).to eq true
     end
 
     it "finds existing lines" do
       regex = /\n\s*def show\n\s*super\n\s+end\n/m
-      expect( GeneratorHelper.already_matches?( path_to_test_file, regex ) ).to eq true
+      expect( helper.already_matches?( path_to_test_file, regex ) ).to eq true
     end
 
     it "it does not find non-existent line" do
-      expect( GeneratorHelper.already_matches?( path_to_test_file, /#{Regexp.escape code_class_declaration_missing}/ ) ).to eq false
+      expect( helper.already_matches?( path_to_test_file, /#{Regexp.escape code_class_declaration_missing}/ ) ).to eq false
     end
 
     it "it does not find in non-existent file" do
-      expect( GeneratorHelper.already_matches?( path_to_non_existent_file, /#{Regexp.escape code_class_declaration2}/ ) ).to eq false
+      expect( helper.already_matches?( path_to_non_existent_file, /#{Regexp.escape code_class_declaration2}/ ) ).to eq false
     end
 
   end
 
   describe ".first_line_including" do
+    let(:helper) { described_class.new(generator: generator, debug_verbose: debug_verbose, cli_options: cli_options )}
 
     before do
       FileUtils.copy_file( path_to_original_test_file, path_to_test_file )
@@ -99,21 +111,22 @@ RSpec.describe GeneratorHelper, type: :helper do
     end
 
     it "finds existing line" do
-      expect( GeneratorHelper.first_line_including( path_to_test_file,
+      expect( helper.first_line_including( path_to_test_file,
                                                     'Sample' ) ).to eq "  #{code_class_declaration}"
     end
 
     it "it does not find non-existent line" do
-      expect( GeneratorHelper.first_line_including( path_to_test_file, code_class_declaration_missing ) ).to eq nil
+      expect( helper.first_line_including( path_to_test_file, code_class_declaration_missing ) ).to eq nil
     end
 
     it "it does not find in non-existent file" do
-      expect( GeneratorHelper.first_line_including( path_to_non_existent_file, code_class_declaration ) ).to eq nil
+      expect( helper.first_line_including( path_to_non_existent_file, code_class_declaration ) ).to eq nil
     end
 
   end
 
   describe ".first_line_matching" do
+    let(:helper) { described_class.new(generator: generator, debug_verbose: debug_verbose, cli_options: cli_options )}
 
     before do
       FileUtils.copy_file( path_to_original_test_file, path_to_test_file )
@@ -125,22 +138,22 @@ RSpec.describe GeneratorHelper, type: :helper do
     end
 
     it "finds existing line" do
-      expect( GeneratorHelper.first_line_matching( path_to_test_file,
+      expect( helper.first_line_matching( path_to_test_file,
                                                    /Sample/ ) ).to eq "  #{code_class_declaration}"
     end
 
     it "it does not find non-existent line" do
-      expect( GeneratorHelper.first_line_matching( path_to_test_file, /SampleTwo/ ) ).to eq nil
+      expect( helper.first_line_matching( path_to_test_file, /SampleTwo/ ) ).to eq nil
     end
 
     it "it does not find in non-existent file" do
-      expect( GeneratorHelper.first_line_matching( path_to_non_existent_file, /SampleTwo/ ) ).to eq nil
+      expect( helper.first_line_matching( path_to_non_existent_file, /SampleTwo/ ) ).to eq nil
     end
 
   end
 
   describe ".inject_after" do
-    let(:generator) { MockGenerator.new }
+    let(:helper) { described_class.new(generator: generator, debug_verbose: debug_verbose, cli_options: cli_options )}
     let(:include_code) { 'include "something"' }
 
     before do
@@ -164,10 +177,10 @@ RSpec.describe GeneratorHelper, type: :helper do
       end
 
       it 'succeeds' do
-        existing_line = GeneratorHelper.last_line_matching( test_file_path, /include / )
-        expect( GeneratorHelper.already_includes?( test_file_path, include_code ) ).to eq false
-        expect( GeneratorHelper.inject_line( generator, test_file_path, include_code, after: existing_line ) ).to eq true
-        expect( GeneratorHelper.already_includes?( test_file_path, include_code ) ).to eq true
+        existing_line = helper.last_line_matching( test_file_path, /include / )
+        expect( helper.already_includes?( test_file_path, include_code ) ).to eq false
+        expect( helper.inject_line( test_file_path, include_code, after: existing_line ) ).to eq true
+        expect( helper.already_includes?( test_file_path, include_code ) ).to eq true
       end
 
     end
@@ -190,12 +203,12 @@ RSpec.describe GeneratorHelper, type: :helper do
 EOS
         regexp_include_this = /\n\s*def new_method\n\s*puts\n\s+end\n/m
         expect( include_this =~ regexp_include_this ).to eq 0
-        expect( GeneratorHelper.already_matches?( test_file_path, regexp_target ) ).to eq true
-        expect( GeneratorHelper.already_matches?( test_file_path, regexp_include_this ) ).to eq false
-        expect( GeneratorHelper.inject_lines( generator, test_file_path, include_this, after: regexp_target ) ).to eq true
-        expect( GeneratorHelper.matches?( test_file_path, regexp_include_this ) ).to eq true
+        expect( helper.already_matches?( test_file_path, regexp_target ) ).to eq true
+        expect( helper.already_matches?( test_file_path, regexp_include_this ) ).to eq false
+        expect( helper.inject_lines( test_file_path, include_this, after: regexp_target ) ).to eq true
+        expect( helper.matches?( test_file_path, regexp_include_this ) ).to eq true
         regexp_both = /\n\s*def show\n\s*super\n\s+end\n\n\s*def new_method\n\s*puts\n\s+end\n/m
-        expect( GeneratorHelper.matches?( test_file_path, regexp_both ) ).to eq true
+        expect( helper.matches?( test_file_path, regexp_both ) ).to eq true
       end
 
     end
@@ -209,10 +222,10 @@ EOS
       end
 
       it 'succeeds' do
-        existing_line = GeneratorHelper.last_line_matching( test_file_path, /include / )
-        expect( GeneratorHelper.already_includes?( test_file_path, include_code ) ).to eq false
-        expect( GeneratorHelper.inject_line( generator, test_file_path, include_code, after: existing_line ) ).to eq true
-        expect( GeneratorHelper.already_includes?( test_file_path, include_code ) ).to eq true
+        existing_line = helper.last_line_matching( test_file_path, /include / )
+        expect( helper.already_includes?( test_file_path, include_code ) ).to eq false
+        expect( helper.inject_line( test_file_path, include_code, after: existing_line ) ).to eq true
+        expect( helper.already_includes?( test_file_path, include_code ) ).to eq true
       end
 
     end
@@ -220,6 +233,7 @@ EOS
   end
 
   describe ".last_line_including" do
+    let(:helper) { described_class.new(generator: generator, debug_verbose: debug_verbose, cli_options: cli_options )}
 
     before do
       FileUtils.copy_file( path_to_original_test_file, path_to_test_file )
@@ -231,21 +245,22 @@ EOS
     end
 
     it "finds last existing line" do
-      expect( GeneratorHelper.last_line_including( path_to_test_file,
+      expect( helper.last_line_including( path_to_test_file,
                                                    'Sample' ) ).to eq '    self.show_presenter = Hyrax::SamplesPresenter'
     end
 
     it "it does not find non-existent line" do
-      expect( GeneratorHelper.last_line_including( path_to_test_file, code_class_declaration_missing ) ).to eq nil
+      expect( helper.last_line_including( path_to_test_file, code_class_declaration_missing ) ).to eq nil
     end
 
     it "it does not find in non-existent file" do
-      expect( GeneratorHelper.last_line_including( path_to_non_existent_file, 'Sample' ) ).to eq nil
+      expect( helper.last_line_including( path_to_non_existent_file, 'Sample' ) ).to eq nil
     end
 
   end
 
   describe ".last_line_matching" do
+    let(:helper) { described_class.new(generator: generator, debug_verbose: debug_verbose, cli_options: cli_options )}
 
     before do
       FileUtils.copy_file( path_to_original_test_file, path_to_test_file )
@@ -257,16 +272,16 @@ EOS
     end
 
     it "finds existing line" do
-      expect( GeneratorHelper.last_line_matching( path_to_test_file,
+      expect( helper.last_line_matching( path_to_test_file,
                                                   /Sample/ ) ).to eq '    self.show_presenter = Hyrax::SamplesPresenter'
     end
 
     it "it does not find non-existent line" do
-      expect( GeneratorHelper.last_line_matching( path_to_test_file, /^class / ) ).to eq nil
+      expect( helper.last_line_matching( path_to_test_file, /^class / ) ).to eq nil
     end
 
     it "it does not find in non-existent file" do
-      expect( GeneratorHelper.last_line_matching( path_to_non_existent_file, /^\s+class / ) ).to eq nil
+      expect( helper.last_line_matching( path_to_non_existent_file, /^\s+class / ) ).to eq nil
     end
 
   end
