@@ -16,7 +16,7 @@ en:
         contributor_affiliationumcampus: 
         title: Enter the main title of the item.
         alt_title: If the item has any alternate titles, please enter them.
-        date_issued: Use today's date if Deep Blue is this item's first place of publication.
+        date_issued: Use today's date if Deep Blue Data is this item's first place of publication.
         identifier_source: Journal name, book title, etc.
         publisher: Use only if previously published (e.g., in a journal).
         peerreviewed: Select "Peer Reviewed" if item is peer reviewed.
