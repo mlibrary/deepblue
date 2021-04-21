@@ -1,24 +1,47 @@
 # frozen_string_literal: true
 
-require_relative '../../../app/services/generator_helper'
+require_relative '../../../app/services/rails/generator_service'
+
+module InjectControllerHooksGeneratorMethods
+
+  # do it through the module, or it doesn't seem to be invoked by "class << self"
+  def self.included( base )
+    [ :after_action, :controller_class_name, :controller_file_name, :debug_verbose, :test_mode ].each do |name|
+      base.define_method name do
+        cli_options[name]
+      end
+    end
+  end
+
+end
 
 class InjectControllerHooksGenerator < Rails::Generators::Base
+  include InjectControllerHooksGeneratorMethods
 
-  AFTER_ACTION_LABEL = 'irus analytics after action'
-  COPY_TARGET_FILE_AND_INJECT_INTO_COPY = true
+  AFTER_ACTION_LABEL = 'IrusAnalytics after action'
   INCLUDE_IRUS_ANALYTICS_CODE = 'include IrusAnalytics::Controller::AnalyticsBehaviour'
   INCLUDE_IRUS_ANALYTICS_LABEL = 'include IrusAnalytics controller behavior'
   ITEM_IDENTIFIER_METHOD_NAME = 'item_identifier'
   SKIP_SEND_IRUS_ANALYTICS_METHOD_NAME = 'skip_send_irus_analytics?'
 
-  argument :after_action, type: :string, required: true, desc: ""
-  argument :controller_class_name, type: :string, default: nil, desc: "The class name of the controller including any module prefixs."
-  # argument :controller_file_name, type: :string, default: nil, desc: "The file name of the controller. 'app/controllers' will be prepended."
-  # argument :debug_verbose, type: :string, default: 'true', desc: "Whether or not to print lots of annoying messages."
-  argument :options_json, type: :string, default: '{}', desc: "JSON encoded hash map of additional options."
+  argument :options_str, type: :string, default: '{}', desc: "A string containing one or space seperated more name:value"
 
   desc <<-EOS
-      This generator makes the following changes to your application:
+      This generator uses a single string that defines options. Options appear in a single string
+      and are of the form "name:value" (no quotes) amd seperated by spaces. 
+      These options are:
+        after_action: (required)
+        controller_class_name: qualified class name -- The class name of the controller including any module prefixs.
+        controller_file_name: partial path starting at root -- The file name of the controller. 'app/controllers' will be prepended.
+        debug_verbose: (optional) true or false -- Whether or not to print lots of annoying messages.
+        test_mode: (optional) true or false -- copy the target file and carry out operations against the copy.
+
+      Either a "controller_class_name" or "controller_file_name" is required.
+
+      Example invocation:
+        bundle exec rails generate inject_controller_hooks "after_action:test_action controller_class_name:Hyrax::DissertationsController debug_verbose:false"
+
+      It makes the following changes to your application:
        1. Injects IRUS analytic hooks into a specified controller
   EOS
 
@@ -27,40 +50,39 @@ class InjectControllerHooksGenerator < Rails::Generators::Base
 
   def inject_controller_code_using_class_name
     say_status "info", "inject_controller_code_using_class_name", :blue
-    say_status "info", "options=#{options}", :blue
-    say_status "info", "options[:after_action]=#{options[:after_action]}", :blue
     say_status "info", "after_action=#{after_action}", :blue
     say_status "info", "controller_class_name=#{controller_class_name}", :blue
-    say_status "info", "options_json=#{options_json}", :blue
-    say_status "info", "options_json['after_action']=#{options_json['after_action']}"
-    say_status "info", "options_json['controller_class_name']=#{options_json['controller_class_name']}"
     return if after_action.blank?
     return if controller_class_name.blank?
     file_path = ::File.join( "app/controllers","#{controller_class_name.underscore}.rb" )
-    do_inject_controller_code(file_path, controller_class_name, after_action: after_action)
+    do_inject_controller_code( file_path, controller_class_name, after_action: after_action )
+  end
+
+  def inject_controller_code_using_file_name
+    say_status "info", "inject_controller_code_using_file_name", :blue
+    say_status "info", "after_action=#{after_action}", :blue
+    say_status "info", "controller_file_name=#{controller_file_name}", :blue
+    return if after_action.blank?
+    return if controller_file_name.blank?
+    file_path = ::File.join( "app/controllers", controller_file_name )
+    do_inject_controller_code( file_path, controller_file_name.camelize, after_action: after_action )
   end
 
   private
 
-  def cli_options
-    @cli_options ||= cli_options_init
-  end
-
-  def cli_options_init
-    begin
-      JSON.parse options_json
-    rescue JSON::JSONError => e
-      # TODO: handle the error better
-      {}
-    end
-  end
-
   def helper
-    @helper ||= GeneratorHelper.new( generator: self, debug_verbose: debug_verbose?, cli_options: cli_options )
+    @helper ||= GeneratorService.new( generator: self,
+                                      generator_name: self.class.name,
+                                      debug_verbose: debug_verbose?,
+                                      cli_options: options_str )
+  end
+
+  def cli_options
+    @cli_options ||= helper.cli_options_init( options_str: options_str, debug_verbose: debug_verbose? )
   end
 
   def debug_verbose?
-    @debug_verbose_t = true
+    @debug_verbose ||= true
   end
 
   def do_inject_controller_code(file_path, class_name, after_action:)
@@ -68,7 +90,7 @@ class InjectControllerHooksGenerator < Rails::Generators::Base
     say_status "info", "File.exist? #{file_path}='#{File.exist? file_path}'", :blue
     if File.exist? file_path
       fp = file_path
-      if COPY_TARGET_FILE_AND_INJECT_INTO_COPY
+      if test_mode
         file_path_copy = ::File.join( ::File.dirname(fp), ::File.basename(fp, ".*") + "_copy" + ::File.extname(fp)  )
         say_status "info", "file_path_copy='#{file_path_copy}'", :blue if debug_verbose?
         copy_file( file_path, file_path_copy )
