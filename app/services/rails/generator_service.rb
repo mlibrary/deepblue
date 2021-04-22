@@ -1,13 +1,38 @@
 # frozen_string_literal: true
 
-class GeneratorHelper
+class GeneratorService
 
-  attr_accessor :generator, :debug_verbose, :cli_options
+  attr_accessor :generator, :generator_name, :debug_verbose, :cli_options
 
-  def initialize( generator:, debug_verbose:, cli_options: )
+  def initialize( generator:, generator_name:, debug_verbose:, cli_options: )
     @generator = generator
+    @generator_name = generator_name
     @debug_verbose = debug_verbose
     @cli_options = cli_options
+  end
+
+  def cli_options_init( options_str:, debug_verbose: false )
+    generator.say_status "info", "options_str=#{options_str}", :blue if debug_verbose
+    return {} if options_str.nil?
+    return {} if options_str.strip.blank?
+    rv = {}
+    opts = options_str.strip.split( ' ' )
+    opts.each do |opt|
+      # generator.say_status "info", "opt=#{opt}", :blue if debug_verbose
+      # generator.say_status "info", "opt.include? ':'=#{opt.include? ':'}", :blue if debug_verbose
+      if opt.include? ':'
+        name, value = opt.split( ':', 2 )
+      else
+        name = opt
+        value = ''
+      end
+      rv[name] = value
+      rv[name.to_sym] = value
+      # generator.say_status "info", "rv[#{name}]=#{rv[name]}", :blue if debug_verbose
+    end
+    # debug_verbose gets special handling
+    # @debug_verbose = rv[:debug_verbose] == 'true' if rv.has_key? :debug_verbose
+    rv
   end
 
   def comment_line( prefix, postfix )
@@ -15,24 +40,24 @@ class GeneratorHelper
   end
 
   def comment_text( prefix, postfix )
-    "# #{prefix} inject #{self.class.name}: #{postfix}"
+    "# #{prefix} inject #{generator_name}: #{postfix}"
   end
 
   def initial_check_including( target_path, str, label )
     generator.say_status "info", "Looking for #{label}", :blue
     line = first_line_including( target_path, str )
-    generator.say_status "info", "Found GeneratorHelper.first_line_matching line='#{line}'", :blue
+    generator.say_status "info", "First line including, line='#{line}'", :blue if debug_verbose
     return false if line.blank?
-    generator.say_status "info", "Found 'public' decleration", :green
+    generator.say_status "info", "Found first line including", :green if debug_verbose
     return true
   end
 
   def initial_check_matching( target_path, target_re, label )
     generator.say_status "info", "Looking for #{label}", :blue
     line = first_line_matching( target_path, target_re )
-    generator.say_status "info", "Found GeneratorHelper.first_line_matching line='#{line}'", :blue
+    generator.say_status "info", "First line matching, line='#{line}'", :blue if debug_verbose
     return false if line.blank?
-    generator.say_status "info", "Found 'public' decleration", :green
+    generator.say_status "info", "Found first line matching", :green if debug_verbose
     return true
   end
 

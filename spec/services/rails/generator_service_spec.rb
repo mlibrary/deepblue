@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../app/services/generator_helper'
+require_relative '../../../app/services/rails/generator_service'
 
 
 class MockGenerator < Rails::Generators::Base
@@ -13,11 +13,12 @@ class MockGenerator < Rails::Generators::Base
 
 end
 
-RSpec.describe GeneratorHelper do
+RSpec.describe GeneratorService do
 
   let(:cli_options) { {} }
   let(:debug_verbose) { false }
   let(:generator) { MockGenerator.new }
+  let(:generator_name) { "GeneratorName" }
 
   let(:tmp_path) { "/tmp" }
   let(:fixture_path) { "./spec/fixtures" }
@@ -42,7 +43,7 @@ RSpec.describe GeneratorHelper do
   end
 
   describe ".already_includes?" do
-    let(:helper) { described_class.new(generator: generator, debug_verbose: debug_verbose, cli_options: cli_options )}
+    let(:helper) { described_class.new(generator: generator, generator_name: generator_name, debug_verbose: debug_verbose, cli_options: cli_options )}
 
     before do
       FileUtils.copy_file( path_to_original_test_file, path_to_test_file )
@@ -68,7 +69,7 @@ RSpec.describe GeneratorHelper do
   end
 
   describe ".already_matches?" do
-    let(:helper) { described_class.new(generator: generator, debug_verbose: debug_verbose, cli_options: cli_options )}
+    let(:helper) { described_class.new(generator: generator, generator_name: generator_name, debug_verbose: debug_verbose, cli_options: cli_options )}
 
     before do
       FileUtils.copy_file( path_to_original_test_file2, path_to_test_file )
@@ -99,7 +100,7 @@ RSpec.describe GeneratorHelper do
   end
 
   describe ".first_line_including" do
-    let(:helper) { described_class.new(generator: generator, debug_verbose: debug_verbose, cli_options: cli_options )}
+    let(:helper) { described_class.new(generator: generator, generator_name: generator_name, debug_verbose: debug_verbose, cli_options: cli_options )}
 
     before do
       FileUtils.copy_file( path_to_original_test_file, path_to_test_file )
@@ -126,7 +127,7 @@ RSpec.describe GeneratorHelper do
   end
 
   describe ".first_line_matching" do
-    let(:helper) { described_class.new(generator: generator, debug_verbose: debug_verbose, cli_options: cli_options )}
+    let(:helper) { described_class.new(generator: generator, generator_name: generator_name, debug_verbose: debug_verbose, cli_options: cli_options )}
 
     before do
       FileUtils.copy_file( path_to_original_test_file, path_to_test_file )
@@ -153,7 +154,7 @@ RSpec.describe GeneratorHelper do
   end
 
   describe ".inject_after" do
-    let(:helper) { described_class.new(generator: generator, debug_verbose: debug_verbose, cli_options: cli_options )}
+    let(:helper) { described_class.new(generator: generator, generator_name: generator_name, debug_verbose: debug_verbose, cli_options: cli_options )}
     let(:include_code) { 'include "something"' }
 
     before do
@@ -233,7 +234,7 @@ EOS
   end
 
   describe ".last_line_including" do
-    let(:helper) { described_class.new(generator: generator, debug_verbose: debug_verbose, cli_options: cli_options )}
+    let(:helper) { described_class.new(generator: generator, generator_name: generator_name, debug_verbose: debug_verbose, cli_options: cli_options )}
 
     before do
       FileUtils.copy_file( path_to_original_test_file, path_to_test_file )
@@ -260,7 +261,7 @@ EOS
   end
 
   describe ".last_line_matching" do
-    let(:helper) { described_class.new(generator: generator, debug_verbose: debug_verbose, cli_options: cli_options )}
+    let(:helper) { described_class.new(generator: generator, generator_name: generator_name, debug_verbose: debug_verbose, cli_options: cli_options )}
 
     before do
       FileUtils.copy_file( path_to_original_test_file, path_to_test_file )
