@@ -17,6 +17,8 @@
                      class: 'btn btn-primary') %>&nbsp;
       <%= submit_tag(t('simple_form.actions.work_view_documentation.reload_i18n_templates'),
                      class: 'btn btn-primary') %>&nbsp;
+      <%= submit_tag(t('simple_form.actions.work_view_documentation.reload_view_templates'),
+                     class: 'btn btn-primary') %>&nbsp;
       <% if current_ability.can_create_any_work? %>
         &nbsp;
           <%= link_to( t(:'helpers.action.work.new'),
@@ -40,8 +42,15 @@
 <h2 class="title-header">I18n Templates</h2>
 <div class='documentation-div'>
   <ul>
-    <li>I18n templates loaded: <%= t("hyrax.email.templates.loaded") %></li>
+    <li>I18n templates loaded: <%= t("hyrax.i18n.templates.loaded") %></li>
     <li>I18n templates last loaded: <%= t("hyrax.i18n.templates.last_loaded") %></li>
+  </ul>
+</div>
+<h2 class="title-header">View Templates</h2>
+<div class='documentation-div'>
+  <ul>
+    <li>View templates loaded: <%= t("hyrax.view.templates.loaded") %></li>
+    <li>View templates last loaded: <%= t("hyrax.view.templates.last_loaded") %></li>
   </ul>
 </div>
 <br/>
