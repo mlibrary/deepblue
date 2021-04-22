@@ -11,6 +11,13 @@ module Deepblue
 
   class AbstractCurationConcernFilter
 
+    attr_reader :report_task
+
+    def initialize( report_task: )
+      super()
+      @report_task = report_task
+    end
+
     def filter_in?( curation_concern:, task: )
       false
     end
@@ -29,89 +36,93 @@ module Deepblue
 
     def to_datetime( date, format, entry: )
       return nil if date.blank?
-      if format.nil?
-        case date
-        when /^now$/
-          return DateTime.now
-        when /^now\s+([+-])\s*([0-9]+)\s+(days?|weeks?|months?|years?)$/
-          plus_minus = Regexp.last_match 1
-          number = Regexp.last_match 2
-          number = number.to_i
-          units = Regexp.last_match 3
-          if '-' == plus_minus
-            case units
-            when 'day'
-              return DateTime.now - number.day
-            when 'days'
-              return DateTime.now - number.days
-            when 'week'
-              return DateTime.now - number.week
-            when 'weeks'
-              return DateTime.now - number.weeks
-            when 'month'
-              return DateTime.now - number.month
-            when 'months'
-              return DateTime.now - number.months
-            when 'year'
-              return DateTime.now - number.year
-            when 'years'
-              return DateTime.now - number.years
-            else
-              raise RuntimeError 'Should never get here.'
-            end
-          else
-            case units
-            when 'day'
-              return DateTime.now + number.day
-            when 'days'
-              return DateTime.now + number.days
-            when 'week'
-              return DateTime.now + number.week
-            when 'weeks'
-              return DateTime.now + number.weeks
-            when 'month'
-              return DateTime.now + number.month
-            when 'months'
-              return DateTime.now + number.months
-            when 'year'
-              return DateTime.now + number.year
-            when 'years'
-              return DateTime.now + number.years
-            else
-              raise RuntimeError 'Should never get here.'
-            end
-          end
-        else
-          return DateTime.parse( date ) if format.nil?
+      if format.present?
+        begin
+          return DateTime.strptime( date, format )
+        rescue ArgumentError => e
+          report_task.msg_puts "Failed to format the date string '#{date}' using format '#{format}' for entry '#{entry}'"
+          raise
         end
       end
-      rv = nil
-      begin
-        rv = DateTime.strptime( date, format )
-      rescue ArgumentError => e
-        msg_puts "ERROR: ArgumentError in CurationConcernFilterDate.to_datetime( #{date}, #{format}, entry: #{entry} )"
-        raise e
+      case date
+      when /^now$/
+        return DateTime.now
+      when /^now\s+([+-])\s*([0-9]+)\s+(days?|weeks?|months?|years?)$/
+        plus_minus = Regexp.last_match 1
+        number = Regexp.last_match 2
+        number = number.to_i
+        units = Regexp.last_match 3
+        if '-' == plus_minus
+          case units
+          when 'day'
+            return DateTime.now - number.day
+          when 'days'
+            return DateTime.now - number.days
+          when 'week'
+            return DateTime.now - number.week
+          when 'weeks'
+            return DateTime.now - number.weeks
+          when 'month'
+            return DateTime.now - number.month
+          when 'months'
+            return DateTime.now - number.months
+          when 'year'
+            return DateTime.now - number.year
+          when 'years'
+            return DateTime.now - number.years
+          else
+            raise RuntimeError 'Should never get here.'
+          end
+        else
+          case units
+          when 'day'
+            return DateTime.now + number.day
+          when 'days'
+            return DateTime.now + number.days
+          when 'week'
+            return DateTime.now + number.week
+          when 'weeks'
+            return DateTime.now + number.weeks
+          when 'month'
+            return DateTime.now + number.month
+          when 'months'
+            return DateTime.now + number.months
+          when 'year'
+            return DateTime.now + number.year
+          when 'years'
+            return DateTime.now + number.years
+          else
+            raise RuntimeError 'Should never get here.'
+          end
+        end
+      else
+        begin
+          return DateTime.parse( date )
+        rescue ArgumentError => e
+          report_task.msg_puts "Failed parse relative ('now') date string '#{date}' (ignoring format '#{format}') for entry '#{entry}'"
+          raise e
+        end
       end
-      return rv
     end
 
-    def initialize( attribute:, parms: )
+    def initialize( report_task:, attribute:, parms: )
+      super( report_task: report_task )
       @attribute = attribute
       @begin_date = to_datetime( parms[:begin], parms[:format], entry: 'begin_date' )
       @end_date = to_datetime( parms[:end], parms[:format], entry: 'end_date' )
-      # msg_puts "@attribute=#{@attribute} @begin_date=#{@begin_date} and @end_date=#{@end_date}" if verbose
+      # report_task.msg_puts "@attribute=#{@attribute} @begin_date=#{@begin_date} and @end_date=#{@end_date}" if report_task.verbose
     end
 
     def include?( curation_concern:, task: )
-      # msg_puts "CurationConcernFilterDate.include? #{curation_concern.id}" if verbose
-      # msg_puts "@attribute=#{@attribute} @begin_date=#{@begin_date} and @end_date=#{@end_date}" if verbose
+      # report_task.msg_puts "CurationConcernFilterDate.include? #{curation_concern.id}" if report_task.verbose
+      # report_task.msg_puts "@attribute=#{@attribute} @begin_date=#{@begin_date} and @end_date=#{@end_date}" if report_task.verbose
       date =  task.curation_concern_attribute( curation_concern: curation_concern, attribute: @attribute )
-      # msg_puts "date=#{date}" if verbose
+      # report_task.msg_puts "date=#{date}" if report_task.verbose
       return false if date.nil?
       return date >= @begin if @end_date.nil?
       return date <= @end if @begin_date.nil?
       rv = date.between?( @begin_date, @end_date )
-      # msg_puts "rv=#{rv} for #{date} between #{@begin_date} and #{@end_date}" if verbose
+      # report_task.msg_puts "rv=#{rv} for #{date} between #{@begin_date} and #{@end_date}" if report_task.verbose
       return rv
     end
 
@@ -120,7 +131,8 @@ module Deepblue
 
   class CurationConcernFilterBlank < AbstractCurationConcernFilter
 
-    def initialize( attribute:, parms:, include: true )
+    def initialize( report_task:, attribute:, parms:, include: true )
+      super( report_task: report_task )
       @attribute = attribute
       @include = include
     end
@@ -136,7 +148,8 @@ module Deepblue
 
   class CurationConcernFilterEquals < AbstractCurationConcernFilter
 
-    def initialize( attribute:, parms:, include: true )
+    def initialize( report_task:, attribute:, parms:, include: true )
+      super( report_task: report_task )
       @attribute = attribute
       @value = parms[:equals]
       @include = include
@@ -154,7 +167,8 @@ module Deepblue
 
   class CurationConcernFilterOr < AbstractCurationConcernFilter
 
-    def initialize( subfilters: )
+    def initialize( report_task:, subfilters: )
+      super( report_task: report_task )
       @subfilters = subfilters
     end
 
@@ -170,7 +184,8 @@ module Deepblue
 
   class CurationConcernFilterStringContains < AbstractCurationConcernFilter
 
-    def initialize( attribute:, parms: )
+    def initialize( report_task:, attribute:, parms: )
+      super( report_task: report_task )
       @attribute = attribute
       @value = parms[:contains]
       @ignore_case = false
@@ -190,7 +205,8 @@ module Deepblue
 
   class CurationConcernFilterStringMatches < AbstractCurationConcernFilter
 
-    def initialize( attribute:, parms:, include: true )
+    def initialize( report_task:, attribute:, parms:, include: true )
+      super( report_task: report_task )
       @attribute = attribute
       @regex = Regexp.new parms[:matches]
       @include = include
@@ -293,9 +309,9 @@ module Deepblue
       hash.each do |attribute,parms|
         case attribute
         when :create_date
-          filters << CurationConcernFilterDate.new( attribute: attribute, parms: parms )
+          filters << CurationConcernFilterDate.new( report_task: self, attribute: attribute, parms: parms )
         when :modified_date
-          filters << CurationConcernFilterDate.new( attribute: attribute, parms: parms )
+          filters << CurationConcernFilterDate.new( report_task: self, attribute: attribute, parms: parms )
         when :fields_contain
           attributes = []
           if parms.has_key? :attributes
@@ -304,21 +320,21 @@ module Deepblue
           next if attributes.blank?
           subfilters = []
           attributes.each do |attribute|
-            subfilters << CurationConcernFilterStringContains.new( attribute: attribute, parms: parms )
+            subfilters << CurationConcernFilterStringContains.new( report_task: self, attribute: attribute, parms: parms )
           end
-          filters << CurationConcernFilterOr.new( subfilters: subfilters )
+          filters << CurationConcernFilterOr.new( report_task: self, subfilters: subfilters )
         else
           if parms.has_key? :blank
-            filters << CurationConcernFilterBlank.new( attribute: attribute, parms: parms )
+            filters << CurationConcernFilterBlank.new( report_task: self, attribute: attribute, parms: parms )
           end
           if parms.has_key? :contains
-            filters << CurationConcernFilterStringContains.new( attribute: attribute, parms: parms )
+            filters << CurationConcernFilterStringContains.new( report_task: self, attribute: attribute, parms: parms )
           end
           if parms.has_key? :equals
-            filters << CurationConcernFilterEquals.new( attribute: attribute, parms: parms )
+            filters << CurationConcernFilterEquals.new( report_task: self, attribute: attribute, parms: parms )
           end
           if parms.has_key? :matches
-            filters << CurationConcernFilterStringMatches.new( attribute: attribute, parms: parms )
+            filters << CurationConcernFilterStringMatches.new( report_task: self, attribute: attribute, parms: parms )
           end
         end
       end
