@@ -151,8 +151,8 @@ module Deepblue
 
     # TODO: move to work_permissions_behavior
     def doi?
-      return false unless @curation_concern.respond_to? :doi
-      @curation_concern.doi.present?
+      return false unless curation_concern.respond_to? :doi
+      curation_concern.doi.present?
     end
 
     def create
@@ -237,10 +237,10 @@ module Deepblue
 
     def can_subscribe_to_analytics_reports?
       return false unless AnalyticsHelper.enable_local_analytics_ui?
-      return false if single_use_show?
+      return false if single_use_link?
       return true if current_ability.admin? && AnalyticsHelper.analytics_reports_admins_can_subscribe?
       return true if can_edit_work? && AnalyticsHelper.open_analytics_report_subscriptions?
-      return true if depositor == current_ability.current_user.email && AnalyticsHelper.open_analytics_report_subscriptions?
+      return true if curation_concern.depositor == current_ability.current_user.email && AnalyticsHelper.open_analytics_report_subscriptions?
       false
     end
 
@@ -262,19 +262,19 @@ module Deepblue
     # TODO: move to work_permissions_behavior
     def editor?
       return false if single_use_link?
-      current_ability.can?(:edit, @curation_concern.id)
+      current_ability.can?(:edit, curation_concern.id)
     end
 
     # TODO: move to work_permissions_behavior
     def tombstoned?
-      return false unless @curation_concern.respond_to? :tombstone
-      @curation_concern.tombstone.present?
+      return false unless curation_concern.respond_to? :tombstone
+      curation_concern.tombstone.present?
     end
 
     # TODO: move to work_permissions_behavior
     def workflow_state
-      return false unless @curation_concern.respond_to? :workflow_state
-      @curation_concern.workflow_state
+      return false unless curation_concern.respond_to? :workflow_state
+      curation_concern.workflow_state
     end
 
     def destroy
@@ -353,7 +353,7 @@ module Deepblue
                                              "params[:id]=#{params[:id]}",
                                              "params[:link_id]=#{params[:link_id]}",
                                              "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
-      @curation_concern ||= ::Deepblue::WorkViewContentService.content_find_by_id( id: params[:id] )
+      curation_concern ||= ::Deepblue::WorkViewContentService.content_find_by_id( id: params[:id] )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",
@@ -366,7 +366,7 @@ module Deepblue
                                              "su_link=#{su_link}",
                                              "su_link.class.name=#{su_link.class.name}",
                                              "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
-      if @curation_concern.tombstone.present?
+      if curation_concern.tombstone.present?
         single_use_link_destroy! su_link
         return redirect_to main_app.root_path, alert: single_use_link_expired_msg
       end
