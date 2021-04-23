@@ -7,14 +7,15 @@ require_relative '../../lib/tasks/report_task'
 
 class ReportTaskJob < ::Hyrax::ApplicationJob
 
-  mattr_accessor :report_task_job_debug_verbose
-  @@report_task_job_debug_verbose = ::Deepblue::IngestIntegrationService.report_task_job_debug_verbose
+  mattr_accessor :report_task_job_debug_verbose,
+                 default: ::Deepblue::IngestIntegrationService.report_task_job_debug_verbose
 
-  mattr_accessor :report_task_allowed_path_extensions
-  @@report_task_allowed_path_extensions = [ '.yml', '.yaml' ]
+  mattr_accessor :report_task_allowed_path_extensions, default: [ '.yml', '.yaml' ]
 
-  mattr_accessor :report_task_allowed_path_prefixes
-  @@report_task_allowed_path_prefixes = [ '/deepbluedata-prep/', './data/reports/', '/deepbluedata-globus/uploads/' ]
+  mattr_accessor :report_task_allowed_path_prefixes, default: [ '/deepbluedata-prep/',
+                                                                './lib/reports/',
+                                                                './data/reports/',
+                                                                '/deepbluedata-globus/uploads/' ]
 
   include JobHelper # see JobHelper for :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as :default
