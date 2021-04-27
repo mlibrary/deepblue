@@ -12,6 +12,7 @@ RSpec.describe ReportTaskJob, skip: false do
   let(:options)     { {} }
   let(:allowed_path_extensions) { [ '.yml', '.yaml' ] }
   let(:allowed_path_prefixes)   { [ '/deepbluedata-prep/',
+                                    './lib/reports/',
                                     './data/reports/',
                                     '/deepbluedata-globus/uploads/' ] }
 

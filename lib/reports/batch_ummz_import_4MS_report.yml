@@ -10,7 +10,7 @@
       :id: true
   :output:
     :format: CSV
-    :file: /deepbluedata-prep/UMMZ/%Y%m%d%H%M%S-prod-batch_ummz_import_report
+    :file: /deepbluedata-prep/UMMZ/%Y%m%d%H%M%S-prod-batch_ummz_import_report_4MS
   :curation_concern: DataSet
   :fields:
     :id            : ID

@@ -4,13 +4,13 @@
 :report:
   :config:
     :verbose: true
-    :include_children: true
-    :include_children_parent_columns_blank: true
-    :include_children_parent_columns:
-      :id: true
+    #:include_children: true
+    #:include_children_parent_columns_blank: true
+    #:include_children_parent_columns:
+      #:id: true
   :output:
     :format: CSV
-    :file: /deepbluedata-prep/UMMZ/%Y%m%d%H%M%S-prod-batch_ummz_import_report
+    :file: /deepbluedata-prep/UMMZ/%Y%m%d%H%M%S-prod-batch_ummz_import_report_4UMMZ
   :curation_concern: DataSet
   :fields:
     :id            : ID
@@ -20,17 +20,17 @@
     :create_date   : Create Date
     :modified_date : Modified Date
     :data_set_url  : URL
-    :child_file_set_name : File Name
-    :child_file_set_id : File Set ID
+    #:child_file_set_name : File Name
+    #:child_file_set_id : File Set ID
   :field_accessors:
     :create_date:
       :method:
     :data_set_url:
       :method:
-    :child_file_set_name:
-      :report_method:
-    :child_file_set_id:
-      :report_method:
+    #:child_file_set_name:
+      #:report_method:
+    #:child_file_set_id:
+      #:report_method:
   :field_formats:
     :title:
       :join: ' '
@@ -41,7 +41,7 @@
   :filters:
     :include:
       :create_date:
-        :begin  : now - 4 months
+        :begin  : now - 16 months
         :end    : now
 #       :format : "%Y-%m-%d" # no format parameter when using 'now'
       :curation_notes_admin:
