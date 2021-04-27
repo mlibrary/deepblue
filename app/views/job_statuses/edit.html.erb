@@ -1,0 +1,8 @@
+<% provide :page_header do %>
+  <h1><%= Edit Job Status %></h1>
+<% end %>
+
+<%= render 'form', job_status: @job_status %>
+
+<%= link_to 'Show', @job_status %> |
+<%= link_to 'Back', job_statuses_path %>

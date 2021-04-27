@@ -247,6 +247,12 @@ Rails.application.routes.draw do
 
   # mount Yabeda::Prometheus::Exporter => "/metrics"
 
+  # resource :job_status #, only: [:index, :show, :update]
+
+  resource :job_status
+
+  get 'job_statuses', to: 'job_statuses#index', as: 'job_statuses' # index
+
 end
 
 # # Match IDs with dots in them
