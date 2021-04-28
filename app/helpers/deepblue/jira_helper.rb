@@ -122,7 +122,7 @@ module Deepblue
     end
 
     # return true if the create user was successful
-    def self.jira_create_user( email:, client: nil, is_verbose: false, delay_after_create: 0 )
+    def self.jira_create_user( email:, client: nil, is_verbose: false, delay_after_create: 10 )
       return false unless jira_enabled
       return false unless jira_allow_create_users
       return false if email.blank?
@@ -141,10 +141,12 @@ module Deepblue
                                             bold_puts: is_verbose ) if is_verbose || jira_helper_debug_verbose
       post_rv = client.post( path, user_options.to_json )
       jira_debug_verbose_for_client_response( client: client, response: post_rv, is_verbose: is_verbose )
-      rv = post_rv.body.blank?
+      rv = "200" == post_rv.code
       ::Deepblue::LoggingHelper.bold_debug( [ ::Deepblue::LoggingHelper.here,
                                               ::Deepblue::LoggingHelper.called_from,
                                               "post_rv=#{post_rv}",
+                                              "post_rv.code.class.name=#{post_rv.code.class.name}",
+                                              "post_rv.code=#{post_rv.code}",
                                               "rv=#{rv}",
                                               "" ],
                                             bold_puts: is_verbose ) if is_verbose || jira_helper_debug_verbose
@@ -577,7 +579,7 @@ module Deepblue
     def self.jira_user_as_hash( user:, client: nil, is_verbose: false )
       return {} unless jira_enabled
       client = jira_client( client: client )
-      path = "#{client.options[:rest_base_path]}/user/search?username=#{user}"
+      path = "#{client.options[:rest_base_path]}/user/search?username=#{user}&includeInactive=true"
       response = client.get(path)
       jira_debug_verbose_for_client_response( client: client, response: response, is_verbose: is_verbose )
       get_rv = response
@@ -588,7 +590,7 @@ module Deepblue
                                               "path=#{path}",
                                               "get_rv=#{get_rv}",
                                               "body=#{body}",
-                                              "" ] ) if jira_helper_debug_verbose
+                                              "" ] ) if is_verbose || jira_helper_debug_verbose
       rv = if body.blank?
              {}
            else
@@ -598,7 +600,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug( [ ::Deepblue::LoggingHelper.here,
                                               ::Deepblue::LoggingHelper.called_from,
                                               "rv=#{rv}",
-                                              "" ] ) if jira_helper_debug_verbose
+                                              "" ] ) if is_verbose || jira_helper_debug_verbose
       return rv
     end
 
