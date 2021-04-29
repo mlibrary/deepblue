@@ -8,7 +8,8 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-gem 'hyrax', '2.9.1'
+# https://github.com/samvera/hyrax/releases
+gem 'hyrax', '2.9.4'
 gem 'linkeddata', '<= 3.1.1'
 gem 'rdf-rdfa', '< 3.1.1'
 gem 'rdf-vocab', '<= 3.1.4'
@@ -77,6 +78,8 @@ gem 'jbuilder', '~> 2.5'
 #      https://tools.lib.umich.edu/jira/browse/HELIO-1450
 # gem 'rack', git: 'https://github.com/rack/rack.git', ref: 'ee01748'
 
+gem 'willow_sword', git: 'https://github.com/CottageLabs/willow_sword.git'
+
 # gem 'samvera-persona' #, '0.1.7'
 # gem 'samvera-persona', :github => 'samvera-labs/samvera-persona', :branch => 'remove-generator-config'
 gem 'samvera-persona'
@@ -128,6 +131,8 @@ gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
 gem 'devise'
 gem 'devise-guests', '~> 0.6'
+# https://github.com/samg/diffy
+gem 'diffy'
 gem 'jira-ruby', '~> 1.1'
 gem 'okcomputer', '~> 1.17'
 gem 'omniauth'
