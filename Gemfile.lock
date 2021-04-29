@@ -1,4 +1,13 @@
 GIT
+  remote: https://github.com/CottageLabs/willow_sword.git
+  revision: 039adf7bf28b5a517a4e3f221b5d2a31ad077e88
+  specs:
+    willow_sword (0.2.0)
+      bagit (~> 0.4.1)
+      rails (>= 5.1.6)
+      rubyzip (>= 1.0.0)
+
+GIT
   remote: https://github.com/mlibrary/irus_analytics
   revision: d71a4e879cf21b45f6fae5ad58f3c43415e3667f
   specs:
@@ -101,7 +110,7 @@ GEM
     awesome_nested_set (3.4.0)
       activerecord (>= 4.0.0, < 7.0)
     aws-eventstream (1.1.1)
-    aws-partitions (1.446.0)
+    aws-partitions (1.449.0)
     aws-sdk-core (3.114.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
@@ -110,7 +119,7 @@ GEM
     aws-sdk-kms (1.43.0)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.93.1)
+    aws-sdk-s3 (1.94.0)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.1)
@@ -120,6 +129,9 @@ GEM
     babel-transpiler (0.7.0)
       babel-source (>= 4.0, < 6)
       execjs (~> 2.0)
+    bagit (0.4.4)
+      docopt (~> 0.5.0)
+      validatable (~> 1.6)
     bcp47 (0.3.3)
       i18n
     bcrypt (3.1.16)
@@ -225,7 +237,9 @@ GEM
       actionmailer (>= 4.1.0)
       devise (>= 4.0.0)
     diff-lcs (1.4.4)
+    diffy (3.4.0)
     docile (1.3.5)
+    docopt (0.5.0)
     down (4.8.1)
       addressable (~> 2.5)
     draper (4.0.1)
@@ -304,7 +318,7 @@ GEM
     erubi (1.10.0)
     et-orbi (1.2.4)
       tzinfo
-    ethon (0.13.0)
+    ethon (0.14.0)
       ffi (>= 1.15.0)
     execjs (2.7.0)
     ezid-client (1.9.0)
@@ -366,7 +380,7 @@ GEM
       google-apis-sheets_v4 (>= 0.4.0, < 1.0.0)
       googleauth (>= 0.5.0, < 1.0.0)
       nokogiri (>= 1.5.3, < 2.0.0)
-    googleauth (0.16.1)
+    googleauth (0.16.2)
       faraday (>= 0.17.3, < 2.0)
       jwt (>= 1.4, < 3.0)
       memoist (~> 0.16)
@@ -426,7 +440,7 @@ GEM
       hydra-derivatives (~> 3.0)
       hydra-file_characterization (~> 1.0)
       hydra-pcdm (>= 0.9)
-    hyrax (2.9.1)
+    hyrax (2.9.4)
       active-fedora (>= 11.5.2, < 12.2)
       almond-rails (~> 0.1)
       awesome_nested_set (~> 3.1)
@@ -1042,6 +1056,7 @@ GEM
     unf_ext (0.0.7.7)
     unicode-display_width (1.7.0)
     unicode-types (1.6.0)
+    validatable (1.6.7)
     vegas (0.1.11)
       rack (>= 1.0.0)
     warden (1.2.9)
@@ -1092,13 +1107,14 @@ DEPENDENCIES
   coveralls
   devise
   devise-guests (~> 0.6)
+  diffy
   down (~> 4.4)
   edtf
   ezid-client
   factory_bot
   fcrepo_wrapper
   groupdate
-  hyrax (= 2.9.1)
+  hyrax (= 2.9.4)
   irus_analytics!
   jbuilder (~> 2.5)
   jira-ruby (~> 1.1)
@@ -1156,6 +1172,7 @@ DEPENDENCIES
   uglifier (>= 1.3.0)
   web-console (>= 3.3.0)
   websocket-extensions (>= 0.1.5)
+  willow_sword!
   yabeda-prometheus
   yabeda-puma-plugin
   yabeda-rails
