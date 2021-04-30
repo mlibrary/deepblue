@@ -23,12 +23,23 @@ Flipflop.configure do
           default: false,
           description: "Depositors can subscribe to analytic reports."
 
-  feature :display_standard_message,
-          default: false,
-          description: "Display standard message."
 
-  feature :display_outage_message,
-          default: false,
-          description: "Display outage message."
+
+  group :masthead_banner_announcements do
+
+    feature :display_masthead_banner,
+            default: false,
+            description: "Display masthead banner (activate one of the banners below)"
+
+    feature :display_masthead_banner_standard,
+            default: true,
+            description: "Default masthead banner"
+
+    feature :display_masthead_banner_outage,
+            default: false,
+            description: "Outage masthead banner"
+
+  end
+
 
 end
