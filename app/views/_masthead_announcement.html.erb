@@ -1,17 +1,22 @@
-<% if Flipflop.display_standard_message? %>
-  <section class="update-alert--warning container-fluid">
-    <div class="row ribbon-content">
-      <div class="container update-alert-container">
-      	<%= t( "hyrax.masthead_banner.standard_html" ) %>
+<% if Flipflop.display_masthead_banner? %>
+
+  <% if Flipflop.display_masthead_banner_standard? %>
+    <section class="update-alert--warning container-fluid">
+      <div class="row ribbon-content">
+        <div class="container update-alert-container">
+          <%= t( "hyrax.masthead_banner.standard_html" ) %>
+        </div>
       </div>
-    </div>
-  </section>
-<% elsif Flipflop.display_outage_message? %>
-  <section class="update-alert--warning container-fluid">
-    <div class="row ribbon-content">
-      <div class="container update-alert-container">
-        <%= t( "hyrax.masthead_banner.outage_banner_html" ) %>
+    </section>
+  <% end %>
+  <% if Flipflop.display_masthead_banner_outage? %>
+    <section class="update-alert--warning container-fluid">
+      <div class="row ribbon-content">
+        <div class="container update-alert-container">
+          <%= t( "hyrax.masthead_banner.outage_banner_html" ) %>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  <% end %>
+
 <% end %>
