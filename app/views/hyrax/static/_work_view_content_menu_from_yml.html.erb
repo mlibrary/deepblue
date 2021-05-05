@@ -6,7 +6,9 @@
                                              ::Deepblue::LoggingHelper.called_from,
                                              "menu_hash=#{menu_hash}",
                                              ""]  if @presenter.static_content_menu_debug_verbose %>
-
+    <% if menu_hash.blank? %>
+      Error: Menu hash not found.
+    <% else %>
     <% menu_hash.each_entry do |key,value| %>
       <% ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
@@ -68,6 +70,7 @@
           </li>
         <% end %>
       <% end %>
+    <% end %>
     <% end %>
   </ul>
 </aside>

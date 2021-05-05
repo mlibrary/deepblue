@@ -7,10 +7,11 @@ module Deepblue
 
     mattr_accessor :static_content_cache
     @@static_content_cache = {}
-    mattr_accessor :static_content_controller_behavior_verbose
-    self.static_content_controller_behavior_verbose = false
-    mattr_accessor :static_content_cache_debug_verbose
-    self.static_content_cache_debug_verbose = false
+
+    mattr_accessor :static_content_controller_behavior_verbose,
+                   default: ::DeepBlueDocs::Application.config.static_content_controller_behavior_verbose
+    mattr_accessor :static_content_cache_debug_verbose,
+                   default: ::DeepBlueDocs::Application.config.static_content_cache_debug_verbose
 
     def self.static_content_documentation_collection_id
       WorkViewContentService.content_documentation_collection_id
@@ -93,6 +94,10 @@ module Deepblue
 
     def static_content_menu_debug_verbose
       ::Deepblue::WorkViewContentService.static_content_controller_behavior_menu_verbose
+    end
+
+    def documentation_view_title_prefix
+      WorkViewContentService.documentation_view_title_prefix
     end
 
     def static_content_documentation_collection

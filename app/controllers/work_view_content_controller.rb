@@ -3,10 +3,8 @@
 class WorkViewContentController < ApplicationController
   include Deepblue::StaticContentControllerBehavior
 
-  class_attribute :work_view_content_controller_debug_verbose
-  self.work_view_content_controller_debug_verbose = false
-
-  mattr_accessor :static_content_helper_debug_verbose
+  mattr_accessor :work_view_content_controller_debug_verbose, default: false
+  mattr_accessor :static_content_helper_debug_verbose, default: false
 
   class_attribute :presenter_class
   self.presenter_class = WorkViewContentPresenter

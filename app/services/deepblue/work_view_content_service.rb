@@ -172,7 +172,7 @@ module Deepblue
     end
 
     def self.load_view_templates
-      load_i18n_templates_using_prefix( prefix: documentation_i18n_title_prefix,
+      load_i18n_templates_using_prefix( prefix: documentation_view_title_prefix,
                                         key_prefix: "hyrax.view.templates",
                                         debug_verbose: work_view_content_service_view_templates_debug_verbose ||
                                           work_view_content_service_debug_verbose )
@@ -186,7 +186,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "prefix=#{prefix}",
                                              "key_prefix=#{key_prefix}",
-                                             "" ] if debug_verbose
+                                             "" ], bold_puts: debug_verbose if debug_verbose
       return unless Dir.exist?( './data/' ) # skip this unless in real server environment (./data/ does not exist for moku build environment)
       docCollection = content_documentation_collection
       return unless docCollection.present?
@@ -195,7 +195,7 @@ module Deepblue
                                                ::Deepblue::LoggingHelper.called_from,
                                                "prefix=#{prefix}",
                                                "work.title.first=#{work.title.first}",
-                                               "" ] if debug_verbose
+                                               "" ], bold_puts: debug_verbose if debug_verbose
         if work.title.first.starts_with? prefix
           work.file_sets.each do |fs|
             file_name = fs.label
@@ -203,6 +203,17 @@ module Deepblue
               key = Regexp.last_match(1)
               value = content_read_file( file_set: fs )
               load_i18n_templates_process( key: key, value: value, debug_verbose: debug_verbose )
+            elsif file_name =~ /^(.+)\.txt$/i
+              key = Regexp.last_match(1)
+              value = content_read_file( file_set: fs )
+              locale = "en" # TODO: possibly store the locale in description
+              ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                     ::Deepblue::LoggingHelper.called_from,
+                                                     "key=#{key}",
+                                                     "value=#{value}",
+                                                     "locale=#{locale}",
+                                                     "" ], bold_puts: debug_verbose if debug_verbose
+              load_templates_store( key: key, value: value, locale: locale )
             end
           end
         end
@@ -216,18 +227,14 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "key=#{key}",
                                              "value=#{value}",
-                                             "" ] if debug_verbose
+                                             "" ], bold_puts: debug_verbose if debug_verbose
       # convert value from yaml to hash of hashes
       hash = YAML.load( value )
       # walk hash and store values
       load_i18n_templates_hash_walk( hash: hash, debug_verbose: debug_verbose )
     end
 
-    def self.load_i18n_templates_hash_walk( hash:,
-                                                         key_path: '',
-                                                         key: '',
-                                                         locale: '',
-                                                         debug_verbose: )
+    def self.load_i18n_templates_hash_walk( hash:, key_path: '', key: '', locale: '', debug_verbose: )
 
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -235,7 +242,7 @@ module Deepblue
                                              "key_path=#{key_path}",
                                              "key=#{key}",
                                              "locale=#{locale}",
-                                             "" ] if debug_verbose
+                                             "" ], bold_puts: debug_verbose if debug_verbose
       prefix = key_path.to_s
       if locale.blank?
         locale = key
@@ -245,7 +252,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              "prefix=#{prefix}",
                                              "locale=#{locale}",
-                                             "" ] if debug_verbose
+                                             "" ], bold_puts: debug_verbose if debug_verbose
       hash.each do |key,value|
         if value.is_a?( Hash )
           load_i18n_templates_hash_walk( hash: value,
@@ -262,7 +269,7 @@ module Deepblue
                                                  "value=#{value}",
                                                  "put_key=#{put_key}",
                                                  "locale=#{locale}",
-                                                 "" ] if debug_verbose
+                                                 "" ], bold_puts: debug_verbose if debug_verbose
           load_templates_store( key: put_key, value: value, locale: locale )
         end
       end
