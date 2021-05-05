@@ -2,7 +2,7 @@
 
 class WorkViewDocumentationController < ApplicationController
 
-  WORK_VIEW_DOCUMENTATION_CONTROLLER_DEBUG_VERBOSE = false
+  mattr_accessor :work_view_documentation_controller_debug_verbose, default: false
 
   include ActiveSupport::Concern
   include Blacklight::Base
@@ -20,11 +20,11 @@ class WorkViewDocumentationController < ApplicationController
   attr_reader :action_error
 
   def action
-    ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           Deepblue::LoggingHelper.called_from,
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
                                            "params[:commit]=#{params[:commit]}",
-                                           "" ] if WORK_VIEW_DOCUMENTATION_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if work_view_documentation_controller_debug_verbose
     action = params[:commit]
     @action_error = false
     msg = case action
@@ -71,7 +71,7 @@ class WorkViewDocumentationController < ApplicationController
 
   def action_export_documentation
     ExportDocumentationJob.perform_later( id: ::Deepblue::WorkViewContentService.content_documentation_collection_id,
-                                          export_path: ".#{::DeepBlueDocs::Application.config.relative_url_root}/" )
+                                          export_path: "/deepbluedata-prep/documentation_export/" )
     t( 'simple_form.actions.work_view_documentation.export_documentation_started' )
   end
 
@@ -106,12 +106,12 @@ class WorkViewDocumentationController < ApplicationController
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "documentation_collection_title=#{documentation_collection_title}",
-                                           "" ] if WORK_VIEW_DOCUMENTATION_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if work_view_documentation_controller_debug_verbose
     rv =   static_content_find_collection_by_title( title: documentation_collection_title )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "rv&.id=#{rv&.id}",
-                                           "" ] if WORK_VIEW_DOCUMENTATION_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if work_view_documentation_controller_debug_verbose
 
     rv
   end

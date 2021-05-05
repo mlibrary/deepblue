@@ -95,6 +95,8 @@ module DeepBlueDocs
     config.single_use_links_viewer_controller_debug_verbose = false
     config.solr_document_behavior_debug_verbose = false
     config.solr_document_debug_verbose = false
+    config.static_content_controller_behavior_verbose = false
+    config.static_content_cache_debug_verbose = false
     config.umrdr_work_behavior_debug_verbose = false
     config.user_stat_importer_debug_verbose = false
     config.work_show_presenter_debug_verbose = false
@@ -282,18 +284,20 @@ module DeepBlueDocs
     config.key_value_backend = I18n::Backend::KeyValue.new({})
     config.i18n.backend = I18n.backend
     config.after_initialize do
-      # puts ""
-      # puts "Begin after initialize..."
-      # puts
+      after_initialize_debug_verbose = false
+      puts if after_initialize_debug_verbose
+      puts "Begin after initialize..." if after_initialize_debug_verbose
+      puts if after_initialize_debug_verbose
       # http://railscasts.com/episodes/256-i18n-backends?view=asciicast
       I18n.backend = I18n::Backend::Chain.new( config.key_value_backend, I18n.backend )
       config.i18n_backend = I18n.backend
-      # puts I18n.backend
+      puts I18n.backend if after_initialize_debug_verbose
       # note that the debug statements in load_email_templates will not go to the log when called from here
       Deepblue::WorkViewContentService.load_email_templates
-      # puts "Finished after initialize."
+      puts "Finished after initialize." if after_initialize_debug_verbose
       Deepblue::WorkViewContentService.load_i18n_templates
       Deepblue::WorkViewContentService.load_view_templates
+      puts "Finished after i18n and view templates load." if after_initialize_debug_verbose
     end
 
   end
