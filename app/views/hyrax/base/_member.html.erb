@@ -52,7 +52,11 @@
     <td class="attribute attribute-file_size"><%= member.file_size_human_readable %></td>
     <td class="attribute attribute-permission"><%= member.permission_badge %></td>
     <td>
-      <%= render 'hyrax/file_sets/actions', member: member %>
+      <% if !Flipflop.display_masthead_banner_outage? %>
+        <%= render 'hyrax/file_sets/actions', member: member %>
+      <% else %>
+        -
+      <% end %>
     </td>
   </tr>
 <% end %>

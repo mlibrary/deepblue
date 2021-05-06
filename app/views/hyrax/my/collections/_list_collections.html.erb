@@ -70,10 +70,14 @@
   <td><%= collection_presenter.permission_badge %></td>
 
   <td>
-    <% if collection_presenter.solr_document.admin_set? %>
-      <%= render '/hyrax/my/admin_set_action_menu', admin_set_presenter: collection_presenter %>
+    <% if !Flipflop.display_masthead_banner_outage? %>
+      <% if collection_presenter.solr_document.admin_set? %>
+        <%= render '/hyrax/my/admin_set_action_menu', admin_set_presenter: collection_presenter %>
+      <% else %>
+        <%= render 'hyrax/my/collection_action_menu', collection_presenter: collection_presenter %>
+      <% end %>
     <% else %>
-      <%= render 'hyrax/my/collection_action_menu', collection_presenter: collection_presenter %>
+      -
     <% end %>
-   </td>
+  </td>
 </tr>
