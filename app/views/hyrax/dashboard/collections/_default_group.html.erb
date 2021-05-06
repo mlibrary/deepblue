@@ -2,15 +2,18 @@
   <caption class="sr-only"><%= t("hyrax.dashboard.my.sr.listing") %> <%= application_name %></caption>
   <thead>
   <tr>
-    <th class="check-all">
-      <label for="check_all" class="sr-only"
-        ><%= t("hyrax.dashboard.my.sr.check_all_label") %>
-      </label>
-      <label class="centerizer">
-        <input type="checkbox" class="check-all-checkbox" name="check_all" id="check_all" value="yes" />
-        <%= t("hyrax.dashboard.my.action.select") %>
-      </label>
-    </th>
+    <% if Flipflop.display_masthead_banner_outage? %>
+      <td> - </td>
+    <% else %>
+      <th class="check-all">
+        <label for="check_all" class="sr-only"><%= t("hyrax.dashboard.my.sr.check_all_label") %>
+        </label>
+        <label class="centerizer">
+          <input type="checkbox" class="check-all-checkbox" name="check_all" id="check_all" value="yes" />
+          <%= t("hyrax.dashboard.my.action.select") %>
+        </label>
+      </th>
+    <% end %>
     <th><%= t("hyrax.dashboard.my.heading.title") %></th>
     <% if !current_ability.admin? %>
       <th><%= t("hyrax.dashboard.my.heading.access") %></th>

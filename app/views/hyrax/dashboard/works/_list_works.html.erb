@@ -1,8 +1,12 @@
 <tr id="document_<%= document.id %>">
-  <td>
-    <label for="batch_document_<%= document.id %>" class="sr-only"><%= t("hyrax.dashboard.my.sr.batch_checkbox") %></label>
-    <%= render 'hyrax/batch_select/add_button', document: document %>&nbsp;
-  </td>
+  <% if Flipflop.display_masthead_banner_outage? %>
+    <td> - </td>
+  <% else %>
+    <td>
+      <label for="batch_document_<%= document.id %>" class="sr-only"><%= t("hyrax.dashboard.my.sr.batch_checkbox") %></label>
+      <%= render 'hyrax/batch_select/add_button', document: document %>&nbsp;
+    </td>
+  <% end %>
   <td>
     <div class='media'>
 
@@ -37,7 +41,7 @@
      <td class="text-center">Tombstoned</td>
      <% end %>
   <% else %>
-    <% if presenter.can_edit_work? %>
+    <% if presenter.can_edit_work? && !Flipflop.display_masthead_banner_outage? %>
       <td class='text-center'><%= render_visibility_link document %></td>
       <td class='text-center'><%= render 'work_action_menu', presenter: presenter, document: document %></td>
     <% else %>
