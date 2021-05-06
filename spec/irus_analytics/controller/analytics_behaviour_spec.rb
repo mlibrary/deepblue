@@ -4,7 +4,7 @@ require 'irus_analytics/elements'
 
 class TestClass
   include IrusAnalytics::Controller::AnalyticsBehaviour
-  attr_accessor :request, :item_identifier
+  attr_accessor :request, :item_identifier_for_irus_analytics
 end
 
 describe IrusAnalytics::Controller::AnalyticsBehaviour do
@@ -17,7 +17,7 @@ describe IrusAnalytics::Controller::AnalyticsBehaviour do
     before(:each) do
        @test_class = TestClass.new
        @test_class.request  = double("request", :remote_ip => "127.0.0.1", :user_agent => "Test user agent",  url: "http://localhost:3000/test", referer: "http://localhost:3000", headers: { "HTTP_RANGE" => nil })
-       @test_class.item_identifier = "test:123"
+       @test_class.item_identifier_for_irus_analytics = "test:123"
     end
 
     it "will call the send_irus_analytics method with the correct params..." do
@@ -34,7 +34,7 @@ describe IrusAnalytics::Controller::AnalyticsBehaviour do
                   http_referer: "http://localhost:3000",
                   source_repository: "hydra.hull.ac.uk"
        }
-       allow(Resque).to receive(:enqueue) .and_return(nil)
+       allow(Resque).to receive(:enqueue).and_return(nil)
        # Should NOT filter this request
        expect(@test_class).to receive(:filter_request?).and_return(false)
        expect(Resque).to receive(:enqueue).with(IrusAnalytics::IrusClient,
