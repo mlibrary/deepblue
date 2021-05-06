@@ -1,0 +1,47 @@
+# works_since_2019_report.yml
+---
+:report:
+  :config:
+    :verbose: true
+  :output:
+    :format: CSV
+    :file: /deepbluedata-prep/reports/works_since_2019_report
+  :curation_concern: DataSet
+  :fields:
+    # name of the depositor, their email, the title of the data set, the date it was deposited, the date it was published and the DOI
+    :id              : ID
+    :title           : Title
+    :depositor       : Depositor
+    :creator         : Creator
+    :authoremail     : Author Email
+    :visibility      : Visibility
+    :workflow_state  : Workflow
+    #    :create_date     : Create Date
+    :date_created    : Date Created
+    :date_published  : Date Published
+    :doi             : DOI
+    :data_set_url    : URL
+  :field_accessors:
+    :data_set_url:
+      :method:
+    :visibility:
+      :method:
+    :workflow_state:
+      :method:
+  :field_formats:
+    :creator:
+      :join: '; '
+    :title:
+      :join: ' '
+    :create_date:
+      :date: "%Y-%m-%d %H:%M:%S"
+    :date_created:
+      :date: "%Y-%m-%d %H:%M:%S"
+    :date_published:
+      :date: "%Y-%m-%d %H:%M:%S"
+  :filters:
+    :include:
+      :date_created:
+        :begin  : "2019-01-01"
+        :end    : "2022-01-01"
+        :format : "%Y-%m-%d"

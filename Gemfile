@@ -80,7 +80,7 @@ gem 'jbuilder', '~> 2.5'
 
 gem 'willow_sword', git: 'https://github.com/CottageLabs/willow_sword.git'
 
-# gem 'samvera-persona' #, '0.1.7'
+# gem 'samvera-persona' #, '0.1.7'/analytics_behaviour_spec.rb
 # gem 'samvera-persona', :github => 'samvera-labs/samvera-persona', :branch => 'remove-generator-config'
 gem 'samvera-persona'
 
