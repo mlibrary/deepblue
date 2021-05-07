@@ -30,12 +30,13 @@ RSpec.describe 'hyrax/base/_citations.html.erb', type: :view, skip: false do
     allow(controller).to receive(:can?).with(:edit, presenter).and_return(false)
     render 'hyrax/base/citations', presenter: presenter
   end
+
   context 'when enabled' do
     let(:citations) { true }
 
     it 'appears on page' do
       # expect(page).to have_selector('a#citations', count: 1)
-      expect(rendered).to include t( 'hyrax.citation.work.format.mla_partial', work_type: 'Data set' )
+      expect(rendered).to include "<span class='citation-author'>Bilbo.</span> <span class='citation-title'>The Title</span> [Data set], University of Michigan - Deep Blue Data."
     end
   end
 
@@ -43,7 +44,7 @@ RSpec.describe 'hyrax/base/_citations.html.erb', type: :view, skip: false do
     let(:citations) { false }
 
     it 'does not appear on page' do
-      expect(rendered).to_not include t( 'hyrax.citation.work.format.mla_partial', work_type: 'Data set' )
+      expect(rendered).to_not include "<span class='citation-author'>Bilbo.</span> <span class='citation-title'>The Title</span> [Data set], University of Michigan - Deep Blue Data."
     end
   end
 end
