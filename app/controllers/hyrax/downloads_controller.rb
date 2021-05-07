@@ -197,7 +197,7 @@ module Hyrax
     public
 
       # irus_analytics: item_identifier
-      def item_identifier
+      def item_identifier_for_irus_analytics
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if ::IrusAnalytics::Configuration.verbose_debug || downloads_controller_debug_verbose
