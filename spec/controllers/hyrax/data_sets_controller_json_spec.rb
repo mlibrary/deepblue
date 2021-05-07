@@ -66,7 +66,10 @@ RSpec.describe Hyrax::DataSetsController, skip: false do
     end
 
     describe 'found' do
-      before { resource_request }
+      before do
+        allow(controller).to receive(:skip_send_irus_analytics?).with(any_args).and_return true
+        resource_request
+      end
       it "returns json of the work" do
         # Ensure that @curation_concern is set for jbuilder template to use
         expect(assigns[:curation_concern]).to be_instance_of DataSet

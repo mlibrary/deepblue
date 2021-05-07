@@ -662,7 +662,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     it "returns an oai identifier" do
       get :show, params: { id: work }
       expect(response).to be_successful
-      expect(controller.item_identifier).to eq "/concern/data_sets/#{work.id}"
+      expect(controller.item_identifier_for_irus_analytics).to eq "/concern/data_sets/#{work.id}"
     end
 
   end
@@ -696,9 +696,9 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
           expect(controller).to receive(:zip_download_rest).with(curation_concern: work)
           expect(controller).to receive(:report_irus_analytics_request).and_call_original
           # expect(controller).to receive(:item_identifier).and_call_original
-          expect(controller).to receive(:skip_send_irus_analytics?).and_call_original
-          expect(controller).to receive(:deposited?).and_return true
-          expect(controller).to receive(:send_irus_analytics).with(nil, "Request")
+          # expect(controller).to receive(:skip_send_irus_analytics?).with('Request').and_call_original
+          # expect(controller).to receive(:deposited?).and_return true
+          expect(controller).to receive(:send_irus_analytics).with(nil, "Request").at_least(:once)
 
           post :zip_download, params: { id: work }
           ::Deepblue::ZipDownloadControllerBehavior.zip_download_controller_behavior_debug_verbose = save_debug_verbose

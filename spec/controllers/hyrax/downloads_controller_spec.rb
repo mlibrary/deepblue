@@ -71,7 +71,7 @@ RSpec.describe Hyrax::DownloadsController, skip: false do
         expect(controller).to receive(:report_irus_analytics_request).and_call_original
         expect(controller).to receive(:show_html).at_least(:once).and_call_original
         expect(controller).to receive(:is_thumbnail_request?).at_least(:once).and_call_original
-        expect(controller).to receive(:skip_send_irus_analytics?).and_return false
+        expect(controller).to receive(:download_skip_send_irus_analytics?).and_return false
         expect(PersistHelper).to receive(:find).with(file_set.id).and_return file_set
         expect(file_set.parent).to eq work
         # expect(file_set.parent).to receive(:workflow_state).at_least(:once).and_return 'deposited'
@@ -89,6 +89,7 @@ RSpec.describe Hyrax::DownloadsController, skip: false do
             allow(Hyrax::DerivativePath).to receive(:derivative_path_for_reference).and_return(fixture_path + '/world.png')
             expect(controller).to receive(:report_irus_analytics_request).and_call_original
             expect(controller).to receive(:show_html).at_least(:once).and_call_original
+            expect(controller).to_not receive(:download_skip_send_irus_analytics?)
             expect(controller).to_not receive(:skip_send_irus_analytics?)
             expect(controller).to_not receive(:send_irus_analytics_request)
           end
