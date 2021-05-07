@@ -43,6 +43,7 @@ en:
           and are of the form "name:value" (no quotes) amd separated by spaces.
           These options are:
             after_action: (required)
+            type: (optional: either 'investigation' or 'request', default to 'request')
             controller_class_name: qualified class name -- The class name of the controller including any module prefixs.
             controller_file_name: partial path starting at root -- The file name of the controller. 'app/controllers' will be prepended.
             debug_verbose: (optional) true or false -- Whether or not to print lots of annoying messages.

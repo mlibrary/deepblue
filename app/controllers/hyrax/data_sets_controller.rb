@@ -590,7 +590,7 @@ module Hyrax
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if ::IrusAnalytics::Configuration.verbose_debug || data_sets_controller_debug_verbose
 
-        return if skip_send_irus_analytics?
+        # return if skip_send_irus_analytics2?
         send_irus_analytics_investigation
       end
 
@@ -599,14 +599,14 @@ module Hyrax
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if ::IrusAnalytics::Configuration.verbose_debug || data_sets_controller_debug_verbose
 
-        return if skip_send_irus_analytics?
+        # return if skip_send_irus_analytics2?
         send_irus_analytics_request
       end
 
     public
 
       # irus_analytics: item_identifier
-      def item_identifier
+      def item_identifier_for_irus_analytics
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if ::IrusAnalytics::Configuration.verbose_debug || data_sets_controller_debug_verbose
@@ -618,13 +618,28 @@ module Hyrax
         rv
       end
 
-      def skip_send_irus_analytics?
-        rv = !deposited?
+      def skip_send_irus_analytics?(usage_event_type)
+        # return true to skip tracking, for example to skip curation_concerns.visibility == 'private'
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "skip_send_irus_analytics?=#{rv}",
+                                               "usage_event_type=#{usage_event_type}",
                                                "" ] if ::IrusAnalytics::Configuration.verbose_debug || data_sets_controller_debug_verbose
-        rv
+        case usage_event_type
+        when 'Investigation'
+          rv = !deposited?
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "skip_send_irus_analytics?=#{rv}",
+                                                 "" ] if ::IrusAnalytics::Configuration.verbose_debug || data_sets_controller_debug_verbose
+          rv
+        when 'Request'
+          rv = !deposited?
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "skip_send_irus_analytics?=#{rv}",
+                                                 "" ] if ::IrusAnalytics::Configuration.verbose_debug || data_sets_controller_debug_verbose
+          rv
+        end
       end
 
     private

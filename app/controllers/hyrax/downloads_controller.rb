@@ -183,14 +183,14 @@ module Hyrax
                                              "@download_obj.respond_to? :parent=#{@download_obj.respond_to? :parent}",
                                              "@download_obj.parent.blank?=#{@download_obj&.parent.blank?}",
                                              "" ] if ::IrusAnalytics::Configuration.verbose_debug || downloads_controller_debug_verbose
-      skip = skip_send_irus_analytics?
-      puts "skip=#{skip}"
+      skip = download_skip_send_irus_analytics?
+      # puts "skip=#{skip}"
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "skip_send_irus_analytics?=#{skip}",
+                                             "download_skip_send_irus_analytics?=#{skip}",
                                              "" ] if ::IrusAnalytics::Configuration.verbose_debug || downloads_controller_debug_verbose
       return if skip
-      puts "about to call send_irus_analytics_request"
+      # puts "about to call send_irus_analytics_request"
       send_irus_analytics_request
     end
 
@@ -213,15 +213,19 @@ module Hyrax
         params["file"] == "thumbnail"
       end
 
-      def skip_send_irus_analytics?
+    def skip_send_irus_analytics?(_usage_event_type)
+      return false
+    end
+
+    def download_skip_send_irus_analytics?
         return true if @download_obj.blank?
-        puts "not blank"
+        # puts "not blank"
         return true unless @download_obj.respond_to? :parent
-        puts "responds to parent, @download_obj.parent=#{@download_obj.parent}"
+        # puts "responds to parent, @download_obj.parent=#{@download_obj.parent}"
         parent = @download_obj.parent
         return true if parent.blank?
-        puts "parent not blank, parent.respond_to?(:workflow_state)=#{parent.respond_to?(:workflow_state)}"
-        puts "parent.workflow_state=#{parent.workflow_state}"
+        # puts "parent not blank, parent.respond_to?(:workflow_state)=#{parent.respond_to?(:workflow_state)}"
+        # puts "parent.workflow_state=#{parent.workflow_state}"
         return false if parent.workflow_state == 'deposited'
         return true
       end
