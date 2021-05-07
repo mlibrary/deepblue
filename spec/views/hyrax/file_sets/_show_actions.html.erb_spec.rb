@@ -38,6 +38,7 @@ RSpec.describe 'hyrax/file_sets/_show_actions.html.erb', type: :view do
       allow( ability ).to receive(:can?).with(:edit, solr_document).and_return(false)
       assign( :presenter, presenter )
       allow( presenter ).to receive( :parent_data_set ).and_return parent_solr_doc
+      allow( view ).to receive(:current_user).and_return true
       view.lookup_context.view_paths.push 'app/views/hyrax/base'
       render
     end
@@ -65,6 +66,7 @@ RSpec.describe 'hyrax/file_sets/_show_actions.html.erb', type: :view do
       allow( presenter ).to receive( :editor? ).and_return(true)
       assign( :presenter, presenter )
       allow( presenter ).to receive( :parent_data_set ).and_return parent_solr_doc
+      allow( view ).to receive(:current_user).and_return true
       view.lookup_context.view_paths.push 'app/views/hyrax/base'
       render
     end

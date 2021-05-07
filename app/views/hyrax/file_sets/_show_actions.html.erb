@@ -10,7 +10,7 @@
 
   <%#= render 'social_media' %>
 
-  <% if Hyrax.config.analytics? && !@presenter.single_use_show? %>
+  <% if Hyrax.config.analytics? && !@presenter.single_use_show? && current_user %>
     <div class="panel panel-default panel-analytics">
       <div class="panel-heading">
         <h2><%= t('simple_form.labels.file_set.analytics') %></h2>
