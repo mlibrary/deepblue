@@ -102,7 +102,7 @@ RSpec.describe Hyrax::CitationsBehaviors::Formatters::MlaFormatter, skip: false 
 
     context 'work with creator and title' do
       let(:work) { build(:work, creator: ["Doctor Creator"], title: ['The Title'] )}
-      it { expect(subject.format(work) ).to eq "<span class='citation-author'>Doctor Creator.</span> <span class='citation-title'>The Title</span> [Data set]. University of Michigan - Deep Blue Data. " }
+      it { expect(subject.format(work) ).to eq "<span class='citation-author'>Doctor Creator.</span> <span class='citation-title'>The Title</span> [Data set], University of Michigan - Deep Blue Data. " }
     end
 
     context 'work with creator and title and date published' do
@@ -111,7 +111,7 @@ RSpec.describe Hyrax::CitationsBehaviors::Formatters::MlaFormatter, skip: false 
       before do
         expect(work.date_published.is_a?(DateTime)).to eq true
       end
-      it { expect(subject.format(work) ).to eq "<span class='citation-author'>Doctor Creator.</span> <span class='citation-title'>The Title</span> [Data set], (2020). University of Michigan - Deep Blue Data. " }
+      it { expect(subject.format(work) ).to eq "<span class='citation-author'>Doctor Creator.</span> (2020). <span class='citation-title'>The Title</span> [Data set], University of Michigan - Deep Blue Data. " }
     end
 
     context 'work with creator and title and date published' do
@@ -120,7 +120,7 @@ RSpec.describe Hyrax::CitationsBehaviors::Formatters::MlaFormatter, skip: false 
       before do
         allow(work).to receive(:date_published).and_return [date_published]
       end
-      it { expect(subject.format(work) ).to eq "<span class='citation-author'>Doctor Creator.</span> <span class='citation-title'>The Title</span> [Data set], (2020). University of Michigan - Deep Blue Data. " }
+      it { expect(subject.format(work) ).to eq "<span class='citation-author'>Doctor Creator.</span> (2020). <span class='citation-title'>The Title</span> [Data set], University of Michigan - Deep Blue Data. " }
     end
 
   end

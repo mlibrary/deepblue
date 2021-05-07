@@ -1,3 +1,5 @@
+# frozen_string_literal: false
+
 module Hyrax
   module CitationsBehaviors
     module Formatters
@@ -10,16 +12,24 @@ module Hyrax
 
           authors = author_list(work).reject(&:blank?)
           formatted_authors = format_authors(authors)
-          text << "<span class='citation-author'>#{formatted_authors}</span> " if formatted_authors.present?
+          # formatted_authors = '&nbsp;' unless formatted_authors.present?
+          # text << "<span class='citation-author'>#{formatted_authors}</span> " if formatted_authors.present?
 
           title_info = setup_title_info(work)
-          text << format_title(title_info)
+          formatted_title = format_title(title_info)
 
           year = format_year(work)
           if year.blank?
-            text << I18n.t( 'hyrax.citation.work.format.mla_partial', work_type: 'Data set' )
+            text << I18n.t( 'hyrax.citation.work.format.mla_html',
+                            author: formatted_authors,
+                            title: formatted_title,
+                            work_type: 'Data set' )
           else
-            text << I18n.t( 'hyrax.citation.work.format.mla_partial_with_year', work_type: 'Data set', year: year )
+            text << I18n.t( 'hyrax.citation.work.format.mla_with_year_html',
+                            author: formatted_authors,
+                            title: formatted_title,
+                            work_type: 'Data set',
+                            year: year )
           end
 
           text << format_doi( work.doi ) if work.respond_to?(:doi)

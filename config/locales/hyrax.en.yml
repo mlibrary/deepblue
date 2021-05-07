@@ -92,8 +92,10 @@ en:
     citation:
       work:
         format:
+          mla_html:           "<span class='citation-author'>%{author}</span> %{title}[%{work_type}], University of Michigan - Deep Blue Data. "
+          mla_with_year_html: "<span class='citation-author'>%{author}</span> (%{year}). %{title}[%{work_type}], University of Michigan - Deep Blue Data. "
           mla_partial:           "[%{work_type}]. University of Michigan - Deep Blue Data. "
-          mla_partial_with_year: "[%{work_type}], (%{year}). University of Michigan - Deep Blue Data. "
+          mla_partial_with_year: ", (%{year}). [%{work_type}] University of Michigan - Deep Blue Data. "
     contact_form:
       issue_types:
         size:               "My deposit is larger than %{max_upload_size}"
