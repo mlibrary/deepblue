@@ -20,6 +20,7 @@ RSpec.describe 'hyrax/base/_show_actions.html.erb', type: :view do
     presenter.controller = data_set_controller
     # member.controller = controller
     allow(presenter).to receive(:analytics_subscribed?).and_return false
+    allow(view).to receive(:current_user).and_return true
   end
 
   context "as an unregistered user" do
