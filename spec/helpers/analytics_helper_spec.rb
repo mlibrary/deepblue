@@ -100,26 +100,91 @@ RSpec.describe AnalyticsHelper, type: :helper do
   end
 
   describe '.show_hit_graph?' do
-    let(:analytics_integration_service ) { class_double( Deepblue::AnalyticsIntegrationService ) }
-    let(:user ) { FactoryBot.create(:admin) }
-    let(:ability ) { Ability.new user }
 
-    context "is false when Flipflop.enable_local_analytics_ui? is false" do
-      before do
-        allow( AnalyticsHelper ).to receive( :enable_local_analytics_ui? ).and_return false
+    context "for admins" do
+      let(:user ) { FactoryBot.create(:admin) }
+      let(:ability ) { Ability.new user }
+
+      context "is false when Flipflop.enable_local_analytics_ui? is false" do
+        before do
+          expect( AnalyticsHelper ).to receive( :enable_local_analytics_ui? ).and_return false
+        end
+        subject { AnalyticsHelper.show_hit_graph?( ability ) }
+        it { expect( subject ).to eq false }
       end
-      subject { AnalyticsHelper.show_hit_graph?( ability ) }
-      it { expect( subject ).to eq false }
+
+      context "Flipflop.enable_local_analytics_ui? is true for admins" do
+        before do
+          expect( AnalyticsHelper ).to receive( :enable_local_analytics_ui? ).and_return true
+          expect( ::Deepblue::AnalyticsIntegrationService ).to receive( :hit_graph_view_level ).and_return 1
+          expect( ability ).to receive( :admin? ).and_return true
+        end
+        subject { AnalyticsHelper.show_hit_graph?( ability ) }
+        it { expect( subject ).to eq true }
+      end
+
     end
 
-    context "Flipflop.enable_local_analytics_ui? is true" do
-      before do
-        allow( analytics_integration_service ).to receive( :hit_graph_view_level ).and_return 1
-        allow( AnalyticsHelper ).to receive( :enable_local_analytics_ui? ).and_return true
-        allow( ability ).to receive( :admin? ).and_return true
+    context "for editors" do
+      let(:user ) { FactoryBot.create(:user) }
+      let(:ability ) { Ability.new user }
+
+      context "is false when Flipflop.enable_local_analytics_ui? is false" do
+        before do
+          expect( AnalyticsHelper ).to receive( :enable_local_analytics_ui? ).and_return false
+        end
+        subject { AnalyticsHelper.show_hit_graph?( ability ) }
+        it { expect( subject ).to eq false }
       end
-      subject { AnalyticsHelper.show_hit_graph?( ability ) }
-      it { expect( subject ).to eq true }
+
+      context "Flipflop.enable_local_analytics_ui? is true for admins" do
+        before do
+          expect( AnalyticsHelper ).to receive( :enable_local_analytics_ui? ).and_return true
+          expect( ::Deepblue::AnalyticsIntegrationService ).to receive( :hit_graph_view_level ).and_return 2
+          expect( ability ).to receive( :admin? ).and_return true
+        end
+        subject { AnalyticsHelper.show_hit_graph?( ability ) }
+        it { expect( subject ).to eq true }
+      end
+
+      context "Flipflop.enable_local_analytics_ui? is true for editors" do
+        let( :presenter ) { double( "presenter" ) }
+        before do
+          expect( AnalyticsHelper ).to receive( :enable_local_analytics_ui? ).and_return true
+          expect( ::Deepblue::AnalyticsIntegrationService ).to receive( :hit_graph_view_level ).and_return 2
+          allow( ability ).to receive( :admin? ).and_return false
+          expect( presenter ).to receive( :editor? ).and_return true
+        end
+        subject { AnalyticsHelper.show_hit_graph?( ability, presenter: presenter ) }
+        it { expect( subject ).to eq true }
+      end
+
+    end
+
+    context "for users" do
+      let(:user ) { FactoryBot.create(:user) }
+      let(:ability ) { Ability.new user }
+
+      context "is false when Flipflop.enable_local_analytics_ui? is false" do
+        before do
+          expect( AnalyticsHelper ).to receive( :enable_local_analytics_ui? ).and_return false
+        end
+        subject { AnalyticsHelper.show_hit_graph?( ability ) }
+        it { expect( subject ).to eq false }
+      end
+
+      context "Flipflop.enable_local_analytics_ui? is true for everyone" do
+        let( :presenter ) { double( "presenter" ) }
+        before do
+          expect( AnalyticsHelper ).to receive( :enable_local_analytics_ui? ).and_return true
+          expect( ::Deepblue::AnalyticsIntegrationService ).to receive( :hit_graph_view_level ).and_return 3
+          allow( ability ).to receive( :admin? ).and_return false
+          allow( presenter ).to receive( :editor? ).and_return false
+        end
+        subject { AnalyticsHelper.show_hit_graph?( ability, presenter: presenter ) }
+        it { expect( subject ).to eq true }
+      end
+
     end
 
   end

@@ -287,15 +287,16 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
   def self.show_hit_graph?( current_ability, presenter: nil )
     return false unless enable_local_analytics_ui?
     # 0 = none, 1 = admin, 2 = editor, 3 = everyone
-    return false if presenter.respond_to?( :single_use_show? ) && presenter.single_use_show?
+    return false if presenter && presenter.respond_to?( :single_use_show? ) && presenter.single_use_show?
     case ::Deepblue::AnalyticsIntegrationService.hit_graph_view_level
     when 0
       false
     when 1
       current_ability.admin?
     when 2
+      return true if current_ability.admin?
       return presenter.editor? if presenter.respond_to? :editor?
-      return current_ability.editor? if current_ability.respond_to? :editor?
+      # return current_ability.editor? if current_ability.respond_to? :editor?
       false
     when 3
       true
