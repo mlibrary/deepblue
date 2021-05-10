@@ -137,6 +137,16 @@ RSpec.describe AnalyticsHelper, type: :helper do
         it { expect( subject ).to eq false }
       end
 
+      context "Flipflop.enable_local_analytics_ui? is true for admins" do
+        before do
+          expect( AnalyticsHelper ).to receive( :enable_local_analytics_ui? ).and_return true
+          expect( ::Deepblue::AnalyticsIntegrationService ).to receive( :hit_graph_view_level ).and_return 2
+          expect( ability ).to receive( :admin? ).and_return true
+        end
+        subject { AnalyticsHelper.show_hit_graph?( ability ) }
+        it { expect( subject ).to eq true }
+      end
+
       context "Flipflop.enable_local_analytics_ui? is true for editors" do
         let( :presenter ) { double( "presenter" ) }
         before do
