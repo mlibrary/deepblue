@@ -19,7 +19,7 @@
     <div class="pull-right">
       <%# puts "@create_work_presenter.many?=#{@create_work_presenter.many?}" %>
       <%# puts "!Flipflop.only_use_data_set_work_type?=#{!Flipflop.only_use_data_set_work_type?}" %>
-      <% if @create_work_presenter.many? && !Flipflop.only_use_data_set_work_type? && !Flipflop.display_masthead_banner_outage? %>
+      <% if @create_work_presenter.many? && !Flipflop.only_use_data_set_work_type? && !Flipflop.disable_desposits_and_edits? %>
         <% if Flipflop.batch_upload? %>
           <%= link_to(
                 t(:'helpers.action.batch.new'),
@@ -34,7 +34,7 @@
               data: { behavior: "select-work", target: "#worktypes-to-create", 'create-type' => 'single' },
               class: 'btn btn-primary'
             ) %>
-      <% elsif !Flipflop.display_masthead_banner_outage? # simple link to the first work type %>
+      <% elsif !Flipflop.disable_desposits_and_edits? # simple link to the first work type %>
         <% if Flipflop.batch_upload? %>
           <%= link_to(
               t(:'helpers.action.batch.new'),

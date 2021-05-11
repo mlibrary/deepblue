@@ -1,5 +1,5 @@
 <tr id="document_<%= document.id %>">
-  <% if Flipflop.display_masthead_banner_outage? %>
+  <% if Flipflop.disable_desposits_and_edits? %>
     <td> - </td>
   <% else %>
     <td>
@@ -41,7 +41,7 @@
      <td class="text-center">Tombstoned</td>
      <% end %>
   <% else %>
-    <% if presenter.can_edit_work? && !Flipflop.display_masthead_banner_outage? %>
+    <% if presenter.can_edit_work? && !Flipflop. disable_desposits_and_edits? %>
       <td class='text-center'><%= render_visibility_link document %></td>
       <td class='text-center'><%= render 'work_action_menu', presenter: presenter, document: document %></td>
     <% else %>
