@@ -14,7 +14,7 @@
     %>
     <%= media_display( curation_concern.to_presenter, current_ability, @presenter ) %>
   </div>
-  <% if !Flipflop.display_masthead_banner_outage? %>
+  <% if !Flipflop.disable_desposits_and_edits? %>
     <div class="col-xs-12 col-sm-8">
       <div class="panel panel-default tabs">
         <ul class="nav nav-tabs" role="tablist">

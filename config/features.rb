@@ -17,6 +17,7 @@ Flipflop.configure do
             default: false,
             description: "Allow user to upload files for work from a directory."
 
+
     feature :enable_local_analytics_ui,
             default: false,
             # reference to I18n does not work from here:
@@ -26,6 +27,10 @@ Flipflop.configure do
     feature :open_analytics_report_subscriptions,
             default: false,
             description: "Depositors can subscribe to analytic reports."
+
+    feature :disable_desposits_and_edits,
+            default: false,
+            description: "Disable all deposits and edits to the system."
 
   end
 

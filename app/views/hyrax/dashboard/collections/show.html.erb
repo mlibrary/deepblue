@@ -63,7 +63,7 @@
 
 
       <!-- Subcollections -->
-      <% if @presenter.collection_type_is_nestable? && !Flipflop.display_masthead_banner_outage? %>
+      <% if @presenter.collection_type_is_nestable? && !Flipflop.disable_desposits_and_edits? %>
         <section id="sub-collections-wrapper" class="sub-collections-wrapper">
           <h4><%= t('.subcollection_count') %> (<%= @subcollection_count %>)</h4>
           <div class="row">
@@ -81,7 +81,7 @@
 
       <!-- Works -->
       <section class="works-wrapper">
-        <% if !Flipflop.display_masthead_banner_outage? %>
+        <% if !Flipflop.disable_desposits_and_edits? %>
           <h4><%= t('.item_count') %> (<%= @members_count %>)</h4>
           <% unless has_collection_search_parameters? %>
             <%= render 'show_add_items_actions', presenter: @presenter %>
@@ -90,7 +90,7 @@
 
         <%= render 'sort_and_per_page', collection: @presenter %>
         <%# This does the list of works in coll Jose %>
-         <% if !Flipflop.display_masthead_banner_outage? %> 
+         <% if !Flipflop.disable_desposits_and_edits? %> 
         <%= render_document_index @member_docs %>
         <% else %>
           List of works is not available presently.

@@ -62,7 +62,7 @@
 
 
   <td>
-    <% if !Flipflop.display_masthead_banner_outage? %>
+    <% if !Flipflop.disable_desposits_and_edits? %>
       <% if collection_presenter.solr_document.admin_set? %>
         <%= render '/hyrax/my/admin_set_action_menu', admin_set_presenter: collection_presenter %>
       <% else %>

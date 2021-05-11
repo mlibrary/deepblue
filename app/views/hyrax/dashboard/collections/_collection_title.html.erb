@@ -17,7 +17,7 @@
       <%= presenter.permission_badge %>
       <%= presenter.collection_type_badge %>
     </div>
-    <% if !Flipflop.display_masthead_banner_outage? %>
+    <% if !Flipflop.disable_desposits_and_edits? %>
       <div class="collection-title-row-content">
         <%= render 'show_actions', presenter: presenter %>
       </div>

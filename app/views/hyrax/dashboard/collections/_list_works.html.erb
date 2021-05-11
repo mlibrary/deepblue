@@ -37,7 +37,7 @@
   <td><%= render_visibility_link document %></td>
 
   <td>
-    <% if !Flipflop.display_masthead_banner_outage? %>
+    <% if !Flipflop.disable_desposits_and_edits? %>
       <%= render 'work_action_menu', presenter: presenter, document: document %>
     <% else %>
       -

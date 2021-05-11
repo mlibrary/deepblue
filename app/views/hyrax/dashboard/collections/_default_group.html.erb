@@ -2,7 +2,7 @@
   <caption class="sr-only"><%= t("hyrax.dashboard.my.sr.listing") %> <%= application_name %></caption>
   <thead>
   <tr>
-    <% if Flipflop.display_masthead_banner_outage? %>
+    <% if Flipflop.disable_desposits_and_edits? %>
       <td> - </td>
     <% else %>
       <th class="check-all">
