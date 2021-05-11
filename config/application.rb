@@ -95,15 +95,15 @@ module DeepBlueDocs
     config.single_use_links_viewer_controller_debug_verbose = false
     config.solr_document_behavior_debug_verbose = false
     config.solr_document_debug_verbose = false
-    config.static_content_controller_behavior_verbose = false
-    config.static_content_cache_debug_verbose = false
+    # config.static_content_controller_behavior_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
+    # config.static_content_cache_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
     config.umrdr_work_behavior_debug_verbose = false
     config.user_stat_importer_debug_verbose = false
     config.work_show_presenter_debug_verbose = false
-    config.work_view_content_service_debug_verbose = false
-    config.work_view_content_service_email_templates_debug_verbose = false
-    config.work_view_content_service_i18n_templates_debug_verbose = false
-    config.work_view_content_service_view_templates_debug_verbose = false
+    # config.work_view_content_service_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
+    # config.work_view_content_service_email_templates_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
+    # config.work_view_content_service_i18n_templates_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
+    # config.work_view_content_service_view_templates_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
     config.workflow_event_behavior_debug_verbose = false
     config.works_controller_behavior_debug_verbose = false
     # end _debug_verbose flags

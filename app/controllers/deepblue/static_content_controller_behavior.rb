@@ -9,9 +9,9 @@ module Deepblue
     @@static_content_cache = {}
 
     mattr_accessor :static_content_controller_behavior_verbose,
-                   default: ::DeepBlueDocs::Application.config.static_content_controller_behavior_verbose
+                   default: ::Deepblue::WorkViewContentService.static_content_controller_behavior_verbose
     mattr_accessor :static_content_cache_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.static_content_cache_debug_verbose
+                   default: ::Deepblue::WorkViewContentService.static_content_cache_debug_verbose
 
     def self.static_content_documentation_collection_id
       WorkViewContentService.content_documentation_collection_id
@@ -350,7 +350,7 @@ module Deepblue
     end
 
     def static_content_read_file_from_source(source)
-      File.open( source, "r:UTF-8" ) { |io| io.read }
+      open( source, "r:UTF-8" ) { |io| io.read }
     end
 
     def static_content_read_file( file_set: nil, id: nil )
@@ -362,6 +362,10 @@ module Deepblue
       file_set = static_content_find_by_id( id: id ) unless id.blank?
       return "" if file_set.blank?
       file = file_set.files_to_file
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "file=#{file}",
+                                             "" ] if static_content_controller_behavior_verbose
       if file.nil?
         return "file_set.id #{file_set.id} files[0] is nil"
       else
