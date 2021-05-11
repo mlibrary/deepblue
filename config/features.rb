@@ -48,6 +48,10 @@ Flipflop.configure do
             default: true,
             description: "Maintenance masthead banner"
 
+    feature :display_masthead_banner_slow,
+            default: true,
+            description: "Slow masthead banner"
+
     feature :display_masthead_banner_outage,
             default: false,
             description: "Outage masthead banner"

@@ -18,6 +18,15 @@
       </div>
     </section>
   <% end %>
+  <% if Flipflop.display_masthead_banner_slow? %>
+    <section class="update-alert--warning container-fluid">
+      <div class="row ribbon-content">
+        <div class="container update-alert-container">
+          <%= t( "hyrax.masthead_banner.slow_html" ) %>
+        </div>
+      </div>
+    </section>
+  <% end %>
   <% if Flipflop.display_masthead_banner_outage? %>
     <section class="update-alert--warning container-fluid">
       <div class="row ribbon-content">

@@ -157,6 +157,10 @@ en:
           Deep Blue Data is currently or will soon be undergoing maintenance and is read only. Normal services
           will return shortly.
         </p>
+      slow_html: >
+        <p class="margin0">
+          Deep Blue Data is currently experiencing reduced transaction speed.
+        </p>
       outage_banner_html: >
         <p class="margin0">
           We are experiencing some technical issues. It is adviced that no deposits or edits be done at this time.
