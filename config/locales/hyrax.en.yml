@@ -166,6 +166,10 @@ en:
           We are experiencing some technical issues. It is adviced that no deposits or edits be done at this time.
           Once the issue is resolved, this message will be disabled. Thank you!
         </p>
+      access_banner_html: >
+        <p class="margin0">
+          Deep Blue Data is presently in read only mode.  Deposits and Edits are disabled.
+        </p>
     email:
       templates:
         keys_loaded:        "N/A"

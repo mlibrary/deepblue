@@ -36,10 +36,6 @@ Flipflop.configure do
 
   group :masthead_banner_announcements do
 
-    feature :display_masthead_banner,
-            default: false,
-            description: "Display masthead banner (activate one of the banners below)"
-
     feature :display_masthead_banner_standard,
             default: true,
             description: "Default masthead banner"
