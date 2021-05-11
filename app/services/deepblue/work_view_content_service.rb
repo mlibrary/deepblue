@@ -4,18 +4,17 @@ module Deepblue
 
   module WorkViewContentService
 
-    mattr_accessor :work_view_content_service_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.work_view_content_service_debug_verbose
-    mattr_accessor :work_view_content_service_email_templates_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.work_view_content_service_email_templates_debug_verbose
-    mattr_accessor :work_view_content_service_i18n_templates_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.work_view_content_service_i18n_templates_debug_verbose
-    mattr_accessor :work_view_content_service_view_templates_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.work_view_content_service_view_templates_debug_verbose
-
     include ::Deepblue::InitializationConstants
 
     @@_setup_ran = false
+
+    mattr_accessor :static_content_controller_behavior_verbose, default: false
+    mattr_accessor :static_content_cache_debug_verbose, default: false
+    mattr_accessor :work_view_documentation_controller_debug_verbose, default: false
+    mattr_accessor :work_view_content_service_debug_verbose, default: false
+    mattr_accessor :work_view_content_service_email_templates_debug_verbose, default: false
+    mattr_accessor :work_view_content_service_i18n_templates_debug_verbose, default: false
+    mattr_accessor :work_view_content_service_view_templates_debug_verbose, default: false
 
     mattr_accessor :documentation_collection_title,   default: "DBDDocumentationCollection"
     mattr_accessor :documentation_work_title_prefix,  default: "DBDDoc-"
