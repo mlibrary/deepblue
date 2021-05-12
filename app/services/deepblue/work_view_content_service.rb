@@ -8,6 +8,7 @@ module Deepblue
 
     @@_setup_ran = false
 
+    mattr_accessor :interpolation_helper_debug_verbose, default: false
     mattr_accessor :static_content_controller_behavior_verbose, default: false
     mattr_accessor :static_content_cache_debug_verbose, default: false
     mattr_accessor :work_view_documentation_controller_debug_verbose, default: false
@@ -21,12 +22,12 @@ module Deepblue
     mattr_accessor :documentation_email_title_prefix, default: "DBDEmail-"
     mattr_accessor :documentation_i18n_title_prefix,  default: "DBDI18n-"
     mattr_accessor :documentation_view_title_prefix,  default: "DBDView-"
+    mattr_accessor :export_documentation_path,        default: '/tmp/documentation_export'
 
     mattr_accessor :static_content_controller_behavior_menu_verbose, default: false
     mattr_accessor :static_content_enable_cache,                     default: true
     mattr_accessor :static_content_interpolation_pattern,            default: nil
     mattr_accessor :static_controller_redirect_to_work_view_content, default: false
-    mattr_accessor :interpolation_helper_debug_verbose,              default: false
 
     def self.setup
       yield self if @@_setup_ran == false

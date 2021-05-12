@@ -17,6 +17,7 @@ module Deepblue
     @@abstract_rake_task_job_debug_verbose = false
     @@deactivate_expired_embargoes_job_debug_verbose = false
     @@deepblue_job_debug_verbose = false
+    @@export_documentation_job_debug_verbose = false
     @@heartbeat_job_debug_verbose = false
     @@heartbeat_email_job_debug_verbose = false
     @@monthly_events_report_job_debug_verbose = false
@@ -32,6 +33,7 @@ module Deepblue
                     :abstract_rake_task_job_debug_verbose,
                     :deactivate_expired_embargoes_job_debug_verbose,
                     :deepblue_job_debug_verbose,
+                    :export_documentation_job_debug_verbose,
                     :heartbeat_job_debug_verbose,
                     :heartbeat_email_job_debug_verbose,
                     :monthly_events_report_job_debug_verbose,
@@ -238,6 +240,10 @@ END_BODY
     end
 
     def self.hostname_allowed( job:, options: job.options, debug_verbose: false )
+      # ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                       "options=#{options}",
+      #                                        "" ] if debug_verbose || job_task_helper_debug_verbose
       job.hostnames = job.job_options_value( options,
                                              key: 'hostnames',
                                              default_value: [],
@@ -253,8 +259,11 @@ END_BODY
                                              "" ] if debug_verbose || job_task_helper_debug_verbose
       options = {}
       return options unless args.present?
-      args = args[0] if args.is_a?( Array ) && 1 == args.length
-      args.each { |key,value| options[key.to_s] = value }
+      args = args[0] while ( args.is_a?( Array ) && 1 == args.length )
+      args.each do |key,value|
+        options[key.to_s] = value
+      end
+      options = options.with_indifferent_access
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "options=#{options}",

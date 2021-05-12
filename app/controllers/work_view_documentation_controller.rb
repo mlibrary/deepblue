@@ -72,7 +72,8 @@ class WorkViewDocumentationController < ApplicationController
 
   def action_export_documentation
     ExportDocumentationJob.perform_later( id: ::Deepblue::WorkViewContentService.content_documentation_collection_id,
-                                          export_path: "/deepbluedata-prep/documentation_export/" )
+                                          export_path: ::Deepblue::WorkViewContentService.export_documentation_path,
+                                          user_email: current_user.email )
     t( 'simple_form.actions.work_view_documentation.export_documentation_started' )
   end
 

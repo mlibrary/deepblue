@@ -29,7 +29,7 @@ END_OF_SCHEDULER_ENTRY
   attr_accessor :subscription_service_id
 
   def self.perform( *args )
-    HeartbeatEmailJob.perform_now( *args )
+    HeartbeatEmailJob.perform_now( args )
   end
 
   def perform( *args )

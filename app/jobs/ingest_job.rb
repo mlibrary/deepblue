@@ -3,8 +3,8 @@
 class IngestJob < AbstractIngestJob
   # monkey patch
 
-  mattr_accessor :ingest_job_debug_spec
-  @@ingest_job_debug_spec = ::Deepblue::IngestIntegrationService.ingest_job_debug_verbose
+  mattr_accessor :ingest_job_debug_spec,
+                 default: ::Deepblue::IngestIntegrationService.ingest_job_debug_verbose
 
   queue_as Hyrax.config.ingest_queue_name
 

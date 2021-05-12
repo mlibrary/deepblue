@@ -16,6 +16,14 @@ Deepblue::WorkViewContentService.setup do |config|
   config.documentation_email_title_prefix = "DBDEmail-"
   config.documentation_i18n_title_prefix = "DBDI18n-"
   config.documentation_view_title_prefix = "DBDView-"
+  if Rails.env.development?
+    config.export_documentation_path = './data/documentation_export'
+  elsif Rails.env.test?
+    config.export_documentation_path = '/tmp/documentation_export'
+  else # production
+    config.export_documentation_path = '/deepbluedata-prep/documentation_export/'
+  end
+  FileUtils.mkdir_p config.export_documentation_path unless Dir.exist? config.export_documentation_path
   config.static_content_enable_cache = true
   config.static_controller_redirect_to_work_view_content = false
 

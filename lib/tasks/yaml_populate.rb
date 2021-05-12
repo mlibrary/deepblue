@@ -23,8 +23,8 @@ module Deepblue
     attr_accessor :populate_type
     attr_accessor :populate_stats
 
-    def initialize( populate_type:, options: )
-      super( options: options )
+    def initialize( populate_type:, options:, msg_queue: nil )
+      super( options: options, msg_queue: msg_queue )
       @populate_type = populate_type
       @target_dir = task_options_value( key: 'target_dir', default_value: DEFAULT_TARGET_DIR )
       @export_files = task_options_value( key: 'export_files', default_value: DEFAULT_EXPORT_FILES )
@@ -38,17 +38,25 @@ module Deepblue
     end
 
     def report_collection( first_id:, measurements:, total: nil )
-      TaskHelper.benchmark_report( label: 'coll id', first_id: first_id, measurements: measurements, total: total )
+      TaskHelper.benchmark_report( label: 'coll id',
+                                   first_id: first_id,
+                                   measurements: measurements,
+                                   total: total,
+                                   msg_queue: msg_queue )
     end
 
     def report_users( first_id:, measurements:, total: nil )
-      TaskHelper.benchmark_report( label: 'users', first_id: first_id, measurements: measurements, total: total )
+      TaskHelper.benchmark_report( label: 'users',
+                                   first_id: first_id,
+                                   measurements: measurements,
+                                   total: total,
+                                   msg_queue: msg_queue )
     end
 
     def report_stats
-      puts
+      report_puts
       if @populate_ids.empty?
-        puts "users: #{populate_stats[0][:total_users_exported]}"
+        report_puts "users: #{populate_stats[0][:total_users_exported]}"
         return
       end
       index = 0
@@ -63,7 +71,7 @@ module Deepblue
         size_readable = stats[:total_file_sets_size_readable_exported]
         file_sets_size = stats[:total_file_sets_size_exported]
         id = @populate_ids[index]
-        puts "#{id} collections: #{collections} works: #{works} file_sets: #{file_sets} size: #{size_readable}"
+        report_puts "#{id} collections: #{collections} works: #{works} file_sets: #{file_sets} size: #{size_readable}"
         total_collections += collections
         total_works += works
         total_file_sets = file_sets
@@ -71,13 +79,17 @@ module Deepblue
         index += 1
       end
       if @populate_ids.size > 1
-        puts "totals collections: #{total_collections} works: #{total_works} file_sets: #{total_file_sets} size: #{TaskHelper.human_readable_size( total_file_sets_size )}"
+        report_puts "totals collections: #{total_collections} works: #{total_works} file_sets: #{total_file_sets} size: #{TaskHelper.human_readable_size( total_file_sets_size )}"
       end
-      puts
+      report_puts
     end
 
     def report_work( first_id:, measurements:, total: nil )
-      TaskHelper.benchmark_report( label: 'work id', first_id: first_id, measurements: measurements, total: total )
+      TaskHelper.benchmark_report( label: 'work id',
+                                   first_id: first_id,
+                                   measurements: measurements,
+                                   total: total,
+                                   msg_queue: msg_queue )
     end
 
     def run_all
@@ -139,7 +151,7 @@ module Deepblue
     end
 
     def yaml_populate_collection( id:, collection: nil )
-      puts "Exporting collection #{id} to '#{@target_dir}' with export files flag set to #{@export_files} and mode #{@mode}"
+      report_puts "Exporting collection #{id} to '#{@target_dir}' with export files flag set to #{@export_files} and mode #{@mode}"
       service = YamlPopulateService.new( mode: @mode,
                                          create_zero_length_files: @create_zero_length_files,
                                          overwrite_export_files: @overwrite_export_files )
@@ -153,7 +165,7 @@ module Deepblue
     end
 
     def yaml_populate_work( id:, work: nil )
-      puts "Exporting work #{id} to '#{@target_dir}' with export files flag set to #{@export_files} and mode #{@mode}"
+      report_puts "Exporting work #{id} to '#{@target_dir}' with export files flag set to #{@export_files} and mode #{@mode}"
       service = YamlPopulateService.new( mode: @mode,
                                          create_zero_length_files: @create_zero_length_files,
                                          overwrite_export_files: @overwrite_export_files )
