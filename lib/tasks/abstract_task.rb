@@ -14,23 +14,24 @@ module Deepblue
 
     DEFAULT_VERBOSE = false
 
+    attr_accessor :msg_queue
     attr_reader :options
-
     attr_accessor :verbose, :to_console, :logger
 
-    def initialize( options: {} )
+    def initialize( options: {}, msg_queue: nil )
+      @msg_queue = msg_queue
       @options = TaskHelper.task_options_parse options
       if  @options.key?( :error )
-        puts "WARNING: options error #{@options[:error]}"
-        puts "@options=#{@options}"
+        report_puts "WARNING: options error #{@options[:error]}"
+        report_puts "@options=#{@options}"
       end
       if @options.key?( 'error' )
-        puts "WARNING: options error #{@options['error']}"
-        puts "@options=#{@options}"
+        report_puts "WARNING: options error #{@options['error']}"
+        report_puts "@options=#{@options}"
       end
       @to_console = TaskHelper.task_options_value( @options, key: 'to_console', default_value: DEFAULT_VERBOSE )
       @verbose = TaskHelper.task_options_value( @options, key: 'verbose', default_value: DEFAULT_VERBOSE )
-      puts "@verbose=#{@verbose}" if @verbose
+      report_puts "@verbose=#{@verbose}" if @verbose
     end
 
     def logger
@@ -39,7 +40,15 @@ module Deepblue
 
     def task_msg( msg )
       logger.debug msg
-      puts msg if @to_console
+      report_puts msg if @to_console
+    end
+
+    def report_puts( str = '' )
+      if msg_queue
+        msg_queue << str
+      else
+        puts str
+      end
     end
 
     def task_options_value( key:, default_value: nil, verbose: false )

@@ -4,8 +4,10 @@ module Deepblue
 
   module InterpolationHelper
 
-    INTERPOLATION_HELPER_DEBUG_VERBOSE = ::Deepblue::WorkViewContentService.interpolation_helper_debug_verbose
-    INTERPOLATION_PATTERN = ::Deepblue::WorkViewContentService.static_content_interpolation_pattern
+    mattr_accessor :interpolation_helper_debug_verbose,
+                   default: ::Deepblue::WorkViewContentService.interpolation_helper_debug_verbose
+    mattr_accessor :interpolation_pattern,
+                   default: ::Deepblue::WorkViewContentService.static_content_interpolation_pattern
 
     def self.new_interporlation_values
       values = {}
@@ -35,7 +37,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "values=#{values}",
-                                             "" ] if INTERPOLATION_HELPER_DEBUG_VERBOSE
+                                             "" ] if interpolation_helper_debug_verbose
       case target
       when ::String then interpolate_string(target, values)
       when ::Array then target.map { |element| interpolate( target: element, values: values ) }
@@ -57,8 +59,8 @@ module Deepblue
       def self.interpolate_hash( string, values )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "" ] if INTERPOLATION_HELPER_DEBUG_VERBOSE
-        string.gsub( INTERPOLATION_PATTERN ) do |match|
+                                               "" ] if interpolation_helper_debug_verbose
+        string.gsub( interpolation_pattern ) do |match|
           if match == '%%'
             '%'
           else
@@ -66,7 +68,7 @@ module Deepblue
             ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                    ::Deepblue::LoggingHelper.called_from,
                                                    "key=#{key}",
-                                                   "" ] if INTERPOLATION_HELPER_DEBUG_VERBOSE
+                                                   "" ] if interpolation_helper_debug_verbose
             value = if values.key?(key)
                       values[key]
                     else

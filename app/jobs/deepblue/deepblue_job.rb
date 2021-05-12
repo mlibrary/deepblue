@@ -13,10 +13,10 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
 
   attr_accessor :hostnames, :job_status, :options, :restartable, :verbose
 
-  def email_all_targets( task_name:, event:, debug_verbose: deepblue_job_debug_verbose )
+  def email_all_targets( task_name:, event:, body: nil, debug_verbose: deepblue_job_debug_verbose )
     ::Deepblue::JobTaskHelper.has_email_targets( job: self, debug_verbose: debug_verbose )
     self.email_targets.each do |email_target|
-      ::Deepblue::JobTaskHelper.send_email( email_target: email_target, task_name: task_name, event: event )
+      ::Deepblue::JobTaskHelper.send_email( email_target: email_target, task_name: task_name, event: event, body: body )
     end
   end
 
