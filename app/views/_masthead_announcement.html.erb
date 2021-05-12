@@ -1,40 +1,75 @@
-<% if Flipflop.display_masthead_banner? %>
+<% if Flipflop.display_masthead_banner_standard? && Flipflop.disable_desposits_and_edits? %>
+  <section class="update-alert--warning container-fluid">
+    <div class="row ribbon-content">
+      <div class="container update-alert-container">
+        <%= t( "hyrax.masthead_banner.standard_html" ) %>
+        <%= t( "hyrax.masthead_banner.access_banner_html" ) %>
+      </div>
+    </div>
+  </section>
+<% elsif Flipflop.display_masthead_banner_standard? %>
+  <section class="update-alert--warning container-fluid">
+    <div class="row ribbon-content">
+      <div class="container update-alert-container">
+        <%= t( "hyrax.masthead_banner.standard_html" ) %>
+      </div>
+    </div>
+  </section>  
+<% end %>
 
-  <% if Flipflop.display_masthead_banner_standard? %>
-    <section class="update-alert--warning container-fluid">
-      <div class="row ribbon-content">
-        <div class="container update-alert-container">
-          <%= t( "hyrax.masthead_banner.standard_html" ) %>
-        </div>
+<% if Flipflop.display_masthead_banner_maintenance? && Flipflop.disable_desposits_and_edits? %>
+  <section class="update-alert--warning container-fluid">
+    <div class="row ribbon-content">
+      <div class="container update-alert-container">
+        <%= t( "hyrax.masthead_banner.maintenance_html" ) %>
+        <%= t( "hyrax.masthead_banner.access_banner_html" ) %>
       </div>
-    </section>
-  <% end %>
-  <% if Flipflop.display_masthead_banner_maintenance? %>
-    <section class="update-alert--warning container-fluid">
-      <div class="row ribbon-content">
-        <div class="container update-alert-container">
-          <%= t( "hyrax.masthead_banner.maintenance_html" ) %>
-        </div>
+    </div>
+  </section>
+<% elsif Flipflop.display_masthead_banner_maintenance? %>
+  <section class="update-alert--warning container-fluid">
+    <div class="row ribbon-content">
+      <div class="container update-alert-container">
+        <%= t( "hyrax.masthead_banner.maintenance_html" ) %>
       </div>
-    </section>
-  <% end %>
-  <% if Flipflop.display_masthead_banner_slow? %>
-    <section class="update-alert--warning container-fluid">
-      <div class="row ribbon-content">
-        <div class="container update-alert-container">
-          <%= t( "hyrax.masthead_banner.slow_html" ) %>
-        </div>
-      </div>
-    </section>
-  <% end %>
-  <% if Flipflop.display_masthead_banner_outage? %>
-    <section class="update-alert--warning container-fluid">
-      <div class="row ribbon-content">
-        <div class="container update-alert-container">
-          <%= t( "hyrax.masthead_banner.outage_banner_html" ) %>
-        </div>
-      </div>
-    </section>
-  <% end %>
+    </div>
+  </section>
+<% end %>
 
+<% if Flipflop.display_masthead_banner_slow? && Flipflop.disable_desposits_and_edits? %>
+  <section class="update-alert--warning container-fluid">
+    <div class="row ribbon-content">
+      <div class="container update-alert-container">
+        <%= t( "hyrax.masthead_banner.slow_html" ) %>
+        <%= t( "hyrax.masthead_banner.access_banner_html" ) %>
+      </div>
+    </div>
+  </section>
+<% elsif Flipflop.display_masthead_banner_slow? %>
+  <section class="update-alert--warning container-fluid">
+    <div class="row ribbon-content">
+      <div class="container update-alert-container">
+        <%= t( "hyrax.masthead_banner.slow_html" ) %>
+      </div>
+    </div>
+  </section>
+<% end %>
+
+<% if Flipflop.display_masthead_banner_outage? && Flipflop.disable_desposits_and_edits? %>
+  <section class="update-alert--warning container-fluid">
+    <div class="row ribbon-content">
+      <div class="container update-alert-container">
+        <%= t( "hyrax.masthead_banner.outage_banner_html" ) %>
+        <%= t( "hyrax.masthead_banner.access_banner_html" ) %>
+      </div>
+    </div>
+  </section>
+<% elsif Flipflop.display_masthead_banner_outage? %>
+  <section class="update-alert--warning container-fluid">
+    <div class="row ribbon-content">
+      <div class="container update-alert-container">
+        <%= t( "hyrax.masthead_banner.outage_banner_html" ) %>
+      </div>
+    </div>
+  </section>
 <% end %>
