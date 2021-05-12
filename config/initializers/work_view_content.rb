@@ -23,7 +23,11 @@ Deepblue::WorkViewContentService.setup do |config|
   else # production
     config.export_documentation_path = '/deepbluedata-prep/documentation_export/'
   end
-  FileUtils.mkdir_p config.export_documentation_path unless Dir.exist? config.export_documentation_path
+  begin
+    FileUtils.mkdir_p config.export_documentation_path unless Dir.exist? config.export_documentation_path
+  rescue Exception => e # rubocop:disable Lint/RescueException
+    # ignore -- this will fail on deployment to testing server, but we don't care
+  end  
   config.static_content_enable_cache = true
   config.static_controller_redirect_to_work_view_content = false
 
