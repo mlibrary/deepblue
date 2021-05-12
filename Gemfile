@@ -9,7 +9,7 @@ git_source(:github) do |repo_name|
 end
 
 # https://github.com/samvera/hyrax/releases
-gem 'hyrax', '2.9.4'
+gem 'hyrax', '2.9.5'
 gem 'linkeddata', '<= 3.1.1'
 gem 'rdf-rdfa', '< 3.1.1'
 gem 'rdf-vocab', '<= 3.1.4'

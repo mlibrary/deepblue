@@ -9,9 +9,9 @@ GIT
 
 GIT
   remote: https://github.com/mlibrary/irus_analytics
-  revision: 93fb8abf83d66020b9f9de7026c0e56f078b000f
+  revision: 02ad7cf93a4c627f5a1f23bddec1aa132a4c404a
   specs:
-    irus_analytics (0.0.10)
+    irus_analytics (0.0.11)
       config_files
       i18n
       openurl
@@ -105,12 +105,12 @@ GEM
     ast (2.4.2)
     atlassian-jwt (0.2.0)
       jwt (~> 2.1.0)
-    autoprefixer-rails (10.2.4.0)
-      execjs
+    autoprefixer-rails (10.2.5.0)
+      execjs (< 2.8.0)
     awesome_nested_set (3.4.0)
       activerecord (>= 4.0.0, < 7.0)
     aws-eventstream (1.1.1)
-    aws-partitions (1.451.0)
+    aws-partitions (1.454.0)
     aws-sdk-core (3.114.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
@@ -324,7 +324,7 @@ GEM
     ezid-client (1.9.0)
       hashie (~> 3.4, >= 3.4.3)
       nokogiri
-    factory_bot (6.1.0)
+    factory_bot (6.2.0)
       activesupport (>= 5.0.0)
     faraday (0.17.4)
       multipart-post (>= 1.2, < 3)
@@ -440,7 +440,7 @@ GEM
       hydra-derivatives (~> 3.0)
       hydra-file_characterization (~> 1.0)
       hydra-pcdm (>= 0.9)
-    hyrax (2.9.4)
+    hyrax (2.9.5)
       active-fedora (>= 11.5.2, < 12.2)
       almond-rails (~> 0.1)
       awesome_nested_set (~> 3.1)
@@ -695,7 +695,7 @@ GEM
       pry (>= 0.10.4)
     public_suffix (4.0.6)
     pul_uv_rails (2.0.1)
-    puma (4.3.7)
+    puma (4.3.8)
       nio4r (~> 2.0)
     qa (5.6.0)
       activerecord-import
@@ -746,7 +746,7 @@ GEM
     rainbow (2.2.2)
       rake
     rake (13.0.3)
-    rb-fsevent (0.10.4)
+    rb-fsevent (0.11.0)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
     rdf (3.1.13)
@@ -978,7 +978,7 @@ GEM
       rack (~> 2.0)
       rack-protection (= 2.0.8.1)
       tilt (~> 2.0)
-    slop (4.8.2)
+    slop (4.9.0)
     solr_wrapper (2.1.0)
       faraday
       retriable
@@ -1027,7 +1027,7 @@ GEM
     tilt (2.0.10)
     time_difference (0.7.0)
       activesupport (~> 5.1)
-    tins (1.28.0)
+    tins (1.29.0)
       sync
     tinymce-rails (4.9.11)
       railties (>= 3.1.1)
@@ -1073,7 +1073,7 @@ GEM
     xml-simple (1.1.8)
     xpath (3.2.0)
       nokogiri (~> 1.8)
-    yabeda (0.8.0)
+    yabeda (0.9.0)
       concurrent-ruby
       dry-initializer
     yabeda-prometheus (0.6.1)
@@ -1114,7 +1114,7 @@ DEPENDENCIES
   factory_bot
   fcrepo_wrapper
   groupdate
-  hyrax (= 2.9.4)
+  hyrax (= 2.9.5)
   irus_analytics!
   jbuilder (~> 2.5)
   jira-ruby (~> 1.1)
