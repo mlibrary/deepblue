@@ -269,9 +269,9 @@ en:
           A unique handle identifying the work. An example would be a DOI for a journal article, or an ISBN or OCLC
           number for a book.
         referenced_by: >
-          Include a citation, URL, or DOI for any publications that make use of or refer to this dataset. If your data 
-          deposit is reported on in an article, please include a citation for that article (if the article is still in 
-          press, provisional citations are acceptable and can be updated when finalized).
+          Include a citation for any publications that make use of or refer to this dataset. If your data deposit is 
+          reported on in an article, please include a citation for that article (if the article is still in press, 
+          provisional citations are acceptable and can be updated when finalized).
         curation_notes_admin: >
           This field is intended for Admins to enter curation information.
         curation_notes_user: >
