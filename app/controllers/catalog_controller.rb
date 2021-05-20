@@ -5,8 +5,9 @@ class CatalogController < ApplicationController
   include Hydra::Controller::ControllerBehavior
   include BlacklightOaiProvider::Controller
 
-  CATALOG_CONTROLLER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.catalog_controller_debug_verbose
-  CATALOG_CONTROLLER_ALLOW_SEARCH_FIX_FOR_JSON = true
+  mattr_accessor :catalog_controller_debug_verbose,
+                 default: ::DeepBlueDocs::Application.config.catalog_controller_debug_verbose
+  mattr_accessor :catalog_controller_allow_search_fix_for_json, default: true
 
   # This filter applies the hydra access controls
   before_action :enforce_show_permissions, only: :show
@@ -23,7 +24,7 @@ class CatalogController < ApplicationController
     # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
     #                                        ::Deepblue::LoggingHelper.called_from,
     #                                        "config.class.name=#{config.class.name}",
-    #                                        "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+    #                                        "" ] if catalog_controller_debug_verbose
 
     @@facet_solr_name_to_name = {}
     # solr fields that will be treated as facets by the blacklight application
@@ -69,7 +70,7 @@ class CatalogController < ApplicationController
     # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
     #                                        ::Deepblue::LoggingHelper.called_from,
     #                                        "config.class.name=#{config.class.name}",
-    #                                        "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+    #                                        "" ] if catalog_controller_debug_verbose
 
     config.view.gallery.partials = %i[index_header index]
     config.view.masonry.partials = [:index]
@@ -518,13 +519,13 @@ class CatalogController < ApplicationController
   def index
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if catalog_controller_debug_verbose
     (@response, @document_list) = search_results(index_params)
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "@document_list.size=#{@document_list.size}",
                                            "@document_list.map(&:id)=#{@document_list.map(&:id)}",
-                                           "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if catalog_controller_debug_verbose
 
     respond_to do |format|
       format.html { store_preferred_view }
@@ -546,7 +547,7 @@ class CatalogController < ApplicationController
                                            ::Deepblue::LoggingHelper.called_from,
                                            "params.class.name=#{params.class.name}",
                                            "params=#{params}",
-                                           "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if catalog_controller_debug_verbose
     respond_to do |format|
       format.html { return params }
       format.rss  { return params }
@@ -561,35 +562,35 @@ class CatalogController < ApplicationController
                                            "params.class.name=#{params.class.name}",
                                            "params=#{params}",
                                            "@@facet_solr_name_to_name=#{@@facet_solr_name_to_name}",
-                                           "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if catalog_controller_debug_verbose
     f = params["f"]
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
                                            "f=#{f}",
-                                           "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if catalog_controller_debug_verbose
     p2 = params.deep_dup
-    if f.present? && CATALOG_CONTROLLER_ALLOW_SEARCH_FIX_FOR_JSON
+    if f.present? && catalog_controller_allow_search_fix_for_json
       need_fix = false
       f.each_pair do |k,_v|
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "k=#{k}",
                                                "CatalogController.facet_solr_name_to_name(k)=#{CatalogController.facet_solr_name_to_name(k)}",
-                                               "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+                                               "" ] if catalog_controller_debug_verbose
         need_fix = true if CatalogController.facet_solr_name_to_name(k).blank?
       end
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params=#{params}",
                                              "need_fix=#{need_fix}",
-                                             "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if catalog_controller_debug_verbose
       if need_fix
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "params=#{params}",
                                                "fixing...",
-                                               "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+                                               "" ] if catalog_controller_debug_verbose
         old_params = params
         params = old_params.to_unsafe_hash
         new_f = {}
@@ -607,7 +608,7 @@ class CatalogController < ApplicationController
                                                ::Deepblue::LoggingHelper.called_from,
                                                "params=#{params}",
                                                "skipped fixing",
-                                               "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+                                               "" ] if catalog_controller_debug_verbose
       end
     end
     # no idea how params becomes nil here, but....
@@ -617,7 +618,7 @@ class CatalogController < ApplicationController
                                            "params=#{params}",
                                            "p2=#{p2}",
                                            "search_builder_class.name=#{search_builder_class.name}",
-                                           "" ] if CATALOG_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if catalog_controller_debug_verbose
     return params
   end
 

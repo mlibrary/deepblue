@@ -4,7 +4,8 @@ module Hyrax
 
   class SingleUseLinksViewerController < DownloadsController
 
-    SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.single_use_links_viewer_controller_debug_verbose
+    mattr_accessor :single_use_links_viewer_controller_debug_verbose,
+                   default: ::DeepBlueDocs::Application.config.single_use_links_viewer_controller_debug_verbose
 
     include ActionView::Helpers::TranslationHelper
     include Blacklight::Base
@@ -35,7 +36,7 @@ module Hyrax
                                              "single_use_link=#{single_use_link}",
                                              "single_use_link.path=#{single_use_link.path}",
                                              "single_use_link.class.name=#{single_use_link.class.name}",
-                                             "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if single_use_links_viewer_controller_debug_verbose
       raise not_found_exception unless single_use_link_valid?( single_use_link, destroy_if_not_valid: true )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -44,7 +45,7 @@ module Hyrax
                                              "asset.class.name=#{asset.class.name}",
                                              "asset&.id=#{asset&.id}",
                                              # "hyrax.download_path(id: asset)=#{hyrax.download_path(id: asset)}",
-                                             "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if single_use_links_viewer_controller_debug_verbose
       raise not_found_exception unless single_use_link_valid?( single_use_link,
                                                                item_id: asset&.id,
                                                                destroy_if_not_valid: true )
@@ -61,7 +62,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "url=#{url}",
-                                               "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
+                                               "" ] if single_use_links_viewer_controller_debug_verbose
         redirect_to url, notice: t('hyrax.single_use_links.notice.download')
       end
     end
@@ -71,20 +72,20 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",
                                              "single_use_link.class.name=#{single_use_link.class.name}",
-                                             "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if single_use_links_viewer_controller_debug_verbose
       raise not_found_exception unless single_use_link_valid?( single_use_link, destroy_if_not_valid: true )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",
                                              "single_use_link.itemId=#{single_use_link.itemId}",
-                                             "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if single_use_links_viewer_controller_debug_verbose
       _, document_list = search_results( id: single_use_link.itemId )
       solr_doc = document_list.first
       model = solr_doc['has_model_ssim'].first
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "model=#{model}",
-                                             "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if single_use_links_viewer_controller_debug_verbose
       if 'FileSet' == model
         # TODO: properly generate this route
         url = "#{::DeepBlueDocs::Application.config.relative_url_root}/concern/file_sets/#{solr_doc.id}/single_use_link/#{params[:id]}"
@@ -99,7 +100,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "url=#{url}",
-                                             "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if single_use_links_viewer_controller_debug_verbose
       redirect_to url, notice: flash_msg
     end
 
@@ -141,7 +142,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "current_user=#{current_user}",
                                              "single_use_link=#{single_use_link}",
-                                             "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if single_use_links_viewer_controller_debug_verbose
       @current_ability ||= SingleUseLinksViewerController::Ability.new current_user, single_use_link
     end
 
@@ -161,7 +162,7 @@ module Hyrax
                                                ::Deepblue::LoggingHelper.called_from,
                                                "user=#{user}",
                                                "single_use_link=#{single_use_link}",
-                                               "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
+                                               "" ] if SingleUseLinksViewerController.single_use_links_viewer_controller_debug_verbose
         @user = user || ::User.new
         return if single_use_link.blank?
 
@@ -172,7 +173,7 @@ module Hyrax
                                                  "single_use_link&.valid?=#{single_use_link&.valid?}",
                                                  "single_use_link&.itemId=#{single_use_link&.itemId}",
                                                  "obj.id=#{obj.id}",
-                                                 "" ] if SINGLE_USE_LINKS_VIEWER_CONTROLLER_DEBUG_VERBOSE
+                                                 "" ] if SingleUseLinksViewerController.single_use_links_viewer_controller_debug_verbose
           single_use_link.valid? && single_use_link.itemId == obj.id # && single_use_link.destroy!
         end
       end

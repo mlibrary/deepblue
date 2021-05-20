@@ -19,6 +19,7 @@ module Deepblue
     @@event_tracking_include_request_uri = false
     @@hit_graph_day_window = 30 # set to < 1 for no limit
     @@hit_graph_view_level = 0 # 0 = none, 1 = admin, 2 = editor, 3 = everyone
+    @@monthly_analytics_report_subscription_id = 'MonthlyAnalyticsReport'
     @@monthly_events_report_subscription_id = 'MonthlyEventsReport'
 
     @@analytics_reports_admins_can_subscribe = true
@@ -35,10 +36,11 @@ module Deepblue
                    :event_tracking_include_request_uri,
                    :hit_graph_day_window,
                    :hit_graph_view_level,
+                   :monthly_analytics_report_subscription_id,
                    :monthly_events_report_subscription_id
 
 
-                   def self.setup
+    def self.setup
       return if @@_setup_ran == true
       @@_setup_ran = true
       begin
