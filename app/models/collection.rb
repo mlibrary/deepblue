@@ -19,6 +19,8 @@ class Collection < ActiveFedora::Base
   include ::Deepblue::EmailBehavior
   include ::Deepblue::ProvenanceBehavior
 
+  after_initialize :set_defaults
+
   before_destroy :provenance_before_destroy_collection
 
   self.indexer = Hyrax::CollectionWithBasicMetadataIndexer
@@ -26,6 +28,11 @@ class Collection < ActiveFedora::Base
   def provenance_before_destroy_collection
     # workflow_destroy does this
     # provenance_destroy( current_user: '' ) # , event_note: 'provenance_before_destroy_collection' )
+  end
+
+  def set_defaults
+    return unless new_record?
+    self.resource_type = ["Collection"]
   end
 
   def metadata_keys_all
