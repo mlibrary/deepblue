@@ -672,3 +672,19 @@ table.datatable thead th.no-sort {
 .citation-title {
     font-style: italic;
 }
+
+.update-alert--warning {
+  background-color : rgb(255, 138, 88);
+  border-bottom: 0px;
+  color: black;
+  text-align: center;
+}
+
+.banner-content {
+  background-color: rgb(255, 138, 88);
+  border-bottom: 2px solid rgb(231, 117, 4);
+}
+
+
+
+
