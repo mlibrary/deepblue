@@ -7,7 +7,7 @@ module Hyrax
     class CollectionMemberService
 
       # begin monkey
-      COLLECTION_MEMBER_SERVICE_DEBUG = false
+      mattr_accessor :collection_member_service_debug_verbose, default: false
       # end monkey
 
       attr_reader :scope, :params, :collection
@@ -32,7 +32,7 @@ module Hyrax
                                                ::Deepblue::LoggingHelper.called_from,
                                                "subcollections_search_builder=#{subcollections_search_builder}",
                                                "params_for_subcollections=#{params_for_subcollections}",
-                                               "" ] if COLLECTION_MEMBER_SERVICE_DEBUG
+                                               "" ] if collection_member_service_debug_verbose
         # end monkey
         query_solr(query_builder: subcollections_search_builder, query_params: params_for_subcollections)
       end
@@ -46,8 +46,8 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "works_search_builder=#{works_search_builder}",
-                                               "params=#{params}",
-                                               "" ] if COLLECTION_MEMBER_SERVICE_DEBUG
+                                               "query_params=#{params}",
+                                               "" ] if collection_member_service_debug_verbose
         # end monkey
         query_solr(query_builder: works_search_builder, query_params: params)
       end

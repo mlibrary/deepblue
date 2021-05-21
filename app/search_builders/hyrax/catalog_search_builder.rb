@@ -1,6 +1,7 @@
+
 class Hyrax::CatalogSearchBuilder < Hyrax::SearchBuilder
 
-  CATALOG_SEARCH_BUILDER_DEBUG_VERBOSE = false
+  mattr_accessor :catalog_search_builder_debug_verbose, default: false
 
   self.default_processor_chain += [
     :add_access_controls_to_solr_params,
@@ -12,30 +13,30 @@ class Hyrax::CatalogSearchBuilder < Hyrax::SearchBuilder
   # show both works that match the query and works that contain files that match the query
   def show_works_or_works_that_contain_files(solr_parameters)
     # begin monkey
-    ::Deepblue::LoggingHelper.bold_debug [Deepblue::LoggingHelper.here,
-                                          Deepblue::LoggingHelper.called_from,
+    ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                          ::Deepblue::LoggingHelper.called_from,
                                           "solr_parameters.inspect=#{solr_parameters.inspect}",
-                                          ""] if CATALOG_SEARCH_BUILDER_DEBUG_VERBOSE
+                                          ""] if catalog_search_builder_debug_verbose
     # end monkey
     return if blacklight_params[:q].blank? || blacklight_params[:search_field] != 'all_fields'
     solr_parameters[:user_query] = blacklight_params[:q]
     solr_parameters[:q] = new_query
     solr_parameters[:defType] = 'lucene'
     # begin monkey
-    ::Deepblue::LoggingHelper.bold_debug [Deepblue::LoggingHelper.here,
-                                          Deepblue::LoggingHelper.called_from,
+    ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                          ::Deepblue::LoggingHelper.called_from,
                                           "solr_parameters.inspect=#{solr_parameters.inspect}",
-                                          ""] if CATALOG_SEARCH_BUILDER_DEBUG_VERBOSE
+                                          ""] if catalog_search_builder_debug_verbose
     # end monkey
   end
 
   # show works that are in the active state.
   def show_only_active_records(solr_parameters)
     # begin monkey
-    ::Deepblue::LoggingHelper.bold_debug [Deepblue::LoggingHelper.here,
-                                          Deepblue::LoggingHelper.called_from,
+    ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                          ::Deepblue::LoggingHelper.called_from,
                                           "solr_parameters.inspect=#{solr_parameters.inspect}",
-                                          ""] if CATALOG_SEARCH_BUILDER_DEBUG_VERBOSE
+                                          ""] if catalog_search_builder_debug_verbose
     # end monkey
     solr_parameters[:fq] ||= []
     return if current_ability.admin? # this allows all works to show up in browse for admins
@@ -44,7 +45,7 @@ class Hyrax::CatalogSearchBuilder < Hyrax::SearchBuilder
     ::Deepblue::LoggingHelper.bold_debug [Deepblue::LoggingHelper.here,
                                           Deepblue::LoggingHelper.called_from,
                                           "solr_parameters.inspect=#{solr_parameters.inspect}",
-                                          ""] if CATALOG_SEARCH_BUILDER_DEBUG_VERBOSE
+                                          ""] if catalog_search_builder_debug_verbose
     # end monkey
   end
 
@@ -54,7 +55,7 @@ class Hyrax::CatalogSearchBuilder < Hyrax::SearchBuilder
     ::Deepblue::LoggingHelper.bold_debug [Deepblue::LoggingHelper.here,
                                           Deepblue::LoggingHelper.called_from,
                                           "solr_parameters.inspect=#{solr_parameters.inspect}",
-                                          ""] if CATALOG_SEARCH_BUILDER_DEBUG_VERBOSE
+                                          ""] if catalog_search_builder_debug_verbose
     # end monkey
     return if current_ability.admin?
 
@@ -68,7 +69,7 @@ class Hyrax::CatalogSearchBuilder < Hyrax::SearchBuilder
     ::Deepblue::LoggingHelper.bold_debug [Deepblue::LoggingHelper.here,
                                           Deepblue::LoggingHelper.called_from,
                                           "solr_parameters.inspect=#{solr_parameters.inspect}",
-                                          ""] if CATALOG_SEARCH_BUILDER_DEBUG_VERBOSE
+                                          ""] if catalog_search_builder_debug_verbose
     # end monkey
   end
 

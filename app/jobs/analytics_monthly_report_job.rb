@@ -2,7 +2,7 @@
 
 require_relative '../services/deepblue/works_reporter'
 
-class MonthlyEventsReportJob < ::Hyrax::ApplicationJob
+class AnalyticsMonthlyReportJob < ::Hyrax::ApplicationJob
 
   mattr_accessor :monthly_events_report_job_debug_verbose,
                  default: ::Deepblue::JobTaskHelper.monthly_events_report_job_debug_verbose
@@ -14,7 +14,7 @@ monthly_events_report_job:
   #      M H D
   # cron: '*/5 * * * *'
   cron: '25 5 1 * *'
-  class: MonthlyEventsReportJob
+  class: AnalyticsMonthlyReportJob
   queue: scheduler
   description: Monthly events report job.
   args:
