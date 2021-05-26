@@ -1,7 +1,7 @@
 <% if Flipflop.display_masthead_banner_standard? && Flipflop.disable_desposits_and_edits? %>
-    <div class="row ribbon-content banner-content">
+    <div class="row ribbon-content banner-content-std">
       <div class="update-alert-container">
-        <section class="update-alert--warning container-fluid">
+        <section class="update-alert--warning-std container-fluid">
           <m-icon innerhtml="<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; role=&quot;presentation&quot; width=&quot;16&quot; height=&quot;16&quot; fill=&quot;currentColor&quot; viewBox=&quot;0 0 24 24&quot;><path d=&quot;M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z&quot;/></svg>" class="hydrated"><svg xmlns="http://www.w3.org/2000/svg" role="presentation" width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"></path></svg></m-icon>        
           <%= t( "hyrax.masthead_banner.standard_html" ) %>
           <%= t( "hyrax.masthead_banner.access_banner_html" ) %>
@@ -9,9 +9,9 @@
       </div>
     </div>
 <% elsif Flipflop.display_masthead_banner_standard? %>
-    <div class="row ribbon-content banner-content">
+    <div class="row ribbon-content banner-content-std">
       <div class="update-alert-container">
-        <section class="update-alert--warning container-fluid">
+        <section class="update-alert--warning-std container-fluid">
           <m-icon innerhtml="<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; role=&quot;presentation&quot; width=&quot;16&quot; height=&quot;16&quot; fill=&quot;currentColor&quot; viewBox=&quot;0 0 24 24&quot;><path d=&quot;M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z&quot;/></svg>" class="hydrated"><svg xmlns="http://www.w3.org/2000/svg" role="presentation" width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"></path></svg></m-icon>        
           <%= t( "hyrax.masthead_banner.standard_html" ) %>
         </section>
