@@ -3,9 +3,10 @@ require 'rails_helper'
 RSpec.describe '/_masthead_announcement.html.erb', type: :view, skip: false do
 
   let( :section_class ) { '<section class="update-alert--warning container-fluid">' }
+  let( :section_std_class ) { '<section class="update-alert--warning-std container-fluid">' }
 
   before do
-    allow(Flipflop).to receive(:display_masthead_banner?).and_return true
+    allow(Flipflop).to receive(:disable_desposits_and_edits?).and_return true
   end
 
   context 'no banner flipflops set' do
@@ -18,7 +19,8 @@ RSpec.describe '/_masthead_announcement.html.erb', type: :view, skip: false do
 
     it 'renders no banner sections' do
       render
-      expect(rendered.scan(section_class).size).to eq 0
+      expect(rendered.scan(section_class).size).to eq 1
+      expect(rendered.scan(section_std_class).size).to eq 0
       expect(rendered).not_to include t( "hyrax.masthead_banner.standard_html" )
       expect(rendered).not_to include t( "hyrax.masthead_banner.maintenance_html" )
       expect(rendered).not_to include t( "hyrax.masthead_banner.slow_html" )
@@ -37,7 +39,8 @@ RSpec.describe '/_masthead_announcement.html.erb', type: :view, skip: false do
 
     it 'renders the banner section' do
       render
-      expect(rendered.scan(section_class).size).to eq 1
+      expect(rendered.scan(section_class).size).to eq 0
+      expect(rendered.scan(section_std_class).size).to eq 1
       expect(rendered).to include t( "hyrax.masthead_banner.standard_html" )
       expect(rendered).not_to include t( "hyrax.masthead_banner.maintenance_html" )
       expect(rendered).not_to include t( "hyrax.masthead_banner.slow_html" )
@@ -57,6 +60,7 @@ RSpec.describe '/_masthead_announcement.html.erb', type: :view, skip: false do
     it 'renders the banner section' do
       render
       expect(rendered.scan(section_class).size).to eq 1
+      expect(rendered.scan(section_std_class).size).to eq 0
       expect(rendered).not_to include t( "hyrax.masthead_banner.standard_html" )
       expect(rendered).to include t( "hyrax.masthead_banner.maintenance_html" )
       expect(rendered).not_to include t( "hyrax.masthead_banner.slow_html" )
@@ -76,6 +80,7 @@ RSpec.describe '/_masthead_announcement.html.erb', type: :view, skip: false do
     it 'renders the banner section' do
       render
       expect(rendered.scan(section_class).size).to eq 1
+      expect(rendered.scan(section_std_class).size).to eq 0
       expect(rendered).not_to include t( "hyrax.masthead_banner.standard_html" )
       expect(rendered).not_to include t( "hyrax.masthead_banner.maintenance_html" )
       expect(rendered).to include t( "hyrax.masthead_banner.slow_html" )
@@ -95,6 +100,7 @@ RSpec.describe '/_masthead_announcement.html.erb', type: :view, skip: false do
     it 'renders the banner section' do
       render
       expect(rendered.scan(section_class).size).to eq 1
+      expect(rendered.scan(section_std_class).size).to eq 0
       expect(rendered).not_to include t( "hyrax.masthead_banner.standard_html" )
       expect(rendered).not_to include t( "hyrax.masthead_banner.maintenance_html" )
       expect(rendered).not_to include t( "hyrax.masthead_banner.slow_html" )
@@ -113,7 +119,8 @@ RSpec.describe '/_masthead_announcement.html.erb', type: :view, skip: false do
 
     it 'renders the banner section' do
       render
-      expect(rendered.scan(section_class).size).to eq 4
+      expect(rendered.scan(section_class).size).to eq 3
+      expect(rendered.scan(section_std_class).size).to eq 1
       expect(rendered).to include t( "hyrax.masthead_banner.standard_html" )
       expect(rendered).to include t( "hyrax.masthead_banner.maintenance_html" )
       expect(rendered).to include t( "hyrax.masthead_banner.slow_html" )
