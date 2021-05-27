@@ -1,7 +1,9 @@
+
 module Hyrax
+
   class HomepagePresenter
     class_attribute :create_work_presenter_class
-    self.create_work_presenter_class = Hyrax::SelectTypeListPresenter
+    self.create_work_presenter_class = ::Deepblue::SelectTypeListPresenter
     attr_reader :current_ability, :collections
 
     def initialize(current_ability, collections)
@@ -46,4 +48,5 @@ module Hyrax
           current_ability.current_user.guest?
       end
   end
+
 end

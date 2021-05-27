@@ -3,8 +3,10 @@ module Hyrax
 
   module CreateWorkPresenterBehavior
 
+    mattr_accessor :create_work_presenter_behavior_debug_verbose, default: false
+
     mattr_accessor :create_work_presenter_class
-    self.create_work_presenter_class = Hyrax::SelectTypeListPresenter
+    self.create_work_presenter_class = ::Deepblue::SelectTypeListPresenter
 
     # A presenter for selecting a work type to create
     def create_work_presenter

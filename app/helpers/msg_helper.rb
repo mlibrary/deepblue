@@ -3,6 +3,8 @@
 module MsgHelper
   extend ActionView::Helpers::TranslationHelper
 
+  mattr_accessor :msg_helper_debug_verbose, default: false
+
   FIELD_SEP = '; '
 
   def self.creator( curation_concern, field_sep: FIELD_SEP )

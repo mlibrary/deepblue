@@ -10,6 +10,8 @@ Deepblue::AnalyticsIntegrationService.setup do |config|
   config.event_tracking_include_request_uri = false
   config.event_tracking_excluded_parameters = [ :authenticity_token ].freeze
 
+  config.analytics_reports_admins_can_subscribe = true
+  config.enable_analytics_works_reports_can_subscribe = true
   config.enable_chartkick = true
   config.enable_collections_hit_graph = false
   config.enable_file_sets_hit_graph = true
@@ -21,8 +23,7 @@ Deepblue::AnalyticsIntegrationService.setup do |config|
   end
   config.hit_graph_day_window = 30 # set to < 1 for no limit
 
+  config.monthly_analytics_report_subscription_id = 'MonthlyAnalyticsReport'
   config.monthly_events_report_subscription_id = 'MonthlyEventsReport'
-
-  config.analytics_reports_admins_can_subscribe = true
 
 end

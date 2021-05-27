@@ -5,7 +5,7 @@ module Hyrax
 
     class CollectionsController < MyController
 
-      MY_COLLECTIONS_CONTROLLER_DEBUG_VERBOSE = false
+      mattr_accessor :hyrax_my_collections_controller_debug_verbose, default: false
 
       EVENT_NOTE = 'Hyrax::My::CollectionsController'
       PARAMS_KEY = 'collection'
@@ -40,7 +40,7 @@ module Hyrax
       def my_collections_controller_debug_output
         # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
         #                                        Deepblue::LoggingHelper.called_from,
-        #                                        "params=#{params}" ] if MY_COLLECTIONS_CONTROLLER_DEBUG_VERBOSE
+        #                                        "params=#{params}" ] if hyrax_my_collections_controller_debug_verbose
       end
 
       def curation_concern
@@ -54,7 +54,7 @@ module Hyrax
         #                                        Deepblue::LoggingHelper.called_from,
         #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
         #                                        "@update_attr_key_values=#{@update_attr_key_values}",
-        #                                        "" ] if MY_COLLECTIONS_CONTROLLER_DEBUG_VERBOSE
+        #                                        "" ] if hyrax_my_collections_controller_debug_verbose
         curation_concern.provenance_log_update_after( current_user: current_user,
                                                       # event_note: 'CollectionsController.provenance_log_update_after',
                                                       update_attr_key_values: @update_attr_key_values )
@@ -64,7 +64,7 @@ module Hyrax
         # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
         #                                        Deepblue::LoggingHelper.called_from,
         #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
-        #                                        "" ] if MY_COLLECTIONS_CONTROLLER_DEBUG_VERBOSE
+        #                                        "" ] if hyrax_my_collections_controller_debug_verbose
         return unless @update_attr_key_values.nil?
         @update_attr_key_values = curation_concern.provenance_log_update_before( form_params: params[PARAMS_KEY].dup )
       end
@@ -77,7 +77,7 @@ module Hyrax
         # load provenance log for this work
         id = @collection.id # curation_concern.id
         file_path = Deepblue::ProvenancePath.path_for_reference( id )
-        Deepblue::LoggingHelper.bold_debug [ "CollectionsController", "display_provenance_log", file_path ] if MY_COLLECTIONS_CONTROLLER_DEBUG_VERBOSE
+        Deepblue::LoggingHelper.bold_debug [ "CollectionsController", "display_provenance_log", file_path ] if hyrax_my_collections_controller_debug_verbose
         Deepblue::ProvenanceLogService.entries( id, refresh: true )
         # continue on to normal display
         #redirect_to [main_app, curation_concern]
@@ -100,7 +100,7 @@ module Hyrax
         # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
         #                                        Deepblue::LoggingHelper.called_from,
         #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
-        #                                        "" ] if MY_COLLECTIONS_CONTROLLER_DEBUG_VERBOSE
+        #                                        "" ] if hyrax_my_collections_controller_debug_verbose
         @update_attr_key_values = curation_concern.provenance_log_update_before( form_params: params[PARAMS_KEY].dup )
         if visibility_to_private?
           mark_as_set_to_private
@@ -113,7 +113,7 @@ module Hyrax
         # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
         #                                        Deepblue::LoggingHelper.called_from,
         #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
-        #                                        "" ] if MY_COLLECTIONS_CONTROLLER_DEBUG_VERBOSE
+        #                                        "" ] if hyrax_my_collections_controller_debug_verbose
         if curation_concern.private? && @visibility_changed_to_private
           workflow_unpublish
         elsif curation_concern.public? && @visibility_changed_to_public
@@ -125,7 +125,7 @@ module Hyrax
         # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
         #                                        Deepblue::LoggingHelper.called_from,
         #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
-        #                                        "" ] if MY_COLLECTIONS_CONTROLLER_DEBUG_VERBOSE
+        #                                        "" ] if hyrax_my_collections_controller_debug_verbose
         return false if curation_concern.private?
         params[PARAMS_KEY]['visibility'] == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
       end
@@ -134,7 +134,7 @@ module Hyrax
         # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
         #                                        Deepblue::LoggingHelper.called_from,
         #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
-        #                                        "" ] if MY_COLLECTIONS_CONTROLLER_DEBUG_VERBOSE
+        #                                        "" ] if hyrax_my_collections_controller_debug_verbose
         return false if curation_concern.public?
         params[PARAMS_KEY]['visibility'] == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
       end

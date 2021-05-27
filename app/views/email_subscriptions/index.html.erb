@@ -1,0 +1,28 @@
+<% provide :page_header do %>
+  <h1><%= "Email Subscriptions" %></h1>
+<% end %>
+
+<table>
+  <thead>
+    <tr>
+      <th colspan="5"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @email_subscriptions.each do |email_subscription| %>
+      <tr>
+        <td><%= email_subscription.id %></td>
+        <td><%= email_subscription.user_id %></td>
+        <td><%= email_subscription.email %> (email)</td>
+        <td><%= email_subscription.subscription_name %></td>
+        <td><%= link_to 'Show', Rails.application.routes.url_helpers.email_subscription_url( id: email_subscription.id, only_path: true ) %></td>
+        <td><%= link_to 'Edit', edit_email_subscription_path(email_subscription) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Job Status', new_email_subscription_path %>

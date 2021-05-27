@@ -165,21 +165,21 @@
                       id: 'stats',
                       class: 'btn btn-subtle btn-analytics',
                       data: { turbolinks: false } %>
-          <% if @presenter.can_subscribe_to_analytics_reports? %>
-              <% if @presenter.analytics_subscribed? %>
-                  <%= link_to t('simple_form.actions.data_set.analytics_unsubscribe'),
-                              "/data/concern/data_sets/#{@presenter.id}/analytics_unsubscribe",
-                        class: 'btn btn-subtle',
-                        data: { confirm: "Unsubscribe from this #{@presenter.human_readable_type}'s analytics report?" },
-                        method: :analytics_subscribe %>
-                <% else %>
-                  <%= link_to t('simple_form.actions.data_set.analytics_subscribe'),
-                              "/data/concern/data_sets/#{@presenter.id}/analytics_subscribe",
-                              class: 'btn btn-subtle',
-                              data: { confirm: "Subscribe to this #{@presenter.human_readable_type}'s analytics report?" },
-                              method: :analytics_subscribe %>
-                <% end %>
-            <% end %>
+          <% if false && @presenter.can_subscribe_to_analytics_reports? %>
+            <% if @presenter.analytics_subscribed? %>
+                <%= link_to t('simple_form.actions.data_set.analytics_unsubscribe'),
+                            "/data/concern/data_sets/#{@presenter.id}/analytics_unsubscribe",
+                      class: 'btn btn-subtle',
+                      data: { confirm: "Unsubscribe from this #{@presenter.human_readable_type}'s analytics report?" },
+                      method: :analytics_unsubscribe %>
+              <% else %>
+                <%= link_to t('simple_form.actions.data_set.analytics_subscribe'),
+                            "/data/concern/data_sets/#{@presenter.id}/analytics_subscribe",
+                            class: 'btn btn-subtle',
+                            data: { confirm: "Subscribe to this #{@presenter.human_readable_type}'s analytics report?" },
+                            method: :analytics_subscribe %>
+              <% end %>
+          <% end %>
           </div>
         </div>
       </div> <!-- End Analytics panel -->

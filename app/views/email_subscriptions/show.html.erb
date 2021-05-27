@@ -1,0 +1,19 @@
+<% provide :page_header do %>
+  <h1><%= "Job Status" %></h1>
+<% end %>
+
+<div class="<%= main_content_classes %> static-page-main">
+
+  <table>
+    <tr><td>ID:</td><td><%= @email_subscription.id %></td>
+    <tr><td>User ID:</td><td><%= @email_subscription.user_id %></td>
+    <tr><td>Email:</td><td><%= @email_subscription.email %></td>
+    <tr><td>Subscription Name:</td><td><%= @email_subscription.subscription_name %></td>
+    <tr><td>Subscription Parameters:</td><td><%= @email_subscription.subscription_parameters %></td>
+    <tr><td>Created At:</td><td><%= @email_subscription.created_at %></td>
+    <tr><td>Updated At:</td><td><%= @email_subscription.updated_at %></td>
+  </table>
+
+  <%= link_to 'Edit', edit_email_subscription_path(@email_subscription) %> |
+  <%= link_to 'Back', email_subscriptions_path %>
+</div>

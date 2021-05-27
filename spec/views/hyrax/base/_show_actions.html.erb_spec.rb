@@ -81,7 +81,7 @@ RSpec.describe 'hyrax/base/_show_actions.html.erb', type: :view do
     end
 
 
-    describe 'analytics subscribe and unsubscribe buttons' do
+    describe 'analytics subscribe and unsubscribe buttons', skip: true do
       # let( :flipflop ) { class_double( "Flipflop" ) }
 
       before do
