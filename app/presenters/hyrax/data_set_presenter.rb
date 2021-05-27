@@ -4,7 +4,8 @@ module Hyrax
 
   class DataSetPresenter < DeepbluePresenter
 
-    DATA_SET_PRESENTER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.data_set_presenter_debug_verbose
+    mattr_accessor :data_set_presenter_debug_verbose,
+                   default: ::DeepBlueDocs::Application.config.data_set_presenter_debug_verbose
 
     delegate  :authoremail,
               :curation_notes_admin,
@@ -31,11 +32,13 @@ module Hyrax
 
     attr_accessor :controller
 
-    delegate :can_display_provenance_log?,
+    delegate :analytics_subscribed?,
+                  :can_display_provenance_log?,
                   :can_display_read_me?,
                   :current_user,
                   :current_user_can_edit?,
                   :current_user_can_read?,
+                  :enable_analytics_works_reports_can_subscribe?,
                   :ingest_allowed_base_directories,
                   :ingest_base_directory,
                   :ingest_depositor,
@@ -68,7 +71,7 @@ module Hyrax
     #                                          "solr_document.class.name = #{solr_document.class.name}",
     #                                          "current_ability = #{current_ability}",
     #                                          "request = #{request}",
-    #                                          "" ] if DATA_SET_PRESENTER_DEBUG_VERBOSE
+    #                                          "" ] if data_set_presenter_debug_verbose
     #   super( solr_document, current_ability, request )
     #   ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
     #                                          Deepblue::LoggingHelper.called_from,
@@ -79,7 +82,7 @@ module Hyrax
     #                                          "@solr_document.doi_minted? = #{@solr_document.doi_minted?}",
     #                                          "@solr_document.doi_minting_enabled? = #{@solr_document.doi_minting_enabled?}",
     #                                          "@solr_document.doi_pending? = #{@solr_document.doi_pending?}",
-    #                                          "" ] if DATA_SET_PRESENTER_DEBUG_VERBOSE
+    #                                          "" ] if data_set_presenter_debug_verbose
     # end
 
     def controller_class
@@ -128,14 +131,14 @@ module Hyrax
     def provenance_log_entries?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if DATA_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if data_set_presenter_debug_verbose
       file_path = ::Deepblue::ProvenancePath.path_for_reference( id )
       rv = File.exist?( file_path )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "file_path=#{file_path}",
                                              "rv=#{rv}",
-                                             "" ] if DATA_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if data_set_presenter_debug_verbose
       return rv
     end
 

@@ -7,9 +7,7 @@ module Deepblue
     @@_setup_ran = false
     @@_setup_failed = false
 
-    @@email_subscription_service_debug_verbose = false
-
-    mattr_accessor :email_subscription_service_debug_verbose
+    mattr_accessor :email_subscription_service_debug_verbose, default: false
 
     def self.setup
       return if @@_setup_ran == true
@@ -38,17 +36,20 @@ module Deepblue
       return targets
     end
 
-    def self.subscribers_for( subscription_service_id:, include_parameters: false )
+    def self.subscribers_for( subscription_service_id:,
+                              include_parameters: false,
+                              debug_verbose: email_subscription_service_debug_verbose )
+
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "subscription_service_id=#{subscription_service_id}",
                                              "include_parameters=#{include_parameters}",
-                                             "" ] if email_subscription_service_debug_verbose
+                                             "" ] if debug_verbose
       records = EmailSubscription.where( subscription_name: subscription_service_id )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "records=#{records}",
-                                             "" ] if email_subscription_service_debug_verbose
+                                             "" ] if debug_verbose
       return [] if records.empty?
       rv = []
       records.each do |record|
@@ -58,7 +59,7 @@ module Deepblue
                                                "record.email=#{record.email}",
                                                "record.user_id=#{record.user_id}",
                                                "record.subscription_parameters=#{record.subscription_parameters}",
-                                               "" ] if email_subscription_service_debug_verbose
+                                               "" ] if debug_verbose
         email = if record.email.present?
                   record.email
                 elsif record.user_id.present?
@@ -68,7 +69,7 @@ module Deepblue
                                                            ::Deepblue::LoggingHelper.called_from,
                                                            "user=#{user}",
                                                            "user&.email=#{user&.email}",
-                                                           "" ] if email_subscription_service_debug_verbose
+                                                           "" ] if debug_verbose
                     user.email
                   rescue Exception => ignore
                     nil
@@ -86,7 +87,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "subscription_service_id=#{subscription_service_id}",
                                              "rv=#{rv}",
-                                             "" ] if email_subscription_service_debug_verbose
+                                             "" ] if debug_verbose
       return rv
     end
 

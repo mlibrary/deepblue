@@ -11,6 +11,7 @@ Deepblue::JobTaskHelper.setup do |config|
   config.deepblue_job_debug_verbose = false
   config.heartbeat_job_debug_verbose = false
   config.heartbeat_email_job_debug_verbose = false
+  config.monthly_analytics_report_job_debug_verbose = false
   config.monthly_events_report_job_debug_verbose = false
   config.rake_task_job_debug_verbose = false
   config.scheduler_start_job_debug_verbose = false

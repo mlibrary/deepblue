@@ -29,7 +29,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if hyrax_my_works_controller_debug_verbose
-        ::AnalyticsHelper.monthly_analytics_report_subscribe( user_id: current_ability.current_user.id )
+        ::AnalyticsHelper.monthly_analytics_report_subscribe( user: current_ability.current_user )
         redirect_to hyrax.my_works_path
       end
 
@@ -37,7 +37,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if hyrax_my_works_controller_debug_verbose
-        ::AnalyticsHelper.monthly_analytics_report_unsubscribe( user_id: current_ability.current_user.id )
+        ::AnalyticsHelper.monthly_analytics_report_unsubscribe( user: current_ability.current_user )
         redirect_to hyrax.my_works_path
       end
 
