@@ -7,7 +7,8 @@ module Hyrax
 
   class WorkShowPresenter
 
-    WORK_SHOW_PRESENTER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.work_show_presenter_debug_verbose
+    mattr_accessor :work_show_presenter_debug_verbose,
+                   default: ::DeepBlueDocs::Application.config.work_show_presenter_debug_verbose
 
     include ModelProxy
     include PresentsAttributes
@@ -35,7 +36,7 @@ module Hyrax
     def initialize(solr_document, current_ability, request = nil)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       @solr_document = solr_document
       @current_ability = current_ability
       @request = request
@@ -82,8 +83,8 @@ module Hyrax
     def analytics_subscribed?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
-      ::AnalyticsHelper::monthly_events_report_subscribed?( user_id: current_ability.current_user.id, cc_id: id )
+                                             "" ] if work_show_presenter_debug_verbose
+      ::AnalyticsHelper::monthly_analytics_report_subscribed?( user_id: current_ability.current_user.id )
     end
 
     def can_delete_work?
@@ -93,7 +94,7 @@ module Hyrax
                                              "false if doi_minted?=#{doi_minted?}",
                                              "false if tombstoned?=#{tombstoned?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       return false if single_use_show?
       return false if doi_minted?
       return false if tombstoned?
@@ -107,7 +108,7 @@ module Hyrax
                                              "false unless display_provenance_log_enabled?=#{display_provenance_log_enabled?}",
                                              "false if single_use_show?=#{single_use_show?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       return false unless display_provenance_log_enabled?
       return false if single_use_show?
       current_ability.admin?
@@ -124,7 +125,7 @@ module Hyrax
                                              "current_ability.user.email=#{current_ability.user.email}",
                                              "@curation_concern.depositor=#{@curation_concern.depositor}",
                                              "true if current_ability.user.email == @curation_concern.depositor=#{current_ability.user.email == @curation_concern.depositor}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       return false if single_use_show?
       return false if tombstoned?
       # return true if current_ability.admin?
@@ -140,7 +141,7 @@ module Hyrax
                                              "false unless globus_enabled?=#{globus_enabled?}",
                                              "false unless globus_enabled?=#{globus_enabled?}",
                                              "true if can_download_zip_maybe?=#{can_download_zip_maybe?}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       return false unless globus_enabled?
       can_download_zip_maybe?
     end
@@ -162,7 +163,7 @@ module Hyrax
                                              "false if tombstoned?=#{tombstoned?}",
                                              "true if editor?=#{editor?}",
                                              "and workflow.state != 'deposited'=#{workflow.state != 'deposited'}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       return false if single_use_show?
       return true if current_ability.admin?
       return false if tombstoned?
@@ -180,7 +181,7 @@ module Hyrax
                                              "false if single_use_show?=#{single_use_show?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
                                              "current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       return false unless doi_minting_enabled?
       return false if tombstoned?
       return false if doi_pending? || doi_minted?
@@ -205,7 +206,7 @@ module Hyrax
                                              "false if tombstoned?=#{tombstoned?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
                                              "true if current_ability.can?( :transfer, id )=#{current_ability.can?( :transfer, id )}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       return false if single_use_show?
       return false if tombstoned?
       return true if current_ability.admin?
@@ -223,7 +224,7 @@ module Hyrax
                                              "true if workflow.state == 'deposited' && solr_document.visibility == 'open'=#{workflow.state == 'deposited' && solr_document.visibility == 'open'}",
                                              "false if embargoed?=#{embargoed?}",
                                              "current_ability.current_user_can_read?=#{current_user_can_read?}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       return false if tombstoned?
       return true if workflow.state == 'deposited' && solr_document.visibility == 'open'
       return true if single_use_show?
@@ -243,7 +244,7 @@ module Hyrax
                                              "true if current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
                                              "true if current_ability.current_user.present? && current_ability.current_user.user_approver?( current_ability.current_user )=#{current_ability.current_user.present? && current_ability.current_user.user_approver?( current_ability.current_user )}",
                                              "current_user_can_read?=#{current_user_can_read?}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       return true if workflow.state == 'deposited' && solr_document.visibility == 'open'
       return true if embargoed? && workflow.state == 'deposited'
       return true if tombstoned?
@@ -267,7 +268,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "solr_document.visibility=#{solr_document.visibility}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       solr_document.visibility == 'embargo'
     end
 
@@ -283,12 +284,12 @@ module Hyrax
       # monkey - add debugging around creating member presenter factory
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       rv = MemberPresenterFactory.new( solr_document, current_ability, request )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv.class.name=#{rv.class.name}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       return rv
     end
 
@@ -300,7 +301,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "ids=#{ids}",
                                              "presenter_class=#{presenter_class}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       @work_show_member_presenters ||= member_presenters_init( ids, presenter_class )
     end
 
@@ -311,7 +312,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "an_array_of_ids=#{an_array_of_ids}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       member_presenters( an_array_of_ids )
     end
 
@@ -324,37 +325,37 @@ module Hyrax
                                              "ids=#{ids}",
                                              "presenter_class=#{presenter_class}",
                                              "cc_single_use_link=#{cc_single_use_link}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       presenters = member_presenter_factory.member_presenters( ids, presenter_class )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "presenters.size=#{presenters.size}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       # return presenters if cc_single_use_link.blank?
       presenters.each do |member_presenter|
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "member_presenter.class.name=#{member_presenter.class.name}",
-                                               "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                               "" ] if work_show_presenter_debug_verbose
         if member_presenter.respond_to? :parent_presenter
           member_presenter.parent_presenter = self
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "member_presenter.parent_presenter.id=#{member_presenter.parent_presenter.id}",
-                                                 "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                                 "" ] if work_show_presenter_debug_verbose
         end
         if cc_single_use_link.present? && member_presenter.respond_to?( :cc_parent_single_use_link )
           member_presenter.cc_parent_single_use_link = cc_single_use_link
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "member_presenter.cc_parent_single_use_link=#{member_presenter.cc_parent_single_use_link}",
-                                                 "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                                 "" ] if work_show_presenter_debug_verbose
         end
       end
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "presenters.size=#{presenters.size}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       presenters
     end
 
@@ -373,7 +374,7 @@ module Hyrax
       #                                        ::Deepblue::LoggingHelper.called_from,
       #                                        "workflow.state=#{workflow.state}",
       #                                        "solr_document.visibility=#{solr_document.visibility}",
-      #                                        "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+      #                                        "" ] if work_show_presenter_debug_verbose
       workflow.state == 'deposited' && solr_document.visibility == 'open'
     end
 
@@ -388,7 +389,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "representative_id=#{representative_id}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       return nil if representative_id.blank?
       @representative_presenter ||=
           begin
@@ -409,7 +410,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       user_id = nil
       user_id = current_ability.current_user.id unless single_use_show?
       rv = SingleUseLink.create( itemId: curation_concern.id,
@@ -418,7 +419,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       return rv
     end
 
@@ -442,7 +443,7 @@ module Hyrax
                                                "su_link.path=#{su_link.path}",
                                                "su_link.user_id=#{su_link.user_id}",
                                                "su_link.user_comment=#{su_link.user_comment}",
-                                               "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                               "" ] if work_show_presenter_debug_verbose
         if su_link.expired?
           su_link.delete
           false
@@ -484,11 +485,11 @@ module Hyrax
     def workflow_init
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       rv = WorkflowPresenter.new(solr_document, current_ability)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       return rv
     end
 
@@ -500,11 +501,11 @@ module Hyrax
     def inspect_work_init
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       rv = InspectWorkPresenter.new(solr_document, current_ability)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if WORK_SHOW_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if work_show_presenter_debug_verbose
       return rv
     end
 

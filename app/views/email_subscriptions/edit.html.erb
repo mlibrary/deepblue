@@ -1,0 +1,8 @@
+<% provide :page_header do %>
+  <h1><%= Edit Email Subscription %></h1>
+<% end %>
+
+<%= render 'form', email_subscription: @email_subscription %>
+
+<%= link_to 'Show', @email_subscription %> |
+<%= link_to 'Back', email_subscriptions_path %>

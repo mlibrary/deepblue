@@ -247,11 +247,17 @@ Rails.application.routes.draw do
 
   # mount Yabeda::Prometheus::Exporter => "/metrics"
 
+  resource :email_subscription
+  get 'email_subscriptions', to: 'email_subscriptions#index', as: 'email_subscriptions' # index
+
   # resource :job_status #, only: [:index, :show, :update]
-
   resource :job_status
-
   get 'job_statuses', to: 'job_statuses#index', as: 'job_statuses' # index
+
+  get  '/my/works/analytics_subscribe', controller: 'hyrax/my/works', action: :analytics_subscribe
+  post '/my/works/analytics_subscribe', controller: 'hyrax/my/works', action: :analytics_subscribe
+  get  '/my/works/analytics_unsubscribe', controller: 'hyrax/my/works', action: :analytics_unsubscribe
+  post '/my/works/analytics_unsubscribe', controller: 'hyrax/my/works', action: :analytics_unsubscribe
 
 end
 

@@ -11,20 +11,15 @@
       <% else %>
         <%= submit_tag(t('simple_form.actions.work_view_documentation.cache_on'), class: 'btn btn-primary') %>&nbsp;
       <% end %>
-      <%= submit_tag(t('simple_form.actions.work_view_documentation.export_documentation'),
-                     class: 'btn btn-primary') %>&nbsp;
-      <%= submit_tag(t('simple_form.actions.work_view_documentation.reload_email_templates'),
-                     class: 'btn btn-primary') %>&nbsp;
-      <%= submit_tag(t('simple_form.actions.work_view_documentation.reload_i18n_templates'),
-                     class: 'btn btn-primary') %>&nbsp;
-      <%= submit_tag(t('simple_form.actions.work_view_documentation.reload_view_templates'),
-                     class: 'btn btn-primary') %>&nbsp;
+      <%= submit_tag(t('simple_form.actions.work_view_documentation.export_documentation'), class: 'btn btn-primary') %>&nbsp;
+      <%= submit_tag(t('simple_form.actions.work_view_documentation.reload_email_templates'), class: 'btn btn-primary') %>&nbsp;
+      <%= submit_tag(t('simple_form.actions.work_view_documentation.reload_i18n_templates'), class: 'btn btn-primary') %>&nbsp;
+      <%= submit_tag(t('simple_form.actions.work_view_documentation.reload_view_templates'), class: 'btn btn-primary') %>&nbsp;
       <% if current_ability.can_create_any_work? %>
-        &nbsp;
-          <%= link_to( t(:'helpers.action.work.new'),
-                       new_polymorphic_path([main_app, @presenter.first_work_type]),
-                       class: 'btn btn-primary',
-                       target: '_blank' ) %>
+        <%= link_to( t(:'helpers.action.work.new'),
+                     new_polymorphic_path([main_app, @presenter.first_work_type]),
+                     class: 'btn btn-primary',
+                     target: '_blank' ) %>
       <% end %>
     <% end %>
   <% end %>

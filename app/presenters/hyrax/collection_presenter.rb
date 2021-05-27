@@ -15,10 +15,11 @@ module Hyrax
     attr_accessor :parent_collections # This is expected to be a Blacklight::Solr::Response with all of the parent collections
     attr_writer :collection_type
 
-    COLLECTION_PRESENTER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.collection_presenter_debug_verbose
+    mattr_accessor :collection_presenter_debug_verbose,
+                   default: ::DeepBlueDocs::Application.config.collection_presenter_debug_verbose
 
     class_attribute :create_work_presenter_class
-    self.create_work_presenter_class = Hyrax::SelectTypeListPresenter
+    self.create_work_presenter_class = ::Deepblue::SelectTypeListPresenter
 
     # @param [SolrDocument] solr_document
     # @param [Ability] current_ability
@@ -174,7 +175,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "work_members_of_this_collection.first&.class.name=#{work_members_of_this_collection.first&.class.name}",
-                                             "" ] if COLLECTION_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if collection_presenter_debug_verbose
       @work_members_of_this_collection_ids ||= work_members_of_this_collection.map { |member| member.id }
     end
     alias work_member_ids work_members_of_this_collection_ids
@@ -192,7 +193,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
                                              "current_ability=#{current_ability}",
-                                             "" ] if COLLECTION_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if collection_presenter_debug_verbose
       work_members_of_this_collection.accessible_by(current_ability).count
     end
 

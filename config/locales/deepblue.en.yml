@@ -5,6 +5,8 @@ en:
       batch:
         new: "Add work batch"
       work:
+        analytics_subscribe: "Subscribe"
+        analytics_unsubscribe: "Unsubscribe"
         new: "Add new work"
     select:
       # Default value for :prompt => true in FormOptionsHelper

@@ -15,11 +15,28 @@
 
 <% provide :page_header do %>
   <h1><span class="fa fa-file"></span> <%= t("hyrax.admin.sidebar.works") %></h1>
-  <% if current_ability.can_create_any_work? %>
+  <% if current_ability.can_create_any_work? && !Flipflop.disable_desposits_and_edits? %>
     <div class="pull-right">
+      <% if @create_work_presenter.can_subscribe_to_analytics_reports? %>
+        <% if @create_work_presenter.analytics_subscribed? %>
+          <%= link_to t('simple_form.actions.data_set.analytics_unsubscribe'),
+                      Rails.application.routes.url_helpers.my_works_analytics_unsubscribe_path,
+                      class: 'btn btn-primary',
+                      data: { confirm: "Unsubscribe from monthly analytics works report?" },
+                      method: :analytics_unsubscribe %>
+        <% else %>
+          <%= link_to t('simple_form.actions.data_set.analytics_subscribe'),
+                      Rails.application.routes.url_helpers.my_works_analytics_subscribe_path,
+                      class: 'btn btn-primary',
+                      data: { confirm: "Subscribe to monthly analytics works report?" },
+                      method: :analytics_subscribe %>
+        <% end %>
+        &nbsp;
+        &nbsp;
+      <% end %>
       <%# puts "@create_work_presenter.many?=#{@create_work_presenter.many?}" %>
       <%# puts "!Flipflop.only_use_data_set_work_type?=#{!Flipflop.only_use_data_set_work_type?}" %>
-      <% if @create_work_presenter.many? && !Flipflop.only_use_data_set_work_type? && !Flipflop.disable_desposits_and_edits? %>
+      <% if @create_work_presenter.many? && !Flipflop.only_use_data_set_work_type? %>
         <% if Flipflop.batch_upload? %>
           <%= link_to(
                 t(:'helpers.action.batch.new'),
@@ -34,7 +51,7 @@
               data: { behavior: "select-work", target: "#worktypes-to-create", 'create-type' => 'single' },
               class: 'btn btn-primary'
             ) %>
-      <% elsif !Flipflop.disable_desposits_and_edits? # simple link to the first work type %>
+      <% else # simple link to the first work type %>
         <% if Flipflop.batch_upload? %>
           <%= link_to(
               t(:'helpers.action.batch.new'),
