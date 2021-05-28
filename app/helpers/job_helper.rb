@@ -39,13 +39,21 @@ module JobHelper
                      event_note: '',
                      timestamp_begin: self.timestamp_begin,
                      timestamp_end: self.timestamp_end )
+
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "targets=#{email_targets}",
+                                           "targets=#{targets}",
                                            "task_name=#{task_name}",
                                            "job_msg_queue=#{job_msg_queue}",
                                            "" ] if job_helper_debug_verbose
+    targets = [] if targets.blank?
+    targets = ::Deepblue::JobTaskHelper.job_failure_email_subscribers & targets
     return unless targets.present?
+    return unless targets[0].present?
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "targets=#{targets}",
+                                           "" ] if job_helper_debug_verbose
     ::Deepblue::JobTaskHelper.email_failure( targets: targets,
                                              task_name: task_name,
                                              exception: exception,
@@ -61,6 +69,7 @@ module JobHelper
                      event: self.class.name, event_note: '',
                      timestamp_begin: self.timestamp_begin,
                      timestamp_end: self.timestamp_end )
+
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "targets=#{targets}",

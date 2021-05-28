@@ -13,42 +13,24 @@ module Deepblue
       @@_setup_ran = true
     end
 
-    mattr_accessor  :about_to_expire_embargoes_job_debug_verbose, default: false
-    mattr_accessor  :abstract_rake_task_job_debug_verbose, default: false
-    mattr_accessor  :deactivate_expired_embargoes_job_debug_verbose, default: false
-    mattr_accessor  :deepblue_job_debug_verbose, default: false
-    mattr_accessor  :export_documentation_job_debug_verbose, default: false
-    mattr_accessor  :heartbeat_job_debug_verbose, default: false
-    mattr_accessor  :heartbeat_email_job_debug_verbose, default: false
-    mattr_accessor  :monthly_analytics_report_job_debug_verbose, default: false
-    mattr_accessor  :monthly_events_report_job_debug_verbose, default: false
-    mattr_accessor  :rake_task_job_debug_verbose, default: false
-    mattr_accessor  :run_job_task_debug_verbose, default: false
-    mattr_accessor  :scheduler_start_job_debug_verbose, default: false
-    mattr_accessor  :update_condensed_events_job_debug_verbose, default: false
-    mattr_accessor  :user_stat_importer_job_debug_verbose, default: false
-    mattr_accessor  :works_report_job_debug_verbose, default: false
+    mattr_accessor :about_to_expire_embargoes_job_debug_verbose, default: false
+    mattr_accessor :abstract_rake_task_job_debug_verbose, default: false
+    mattr_accessor :deactivate_expired_embargoes_job_debug_verbose, default: false
+    mattr_accessor :deepblue_job_debug_verbose, default: false
+    mattr_accessor :export_documentation_job_debug_verbose, default: false
+    mattr_accessor :heartbeat_job_debug_verbose, default: false
+    mattr_accessor :heartbeat_email_job_debug_verbose, default: false
+    mattr_accessor :monthly_analytics_report_job_debug_verbose, default: false
+    mattr_accessor :monthly_events_report_job_debug_verbose, default: false
+    mattr_accessor :rake_task_job_debug_verbose, default: false
+    mattr_accessor :run_job_task_debug_verbose, default: false
+    mattr_accessor :scheduler_start_job_debug_verbose, default: false
+    mattr_accessor :update_condensed_events_job_debug_verbose, default: false
+    mattr_accessor :user_stat_importer_job_debug_verbose, default: false
+    mattr_accessor :works_report_job_debug_verbose, default: false
 
-    # mattr_accessor  :run_job_task_debug_verbose,
-    #                 :about_to_expire_embargoes_job_debug_verbose,
-    #                 :abstract_rake_task_job_debug_verbose,
-    #                 :deactivate_expired_embargoes_job_debug_verbose,
-    #                 :deepblue_job_debug_verbose,
-    #                 :export_documentation_job_debug_verbose,
-    #                 :heartbeat_job_debug_verbose,
-    #                 :heartbeat_email_job_debug_verbose,
-    #                 :monthly_events_report_job_debug_verbose,
-    #                 :rake_task_job_debug_verbose,
-    #                 :run_job_task_debug_verbose,
-    #                 :scheduler_start_job_debug_verbose,
-    #                 :update_condensed_events_job_debug_verbose,
-    #                 :user_stat_importer_job_debug_verbose,
-    #                 :works_report_job_debug_verbose
-    #
-
-    mattr_accessor  :allowed_job_tasks, default: [ "tmp:clean" ].freeze
-
-    mattr_accessor  :allowed_job_tasks
+    mattr_accessor :allowed_job_tasks, default: [ "tmp:clean" ].freeze
+    mattr_accessor :job_failure_email_subscribers, default: []
 
     def self.email_exec_results( targets:,
                                  subscription_service_id: nil,

@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
-
 # bundle exec rake deepblue:run_job['{"job_class":"HeartBeat"\,"verbose":true}']
 class HeartbeatJob < ::Deepblue::DeepblueJob
 
-  mattr_accessor :heartbeat_job_debug_verbose
-  @@heartbeat_job_debug_verbose = ::Deepblue::JobTaskHelper.heartbeat_job_debug_verbose
+  mattr_accessor :heartbeat_job_debug_verbose, default: ::Deepblue::JobTaskHelper.heartbeat_job_debug_verbose
 
   queue_as :scheduler
 

@@ -7,9 +7,11 @@ RSpec.describe SchedulerStartJob, skip: false do
   let(:job_delay) { 0 }
   let(:restart)   { false }
   let(:options)   { {} }
+  let(:user)      { create(:user) }
   let(:job)       { described_class.send( :job_or_instantiate,
                                           job_delay: job_delay,
                                           restart: restart,
+                                          user_email: user.email,
                                           **options ) }
 
   describe 'module debug verbose variables' do
@@ -21,13 +23,14 @@ RSpec.describe SchedulerStartJob, skip: false do
   context 'with valid arguments and scheduler running' do
     let(:hostname)  { ::DeepBlueDocs::Application.config.hostname }
     let(:sched_pid) { 123 }
+    let(:email_msg) { "DBD scheduler already running on #{hostname}" }
 
     before do
       expect( described_class.scheduler_start_job_debug_verbose ).to eq false
       expect( job ).to receive( :delay_job ).with( job_delay )
       expect( job ).to receive( :scheduler_pid ).with( no_args ).and_return sched_pid
       expect( job ).to receive( :hostname ).with( no_args ).and_return hostname
-      expect( job ).to receive( :scheduler_emails ).with( subject: "DBD scheduler already running on #{hostname}" )
+      expect( job ).to receive( :scheduler_emails ).with( to: [user.email], subject: email_msg, body: email_msg )
     end
 
     it 'starts the scheduler' do

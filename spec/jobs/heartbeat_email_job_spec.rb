@@ -20,7 +20,7 @@ RSpec.describe HeartbeatEmailJob do
   end
 
   RSpec.shared_examples 'it performs the job' do |allowed_to_run_on_server, debug_verbose_count|
-    let(:event)        { "heartbeat email" }
+    let(:event)        { "heartbeat email job" }
     let(:dbg_verbose)  { debug_verbose_count > 0 }
     let(:args)         { { hostnames: hostnames } }
     let(:init_options) { {"hostnames" => hostnames, :debug_verbose => dbg_verbose} }
@@ -33,7 +33,7 @@ RSpec.describe HeartbeatEmailJob do
       expect(job).to receive(:job_status_init).with(no_args).and_call_original
       expect(job).to receive(:timestamp_begin).with(no_args).at_least(:once).and_call_original
       expect(job).to receive(:initialize_options_from).with(args, debug_verbose: dbg_verbose).and_call_original
-      expect(job).to receive(:hostname_allowed).with(debug_verbose: dbg_verbose).and_call_original
+      expect(job).to receive(:hostname_allowed).with(debug_verbose: dbg_verbose).at_least(:once).and_call_original
       expect(job).to receive(:log).with({event: event, hostname_allowed: allowed})
       if allowed_to_run_on_server
         expect(job).to receive(:find_all_email_targets).with(additional_email_targets: email_targets).and_call_original

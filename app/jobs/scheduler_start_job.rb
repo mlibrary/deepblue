@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
-class SchedulerStartJob < ::Hyrax::ApplicationJob
+class SchedulerStartJob < ::Deepblue::DeepblueJob
 
-  mattr_accessor :scheduler_start_job_debug_verbose
-  @@scheduler_start_job_debug_verbose = ::Deepblue::JobTaskHelper.scheduler_start_job_debug_verbose
+  mattr_accessor :scheduler_start_job_debug_verbose,
+                 default: ::Deepblue::JobTaskHelper.scheduler_start_job_debug_verbose
 
-  include JobHelper # see JobHelper for :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as :default
 
   attr_accessor :rails_bin_scheduler, :rails_log_scheduler
@@ -13,16 +12,20 @@ class SchedulerStartJob < ::Hyrax::ApplicationJob
   # job_delay in seconds
   def perform( job_delay: ::Deepblue::SchedulerIntegrationService.scheduler_start_job_default_delay,
                restart: true,
+               user_email: '',
+               debug_verbose: scheduler_start_job_debug_verbose,
                **options )
 
-    timestamp_begin
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "job_delay=#{job_delay}",
                                            "restart=#{restart}",
+                                           "user_email=#{user_email}",
                                            "options=#{options}",
-                                           "" ] if scheduler_start_job_debug_verbose
+                                           "" ] if debug_verbose
 
+    initialize_with( debug_verbose: debug_verbose )
+    log( event: "scheduler start job" )
     @rails_bin_scheduler = Rails.application.root.join( 'bin', 'scheduler.sh' ).to_s
     @rails_log_scheduler = Rails.application.root.join( 'log', 'scheduler.sh.out' ).to_s
     delay_job job_delay
@@ -33,19 +36,21 @@ class SchedulerStartJob < ::Hyrax::ApplicationJob
       sleep 1.second
       pid = scheduler_pid
       if pid.present?
-        scheduler_emails( subject: "DBD scheduler failed to kill resque-scheduler on #{hostname}" )
+        msg = "DBD scheduler failed to kill resque-scheduler on #{hostname}"
+        scheduler_emails( to: [user_email], subject: msg, body: msg )
         return
       end
       restarted = pid.blank?
     elsif pid.present?
-      scheduler_emails( subject: "DBD scheduler already running on #{hostname}" )
+      msg = "DBD scheduler already running on #{hostname}"
+      scheduler_emails( to: [user_email], subject: msg, body: msg )
       return
     end
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "rails_bin_scheduler=#{rails_bin_scheduler}",
                                            "rails_log_scheduler=#{rails_log_scheduler}",
-                                           "" ] if scheduler_start_job_debug_verbose
+                                           "" ] if debug_verbose
     spawn_pid = scheduler_spawn
     retry_count = 0
     while retry_count < 5 # TODO configure retry count
@@ -71,10 +76,11 @@ class SchedulerStartJob < ::Hyrax::ApplicationJob
                 "DBD scheduler failed to start on #{hostname}"
               end
     body = "#{subject}\n\n#{msg_lines.join("\n")}"
-    scheduler_emails( subject: subject, body: body )
+    scheduler_emails( to: [user_email], subject: subject, body: body )
+    job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
-    Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
-    Rails.logger.error e.backtrace.join("\n")
+    job_status_register( exception: e )
+    email_failure( targets: [user_email], task_name: self.class.name, exception: e, event: self.class.name )
     raise e
   end
 
@@ -107,8 +113,9 @@ class SchedulerStartJob < ::Hyrax::ApplicationJob
                                  email_sent: email_sent )
   end
 
-  def scheduler_emails( subject:, body: nil )
-    ::Deepblue::SchedulerIntegrationService.scheduler_started_email.each do |email_target|
+  def scheduler_emails( to:, subject:, body: '' )
+    emails = to & ::Deepblue::SchedulerIntegrationService.scheduler_started_email
+    emails.each do |email_target|
       scheduler_email( email_target: email_target, subject: subject, body: body )
     end
   end
@@ -123,7 +130,7 @@ class SchedulerStartJob < ::Hyrax::ApplicationJob
                                            ::Deepblue::LoggingHelper.called_from,
                                            ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                            "spawn_pid=#{spawn_pid}",
-                                           "" ] if scheduler_start_job_debug_verbose
+                                           "" ] if debug_verbose
     Process.detach( spawn_pid )
     return spawn_pid
   end

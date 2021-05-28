@@ -4,7 +4,8 @@ require_relative '../services/deepblue/works_reporter'
 
 class WorksReportJob < ::Hyrax::ApplicationJob
 
-  WORKS_REPORT_JOB_DEBUG_VERBOSE = ::Deepblue::JobTaskHelper.works_report_job_debug_verbose
+  mattr_accessor :works_report_job_debug_verbose,
+                 default: ::Deepblue::JobTaskHelper.works_report_job_debug_verbose
 
 SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 
@@ -38,12 +39,12 @@ END_OF_SCHEDULER_ENTRY
     timestamp_begin
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "" ] if WORKS_REPORT_JOB_DEBUG_VERBOSE
+                                           "" ] if works_report_job_debug_verbose
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event: "works report job" )
-    ::Deepblue::JobTaskHelper.has_options( *args, job: self, debug_verbose: WORKS_REPORT_JOB_DEBUG_VERBOSE )
-    ::Deepblue::JobTaskHelper.is_verbose( job: self, debug_verbose: WORKS_REPORT_JOB_DEBUG_VERBOSE )
-    ::Deepblue::JobTaskHelper.is_quiet( job: self, debug_verbose: WORKS_REPORT_JOB_DEBUG_VERBOSE )
-    return unless ::Deepblue::JobTaskHelper.hostname_allowed( job: self, debug_verbose: WORKS_REPORT_JOB_DEBUG_VERBOSE )
+    ::Deepblue::JobTaskHelper.has_options( *args, job: self, debug_verbose: works_report_job_debug_verbose )
+    ::Deepblue::JobTaskHelper.is_verbose( job: self, debug_verbose: works_report_job_debug_verbose )
+    ::Deepblue::JobTaskHelper.is_quiet( job: self, debug_verbose: works_report_job_debug_verbose )
+    return unless ::Deepblue::JobTaskHelper.hostname_allowed( job: self, debug_verbose: works_report_job_debug_verbose )
     test = job_options_value( options, key: 'test', default_value: true, verbose: verbose )
     if quiet
       echo_to_stdout = false
