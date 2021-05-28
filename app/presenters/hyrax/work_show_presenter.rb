@@ -80,12 +80,12 @@ module Hyrax
 
     attr_accessor :cc_single_use_link
 
-    def analytics_subscribed?
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if work_show_presenter_debug_verbose
-      ::AnalyticsHelper::monthly_analytics_report_subscribed?( user_id: current_ability.current_user.id )
-    end
+    # def analytics_subscribed?
+    #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                          ::Deepblue::LoggingHelper.called_from,
+    #                                          "" ] if work_show_presenter_debug_verbose
+    #   ::AnalyticsHelper::monthly_analytics_report_subscribed?( user: current_ability.current_user )
+    # end
 
     def can_delete_work?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -148,10 +148,11 @@ module Hyrax
 
     def can_subscribe_to_analytics_reports?
       return false unless AnalyticsHelper.enable_local_analytics_ui?
+      return false unless AnalyticsHelper.enable_analytics_works_reports_can_subscribe?
       return false if single_use_show?
       return true if current_ability.admin? && AnalyticsHelper.analytics_reports_admins_can_subscribe?
-      return true if can_edit_work? && AnalyticsHelper.open_analytics_report_subscriptions?
-      return true if depositor == current_ability.current_user.email && AnalyticsHelper.open_analytics_report_subscriptions?
+      # return true if can_edit_work? && AnalyticsHelper.open_analytics_report_subscriptions?
+      # return true if depositor == current_ability.current_user.email && AnalyticsHelper.open_analytics_report_subscriptions?
       false
     end
 

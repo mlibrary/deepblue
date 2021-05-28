@@ -74,6 +74,11 @@ RSpec.describe AnalyticsHelper, type: :helper do
     it { expect( subject ).to eq( month_begin..month_end ) }
   end
 
+  describe '.email_to_user', skip: true do
+    subject { AnalyticsHelper.email_to_user( user.email ) }
+    it { expect( subject ).to eq( user ) }
+  end
+
   describe '.email_to_user_id' do
     subject { AnalyticsHelper.email_to_user_id( user.email ) }
     it { expect( subject ).to eq( user.id ) }

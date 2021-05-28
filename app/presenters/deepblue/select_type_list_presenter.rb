@@ -17,7 +17,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "current_user.id=#{@current_user.id}",
                                              "" ] if deepblue_select_type_list_presenter_debug_verbose
-      ::AnalyticsHelper::monthly_analytics_report_subscribed?( user_id: @current_user.id )
+      ::AnalyticsHelper::monthly_analytics_report_subscribed?( user: @current_user )
     end
 
     def can_subscribe_to_analytics_reports?

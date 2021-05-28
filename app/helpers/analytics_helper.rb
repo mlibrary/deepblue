@@ -5,6 +5,14 @@ module AnalyticsHelper
   mattr_accessor :analytics_helper_debug_verbose,
                  default: ::Deepblue::AnalyticsIntegrationService.analytics_helper_debug_verbose
 
+  # TODO: move this to email templates
+  MONTHLY_ANALYTICS_REPORT_EMAIL_TEMPLATE = <<-END_OF_MONTHLY_ANALYTICS_REPORT_EMAIL_TEMPLATE
+Your analytics report for the month of %{month}:
+
+%{report_lines}
+
+  END_OF_MONTHLY_ANALYTICS_REPORT_EMAIL_TEMPLATE
+
   MONTHLY_ANAYLYTICS_REPORT_EVENT_NAMES = [ "Hyrax::DataSetsController#show",
                                             "Hyrax::DataSetsController#zip_download",
                                             "Hyrax::DataSetsController#globus_download_redirect" ].freeze
@@ -16,7 +24,7 @@ module AnalyticsHelper
 
   # TODO: move this to email templates
   MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE = <<-END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
-Your analytics report for the month of %{month}:
+Your events report for the month of %{month}:
 
 %{report_lines}
 
@@ -48,6 +56,16 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
 
   def self.analytics_reports_admins_can_subscribe?
     ::Deepblue::AnalyticsIntegrationService.analytics_reports_admins_can_subscribe
+  end
+
+  def self.enable_analytics_works_reports_can_subscribe?
+    ::Deepblue::AnalyticsIntegrationService.enable_analytics_works_reports_can_subscribe
+  end
+
+  def self.email_to_user( email )
+    return nil unless email.present?
+    user = User.find_by_user_key email
+    user
   end
 
   def self.email_to_user_id( email )
@@ -131,29 +149,41 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
                                            ::Deepblue::LoggingHelper.called_from,
                                            "date_range=#{date_range}",
                                            "" ] if debug_verbose
-    subscribers = monthly_analytics_report_subscribers
+    subscribers = monthly_analytics_report_subscribers( debug_verbose: debug_verbose )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "subscribers=#{subscribers}",
+                                           "" ] if debug_verbose
     return if subscribers.blank?
     date_range = date_range_for_month_of( time: Time.now.beginning_of_month - 1.day ) if date_range.blank?
-    subscribers.each do |email_params_pair|
-      email = email_params_pair[0]
-      params = email_params_pair[1]
-      next if params.blank?
-      monthly_analytics_report_for( email: email, params: params, date_range: date_range, debug_verbose: debug_verbose )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "date_range=#{date_range}",
+                                           "" ] if debug_verbose
+    subscribers.each do |email|
+      monthly_analytics_report_for( email: email, date_range: date_range, debug_verbose: debug_verbose )
     end
   end
 
-  def self.monthly_analytics_report_for( email:, params:, date_range:, debug_verbose: analytics_helper_debug_verbose )
+  def self.monthly_analytics_report_for( email:, date_range:, debug_verbose: analytics_helper_debug_verbose )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "email=#{email}",
-                                           "params=#{params}",
                                            "date_range=#{date_range}",
                                            "" ] if debug_verbose
-    # params is of the form: { id1 => [event_name1,event_name2 ...], id2 => [event_name1,event_name2 ...] ... }
-    report_lines = []
     user = User.find_by_user_key email
-    cc_ids = SearchService.run( {}, user ).map { |w| w['id'] }
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "user=#{user}",
+                                           "" ] if debug_verbose
+    return unless user.present?
+    cc_ids = ::Deepblue::SearchService.run( {}, user ).map { |w| w['id'] }
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "cc_ids=#{cc_ids}",
+                                           "" ] if debug_verbose
     event_names = MONTHLY_ANAYLYTICS_REPORT_EVENT_NAMES
+    report_lines = []
     cc_ids.each do |cc_id|
       begin
         cc = ::PersistHelper.find cc_id
@@ -163,52 +193,113 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
                                                           cc_id: cc_id,
                                                           date_begin: date_range.first,
                                                           date_end: date_range.last )
-          report_lines << monthly_events_report_line_for( name: event_name, condensed_event: condensed_event )
+          report_lines << monthly_analytics_report_line_for( name: event_name,
+                                                             condensed_event: condensed_event,
+                                                             debug_verbose: debug_verbose )
         end
       rescue Ldp::Gone
-        monthly_events_report_unsubscribe( user_id: email_to_user_id( email ), cc_id: cc_id ) # TODO
+        monthly_events_report_unsubscribe( user: user, cc_id: cc_id ) # TODO
       end
     end
-    monthly_events_report_send_email( date_range: date_range, email: email, report_lines: report_lines )
+    monthly_analytics_report_send_email( date_range: date_range,
+                                         email: email,
+                                         report_lines: report_lines,
+                                         debug_verbose: debug_verbose )
   end
 
-  def self.monthly_analytics_report_subscribed?( user_id: )
+  def self.monthly_analytics_report_line_for( name:, condensed_event:, debug_verbose: analytics_helper_debug_verbose )
+    count = 0
+    label = MONTHLY_EVENTS_REPORT_EVENT_NAME_TO_LABEL_MAP[name]
+    if condensed_event.present?
+      # condensed_event is of the form { "date label 1" => count, "date label 2" => count ... }
+      date_map = condensed_event.condensed_event
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "name=#{name}",
+                                             "date_map=#{date_map}",
+                                             "" ] if debug_verbose
+      date_map.each do |_date_label,date_count|
+        count = count + date_count.to_i
+      end
+    end
+    return "  #{label}: #{count}"
+  end
+
+  def self.monthly_analytics_report_send_email( date_range:,
+                                                email:,
+                                                report_lines:,
+                                                content_type: nil,
+                                                debug_verbose: analytics_helper_debug_verbose )
+
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "user_id=#{user_id}",
+                                           "date_range=#{date_range}",
+                                           "email=#{email}",
+                                           "report_lines=#{report_lines}",
+                                           "content_type=#{content_type}",
+                                           "" ] if debug_verbose
+    body = MONTHLY_ANALYTICS_REPORT_EMAIL_TEMPLATE.dup
+    month = ::Deepblue::EmailHelper.to_month( date_range.first )
+    body.gsub!( /\%\{month\}/, month )
+    body.gsub!( /\%\{report_lines\}/, report_lines.join("\n") )
+    subject = "Analytics Report for Works during #{month}" # TODO: i18n
+    email_sent = ::Deepblue::EmailHelper.send_email( to: email,
+                                                     subject: subject,
+                                                     body: body,
+                                                     content_type: content_type )
+    ::Deepblue::EmailHelper.log( class_name: "AnalyticsHelper",
+                                 current_user: nil,
+                                 event: "monthly analytics report",
+                                 event_note: "Month: ${month}",
+                                 id: "N/A",
+                                 to: email,
+                                 subject: subject,
+                                 body: body,
+                                 email_sent: email_sent )
+  end
+
+  def self.monthly_analytics_report_subscribed?( user: )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "user.id=#{user.id}",
+                                           "user.email=#{user.email}",
                                            "" ] if analytics_helper_debug_verbose
-    record = EmailSubscription.find_by( subscription_name: monthly_analytics_report_subscription_id, user_id: user_id )
+    record = EmailSubscription.find_by( subscription_name: monthly_analytics_report_subscription_id, user_id: user.id )
     record.present?
   end
 
-  def self.monthly_analytics_report_subscribe( user_id: )
+  def self.monthly_analytics_report_subscribe( user: )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "user_id=#{user_id}",
+                                           "user.id=#{user.id}",
+                                           "user.email=#{user.email}",
                                            "" ] if analytics_helper_debug_verbose
-    return unless user_id.present?
+    return unless user.present?
     record = EmailSubscription.find_or_create_by( subscription_name: monthly_analytics_report_subscription_id,
-                                                  user_id: user_id )
+                                                  user_id: user.id )
+    record.email = user.email
     record.save
   end
 
-  def self.monthly_analytics_report_subscribers
+  def self.monthly_analytics_report_subscribers( debug_verbose: analytics_helper_debug_verbose )
     ::Deepblue::EmailSubscriptionService.subscribers_for( subscription_service_id: monthly_analytics_report_subscription_id,
-                                                          include_parameters: true )
+                                                          include_parameters: false,
+                                                          debug_verbose: debug_verbose )
   end
 
   def self.monthly_analytics_report_subscription_id
     ::Deepblue::AnalyticsIntegrationService.monthly_analytics_report_subscription_id
   end
 
-  def self.monthly_analytics_report_unsubscribe( user_id: )
+  def self.monthly_analytics_report_unsubscribe( user: )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "user_id=#{user_id}",
+                                           "user.id=#{user.id}",
+                                           "user.email=#{user.email}",
                                            "" ] if analytics_helper_debug_verbose
-    return if user_id.blank?
+    return if user.blank?
     record = EmailSubscription.find_by( subscription_name: monthly_analytics_report_subscription_id,
-                                                  user_id: user_id )
+                                                  user_id: user.id )
     return unless record.present?
     record.delete
   end
@@ -250,10 +341,13 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
           report_lines << monthly_events_report_line_for( name: event_name, condensed_event: condensed_event )
         end
       rescue Ldp::Gone
-        monthly_events_report_unsubscribe( user_id: email_to_user_id( email ), cc_id: cc_id )
+        monthly_events_report_unsubscribe( user: email_to_user( email ), cc_id: cc_id )
       end
     end
-    monthly_events_report_send_email( date_range: date_range, email: email, report_lines: report_lines )
+    monthly_events_report_send_email( date_range: date_range,
+                                      email: email,
+                                      report_lines: report_lines,
+                                      debug_verbose: debug_verbose )
   end
 
   def self.monthly_events_report_line_for( name:, condensed_event: )
@@ -274,19 +368,24 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     return "  #{label}: #{count}"
   end
 
-  def self.monthly_events_report_send_email( date_range:, email:, report_lines:, content_type: nil )
+  def self.monthly_events_report_send_email( date_range:,
+                                             email:,
+                                             report_lines:,
+                                             content_type: nil,
+                                             debug_verbose: analytics_helper_debug_verbose )
+
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "date_range=#{date_range}",
                                            "email=#{email}",
                                            "report_lines=#{report_lines}",
                                            "content_type=#{content_type}",
-                                           "" ] if analytics_helper_debug_verbose
+                                           "" ] if debug_verbose
     body = MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE.dup
     month = ::Deepblue::EmailHelper.to_month( date_range.first )
     body.gsub!( /\%\{month\}/, month )
     body.gsub!( /\%\{report_lines\}/, report_lines.join("\n") )
-    subject = "Analytics Report for Works during #{month}"
+    subject = "Events Report for Works during #{month}" # TODO: i18n
     email_sent = ::Deepblue::EmailHelper.send_email( to: email,
                                                      subject: subject,
                                                      body: body,
@@ -302,10 +401,17 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
                                  email_sent: email_sent )
   end
 
-  def self.monthly_events_report_subscribe( user_id:, cc_id:, event_names: )
-    return unless user_id.present?
+  def self.monthly_events_report_subscribe( user:, cc_id:, event_names: )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "user.id=#{user.id}",
+                                           "user.email=#{user.email}",
+                                           "cc_id=#{cc_id}",
+                                           "event_names=#{event_names}",
+                                           "" ] if analytics_helper_debug_verbose
+    return unless user.present?
     record = EmailSubscription.find_or_create_by( subscription_name: monthly_events_report_subscription_id,
-                                                  user_id: user_id )
+                                                  user_id: user.id )
     sub_params = record.subscription_parameters
     if sub_params.blank?
       sub_params = { cc_id => event_names }
@@ -313,12 +419,13 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
       sub_params[cc_id] = event_names
     end
     record.subscription_parameters = sub_params
+    record.email = user.email
     record.save
   end
 
   # convenience method, TODO: move to DataSetsController
-  def self.monthly_events_report_subscribe_data_set( user_id:, cc_id: )
-    monthly_events_report_subscribe( user_id: user_id,
+  def self.monthly_events_report_subscribe_data_set( user:, cc_id: )
+    monthly_events_report_subscribe( user: user,
                                      cc_id: cc_id,
                                      event_names: [ "Hyrax::DataSetsController#show",
                                                     "Hyrax::DataSetsController#zip_download",
@@ -326,8 +433,8 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
   end
 
   # convenience method, TODO: move to DataSetsController
-  def self.monthly_events_report_unsubscribe_data_set( user_id:, cc_id: )
-    monthly_events_report_unsubscribe( user_id: user_id, cc_id: cc_id )
+  def self.monthly_events_report_unsubscribe_data_set( user:, cc_id: )
+    monthly_events_report_unsubscribe( user: user, cc_id: cc_id )
   end
 
   def self.monthly_events_report_subscribers
@@ -339,36 +446,53 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     ::Deepblue::AnalyticsIntegrationService.monthly_events_report_subscription_id
   end
 
-  def self.monthly_events_report_subscribed?( user_id:, cc_id: )
+  def self.monthly_events_report_subscribed?( user:, cc_id: )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "user_id=#{user_id}",
+                                           "user.id=#{user.id}",
+                                           "user.email=#{user.email}",
                                            "cc_id=#{cc_id}",
                                            "" ] if analytics_helper_debug_verbose
-    record = EmailSubscription.find_by( subscription_name: monthly_events_report_subscription_id, user_id: user_id )
+    record = EmailSubscription.find_by( subscription_name: monthly_events_report_subscription_id, user_id: user.id )
     return false unless record.present?
     sub_params = record.subscription_parameters
     return false if sub_params.blank?
     rv = sub_params.has_key? cc_id
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "user_id=#{user_id}",
+                                           "user.id=#{user.id}",
+                                           "user.email=#{user.email}",
                                            "cc_id=#{cc_id}",
                                            "rv=#{rv}",
                                            "" ] if analytics_helper_debug_verbose
     return rv
   end
 
-  def self.monthly_events_report_unsubscribe( user_id:, cc_id: )
-    return if user_id.blank?
+  def self.monthly_events_report_unsubscribe( user:, cc_id: )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "user.id=#{user.id}",
+                                           "user.email=#{user.email}",
+                                           "cc_id=#{cc_id}",
+                                           "event_names=#{event_names}",
+                                           "" ] if analytics_helper_debug_verbose
+    return if user.blank?
     record = EmailSubscription.find_or_create_by( subscription_name: monthly_events_report_subscription_id,
-                                                  user_id: user_id )
+                                                  user_id: user.id )
     return unless record.present?
     sub_params = record.subscription_parameters
-    return if sub_params.blank?
+    if sub_params.blank?
+      record.delete
+      return
+    end
     return unless sub_params.has_key? cc_id
     sub_params.delete cc_id
+    if sub_params.blank?
+      record.delete
+      return
+    end
     record.subscription_parameters = sub_params
+    record.email = user.email
     record.save
   end
 

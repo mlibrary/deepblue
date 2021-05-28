@@ -34,6 +34,7 @@ RSpec.describe Deepblue::JobTaskHelper, type: :helper do
       expect( described_class.deactivate_expired_embargoes_job_debug_verbose ).to eq( false )
       expect( described_class.heartbeat_job_debug_verbose ).to eq( false )
       expect( described_class.heartbeat_email_job_debug_verbose ).to eq( false )
+      expect( described_class.monthly_analytics_report_job_debug_verbose ).to eq( false )
       expect( described_class.monthly_events_report_job_debug_verbose ).to eq( false )
       expect( described_class.rake_task_job_debug_verbose ).to eq( false )
       expect( described_class.run_job_task_debug_verbose ).to eq( false )

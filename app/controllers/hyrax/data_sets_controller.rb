@@ -8,8 +8,8 @@ module Hyrax
 
     PARAMS_KEY = 'data_set'
 
-    mattr_accessor :data_sets_controller_debug_verbose
-    @@data_sets_controller_debug_verbose = ::DeepBlueDocs::Application.config.data_sets_controller_debug_verbose
+    mattr_accessor :data_sets_controller_debug_verbose,
+                   default: ::DeepBlueDocs::Application.config.data_sets_controller_debug_verbose
 
     include ActionView::Helpers::TextHelper
     include ::Deepblue::WorksControllerBehavior
@@ -92,14 +92,16 @@ module Hyrax
     end
 
     def analytics_subscribe
-      ::AnalyticsHelper.monthly_events_report_subscribe_data_set( user_id: current_ability.current_user.id,
-                                                                  cc_id: params[:id] )
+      ::AnalyticsHelper.monthly_events_report_subscribe_data_set( user: current_user, cc_id: params[:id] )
       redirect_to current_show_path( append: "#analytics" )
     end
 
+    def analytics_subscribed?
+      ::AnalyticsHelper.monthly_events_report_subscribed?( user: current_user, cc_id: params[:id] )
+    end
+
     def analytics_unsubscribe
-      ::AnalyticsHelper.monthly_events_report_unsubscribe_data_set( user_id: current_ability.current_user.id,
-                                                                    cc_id: params[:id] )
+      ::AnalyticsHelper.monthly_events_report_unsubscribe_data_set( user: current_user, cc_id: params[:id] )
       redirect_to current_show_path( append: "#analytics" )
     end
 
@@ -170,6 +172,10 @@ module Hyrax
       return true if can?( :edit, curation_concern.id )
       return true if read_me_file_set_id.present?
       return false
+    end
+
+    def enable_analytics_works_reports_can_subscribe?
+      AnalyticsHelper.enable_analytics_works_reports_can_subscribe?
     end
 
     def is_tabbed?

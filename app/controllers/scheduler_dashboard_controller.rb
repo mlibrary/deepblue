@@ -161,6 +161,7 @@ class SchedulerDashboardController < ApplicationController
                                            "" ] if scheduler_dashboard_controller_debug_verbose
     record = EmailSubscription.find_or_create_by( subscription_name: subscription_service_id,
                                                   user_id: current_ability.current_user.id )
+    record.email = current_user.email
     record.save
   end
 
