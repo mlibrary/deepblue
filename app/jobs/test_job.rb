@@ -21,8 +21,9 @@ class TestJob < ::Deepblue::DeepblueJob
                                            # "scheduled_at=#{scheduled_at}",
                                            "" ] if test_job_debug_verbose
     job_status_init
+    log( event: "test job" )
     # and some stuff would happen here
-    job_status.finished!
+    job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
     job_status_register( exception: e, args: args )
     raise e

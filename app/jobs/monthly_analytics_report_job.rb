@@ -2,7 +2,7 @@
 
 require_relative '../services/deepblue/works_reporter'
 
-class MonthlyAnalyticsReportJob < ::Hyrax::ApplicationJob
+class MonthlyAnalyticsReportJob < ::Deepblue::DeepblueJob
 
   mattr_accessor :monthly_analytics_report_job_debug_verbose,
                  default: ::Deepblue::JobTaskHelper.monthly_analytics_report_job_debug_verbose
@@ -27,23 +27,16 @@ monthly_analytics_report_job:
 
 END_OF_SCHEDULER_ENTRY
 
-
-  include JobHelper # see JobHelper for :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as :scheduler
 
-  attr_accessor :hostnames, :options, :quiet, :this_month, :verbose
+  attr_accessor :this_month
 
   def perform( *args )
-    timestamp_begin
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "" ] if monthly_analytics_report_job_debug_verbose
-    ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event: "update condensed events job" )
-    ::Deepblue::JobTaskHelper.has_options( *args, job: self, debug_verbose: monthly_analytics_report_job_debug_verbose )
-    ::Deepblue::JobTaskHelper.is_quiet( job: self, debug_verbose: monthly_analytics_report_job_debug_verbose  )
-    return unless ::Deepblue::JobTaskHelper.hostname_allowed( job: self,
-                                                              debug_verbose: monthly_analytics_report_job_debug_verbose )
-    this_month = job_options_value( options, key: 'this_month', default_value: false )
+    initialize_options_from( *args, debug_verbose: monthly_analytics_report_job_debug_verbose )
+    log( event: "monthly analytics report job", hostname_allowed: hostname_allowed? )
+    is_quiet?
+    return job_finished unless hostname_allowed?
+    this_month = job_options_value( options, key: 'this_month', default_value: debug_verbose )
     if this_month
       date_range = ::AnalyticsHelper.date_range_for_month_of( time: Time.now )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -55,11 +48,11 @@ END_OF_SCHEDULER_ENTRY
     else
       ::AnalyticsHelper.monthly_analytics_report
     end
+    job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
-    Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
-    Rails.logger.error e.backtrace.join("\n")
+    job_status_register( exception: e, args: args )
     email_failure( task_name: self.class.name, exception: e, event: self.class.name )
-    raise e
+    raise
   end
 
 end

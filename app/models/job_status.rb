@@ -177,6 +177,16 @@ class JobStatus < ApplicationRecord
     return self
   end
 
+  def error_snipped
+    return '' if error.blank?
+    return error if 24 > error.length
+    str = error.gsub( '\n', ' ' )
+    # str[9..-1] doesn't work
+    sz = str.length
+    x = sz - 10
+    "#{str[0..9]}...#{str[x..sz]}"
+  end
+
   def finished!( message: nil )
     status!( FINISHED, message: message )
   end

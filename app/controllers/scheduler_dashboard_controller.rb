@@ -262,21 +262,23 @@ class SchedulerDashboardController < ApplicationController
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if scheduler_dashboard_controller_debug_verbose
-      ::Deepblue::SchedulerIntegrationService.scheduler_restart
+      ::Deepblue::SchedulerIntegrationService.scheduler_restart( user: current_user,
+                                                                 debug_verbose: scheduler_dashboard_controller_debug_verbose )
     end
 
     def action_start
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if scheduler_dashboard_controller_debug_verbose
-      ::Deepblue::SchedulerIntegrationService.scheduler_start
+      ::Deepblue::SchedulerIntegrationService.scheduler_start( user: current_user,
+                                                               debug_verbose: scheduler_dashboard_controller_debug_verbose )
     end
 
     def action_stop
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if scheduler_dashboard_controller_debug_verbose
-      ::Deepblue::SchedulerIntegrationService.scheduler_stop
+      ::Deepblue::SchedulerIntegrationService.scheduler_stop( debug_verbose: scheduler_dashboard_controller_debug_verbose )
     end
 
 end

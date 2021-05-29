@@ -7,8 +7,7 @@ class RakeTaskJob < AbstractRakeTaskJob
   # bundle exec rake deepblue:run_job['{"job_class":"RakeTaskJob"\,"verbose":true\,"rake_task":"-T"\,"email_results_to":["fritx@umich.edu"]\,"job_delay":0}']
   # bundle exec rake deepblue:run_job['{"job_class":"RakeTaskJob"\,"verbose":true\,"rake_task":"tmp:clear"\,"email_results_to":["fritx@umich.edu"]}']
 
-  mattr_accessor :rake_task_job_debug_verbose
-  @@rake_task_job_debug_verbose = ::Deepblue::JobTaskHelper.rake_task_job_debug_verbose
+  mattr_accessor :rake_task_job_debug_verbose, default: ::Deepblue::JobTaskHelper.rake_task_job_debug_verbose
 
   # queue_as :scheduler
 

@@ -2,8 +2,8 @@
 
 class MultipleIngestScriptsJob < ::Hyrax::ApplicationJob
 
-  mattr_accessor :multiple_ingest_scripts_job_debug_verbose
-  @@multiple_ingest_scripts_job_debug_verbose = ::Deepblue::IngestIntegrationService.multiple_ingest_scripts_job_debug_verbose
+  mattr_accessor :multiple_ingest_scripts_job_debug_verbose,
+                 default: ::Deepblue::IngestIntegrationService.multiple_ingest_scripts_job_debug_verbose
 
   mattr_accessor :scripts_allowed_path_extensions
   @@scripts_allowed_path_extensions = [ '.yml', '.yaml' ]

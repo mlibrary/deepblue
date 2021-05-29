@@ -7,18 +7,12 @@ class ExportDocumentationJob < ::Deepblue::DeepblueJob
   mattr_accessor :export_documentation_job_debug_verbose,
                  default: ::Deepblue::JobTaskHelper.export_documentation_job_debug_verbose
 
-  include JobHelper # see JobHelper for :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as :default
 
   def perform( *args )
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "args=#{args}",
-                                           "" ] if export_documentation_job_debug_verbose
     initialize_options_from( *args, debug_verbose: export_documentation_job_debug_verbose )
+    log( event: "export documentation job" )
     id = options[:id]
-    export_path = options[:export_path]
-    email_targets << options[:user_email]
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "id=#{id}",

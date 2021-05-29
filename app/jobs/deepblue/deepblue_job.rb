@@ -6,12 +6,16 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
   # This allows downstream applications to manipulate all the hyrax jobs by
   # including modules on this class.
 
-  include JobHelper # see JobHelper for :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
+  include JobHelper # see JobHelper for :email_targets, :email_failure, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
 
-  mattr_accessor :deepblue_job_debug_verbose
-  @@deepblue_job_debug_verbose = ::Deepblue::JobTaskHelper.deepblue_job_debug_verbose
+  mattr_accessor :deepblue_job_debug_verbose, default: ::Deepblue::JobTaskHelper.deepblue_job_debug_verbose
 
-  attr_accessor :hostnames, :job_status, :options, :restartable, :verbose
+  attr_accessor :debug_verbose, :hostnames, :is_quiet, :job_status, :options, :quiet, :restartable, :verbose
+
+  def debug_verbose
+    @debug_verbose ||= deepblue_job_debug_verbose
+  end
+  alias :debug_verbose? :debug_verbose
 
   def email_all_targets( task_name:, event:, body: nil, debug_verbose: deepblue_job_debug_verbose )
     ::Deepblue::JobTaskHelper.has_email_targets( job: self, debug_verbose: debug_verbose )
@@ -30,10 +34,33 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
   end
 
   def hostname_allowed?
-    @hostname_allowed
+    @hostname_allowed ||= hostname_allowed( debug_verbose: debug_verbose )
+  end
+
+  def initialize_with( debug_verbose: deepblue_job_debug_verbose )
+    @debug_verbose = debug_verbose
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "debug_verbose=#{debug_verbose}",
+                                           "" ] if deepblue_job_debug_verbose || debug_verbose
+    @options = {}
+    @verbose = false
+    job_status_init
+    timestamp_begin
+  end
+
+  def initialize_email_targets
+    user_email = job_options_value( options, key: 'user_email', default_value: '' )
+    return if user_email.blank?
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "user_email=#{user_email}",
+                                           "" ] if deepblue_job_debug_verbose || debug_verbose
+    email_targets << user_email
   end
 
   def initialize_options_from( *args, debug_verbose: deepblue_job_debug_verbose )
+    @debug_verbose = debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "args=#{args}",
@@ -50,9 +77,15 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
                                            "verbose=#{verbose}",
                                            "" ] if deepblue_job_debug_verbose || debug_verbose
     job_status_init
+    initialize_email_targets
     timestamp_begin
     return @options
   end
+
+  def is_quiet
+    @is_quiet ||= ::Deepblue::JobTaskHelper.is_quiet( job: self, options: options, debug_verbose: @debug_verbose  )
+  end
+  alias :is_quiet? :is_quiet
 
   def job_finished
     job_status.finished!
@@ -100,5 +133,8 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
                                      echo_to_rails_logger: echo_to_rails_logger,
                                      **log_key_values )
   end
+
+  alias :restartable? :restartable
+  alias :verbose? :verbose
 
 end

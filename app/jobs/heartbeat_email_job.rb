@@ -2,8 +2,8 @@
 
 class HeartbeatEmailJob < ::Deepblue::DeepblueJob
 
-  mattr_accessor :heartbeat_email_job_debug_verbose
-  @@heartbeat_email_job_debug_verbose = ::Deepblue::JobTaskHelper.heartbeat_email_job_debug_verbose
+  mattr_accessor :heartbeat_email_job_debug_verbose,
+                 default: ::Deepblue::JobTaskHelper.heartbeat_email_job_debug_verbose
 
 SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 
@@ -33,20 +33,17 @@ END_OF_SCHEDULER_ENTRY
   end
 
   def perform( *args )
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "args=#{args}",
-                                           "" ] if heartbeat_email_job_debug_verbose
+    event = "heartbeat email job"
     initialize_options_from( *args, debug_verbose: heartbeat_email_job_debug_verbose )
-    hostname_allowed( debug_verbose: heartbeat_email_job_debug_verbose )
-    log( event: "heartbeat email", hostname_allowed: hostname_allowed? )
+    log( event: event, hostname_allowed: hostname_allowed? )
     return job_finished unless hostname_allowed?
     from_config = ::Deepblue::SchedulerIntegrationService.scheduler_heartbeat_email_targets.dup
     find_all_email_targets( additional_email_targets: from_config )
-    email_all_targets( task_name: "scheduler heartbeat", event: "heartbeat email" )
+    email_all_targets( task_name: "scheduler heartbeat", event: event )
     job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
     job_status_register( exception: e, args: args )
+    email_failure( task_name: self.class.name, exception: e, event: self.class.name )
     raise e
   end
 

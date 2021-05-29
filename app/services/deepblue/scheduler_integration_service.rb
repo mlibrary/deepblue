@@ -4,26 +4,26 @@ module Deepblue
 
   module SchedulerIntegrationService
 
-    SCHEDULER_INTEGRATION_SERVICE_DEBUG_VERBOSE = false
+    mattr_accessor :scheduler_integration_service_debug_verbose, default: false
 
     include ::Deepblue::InitializationConstants
 
     @@_setup_failed = false
     @@_setup_ran = false
 
-    @@scheduler_job_file_path
-    @@scheduler_active
-    @@scheduler_heartbeat_email_targets = [ 'fritx@umich.edu' ].freeze # leave empty to disable
-    @@scheduler_log_echo_to_rails_logger = true
-    @@scheduler_start_job_default_delay = 5.minutes
-    @@scheduler_started_email = []
+    mattr_accessor :scheduler_job_file_path
+    mattr_accessor :scheduler_active
+    mattr_accessor :scheduler_heartbeat_email_targets, default: [ 'fritx@umich.edu' ].freeze # leave empty to disable
+    mattr_accessor :scheduler_log_echo_to_rails_logger, default: true
+    mattr_accessor :scheduler_start_job_default_delay, default: 5.minutes
+    mattr_accessor :scheduler_started_email, default: []
 
-    mattr_accessor :scheduler_active,
-                   :scheduler_log_echo_to_rails_logger,
-                   :scheduler_heartbeat_email_targets,
-                   :scheduler_job_file_path,
-                   :scheduler_start_job_default_delay,
-                   :scheduler_started_email
+    # mattr_accessor :scheduler_active,
+    #                :scheduler_log_echo_to_rails_logger,
+    #                :scheduler_heartbeat_email_targets,
+    #                :scheduler_job_file_path,
+    #                :scheduler_start_job_default_delay,
+    #                :scheduler_started_email
 
     def self.setup
       return if @@_setup_ran == true
@@ -39,35 +39,45 @@ module Deepblue
       `pgrep -fu #{Process.uid} resque-scheduler`
     end
 
-    def self.scheduler_restart
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             "" ] if SCHEDULER_INTEGRATION_SERVICE_DEBUG_VERBOSE
-      SchedulerStartJob.perform_later( job_delay: 0, restart: true )
+    def self.scheduler_restart( user:, debug_verbose: scheduler_integration_service_debug_verbose )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "user=#{user}",
+                                             "" ] if debug_verbose
+      SchedulerStartJob.perform_later( job_delay: 0,
+                                       restart: true,
+                                       user_email: user.email,
+                                       debug_verbose: debug_verbose )
     end
 
     def self.scheduler_running
       scheduler_pid.present?
     end
 
-    def self.scheduler_start
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             "" ] if SCHEDULER_INTEGRATION_SERVICE_DEBUG_VERBOSE
-      SchedulerStartJob.perform_later( job_delay: 0, restart: false )
+    def self.scheduler_start( user:, debug_verbose: scheduler_integration_service_debug_verbose )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "user=#{user}",
+                                             "" ] if debug_verbose
+      SchedulerStartJob.perform_later( job_delay: 0,
+                                       restart: false,
+                                       user_email: user.email,
+                                       debug_verbose: debug_verbose )
     end
 
-    def self.scheduler_stop
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+    def self.scheduler_stop( debug_verbose: scheduler_integration_service_debug_verbose )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "scheduler_running=#{scheduler_running}",
-                                             "" ] if SCHEDULER_INTEGRATION_SERVICE_DEBUG_VERBOSE
+                                             "user=#{user}",
+                                             "" ] if debug_verbose
       pid = scheduler_pid
       `kill -15 #{pid}` if pid.present?
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "scheduler_running=#{scheduler_running}",
-                                             "" ] if SCHEDULER_INTEGRATION_SERVICE_DEBUG_VERBOSE
+                                             "user=#{user}",
+                                             "" ] if debug_verbose
     end
 
   end

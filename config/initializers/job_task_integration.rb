@@ -19,5 +19,6 @@ Deepblue::JobTaskHelper.setup do |config|
   config.works_report_job_debug_verbose = false
 
   config.allowed_job_tasks = [ "-T", "tmp:clear" ].freeze
+  config.job_failure_email_subscribers = [ 'fritx@umich.edu' ]
 
 end

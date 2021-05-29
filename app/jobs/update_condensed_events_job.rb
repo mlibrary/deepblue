@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class UpdateCondensedEventsJob < ::Hyrax::ApplicationJob
+class UpdateCondensedEventsJob < ::Deepblue::DeepblueJob
 
   mattr_accessor :update_condensed_events_job_debug_verbose,
                  default: ::Deepblue::JobTaskHelper.update_condensed_events_job_debug_verbose
@@ -24,27 +24,19 @@ update_condensed_events_job_daily:
 
 END_OF_SCHEDULER_ENTRY
 
-
-  include JobHelper # see JobHelper for :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as :scheduler
 
-  attr_accessor :hostnames, :options, :quiet, :verbose
-
   def perform( *args )
-    timestamp_begin
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "args=#{args}",
-                                           "" ] if update_condensed_events_job_debug_verbose
-    ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event: "update condensed events job" )
-    ::Deepblue::JobTaskHelper.has_options( *args, job: self, debug_verbose: update_condensed_events_job_debug_verbose )
-    ::Deepblue::JobTaskHelper.is_quiet( job: self, debug_verbose: update_condensed_events_job_debug_verbose  )
-    return unless ::Deepblue::JobTaskHelper.hostname_allowed( job: self, debug_verbose: update_condensed_events_job_debug_verbose )
+    initialize_options_from( *args, debug_verbose: update_condensed_events_job_debug_verbose )
+    log( event: "update condensed events job", hostname_allowed: hostname_allowed? )
+    is_quiet?
+    return job_finished unless hostname_allowed?
     ::AnalyticsHelper.update_current_month_condensed_events
+    job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
-    Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
-    Rails.logger.error e.backtrace.join("\n")
-    raise e
+    job_status_register( exception: e, args: args )
+    email_failure( task_name: self.class.name, exception: e, event: self.class.name )
+    raise
   end
 
 end

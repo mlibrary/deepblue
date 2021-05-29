@@ -2,6 +2,46 @@
   <h1><%= "Job Statuses" %></h1>
 <% end %>
 
+<h2 class="title-header">Actions</h2>
+<%= link_to(
+      'All',
+      Rails.application.routes.url_helpers.job_statuses_path,
+      class: 'btn btn-default'
+    ) %>
+&nbsp;
+<%= link_to(
+      'Failed',
+      Rails.application.routes.url_helpers.job_statuses_failed_path,
+      class: 'btn btn-default'
+    ) %>
+&nbsp;
+<%= link_to(
+      'Finished',
+      Rails.application.routes.url_helpers.job_statuses_finished_path,
+      class: 'btn btn-default'
+    ) %>
+&nbsp;
+<%= link_to(
+      'Has Error',
+      Rails.application.routes.url_helpers.job_statuses_has_error_path,
+      class: 'btn btn-default'
+    ) %>
+&nbsp;
+<%= link_to(
+      'Not Finished',
+      Rails.application.routes.url_helpers.job_statuses_not_finished_path,
+      class: 'btn btn-default'
+    ) %>
+&nbsp;
+<%= link_to(
+      'Started',
+      Rails.application.routes.url_helpers.job_statuses_started_path,
+      class: 'btn btn-default'
+    ) %>
+&nbsp;
+
+<br/>
+
 <table>
   <thead>
     <tr>
@@ -13,10 +53,12 @@
     <% @job_statuses.each do |job_status| %>
       <tr>
         <td><%= job_status.id %></td>
+        <td><%= job_status.updated_at %></td>
         <td><%= job_status.job_class %></td>
         <td><%= job_status.status %></td>
+        <td><%= job_status.error_snipped %></td>
         <td><%= link_to 'Show', Rails.application.routes.url_helpers.job_status_url( id: job_status.id, only_path: true ) %></td>
-        <td><%= link_to 'Edit', edit_job_status_path(job_status) %></td>
+        <!-- td><%= link_to 'Edit', edit_job_status_path(job_status) %></td -->
       </tr>
     <% end %>
   </tbody>

@@ -1,21 +1,23 @@
 # frozen_string_literal: true
 
-class JiraNewTicketJob < ::Hyrax::ApplicationJob
+class JiraNewTicketJob < ::Deepblue::DeepblueJob
 
-  JIRA_NEW_TICKET_JOB_DEBUG_VERBOSE = false
+  mattr_accessor :jira_new_ticket_job_debug_verbose, default: false
 
-  def perform( work_id:, current_user: nil, job_delay: 0 )
+  def perform( work_id:, current_user: nil, job_delay: 0, debug_verbose: jira_new_ticket_job_debug_verbose )
     Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                          Deepblue::LoggingHelper.called_from,
                                          "work_id=#{work_id}",
                                          "current_user=#{current_user}",
-                                         "job_delay=#{job_delay}" ] if JIRA_NEW_TICKET_JOB_DEBUG_VERBOSE
+                                         "job_delay=#{job_delay}" ] if debug_verbose
+    initialize_with( debug_verbose: debug_verbose )
+    log( event: "jira new ticket job" )
     if 0 < job_delay
       Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
                                            "work_id=#{work_id}",
                                            "current_user=#{current_user}",
-                                           "sleeping #{job_delay} seconds"] if JIRA_NEW_TICKET_JOB_DEBUG_VERBOSE
+                                           "sleeping #{job_delay} seconds"] if debug_verbose
       sleep job_delay
     end
     work = ::PersistHelper.find( work_id )
@@ -24,10 +26,12 @@ class JiraNewTicketJob < ::Hyrax::ApplicationJob
     ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
                                            "work.curation_notes_admin=#{work.curation_notes_admin}",
-                                           "" ] if JIRA_NEW_TICKET_JOB_DEBUG_VERBOSE
+                                           "" ] if debug_verbose
+    job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
-    Rails.logger.error "JiraNewTicketJob.perform(#{work_id},#{job_delay}) #{e.class}: #{e.message} at #{e.backtrace[0]}"
-    Rails.logger.error "JiraNewTicketJob.perform(#{work_id},#{job_delay}) #{e.class}: #{e.message} backtrace:\n" + e.backtrace.join("\n" )
+    job_status_register( exception: e,
+                         msg: "JiraNewTicketJob.perform(#{work_id},#{job_delay}) #{e.class}: #{e.message} backtrace:\n" +
+                           e.backtrace.join("\n" ) )
     raise
   end
 

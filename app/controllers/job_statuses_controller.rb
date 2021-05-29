@@ -2,12 +2,70 @@
 
 class JobStatusesController < ApplicationController
 
+  mattr_accessor :job_statuses_controller_debug_verbose, default: true
+
   before_action :set_job_status, only: %i[ show edit update destroy ]
+
+  attr_reader :action_error
+
+  def action
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "params=#{params}",
+                                           "params[:commit]=#{params[:commit]}",
+                                           "" ] if job_statuses_controller_debug_verbose
+    action = params[:commit]
+    @action_error = false
+    msg = case action
+          when MsgHelper.t( 'simple_form.actions.scheduler.restart' )
+            action_restart
+          else
+            @action_error = true
+            "Unkown action #{action}"
+          end
+    if action_error
+      redirect_to job_statuses_path, alert: msg
+    else
+      redirect_to job_statuses_path, notice: msg
+    end
+  end
 
   # GET /job_statuses or /job_statuses.json
   def index
     raise CanCan::AccessDenied unless current_ability.admin?
     @job_statuses = JobStatus.all
+  end
+
+  def has_error
+    raise CanCan::AccessDenied unless current_ability.admin?
+    @job_statuses = JobStatus.where.not( error: [nil, ''] )
+    render 'index'
+  end
+
+  # TODO: is_recent view
+
+  def status_failed
+    raise CanCan::AccessDenied unless current_ability.admin?
+    @job_statuses = JobStatus.where( status: 'failed' )
+    render 'index'
+  end
+
+  def status_not_finished
+    raise CanCan::AccessDenied unless current_ability.admin?
+    @job_statuses = JobStatus.where.not( status: JobStatus::FINISHED )
+    render 'index'
+  end
+
+  def status_finished
+    raise CanCan::AccessDenied unless current_ability.admin?
+    @job_statuses = JobStatus.where( status: JobStatus::FINISHED )
+    render 'index'
+  end
+
+  def status_started
+    raise CanCan::AccessDenied unless current_ability.admin?
+    @job_statuses = JobStatus.where( status: JobStatus::STARTED )
+    render 'index'
   end
 
   # GET /job_statuses/1 or /job_statuses/1.json
@@ -16,7 +74,7 @@ class JobStatusesController < ApplicationController
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
-                                           "" ]
+                                           "" ] if job_statuses_controller_debug_verbose
     @job_status = JobStatus.find params[:id]
   end
 
