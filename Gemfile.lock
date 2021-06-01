@@ -9,9 +9,9 @@ GIT
 
 GIT
   remote: https://github.com/mlibrary/irus_analytics
-  revision: a0c87fb317ce1570c5ce5b561b1b96c68130f2ef
+  revision: a244628a66b730e04956c06e191654dd308be923
   specs:
-    irus_analytics (0.0.11)
+    irus_analytics (1.0.1)
       config_files
       i18n
       openurl
