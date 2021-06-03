@@ -78,17 +78,17 @@ class WorkViewDocumentationController < ApplicationController
   end
 
   def action_reload_email_templates
-    ::Deepblue::WorkViewContentService.load_email_templates
+    ::Deepblue::WorkViewContentService.load_email_templates( debug_verbose: work_view_documentation_controller_debug_verbose )
     t( 'simple_form.actions.work_view_documentation.reloaded_email_templates' )
   end
 
   def action_reload_i18n_templates
-    ::Deepblue::WorkViewContentService.load_i18n_templates
+    ::Deepblue::WorkViewContentService.load_i18n_templates( debug_verbose: work_view_documentation_controller_debug_verbose )
     t( 'simple_form.actions.work_view_documentation.reloaded_i18n_templates' )
   end
 
   def action_reload_view_templates
-    ::Deepblue::WorkViewContentService.load_view_templates
+    ::Deepblue::WorkViewContentService.load_view_templates( debug_verbose: work_view_documentation_controller_debug_verbose )
     t( 'simple_form.actions.work_view_documentation.reloaded_view_templates' )
   end
 

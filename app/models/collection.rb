@@ -2,7 +2,7 @@
 
 class Collection < ActiveFedora::Base
 
-  COLLECTION_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.collection_debug_verbose
+  mattr_accessor :collection_debug_verbose, default: ::DeepBlueDocs::Application.config.collection_debug_verbose
 
   include ::Hyrax::CollectionBehavior
 
