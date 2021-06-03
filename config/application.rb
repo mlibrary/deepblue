@@ -293,10 +293,10 @@ module DeepBlueDocs
       config.i18n_backend = I18n.backend
       puts I18n.backend if after_initialize_debug_verbose
       # note that the debug statements in load_email_templates will not go to the log when called from here
-      Deepblue::WorkViewContentService.load_email_templates
+      Deepblue::WorkViewContentService.load_email_templates( debug_verbose: after_initialize_debug_verbose )
       puts "Finished after initialize." if after_initialize_debug_verbose
-      Deepblue::WorkViewContentService.load_i18n_templates
-      Deepblue::WorkViewContentService.load_view_templates
+      Deepblue::WorkViewContentService.load_i18n_templates( debug_verbose: after_initialize_debug_verbose )
+      Deepblue::WorkViewContentService.load_view_templates( debug_verbose: after_initialize_debug_verbose )
       puts "Finished after i18n and view templates load." if after_initialize_debug_verbose
     end
 
