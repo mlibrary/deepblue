@@ -73,12 +73,14 @@ module Deepblue
     end
 
 
-    attr_reader :static_content_menu,
+    attr_reader :static_content_file_id,
+                :static_content_menu,
                 :static_content_menu_file_format,
                 :static_content_menu_header,
                 :static_content_menu_links,
                 :static_content_menu_partial,
-                :static_content_page_navigation
+                :static_content_page_navigation,
+                :static_content_title
 
     def documentation_work_title_prefix
       WorkViewContentService.documentation_work_title_prefix
@@ -292,9 +294,11 @@ module Deepblue
       when '.yml'
         file = static_content_for_read_file( work_title: work_title, file_set_title: file_name, path: path )
         @static_content_menu_links = YAML.load file
+        static_content_menu_find_title
       when '.yaml'
         file = static_content_for_read_file( work_title: work_title, file_set_title: file_name, path: path )
         @static_content_menu_links = YAML.load file
+        static_content_menu_find_title
       when '.txt'
         @static_content_menu_links = static_content_for_read_file( work_title: work_title,
                                                                    file_set_title: file_name,
@@ -304,6 +308,74 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "@static_content_menu_links=#{@static_content_menu_links}",
                                              "" ] if static_content_controller_behavior_verbose
+    end
+
+    def static_content_menu_find_title
+      return if static_content_title.present?
+      return unless @static_content_menu_links.is_a? Hash
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "@static_content_menu_links=#{@static_content_menu_links}",
+                                             "" ] if static_content_controller_behavior_verbose
+      # looking for @static_content_menu_links[:menu][name][:label]
+      hash = @static_content_menu_links[:menu]
+      return unless hash.present?
+      hash = hash[@static_content_file_id.to_sym]
+      if hash.present?
+        label = hash[:label]
+        if label.present?
+          @static_content_title = label
+          # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+          #                                        ::Deepblue::LoggingHelper.called_from,
+          #                                        "set title from menu.#{@static_content_file_id}.label",
+          #                                        "@static_content_title=#{@static_content_title}",
+          #                                        "" ] if static_content_controller_behavior_verbose
+          return
+        end
+      end
+      # check second tier
+      hash1 = @static_content_menu_links[:menu]
+      find_key = @static_content_file_id.to_sym
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "@static_content_menu_links[:menu]",
+      #                                        "hash1=#{hash1}",
+      #                                        "find_key=#{find_key}",
+      #                                        "" ] if static_content_controller_behavior_verbose
+      hash1.each_pair do |key,value|
+        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+        #                                        ::Deepblue::LoggingHelper.called_from,
+        #                                        "@static_content_menu_links[:menu]",
+        #                                        "key=#{key}",
+        #                                        "value=#{value}",
+        #                                        "" ] if static_content_controller_behavior_verbose
+        next unless value.is_a? Hash
+        hash2 = value[:menu]
+        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+        #                                        ::Deepblue::LoggingHelper.called_from,
+        #                                        "find_key=#{find_key}",
+        #                                        "hash2=#{hash2}",
+        #                                        "" ] if static_content_controller_behavior_verbose
+        next unless hash2.is_a? Hash
+        next unless hash2.has_key? find_key
+        hash3 = hash2[find_key]
+        next unless hash3.is_a? Hash
+        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+        #                                        ::Deepblue::LoggingHelper.called_from,
+        #                                        "find_key=#{find_key}",
+        #                                        "hash3=#{hash3}",
+        #                                        "" ] if static_content_controller_behavior_verbose
+        label = hash3[:label]
+        if label.present?
+          @static_content_title = label
+          # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+          #                                        ::Deepblue::LoggingHelper.called_from,
+          #                                        "set title from menu.#{key}.menu.#{@static_content_file_id}.label",
+          #                                        "@static_content_title=#{@static_content_title}",
+          #                                        "" ] if static_content_controller_behavior_verbose
+          return
+        end
+      end
     end
 
     def static_content_main( params )
@@ -317,7 +389,16 @@ module Deepblue
     end
 
     def static_content_options_from( file_set:, work_title:, file_id:, format: )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "file_set=#{file_set}",
+                                             "work_title=#{work_title}",
+                                             "file_id=#{file_id}",
+                                             "format=#{format}",
+                                             "" ] if static_content_controller_behavior_verbose
       options = {}
+      options[:file_id] = file_id
+      @static_content_file_id = file_id
       return options if file_set.nil?
       description = Array(file_set.description_file_set)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -340,6 +421,9 @@ module Deepblue
           options[:menu_header] = @static_content_menu_header
         when /^render_with:(.+)$/
           options[:render_with] = Regexp.last_match(1).strip
+        when /^title:(.+)$/
+          @static_content_menu_title = Regexp.last_match(1).strip
+          options[:title] = @static_content_title
         end
       end
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -476,6 +560,7 @@ module Deepblue
     end
 
     def static_content_set_menu( value:, work_title:, file_id:, format: )
+      # the  most common value for value is: 'DBDDocumentation/dbd_menu.yml'
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "value=#{value}",
@@ -508,9 +593,9 @@ module Deepblue
       static_content_for( work_title: work_title, file_set_title: file_set_title, path: nil )
     end
 
-    def static_content_title( params )
-      ""
-    end
+    # def static_content_title( params )
+    #   ""
+    # end
 
     def static_content_work_file_set_find_by_title( work:, work_title:, file_set_title:, path: )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

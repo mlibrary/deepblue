@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe WorkViewContentPresenter do
+
   subject { described_class.new(controller: controller, file_set: double, format: "", path: "/test", options: options) }
   let (:options) { {:menu => "test"} }
   let (:controller) { double("controllerA") }  
@@ -49,4 +50,5 @@ RSpec.describe WorkViewContentPresenter do
       expect(subject.current? "/data/abcdef").to eq false
     end
   end
+
 end

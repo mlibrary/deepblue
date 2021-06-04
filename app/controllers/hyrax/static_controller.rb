@@ -9,7 +9,7 @@ module Hyrax
     class_attribute :presenter_class
     self.presenter_class = WorkViewContentPresenter
 
-    STATIC_CONTROLLER_DEBUG_VERBOSE = false
+    mattr_accessor :static_controller_debug_verbose, default: false
 
     attr_reader :file_name, :work_title
 
@@ -24,7 +24,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params=#{params}",
                                              "params[:doc]=#{params[:doc]}",
-                                             "" ] if STATIC_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if static_controller_debug_verbose
 
       case params[:doc]
       when "about-top"
@@ -82,7 +82,7 @@ module Hyrax
                                              "params=#{params}",
                                              "params[:doc]=#{params[:doc]}",
                                              "params[:file]=#{params[:file]}",
-                                             "" ] if STATIC_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if static_controller_debug_verbose
       @doc = params[:doc]
       if params[:format]
         @file = "#{params[:file]}.#{params[:format]}"
@@ -98,7 +98,7 @@ module Hyrax
                                              "params=#{params}",
                                              "params[:doc]=#{params[:doc]}",
                                              "params[:file]=#{params[:file]}",
-                                             "" ] if STATIC_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if static_controller_debug_verbose
       @layout = params[:layout]
       @doc = params[:doc]
       if params[:format]
@@ -115,7 +115,9 @@ module Hyrax
                                              "work_title=#{work_title}",
                                              "file_name=#{file_name}",
                                              "file_set=#{file_set}",
-                                             "" ] if STATIC_CONTROLLER_DEBUG_VERBOSE
+                                             "doc=#{doc}",
+                                             "path=#{path}",
+                                             "" ] if static_controller_debug_verbose
       mime_type = file_set.mime_type if file_set.present?
       options = static_content_options_from( file_set: file_set,
                                              work_title: work_title,
@@ -123,8 +125,9 @@ module Hyrax
                                              format: params[:format] )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "mime_type=#{mime_type}",
                                              "options=#{options}",
-                                             "" ] if STATIC_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if static_controller_debug_verbose
       if static_content_render? mime_type: mime_type
         @presenter = presenter_class.new( controller: self,
                                           file_set: file_set,

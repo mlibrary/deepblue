@@ -211,11 +211,11 @@ RSpec.describe Deepblue::StaticContentControllerBehavior do
     expect(dc).to eq("value")
   end
 
-  it 'returns menu optins based on file set description' do 
+  it 'returns menu options based on file set description' do
     allow(test_file_set).to receive(:description_file_set).and_return('menu:description')                            
  
     dc = dummy_class.static_content_options_from( file_set: test_file_set, work_title: "title", file_id: "fileId", format: "txt")
-    expect(dc).to eq({:menu=>"description"})
+    expect(dc).to eq({:file_id=>"fileId", :menu=>"description"})
   end
 
   it 'returns file read' do 
@@ -274,9 +274,9 @@ RSpec.describe Deepblue::StaticContentControllerBehavior do
     expect(dc).to eq("")
   end
 
-  it 'does nothing' do                            
-    dc = dummy_class.static_content_title( params: {:doc=> "doc", :layout => "layout"} )
-    expect(dc).to eq("")
+  it 'does something' do
+    dc = dummy_class.static_content_title
+    expect(dc).to_not eq("")
   end
 
   it 'return file set based on title' do   

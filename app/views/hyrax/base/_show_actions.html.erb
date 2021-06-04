@@ -50,7 +50,7 @@
                                                    "@presenter.can_download_using_globus_maybe?=#{@presenter.can_download_using_globus_maybe?}",
                                                    "@presenter.globus_files_available?=#{@presenter.globus_files_available?}",
                                                    "@presenter.globus_files_prepping?=#{@presenter.globus_files_prepping?}",
-                                                   ""] if true || show_actions_DEBUG_VERBOSE %>
+                                                   ""] if show_actions_DEBUG_VERBOSE %>
           <% if @presenter.can_download_using_globus_maybe? %>
             <%= form_tag( main_app.globus_download_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
               <%= hidden_field_tag('data_set[nop]') %>
