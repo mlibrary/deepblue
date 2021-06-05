@@ -2,7 +2,7 @@
 
 class WorkViewContentPresenter
 
-  WORK_VIEW_CONTENT_PRESENTER_DEBUG_VERBOSE = false
+  mattr_accessor :work_view_content_presenter_debug_verbose, default: false
 
   include Deepblue::DeepbluePresenterBehavior
 
@@ -17,6 +17,7 @@ class WorkViewContentPresenter
            :static_content_menu_links,
            :static_content_menu_partial,
            :static_content_page_navigation,
+           :static_content_title,
            :work_title, to: :controller
 
   def initialize( controller:, file_set:, format:, path:, options: {} )
@@ -31,13 +32,13 @@ class WorkViewContentPresenter
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "path=#{path}",
-                                           "" ] if WORK_VIEW_CONTENT_PRESENTER_DEBUG_VERBOSE
+                                           "" ] if work_view_content_presenter_debug_verbose
     prefix = documentation_work_title_prefix
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "prefix=#{prefix}",
                                            "work_title=#{work_title}",
-                                           "" ] if WORK_VIEW_CONTENT_PRESENTER_DEBUG_VERBOSE
+                                           "" ] if work_view_content_presenter_debug_verbose
     doc = if work_title =~ /^#{Regexp.escape(prefix)}([a-z-]+)$/
             Regexp.last_match( 1 )
           else
@@ -48,7 +49,7 @@ class WorkViewContentPresenter
                                            "doc=#{doc}",
                                            "file_name=#{file_name}",
                                            "work_title=#{work_title}",
-                                           "" ] if WORK_VIEW_CONTENT_PRESENTER_DEBUG_VERBOSE
+                                           "" ] if work_view_content_presenter_debug_verbose
     rv = case path
          when "/data/#{doc}"
            true
@@ -60,7 +61,7 @@ class WorkViewContentPresenter
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "rv=#{rv}",
-                                           "" ] if WORK_VIEW_CONTENT_PRESENTER_DEBUG_VERBOSE
+                                           "" ] if work_view_content_presenter_debug_verbose
     return rv
   end
 
@@ -75,8 +76,13 @@ class WorkViewContentPresenter
   def menu_header
     rv = @options[:menu_header]
     return 'Missing Header' if rv.blank?
-    return MsgHelper.t(rv) if rv =~ /^hyrax\.menu\..+$/
+    retur n MsgHelper.t(rv) if rv =~ /^hyrax\.menu\..+$/
     return rv
+  end
+
+  def page_title
+    return "#{static_content_title} | #{I18n.t('hyrax.product_name')}" if static_content_title.present?
+    "#{work_title} | #{I18n.t('hyrax.product_name')}"
   end
 
   def static_content

@@ -1,3 +1,6 @@
+<!-- app/views/hyrax/static/show.html.erb -->
+<!-- presenter.page_title = <%= presenter.page_title %> -->
+<% provide :page_title, presenter.page_title %>
 <% sidebar = static_content_sidebar( params ) %>
 <% if sidebar.present? %>
 <aside class="<%= sidebar_classes %> static-page-sidebar ">

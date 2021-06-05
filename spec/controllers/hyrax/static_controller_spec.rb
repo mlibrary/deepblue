@@ -32,4 +32,5 @@ RSpec.describe Hyrax::StaticController, type: :controller do
       expect(response).not_to render_template "layouts/homepage"
     end
   end
+
 end

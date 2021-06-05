@@ -2,7 +2,7 @@
 
 class JobStatusesController < ApplicationController
 
-  mattr_accessor :job_statuses_controller_debug_verbose, default: true
+  mattr_accessor :job_statuses_controller_debug_verbose, default: false
 
   before_action :set_job_status, only: %i[ show edit update destroy ]
 
