@@ -206,7 +206,7 @@ en:
       data_set:
         access_deepblue: >
           If the items(s) accompanying your dataset are available in
-          <a href='https://deepblue.lib.umich.edu/documents' target='_blank'>Deep Blue Documents</a>, enter the handle for the
+          <a href='https://deepblue.lib.umich.edu/documents' target='_blank'>Deep Blue Documents</a>, enter the citation for the
           record(s) here. If you have questions about depositing your item(s) in Deep Blue Documents, please
           <a href='https://deepblue.lib.umich.edu/data/contact' target='_blank'>contact us</a>.
         authoremail: >
