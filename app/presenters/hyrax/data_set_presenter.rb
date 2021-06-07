@@ -35,6 +35,7 @@ module Hyrax
     delegate :analytics_subscribed?,
                   :can_display_provenance_log?,
                   :can_display_read_me?,
+                  :can_subscribe_to_analytics_reports?,
                   :current_user,
                   :current_user_can_edit?,
                   :current_user_can_read?,

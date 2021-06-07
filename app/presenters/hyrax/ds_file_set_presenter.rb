@@ -4,7 +4,8 @@ module Hyrax
 
   class DsFileSetPresenter < Hyrax::FileSetPresenter
 
-    DS_FILE_SET_PRESENTER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.ds_file_set_presenter_debug_verbose
+    mattr_accessor :ds_file_set_presenter_debug_verbose,
+                   default: ::DeepBlueDocs::Application.config.ds_file_set_presenter_debug_verbose
 
     include Deepblue::DeepbluePresenterBehavior
 
@@ -27,7 +28,7 @@ module Hyrax
     def initialize( solr_document, current_ability, request = nil )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       super( solr_document, current_ability, request )
     end
 
@@ -45,7 +46,7 @@ module Hyrax
                                              "false if Array( parent.read_me_file_set_id ).first == id=#{Array( parent.read_me_file_set_id ).first == id}",
                                              "false unless not right mime_type=#{::Deepblue::FileContentHelper.read_me_file_set_view_mime_types.include? mime_type}",
                                              "false if too big=#{file_size > ::Deepblue::FileContentHelper.read_me_file_set_view_max_size}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       return false unless ::Deepblue::FileContentHelper.read_me_file_set_enabled
       return false if Array( parent.read_me_file_set_id ).first == id
       return false unless ::Deepblue::FileContentHelper.read_me_file_set_view_mime_types.include? mime_type
@@ -60,7 +61,7 @@ module Hyrax
                                              "false if doi_minted?=#{doi_minted?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
                                              # "false if parent_doi_minted?=#{parent_doi_minted?}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       return false if single_use_show?
       return false if doi_minted?
       return true if current_ability.admin?
@@ -74,7 +75,7 @@ module Hyrax
                                            "id=#{id}",
                                            "mime_type=#{mime_type}",
                                            "file_size=#{file_size}",
-                                           "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                           "" ] if ds_file_set_presenter_debug_verbose
       return false unless ::DeepBlueDocs::Application.config.file_sets_contents_view_allow
       return false if single_use_show?
       return false unless ( current_ability.admin? ) # || current_ability.can?(:read, id) )
@@ -96,7 +97,7 @@ module Hyrax
                                              "false if file_size_too_large_to_download?=#{file_size_too_large_to_download?}",
                                              "true if single_use_show?=#{single_use_show?}",
                                              "true if current_ability.can?( :download, id )=#{current_ability.can?( :download, id )}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
 
       return false if file_size_too_large_to_download?
       return true if single_use_show?
@@ -110,7 +111,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "max_file_size_to_download < size=#{max_file_size_to_download < size}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       max_file_size_to_download >= size
     end
 
@@ -120,7 +121,7 @@ module Hyrax
                                              "true if single_use_show?=#{single_use_show?}",
                                              "true current_ability.admin?=#{current_ability.admin?}",
                                              "false if embargoed?=#{embargoed?}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       return true if single_use_show?
       return true if current_ability.admin?
       return false if embargoed?
@@ -139,7 +140,7 @@ module Hyrax
                                              "true current_ability.admin?=#{current_ability.admin?}",
                                              "true editor?=#{editor?}",
                                              "and pending_publication?=#{pending_publication?}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       return false if single_use_show?
       return false if parent.tombstone.present?
       return true if current_ability.admin?
@@ -156,13 +157,17 @@ module Hyrax
                                              "true if doi_pending?=#{doi_pending?}",
                                              "true if doi_minted?=#{doi_minted?}",
                                              "current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       return false unless doi_minting_enabled?
       return false if single_use_show?
       return false if parent.tombstone.present?
       return false if doi_pending? || doi_minted?
       return true if current_ability.admin?
       current_ability.can?( :edit, id )
+    end
+
+    def can_subscribe_to_analytics_reports?
+      parent_presenter.can_subscribe_to_analytics_reports?
     end
 
     def can_view_file?
@@ -174,7 +179,7 @@ module Hyrax
                                              "true if published?=#{published?}",
                                              "false if parent.embargoed?=#{parent.embargoed?}",
                                              "else false",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       return false if parent.tombstone.present?
       return true if single_use_show?
       return true if current_ability.can?( :edit, id )
@@ -198,7 +203,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "current_ability.current_user&.email=#{current_ability.current_user&.email}",
                                              "parent_data_set.edit_users=#{parent_data_set.edit_users}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       return false unless current_ability.current_user.present?
       return false unless current_ability.current_user.email.present?
       parent_data_set.edit_users.include? current_ability.current_user.email
@@ -209,7 +214,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "current_ability.current_user&.email=#{current_ability.current_user&.email}",
                                              "parent_data_set.read_users=#{parent_data_set.read_users}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       return false unless current_ability.current_user.present?
       return false unless current_ability.current_user.email.present?
       parent_data_set.read_users.include? current_ability.current_user.email
@@ -226,7 +231,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
                                              "single_use_show?=#{single_use_show?}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       return "/data/downloads/#{curation_concern.id}" unless single_use_show? # TODO: fix
       # return Rails.application.routes.url_helpers.url_for( only_path: true,
       #                                                      action: 'show',
@@ -239,12 +244,12 @@ module Hyrax
                                              "su_link.downloadKey=#{su_link.downloadKey}",
                                              "su_link.itemId=#{su_link.itemId}",
                                              "su_link.path=#{su_link.path}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       rv = "/data/single_use_link/download/#{su_link.downloadKey}" # TODO: fix
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       # return "/data/downloads/#{curation_concern.id}/single_use_link/#{su_link.downloadKey}" # TODO: fix
       return rv
     end
@@ -253,7 +258,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "solr_document.visibility=#{solr_document.visibility}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       solr_document.visibility == 'embargo'
     end
 
@@ -263,7 +268,7 @@ module Hyrax
                                              "curation_concern.class.name=#{curation_concern.class.name}",
                                              "id=#{id}",
                                              "single_use_show?=#{single_use_show?}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       return "/data/concern/file_sets/#{id}" unless single_use_show? # TODO: fix
       su_link = single_use_link_show( curation_concern )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -272,12 +277,12 @@ module Hyrax
                                              "su_link.downloadKey=#{su_link.downloadKey}",
                                              "su_link.itemId=#{su_link.itemId}",
                                              "su_link.path=#{su_link.path}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       rv = "/data/single_use_link/show/#{su_link.downloadKey}" # TODO: fix
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       # return "/data/downloads/#{curation_concern.id}/single_use_link/#{su_link.downloadKey}" # TODO: fix
       return rv
     end
@@ -356,7 +361,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "member.can_download_file?=#{member.can_download_file?}",
                                              "member.single_use_show?=#{member.single_use_show?}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       suppress_link = !member.can_download_file? || member.single_use_show?
       { suppress_link: suppress_link }
     end
@@ -372,7 +377,7 @@ module Hyrax
     def fetch_parent_presenter
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       ids = ActiveFedora::SolrService.query("{!field f=member_ids_ssim}#{id}",
                                             fl: ActiveFedora.id_field)
                 .map { |x| x.fetch(ActiveFedora.id_field) }
@@ -406,7 +411,7 @@ module Hyrax
       #                                        ::Deepblue::LoggingHelper.called_from,
       #                                        "parent.workflow.state=#{parent.workflow.state}",
       #                                        "solr_document.visibility=#{solr_document.visibility}",
-      #                                        "" ] DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+      #                                        "" ] ds_file_set_presenter_debug_verbose
       parent.workflow.state == 'deposited' && solr_document.visibility == 'open'
     end
 
@@ -420,7 +425,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       user_id = nil
       user_id = current_ability.current_user.id unless single_use_show?
       rv = SingleUseLink.create( itemId: curation_concern.id,
@@ -432,7 +437,7 @@ module Hyrax
                                              "rv.downloadKey=#{rv.downloadKey}",
                                              "rv.itemId=#{rv.itemId}",
                                              "rv.path=#{rv.path}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       return rv
     end
 
@@ -441,7 +446,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.class.name=#{curation_concern.class.name}",
                                              "curation_concern.id=#{curation_concern.id}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       path = "/data/concern/file_sets/#{curation_concern.id}" # TODO: fix
       user_id = nil
       user_id = current_ability.current_user.id unless single_use_show?
@@ -454,7 +459,7 @@ module Hyrax
                                              "rv.downloadKey=#{rv.downloadKey}",
                                              "rv.itemId=#{rv.itemId}",
                                              "rv.path=#{rv.path}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       return rv
     end
 
@@ -481,7 +486,7 @@ module Hyrax
                                                "su_link.itemId=#{su_link.itemId}",
                                                "su_link.path=#{su_link.path}",
                                                "su_link.user_id=#{su_link.user_id}",
-                                               "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                               "" ] if ds_file_set_presenter_debug_verbose
         if su_link.expired?
           su_link.delete
           false
@@ -501,14 +506,14 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "tag.class.name=#{tag.class.name}",
                                              "tag=#{tag}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       return tag if tag.blank?
       rv = tag.to_s.dup
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv.class.name=#{rv.class.name}",
                                              "rv=#{rv}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       rv.gsub!( 'data-context-href', 'data-reference' )
       # TODO: make sure that icon does not have a download link
       if single_use_show?
@@ -519,7 +524,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
-                                             "" ] if DS_FILE_SET_PRESENTER_DEBUG_VERBOSE
+                                             "" ] if ds_file_set_presenter_debug_verbose
       return rv
     end
 
