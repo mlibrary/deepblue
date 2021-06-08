@@ -9,9 +9,9 @@ GIT
 
 GIT
   remote: https://github.com/mlibrary/irus_analytics
-  revision: a244628a66b730e04956c06e191654dd308be923
+  revision: 52d33547e2a773c62c17398ece9258083f558e2e
   specs:
-    irus_analytics (1.0.1)
+    irus_analytics (1.0.2)
       config_files
       i18n
       openurl
@@ -111,7 +111,7 @@ GEM
       activerecord (>= 4.0.0, < 7.0)
     aws-eventstream (1.1.1)
     aws-partitions (1.465.0)
-    aws-sdk-core (3.114.0)
+    aws-sdk-core (3.114.1)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
@@ -119,7 +119,7 @@ GEM
     aws-sdk-kms (1.43.0)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.95.1)
+    aws-sdk-s3 (1.96.0)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.1)
@@ -206,7 +206,7 @@ GEM
       execjs
     coffee-script-source (1.12.2)
     commonjs (0.2.7)
-    concurrent-ruby (1.1.8)
+    concurrent-ruby (1.1.9)
     config (3.1.0)
       deep_merge (~> 1.2, >= 1.2.1)
       dry-validation (~> 1.0, >= 1.0.0)
@@ -258,7 +258,7 @@ GEM
     dry-container (0.7.2)
       concurrent-ruby (~> 1.0)
       dry-configurable (~> 0.1, >= 0.1.3)
-    dry-core (0.5.0)
+    dry-core (0.6.0)
       concurrent-ruby (~> 1.0)
     dry-equalizer (0.3.0)
     dry-events (0.3.0)
@@ -368,7 +368,7 @@ GEM
       google-apis-core (~> 0.1)
     google-apis-drive_v3 (0.8.0)
       google-apis-core (~> 0.1)
-    google-apis-generator (0.2.0)
+    google-apis-generator (0.3.0)
       activesupport (>= 5.0)
       gems (~> 1.2)
       google-apis-core (~> 0.1)
@@ -613,7 +613,8 @@ GEM
     mailboxer (0.15.1)
       carrierwave (>= 0.5.8)
       rails (>= 5.0.0)
-    marc (1.0.4)
+    marc (1.1.1)
+      rexml
       scrub_rb (>= 1.0.1, < 2)
       unf
     marcel (1.0.1)
@@ -643,7 +644,7 @@ GEM
     noid-rails (3.0.3)
       actionpack (>= 5.0.0, < 7)
       noid (~> 0.9)
-    nokogiri (1.11.6)
+    nokogiri (1.11.7)
       mini_portile2 (~> 2.5.0)
       racc (~> 1.4)
     nokogumbo (2.0.5)
