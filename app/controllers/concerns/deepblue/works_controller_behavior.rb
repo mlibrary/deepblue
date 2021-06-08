@@ -15,7 +15,8 @@ module Deepblue
     include Deepblue::SingleUseLinkControllerBehavior
     include Deepblue::IngestAppendScriptControllerBehavior
 
-    WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.works_controller_behavior_debug_verbose
+    mattr_accessor :works_controller_behavior_debug_verbose,
+                   default: ::DeepBlueDocs::Application.config.works_controller_behavior_debug_verbose
 
     class_methods do
       def curation_concern_type=(curation_concern_type)
@@ -51,12 +52,12 @@ module Deepblue
     # end
 
     def after_create_response
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "curation_concern&.id=#{curation_concern&.id}",
                                              "@curation_concern=#{@curation_concern}",
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if works_controller_behavior_debug_verbose
       respond_to do |wants|
         wants.html do
           # Calling `#t` in a controller context does not mark _html keys as html_safe
@@ -72,10 +73,10 @@ module Deepblue
     end
 
     def after_destroy_response( title )
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "" ] if works_controller_behavior_debug_verbose
       respond_to do |wants|
         wants.html do
           if curation_concern.present?
@@ -97,29 +98,29 @@ module Deepblue
           end
         end
       end
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "" ] if works_controller_behavior_debug_verbose
     end
 
     # render a json response for +response_type+
     def works_render_json_response(response_type: :success, message: nil, options: {})
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "response_type=#{response_type}",
                                              "message=#{message}",
                                              "options=#{options}",
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if works_controller_behavior_debug_verbose
       json_body = Hyrax::API.generate_response_body(response_type: response_type, message: message, options: options)
       render json: json_body, status: response_type
     end
 
     def after_update_response
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "" ] if works_controller_behavior_debug_verbose
       if curation_concern.file_sets.present?
         return redirect_to main_app.copy_access_hyrax_permission_path(curation_concern)  if permissions_changed?
         return redirect_to main_app.confirm_hyrax_permission_path(curation_concern) if curation_concern.visibility_changed?
@@ -156,10 +157,10 @@ module Deepblue
     end
 
     def create
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "" ] if works_controller_behavior_debug_verbose
       respond_to do |wants|
         wants.html do
           if actor.create( actor_environment )
@@ -183,25 +184,25 @@ module Deepblue
     end
 
     def create_single_use_link
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "params=#{params}",
                                              "params[:commit]=#{params[:commit]}",
                                              "params[:user_comment]=#{params[:user_comment]}",
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if works_controller_behavior_debug_verbose
       case params[:commit]
       when t( 'simple_form.actions.single_use_link.create_download' )
-        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
-                                               "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if works_controller_behavior_debug_verbose
         SingleUseLink.create( itemId: curation_concern.id,
                               path: current_show_path( append: "/single_use_link_zip_download" ),
                               user_id: current_ability.current_user.id,
                               user_comment: params[:user_comment] )
       when t( 'simple_form.actions.single_use_link.create_show' )
-        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
-                                               "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if works_controller_behavior_debug_verbose
         SingleUseLink.create( itemId: curation_concern.id,
                               path: current_show_path,
                               user_id: current_ability.current_user.id,
@@ -227,7 +228,7 @@ module Deepblue
                                              "false if doi_minted?=#{doi?}",
                                              "false if tombstoned?=#{tombstoned?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if works_controller_behavior_debug_verbose
       return false if single_use_link?
       return false if doi?
       return false if tombstoned?
@@ -236,11 +237,23 @@ module Deepblue
     end
 
     def can_subscribe_to_analytics_reports?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "false unless AnalyticsHelper.enable_local_analytics_ui?=#{AnalyticsHelper.enable_local_analytics_ui?}",
+                                             "false if single_use_link?=#{single_use_link?}",
+                                             "true if current_ability.admin?=#{current_ability.admin?}",
+                                             "false unless AnalyticsHelper.open_analytics_report_subscriptions?=#{AnalyticsHelper.open_analytics_report_subscriptions?}",
+                                             "true if can_edit_work?=#{can_edit_work?}",
+                                             "curation_concern.depositor=#{curation_concern.depositor}",
+                                             "current_ability.current_user.email=#{current_ability.current_user.email}",
+                                             "true if curation_concern.depositor == current_ability.current_user.email=#{curation_concern.depositor == current_ability.current_user.email}",
+                                             "" ] if works_controller_behavior_debug_verbose
       return false unless AnalyticsHelper.enable_local_analytics_ui?
       return false if single_use_link?
       return true if current_ability.admin? && AnalyticsHelper.analytics_reports_admins_can_subscribe?
-      return true if can_edit_work? && AnalyticsHelper.open_analytics_report_subscriptions?
-      return true if curation_concern.depositor == current_ability.current_user.email && AnalyticsHelper.open_analytics_report_subscriptions?
+      return false unless AnalyticsHelper.open_analytics_report_subscriptions?
+      return true if can_edit_work?
+      return true if curation_concern.depositor == current_ability.current_user.email
       false
     end
 
@@ -252,7 +265,7 @@ module Deepblue
                                              "true if current_ability.admin?=#{current_ability.admin?}",
                                              "true if editor?=#{editor?}",
                                              "and workflow_state != 'deposited'=#{workflow_state != 'deposited'}",
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if works_controller_behavior_debug_verbose
       return false if single_use_link?
       return true if current_ability.admin?
       return true if editor? && workflow_state != 'deposited'
@@ -279,10 +292,10 @@ module Deepblue
 
     def destroy
       @curation_concern ||= ::Deepblue::WorkViewContentService.content_find_by_id( id: params[:id] )
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "" ] if works_controller_behavior_debug_verbose
       return redirect_to my_works_path, notice: "You do not have sufficient privileges for this action." unless can_delete_work?
       respond_to do |wants|
         wants.html do
@@ -295,16 +308,16 @@ module Deepblue
           destroy_rest
         end
       end
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE # + caller_locations(1,40)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "" ] if works_controller_behavior_debug_verbose # + caller_locations(1,40)
     end
 
     def destroy_rest
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if works_controller_behavior_debug_verbose
       if curation_concern.present?
         title = curation_concern.to_s
       else
@@ -319,10 +332,10 @@ module Deepblue
     end
 
     def new
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "" ] if works_controller_behavior_debug_verbose
       respond_to do |wants|
         wants.html do
           new_rest
@@ -337,9 +350,9 @@ module Deepblue
     end
 
     def new_rest
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if works_controller_behavior_debug_verbose
       # TODO: move these lines to the work form builder in Hyrax
       curation_concern.depositor = current_user.user_key
       curation_concern.admin_set_id = admin_set_id_for_new
@@ -352,20 +365,20 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",
                                              "params[:link_id]=#{params[:link_id]}",
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if works_controller_behavior_debug_verbose
       curation_concern ||= ::Deepblue::WorkViewContentService.content_find_by_id( id: params[:id] )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",
                                              "params[:link_id]=#{params[:link_id]}",
                                              "curation_concern.id=#{curation_concern.id}",
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if works_controller_behavior_debug_verbose
       su_link = single_use_link_obj( link_id: params[:link_id] )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "su_link=#{su_link}",
                                              "su_link.class.name=#{su_link.class.name}",
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if works_controller_behavior_debug_verbose
       if curation_concern.tombstone.present?
         single_use_link_destroy! su_link
         return redirect_to main_app.root_path, alert: single_use_link_expired_msg
@@ -379,22 +392,22 @@ module Deepblue
       @user_collections = [] # anonymous user, so we don't care
 
       respond_to do |wants|
-        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
-                                               Deepblue::LoggingHelper.obj_class( 'wants', wants ),
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               ::Deepblue::LoggingHelper.obj_class( 'wants', wants ),
                                                "wants.format=#{wants.format}",
-                                               "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                               "" ] if works_controller_behavior_debug_verbose
         wants.any do
           presenter_init && parent_presenter
           presenter.controller = self
           presenter.cc_single_use_link = su_link
-          ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                                 Deepblue::LoggingHelper.called_from,
-                                                 Deepblue::LoggingHelper.obj_class( 'wants', wants ),
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 ::Deepblue::LoggingHelper.obj_class( 'wants', wants ),
                                                  "wants.format=#{wants.format}",
                                                  "presenter.controller.class=#{presenter.controller.class}",
                                                  "presenter.cc_single_use_link=#{presenter.cc_single_use_link}",
-                                                 "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                                 "" ] if works_controller_behavior_debug_verbose
           render :show, status: :ok
         end
       end
@@ -405,26 +418,26 @@ module Deepblue
     end
 
     def presenter_init
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.class.name=#{curation_concern.class.name}",
                                              "current_ability.class.name=#{current_ability.class.name}",
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if works_controller_behavior_debug_verbose
       if respond_to? :read_me_file_set
         # first make sure that the curation concern is loaded
         @curation_concern = _curation_concern_type.find_with_rescue(params[:id]) unless curation_concern
         read_me_file_set # preemptively load
       end
       rv = presenter
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "presenter.class.name=#{presenter.class.name}",
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if works_controller_behavior_debug_verbose
       return rv
     rescue Exception => e
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             "" ] + e.backtrace[0..20] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] + e.backtrace[0..20] if works_controller_behavior_debug_verbose
       raise
     end
 
@@ -435,7 +448,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "search_params=#{search_params}",
                                              "single_use_link?=#{single_use_link?}",
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if works_controller_behavior_debug_verbose
       if single_use_link?
         begin
           return ::SolrDocument.find( params[:id] )
@@ -450,20 +463,20 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",
                                              "params[:link_id]=#{params[:link_id]}",
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if works_controller_behavior_debug_verbose
       @curation_concern ||= ::Deepblue::WorkViewContentService.content_find_by_id( id: params[:id] )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",
                                              "params[:link_id]=#{params[:link_id]}",
                                              "curation_concern.id=#{curation_concern.id}",
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if works_controller_behavior_debug_verbose
       su_link = single_use_link_obj( link_id: params[:link_id] )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "su_link=#{su_link}",
                                              "su_link.class.name=#{su_link.class.name}",
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if works_controller_behavior_debug_verbose
       if @curation_concern.tombstone.present?
         single_use_link_destroy! su_link
         return redirect_to main_app.root_path, alert: single_use_link_expired_msg
@@ -482,48 +495,48 @@ module Deepblue
     def single_use_link_debug
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if works_controller_behavior_debug_verbose
     end
 
     def single_use_link_request?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params=#{params}",
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if works_controller_behavior_debug_verbose
       rv = ( params[:action] == 'single_use_link' || params[:link_id].present? )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if works_controller_behavior_debug_verbose
       return rv
     end
 
     # Finds a solr document matching the id and sets @presenter
     # @raise CanCan::AccessDenied if the document is not found or the user doesn't have access to it.
     def show
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "" ] if works_controller_behavior_debug_verbose
       @user_collections = user_collections
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "" ] if works_controller_behavior_debug_verbose
       respond_to do |wants|
-        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
-                                               Deepblue::LoggingHelper.obj_class( 'wants', wants ),
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               ::Deepblue::LoggingHelper.obj_class( 'wants', wants ),
                                                "@user_collections.class.name=#{@user_collections.class.name}",
-                                               "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                               "" ] if works_controller_behavior_debug_verbose
         wants.html do
           presenter_init && parent_presenter
           presenter.controller = self
-          ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                                 Deepblue::LoggingHelper.called_from,
-                                                 Deepblue::LoggingHelper.obj_class( 'wants', wants ),
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 ::Deepblue::LoggingHelper.obj_class( 'wants', wants ),
                                                  "presenter.controller.class=#{presenter.controller.class}",
-                                                 "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                                 "" ] if works_controller_behavior_debug_verbose
         end
         wants.json do
           unless ::DeepBlueDocs::Application.config.rest_api_allow_read
@@ -560,11 +573,11 @@ module Deepblue
 
     def update
       @curation_concern ||= ::Deepblue::WorkViewContentService.content_find_by_id( id: params[:id] )
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             Deepblue::LoggingHelper.obj_class( 'actor.class', actor ),
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             ::Deepblue::LoggingHelper.obj_class( 'actor.class', actor ),
+                                             "" ] if works_controller_behavior_debug_verbose
       return redirect_to my_works_path, notice: "You do not have sufficient privileges for this aciton." unless can_edit_work?
       respond_to do |wants|
         wants.html do
@@ -578,9 +591,9 @@ module Deepblue
           unless update_allow_json?
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
-          ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                                 Deepblue::LoggingHelper.called_from,
-                                                 "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "" ] if works_controller_behavior_debug_verbose
           had_error = upate_rest
           if had_error
             if curation_concern.present?
@@ -594,19 +607,19 @@ module Deepblue
     end
 
     def upate_rest
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if works_controller_behavior_debug_verbose
       had_error = false
       if curation_concern.present?
         act_env = actor_environment
-        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
                                                "act_env.class.name=#{act_env.class.name}",
                                                "act_env.attributes.class.name=#{act_env.attributes.class.name}",
                                                "curation_concern.errors.class.name=#{curation_concern.errors.class.name}",
                                                "curation_concern.errors.size=#{curation_concern.errors.size}",
-                                               "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                               "" ] if works_controller_behavior_debug_verbose
         if actor.update( act_env )
           after_update_response
           return
@@ -626,19 +639,19 @@ module Deepblue
       return {} unless curation_concern.present?
       # super
       raw_params = params[hash_key_for_curation_concern]
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "params.class.name=#{params.class.name}",
                                              "raw_params.class.name=#{raw_params.class.name}",
                                              "raw_params=#{raw_params}",
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if works_controller_behavior_debug_verbose
       attributes = if raw_params
                      raw_params = ::ActionController::ParametersTrackErrors.new( raw_params )
                      form_class = work_form_service.form_class(curation_concern)
-                     ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                                            Deepblue::LoggingHelper.called_from,
+                     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                            ::Deepblue::LoggingHelper.called_from,
                                                             "form_class.name=#{form_class.name}",
-                                                            "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                                            "" ] if works_controller_behavior_debug_verbose
 
                      form_class.model_attributes_json( form_params: raw_params, curation_concern: curation_concern )
                    else
@@ -655,12 +668,12 @@ module Deepblue
     end
 
     def actor_environment
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "params=#{params}",
                                              "params[:action]=#{params[:action]}",
                                              "params[:format]=#{params[:format]}",
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if works_controller_behavior_debug_verbose
       attrs_for_actor = if data_set_version?
                           attributes_for_actor
                         elsif 'json' == params[:format]
@@ -668,39 +681,39 @@ module Deepblue
                         else
                           attributes_for_actor
                         end
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "attrs_for_actor.class.name=#{attrs_for_actor.class.name}",
                                              "curation_concern.errors.size=#{curation_concern.errors.size}",
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if works_controller_behavior_debug_verbose
       if attrs_for_actor.respond_to? :errors
-        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
                                                "attrs_for_actor.errors=#{attrs_for_actor.errors}",
                                                "curation_concern.errors.size=#{curation_concern.errors.size}",
-                                               "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                               "" ] if works_controller_behavior_debug_verbose
         attrs_for_actor.errors.each do |error|
           curation_concern.errors.add( params[:action], error )
         end
       end
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "attrs_for_actor.class.name=#{attrs_for_actor.class.name}",
                                              "curation_concern.errors.size=#{curation_concern.errors.size}",
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if works_controller_behavior_debug_verbose
       env = ::Hyrax::Actors::EnvironmentEnhanced.new( curation_concern: curation_concern,
                                                 current_ability: current_ability,
                                                 attributes: attrs_for_actor,
                                                 action: params[:action],
                                                 wants_format: params[:format] )
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "env=#{env}",
                                              "env.attributes.class.name=#{env.attributes.class.name}",
                                              "env.attributes=#{env.attributes}",
                                              "env.action=#{env.action}",
                                              "env.wants_format=#{env.wants_format}",
-                                             "" ] if WORKS_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if works_controller_behavior_debug_verbose
       return env
     end
 
