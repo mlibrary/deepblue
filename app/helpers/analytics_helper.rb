@@ -511,7 +511,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
       current_ability.admin?
     when 2
       return true if current_ability.admin?
-      return presenter.editor? if presenter.respond_to? :editor?
+      return presenter.can_subscribe_to_analytics_reports? if presenter.respond_to? :can_subscribe_to_analytics_reports?
       # return current_ability.editor? if current_ability.respond_to? :editor?
       false
     when 3

@@ -158,7 +158,7 @@ RSpec.describe AnalyticsHelper, type: :helper do
           expect( AnalyticsHelper ).to receive( :enable_local_analytics_ui? ).and_return true
           expect( ::Deepblue::AnalyticsIntegrationService ).to receive( :hit_graph_view_level ).and_return 2
           allow( ability ).to receive( :admin? ).and_return false
-          expect( presenter ).to receive( :editor? ).and_return true
+          expect( presenter ).to receive( :can_subscribe_to_analytics_reports? ).and_return true
         end
         subject { AnalyticsHelper.show_hit_graph?( ability, presenter: presenter ) }
         it { expect( subject ).to eq true }
