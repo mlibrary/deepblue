@@ -504,6 +504,13 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     return false unless enable_local_analytics_ui?
     # 0 = none, 1 = admin, 2 = editor, 3 = everyone
     return false if presenter && presenter.respond_to?( :single_use_show? ) && presenter.single_use_show?
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "::Deepblue::AnalyticsIntegrationService.hit_graph_view_level=#{::Deepblue::AnalyticsIntegrationService.hit_graph_view_level}",
+                                           "current_ability.admin?=#{current_ability.admin?}",
+                                           "presenter.respond_to? :can_subscribe_to_analytics_reports?=#{presenter.respond_to? :can_subscribe_to_analytics_reports?}",
+                                           "presenter.can_subscribe_to_analytics_reports?=#{presenter.respond_to?(:can_subscribe_to_analytics_reports?) ? presenter.can_subscribe_to_analytics_reports? : ''}",
+                                           "" ] if analytics_helper_debug_verbose
     case ::Deepblue::AnalyticsIntegrationService.hit_graph_view_level
     when 0
       false
