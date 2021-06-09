@@ -44,6 +44,12 @@ class Ability
     # if user_groups.include? 'special_group'
     #   can [:create], ActiveFedora::Base
     # end
+
+    # if current_user.admin? || true # for the first time to setup 'admin' role and yourself
+    # if current_user.admin?
+    #   can [:create, :show, :add_user, :remove_user, :index, :edit, :update, :destroy], Role
+    # end
+
   end
 
 end
