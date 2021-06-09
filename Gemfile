@@ -162,6 +162,9 @@ gem 'yabeda-puma-plugin'
 # gem 'irus_analytics', git: 'https://github.com/mlibrary/irus_analytics', branch: 'BLUEDOC-1101-pull-updates-from-dbd-to-irus-analytics-gem-2'
 gem 'irus_analytics', git: 'https://github.com/mlibrary/irus_analytics'
 
+# https://github.com/samvera/hydra-role-management
+gem 'hydra-role-management'
+
 group :development, :test do
   gem 'capybara'
   gem 'chromedriver-helper'
