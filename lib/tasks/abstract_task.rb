@@ -23,13 +23,13 @@ module Deepblue
       @options = TaskHelper.task_options_parse options
       if  @options.key?( :error )
         report_puts "WARNING: options error #{@options[:error]}"
-        report_puts "@options=#{@options}"
+        report_puts "options=#{options}"
       end
       if @options.key?( 'error' )
         report_puts "WARNING: options error #{@options['error']}"
-        report_puts "@options=#{@options}"
+        report_puts "options=#{options}"
       end
-      @to_console = TaskHelper.task_options_value( @options, key: 'to_console', default_value: DEFAULT_VERBOSE )
+      @to_console = TaskHelper.task_options_value( @options, key: 'to_console', default_value: DEFAULT_TO_CONSOLE )
       @verbose = TaskHelper.task_options_value( @options, key: 'verbose', default_value: DEFAULT_VERBOSE )
       report_puts "@verbose=#{@verbose}" if @verbose
     end

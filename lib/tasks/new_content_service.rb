@@ -11,6 +11,7 @@ Hydra::FileCharacterization::Characterizers::Fits.tool_path = `which fits || whi
 module Deepblue
 
   # NOTE: old visibility does not translate directly to new visibility, so diffing / updating visibility has issues
+  # NOTE: see Vocab::FedoraResourceStatus for state values and Hyrax::Suppressible
 
   # see: http://ruby-doc.org/stdlib-2.0.0/libdoc/benchmark/rdoc/Benchmark.html
   require 'benchmark'
@@ -100,6 +101,9 @@ module Deepblue
     STOP_NEW_CONTENT_SERVICE_FILE_NAME = 'stop_umrdr_new_content'
 
     class RestrictedVocabularyError < RuntimeError
+    end
+
+    class StateError < RuntimeError
     end
 
     class TaskConfigError < RuntimeError
@@ -367,6 +371,7 @@ module Deepblue
 
       def apply_visibility_and_workflow( work:, work_hash:, admin_set: )
         # puts "work.id=#{work.id} admin_set.id=#{admin_set.id}"
+        work.state = state_from_hash( hash: work_hash )
         work.visibility = visibility_from_hash( hash: work_hash )
         work.admin_set = admin_set
         # puts "work.id=#{work.id} admin_set.id=#{admin_set.id} visibility=#{work.visibility}"
@@ -2090,6 +2095,32 @@ module Deepblue
         report( first_label: first_label, first_id: first_id, measurements: measurements, total: total )
       end
 
+      def state_curation_concern( state )
+        return valid_restricted_vocab( state,
+                                       var: :state,
+                                       vocab: %w[active deleted inactive],
+                                       error_class: StateError )
+      end
+
+      def state_from_hash( hash: )
+        state = hash[:state]
+        state = 'active' if state.blank?
+        state_curation_concern( state )
+      end
+
+      def state_str_to_fedora_resource_status( state )
+        case state
+        when 'active'
+          Vocab::FedoraResourceStatus.active
+        when 'deleted'
+          Vocab::FedoraResourceStatus.deleted
+        when 'inactive'
+          Vocab::FedoraResourceStatus.inactive
+        else
+          raise StateError( "Unknown state: #{state}" )
+        end
+      end
+
       def source
         @source ||= valid_restricted_vocab( @cfg_hash[:user][:source], var: :source, vocab: %w[DBDv1 DBDv2] )
       end
@@ -2393,6 +2424,7 @@ module Deepblue
         return updates unless update_attr? attr_name
         return updates unless update_attr_if_blank?( attr_name, value: value )
         return updates if current_value == value
+        # TODO: this looks like it doesn't actually update the value
         updates << "#{attr_prefix cc_or_fs}: #{attr_name} '#{current_value}' vs. '#{value}'"
       rescue Exception => e # rubocop:disable Lint/RescueException
         updates << "#{attr_prefix cc_or_fs}: #{attr_name} -- Exception: #{e.class}: #{e.message} at #{e.backtrace[0]}"
@@ -2604,6 +2636,7 @@ module Deepblue
       def valid_restricted_vocab( value, var:, vocab:, error_class: RestrictedVocabularyError )
         unless vocab.include? value
           raise error_class, "Illegal value '#{value}' #{var}, must be one of #{vocab}"
+          # raise error_class.new "Illegal value '#{value}' #{var}, must be one of #{vocab}"
         end
         return value
       end
