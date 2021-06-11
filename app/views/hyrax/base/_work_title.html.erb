@@ -13,6 +13,7 @@
             <% if presenter.doi.first.include? "doi:" %>
               <span class='altmetric-embed' data-badge-type='large_rectangle' data-hide-less-than="1" data-doi="<%= presenter.doi.first.sub('doi:', '') %>"></span>
               <span class="__dimensions_badge_embed__" data-style="large_rectangle" data-hide-zero-citations="true" data-doi="<%= presenter.doi.first.sub('doi:', '') %>"></span>
+              <data-metrics-badge doi="<%= presenter.doi.first.sub('doi:', '') %>" display="small"></data-metrics-badge>
             <% end %>
         <% end %>
       <% else %>
