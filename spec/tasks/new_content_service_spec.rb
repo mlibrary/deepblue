@@ -161,6 +161,45 @@ RSpec.describe ::Deepblue::NewContentService, skip: false do
     #                                                                         base_path: base_path )
     # end
 
+    describe ".state_curation_concern" do
+      let(:error_msg) {"Illegal value 'not_valid_state' state, must be one of [\"active\", \"deleted\", \"inactive\"]" }
+
+      it "says 'active' is valid" do
+        expect(new_content_service.send( :state_curation_concern, 'active' )).to eq 'active'
+      end
+
+      it "says 'deleted' is valid" do
+        expect(new_content_service.send( :state_curation_concern, 'deleted' )).to eq 'deleted'
+      end
+
+      it "says 'inactive' is valid" do
+        expect(new_content_service.send( :state_curation_concern, 'inactive' )).to eq 'inactive'
+      end
+
+      it "throws error for 'not_valid_state'" do
+        expect { new_content_service.send( :state_curation_concern,
+                                         'not_valid_state' ) }.to raise_error(::Deepblue::NewContentService::StateError,
+                                                                             error_msg)
+      end
+
+    end
+
+    describe ".state_from_hash" do
+      let(:active_state) { 'active' }
+      let(:inactive_state) { 'inactive' }
+      let(:hash_with_state) { { state: inactive_state } }
+      let(:hash_without_state) { {} }
+
+      it 'returns state from hash' do
+        expect(new_content_service.send( :state_from_hash, hash: hash_with_state ) ).to eq inactive_state
+      end
+
+      it 'returns active state when hash does not have state' do
+        expect(new_content_service.send( :state_from_hash, hash: hash_without_state ) ).to eq active_state
+      end
+
+    end
+
     describe ".update_cc_attributes" do
 
       context "collection" do
@@ -329,7 +368,28 @@ RSpec.describe ::Deepblue::NewContentService, skip: false do
 
     end
 
-  end
 
+      describe ".valid_restricted_vocab" do
+        let(:value_included) { 'included value' }
+        let(:value_not_included) { 'missing value' }
+        let(:var) { 'the_var' }
+        let(:vocab) { [ 'value1', value_included, 'value2' ] }
+        let(:error_msg) {"Illegal value 'missing value' the_var, must be one of [\"value1\", \"included value\", \"value2\"]" }
+
+        it 'works for value included in vocab' do
+          expect(new_content_service.send( :valid_restricted_vocab, value_included, var: var, vocab: vocab ) ).to eq value_included
+        end
+
+        it 'throws error when value not included in vocab' do
+          expect { new_content_service.send( :valid_restricted_vocab,
+                                             value_not_included,
+                                             var: var,
+                                             vocab: vocab ) }.to raise_error(::Deepblue::NewContentService::RestrictedVocabularyError,
+                                                                             error_msg)
+        end
+
+      end
+
+    end
 
 end
