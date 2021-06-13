@@ -55,3 +55,13 @@
   </table>
 
 <% end %>
+
+<% if current_ability.admin? %>
+  <%= form_tag(main_app.cvs_download_hyrax_data_set_path(params[:id]), method: 'post') do %>
+    <%= submit_tag(t('simple_form.actions.data_set.csv_download'),
+                   class: 'btn btn-subtle') %>
+  <% end %>
+<% end %>
+
+
+

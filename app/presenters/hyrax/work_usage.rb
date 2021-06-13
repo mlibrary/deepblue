@@ -14,6 +14,22 @@ module Hyrax
       pageviews.reduce(0) { |total, result| total + result[1].to_i }
     end
 
+    def to_csv
+      data = self.to_flot[0][:data] 
+
+      attributes = %w{date count}
+      CSV.generate(headers: true) do |csv|
+        csv << attributes
+
+        data.uniq.each do |sub_array|
+         time = Time.at sub_array[0].to_i/1000
+         count = sub_array[1]
+
+         csv << [time, count]
+        end
+      end
+    end
+
     # Package data for visualization using JQuery Flot
     def to_flot
       [

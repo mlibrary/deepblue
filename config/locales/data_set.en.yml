@@ -109,6 +109,7 @@ en:
         analytics_subscribe:            "Subscribe to Monthly Analytics Report"
         analytics_unsubscribe:          "Unsubscribe from Monthly Analytics Report"
         confirm:                        "Confirm Your Deposit"
+        csv_download:                   "Download Archive Stats"
         delete:                         "Delete Work"
         edit:                           "Edit Metadata"
         edit_work:                      "Edit Work/Add Files"
