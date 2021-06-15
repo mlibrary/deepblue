@@ -11,6 +11,8 @@ module Hyrax
         def attribute_value_to_html(value)
           rv = if value == ::Deepblue::DoiBehavior::DOI_PENDING
                  value
+               elsif value.start_with? 'http'
+                 value
                else
                  value.sub! 'doi:', 'https://doi.org/'
                end
