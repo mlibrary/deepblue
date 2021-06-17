@@ -680,7 +680,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
       context 'downloads' do
 
         before do
-          if true || dbg_verbose
+          if dbg_verbose
             expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(:once)
           else
             expect(::Deepblue::LoggingHelper).to_not receive(:bold_debug)
