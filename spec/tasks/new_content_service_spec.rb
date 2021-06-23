@@ -162,7 +162,7 @@ RSpec.describe ::Deepblue::NewContentService, skip: false do
     # end
 
     describe ".state_curation_concern" do
-      let(:error_msg) {"Illegal value 'not_valid_state' state, must be one of [\"active\", \"deleted\", \"inactive\"]" }
+      let(:error_msg) {"Illegal value 'not_valid_state' state, must be one of [\"active\", \"deleted\", \"inactive\", \"unknown\"]" }
 
       it "says 'active' is valid" do
         expect(new_content_service.send( :state_curation_concern, 'active' )).to eq 'active'

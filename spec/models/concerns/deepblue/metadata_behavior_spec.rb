@@ -67,10 +67,10 @@ RSpec.describe Deepblue::MetadataBehavior do
 
   describe 'constants' do
     it do
-      expect( Deepblue::MetadataBehavior::METADATA_FIELD_SEP ).to eq '; '
-      expect( Deepblue::MetadataBehavior::METADATA_REPORT_DEFAULT_DEPTH ).to eq 2
-      expect( Deepblue::MetadataBehavior::METADATA_REPORT_DEFAULT_FILENAME_POST ).to eq '_metadata_report'
-      expect( Deepblue::MetadataBehavior::METADATA_REPORT_DEFAULT_FILENAME_EXT ).to eq '.txt'
+      expect( Deepblue::MetadataBehavior.metadata_field_sep ).to eq '; '
+      expect( Deepblue::MetadataBehavior.metadata_report_default_depth ).to eq 2
+      expect( Deepblue::MetadataBehavior.metadata_report_default_filename_post ).to eq '_metadata_report'
+      expect( Deepblue::MetadataBehavior.metadata_report_default_filename_ext ).to eq '.txt'
     end
   end
 
@@ -78,7 +78,9 @@ RSpec.describe Deepblue::MetadataBehavior do
     it do
       expect( empty_mock.metadata_keys_all ).to eq []
       expect( empty_mock.metadata_keys_brief ).to eq []
-      expect( empty_mock.metadata_hash_override( key: 'key', ignore_blank_values: false, key_values: [ key: 'value' ] ) ).to eq false
+      expect( empty_mock.metadata_hash_override( key: 'key',
+                                                 ignore_blank_values: false,
+                                                 key_values: [ key: 'value' ] ) ).to eq false
       expect( empty_mock.metadata_report_label_override(metadata_key: 'key', metadata_value: 'value' ) ).to eq nil
       ignore_blank_key_values, keys = empty_mock.metadata_report_keys
       expect( ignore_blank_key_values ).to eq ::Deepblue::AbstractEventBehavior::IGNORE_BLANK_KEY_VALUES

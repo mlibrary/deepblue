@@ -41,6 +41,8 @@ module Deepblue
 
   class YamlPopulateFromAllCollections < Deepblue::YamlPopulate
 
+    attr_accessor :ids
+
     def initialize( options:, msg_queue: nil  )
       super( populate_type: 'collection', options: options, msg_queue: msg_queue )
       @export_files = task_options_value( key: 'export_files', default_value: false )
@@ -48,11 +50,10 @@ module Deepblue
     end
 
     def run
-      @ids = []
       measurements, total = run_all
-      return if @ids.empty?
+      return if ids.empty?
       report_stats
-      report_collection( first_id: @ids[0], measurements: measurements, total: total )
+      report_collection( first_id: ids[0], measurements: measurements, total: total )
     end
 
   end

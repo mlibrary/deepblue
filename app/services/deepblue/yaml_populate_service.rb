@@ -93,7 +93,7 @@ module Deepblue
         value = file_set.original_file.nil? ? nil : file_set.original_file.original_name
         yaml_item( out, indent, ":original_name:", value, escape: true )
         yaml_item( out, indent, ":visibility:", file_set.visibility )
-        skip = %w[ title file_size ]
+        skip = %w[ prior_identifier title file_size ]
         attribute_names_file_set.each do |name|
           next if skip.include? name
           yaml_item_file_set( out, indent, file_set, name: name )
@@ -141,9 +141,10 @@ module Deepblue
                  ":total_file_size_human_readable:",
                  human_readable_size( curation_concern.total_file_size ),
                  escape: true )
+      yaml_item( out, indent, ":state:", curation_concern.state_str )
       yaml_item( out, indent, ":visibility:", curation_concern.visibility )
       yaml_item( out, indent, ":workflow_state:", curation_concern.workflow_state )
-      skip = %w[ prior_identifier rights rights_license subject subject_discipline total_file_size ]
+      skip = %w[ admin_set_id prior_identifier rights rights_license subject subject_discipline total_file_size ]
       attribute_names_work.each do |name|
         next if skip.include? name
         yaml_item_work( out, indent, curation_concern, name: name )

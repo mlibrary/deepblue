@@ -2098,13 +2098,13 @@ module Deepblue
       def state_curation_concern( state )
         return valid_restricted_vocab( state,
                                        var: :state,
-                                       vocab: %w[active deleted inactive],
+                                       vocab: %w[active deleted inactive unknown],
                                        error_class: StateError )
       end
 
       def state_from_hash( hash: )
         state = hash[:state]
-        state = 'active' if state.blank?
+        state = 'active' if ( state.blank? || 'unknown' == state )
         state_curation_concern( state )
       end
 
@@ -2116,6 +2116,8 @@ module Deepblue
           Vocab::FedoraResourceStatus.deleted
         when 'inactive'
           Vocab::FedoraResourceStatus.inactive
+        when 'unknown'
+          Vocab::FedoraResourceStatus.active
         else
           raise StateError( "Unknown state: #{state}" )
         end

@@ -7,8 +7,8 @@ module Deepblue
 
   module ZipDownloadControllerBehavior
 
-    mattr_accessor :zip_download_controller_behavior_debug_verbose
-    @@zip_download_controller_behavior_debug_verbose = ::Deepblue::ZipDownloadService.zip_download_controller_behavior_debug_verbose
+    mattr_accessor :zip_download_controller_behavior_debug_verbose,
+                   default: ::Deepblue::ZipDownloadService.zip_download_controller_behavior_debug_verbose
     
     def zip_download
       # TODO: redirect to main page with error if zip download not enabled.

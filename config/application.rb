@@ -86,7 +86,7 @@ module DeepBlueDocs
     # config.jira_helper_debug_verbose -- see config/integration/jira_integration
     config.job_io_wrapper_debug_verbose = false
     config.member_presenter_factory_debug_verbose = false
-    config.metadata_behavior_debug_verbose = false
+    # config.metadata_behavior_debug_verbose = false # moved to app/services/deepblue/metadata_behavior_integration_service.rb
     # config.new_content_service_debug_verbose = false
     config.provenance_behavior_debug_verbose = false
     config.shell_based_processor_debug_verbose = false
