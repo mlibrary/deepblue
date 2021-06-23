@@ -54,6 +54,7 @@ module Deepblue
     end
 
     def report_stats
+      return
       report_puts
       if @populate_ids.empty?
         report_puts "users: #{populate_stats[0][:total_users_exported]}"

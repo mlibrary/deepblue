@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative './initialization_constants'
+
 module Deepblue
 
   module WorkViewContentService

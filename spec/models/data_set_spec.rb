@@ -4,11 +4,11 @@ require 'rails_helper'
 
 RSpec.describe DataSet do
 
-  let( :authoremail ) { 'authoremail@umich.edu' }
+  let( :author_email ) { 'authoremail@umich.edu' }
   let( :creator ) { 'Creator, A' }
   let( :current_user ) { 'user@umich.edu' }
   let( :date_created ) { '2018-02-28' }
-  let( :depositor ) { authoremail }
+  let( :depositor ) { author_email }
   let( :description ) { 'The Description' }
   let( :id ) { '0123458678' }
   let( :methodology ) { 'The Methodology' }
@@ -45,6 +45,7 @@ RSpec.describe DataSet do
       referenced_by
       rights_license
       rights_license_other
+      state
       subject_discipline
       title
       tombstone
@@ -52,6 +53,7 @@ RSpec.describe DataSet do
       total_file_size
       total_file_size_human_readable
       visibility
+      workflow_state
     ]
   }
   let( :metadata_keys_brief ) {
@@ -89,11 +91,10 @@ RSpec.describe DataSet do
   #   work.delete
   # end
 
-
   describe 'metadata overrides' do
     before do
       subject.id = id
-      subject.authoremail = authoremail
+      subject.authoremail = author_email
       subject.title = [title]
       subject.creator = [creator]
       subject.depositor = depositor
@@ -101,12 +102,23 @@ RSpec.describe DataSet do
       subject.description = [description]
       subject.methodology = [methodology]
       subject.rights_license = rights_license
+      subject.state = Vocab::FedoraResourceStatus.active
       subject.visibility = visibility_public
     end
 
     it 'provides file_set_ids' do
       key = :file_set_ids
       exp_value = []
+      key_values = { test: 'testing' }
+      expect( subject.metadata_hash_override( key: key, ignore_blank_values: false, key_values: key_values ) ).to eq true
+      expect( key_values[key] ).to eq exp_value
+      expect( key_values[:test] ).to eq 'testing'
+      expect( key_values.size ).to eq 2
+    end
+
+    it 'provides state str' do
+      key = :state
+      exp_value = 'active'
       key_values = { test: 'testing' }
       expect( subject.metadata_hash_override( key: key, ignore_blank_values: false, key_values: key_values ) ).to eq true
       expect( key_values[key] ).to eq exp_value
@@ -147,7 +159,7 @@ RSpec.describe DataSet do
   describe 'provenance metadata overrides' do
     before do
       subject.id = id
-      subject.authoremail = authoremail
+      subject.authoremail = author_email
       subject.title = [title]
       subject.creator = [creator]
       subject.depositor = depositor
@@ -155,6 +167,7 @@ RSpec.describe DataSet do
       subject.description = [description]
       subject.methodology = [methodology]
       subject.rights_license = rights_license
+      subject.state = Vocab::FedoraResourceStatus.active
       subject.visibility = visibility_public
     end
 
@@ -167,6 +180,19 @@ RSpec.describe DataSet do
                                                            ignore_blank_key_values: ignore_blank_key_values,
                                                            prov_key_values: prov_key_values ) ).to eq true
       expect( prov_key_values[:file_set_ids] ).to eq []
+      expect( prov_key_values[:test] ).to eq 'testing'
+      expect( prov_key_values.size ).to eq 2
+    end
+
+    it 'provides state' do
+      prov_key_values = { test: 'testing' }
+      attribute = :state
+      ignore_blank_key_values = false
+      expect( subject.map_provenance_attributes_override!( event: '',
+                                                           attribute: attribute,
+                                                           ignore_blank_key_values: ignore_blank_key_values,
+                                                           prov_key_values: prov_key_values ) ).to eq true
+      expect( prov_key_values[:state] ).to eq 'active'
       expect( prov_key_values[:test] ).to eq 'testing'
       expect( prov_key_values.size ).to eq 2
     end
@@ -243,7 +269,7 @@ RSpec.describe DataSet do
 
     before do
       subject.id = id
-      subject.authoremail = authoremail
+      subject.authoremail = author_email
       subject.title = [title]
       subject.creator = [creator]
       subject.date_created = date_created
@@ -266,13 +292,13 @@ RSpec.describe DataSet do
       expect( subject.provenance_mint_doi( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 40,
+                                     size: 42,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
                                      exp_class_name: exp_class_name,
                                      exp_id: id,
-                                     exp_authoremail: authoremail,
+                                     exp_authoremail: author_email,
                                      exp_creator: [creator],
                                      exp_date_created: "2018-02-28",
                                      exp_description: [description],
@@ -291,7 +317,7 @@ RSpec.describe DataSet do
 
     before do
       subject.id = id
-      subject.authoremail = authoremail
+      subject.authoremail = author_email
       subject.title = [title]
       subject.creator = [creator]
       subject.date_created = date_created
@@ -315,13 +341,13 @@ RSpec.describe DataSet do
       expect( subject.provenance_publish( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 41,
+                                     size: 43,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
                                      exp_class_name: exp_class_name,
                                      exp_id: id,
-                                     exp_authoremail: authoremail,
+                                     exp_authoremail: author_email,
                                      exp_creator: [creator],
                                      exp_date_created: "2018-02-28",
                                      exp_description: [description],
@@ -341,7 +367,7 @@ RSpec.describe DataSet do
 
     before do
       subject.id = id
-      subject.authoremail = authoremail
+      subject.authoremail = author_email
       subject.title = [title]
       subject.creator = [creator]
       subject.date_created = date_created
@@ -365,13 +391,13 @@ RSpec.describe DataSet do
       expect( subject.provenance_unpublish( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 40,
+                                     size: 42,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
                                      exp_class_name: exp_class_name,
                                      exp_id: id,
-                                     exp_authoremail: authoremail,
+                                     exp_authoremail: author_email,
                                      exp_creator: [creator],
                                      exp_date_created: "2018-02-28",
                                      exp_description: [description],
@@ -387,7 +413,7 @@ RSpec.describe DataSet do
   describe 'it requires core metadata' do
     before do
       subject.id = id
-      subject.authoremail = authoremail
+      subject.authoremail = author_email
       subject.title = [title]
       subject.creator = [creator]
       subject.date_created = date_created
@@ -436,7 +462,7 @@ RSpec.describe DataSet do
 
     before do
       subject.id = id
-      subject.authoremail = authoremail
+      subject.authoremail = author_email
       subject.title = [title]
       subject.creator = [creator]
       subject.depositor = depositor
@@ -454,13 +480,13 @@ RSpec.describe DataSet do
       expect( subject.entomb!( epitaph, current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 43,
+                                     size: 45,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
                                      exp_class_name: exp_class_name,
                                      exp_id: id,
-                                     exp_authoremail: authoremail,
+                                     exp_authoremail: author_email,
                                      exp_creator: [creator],
                                      exp_date_created: "2018-02-28",
                                      exp_description: [description],
@@ -486,7 +512,7 @@ RSpec.describe DataSet do
     let( :form_params ) do
       { "title": [title, ""],
         "creator": [creator, ""],
-        "authoremail": authoremail,
+        "authoremail": author_email,
         "methodology": [methodology_new, ""],
         "description": [description, ""],
         "rights_license": rights_license,
@@ -517,7 +543,7 @@ RSpec.describe DataSet do
 
     before do
       subject.id = id
-      subject.authoremail = authoremail
+      subject.authoremail = author_email
       subject.title = [title]
       subject.creator = [creator]
       subject.date_created = date_created
@@ -552,7 +578,7 @@ RSpec.describe DataSet do
                                      exp_event: exp_event,
                                      exp_class_name: exp_class_name,
                                      exp_id: id,
-                                     exp_authoremail: authoremail,
+                                     exp_authoremail: author_email,
                                      exp_total_file_count: nil,
                                      exp_total_file_size: nil,
                                      exp_total_file_size_human_readable: nil,
@@ -608,6 +634,7 @@ RSpec.describe DataSet do
                                      exp_referenced_by: [],
                                      exp_rights_license: '',
                                      exp_rights_license_other: '',
+                                     exp_state: '',
                                      exp_subject_discipline: [],
                                      exp_title: [],
                                      exp_tombstone: [],
@@ -615,6 +642,7 @@ RSpec.describe DataSet do
                                      exp_total_file_size: '',
                                      exp_total_file_size_human_readable: '',
                                      exp_visibility: '',
+                                     exp_workflow_state: '',
                                      **added_prov_key_values )
 
     expect( prov_logger_received ).to be_a String
@@ -665,6 +693,7 @@ RSpec.describe DataSet do
     validate_expected( rv_key_values, :referenced_by, exp_referenced_by )
     validate_expected( rv_key_values, :rights_license, exp_rights_license )
     validate_expected( rv_key_values, :rights_license_other, exp_rights_license_other )
+    validate_expected( rv_key_values, :state, exp_state )
     validate_expected( rv_key_values, :subject_discipline, exp_subject_discipline )
     validate_expected( rv_key_values, :title, exp_title )
     validate_expected( rv_key_values, :tombstone, exp_tombstone )
@@ -672,6 +701,7 @@ RSpec.describe DataSet do
     validate_expected( rv_key_values, :total_file_size, exp_total_file_size )
     validate_expected( rv_key_values, :total_file_size_human_readable, exp_total_file_size_human_readable )
     validate_expected( rv_key_values, :visibility, exp_visibility )
+    validate_expected( rv_key_values, :workflow_state, exp_workflow_state )
     added_prov_key_values.each_pair do |key, value|
       validate_expected(rv_key_values, key, value )
     end

@@ -2,7 +2,7 @@
 
 class DataSet < ActiveFedora::Base
 
-  DATA_SET_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.data_set_debug_verbose
+  mattr_accessor :data_set_debug_verbose, default: ::DeepBlueDocs::Application.config.data_set_debug_verbose
 
   include ::Hyrax::WorkBehavior
 
@@ -44,7 +44,7 @@ class DataSet < ActiveFedora::Base
     #                                        Deepblue::LoggingHelper.called_from,
     #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
     #                                        "id=#{id}",
-    #                                        "" ] if DATA_SET_DEBUG_VERBOSE
+    #                                        "" ] if data_set_debug_verbose
     find id
   rescue Ldp::Gone => g
     nil
@@ -91,6 +91,7 @@ class DataSet < ActiveFedora::Base
       referenced_by
       rights_license
       rights_license_other
+      state
       subject_discipline
       title
       tombstone
@@ -98,6 +99,7 @@ class DataSet < ActiveFedora::Base
       total_file_size
       total_file_size_human_readable
       visibility
+      workflow_state
     ]
   end
 
@@ -130,6 +132,7 @@ class DataSet < ActiveFedora::Base
       referenced_by
       rights_license
       rights_license_other
+      state
       subject_discipline
       title
       tombstone
@@ -137,6 +140,7 @@ class DataSet < ActiveFedora::Base
       total_file_size
       total_file_size_human_readable
       visibility
+      workflow_state
     ].freeze
   end
 
@@ -230,6 +234,7 @@ class DataSet < ActiveFedora::Base
       referenced_by
       rights_license
       rights_license_other
+      state
       subject_discipline
       title
       tombstone
@@ -237,6 +242,7 @@ class DataSet < ActiveFedora::Base
       total_file_size
       total_file_size_human_readable
       visibility
+      workflow_state
     ].freeze
   end
 
@@ -262,9 +268,12 @@ class DataSet < ActiveFedora::Base
       rights_license
       rights_license_other
       subject_discipline
+      state
       title
       total_file_count
       total_file_size_human_readable
+      visibility
+      workflow_state
     ]
   end
 
@@ -320,15 +329,15 @@ class DataSet < ActiveFedora::Base
     return ''
   end
 
+  def for_provenance_route
+    for_event_route
+  end
+
   def for_zip_download_route
     Rails.application.routes.url_helpers.hyrax_data_set_path( id: id ) + "/zip_download" # TODO: fix
   rescue ActionController::UrlGenerationError => e
     Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
     return ''
-  end
-
-  def for_provenance_route
-    for_event_route
   end
 
   def human_readable_type
@@ -353,6 +362,9 @@ class DataSet < ActiveFedora::Base
                 true
               when 'file_set_ids'
                 value = file_set_ids
+                true
+              when 'state'
+                value = state_str
                 true
               when 'total_file_count'
                 value = total_file_count
@@ -388,6 +400,20 @@ class DataSet < ActiveFedora::Base
     return e.to_s
   end
 
+  def state_str
+    rv = case self.state
+         when Vocab::FedoraResourceStatus.active
+           'active'
+         when Vocab::FedoraResourceStatus.deleted
+           'deleted'
+         when Vocab::FedoraResourceStatus.inactive
+           'inactive'
+         else
+           'unknown'
+         end
+    return rv
+  end
+
   def workflow_state
     wgid = to_global_id.to_s
     entity = Sipity::Entity.where( proxy_for_global_id: wgid )&.first
@@ -402,6 +428,9 @@ class DataSet < ActiveFedora::Base
     handled = case attribute.to_s
               when 'file_set_ids'
                 value = file_set_ids
+                true
+              when 'state'
+                value = state_str
                 true
               when 'total_file_count'
                 value = total_file_count
@@ -429,6 +458,9 @@ class DataSet < ActiveFedora::Base
     handled = case key.to_s
               when 'file_set_ids'
                 value = file_set_ids
+                true
+              when 'state'
+                value = state_str
                 true
               when 'total_file_count'
                 value = total_file_count
@@ -494,6 +526,7 @@ class DataSet < ActiveFedora::Base
     depositor_at_tombstone = depositor
     visibility_at_tombstone = visibility
     self.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
+    self.state = Vocab::FedoraResourceStatus.inactive
     self.depositor = depositor
     self.tombstone = [epitaph]
 

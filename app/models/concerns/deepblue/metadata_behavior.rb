@@ -7,13 +7,17 @@ module Deepblue
 
   module MetadataBehavior
 
-    mattr_accessor :metadata_behavior_debug_verbose
-    @@metadata_behavior_debug_verbose = ::DeepBlueDocs::Application.config.metadata_behavior_debug_verbose
+    mattr_accessor :metadata_behavior_debug_verbose,
+                   default: ::Deepblue::MetadataBehaviorIntegrationService.metadata_behavior_debug_verbose
 
-    METADATA_FIELD_SEP = '; '
-    METADATA_REPORT_DEFAULT_DEPTH = 2
-    METADATA_REPORT_DEFAULT_FILENAME_POST = '_metadata_report'
-    METADATA_REPORT_DEFAULT_FILENAME_EXT = '.txt'
+    mattr_accessor :metadata_field_sep,
+                   default: ::Deepblue::MetadataBehaviorIntegrationService.metadata_field_sep
+    mattr_accessor :metadata_report_default_depth,
+                   default: ::Deepblue::MetadataBehaviorIntegrationService.metadata_report_default_depth
+    mattr_accessor :metadata_report_default_filename_post,
+                   default: ::Deepblue::MetadataBehaviorIntegrationService.metadata_report_default_filename_post
+    mattr_accessor :metadata_report_default_filename_ext,
+                   default: ::Deepblue::MetadataBehaviorIntegrationService.metadata_report_default_filename_ext
 
     def add_curation_note_admin( note: )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -49,8 +53,16 @@ module Deepblue
       "route to #{id}"
     end
 
+    def for_metadata_state
+      self.state
+    end
+
     def for_metadata_title
       self.title
+    end
+
+    def for_metadata_workflow_state
+      self.workflow_state
     end
 
     def metadata_keys_all
@@ -66,6 +78,12 @@ module Deepblue
     end
 
     def metadata_hash( metadata_keys:, ignore_blank_values:, **key_values )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "metadata_keys=#{metadata_keys}",
+                                             "ignore_blank_values=#{ignore_blank_values}",
+                                             "key_values=#{key_values}",
+                                             "" ] if metadata_behavior_debug_verbose
       return {} if metadata_keys.blank?
       key_values = {} if key_values.nil?
       metadata_keys.each do |key|
@@ -77,10 +95,14 @@ module Deepblue
                   for_metadata_route
                 when 'route'
                   for_metadata_route
+                when 'state'
+                  for_metadata_state
                 when 'title'
                   for_metadata_title
                 when 'visibility'
                   metadata_report_visibility_value( self.visibility )
+                when 'workflow_state'
+                  for_metadata_workflow_state
                 else
                   self[key]
                 end
@@ -103,10 +125,10 @@ module Deepblue
 
     def metadata_report( dir: nil,
                          out: nil,
-                         depth: METADATA_REPORT_DEFAULT_DEPTH,
+                         depth: metadata_report_default_depth,
                          filename_pre: '',
-                         filename_post: METADATA_REPORT_DEFAULT_FILENAME_POST,
-                         filename_ext: METADATA_REPORT_DEFAULT_FILENAME_EXT )
+                         filename_post: metadata_report_default_filename_post,
+                         filename_ext: metadata_report_default_filename_ext )
 
       raise MetadataError, "Either dir: or out: must be specified." if dir.nil? && out.nil?
       if out.nil?
@@ -143,8 +165,8 @@ module Deepblue
 
     def metadata_report_filename( pathname_dir:,
                                   filename_pre:,
-                                  filename_post: METADATA_REPORT_DEFAULT_FILENAME_POST,
-                                  filename_ext: METADATA_REPORT_DEFAULT_FILENAME_EXT )
+                                  filename_post: metadata_report_default_filename_post,
+                                  filename_ext: metadata_report_default_filename_ext )
 
       pathname_dir.join "#{filename_pre}#{for_metadata_id}#{filename_post}#{filename_ext}"
     end
