@@ -20,7 +20,7 @@ describe "export_documentation.rake" do
     let(:invoked)  { Deepblue::YamlPopulateFromCollection.new( id: id, options: options ) }
 
     before do
-      expect(::Deepblue::WorkViewContentService).to receive(:content_documentation_collection_id).and_return id
+      allow(::Deepblue::WorkViewContentService).to receive(:content_documentation_collection_id).and_return id
       expect( ::Deepblue::YamlPopulateFromCollection ).to receive(:new).with( id: id,
                                                                               options: options ).at_least(:once).and_return invoked
       expect(invoked).to receive(:run).with(no_args).at_least(:once)

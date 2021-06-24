@@ -156,6 +156,17 @@ RSpec.describe DataSet do
 
   end
 
+  describe '.oai_identifier' do
+    before do
+      subject.id = id
+    end
+
+    it 'returns the correct value' do
+      expect( subject.oai_identifier ).to eq "oai:deepbluedata:#{id}"
+    end
+
+  end
+
   describe 'provenance metadata overrides' do
     before do
       subject.id = id

@@ -543,11 +543,7 @@ class DataSet < ActiveFedora::Base
   end
 
   def oai_identifier
-    rv = Rails.application.routes.url_helpers.url_for( only_path: true,
-                                                       action: 'show',
-                                                       host: CatalogController.blacklight_config.oai[:provider][:repository_url],
-                                                       controller: 'hyrax/data_sets',
-                                                       id:  id )
+    rv = "#{CatalogController.blacklight_config.oai[:provider][:record_prefix]}:#{id}"
     rv
   end
 
