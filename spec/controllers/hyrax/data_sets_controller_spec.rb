@@ -662,7 +662,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     it "returns an oai identifier" do
       get :show, params: { id: work }
       expect(response).to be_successful
-      expect(controller.item_identifier_for_irus_analytics).to eq "/concern/data_sets/#{work.id}"
+      expect(controller.item_identifier_for_irus_analytics).to eq "oai:deepbluedata:#{work.id}"
     end
 
   end
