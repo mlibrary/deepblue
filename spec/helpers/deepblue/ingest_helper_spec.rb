@@ -155,15 +155,16 @@ RSpec.describe Deepblue::IngestHelper, type: :helper do
       it 'updates the index of the parent object' do
         # expect(parent).to receive(:update_index)
         ActiveJob::Base.queue_adapter = :test
-        described_class.create_derivatives( file_set,
-                                            repository_file_id,
-                                            filepath,
-                                            current_user: user,
-                                            delete_input_file: true,
-                                            job_status: parent_job_status,
-                                            uploaded_file_ids: uploaded_file_ids )
-        expect(JobStatus.all.count).to eq 1
-        job_status = JobStatus.all.first
+        count = JobStatus.all.count
+        expect {
+          described_class.create_derivatives( file_set,
+                                              repository_file_id,
+                                              filepath,
+                                              current_user: user,
+                                              delete_input_file: true,
+                                              job_status: parent_job_status,
+                                              uploaded_file_ids: uploaded_file_ids ) }.to change(JobStatus, :count).by(0)
+        job_status = JobStatus.all.last
         expect(job_status.job_class).to eq parent_job_class
         expect(job_status.job_id).to eq parent_job_id
         expect(job_status.parent_job_id).to eq nil
