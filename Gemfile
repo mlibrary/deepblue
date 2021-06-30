@@ -14,7 +14,7 @@ gem 'linkeddata', '<= 3.1.1'
 gem 'rdf-rdfa', '< 3.1.1'
 gem 'rdf-vocab', '<= 3.1.4'
 
-gem 'mysql2' # still somehow in 0.x releases...
+#gem 'mysql2' # still somehow in 0.x releases...
 
 gem 'config'
 
@@ -78,7 +78,7 @@ gem 'jbuilder', '~> 2.5'
 #      https://tools.lib.umich.edu/jira/browse/HELIO-1450
 # gem 'rack', git: 'https://github.com/rack/rack.git', ref: 'ee01748'
 
-gem 'willow_sword', git: 'https://github.com/CottageLabs/willow_sword.git'
+gem 'willow_sword', git: 'https://github.com/CottageLabs/willow_sword.git', branch: 'develop'
 
 # gem 'samvera-persona' #, '0.1.7'
 # gem 'samvera-persona', :github => 'samvera-labs/samvera-persona', :branch => 'remove-generator-config'

@@ -14,7 +14,7 @@ module Hyrax
                                                ::Deepblue::LoggingHelper.called_from,
                                                "env=#{env}",
                                                "" ] if BEFORE_MODEL_ACTOR_DEBUG_VERBOSE
-        env.log_event( next_actor: next_actor )
+        env.log_event( next_actor: next_actor ) if env.respond_to? :log_event
         next_actor.create(env)
       end
 

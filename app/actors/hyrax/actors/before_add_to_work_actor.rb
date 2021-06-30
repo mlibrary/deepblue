@@ -16,7 +16,7 @@ module Hyrax
                                                ::Deepblue::LoggingHelper.called_from,
                                                "env=#{env}",
                                                "" ] if BEFORE_ADD_TO_WORK_ACTOR_VERBOSE
-        env.log_event( next_actor: next_actor )
+        env.log_event( next_actor: next_actor ) if env.respond_to? :log_event
         work_ids = env.attributes.values_at( :in_works_ids )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
@@ -30,7 +30,7 @@ module Hyrax
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if update was successful
       def update( env )
-        env.log_event( next_actor: next_actor )
+        env.log_event( next_actor: next_actor ) if env.respond_to? :log_event
         work_ids = env.attributes.values_at( :in_works_ids )
         Deepblue::LoggingHelper.bold_debug [ "BeforeAddToWorkActor.update: next_actor = #{next_actor.class.name}",
                                              "work_ids=#{work_ids}" ] if BEFORE_ADD_TO_WORK_ACTOR_VERBOSE

@@ -97,6 +97,7 @@ module Hyrax
       # @param [Ability] current_ability the authorizations of the acting user
       # @param [ActionController::Parameters] attributes user provided form attributes
       def initialize( curation_concern:, current_ability:, attributes:, action:, wants_format: )
+
         super( curation_concern,
                current_ability,
                EnvironmentAttributes.new( attributes.to_h.with_indifferent_access,
