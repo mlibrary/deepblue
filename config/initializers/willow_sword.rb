@@ -1,4 +1,7 @@
 WillowSword.setup do |config|
+
+  # See: https://github.com/CottageLabs/willow_sword/wiki/Configuring-willow-sword
+
   # The title used by the sword server, in the service document
   config.title = 'Deep Blue Data Sword V2 server'
   # If you do not want to use collections in Sword, it will use this as a default collection
@@ -25,4 +28,5 @@ WillowSword.setup do |config|
   config.xw_to_xml_for_fileset = WillowSword::CrosswalkFilesetToDc
   # Authorize Sword requests using Api-key header
   config.authorize_request = true
+
 end
