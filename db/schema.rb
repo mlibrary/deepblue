@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_10_28_141248) do
+ActiveRecord::Schema.define(version: 2021_06_22_174656) do
 
   create_table "ahoy_condensed_events", force: :cascade do |t|
     t.string "name"
@@ -302,7 +302,7 @@ ActiveRecord::Schema.define(version: 2020_10_28_141248) do
     t.string "namespace", default: "default", null: false
     t.string "template", null: false
     t.text "counters"
-    t.integer "seq", default: 0
+    t.integer "seq", limit: 8, default: 0
     t.binary "rand"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -630,6 +630,8 @@ ActiveRecord::Schema.define(version: 2020_10_28_141248) do
     t.string "invited_by_type"
     t.integer "invited_by_id"
     t.integer "invitations_count", default: 0
+    t.string "api_key"
+    t.index ["api_key"], name: "index_users_on_api_key"
     t.index ["deleted_at"], name: "index_users_on_deleted_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["invitation_token"], name: "index_users_on_invitation_token", unique: true

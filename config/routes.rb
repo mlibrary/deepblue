@@ -195,6 +195,8 @@ Rails.application.routes.draw do
     end
   end
 
+  mount WillowSword::Engine => '/sword'
+
   # Permissions routes
   namespace :hyrax, path: :concern do
   resources :permissions, only: [] do

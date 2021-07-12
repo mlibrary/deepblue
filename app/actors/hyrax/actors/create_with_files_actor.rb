@@ -16,7 +16,7 @@ module Hyrax
                                                ::Deepblue::LoggingHelper.called_from,
                                                "env=#{env}",
                                                "" ] if CREATE_WITH_FILES_ACTOR_DEBUG_VERBOSE
-        env.log_event( next_actor: next_actor )
+        env.log_event( next_actor: next_actor ) if env.respond_to? :log_event
         uploaded_file_ids = filter_file_ids(env.attributes.delete(:uploaded_files))
         files = uploaded_files(uploaded_file_ids)
         validate_files(files, env) && next_actor.create(env) && attach_files(files, env)
