@@ -14,7 +14,7 @@ gem 'linkeddata', '<= 3.1.1'
 gem 'rdf-rdfa', '< 3.1.1'
 gem 'rdf-vocab', '<= 3.1.4'
 
-#gem 'mysql2' # still somehow in 0.x releases...
+gem 'mysql2' # still somehow in 0.x releases...
 
 gem 'config'
 

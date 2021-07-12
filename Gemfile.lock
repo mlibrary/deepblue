@@ -636,6 +636,7 @@ GEM
     mime-types-data (3.2021.0225)
     mini_magick (4.11.0)
     mini_mime (1.1.0)
+    mini_portile2 (2.5.3)
     minitest (5.14.4)
     mono_logger (1.1.1)
     multi_json (1.15.0)
@@ -643,6 +644,7 @@ GEM
     multipart-post (2.1.1)
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
+    mysql2 (0.5.3)
     nest (3.2.0)
       redic
     net-http-persistent (4.0.1)
@@ -653,6 +655,9 @@ GEM
     noid-rails (3.0.3)
       actionpack (>= 5.0.0, < 7)
       noid (~> 0.9)
+    nokogiri (1.11.7)
+      mini_portile2 (~> 2.5.0)
+      racc (~> 1.4)
     nokogiri (1.11.7-x86_64-darwin)
       racc (~> 1.4)
     nokogumbo (2.0.5)
@@ -1099,6 +1104,7 @@ GEM
       yabeda (~> 0.8)
 
 PLATFORMS
+  ruby
   x86_64-darwin-19
 
 DEPENDENCIES
@@ -1134,6 +1140,7 @@ DEPENDENCIES
   linkeddata (<= 3.1.1)
   listen (~> 3.0.5)
   loofah (~> 2.3.1)
+  mysql2
   net-ldap
   nokogiri (>= 1.11.4)
   okcomputer (~> 1.17)
