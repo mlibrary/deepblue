@@ -65,9 +65,8 @@ RSpec.describe CreateDerivativesJob, skip: false do
         expect(file_set).to receive(:reload)
         expect(file_set).to receive(:update_index)
         expect(::Deepblue::IngestHelper).to receive(:create_derivatives).with(any_args).and_call_original
-        described_class.perform_now(file_set, file.id)
-        expect(JobStatus.all.count).to eq 1
-        job_status = JobStatus.all.first
+        expect { described_class.perform_now(file_set, file.id) }.to change(JobStatus, :count).by(1)
+        job_status = JobStatus.all.last
         expect(job_status.job_class).to eq CreateDerivativesJob.name
         expect(job_status.status).to eq "delete_file"
         state = job_status.state_deserialize
@@ -151,7 +150,6 @@ RSpec.describe CreateDerivativesJob, skip: false do
                                                              main_cc_id: main_cc_id,
                                                              user_id: user.id).and_return job_status
           expect(job).to receive(:job_status).at_least(:once).and_return ingest_job_status
-          expect(JobStatus.all.count).to eq 1
           expect(:ingest_job_status).to_not eq nil
           expect(job).to receive(:find_or_create_job_status_started).with(parent_job_id: parent_job_id,
                                                                           user_id: user.id,
@@ -181,11 +179,11 @@ RSpec.describe CreateDerivativesJob, skip: false do
         it 'updates the index of the parent object' do
           expect(parent).to receive(:update_index)
           ActiveJob::Base.queue_adapter = :test
-          job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
+          expect {
+            job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
+          }.to change(JobStatus, :count).by(0)
           expect(job.job_status).to eq ingest_job_status
-          ### expect( job.send( :arguments ) ).to eq []
-          expect(JobStatus.all.count).to eq 1
-          job_status_var = JobStatus.all.first
+          job_status_var = JobStatus.all.last
           expect(job_status_var).to eq ingest_job_status.job_status
           expect(job_status_var.job_class).to eq CreateDerivativesJob.name
           expect(job_status_var.job_id).to eq job.job_id
@@ -236,15 +234,15 @@ RSpec.describe CreateDerivativesJob, skip: false do
                                                                           user_id: user.id,
                                                                           verbose: CreateDerivativesJob.create_derivatives_job_debug_verbose).and_call_original
           expect(file_set).to receive(:reload)
-          expect(JobStatus.all.count).to eq 0
           expect(job).not_to receive(:log_error)
         end
 
         it "doesn't update the parent's index" do
           expect(parent).not_to receive(:update_index)
-          job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
-          expect( JobStatus.all.count ).to eq 1
-          job_status = JobStatus.all.first
+          expect {
+            job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
+          }.to change(JobStatus, :count).by(1)
+          job_status = JobStatus.all.last
           expect(job_status.job_class).to eq CreateDerivativesJob.name
           expect(job_status.job_id).to eq job.job_id
           expect(job_status.parent_job_id).to eq parent_job_id
@@ -292,9 +290,8 @@ RSpec.describe CreateDerivativesJob, skip: false do
         expect(file_set).to receive(:reload)
         expect(file_set).to receive(:update_index)
         expect(::Deepblue::IngestHelper).to receive(:create_derivatives).with(any_args).and_call_original
-        described_class.perform_now(file_set, file.id)
-        expect(JobStatus.all.count).to eq 1
-        job_status = JobStatus.all.first
+        expect { described_class.perform_now(file_set, file.id) }.to change(JobStatus, :count).by(1)
+        job_status = JobStatus.all.last
         expect(job_status.job_class).to eq CreateDerivativesJob.name
         expect(job_status.status).to eq "delete_file"
         state = job_status.state_deserialize
@@ -378,13 +375,11 @@ RSpec.describe CreateDerivativesJob, skip: false do
                                                            main_cc_id: main_cc_id,
                                                            user_id: user.id).and_return job_status
         expect(job).to receive(:job_status).at_least(:once).and_return ingest_job_status
-        expect(JobStatus.all.count).to eq 1
         expect(:ingest_job_status).to_not eq nil
         expect(job).to receive(:find_or_create_job_status_started).with(parent_job_id: parent_job_id,
                                                                         user_id: user.id,
                                                                         verbose: dbg_verbose).
                                                         at_least(expected_calls).times.and_return ingest_job_status
-        # expect( job.send( :arguments ) ).to eq []
         expect(File).to receive(:size).with(filepath).at_least(:once).and_return file_size
         expect(File).to receive(:delete).with(filepath)
         expect(File).to receive(:exist?).with(filepath).at_least(:once).and_return file_exist
@@ -444,11 +439,11 @@ RSpec.describe CreateDerivativesJob, skip: false do
           expect(parent).not_to receive(:update_index)
         end
         ActiveJob::Base.queue_adapter = :test
-        job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
+        expect {
+          job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
+        }.to change(JobStatus, :count).by(0)
         expect(job.job_status).to eq ingest_job_status
-        ### expect( job.send( :arguments ) ).to eq []
-        expect(JobStatus.all.count).to eq 1
-        job_status_var = JobStatus.all.first
+        job_status_var = JobStatus.all.last
         expect(job_status_var).to eq ingest_job_status.job_status
         expect(job_status_var.job_class).to eq CreateDerivativesJob.name
         expect(job_status_var.job_id).to eq job.job_id
@@ -496,11 +491,11 @@ RSpec.describe CreateDerivativesJob, skip: false do
         end
         expect( job_status_var.error ).to eq nil
         if restart
-          job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
+          expect {
+            job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
+          }.to change(JobStatus, :count).by(0)
           expect(job.job_status).to eq ingest_job_status
-          ### expect( job.send( :arguments ) ).to eq []
-          expect(JobStatus.all.count).to eq 1
-          job_status_var = JobStatus.all.first
+          job_status_var = JobStatus.all.last
           expect(job_status_var).to eq ingest_job_status.job_status
           expect(job_status_var.job_class).to eq CreateDerivativesJob.name
           expect(job_status_var.job_id).to eq job.job_id
@@ -601,9 +596,8 @@ RSpec.describe CreateDerivativesJob, skip: false do
       expect(Hydra::Derivatives::FullTextExtract).to receive(:create)
         .with(/test\.pdf/, outputs: [{ url: RDF::URI, container: "extracted_text" }])
       expect(::Deepblue::IngestHelper).to receive(:create_derivatives).with( any_args ).and_call_original
-      described_class.perform_now(file_set, file.id)
-      expect( JobStatus.all.count ).to eq 1
-      job_status = JobStatus.all.first
+      expect { described_class.perform_now(file_set, file.id) }.to change(JobStatus, :count).by(1)
+      job_status = JobStatus.all.last
       expect( job_status.job_class ).to eq CreateDerivativesJob.name
       expect( job_status.status ).to eq "delete_file"
       state = job_status.state_deserialize

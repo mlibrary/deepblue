@@ -21,22 +21,20 @@ module Deepblue
       @options_error = @options[ :error ] if @options.key?( :error )
       @options_error = @options[ 'error' ] if @options.key?( 'error' )
       if @options_error.present?
-        @logger = Rails.logger
         @quiet = false
-        console_puts "WARNING: options error #{@options['error']}"
-        console_puts "options=#{options}" if @options.key? 'error'
-        console_puts "@options=#{@options}" if @options.key? 'error'
+        console_puts "WARNING: options error #{@options['error']}" if @options.key? 'error'
+        console_puts "WARNING: options error #{@options[:error]}" if @options.key? :error
+      else
+        @quiet = task_options_value( key: 'quiet', default_value: DEFAULT_QUIET, verbose: false )
       end
-      @quiet = task_options_value( key: 'quiet', default_value: DEFAULT_QUIET )
       if @quiet
         @to_console = false
         @verbose = false
       else
-        @to_console = task_options_value( key: 'to_console', default_value: DEFAULT_TO_CONSOLE )
         @verbose = task_options_value( key: 'verbose', default_value: DEFAULT_VERBOSE )
+        @to_console = task_options_value( key: 'to_console', default_value: DEFAULT_TO_CONSOLE, verbose: verbose )
       end
-      @logger = task_options_value( key: 'logger', default_value: nil ) if @options_error.blank?
-      @subscription_service_id = task_options_value( key: 'subscription_service_id' )
+      @subscription_service_id = task_options_value( key: 'subscription_service_id', verbose: verbose )
       console_puts "@verbose=#{@verbose}" if @verbose
     end
 
