@@ -86,6 +86,7 @@ gem 'samvera-persona'
 
 # Begin security vulnerability mitigation
 # bundle update --source gem-name
+gem 'addressable', '>= 2.8.0'
 gem 'bootstrap-sass', '~> 3.4.1'
 gem 'carrierwave', '~> 1.3.2'
 gem 'loofah', '~> 2.3.1'
