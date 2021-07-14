@@ -2,52 +2,52 @@
 
 module Deepblue
 
-  module SingleUseLinkControllerBehavior
+  module AnonymousLinkControllerBehavior
 
-    mattr_accessor :single_use_link_controller_behavior_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.single_use_link_controller_behavior_debug_verbose
+    mattr_accessor :anonymous_link_controller_behavior_debug_verbose,
+                   default: ::DeepBlueDocs::Application.config.anonymous_link_controller_behavior_debug_verbose
 
-    INVALID_SINGLE_USE_LINK = ''.freeze
+    INVALID_ANONYMOUS_LINK = ''.freeze
 
     include ActionView::Helpers::TranslationHelper
 
-    def render_single_use_error( exception )
+    def render_anonymous_error( exception )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if single_use_link_controller_behavior_debug_verbose
-      if single_use_link_controller_behavior_debug_verbose
+                                             "" ] if anonymous_link_controller_behavior_debug_verbose
+      if anonymous_link_controller_behavior_debug_verbose
         logger.error( "Rendering PAGE due to exception: #{exception.inspect} - #{exception.backtrace[0..10] if exception.respond_to? :backtrace}" )
       end
-      # render 'single_use_error', layout: "error", status: 404
-      redirect_to main_app.root_path, alert: single_use_link_expired_msg
+      # render 'anonymous_error', layout: "error", status: 404
+      redirect_to main_app.root_path, alert: anonymous_link_expired_msg
     end
 
-    def single_use_link_destroy!( su_link )
+    def anonymous_link_destroy!( su_link )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "su_link=#{su_link}",
-                                             "config.single_use_link_but_not_really=#{::DeepBlueDocs::Application.config.single_use_link_but_not_really}",
-                                             "" ] if single_use_link_controller_behavior_debug_verbose
-      return if ::DeepBlueDocs::Application.config.single_use_link_but_not_really
-      return unless su_link.is_a? SingleUseLink
+                                             "config.anonymous_link_but_not_really=#{::DeepBlueDocs::Application.config.anonymous_link_but_not_really}",
+                                             "" ] if anonymous_link_controller_behavior_debug_verbose
+      return if ::DeepBlueDocs::Application.config.anonymous_link_but_not_really
+      return unless su_link.is_a? AnonymousLink
       rv = su_link.destroy!
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv = su_link.destroy!=#{rv}",
-                                             "" ] if single_use_link_controller_behavior_debug_verbose
+                                             "" ] if anonymous_link_controller_behavior_debug_verbose
       return rv
     end
 
-    def single_use_link_expired_msg
-      t('hyrax.single_use_links.expired_html')
+    def anonymous_link_expired_msg
+      t('hyrax.anonymous_links.expired_html')
     end
 
-    def single_use_link_obj( link_id: )
-      @single_use_link_obj ||= find_single_use_link_obj( link_id: link_id )
+    def anonymous_link_obj( link_id: )
+      @anonymous_link_obj ||= find_anonymous_link_obj( link_id: link_id )
     end
 
-    def single_use_link_valid?( su_link, item_id: nil, path: nil, destroy_if_not_valid: false )
-      return false unless su_link.is_a? SingleUseLink
+    def anonymous_link_valid?( su_link, item_id: nil, path: nil, destroy_if_not_valid: false )
+      return false unless su_link.is_a? AnonymousLink
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "su_link.valid?=#{su_link.valid?}",
@@ -56,7 +56,7 @@ module Deepblue
                                              "item_id=#{item_id}",
                                              "path=#{path}",
                                              "destroy_if_not_valid=#{destroy_if_not_valid}",
-                                             "" ] if single_use_link_controller_behavior_debug_verbose
+                                             "" ] if anonymous_link_controller_behavior_debug_verbose
       return destroy_and_return_rv( destroy_flag: destroy_if_not_valid, rv: false, su_link: su_link ) unless su_link.valid?
       if item_id.present?
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -64,7 +64,7 @@ module Deepblue
                                                "item_id=#{item_id}",
                                                "su_link.itemId=#{su_link.itemId}",
                                                "destroy unless?=#{su_link.itemId == item_id}",
-                                               "" ] if single_use_link_controller_behavior_debug_verbose
+                                               "" ] if anonymous_link_controller_behavior_debug_verbose
         return destroy_and_return_rv( destroy_flag: destroy_if_not_valid, rv: false, su_link: su_link ) unless su_link.itemId == item_id
       end
       if path.present?
@@ -75,7 +75,7 @@ module Deepblue
                                                "path=#{path}",
                                                "su_link_path=#{su_link_path}",
                                                "destroy unless?=#{su_link_path == path}",
-                                               "" ] if single_use_link_controller_behavior_debug_verbose
+                                               "" ] if anonymous_link_controller_behavior_debug_verbose
         return destroy_and_return_rv( destroy_flag: destroy_if_not_valid, rv: false, su_link: su_link ) unless su_link_path == path
       end
       return true
@@ -88,18 +88,18 @@ module Deepblue
                                                ::Deepblue::LoggingHelper.called_from,
                                                "rv=#{rv}",
                                                "destroy_flag=#{destroy_flag}",
-                                               "" ] if single_use_link_controller_behavior_debug_verbose
+                                               "" ] if anonymous_link_controller_behavior_debug_verbose
         return rv unless destroy_flag
-        single_use_link_destroy! su_link
+        anonymous_link_destroy! su_link
         return rv
       end
 
-      def find_single_use_link_obj( link_id: )
-        return INVALID_SINGLE_USE_LINK if link_id.blank?
-        rv = SingleUseLink.find_by_downloadKey!( link_id )
+      def find_anonymous_link_obj( link_id: )
+        return INVALID_ANONYMOUS_LINK if link_id.blank?
+        rv = AnonymousLink.find_by_downloadKey!( link_id )
         return rv
       rescue ActiveRecord::RecordNotFound => _ignore
-        return INVALID_SINGLE_USE_LINK # blank, so we only try looking it up once
+        return INVALID_ANONYMOUS_LINK # blank, so we only try looking it up once
       end
 
       def su_link_strip_locale( path )

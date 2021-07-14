@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_06_22_174656) do
+ActiveRecord::Schema.define(version: 2021_07_14_151007) do
 
   create_table "ahoy_condensed_events", force: :cascade do |t|
     t.string "name"
@@ -67,6 +67,17 @@ ActiveRecord::Schema.define(version: 2021_06_22_174656) do
     t.datetime "started_at"
     t.index ["user_id"], name: "index_ahoy_visits_on_user_id"
     t.index ["visit_token"], name: "index_ahoy_visits_on_visit_token", unique: true
+  end
+
+  create_table "anonymous_links", force: :cascade do |t|
+    t.string "downloadKey"
+    t.string "path"
+    t.string "itemId"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["downloadKey"], name: "index_anonymous_links_on_downloadKey"
+    t.index ["itemId"], name: "index_anonymous_links_on_itemId"
+    t.index ["path"], name: "index_anonymous_links_on_path"
   end
 
   create_table "bookmarks", force: :cascade do |t|
