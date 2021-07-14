@@ -53,6 +53,9 @@ module DeepBlueDocs
     config.abstract_notification_debug_verbose = false
     config.abstract_filter_debug_verbose = false
     config.after_optimistic_lock_validator_debug_verbose = false
+    config.anonymous_link_controller_behavior_debug_verbose = false ## TODO: move to AnonymousLinkService
+    config.anonymous_links_controller_debug_verbose = false
+    config.anonymous_links_viewer_controller_debug_verbose = false
     config.application_controller_debug_verbose = false
     config.before_model_actor_debug_verbose = false
     config.catalog_controller_debug_verbose = false

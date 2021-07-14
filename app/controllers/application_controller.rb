@@ -113,6 +113,11 @@ class ApplicationController < ActionController::Base
   end
 
   # override this as necessary to support single_use_link requests
+  def anonymous_link_request?
+    return false
+  end
+
+  # override this as necessary to support single_use_link requests
   def single_use_link_request?
     return false
   end

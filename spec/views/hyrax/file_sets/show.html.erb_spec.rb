@@ -65,4 +65,8 @@ RSpec.describe 'hyrax/file_sets/show.html.erb', type: :view do
   it "does not render single-use links" do
     expect(rendered).not_to have_selector('table.single-use-links')
   end
+
+  it "does not render anonymous links" do
+    expect(rendered).not_to have_selector('table.anonymous-links')
+  end
 end

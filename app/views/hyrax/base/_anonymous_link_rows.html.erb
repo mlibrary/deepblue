@@ -1,0 +1,24 @@
+<% anonymous_links.each do |presenter| %>
+  <tr>
+    <td>
+      <%= t('hyrax.anonymous_links.expiration_message', link: presenter.short_key,
+                                                         time: presenter.human_readable_expiration,
+                                                         link_type: presenter.link_type ) %>
+      <br/>
+      <% if presenter.user_comment.present? %>
+        <%= t('hyrax.anonymous_links.user_comment_label') %>&nbsp;<%= presenter.user_comment %>
+        <br/>
+      <% end %>
+      <button class="btn btn-xs btn-default copy-anonymous-link"
+              data-clipboard-text="<%= hyrax.send(presenter.url_helper, presenter.downloadKey) %>"
+              data-toggle="tooltip" data-placement="bottom"
+              title="<%= t('hyrax.anonymous_links.copy.tooltip') %>">
+        <%= t('hyrax.anonymous_links.copy.button') %>
+      </button>
+      &nbsp;
+      <%= link_to t('hyrax.anonymous_links.delete'),
+                  main_app.delete_anonymous_link_path(params[:id], presenter),
+                  class: 'btn btn-xs btn-danger delete-anonymous-link' %>
+    </td>
+  </tr>
+<% end %>

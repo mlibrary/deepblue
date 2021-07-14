@@ -77,6 +77,61 @@ en:
         title:              "Title"
         visibility:         "Visibility"
     account_name:           "My Institution Account Id"
+    anonymous_links:
+      alert:
+        insufficient_privileges: "You do not have sufficient privileges to create anonymous links to this document"
+      button:               "Create Anonymous Link"
+      button_with_type:     "Create %{link_type} Anonymous Link"
+      copy:
+        button:             "Copy Link"
+        tooltip:            "Copied!"
+      delete:               "Delete Link"
+      download:
+        type:               "Download"
+      expired_html: >
+        Anonymous Link Expired or Not Found<br/>Deep Blue Data could not locate the anonymous link.
+        This link either expired or has already been used.
+        We apologize for the inconvenience.
+      error:
+        not_found:          "Anonymous Link Not Found"
+      expiration:
+        lesser_time:        "in less than one hour"
+        time:               "in %{value} hours"
+        human_readable_time: "in %{value}"
+      expiration_message:   "%{link_type} Link %{link} expires %{time}"
+      notice:
+        download:           "Anonymous Download"
+        show:               "Anonymous Link"
+        show_work_html: >
+          Anonymous Link<br/>
+          Reloading this page will result in being redirected to the Deep Blue Data home page and an expired anonymous link message.<br/>
+          You may view or download the attached files once or the zip download of all attached files once.<br/>
+        show_file_html: >
+          Anonymous Link<br/>
+          Reloading this page will result in being redirected to the Deep Blue Data home page and an expired anonymous link message.<br/>
+          You may download the attached file once.<br/>
+        show_work_with_help_link_html: >
+          Anonymous Link<br/>
+          Reloading this page will result in being redirected to the Deep Blue Data home page and an expired anonymous link message.<br/>
+          You may view or download the attached files once or the zip download of all attached files once.<br/>
+          Open the <a href="%{help_link}" target="_blank" rel="noopener noreferrer">this link</a> in a new
+          window for a more detailed explanation of anonymous links.
+        show_file_with_help_link_html: >
+          Anonymous Link<br/>
+          Reloading this page will result in being redirected to the Deep Blue Data home page and an expired anonymous link message.<br/>
+          You may download the attached file once.<br/>
+          Open the <a href="%{help_link}" target="_blank" rel="noopener noreferrer">this link</a> in a new
+          window for a more detailed explanation of anonymous links.
+      show:
+        type:               "View"
+      table:
+        actions:            "Actions"
+        expires:            "Expires"
+        key:                "Key"
+        link:               "Link"
+        no_links:           "No active anonymous links are available – please click on appropriate create link button"
+      title:                "Anonymous Links"
+      user_comment_label:   "With note:"
     base:
       items:
         date_modified:      "Last Modified"

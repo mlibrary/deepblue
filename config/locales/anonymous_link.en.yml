@@ -1,0 +1,9 @@
+en:
+  simple_form:
+    actions:
+      anonymous_link:
+        create_download:      "Create Download Anonymous Link"
+        create_show:          "Create View Anonymous Link"
+    labels:
+      anonymous_link:
+        user_comment:         "Note to add to link"

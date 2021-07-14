@@ -123,15 +123,13 @@ Rails.application.routes.draw do
   concern :exportable, Blacklight::Routes::Exportable.new
 
   # resources :downloads, only: :show # add this to get it working: Rails.application.routes.url_helpers.url_for( only_path: true, action: 'show', controller: 'downloads', id: "id123" )
-  #
-  # get 'single_use_link/show/:id' => 'single_use_links_viewer#show', as: :show_single_use_link
-  # get 'single_use_link/download/:id' => 'single_use_links_viewer#download', as: :download_single_use_link
-  # post 'single_use_link/generate_download/:id' => 'single_use_links#create_download', as: :generate_download_single_use_link
-  # post 'single_use_link/generate_show/:id' => 'single_use_links#create_show', as: :generate_show_single_use_link
-  # get 'single_use_link/generated/:id' => 'single_use_links#index', as: :generated_single_use_links
-  # delete 'single_use_link/:id/delete/:link_id' => 'single_use_links#destroy', as: :delete_single_use_link
 
-  # post 'single_use_link/generate_zip_download/:id' => 'single_use_links#create_zip_download', as: :generate_zip_download_single_use_link
+  get 'anonymous_link/show/:id' => 'anonymous_links_viewer#show', as: :show_anonymous_link
+  get 'anonymous_link/download/:id' => 'anonymous_links_viewer#download', as: :download_anonymous_link
+  post 'anonymous_link/generate_download/:id' => 'anonymous_links#create_anonymous_download', as: :generate_download_anonymous_link
+  post 'anonymous_link/generate_show/:id' => 'anonymous_links#create_anonymous_show', as: :generate_show_anonymous_link
+  get 'anonymous_link/generated/:id' => 'anonymous_links#index', as: :generated_anonymous_links
+  delete 'anonymous_link/:id/delete/:link_id' => 'anonymous_links#destroy', as: :delete_anonymous_link
 
   post 'single_use_link/download/:id' => 'hyrax/single_use_links_viewer#download', as: :download_single_use_link
 
@@ -147,11 +145,13 @@ Rails.application.routes.draw do
     resources :file_sets do
       member do
         get    'assign_to_work_as_read_me'
+        post   'create_anonymous_link'
         post   'create_single_use_link'
         get    'display_provenance_log'
         get    'doi'
         post   'doi'
         get    'file_contents'
+        get    'anonymous_link/:link_id', action: :anonymous_link
         get    'single_use_link/:link_id', action: :single_use_link
       end
     end
@@ -165,6 +165,7 @@ Rails.application.routes.draw do
         get    'analytics_unsubscribe'
         post   'analytics_unsubscribe'
         # post   'confirm'
+        post   'create_anonymous_link'
         post   'create_single_use_link'
         get    'display_provenance_log'
         get    'doi'
@@ -184,6 +185,8 @@ Rails.application.routes.draw do
         post   'ingest_append_prep'
         post   'ingest_append_run_job'
         post   'identifiers'
+        get    'anonymous_link/:link_id', action: :anonymous_link
+        get    'anonymous_link_zip_download/:link_id', action: :anonymous_link_zip_download
         get    'single_use_link/:link_id', action: :single_use_link
         get    'single_use_link_zip_download/:link_id', action: :single_use_link_zip_download
         post   'tombstone'

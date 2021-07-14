@@ -57,6 +57,71 @@ module Hyrax
 
     layout :decide_layout
 
+    attr_accessor :cc_anonymous_link
+
+    attr_accessor :cc_single_use_link
+
+    # GET file_sets/:id/anonymous_link/:link_id
+    def anonymous_link
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params[:id]=#{params[:id]}",
+                                             "params[:link_id]=#{params[:link_id]}",
+                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      @file_set ||= ::Deepblue::WorkViewContentService.content_find_by_id( id: params[:id] )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params[:id]=#{params[:id]}",
+                                             "params[:link_id]=#{params[:link_id]}",
+                                             "file_set.id=#{file_set.id}",
+                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      su_link = anonymous_link_obj( link_id: params[:link_id] )
+      @cc_anonymous_link = su_link
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "su_link=#{su_link}",
+                                             "su_link.class.name=#{su_link.class.name}",
+                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      if @file_set.parent.tombstone.present?
+        anonymous_link_destroy! su_link
+        return redirect_to main_app.root_path, alert: anonymous_link_expired_msg
+      end
+      curation_concern_path = polymorphic_path([main_app, curation_concern] )
+      unless anonymous_link_valid?( su_link, item_id: file_set.id, path: curation_concern_path )
+        anonymous_link_destroy! su_link
+        return redirect_to main_app.root_path, alert: anonymous_link_expired_msg
+      end
+      anonymous_link_destroy! su_link
+      respond_to do |wants|
+        wants.html { presenter.cc_anonymous_link = su_link }
+        wants.json { presenter.cc_anonymous_link = su_link }
+        additional_response_formats(wants)
+      end
+    end
+
+    def anonymous_link_debug
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+    end
+
+    def anonymous_link_request?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params=#{params}",
+                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      rv = ( params[:action] == 'single_use_link' || params[:link_id].present? )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      return rv
+    end
+
+    def anonymous_show?
+      cc_anonymous_link.present?
+    end
+
     def assign_to_work_as_read_me
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -80,6 +145,37 @@ module Hyrax
                     error: I18n.t('hyrax.file_sets.notifications.insufficient_rights_to_assign_as_read_me',
                                   filename: curation_concern.label )
       end
+    end
+
+    def create_anonymous_link
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params=#{params}",
+                                             "params[:commit]=#{params[:commit]}",
+                                             "params[:user_comment]=#{params[:user_comment]}",
+                                             "hyrax.download_path(id: curation_concern.id)=#{hyrax.download_path(id: curation_concern.id)}",
+                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      case params[:commit]
+      when t( 'simple_form.actions.anonymous_link.create_download' )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+        SingleUseLink.create( itemId: curation_concern.id,
+                              path: hyrax.download_path( id: curation_concern.id ),
+                              user_id: current_ability.current_user.id,
+                              user_comment: params[:user_comment] )
+      when t( 'simple_form.actions.anonymous_link.create_show' )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+        SingleUseLink.create( itemId: curation_concern.id,
+                              path: current_show_path,
+                              user_id: current_ability.current_user.id,
+                              user_comment: params[:user_comment] )
+      end
+
+      # continue on to normal display
+      redirect_to current_show_path( append: "#anonymous_links" )
     end
 
     def create_single_use_link
@@ -252,8 +348,6 @@ module Hyrax
       render action: 'show_contents'
     end
 
-    attr_accessor :cc_single_use_link
-
     # GET file_sets/:id/single_use_link/:link_id
     def single_use_link
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -296,6 +390,19 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+    end
+
+    def single_use_link_request?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params=#{params}",
+                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      rv = ( params[:action] == 'single_use_link' || params[:link_id].present? )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      return rv
     end
 
     def single_use_show?
@@ -550,19 +657,6 @@ module Hyrax
                                                "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
       end
       raise CanCan::AccessDenied
-    end
-
-    def single_use_link_request?
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "params=#{params}",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
-      rv = ( params[:action] == 'single_use_link' || params[:link_id].present? )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "rv=#{rv}",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
-      return rv
     end
 
     # monkey end
