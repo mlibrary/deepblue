@@ -29,6 +29,7 @@ module Hyrax
     after_action :provenance_log_update_after,   only: [:update]
 
     protect_from_forgery with: :null_session,    only: [:assign_to_work_as_read_me]
+    protect_from_forgery with: :null_session,    only: [:create_anonymous_link]
     protect_from_forgery with: :null_session,    only: [:create_single_use_link]
     protect_from_forgery with: :null_session,    only: [:file_contents]
     protect_from_forgery with: :null_session,    only: [:display_provenance_log]

@@ -37,6 +37,7 @@ module Hyrax
 
     protect_from_forgery with: :null_session,    only: [:analytics_subscribe]
     protect_from_forgery with: :null_session,    only: [:analytics_unsubscribe]
+    protect_from_forgery with: :null_session,    only: [:create_anonymous_link]
     protect_from_forgery with: :null_session,    only: [:create_single_use_link]
     protect_from_forgery with: :null_session,    only: [:display_provenance_log]
     protect_from_forgery with: :null_session,    only: [:globus_add_email]

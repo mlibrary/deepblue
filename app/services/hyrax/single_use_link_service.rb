@@ -4,15 +4,10 @@ module Hyrax
 
   class SingleUseLinkService
 
-    @@single_use_link_service_debug_verbose = false
+    mattr_accessor :single_use_link_service_debug_verbose, default: false
 
-    @@single_use_link_default_expiration_duration = 365.days
-
-    @@single_use_link_use_detailed_human_readable_time = true
-
-    mattr_accessor :single_use_link_service_debug_verbose,
-                   :single_use_link_default_expiration_duration,
-                   :single_use_link_use_detailed_human_readable_time
+    mattr_accessor :single_use_link_default_expiration_duration, default: 365.days
+    mattr_accessor :single_use_link_use_detailed_human_readable_time, default: true
 
     @@_setup_ran = false
 

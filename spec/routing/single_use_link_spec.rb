@@ -26,4 +26,5 @@ RSpec.describe 'Routes for single use links', type: :routing do
       expect(post("/single_use_link/generate_download/abc123")).to route_to("hyrax/single_use_links#create_download", id: 'abc123')
     end
   end
+
 end
