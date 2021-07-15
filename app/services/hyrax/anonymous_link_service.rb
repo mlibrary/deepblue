@@ -4,15 +4,12 @@ module Hyrax
 
   class AnonymousLinkService
 
-    @@anonymous_link_service_debug_verbose = false
+    mattr_accessor :enable_anonymous_links, default: true
+    mattr_accessor :anonymous_link_but_not_really, default: false
 
-    @@anonymous_link_default_expiration_duration = 365.days
-
-    @@anonymous_link_use_detailed_human_readable_time = true
-
-    mattr_accessor :anonymous_link_service_debug_verbose,
-                   :anonymous_link_default_expiration_duration,
-                   :anonymous_link_use_detailed_human_readable_time
+    mattr_accessor :anonymous_link_service_debug_verbose, default: false
+    mattr_accessor :anonymous_link_default_expiration_duration, default: 365.days
+    mattr_accessor :anonymous_link_use_detailed_human_readable_time, default: true
 
     @@_setup_ran = false
 

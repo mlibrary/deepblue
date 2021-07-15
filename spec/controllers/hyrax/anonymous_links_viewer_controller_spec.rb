@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::AnonymousLinksViewerController, skip: true do
+RSpec.describe Hyrax::AnonymousLinksViewerController, skip: false do
 
   include Devise::Test::ControllerHelpers
   routes { Rails.application.routes }
@@ -13,7 +13,7 @@ RSpec.describe Hyrax::AnonymousLinksViewerController, skip: true do
     create(:file_set, label: 'world.png', user: user)
   end
 
-  describe "retrieval links" do
+  describe "retrieval links", skip: false do
     let :show_link do
       AnonymousLink.create itemId: file.id,
                            path: Rails.application.routes.url_helpers.hyrax_file_set_path(id: file, locale: 'en')

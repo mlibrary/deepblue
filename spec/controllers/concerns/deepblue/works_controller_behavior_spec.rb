@@ -48,7 +48,23 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
   # 'create'
   # taken care of in spec/controllers/hyrax/data_sets_controller_spec.rb
 
-  it 'create_single_use_link' do 
+  it 'create_anonymous_link' do
+    allow(dummy_class).to receive(:params).and_return({:commit => "Create Download Anonymous Link"})
+    allow(dummy_class).to receive(:current_show_path).and_return "/data"
+    allow(dummy_class).to receive(:current_ability).and_return test_object
+    allow(test_object).to receive(:current_user).and_return test_object2
+    allow(test_object2).to receive(:id).and_return "abc"
+
+    expect(::AnonymousLink).to receive(:create).with( any_args )
+    allow(dummy_class).to receive(:curation_concern).and_return test_object
+    allow(test_object).to receive(:id).and_return "abc"
+    allow(dummy_class).to receive(:redirect_to).and_return "here"
+
+    dc = dummy_class.create_anonymous_link
+    expect(dc).to eq("here")
+  end
+
+  it 'create_single_use_link' do
     allow(dummy_class).to receive(:params).and_return({:commit => "Create Download Single-Use Link"})
     allow(dummy_class).to receive(:current_show_path).and_return "/data"
     allow(dummy_class).to receive(:current_ability).and_return test_object

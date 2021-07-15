@@ -26,9 +26,9 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "su_link=#{su_link}",
-                                             "config.anonymous_link_but_not_really=#{::DeepBlueDocs::Application.config.anonymous_link_but_not_really}",
+                                             "::Hyrax::AnonymousLinkService.anonymous_link_but_not_really=#{::Hyrax::AnonymousLinkService.config.anonymous_link_but_not_really}",
                                              "" ] if anonymous_link_controller_behavior_debug_verbose
-      return if ::DeepBlueDocs::Application.config.anonymous_link_but_not_really
+      return if ::Hyrax::AnonymousLinkService.anonymous_link_but_not_really
       return unless su_link.is_a? AnonymousLink
       rv = su_link.destroy!
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

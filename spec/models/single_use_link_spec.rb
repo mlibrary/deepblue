@@ -1,7 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe AnonymousLink do
-
+RSpec.describe SingleUseLink do
   let(:file) { FileSet.new(id: 'abc123') }
 
   describe "default attributes" do
@@ -15,6 +14,26 @@ RSpec.describe AnonymousLink do
       expect(subject.downloadKey).to eq hash
       expect(subject.itemId).to eq '99999'
       expect(subject.path).to eq path
+    end
+  end
+
+  describe "#expired?" do
+    let(:link) do
+      described_class.new(expires: expires)
+    end
+
+    subject { link.expired? }
+
+    context "when not expired" do
+      let(:expires) { DateTime.current.advance(hours: 1) }
+
+      it { is_expected.to be false }
+    end
+
+    context "when not expired" do
+      let(:expires) { DateTime.current.advance(hours: -1) }
+
+      it { is_expected.to be true }
     end
   end
 
