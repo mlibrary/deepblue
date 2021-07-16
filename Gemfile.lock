@@ -1138,6 +1138,7 @@ DEPENDENCIES
   jira-ruby (~> 1.1)
   jquery-rails
   json (>= 2.1.0)
+  libxml-ruby (~> 3.1.0)
   linkeddata (<= 3.1.1)
   listen (~> 3.0.5)
   loofah (~> 2.3.1)
