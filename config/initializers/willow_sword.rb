@@ -5,7 +5,8 @@ WillowSword.setup do |config|
   # The title used by the sword server, in the service document
   config.title = 'Deep Blue Data Sword V2 server'
   # If you do not want to use collections in Sword, it will use this as a default collection
-  config.default_collection = {id: '5425k9692jose', title: ['To test sword deposits.']}
+  # This is the default collection in production
+  config.default_collection = {id: 'bk128999s', title: ['University of Michigan Museum of Zoology']}
   # The name of the model for retreiving collections (based on Hyrax integration)
   config.collection_models = ['Collection']
   # The work models supported by Sword (based on Hyrax integration)
