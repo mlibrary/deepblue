@@ -10,34 +10,50 @@ end
 
 gemfile_verbose = true
 gemfile_bundle_config = nil
+exit_log_lines = nil # to disable
+exit_log_lines = [] if File.absolute_path( '.' ) =~ /^\/usr\/local\/deploy\/moku\/data\/cache\/builds.*$/
 begin
+  exit_log_lines << '' unless exit_log_lines.nil?
   path = File.absolute_path '.'
   puts "Absolute path: #{path}" if gemfile_verbose
+  exit_log_lines << "Absolute path: #{path}" unless exit_log_lines.nil?
   case path
   when /^\/hydra-dev\/dbd-deploy.*$/
     puts 'Deploying from nectar' if gemfile_verbose
+    exit_log_lines << 'Deploying from nectar' unless exit_log_lines.nil?
     gemfile_bundle_config = 'bundle config --local build.libxml-ruby --with-xml2-config=/usr/bin/xml2-config'
   when /^\/usr\/local\/deploy\/moku\/data\/cache\/builds.*$/
     puts 'Deploying via moku' if gemfile_verbose
+    exit_log_lines << 'Deploying via moku' unless exit_log_lines.nil?
+    exit_log_lines << "ls /usr/bin/xml2-config"
+    exit_log_lines << `ls /usr/bin/xml2-config`
     gemfile_bundle_config = 'bundle config --local build.libxml-ruby --with-xml2-config=/usr/bin/xml2-config'
   when /^\/Users\/.+/
     puts 'Deploying from /Users' if gemfile_verbose
+    exit_log_lines << 'Deploying from /Users' unless exit_log_lines.nil?
+    exit_log_lines << "ls -l /usr/local/opt/libxml2/bin/xml2-config"
+    exit_log_lines << `ls -l /usr/local/opt/libxml2/bin/xml2-config`
     gemfile_bundle_config = 'bundle config --local build.libxml-ruby --with-xml2-config=/usr/local/opt/libxml2/bin/xml2-config'
   end
   if gemfile_verbose
     config_file = File.join( path, '.bundle', 'config')
     puts "Bundle config path: #{config_file}" if gemfile_verbose
+    exit_log_lines << "Bundle config path: #{config_file}" unless exit_log_lines.nil?
     contents = open( config_file, "r" ) { |io| io.read }
     puts contents if gemfile_verbose
+    exit_log_lines << contents unless exit_log_lines.nil?
   end
   if !gemfile_bundle_config.nil?
     puts "Running bundle config: #{gemfile_bundle_config}" if gemfile_verbose
+    exit_log_lines << "Running bundle config: #{gemfile_bundle_config}" unless exit_log_lines.nil?
     bundle_config_rv = `#{gemfile_bundle_config}`
     puts "bundle_config_rv: #{bundle_config_rv}"
+    exit_log_lines << "bundle_config_rv: #{bundle_config_rv}" unless exit_log_lines.nil?
   end
 rescue Exception => e
   puts "Exception: #{e.to_s}" if gemfile_verbose
 end
+abort( exit_log_lines.join("\n" ) ) if !exit_log_lines.nil? && exit_log_lines.size > 0
 
 # https://github.com/samvera/hyrax/releases
 gem 'hyrax', '2.9.5'
