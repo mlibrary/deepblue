@@ -25,8 +25,8 @@ begin
   when /^\/usr\/local\/deploy\/moku\/data\/cache\/builds.*$/
     puts 'Deploying via moku' if gemfile_verbose
     exit_log_lines << 'Deploying via moku' unless exit_log_lines.nil?
-    exit_log_lines << "ls /usr/bin/xml2-config"
-    exit_log_lines << `ls /usr/bin/xml2-config`
+    exit_log_lines << "ls -l /usr/bin/xml2-config"
+    exit_log_lines << `ls -l /usr/bin/xml2-config`
     gemfile_bundle_config = 'bundle config --local build.libxml-ruby --with-xml2-config=/usr/bin/xml2-config'
   when /^\/Users\/.+/
     puts 'Deploying from /Users' if gemfile_verbose
