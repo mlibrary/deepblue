@@ -8,11 +8,43 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
+gemfile_verbose = true
+gemfile_bundle_config = nil
+begin
+  path = File.absolute_path '.'
+  puts "Absolute path: #{path}" if gemfile_verbose
+  case path
+  when /^\/hydra-dev\/dbd-deploy.*$/
+    puts 'Deploying from nectar' if gemfile_verbose
+    gemfile_bundle_config = 'bundle config --local build.libxml-ruby --with-xml2-config=/usr/bin/xml2-config'
+  when /^\/usr\/local\/deploy\/moku\/data\/cache\/builds.*$/
+    puts 'Deploying via moku' if gemfile_verbose
+    gemfile_bundle_config = 'bundle config --local build.libxml-ruby --with-xml2-config=/usr/bin/xml2-config'
+  when /^\/Users\/.+/
+    puts 'Deploying from /Users' if gemfile_verbose
+    gemfile_bundle_config = 'bundle config --local build.libxml-ruby --with-xml2-config=/usr/local/opt/libxml2/bin/xml2-config'
+  end
+  if gemfile_verbose
+    config_file = File.join( path, '.bundle', 'config')
+    puts "Bundle config path: #{config_file}" if gemfile_verbose
+    contents = open( config_file, "r" ) { |io| io.read }
+    puts contents if gemfile_verbose
+  end
+  if !gemfile_bundle_config.nil?
+    puts "Running bundle config: #{gemfile_bundle_config}" if gemfile_verbose
+    bundle_config_rv = `#{gemfile_bundle_config}`
+    puts "bundle_config_rv: #{bundle_config_rv}"
+  end
+rescue Exception => e
+  puts "Exception: #{e.to_s}" if gemfile_verbose
+end
+
 # https://github.com/samvera/hyrax/releases
 gem 'hyrax', '2.9.5'
 gem 'linkeddata', '<= 3.1.1'
 gem 'rdf-rdfa', '< 3.1.1'
 gem 'rdf-vocab', '<= 3.1.4'
+gem 'libxml-ruby', '~> 3.1.0'
 
 gem 'mysql2' # still somehow in 0.x releases...
 
