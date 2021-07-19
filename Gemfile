@@ -62,7 +62,9 @@ gem 'rdf-rdfa', '< 3.1.1'
 gem 'rdf-vocab', '<= 3.1.4'
 gem 'libxml-ruby', '~> 3.1.0'
 
-gem 'mysql2' # still somehow in 0.x releases...
+
+path = File.absolute_path '.'
+gem 'mysql2' unless path.include? "blancoj"
 
 gem 'config'
 
