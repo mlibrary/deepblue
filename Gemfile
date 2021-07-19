@@ -12,7 +12,7 @@ end
 current_path = File.absolute_path '.'
 
 gemfile_abort_to_report = false
-gemfile_verbose = true
+gemfile_verbose = false
 gemfile_bundle_config = nil
 exit_log_lines = nil # to disable
 exit_log_lines = [] if File.absolute_path( '.' ) =~ /^\/usr\/local\/deploy\/moku\/data\/cache\/builds.*$/
@@ -33,9 +33,9 @@ begin
     gemfile_bundle_config = 'bundle config --local build.libxml-ruby --with-xml2-config=/usr/bin/xml2-config'
   when /^\/Users\/.+/
     line = 'Deploying from /Users';(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
-    line = "ls -l /usr/bin/xml2-config";(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
-    line = `ls -l /usr/bin/xml2-config`;(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
-    gemfile_bundle_config = 'bundle config --local build.libxml-ruby --with-xml2-config=/usr/local/opt/libxml2/bin/xml2-config'
+    # line = "ls -l /usr/bin/xml2-config";(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
+    # line = `ls -l /usr/bin/xml2-config`;(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
+    # gemfile_bundle_config = 'bundle config --local build.libxml-ruby --with-xml2-config=/usr/local/opt/libxml2/bin/xml2-config'
   end
   if gemfile_verbose
     config_file = File.join( current_path, '.bundle', 'config')
