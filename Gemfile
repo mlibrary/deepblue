@@ -1,3 +1,4 @@
+# Updated: 2021/07/19
 # minimum gem update:
 # bundle update --source name_of_gem
 
