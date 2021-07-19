@@ -8,44 +8,49 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
+current_path = File.absolute_path '.'
+
+gemfile_abort_to_report = true
 gemfile_verbose = true
 gemfile_bundle_config = nil
 exit_log_lines = nil # to disable
 exit_log_lines = [] if File.absolute_path( '.' ) =~ /^\/usr\/local\/deploy\/moku\/data\/cache\/builds.*$/
 begin
-  line = '';puts line if gemfile_verbose;exit_log_lines << line unless exit_log_lines.nil?
-  path = File.absolute_path '.'
-  line = "Absolute path: #{path}";puts line if gemfile_verbose;exit_log_lines << line unless exit_log_lines.nil?
-  line = "xml2-config --version";puts line if gemfile_verbose;exit_log_lines << line unless exit_log_lines.nil?
-  line = `xml2-config --version`;puts line if gemfile_verbose;exit_log_lines << line unless exit_log_lines.nil?
-  case path
+  line = '';(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
+  line = 'begin gemfile extra config:';(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
+  line = "Absolute path: #{current_path}";(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
+  line = "xml2-config --version";(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
+  line = `xml2-config --version`;(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
+  case current_path
   when /^\/hydra-dev\/dbd-deploy.*$/
-    line = 'Deploying from nectar';puts line if gemfile_verbose;exit_log_lines << line unless exit_log_lines.nil?
+    line = 'Deploying from nectar';(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
     gemfile_bundle_config = 'bundle config --local build.libxml-ruby --with-xml2-config=/usr/bin/xml2-config'
   when /^\/usr\/local\/deploy\/moku\/data\/cache\/builds.*$/
-    line = 'Deploying via moku';puts line if gemfile_verbose;exit_log_lines << line unless exit_log_lines.nil?
-    exit_log_lines << "ls -l /usr/bin/xml2-config"
-    exit_log_lines << `ls -l /usr/bin/xml2-config`
+    line = 'Deploying via moku';(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
+    line = "ls -l /usr/bin/xml2-config";(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
+    line = `ls -l /usr/bin/xml2-config`;(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
     gemfile_bundle_config = 'bundle config --local build.libxml-ruby --with-xml2-config=/usr/bin/xml2-config'
   when /^\/Users\/.+/
-    line = 'Deploying from /Users';puts line if gemfile_verbose;exit_log_lines << line unless exit_log_lines.nil?
-    exit_log_lines << "ls -l /usr/local/opt/libxml2/bin/xml2-config"
-    exit_log_lines << `ls -l /usr/local/opt/libxml2/bin/xml2-config`
+    line = 'Deploying from /Users';(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
+    line = "ls -l /usr/bin/xml2-config";(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
+    line = `ls -l /usr/bin/xml2-config`;(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
     gemfile_bundle_config = 'bundle config --local build.libxml-ruby --with-xml2-config=/usr/local/opt/libxml2/bin/xml2-config'
   end
   if gemfile_verbose
-    config_file = File.join( path, '.bundle', 'config')
-    line = "Bundle config path: #{config_file}";puts line if gemfile_verbose;exit_log_lines << line unless exit_log_lines.nil?
-    contents = open( config_file, "r" ) { |io| io.read };puts contents if gemfile_verbose;exit_log_lines << contents unless exit_log_lines.nil?
+    config_file = File.join( current_path, '.bundle', 'config')
+    line = "Bundle config path: #{config_file}";(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
+    contents = open( config_file, "r" ) { |io| io.read };(puts contents if gemfile_verbose;exit_log_lines << contents unless exit_log_lines.nil?)
   end
   if !gemfile_bundle_config.nil?
-    line = "Running bundle config: #{gemfile_bundle_config}";puts line if gemfile_verbose;exit_log_lines << line unless exit_log_lines.nil?
-    line = `#{gemfile_bundle_config}`;puts line if gemfile_verbose;exit_log_lines << line unless exit_log_lines.nil?
+    line = "Running bundle config: #{gemfile_bundle_config}";(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
+    line = `#{gemfile_bundle_config}`;(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
   end
+  line = 'end gemfile extra config:';(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
+  line = '';(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
 rescue Exception => e
   puts "Exception: #{e.to_s}" if gemfile_verbose
 end
-abort( exit_log_lines.join("\n" ) ) if !exit_log_lines.nil? && exit_log_lines.size > 0
+abort( exit_log_lines.join("\n" ) ) if gemfile_abort_to_report && !exit_log_lines.nil? && exit_log_lines.size > 0
 
 # https://github.com/samvera/hyrax/releases
 gem 'hyrax', '2.9.5'
@@ -54,9 +59,7 @@ gem 'rdf-rdfa', '< 3.1.1'
 gem 'rdf-vocab', '<= 3.1.4'
 gem 'libxml-ruby', '~> 3.1.0'
 
-
-path = File.absolute_path '.'
-gem 'mysql2' unless path.include? "blancoj"
+gem 'mysql2' unless current_path.include? "blancoj"
 
 gem 'config'
 
