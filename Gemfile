@@ -11,7 +11,7 @@ end
 
 current_path = File.absolute_path '.'
 
-gemfile_abort_to_report = true
+gemfile_abort_to_report = false
 gemfile_verbose = true
 gemfile_bundle_config = nil
 exit_log_lines = nil # to disable
