@@ -7,6 +7,8 @@ module Deepblue
     mattr_accessor :ingest_helper_debug_verbose,
                    default: ::Deepblue::IngestIntegrationService.ingest_helper_debug_verbose
 
+    mattr_accessor :ingest_helper_debug_verbose_puts, default: false
+
     def self.after_create_derivative( file_set:, file_set_orig:, job_status: )
       # Reload from Fedora and reindex for thumbnail and extracted text
       file_set.reload
@@ -22,7 +24,7 @@ module Deepblue
                                              "file_set.under_embargo?=#{file_set.under_embargo?}",
                                              "file_set.parent.present? && !file_set.parent.under_embargo?=#{file_set.parent.present? && !file_set.parent.under_embargo?}",
                                              "job_status=#{job_status}",
-                                             "" ] if ingest_helper_debug_verbose
+                                             "" ], bold_puts: ingest_helper_debug_verbose_puts if ingest_helper_debug_verbose
       file_set = file_set_orig if file_set.nil?
       if file_set.under_embargo? && (file_set.parent.present? && !file_set.parent.under_embargo?)
         file_set.deactivate_embargo!
@@ -31,7 +33,7 @@ module Deepblue
                                                ::Deepblue::LoggingHelper.called_from,
                                                "file_set=#{file_set}",
                                                "file_set.under_embargo?=#{file_set.under_embargo?}",
-                                               "" ] if ingest_helper_debug_verbose
+                                               "" ], bold_puts: ingest_helper_debug_verbose_puts if ingest_helper_debug_verbose
       end
       job_status.did_characterize!
     rescue Exception => e # rubocop:disable Lint/RescueException
@@ -39,7 +41,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "error msg=#{msg}",
-                                             "" ] + e.backtrace[0..8] if ingest_helper_debug_verbose
+                                             "" ] + e.backtrace[0..8], bold_puts: ingest_helper_debug_verbose_puts if ingest_helper_debug_verbose
       if ::DeepBlueDocs::Application.config.derivative_create_error_report_to_curation_notes_admin
         file_set.add_curation_note_admin( note: msg )
       end
@@ -73,7 +75,7 @@ module Deepblue
                                              "uploaded_file_ids=#{uploaded_file_ids}",
                                              "added_prov_key_values=#{added_prov_key_values}",
                                              # "wrapper.methods=#{wrapper.methods.sort}",
-                                             "" ] if ingest_helper_debug_verbose
+                                             "" ], bold_puts: ingest_helper_debug_verbose_puts if ingest_helper_debug_verbose
       # See Hyrax gem: app/job/characterize_job.rb
       file_name = Hyrax::WorkingDirectory.find_or_retrieve( repository_file_id, file_set.id, file_path )
       unless file_set.characterization_proxy?
@@ -138,7 +140,7 @@ module Deepblue
                                              "uploaded_file_ids=#{uploaded_file_ids}",
                                              "added_prov_key_values=#{added_prov_key_values}",
                                              # "wrapper.methods=#{wrapper.methods.sort}",
-                                             "" ] if ingest_helper_debug_verbose
+                                             "" ], bold_puts: ingest_helper_debug_verbose_puts if ingest_helper_debug_verbose
       unless job_status.did_create_derivatives?
         # See Hyrax gem: app/job/create_derivatives_job.rb
         file_name = Hyrax::WorkingDirectory.find_or_retrieve( repository_file_id, file_set.id, file_path )
@@ -168,7 +170,7 @@ module Deepblue
             return
           end
           if file_too_big(file_name)
-            human_readable = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( threshold_file_size, precision: 3 )
+            human_readable = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( DeepBlueDocs::Application.config.derivative_max_file_size, precision: 3 )
             Rails.logger.info "Skipping file larger than #{human_readable} for create derivative job file: #{file_name}"
             file_set.add_curation_note_admin( note: "Skipping derivative for file larger than "\
                                               "#{human_readable}." ) if ingest_helper_debug_verbose
@@ -186,7 +188,7 @@ module Deepblue
                                                  "Create derivative successful",
                                                  "file_name=#{file_name}",
                                                  "file_set.create_derivatives_duration=#{file_set.create_derivatives_duration}",
-                                                 "" ] if ingest_helper_debug_verbose
+                                                 "" ], bold_puts: ingest_helper_debug_verbose_puts if ingest_helper_debug_verbose
           file_set.provenance_create_derivative( current_user: current_user,
                                                  calling_class: IngestHelper.class.name,
                                                  **added_prov_key_values )
@@ -232,7 +234,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "file_set=#{file_set}",
                                              "file_name=#{file_name}",
-                                             "" ] if ingest_helper_debug_verbose
+                                             "" ], bold_puts: ingest_helper_debug_verbose_puts if ingest_helper_debug_verbose
       file_set.create_derivatives( file_name )
     end
 
@@ -246,6 +248,7 @@ module Deepblue
     end
 
     def self.create_derivatives_duration( file_set )
+      return 0 if file_set.create_derivatives_duration.blank?
       ActiveSupport::Duration.build( file_set.create_derivatives_duration ).inspect
     end
 
@@ -298,7 +301,7 @@ module Deepblue
                                              "relation=#{relation}",
                                              "job_status=#{job_status}",
                                              "uploaded_file_ids=#{uploaded_file_ids}",
-                                             "" ] if ingest_helper_debug_verbose
+                                             "" ], bold_puts: ingest_helper_debug_verbose_puts if ingest_helper_debug_verbose
 
       # If the file set doesn't have a title or label assigned, set a default.
       file_set.label ||= label_for( file )
@@ -378,7 +381,7 @@ module Deepblue
                                            "user=#{_user}",
                                            "opts=#{opts}",
                                            # "wrapper.methods=#{wrapper.methods.sort}",
-                                           "" ] if INGEST_HELPER_VERBOSE
+                                           "" ], bold_puts: ingest_helper_debug_verbose_puts if INGEST_HELPER_VERBOSE
       # launched from Hyrax gem: app/actors/hyrax/actors/file_set_actor.rb  FileSetActor#create_content
       # See Hyrax gem: app/job/ingest_local_file_job.rb
       # def perform(file_set, path, user)
@@ -446,7 +449,7 @@ module Deepblue
                                              "uploaded_file_ids=#{uploaded_file_ids}",
                                              "added_prov_key_values=#{added_prov_key_values}",
                                              # "wrapper.methods=#{wrapper.methods.sort}",
-                                             "" ] if ingest_helper_debug_verbose
+                                             "" ], bold_puts: ingest_helper_debug_verbose_puts if ingest_helper_debug_verbose
       if continue_job_chain
         if continue_job_chain_later
           # TODO: see about adding **added_prov_key_values to this:
@@ -465,7 +468,7 @@ module Deepblue
                                                  "job_status.message=#{job_status.message}",
                                                  "job_status.error=#{job_status.error}",
                                                  "job_status.user_id=#{job_status.user_id}",
-                                                 "" ] if ingest_helper_debug_verbose
+                                                 "" ], bold_puts: ingest_helper_debug_verbose_puts if ingest_helper_debug_verbose
           create_derivatives( file_set,
                               repository_file_id,
                               file_name,
@@ -482,7 +485,7 @@ module Deepblue
                                                  "job_status.message=#{job_status.message}",
                                                  "job_status.error=#{job_status.error}",
                                                  "job_status.user_id=#{job_status.user_id}",
-                                                 "" ] if ingest_helper_debug_verbose
+                                                 "" ], bold_puts: ingest_helper_debug_verbose_puts if ingest_helper_debug_verbose
         end
       else
         delete_file( file_path,
@@ -500,7 +503,7 @@ module Deepblue
                                              "file_set=#{file_set}",
                                              "log_prefix=#{log_prefix}",
                                              # "wrapper.methods=#{wrapper.methods.sort}",
-                                             "" ] if ingest_helper_debug_verbose
+                                             "" ], bold_puts: ingest_helper_debug_verbose_puts if ingest_helper_debug_verbose
       # Rails.logger.info "begin IngestHelper.update_total_file_size"
       # Rails.logger.debug "#{log_prefix} file_set.orginal_file.size=#{file_set.original_file.size}" unless log_prefix.nil?
       # Rails.logger.info "nothing to update, parent is nil" if file_set.parent.nil?
@@ -525,7 +528,7 @@ module Deepblue
     def self.virus_scan( file_set:, job_status: )
       # this is called by a method that is never called
       return if job_status.did_virus_scan?
-      LoggingHelper.bold_debug "IngestHelper.virus_scan #{file_set}" if ingest_helper_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug "IngestHelper.virus_scan #{file_set}", bold_puts: ingest_helper_debug_verbose_puts if ingest_helper_debug_verbose
       file_set.virus_scan
       job_status.did_virus_scan!
     rescue Exception => e # rubocop:disable Lint/RescueException
