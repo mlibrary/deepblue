@@ -5,7 +5,7 @@ module Deepblue
   module SingleUseLinkControllerBehavior
 
     mattr_accessor :single_use_link_controller_behavior_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.single_use_link_controller_behavior_debug_verbose
+                   default: ::Hyrax::SingleUseLinkService.single_use_link_controller_behavior_debug_verbose
 
     INVALID_SINGLE_USE_LINK = ''.freeze
 
@@ -26,9 +26,9 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "su_link=#{su_link}",
-                                             "config.single_use_link_but_not_really=#{::DeepBlueDocs::Application.config.single_use_link_but_not_really}",
+                                             "single_use_link_but_not_really=#{::Hyrax::SingleUseLinkService.single_use_link_but_not_really}",
                                              "" ] if single_use_link_controller_behavior_debug_verbose
-      return if ::DeepBlueDocs::Application.config.single_use_link_but_not_really
+      return if ::Hyrax::SingleUseLinkService.single_use_link_but_not_really
       return unless su_link.is_a? SingleUseLink
       rv = su_link.destroy!
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

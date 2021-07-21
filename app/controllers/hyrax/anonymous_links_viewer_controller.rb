@@ -5,7 +5,7 @@ module Hyrax
   class AnonymousLinksViewerController < DownloadsController
 
     mattr_accessor :anonymous_links_viewer_controller_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.anonymous_links_viewer_controller_debug_verbose
+                   default: ::Hyrax::AnonymousLinkService.anonymous_links_viewer_controller_debug_verbose
 
     include ActionView::Helpers::TranslationHelper
     include Blacklight::Base
@@ -23,10 +23,22 @@ module Hyrax
     self.presenter_class = DsFileSetPresenter
     copy_blacklight_config_from(::CatalogController)
 
-    def tombstoned?
+    def parent_published?
+      return false unless asset.respond_to? :parent
+      return false unless asset.parent.respond_to? :tombstone
+      asset.parent.published?
+    end
+
+    def parent_tombstoned?
       return false unless asset.respond_to? :parent
       return false unless asset.parent.respond_to? :tombstone
       asset.parent.tombstone.present?
+    end
+
+    def published?
+      return false unless asset.respond_to? :parent
+      return false unless asset.parent.respond_to? :tombstone
+      asset.parent.published?
     end
 
     def download
@@ -51,11 +63,11 @@ module Hyrax
                                                                destroy_if_not_valid: true )
       if path =~ /concern\/file_sets/
         anonymous_link_destroy! anonymous_link
-        raise not_found_exception if tombstoned?
+        raise not_found_exception if parent_tombstoned?
         send_content
       elsif path =~ /downloads\//
         anonymous_link_destroy! anonymous_link
-        raise not_found_exception if tombstoned?
+        raise not_found_exception if parent_tombstoned?
         send_content
       else
         url = "#{path}/#{params[:id]}"

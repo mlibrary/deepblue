@@ -6,22 +6,22 @@ module Hyrax
 
     class EmbargoActor
 
-      EMBARGO_ACTOR_DEBUG_VERBOSE = false
+      mattr_accessor :embargo_actor_debug_verbose, default: false
 
       include ::Hyrax::EmbargoHelper
       attr_reader :work
 
       # @param [Hydra::Works::Work] work
-      def initialize(work)
+      def initialize(env, work)
+        @env = env
         @work = work
       end
 
       def destroy
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               ::Deepblue::LoggingHelper.obj_class( "work", work ),
-                                               "" ] if EMBARGO_ACTOR_DEBUG_VERBOSE
-        deactivate_embargo( curation_concern: work, current_user: env.user, copy_visibility_to_files: false )
+                                               "" ] if embargo_actor_debug_verbose
+        deactivate_embargo( curation_concern: work, current_user: @env.user, copy_visibility_to_files: false )
       end
 
     end

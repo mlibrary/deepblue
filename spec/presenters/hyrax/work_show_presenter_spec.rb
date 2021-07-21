@@ -58,7 +58,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
 
     context 'cannot when single-use show and admin' do
       before do
-        allow( presenter ).to receive( :single_use_show? ).and_return true
+        allow( presenter ).to receive( :anonymous_show? ).and_return true
         allow( presenter ).to receive( :doi_minted? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return true
       end
@@ -66,7 +66,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
     end
     context 'cannot when single-use show and not admin' do
       before do
-        allow( presenter ).to receive( :single_use_show? ).and_return true
+        allow( presenter ).to receive( :anonymous_show? ).and_return true
         allow( presenter ).to receive( :doi_minted? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return false
       end
@@ -74,7 +74,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
     end
     context 'cannot when doi minted and admin' do
       before do
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( presenter ).to receive( :doi_minted? ).and_return true
         allow( current_ability ).to receive( :admin? ).and_return true
       end
@@ -82,7 +82,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
     end
     context 'cannot when doi minted and not admin' do
       before do
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( solr_document ).to receive( :doi_minted? ).and_return true
         allow( current_ability ).to receive( :admin? ).and_return false
       end
@@ -91,7 +91,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
     context 'can when admin and not single user show or doi minted' do
       before do
         allow( current_ability ).to receive( :can? ).with( id: solr_document.id ).and_return true
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( solr_document ).to receive( :doi_minted? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return true
       end
@@ -106,7 +106,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
 
     context 'cannot when single-use show' do
       before do
-        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return true
+        expect( presenter ).to receive( :anonymous_show? ).at_least(:once).and_return true
         allow( current_ability ).to receive( :admin? ).and_return false
         allow( presenter ).to receive( :editor? ).and_return false
       end
@@ -114,7 +114,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
     end
     context 'can when admin and not single-use show or tombstoned' do
       before do
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         expect( current_ability ).to receive( :admin? ).at_least(:once).and_return true
         allow( presenter ).to receive( :editor? ).and_return false
       end
@@ -122,7 +122,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
     end
     context 'can when editor and not deposited' do
       before do
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return false
         expect( presenter ).to receive( :editor? ).at_least(:once).and_return true
         expect( workflow ).to receive( :state ).at_least(:once).and_return "pending_review"
@@ -132,7 +132,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
     end
     context 'cannot when editor and deposited' do
       before do
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return false
         expect( presenter ).to receive( :editor? ).at_least(:once).and_return true
         expect( workflow ).to receive( :state ).at_least(:once).and_return "deposited"
@@ -142,7 +142,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
     end
     context 'cannot when not editor' do
       before do
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return false
         allow( presenter ).to receive( :editor? ).and_return false
         allow( workflow ).to receive( :state ).and_return "pending_review"
@@ -175,7 +175,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
       before do
         expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true if debug_verbose
         expect( presenter ).to receive( :tombstone ).at_least(:once).and_return nil
-        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return true
+        expect( presenter ).to receive( :anonymous_show? ).at_least(:once).and_return true
       end
       it { is_expected.to be true }
     end
@@ -183,7 +183,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
       before do
         expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return false
         expect( presenter ).to receive( :tombstone ).at_least(:once).and_return nil
-        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
+        expect( presenter ).to receive( :anonymous_show? ).at_least(:once).and_return false
         expect( workflow ).to receive( :state ).at_least(:once).and_return "pending_review"
         expect( presenter ).to receive( :workflow ).at_least(:once).and_return workflow
         expect( current_ability ).to receive( :can? ).at_least(:once).with( :edit, presenter.id ).and_return false if debug_verbose
@@ -194,7 +194,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
       before do
         expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true
         expect( presenter ).to receive( :tombstone ).at_least(:once).and_return nil
-        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
+        expect( presenter ).to receive( :anonymous_show? ).at_least(:once).and_return false
         expect( workflow ).to receive( :state ).at_least(:once).and_return "pending_review"
         expect( presenter ).to receive( :workflow ).at_least(:once).and_return workflow
         expect( current_ability ).to receive( :can? ).at_least(:once).with( :edit, presenter.id ).and_return true if debug_verbose
@@ -205,7 +205,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
       before do
         expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true if debug_verbose
         expect( presenter ).to receive( :tombstone ).at_least(:once).and_return nil
-        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false if debug_verbose
+        expect( presenter ).to receive( :anonymous_show? ).at_least(:once).and_return false if debug_verbose
         expect( workflow ).to receive( :state ).at_least(:once).and_return "deposited"
         expect( presenter ).to receive( :workflow ).at_least(:once).and_return workflow
         expect( solr_document ).to receive( :visibility ).at_least(:once).and_return Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
@@ -237,7 +237,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
       before do
         expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true if debug_verbose
         expect( presenter ).to receive( :tombstone ).at_least(:once).and_return nil
-        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return true
+        expect( presenter ).to receive( :anonymous_show? ).at_least(:once).and_return true
       end
       it { is_expected.to be true }
     end
@@ -245,7 +245,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
       before do
         expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).at_least(:once).and_return false
         expect( presenter ).to receive( :tombstone ).at_least(:once).and_return nil
-        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
+        expect( presenter ).to receive( :anonymous_show? ).at_least(:once).and_return false
         expect( workflow ).to receive( :state ).at_least(:once).and_return "pending_review"
         expect( presenter ).to receive( :workflow ).at_least(:once).and_return workflow
         # expect( current_ability ).to receive( :can? ).at_least(:once).with( :edit, presenter.id ).and_return false
@@ -256,7 +256,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
       before do
         expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).at_least(:once).and_return true
         expect( presenter ).to receive( :tombstone ).at_least(:once).and_return nil
-        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
+        expect( presenter ).to receive( :anonymous_show? ).at_least(:once).and_return false
         expect( workflow ).to receive( :state ).at_least(:once).and_return "pending_review"
         expect( presenter ).to receive( :workflow ).at_least(:once).and_return workflow
         # expect( current_ability ).to receive( :can? ).at_least(:once).with( :edit, presenter.id ).and_return true
@@ -267,7 +267,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
       before do
         expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true if debug_verbose
         # expect( presenter ).to receive( :tombstone ).at_least(:once).and_return nil
-        # expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
+        # expect( presenter ).to receive( :anonymous_show? ).at_least(:once).and_return false
         expect( workflow ).to receive( :state ).at_least(:once).and_return "deposited"
         expect( presenter ).to receive( :workflow ).at_least(:once).and_return workflow
         expect( solr_document ).to receive( :visibility ).at_least(:once).and_return Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC

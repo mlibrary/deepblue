@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Actors::CreateWithRemoteFilesActor, skip: true do
+RSpec.describe Hyrax::Actors::CreateWithRemoteFilesActor, skip: false do
   let(:terminator) { Hyrax::Actors::Terminator.new }
   let(:actor) { stack.build(terminator) }
   let(:stack) do
@@ -10,7 +10,7 @@ RSpec.describe Hyrax::Actors::CreateWithRemoteFilesActor, skip: true do
   end
   let(:user) { create(:user) }
   let(:ability) { Ability.new(user) }
-  let(:work) { create(:generic_work, user: user) }
+  let(:work) { create(:data_set, user: user) }
   let(:url1) { "https://dl.dropbox.com/fake/blah-blah.filepicker-demo.txt.txt" }
   let(:url2) { "https://dl.dropbox.com/fake/blah-blah.Getting%20Started.pdf" }
   let(:file) { "file:///local/file/here.txt" }

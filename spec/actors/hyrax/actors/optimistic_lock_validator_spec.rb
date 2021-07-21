@@ -1,12 +1,12 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Actors::OptimisticLockValidator, skip: true do
+RSpec.describe Hyrax::Actors::OptimisticLockValidator, skip: false do
   let(:env) { Hyrax::Actors::Environment.new(work, ability, attributes) }
   let(:ability) { ::Ability.new(depositor) }
 
   let(:terminator) { Hyrax::Actors::Terminator.new }
   let(:depositor) { create(:user) }
-  let(:work) { create(:generic_work) }
+  let(:work) { create(:data_set) }
 
   subject(:middleware) do
     stack = ActionDispatch::MiddlewareStack.new.tap do |middleware|
@@ -47,9 +47,9 @@ RSpec.describe Hyrax::Actors::OptimisticLockValidator, skip: true do
         it "returns false and sets an error" do
           expect(subject).to be false
           expect(work.errors[:base]).to include "Your changes could not be saved because another " \
-            "user (or background job) updated this Generic work after you began editing. Please " \
+            "user (or background job) updated this Data set after you began editing. Please " \
             "make sure all file attachments have completed successfully and try again. This form " \
-            "has refreshed with the most recent saved copy of the Generic work."
+            "has refreshed with the most recent saved copy of the Data set."
         end
       end
     end

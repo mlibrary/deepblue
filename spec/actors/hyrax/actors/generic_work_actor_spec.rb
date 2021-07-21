@@ -2,7 +2,9 @@ require 'rails_helper'
 require 'redlock'
 
 RSpec.describe Hyrax::Actors::GenericWorkActor, skip: true do
+
   include ActionDispatch::TestProcess
+
   let(:env) { Hyrax::Actors::Environment.new(curation_concern, ability, attributes) }
   let(:user) { create(:user) }
   let(:ability) { ::Ability.new(user) }

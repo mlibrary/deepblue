@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Actors::FileSetOrderedMembersActor, skip: true do
+RSpec.describe Hyrax::Actors::FileSetOrderedMembersActor, skip: false do
   include ActionDispatch::TestProcess
 
   let(:user)          { create(:user) }
@@ -12,8 +12,13 @@ RSpec.describe Hyrax::Actors::FileSetOrderedMembersActor, skip: true do
   let(:relation)      { :original_file }
   let(:file_actor)    { Hyrax::Actors::FileActor.new(file_set, relation, user) }
 
+  let( :job )          { TestJob.send( :job_or_instantiate ) }
+  let( :job_id )       { job.job_id }
+  let(:job_status_var) { JobStatus.create( job_id: job_id, job_class: job.class ) }
+  let(:job_status)     { IngestJobStatus.new( job_status: job_status_var, verbose: false, main_cc_id: nil, user_id: user.id  ) }
+
   describe 'creating metadata, content and attaching to a work' do
-    let(:work) { create(:generic_work) }
+    let(:work) { create(:data_set) }
     let(:date_today) { DateTime.current }
 
     subject { file_set.reload }
@@ -22,7 +27,7 @@ RSpec.describe Hyrax::Actors::FileSetOrderedMembersActor, skip: true do
       allow(DateTime).to receive(:current).and_return(date_today)
       allow(actor).to receive(:acquire_lock_for).and_yield
       actor.create_metadata
-      actor.create_content(file)
+      actor.create_content(file, job_status: job_status)
       actor.attach_to_work(work)
     end
 

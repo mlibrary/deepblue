@@ -1,12 +1,12 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Actors::ApplyPermissionTemplateActor, skip: true do
+RSpec.describe Hyrax::Actors::ApplyPermissionTemplateActor, skip: false do
   let(:ability) { ::Ability.new(depositor) }
   let(:env) { Hyrax::Actors::Environment.new(work, ability, attributes) }
   let(:terminator) { Hyrax::Actors::Terminator.new }
   let(:depositor) { create(:user) }
   let(:work) do
-    build(:generic_work,
+    build(:data_set,
           user: depositor,
           edit_users: ['Kevin'],
           read_users: ['Taraji'])

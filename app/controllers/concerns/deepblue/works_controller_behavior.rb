@@ -70,22 +70,25 @@ module Deepblue
                                              "params[:link_id]=#{params[:link_id]}",
                                              "curation_concern.id=#{curation_concern.id}",
                                              "" ] if works_controller_behavior_debug_verbose
-      su_link = anonymous_link_obj( link_id: params[:link_id] )
+      anon_link = anonymous_link_obj( link_id: params[:link_id] )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "su_link=#{su_link}",
-                                             "su_link.class.name=#{su_link.class.name}",
+                                             "anon_link=#{anon_link}",
+                                             "anon_link.class.name=#{anon_link.class.name}",
                                              "" ] if works_controller_behavior_debug_verbose
       if curation_concern.tombstone.present?
-        anonymous_link_destroy! su_link
+        anonymous_link_destroy! anon_link
         return redirect_to main_app.root_path, alert: anonymous_link_expired_msg
+      end
+      if curation_concern.published?
+        # TODO:
       end
       curation_concern_path = polymorphic_path([main_app, curation_concern] )
-      unless anonymous_link_valid?( su_link, item_id: curation_concern.id, path: curation_concern_path )
-        anonymous_link_destroy! su_link
+      unless anonymous_link_valid?( anon_link, item_id: curation_concern.id, path: curation_concern_path )
+        anonymous_link_destroy! anon_link
         return redirect_to main_app.root_path, alert: anonymous_link_expired_msg
       end
-      anonymous_link_destroy! su_link
+      anonymous_link_destroy! anon_link
       @user_collections = [] # anonymous user, so we don't care
 
       respond_to do |wants|
@@ -97,7 +100,7 @@ module Deepblue
         wants.any do
           presenter_init && parent_presenter
           presenter.controller = self
-          presenter.cc_anonymous_link = su_link
+          presenter.cc_anonymous_link = anon_link
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  ::Deepblue::LoggingHelper.obj_class( 'wants', wants ),
@@ -127,24 +130,24 @@ module Deepblue
                                              "params[:link_id]=#{params[:link_id]}",
                                              "curation_concern.id=#{curation_concern.id}",
                                              "" ] if works_controller_behavior_debug_verbose
-      su_link = anonymous_link_obj( link_id: params[:link_id] )
+      anon_link = anonymous_link_obj( link_id: params[:link_id] )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "su_link=#{su_link}",
-                                             "su_link.class.name=#{su_link.class.name}",
+                                             "anon_link=#{anon_link}",
+                                             "anon_link.class.name=#{anon_link.class.name}",
                                              "" ] if works_controller_behavior_debug_verbose
       if @curation_concern.tombstone.present?
-        anonymous_link_destroy! su_link
+        anonymous_link_destroy! anon_link
         return redirect_to main_app.root_path, alert: anonymous_link_expired_msg
       end
-      @cc_anonymous_link = su_link
+      @cc_anonymous_link = anon_link
       curation_concern_path = polymorphic_path( [main_app, curation_concern] )
       curation_concern_path.gsub!( /\?locale=.+$/, '' )
-      unless anonymous_link_valid?( su_link, item_id: curation_concern.id, path: "#{curation_concern_path}/anonymous_link_zip_download" )
-        anonymous_link_destroy! su_link
+      unless anonymous_link_valid?( anon_link, item_id: curation_concern.id, path: "#{curation_concern_path}/anonymous_link_zip_download" )
+        anonymous_link_destroy! anon_link
         return redirect_to main_app.root_path, alert: anonymous_link_expired_msg
       end
-      anonymous_link_destroy! su_link
+      anonymous_link_destroy! anon_link
       zip_download
     end
 
@@ -312,17 +315,12 @@ module Deepblue
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if works_controller_behavior_debug_verbose
         AnonymousLink.create( itemId: curation_concern.id,
-                              path: current_show_path( append: "/anonymous_link_zip_download" ),
-                              user_id: current_ability.current_user.id,
-                              user_comment: params[:user_comment] )
+                              path: current_show_path( append: "/anonymous_link_zip_download" ) )
       when t( 'simple_form.actions.anonymous_link.create_show' )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if works_controller_behavior_debug_verbose
-        AnonymousLink.create( itemId: curation_concern.id,
-                              path: current_show_path,
-                              user_id: current_ability.current_user.id,
-                              user_comment: params[:user_comment] )
+        AnonymousLink.create( itemId: curation_concern.id, path: current_show_path )
       end
 
       # continue on to normal display
@@ -533,8 +531,6 @@ module Deepblue
       raise
     end
 
-    attr_accessor :cc_single_use_link
-
     def search_result_document( search_params )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -591,13 +587,13 @@ module Deepblue
         wants.any do
           presenter_init && parent_presenter
           presenter.controller = self
-          presenter.cc_single_use_link = su_link
+          presenter.cc_anonymous_link = su_link
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  ::Deepblue::LoggingHelper.obj_class( 'wants', wants ),
                                                  "wants.format=#{wants.format}",
                                                  "presenter.controller.class=#{presenter.controller.class}",
-                                                 "presenter.cc_single_use_link=#{presenter.cc_single_use_link}",
+                                                 "presenter.cc_anonymous_link=#{presenter.cc_anonymous_link}",
                                                  "" ] if works_controller_behavior_debug_verbose
           render :show, status: :ok
         end
@@ -631,7 +627,7 @@ module Deepblue
         single_use_link_destroy! su_link
         return redirect_to main_app.root_path, alert: single_use_link_expired_msg
       end
-      @cc_single_use_link = su_link
+      @cc_anonymous_link = su_link
       curation_concern_path = polymorphic_path( [main_app, curation_concern] )
       curation_concern_path.gsub!( /\?locale=.+$/, '' )
       unless single_use_link_valid?( su_link, item_id: curation_concern.id, path: "#{curation_concern_path}/single_use_link_zip_download" )

@@ -414,6 +414,19 @@ class DataSet < ActiveFedora::Base
     return rv
   end
 
+  def pending_publication?
+    workflow_state != 'deposited'
+  end
+
+  def published?
+    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                        ::Deepblue::LoggingHelper.called_from,
+    #                                        "workflow_state=#{workflow_state}",
+    #                                        "visibility=#{visibility}",
+    #                                        "" ] if data_set_debug_verbose
+    workflow_state == 'deposited' && visibility == 'open'
+  end
+
   def workflow_state
     wgid = to_global_id.to_s
     entity = Sipity::Entity.where( proxy_for_global_id: wgid )&.first

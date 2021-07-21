@@ -503,7 +503,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
   def self.show_hit_graph?( current_ability, presenter: nil )
     return false unless enable_local_analytics_ui?
     # 0 = none, 1 = admin, 2 = editor, 3 = everyone
-    return false if presenter && presenter.respond_to?( :single_use_show? ) && presenter.single_use_show?
+    return false if presenter && presenter.respond_to?( :anonymous_show? ) && presenter.anonymous_show?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "::Deepblue::AnalyticsIntegrationService.hit_graph_view_level=#{::Deepblue::AnalyticsIntegrationService.hit_graph_view_level}",

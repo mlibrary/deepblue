@@ -5,7 +5,8 @@ module Hyrax
   # monkey patch FileSetsController
   class FileSetsController < ApplicationController
 
-    FILE_SETS_CONTROLLER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.file_sets_controller_debug_verbose # monkey
+    mattr_accessor :file_sets_controller_debug_verbose,
+                   default: ::DeepBlueDocs::Application.config.file_sets_controller_debug_verbose # monkey
     PARAMS_KEY = 'file_set' # monkey
 
     include Blacklight::Base
@@ -60,42 +61,40 @@ module Hyrax
 
     attr_accessor :cc_anonymous_link
 
-    attr_accessor :cc_single_use_link
-
     # GET file_sets/:id/anonymous_link/:link_id
     def anonymous_link
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",
                                              "params[:link_id]=#{params[:link_id]}",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if file_sets_controller_debug_verbose
       @file_set ||= ::Deepblue::WorkViewContentService.content_find_by_id( id: params[:id] )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",
                                              "params[:link_id]=#{params[:link_id]}",
                                              "file_set.id=#{file_set.id}",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
-      su_link = anonymous_link_obj( link_id: params[:link_id] )
-      @cc_anonymous_link = su_link
+                                             "" ] if file_sets_controller_debug_verbose
+      anon_link = anonymous_link_obj( link_id: params[:link_id] )
+      @cc_anonymous_link = anon_link
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "su_link=#{su_link}",
-                                             "su_link.class.name=#{su_link.class.name}",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "anon_link=#{anon_link}",
+                                             "anon_link.class.name=#{anon_link.class.name}",
+                                             "" ] if file_sets_controller_debug_verbose
       if @file_set.parent.tombstone.present?
-        anonymous_link_destroy! su_link
+        anonymous_link_destroy! anon_link
         return redirect_to main_app.root_path, alert: anonymous_link_expired_msg
       end
       curation_concern_path = polymorphic_path([main_app, curation_concern] )
-      unless anonymous_link_valid?( su_link, item_id: file_set.id, path: curation_concern_path )
-        anonymous_link_destroy! su_link
+      unless anonymous_link_valid?( anon_link, item_id: file_set.id, path: curation_concern_path )
+        anonymous_link_destroy! anon_link
         return redirect_to main_app.root_path, alert: anonymous_link_expired_msg
       end
-      anonymous_link_destroy! su_link
+      anonymous_link_destroy! anon_link
       respond_to do |wants|
-        wants.html { presenter.cc_anonymous_link = su_link }
-        wants.json { presenter.cc_anonymous_link = su_link }
+        wants.html { presenter.cc_anonymous_link = anon_link }
+        wants.json { presenter.cc_anonymous_link = anon_link }
         additional_response_formats(wants)
       end
     end
@@ -103,23 +102,42 @@ module Hyrax
     def anonymous_link_debug
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if file_sets_controller_debug_verbose
     end
 
     def anonymous_link_request?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params=#{params}",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if file_sets_controller_debug_verbose
       rv = ( params[:action] == 'single_use_link' || params[:link_id].present? )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if file_sets_controller_debug_verbose
       return rv
     end
 
+    def show_anonymous_link_section?
+      debug_verbose = file_sets_controller_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "false if anonymous_show?=#{anonymous_show?}",
+                                             "" ] if debug_verbose
+      # TODO: if the work has been published, return false
+      return false if anonymous_show?
+      true
+    end
+
+    # def anonymous_show?
+    #   cc_anonymous_link.present?
+    # end
+
     def anonymous_show?
+      cc_anonymous_link.present?
+    end
+
+    def anonymous_use_show?
       cc_anonymous_link.present?
     end
 
@@ -130,14 +148,14 @@ module Hyrax
                                              "curation_concern.id=#{curation_concern.id}",
                                              "curation_concern.parent.class.name=#{curation_concern.parent.class.name}",
                                              "curation_concern.parent.read_me_file_set_id=#{curation_concern.parent.read_me_file_set_id}",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if file_sets_controller_debug_verbose
       if current_ability.can( :edit, curation_concern.id )
         curation_concern.parent.read_me_update( file_set: curation_concern )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "curation_concern.id=#{curation_concern.id}",
                                                "curation_concern.parent.read_me_file_set_id=#{curation_concern.parent.read_me_file_set_id}",
-                                               "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                               "" ] if file_sets_controller_debug_verbose
         redirect_to [main_app, curation_concern.parent],
                     notice: I18n.t('hyrax.file_sets.notifications.assigned_as_read_me',
                                    filename: curation_concern.label )
@@ -155,12 +173,12 @@ module Hyrax
                                              "params[:commit]=#{params[:commit]}",
                                              "params[:user_comment]=#{params[:user_comment]}",
                                              "hyrax.download_path(id: curation_concern.id)=#{hyrax.download_path(id: curation_concern.id)}",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if file_sets_controller_debug_verbose
       case params[:commit]
       when t( 'simple_form.actions.anonymous_link.create_download' )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                               "" ] if file_sets_controller_debug_verbose
         SingleUseLink.create( itemId: curation_concern.id,
                               path: hyrax.download_path( id: curation_concern.id ),
                               user_id: current_ability.current_user.id,
@@ -168,7 +186,7 @@ module Hyrax
       when t( 'simple_form.actions.anonymous_link.create_show' )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                               "" ] if file_sets_controller_debug_verbose
         SingleUseLink.create( itemId: curation_concern.id,
                               path: current_show_path,
                               user_id: current_ability.current_user.id,
@@ -186,12 +204,12 @@ module Hyrax
                                              "params[:commit]=#{params[:commit]}",
                                              "params[:user_comment]=#{params[:user_comment]}",
                                              "hyrax.download_path(id: curation_concern.id)=#{hyrax.download_path(id: curation_concern.id)}",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if file_sets_controller_debug_verbose
       case params[:commit]
       when t( 'simple_form.actions.single_use_link.create_download' )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                               "" ] if file_sets_controller_debug_verbose
         SingleUseLink.create( itemId: curation_concern.id,
                               path: hyrax.download_path( id: curation_concern.id ),
                               user_id: current_ability.current_user.id,
@@ -199,7 +217,7 @@ module Hyrax
       when t( 'simple_form.actions.single_use_link.create_show' )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                               "" ] if file_sets_controller_debug_verbose
         SingleUseLink.create( itemId: curation_concern.id,
                               path: current_show_path,
                               user_id: current_ability.current_user.id,
@@ -246,7 +264,7 @@ module Hyrax
       #                                        ::Deepblue::LoggingHelper.called_from,
       #                                        "curation_concern.parent.workflow_state=#{curation_concern.parent.workflow_state}",
       #                                        "curation_concern.visibility == 'open'=#{curation_concern.visibility == 'open'}",
-      #                                        "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      #                                        "" ] if file_sets_controller_debug_verbose
       curation_concern.parent.workflow_state == 'deposited' && curation_concern.visibility == 'open'
     end
 
@@ -260,7 +278,7 @@ module Hyrax
                                              "false if single_use_link?=#{single_use_link?}",
                                              "false if doi_minted?=#{doi?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if file_sets_controller_debug_verbose
       return false if single_use_link?
       return false if doi?
       return true if current_ability.admin?
@@ -275,7 +293,7 @@ module Hyrax
                                              "true current_ability.admin?=#{current_ability.admin?}",
                                              "true editor?=#{editor?}",
                                              "and pending_publication?=#{pending_publication?}",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if file_sets_controller_debug_verbose
       return false if single_use_link?
       return false if parent_tombstoned?
       return true if current_ability.admin?
@@ -335,7 +353,7 @@ module Hyrax
                                              "file_set.id=#{file_set.id}",
                                              "file_set.mime_type=#{file_set.mime_type}",
                                              "file_set.original_file.size=#{file_set.original_file.size}",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if file_sets_controller_debug_verbose
       allowed = can_display_file_contents?
       Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
@@ -343,7 +361,7 @@ module Hyrax
                                            "file_set.mime_type=#{file_set.mime_type}",
                                            "file_set.original_file.size=#{file_set.original_file.size}",
                                            "allowed=#{allowed}",
-                                           "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if file_sets_controller_debug_verbose
       return redirect_to [main_app, curation_concern] unless allowed
       presenter # make sure presenter is created
       render action: 'show_contents'
@@ -355,21 +373,21 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",
                                              "params[:link_id]=#{params[:link_id]}",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if file_sets_controller_debug_verbose
       @file_set ||= ::Deepblue::WorkViewContentService.content_find_by_id( id: params[:id] )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",
                                              "params[:link_id]=#{params[:link_id]}",
                                              "file_set.id=#{file_set.id}",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if file_sets_controller_debug_verbose
       su_link = single_use_link_obj( link_id: params[:link_id] )
-      @cc_single_use_link = su_link
+      @cc_anonymous_link = su_link
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "su_link=#{su_link}",
                                              "su_link.class.name=#{su_link.class.name}",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if file_sets_controller_debug_verbose
       if @file_set.parent.tombstone.present?
         single_use_link_destroy! su_link
         return redirect_to main_app.root_path, alert: single_use_link_expired_msg
@@ -381,8 +399,8 @@ module Hyrax
       end
       single_use_link_destroy! su_link
       respond_to do |wants|
-        wants.html { presenter.cc_single_use_link = su_link }
-        wants.json { presenter.cc_single_use_link = su_link }
+        wants.html { presenter.cc_anonymous_link = su_link }
+        wants.json { presenter.cc_anonymous_link = su_link }
         additional_response_formats(wants)
       end
     end
@@ -390,24 +408,24 @@ module Hyrax
     def single_use_link_debug
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if file_sets_controller_debug_verbose
     end
 
     def single_use_link_request?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params=#{params}",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if file_sets_controller_debug_verbose
       rv = ( params[:action] == 'single_use_link' || params[:link_id].present? )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if file_sets_controller_debug_verbose
       return rv
     end
 
     def single_use_show?
-      cc_single_use_link.present?
+      cc_anonymous_link.present?
     end
 
     def can_display_file_contents?
@@ -416,7 +434,7 @@ module Hyrax
                                            "file_set.id=#{file_set.id}",
                                            "file_set.mime_type=#{file_set.mime_type}",
                                            "file_set.original_file.size=#{file_set.original_file.size}",
-                                           "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if file_sets_controller_debug_verbose
       return false unless ::DeepBlueDocs::Application.config.file_sets_contents_view_allow
       return false unless ( current_ability.admin? ) # || current_ability.can?(:read, id) )
       return false unless ::DeepBlueDocs::Application.config.file_sets_contents_view_mime_types.include?( file_set.mime_type )
@@ -432,7 +450,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "current_user&.email=#{current_user&.email}",
                                              "curation_concern&.parent.edit_users=#{curation_concern&.parent.edit_users}",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if file_sets_controller_debug_verbose
       return false unless current_user.present?
       return false unless curation_concern.parent.present?
       curation_concern.parent.edit_users.include? current_user.email
@@ -443,7 +461,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "current_user&.email=#{current_user&.email}",
                                              "curation_concern&.parent.read_users=#{curation_concern&.parent.read_users}",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if file_sets_controller_debug_verbose
       return false unless current_user.present?
       return false unless curation_concern.parent.present?
       curation_concern.parent.read_users.include? current_user.email
@@ -468,7 +486,7 @@ module Hyrax
                                              "child_id=#{curation_concern.id}",
                                              "child_title=#{curation_concern.title}",
                                              "event_note=FileSetsController",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if file_sets_controller_debug_verbose
         return unless parent.respond_to? :provenance_child_add
         parent.provenance_child_remove( current_user: current_user,
                                         child_id: curation_concern.id,
@@ -497,7 +515,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "file_path=#{file_path}",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if file_sets_controller_debug_verbose
       ::Deepblue::ProvenanceLogService.entries( curation_concern.id, refresh: true )
       # continue on to normal display
       redirect_to current_show_path( append: "#provenance_log_display" )
@@ -527,7 +545,7 @@ module Hyrax
                                              "params=#{params}",
                                              "current_user=#{current_user}",
                                              Deepblue::LoggingHelper.obj_class( "actor", actor ),
-                                             "wants to revert" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "wants to revert" ] if file_sets_controller_debug_verbose
         actor.revert_content(params[:revision])
       elsif params.key?(:file_set)
         if params[:file_set].key?(:files)
@@ -536,14 +554,14 @@ module Hyrax
                                                "params=#{params}",
                                                "current_user=#{current_user}",
                                                Deepblue::LoggingHelper.obj_class( "actor", actor ),
-                                               "actor.update_content" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                               "actor.update_content" ] if file_sets_controller_debug_verbose
           actor.update_content(params[:file_set][:files].first)
         else
           Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                Deepblue::LoggingHelper.called_from,
                                                "params=#{params}",
                                                "current_user=#{current_user}",
-                                               "update_metadata" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                               "update_metadata" ] if file_sets_controller_debug_verbose
           update_metadata
         end
       elsif params.key?(:files_files) # version file already uploaded with ref id in :files_files array
@@ -552,7 +570,7 @@ module Hyrax
                                              "params=#{params}",
                                              "current_user=#{current_user}",
                                              Deepblue::LoggingHelper.obj_class( "actor", actor ),
-                                             "actor.update_content" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "actor.update_content" ] if file_sets_controller_debug_verbose
         uploaded_files = Array(Hyrax::UploadedFile.find(params[:files_files]))
         actor.update_content(uploaded_files.first)
         update_metadata
@@ -562,7 +580,7 @@ module Hyrax
     def decide_layout
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if file_sets_controller_debug_verbose
       layout = if 'show' == action_name || params[:link_id].present?
                  '1_column'
                else
@@ -572,7 +590,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if file_sets_controller_debug_verbose
       return rv
     end
 
@@ -581,7 +599,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "params=#{params}",
-                                               "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                               "" ] if file_sets_controller_debug_verbose
         # _, document_list = search_results(params)
         # curation_concern = document_list.first
         # raise CanCan::AccessDenied unless curation_concern
@@ -598,31 +616,31 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "search_params=#{search_params}",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if file_sets_controller_debug_verbose
       _, document_list = search_results( search_params ) do |builder|
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "builder.class.name=#{builder.class.name}",
-                                               "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                               "" ] if file_sets_controller_debug_verbose
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "builder.processor_chain.size=#{builder.processor_chain.size}",
                                                "builder.processor_chain=#{builder.processor_chain}",
-                                               "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                               "" ] if file_sets_controller_debug_verbose
         if params[:action] == "single_use_link"
           builder.processor_chain.delete :add_access_controls_to_solr_params
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "builder.processor_chain.size=#{builder.processor_chain.size}",
                                                  "builder.processor_chain=#{builder.processor_chain}",
-                                                 "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                                 "" ] if file_sets_controller_debug_verbose
         end
         builder # need to return a builder
       end
       # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
       #                                        ::Deepblue::LoggingHelper.called_from,
       #                                        "document_list.first=#{document_list.first}",
-      #                                        "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+      #                                        "" ] if file_sets_controller_debug_verbose
       return document_list.first unless document_list.empty?
       # document_not_found!
       raise CanCan::AccessDenied
@@ -630,7 +648,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "e=#{e}",
-                                             "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                             "" ] if file_sets_controller_debug_verbose
       begin
         # check with Fedora to see if the requested id was deleted
         id = params[:id]
@@ -640,7 +658,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "gone=#{gone.class} #{gone.message} at #{gone.backtrace[0]}",
-                                               "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                               "" ] if file_sets_controller_debug_verbose
         # okay, since this looks like a deleted curation concern, we can check the provenance log
         # if admin, redirect to the provenance log controller
         if current_ability.admin?
@@ -655,7 +673,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "e2=#{e2.class} #{e2.message} at #{e2.backtrace[0]}",
-                                               "" ] if FILE_SETS_CONTROLLER_DEBUG_VERBOSE
+                                               "" ] if file_sets_controller_debug_verbose
       end
       raise CanCan::AccessDenied
     end

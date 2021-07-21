@@ -1,13 +1,13 @@
 require 'rails_helper'
 require 'redlock'
 
-RSpec.describe Hyrax::Actors::OrderedMembersActor, skip: true do
+RSpec.describe Hyrax::Actors::OrderedMembersActor, skip: false do
   include ActionDispatch::TestProcess
 
   let(:user)          { create(:user) }
   let(:actor)         { described_class.new([file_set], user) }
   let(:file_set) { build(:file_set) }
-  let(:work) { create(:generic_work) }
+  let(:work) { create(:data_set) }
 
   describe 'attaching to a work' do
     before do
@@ -23,7 +23,7 @@ RSpec.describe Hyrax::Actors::OrderedMembersActor, skip: true do
     end
 
     context 'with multiple file_sets' do
-      let(:work_v1) { create(:generic_work) } # this version of the work has no members
+      let(:work_v1) { create(:data_set) } # this version of the work has no members
 
       before do # another file_set is added
         work.ordered_members << create(:file_set)
@@ -36,7 +36,7 @@ RSpec.describe Hyrax::Actors::OrderedMembersActor, skip: true do
     end
 
     context 'with multiple versions' do
-      let(:work_v1) { create(:generic_work) } # this version of the work has no members
+      let(:work_v1) { create(:data_set) } # this version of the work has no members
 
       before do # another version of the same work is saved with a member
         work_v2 = ActiveFedora::Base.find(work_v1.id)

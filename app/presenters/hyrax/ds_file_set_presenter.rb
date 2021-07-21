@@ -23,8 +23,6 @@ module Hyrax
 
     attr_accessor :cc_anonymous_link
     attr_accessor :cc_parent_anonymous_link
-    attr_accessor :cc_parent_single_use_link
-    attr_accessor :cc_single_use_link
     attr_accessor :parent_presenter
 
     def initialize( solr_document, current_ability, request = nil )
@@ -89,28 +87,48 @@ module Hyrax
     end
 
     def anonymous_links_init
-      su_links = SingleUseLink.where( itemId: id, user_id: current_ability.current_user.id )
-      su_links = su_links.select do |su_link|
+      anon_links = AnonymousLink.where( itemId: id )
+      debug_verbose = ds_file_set_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      anon_links = anon_links.select do |anon_link|
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "su_link=#{su_link}",
-                                               "su_link.valid?=#{su_link.valid?}",
-                                               "su_link.expired?=#{su_link.expired?}",
-                                               "su_link.itemId=#{su_link.itemId}",
-                                               "su_link.path=#{su_link.path}",
-                                               "su_link.user_id=#{su_link.user_id}",
-                                               "" ] if ds_file_set_presenter_debug_verbose
-        if su_link.expired?
-          su_link.delete
+                                               "anon_link=#{anon_link}",
+                                               "anon_link.valid?=#{anon_link.valid?}",
+                                               "anon_link.expired?=#{anon_link.expired?}",
+                                               "anon_link.itemId=#{anon_link.itemId}",
+                                               "anon_link.path=#{anon_link.path}",
+                                               "anon_link.user_id=#{anon_link.user_id}",
+                                               "" ] if debug_verbose
+        if anon_link.expired?
+          anon_link.delete
           false
         else
           true
         end
       end
-      su_links.map { |link| link_presenter_class.new(link) }
+      anon_links.map { |link| link_presenter_class.new(link) }
     end
 
+    def show_anonymous_link_section?
+      debug_verbose = ds_file_set_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "false if anonymous_show?=#{anonymous_show?}",
+                                             "" ] if debug_verbose
+      # TODO: if the work has been published, return false
+      return false if anonymous_show?
+      true
+    end
+
+    # def anonymous_show?
+    #   cc_anonymous_link.present? || cc_parent_anonymous_link.present?
+    # end
+
     def anonymous_show?
+      anonymous_use_show? || single_use_show?
+    end
+
+    def anonymous_use_show?
       cc_anonymous_link.present? || cc_parent_anonymous_link.present?
     end
 
@@ -139,13 +157,12 @@ module Hyrax
     def can_delete_file?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "false if single_use_show?=#{single_use_show?}",
+                                             "false if anonymous_show?=#{anonymous_show?}",
                                              "false if doi_minted?=#{doi_minted?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
                                              # "false if parent_doi_minted?=#{parent_doi_minted?}",
                                              "" ] if ds_file_set_presenter_debug_verbose
       return false if anonymous_show?
-      return false if single_use_show?
       return false if doi_minted?
       return true if current_ability.admin?
       # return false if parent_doi_minted?
@@ -161,7 +178,6 @@ module Hyrax
                                            "" ] if ds_file_set_presenter_debug_verbose
       return false unless ::DeepBlueDocs::Application.config.file_sets_contents_view_allow
       return false if anonymous_show?
-      return false if single_use_show?
       return false unless ( current_ability.admin? ) # || current_ability.can?(:read, id) )
       return false unless ::DeepBlueDocs::Application.config.file_sets_contents_view_mime_types.include?( mime_type )
       return false if file_size.blank?
@@ -172,7 +188,6 @@ module Hyrax
     def can_display_provenance_log?
       return false unless display_provenance_log_enabled?
       return false if anonymous_show?
-      return false if single_use_show?
       current_ability.admin?
     end
 
@@ -180,13 +195,12 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false if file_size_too_large_to_download?=#{file_size_too_large_to_download?}",
-                                             "true if single_use_show?=#{single_use_show?}",
+                                             "true if anonymous_show?=#{anonymous_show?}",
                                              "true if current_ability.can?( :download, id )=#{current_ability.can?( :download, id )}",
                                              "" ] if ds_file_set_presenter_debug_verbose
 
       return false if file_size_too_large_to_download?
       return true if anonymous_show?
-      return true if single_use_show?
       return true if current_ability.can?( :download, id )
       false
     end
@@ -204,12 +218,11 @@ module Hyrax
     def can_download_file_maybe?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "true if single_use_show?=#{single_use_show?}",
+                                             "true if anonymous_show?=#{anonymous_show?}",
                                              "true current_ability.admin?=#{current_ability.admin?}",
                                              "false if embargoed?=#{embargoed?}",
                                              "" ] if ds_file_set_presenter_debug_verbose
       return true if anonymous_show?
-      return true if single_use_show?
       return true if current_ability.admin?
       return false if embargoed?
       true
@@ -222,14 +235,13 @@ module Hyrax
     def can_edit_file?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "false if single_use_show?=#{single_use_show?}",
+                                             "false if anonymous_show?=#{anonymous_show?}",
                                              "false if parent.tombstone.present?=#{parent.tombstone.present?}",
                                              "true current_ability.admin?=#{current_ability.admin?}",
                                              "true editor?=#{editor?}",
                                              "and pending_publication?=#{pending_publication?}",
                                              "" ] if ds_file_set_presenter_debug_verbose
       return false if anonymous_show?
-      return false if single_use_show?
       return false if parent.tombstone.present?
       return true if current_ability.admin?
       return true if editor? && pending_publication?
@@ -240,7 +252,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false unless doi_minting_enabled?=#{doi_minting_enabled?}",
-                                             "false if single_use_show?=#{single_use_show?}",
+                                             "false if anonymous_show?=#{anonymous_show?}",
                                              "false if parent.tombstone.present?=#{parent.tombstone.present?}",
                                              "true if doi_pending?=#{doi_pending?}",
                                              "true if doi_minted?=#{doi_minted?}",
@@ -248,7 +260,6 @@ module Hyrax
                                              "" ] if ds_file_set_presenter_debug_verbose
       return false unless doi_minting_enabled?
       return false if anonymous_show?
-      return false if single_use_show?
       return false if parent.tombstone.present?
       return false if doi_pending? || doi_minted?
       return true if current_ability.admin?
@@ -263,7 +274,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false if parent.tombstone.present?=#{parent.tombstone.present?}",
-                                             "true if single_use_show?=#{single_use_show?}",
+                                             "true if anonymous_show?=#{anonymous_show?}",
                                              "true if current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
                                              "true if published?=#{published?}",
                                              "false if parent.embargoed?=#{parent.embargoed?}",
@@ -271,7 +282,6 @@ module Hyrax
                                              "" ] if ds_file_set_presenter_debug_verbose
       return false if parent.tombstone.present?
       return true if anonymous_show?
-      return true if single_use_show?
       return true if current_ability.can?( :edit, id )
       return true if published?
       return false if parent.embargoed?
@@ -320,26 +330,52 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
-                                             "single_use_show?=#{single_use_show?}",
+                                             "anonymous_show?=#{anonymous_show?}",
                                              "" ] if ds_file_set_presenter_debug_verbose
-      return "/data/downloads/#{curation_concern.id}" unless single_use_show? # TODO: fix
+      return "/data/downloads/#{curation_concern.id}" unless anonymous_show? # TODO: fix
       # return Rails.application.routes.url_helpers.url_for( only_path: true,
       #                                                      action: 'show',
       #                                                      controller: 'downloads',
-      #                                                      id: curation_concern.id ) unless single_use_show?
+      #                                                      id: curation_concern.id ) unless anonymous_show?
+      return download_path_anonymous_link( curation_concern ) if anonymous_show?
+      return download_path_single_use_link( curation_concern ) if single_use_show?
+      return "/data/downloads/#{curation_concern.id}"
+    end
+
+    def download_path_anonymous_link( curation_concern )
+      anon_link = anonymous_link_download( curation_concern )
+      debug_verbose = ds_file_set_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "anon_link=#{anon_link}",
+                                             "anon_link.downloadKey=#{anon_link.downloadKey}",
+                                             "anon_link.itemId=#{anon_link.itemId}",
+                                             "anon_link.path=#{anon_link.path}",
+                                             "" ] if debug_verbose
+      rv = "/data/anonymous_link/download/#{anon_link.downloadKey}" # TODO: fix
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "" ] if debug_verbose
+      # return "/data/downloads/#{curation_concern.id}/anonymous_link/#{anon_link.downloadKey}" # TODO: fix
+      return rv
+    end
+
+    def download_path_single_use_link( curation_concern )
       su_link = single_use_link_download( curation_concern )
+      debug_verbose = ds_file_set_presenter_debug_verbose || ::Hyrax::SingleUseLinkService.single_use_link_service_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "su_link=#{su_link}",
                                              "su_link.downloadKey=#{su_link.downloadKey}",
                                              "su_link.itemId=#{su_link.itemId}",
                                              "su_link.path=#{su_link.path}",
-                                             "" ] if ds_file_set_presenter_debug_verbose
+                                             "" ] if debug_verbose
       rv = "/data/single_use_link/download/#{su_link.downloadKey}" # TODO: fix
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
-                                             "" ] if ds_file_set_presenter_debug_verbose
+                                             "" ] if debug_verbose
       # return "/data/downloads/#{curation_concern.id}/single_use_link/#{su_link.downloadKey}" # TODO: fix
       return rv
     end
@@ -357,9 +393,9 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.class.name=#{curation_concern.class.name}",
                                              "id=#{id}",
-                                             "single_use_show?=#{single_use_show?}",
+                                             "anonymous_show?=#{anonymous_show?}",
                                              "" ] if ds_file_set_presenter_debug_verbose
-      return "/data/concern/file_sets/#{id}" unless single_use_show? # TODO: fix
+      return "/data/concern/file_sets/#{id}" unless anonymous_show? # TODO: fix
       su_link = single_use_link_show( curation_concern )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -450,9 +486,9 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "member.can_download_file?=#{member.can_download_file?}",
-                                             "member.single_use_show?=#{member.single_use_show?}",
+                                             "member.anonymous_show?=#{member.anonymous_show?}",
                                              "" ] if ds_file_set_presenter_debug_verbose
-      suppress_link = !member.can_download_file? || member.anonymous_show? || member.single_use_show?
+      suppress_link = !member.can_download_file? || member.anonymous_show?
       { suppress_link: suppress_link }
     end
 
@@ -517,7 +553,7 @@ module Hyrax
                                              "curation_concern.id=#{curation_concern.id}",
                                              "" ] if ds_file_set_presenter_debug_verbose
       user_id = nil
-      user_id = current_ability.current_user.id unless single_use_show?
+      user_id = current_ability.current_user.id unless anonymous_show?
       rv = SingleUseLink.create( itemId: curation_concern.id,
                                  path: "/data/downloads/#{curation_concern.id}", # TODO: fix
                                  user_id: user_id )
@@ -539,7 +575,7 @@ module Hyrax
                                              "" ] if ds_file_set_presenter_debug_verbose
       path = "/data/concern/file_sets/#{curation_concern.id}" # TODO: fix
       user_id = nil
-      user_id = current_ability.current_user.id unless single_use_show?
+      user_id = current_ability.current_user.id unless anonymous_show?
       rv = SingleUseLink.create( itemId: curation_concern.id,
                                  path: path,
                                  user_id: user_id )
@@ -588,7 +624,7 @@ module Hyrax
     end
 
     def single_use_show?
-      cc_single_use_link.present? || cc_parent_single_use_link.present?
+      cc_anonymous_link.present? || cc_parent_anonymous_link.present?
     end
 
     def thumbnail_post_process( tag )
@@ -606,7 +642,7 @@ module Hyrax
                                              "" ] if ds_file_set_presenter_debug_verbose
       rv.gsub!( 'data-context-href', 'data-reference' )
       # TODO: make sure that icon does not have a download link
-      if single_use_show?
+      if anonymous_show?
         rv.gsub!( /\/(data\/)?concern\/file_sets\/[^\?]+(\?locale=[^"']+)?/, download_path_link( solr_document ) )
       else
         rv.gsub!( 'concern/file_sets', 'downloads' )

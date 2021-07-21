@@ -78,7 +78,7 @@ module Hyrax
              :thumbnail_id,
              to: :solr_document
 
-    attr_accessor :cc_single_use_link
+    attr_accessor :cc_anonymous_link
 
     # def analytics_subscribed?
     #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -87,15 +87,54 @@ module Hyrax
     #   ::AnalyticsHelper::monthly_analytics_report_subscribed?( user: current_ability.current_user )
     # end
 
+    def anonymous_links
+      @anonymous_links ||= anonymous_links_init
+    end
+
+    def anonymous_links_init
+      anon_links = AnonymousLink.where( itemId: id )
+      debug_verbose = work_show_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      anon_links = anon_links.select do |anon_link|
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "anon_link=#{anon_link}",
+                                               "anon_link.valid?=#{anon_link.valid?}",
+                                               "anon_link.itemId=#{anon_link.itemId}",
+                                               "anon_link.path=#{anon_link.path}",
+                                               "" ] if debug_verbose
+        true
+      end
+      anon_links.map { |link| anonymous_link_presenter_class.new(link) }
+    end
+
+    def show_anonymous_link_section?
+      debug_verbose = work_show_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "false if anonymous_show?=#{anonymous_show?}",
+                                             "" ] if debug_verbose
+      # TODO: if the work has been published, return false
+      return false if anonymous_show?
+      true
+    end
+
+    def anonymous_show?
+      anonymous_use_show? || single_use_show?
+    end
+
+    def anonymous_use_show?
+      cc_anonymous_link.present?
+    end
+
     def can_delete_work?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "false if single_use_show?=#{single_use_show?}",
+                                             "false if anonymous_show?=#{anonymous_show?}",
                                              "false if doi_minted?=#{doi_minted?}",
                                              "false if tombstoned?=#{tombstoned?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
                                              "" ] if work_show_presenter_debug_verbose
-      return false if single_use_show?
+      return false if anonymous_show?
       return false if doi_minted?
       return false if tombstoned?
       return true if current_ability.admin?
@@ -106,18 +145,18 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false unless display_provenance_log_enabled?=#{display_provenance_log_enabled?}",
-                                             "false if single_use_show?=#{single_use_show?}",
+                                             "false if anonymous_show?=#{anonymous_show?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
                                              "" ] if work_show_presenter_debug_verbose
       return false unless display_provenance_log_enabled?
-      return false if single_use_show?
+      return false if anonymous_show?
       current_ability.admin?
     end
 
     def can_display_trophy_link?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "false if single_use_show?=#{single_use_show?}",
+                                             "false if anonymous_show?=#{anonymous_show?}",
                                              "false if tombstoned?=#{tombstoned?}",
                                              # "true if current_ability.admin?=#{current_ability.admin?}",
                                              "false if workflow.state != 'deposited'=#{workflow.state != 'deposited'}",
@@ -126,7 +165,7 @@ module Hyrax
                                              "@curation_concern.depositor=#{@curation_concern.depositor}",
                                              "true if current_ability.user.email == @curation_concern.depositor=#{current_ability.user.email == @curation_concern.depositor}",
                                              "" ] if work_show_presenter_debug_verbose
-      return false if single_use_show?
+      return false if anonymous_show?
       return false if tombstoned?
       # return true if current_ability.admin?
       return false if workflow.state != 'deposited'
@@ -149,7 +188,7 @@ module Hyrax
     def can_subscribe_to_analytics_reports?
       return false unless AnalyticsHelper.enable_local_analytics_ui?
       return false unless AnalyticsHelper.enable_analytics_works_reports_can_subscribe?
-      return false if single_use_show?
+      return false if anonymous_show?
       return true if current_ability.admin? && AnalyticsHelper.analytics_reports_admins_can_subscribe?
       # return true if can_edit_work? && AnalyticsHelper.open_analytics_report_subscriptions?
       # return true if depositor == current_ability.current_user.email && AnalyticsHelper.open_analytics_report_subscriptions?
@@ -159,13 +198,13 @@ module Hyrax
     def can_edit_work?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "false if single_use_show?=#{single_use_show?}",
+                                             "false if anonymous_show?=#{anonymous_show?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
                                              "false if tombstoned?=#{tombstoned?}",
                                              "true if editor?=#{editor?}",
                                              "and workflow.state != 'deposited'=#{workflow.state != 'deposited'}",
                                              "" ] if work_show_presenter_debug_verbose
-      return false if single_use_show?
+      return false if anonymous_show?
       return true if current_ability.admin?
       return false if tombstoned?
       return true if editor? && workflow.state != 'deposited'
@@ -179,14 +218,14 @@ module Hyrax
                                              "false if tombstoned?=#{tombstoned?}",
                                              "true if doi_pending?=#{doi_pending?}",
                                              "true if doi_minted?=#{doi_minted?}",
-                                             "false if single_use_show?=#{single_use_show?}",
+                                             "false if anonymous_show?=#{anonymous_show?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
                                              "current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
                                              "" ] if work_show_presenter_debug_verbose
       return false unless doi_minting_enabled?
       return false if tombstoned?
       return false if doi_pending? || doi_minted?
-      return false if single_use_show?
+      return false if anonymous_show?
       return true if current_ability.admin?
       current_ability.can?( :edit, id )
     end
@@ -203,12 +242,12 @@ module Hyrax
     def can_transfer_work?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "false if single_use_show?=#{single_use_show?}",
+                                             "false if anonymous_show?=#{anonymous_show?}",
                                              "false if tombstoned?=#{tombstoned?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
                                              "true if current_ability.can?( :transfer, id )=#{current_ability.can?( :transfer, id )}",
                                              "" ] if work_show_presenter_debug_verbose
-      return false if single_use_show?
+      return false if anonymous_show?
       return false if tombstoned?
       return true if current_ability.admin?
       return true if current_ability.can?( :transfer, id )
@@ -219,7 +258,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false if tombstoned?=#{tombstoned?}",
-                                             "true if single_use_show?=#{single_use_show?}",
+                                             "true if anonymous_show?=#{anonymous_show?}",
                                              "true if current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
                                              "true if current_ability.current_user.present? && current_ability.current_user.user_approver?( current_ability.current_user )=#{current_ability.current_user.present? && current_ability.current_user.user_approver?( current_ability.current_user )}",
                                              "true if workflow.state == 'deposited' && solr_document.visibility == 'open'=#{workflow.state == 'deposited' && solr_document.visibility == 'open'}",
@@ -228,7 +267,7 @@ module Hyrax
                                              "" ] if work_show_presenter_debug_verbose
       return false if tombstoned?
       return true if workflow.state == 'deposited' && solr_document.visibility == 'open'
-      return true if single_use_show?
+      return true if anonymous_show?
       return true if current_ability.can?( :edit, id )
       return true if current_ability.current_user.present? && current_ability.current_user.user_approver?( current_ability.current_user )
       return false if embargoed?
@@ -241,7 +280,7 @@ module Hyrax
                                              "true if workflow.state == 'deposited' && solr_document.visibility == 'open'=#{workflow.state == 'deposited' && solr_document.visibility == 'open'}",
                                              "true if embargoed?=#{embargoed?}",
                                              "true if tombstoned?=#{tombstoned?}",
-                                             "true if single_use_show?=#{single_use_show?}",
+                                             "true if anonymous_show?=#{anonymous_show?}",
                                              "true if current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
                                              "true if current_ability.current_user.present? && current_ability.current_user.user_approver?( current_ability.current_user )=#{current_ability.current_user.present? && current_ability.current_user.user_approver?( current_ability.current_user )}",
                                              "current_user_can_read?=#{current_user_can_read?}",
@@ -249,7 +288,7 @@ module Hyrax
       return true if workflow.state == 'deposited' && solr_document.visibility == 'open'
       return true if embargoed? && workflow.state == 'deposited'
       return true if tombstoned?
-      return true if single_use_show?
+      return true if anonymous_show?
       return true if current_ability.can?( :edit, id )
       return true if current_ability.current_user.present? && current_ability.current_user.user_approver?( current_ability.current_user )
       current_user_can_read?
@@ -325,14 +364,14 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "ids=#{ids}",
                                              "presenter_class=#{presenter_class}",
-                                             "cc_single_use_link=#{cc_single_use_link}",
+                                             "cc_anonymous_link=#{cc_anonymous_link}",
                                              "" ] if work_show_presenter_debug_verbose
       presenters = member_presenter_factory.member_presenters( ids, presenter_class )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "presenters.size=#{presenters.size}",
                                              "" ] if work_show_presenter_debug_verbose
-      # return presenters if cc_single_use_link.blank?
+      # return presenters if cc_anonymous_link.blank?
       presenters.each do |member_presenter|
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
@@ -345,11 +384,11 @@ module Hyrax
                                                  "member_presenter.parent_presenter.id=#{member_presenter.parent_presenter.id}",
                                                  "" ] if work_show_presenter_debug_verbose
         end
-        if cc_single_use_link.present? && member_presenter.respond_to?( :cc_parent_single_use_link )
-          member_presenter.cc_parent_single_use_link = cc_single_use_link
+        if cc_anonymous_link.present? && member_presenter.respond_to?( :cc_parent_anonymous_link )
+          member_presenter.cc_parent_anonymous_link = cc_anonymous_link
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
-                                                 "member_presenter.cc_parent_single_use_link=#{member_presenter.cc_parent_single_use_link}",
+                                                 "member_presenter.cc_parent_anonymous_link=#{member_presenter.cc_parent_anonymous_link}",
                                                  "" ] if work_show_presenter_debug_verbose
         end
       end
@@ -413,7 +452,7 @@ module Hyrax
                                              "id=#{id}",
                                              "" ] if work_show_presenter_debug_verbose
       user_id = nil
-      user_id = current_ability.current_user.id unless single_use_show?
+      user_id = current_ability.current_user.id unless anonymous_show?
       rv = SingleUseLink.create( itemId: curation_concern.id,
                                  path: "/data/concern/data_sets/#{id}/single_use_link_zip_download",
                                  user_id: user_id )
@@ -452,11 +491,11 @@ module Hyrax
           true
         end
       end
-      su_links.map { |link| link_presenter_class.new(link) }
+      su_links.map { |link| single_use_link_presenter_class.new(link) }
     end
 
     def single_use_show?
-      cc_single_use_link.present?
+      cc_anonymous_link.present?
     end
 
     def tombstone
@@ -578,7 +617,7 @@ module Hyrax
     end
 
     def editor?
-      return false if single_use_show?
+      return false if anonymous_show?
       current_ability.can?(:edit, solr_document)
     end
 
@@ -678,7 +717,11 @@ module Hyrax
 
     private
 
-      def link_presenter_class
+      def anonymous_link_presenter_class
+        AnonymousLinkPresenter
+      end
+
+      def single_use_link_presenter_class
         SingleUseLinkPresenter
       end
 
@@ -719,7 +762,7 @@ module Hyrax
       end
 
       def user_can_feature_works?
-        return false if single_use_show?
+        return false if anonymous_show?
         current_ability.can?(:create, FeaturedWork)
       end
 

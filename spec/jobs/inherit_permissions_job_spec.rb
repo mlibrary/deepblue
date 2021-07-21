@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe InheritPermissionsJob, skip: true do
   let(:user) { create(:user) }
-  let(:work) { create(:work_with_one_file, user: user) }
+  let(:work) { create(:data_set_with_one_file, user: user) }
 
   before do
     work.permissions.build(name: name, type: type, access: access)

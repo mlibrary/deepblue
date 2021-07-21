@@ -5,7 +5,8 @@ module Hyrax
 
     class BeforeModelActor < AbstractEventActor
 
-      BEFORE_MODEL_ACTOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.before_model_actor_debug_verbose
+      mattr_accessor :before_model_actor_debug_verbose,
+                     default: ::DeepBlueDocs::Application.config.before_model_actor_debug_verbose
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if create was successful
@@ -13,7 +14,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "env=#{env}",
-                                               "" ] if BEFORE_MODEL_ACTOR_DEBUG_VERBOSE
+                                               "" ] if before_model_actor_debug_verbose
         env.log_event( next_actor: next_actor ) if env.respond_to? :log_event
         next_actor.create(env)
       end
@@ -21,14 +22,14 @@ module Hyrax
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if destroy was successful
       def destroy( env )
-        env.log_event( next_actor: next_actor )
+        env.log_event( next_actor: next_actor ) if env.respond_to? :log_event
         next_actor.destroy(env)
       end
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if update was successful
       def update( env )
-        env.log_event( next_actor: next_actor )
+        env.log_event( next_actor: next_actor ) if env.respond_to? :log_event
         next_actor.update(env)
       end
 

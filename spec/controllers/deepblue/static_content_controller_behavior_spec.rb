@@ -1,7 +1,9 @@
 require 'rails_helper'
+
 class TestController < ApplicationController
    include Deepblue::StaticContentControllerBehavior
 end
+
 RSpec.describe Deepblue::StaticContentControllerBehavior do
 
   let(:dummy_class) { TestController.new }
@@ -27,7 +29,7 @@ RSpec.describe Deepblue::StaticContentControllerBehavior do
     expect(dc).to eq("collid1")
   end
 
-  it 'sets the cahe id' do
+  it 'sets the cache id' do
     dc = Deepblue::StaticContentControllerBehavior.static_content_cache_id( key: 2, id: 4)
     expect(dc).to eq(4)
   end

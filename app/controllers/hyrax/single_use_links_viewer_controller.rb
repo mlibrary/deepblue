@@ -5,7 +5,7 @@ module Hyrax
   class SingleUseLinksViewerController < DownloadsController
 
     mattr_accessor :single_use_links_viewer_controller_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.single_use_links_viewer_controller_debug_verbose
+                   default: ::Hyrax::SingleUseLinkService.single_use_links_viewer_controller_debug_verbose
 
     include ActionView::Helpers::TranslationHelper
     include Blacklight::Base

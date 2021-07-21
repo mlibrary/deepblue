@@ -10,7 +10,7 @@ class Hyrax::Actors::MusicalWork
   end
 end
 
-RSpec.describe Hyrax::Actors::ModelActor, skip: true do
+RSpec.describe Hyrax::Actors::ModelActor, skip: false do
   let(:work) { MusicalWork::Cover.new }
   let(:depositor) { create(:user) }
   let(:depositor_ability) { ::Ability.new(depositor) }

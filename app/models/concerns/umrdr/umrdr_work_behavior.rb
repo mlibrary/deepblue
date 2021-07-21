@@ -4,7 +4,8 @@ module Umrdr
 
   module UmrdrWorkBehavior
 
-    UMRDR_WORK_BEHAVIOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.umrdr_work_behavior_debug_verbose
+    mattr_accessor :umrdr_work_behavior_debug_verbose,
+                   default: ::DeepBlueDocs::Application.config.umrdr_work_behavior_debug_verbose
 
     extend ActiveSupport::Concern
 
@@ -40,7 +41,7 @@ module Umrdr
                                              "id=#{id}",
                                              "read_me_file_set_id=#{read_me_file_set_id}",
                                              "file_set.id=#{file_set.id}",
-                                             "" ] if UMRDR_WORK_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if umrdr_work_behavior_debug_verbose
       return unless Array( read_me_file_set_id ).first == file_set.id
       self[:read_me_file_set_id] = nil
       save!( validate: false )
@@ -52,7 +53,7 @@ module Umrdr
                                              "id=#{id}",
                                              "read_me_file_set_id=#{read_me_file_set_id}",
                                              "file_set.id=#{file_set.id}",
-                                             "" ] if UMRDR_WORK_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if umrdr_work_behavior_debug_verbose
       return if Array( read_me_file_set_id ).first == file_set.id
       self[:read_me_file_set_id] = file_set.id
       save!( validate: false )

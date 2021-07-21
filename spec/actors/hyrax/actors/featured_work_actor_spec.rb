@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Actors::FeaturedWorkActor, skip: true do
+RSpec.describe Hyrax::Actors::FeaturedWorkActor, skip: false do
   let(:ability) { ::Ability.new(depositor) }
   let(:env) { Hyrax::Actors::Environment.new(work, ability, attributes) }
   let(:terminator) { Hyrax::Actors::Terminator.new }

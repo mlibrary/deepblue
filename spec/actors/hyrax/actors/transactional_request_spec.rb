@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Actors::TransactionalRequest, skip: true do
+RSpec.describe Hyrax::Actors::TransactionalRequest, skip: false do
   let(:bad_actor) do
     Class.new(Hyrax::Actors::AbstractActor) do
       def create(attributes)

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Actors::FileActor, skip: true do
+RSpec.describe Hyrax::Actors::FileActor, skip: false do
   include ActionDispatch::TestProcess
   include Hyrax::FactoryHelpers
 
@@ -19,6 +19,14 @@ RSpec.describe Hyrax::Actors::FileActor, skip: true do
     end
   end
 
+  let( :job )          { TestJob.send( :job_or_instantiate ) }
+  let( :job_id )       { job.job_id }
+  let(:job_status_var) { JobStatus.create( job_id: job_id, job_class: job.class ) }
+  let(:job_status)     { IngestJobStatus.new( job_status: job_status_var,
+                                              verbose: false,
+                                              main_cc_id: nil,
+                                              user_id: user.id  ) }
+
   context 'relation' do
     let(:relation) { :remastered }
     let(:file_set) do
@@ -29,27 +37,40 @@ RSpec.describe Hyrax::Actors::FileActor, skip: true do
 
     before do
       class FileSetWithExtras < FileSet
-        directly_contains_one :remastered, through: :files, type: ::RDF::URI('http://pcdm.org/use#IntermediateFile'), class_name: 'Hydra::PCDM::File'
+        directly_contains_one :remastered,
+                              through: :files,
+                              type: ::RDF::URI('http://pcdm.org/use#IntermediateFile'),
+                              class_name: 'Hydra::PCDM::File'
       end
     end
     after do
       Object.send(:remove_const, :FileSetWithExtras)
     end
     it 'uses the relation from the actor' do
-      expect(CharacterizeJob).to receive(:perform_later).with(FileSetWithExtras, String, huf.uploader.path)
-      actor.ingest_file(io)
+      expect(CharacterizeJob).to receive(:perform_later).with(file_set,
+                                                              String,
+                                                              huf.uploader.path,
+                                                              current_user: nil,
+                                                              parent_job_id: job_id,
+                                                              uploaded_file_ids: [] )
+      actor.ingest_file(io, job_status: job_status)
       expect(file_set.reload.remastered.mime_type).to eq 'image/png'
     end
   end
 
   it 'uses the provided mime_type' do
     allow(fixture).to receive(:content_type).and_return('image/gif')
-    expect(CharacterizeJob).to receive(:perform_later).with(FileSet, String, huf.uploader.path)
-    actor.ingest_file(io)
+    expect(CharacterizeJob).to receive(:perform_later).with(file_set,
+                                                            String,
+                                                            huf.uploader.path,
+                                                            current_user: nil,
+                                                            parent_job_id: job_id,
+                                                            uploaded_file_ids: [] )
+    actor.ingest_file(io, job_status: job_status)
     expect(file_set.reload.original_file.mime_type).to eq 'image/gif'
   end
 
-  context 'with two existing versions from different users' do
+  context 'with two existing versions from different users', skip: true do
     let(:fixture2) { fixture_file_upload('/small_file.txt', 'text/plain') }
     let(:huf2) { Hyrax::UploadedFile.new(user: user2, file_set_uri: file_set.uri, file: fixture2) }
     let(:io2) { JobIoWrapper.new(file_set_id: file_set.id, user: user2, uploaded_file: huf2) }
@@ -59,8 +80,8 @@ RSpec.describe Hyrax::Actors::FileActor, skip: true do
 
     before do
       allow(Hydra::Works::CharacterizationService).to receive(:run).with(any_args)
-      actor.ingest_file(io)
-      actor2.ingest_file(io2)
+      actor.ingest_file(io, job_status: job_status)
+      actor2.ingest_file(io2, job_status: job_status)
     end
 
     it 'has two versions' do
@@ -78,22 +99,32 @@ RSpec.describe Hyrax::Actors::FileActor, skip: true do
 
   describe '#ingest_file' do
     before do
-      expect(Hydra::Works::AddFileToFileSet).to receive(:call).with(file_set, io, relation, versioning: false)
+      expect(Hydra::Works::AddFileToFileSet).to receive(:call).with(file_set,
+                                                                    io,
+                                                                    relation,
+                                                                    update_existing: true,
+                                                                    versioning: false)
     end
     it 'when the file is available' do
       allow(file_set).to receive(:save).and_return(true)
       allow(file_set).to receive(relation).and_return(pcdmfile)
-      expect(Hyrax::VersioningService).to receive(:create).with(pcdmfile, user)
-      expect(CharacterizeJob).to receive(:perform_later).with(FileSet, pcdmfile.id, huf.uploader.path)
-      actor.ingest_file(io)
+      expect(Hyrax::VersioningService).to receive(:create).with(pcdmfile, nil)
+      expect(CharacterizeJob).to receive(:perform_later).with(FileSet,
+                                                              pcdmfile.id,
+                                                              huf.uploader.path,
+                                                              current_user: nil,
+                                                              parent_job_id: job_id,
+                                                              uploaded_file_ids: [] )
+      actor.ingest_file(io, job_status: job_status)
     end
     it 'returns false when save fails' do
       allow(file_set).to receive(:save).and_return(false)
-      expect(actor.ingest_file(io)).to be_falsey
+      expect(actor.ingest_file(io, job_status: job_status)).to be_falsey
     end
   end
 
-  describe '#revert_to' do
+  describe '#revert_to', skip: true do
+
     let(:revision_id) { 'asdf1234' }
 
     before do
@@ -123,5 +154,7 @@ RSpec.describe Hyrax::Actors::FileActor, skip: true do
         actor.revert_to(revision_id)
       end
     end
+
   end
+
 end

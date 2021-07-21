@@ -53,9 +53,6 @@ module DeepBlueDocs
     config.abstract_notification_debug_verbose = false
     config.abstract_filter_debug_verbose = false
     config.after_optimistic_lock_validator_debug_verbose = false
-    config.anonymous_link_controller_behavior_debug_verbose = false ## TODO: move to AnonymousLinkService
-    config.anonymous_links_controller_debug_verbose = false
-    config.anonymous_links_viewer_controller_debug_verbose = false
     config.application_controller_debug_verbose = false
     config.before_model_actor_debug_verbose = false
     config.catalog_controller_debug_verbose = false
@@ -93,9 +90,6 @@ module DeepBlueDocs
     # config.new_content_service_debug_verbose = false
     config.provenance_behavior_debug_verbose = false
     config.shell_based_processor_debug_verbose = false
-    config.single_use_link_controller_behavior_debug_verbose = false ## TODO: move to SingleUseLinkService
-    config.single_use_links_controller_debug_verbose = false
-    config.single_use_links_viewer_controller_debug_verbose = false
     config.solr_document_behavior_debug_verbose = false
     config.solr_document_debug_verbose = false
     # config.static_content_controller_behavior_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
@@ -261,11 +255,6 @@ module DeepBlueDocs
     config.provenance_log_path = Rails.root.join( 'log', config.provenance_log_name )
     config.provenance_log_echo_to_rails_logger = true
     config.provenance_log_redundant_events = true
-
-    # begin single use link config
-    config.enable_single_use_links = true
-    config.single_use_link_but_not_really = false
-    # end single use link config
 
     ## to configure work_view_content, see config/initalizers/work_view_content.rb
 
