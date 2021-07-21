@@ -14,16 +14,6 @@ module Hyrax
       @link = link
     end
 
-    def human_readable_expiration
-      return t( 'hyrax.single_use_links.expiration.human_readable_time',
-                value: human_readable_time ) if ::Hyrax::AnonymousLinkService.anonymous_link_use_detailed_human_readable_time
-      if hours < 1
-        t('hyrax.anonymous_links.expiration.lesser_time')
-      else
-        t('hyrax.anonymous_links.expiration.time', value: hours)
-      end
-    end
-
     def short_key
       link.downloadKey.first(6)
     end

@@ -1,9 +1,9 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Actors::InitializeWorkflowActor, skip: true do
+RSpec.describe Hyrax::Actors::InitializeWorkflowActor, skip: false do
   let(:user) { create(:user) }
   let(:ability) { ::Ability.new(user) }
-  let(:curation_concern) { build(:generic_work) }
+  let(:curation_concern) { build(:data_set) }
   let(:attributes) { { title: ['test'] } }
 
   let(:terminator) { Hyrax::Actors::Terminator.new }
@@ -12,7 +12,7 @@ RSpec.describe Hyrax::Actors::InitializeWorkflowActor, skip: true do
   subject(:middleware) do
     stack = ActionDispatch::MiddlewareStack.new.tap do |middleware|
       middleware.use described_class
-      middleware.use Hyrax::Actors::GenericWorkActor
+      middleware.use Hyrax::Actors::DataSetActor
     end
     stack.build(terminator)
   end
@@ -25,7 +25,7 @@ RSpec.describe Hyrax::Actors::InitializeWorkflowActor, skip: true do
   end
 
   describe 'create' do
-    let(:curation_concern) { build(:generic_work, admin_set: admin_set) }
+    let(:curation_concern) { build(:data_set, admin_set: admin_set) }
     let!(:admin_set) { create(:admin_set, with_permission_template: { with_workflows: true }) }
 
     it 'creates an entity' do

@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'redlock'
 
-RSpec.describe Hyrax::Actors::FileSetActor, skip: true do
+RSpec.describe Hyrax::Actors::FileSetActor, skip: false do
   include ActionDispatch::TestProcess
 
   let(:user)          { create(:user) }
@@ -13,14 +13,22 @@ RSpec.describe Hyrax::Actors::FileSetActor, skip: true do
   let(:relation)      { :original_file }
   let(:file_actor)    { Hyrax::Actors::FileActor.new(file_set, relation, user) }
 
-  describe 'non ascii characters in filenames' do
+  let( :job )          { TestJob.send( :job_or_instantiate ) }
+  let( :job_id )       { job.job_id }
+  let(:job_status_var) { JobStatus.create( job_id: job_id, job_class: job.class ) }
+  let(:job_status)     { IngestJobStatus.new( job_status: job_status_var,
+                                              verbose: false,
+                                              main_cc_id: nil,
+                                              user_id: user.id  ) }
+
+  describe 'non ascii characters in filenames', skip: true do
     let(:file_path)     { File.join(fixture_path, '世界.png') }
     let(:file)          { fixture_file_upload(file_path, 'image/png') }
     let(:local_file)    { File.open(file_path) }
     let(:file_set)      { build(:file_set) }
 
     before do
-      actor.create_content(file)
+      actor.create_content(file, job_status: job_status)
       actor.file_set.reload
     end
 
@@ -46,7 +54,7 @@ RSpec.describe Hyrax::Actors::FileSetActor, skip: true do
   end
 
   describe 'creating metadata, content and attaching to a work' do
-    let(:work) { create(:generic_work) }
+    let(:work) { create(:data_set) }
     let(:date_today) { DateTime.current }
 
     subject { file_set.reload }
@@ -55,7 +63,7 @@ RSpec.describe Hyrax::Actors::FileSetActor, skip: true do
       allow(DateTime).to receive(:current).and_return(date_today)
       allow(actor).to receive(:acquire_lock_for).and_yield
       actor.create_metadata
-      actor.create_content(file)
+      actor.create_content(file, job_status: job_status)
       actor.attach_to_work(work)
     end
 
@@ -83,22 +91,22 @@ RSpec.describe Hyrax::Actors::FileSetActor, skip: true do
       expect(IngestJob).to receive(:perform_later).with(JobIoWrapper)
     end
 
-    it 'calls ingest_file' do
-      actor.create_content(file)
+    it 'calls ingest_file', skip: true do
+      actor.create_content(file, job_status: job_status)
     end
 
     context 'when an alternative relationship is specified' do
       let(:relation) { :remastered }
 
-      it 'calls ingest_file' do
-        actor.create_content(file, :remastered)
+      it 'calls ingest_file', skip: true do
+        actor.create_content(file, :remastered, job_status: job_status)
       end
     end
 
-    context 'using ::File' do
+    context 'using ::File', skip: true do
       let(:file) { local_file }
 
-      before { actor.create_content(local_file) }
+      before { actor.create_content(local_file, job_status: job_status) }
 
       it 'sets the label and title' do
         expect(file_set.label).to eq(File.basename(local_file))
@@ -110,7 +118,7 @@ RSpec.describe Hyrax::Actors::FileSetActor, skip: true do
       end
     end
 
-    context 'when file_set.title is empty and file_set.label is not' do
+    context 'when file_set.title is empty and file_set.label is not', skip: true do
       let(:long_name) do
         'an absurdly long title that goes on way to long and messes up the display of the page which should not need ' \
           'to be this big in order to show this impossibly long, long, long, oh so long string'
@@ -119,7 +127,7 @@ RSpec.describe Hyrax::Actors::FileSetActor, skip: true do
 
       before do
         allow(file_set).to receive(:label).and_return(short_name)
-        actor.create_content(file)
+        actor.create_content(file, job_status: job_status)
       end
 
       subject { file_set.title }
@@ -138,10 +146,10 @@ RSpec.describe Hyrax::Actors::FileSetActor, skip: true do
       let(:actor) { described_class.new(file_set, user) }
 
       before do
-        actor.create_content(file)
+        actor.create_content(file, job_status: job_status)
       end
 
-      it "retains the object's original label" do
+      it "retains the object's original label", skip: true do
         expect(file_set.label).to eql(label)
       end
     end
@@ -152,8 +160,8 @@ RSpec.describe Hyrax::Actors::FileSetActor, skip: true do
       expect(JobIoWrapper).to receive(:create_with_varied_file_handling!).with(any_args).once.and_call_original
     end
 
-    it 'calls ingest_file and kicks off jobs' do
-      actor.create_content(file, from_url: true)
+    it 'calls ingest_file and kicks off jobs', skip: true do
+      actor.create_content(file, from_url: true, job_status: job_status)
       expect(VisibilityCopyJob).to have_been_enqueued
       expect(InheritPermissionsJob).to have_been_enqueued
     end
@@ -167,14 +175,14 @@ RSpec.describe Hyrax::Actors::FileSetActor, skip: true do
       end
 
       it 'calls ingest_file' do
-        actor.create_content(file, :remastered, from_url: true)
+        actor.create_content(file, :remastered, from_url: true, job_status: job_status)
       end
     end
 
     context 'using ::File' do
       let(:file) { local_file }
 
-      before { actor.create_content(local_file, from_url: true) }
+      before { actor.create_content(local_file, from_url: true, job_status: job_status) }
 
       it 'sets the label and title' do
         expect(file_set.label).to eq(File.basename(local_file))
@@ -195,7 +203,7 @@ RSpec.describe Hyrax::Actors::FileSetActor, skip: true do
 
       before do
         allow(file_set).to receive(:label).and_return(short_name)
-        actor.create_content(file, from_url: true)
+        actor.create_content(file, from_url: true, job_status: job_status)
       end
 
       subject { file_set.title }
@@ -214,7 +222,7 @@ RSpec.describe Hyrax::Actors::FileSetActor, skip: true do
       let(:actor) { described_class.new(file_set, user) }
 
       before do
-        actor.create_content(file, from_url: true)
+        actor.create_content(file, from_url: true, job_status: job_status)
       end
 
       it "retains the object's original label" do
@@ -235,7 +243,7 @@ RSpec.describe Hyrax::Actors::FileSetActor, skip: true do
       expect(IngestJob).to receive(:perform_later).with(any_args).and_return(IngestJob.new)
       expect(actor.update_content(local_file)).to be_a(IngestJob)
     end
-    it 'runs callbacks', perform_enqueued: [IngestJob] do
+    it 'runs callbacks', perform_enqueued: [IngestJob], skip: true do
       # Do not bother ingesting the file -- test only the result of callback
       allow(file_actor).to receive(:ingest_file).with(any_args).and_return(double)
       expect(ContentNewVersionEventJob).to receive(:perform_later).with(file_set, user)
@@ -244,14 +252,14 @@ RSpec.describe Hyrax::Actors::FileSetActor, skip: true do
   end
 
   describe "#destroy" do
-    it "destroys the object" do
+    it "destroys the object", skip: true do
       actor.destroy
       expect { file_set.reload }.to raise_error ActiveFedora::ObjectNotFoundError
     end
 
     context "representative, renderings and thumbnail of a work" do
       let!(:work) do
-        work = create(:generic_work)
+        work = create(:data_set)
         # this is not part of a block on the create, since the work must be saved
         # before the representative can be assigned
         work.ordered_members << file_set
@@ -263,7 +271,7 @@ RSpec.describe Hyrax::Actors::FileSetActor, skip: true do
       end
 
       it "removes representative, renderings, thumbnail, and the proxy association" do
-        gw = GenericWork.find(work.id)
+        gw = DataSet.find(work.id)
         expect(gw.representative_id).to eq(file_set.id)
         expect(gw.thumbnail_id).to eq(file_set.id)
         expect { actor.destroy }.to change { ActiveFedora::Aggregation::Proxy.count }.by(-1)
@@ -276,7 +284,7 @@ RSpec.describe Hyrax::Actors::FileSetActor, skip: true do
   end
 
   describe "#attach_to_work" do
-    let(:work) { build(:public_generic_work) }
+    let(:work) { build(:public_data_set) }
 
     before do
       allow(actor).to receive(:acquire_lock_for).and_yield
@@ -307,7 +315,7 @@ RSpec.describe Hyrax::Actors::FileSetActor, skip: true do
     end
 
     context 'with multiple versions' do
-      let(:work_v1) { create(:generic_work) } # this version of the work has no members
+      let(:work_v1) { create(:data_set) } # this version of the work has no members
 
       before do # another version of the same work is saved with a member
         work_v2 = ActiveFedora::Base.find(work_v1.id)
@@ -344,15 +352,15 @@ RSpec.describe Hyrax::Actors::FileSetActor, skip: true do
     end
   end
 
-  describe '#revert_content', perform_enqueued: [IngestJob] do
+  describe '#revert_content', perform_enqueued: [IngestJob], skip: true do
     let(:file_set) { create(:file_set, user: user) }
     let(:file1)    { "small_file.txt" }
     let(:version1) { "version1" }
     let(:restored_content) { file_set.reload.original_file }
 
     before do
-      actor.create_content(fixture_file_upload(file1))
-      actor.create_content(fixture_file_upload('hyrax_generic_stub.txt'))
+      actor.create_content(fixture_file_upload(file1), job_status: job_status)
+      actor.create_content(fixture_file_upload('hyrax_generic_stub.txt'), job_status: job_status)
       actor.file_set.reload
     end
 

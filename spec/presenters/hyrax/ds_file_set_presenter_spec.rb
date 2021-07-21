@@ -117,7 +117,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
 
     context 'cannot when single-use show and admin' do
       before do
-        allow( presenter ).to receive( :single_use_show? ).and_return true
+        allow( presenter ).to receive( :anonymous_show? ).and_return true
         allow( presenter ).to receive( :doi_minted? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return true
       end
@@ -125,7 +125,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
     end
     context 'cannot when single-use show and not admin' do
       before do
-        allow( presenter ).to receive( :single_use_show? ).and_return true
+        allow( presenter ).to receive( :anonymous_show? ).and_return true
         allow( presenter ).to receive( :doi_minted? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return false
       end
@@ -133,7 +133,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
     end
     context 'cannot when doi minted and admin' do
       before do
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( presenter ).to receive( :doi_minted? ).and_return true
         allow( current_ability ).to receive( :admin? ).and_return true
       end
@@ -141,7 +141,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
     end
     context 'cannot when doi minted and not admin' do
       before do
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( presenter ).to receive( :doi_minted? ).and_return true
         allow( current_ability ).to receive( :admin? ).and_return false
       end
@@ -149,7 +149,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
     end
     context 'can when admin and not single user show or doi minted' do
       before do
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( presenter ).to receive( :doi_minted? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return true
       end
@@ -164,7 +164,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
     context 'cannot when file size is too large' do
       before do
         expect( presenter ).to receive( :file_size_too_large_to_download? ).at_least(:once).and_return true
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( current_ability ).to receive( :can? ).with( :download, presenter.id ).and_return true
       end
       it { is_expected.to be false }
@@ -172,7 +172,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
     context 'can when single-use show' do
       before do
         allow( presenter ).to receive( :file_size_too_large_to_download? ).and_return false
-        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return true
+        expect( presenter ).to receive( :anonymous_show? ).at_least(:once).and_return true
         allow( current_ability ).to receive( :can? ).with( :download, presenter.id ).and_return true
       end
       it { is_expected.to be true }
@@ -180,7 +180,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
     context 'can when user can download id' do
       before do
         allow( presenter ).to receive( :file_size_too_large_to_download? ).and_return false
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         expect( current_ability ).to receive( :can? ).at_least(:once).with( :download, presenter.id ).and_return true
       end
       it { is_expected.to be true }
@@ -188,7 +188,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
     context 'cannot when user cannot download id' do
       before do
         allow( presenter ).to receive( :file_size_too_large_to_download? ).and_return false
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         expect( current_ability ).to receive( :can? ).at_least(:once).with( :download, presenter.id ).and_return false
       end
       it { is_expected.to be false }
@@ -203,7 +203,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
     context 'cannot when tombstone present' do
       before do
         expect( parent_presenter ).to receive( :tombstone ).at_least(:once).and_return "tombstoned"
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return false
         allow( presenter ).to receive( :editor? ).and_return false
       end
@@ -212,7 +212,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
     context 'cannot when single-use show' do
       before do
         allow( parent_presenter ).to receive( :tombstone ).and_return nil
-        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return true
+        expect( presenter ).to receive( :anonymous_show? ).at_least(:once).and_return true
         allow( current_ability ).to receive( :admin? ).and_return false
         allow( presenter ).to receive( :editor? ).and_return false
       end
@@ -221,7 +221,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
     context 'can when admin and not single-use show or tombstoned' do
       before do
         allow( parent_presenter ).to receive( :tombstone ).and_return nil
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         expect( current_ability ).to receive( :admin? ).at_least(:once).and_return true
         allow( presenter ).to receive( :editor? ).and_return false
       end
@@ -230,7 +230,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
     context 'can when editor and not deposited' do
       before do
         allow( parent_presenter ).to receive( :tombstone ).and_return nil
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return false
         expect( presenter ).to receive( :editor? ).at_least(:once).and_return true
         expect( workflow ).to receive( :state ).at_least(:once).and_return "pending_review"
@@ -241,7 +241,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
     context 'cannot when editor and deposited' do
       before do
         allow( parent_presenter ).to receive( :tombstone ).and_return nil
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return false
         expect( presenter ).to receive( :editor? ).at_least(:once).and_return true
         expect( workflow ).to receive( :state ).at_least(:once).and_return "deposited"
@@ -252,7 +252,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
     context 'cannot when not editor' do
       before do
         allow( parent_presenter ).to receive( :tombstone ).and_return nil
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return false
         allow( presenter ).to receive( :editor? ).and_return false
         allow( workflow ).to receive( :state ).and_return "pending_review"
@@ -276,14 +276,14 @@ RSpec.describe Hyrax::DsFileSetPresenter do
     context 'can when single-use show' do
       before do
         expect( parent_presenter ).to receive( :tombstone ).at_least(:once).and_return nil
-        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return true
+        expect( presenter ).to receive( :anonymous_show? ).at_least(:once).and_return true
       end
       it { is_expected.to be true }
     end
     context 'cannot when pending and visible and can not edit' do
       before do
         expect( parent_presenter ).to receive( :tombstone ).at_least(:once).and_return nil
-        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
+        expect( presenter ).to receive( :anonymous_show? ).at_least(:once).and_return false
         expect( workflow ).to receive( :state ).at_least(:once).and_return "pending_review"
         expect( parent_presenter ).to receive( :workflow ).at_least(:once).and_return workflow
         expect( current_ability ).to receive( :can? ).at_least(:once).with( :edit, presenter.id ).and_return false
@@ -295,7 +295,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
     context 'can when pending and visible and can edit' do
       before do
         expect( parent_presenter ).to receive( :tombstone ).at_least(:once).and_return nil
-        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
+        expect( presenter ).to receive( :anonymous_show? ).at_least(:once).and_return false
         allow( workflow ).to receive( :state ).and_return "pending_review"
         allow( parent_presenter ).to receive( :workflow ).and_return workflow
         expect( current_ability ).to receive( :can? ).at_least(:once).with( :edit, presenter.id ).and_return true
@@ -307,7 +307,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
     context 'can when embargoed and can edit' do
       before do
         expect( parent_presenter ).to receive( :tombstone ).at_least(:once).and_return nil
-        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
+        expect( presenter ).to receive( :anonymous_show? ).at_least(:once).and_return false
         allow( workflow ).to receive( :state ).and_return "pending_review"
         allow( parent_presenter ).to receive( :workflow ).and_return workflow
         expect( current_ability ).to receive( :can? ).at_least(:once).with( :edit, presenter.id ).and_return true
@@ -320,7 +320,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
     context 'cannot when embargoed and can not edit' do
       before do
         expect( parent_presenter ).to receive( :tombstone ).at_least(:once).and_return nil
-        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
+        expect( presenter ).to receive( :anonymous_show? ).at_least(:once).and_return false
         expect( workflow ).to receive( :state ).at_least(:once).and_return "pending_review"
         expect( parent_presenter ).to receive( :workflow ).at_least(:once).and_return workflow
         expect( current_ability ).to receive( :can? ).at_least(:once).with( :edit, presenter.id ).and_return false
@@ -332,7 +332,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
     context 'can when deposited and visible' do
       before do
         expect( parent_presenter ).to receive( :tombstone ).at_least(:once).and_return nil
-        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return false
+        expect( presenter ).to receive( :anonymous_show? ).at_least(:once).and_return false
         expect( workflow ).to receive( :state ).at_least(:once).and_return "deposited"
         expect( parent_presenter ).to receive( :workflow ).at_least(:once).and_return workflow
         expect( current_ability ).to receive( :can? ).at_least(:once).with( :edit, presenter.id ).and_return false

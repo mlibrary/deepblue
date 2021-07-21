@@ -5,7 +5,7 @@ module Hyrax
   class SingleUseLinksController < ApplicationController
 
     mattr_accessor :single_use_links_controller_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.single_use_links_controller_debug_verbose
+                   default: ::Hyrax::SingleUseLinkService.single_use_links_controller_debug_verbose
 
     include ActionView::Helpers::TranslationHelper
     include Blacklight::SearchHelper

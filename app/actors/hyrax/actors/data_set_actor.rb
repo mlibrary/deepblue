@@ -5,7 +5,8 @@ module Hyrax
 
     class DataSetActor < Hyrax::Actors::BaseActor
 
-      DATA_SET_ACTOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.data_set_actor_debug_verbose
+      mattr_accessor :data_set_actor_debug_verbose,
+                     default: ::DeepBlueDocs::Application.config.data_set_actor_debug_verbose
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if update was successful
@@ -27,21 +28,21 @@ module Hyrax
       end
 
       def apply_save_data_to_curation_concern( env )
-        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
-                                               Deepblue::LoggingHelper.obj_class( 'class', self ),
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                                "env=#{env}",
                                                "env.attributes=#{env.attributes}",
                                                "env.action=#{env.action}",
                                                "env.wants_format=#{env.wants_format}",
-                                               "" ] if DATA_SET_ACTOR_DEBUG_VERBOSE
+                                               "" ] if data_set_actor_debug_verbose
         clean_attrs = clean_attributes(env.attributes)
-        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
                                                "env.action=#{env.action}",
                                                "env.wants_format=#{env.wants_format}",
                                                "clean_attrs=#{clean_attrs}",
-                                               "" ] if DATA_SET_ACTOR_DEBUG_VERBOSE
+                                               "" ] if data_set_actor_debug_verbose
 
         if env.respond_to?( :wants_format ) && 'json' == env.wants_format
           return false unless valid_save_data( env )
@@ -66,15 +67,15 @@ module Hyrax
       end
 
       def valid_save_data( env )
-        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
-                                               Deepblue::LoggingHelper.obj_class( 'class', self ),
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                                "env=#{env}",
                                                "env.attributes.class.name=#{env.attributes.class.name}",
                                                "env.attributes=#{env.attributes}",
                                                "env.action=#{env.action}",
                                                "env.wants_format=#{env.wants_format}",
-                                               "" ] if DATA_SET_ACTOR_DEBUG_VERBOSE
+                                               "" ] if data_set_actor_debug_verbose
         return false if env.curation_concern.errors.present?
         valid = true
         attributes = env.attributes
@@ -82,7 +83,7 @@ module Hyrax
         primary_attributes.each do |attr|
           key = attr.to_s
           ::Deepblue::LoggingHelper.debug [ "curation_concern[#{attr}].class.name - attributes[{key}]=#{curation_concern[key].class.name} - #{attributes[key]}"
-                                          ] if DATA_SET_ACTOR_DEBUG_VERBOSE
+                                          ] if data_set_actor_debug_verbose
           next unless attributes.key?( key )
           value = attributes[key]
           case curation_concern[attr].class
@@ -100,30 +101,30 @@ module Hyrax
         end
         case env.action.to_s
         when "create"
-          ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                                 Deepblue::LoggingHelper.called_from,
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
                                                  "env.action=#{env.action}",
                                                  ""
-                                                ] if DATA_SET_ACTOR_DEBUG_VERBOSE
+                                                ] if data_set_actor_debug_verbose
           required_attributes.each do |attr|
             key = attr.to_s
             ::Deepblue::LoggingHelper.debug [ "curation_concern[#{attr}].class.name - attributes[{key}]=#{curation_concern[key].class.name} - #{attributes[key]}"
-                                            ] if DATA_SET_ACTOR_DEBUG_VERBOSE
+                                            ] if data_set_actor_debug_verbose
             next unless attributes.key? attr
             curation_concern.errors.add( :create, "required field missing: #{attr}" )
             valid = false
           end
         when "update"
-          ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                                 Deepblue::LoggingHelper.called_from,
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
                                                  "env.action=#{env.action}",
                                                  ""
-                                               ] if DATA_SET_ACTOR_DEBUG_VERBOSE
+                                               ] if data_set_actor_debug_verbose
           # for testing purposes, prevent updates to title
           required_attributes.each do |attr|
             key = attr.to_s
             ::Deepblue::LoggingHelper.debug [ "curation_concern[#{attr}].class.name - attributes[{key}]=#{curation_concern[key].class.name} - #{attributes[key]}"
-                                            ] if DATA_SET_ACTOR_DEBUG_VERBOSE
+                                            ] if data_set_actor_debug_verbose
             # check if this will remove the attribute
           end
         end

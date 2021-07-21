@@ -4,7 +4,7 @@ module Hyrax
 
   module EmbargoesControllerBehavior
 
-    EMBARGO_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE = false
+    mattr_accessor :embargo_controller_behavior_debug_verbose, default: false
 
     extend ActiveSupport::Concern
     include Hyrax::ManagesEmbargoes
@@ -23,7 +23,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              ::Deepblue::LoggingHelper.obj_class( "curation_concern", curation_concern ),
-                                             "" ] if EMBARGO_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if embargo_controller_behavior_debug_verbose
       # Hyrax::Actors::EmbargoActor.new(curation_concern).destroy
       deactivate_embargo( curation_concern: curation_concern,
                           current_user: current_user,

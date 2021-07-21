@@ -742,7 +742,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
 
   # TODO: reactivate when using IIIF
   # describe '#manifest' do
-  #   let(:work) { create(:work_with_one_file, user: user) }
+  #   let(:work) { create(:data_set_with_one_file, user: user) }
   #   let(:file_set) { work.ordered_members.to_a.first }
   #   let(:manifest_factory) { double(to_h: { test: 'manifest' }) }
   #

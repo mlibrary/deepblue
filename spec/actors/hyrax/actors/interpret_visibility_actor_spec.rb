@@ -1,9 +1,9 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Actors::InterpretVisibilityActor, skip: true do
+RSpec.describe Hyrax::Actors::InterpretVisibilityActor, skip: false do
   let(:user) { create(:user) }
   let(:ability) { ::Ability.new(user) }
-  let(:curation_concern) { GenericWork.new }
+  let(:curation_concern) { DataSet.new }
   let(:attributes) { { admin_set_id: admin_set.id } }
   let(:admin_set) { create(:admin_set) }
   let(:permission_template) { create(:permission_template, source_id: admin_set.id) }
@@ -16,7 +16,7 @@ RSpec.describe Hyrax::Actors::InterpretVisibilityActor, skip: true do
   subject(:middleware) do
     stack = ActionDispatch::MiddlewareStack.new.tap do |middleware|
       middleware.use described_class
-      middleware.use Hyrax::Actors::GenericWorkActor
+      middleware.use Hyrax::Actors::DataSetActor
     end
     stack.build(terminator)
   end
@@ -169,7 +169,7 @@ RSpec.describe Hyrax::Actors::InterpretVisibilityActor, skip: true do
         end
       end
 
-      context "embargo with date = one year from today, and required embargo of 1 year or less" do
+      context "embargo with date = one year from today, and required embargo of 1 year or less", skip: true do
         let(:permission_template) do
           create(:permission_template,
                  source_id: admin_set.id,
@@ -209,7 +209,7 @@ RSpec.describe Hyrax::Actors::InterpretVisibilityActor, skip: true do
         end
       end
 
-      context "embargo with date matching the required, fixed date" do
+      context "embargo with date matching the required, fixed date", skip: true do
         let(:permission_template) do
           create(:permission_template,
                  source_id: admin_set.id,
@@ -251,7 +251,7 @@ RSpec.describe Hyrax::Actors::InterpretVisibilityActor, skip: true do
         end
       end
 
-      context "embargo with valid embargo date and valid post-embargo visibility" do
+      context "embargo with valid embargo date and valid post-embargo visibility", skip: true do
         let(:permission_template) do
           create(:permission_template,
                  source_id: admin_set.id,
@@ -272,7 +272,7 @@ RSpec.describe Hyrax::Actors::InterpretVisibilityActor, skip: true do
         end
       end
 
-      context "embargo with public visibility and public visibility required (no specified release_period in template)" do
+      context "embargo with public visibility and public visibility required (no specified release_period in template)", skip: true do
         let(:permission_template) do
           create(:permission_template,
                  source_id: admin_set.id,
@@ -333,7 +333,7 @@ RSpec.describe Hyrax::Actors::InterpretVisibilityActor, skip: true do
         end
       end
 
-      context "no embargo/lease when no release delays are allowed" do
+      context "no embargo/lease when no release delays are allowed", skip: true do
         let(:permission_template) { create(:permission_template, source_id: admin_set.id, release_period: Hyrax::PermissionTemplate::RELEASE_TEXT_VALUE_NO_DELAY) }
         let(:attributes) { { title: ['New embargo'], admin_set_id: admin_set.id, visibility: Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC } }
 
@@ -359,7 +359,7 @@ RSpec.describe Hyrax::Actors::InterpretVisibilityActor, skip: true do
         end
       end
 
-      context "visibility public (no embargo) and visibility required to be public" do
+      context "visibility public (no embargo) and visibility required to be public", skip: true do
         let(:permission_template) do
           create(:permission_template,
                  source_id: admin_set.id,
@@ -396,7 +396,7 @@ RSpec.describe Hyrax::Actors::InterpretVisibilityActor, skip: true do
         end
       end
 
-      context "lease specified with NO release/visibility requirements" do
+      context "lease specified with NO release/visibility requirements", skip: true do
         let(:permission_template) { create(:permission_template, source_id: admin_set.id) }
         let(:attributes) do
           { title: ['New embargo'],
@@ -434,7 +434,7 @@ RSpec.describe Hyrax::Actors::InterpretVisibilityActor, skip: true do
         end
       end
 
-      context 'when lease_expiration_date is in the past' do
+      context 'when lease_expiration_date is in the past', skip: true do
         let(:date) { Time.zone.today - 2 }
 
         it 'sets error on curation_concern and return false' do

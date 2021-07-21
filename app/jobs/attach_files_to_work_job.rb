@@ -5,11 +5,11 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
   include Rails.application.routes.url_helpers
   queue_as Hyrax.config.ingest_queue_name
 
-  mattr_accessor :attach_files_to_work_job_debug_verbose
-  @@attach_files_to_work_job_debug_verbose = ::Deepblue::IngestIntegrationService.attach_files_to_work_job_debug_verbose
+  mattr_accessor :attach_files_to_work_job_debug_verbose,
+                 default: ::Deepblue::IngestIntegrationService.attach_files_to_work_job_debug_verbose
 
-  mattr_accessor :attach_files_to_work_upload_files_asynchronously
-  @@attach_files_to_work_upload_files_asynchronously = ::Deepblue::IngestIntegrationService.attach_files_to_work_upload_files_asynchronously
+  mattr_accessor :attach_files_to_work_upload_files_asynchronously,
+                 default: ::Deepblue::IngestIntegrationService.attach_files_to_work_upload_files_asynchronously
 
   attr_accessor :depositor,
                 :job_status,

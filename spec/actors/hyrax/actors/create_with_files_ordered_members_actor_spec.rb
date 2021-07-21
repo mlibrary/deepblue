@@ -1,9 +1,9 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Actors::CreateWithFilesOrderedMembersActor, skip: true do
+RSpec.describe Hyrax::Actors::CreateWithFilesOrderedMembersActor, skip: false do
   let(:user) { create(:user) }
   let(:ability) { ::Ability.new(user) }
-  let(:work) { create(:generic_work, user: user) }
+  let(:work) { create(:data_set, user: user) }
   let(:env) { Hyrax::Actors::Environment.new(work, ability, attributes) }
   let(:terminator) { Hyrax::Actors::Terminator.new }
   let(:uploaded_file1) { create(:uploaded_file, user: user) }

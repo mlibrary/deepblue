@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Actors::CollectionsMembershipActor, skip: true do
+RSpec.describe Hyrax::Actors::CollectionsMembershipActor, skip: false do
   let(:user) { create(:user) }
   let(:ability) { ::Ability.new(user) }
   let(:curation_concern) { build(:work, user: user) }
@@ -12,7 +12,7 @@ RSpec.describe Hyrax::Actors::CollectionsMembershipActor, skip: true do
     stack = ActionDispatch::MiddlewareStack.new.tap do |middleware|
       middleware.use described_class
       middleware.use RemoveCollectionActor
-      middleware.use Hyrax::Actors::GenericWorkActor
+      middleware.use Hyrax::Actors::DataSetActor
     end
     stack.build(terminator)
   end
@@ -223,7 +223,7 @@ RSpec.describe Hyrax::Actors::CollectionsMembershipActor, skip: true do
             }
           end
 
-          it "removes member_of_collections_attributes and adds collection_id to env" do
+          it "removes member_of_collections_attributes and adds collection_id to env", skip: true do
             expect(env.attributes).to have_key(:member_of_collections_attributes)
             expect(env.attributes[:member_of_collections_attributes].size).to eq 1
             expect(subject.create(env)).to be true
@@ -245,7 +245,7 @@ RSpec.describe Hyrax::Actors::CollectionsMembershipActor, skip: true do
             }
           end
 
-          it "removes member_of_collections_attributes and does NOT add collection_id" do
+          it "removes member_of_collections_attributes and does NOT add collection_id", skip: true do
             expect(env.attributes).to have_key(:member_of_collections_attributes)
             expect(env.attributes[:member_of_collections_attributes].size).to eq 2
             expect(subject.create(env)).to be true
@@ -383,8 +383,8 @@ RSpec.describe Hyrax::Actors::CollectionsMembershipActor, skip: true do
 
   class RemoveCollectionActor < Hyrax::Actors::AbstractActor
     # The collection is normally removed by ApplyPermissionTemplateActor, but this test doesn't setup and call that actor.
-    # So we are faking it here and removing it before the GenericWorkActor is called.  Otherwise, it tries to save a
-    # property named collection_id which doesn't exist in GenericWork.
+    # So we are faking it here and removing it before the DataSetActor is called.  Otherwise, it tries to save a
+    # property named collection_id which doesn't exist in DataSet.
     def create(env)
       env.attributes.delete(:collection_id)
       next_actor.create(env)

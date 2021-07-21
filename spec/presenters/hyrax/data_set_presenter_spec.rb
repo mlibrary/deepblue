@@ -184,7 +184,7 @@ RSpec.describe Hyrax::DataSetPresenter, clean_repo: true do
       it 'can feature the data_set' do
         allow( ability ).to receive(:can?).with( :create, FeaturedWork ).and_return true
         allow(user).to receive(:can?).with(:create, FeaturedWork).and_return(true)
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         expect(presenter.work_featurable?).to be true
         expect(presenter.display_feature_link?).to be true
         expect(presenter.display_unfeature_link?).to be false
@@ -195,7 +195,7 @@ RSpec.describe Hyrax::DataSetPresenter, clean_repo: true do
       before { FeaturedWork.create(work_id: attributes.fetch('id')) }
       it 'can unfeature the data_set' do
         allow( ability ).to receive(:can?).with( :create, FeaturedWork ).and_return true
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         expect(presenter.work_featurable?).to be true
         expect(presenter.display_feature_link?).to be false
         expect(presenter.display_unfeature_link?).to be true
@@ -497,7 +497,7 @@ END_TARGET
 
     context 'cannot when single-use show and admin' do
       before do
-        allow( presenter ).to receive( :single_use_show? ).and_return true
+        allow( presenter ).to receive( :anonymous_show? ).and_return true
         allow( presenter ).to receive( :doi_minted? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return true
       end
@@ -505,7 +505,7 @@ END_TARGET
     end
     context 'cannot when single-use show and not admin' do
       before do
-        allow( presenter ).to receive( :single_use_show? ).and_return true
+        allow( presenter ).to receive( :anonymous_show? ).and_return true
         allow( presenter ).to receive( :doi_minted? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return false
       end
@@ -513,7 +513,7 @@ END_TARGET
     end
     context 'cannot when doi minted and admin' do
       before do
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( presenter ).to receive( :doi_minted? ).and_return true
         allow( current_ability ).to receive( :admin? ).and_return true
       end
@@ -521,7 +521,7 @@ END_TARGET
     end
     context 'cannot when doi minted and not admin' do
       before do
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( solr_document ).to receive( :doi_minted? ).and_return true
         allow( current_ability ).to receive( :admin? ).and_return false
       end
@@ -530,7 +530,7 @@ END_TARGET
     context 'can when admin and not single user show or doi minted' do
       before do
         allow( current_ability ).to receive( :can? ).with( id: solr_document.id ).and_return true
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( solr_document ).to receive( :doi_minted? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return true
       end
@@ -581,7 +581,7 @@ END_TARGET
     context 'can unless zip_download_enabled?' do
       before do
         allow( presenter ).to receive( :zip_download_enabled? ).and_return false
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return false
         allow( presenter ).to receive( :current_ability ).and_return current_ability
         allow( presenter ).to receive( :editor? ).and_return false
@@ -593,7 +593,7 @@ END_TARGET
     context 'can when single use show (and everything else says not)' do
       before do
         allow( presenter ).to receive( :zip_download_enabled? ).and_return true
-        allow( presenter ).to receive( :single_use_show? ).and_return true
+        allow( presenter ).to receive( :anonymous_show? ).and_return true
         allow( current_ability ).to receive( :admin? ).and_return false
         allow( presenter ).to receive( :current_ability ).and_return current_ability
         allow( presenter ).to receive( :editor? ).and_return false
@@ -605,7 +605,7 @@ END_TARGET
     context 'can when admin' do
       before do
         allow( presenter ).to receive( :zip_download_enabled? ).and_return true
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return true
       end
       it { is_expected.to be true }
@@ -614,7 +614,7 @@ END_TARGET
     context 'can when editor' do
       before do
         allow( presenter ).to receive( :zip_download_enabled? ).and_return true
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return false
         allow( presenter ).to receive( :editor? ).and_return true
       end
@@ -624,7 +624,7 @@ END_TARGET
     context 'cannot when embargoed and not editor and not admin' do
       before do
         allow( presenter ).to receive( :zip_download_enabled? ).and_return true
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return false
         allow( presenter ).to receive( :editor? ).and_return false
         allow( presenter ).to receive( :embargoed? ).and_return true
@@ -635,7 +635,7 @@ END_TARGET
     context 'can when not embargoed and not editor and not admin' do
       before do
         allow( presenter ).to receive( :zip_download_enabled? ).and_return true
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return false
         allow( presenter ).to receive( :editor? ).and_return false
         allow( presenter ).to receive( :embargoed? ).and_return false
@@ -656,7 +656,7 @@ END_TARGET
 
     context 'cannot when single-use show' do
       before do
-        expect( presenter ).to receive( :single_use_show? ).at_least(:once).and_return true
+        expect( presenter ).to receive( :anonymous_show? ).at_least(:once).and_return true
         allow( current_ability ).to receive( :admin? ).and_return false
         allow( presenter ).to receive( :editor? ).and_return false
         allow( current_ability ).to receive( :can? ).with( :edit, solr_document ).and_return false
@@ -665,7 +665,7 @@ END_TARGET
     end
     context 'can when admin and not single-use show or tombstoned' do
       before do
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         expect( current_ability ).to receive( :admin? ).at_least(:once).and_return true
         allow( presenter ).to receive( :editor? ).and_return false
       end
@@ -673,7 +673,7 @@ END_TARGET
     end
     context 'can when editor and not deposited' do
       before do
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return false
         expect( presenter ).to receive( :editor? ).at_least(:once).and_return true
         expect( workflow ).to receive( :state ).at_least(:once).and_return "pending_review"
@@ -683,7 +683,7 @@ END_TARGET
     end
     context 'cannot when editor and deposited' do
       before do
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return false
         expect( presenter ).to receive( :editor? ).at_least(:once).and_return true
         expect( workflow ).to receive( :state ).at_least(:once).and_return "deposited"
@@ -693,7 +693,7 @@ END_TARGET
     end
     context 'cannot when not editor' do
       before do
-        allow( presenter ).to receive( :single_use_show? ).and_return false
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return false
         allow( presenter ).to receive( :editor? ).and_return false
         allow( workflow ).to receive( :state ).and_return "pending_review"

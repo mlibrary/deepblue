@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Actors::CreateWithRemoteFilesOrderedMembersActor, skip: true do
+RSpec.describe Hyrax::Actors::CreateWithRemoteFilesOrderedMembersActor, skip: false do
   let(:terminator) { Hyrax::Actors::Terminator.new }
   let(:actor) { stack.build(terminator) }
   let(:stack) do
@@ -10,7 +10,7 @@ RSpec.describe Hyrax::Actors::CreateWithRemoteFilesOrderedMembersActor, skip: tr
   end
   let(:user) { create(:user) }
   let(:ability) { Ability.new(user) }
-  let(:work) { create(:generic_work, user: user) }
+  let(:work) { create(:data_set, user: user) }
   let(:url1) { "https://dl.dropbox.com/fake/blah-blah.filepicker-demo.txt.txt" }
   let(:url2) { "https://dl.dropbox.com/fake/blah-blah.Getting%20Started.pdf" }
 
@@ -38,10 +38,11 @@ RSpec.describe Hyrax::Actors::CreateWithRemoteFilesOrderedMembersActor, skip: tr
          expires: "2014-03-31T20:37:36.731Z",
          file_name: "Getting+Started.pdf" }]
     end
+    let(:ordered_members_actor) { double('ordered_member_actor') }
 
     it "attaches files and passes ordered_members to OrderedMembersActor in correct order" do
-      expect(Hyrax::Actors::OrderedMembersActor).to receive(:new).with([FileSet, FileSet], user).and_return(Hyrax::Actors::OrderedMembersActor)
-      expect(Hyrax::Actors::OrderedMembersActor).to receive(:attach_ordered_members_to_work).with(work)
+      expect(Hyrax::Actors::OrderedMembersActor).to receive(:new).with([FileSet, FileSet], user).and_return(ordered_members_actor)
+      expect(ordered_members_actor).to receive(:attach_ordered_members_to_work).with(work)
       expect(ImportUrlJob).to receive(:perform_later).with(FileSet, Hyrax::Operation, {}).twice
       expect(actor.create(environment)).to be true
       expect(actor.ordered_members.first.label).to eq('filepicker-demo.txt.txt')

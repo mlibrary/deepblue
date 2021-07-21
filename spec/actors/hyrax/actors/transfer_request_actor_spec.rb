@@ -1,13 +1,13 @@
 require 'rails_helper'
 require 'rails_helper'
 
-RSpec.describe Hyrax::Actors::TransferRequestActor, skip: true do
+RSpec.describe Hyrax::Actors::TransferRequestActor, skip: false do
   let(:ability) { ::Ability.new(depositor) }
   let(:env) { Hyrax::Actors::Environment.new(work, ability, attributes) }
   let(:terminator) { Hyrax::Actors::Terminator.new }
   let(:depositor) { create(:user) }
   let(:work) do
-    build(:generic_work, on_behalf_of: proxied_to)
+    build(:data_set, on_behalf_of: proxied_to)
   end
   let(:attributes) { {} }
 

@@ -5,7 +5,7 @@ module Hyrax
   class AnonymousLinksController < ApplicationController
 
     mattr_accessor :anonymous_links_controller_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.anonymous_links_controller_debug_verbose
+                   default: ::Hyrax::AnonymousLinkService.anonymous_links_controller_debug_verbose
 
     include ActionView::Helpers::TranslationHelper
     include Blacklight::SearchHelper

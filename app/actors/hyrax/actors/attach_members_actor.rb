@@ -19,7 +19,7 @@ module Hyrax
     # writes changes, not the full ordered list.
     class AttachMembersActor < Hyrax::Actors::AbstractActor
 
-      ATTACH_MEMBERS_ACTOR_VERBOSE = false
+      mattr_accessor :attach_members_actor_debug_verbose, default: false
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if update was successful
@@ -29,7 +29,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "AttachMembersActor.update: next_actor = #{next_actor.class.name}",
-                                               "" ] if ATTACH_MEMBERS_ACTOR_VERBOSE
+                                               "" ] if attach_members_actor_debug_verbose
         assign_nested_attributes_for_collection(env, attributes_collection) &&
           next_actor.update(env)
       end
@@ -47,7 +47,7 @@ module Hyrax
           attributes_collection.each do |attributes|
             next if attributes['id'].blank?
             if existing_works.include?(attributes['id'])
-              remove(env.curation_concern, attributes['id']) if has_destroy_flag?(attributes)
+              remove( env, env.curation_concern, attributes['id']) if has_destroy_flag?(attributes)
             else
               add(env, attributes['id'])
             end
@@ -87,7 +87,7 @@ module Hyrax
                                                  "child_id=#{id}",
                                                  "child_title=#{child_title}",
                                                  "event_note=AttachMembersActor",
-                                                 "" ] if ATTACH_MEMBERS_ACTOR_VERBOSE
+                                                 "" ] if attach_members_actor_debug_verbose
           return unless env.curation_concern.respond_to? :provenance_child_add
           current_user = env.user
           env.curation_concern.provenance_child_add( current_user: current_user,
@@ -97,7 +97,7 @@ module Hyrax
         end
 
         # Remove the object from the members set and the ordered members list
-        def remove( curation_concern, id )
+        def remove( env, curation_concern, id )
           # ::Deepblue::LoggingHelper.bold_debug "AttachMembersActor.remove: id = #{id}"
           return if id.blank?
           member = ::PersistHelper.find( id )
@@ -111,8 +111,9 @@ module Hyrax
                                                  "child_id=#{id}",
                                                  "child_title=#{child_title}",
                                                  "event_note=AttachMembersActor",
-                                                 "" ] if ATTACH_MEMBERS_ACTOR_VERBOSE
+                                                 "" ] if attach_members_actor_debug_verbose
           return unless curation_concern.respond_to? :provenance_child_remove
+          current_user = env.user
           curation_concern.provenance_child_remove( current_user: current_user,
                                                     child_id: id,
                                                     child_title: child_title,

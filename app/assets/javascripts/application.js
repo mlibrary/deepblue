@@ -28,4 +28,6 @@
 //= require chartkick
 //= require Chart.bundle
 
+//= require hyrax/anonymous_links_manager
+
 //= require hyrax

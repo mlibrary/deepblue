@@ -1,9 +1,9 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Actors::CreateWithFilesActor, skip: true do
+RSpec.describe Hyrax::Actors::CreateWithFilesActor, skip: false do
   let(:user) { create(:user) }
   let(:ability) { ::Ability.new(user) }
-  let(:work) { create(:generic_work, user: user) }
+  let(:work) { create(:data_set, user: user) }
   let(:env) { Hyrax::Actors::Environment.new(work, ability, attributes) }
   let(:terminator) { Hyrax::Actors::Terminator.new }
   let(:uploaded_file1) { create(:uploaded_file, user: user) }
@@ -35,7 +35,10 @@ RSpec.describe Hyrax::Actors::CreateWithFilesActor, skip: true do
 
       context "when uploaded_file_ids belong to me" do
         it "attaches files" do
-          expect(AttachFilesToWorkJob).to receive(:perform_later).with(GenericWork, [uploaded_file1, uploaded_file2], {})
+          expect(AttachFilesToWorkJob).to receive(:perform_later).with(work,
+                                                                       [uploaded_file1, uploaded_file2],
+                                                                       user.email,
+                                                                       {})
           expect(middleware.public_send(mode, env)).to be true
         end
       end

@@ -7,7 +7,7 @@
       <% if @presenter.can_view_file? %>
         <%= media_display( @presenter.solr_document, current_ability, @presenter ) %>
         <%= render 'show_actions', presenter: @presenter %>
-        <%# if ::DeepBlueDocs::Application.config.enable_single_use_links %>
+        <%# if ::Hyrax::SingleUseLinkService.enable_single_use_links %>
           <%#= render 'single_use_links', presenter: @presenter if @presenter.editor? %>
         <%# end %>
       <% end %>

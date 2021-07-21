@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::Actors::CleanupFileSetsActor, skip: true do
+RSpec.describe Hyrax::Actors::CleanupFileSetsActor, skip: false do
   let(:ability) { ::Ability.new(depositor) }
   let(:env) { Hyrax::Actors::Environment.new(work, ability, attributes) }
   let(:terminator) { Hyrax::Actors::Terminator.new }
@@ -17,7 +17,7 @@ RSpec.describe Hyrax::Actors::CleanupFileSetsActor, skip: true do
   describe "#destroy" do
     subject { middleware.destroy(env) }
 
-    let!(:work) { create(:work_with_one_file) }
+    let!(:work) { create(:data_set_with_one_file) }
 
     it 'removes all  file sets' do
       expect { middleware.destroy(env) }.to change { FileSet.count }.by(-1)

@@ -1,6 +1,6 @@
 <div class="form-admin-actions">
 
-  <% if !@presenter.single_use_show? && @presenter.current_ability.admin? %>
+  <% if !@presenter.anonymous_show? && @presenter.current_ability.admin? %>
     <div class="panel panel-default panel-admin">
       <div class="panel-heading">
         <h2><%= t('simple_form.labels.file_set.admin_actions') %></h2>

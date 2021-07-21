@@ -24,13 +24,13 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false unless zip_download_enabled?=#{zip_download_enabled?}",
-                                             "true if single_use_show?=#{single_use_show?}",
+                                             "true if anonymous_show?=#{anonymous_show?}",
                                              "true if can_edit_work?=#{can_edit_work?}",
                                              "false if embargoed?=#{embargoed?}",
                                              "else true",
                                              "" ] if zip_download_presenter_behavior_debug_verbose
       return false unless zip_download_enabled?
-      return true if single_use_show?
+      return true if anonymous_show?
       return true if can_edit_work?
       return false if embargoed?
       true
@@ -89,13 +89,13 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
-                                             "single_use_show?=#{single_use_show?}",
+                                             "anonymous_show?=#{anonymous_show?}",
                                              "" ] if zip_download_presenter_behavior_debug_verbose
-      return curation_concern.for_zip_download_route unless single_use_show?
+      return curation_concern.for_zip_download_route unless anonymous_show?
       # return Rails.application.routes.url_helpers.url_for( only_path: true,
       #                                                      action: 'show',
       #                                                      controller: 'downloads',
-      #                                                      id: curation_concern.id ) unless single_use_show?
+      #                                                      id: curation_concern.id ) unless anonymous_show?
       su_link = single_use_link_download( curation_concern )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

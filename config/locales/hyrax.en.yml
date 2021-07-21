@@ -98,7 +98,7 @@ en:
         lesser_time:        "in less than one hour"
         time:               "in %{value} hours"
         human_readable_time: "in %{value}"
-      expiration_message:   "%{link_type} Link %{link} expires %{time}"
+      expiration_message:   "%{link_type} Link %{link}"
       notice:
         download:           "Anonymous Download"
         show:               "Anonymous Link"

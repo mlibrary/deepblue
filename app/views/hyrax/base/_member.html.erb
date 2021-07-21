@@ -24,7 +24,7 @@
       <%= raw @presenter.member_thumbnail_post_process( member, thumbnail_tag ) %>
     </td>
     <%# if can?(:download, member.id) %>
-    <% if member.can_download_file? && !member.single_use_show? %>
+    <% if member.can_download_file? && !member.anonymous_show? %>
       <% unless member.file_size_too_large_to_download? %>
         <td role="menuitem" tabindex="-1">
           <%= link_to truncate(member.link_name, length: 40, omission: "...#{member.link_name[-5, 5]}"),
@@ -38,7 +38,7 @@
         <td class="attribute filename">
           <span class="hastooltip">
             <%= truncate(member.link_name, length: 40, omission: "...#{member.link_name[-5, 5]}") %>
-            <% unless member.single_use_show? %>
+            <% unless member.anonymous_show? %>
               <span class="tooltip"><%= t('simple_form.hints.file_set.too_large_to_download_directly') %></span>
             <% end %>
           </span>

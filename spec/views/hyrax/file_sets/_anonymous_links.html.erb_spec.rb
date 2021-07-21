@@ -21,7 +21,7 @@ RSpec.describe 'hyrax/file_sets/_anonymous_links.html.erb', type: :view do
 
   context "with single use links" do
     let(:link)           { SingleUseLink.create(itemId: "1234", downloadKey: "sha2hashb") }
-    let(:link_presenter) { Hyrax::SingleUseLinkPresenter.new(link) }
+    let(:link_presenter) { Hyrax::AnonymousLinkPresenter.new(link) }
 
     before do
       controller.params = { id: "1234" }
@@ -31,6 +31,7 @@ RSpec.describe 'hyrax/file_sets/_anonymous_links.html.erb', type: :view do
       allow( presenter ).to receive( :can_download_file? ).and_return true
       render 'hyrax/file_sets/anonymous_links.html.erb', presenter: presenter
     end
+    
     it "renders a table with links" do
       expect( rendered ).to have_text I18n.t('hyrax.anonymous_links.expiration_message',
                                              link_type: "View",
@@ -38,10 +39,6 @@ RSpec.describe 'hyrax/file_sets/_anonymous_links.html.erb', type: :view do
                                              time: "in 11 months, 4 weeks, 2 days, 4 hours, 39 minutes, and 53 seconds" )
     end
 
-    it "renders note to add to next link" do
-      expect( rendered ).to have_content I18n.t('simple_form.labels.anonymous_link.user_comment')
-      # expect( rendered ).to have_content "Create Download Anonymous Link"
-    end
   end
 
 end

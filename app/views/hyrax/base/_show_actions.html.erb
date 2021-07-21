@@ -153,7 +153,7 @@
       </div>
     <% end %>
 
-    <% if Hyrax.config.analytics? && !@presenter.single_use_show? && current_user %>
+    <% if Hyrax.config.analytics? && !@presenter.anonymous_show? && current_user %>
       <div class="panel panel-default panel-analytics">
         <div class="panel-heading">
           <h2 id="analytics"><%= t('simple_form.labels.data_set.analytics') %></h2>
@@ -185,7 +185,7 @@
       </div> <!-- End Analytics panel -->
     <% end %>
 
-    <% if !@presenter.single_use_show? && @presenter.current_ability.admin? %>
+    <% if !@presenter.anonymous_show? && @presenter.current_ability.admin? %>
       <div class="panel panel-default panel-admin">
         <div class="panel-heading">
           <h2><%= t('simple_form.labels.data_set.admin_actions') %></h2>

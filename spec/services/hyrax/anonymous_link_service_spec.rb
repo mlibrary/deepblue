@@ -12,8 +12,7 @@ RSpec.describe ::Hyrax::AnonymousLinkService do
 
   describe 'other module values' do
     it "resolves them" do
-      expect( described_class.anonymous_link_default_expiration_duration ).to eq( 365.days )
-      expect( described_class.anonymous_link_use_detailed_human_readable_time ).to eq( true )
+      # expect( described_class.anonymous_link_use_detailed_human_readable_time ).to eq( true )
     end
   end
 

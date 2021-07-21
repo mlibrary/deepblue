@@ -34,8 +34,13 @@
         <% end %>
         <% if !Flipflop.disable_desposits_and_edits? %>
           <%= render 'show_admin_actions', presenter: @presenter %>
-          <% if ::DeepBlueDocs::Application.config.enable_single_use_links %>
-            <%= render 'single_use_links', presenter: @presenter if @presenter.editor? %>
+          <% if @presenter.can_edit_file? && @presenter.show_anonymous_link_section? %>
+            <% if ::Hyrax::AnonymousLinkService.enable_anonymous_links %>
+              <%= render 'anonymous_links', presenter: @presenter if @presenter.editor? %>
+            <% end %>
+            <% if ::Hyrax::SingleUseLinkService.enable_single_use_links %>
+              <%= render 'single_use_links', presenter: @presenter if @presenter.editor? %>
+            <% end %>
           <% end %>
         <% end %>
       <% end %>

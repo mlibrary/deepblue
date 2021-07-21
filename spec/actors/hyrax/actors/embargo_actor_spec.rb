@@ -1,10 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe Hyrax::Actors::EmbargoActor, skip: true do
-  let(:actor) { described_class.new(work) }
 
   let(:work) do
-    GenericWork.new do |work|
+    DataSet.new do |work|
       work.apply_depositor_metadata 'foo'
       work.title = ["test"]
       work.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_AUTHENTICATED
@@ -14,6 +13,11 @@ RSpec.describe Hyrax::Actors::EmbargoActor, skip: true do
       work.save(validate: false)
     end
   end
+  let(:attributes) { {} }
+  let(:user)    { create(:admin) }
+  let(:ability) { Ability.new(user) }
+  let(:env)     { Hyrax::Actors::Environment.new(work, ability, attributes) }
+  let(:actor)   { described_class.new(env, work) }
 
   describe "#destroy" do
     context "with an active embargo" do

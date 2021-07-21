@@ -1,22 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe Hyrax::AnonymousLinkPresenter, skip: false do
+
   subject { described_class.new(link) }
 
   context "with any kind of link" do
     let(:link) { create(:download_link) }
-
-    describe "#human_readable_expiration" do
-      context "in more than one hour" do
-        # its(:human_readable_expiration) { is_expected.to eq("in 23 hours") }
-        its(:human_readable_expiration) { is_expected.to eq("in 11 months, 4 weeks, 2 days, 4 hours, 39 minutes, and 53 seconds") }
-      end
-      context "in less than an hour" do
-        before { allow(link).to receive(:expires).and_return(Time.zone.now) }
-        # its(:human_readable_expiration) { is_expected.to eq("in less than one hour") }
-        its(:human_readable_expiration) { is_expected.to eq("in 0 seconds") }
-      end
-    end
 
     describe "#short_key" do
       its(:short_key) { is_expected.to eq(link.downloadKey.first(6)) }
@@ -43,4 +32,5 @@ RSpec.describe Hyrax::AnonymousLinkPresenter, skip: false do
     its(:link_type)   { is_expected.to eq("View") }
     its(:url_helper)  { is_expected.to eq("show_anonymous_link_url") }
   end
+
 end
