@@ -8,7 +8,8 @@ module Hyrax
     # Actions are decoupled from controller logic so that they may be called from a controller or a background job.
     class FileSetActor
 
-      FILE_SET_ACTOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.file_set_actor_debug_verbose
+      mattr_accessor :file_set_actor_debug_verbose,
+                     default: ::DeepBlueDocs::Application.config.file_set_actor_debug_verbose
 
       include Lockable
       attr_reader :file_set, :user, :attributes
@@ -42,13 +43,13 @@ module Hyrax
                                                "continue_job_chain_later=#{continue_job_chain_later}",
                                                "uploaded_file_ids=#{uploaded_file_ids}",
                                                "job_status=#{job_status}",
-                                               "" ] if FILE_SET_ACTOR_DEBUG_VERBOSE
+                                               "" ] if file_set_actor_debug_verbose
         unless job_status.did_create_file_set?
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "file=#{file}",
                                                  "file.class.name=#{file.class.name}",
-                                                 "" ] if FILE_SET_ACTOR_DEBUG_VERBOSE
+                                                 "" ] if file_set_actor_debug_verbose
           create_label( file: file )
           # return false unless file_set.save # Need to save to get an id
           unless file_set.save # Need to save to get an id
@@ -98,7 +99,7 @@ module Hyrax
                                                  "job_status.message=#{job_status.message}",
                                                  "job_status.error=#{job_status.error}",
                                                  "job_status.user_id=#{job_status.user_id}",
-                                                 "" ] if FILE_SET_ACTOR_DEBUG_VERBOSE
+                                                 "" ] if file_set_actor_debug_verbose
           IngestJob.perform_now( io_wrapper,
                                  continue_job_chain_later: continue_job_chain_later,
                                  uploaded_file_ids: uploaded_file_ids,
@@ -110,7 +111,7 @@ module Hyrax
                                                  "job_status.message=#{job_status.message}",
                                                  "job_status.error=#{job_status.error}",
                                                  "job_status.user_id=#{job_status.user_id}",
-                                                 "" ] if FILE_SET_ACTOR_DEBUG_VERBOSE
+                                                 "" ] if file_set_actor_debug_verbose
           job_status.reload
         end
       end
@@ -126,7 +127,7 @@ module Hyrax
                                                "file_set.id=#{file_set.id}",
                                                "file=#{file}",
                                                "relation=#{relation}",
-                                               "" ] if FILE_SET_ACTOR_DEBUG_VERBOSE
+                                               "" ] if file_set_actor_debug_verbose
         current_version = file_set.latest_version
         prior_revision_id = current_version.label
         prior_create_date = current_version.created
@@ -150,7 +151,7 @@ module Hyrax
                                                ::Deepblue::LoggingHelper.called_from,
                                                "file=#{file}",
                                                "file.class.name=#{file.class.name}",
-                                               "" ] if FILE_SET_ACTOR_DEBUG_VERBOSE
+                                               "" ] if file_set_actor_debug_verbose
         # If the file set doesn't have a title or label assigned, set a default.
         file_set.label ||= label_for( file )
         file_set.title = [file_set.label] if file_set.title.blank?
@@ -166,7 +167,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "file_set_params=#{file_set_params}",
-                                               "" ] if FILE_SET_ACTOR_DEBUG_VERBOSE
+                                               "" ] if file_set_actor_debug_verbose
         file_set.depositor = depositor_id(user)
         now = TimeService.time_in_utc
         file_set.date_uploaded = now
@@ -187,7 +188,7 @@ module Hyrax
                                                ::Deepblue::LoggingHelper.called_from,
                                                "work.id=#{work.id}",
                                                "file_set_params=#{file_set_params}",
-                                               "" ] if FILE_SET_ACTOR_DEBUG_VERBOSE
+                                               "" ] if file_set_actor_debug_verbose
         acquire_lock_for( work.id ) do
           # Ensure we have an up-to-date copy of the members association, so that we append to the end of the list.
           work.reload unless work.new_record?
@@ -215,7 +216,7 @@ module Hyrax
                                                "ERROR",
                                                "e=#{e.class.name}",
                                                "e.message=#{e.message}",
-                                               "e.backtrace:" ] + e.backtrace if FILE_SET_ACTOR_DEBUG_VERBOSE
+                                               "e.backtrace:" ] + e.backtrace if file_set_actor_debug_verbose
         ::Deepblue::UploadHelper.log( class_name: self.class.name,
                                       event: "attach_to_work",
                                       event_note: "failed",
@@ -238,7 +239,7 @@ module Hyrax
                                                "child_id=#{file_set.id}",
                                                "child_title=#{child_title}",
                                                "event_note=FileSetActor",
-                                               "" ] if FILE_SET_ACTOR_DEBUG_VERBOSE
+                                               "" ] if file_set_actor_debug_verbose
         if work.respond_to? :provenance_child_add
           work.provenance_child_add( current_user: file_set.depositor,
                                      child_id: file_set.id,
@@ -255,7 +256,7 @@ module Hyrax
                                                ::Deepblue::LoggingHelper.called_from,
                                                "revision_id=#{revision_id}",
                                                "relation=#{relation}",
-                                               "" ] if FILE_SET_ACTOR_DEBUG_VERBOSE
+                                               "" ] if file_set_actor_debug_verbose
         # return false unless build_file_actor(relation).revert_to(revision_id)
         file_actor = build_file_actor( relation )
         # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
@@ -382,7 +383,7 @@ module Hyrax
                                                  "file=#{file}",
                                                  "file.class.name=#{file.class.name}",
                                                  "relation=#{relation}",
-                                                 "" ] if FILE_SET_ACTOR_DEBUG_VERBOSE
+                                                 "" ] if file_set_actor_debug_verbose
           JobIoWrapper.create_with_varied_file_handling!( user: user,
                                                           file: file,
                                                           relation: relation,

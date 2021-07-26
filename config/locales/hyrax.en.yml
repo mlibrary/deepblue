@@ -102,26 +102,10 @@ en:
       notice:
         download:           "Anonymous Download"
         show:               "Anonymous Link"
-        show_work_html: >
-          Anonymous Link<br/>
-          Reloading this page will result in being redirected to the Deep Blue Data home page and an expired anonymous link message.<br/>
-          You may view or download the attached files once or the zip download of all attached files once.<br/>
-        show_file_html: >
-          Anonymous Link<br/>
-          Reloading this page will result in being redirected to the Deep Blue Data home page and an expired anonymous link message.<br/>
-          You may download the attached file once.<br/>
-        show_work_with_help_link_html: >
-          Anonymous Link<br/>
-          Reloading this page will result in being redirected to the Deep Blue Data home page and an expired anonymous link message.<br/>
-          You may view or download the attached files once or the zip download of all attached files once.<br/>
-          Open the <a href="%{help_link}" target="_blank" rel="noopener noreferrer">this link</a> in a new
-          window for a more detailed explanation of anonymous links.
-        show_file_with_help_link_html: >
-          Anonymous Link<br/>
-          Reloading this page will result in being redirected to the Deep Blue Data home page and an expired anonymous link message.<br/>
-          You may download the attached file once.<br/>
-          Open the <a href="%{help_link}" target="_blank" rel="noopener noreferrer">this link</a> in a new
-          window for a more detailed explanation of anonymous links.
+        show_work_html:     "Anonymous Link"
+        show_file_html:     "Anonymous Link"
+        show_work_with_help_link_html:     "Anonymous Link"
+        show_file_with_help_link_html:     "Anonymous Link"
       show:
         type:               "View"
       table:

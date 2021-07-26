@@ -109,9 +109,9 @@ module Hyrax
     def destroy
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "params[:link_id]=#{params[:link_id]}",
+                                             "params[:anon_link_id]=#{params[:anon_link_id]}",
                                              "" ] if anonymous_links_controller_debug_verbose
-      anon_link = AnonymousLink.find_by_downloadKey(params[:link_id])
+      anon_link = AnonymousLink.find_by_downloadKey(params[:anon_link_id])
       anon_link.destroy if anon_link.present?
       head :ok
     end

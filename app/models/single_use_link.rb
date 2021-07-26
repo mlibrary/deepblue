@@ -15,11 +15,23 @@ class SingleUseLink < ActiveRecord::Base
     DateTime.current > expires
   end
 
+  def path_eq?( other_path )
+    path_strip_locale( path ) == path_strip_locale( other_path )
+  end
+
   def to_param
     downloadKey
   end
 
   private
+
+    def path_strip_locale( the_path )
+      return the_path if the_path.blank?
+      if the_path =~ /^(.+)\?.+/
+        return Regexp.last_match[1]
+      end
+      return the_path
+    end
 
     def expiration_date_cannot_be_in_the_past
       errors.add(:expires, "can't be in the past") if expired? # TODO: convert to I18N

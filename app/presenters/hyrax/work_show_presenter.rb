@@ -10,6 +10,7 @@ module Hyrax
     mattr_accessor :work_show_presenter_debug_verbose,
                    default: ::DeepBlueDocs::Application.config.work_show_presenter_debug_verbose
 
+    include ActionDispatch::Routing::PolymorphicRoutes
     include ModelProxy
     include PresentsAttributes
     include ::Deepblue::TotalFileSizePresenterBehavior
@@ -79,6 +80,7 @@ module Hyrax
              to: :solr_document
 
     attr_accessor :cc_anonymous_link
+    attr_accessor :cc_single_use_link
 
     # def analytics_subscribed?
     #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -87,13 +89,76 @@ module Hyrax
     #   ::AnalyticsHelper::monthly_analytics_report_subscribed?( user: current_ability.current_user )
     # end
 
+    def anonymous_link_create_download( main_app:, curation_concern: solr_document )
+      debug_verbose = work_show_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "" ] if debug_verbose
+      rv = AnonymousLink.find_or_create( id: curation_concern.id,
+                                         path: "/data/concern/data_sets/#{id}/anonymous_link_zip_download",
+                                         debug_verbose: debug_verbose )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "" ] if debug_verbose
+      return rv
+    end
+
+    def anonymous_link_download( main_app:, curation_concern: solr_document )
+      @anonymous_link_download ||= anonymous_link_find_or_create_download( main_app: main_app,
+                                                                           curation_concern: curation_concern )
+    end
+
+    def anonymous_link_path_download( main_app:, curation_concern: solr_document )
+      current_show_path( main_app: main_app, curation_concern: curation_concern, append: "/anonymous_link_zip_download" )
+    end
+
+    def anonymous_link_path_show( main_app:, curation_concern: solr_document )
+      current_show_path( main_app: main_app, curation_concern: curation_concern )
+    end
+
+    def anonymous_link_find_or_create( main_app:, curation_concern: solr_document, link_type: )
+      debug_verbose = work_show_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      id = curation_concern.id
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "link_type=#{link_type}",
+                                             "id=#{id}",
+                                             "" ] if debug_verbose
+      case link_type
+      when 'download'
+        path = anonymous_link_path_download( main_app: main_app, curation_concern: curation_concern )
+      when 'show'
+        path = anonymous_link_path_show( main_app: main_app, curation_concern: curation_concern )
+      else
+        RuntimeError "Should never get here: unknown link_type=#{link_type}"
+      end
+      AnonymousLink.find_or_create( id: id, path: path, debug_verbose: debug_verbose )
+    end
+
+    def anonymous_link_find_or_create_download( main_app:, curation_concern: )
+      debug_verbose = work_show_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      id = curation_concern.id
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "" ] if debug_verbose
+      rv = anonymous_link_find_or_create( main_app: main_app, curation_concern: curation_concern, link_type: 'download' )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "" ] if debug_verbose
+      return rv
+    end
+
     def anonymous_links
       @anonymous_links ||= anonymous_links_init
     end
 
     def anonymous_links_init
-      anon_links = AnonymousLink.where( itemId: id )
       debug_verbose = work_show_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      anon_links = AnonymousLink.where( itemId: id )
       anon_links = anon_links.select do |anon_link|
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
@@ -105,17 +170,6 @@ module Hyrax
         true
       end
       anon_links.map { |link| anonymous_link_presenter_class.new(link) }
-    end
-
-    def show_anonymous_link_section?
-      debug_verbose = work_show_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "false if anonymous_show?=#{anonymous_show?}",
-                                             "" ] if debug_verbose
-      # TODO: if the work has been published, return false
-      return false if anonymous_show?
-      true
     end
 
     def anonymous_show?
@@ -294,6 +348,14 @@ module Hyrax
       current_user_can_read?
     end
 
+    def current_show_path( main_app:, curation_concern:, append: nil )
+      # Hyrax::Engine.routes.url_helpers.
+      path = polymorphic_path( [main_app, curation_concern] )
+      path.gsub!( /\?locale=.+$/, '' )
+      return path if append.blank?
+      "#{path}#{append}"
+    end
+
     def current_user_can_edit?
       # override with something more useful
       return false
@@ -302,6 +364,20 @@ module Hyrax
     def current_user_can_read?
       # override with something more useful
       return false
+    end
+
+    def date_modified
+      solr_document.date_modified.try(:to_formatted_s, :standard)
+    end
+
+    def date_uploaded
+      solr_document.date_uploaded.try(:to_formatted_s, :standard)
+    end
+
+    # @return [String] a download URL, if work has representative media, or a blank string
+    def download_url
+      return '' if representative_presenter.nil?
+      Hyrax::Engine.routes.url_helpers.download_url(representative_presenter, host: request.host)
     end
 
     def embargoed?
@@ -446,7 +522,18 @@ module Hyrax
           end
     end
 
-    def single_use_link_create_download( curation_concern )
+    def show_anonymous_link_section?
+      debug_verbose = work_show_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "false if anonymous_show?=#{anonymous_show?}",
+                                             "" ] if debug_verbose
+      # TODO: if the work has been published, return false
+      return false if anonymous_show?
+      true
+    end
+
+    def single_use_link_create_download( main_app:, curation_concern: solr_document )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
@@ -463,8 +550,9 @@ module Hyrax
       return rv
     end
 
-    def single_use_link_download( curation_concern )
-      @single_use_link_download ||= single_use_link_create_download( curation_concern )
+    def single_use_link_download( main_app:, curation_concern: solr_document )
+      @single_use_link_download ||= single_use_link_create_download( main_app: main_app,
+                                                                     curation_concern: curation_concern )
     end
 
     def single_use_links
@@ -495,7 +583,7 @@ module Hyrax
     end
 
     def single_use_show?
-      cc_anonymous_link.present?
+      cc_single_use_link.present?
     end
 
     def tombstone
@@ -549,12 +637,6 @@ module Hyrax
       return rv
     end
 
-    # @return [String] a download URL, if work has representative media, or a blank string
-    def download_url
-      return '' if representative_presenter.nil?
-      Hyrax::Engine.routes.url_helpers.download_url(representative_presenter, host: request.host)
-    end
-
     # @return [Boolean] render a IIIF viewer
     def iiif_viewer?
       representative_id.present? &&
@@ -590,14 +672,6 @@ module Hyrax
       PresenterFactory.build_for(ids: member_of_authorized_parent_collections,
                                  presenter_class: collection_presenter_class,
                                  presenter_args: presenter_factory_arguments)
-    end
-
-    def date_modified
-      solr_document.date_modified.try(:to_formatted_s, :standard)
-    end
-
-    def date_uploaded
-      solr_document.date_uploaded.try(:to_formatted_s, :standard)
     end
 
     def link_name
@@ -666,9 +740,19 @@ module Hyrax
       paginated_item_list(page_array: authorized_item_ids)
     end
 
-    # @return [Integer] total number of pages of viewable items
-    def total_pages
-      (total_items.to_f / rows_from_params.to_f).ceil
+    # IIIF metadata for inclusion in the manifest
+    #  Called by the `iiif_manifest` gem to add metadata
+    #
+    # @return [Array] array of metadata hashes
+    def manifest_metadata
+      metadata = []
+      Hyrax.config.iiif_metadata_fields.each do |field|
+        metadata << {
+            'label' => I18n.t("simple_form.labels.defaults.#{field}"),
+            'value' => Array.wrap(send(field))
+        }
+      end
+      metadata
     end
 
     def manifest_url
@@ -689,26 +773,16 @@ module Hyrax
       renderings.flatten
     end
 
-    # IIIF metadata for inclusion in the manifest
-    #  Called by the `iiif_manifest` gem to add metadata
-    #
-    # @return [Array] array of metadata hashes
-    def manifest_metadata
-      metadata = []
-      Hyrax.config.iiif_metadata_fields.each do |field|
-        metadata << {
-            'label' => I18n.t("simple_form.labels.defaults.#{field}"),
-            'value' => Array.wrap(send(field))
-        }
-      end
-      metadata
-    end
-
     # determine if the user can add this work to a collection
     # @param collections <Collections> list of collections to which this user can deposit
     # @return true if the user can deposit to at least one collection OR if the user can create a collection; otherwise, false
     def show_deposit_for?(collections:)
       collections.present? || current_ability.can?(:create_any, Collection)
+    end
+
+    # @return [Integer] total number of pages of viewable items
+    def total_pages
+      (total_items.to_f / rows_from_params.to_f).ceil
     end
 
     def zip_download_enabled?

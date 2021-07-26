@@ -46,6 +46,119 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     end
   end
 
+  describe '#anonymous_link' do
+    let(:work) do
+      w = create(:data_set_with_one_file, user: user, depositor: user.email)
+      w.depositor = user.email
+      w
+    end
+    let(:anon_path)      { "/concern/data_sets/#{work.id}" }
+    let(:anonymous_link) { AnonymousLink.create( itemId: work.id, path: anon_path ) }
+    let(:anon_link_id)   { anonymous_link.downloadKey }
+
+    before do
+      create(:sipity_entity, proxy_for_global_id: work.to_global_id.to_s)
+    end
+
+    context 'while logged out' do
+      # let(:work) { create(:public_data_set, user: user, title: ['public thing']) }
+
+      before { sign_out user }
+
+      context "without a referer" do
+
+        before do
+          expect(anonymous_link.valid?).to eq true
+          expect(controller).to receive(:anonymous_link).and_call_original
+          expect(controller).to receive(:ensure_curation_concern_exists).at_least(:once).and_call_original
+          expect(controller).to receive(:anonymous_link_obj).with( link_id: anon_link_id ).at_least(:once).and_call_original
+          expect(::Hyrax::AnonymousLinkService).to receive(:anonymous_link_valid?).with( anonymous_link,
+                                                                      item_id: work.id,
+                                                                      path: "/concern/data_sets/#{work.id}?locale=en" ).and_call_original
+          expect(controller).to receive(:anonymous_link_destroy_because_invalid).with(anonymous_link).and_call_original
+          expect(controller).to receive(:anonymous_link_destroy_because_tombstoned).with(anonymous_link).and_call_original
+          expect(controller).to receive(:anonymous_link_destroy_because_published).with(anonymous_link).and_call_original
+          expect(::Hyrax::AnonymousLinkService).to_not receive(:anonymous_link_destroy!)
+          expect(controller).to receive(:presenter_init).and_call_original
+        end
+
+        it "shows the work" do
+          expect(anonymous_link.valid?).to eq true
+          get :anonymous_link, params: { id: work, anon_link_id: anon_link_id }
+          expect(response).to be_successful
+        end
+
+      end
+
+      context "with a referer", skip: true do
+        before do
+          request.env['HTTP_REFERER'] = 'http://test.host/foo'
+        end
+
+        it "sets breadcrumbs to authorized pages" do
+          # TODO: expect(controller).to receive(:add_breadcrumb).with('Home', main_app.root_path(locale: 'en'))
+          expect(controller).not_to receive(:add_breadcrumb).with('Dashboard', hyrax.dashboard_path(locale: 'en'))
+          expect(controller).not_to receive(:add_breadcrumb).with('Your Works', hyrax.my_works_path(locale: 'en'))
+          # TODO: expect(controller).to receive(:add_breadcrumb).with('public thing', main_app.hyrax_data_set_path(work.id, locale: 'en'))
+          get :anonymous_link, params: { id: work, anon_link_id: anon_link_id }
+          expect(response).to be_successful
+          expect(response).to render_template("layouts/hyrax/1_column")
+        end
+      end
+    end
+
+  end
+
+  describe '#destroy' do
+    let(:work_to_be_deleted) { create(:private_data_set, user: user) }
+    let(:parent_collection) { build(:collection_lw) }
+
+    it 'deletes the work' do
+      delete :destroy, params: { id: work_to_be_deleted }
+      expect(response).to redirect_to Hyrax::Engine.routes.url_helpers.my_works_path(locale: 'en')
+      expect(DataSet).not_to exist(work_to_be_deleted.id)
+    end
+
+    context "when work is a member of a collection" do
+      before do
+        parent_collection.members = [work_to_be_deleted]
+        parent_collection.save!
+      end
+      it 'deletes the work and updates the parent collection' do
+        delete :destroy, params: { id: work_to_be_deleted }
+        expect(DataSet).not_to exist(work_to_be_deleted.id)
+        expect(response).to redirect_to Hyrax::Engine.routes.url_helpers.my_works_path(locale: 'en')
+        expect(parent_collection.reload.members).to eq []
+      end
+    end
+
+    it "invokes the after_destroy callback" do
+      expect(Hyrax.config.callback).to receive(:run)
+                                         .with(:after_destroy, work_to_be_deleted.id, user)
+      delete :destroy, params: { id: work_to_be_deleted }
+    end
+
+    context 'someone elses public work' do
+      let(:work_to_be_deleted) { create(:private_data_set) }
+
+      it 'shows unauthorized message' do
+        delete :destroy, params: { id: work_to_be_deleted }
+        expect(response.code).to eq '401'
+        expect(response).to render_template(:unauthorized)
+      end
+    end
+
+    context 'when I am a repository manager' do
+      let(:work_to_be_deleted) { create(:private_data_set) }
+
+      before { allow(::User.group_service).to receive(:byname).and_return(user.user_key => ['admin']) }
+      it 'someone elses private work should delete the work' do
+        delete :destroy, params: { id: work_to_be_deleted }
+        expect(DataSet).not_to exist(work_to_be_deleted.id)
+      end
+    end
+  end
+
   describe '#doi' do
     let(:expected_mint_msg) { "The expected mint message." }
 
@@ -86,6 +199,199 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     #
     # end
 
+  end
+
+  describe '#new' do
+    context 'my work' do
+      it 'shows me the page' do
+        get :new
+        expect(response).to be_success
+        expect(assigns[:form]).to be_kind_of Hyrax::DataSetForm
+        expect(assigns[:form].depositor).to eq user.user_key
+        expect(assigns[:curation_concern]).to be_kind_of DataSet
+        expect(assigns[:curation_concern].depositor).to eq user.user_key
+        expect(response).to render_template("layouts/hyrax/dashboard")
+      end
+    end
+  end
+
+  describe '#create' do
+    let(:actor) { double(create: create_status) }
+    let(:create_status) { true }
+
+    before do
+      allow(Hyrax::CurationConcern).to receive(:actor).and_return(actor)
+    end
+
+    context 'when create is successful' do
+      let(:work) { stub_model(DataSet) }
+
+      it 'creates a work' do
+        allow(controller).to receive(:curation_concern).and_return(work)
+        post :create, params: { data_set: { title: ['a title'] } }
+        expect(response).to redirect_to main_app.hyrax_data_set_path(work, locale: 'en')
+      end
+    end
+
+    context 'when create fails' do
+      let(:work) { create(:data_set_work) }
+      let(:create_status) { false }
+
+      it 'draws the form again' do
+        post :create, params: { data_set: { title: ['a title'] } }
+        expect(response.status).to eq 422
+        expect(assigns[:form]).to be_kind_of Hyrax::DataSetForm
+        expect(response).to render_template 'new'
+      end
+    end
+
+    context 'when not authorized' do
+      before { allow(controller.current_ability).to receive(:can?).and_return(false) }
+
+      it 'shows the unauthorized message' do
+        post :create, params: { data_set: { title: ['a title'] } }
+        expect(response.code).to eq '401'
+        expect(response).to render_template(:unauthorized)
+      end
+    end
+
+    context "with files" do
+      let(:actor) { double('An actor') }
+      let(:work) { create(:data_set_work) }
+
+      before do
+        allow(controller).to receive(:actor).and_return(actor)
+        # Stub out the creation of the work so we can redirect somewhere
+        allow(controller).to receive(:curation_concern).and_return(work)
+      end
+
+      it "attaches files" do
+        expect(actor).to receive(:create)
+                             .with(Hyrax::Actors::Environment) do |env|
+          expect(env.attributes.keys).to include('uploaded_files')
+        end
+            .and_return(true)
+        post :create, params: {
+            data_set: {
+                title: ["First title"],
+                visibility: 'open'
+            },
+            uploaded_files: ['777', '888']
+        }
+        expect(flash[:notice]).to be_html_safe
+        expect(flash[:notice]).to eq "Your files are being processed by Deep Blue Data in the background. " \
+                                     "The metadata and access controls you specified are being applied. " \
+                                     "You may need to refresh this page to see these updates."
+        expect(response).to redirect_to main_app.hyrax_data_set_path(work, locale: 'en')
+      end
+
+      context "from browse everything" do
+        let(:url1) { "https://dl.dropbox.com/fake/blah-blah.filepicker-demo.txt.txt" }
+        let(:url2) { "https://dl.dropbox.com/fake/blah-blah.Getting%20Started.pdf" }
+        let(:browse_everything_params) do
+          { "0" => { "url" => url1,
+                     "expires" => "2014-03-31T20:37:36.214Z",
+                     "file_name" => "filepicker-demo.txt.txt" },
+            "1" => { "url" => url2,
+                     "expires" => "2014-03-31T20:37:36.731Z",
+                     "file_name" => "Getting+Started.pdf" } }.with_indifferent_access
+        end
+        let(:uploaded_files) do
+          browse_everything_params.values.map { |v| v['url'] }
+        end
+
+        context "For a batch upload" do
+          # TODO: move this to batch_uploads controller
+          it "ingests files from provide URLs" do
+            skip "Creating a FileSet without a parent work is not yet supported"
+            expect(ImportUrlJob).to receive(:perform_later).twice
+            expect do
+              post :create, params: { selected_files: browse_everything_params, file_set: {} }
+            end.to change(FileSet, :count).by(2)
+            created_files = FileSet.all
+            expect(created_files.map(&:import_url)).to include(url1, url2)
+            expect(created_files.map(&:label)).to include("filepicker-demo.txt.txt", "Getting+Started.pdf")
+          end
+        end
+
+        context "when a work id is passed" do
+          let(:work) do
+            create(:data_set_work, user: user, title: ['test title'])
+          end
+
+          it "records the work" do
+            # TODO: ensure the actor stack, called with these params
+            # makes one work, two file sets and calls ImportUrlJob twice.
+            expect(actor).to receive(:create).with(Hyrax::Actors::Environment) do |env|
+              expect(env.attributes['uploaded_files']).to eq []
+              expect(env.attributes['remote_files']).to eq browse_everything_params.values
+            end
+
+            post :create, params: {
+                selected_files: browse_everything_params,
+                uploaded_files: uploaded_files,
+                parent_id: work.id,
+                data_set: { title: ['First title'] }
+            }
+            expect(flash[:notice]).to eq "Your files are being processed by Deep Blue Data in the background. " \
+                                         "The metadata and access controls you specified are being applied. " \
+                                         "You may need to refresh this page to see these updates."
+            expect(response).to redirect_to main_app.hyrax_data_set_path(work, locale: 'en')
+          end
+        end
+      end
+    end
+  end
+
+  describe '#edit' do
+    context 'my own private work' do
+      let(:work) { create(:private_data_set, user: user) }
+
+      it 'shows me the page and sets breadcrumbs' do
+        # no breadcrumbs on edit form
+        # expect(controller).to receive(:add_breadcrumb).with("Home", root_path(locale: 'en'))
+        # expect(controller).to receive(:add_breadcrumb).with("Dashboard", hyrax.dashboard_path(locale: 'en'))
+        # expect(controller).to receive(:add_breadcrumb).with("Works", hyrax.my_works_path(locale: 'en'))
+        # expect(controller).to receive(:add_breadcrumb).with(work.title.first, main_app.hyrax_data_set_path(work.id, locale: 'en'))
+        # expect(controller).to receive(:add_breadcrumb).with('Edit', main_app.edit_hyrax_data_set_path(work.id))
+
+        get :edit, params: { id: work }
+        expect(response).to be_success
+        expect(assigns[:form]).to be_kind_of Hyrax::DataSetForm
+        expect(response).to render_template("layouts/hyrax/dashboard")
+      end
+    end
+
+    context 'someone elses private work' do
+      routes { Rails.application.class.routes }
+      let(:work) { create(:private_data_set) }
+
+      it 'shows the unauthorized message' do
+        get :edit, params: { id: work }
+        expect(response.code).to eq '401'
+        expect(response).to render_template(:unauthorized)
+      end
+    end
+
+    context 'someone elses public work' do
+      let(:work) { create(:public_data_set) }
+
+      it 'shows the unauthorized message' do
+        get :edit, params: { id: work }
+        expect(response.code).to eq '401'
+        expect(response).to render_template(:unauthorized)
+      end
+    end
+
+    context 'when I am a repository manager' do
+      before { allow(::User.group_service).to receive(:byname).and_return(user.user_key => ['admin']) }
+      let(:work) { create(:private_data_set) }
+
+      it 'someone elses private work should show me the page' do
+        get :edit, params: { id: work }
+        expect(response).to be_success
+      end
+    end
   end
 
   describe '#show' do
@@ -294,199 +600,6 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     end
   end
 
-  describe '#new' do
-    context 'my work' do
-      it 'shows me the page' do
-        get :new
-        expect(response).to be_success
-        expect(assigns[:form]).to be_kind_of Hyrax::DataSetForm
-        expect(assigns[:form].depositor).to eq user.user_key
-        expect(assigns[:curation_concern]).to be_kind_of DataSet
-        expect(assigns[:curation_concern].depositor).to eq user.user_key
-        expect(response).to render_template("layouts/hyrax/dashboard")
-      end
-    end
-  end
-
-  describe '#create' do
-    let(:actor) { double(create: create_status) }
-    let(:create_status) { true }
-
-    before do
-      allow(Hyrax::CurationConcern).to receive(:actor).and_return(actor)
-    end
-
-    context 'when create is successful' do
-      let(:work) { stub_model(DataSet) }
-
-      it 'creates a work' do
-        allow(controller).to receive(:curation_concern).and_return(work)
-        post :create, params: { data_set: { title: ['a title'] } }
-        expect(response).to redirect_to main_app.hyrax_data_set_path(work, locale: 'en')
-      end
-    end
-
-    context 'when create fails' do
-      let(:work) { create(:data_set_work) }
-      let(:create_status) { false }
-
-      it 'draws the form again' do
-        post :create, params: { data_set: { title: ['a title'] } }
-        expect(response.status).to eq 422
-        expect(assigns[:form]).to be_kind_of Hyrax::DataSetForm
-        expect(response).to render_template 'new'
-      end
-    end
-
-    context 'when not authorized' do
-      before { allow(controller.current_ability).to receive(:can?).and_return(false) }
-
-      it 'shows the unauthorized message' do
-        post :create, params: { data_set: { title: ['a title'] } }
-        expect(response.code).to eq '401'
-        expect(response).to render_template(:unauthorized)
-      end
-    end
-
-    context "with files" do
-      let(:actor) { double('An actor') }
-      let(:work) { create(:data_set_work) }
-
-      before do
-        allow(controller).to receive(:actor).and_return(actor)
-        # Stub out the creation of the work so we can redirect somewhere
-        allow(controller).to receive(:curation_concern).and_return(work)
-      end
-
-      it "attaches files" do
-        expect(actor).to receive(:create)
-                             .with(Hyrax::Actors::Environment) do |env|
-          expect(env.attributes.keys).to include('uploaded_files')
-        end
-            .and_return(true)
-        post :create, params: {
-            data_set: {
-                title: ["First title"],
-                visibility: 'open'
-            },
-            uploaded_files: ['777', '888']
-        }
-        expect(flash[:notice]).to be_html_safe
-        expect(flash[:notice]).to eq "Your files are being processed by Deep Blue Data in the background. " \
-                                     "The metadata and access controls you specified are being applied. " \
-                                     "You may need to refresh this page to see these updates."
-        expect(response).to redirect_to main_app.hyrax_data_set_path(work, locale: 'en')
-      end
-
-      context "from browse everything" do
-        let(:url1) { "https://dl.dropbox.com/fake/blah-blah.filepicker-demo.txt.txt" }
-        let(:url2) { "https://dl.dropbox.com/fake/blah-blah.Getting%20Started.pdf" }
-        let(:browse_everything_params) do
-          { "0" => { "url" => url1,
-                     "expires" => "2014-03-31T20:37:36.214Z",
-                     "file_name" => "filepicker-demo.txt.txt" },
-            "1" => { "url" => url2,
-                     "expires" => "2014-03-31T20:37:36.731Z",
-                     "file_name" => "Getting+Started.pdf" } }.with_indifferent_access
-        end
-        let(:uploaded_files) do
-          browse_everything_params.values.map { |v| v['url'] }
-        end
-
-        context "For a batch upload" do
-          # TODO: move this to batch_uploads controller
-          it "ingests files from provide URLs" do
-            skip "Creating a FileSet without a parent work is not yet supported"
-            expect(ImportUrlJob).to receive(:perform_later).twice
-            expect do
-              post :create, params: { selected_files: browse_everything_params, file_set: {} }
-            end.to change(FileSet, :count).by(2)
-            created_files = FileSet.all
-            expect(created_files.map(&:import_url)).to include(url1, url2)
-            expect(created_files.map(&:label)).to include("filepicker-demo.txt.txt", "Getting+Started.pdf")
-          end
-        end
-
-        context "when a work id is passed" do
-          let(:work) do
-            create(:data_set_work, user: user, title: ['test title'])
-          end
-
-          it "records the work" do
-            # TODO: ensure the actor stack, called with these params
-            # makes one work, two file sets and calls ImportUrlJob twice.
-            expect(actor).to receive(:create).with(Hyrax::Actors::Environment) do |env|
-              expect(env.attributes['uploaded_files']).to eq []
-              expect(env.attributes['remote_files']).to eq browse_everything_params.values
-            end
-
-            post :create, params: {
-                selected_files: browse_everything_params,
-                uploaded_files: uploaded_files,
-                parent_id: work.id,
-                data_set: { title: ['First title'] }
-            }
-            expect(flash[:notice]).to eq "Your files are being processed by Deep Blue Data in the background. " \
-                                         "The metadata and access controls you specified are being applied. " \
-                                         "You may need to refresh this page to see these updates."
-            expect(response).to redirect_to main_app.hyrax_data_set_path(work, locale: 'en')
-          end
-        end
-      end
-    end
-  end
-
-  describe '#edit' do
-    context 'my own private work' do
-      let(:work) { create(:private_data_set, user: user) }
-
-      it 'shows me the page and sets breadcrumbs' do
-        # no breadcrumbs on edit form
-        # expect(controller).to receive(:add_breadcrumb).with("Home", root_path(locale: 'en'))
-        # expect(controller).to receive(:add_breadcrumb).with("Dashboard", hyrax.dashboard_path(locale: 'en'))
-        # expect(controller).to receive(:add_breadcrumb).with("Works", hyrax.my_works_path(locale: 'en'))
-        # expect(controller).to receive(:add_breadcrumb).with(work.title.first, main_app.hyrax_data_set_path(work.id, locale: 'en'))
-        # expect(controller).to receive(:add_breadcrumb).with('Edit', main_app.edit_hyrax_data_set_path(work.id))
-
-        get :edit, params: { id: work }
-        expect(response).to be_success
-        expect(assigns[:form]).to be_kind_of Hyrax::DataSetForm
-        expect(response).to render_template("layouts/hyrax/dashboard")
-      end
-    end
-
-    context 'someone elses private work' do
-      routes { Rails.application.class.routes }
-      let(:work) { create(:private_data_set) }
-
-      it 'shows the unauthorized message' do
-        get :edit, params: { id: work }
-        expect(response.code).to eq '401'
-        expect(response).to render_template(:unauthorized)
-      end
-    end
-
-    context 'someone elses public work' do
-      let(:work) { create(:public_data_set) }
-
-      it 'shows the unauthorized message' do
-        get :edit, params: { id: work }
-        expect(response.code).to eq '401'
-        expect(response).to render_template(:unauthorized)
-      end
-    end
-
-    context 'when I am a repository manager' do
-      before { allow(::User.group_service).to receive(:byname).and_return(user.user_key => ['admin']) }
-      let(:work) { create(:private_data_set) }
-
-      it 'someone elses private work should show me the page' do
-        get :edit, params: { id: work }
-        expect(response).to be_success
-      end
-    end
-  end
-
   describe '#update' do
     let(:work) { stub_model(DataSet) }
     let(:visibility_changed) { false }
@@ -583,56 +696,6 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
       it 'someone elses private work should update the work' do
         patch :update, params: { id: work, data_set: { title: ['First Title'] } }
         expect(response).to redirect_to main_app.hyrax_data_set_path(work, locale: 'en')
-      end
-    end
-  end
-
-  describe '#destroy' do
-    let(:work_to_be_deleted) { create(:private_data_set, user: user) }
-    let(:parent_collection) { build(:collection_lw) }
-
-    it 'deletes the work' do
-      delete :destroy, params: { id: work_to_be_deleted }
-      expect(response).to redirect_to Hyrax::Engine.routes.url_helpers.my_works_path(locale: 'en')
-      expect(DataSet).not_to exist(work_to_be_deleted.id)
-    end
-
-    context "when work is a member of a collection" do
-      before do
-        parent_collection.members = [work_to_be_deleted]
-        parent_collection.save!
-      end
-      it 'deletes the work and updates the parent collection' do
-        delete :destroy, params: { id: work_to_be_deleted }
-        expect(DataSet).not_to exist(work_to_be_deleted.id)
-        expect(response).to redirect_to Hyrax::Engine.routes.url_helpers.my_works_path(locale: 'en')
-        expect(parent_collection.reload.members).to eq []
-      end
-    end
-
-    it "invokes the after_destroy callback" do
-      expect(Hyrax.config.callback).to receive(:run)
-                                           .with(:after_destroy, work_to_be_deleted.id, user)
-      delete :destroy, params: { id: work_to_be_deleted }
-    end
-
-    context 'someone elses public work' do
-      let(:work_to_be_deleted) { create(:private_data_set) }
-
-      it 'shows unauthorized message' do
-        delete :destroy, params: { id: work_to_be_deleted }
-        expect(response.code).to eq '401'
-        expect(response).to render_template(:unauthorized)
-      end
-    end
-
-    context 'when I am a repository manager' do
-      let(:work_to_be_deleted) { create(:private_data_set) }
-
-      before { allow(::User.group_service).to receive(:byname).and_return(user.user_key => ['admin']) }
-      it 'someone elses private work should delete the work' do
-        delete :destroy, params: { id: work_to_be_deleted }
-        expect(DataSet).not_to exist(work_to_be_deleted.id)
       end
     end
   end

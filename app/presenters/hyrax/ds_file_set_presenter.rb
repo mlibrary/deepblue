@@ -23,6 +23,8 @@ module Hyrax
 
     attr_accessor :cc_anonymous_link
     attr_accessor :cc_parent_anonymous_link
+    attr_accessor :cc_parent_single_use_link
+    attr_accessor :cc_single_use_link
     attr_accessor :parent_presenter
 
     def initialize( solr_document, current_ability, request = nil )
@@ -32,54 +34,44 @@ module Hyrax
       super( solr_document, current_ability, request )
     end
 
-    def anonymous_link_create_download( curation_concern = solr_document )
+    def anonymous_link_download( main_app:, curation_concern: solr_document )
+      @anonymous_link_download ||= anonymous_link_find_or_create( main_app: main_app,
+                                                                  curation_concern: curation_concern,
+                                                                  link_type: 'download' )
+    end
+
+    def anonymous_link_find_or_create( main_app:, curation_concern: solr_document, link_type: )
+      debug_verbose = ds_file_set_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "link_type=#{link_type}",
                                              "curation_concern.id=#{curation_concern.id}",
-                                             "" ] if ds_file_set_presenter_debug_verbose
-      user_id = nil
-      user_id = current_ability.current_user.id unless anonymous_show?
-      rv = SingleUseLink.create( itemId: curation_concern.id,
-                                 path: "/data/downloads/#{curation_concern.id}", # TODO: fix
-                                 user_id: user_id )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "rv=#{rv}",
-                                             "rv.downloadKey=#{rv.downloadKey}",
-                                             "rv.itemId=#{rv.itemId}",
-                                             "rv.path=#{rv.path}",
-                                             "" ] if ds_file_set_presenter_debug_verbose
-      return rv
+                                             "" ] if debug_verbose
+      case link_type
+      when 'download'
+        path = anonymous_link_path_download( main_app: main_app, curation_concern: curation_concern )
+      when 'show'
+        path = anonymous_link_path_show( main_app: main_app, curation_concern: curation_concern )
+      else
+        RuntimeError "Should never get here: unknown link_type=#{link_type}"
+      end
+      AnonymousLink.find_or_create( id: id, path: path, debug_verbose: debug_verbose )
     end
 
-    def anonymous_link_create_show( curation_concern = solr_document )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "curation_concern.class.name=#{curation_concern.class.name}",
-                                             "curation_concern.id=#{curation_concern.id}",
-                                             "" ] if ds_file_set_presenter_debug_verbose
-      path = "/data/concern/file_sets/#{curation_concern.id}" # TODO: fix
-      user_id = nil
-      user_id = current_ability.current_user.id unless anonymous_show?
-      rv = SingleUseLink.create( itemId: curation_concern.id,
-                                 path: path,
-                                 user_id: user_id )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "rv=#{rv}",
-                                             "rv.downloadKey=#{rv.downloadKey}",
-                                             "rv.itemId=#{rv.itemId}",
-                                             "rv.path=#{rv.path}",
-                                             "" ] if ds_file_set_presenter_debug_verbose
-      return rv
+    def anonymous_link_path_download( main_app:, curation_concern: solr_document )
+      # hyrax.download_path( id: id )
+      Hyrax::Engine.routes.url_helpers.download_path( id: curation_concern.id )
     end
 
-    def anonymous_link_download( curation_concern = solr_document )
-      @anonymous_link_download ||= anonymous_link_create_download( curation_concern )
+    def anonymous_link_path_show( main_app:, curation_concern: solr_document )
+      # current_show_path
+      "/data/concern/file_sets/#{id}" # TODO: fix
     end
 
-    def anonymous_link_show( curation_concern = solr_document )
-      @anonymous_link_show ||= anonymous_link_create_show( curation_concern )
+    def anonymous_link_show( main_app:, curation_concern: solr_document )
+      @anonymous_link_show ||= anonymous_link_find_or_create( main_app: main_app,
+                                                              curation_concern: solr_document,
+                                                              link_type: 'show' )
     end
 
     def anonymous_links
@@ -87,8 +79,8 @@ module Hyrax
     end
 
     def anonymous_links_init
-      anon_links = AnonymousLink.where( itemId: id )
       debug_verbose = ds_file_set_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      anon_links = AnonymousLink.where( itemId: id )
       anon_links = anon_links.select do |anon_link|
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
@@ -108,21 +100,6 @@ module Hyrax
       end
       anon_links.map { |link| link_presenter_class.new(link) }
     end
-
-    def show_anonymous_link_section?
-      debug_verbose = ds_file_set_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "false if anonymous_show?=#{anonymous_show?}",
-                                             "" ] if debug_verbose
-      # TODO: if the work has been published, return false
-      return false if anonymous_show?
-      true
-    end
-
-    # def anonymous_show?
-    #   cc_anonymous_link.present? || cc_parent_anonymous_link.present?
-    # end
 
     def anonymous_show?
       anonymous_use_show? || single_use_show?
@@ -326,7 +303,7 @@ module Hyrax
       rv
     end
 
-    def download_path_link( curation_concern = solr_document )
+    def download_path_link( main_app:, curation_concern: solr_document )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
@@ -337,14 +314,16 @@ module Hyrax
       #                                                      action: 'show',
       #                                                      controller: 'downloads',
       #                                                      id: curation_concern.id ) unless anonymous_show?
-      return download_path_anonymous_link( curation_concern ) if anonymous_show?
-      return download_path_single_use_link( curation_concern ) if single_use_show?
+      return download_path_anonymous_link( main_app: main_app, curation_concern: curation_concern ) if anonymous_show?
+      return download_path_single_use_link( main_app: main_app, curation_concern: curation_concern ) if single_use_show?
       return "/data/downloads/#{curation_concern.id}"
     end
 
-    def download_path_anonymous_link( curation_concern )
-      anon_link = anonymous_link_download( curation_concern )
+    def download_path_anonymous_link( main_app:, curation_concern: solr_document )
       debug_verbose = ds_file_set_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      anon_link = anonymous_link_find_or_create( main_app: main_app,
+                                                 curation_concern: curation_concern,
+                                                 link_type: 'download' )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "anon_link=#{anon_link}",
@@ -361,8 +340,8 @@ module Hyrax
       return rv
     end
 
-    def download_path_single_use_link( curation_concern )
-      su_link = single_use_link_download( curation_concern )
+    def download_path_single_use_link( main_app:, curation_concern: solr_document )
+      su_link = single_use_link_download( main_app: main_app, curation_concern: curation_concern )
       debug_verbose = ds_file_set_presenter_debug_verbose || ::Hyrax::SingleUseLinkService.single_use_link_service_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -386,31 +365,6 @@ module Hyrax
                                              "solr_document.visibility=#{solr_document.visibility}",
                                              "" ] if ds_file_set_presenter_debug_verbose
       solr_document.visibility == 'embargo'
-    end
-
-    def show_path_link( curation_concern = solr_document )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "curation_concern.class.name=#{curation_concern.class.name}",
-                                             "id=#{id}",
-                                             "anonymous_show?=#{anonymous_show?}",
-                                             "" ] if ds_file_set_presenter_debug_verbose
-      return "/data/concern/file_sets/#{id}" unless anonymous_show? # TODO: fix
-      su_link = single_use_link_show( curation_concern )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "su_link=#{su_link}",
-                                             "su_link.downloadKey=#{su_link.downloadKey}",
-                                             "su_link.itemId=#{su_link.itemId}",
-                                             "su_link.path=#{su_link.path}",
-                                             "" ] if ds_file_set_presenter_debug_verbose
-      rv = "/data/single_use_link/show/#{su_link.downloadKey}" # TODO: fix
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "rv=#{rv}",
-                                             "" ] if ds_file_set_presenter_debug_verbose
-      # return "/data/downloads/#{curation_concern.id}/single_use_link/#{su_link.downloadKey}" # TODO: fix
-      return rv
     end
 
     def file_name( parent_presenter, link_to )
@@ -547,7 +501,62 @@ module Hyrax
       ''
     end
 
-    def single_use_link_create_download( curation_concern = solr_document )
+    def show_anonymous_link_section?
+      debug_verbose = ds_file_set_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "false if anonymous_show?=#{anonymous_show?}",
+                                             "" ] if debug_verbose
+      # TODO: if the work has been published, return false
+      return false if anonymous_show?
+      true
+    end
+
+    def show_path_link( main_app:, curation_concern: solr_document )
+      debug_verbose = ds_file_set_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "curation_concern.class.name=#{curation_concern.class.name}",
+                                             "id=#{id}",
+                                             "anonymous_show?=#{anonymous_show?}",
+                                             "" ] if ds_file_set_presenter_debug_verbose
+      return "/data/concern/file_sets/#{id}" unless anonymous_show? # TODO: fix
+      if anonymous_use_show?
+        anon_link = anonymous_link_show( main_app: main_app, curation_concern: curation_concern )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "anon_link=#{anon_link}",
+                                               "anon_link.downloadKey=#{anon_link.downloadKey}",
+                                               "anon_link.itemId=#{anon_link.itemId}",
+                                               "anon_link.path=#{anon_link.path}",
+                                               "" ] if debug_verbose
+        rv = "/data/anonymous_link/show/#{anon_link.downloadKey}" # TODO: fix
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "rv=#{rv}",
+                                               "" ] if debug_verbose
+        # return "/data/downloads/#{curation_concern.id}/anonymous_link/#{su_link.downloadKey}" # TODO: fix
+      end
+      if single_use_show?
+        su_link = single_use_link_show( main_app: main_app, curation_concern: curation_concern )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "su_link=#{su_link}",
+                                               "su_link.downloadKey=#{su_link.downloadKey}",
+                                               "su_link.itemId=#{su_link.itemId}",
+                                               "su_link.path=#{su_link.path}",
+                                               "" ] if ds_file_set_presenter_debug_verbose
+        rv = "/data/single_use_link/show/#{su_link.downloadKey}" # TODO: fix
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "rv=#{rv}",
+                                               "" ] if ds_file_set_presenter_debug_verbose
+        # return "/data/downloads/#{curation_concern.id}/single_use_link/#{su_link.downloadKey}" # TODO: fix
+      end
+      return rv
+    end
+
+    def single_use_link_create_download( main_app:, curation_concern: solr_document )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
@@ -567,7 +576,7 @@ module Hyrax
       return rv
     end
 
-    def single_use_link_create_show( curation_concern = solr_document )
+    def single_use_link_create_show( main_app:, curation_concern: solr_document )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.class.name=#{curation_concern.class.name}",
@@ -589,12 +598,12 @@ module Hyrax
       return rv
     end
 
-    def single_use_link_download( curation_concern = solr_document )
-      @single_use_link_download ||= single_use_link_create_download( curation_concern )
+    def single_use_link_download( main_app:, curation_concern: solr_document )
+      @single_use_link_download ||= single_use_link_create_download( main_app: main_app, curation_concern: curation_concern )
     end
 
-    def single_use_link_show( curation_concern = solr_document )
-      @single_use_link_show ||= single_use_link_create_show( curation_concern )
+    def single_use_link_show( main_app:, curation_concern: solr_document )
+      @single_use_link_show ||= single_use_link_create_show( main_app: main_app, curation_concern: curation_concern )
     end
 
     def single_use_links
@@ -624,10 +633,10 @@ module Hyrax
     end
 
     def single_use_show?
-      cc_anonymous_link.present? || cc_parent_anonymous_link.present?
+      cc_single_use_link.present? || cc_parent_single_use_link.present?
     end
 
-    def thumbnail_post_process( tag )
+    def thumbnail_post_process( tag:, main_app: )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "tag.class.name=#{tag.class.name}",
@@ -642,8 +651,10 @@ module Hyrax
                                              "" ] if ds_file_set_presenter_debug_verbose
       rv.gsub!( 'data-context-href', 'data-reference' )
       # TODO: make sure that icon does not have a download link
+      # TODO: need to figure out the type of the show?
       if anonymous_show?
-        rv.gsub!( /\/(data\/)?concern\/file_sets\/[^\?]+(\?locale=[^"']+)?/, download_path_link( solr_document ) )
+        rv.gsub!( /\/(data\/)?concern\/file_sets\/[^\?]+(\?locale=[^"']+)?/, download_path_link( main_app: main_app,
+                                                                                                 curation_concern: solr_document ) )
       else
         rv.gsub!( 'concern/file_sets', 'downloads' )
       end

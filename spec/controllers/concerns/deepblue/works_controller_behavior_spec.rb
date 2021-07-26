@@ -89,7 +89,6 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
 
   it 'can_delete_work?' do
     allow(dummy_class).to receive(:anonymous_link?).and_return true
-    allow(dummy_class).to receive(:single_use_link?).and_return true
 
     dc = dummy_class.can_delete_work?
     expect(dc).to eq(false)
@@ -97,7 +96,6 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
 
   it 'can_delete_work?' do
     allow(dummy_class).to receive(:anonymous_link?).and_return false
-    allow(dummy_class).to receive(:single_use_link?).and_return false
     allow(dummy_class).to receive(:doi?).and_return true
 
     dc = dummy_class.can_delete_work?
@@ -106,7 +104,6 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
 
   it 'can_delete_work?' do
     allow(dummy_class).to receive(:anonymous_link?).and_return false
-    allow(dummy_class).to receive(:single_use_link?).and_return false
     allow(dummy_class).to receive(:doi?).and_return false
     allow(dummy_class).to receive(:tombstoned?).and_return false
 
@@ -128,7 +125,6 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
   it 'can_subscribe_to_analytics_reports?' do  
     allow(AnalyticsHelper).to receive(:enable_local_analytics_ui?).and_return true
     allow(dummy_class).to receive(:anonymous_link?).and_return true
-    allow(dummy_class).to receive(:single_use_link?).and_return true
 
     dc = dummy_class.can_subscribe_to_analytics_reports?
     expect(dc).to eq(false)
@@ -138,7 +134,6 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     allow(AnalyticsHelper).to receive(:enable_local_analytics_ui?).and_return true 
     allow(AnalyticsHelper).to receive(:analytics_reports_admins_can_subscribe?).and_return true
     allow(dummy_class).to receive(:anonymous_link?).and_return false
-    allow(dummy_class).to receive(:single_use_link?).and_return false
     allow(dummy_class).to receive(:can_edit_work?).and_return true
     allow(dummy_class).to receive(:current_ability).and_return test_object
     allow(test_object).to receive(:admin?).and_return true
@@ -152,7 +147,6 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     allow(AnalyticsHelper).to receive(:analytics_reports_admins_can_subscribe?).and_return true
     allow(AnalyticsHelper).to receive(:open_analytics_report_subscriptions?).and_return true
     allow(dummy_class).to receive(:anonymous_link?).and_return false
-    allow(dummy_class).to receive(:single_use_link?).and_return false
     allow(dummy_class).to receive(:can_edit_work?).and_return true
     allow(dummy_class).to receive(:can_edit_work?).and_return true
     allow(dummy_class).to receive(:current_ability).and_return test_object
@@ -167,7 +161,6 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     allow(AnalyticsHelper).to receive(:analytics_reports_admins_can_subscribe?).and_return true
     allow(AnalyticsHelper).to receive(:open_analytics_report_subscriptions?).and_return true
     allow(dummy_class).to receive(:anonymous_link?).and_return false
-    allow(dummy_class).to receive(:single_use_link?).and_return false
     allow(dummy_class).to receive(:can_edit_work?).and_return true
     allow(dummy_class).to receive(:can_edit_work?).and_return false
     allow(dummy_class).to receive(:current_ability).and_return test_object
@@ -186,7 +179,6 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
 
   it 'can_edit_work?' do
     allow(dummy_class).to receive(:anonymous_link?).and_return false
-    allow(dummy_class).to receive(:single_use_link?).and_return false
     allow(dummy_class).to receive(:current_ability).and_return test_object
     allow(test_object).to receive(:admin?).and_return false
     allow(dummy_class).to receive(:editor?).and_return true
@@ -198,7 +190,6 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
 
   it 'editor?' do
     allow(dummy_class).to receive(:anonymous_link?).and_return false
-    allow(dummy_class).to receive(:single_use_link?).and_return false
     allow(dummy_class).to receive(:current_ability).and_return test_object
     allow(test_object).to receive(:can?).and_return true
 
@@ -266,6 +257,20 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     expect(dc).to eq(true)  
   end
 
+  it 'anonymous_link' do
+    allow(dummy_class).to receive(:params).and_return({:id => "anID", :anon_link_id => "abc"})
+    allow(test_object).to receive(:id).and_return "anID"
+    allow(::Deepblue::WorkViewContentService).to receive(:content_find_by_id).and_return test_object
+    allow(test_object).to receive(:tombstone).and_return true
+    allow(dummy_class).to receive(:redirect_to).and_return "here"
+    allow(dummy_class).to receive(:main_app).and_return test_object
+    allow(test_object).to receive(:root_path).and_return "/data"
+    allow(dummy_class).to receive(:polymorphic_path).and_return "polymorphic_path"
+
+    dc = dummy_class.anonymous_link
+    expect(dc).to eq("here")
+  end
+
   it 'single_use_link' do 
     allow(dummy_class).to receive(:params).and_return({:link_id => "abc"})
     allow(::Deepblue::WorkViewContentService).to receive(:content_find_by_id).and_return test_object
@@ -278,10 +283,10 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     expect(dc).to eq("here") 
   end
 
-  it 'single_use_link?' do  
-    allow(dummy_class).to receive(:params).and_return({:link_id => "abc"})
+  it 'anonymous_link?' do
+    allow(dummy_class).to receive(:params).and_return({:anon_link_id => "abc"})
 
-    dc = dummy_class.single_use_link?
+    dc = dummy_class.anonymous_link?
     expect(dc).to eq(true) 
   end
 
@@ -297,7 +302,6 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
 
   it 'search_result_document' do
     allow(dummy_class).to receive(:anonymous_link?).and_return true
-    allow(dummy_class).to receive(:single_use_link?).and_return true
     allow(dummy_class).to receive(:params).and_return({:link_id => "abc"})
     expect(::SolrDocument).to receive(:find).with( any_args )
 

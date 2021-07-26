@@ -125,11 +125,11 @@ Rails.application.routes.draw do
   # resources :downloads, only: :show # add this to get it working: Rails.application.routes.url_helpers.url_for( only_path: true, action: 'show', controller: 'downloads', id: "id123" )
 
   get 'anonymous_link/show/:id' => 'hyrax/anonymous_links_viewer#show', as: :show_anonymous_link
-  get 'anonymous_link/download/:id' => 'hyrax/anonymous_links_viewer#download', as: :download_anonymous_link
+  post 'anonymous_link/download/:id' => 'hyrax/anonymous_links_viewer#download', as: :download_anonymous_link
   post 'anonymous_link/generate_download/:id' => 'hyrax/anonymous_links#create_anonymous_download', as: :generate_download_anonymous_link
   post 'anonymous_link/generate_show/:id' => 'hyrax/anonymous_links#create_anonymous_show', as: :generate_show_anonymous_link
   get 'anonymous_link/generated/:id' => 'hyrax/anonymous_links#index', as: :generated_anonymous_links
-  delete 'anonymous_link/:id/delete/:link_id' => 'hyrax/anonymous_links#destroy', as: :delete_anonymous_link
+  delete 'anonymous_link/:id/delete/:anon_link_id' => 'hyrax/anonymous_links#destroy', as: :delete_anonymous_link
 
   post 'single_use_link/download/:id' => 'hyrax/single_use_links_viewer#download', as: :download_single_use_link
 
@@ -151,7 +151,7 @@ Rails.application.routes.draw do
         get    'doi'
         post   'doi'
         get    'file_contents'
-        get    'anonymous_link/:link_id', action: :anonymous_link
+        get    'anonymous_link/:anon_link_id', action: :anonymous_link
         get    'single_use_link/:link_id', action: :single_use_link
       end
     end
@@ -185,8 +185,8 @@ Rails.application.routes.draw do
         post   'ingest_append_prep'
         post   'ingest_append_run_job'
         post   'identifiers'
-        get    'anonymous_link/:link_id', action: :anonymous_link
-        get    'anonymous_link_zip_download/:link_id', action: :anonymous_link_zip_download
+        get    'anonymous_link/:anon_link_id', action: :anonymous_link
+        get    'anonymous_link_zip_download/:anon_link_id', action: :anonymous_link_zip_download
         get    'single_use_link/:link_id', action: :single_use_link
         get    'single_use_link_zip_download/:link_id', action: :single_use_link_zip_download
         post   'tombstone'

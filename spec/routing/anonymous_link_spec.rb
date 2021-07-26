@@ -13,7 +13,7 @@ RSpec.describe 'Routes for single use links', type: :routing, skip: false do
 
     it 'routes to #download' do
       expect(download_anonymous_link_path('abc123')).to eq '/anonymous_link/download/abc123'
-      expect(get("/anonymous_link/download/abc123")).to route_to("hyrax/anonymous_links_viewer#download", id: 'abc123')
+      expect(post("/anonymous_link/download/abc123")).to route_to("hyrax/anonymous_links_viewer#download", id: 'abc123')
     end
   end
 

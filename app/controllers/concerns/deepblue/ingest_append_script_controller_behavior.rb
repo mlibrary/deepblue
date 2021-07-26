@@ -4,7 +4,7 @@ module Deepblue
 
   module IngestAppendScriptControllerBehavior
 
-    INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE = false
+    mattr_accessor :ingest_append_scripts_controller_behavior_debug_verbose, default: false
 
     attr_reader :ingest_script
 
@@ -73,7 +73,7 @@ module Deepblue
       #                                        "@ingest_script_messages=#{@ingest_script_messages}",
       #                                        "ingest_script_messages=#{ingest_script_messages}",
       #                                        "script=#{script.join( "\n" )}",
-      #                                        "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+      #                                        "" ] if ingest_append_scripts_controller_behavior_debug_verbose
 
       return script.join( "\n" )
     end
@@ -87,7 +87,7 @@ module Deepblue
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "params=#{params}",
-                                             "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       presenter.controller = self
       @ingest_script = generate_ingest_append_script
       render 'ingest_append_script_form'
@@ -98,7 +98,7 @@ module Deepblue
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "params=#{params}",
-                                             "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       presenter.controller = self
       render 'ingest_append_prep_form'
     end
@@ -109,7 +109,7 @@ module Deepblue
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "params=#{params}",
                                              "params[:commit]=#{params[:commit]}",
-                                             "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       commit = params[:commit]
       if params[:ingest_script_textarea].present?
         begin
@@ -157,7 +157,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv} rv class = #{rv.class.name}",
-                                             "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       rv
     end
 
@@ -171,7 +171,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv} rv class = #{rv.class.name}",
-                                             "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       rv
     end
 
@@ -185,7 +185,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv} rv class = #{rv.class.name}",
-                                             "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       rv
     end
 
@@ -199,7 +199,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv} rv class = #{rv.class.name}",
-                                             "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       rv
     end
 
@@ -213,7 +213,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv} rv class = #{rv.class.name}",
-                                             "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       rv
     end
 
@@ -227,7 +227,7 @@ module Deepblue
                                              Deepblue::LoggingHelper.called_from,
                                              "params=#{params}",
                                              "params[:ingest_file_path_list]=#{params[:ingest_file_path_list]}",
-                                             "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       @ingest_file_bath_list = params[:ingest_file_path_list] if params[:ingest_file_path_list].present?
       @ingest_file_bath_list ||= ingest_file_path_list_from_base_directory
     end
@@ -238,12 +238,12 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "ingest_base_directory=#{ingest_base_directory}",
-                                             "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       base_dir = ingest_base_directory&.strip
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "base_dir=#{base_dir}",
-                                             "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       return "" if base_dir.blank?
       starts_with_path = base_dir
       starts_with_path = starts_with_path + File::SEPARATOR unless starts_with_path.ends_with? File::SEPARATOR
@@ -252,18 +252,18 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "starts_with_path=#{starts_with_path}",
-                                             "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       files = Dir.glob( "#{starts_with_path}*" )
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "files=#{files}",
-                                             "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       path_list = []
       files.each do |f|
         ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                Deepblue::LoggingHelper.called_from,
                                                "f=#{f}",
-                                               "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+                                               "" ] if ingest_append_scripts_controller_behavior_debug_verbose
         if File.basename( f ) =~ /^\..*$/
           next
         end
@@ -273,7 +273,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
-                                             "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       rv
     end
 
@@ -323,7 +323,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
-                                             "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       rv
     end
 
@@ -342,12 +342,12 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "path_to_script=#{path_to_script}",
-                                             "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       return true unless ::Deepblue::IngestIntegrationService.ingest_append_ui_allow_scripts_to_run
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "IngestAppendScriptJob.perform_later( path_to_script: #{path_to_script}, ingester: #{ingest_ingester} )",
-                                             "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       IngestScriptJob.perform_later( ingest_mode: 'append',
                                      ingester: ingest_ingester,
                                      path_to_script: path_to_script  )
@@ -367,7 +367,7 @@ module Deepblue
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "path_to_script=#{path_to_script}",
-                                             "" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       File.open( path_to_script, "w" ) do |out|
         out.puts params[:ingest_script_textarea]
       end
@@ -378,13 +378,13 @@ module Deepblue
       # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
       #                                        Deepblue::LoggingHelper.called_from,
       #                                        "params[:ingest_use_defaults]=#{params[:ingest_use_defaults]}",
-      #                                        "params[:ingest_use_defaults].blank?=#{params[:ingest_use_defaults].blank?}" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+      #                                        "params[:ingest_use_defaults].blank?=#{params[:ingest_use_defaults].blank?}" ] if ingest_append_scripts_controller_behavior_debug_verbose
       return true if params[:ingest_use_defaults].blank?
       rv = params[:ingest_use_defaults] == 'true'
       # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
       #                                        Deepblue::LoggingHelper.called_from,
       #                                        "params[:ingest_use_defaults]=#{params[:ingest_use_defaults]}",
-      #                                        "rv=#{rv} rv.class.name=#{rv.class.name}" ] if INGEST_APPEND_SCRIPTS_CONTROLLER_BEHAVIOR_VERBOSE
+      #                                        "rv=#{rv} rv.class.name=#{rv.class.name}" ] if ingest_append_scripts_controller_behavior_debug_verbose
       rv
     end
 
