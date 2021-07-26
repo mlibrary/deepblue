@@ -12,7 +12,7 @@ class MockAbstractProvenanceLogTask < ::Deepblue::AbstractProvenanceLogTask
 
 end
 
-RSpec.describe ::Deepblue::AbstractReportTask, skip: false do
+RSpec.describe ::Deepblue::AbstractProvenanceLogTask, skip: false do
   let( :logger ) { double("logger") }
 
   describe ".initialize" do
