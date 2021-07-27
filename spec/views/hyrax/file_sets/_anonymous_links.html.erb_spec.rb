@@ -19,7 +19,7 @@ RSpec.describe 'hyrax/file_sets/_anonymous_links.html.erb', type: :view do
     end
   end
 
-  context "with single use links" do
+  context "with anonymous links" do
     let(:link)           { SingleUseLink.create(itemId: "1234", downloadKey: "sha2hashb") }
     let(:link_presenter) { Hyrax::AnonymousLinkPresenter.new(link) }
 
@@ -33,10 +33,7 @@ RSpec.describe 'hyrax/file_sets/_anonymous_links.html.erb', type: :view do
     end
     
     it "renders a table with links" do
-      expect( rendered ).to have_text I18n.t('hyrax.anonymous_links.expiration_message',
-                                             link_type: "View",
-                                             link: "sha2ha",
-                                             time: "in 11 months, 4 weeks, 2 days, 4 hours, 39 minutes, and 53 seconds" )
+      expect( rendered ).to have_text I18n.t('hyrax.anonymous_links.link_message', link_type: "View" )
     end
 
   end

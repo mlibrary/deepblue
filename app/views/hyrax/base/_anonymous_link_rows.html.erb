@@ -1,7 +1,7 @@
 <% anonymous_links.each do |presenter| %>
   <tr>
     <td>
-      <%= t('hyrax.anonymous_links.expiration_message', link: presenter.short_key, link_type: presenter.link_type ) %>
+      <%= t('hyrax.anonymous_links.link_message', link_type: presenter.link_type ) %>
       <br/>
       <button class="btn btn-xs btn-default copy-anonymous-link"
               data-clipboard-text="<%= main_app.send(presenter.url_helper, presenter.downloadKey) %>"

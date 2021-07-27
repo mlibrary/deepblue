@@ -383,9 +383,10 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false if anonymous_show?=#{anonymous_show?}",
+                                             "false if published?=#{published?}",
                                              "" ] if debug_verbose
-      # TODO: if the work has been published, return false
       return false if anonymous_show?
+      return false if published?
       true
     end
 
