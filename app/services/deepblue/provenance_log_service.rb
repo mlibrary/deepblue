@@ -9,7 +9,7 @@ module Deepblue
 
   class ProvenanceLogService
 
-    PROVENANCE_LOG_SERVICE_DEBUG_VERBOSE = false
+    mattr_accessor :provenance_log_service_debug_verbose, default: false
 
     def self.provenance_log_name
       DeepBlueDocs::Application.config.provenance_log_name
@@ -20,7 +20,7 @@ module Deepblue
     end
 
     def self.entries( id, refresh: false )
-      Deepblue::LoggingHelper.bold_debug "ProvenanceLogService.entries( #{id}, #{refresh} )" if PROVENANCE_LOG_SERVICE_DEBUG_VERBOSE
+      ::Deepblue::LoggingHelper.bold_debug "ProvenanceLogService.entries( #{id}, #{refresh} )" if provenance_log_service_debug_verbose
       file_path = Deepblue::ProvenancePath.path_for_reference( id )
       if !refresh && File.exist?( file_path )
         rv = read_entries( file_path )
@@ -28,7 +28,7 @@ module Deepblue
         rv = filter_entries( id )
         write_entries( file_path, rv )
       end
-      Deepblue::LoggingHelper.bold_debug "ProvenanceLogService.entries( #{id} ) read #{rv.size} entries" if PROVENANCE_LOG_SERVICE_DEBUG_VERBOSE
+      ::Deepblue::LoggingHelper.bold_debug "ProvenanceLogService.entries( #{id} ) read #{rv.size} entries" if provenance_log_service_debug_verbose
       return rv
     end
 

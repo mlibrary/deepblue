@@ -21,14 +21,14 @@
       <% thumbnail_tag = render_thumbnail_tag( member.solr_document,
                                                member.member_thumbnail_image_options( member ),
                                                member.member_thumbnail_url_options( member ) ) %>
-      <%= raw @presenter.member_thumbnail_post_process( member, thumbnail_tag ) %>
+      <%= raw @presenter.member_thumbnail_post_process( main_app: main_app, member: member, tag: thumbnail_tag ) %>
     </td>
     <%# if can?(:download, member.id) %>
     <% if member.can_download_file? && !member.anonymous_show? %>
       <% unless member.file_size_too_large_to_download? %>
         <td role="menuitem" tabindex="-1">
           <%= link_to truncate(member.link_name, length: 40, omission: "...#{member.link_name[-5, 5]}"),
-                      @presenter.download_path_link( member ),
+                      @presenter.download_path_link( main_app: main_app, curation_concern: member ),
                       title: t('.download_title', file_set: member),
                       target: "_blank",
                       id: "file_download",

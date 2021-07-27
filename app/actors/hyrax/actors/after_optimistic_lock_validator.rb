@@ -5,7 +5,8 @@ module Hyrax
 
     class AfterOptimisticLockValidator < AbstractEventActor
 
-      AFTER_OPTIMISTIC_LOCK_VALIDATOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.after_optimistic_lock_validator_debug_verbose
+      mattr_accessor :after_optimistic_lock_validator_debug_verbose,
+                     default: ::DeepBlueDocs::Application.config.after_optimistic_lock_validator_debug_verbose
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if create was successful
@@ -13,7 +14,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                               ::Deepblue::LoggingHelper.called_from,
                                               "env=#{env}",
-                                              "" ] if AFTER_OPTIMISTIC_LOCK_VALIDATOR_DEBUG_VERBOSE
+                                              "" ] if after_optimistic_lock_validator_debug_verbose
         env.log_event( next_actor: next_actor ) if env.respond_to? :log_event
         next_actor.create( env )
       end

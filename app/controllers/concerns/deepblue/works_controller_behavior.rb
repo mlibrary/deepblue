@@ -55,119 +55,56 @@ module Deepblue
     # end
 
     attr_accessor :cc_anonymous_link
+    attr_accessor :cc_single_use_link
 
-    # GET data_sets/:id/anonymous_link/:link_id
-    def anonymous_link
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "params[:id]=#{params[:id]}",
-                                             "params[:link_id]=#{params[:link_id]}",
-                                             "" ] if works_controller_behavior_debug_verbose
-      curation_concern ||= ::Deepblue::WorkViewContentService.content_find_by_id( id: params[:id] )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "params[:id]=#{params[:id]}",
-                                             "params[:link_id]=#{params[:link_id]}",
-                                             "curation_concern.id=#{curation_concern.id}",
-                                             "" ] if works_controller_behavior_debug_verbose
-      anon_link = anonymous_link_obj( link_id: params[:link_id] )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "anon_link=#{anon_link}",
-                                             "anon_link.class.name=#{anon_link.class.name}",
-                                             "" ] if works_controller_behavior_debug_verbose
-      if curation_concern.tombstone.present?
-        anonymous_link_destroy! anon_link
-        return redirect_to main_app.root_path, alert: anonymous_link_expired_msg
-      end
-      if curation_concern.published?
-        # TODO:
-      end
-      curation_concern_path = polymorphic_path([main_app, curation_concern] )
-      unless anonymous_link_valid?( anon_link, item_id: curation_concern.id, path: curation_concern_path )
-        anonymous_link_destroy! anon_link
-        return redirect_to main_app.root_path, alert: anonymous_link_expired_msg
-      end
-      anonymous_link_destroy! anon_link
-      @user_collections = [] # anonymous user, so we don't care
-
-      respond_to do |wants|
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               ::Deepblue::LoggingHelper.obj_class( 'wants', wants ),
-                                               "wants.format=#{wants.format}",
-                                               "" ] if works_controller_behavior_debug_verbose
-        wants.any do
-          presenter_init && parent_presenter
-          presenter.controller = self
-          presenter.cc_anonymous_link = anon_link
-          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                                 ::Deepblue::LoggingHelper.called_from,
-                                                 ::Deepblue::LoggingHelper.obj_class( 'wants', wants ),
-                                                 "wants.format=#{wants.format}",
-                                                 "presenter.controller.class=#{presenter.controller.class}",
-                                                 "presenter.cc_anonymous_link=#{presenter.cc_anonymous_link}",
-                                                 "" ] if works_controller_behavior_debug_verbose
-          render :show, status: :ok
-        end
-      end
-    end
-
-    def anonymous_link?
-      params[:link_id].present?
-    end
-
-    def anonymous_link_zip_download
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "params[:id]=#{params[:id]}",
-                                             "params[:link_id]=#{params[:link_id]}",
-                                             "" ] if works_controller_behavior_debug_verbose
-      @curation_concern ||= ::Deepblue::WorkViewContentService.content_find_by_id( id: params[:id] )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "params[:id]=#{params[:id]}",
-                                             "params[:link_id]=#{params[:link_id]}",
-                                             "curation_concern.id=#{curation_concern.id}",
-                                             "" ] if works_controller_behavior_debug_verbose
-      anon_link = anonymous_link_obj( link_id: params[:link_id] )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "anon_link=#{anon_link}",
-                                             "anon_link.class.name=#{anon_link.class.name}",
-                                             "" ] if works_controller_behavior_debug_verbose
-      if @curation_concern.tombstone.present?
-        anonymous_link_destroy! anon_link
-        return redirect_to main_app.root_path, alert: anonymous_link_expired_msg
-      end
-      @cc_anonymous_link = anon_link
-      curation_concern_path = polymorphic_path( [main_app, curation_concern] )
-      curation_concern_path.gsub!( /\?locale=.+$/, '' )
-      unless anonymous_link_valid?( anon_link, item_id: curation_concern.id, path: "#{curation_concern_path}/anonymous_link_zip_download" )
-        anonymous_link_destroy! anon_link
-        return redirect_to main_app.root_path, alert: anonymous_link_expired_msg
-      end
-      anonymous_link_destroy! anon_link
-      zip_download
-    end
-
-    def anonymous_link_debug
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if works_controller_behavior_debug_verbose
-    end
-
-    def anonymous_link_request?
+    def actor_environment
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params=#{params}",
+                                             "params[:action]=#{params[:action]}",
+                                             "params[:format]=#{params[:format]}",
                                              "" ] if works_controller_behavior_debug_verbose
-      rv = ( params[:action] == 'anonymous_link' || params[:link_id].present? )
+      attrs_for_actor = if data_set_version?
+                          attributes_for_actor
+                        elsif 'json' == params[:format]
+                          attributes_for_actor_json
+                        else
+                          attributes_for_actor
+                        end
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "rv=#{rv}",
+                                             "attrs_for_actor.class.name=#{attrs_for_actor.class.name}",
+                                             "curation_concern.errors.size=#{curation_concern.errors.size}",
                                              "" ] if works_controller_behavior_debug_verbose
-      return rv
+      if attrs_for_actor.respond_to? :errors
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "attrs_for_actor.errors=#{attrs_for_actor.errors}",
+                                               "curation_concern.errors.size=#{curation_concern.errors.size}",
+                                               "" ] if works_controller_behavior_debug_verbose
+        attrs_for_actor.errors.each do |error|
+          curation_concern.errors.add( params[:action], error )
+        end
+      end
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "attrs_for_actor.class.name=#{attrs_for_actor.class.name}",
+                                             "curation_concern.errors.size=#{curation_concern.errors.size}",
+                                             "" ] if works_controller_behavior_debug_verbose
+      env = ::Hyrax::Actors::EnvironmentEnhanced.new( curation_concern: curation_concern,
+                                                      current_ability: current_ability,
+                                                      attributes: attrs_for_actor,
+                                                      action: params[:action],
+                                                      wants_format: params[:format] )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "env=#{env}",
+                                             "env.attributes.class.name=#{env.attributes.class.name}",
+                                             "env.attributes=#{env.attributes}",
+                                             "env.action=#{env.action}",
+                                             "env.wants_format=#{env.wants_format}",
+                                             "" ] if works_controller_behavior_debug_verbose
+      return env
     end
 
     def after_create_response
@@ -223,18 +160,6 @@ module Deepblue
                                              "" ] if works_controller_behavior_debug_verbose
     end
 
-    # render a json response for +response_type+
-    def works_render_json_response(response_type: :success, message: nil, options: {})
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "response_type=#{response_type}",
-                                             "message=#{message}",
-                                             "options=#{options}",
-                                             "" ] if works_controller_behavior_debug_verbose
-      json_body = Hyrax::API.generate_response_body(response_type: response_type, message: message, options: options)
-      render json: json_body, status: response_type
-    end
-
     def after_update_response
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -255,6 +180,214 @@ module Deepblue
       end
     end
 
+    # GET data_sets/:id/anonymous_link/:anon_link_id
+    def anonymous_link
+      debug_verbose = works_controller_behavior_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params[:id]=#{params[:id]}",
+                                             "params[:anon_link_id]=#{params[:anon_link_id]}",
+                                             "" ] if debug_verbose
+      ensure_curation_concern_exists
+      anon_link = anonymous_link_obj( link_id: params[:anon_link_id] )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "anon_link=#{anon_link}",
+                                             "anon_link.class.name=#{anon_link.class.name}",
+                                             "" ] if debug_verbose
+      return redirect_to( main_app.root_path, alert: anonymous_link_expired_msg ) if anonymous_link_destroy_because_invalid( anon_link )
+      return redirect_to( main_app.root_path, alert: anonymous_link_expired_msg ) if anonymous_link_destroy_because_tombstoned( anon_link )
+      return redirect_to current_show_path if anonymous_link_destroy_because_published( anon_link )
+      @cc_anonymous_link = anon_link
+      @user_collections = [] # anonymous user, so we don't care
+      respond_to do |wants|
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               ::Deepblue::LoggingHelper.obj_class( 'wants', wants ),
+                                               "wants.format=#{wants.format}",
+                                               "" ] if debug_verbose
+        wants.any do
+          presenter_init && parent_presenter
+          presenter.controller = self
+          presenter.cc_anonymous_link = anon_link
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 ::Deepblue::LoggingHelper.obj_class( 'wants', wants ),
+                                                 "wants.format=#{wants.format}",
+                                                 "presenter.controller.class=#{presenter.controller.class}",
+                                                 "presenter.cc_anonymous_link=#{presenter.cc_anonymous_link}",
+                                                 "" ] if debug_verbose
+          render :show, status: :ok
+        end
+      end
+    end
+
+    def anonymous_link?
+      params[:anon_link_id].present?
+    end
+
+    def anonymous_link_debug
+      debug_verbose = works_controller_behavior_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if debug_verbose
+    end
+
+    # return true if destroyed
+    def anonymous_link_destroy_because_invalid( anon_link )
+      debug_verbose = works_controller_behavior_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      ensure_curation_concern_exists
+      rv = ::Hyrax::AnonymousLinkService.anonymous_link_valid?( anon_link,
+                             item_id: curation_concern.id,
+                             path: polymorphic_path( [main_app, curation_concern] ) )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "anon_link=#{anon_link}",
+                                             "anon_link.class.name=#{anon_link.class.name}",
+                                             "anonymous_link_valid?=#{rv}",
+                                             "" ] if debug_verbose
+      return false if rv
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "anon_link=#{anon_link}",
+                                             "anon_link.class.name=#{anon_link.class.name}",
+                                             "destroying invalid anonymous link",
+                                             "" ] if debug_verbose
+      ::Hyrax::AnonymousLinkService.anonymous_link_destroy! anon_link
+      return true
+    end
+
+    # return true if destroyed
+    def anonymous_link_destroy_because_published( anon_link )
+      return false unless ::Hyrax::AnonymousLinkService.anonymous_link_destroy_if_published
+      ensure_curation_concern_exists
+      return false unless curation_concern.published?
+      debug_verbose = works_controller_behavior_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "anon_link=#{anon_link}",
+                                             "anon_link.class.name=#{anon_link.class.name}",
+                                             "destroying anonymous link to published work",
+                                             "" ] if debug_verbose
+      ::Hyrax::AnonymousLinkService.anonymous_link_destroy! anon_link
+      return true
+    end
+
+    # return true if destroyed
+    def anonymous_link_destroy_because_tombstoned( anon_link )
+      return false unless ::Hyrax::AnonymousLinkService.anonymous_link_destroy_if_tombstoned
+      ensure_curation_concern_exists
+      return false unless curation_concern.tombstone.present?
+      debug_verbose = works_controller_behavior_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "anon_link=#{anon_link}",
+                                             "anon_link.class.name=#{anon_link.class.name}",
+                                             "destroying anonymous link to tombstoned work",
+                                             "" ] if debug_verbose
+      ::Hyrax::AnonymousLinkService.anonymous_link_destroy! anon_link
+      return true
+    end
+
+    def anonymous_link_find_or_create( id:, link_type: )
+      debug_verbose = works_controller_behavior_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "link_type=#{link_type}",
+                                             "id=#{id}",
+                                             "" ] if debug_verbose
+      case link_type
+      when 'download'
+        path = anonymous_link_path_download
+      when 'show'
+        path = anonymous_link_path_show
+      else
+        RuntimeError "Should never get here: unknown link_type=#{link_type}"
+      end
+      AnonymousLink.find_or_create( id: id, path: path, debug_verbose: debug_verbose )
+    end
+
+    def anonymous_link_path_download
+      current_show_path( append: "/anonymous_link_zip_download" )
+    end
+
+    def anonymous_link_path_show
+      current_show_path
+    end
+
+    def anonymous_link_request?
+      debug_verbose = works_controller_behavior_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params=#{params}",
+                                             "" ] if debug_verbose
+      rv = ( params[:action] == 'anonymous_link' || params[:anon_link_id].present? )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "" ] if debug_verbose
+      return rv
+    end
+
+    def anonymous_link_zip_download
+      debug_verbose = works_controller_behavior_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params[:id]=#{params[:id]}",
+                                             "params[:anon_link_id]=#{params[:anon_link_id]}",
+                                             "" ] if debug_verbose
+      ensure_curation_concern_exists
+      anon_link = anonymous_link_obj( link_id: params[:anon_link_id] )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "anon_link=#{anon_link}",
+                                             "anon_link.class.name=#{anon_link.class.name}",
+                                             "" ] if debug_verbose
+      return redirect_to( main_app.root_path, alert: anonymous_link_expired_msg ) if anonymous_link_destroy_because_tombstoned( anon_link )
+      return redirect_to( main_app.root_path, alert: anonymous_link_expired_msg ) if anonymous_link_destroy_because_published( anon_link )
+      @cc_anonymous_link = anon_link
+      curation_concern_path = polymorphic_path( [main_app, curation_concern] )
+      curation_concern_path.gsub!( /\?locale=.+$/, '' )
+      unless ::Hyrax::AnonymousLinkService.anonymous_link_valid?( anon_link,
+                                                                  item_id: curation_concern.id,
+                                                                  path: "#{curation_concern_path}/anonymous_link_zip_download" )
+        ::Hyrax::AnonymousLinkService.anonymous_link_destroy! anon_link
+        return redirect_to main_app.root_path, alert: anonymous_link_expired_msg
+      end
+      zip_download
+    end
+
+    def attributes_for_actor
+      return {} unless curation_concern.present?
+      super
+    end
+
+    def attributes_for_actor_json
+      return {} unless curation_concern.present?
+      # super
+      raw_params = params[hash_key_for_curation_concern]
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params.class.name=#{params.class.name}",
+                                             "raw_params.class.name=#{raw_params.class.name}",
+                                             "raw_params=#{raw_params}",
+                                             "" ] if works_controller_behavior_debug_verbose
+      attributes = if raw_params
+                     raw_params = ::ActionController::ParametersTrackErrors.new( raw_params )
+                     form_class = work_form_service.form_class(curation_concern)
+                     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                            ::Deepblue::LoggingHelper.called_from,
+                                                            "form_class.name=#{form_class.name}",
+                                                            "" ] if works_controller_behavior_debug_verbose
+
+                     form_class.model_attributes_json( form_params: raw_params, curation_concern: curation_concern )
+                   else
+                     {}
+                   end
+
+      attributes
+    end
+
     # override curation concerns, add form fields values
     def build_form
       super
@@ -264,16 +397,6 @@ module Deepblue
       @form.merge_date_coverage_attributes! cov_params
     end
 
-    # TODO: move to work_permissions_behavior
-    def deposited?
-      'deposited' == workflow_state
-    end
-
-    # TODO: move to work_permissions_behavior
-    def doi?
-      return false unless curation_concern.respond_to? :doi
-      curation_concern.doi.present?
-    end
 
     def create
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -303,24 +426,19 @@ module Deepblue
     end
 
     def create_anonymous_link
+      debug_verbose = works_controller_behavior_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params=#{params}",
                                              "params[:commit]=#{params[:commit]}",
-                                             "params[:user_comment]=#{params[:user_comment]}",
-                                             "" ] if works_controller_behavior_debug_verbose
+                                              "" ] if debug_verbose
       case params[:commit]
       when t( 'simple_form.actions.anonymous_link.create_download' )
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "" ] if works_controller_behavior_debug_verbose
-        AnonymousLink.create( itemId: curation_concern.id,
-                              path: current_show_path( append: "/anonymous_link_zip_download" ) )
+        anonymous_link_find_or_create( id: params[:id], link_type: 'download' )
       when t( 'simple_form.actions.anonymous_link.create_show' )
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "" ] if works_controller_behavior_debug_verbose
-        AnonymousLink.create( itemId: curation_concern.id, path: current_show_path )
+        anonymous_link_find_or_create( id: params[:id], link_type: 'show' )
+      else
+        RuntimeError "Should never get here: params[:commit]=#{params[:commit]}"
       end
 
       # continue on to normal display
@@ -351,6 +469,8 @@ module Deepblue
                               path: current_show_path,
                               user_id: current_ability.current_user.id,
                               user_comment: params[:user_comment] )
+      else
+        RuntimeError "Should never get here: params[:commit]-#{params[:commit]}"
       end
 
       # continue on to normal display
@@ -368,13 +488,12 @@ module Deepblue
     def can_delete_work?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "false if single_use_link?=#{single_use_link?}",
+                                             "false if anonymous_link?=#{anonymous_link?}",
                                              "false if doi_minted?=#{doi?}",
                                              "false if tombstoned?=#{tombstoned?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
                                              "" ] if works_controller_behavior_debug_verbose
       return false if anonymous_link?
-      return false if single_use_link?
       return false if doi?
       return false if tombstoned?
       return true if current_ability.admin?
@@ -385,7 +504,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false unless AnalyticsHelper.enable_local_analytics_ui?=#{AnalyticsHelper.enable_local_analytics_ui?}",
-                                             "false if single_use_link?=#{single_use_link?}",
+                                             "false if anonymous_link?=#{anonymous_link?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
                                              "false unless AnalyticsHelper.open_analytics_report_subscriptions?=#{AnalyticsHelper.open_analytics_report_subscriptions?}",
                                              "true if can_edit_work?=#{can_edit_work?}",
@@ -395,7 +514,6 @@ module Deepblue
                                              "" ] if works_controller_behavior_debug_verbose
       return false unless AnalyticsHelper.enable_local_analytics_ui?
       return false if anonymous_link?
-      return false if single_use_link?
       return true if current_ability.admin? && AnalyticsHelper.analytics_reports_admins_can_subscribe?
       return false unless AnalyticsHelper.open_analytics_report_subscriptions?
       return true if can_edit_work?
@@ -407,35 +525,26 @@ module Deepblue
     def can_edit_work?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "false if single_use_link?=#{single_use_link?}",
+                                             "false if anonymous_link?=#{anonymous_link?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
                                              "true if editor?=#{editor?}",
                                              "and workflow_state != 'deposited'=#{workflow_state != 'deposited'}",
                                              "" ] if works_controller_behavior_debug_verbose
       return false if anonymous_link?
-      return false if single_use_link?
       return true if current_ability.admin?
       return true if editor? && workflow_state != 'deposited'
       false
     end
 
-    # TODO: move to work_permissions_behavior
-    def editor?
-      return false if anonymous_link?
-      return false if single_use_link?
-      current_ability.can?(:edit, curation_concern.id)
+    def data_set_version?
+      return false unless params[:data_set].present?
+      return true if params[:data_set][:version].present?
+      return false
     end
 
     # TODO: move to work_permissions_behavior
-    def tombstoned?
-      return false unless curation_concern.respond_to? :tombstone
-      curation_concern.tombstone.present?
-    end
-
-    # TODO: move to work_permissions_behavior
-    def workflow_state
-      return false unless curation_concern.respond_to? :workflow_state
-      curation_concern.workflow_state
+    def deposited?
+      'deposited' == workflow_state
     end
 
     def destroy
@@ -479,6 +588,31 @@ module Deepblue
       end
     end
 
+    # TODO: move to work_permissions_behavior
+    def doi?
+      return false unless curation_concern.respond_to? :doi
+      curation_concern.doi.present?
+    end
+
+    # TODO: move to work_permissions_behavior
+    def editor?
+      return false if anonymous_link?
+      current_ability.can?(:edit, curation_concern.id)
+    end
+
+    def ensure_curation_concern_exists
+      return @curation_concern if @curation_concern.present?
+      debug_verbose = works_controller_behavior_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      @curation_concern = ::Deepblue::WorkViewContentService.content_find_by_id( id: params[:id] )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params[:id]=#{params[:id]}",
+                                             "params[:anon_link_id]=#{params[:anon_link_id]}",
+                                             "curation_concern.id=#{curation_concern.id}",
+                                             "" ] if debug_verbose
+      @curation_concern
+    end
+
     def new
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -507,6 +641,14 @@ module Deepblue
       build_form
     end
 
+    def permissions_changed?
+      if curation_concern.present?
+        @saved_permissions != curation_concern.permissions.map(&:to_hash)
+      else
+        false
+      end
+    end
+
     def presenter_init
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -531,13 +673,21 @@ module Deepblue
       raise
     end
 
+    def save_permissions
+      if curation_concern.present?
+        @saved_permissions = curation_concern.permissions.map(&:to_hash)
+      else
+        @saved_permissions = {}
+      end
+    end
+
     def search_result_document( search_params )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "search_params=#{search_params}",
-                                             "single_use_link?=#{single_use_link?}",
+                                             "anonymous_link?=#{anonymous_link?}",
                                              "" ] if works_controller_behavior_debug_verbose
-      if single_use_link?
+      if anonymous_link?
         begin
           return ::SolrDocument.find( params[:id] )
         rescue ::Blacklight::Exceptions::RecordNotFound => _ignore_and_fall_through
@@ -587,13 +737,13 @@ module Deepblue
         wants.any do
           presenter_init && parent_presenter
           presenter.controller = self
-          presenter.cc_anonymous_link = su_link
+          presenter.cc_single_use_link = su_link
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  ::Deepblue::LoggingHelper.obj_class( 'wants', wants ),
                                                  "wants.format=#{wants.format}",
                                                  "presenter.controller.class=#{presenter.controller.class}",
-                                                 "presenter.cc_anonymous_link=#{presenter.cc_anonymous_link}",
+                                                 "presenter.cc_single_use_link=#{presenter.cc_single_use_link}",
                                                  "" ] if works_controller_behavior_debug_verbose
           render :show, status: :ok
         end
@@ -627,7 +777,7 @@ module Deepblue
         single_use_link_destroy! su_link
         return redirect_to main_app.root_path, alert: single_use_link_expired_msg
       end
-      @cc_anonymous_link = su_link
+      @cc_single_use_link = su_link
       curation_concern_path = polymorphic_path( [main_app, curation_concern] )
       curation_concern_path.gsub!( /\?locale=.+$/, '' )
       unless single_use_link_valid?( su_link, item_id: curation_concern.id, path: "#{curation_concern_path}/single_use_link_zip_download" )
@@ -712,6 +862,12 @@ module Deepblue
       end
     end
 
+    # TODO: move to work_permissions_behavior
+    def tombstoned?
+      return false unless curation_concern.respond_to? :tombstone
+      curation_concern.tombstone.present?
+    end
+
     def update_allow_json?
       return true if data_set_version?
       return ::DeepBlueDocs::Application.config.rest_api_allow_mutate
@@ -776,107 +932,22 @@ module Deepblue
       return had_error
     end
 
-    def attributes_for_actor
-      return {} unless curation_concern.present?
-      super
+    # TODO: move to work_permissions_behavior
+    def workflow_state
+      return false unless curation_concern.respond_to? :workflow_state
+      curation_concern.workflow_state
     end
 
-    def attributes_for_actor_json
-      return {} unless curation_concern.present?
-      # super
-      raw_params = params[hash_key_for_curation_concern]
+    # render a json response for +response_type+
+    def works_render_json_response(response_type: :success, message: nil, options: {})
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "params.class.name=#{params.class.name}",
-                                             "raw_params.class.name=#{raw_params.class.name}",
-                                             "raw_params=#{raw_params}",
+                                             "response_type=#{response_type}",
+                                             "message=#{message}",
+                                             "options=#{options}",
                                              "" ] if works_controller_behavior_debug_verbose
-      attributes = if raw_params
-                     raw_params = ::ActionController::ParametersTrackErrors.new( raw_params )
-                     form_class = work_form_service.form_class(curation_concern)
-                     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                                            ::Deepblue::LoggingHelper.called_from,
-                                                            "form_class.name=#{form_class.name}",
-                                                            "" ] if works_controller_behavior_debug_verbose
-
-                     form_class.model_attributes_json( form_params: raw_params, curation_concern: curation_concern )
-                   else
-                     {}
-                   end
-
-      attributes
-    end
-
-    def data_set_version?
-      return false unless params[:data_set].present?
-      return true if params[:data_set][:version].present?
-      return false
-    end
-
-    def actor_environment
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "params=#{params}",
-                                             "params[:action]=#{params[:action]}",
-                                             "params[:format]=#{params[:format]}",
-                                             "" ] if works_controller_behavior_debug_verbose
-      attrs_for_actor = if data_set_version?
-                          attributes_for_actor
-                        elsif 'json' == params[:format]
-                          attributes_for_actor_json
-                        else
-                          attributes_for_actor
-                        end
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "attrs_for_actor.class.name=#{attrs_for_actor.class.name}",
-                                             "curation_concern.errors.size=#{curation_concern.errors.size}",
-                                             "" ] if works_controller_behavior_debug_verbose
-      if attrs_for_actor.respond_to? :errors
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "attrs_for_actor.errors=#{attrs_for_actor.errors}",
-                                               "curation_concern.errors.size=#{curation_concern.errors.size}",
-                                               "" ] if works_controller_behavior_debug_verbose
-        attrs_for_actor.errors.each do |error|
-          curation_concern.errors.add( params[:action], error )
-        end
-      end
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "attrs_for_actor.class.name=#{attrs_for_actor.class.name}",
-                                             "curation_concern.errors.size=#{curation_concern.errors.size}",
-                                             "" ] if works_controller_behavior_debug_verbose
-      env = ::Hyrax::Actors::EnvironmentEnhanced.new( curation_concern: curation_concern,
-                                                current_ability: current_ability,
-                                                attributes: attrs_for_actor,
-                                                action: params[:action],
-                                                wants_format: params[:format] )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "env=#{env}",
-                                             "env.attributes.class.name=#{env.attributes.class.name}",
-                                             "env.attributes=#{env.attributes}",
-                                             "env.action=#{env.action}",
-                                             "env.wants_format=#{env.wants_format}",
-                                             "" ] if works_controller_behavior_debug_verbose
-      return env
-    end
-
-    def save_permissions
-      if curation_concern.present?
-        @saved_permissions = curation_concern.permissions.map(&:to_hash)
-      else
-        @saved_permissions = {}
-      end
-    end
-
-    def permissions_changed?
-      if curation_concern.present?
-        @saved_permissions != curation_concern.permissions.map(&:to_hash)
-      else
-        false
-      end
+      json_body = Hyrax::API.generate_response_body(response_type: response_type, message: message, options: options)
+      render json: json_body, status: response_type
     end
 
 

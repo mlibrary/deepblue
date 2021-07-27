@@ -4,7 +4,7 @@ module Hyrax
     # @see Hyrax::AdminSetService for release_date interaction
     class ApplyPermissionTemplateActor < Hyrax::Actors::AbstractActor
 
-      APPLY_PERMISSIONS_TEMPLATE_ACTOR_DEBUG_VERBOSE = false
+      mattr_accessor :apply_permissions_template_actor_debug_verbose, default: false
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if create was successful
@@ -12,7 +12,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "env=#{env}",
-                                               "" ] if APPLY_PERMISSIONS_TEMPLATE_ACTOR_DEBUG_VERBOSE
+                                               "" ] if apply_permissions_template_actor_debug_verbose
         add_edit_users(env)
         next_actor.create(env)
       end

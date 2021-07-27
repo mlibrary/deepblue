@@ -1,5 +1,5 @@
 <%# if @presenter&.respond_to? :download_path_link %>
-<%# download_path_link = @presenter.download_path_link( file_set ) %>
+<%# download_path_link = @presenter.download_path_link( main_app: main_app, curation_concern: file_set ) %>
 <%# else %>
 <%# download_path_link = hyrax.download_path( file_set ) %>
 <%# end %>
@@ -11,7 +11,7 @@
                     alt: "",
                     role: "presentation" %>
       <%= link_to t('hyrax.file_set.show.downloadable_content.office_link'),
-                  presenter.download_path_link(file_set),
+                  presenter.download_path_link(main_app: main_app, curation_concern: file_set),
                   target: :_blank,
                   id: "file_download",
                   data: { label: file_set.id } %>

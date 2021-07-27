@@ -1,5 +1,5 @@
 <%# if @presenter&.respond_to? :download_path_link %>
-<%# download_path_link = @presenter.download_path_link( file_set ) %>
+<%# download_path_link = @presenter.download_path_link( main_app: main_app, curation_concern: file_set ) %>
 <%# else %>
 <%# download_path_link = hyrax.download_path( file_set ) %>
 <%# end %>
@@ -12,7 +12,7 @@
         Your browser does not support the audio tag.
       </audio>
       <%= link_to t('hyrax.file_set.show.downloadable_content.audio_link'),
-                  presenter.download_path_link(file_set),
+                  presenter.download_path_link( main_app: main_app, curation_concern: file_set ),
                   data: { label: file_set.id },
                   target: :_blank,
                   id: "file_download" %>

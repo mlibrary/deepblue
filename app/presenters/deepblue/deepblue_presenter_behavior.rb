@@ -14,13 +14,14 @@ module Deepblue
       Rails.application.config.action_mailer.default_url_options
     end
 
-    def download_path_link( curation_concern )
+    def download_path_link( main_app:, curation_concern: )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.class.name=#{curation_concern.class.name}",
                                              "curation_concern&.id=#{curation_concern&.id}",
                                              "" ] if DEEP_BLUE_PRESENTER_BEHAVIOR_DEBUG_VERBOSE
-      return curation_concern.download_path_link( curation_concern ) if curation_concern.respond_to? :download_path_link
+      return curation_concern.download_path_link( main_app: main_app,
+                                                  curation_concern: curation_concern ) if curation_concern.respond_to? :download_path_link
       # Rails.application.routes.url_helpers.url_for( only_path: true,
       #                                               action: 'show',
       #                                               controller: 'downloads',
@@ -39,7 +40,7 @@ module Deepblue
       { suppress_link: !member.can_download_file? }
     end
 
-    def member_thumbnail_post_process( member, tag )
+    def member_thumbnail_post_process( main_app:, member:, tag: )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "member.class.name=#{member.class.name}",
@@ -48,7 +49,7 @@ module Deepblue
                                              "tag=#{tag}",
                                              "" ] if DEEP_BLUE_PRESENTER_BEHAVIOR_DEBUG_VERBOSE
       return tag if tag.blank?
-      return member.thumbnail_post_process( tag ) if member.respond_to? :thumbnail_post_process
+      return member.thumbnail_post_process( tag: tag, main_app: main_app ) if member.respond_to? :thumbnail_post_process
       rv = tag.to_s.dup
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

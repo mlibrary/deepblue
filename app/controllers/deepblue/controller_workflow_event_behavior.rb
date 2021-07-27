@@ -4,43 +4,43 @@ module Deepblue
 
   module ControllerWorkflowEventBehavior
 
-    CONTROLLER_WORKFLOW_EVENT_BEHAVIOR_DEBUG_VERBOSE = false
+    mattr_accessor :controller_workflow_event_behavior_debug_verbose, default: false
 
     def workflow_create
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "current_user=#{current_user}",
-                                             "" ] if CONTROLLER_WORKFLOW_EVENT_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if controller_workflow_event_behavior_debug_verbose
       curation_concern.workflow_create( current_user: current_user,
                                         event_note: "#{self.class.name} - deposited by #{curation_concern.depositor}" )
     end
 
     def workflow_destroy
       return if curation_concern.nil? # because it has been deleted
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "current_user=#{current_user}",
-                                             "" ] if CONTROLLER_WORKFLOW_EVENT_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if controller_workflow_event_behavior_debug_verbose
       curation_concern.workflow_destroy( current_user: current_user, event_note: "#{self.class.name}" )
     end
 
     def workflow_publish
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "current_user=#{current_user}",
-                                             "" ] if CONTROLLER_WORKFLOW_EVENT_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if controller_workflow_event_behavior_debug_verbose
       curation_concern.workflow_publish( current_user: current_user, event_note: "#{self.class.name}" )
     end
 
     def workflow_unpublish
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "current_user=#{current_user}",
-                                             "" ] if CONTROLLER_WORKFLOW_EVENT_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if controller_workflow_event_behavior_debug_verbose
       curation_concern.workflow_unpublish( current_user: current_user, event_note: "#{self.class.name}" )
     end
 
@@ -52,6 +52,6 @@ module Deepblue
 
     end
 
-    end
+  end
 
 end

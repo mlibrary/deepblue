@@ -47,13 +47,13 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "title=#{title}",
                                              "solr_query=#{solr_query}",
-                                             "" ], bold_puts: true if work_view_content_service_debug_verbose
+                                             "" ] if work_view_content_service_debug_verbose
       results = ::ActiveFedora::SolrService.query( solr_query, rows: 10 )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "results.class.name=#{results.class.name}",
                                              "results=#{results}",
-                                             "" ], bold_puts: true if work_view_content_service_debug_verbose
+                                             "" ] if work_view_content_service_debug_verbose
       return nil unless results.present?
       return result.id if results.is_a? Collection
       result = results[0] if results

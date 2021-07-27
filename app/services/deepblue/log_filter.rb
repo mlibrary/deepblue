@@ -5,7 +5,8 @@ module Deepblue
 
   class AbstractFilter
 
-    ABSTRACT_FILTER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.abstract_filter_debug_verbose
+    mattr_accessor :abstract_filter_debug_verbose,
+                   default: ::DeepBlueDocs::Application.config.abstract_filter_debug_verbose
 
     attr_accessor :verbose
 
@@ -16,7 +17,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "verbose=#{verbose}",
-                                             "" ] if ABSTRACT_FILTER_DEBUG_VERBOSE
+                                             "" ] if abstract_filter_debug_verbose
       puts "#{::Deepblue::LoggingHelper.here} self.class.name=#{self.class.name}"
       puts "#{::Deepblue::LoggingHelper.here} options=#{options}"
       puts "#{::Deepblue::LoggingHelper.here} verbose=#{verbose}"

@@ -68,15 +68,13 @@ module Deepblue
         return destroy_and_return_rv( destroy_flag: destroy_if_not_valid, rv: false, su_link: su_link ) unless su_link.itemId == item_id
       end
       if path.present?
-        su_link_path = su_link_strip_locale su_link.path
-        path = su_link_strip_locale path
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "path=#{path}",
-                                               "su_link_path=#{su_link_path}",
-                                               "destroy unless?=#{su_link_path == path}",
+                                               "su_link.path=#{su_link.path}",
+                                               "destroy unless?=#{su_link.path_eq? path}",
                                                "" ] if single_use_link_controller_behavior_debug_verbose
-        return destroy_and_return_rv( destroy_flag: destroy_if_not_valid, rv: false, su_link: su_link ) unless su_link_path == path
+        return destroy_and_return_rv( destroy_flag: destroy_if_not_valid, rv: false, su_link: su_link ) unless su_link.path_eq? path
       end
       return true
     end
@@ -100,13 +98,6 @@ module Deepblue
         return rv
       rescue ActiveRecord::RecordNotFound => _ignore
         return INVALID_SINGLE_USE_LINK # blank, so we only try looking it up once
-      end
-
-      def su_link_strip_locale( path )
-        if path =~ /^(.+)\?.+/
-          return Regexp.last_match[1]
-        end
-        return path
       end
 
   end

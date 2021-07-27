@@ -4,8 +4,8 @@ module Deepblue
 
   module ZipDownloadPresenterBehavior
 
-    mattr_accessor :zip_download_presenter_behavior_debug_verbose
-    @@zip_download_presenter_behavior_debug_verbose = ::Deepblue::ZipDownloadService.zip_download_presenter_behavior_debug_verbose
+    mattr_accessor :zip_download_presenter_behavior_debug_verbose,
+                   default: ::Deepblue::ZipDownloadService.zip_download_presenter_behavior_debug_verbose
 
     def can_download_zip?
       can_download_zip_maybe? && can_download_zip_confirm?
@@ -40,7 +40,7 @@ module Deepblue
       ::Deepblue::ZipDownloadService.zip_download_enabled
     end
 
-    def zip_download_link( curation_concern = solr_document )
+    def zip_download_link( main_app:, curation_concern: solr_document )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
@@ -48,7 +48,7 @@ module Deepblue
       return "id is nil" if id.nil?
       curation_concern = ::PersistHelper.find( id ) if curation_concern.nil?
       # return "curation_concern.nil?=#{curation_concern.nil?}"
-      url = zip_download_path_link( curation_concern )
+      url = zip_download_path_link( main_app: main_app, curation_concern: curation_concern )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
@@ -85,31 +85,50 @@ module Deepblue
       solr_document.total_file_size > zip_download_min_total_file_size_to_download_warn
     end
 
-    def zip_download_path_link( curation_concern )
+    def zip_download_path_link( main_app:, curation_concern: solr_document )
+      debug_verbose = zip_download_presenter_behavior_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
                                              "anonymous_show?=#{anonymous_show?}",
-                                             "" ] if zip_download_presenter_behavior_debug_verbose
+                                             "" ] if debug_verbose
       return curation_concern.for_zip_download_route unless anonymous_show?
-      # return Rails.application.routes.url_helpers.url_for( only_path: true,
-      #                                                      action: 'show',
-      #                                                      controller: 'downloads',
-      #                                                      id: curation_concern.id ) unless anonymous_show?
-      su_link = single_use_link_download( curation_concern )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "su_link=#{su_link}",
-                                             "su_link.downloadKey=#{su_link.downloadKey}",
-                                             "su_link.itemId=#{su_link.itemId}",
-                                             "su_link.path=#{su_link.path}",
-                                             "" ] if zip_download_presenter_behavior_debug_verbose
-      rv = "/data/single_use_link/download/#{su_link.downloadKey}" # TODO: fix
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "rv=#{rv}",
-                                             "" ] if zip_download_presenter_behavior_debug_verbose
-      # return "/data/downloads/#{curation_concern.id}/single_use_link/#{su_link.downloadKey}" # TODO: fix
+      if single_use_show?
+        # return Rails.application.routes.url_helpers.url_for( only_path: true,
+        #                                                      action: 'show',
+        #                                                      controller: 'downloads',
+        #                                                      id: curation_concern.id ) unless anonymous_show?
+        su_link = single_use_link_download( main_app: main_app, curation_concern: curation_concern )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "su_link=#{su_link}",
+                                               "su_link.downloadKey=#{su_link.downloadKey}",
+                                               "su_link.itemId=#{su_link.itemId}",
+                                               "su_link.path=#{su_link.path}",
+                                               "" ] if zip_download_presenter_behavior_debug_verbose
+        rv = "/data/single_use_link/download/#{su_link.downloadKey}" # TODO: fix
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "rv=#{rv}",
+                                               "" ] if zip_download_presenter_behavior_debug_verbose
+        # return "/data/downloads/#{curation_concern.id}/single_use_link/#{su_link.downloadKey}" # TODO: fix
+      end
+      if anonymous_use_show?
+        anon_link = anonymous_link_download( main_app: main_app, curation_concern: curation_concern )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "anon_link=#{anon_link}",
+                                               "anon_link.downloadKey=#{anon_link.downloadKey}",
+                                               "anon_link.itemId=#{anon_link.itemId}",
+                                               "anon_link.path=#{anon_link.path}",
+                                               "" ] if debug_verbose
+        rv = "/data/anonymous_link/download/#{anon_link.downloadKey}" # TODO: fix
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "rv=#{rv}",
+                                               "" ] if debug_verbose
+        # return "/data/downloads/#{curation_concern.id}/anonymous_link/#{anon_link.downloadKey}" # TODO: fix
+      end
       return rv
     end
 

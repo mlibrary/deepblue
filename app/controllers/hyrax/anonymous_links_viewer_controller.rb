@@ -43,13 +43,14 @@ module Hyrax
 
     def download
       path = anonymous_link.path
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "anonymous_link=#{anonymous_link}",
-                                             "anonymous_link.path=#{anonymous_link.path}",
-                                             "anonymous_link.class.name=#{anonymous_link.class.name}",
-                                             "" ] if anonymous_links_viewer_controller_debug_verbose
-      raise not_found_exception unless anonymous_link_valid?( anonymous_link, destroy_if_not_valid: true )
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "anonymous_link=#{anonymous_link}",
+      #                                        "anonymous_link.path=#{anonymous_link.path}",
+      #                                        "anonymous_link.class.name=#{anonymous_link.class.name}",
+      #                                        "" ] if anonymous_links_viewer_controller_debug_verbose
+      # raise not_found_exception unless ::Hyrax::AnonymousLinkService.anonymous_link_valid?( anonymous_link,
+      #                                                                                       destroy_if_not_valid: true )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "anonymous_link=#{anonymous_link}",
@@ -58,15 +59,13 @@ module Hyrax
                                              "asset&.id=#{asset&.id}",
                                              # "hyrax.download_path(id: asset)=#{hyrax.download_path(id: asset)}",
                                              "" ] if anonymous_links_viewer_controller_debug_verbose
-      raise not_found_exception unless anonymous_link_valid?( anonymous_link,
+      raise not_found_exception unless ::Hyrax::AnonymousLinkService.anonymous_link_valid?( anonymous_link,
                                                                item_id: asset&.id,
                                                                destroy_if_not_valid: true )
       if path =~ /concern\/file_sets/
-        anonymous_link_destroy! anonymous_link
         raise not_found_exception if parent_tombstoned?
         send_content
       elsif path =~ /downloads\//
-        anonymous_link_destroy! anonymous_link
         raise not_found_exception if parent_tombstoned?
         send_content
       else
@@ -85,7 +84,8 @@ module Hyrax
                                              "params[:id]=#{params[:id]}",
                                              "anonymous_link.class.name=#{anonymous_link.class.name}",
                                              "" ] if anonymous_links_viewer_controller_debug_verbose
-      raise not_found_exception unless anonymous_link_valid?( anonymous_link, destroy_if_not_valid: true )
+      raise not_found_exception unless ::Hyrax::AnonymousLinkService.anonymous_link_valid?( anonymous_link,
+                                                                                            destroy_if_not_valid: true )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",

@@ -5,8 +5,7 @@
 # @attr [Boolean] reset (false) should the access controls be reset. This means revoking edit access from the depositor
 class ContentDepositorChangeEventJob < ContentEventJob
 
-  mattr_accessor :content_depositor_change_event_job_debug_verbose
-  CONTENT_DEPOSTIOR_CHANGE_EVENT_JOB_DEBUG_VERBOSE = false
+  mattr_accessor :content_depositor_change_event_job_debug_verbose, default: false
 
   include Rails.application.routes.url_helpers
   include ActionDispatch::Routing::PolymorphicRoutes
@@ -22,7 +21,7 @@ class ContentDepositorChangeEventJob < ContentEventJob
                                            "work=#{work}",
                                            "user=#{user}",
                                            "reset=#{reset}",
-                                           "" ] if CONTENT_DEPOSTIOR_CHANGE_EVENT_JOB_DEBUG_VERBOSE
+                                           "" ] if content_depositor_change_event_job_debug_verbose
     @reset = reset
     super(work, user)
   end
@@ -54,7 +53,7 @@ class ContentDepositorChangeEventJob < ContentEventJob
                                            "repo_object=#{repo_object}",
                                            "depositor=#{depositor}",
                                            "reset=#{reset}",
-                                           "" ] if CONTENT_DEPOSTIOR_CHANGE_EVENT_JOB_DEBUG_VERBOSE
+                                           "" ] if content_depositor_change_event_job_debug_verbose
     Hyrax::ChangeContentDepositorService.call(repo_object, depositor, reset)
   end
 

@@ -8,7 +8,8 @@ module Hyrax
     # @note Spawns asynchronous jobs
     class FileActor
 
-      FILE_ACTOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.file_actor_debug_verbose
+      mattr_accessor :file_actor_debug_verbose,
+                     default: ::DeepBlueDocs::Application.config.file_actor_debug_verbose
 
       attr_reader :file_set, :relation, :user
 
@@ -48,7 +49,7 @@ module Hyrax
                                                "continue_job_chain_later=#{continue_job_chain_later}",
                                                "delete_input_file=#{delete_input_file}",
                                                "job_status=#{job_status}",
-                                               "uploaded_file_ids=#{uploaded_file_ids}" ] if FILE_ACTOR_DEBUG_VERBOSE
+                                               "uploaded_file_ids=#{uploaded_file_ids}" ] if file_actor_debug_verbose
         unless job_status.did_add_file_to_file_set?
           # Skip versioning because versions will be minted by VersionCommitter as necessary during
           # save_characterize_and_record_committer.
@@ -98,7 +99,7 @@ module Hyrax
                                                  "job_status.message=#{job_status.message}",
                                                  "job_status.error=#{job_status.error}",
                                                  "job_status.user_id=#{job_status.user_id}",
-                                                 "" ] if FILE_ACTOR_DEBUG_VERBOSE
+                                                 "" ] if file_actor_debug_verbose
           CharacterizeJob.perform_now( file_set,
                                        repository_file.id,
                                        pathhint || io.path,
@@ -116,7 +117,7 @@ module Hyrax
                                                  "job_status.message=#{job_status.message}",
                                                  "job_status.error=#{job_status.error}",
                                                  "job_status.user_id=#{job_status.user_id}",
-                                                 "" ] if FILE_ACTOR_DEBUG_VERBOSE
+                                                 "" ] if file_actor_debug_verbose
         end
       end
 
@@ -129,7 +130,7 @@ module Hyrax
                                                "user=#{user}",
                                                "file_set.id=#{file_set.id}",
                                                "relation=#{relation}",
-                                               "revision_id=#{revision_id}" ] if FILE_ACTOR_DEBUG_VERBOSE
+                                               "revision_id=#{revision_id}" ] if file_actor_debug_verbose
         repository_file = related_file
         current_version = file_set.latest_version
         prior_revision_id = current_version.label

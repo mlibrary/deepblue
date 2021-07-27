@@ -1,5 +1,5 @@
 <%# if @presenter&.respond_to? :download_path_link %>
-  <%# download_path_link = @presenter.download_path_link( file_set ) %>
+  <%# download_path_link = @presenter.download_path_link( main_app: main_app, curation_concern: file_set ) %>
 <%# else %>
   <%# download_path_link = hyrax.download_path( file_set ) %>
 <%# end %>
@@ -8,7 +8,7 @@
     <%= t('hyrax.works.show.no_preview') %>
     <% if Hyrax.config.display_media_download_link? %>
       <p /><%= link_to t('hyrax.file_set.show.download'),
-                       presenter.download_path_link(file_set),
+                       presenter.download_path_link(main_app: main_app, curation_concern: file_set),
                        id: "file_download",
                        data: { label: file_set.id },
                        target: "_new" %>
@@ -19,7 +19,7 @@
     <%= t('hyrax.works.show.no_preview') %>
     <% if Hyrax.config.display_media_download_link? %>
       <p /><%= link_to t('hyrax.file_set.show.download'),
-                       presenter.download_path_link(file_set),
+                       presenter.download_path_link(main_app: main_app, curation_concern: file_set),
                        id: "file_download",
                        data: { label: file_set.id },
                        target: "_new" %>

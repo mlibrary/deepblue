@@ -6,7 +6,7 @@ module Deepblue
 
     # include ::Deepblue::InitializationConstants
 
-    UPDATE_SERVICE_DEBUG_VERBOSE = false
+    mattr_accessor :uptime_service_debug_verbose, default: false
 
     @@_setup_failed = false
     @@_setup_ran = false
@@ -21,7 +21,7 @@ module Deepblue
     def self.setup
       return if @@_setup_ran == true
       @@_setup_ran = true
-      puts "@@_setup_uptime_timestamp_file_written=#{@@_setup_uptime_timestamp_file_written}" if UPDATE_SERVICE_DEBUG_VERBOSE
+      puts "@@_setup_uptime_timestamp_file_written=#{@@_setup_uptime_timestamp_file_written}" if uptime_service_debug_verbose
       begin
         yield self
       rescue Exception => e # rubocop:disable Lint/RescueException
@@ -30,7 +30,7 @@ module Deepblue
       at_exit do
         begin
           uptime_file_name = uptime_timestamp_file_path_self
-          puts "attempting to delete #{uptime_file_name}" if UPDATE_SERVICE_DEBUG_VERBOSE
+          puts "attempting to delete #{uptime_file_name}" if uptime_service_debug_verbose
           File.delete uptime_file_name if File.exists? uptime_file_name
         rescue Exception => e # rubocop:disable Lint/RescueException
           # ignore
@@ -118,12 +118,12 @@ module Deepblue
       file_of = uptime_timestamp_file_path( program_name: program_name )
       return nil unless File.exist? file_of
       file_contents = open( file_of, 'r' ) { |f| file_contents = f.readlines }
-      # puts file_contents if UPDATE_SERVICE_DEBUG_VERBOSE
+      # puts file_contents if uptime_service_debug_verbose
       return nil if file_contents.empty?
       line = file_contents.first
-      # puts line if UPDATE_SERVICE_DEBUG_VERBOSE
+      # puts line if uptime_service_debug_verbose
       timestamp = DateTime.parse( line )
-      # puts "uptime_loadtime_of #{program_name}=#{timestamp}" if UPDATE_SERVICE_DEBUG_VERBOSE
+      # puts "uptime_loadtime_of #{program_name}=#{timestamp}" if uptime_service_debug_verbose
       timestamp
     end
 
@@ -141,16 +141,16 @@ module Deepblue
     def self.uptime_timestamp_file_write
       return false if is_console?
       return false if is_spring?
-      # puts "uptime_timestamp_file_write  @@_setup_uptime_timestamp_file_written=#{@@_setup_uptime_timestamp_file_written}" if UPDATE_SERVICE_DEBUG_VERBOSE
+      # puts "uptime_timestamp_file_write  @@_setup_uptime_timestamp_file_written=#{@@_setup_uptime_timestamp_file_written}" if uptime_service_debug_verbose
       return false if @@_setup_uptime_timestamp_file_written
-      # puts "uptime_timestamp_file_write after one entry test" if UPDATE_SERVICE_DEBUG_VERBOSE
+      # puts "uptime_timestamp_file_write after one entry test" if uptime_service_debug_verbose
       uptime_file = uptime_timestamp_file_path_self
-      # puts "uptime_timestamp_file_write #{uptime_file}" if UPDATE_SERVICE_DEBUG_VERBOSE
+      # puts "uptime_timestamp_file_write #{uptime_file}" if uptime_service_debug_verbose
       open( uptime_file, 'w' ) { |f| f << program_load_timestamp.to_s }
       # puts "File.exist? uptime_file #{File.exist?(uptime_file)}"
       File.exist? uptime_file
     rescue Exception => e # rubocop:disable Lint/RescueException
-      puts "e => #{e} #{e.backtrace.join("\n")}" if UPDATE_SERVICE_DEBUG_VERBOSE
+      puts "e => #{e} #{e.backtrace.join("\n")}" if uptime_service_debug_verbose
       false
     end
 
@@ -173,29 +173,29 @@ module Deepblue
     def self.uptime_timestamp_from_file( file: )
       return nil unless File.exist? file
       file_contents = open( file, 'r' ) { |f| file_contents = f.readlines }
-      # puts file_contents if UPDATE_SERVICE_DEBUG_VERBOSE
+      # puts file_contents if uptime_service_debug_verbose
       return nil if file_contents.empty?
       line = file_contents.first
-      # puts line if UPDATE_SERVICE_DEBUG_VERBOSE
+      # puts line if uptime_service_debug_verbose
       timestamp = DateTime.parse( line )
-      # puts "uptime_loadtime_of #{program_name}=#{timestamp}" if UPDATE_SERVICE_DEBUG_VERBOSE
+      # puts "uptime_loadtime_of #{program_name}=#{timestamp}" if uptime_service_debug_verbose
       timestamp
     end
 
     def self.uptime_vs( program_name: )
       self_loadtime = program_load_timestamp
-      # puts "self_loadtime=#{self_loadtime}" if UPDATE_SERVICE_DEBUG_VERBOSE
+      # puts "self_loadtime=#{self_loadtime}" if uptime_service_debug_verbose
       return nil if self_loadtime.nil?
       return self_loadtime if program_name == self.program_name
       other_loadtime = uptime_loadtime_of program_name: program_name
-      # puts "other_loadtime=#{other_loadtime}" if UPDATE_SERVICE_DEBUG_VERBOSE
+      # puts "other_loadtime=#{other_loadtime}" if uptime_service_debug_verbose
       return nil if other_loadtime.nil?
       uptime_diff( other_loadtime, self_loadtime )
     end
 
     def self.uptime_vs_rails
       up = uptime_vs( program_name: "puma" )
-      # puts "puma up = #{up}" if UPDATE_SERVICE_DEBUG_VERBOSE
+      # puts "puma up = #{up}" if uptime_service_debug_verbose
       return up unless up.nil?
       uptime_vs( program_name: "rails" )
     end
