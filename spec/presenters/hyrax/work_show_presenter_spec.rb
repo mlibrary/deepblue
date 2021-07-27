@@ -88,7 +88,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
       end
       it { is_expected.to be false }
     end
-    context 'can when admin and not single user show or doi minted' do
+    context 'can when admin and not single use show or doi minted' do
       before do
         allow( current_ability ).to receive( :can? ).with( id: solr_document.id ).and_return true
         allow( presenter ).to receive( :anonymous_show? ).and_return false

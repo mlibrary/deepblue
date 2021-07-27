@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe 'Routes for single use links', type: :routing, skip: false do
+RSpec.describe 'Routes for anonymous links', type: :routing, skip: false do
 
   # routes { Hyrax::Engine.routes }
   routes { Rails.application.routes }

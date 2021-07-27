@@ -152,6 +152,18 @@ module Hyrax
       return rv
     end
 
+    def anonymous_link_need_create_download_button?( main_app:, curation_concern: solr_document )
+      path = anonymous_link_path_download( main_app: main_app, curation_concern: curation_concern )
+      anon_links = AnonymousLink.where( itemId: curation_concern.id, path: path )
+      anon_links.blank?
+    end
+
+    def anonymous_link_need_create_show_button?( main_app:, curation_concern: solr_document )
+      path = anonymous_link_path_show( main_app: main_app, curation_concern: curation_concern )
+      anon_links = AnonymousLink.where( itemId: curation_concern.id, path: path )
+      anon_links.blank?
+    end
+
     def anonymous_links
       @anonymous_links ||= anonymous_links_init
     end
@@ -527,9 +539,10 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false if anonymous_show?=#{anonymous_show?}",
+                                             "false if published?=#{published?}",
                                              "" ] if debug_verbose
-      # TODO: if the work has been published, return false
       return false if anonymous_show?
+      return false if published?
       true
     end
 

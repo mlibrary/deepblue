@@ -147,7 +147,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
       end
       it { is_expected.to be false }
     end
-    context 'can when admin and not single user show or doi minted' do
+    context 'can when admin and not single use show or doi minted' do
       before do
         allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( presenter ).to receive( :doi_minted? ).and_return false

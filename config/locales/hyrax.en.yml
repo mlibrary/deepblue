@@ -99,6 +99,7 @@ en:
         time:               "in %{value} hours"
         human_readable_time: "in %{value}"
       expiration_message:   "%{link_type} Link %{link}"
+      link_message:         "%{link_type} Link"
       notice:
         download:           "Anonymous Download"
         show:               "Anonymous Link"
