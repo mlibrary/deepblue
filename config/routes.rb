@@ -125,6 +125,7 @@ Rails.application.routes.draw do
   # resources :downloads, only: :show # add this to get it working: Rails.application.routes.url_helpers.url_for( only_path: true, action: 'show', controller: 'downloads', id: "id123" )
 
   get 'anonymous_link/show/:id' => 'hyrax/anonymous_links_viewer#show', as: :show_anonymous_link
+  get 'anonymous_link/download/:id' => 'hyrax/anonymous_links_viewer#download'
   post 'anonymous_link/download/:id' => 'hyrax/anonymous_links_viewer#download', as: :download_anonymous_link
   post 'anonymous_link/generate_download/:id' => 'hyrax/anonymous_links#create_anonymous_download', as: :generate_download_anonymous_link
   post 'anonymous_link/generate_show/:id' => 'hyrax/anonymous_links#create_anonymous_show', as: :generate_show_anonymous_link
