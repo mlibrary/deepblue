@@ -103,10 +103,18 @@ en:
       notice:
         download:           "Anonymous Download"
         show:               "Anonymous Link"
-        show_work_html:     "Anonymous Link"
-        show_file_html:     "Anonymous Link"
-        show_work_with_help_link_html:     "Anonymous Link"
-        show_file_with_help_link_html:     "Anonymous Link"
+        show_work_html: >
+          Anonymous Link<br/>
+          This is an unpublished work.<br/>
+        show_file_html: >
+          Anonymous Link<br/>
+          This file is part of an unpublished work.<br/>
+        show_work_with_help_link_html: >
+          Anonymous Link<br/>
+          This is an unpublished work.<br/>
+        show_file_with_help_link_html: >
+          Anonymous Link<br/>
+          This file is part of an unpublished work.<br/>
       show:
         type:               "View"
       table:

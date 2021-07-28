@@ -56,7 +56,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
       # allow( presenter ).to receive( :parent_data_set ).and_return parent_data_set
     end
 
-    context 'cannot when single-use show and admin' do
+    context 'cannot when anonymous show and admin' do
       before do
         allow( presenter ).to receive( :anonymous_show? ).and_return true
         allow( presenter ).to receive( :doi_minted? ).and_return false
@@ -64,7 +64,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
       end
       it { is_expected.to be false }
     end
-    context 'cannot when single-use show and not admin' do
+    context 'cannot when anonymous show and not admin' do
       before do
         allow( presenter ).to receive( :anonymous_show? ).and_return true
         allow( presenter ).to receive( :doi_minted? ).and_return false
@@ -104,7 +104,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
     let(:current_ability) { ability }
     let ( :workflow ) { double( "workflow" ) }
 
-    context 'cannot when single-use show' do
+    context 'cannot when anonymous show' do
       before do
         expect( presenter ).to receive( :anonymous_show? ).at_least(:once).and_return true
         allow( current_ability ).to receive( :admin? ).and_return false
@@ -112,7 +112,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
       end
       it { is_expected.to be false }
     end
-    context 'can when admin and not single-use show or tombstoned' do
+    context 'can when admin and not anonymous show or tombstoned' do
       before do
         allow( presenter ).to receive( :anonymous_show? ).and_return false
         expect( current_ability ).to receive( :admin? ).at_least(:once).and_return true
@@ -171,7 +171,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
       end
       it { is_expected.to be false }
     end
-    context 'can when single-use show' do
+    context 'can when anonymous show' do
       before do
         expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true if debug_verbose
         expect( presenter ).to receive( :tombstone ).at_least(:once).and_return nil
@@ -233,7 +233,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
       end
       it { is_expected.to be true }
     end
-    context 'can when single-use show' do
+    context 'can when anonymous show' do
       before do
         expect( current_ability ).to receive( :can? ).with( :edit, solr_document.id ).and_return true if debug_verbose
         expect( presenter ).to receive( :tombstone ).at_least(:once).and_return nil
