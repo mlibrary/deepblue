@@ -43,7 +43,7 @@ module Deepblue
       dirs = dirs_in_dir( base_dir, glob: glob )
       if filename_regexp.present?
         dirs = dirs.select do |dir|
-          dir = File.basename file
+          dir = File.basename dir
           dir =~ filename_regexp
         end
       end
@@ -54,7 +54,13 @@ module Deepblue
     def self.delete_dirs_older_than( *dirs, days_old:, recursive: false )
       return delete_dirs( *files, recursive: recursive ) if days_old <= 0
       older_than = DateTime.now - days_old.days
-      dirs = dirs.select { |dir| File.mtime( dir ) < older_than }
+      dirs = dirs.select do |dir|
+        if dir.is_a? Array
+          false # TODO: find out why we have to do this
+        else
+          File.mtime( dir ) < older_than
+        end
+      end
       delete_files( *dirs, recursive: recursive )
     end
 
