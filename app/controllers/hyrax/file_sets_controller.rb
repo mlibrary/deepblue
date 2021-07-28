@@ -14,16 +14,18 @@ module Hyrax
     include Hyrax::Breadcrumbs
     # monkey begin
     include Deepblue::DoiControllerBehavior
+    include Deepblue::AnonymousLinkControllerBehavior
     include Deepblue::SingleUseLinkControllerBehavior
     # monkey end
 
-    before_action :authenticate_user!, except: [:show, :citation, :stats, :single_use_link] # monkey
-    load_and_authorize_resource class: ::FileSet, except: [:show, :single_use_link] # monkey
+    before_action :authenticate_user!, except: [:show, :citation, :stats, :anonymous_link, :single_use_link] # monkey
+    load_and_authorize_resource class: ::FileSet, except: [:show, :anonymous_link, :single_use_link] # monkey
     before_action :build_breadcrumbs, only: [:show, :edit, :stats]
 
     # monkey begin
     before_action :provenance_log_destroy,       only: [:destroy]
     before_action :provenance_log_update_before, only: [:update]
+    before_action :anonymous_link_debug, only: [:anonymous_link]
     before_action :single_use_link_debug, only: [:single_use_link]
 
     after_action :provenance_log_create,         only: [:create]
