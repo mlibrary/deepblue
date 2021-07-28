@@ -41,7 +41,7 @@ module Deepblue
     def self.delete_dirs_glob_regexp( base_dir:, glob: '*', filename_regexp: nil, days_old: 0, recursive: false )
       base_dir = base_dir.to_s
       dirs = dirs_in_dir( base_dir, glob: glob )
-      if regexp.present?
+      if filename_regexp.present?
         dirs = dirs.select do |dir|
           dir = File.basename file
           dir =~ filename_regexp
@@ -88,7 +88,7 @@ module Deepblue
     def self.delete_files_glob_regexp( base_dir:, glob: '*', filename_regexp: nil, days_old: 0 )
       base_dir = base_dir.to_s
       files = Dir.glob( File.join( base_dir, glob )  )
-      if regexp.present?
+      if filename_regexp.present?
         files = files.select do |file|
           file = File.basename file
           file =~ filename_regexp
