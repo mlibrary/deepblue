@@ -59,9 +59,17 @@ module Hyrax
     end
 
     def anonymous_link_need_create_download_button?( main_app:, curation_concern: solr_document )
-      path = anonymous_link_path_download( main_app: main_app, curation_concern: curation_concern )
-      anon_links = AnonymousLink.where( itemId: curation_concern.id, path: path )
-      anon_links.blank?
+      debug_verbose = true || ds_file_set_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      anon_links = AnonymousLink.where( itemId: curation_concern.id )
+      anon_links.each do |link|
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "link=#{link}",
+                                               "link.path=#{link.path}",
+                                               "" ] if debug_verbose
+        return false if link.path.include? 'downloads'
+      end
+      true
     end
 
     def anonymous_link_need_create_show_button?( main_app:, curation_concern: solr_document )
@@ -78,6 +86,10 @@ module Hyrax
     def anonymous_link_path_show( main_app:, curation_concern: solr_document )
       # current_show_path
       "/data/concern/file_sets/#{id}" # TODO: fix
+    end
+
+    def anonymous_link_presenter_class
+      AnonymousLinkPresenter
     end
 
     def anonymous_link_show( main_app:, curation_concern: solr_document )
@@ -110,7 +122,7 @@ module Hyrax
           true
         end
       end
-      anon_links.map { |link| link_presenter_class.new(link) }
+      anon_links.map { |link| anonymous_link_presenter_class.new(link) }
     end
 
     def anonymous_show?
@@ -616,6 +628,10 @@ module Hyrax
       @single_use_link_download ||= single_use_link_create_download( main_app: main_app, curation_concern: curation_concern )
     end
 
+    def single_use_link_presenter_class
+      SingleUseLinkPresenter
+    end
+
     def single_use_link_show( main_app:, curation_concern: solr_document )
       @single_use_link_show ||= single_use_link_create_show( main_app: main_app, curation_concern: curation_concern )
     end
@@ -643,7 +659,7 @@ module Hyrax
           true
         end
       end
-      su_links.map { |link| link_presenter_class.new(link) }
+      su_links.map { |link| single_use_link_presenter_class.new(link) }
     end
 
     def single_use_show?
