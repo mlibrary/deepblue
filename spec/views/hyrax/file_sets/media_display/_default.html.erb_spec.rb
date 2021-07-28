@@ -1,10 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe 'hyrax/file_sets/media_display/_default.html.erb', type: :view do
-  let(:file_set) { stub_model(FileSet) }
-  let(:config) { double("config") }
-  let(:link) { true }
-  let(:presenter) { double("presenter") }
+  let(:file_set)      { stub_model(FileSet) }
+  let(:config)        { double("config") }
+  let(:link)          { true }
+  let(:presenter)     { double("presenter") }
   let(:download_path) { "/some/unique/download/path" }
 
   before do

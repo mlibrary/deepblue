@@ -318,6 +318,7 @@ module Hyrax
     def download_path_link( main_app:, curation_concern: solr_document )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "main_app.class.name=#{main_app.class.name}",
                                              "id=#{id}",
                                              "anonymous_show?=#{anonymous_show?}",
                                              "" ] if ds_file_set_presenter_debug_verbose

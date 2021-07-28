@@ -4,7 +4,8 @@ module Deepblue
 
   module DeepbluePresenterBehavior
 
-    DEEP_BLUE_PRESENTER_BEHAVIOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.deep_blue_presenter_debug_verbose
+    mattr_accessor :deep_blue_presenter_behavior_debug_verbose,
+                   default: ::DeepBlueDocs::Application.config.deep_blue_presenter_debug_verbose
 
     include Rails.application.routes.url_helpers
     include ActionDispatch::Routing::PolymorphicRoutes
@@ -17,9 +18,10 @@ module Deepblue
     def download_path_link( main_app:, curation_concern: )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "main_app.class.name=#{main_app.class.name}",
                                              "curation_concern.class.name=#{curation_concern.class.name}",
                                              "curation_concern&.id=#{curation_concern&.id}",
-                                             "" ] if DEEP_BLUE_PRESENTER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if deep_blue_presenter_behavior_debug_verbose
       return curation_concern.download_path_link( main_app: main_app,
                                                   curation_concern: curation_concern ) if curation_concern.respond_to? :download_path_link
       # Rails.application.routes.url_helpers.url_for( only_path: true,
@@ -36,7 +38,7 @@ module Deepblue
     def member_thumbnail_url_options( member )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if DEEP_BLUE_PRESENTER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if deep_blue_presenter_behavior_debug_verbose
       { suppress_link: !member.can_download_file? }
     end
 
@@ -47,7 +49,7 @@ module Deepblue
                                              "member&.id=#{member&.id}",
                                              "tag.class.name=#{tag.class.name}",
                                              "tag=#{tag}",
-                                             "" ] if DEEP_BLUE_PRESENTER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if deep_blue_presenter_behavior_debug_verbose
       return tag if tag.blank?
       return member.thumbnail_post_process( tag: tag, main_app: main_app ) if member.respond_to? :thumbnail_post_process
       rv = tag.to_s.dup
@@ -55,13 +57,13 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv.class.name=#{rv.class.name}",
                                              "rv=#{rv}",
-                                             "" ] if DEEP_BLUE_PRESENTER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if deep_blue_presenter_behavior_debug_verbose
       rv.gsub!( 'data-context-href', 'data-reference' )
       rv.gsub!( 'concern/file_sets', 'downloads' )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
-                                             "" ] if DEEP_BLUE_PRESENTER_BEHAVIOR_DEBUG_VERBOSE
+                                             "" ] if deep_blue_presenter_behavior_debug_verbose
       return rv
     end
 
