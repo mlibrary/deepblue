@@ -18,6 +18,9 @@ RSpec.describe ::Deepblue::CleanDerivativesDirService do
       let(:dbg_verbose)   { debug_verbose_count > 0 }
       let(:time_before)   { DateTime.now }
       let(:base_dir)      {Pathname.new ::Deepblue::DiskUtilitiesHelper.tmp_derivatives_path}
+      let(:first_msg)     { "Disk usage before: disk usage" }
+      let(:recursive)     { false }
+
       before do
         if 0 < debug_verbose_count
           expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(debug_verbose_count).times
@@ -31,19 +34,70 @@ RSpec.describe ::Deepblue::CleanDerivativesDirService do
         described_class.clean_derivatives_dir_service_debug_verbose = dbg_verbose
         time_after = DateTime.now
         expect(::Deepblue::DiskUtilitiesHelper).to receive(:tmp_derivatives_path).twice.and_call_original
-        expect(::Deepblue::DiskUtilitiesHelper).to receive(:delete_dirs_glob_regexp).with( base_dir: base_dir,
-                                                                                           glob: '?' * 9,
-                                                                                           filename_regexp: /^[0-9a-z]{9}$/,
-                                                                                           days_old: days_old,
-                                                                                           recursive: false )
-        expect(::Deepblue::DiskUtilitiesHelper).to receive(:delete_files_glob_regexp).with( base_dir: base_dir,
-                                                                                            glob: "mini_magick*",
-                                                                                            filename_regexp: nil,
-                                                                                            days_old: days_old )
-        expect(::Deepblue::DiskUtilitiesHelper).to receive(:delete_files_glob_regexp).with( base_dir: base_dir,
-                                                                                            glob: "apache-tika-*.tmp",
-                                                                                            filename_regexp: nil,
-                                                                                            days_old: days_old )
+        expect(::Deepblue::DiskUtilitiesHelper).to receive(:delete_dirs_glob_regexp) do |args|
+          expect(args[:base_dir]).to eq base_dir
+          expect(args[:days_old]).to eq days_old
+          expect(args[:filename_regexp]).to eq /^[0-9a-z]{9}$/
+          expect(args[:glob]).to eq '?' * 9
+          expect(args[:msg_queue].first).to eq first_msg
+          expect(args[:recursive]).to eq recursive
+          expect(args[:verbose]).to eq verbose
+        end
+        expect(::Deepblue::DiskUtilitiesHelper).to receive(:delete_files_glob_regexp) do |args|
+          expect(args[:base_dir]).to eq base_dir
+          expect(args[:days_old]).to eq days_old
+          expect(args[:filename_regexp]).to eq /^[0-9]{8}\-[0-9]{3,6}\-[0-9a-z]{3,7}$/
+          expect(args[:glob]).to eq "#{'?'*8}-#{'?'*3}*-*"
+          expect(args[:msg_queue].first).to eq first_msg
+          expect(args[:verbose]).to eq verbose
+        end
+        expect(::Deepblue::DiskUtilitiesHelper).to receive(:delete_files_glob_regexp) do |args|
+          expect(args[:base_dir]).to eq base_dir
+          expect(args[:days_old]).to eq days_old
+          expect(args[:filename_regexp]).to eq /^puma20[0-9]{6}\-.*$/
+          expect(args[:glob]).to eq "puma20#{'?'*6}-*"
+          expect(args[:msg_queue].first).to eq first_msg
+          expect(args[:verbose]).to eq verbose
+        end
+        expect(::Deepblue::DiskUtilitiesHelper).to receive(:delete_files_glob_regexp) do |args|
+          expect(args[:base_dir]).to eq base_dir
+          expect(args[:days_old]).to eq days_old
+          expect(args[:filename_regexp]).to eq /^open-uri20[0-9]{6}\-.*$/
+          expect(args[:glob]).to eq "open-uri20#{'?'*6}-*"
+          expect(args[:msg_queue].first).to eq first_msg
+          expect(args[:verbose]).to eq verbose
+        end
+        expect(::Deepblue::DiskUtilitiesHelper).to receive(:delete_files_glob_regexp) do |args|
+          expect(args[:base_dir]).to eq base_dir
+          expect(args[:days_old]).to eq days_old
+          expect(args[:filename_regexp]).to eq /^RackMultipart20[0-9]{6}\-.*$/
+          expect(args[:glob]).to eq "RackMultipart20#{'?'*6}-*"
+          expect(args[:msg_queue].first).to eq first_msg
+          expect(args[:verbose]).to eq verbose
+        end
+        expect(::Deepblue::DiskUtilitiesHelper).to receive(:delete_files_glob_regexp) do |args|
+          expect(args[:base_dir]).to eq base_dir
+          expect(args[:days_old]).to eq days_old
+          expect(args[:filename_regexp]).to eq nil
+          expect(args[:glob]).to eq "mini_magick20*"
+          expect(args[:verbose]).to eq verbose
+        end
+        expect(::Deepblue::DiskUtilitiesHelper).to receive(:delete_files_glob_regexp) do |args|
+          expect(args[:base_dir]).to eq base_dir
+          expect(args[:days_old]).to eq days_old
+          expect(args[:filename_regexp]).to eq nil
+          expect(args[:glob]).to eq "apache-tika-*.tmp"
+          expect(args[:msg_queue].first).to eq first_msg
+          expect(args[:verbose]).to eq verbose
+        end
+        expect(::Deepblue::DiskUtilitiesHelper).to receive(:delete_files_glob_regexp) do |args|
+          expect(args[:base_dir]).to eq base_dir
+          expect(args[:days_old]).to eq days_old
+          expect(args[:filename_regexp]).to eq nil
+          expect(args[:glob]).to eq "*.pdf"
+          expect(args[:msg_queue].first).to eq first_msg
+          expect(args[:verbose]).to eq verbose
+        end
         service = described_class.new( days_old: days_old,
                                        job_msg_queue: job_msg_queue,
                                        to_console: false,
