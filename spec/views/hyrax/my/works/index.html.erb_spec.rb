@@ -7,6 +7,7 @@ RSpec.describe 'hyrax/my/works/index.html.erb', type: :view do
   let(:add_work) { t(:'helpers.action.work.new') }
   let(:subscribe_analytics) { t('simple_form.actions.data_set.analytics_subscribe') }
   let(:unsubcribe_analytics) { t('simple_form.actions.data_set.analytics_unsubscribe') }
+  let( :empty_admin ) { double('adminset') }
 
   before do
     allow(view).to receive(:current_ability).and_return(ability)
@@ -20,6 +21,8 @@ RSpec.describe 'hyrax/my/works/index.html.erb', type: :view do
     allow(view).to receive(:can?).and_return(true)
     allow(Flipflop).to receive(:batch_upload?).and_return(batch_enabled)
     allow(Flipflop).to receive(:disable_desposits_and_edits?).and_return(disable_desposits_and_edits)
+    allow(AdminSet).to receive(:find).and_return empty_admin
+    allow(empty_admin).to receive(:members).and_return []
     stub_template 'shared/_select_work_type_modal.html.erb' => 'modal'
     stub_template 'hyrax/my/works/_tabs.html.erb' => 'tabs'
     stub_template 'hyrax/my/works/_search_header.html.erb' => 'search'

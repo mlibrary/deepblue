@@ -98,6 +98,7 @@
 </div>
 
 <%= render 'admin_sets' %>
+<%= render 'draft_works' %>
 
 <div class="panel panel-default my_active_embargoes">
   <% if have_assets_under_embargo?( current_ability.current_user.email.to_s ) %>

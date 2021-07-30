@@ -1,0 +1,20 @@
+{
+    "workflows": [
+        {
+            "name": "draft work workflow",
+            "label": "Draft Work Workflow",
+            "description": "For Draft Deposits",
+            "allows_access_grant": true,
+            "actions": [
+                {
+                    "name": "deposit",
+                    "from_states": [],
+                    "transition_to": "draft",
+                    "methods": [
+                        "Hyrax::Workflow::GrantEditToDepositor"
+                    ]
+                }
+            ]
+        }
+    ]
+}

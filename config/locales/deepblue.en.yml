@@ -8,6 +8,8 @@ en:
         analytics_subscribe: "Subscribe"
         analytics_unsubscribe: "Unsubscribe"
         new: "Add new work"
+        review: "Submit for Review"
+        draft: "Save as Draft"
     select:
       # Default value for :prompt => true in FormOptionsHelper
       prompt: "Please select"

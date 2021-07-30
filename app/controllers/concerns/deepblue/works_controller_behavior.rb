@@ -399,13 +399,22 @@ module Deepblue
 
 
     def create
+      # store the Save as Draft selection
+      draft = params[:save_as_draft]
+
+      #When you are using the draft option, you want to put teh work in the Admin Set that is for
+      #Drafts, otherwise want to put it in the DataSetAdmin Set. actor_enviroment will already have
+      #the DataSetAdmi Set set.
+      env = actor_environment
+      env.attributes[:admin_set_id] = ::Deepblue::DraftAdminSetService.draft_admin_set_id if draft.eql? t('helpers.action.work.draft')
+
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "" ] if works_controller_behavior_debug_verbose
       respond_to do |wants|
         wants.html do
-          if actor.create( actor_environment )
+          if actor.create( env )
             after_create_response
           else
             build_form
@@ -416,7 +425,7 @@ module Deepblue
           unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
-          if actor.create( actor_environment )
+          if actor.create( env )
             after_create_response
           else
             render_json_response( response_type: :unprocessable_entity, options: { errors: curation_concern.errors } )
@@ -874,6 +883,9 @@ module Deepblue
     end
 
     def update
+      #Stores the button selection
+      draft = params[:save_as_draft]
+
       @curation_concern ||= ::Deepblue::WorkViewContentService.content_find_by_id( id: params[:id] )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -883,7 +895,7 @@ module Deepblue
       return redirect_to my_works_path, notice: "You do not have sufficient privileges for this aciton." unless can_edit_work?
       respond_to do |wants|
         wants.html do
-          had_error = upate_rest
+          had_error = update_rest draft 
           if had_error
             build_form
             render 'edit', status: :unprocessable_entity
@@ -896,7 +908,7 @@ module Deepblue
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "" ] if works_controller_behavior_debug_verbose
-          had_error = upate_rest
+          had_error = update_rest  draft 
           if had_error
             if curation_concern.present?
               render_json_response( response_type: :unprocessable_entity, options: { errors: curation_concern.errors } )
@@ -908,13 +920,16 @@ module Deepblue
       end
     end
 
-    def upate_rest
+    def update_rest ( draft )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if works_controller_behavior_debug_verbose
       had_error = false
       if curation_concern.present?
         act_env = actor_environment
+        #if user saving as draft when updating a work, set the admin set to the Draft Admin Set.
+        act_env.attributes[:admin_set_id] = ::Deepblue::DraftAdminSetService.draft_admin_set_id if draft.eql? t('helpers.action.work.draft')
+
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "act_env.class.name=#{act_env.class.name}",
