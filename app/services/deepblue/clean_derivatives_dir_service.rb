@@ -47,8 +47,13 @@ module Deepblue
 
       run_msg "Disk usage before: #{report_du}"
       delete_dirs_glob_regexp( glob: '?' * 9, filename_regexp: /^[0-9a-z]{9}$/ )
-      delete_files_glob_regexp( glob: "mini_magick*" )
+      delete_files_glob_regexp( glob: "#{'?'*8}-#{'?'*3}*-*", filename_regexp: /^[0-9]{8}\-[0-9]{3,6}\-[0-9a-z]{3,7}$/ )
+      delete_files_glob_regexp( glob: "puma20#{'?'*6}-*", filename_regexp: /^puma20[0-9]{6}\-.*$/ )
+      delete_files_glob_regexp( glob: "open-uri20#{'?'*6}-*", filename_regexp: /^open-uri20[0-9]{6}\-.*$/ )
+      delete_files_glob_regexp( glob: "RackMultipart20#{'?'*6}-*", filename_regexp: /^RackMultipart20[0-9]{6}\-.*$/ )
+      delete_files_glob_regexp( glob: "mini_magick20*" )
       delete_files_glob_regexp( glob: "apache-tika-*.tmp" )
+      delete_files_glob_regexp( glob: "*.pdf" )
       run_msg "Disk usage after: #{report_du}"
     end
 
@@ -65,19 +70,24 @@ module Deepblue
     end
 
     def delete_dirs_glob_regexp( glob: '*', filename_regexp: nil )
+      run_msg "delete dirs glob: #{glob} filename_regexp: #{filename_regexp}"
       ::Deepblue::DiskUtilitiesHelper.delete_dirs_glob_regexp( base_dir: base_dir,
-                                                               glob: glob,
-                                                               filename_regexp: filename_regexp,
                                                                days_old: older_than_days,
-                                                               recursive: false )
+                                                               filename_regexp: filename_regexp,
+                                                               glob: glob,
+                                                               msg_queue: job_msg_queue,
+                                                               recursive: false,
+                                                               verbose: verbose )
     end
 
     # returns count of files deleted
     def delete_files_glob_regexp( glob: '*', filename_regexp: nil )
       ::Deepblue::DiskUtilitiesHelper.delete_files_glob_regexp( base_dir: base_dir,
-                                                                glob: glob,
+                                                                days_old: older_than_days,
                                                                 filename_regexp: filename_regexp,
-                                                                days_old: older_than_days )
+                                                                glob: glob,
+                                                                msg_queue: job_msg_queue,
+                                                                verbose: verbose )
     end
 
 

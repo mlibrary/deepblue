@@ -22,13 +22,15 @@ clean_derivatives_dir_job:
   description: Clean the tmp/derivatives directory.
   args:
     days_old: 7
+    email_results_to:
+      - 'fritx@umich.edu'
+    subscription_service_id: clean_derivatives_dir_job
     verbose: true
 
 END_OF_SCHEDULER_ENTRY
 
   include JobHelper # see JobHelper for :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as :scheduler
-
 
   def perform( *args )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -41,7 +43,7 @@ END_OF_SCHEDULER_ENTRY
                                            ::Deepblue::LoggingHelper.called_from,
                                            "initialized=#{initialized}",
                                            "" ] if clean_derivatives_dir_job_debug_verbose
-    ::Deepblue::SchedulerHelper.log( class_name: self.class.name,  event: event_name )
+    ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event: event_name )
     days_old = options_value( key: 'days_old', default_value: default_args[:days_old] )
     ::Deepblue::CleanDerivativesDirService.new( days_old: days_old,
                                                 job_msg_queue: job_msg_queue,

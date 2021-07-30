@@ -199,6 +199,10 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
   end
 
   describe '.delete_files' do
+    let(:debug_verbose) { false }
+    let(:msg_queue)     { nil }
+    let(:test_mode)     { false }
+    let(:verbose)       { false }
 
     context 'empty array' do
       let(:files) { [] }
@@ -220,7 +224,11 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
       before { expect( File.exist? file1 ).to eq true }
       after { File.delete file1 if File.exist? file1 }
       it 'deletes it' do
-        expect( described_class ).to receive( :delete_file ).with( file1 ).and_call_original
+        expect( described_class ).to receive( :delete_file ).with( file1,
+                                                                   debug_verbose: debug_verbose,
+                                                                   msg_queue: msg_queue,
+                                                                   test_mode: test_mode,
+                                                                   verbose: verbose ).and_call_original
         expect( described_class.delete_files files ).to eq 1
       end
     end
@@ -231,7 +239,11 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
       before { expect( File.exist? file1 ).to eq true }
       after { File.delete file1 if File.exist? file1 }
       it 'deletes it' do
-        expect( described_class ).to receive( :delete_file ).with( file1 ).and_call_original
+        expect( described_class ).to receive( :delete_file ).with( file1,
+                                                                   debug_verbose: debug_verbose,
+                                                                   msg_queue: msg_queue,
+                                                                   test_mode: test_mode,
+                                                                   verbose: verbose ).and_call_original
         expect( described_class.delete_files *files ).to eq 1
       end
     end
@@ -248,8 +260,16 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
         File.delete file2 if File.exist? file2
       end
       it 'deletes them' do
-        expect( described_class ).to receive( :delete_file ).with( file1 ).and_call_original
-        expect( described_class ).to receive( :delete_file ).with( file2 ).and_call_original
+        expect( described_class ).to receive( :delete_file ).with( file1,
+                                                                   debug_verbose: debug_verbose,
+                                                                   msg_queue: msg_queue,
+                                                                   test_mode: test_mode,
+                                                                   verbose: verbose ).and_call_original
+        expect( described_class ).to receive( :delete_file ).with( file2,
+                                                                   debug_verbose: debug_verbose,
+                                                                   msg_queue: msg_queue,
+                                                                   test_mode: test_mode,
+                                                                   verbose: verbose ).and_call_original
         expect( described_class.delete_files file1, file2 ).to eq 2
       end
     end
@@ -267,8 +287,16 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
         File.delete file2 if File.exist? file2
       end
       it 'deletes them' do
-        expect( described_class ).to receive( :delete_file ).with( file1 ).and_call_original
-        expect( described_class ).to receive( :delete_file ).with( file2 ).and_call_original
+        expect( described_class ).to receive( :delete_file ).with( file1,
+                                                                   debug_verbose: debug_verbose,
+                                                                   msg_queue: msg_queue,
+                                                                   test_mode: test_mode,
+                                                                   verbose: verbose ).and_call_original
+        expect( described_class ).to receive( :delete_file ).with( file2,
+                                                                   debug_verbose: debug_verbose,
+                                                                   msg_queue: msg_queue,
+                                                                   test_mode: test_mode,
+                                                                   verbose: verbose ).and_call_original
         expect( described_class.delete_files *files ).to eq 2
       end
     end
@@ -276,13 +304,21 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
   end
 
   describe '.delete_files_older_than' do
+    let(:debug_verbose) { false }
+    let(:msg_queue)     { nil }
+    let(:test_mode)     { false }
+    let(:verbose)       { false }
 
     context 'one file older than 0 days' do
       let(:file1) { File.absolute_path Tempfile.new( 'file1' ) }
       before { expect( File.exist? file1 ).to eq true }
       after { File.delete file1 if File.exist? file1 }
       it 'deletes it' do
-        expect( described_class ).to receive( :delete_files ).with( file1 ).and_call_original
+        expect( described_class ).to receive( :delete_files ).with( file1,
+                                                                    debug_verbose: debug_verbose,
+                                                                    msg_queue: msg_queue,
+                                                                    test_mode: test_mode,
+                                                                    verbose: verbose ).and_call_original
         expect( described_class.delete_files_older_than( file1, days_old: 0 ) ).to eq 1
       end
     end
