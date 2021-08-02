@@ -367,14 +367,14 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
   # 'update'
   # tested in spec/controllers/hyrax/data_sets_controller_spec.rb
 
-  it 'upate_rest' do  
+  it 'update_rest' do  
     allow(dummy_class).to receive(:curation_concern).and_return test_object
     allow(dummy_class).to receive(:actor_environment).and_return true
     allow(dummy_class).to receive(:actor).and_return test_object
     allow(test_object).to receive(:update).and_return true
     allow(dummy_class).to receive(:after_update_response).and_return true
 
-    dc = dummy_class.upate_rest
+    dc = dummy_class.update_rest "no_id"
     expect(dc).to eq(nil) 
   end
 

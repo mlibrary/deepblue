@@ -69,6 +69,8 @@
   <% end %>
 <% end %>
 
+<%= render partial: "/hyrax/dashboard/draft_works" %>
+
 <div class="row">
   <div class="col-md-12">
     <div class="panel panel-default <%= 'tabs' if current_page?(hyrax.dashboard_works_path(locale: nil)) || @managed_works_count > 0 %>">
