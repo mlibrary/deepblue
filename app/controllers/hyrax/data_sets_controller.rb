@@ -218,7 +218,11 @@ module Hyrax
                                              "@curation_concern.id=#{@curation_concern.id}",
                                              "" ] if data_sets_controller_debug_verbose
       text = read_me_text
-      read_me_simple_format( text, html_options, options )
+      begin
+        read_me_simple_format( text, html_options, options )
+      rescue
+        text
+      end
     end
 
     def read_me_simple_format( text, html_options = {}, options = {} )

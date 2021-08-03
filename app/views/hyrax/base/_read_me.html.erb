@@ -2,7 +2,14 @@
   <div id="read_me_container" class="read-me-container">
     <% if @presenter.read_me_text_is_html? %>
       <div class="documentation-div">
-        <%= raw @presenter.read_me_text_html %>
+        <%#= raw @presenter.read_me_text_html %>
+        <%=
+            begin
+              raw @presenter.read_me_text_html
+            rescue Exception
+              @presenter.read_me_text
+            end
+        %>
       </div>
     <% else %>
       <%= @presenter.read_me_text_simple_format %>
