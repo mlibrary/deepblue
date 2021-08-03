@@ -1,5 +1,5 @@
 <%  a = ::Deepblue::DraftAdminSetService.draft_admin_set %>
-<% works = a.members %>
+<% works = a.present? ? a.members : [] %>
 <% if works.size > 0 %>
   <div class="row">
     <div class="col-md-12">
