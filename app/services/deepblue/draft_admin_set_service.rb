@@ -14,7 +14,9 @@ module Deepblue
     end
 
     def self.draft_admin_set
-      AdminSet.find draft_admin_set_id
+      id = draft_admin_set_id
+      return AdminSet.find draft_admin_set_id if id.present?
+      nil
     end
 
     def self.draft_admin_set_id_init
