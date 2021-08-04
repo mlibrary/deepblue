@@ -59,7 +59,9 @@ module Deepblue
 
     def report_du
       path = base_dir.join( '.' )
-      rv = `du -sh #{path}`
+      cmd = "du -sh #{path}"
+      run_msg cmd
+      rv = `#{cmd}`
       rv.chomp
     end
 
