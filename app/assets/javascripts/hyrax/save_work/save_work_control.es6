@@ -51,7 +51,7 @@ export default class SaveWorkControl {
   preventSubmitIfAlreadyInProgress() {
     this.form.on('submit', (evt) => {
       if (this.isValid())
-        this.saveButton.prop("disabled", true);
+         this.saveButton.prop("disabled", false); 
     })
   }
 
@@ -83,7 +83,7 @@ export default class SaveWorkControl {
     }
     this.requiredFields = new RequiredFields(this.form, () => this.formStateChanged())
     this.uploads = new UploadedFiles(this.form, () => this.formStateChanged())
-    this.saveButton = this.element.find('#with_files_submit')
+    this.saveButton = this.element.find(':submit')
     this.depositAgreement = new DepositAgreement(this.form, () => this.formStateChanged())
     this.requiredMetadata = new ChecklistItem(this.element.find('#required-metadata'))
     this.requiredFiles = new ChecklistItem(this.element.find('#required-files'))

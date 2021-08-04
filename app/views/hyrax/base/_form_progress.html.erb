@@ -52,11 +52,11 @@
     <%# The admin set will tell you if the work is a draft %>
     <% if f.object.admin_set_id.eql? "admin_set/default" %> <%# creaing work for the first time %>
       <%= f.submit value: t('helpers.action.work.review'), class: 'btn btn-primary', onclick: "confirmation_needed = false;", id: "with_files_submit", name: "save_with_files" %>
-      <%= f.submit value: t('helpers.action.work.draft'), class: 'btn2 btn-primary2', onclick: "confirmation_needed = false;", id: "with_files_submit2", name: "save_as_draft"  %>
+      <%= f.submit value: t('helpers.action.work.draft'), class: 'btn btn-primary', onclick: "confirmation_needed = false;", id: "save_as_draft", name: "save_as_draft"  %>
       <%= link_to t('.cancel'), hyrax.my_works_path, class: 'btn btn-default'%>
     <% elsif f.object.admin_set_id.eql? ::Deepblue::DraftAdminSetService.draft_admin_set_id %>  <%# User must be updating draft %>
       <%= f.submit value: t('helpers.action.work.review'), class: 'btn btn-primary', onclick: "confirmation_needed = false;", id: "with_files_submit", name: "save_with_files" %>
-      <%= f.submit value: t('helpers.action.work.draft'), class: 'btn2 btn-primary2', onclick: "confirmation_needed = false;", id: "with_files_submit2", name: "save_as_draft"  %>
+      <%= f.submit value: t('helpers.action.work.draft'), class: 'btn btn-primary', onclick: "confirmation_needed = false;", id: "save_as_draft", name: "save_as_draft"  %>
       <%= link_to t('.cancel'), hyrax.my_works_path, class: 'btn btn-default' %>
     <% else %> <%# The updating a work that has been published already %>
       <%= f.submit class: 'btn btn-primary', onclick: "confirmation_needed = false;", id: "with_files_submit", name: "save_with_files" %>
