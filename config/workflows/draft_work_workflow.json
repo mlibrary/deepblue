@@ -11,7 +11,8 @@
                     "from_states": [],
                     "transition_to": "draft",
                     "methods": [
-                        "Hyrax::Workflow::GrantEditToDepositor"
+                        "Hyrax::Workflow::GrantEditToDepositor",
+                        "Hyrax::Workflow::DeactivateObject"
                     ]
                 }
             ]
