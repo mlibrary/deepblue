@@ -193,8 +193,8 @@ Rails.application.routes.draw do
         post   'tombstone'
         get    'zip_download'
         post   'zip_download'
-        get    'cvs_download', controller: 'stats', action: :cvs_download
-        post   'cvs_download', controller: 'stats', action: :cvs_download
+        get    'csv_download', controller: 'stats', action: :csv_download
+        post   'csv_download', controller: 'stats', action: :csv_download
       end
     end
   end
