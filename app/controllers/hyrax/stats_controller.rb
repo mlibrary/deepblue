@@ -16,9 +16,13 @@ module Hyrax
     end
 
     # To download csv files.
-    def cvs_download
+    def csv_download
       @stats = Hyrax::WorkUsage.new(params[:id])
-      send_data @stats.to_csv
+      filename = params[:id] + "_stats.csv"
+      #This is an example that worked
+      #send_data @stats.to_csv, :type => 'text/csv; charset=utf-8; header=present', :disposition => 'attachment; filename=payments.csv'
+      target = "attachment`; filename=#{filename}"
+      send_data @stats.to_csv, :type => 'text/csv; charset=utf-8; header=present', :disposition => target
     end
 
     def file

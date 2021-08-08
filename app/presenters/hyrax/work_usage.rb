@@ -17,17 +17,41 @@ module Hyrax
     def to_csv
       data = self.to_flot[0][:data] 
 
-      attributes = %w{date count}
-      CSV.generate(headers: true) do |csv|
-        csv << attributes
+      #This was used to test logic
+      #data=[["a", 1], ["a", 2], ["b", 3], ["x", 7], ["c", 4], ["c", 5], ["y", 100]]
 
-        data.uniq.each do |sub_array|
-         time = Time.at sub_array[0].to_i/1000
-         count = sub_array[1]
-
-         csv << [time, count]
+      cnt = 0
+      final_data = []
+      data.uniq.each do |sub_array|
+        time = sub_array[0]
+        count = sub_array[1]
+        if cnt < 1 
+           final_data << [time, count]
+        else
+          sample = final_data.last
+          if ( cnt < data.size ) && ( sample[0].eql? time )
+            final_data.last[1] = final_data.last[1] + count
+          else
+            final_data << [time, count]
+          end
         end
-      end
+        cnt += 1
+       end
+
+       title = ["title => " + self.work.title.first]
+       attributes = %w{date count}
+
+       CSV.generate(headers: true) do |csv|
+         csv << title
+         csv << attributes
+
+         final_data.uniq.each do |sub_array|
+          time = Time.at sub_array[0].to_i/1000
+          count = sub_array[1]
+
+          csv << [time, count]
+         end
+       end
     end
 
     # Package data for visualization using JQuery Flot
