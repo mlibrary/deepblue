@@ -37,6 +37,8 @@ en:
     tombstone_notice:
       "Tombstoned: \"%{title}\" for this reason: %{reason}"
   hyrax:
+    admin_set:
+      name: "Draft works Admin Set"
     icons:
       data_set:               'fa fa-file-text-o'
     select_type:
