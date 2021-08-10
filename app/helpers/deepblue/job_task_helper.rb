@@ -13,21 +13,22 @@ module Deepblue
       @@_setup_ran = true
     end
 
-    mattr_accessor :about_to_expire_embargoes_job_debug_verbose, default: false
-    mattr_accessor :abstract_rake_task_job_debug_verbose, default: false
+    mattr_accessor :about_to_expire_embargoes_job_debug_verbose,    default: false
+    mattr_accessor :abstract_rake_task_job_debug_verbose,           default: false
     mattr_accessor :deactivate_expired_embargoes_job_debug_verbose, default: false
-    mattr_accessor :deepblue_job_debug_verbose, default: false
-    mattr_accessor :export_documentation_job_debug_verbose, default: false
-    mattr_accessor :heartbeat_job_debug_verbose, default: false
-    mattr_accessor :heartbeat_email_job_debug_verbose, default: false
-    mattr_accessor :monthly_analytics_report_job_debug_verbose, default: false
-    mattr_accessor :monthly_events_report_job_debug_verbose, default: false
-    mattr_accessor :rake_task_job_debug_verbose, default: false
-    mattr_accessor :run_job_task_debug_verbose, default: false
-    mattr_accessor :scheduler_start_job_debug_verbose, default: false
-    mattr_accessor :update_condensed_events_job_debug_verbose, default: false
-    mattr_accessor :user_stat_importer_job_debug_verbose, default: false
-    mattr_accessor :works_report_job_debug_verbose, default: false
+    mattr_accessor :deepblue_job_debug_verbose,                     default: false
+    mattr_accessor :export_documentation_job_debug_verbose,         default: false
+    mattr_accessor :fedora_accessible_job_debug_verbose,            default: false
+    mattr_accessor :heartbeat_job_debug_verbose,                    default: false
+    mattr_accessor :heartbeat_email_job_debug_verbose,              default: false
+    mattr_accessor :monthly_analytics_report_job_debug_verbose,     default: false
+    mattr_accessor :monthly_events_report_job_debug_verbose,        default: false
+    mattr_accessor :rake_task_job_debug_verbose,                    default: false
+    mattr_accessor :run_job_task_debug_verbose,                     default: false
+    mattr_accessor :scheduler_start_job_debug_verbose,              default: false
+    mattr_accessor :update_condensed_events_job_debug_verbose,      default: false
+    mattr_accessor :user_stat_importer_job_debug_verbose,           default: false
+    mattr_accessor :works_report_job_debug_verbose,                 default: false
 
     mattr_accessor :allowed_job_tasks, default: [ "tmp:clean" ].freeze
     mattr_accessor :job_failure_email_subscribers, default: []
@@ -267,6 +268,35 @@ END_BODY
     def self.is_verbose( job:, options: job.options, default_value: false, debug_verbose: false )
       job.verbose = job.job_options_value( options, key: 'verbose', default_value: default_value, verbose: debug_verbose )
       ::Deepblue::LoggingHelper.debug "verbose=#{verbose}" if job.verbose || debug_verbose
+    end
+
+    def self.job_task_puts( str = '', msg_queue = nil )
+      if msg_queue
+        msg_queue << str
+      else
+        puts str
+      end
+    end
+
+    def self.options_from_args( *args )
+      options = {}
+      args.each { |key,value| options[key.to_s] = value }
+      options
+    end
+
+    def self.options_parse( options_str )
+      return options_str if options_str.is_a? Hash
+      return {} if options_str.blank?
+      ActiveSupport::JSON.decode options_str
+    rescue ActiveSupport::JSON.parse_error => e
+      return { 'error': e, 'options_str': options_str }
+    end
+
+    def self.options_value( options, key:, default_value: nil, verbose: false, msg_queue: nil )
+      return default_value if options.blank?
+      return default_value unless options.key? key
+      job_task_puts "set key #{key} to #{options[key]}", msg_queue if verbose
+      return options[key]
     end
 
     def self.send_email( email_target:,

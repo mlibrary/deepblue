@@ -105,6 +105,12 @@ module Deepblue
       task_options_error( options, key: 'error', default_value: false )
     end
 
+    def self.task_options_from_args( *args )
+      options = {}
+      args.each { |key,value| options[key.to_s] = value }
+      options
+    end
+
     def self.task_options_parse( options_str )
       return options_str if options_str.is_a? Hash
       return {} if options_str.blank?
