@@ -32,6 +32,10 @@ module Hyrax
 
     end
 
+    def remove_draft_works(solr_parameters)
+      solr_parameters[:fq] << "{!df=admin_set_sim}NOT \"Draft works Admin Set\""
+    end
+
 
     private
 
