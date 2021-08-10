@@ -624,6 +624,8 @@ en:
           Download All Files (To download individual files, select them in the “Files” panel above)
       update:
         header: "Edit Work"
+      draft:
+        header: "Edit Draft Work"
   samvera:
     persona:
       users:
