@@ -12,6 +12,7 @@ module Hyrax
     # self.default_processor_chain -= [:add_access_controls_to_solr_params]
     # We remove the active works filter, so a depositor can see submitted works in any state.
     self.default_processor_chain -= [:only_active_works, :add_access_controls_to_solr_params]
+    self.default_processor_chain += [:remove_draft_works]
 
     def only_works?
       true
