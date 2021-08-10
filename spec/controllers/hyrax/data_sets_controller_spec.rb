@@ -225,9 +225,12 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
 
     context 'when create is successful' do
       let(:work) { stub_model(DataSet) }
+      let(:admin_set) { double }
 
       it 'creates a work' do
         allow(controller).to receive(:curation_concern).and_return(work)
+        allow(work).to receive(:admin_set).and_return admin_set
+        allow(admin_set).to receive(:title).and_return ["AdminSet"]
         post :create, params: { data_set: { title: ['a title'] } }
         expect(response).to redirect_to main_app.hyrax_data_set_path(work, locale: 'en')
       end
@@ -258,6 +261,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     context "with files" do
       let(:actor) { double('An actor') }
       let(:work) { create(:data_set_work) }
+      let(:admin_set) { double }
 
       before do
         allow(controller).to receive(:actor).and_return(actor)
@@ -266,6 +270,9 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
       end
 
       it "attaches files" do
+        allow(work).to receive(:admin_set).and_return admin_set
+        allow(admin_set).to receive(:title).and_return ["AdminSet"]
+
         expect(actor).to receive(:create)
                              .with(Hyrax::Actors::Environment) do |env|
           expect(env.attributes.keys).to include('uploaded_files')
@@ -278,6 +285,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
             },
             uploaded_files: ['777', '888']
         }
+
         expect(flash[:notice]).to be_html_safe
         expect(flash[:notice]).to eq "Your files are being processed by Deep Blue Data in the background. " \
                                      "The metadata and access controls you specified are being applied. " \
@@ -318,8 +326,12 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
           let(:work) do
             create(:data_set_work, user: user, title: ['test title'])
           end
+          let(:admin_set) { double }
 
           it "records the work" do
+            allow(work).to receive(:admin_set).and_return admin_set
+            allow(admin_set).to receive(:title).and_return ["AdminSet"]
+
             # TODO: ensure the actor stack, called with these params
             # makes one work, two file sets and calls ImportUrlJob twice.
             expect(actor).to receive(:create).with(Hyrax::Actors::Environment) do |env|
