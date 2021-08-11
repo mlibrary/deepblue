@@ -276,20 +276,21 @@ module DeepBlueDocs
     config.key_value_backend = I18n::Backend::KeyValue.new({})
     config.i18n.backend = I18n.backend
     config.after_initialize do
-      after_initialize_debug_verbose = false
-      puts if after_initialize_debug_verbose
+      after_initialize_debug_verbose = true
+      # puts if after_initialize_debug_verbose
       puts "Begin after initialize..." if after_initialize_debug_verbose
-      puts if after_initialize_debug_verbose
-      # http://railscasts.com/episodes/256-i18n-backends?view=asciicast
-      I18n.backend = I18n::Backend::Chain.new( config.key_value_backend, I18n.backend )
-      config.i18n_backend = I18n.backend
-      puts I18n.backend if after_initialize_debug_verbose
-      # note that the debug statements in load_email_templates will not go to the log when called from here
-      Deepblue::WorkViewContentService.load_email_templates( debug_verbose: after_initialize_debug_verbose )
+      # puts if after_initialize_debug_verbose
+      # # http://railscasts.com/episodes/256-i18n-backends?view=asciicast
+      # I18n.backend = I18n::Backend::Chain.new( config.key_value_backend, I18n.backend )
+      # config.i18n_backend = I18n.backend
+      # puts I18n.backend if after_initialize_debug_verbose
+      # # note that the debug statements in load_email_templates will not go to the log when called from here
+      # Deepblue::WorkViewContentService.load_email_templates( debug_verbose: after_initialize_debug_verbose )
+      # Deepblue::WorkViewContentService.load_i18n_templates( debug_verbose: after_initialize_debug_verbose )
+      # Deepblue::WorkViewContentService.load_view_templates( debug_verbose: after_initialize_debug_verbose )
+      # puts "Finished after i18n and view templates load." if after_initialize_debug_verbose
+      ServerAfterInitializeService.server_after_initialize_callback( config )
       puts "Finished after initialize." if after_initialize_debug_verbose
-      Deepblue::WorkViewContentService.load_i18n_templates( debug_verbose: after_initialize_debug_verbose )
-      Deepblue::WorkViewContentService.load_view_templates( debug_verbose: after_initialize_debug_verbose )
-      puts "Finished after i18n and view templates load." if after_initialize_debug_verbose
     end
 
   end
