@@ -22,7 +22,7 @@ RSpec.describe CleanDerivativesDirJob do
       let(:options)       { args }
       let(:job_msg_queue) { [] }
       let(:event_name)    { 'clean derivatives dir' }
-      let(:time_before)   { DateTime.now }
+      let(:time_before)   { DateTime.now - 1.second }
       let(:to_console)    { false }
       before do
         verbose = args["verbose"]
@@ -79,7 +79,7 @@ RSpec.describe CleanDerivativesDirJob do
         described_class.clean_derivatives_dir_job_debug_verbose = dbg_verbose
         ActiveJob::Base.queue_adapter = :test
         job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
-        time_after = DateTime.now
+        time_after = DateTime.now + 1.second
         expect(job.options).to eq options
         expect(job.timestamp_begin.between?(time_before,time_after)).to eq true
         described_class.clean_derivatives_dir_job_debug_verbose = save_debug_verbose
