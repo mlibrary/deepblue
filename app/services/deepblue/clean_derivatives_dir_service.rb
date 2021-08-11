@@ -58,7 +58,7 @@ module Deepblue
     end
 
     def report_du
-      path = base_dir.join( '.' )
+      path = "#{base_dir}/."
       cmd = "du -sh #{path}"
       run_msg cmd
       rv = `#{cmd}`
