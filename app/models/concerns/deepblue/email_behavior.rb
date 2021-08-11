@@ -130,6 +130,13 @@ module Deepblue
                                            "cc_url=#{cc_url}",
                                            "cc_depositor=#{cc_depositor}",
                                            "" ] if EMAIL_BEHAVIOR_DEBUG_VERBOSE
+
+      # Indicate Draft work in subject line
+      subject = ::Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_created" )
+      if ( cc_type.eql? "work" ) && ( self.admin_set.title.first.eql? ::Deepblue::EmailHelper.t("hyrax.admin_set.name") )
+        subject = ::Deepblue::EmailHelper.t( "hyrax.email.subject.draft_created" )
+      end
+
       body = EmailHelper.t( "hyrax.email.notify_user_#{cc_type}_created_html",
                             title: EmailHelper.escape_html( cc_title ),
                             url: cc_url,
@@ -138,7 +145,7 @@ module Deepblue
       email_notification( to: to,
                           from: from,
                           content_type: "text/html",
-                          subject: ::Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_created" ),
+                          subject: subject,
                           body: body,
                           current_user: current_user,
                           event: EVENT_CREATE,
