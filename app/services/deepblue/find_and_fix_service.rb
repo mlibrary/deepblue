@@ -4,8 +4,7 @@ module Deepblue
 
   module FindAndFixService
 
-    mattr_accessor :find_and_fix_service_debug_verbose
-    @@find_and_fix_service_debug_verbose = false
+    mattr_accessor :find_and_fix_service_debug_verbose, default: false
 
     @@_setup_failed = false
     @@_setup_ran = false
