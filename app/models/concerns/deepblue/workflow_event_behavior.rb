@@ -22,7 +22,10 @@ module Deepblue
       provenance_create( current_user: current_user, event_note: event_note )
       email_event_create_rds( current_user: current_user, event_note: event_note )
       email_event_create_user( current_user: current_user, event_note: event_note )
-      JiraNewTicketJob.perform_later( work_id: id, current_user: current_user )
+
+      # Don't send Jira message if doing a draft work.
+      # This gets called by collection create and in that case, the admin_set method is not avaialable.
+      JiraNewTicketJob.perform_later( work_id: id, current_user: current_user ) unless ( self.respond_to?(:admin_set) ) && ( self.admin_set.title.first.eql? ::Deepblue::EmailHelper.t("hyrax.admin_set.name") )
     end
 
     def workflow_embargo( current_user:, event_note: "" )
@@ -119,8 +122,9 @@ module Deepblue
 
     end
 
-    def workflow_update_after( current_user:, event_note: "" )
-
+    def workflow_update_after( current_user:, event_note: "", was_draft: false )
+      #Send this Jira message, if it used to be a draft work, and now it's a regular work
+      JiraNewTicketJob.perform_later( work_id: id, current_user: current_user ) if was_draft
     end
 
   end

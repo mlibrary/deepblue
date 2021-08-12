@@ -6,6 +6,7 @@ module Deepblue
 
     mattr_accessor :controller_workflow_event_behavior_debug_verbose, default: false
 
+
     def workflow_create
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -48,7 +49,17 @@ module Deepblue
 
     end
 
-    def workflow_update_after( current_user:, event_note: "" )
+    def workflow_update_after
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "current_user=#{current_user}",
+                                             "" ] if controller_workflow_event_behavior_debug_verbose
+
+      was_draft = false
+      was_draft = true if ( params[:save_with_files].present? ) && ( params[:save_with_files].eql? t('helpers.action.work.review')  )
+      curation_concern.workflow_update_after( current_user: current_user,
+                                        event_note: "#{self.class.name} - deposited by #{curation_concern.depositor}", was_draft: was_draft )
 
     end
 
