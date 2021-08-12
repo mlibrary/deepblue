@@ -31,6 +31,7 @@ module Hyrax
     after_action :reset_tombstone_permissions,   only: [:show]
     after_action :visibility_changed_update,     only: [:update]
     after_action :workflow_create,               only: [:create]
+    after_action :workflow_update_after,         only: [:update]
 
     after_action :report_irus_analytics_request, only: %i[globus_download_redirect zip_download]
     after_action :report_irus_analytics_investigation, only: %i[show]
