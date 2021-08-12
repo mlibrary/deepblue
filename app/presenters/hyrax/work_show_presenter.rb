@@ -199,11 +199,13 @@ module Hyrax
                                              "false if doi_minted?=#{doi_minted?}",
                                              "false if tombstoned?=#{tombstoned?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
+                                             "false if draft_mode?=#{draft_mode?}",
                                              "" ] if work_show_presenter_debug_verbose
       return false if anonymous_show?
       return false if doi_minted?
       return false if tombstoned?
       return true if current_ability.admin?
+      return false if draft_mode?
       can_edit_work?
     end
 
@@ -226,6 +228,7 @@ module Hyrax
                                              "false if tombstoned?=#{tombstoned?}",
                                              # "true if current_ability.admin?=#{current_ability.admin?}",
                                              "false if workflow.state != 'deposited'=#{workflow.state != 'deposited'}",
+                                             "false if draft_mode?=#{draft_mode?}",
                                              "true if current_ability.can?( :transfer, id )=#{current_ability.can?( :transfer, id )}",
                                              "current_ability.user.email=#{current_ability.user.email}",
                                              "@curation_concern.depositor=#{@curation_concern.depositor}",
@@ -235,6 +238,7 @@ module Hyrax
       return false if tombstoned?
       # return true if current_ability.admin?
       return false if workflow.state != 'deposited'
+      return false if draft_mode?
       return true if current_ability.can?( :transfer, id ) # on the assumption that this indicates ownership
       return true if current_ability.user.email == @curation_concern.depositor
       false
@@ -255,6 +259,7 @@ module Hyrax
       return false unless AnalyticsHelper.enable_local_analytics_ui?
       return false unless AnalyticsHelper.enable_analytics_works_reports_can_subscribe?
       return false if anonymous_show?
+      return false if draft_mode?
       return true if current_ability.admin? && AnalyticsHelper.analytics_reports_admins_can_subscribe?
       # return true if can_edit_work? && AnalyticsHelper.open_analytics_report_subscriptions?
       # return true if depositor == current_ability.current_user.email && AnalyticsHelper.open_analytics_report_subscriptions?
@@ -292,10 +297,16 @@ module Hyrax
       return false if tombstoned?
       return false if doi_pending? || doi_minted?
       return false if anonymous_show?
+      return false if draft_mode?
       return true if current_ability.admin?
       current_ability.can?( :edit, id )
     end
 
+    def draft_mode?
+      return true if solr_document.admin_set.first.eql? ::Deepblue::EmailHelper.t("hyrax.admin_set.name")
+      false
+    end
+    
     def can_perform_workflow_actions?
       return false if tombstoned?
       return true if current_ability.admin?
@@ -315,6 +326,7 @@ module Hyrax
                                              "" ] if work_show_presenter_debug_verbose
       return false if anonymous_show?
       return false if tombstoned?
+      return false if draft_mode?
       return true if current_ability.admin?
       return true if current_ability.can?( :transfer, id )
       false
@@ -542,6 +554,7 @@ module Hyrax
                                              "false if published?=#{published?}",
                                              "" ] if debug_verbose
       return false if anonymous_show?
+      return false if draft_mode?
       return false if published?
       true
     end
