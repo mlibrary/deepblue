@@ -313,7 +313,7 @@ module Hyrax
     end
 
     def draft_mode?
-      return true if solr_document.admin_set.first.eql? ::Deepblue::EmailHelper.t("hyrax.admin_set.name")
+      return true if solr_document.admin_set&.first&.eql? ::Deepblue::EmailHelper.t("hyrax.admin_set.name")
       false
     end
     
