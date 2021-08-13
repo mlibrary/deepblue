@@ -182,7 +182,7 @@ module Deepblue
         @input_pathname = Pathname.new @input if @input.is_a? String
         @input_pathname = @input if @input.is_a? Pathname
         return unless @input_pathname.exist?
-        @input = open( @input_pathname, 'r' )
+        @input = File.open( @input_pathname, 'r' )
         @input_close = true
       end
 

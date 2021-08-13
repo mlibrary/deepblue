@@ -14,10 +14,10 @@ module Deepblue
           bytes_exported = File.size target_file
         rescue Exception => e # rubocop:disable Lint/RescueException
           Rails.logger.error "ExportFilesHelper.export_file_uri(#{source_uri},#{target_file}) #{e.class}: #{e.message} at #{e.backtrace[0]}"
-          bytes_exported = open( source_uri ) { |io| IO.copy_stream( io, target_file ) }
+          bytes_exported = URI.open( source_uri ) { |io| IO.copy_stream( io, target_file ) }
         end
       else
-        bytes_exported = open( source_uri ) { |io| IO.copy_stream( io, target_file ) }
+        bytes_exported = URI.open( source_uri ) { |io| IO.copy_stream( io, target_file ) }
       end
       return bytes_exported
     end
@@ -25,7 +25,7 @@ module Deepblue
     def self.export_file_uri_bytes( source_uri: )
       # TODO: replace this with Down gem
       bytes_expected = -1
-      open( source_uri ) { |io| bytes_expected = io.meta['content-length'] }
+      URI.open( source_uri ) { |io| bytes_expected = io.meta['content-length'] }
       return bytes_expected
     end
 

@@ -54,8 +54,8 @@ module Deepblue
         @prefix = "#{Time.now.strftime('%Y%m%d')}_works_report" if @prefix.nil?
         @works_file = Pathname.new( report_dir ).join "#{prefix}_works.csv"
         @file_sets_file = Pathname.new( report_dir ).join "#{prefix}_file_sets.csv"
-        @out_works = open( works_file, 'w' )
-        @out_file_sets = open( file_sets_file, 'w' )
+        @out_works = File.open( works_file, 'w' )
+        @out_file_sets = File.open( file_sets_file, 'w' )
         print_work_line( out_works, header: true )
         print_file_set_line( out_file_sets, header: true )
 

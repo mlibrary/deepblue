@@ -85,7 +85,7 @@ module Deepblue
 
     def self.read_entries( file_path )
       entries = []
-      open( file_path, "r" ) do |fin|
+      File.open( file_path, "r" ) do |fin|
         until fin.eof?
           begin
             line = fin.readline

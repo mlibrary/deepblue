@@ -21,7 +21,7 @@ module Deepblue
       tmp_dir = ENV['TMPDIR'] || "/tmp"
       target_file = "#{tmp_dir}/files_report.csv"
       puts "target_file=#{target_file}"
-      open( target_file, 'w' ) do |out|
+      File.open( target_file, 'w' ) do |out|
         out.puts "w_id,fs_id,visibility,depositor,date_uploaded,time_uploaded,label,dupe,file0_nil?,original_checksum,original_size,uri_bytes"
         TaskHelper.all_works.each { |w| report_work( out, w ) }
       end

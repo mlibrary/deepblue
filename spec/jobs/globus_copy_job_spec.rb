@@ -75,15 +75,15 @@ describe GlobusCopyJob, "GlobusJob globus_enabled: :true", globus_enabled: :true
         allow( mailer ).to receive( :deliver_now )
       end
       it "calls globus block." do
-        open( file1.path, 'w' ) { |f| f << "File01" << "\n" }
-        open( file2.path, 'w' ) { |f| f << "File02" << "\n" }
+        File.open( file1.path, 'w' ) { |f| f << "File01" << "\n" }
+        File.open( file2.path, 'w' ) { |f| f << "File02" << "\n" }
         described_class.perform_now( "id321", user_email: user_email )
         # expect( Rails.logger ).to have_received( :debug ).with( 'bogus so we can look at the logger output' )
         file = '/tmp/deepbluedata-globus/prep/.test.error.DeepBlueData_id321'
         if File.exist? file
           puts ">>>>>>>>>>>>>>>>>>"
           puts "Error file exists:"
-          open( file, 'r') { |f| puts f.readlines.join( "\n" ) }
+          File.open( file, 'r') { |f| puts f.readlines.join( "\n" ) }
           puts ">>>>>>>>>>>>>>>>>>"
         end
         expect( Rails.logger ).to have_received( :debug ).with( "#{log_prefix} lock file #{lock_file}" )

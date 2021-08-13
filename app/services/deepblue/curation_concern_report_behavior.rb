@@ -545,7 +545,7 @@ module Deepblue
       out_report << "\n"
 
       @out_report_file = Pathname.new( report_dir ).join "#{prefix}.txt"
-      open( @out_report_file, 'w' ) { |out| out << out_report.string }
+      File.open( @out_report_file, 'w' ) { |out| out << out_report.string }
       c_print "\n"
       c_print "\n"
       c_print out_report.string

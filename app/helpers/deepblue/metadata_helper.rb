@@ -233,7 +233,7 @@ module Deepblue
       target_file = nil
       if out.nil?
         target_file = metadata_filename_collection( dir, collection )
-        open( target_file, 'w' ) do |out2|
+        File.open( target_file, 'w' ) do |out2|
           report_collection( collection, out: out2, depth: depth )
         end
       else
@@ -263,7 +263,7 @@ module Deepblue
       target_file = nil
       if out.nil?
         target_file = metadata_filename_collection_work( dir, collection, work )
-        open( target_file, 'w' ) do |out2|
+        File.open( target_file, 'w' ) do |out2|
           report_collection_work( collection, work, out: out2, depth: depth )
         end
       else
@@ -287,7 +287,7 @@ module Deepblue
       target_file = nil
       if out.nil?
         target_file = metadata_filename_work( dir, work )
-        open( target_file, 'w' ) do |out2|
+        File.open( target_file, 'w' ) do |out2|
           report_work(work, out: out2, depth: depth )
         end
       else
@@ -821,7 +821,7 @@ module Deepblue
         target_file = yaml_filename_collection( pathname_dir: dir, collection: collection )
         target_dir = yaml_targetdir_collection( pathname_dir: dir, collection: collection )
         Dir.mkdir( target_dir ) unless Dir.exist? target_dir
-        open( target_file, 'w' ) do |out2|
+        File.open( target_file, 'w' ) do |out2|
           yaml_populate_collection( collection: collection,
                                     out: out2,
                                     populate_works: populate_works,
@@ -893,7 +893,7 @@ module Deepblue
         target_file = yaml_filename_users( pathname_dir: dir, task: mode )
         # target_dir = yaml_targetdir_users( pathname_dir: dir, task: mode )
         # Dir.mkdir( target_dir ) unless Dir.exist? target_dir
-        open( target_file, 'w' ) do |out2|
+        File.open( target_file, 'w' ) do |out2|
           yaml_populate_users( out: out2, source: source, mode: mode, target_filename: target_file )
         end
       else
@@ -930,7 +930,7 @@ module Deepblue
         target_file = yaml_filename_work( pathname_dir: dir, work: curation_concern )
         target_dir = yaml_targetdir_work( pathname_dir: dir, work: curation_concern )
         Dir.mkdir( target_dir ) unless Dir.exist? target_dir
-        open( target_file, 'w' ) do |out2|
+        File.open( target_file, 'w' ) do |out2|
           yaml_populate_work( curation_concern: curation_concern,
                               out: out2,
                               export_files: export_files,
@@ -991,7 +991,7 @@ module Deepblue
 
     def self.yaml_work_export_files( work:, target_dirname: nil, log_filename: nil, overwrite: true )
       log_file = target_dirname.join ".export.log" if log_filename.nil?
-      open( log_file, 'w' ) { |f| f.write('') } # erase log file
+      File.open( log_file, 'w' ) { |f| f.write('') } # erase log file
       start_time = Time.now
       log_lines( log_file,
                  "Starting yaml work export of files at #{start_time} ...",

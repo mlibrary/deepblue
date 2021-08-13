@@ -49,7 +49,7 @@ class GlobusJob < ::Hyrax::ApplicationJob
     contents = nil
     return contents unless error_file_exists? id
     file = error_file id
-    open( file, 'r' ) { |f| contents = f.readlines }
+    File.open( file, 'r' ) { |f| contents = f.readlines }
     return contents
   end
 
@@ -59,7 +59,7 @@ class GlobusJob < ::Hyrax::ApplicationJob
     if File.exist? error_file
       if write_error_to_log
         msg = nil
-        open( error_file, 'r' ) { |f| msg = f.read; msg.chomp! } # rubocop:disable Style/Semicolon
+        File.open( error_file, 'r' ) { |f| msg = f.read; msg.chomp! } # rubocop:disable Style/Semicolon
         Deepblue::LoggingHelper.debug "#{log_prefix} error file contains: #{msg}" unless quiet
       end
       error_file_exists = true
@@ -85,7 +85,7 @@ class GlobusJob < ::Hyrax::ApplicationJob
     lock_token = era_token
     lock_file = lock_file concern_id
     Deepblue::LoggingHelper.debug "#{log_prefix} writing lock token #{lock_token} to #{lock_file}" unless @globus_job_quiet
-    open( lock_file, 'w' ) { |f| f << lock_token << "\n" }
+    File.pen( lock_file, 'w' ) { |f| f << lock_token << "\n" }
     File.exist? lock_file
   end
 
@@ -106,7 +106,7 @@ class GlobusJob < ::Hyrax::ApplicationJob
 
   def self.read_token( token_file )
     token = nil
-    open( token_file, 'r' ) { |f| token = f.read.chomp! }
+    File.open( token_file, 'r' ) { |f| token = f.read.chomp! }
     return token
   end
 
@@ -209,7 +209,7 @@ class GlobusJob < ::Hyrax::ApplicationJob
     def globus_error( msg )
       file = globus_error_file
       Deepblue::LoggingHelper.debug "#{@globus_log_prefix} writing error message to #{file}" unless @globus_job_quiet
-      open( file, 'w' ) { |f| f << msg << "\n" }
+      File.open( file, 'w' ) { |f| f << msg << "\n" }
       file
     end
 
@@ -306,7 +306,7 @@ class GlobusJob < ::Hyrax::ApplicationJob
     def globus_job_perform_complete
       file = globus_job_complete_file
       timestamp = Time.now.to_s
-      open( file, 'w' ) { |f| f << timestamp << "\n" }
+      File.open( file, 'w' ) { |f| f << timestamp << "\n" }
       globus_error_reset
       Deepblue::LoggingHelper.debug "#{@globus_log_prefix} job complete at #{timestamp}" unless @globus_job_quiet
       return file

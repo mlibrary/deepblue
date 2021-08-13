@@ -11,23 +11,23 @@ module Deepblue
       @@_setup_ran = true
     end
 
-    @@file_content_helper_debug_verbose = false
-    @@read_me_file_set_enabled = true
-    @@read_me_file_set_auto_read_me_attach = true
-    @@read_me_file_set_file_name_regexp = /read[_ ]?me/i
-    @@read_me_file_set_view_max_size = 500.kilobytes
-    @@read_me_file_set_view_mime_types = [ "text/plain", "text/markdown" ].freeze
-    @@read_me_file_set_ext_as_html = [ ".md" ].freeze
-    @@read_me_max_find_file_sets = 40
+    mattr_accessor :file_content_helper_debug_verbose, default: false
+    mattr_accessor :read_me_file_set_enabled, default: true
+    mattr_accessor :read_me_file_set_auto_read_me_attach, default: true
+    mattr_accessor :read_me_file_set_file_name_regexp, default: /read[_ ]?me/i
+    mattr_accessor :read_me_file_set_view_max_size, default: 500.kilobytes
+    mattr_accessor :read_me_file_set_view_mime_types, default: [ "text/plain", "text/markdown" ].freeze
+    mattr_accessor :read_me_file_set_ext_as_html, default: [ ".md" ].freeze
+    mattr_accessor :read_me_max_find_file_sets, default: 40
 
-    mattr_accessor  :file_content_helper_debug_verbose,
-                    :read_me_file_set_enabled,
-                    :read_me_file_set_auto_read_me_attach,
-                    :read_me_file_set_file_name_regexp,
-                    :read_me_file_set_view_max_size,
-                    :read_me_file_set_view_mime_types,
-                    :read_me_file_set_ext_as_html,
-                    :read_me_max_find_file_sets
+    # mattr_accessor  :file_content_helper_debug_verbose,
+    #                 :read_me_file_set_enabled,
+    #                 :read_me_file_set_auto_read_me_attach,
+    #                 :read_me_file_set_file_name_regexp,
+    #                 :read_me_file_set_view_max_size,
+    #                 :read_me_file_set_view_mime_types,
+    #                 :read_me_file_set_ext_as_html,
+    #                 :read_me_max_find_file_sets
 
 
     def self.t( key, **options )
@@ -128,8 +128,8 @@ module Deepblue
                                                ::Deepblue::LoggingHelper.called_from,
                                                "source_uri=#{source_uri}",
                                                "" ] if file_content_helper_debug_verbose
-        str = open( source_uri, "r" ) { |io| io.read }
-        # str = open( source_uri, "r" ) { |io| io.read.encode( "UTF-8",
+        str = URI.open( source_uri, "r" ) { |io| io.read }
+        # str = URI.open( source_uri, "r" ) { |io| io.read.encode( "UTF-8",
         #                                                      invalid: :replace,
         #                                                      undef: :replace,
         #                                                      replace: '?' ) }
@@ -190,7 +190,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "uri=#{uri}",
                                              "" ] if file_content_helper_debug_verbose
-      text = open( uri, "r:UTF-8" ) { |io| io.read }
+      text = URI.open( uri, "r:UTF-8" ) { |io| io.read }
       return text
     end
 
@@ -245,17 +245,17 @@ module Deepblue
         case file_set.mime_type
         when "text/html"
           send_data read_from( uri: source_uri ), disposition: 'inline', type: file_set.mime_type
-          # send_data open( source_uri, "r:UTF-8" ) { |io| io.read }, disposition: 'inline', type: file_set.mime_type
+          # send_data URI.open( source_uri, "r:UTF-8" ) { |io| io.read }, disposition: 'inline', type: file_set.mime_type
         when "text/plain"
           if format == "html"
             send_data read_from( uri: source_uri ), disposition: 'inline', type: "text/html"
-            # send_data open( source_uri, "r:UTF-8" ) { |io| io.read }, disposition: 'inline', type: "text/html"
+            # send_data URI.open( source_uri, "r:UTF-8" ) { |io| io.read }, disposition: 'inline', type: "text/html"
           else
             send_data read_from( uri: source_uri ), disposition: 'inline', type: file_set.mime_type
-            # send_data open( source_uri, "r:UTF-8" ) { |io| io.read }, disposition: 'inline', type: file_set.mime_type
+            # send_data URI.open( source_uri, "r:UTF-8" ) { |io| io.read }, disposition: 'inline', type: file_set.mime_type
           end
         when /^image\//
-          send_data open( source_uri, "rb" ) { |io| io.read }, disposition: 'inline', type: file_set.mime_type
+          send_data URI.open( source_uri, "rb" ) { |io| io.read }, disposition: 'inline', type: file_set.mime_type
         else
           file_content_send_msg "Unhandled mime type for file_set.id #{file_set.id} #{file_set.mime_type}"
         end
