@@ -9,6 +9,15 @@ module Hyrax
 
     include Deepblue::DeepbluePresenterBehavior
 
+    attr_accessor :show_actions_debug_verbose
+    def show_actions_debug_verbose
+      @show_actions_debug_verbose ||= false
+    end
+    attr_accessor :show_actions_bold_puts
+    def show_actions_bold_puts
+      @show_actions_bold_puts ||= false
+    end
+
     delegate :doi,
              :doi_minted?,
              :doi_minting_enabled?,

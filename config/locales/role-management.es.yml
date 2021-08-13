@@ -1,0 +1,28 @@
+es:
+  role-management:
+    index:
+      title: 'Rols'
+      create: 'Crear un nuevo rol'
+    new:
+      field_name: 'Nombre de rol'
+      add: 'Añadir'
+      cancel: 'Cancelar'
+    show:
+      title: 'Rol:'
+      accounts: 'Cuentas:'
+      remove: 'Eliminar Usuario'
+      add_new_account: 'Añadir una cuenta nueva:'
+      user: 'Usuario'
+      add: 'Añadir'
+      cancel: 'Cancelar'
+    edit:
+      title: 'Rol:'
+      field_name: 'Nombre de rol'
+      update: 'Actualizar'
+      accounts: 'Cuentas:'
+      delete: 'Borrar'
+      remove: 'Eliminar Usuario'
+      add_new_account: 'Añadir una cuenta nueva:'
+      user: 'Usuario'
+      add: 'Añadir'
+      cancel: 'Cancelar'

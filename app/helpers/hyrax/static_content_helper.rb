@@ -4,15 +4,14 @@ module Hyrax
 
   module StaticContentHelper
 
-    @@static_content_helper_verbose = false
-    mattr_accessor :static_content_helper_verbose
+    mattr_accessor :static_content_helper_debug_verbose, default: false
 
     def self.static_content_cache_title_id( title:, id: )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "title=#{title}",
                                              "id=#{id}",
-                                             "" ] if static_content_helper_verbose
+                                             "" ] if static_content_helper_debug_verbose
       @@static_content_title_id_cache ||= {}
       @@static_content_title_id_cache[title] = id
     end
@@ -24,7 +23,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "title=#{title}",
                                              "rv=#{rv}",
-                                             "" ] if static_content_helper_verbose
+                                             "" ] if static_content_helper_debug_verbose
       return rv
     end
 
@@ -58,7 +57,7 @@ module Hyrax
                                              "work_title=#{work_title}",
                                              "file_set_title=#{file_set_title}",
                                              "options=#{options}",
-                                             "" ] if static_content_helper_verbose
+                                             "" ] if static_content_helper_debug_verbose
       id = StaticContentHelper.static_content_title_id_cache_get( title: "//#{work_title}//#{file_set_title}//" )
       return static_content_read_file( id: id ) unless id.blank?
       id = StaticContentHelper.static_content_title_id_cache_get( title: work_title )
@@ -76,7 +75,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "work_title=#{work_title}",
                                              "id=#{id}",
-                                             "" ] if static_content_helper_verbose
+                                             "" ] if static_content_helper_debug_verbose
       return ::PersistHelper.find id unless id.blank?
       id = StaticContentHelper.static_content_title_id_cache_get( title: work_title )
       return ::PersistHelper.find id unless id.blank?
@@ -95,7 +94,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "solr_query=#{solr_query}",
-                                             "" ] if static_content_helper_verbose
+                                             "" ] if static_content_helper_debug_verbose
       results = ::ActiveFedora::SolrService.query(solr_query, rows: 10 )
       if results.size > 0
         result = results[0] if results
@@ -111,7 +110,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "file_set=#{id}",
                                              "id=#{id}",
-                                             "" ] if static_content_helper_verbose
+                                             "" ] if static_content_helper_debug_verbose
       file_set = ::PersistHelper.find id unless id.blank?
       return "" if file_set.blank?
       file = file_set.files_to_file
@@ -122,12 +121,12 @@ module Hyrax
             ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                        ::Deepblue::LoggingHelper.called_from,
                                                        "source_uri=#{source_uri}",
-                                                       "" ] if static_content_helper_verbose
+                                                       "" ] if static_content_helper_debug_verbose
             str = open( source_uri, "r:UTF-8" ) { |io| io.read }
             ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                      ::Deepblue::LoggingHelper.called_from,
                                                      "str.encoding=#{str.encoding}",
-                                                     "" ] if static_content_helper_verbose
+                                                     "" ] if static_content_helper_debug_verbose
             str
           end
       return rv
@@ -142,7 +141,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "work_title=#{work_title}",
                                              "file_set_title=#{file_set_title}",
-                                             "" ] if static_content_helper_verbose
+                                             "" ] if static_content_helper_debug_verbose
       return nil unless work
       return nil unless file_set_title
       id = StaticContentHelper.static_content_title_id_cache_get( title: "//#{work_title}//#{file_set_title}//" )
@@ -153,7 +152,7 @@ module Hyrax
                                                ::Deepblue::LoggingHelper.called_from,
                                                "fs.title.join(#{fs.title.join}) ==? file_set_title(#{file_set_title})",
                                                "file_set_title=#{file_set_title}",
-                                               "" ] if static_content_helper_verbose
+                                               "" ] if static_content_helper_debug_verbose
         if fs.title.join == file_set_title
           id = fs.id
           StaticContentHelper.static_content_cache_title_id( title: "//#{work_title}//#{file_set_title}//", id: id )

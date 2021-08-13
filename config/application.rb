@@ -42,6 +42,10 @@ module DeepBlueDocs
     # config.authentication_method = "iu"
     config.authentication_method = "umich"
 
+    # see ::User and UserHelper
+    config.user_role_management_enabled = false
+    config.user_role_management_register_from_role_map = false # set to true load user roles from role_map.yml
+
     config.generators do |g|
       g.test_framework :rspec, spec: true
     end

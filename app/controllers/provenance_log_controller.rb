@@ -4,8 +4,9 @@ require_relative '../services/deepblue/deleted_works_from_log'
 
 class ProvenanceLogController < ApplicationController
 
-  PROVENANCE_LOG_CONTROLLER_DEBUG_VERBOSE = false
+  mattr_accessor :provenance_log_controller_debug_verbose, default: false
 
+  include Hyrax::Admin::UsersControllerBehavior
   include ProvenanceLogControllerBehavior
 
   class_attribute :presenter_class
@@ -25,7 +26,7 @@ class ProvenanceLogController < ApplicationController
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "id=#{id}",
-                                           "" ] if PROVENANCE_LOG_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if provenance_log_controller_debug_verbose
     provenance_log_entries_refresh( id: id ) if id_valid? || id_deleted
     @presenter = presenter_class.new( controller: self )
     render 'provenance_log/provenance_log'
@@ -55,26 +56,26 @@ class ProvenanceLogController < ApplicationController
 
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "" ] if PROVENANCE_LOG_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if provenance_log_controller_debug_verbose
 
     tmp_dir = ENV['TMPDIR'] || "/tmp"
     tmp_dir = Pathname.new tmp_dir
-    Deepblue::LoggingHelper.bold_debug [ "zip_log_download begin", "tmp_dir=#{tmp_dir}" ] if PROVENANCE_LOG_CONTROLLER_DEBUG_VERBOSE
+    Deepblue::LoggingHelper.bold_debug [ "zip_log_download begin", "tmp_dir=#{tmp_dir}" ] if provenance_log_controller_debug_verbose
 
     target_dir = tmp_dir
-    Deepblue::LoggingHelper.bold_debug [ "zip_log_download", "target_dir=#{target_dir}" ] if PROVENANCE_LOG_CONTROLLER_DEBUG_VERBOSE
+    Deepblue::LoggingHelper.bold_debug [ "zip_log_download", "target_dir=#{target_dir}" ] if provenance_log_controller_debug_verbose
     Dir.mkdir( target_dir ) unless Dir.exist?( target_dir )
     base_file_name = "provenance_#{Rails.env}.log"
     src_file_name = Pathname.new Rails.root.join( 'log', base_file_name )
     target_zipfile = target_dir.join "#{base_file_name}.zip"
-    Deepblue::LoggingHelper.bold_debug [ "zip_log_download", "target_zipfile=#{target_zipfile}" ] if PROVENANCE_LOG_CONTROLLER_DEBUG_VERBOSE
+    Deepblue::LoggingHelper.bold_debug [ "zip_log_download", "target_zipfile=#{target_zipfile}" ] if provenance_log_controller_debug_verbose
     File.delete target_zipfile if File.exist? target_zipfile
     Deepblue::LoggingHelper.debug "Download Zip begin copy to folder #{target_dir}"
-    Deepblue::LoggingHelper.bold_debug [ "zip_log_download", "begin zip of src_file_name=#{src_file_name}" ] if PROVENANCE_LOG_CONTROLLER_DEBUG_VERBOSE
+    Deepblue::LoggingHelper.bold_debug [ "zip_log_download", "begin zip of src_file_name=#{src_file_name}" ] if provenance_log_controller_debug_verbose
     Zip::File.open( target_zipfile.to_s, Zip::File::CREATE ) do |zipfile|
       zipfile.add( base_file_name, src_file_name )
     end
-    Deepblue::LoggingHelper.bold_debug [ "zip_log_download", "download complete target_dir=#{target_dir}" ] if PROVENANCE_LOG_CONTROLLER_DEBUG_VERBOSE
+    Deepblue::LoggingHelper.bold_debug [ "zip_log_download", "download complete target_dir=#{target_dir}" ] if provenance_log_controller_debug_verbose
     send_file target_zipfile.to_s
   end
 
@@ -90,7 +91,7 @@ class ProvenanceLogController < ApplicationController
                                            ::Deepblue::LoggingHelper.called_from,
                                            "find_id=#{find_id}",
                                            "id=#{id}",
-                                           "" ] if PROVENANCE_LOG_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if provenance_log_controller_debug_verbose
     provenance_log_entries_refresh( id: id ) if id_valid? || id_deleted
     @presenter = presenter_class.new( controller: self )
     render 'provenance_log/provenance_log'
@@ -100,7 +101,7 @@ class ProvenanceLogController < ApplicationController
     raise CanCan::AccessDenied unless current_ability.admin?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "" ] if PROVENANCE_LOG_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if provenance_log_controller_debug_verbose
     runner = ::Deepblue::DeletedWorksFromLog.new( input: ::Deepblue::ProvenanceLogService.provenance_log_path )
     runner.run
     @deleted_ids = runner.deleted_ids
@@ -109,7 +110,7 @@ class ProvenanceLogController < ApplicationController
     #                                        ::Deepblue::LoggingHelper.called_from,
     #                                        "deleted_ids=#{deleted_ids}",
     #                                        "deleted_id_to_key_values_map=#{deleted_id_to_key_values_map}",
-    #                                        "" ] if PROVENANCE_LOG_CONTROLLER_DEBUG_VERBOSE
+    #                                        "" ] if provenance_log_controller_debug_verbose
     @presenter = presenter_class.new( controller: self )
     render 'provenance_log/provenance_log'
   end

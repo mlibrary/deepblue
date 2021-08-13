@@ -26,6 +26,10 @@ class ServerAfterInitializeService
     return if server_after_initialize_ran || server_after_initialize_failed
 
     puts "Begin server_after_initialize_callback..." if debug_verbose
+
+    ::Hyrax::UserHelper.ensure_hyrax_roles_registered( from_initializer: true ) unless Rails.env.test?
+    ::Hyrax::UserHelper.ensure_role_map_registered( from_initializer: true ) unless Rails.env.test?
+
     # puts if debug_verbose
     # http://railscasts.com/episodes/256-i18n-backends?view=asciicast
     I18n.backend = I18n::Backend::Chain.new( config.key_value_backend, I18n.backend )

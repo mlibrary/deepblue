@@ -1,0 +1,17 @@
+<h2><%= t('role-management.show.title') %> <%= @role.name %></h2>
+<h3><% t('role-management.show.accounts') %></h3>
+<ul>
+  <% @role.users.each do |user| %>
+    <li><%= user.user_key %>
+      <% if can? :remove_user, Role %>
+        <%= button_to t('role-management.show.remove'), role_management.role_user_path(@role, user), :method=>:delete, :class=>'btn btn-danger' %>
+      <% end %>
+    </li>
+  <% end %>
+</ul>
+<h3><%= t('role-management.show.add_new_account') %></h3>
+<%= bootstrap_form_tag url: role_management.role_users_path(@role) do |f| %>
+    <%= f.text_field 'user_key', :label=>t('role-management.show.user') %>
+    <%= f.submit t('role-management.show.add') %>
+    <%= link_to t('role-management.show.cancel'), role_management.roles_path, :class => 'btn btn-default' %>
+<% end %>

@@ -10,6 +10,16 @@ module Hyrax
     include ActionView::Helpers::NumberHelper
     include ::Hyrax::BrandingHelper
     include ActionView::Helpers::TagHelper
+
+    attr_accessor :show_actions_debug_verbose
+    def show_actions_debug_verbose
+      @show_actions_debug_verbose ||= false
+    end
+    attr_accessor :show_actions_bold_puts
+    def show_actions_bold_puts
+      @show_actions_bold_puts ||= false
+    end
+
     attr_accessor :solr_document, :current_ability, :request
     attr_reader :subcollection_count
     attr_accessor :parent_collections # This is expected to be a Blacklight::Solr::Response with all of the parent collections

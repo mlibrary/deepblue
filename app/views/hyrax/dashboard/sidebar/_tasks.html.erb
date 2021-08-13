@@ -47,6 +47,13 @@
       <span class="sidebar-action-text"><%= t('hyrax.admin.sidebar.manage_reports') %></span>
     <% end %>
 
+    <% if Rails.configuration.user_role_management_enabled %>
+      <%= menu.nav_link(role_management.roles_path) do %>
+        <span class="fa fa-flag" aria-hidden="true"></span>
+        <span class="sidebar-action-text"><%= t('hyrax.admin.sidebar.manage_roles') %></span>
+      <% end %>
+    <% end %>
+
     <%= menu.nav_link(main_app.scheduler_dashboard_path) do %>
       <span class="fa fa-flag" aria-hidden="true"></span>
       <span class="sidebar-action-text"><%= t('hyrax.admin.sidebar.scheduler') %></span>

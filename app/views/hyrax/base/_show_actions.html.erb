@@ -1,7 +1,8 @@
 <div class="show-actions">
   <% if @presenter.tombstone.blank? %>
 
-    <% show_actions_DEBUG_VERBOSE = true %>
+    <% show_actions_DEBUG_VERBOSE = @presenter&.show_actions_debug_verbose %>
+    <% show_actions_BOLD_PUTS = @presenter&.show_actions_bold_puts %>
 
     <div class="panel panel-default panel-download">
       <div class="panel-heading">
@@ -14,14 +15,14 @@
                                                      ::Deepblue::LoggingHelper.called_from,
                                                      "@presenter.class.name=#{@presenter.class.name}",
                                                      "@presenter&.id=#{@presenter&.id}",
-                                                     ""] if show_actions_DEBUG_VERBOSE %>
+                                                     ""], bold_puts: show_actions_BOLD_PUTS if show_actions_DEBUG_VERBOSE %>
             <% zip_download_url = @presenter.zip_download_link( main_app: main_app, curation_concern: curation_concern )
 
                ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
                                                      ::Deepblue::LoggingHelper.called_from,
                                                      "zip_download_url=#{zip_download_url}",
                                                      "@presenter.can_download_zip_confirm?=#{@presenter.can_download_zip_confirm?}",
-                                                     "" ] if show_actions_DEBUG_VERBOSE
+                                                     "" ], bold_puts: show_actions_BOLD_PUTS if show_actions_DEBUG_VERBOSE
 
             %>
             <%= form_tag( zip_download_url, method: 'post' ) do %>
@@ -50,7 +51,7 @@
                                                    "@presenter.can_download_using_globus_maybe?=#{@presenter.can_download_using_globus_maybe?}",
                                                    "@presenter.globus_files_available?=#{@presenter.globus_files_available?}",
                                                    "@presenter.globus_files_prepping?=#{@presenter.globus_files_prepping?}",
-                                                   ""] if show_actions_DEBUG_VERBOSE %>
+                                                   ""], bold_puts: show_actions_BOLD_PUTS if show_actions_DEBUG_VERBOSE %>
           <% if @presenter.can_download_using_globus_maybe? %>
             <%= form_tag( main_app.globus_download_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
               <%= hidden_field_tag('data_set[nop]') %>
