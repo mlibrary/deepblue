@@ -85,7 +85,7 @@ class GlobusJob < ::Hyrax::ApplicationJob
     lock_token = era_token
     lock_file = lock_file concern_id
     Deepblue::LoggingHelper.debug "#{log_prefix} writing lock token #{lock_token} to #{lock_file}" unless @globus_job_quiet
-    File.pen( lock_file, 'w' ) { |f| f << lock_token << "\n" }
+    File.open( lock_file, 'w' ) { |f| f << lock_token << "\n" }
     File.exist? lock_file
   end
 
