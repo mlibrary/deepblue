@@ -93,12 +93,8 @@ Rails.application.routes.draw do
 
   if Rails.configuration.authentication_method == "umich"
     devise_for :users, path: '', path_names: {sign_in: 'login', sign_out: 'logout'}, controllers: {sessions: 'sessions'}
-    # mount Hydra::RoleManagement::Engine => '/'
-
   elsif Rails.configuration.authentication_method == "iu"
     devise_for :users, controllers: { sessions: 'users/sessions', omniauth_callbacks: "users/omniauth_callbacks" }, skip: [:passwords, :registration]
-    # mount Hydra::RoleManagement::Engine => '/'
-
     devise_scope :user do
       get('global_sign_out',
           to: 'users/sessions#global_logout',
@@ -108,9 +104,8 @@ Rails.application.routes.draw do
     end
   else
     devise_for :users
-    # mount Hydra::RoleManagement::Engine => '/'
-
   end
+  mount Hydra::RoleManagement::Engine => '/'
 
   get '/logout_now', to: 'sessions#logout_now'
 

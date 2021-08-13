@@ -16,6 +16,15 @@ module Hyrax
     include ::Deepblue::TotalFileSizePresenterBehavior
     include ::Deepblue::ZipDownloadPresenterBehavior
 
+    attr_accessor :show_actions_debug_verbose
+    def show_actions_debug_verbose
+      @show_actions_debug_verbose ||= false
+    end
+    attr_accessor :show_actions_bold_puts
+    def show_actions_bold_puts
+      @show_actions_bold_puts ||= false
+    end
+
     attr_accessor :solr_document, :current_ability, :request
 
     class_attribute :collection_presenter_class
@@ -245,12 +254,13 @@ module Hyrax
     end
 
     def can_download_using_globus_maybe?
+      debug_verbose = work_show_presenter_debug_verbose || show_actions_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "false unless globus_enabled?=#{globus_enabled?}",
+                                             "self.class.name=#{self.class.name}",
                                              "false unless globus_enabled?=#{globus_enabled?}",
                                              "true if can_download_zip_maybe?=#{can_download_zip_maybe?}",
-                                             "" ] if work_show_presenter_debug_verbose
+                                             "" ], bold_puts: show_actions_bold_puts if debug_verbose
       return false unless globus_enabled?
       can_download_zip_maybe?
     end

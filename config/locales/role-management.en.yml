@@ -1,0 +1,28 @@
+en:
+  role-management:
+    index:
+      title: 'Role Management'
+      create: 'Create a new role'
+    new:
+      field_name: 'Role name'
+      add: 'Add'
+      cancel: 'Cancel'
+    show:
+      title: 'Role:'
+      accounts: 'Accounts:'
+      remove: 'Remove User'
+      add_new_account: 'Add a new account:'
+      user: 'User'
+      add: 'Add'
+      cancel: 'Cancel'
+    edit:
+      title: 'Role:'
+      field_name: 'Role name'
+      update: 'Update'
+      accounts: 'Accounts:'
+      delete: 'Delete'
+      remove: 'Remove User'
+      add_new_account: 'Add a new account:'
+      user: 'User'
+      add: 'Add'
+      cancel: 'Cancel'

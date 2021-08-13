@@ -46,10 +46,13 @@ class Ability
     #   can [:create], ActiveFedora::Base
     # end
 
-    # if current_user.admin? || true # for the first time to setup 'admin' role and yourself
-    # if current_user.admin?
-    #   can [:create, :show, :add_user, :remove_user, :index, :edit, :update, :destroy], Role
-    # end
+    if Rails.configuration.user_role_management_enabled
+      # if current_user.admin? || true # for the first time to setup 'admin' role and yourself, but not necessary now
+      # with the UserHelper.ensure_role_map_registered
+      if current_user.admin?
+        can [:create, :show, :add_user, :remove_user, :index, :edit, :update, :destroy], Role
+      end
+    end
 
   end
 

@@ -1,7 +1,7 @@
 
 module Hyrax::FileSetHelper
 
-  FILE_SET_HELPER_DEBUG_VERBOSE = false
+  mattr_accessor :file_set_helper_debug_verbose, default: false
 
   def parent_path(parent)
     if parent.is_a?(Collection)
@@ -17,7 +17,7 @@ module Hyrax::FileSetHelper
                                           "file_set.class.name=#{file_set.class.name}",
                                           "presenter.class.name=#{presenter.class.name}",
                                           "locals.keys=#{locals.keys}",
-                                          ""] if FILE_SET_HELPER_DEBUG_VERBOSE
+                                          ""] if file_set_helper_debug_verbose
     # file_set = ::SolrDocument.find( file_set.id ) if file_set.is_a? FileSet
     partial = media_display_partial( file_set )
     presenter = to_ds_file_set_presenter( file_set, current_ability ) if presenter.blank?
@@ -28,7 +28,7 @@ module Hyrax::FileSetHelper
                                           "presenter.class.name=#{presenter.class.name}",
                                           "locals.keys=#{locals.keys}",
                                           "partial=#{partial}",
-                                          ""] if FILE_SET_HELPER_DEBUG_VERBOSE
+                                          ""] if file_set_helper_debug_verbose
     render partial, locals
   end
 

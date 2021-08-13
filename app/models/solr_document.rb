@@ -2,7 +2,8 @@
 
 class SolrDocument
 
-  SOLR_DOCUMENT_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.solr_document_debug_verbose
+  mattr_accessor :solr_document_debug_verbose,
+                 default: ::DeepBlueDocs::Application.config.solr_document_debug_verbose
 
   include Blacklight::Solr::Document
   include BlacklightOaiProvider::SolrDocument
@@ -60,10 +61,10 @@ class SolrDocument
 
   def model_property_names_browse
     model_name = self['has_model_ssim'].first
-    ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
-                                            Deepblue::LoggingHelper.called_from,
+    ::Deepblue::LoggingHelper.bold_debug( [ ::Deepblue::LoggingHelper.here,
+                                            ::Deepblue::LoggingHelper.called_from,
                                             "model_name=#{model_name}",
-                                            "" ] ) if SOLR_DOCUMENT_DEBUG_VERBOSE
+                                            "" ] ) if solr_document_debug_verbose
     rv = case model_name
          when 'Collection'
            Collection.metadata_keys_browse
@@ -74,10 +75,10 @@ class SolrDocument
          else
            []
          end
-    ::Deepblue::LoggingHelper.bold_debug( [ Deepblue::LoggingHelper.here,
-                                            Deepblue::LoggingHelper.called_from,
+    ::Deepblue::LoggingHelper.bold_debug( [ ::Deepblue::LoggingHelper.here,
+                                            ::Deepblue::LoggingHelper.called_from,
                                             "rv=#{rv}",
-                                            "" ] ) if SOLR_DOCUMENT_DEBUG_VERBOSE
+                                            "" ] ) if solr_document_debug_verbose
     return rv
   end
 

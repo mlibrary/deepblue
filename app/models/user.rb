@@ -1,12 +1,17 @@
 # frozen_string_literal: true
 
 class User < ApplicationRecord
+
+  mattr_accessor :user_debug_verbose, default: false
+
   # Connects this user object to Hydra behaviors.
   include Hydra::User
 
   # Connects this user object to Role-management behaviors.
   # include Hydra::RoleManagement::UserRoles
 
+  # Connects this user object to Role-management behaviors.
+  include Hydra::RoleManagement::UserRoles if Rails.configuration.user_role_management_enabled
 
   # Connects this user object to Hyrax behaviors.
   include Hyrax::User

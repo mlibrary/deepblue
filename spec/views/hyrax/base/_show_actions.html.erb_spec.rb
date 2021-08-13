@@ -19,7 +19,15 @@ RSpec.describe 'hyrax/base/_show_actions.html.erb', type: :view do
     assign( :curation_concern, curation_concern )
     presenter.controller = data_set_controller
     # member.controller = controller
+    # puts "::Deepblue::GlobusIntegrationService.globus_download_dir=#{::Deepblue::GlobusIntegrationService.globus_download_dir}"
+    # puts "Dir.exist?( ::Deepblue::GlobusIntegrationService.globus_download_dir )=#{Dir.exist?( ::Deepblue::GlobusIntegrationService.globus_download_dir )}"
+    # puts "::Deepblue::GlobusIntegrationService.globus_prep_dir=#{::Deepblue::GlobusIntegrationService.globus_prep_dir}"
+    # puts "Dir.exist?( ::Deepblue::GlobusIntegrationService.globus_prep_dir )=#{Dir.exist?( ::Deepblue::GlobusIntegrationService.globus_prep_dir )}"
+    # puts "Dir.exist?( ::Deepblue::GlobusIntegrationService.globus_download_dir ) && Dir.exist?( ::Deepblue::GlobusIntegrationService.globus_prep_dir )=#{Dir.exist?( ::Deepblue::GlobusIntegrationService.globus_download_dir ) && Dir.exist?( ::Deepblue::GlobusIntegrationService.globus_prep_dir )}"
+    # puts "::Deepblue::GlobusIntegrationService.globus_enabled=#{::Deepblue::GlobusIntegrationService.globus_enabled}"
+    allow(presenter).to receive(:globus_enabled?).and_return true # why are we forced to do this here?
     allow(presenter).to receive(:analytics_subscribed?).and_return false
+    allow(presenter).to receive(:globus_files_prepping?).and_return false
     allow(view).to receive(:current_user).and_return true
   end
 

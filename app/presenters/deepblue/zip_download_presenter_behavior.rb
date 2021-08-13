@@ -21,6 +21,7 @@ module Deepblue
     end
 
     def can_download_zip_maybe?
+      debug_verbose = zip_download_presenter_behavior_debug_verbose || show_actions_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false unless zip_download_enabled?=#{zip_download_enabled?}",
@@ -28,7 +29,7 @@ module Deepblue
                                              "true if can_edit_work?=#{can_edit_work?}",
                                              "false if embargoed?=#{embargoed?}",
                                              "else true",
-                                             "" ] if zip_download_presenter_behavior_debug_verbose
+                                             "" ], bold_puts: show_actions_bold_puts if debug_verbose
       return false unless zip_download_enabled?
       return true if anonymous_show?
       return true if can_edit_work?

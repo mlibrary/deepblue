@@ -1,0 +1,6 @@
+<%= bootstrap_form_for @role, :url=>role_management.roles_path do |f| %>
+  <%= f.text_field :name, :label=> t('role-management.new.field_name') %>
+  <%= f.submit t('role-management.new.add') %>
+  <%= link_to t('role-management.new.cancel'), role_management.roles_path, :class => 'btn btn-default' %>
+<% end %>
+
