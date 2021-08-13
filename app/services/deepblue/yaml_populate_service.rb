@@ -351,7 +351,7 @@ module Deepblue
         target_file = yaml_filename_collection( pathname_dir: dir, collection: collection )
         target_dir = yaml_targetdir_collection( pathname_dir: dir, collection: collection )
         Dir.mkdir( target_dir ) if export_files && !Dir.exist?( target_dir )
-        open( target_file, 'w' ) do |out2|
+        File.open( target_file, 'w' ) do |out2|
           yaml_populate_collection( collection: collection,
                                     out: out2,
                                     populate_works: populate_works,
@@ -420,7 +420,7 @@ module Deepblue
       Dir.mkdir( dir ) unless Dir.exist? dir
       if out.nil?
         target_file = yaml_filename_users( pathname_dir: dir, task: mode )
-        open( target_file, 'w' ) do |out2|
+        File.open( target_file, 'w' ) do |out2|
           yaml_populate_users( out: out2, target_filename: target_file )
         end
       else
@@ -454,7 +454,7 @@ module Deepblue
         target_file = yaml_filename_work( pathname_dir: dir, work: curation_concern )
         target_dir = yaml_targetdir_work( pathname_dir: dir, work: curation_concern )
         Dir.mkdir( target_dir ) if export_files && !Dir.exist?( target_dir )
-        open( target_file, 'w' ) do |out2|
+        File.open( target_file, 'w' ) do |out2|
           yaml_populate_work( curation_concern: curation_concern,
                               out: out2,
                               export_files: export_files,
@@ -508,7 +508,7 @@ module Deepblue
 
     def yaml_work_export_files( work:, target_dirname: nil, log_filename: nil )
       log_file = target_dirname.join ".export.log" if log_filename.nil?
-      open( log_file, 'w' ) { |f| f.write('') } # erase log file
+      File.open( log_file, 'w' ) { |f| f.write('') } # erase log file
       start_time = Time.now
       log_lines( log_file,
                  "Starting yaml work export of files at #{start_time} ...",
@@ -539,7 +539,7 @@ module Deepblue
           elsif write_file && file.nil? && export_file_name.present?
             if create_zero_length_files
               log_lines( log_file, "File export of file_set #{file_set.id} -- #{export_what} at #{Time.now} creating zero length file because file is nil." )
-              open( export_file_name, 'w' ) { |out| out.write( '' ) }
+              File.open( export_file_name, 'w' ) { |out| out.write( '' ) }
             else
               log_lines( log_file, "WARNING: Skipping file export of file_set #{file_set.id} -- #{export_what} at #{Time.now} because file is nil." )
             end

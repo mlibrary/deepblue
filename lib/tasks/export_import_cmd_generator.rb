@@ -119,7 +119,7 @@ module Deepblue
     def print_all_scripts
       @script_name = Pathname.new @target_script_dir
       @script_name = @script_name.join "#{@tstr}.#{@cmd_mode}.sh"
-      open( script_name, 'w' ) do |out|
+      File.open( script_name, 'w' ) do |out|
         out << "mkdir #{@target_dir}\n" if @cmd_mode == 'export'
         file_count = 0
         file_size = 0

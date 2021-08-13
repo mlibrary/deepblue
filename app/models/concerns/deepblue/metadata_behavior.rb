@@ -136,7 +136,7 @@ module Deepblue
                                                 filename_pre: filename_pre,
                                                 filename_post: filename_post,
                                                 filename_ext: filename_ext )
-        open( target_file, 'w' ) do |out2|
+        File.open( target_file, 'w' ) do |out2|
           metadata_report( out: out2, depth: depth )
         end
         return target_file

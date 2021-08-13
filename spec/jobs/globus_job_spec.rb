@@ -135,7 +135,7 @@ describe GlobusJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do 
     let( :error_msg ) { "An error message." }
     before do
       allow( job ).to receive( :globus_error_file ).and_return( error_file_tmp.path )
-      open( error_file_tmp.path, 'w' ) { |f| f << error_msg << "\n" }
+      File.open( error_file_tmp.path, 'w' ) { |f| f << error_msg << "\n" }
       msg = "Globus:  writing error message to #{error_file_tmp.path}"
       allow( Rails.logger ).to receive( :debug ).with( msg )
     end
@@ -145,7 +145,7 @@ describe GlobusJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do 
     it "writes out the error" do
       expect( job.send( :globus_error, error_msg ) ).to eq( error_file_tmp.path )
       file_contents = nil
-      open( error_file_tmp.path, 'r' ) { |f| file_contents = f.read.chomp! }
+      File.open( error_file_tmp.path, 'r' ) { |f| file_contents = f.read.chomp! }
       expect( file_contents ).to eq( error_msg )
     end
   end
@@ -167,7 +167,7 @@ describe GlobusJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do 
       before do
         allow( job2 ).to receive( :globus_error_file ).and_return( error_file_tmp.path )
         allow( GlobusJob ).to receive( :error_file ).and_return( error_file_tmp.path )
-        open( error_file_tmp.path, 'w' ) { |f| f << error_msg << "\n" }
+        File.open( error_file_tmp.path, 'w' ) { |f| f << error_msg << "\n" }
         allow( Rails.logger ).to receive( :debug ).with( "Globus:  error file contains: #{error_msg}" )
       end
       after do
@@ -226,7 +226,7 @@ describe GlobusJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do 
       expect( job.send( :globus_job_perform_complete ) ).to eq(complete_file_tmp.path )
       after = Time.now.round(0) + 1.second
       file_contents = nil
-      open( complete_file_tmp.path, 'r' ) { |f| file_contents = f.read.chomp! }
+      File.open( complete_file_tmp.path, 'r' ) { |f| file_contents = f.read.chomp! }
       between = Time.parse file_contents
       expect( between ).to be_between( before, after )
     end
@@ -346,7 +346,7 @@ describe GlobusJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do 
     it "creates a lock file with the current token in it." do
       expect( job.send( :globus_lock ) ).to eq( true )
       file_lock_token = nil
-      open( lock_file_tmp.path, 'r' ) { |f| file_lock_token = f.read.chomp! }
+      File.open( lock_file_tmp.path, 'r' ) { |f| file_lock_token = f.read.chomp! }
       expect( file_lock_token ).to eq( current_token )
     end
   end
@@ -379,7 +379,7 @@ describe GlobusJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do 
       before do
         allow( GlobusJob ).to receive( :error_file_exists? ).and_return( false )
         allow( GlobusJob ).to receive( :lock_file ).and_return( lock_file_tmp.path )
-        open( lock_file_tmp.path, 'w' ) { |f| f << lock_token << "\n" }
+        File.open( lock_file_tmp.path, 'w' ) { |f| f << lock_token << "\n" }
         log_msg = "Globus:  testing token from #{lock_file_tmp.path}: current_token: #{current_token} == lock_token: #{lock_token}: false"
         allow( Rails.logger ).to receive( :debug ).with( log_msg )
       end
@@ -398,7 +398,7 @@ describe GlobusJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do 
       before do
         allow( GlobusJob ).to receive( :error_file_exists? ).and_return( false )
         allow( GlobusJob ).to receive( :lock_file ).and_return(lock_file_tmp.path )
-        open( lock_file_tmp.path, 'w' ) { |f| f << lock_token << "\n" }
+        File.open( lock_file_tmp.path, 'w' ) { |f| f << lock_token << "\n" }
         log_msg = "Globus:  testing token from #{lock_file_tmp.path}: current_token: #{current_token} == lock_token: #{lock_token}: true"
         allow( Rails.logger ).to receive( :debug ).with( log_msg )
       end

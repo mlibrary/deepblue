@@ -2,8 +2,7 @@
 
 class ReportDashboardController < ApplicationController
 
-  mattr_accessor :report_dashboard_controller_debug_verbose
-  @@report_dashboard_controller_debug_verbose = false
+  mattr_accessor :report_dashboard_controller_debug_verbose, default: false
 
   include ActiveSupport::Concern
   include Blacklight::Base
@@ -66,7 +65,7 @@ class ReportDashboardController < ApplicationController
     return redirect_to( report_dashboard_path, alert: "No report script file path specfied." ) unless report_file_path.present?
     return redirect_to( report_dashboard_path, alert: "#{report_file_path} not found." ) unless File.exists? report_file_path
     rv = []
-    open( report_file_path, "r" ) { |f| rv = f.readlines }
+    File.open( report_file_path, "r" ) { |f| rv = f.readlines }
     @edit_report_textarea = rv.join("")
     show_render
   end

@@ -58,7 +58,7 @@ class GlobusCopyJob < GlobusJob
   def globus_copy_job_email_add( email = nil )
     email_file = globus_copy_job_email_file
     Deepblue::LoggingHelper.debug "#{@globus_log_prefix} globus_copy_job_email_add #{email} to #{email_file}" unless @globus_job_quiet
-    open( email_file, 'a' ) do |file|
+    File.open( email_file, 'a' ) do |file|
       globus_file_lock( file ) do |out|
         out << if email.nil?
                  ''
@@ -122,7 +122,7 @@ class GlobusCopyJob < GlobusJob
       Deepblue::LoggingHelper.debug "#{@globus_log_prefix} globus_copy_job_emails email_file=#{email_file}" unless @globus_job_quiet
       if File.exist? email_file
         # read the file, one email address per line
-        open( email_file, 'r' ) do |file|
+        File.open( email_file, 'r' ) do |file|
           globus_file_lock( file, mode: File::LOCK_SH ) do |fin|
             until fin.eof?
               line = fin.readline

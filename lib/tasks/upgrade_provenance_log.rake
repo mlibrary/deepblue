@@ -160,7 +160,7 @@ module Deepblue
 
     def report_results( to_this: nil )
       if to_this.nil?
-        open( @report_file, "w" ) { |fout| report_results( to_this: fout ) }
+        File.open( @report_file, "w" ) { |fout| report_results( to_this: fout ) }
         return
       end
       to_this.puts
@@ -199,12 +199,12 @@ module Deepblue
       @records_to_inspect_count = 0
       @record_values_to_inspect = []
       begin
-        @output_log = open( @output_file, @output_mode )
+        @output_log = File.open( @output_file, @output_mode )
         @input_line_buffer = nil
         @input_line_buffer_start_line_number = nil
         @input_line_number = 0
         @output_record = nil
-        open( @input_file, "r" ) do |fin|
+        File.open( @input_file, "r" ) do |fin|
           until fin.eof?
             pacifier.pacify
             read_input_line fin

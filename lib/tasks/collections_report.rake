@@ -51,9 +51,9 @@ module Deepblue
         @collections_file = Pathname.new( report_dir ).join "#{prefix}_collections.csv"
         @works_file = Pathname.new( report_dir ).join "#{prefix}_works.csv"
         @file_sets_file = Pathname.new( report_dir ).join "#{prefix}_file_sets.csv"
-        @out_collections = open( collections_file, 'w' )
-        @out_works = open( works_file, 'w' )
-        @out_file_sets = open( file_sets_file, 'w' )
+        @out_collections = File.open( collections_file, 'w' )
+        @out_works = File.open( works_file, 'w' )
+        @out_file_sets = File.open( file_sets_file, 'w' )
 
         print_collection_line( out_collections, header: true )
         print_work_line( out_works, header: true )

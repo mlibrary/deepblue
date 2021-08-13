@@ -117,7 +117,7 @@ module Deepblue
     def self.uptime_loadtime_of( program_name: )
       file_of = uptime_timestamp_file_path( program_name: program_name )
       return nil unless File.exist? file_of
-      file_contents = open( file_of, 'r' ) { |f| file_contents = f.readlines }
+      file_contents = File.open( file_of, 'r' ) { |f| file_contents = f.readlines }
       # puts file_contents if uptime_service_debug_verbose
       return nil if file_contents.empty?
       line = file_contents.first
@@ -146,7 +146,7 @@ module Deepblue
       # puts "uptime_timestamp_file_write after one entry test" if uptime_service_debug_verbose
       uptime_file = uptime_timestamp_file_path_self
       # puts "uptime_timestamp_file_write #{uptime_file}" if uptime_service_debug_verbose
-      open( uptime_file, 'w' ) { |f| f << program_load_timestamp.to_s }
+      File.open( uptime_file, 'w' ) { |f| f << program_load_timestamp.to_s }
       # puts "File.exist? uptime_file #{File.exist?(uptime_file)}"
       File.exist? uptime_file
     rescue Exception => e # rubocop:disable Lint/RescueException
@@ -172,7 +172,7 @@ module Deepblue
 
     def self.uptime_timestamp_from_file( file: )
       return nil unless File.exist? file
-      file_contents = open( file, 'r' ) { |f| file_contents = f.readlines }
+      file_contents = File.open( file, 'r' ) { |f| file_contents = f.readlines }
       # puts file_contents if uptime_service_debug_verbose
       return nil if file_contents.empty?
       line = file_contents.first

@@ -40,7 +40,7 @@ begin
   if gemfile_verbose
     config_file = File.join( current_path, '.bundle', 'config')
     line = "Bundle config path: #{config_file}";(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
-    contents = open( config_file, "r" ) { |io| io.read };(puts contents if gemfile_verbose;exit_log_lines << contents unless exit_log_lines.nil?)
+    contents = File.open( config_file, "r" ) { |io| io.read };(puts contents if gemfile_verbose;exit_log_lines << contents unless exit_log_lines.nil?)
   end
   if !gemfile_bundle_config.nil?
     line = "Running bundle config: #{gemfile_bundle_config}";(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)

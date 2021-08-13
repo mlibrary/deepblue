@@ -5,8 +5,7 @@ module Deepblue
   module StaticContentControllerBehavior
     include Deepblue::WorkViewContentService
 
-    mattr_accessor :static_content_cache
-    @@static_content_cache = {}
+    mattr_accessor :static_content_cache, default: {}
 
     mattr_accessor :static_content_controller_behavior_verbose,
                    default: ::Deepblue::WorkViewContentService.static_content_controller_behavior_verbose
@@ -434,7 +433,7 @@ module Deepblue
     end
 
     def static_content_read_file_from_source(source)
-      open( source, "r:UTF-8" ) { |io| io.read }
+      URI.open( source, "r:UTF-8" ) { |io| io.read }
     end
 
     def static_content_read_file( file_set: nil, id: nil )
@@ -515,17 +514,17 @@ module Deepblue
           case file_set.mime_type
           when "text/html"
             send_data static_read_text_from( uri: source_uri ), disposition: 'inline', type: file_set.mime_type
-            # send_data open( source_uri, "r:UTF-8" ) { |io| io.read }, disposition: 'inline', type: file_set.mime_type
+            # send_data URI.open( source_uri, "r:UTF-8" ) { |io| io.read }, disposition: 'inline', type: file_set.mime_type
           when "text/plain"
             if format == "html"
               send_data static_read_text_from( uri: source_uri ), disposition: 'inline', type: "text/html"
-              # send_data open( source_uri, "r:UTF-8" ) { |io| io.read }, disposition: 'inline', type: "text/html"
+              # send_data URI.open( source_uri, "r:UTF-8" ) { |io| io.read }, disposition: 'inline', type: "text/html"
             else
               send_data static_read_text_from( uri: source_uri ), disposition: 'inline', type: file_set.mime_type
-              # send_data open( source_uri, "r:UTF-8" ) { |io| io.read }, disposition: 'inline', type: file_set.mime_type
+              # send_data URI.open( source_uri, "r:UTF-8" ) { |io| io.read }, disposition: 'inline', type: file_set.mime_type
             end
           when /^image\//
-            send_data open( source_uri, "rb" ) { |io| io.read }, disposition: 'inline', type: file_set.mime_type
+            send_data URI.open( source_uri, "rb" ) { |io| io.read }, disposition: 'inline', type: file_set.mime_type
           else
             static_content_send_msg "Unhandled mime type for file_set.id #{file_set.id} #{file_set.mime_type}"
           end

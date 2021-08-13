@@ -73,7 +73,7 @@ module Deepblue
         # puts "@output_pathname=#{@output_pathname}"
         # return if @output_pathname.blank? # TODO: why doesn't this work
         # puts "output_mode=#{output_mode}"
-        @output = open( @output_pathname, output_mode )
+        @output = File.open( @output_pathname, output_mode )
         @output_close = true
       end
 

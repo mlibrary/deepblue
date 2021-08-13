@@ -70,7 +70,7 @@
 #port = 389
 #@ldap = Net::LDAP.new :host => host, :port => port #, :auth => :anonymous
 #
-#fout = open( output_file, "w" )
+#fout = File.open( output_file, "w" )
 #File.readlines(input_file).each do |line|
 #  # puts line
 #  csv_line = CSV.parse line

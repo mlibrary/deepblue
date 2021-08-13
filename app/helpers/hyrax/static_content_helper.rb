@@ -122,7 +122,7 @@ module Hyrax
                                                        ::Deepblue::LoggingHelper.called_from,
                                                        "source_uri=#{source_uri}",
                                                        "" ] if static_content_helper_debug_verbose
-            str = open( source_uri, "r:UTF-8" ) { |io| io.read }
+            str = URI.open( source_uri, "r:UTF-8" ) { |io| io.read }
             ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                      ::Deepblue::LoggingHelper.called_from,
                                                      "str.encoding=#{str.encoding}",

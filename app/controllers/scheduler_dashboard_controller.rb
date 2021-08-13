@@ -2,8 +2,7 @@
 
 class SchedulerDashboardController < ApplicationController
 
-  mattr_accessor :scheduler_dashboard_controller_debug_verbose
-  @@scheduler_dashboard_controller_debug_verbose = false
+  mattr_accessor :scheduler_dashboard_controller_debug_verbose, default: false
 
   include ActiveSupport::Concern
   include Blacklight::Base
@@ -60,7 +59,7 @@ class SchedulerDashboardController < ApplicationController
   def edit_schedule_load
     return "" unless File.exists? ::Deepblue::SchedulerIntegrationService.scheduler_job_file_path
     rv = []
-    open( ::Deepblue::SchedulerIntegrationService.scheduler_job_file_path, "r" ) { |f| rv = f.readlines }
+    File.open( ::Deepblue::SchedulerIntegrationService.scheduler_job_file_path, "r" ) { |f| rv = f.readlines }
     rv.join("")
   end
 
@@ -71,7 +70,7 @@ class SchedulerDashboardController < ApplicationController
     end
     new_schedule = params[:edit_schedule_textarea]
     return if new_schedule.blank?
-    open( ::Deepblue::SchedulerIntegrationService.scheduler_job_file_path, "w" ) do |out|
+    File.open( ::Deepblue::SchedulerIntegrationService.scheduler_job_file_path, "w" ) do |out|
       out.puts new_schedule
     end
   end

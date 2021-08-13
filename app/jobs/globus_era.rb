@@ -62,14 +62,14 @@ module Deepblue
       @@c_previous_era_begin_timestamp = nil
       return unless File.exist? @@c_era_file
       timestamp = nil
-      open( lock_file, 'r' ) { |f| timestamp = f.read.chomp! }
+      File.open( lock_file, 'r' ) { |f| timestamp = f.read.chomp! }
       @@c_previous_era_begin_timestamp = timestamp
       puts "GlobusEra found previous GlobusEra #{@@c_previous_era_begin_timestamp}" # rubocop:disable Rails/Output
     end
 
     def read_token
       token = nil
-      open( @era_file, 'r' ) { |f| token = f.read.chomp! }
+      File.open( @era_file, 'r' ) { |f| token = f.read.chomp! }
       return token
     end
 

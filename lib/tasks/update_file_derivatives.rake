@@ -415,7 +415,7 @@ module Deepblue
         prefix = "#{Time.now.strftime('%Y%m%d')}_update_derivatives_report"
         report_file = Pathname.new( '.' ).join "#{prefix}.txt"
         @out = nil
-        @out = open( report_file, 'w' )
+        @out = File.open( report_file, 'w' )
         msg = "Finished at #{Time.now}"
         puts msg
         @out << msg << "\n"
