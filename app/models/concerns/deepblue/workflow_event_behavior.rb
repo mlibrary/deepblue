@@ -25,7 +25,9 @@ module Deepblue
 
       # Don't send Jira message if doing a draft work.
       # This gets called by collection create and in that case, the admin_set method is not avaialable.
-      JiraNewTicketJob.perform_later( work_id: id, current_user: current_user ) unless ( self.respond_to?(:admin_set) ) && ( self.admin_set.title.first.eql? ::Deepblue::EmailHelper.t("hyrax.admin_set.name") )
+      JiraNewTicketJob.perform_later( work_id: id,
+                                      current_user: current_user ) unless ( self.respond_to?(:admin_set) ) &&
+                         ( self.admin_set&.title&.first&.eql? ::Deepblue::EmailHelper.t("hyrax.admin_set.name") )
     end
 
     def workflow_embargo( current_user:, event_note: "" )
