@@ -3,6 +3,10 @@ module Hyrax
   module Actors
     # Responsible for removing trophies related to the given curation concern.
     class CleanupTrophiesActor < Hyrax::Actors::AbstractActor
+
+      mattr_accessor :cleanup_trophies_actor_debug_verbose,
+                     default: ::DeepBlueDocs::Application.config.cleanup_trophies_actor_debug_verbose
+
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if destroy was successful
       def destroy(env)

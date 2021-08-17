@@ -4,7 +4,8 @@ module Hyrax
     # @see Hyrax::AdminSetService for release_date interaction
     class ApplyPermissionTemplateActor < Hyrax::Actors::AbstractActor
 
-      mattr_accessor :apply_permissions_template_actor_debug_verbose, default: false
+      mattr_accessor :apply_permissions_template_actor_debug_verbose,
+                     default: ::DeepBlueDocs::Application.config.apply_permissions_template_actor_debug_verbose
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if create was successful

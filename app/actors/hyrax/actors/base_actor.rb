@@ -14,6 +14,9 @@ module Hyrax
     # @see Hyrax::Actor::AbstractActor
     class BaseActor < AbstractActor
 
+      mattr_accessor :base_actor_debug_verbose,
+                     default: ::DeepBlueDocs::Application.config.base_actor_debug_verbose
+
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if create was successful
       def create(env)

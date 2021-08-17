@@ -5,6 +5,8 @@ module Hyrax
   module Ability
     extend ActiveSupport::Concern
 
+    mattr_accessor :hyrax_ability_debug_verbose, default: true
+
     included do
       include Hyrax::Ability::AdminSetAbility
       include Hyrax::Ability::CollectionAbility
@@ -42,7 +44,7 @@ module Hyrax
       doc = permissions_doc(id)
       return [] if doc.nil?
       groups = Array(doc[self.class.read_group_field]) + Array(doc[self.class.edit_group_field])
-      Rails.logger.debug("[CANCAN] download_groups: #{groups.inspect}")
+      Rails.logger.debug("[CANCAN] download_groups: #{groups.inspect}") if hyrax_ability_debug_verbose
       groups
     end
 
@@ -51,7 +53,7 @@ module Hyrax
       doc = permissions_doc(id)
       return [] if doc.nil?
       users = Array(doc[self.class.read_user_field]) + Array(doc[self.class.edit_user_field])
-      Rails.logger.debug("[CANCAN] download_users: #{users.inspect}")
+      Rails.logger.debug("[CANCAN] download_users: #{users.inspect}") if hyrax_ability_debug_verbose
       users
     end
 

@@ -7,6 +7,10 @@ module Hyrax
     # Caveat: we are not detecting if the version is changed by a different process between
     # the time this validator is run and when the object is saved
     class OptimisticLockValidator < Actors::AbstractActor
+
+      mattr_accessor :optimistic_lock_actor_debug_verbose,
+                     default: ::DeepBlueDocs::Application.config.optimistic_lock_actor_debug_verbose
+
       class_attribute :version_field
       self.version_field = 'version'
 

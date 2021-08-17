@@ -7,6 +7,10 @@ module Hyrax
     #
     # @note Creates AdminSet, Hyrax::PermissionTemplate, Sipity::Workflow (with activation)
     class DefaultAdminSetActor < Hyrax::Actors::AbstractActor
+
+      mattr_accessor :default_admin_set_actor_debug_verbose,
+                     default: ::DeepBlueDocs::Application.config.default_admin_set_actor_debug_verbose
+
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if create was successful
       def create(env)

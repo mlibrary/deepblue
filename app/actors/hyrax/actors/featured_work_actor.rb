@@ -3,6 +3,10 @@ module Hyrax
   module Actors
     # Removes featured works if the work is deleted or becomes private
     class FeaturedWorkActor < Hyrax::Actors::AbstractActor
+
+      mattr_accessor :featured_work_actor_debug_verbose,
+                     default: ::DeepBlueDocs::Application.config.featured_work_actor_debug_verbose
+
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if destroy was successful
       def destroy(env)

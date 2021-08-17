@@ -6,7 +6,7 @@ RSpec.describe Hyrax::Actors::EnvironmentAttributes, skip: false do
   let(:work)    { create(:data_set, user: user) }
   let(:ability) { Ability.new(user) }
 
-  it { expect( Hyrax::Actors::EnvironmentAttributes::ENVIRONMENT_ATTRIBUTES_VERBOSE ).to eq false }
+  it { expect( Hyrax::Actors::EnvironmentAttributes::ENVIRONMENT_ATTRIBUTES_DEBUG_VERBOSE ).to eq false }
 
   # describe "#initialize" do
   #   let(:env) { described_class.allocate }

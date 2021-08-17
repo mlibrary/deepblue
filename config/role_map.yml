@@ -6,6 +6,8 @@ development:
     - fritx@umich.edu
     - fritx2@umich.edu
     # - aaronled@umich.edu # temporary to get back to being fritx
+  ummz:
+    - fritz@umich.edu
 
 test:
   archivist:

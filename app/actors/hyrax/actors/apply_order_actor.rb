@@ -2,7 +2,8 @@ module Hyrax
   module Actors
     class ApplyOrderActor < AbstractActor
 
-      mattr_accessor :apply_order_actor_debug_verbose, default: false
+      mattr_accessor :apply_order_actor_debug_verbose,
+                     default: ::DeepBlueDocs::Application.config.apply_order_actor_debug_verbose
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if update was successful

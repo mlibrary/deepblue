@@ -6,6 +6,10 @@ module Hyrax
     # @see Hyrax::Actors::InitializeWorkflowActor.workflow_factory
     # @see Hyrax::Workflow::WorkflowFactory for default workflow factory
     class InitializeWorkflowActor < AbstractActor
+
+      mattr_accessor :initialize_workflow_actor_debug_verbose,
+                     default: ::DeepBlueDocs::Application.config.initialize_workflow_actor_debug_verbose
+
       class_attribute :workflow_factory
       self.workflow_factory = ::Hyrax::Workflow::WorkflowFactory
 
@@ -33,7 +37,7 @@ module Hyrax
 
           entity.update!( workflow: wf, workflow_state_id: action.id, workflow_state: wf_state )
 
-          next_actor.create(env)
+          next_actor.create(env) # TODO: should this be next_actor.update(env) ??
         else
           super
         end
