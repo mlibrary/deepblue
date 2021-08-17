@@ -2,6 +2,10 @@ module Hyrax
   module Actors
     # This is a proxy for the model specific actor
     class ModelActor < AbstractActor
+
+      mattr_accessor :model_actor_debug_verbose,
+                     default: ::DeepBlueDocs::Application.config.model_actor_debug_verbose
+
       # See: https://github.com/bbatsov/rubocop/issues/5393
       # rubocop:disable Rails/Delegate
 

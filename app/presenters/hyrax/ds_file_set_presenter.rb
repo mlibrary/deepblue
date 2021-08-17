@@ -68,7 +68,7 @@ module Hyrax
     end
 
     def anonymous_link_need_create_download_button?( main_app:, curation_concern: solr_document )
-      debug_verbose = true || ds_file_set_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
+      debug_verbose = ds_file_set_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
       anon_links = AnonymousLink.where( itemId: curation_concern.id )
       anon_links.each do |link|
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

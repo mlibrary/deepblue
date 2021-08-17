@@ -21,7 +21,7 @@
   </legend>
   <div class="col-sm-9 form-inline">
     <label for="new_group_name_skel" class="sr-only">Group</label>
-    <%= select_tag 'new_group_name_skel', options_for_select(["Select a group"] + current_user.groups), class: 'form-control' %>
+    <%= select_tag 'new_group_name_skel', options_for_select(["Select a group"] + ::Hyrax::UserHelper.share_groups), class: 'form-control' %>
     <label for="new_group_permission_skel" class="sr-only">Access type to grant</label>
     <%= select_tag 'new_group_permission_skel', options_for_select(Hyrax.config.permission_options), class: 'form-control' %>
 

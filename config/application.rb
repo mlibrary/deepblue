@@ -44,7 +44,7 @@ module DeepBlueDocs
 
     # see ::User and UserHelper
     config.user_role_management_enabled = false
-    config.user_role_management_register_from_role_map = false # set to true load user roles from role_map.yml
+    config.user_role_management_register_from_role_map = true # set to true load user roles from role_map.yml
 
     config.generators do |g|
       g.test_framework :rspec, spec: true
@@ -56,15 +56,12 @@ module DeepBlueDocs
     # TODO: move this section into a debug_initializer
     config.abstract_notification_debug_verbose = false
     config.abstract_filter_debug_verbose = false
-    config.after_optimistic_lock_validator_debug_verbose = false
     config.application_controller_debug_verbose = false
-    config.before_model_actor_debug_verbose = false
     config.catalog_controller_debug_verbose = false
     config.collection_debug_verbose = false
     config.collection_presenter_debug_verbose = false
     config.collections_controller_debug_verbose = false
     config.collections_controller_behavior_debug_verbose = false
-    config.data_set_actor_debug_verbose = false
     config.data_set_debug_verbose = false
     config.data_set_presenter_debug_verbose = false
     config.data_sets_controller_debug_verbose = false
@@ -74,9 +71,7 @@ module DeepBlueDocs
     config.ds_file_set_presenter_debug_verbose = false
     # config.email_debug_verbose -- see configure email below
     config.email_behavior_debug_verbose = false
-    config.file_actor_debug_verbose = false
     # config.file_content_helper_debug_verbose -- see config/integration/file_content_integration.rb
-    config.file_set_actor_debug_verbose = false
     config.file_set_debug_verbose = false
     config.file_set_derivatives_service_debug_verbose = false
     config.file_sets_controller_debug_verbose = false
@@ -106,8 +101,33 @@ module DeepBlueDocs
     # config.work_view_content_service_i18n_templates_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
     # config.work_view_content_service_view_templates_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
     config.workflow_event_behavior_debug_verbose = false
-    config.works_controller_behavior_debug_verbose = false
+    config.deepblue_works_controller_behavior_debug_verbose = false
+    config.hyrax_works_controller_behavior_debug_verbose = false
     # end _debug_verbose flags
+
+    # all actor debug verbose variables
+    config.actors_terminator_debug_verbose                = false
+    config.after_optimistic_lock_validator_debug_verbose  = false
+    config.apply_order_actor_debug_verbose                = false
+    config.apply_permissions_template_actor_debug_verbose = false
+    config.attach_members_actor_debug_verbose             = false
+    config.base_actor_debug_verbose                       = false
+    config.before_add_to_work_actor_debug_verbose         = false
+    config.before_attach_member_actor_debug_verbose       = false
+    config.before_model_actor_debug_verbose               = false
+    config.cleanup_file_set_actor_debug_verbose           = false
+    config.cleanup_trophies_actor_debug_verbose           = false
+    config.create_with_files_actor_debug_verbose          = false
+    config.data_set_actor_debug_verbose                   = false
+    config.default_admin_set_actor_debug_verbose          = false
+    config.embargo_actor_debug_verbose                    = false
+    config.featured_work_actor_debug_verbose              = false
+    config.file_actor_debug_verbose                       = false
+    config.file_set_actor_debug_verbose                   = false
+    config.initialize_workflow_actor_debug_verbose        = false
+    config.interpret_visibility_actor_debug_verbose       = false
+    config.model_actor_debug_verbose                      = false
+    config.optimistic_lock_actor_debug_verbose            = false
 
     # config.middleware.insert_before Rack::Runtime, RackMultipartBufSizeSetter
 
@@ -280,7 +300,7 @@ module DeepBlueDocs
     config.key_value_backend = I18n::Backend::KeyValue.new({})
     config.i18n.backend = I18n.backend
     config.after_initialize do
-      after_initialize_debug_verbose = true
+      after_initialize_debug_verbose = false
       # puts if after_initialize_debug_verbose
       puts "Begin after initialize..." if after_initialize_debug_verbose
       # puts if after_initialize_debug_verbose

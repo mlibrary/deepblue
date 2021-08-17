@@ -7,7 +7,8 @@ module Hyrax
     # Creates a work and attaches files to the work
     class CreateWithFilesActor < Hyrax::Actors::AbstractActor
 
-      mattr_accessor :create_with_files_actor_debug_verbose, default: false
+      mattr_accessor :create_with_files_actor_debug_verbose,
+                     default: ::DeepBlueDocs::Application.config.create_with_files_actor_debug_verbose
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if create was successful

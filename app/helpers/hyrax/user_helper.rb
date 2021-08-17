@@ -126,7 +126,7 @@ module Hyrax
                                                 ::Deepblue::LoggingHelper.called_from,
                                                 "name,description=#{name},#{description}",
                                                 "" ], bold_puts: from_initializer ) if debug_verbose
-        Sipity::Role.find_or_create_by!(name: name).tap do |role|
+        ::Sipity::Role.find_or_create_by!(name: name).tap do |role|
           ::Deepblue::LoggingHelper.bold_debug( [ ::Deepblue::LoggingHelper.here,
                                                   ::Deepblue::LoggingHelper.called_from,
                                                   "role.class.name=#{role.class.name}",
@@ -153,6 +153,14 @@ module Hyrax
       end
     end
 
+    def self.share_groups
+      roles = ::Sipity::Role.all.map { |role| role.name }
+      ::Deepblue::LoggingHelper.bold_debug( [ ::Deepblue::LoggingHelper.here,
+                                              ::Deepblue::LoggingHelper.called_from,
+                                              "roles=#{roles}",
+                                              "" ] ) if user_helper_debug_verbose
+      roles.sort
+    end
 
   end
 

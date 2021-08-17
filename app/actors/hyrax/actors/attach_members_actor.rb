@@ -19,7 +19,8 @@ module Hyrax
     # writes changes, not the full ordered list.
     class AttachMembersActor < Hyrax::Actors::AbstractActor
 
-      mattr_accessor :attach_members_actor_debug_verbose, default: false
+      mattr_accessor :attach_members_actor_debug_verbose,
+                     default: ::DeepBlueDocs::Application.config.attach_members_actor_debug_verbose
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if update was successful

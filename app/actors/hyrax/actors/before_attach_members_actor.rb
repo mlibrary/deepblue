@@ -17,14 +17,15 @@ module Hyrax
 
     class BeforeAttachMembersActor < AbstractEventActor
 
-      mattr_accessor :before_attach_member_actor_verbose, default: false
+      mattr_accessor :before_attach_member_actor_debug_verbose,
+                     default: ::DeepBlueDocs::Application.config.before_attach_member_actor_debug_verbose
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if update was successful
       def update( env )
         env.log_event( next_actor: next_actor ) if env.respond_to? :log_event
         attributes_collection = env.attributes.values_at( :work_members_attributes )
-        ::Deepblue::LoggingHelper.bold_debug "BeforeAttachMembersActor.update: next_actor = #{next_actor.class.name}" if before_attach_member_actor_verbose
+        ::Deepblue::LoggingHelper.bold_debug "BeforeAttachMembersActor.update: next_actor = #{next_actor.class.name}" if before_attach_member_actor_debug_verbose
         assign_nested_attributes_for_collection( env, attributes_collection ) && next_actor.update( env )
       end
 
@@ -61,7 +62,7 @@ module Hyrax
                                                "child_id=#{id}",
                                                "child_title=#{child_title}",
                                                "event_note=BeforeAttachMembersActor",
-                                               "" ] if before_attach_member_actor_verbose
+                                               "" ] if before_attach_member_actor_debug_verbose
           return true unless env.curation_concern.respond_to? :provenance_child_add
           env.curation_concern.provenance_child_add( current_user: current_user,
                                                      child_id: id,
@@ -85,7 +86,7 @@ module Hyrax
                                                "child_id=#{id}",
                                                "child_title=#{title}",
                                                "event_note=BeforeAttachMembersActor",
-                                               "" ] if before_attach_member_actor_verbose
+                                               "" ] if before_attach_member_actor_debug_verbose
           env.curation_concern.provenance_child_remove( current_user: current_user,
                                                         child_id: id,
                                                         child_title: title,

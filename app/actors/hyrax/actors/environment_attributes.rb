@@ -6,7 +6,7 @@ module Hyrax
 
     class EnvironmentAttributes
 
-      ENVIRONMENT_ATTRIBUTES_VERBOSE = false
+      ENVIRONMENT_ATTRIBUTES_DEBUG_VERBOSE = false
 
       # IGNORE_KEYS = [].freeze
       LOG_IT = false
@@ -21,11 +21,11 @@ module Hyrax
       def initialize( hash, curation_concern_id: '' )
         @hash = hash
         @curation_concern_id = curation_concern_id
-        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                            Deepblue::LoggingHelper.called_from,
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                             "curation_concern_id=#{@curation_concern_id}",
                                             "EnvironmentAttributes.initialized",
-                                            "attributes=#{@hash}" ] if ENVIRONMENT_ATTRIBUTES_VERBOSE
+                                            "attributes=#{@hash}" ] if ENVIRONMENT_ATTRIBUTES_DEBUG_VERBOSE
       end
 
       def respond_to?( symbol, include_priv=false )
@@ -52,12 +52,12 @@ module Hyrax
         def log_it( key_label, key )
           return unless LOG_IT
           return if IGNORE_KEYS.include? key
-          Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
                                                "called from: #{caller_locations(1, 3)[2]}",
                                               "curation_concern_id=#{@curation_concern_id}",
                                               "#{key_label} key=#{key}",
-                                              "attributes=#{@hash}" ] if ENVIRONMENT_ATTRIBUTES_VERBOSE
+                                              "attributes=#{@hash}" ] if ENVIRONMENT_ATTRIBUTES_DEBUG_VERBOSE
         rescue Exception => e # rubocop:disable Lint/RescueException
           Rails.logger.error "log_it exception - #{e.class}: #{e.message} at #{e.backtrace[0]}"
         end

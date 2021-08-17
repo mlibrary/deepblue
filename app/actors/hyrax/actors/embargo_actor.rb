@@ -6,7 +6,8 @@ module Hyrax
 
     class EmbargoActor
 
-      mattr_accessor :embargo_actor_debug_verbose, default: false
+      mattr_accessor :embargo_actor_debug_verbose,
+                     default: ::DeepBlueDocs::Application.config.embargo_actor_debug_verbose
 
       include ::Hyrax::EmbargoHelper
       attr_reader :work

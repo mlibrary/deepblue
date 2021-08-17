@@ -1,6 +1,10 @@
 module Hyrax
   module Actors
     class InterpretVisibilityActor < AbstractActor
+
+      mattr_accessor :interpret_visibility_actor_debug_verbose,
+                     default: ::DeepBlueDocs::Application.config.interpret_visibility_actor_debug_verbose
+
       class Intention
         def initialize(attributes)
           @attributes = attributes

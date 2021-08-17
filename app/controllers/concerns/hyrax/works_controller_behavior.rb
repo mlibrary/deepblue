@@ -7,7 +7,8 @@ module Hyrax
   module WorksControllerBehavior
 
     # begin monkey
-    mattr_accessor :works_controller_behavior_debug_verbose, default: false
+    mattr_accessor :hyrax_works_controller_behavior_debug_verbose,
+                   default: ::DeepBlueDocs::Application.config.hyrax_works_controller_behavior_debug_verbose
     # end monkey
 
     private
@@ -24,7 +25,7 @@ module Hyrax
                                                "action_name=#{action_name}",
                                                "params[:anon_link_id].present?=#{params[:anon_link_id].present?}",
                                                "params[:link_id].present?=#{params[:link_id].present?}",
-                                               "" ] if works_controller_behavior_debug_verbose
+                                               "" ] if hyrax_works_controller_behavior_debug_verbose
         layout = if 'show' == action_name || params[:link_id].present? || params[:anon_link_id].present?
                    '1_column'
                  elsif 'single_use_link' == action_name
@@ -36,7 +37,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "rv=#{rv}",
-                                               "" ] if works_controller_behavior_debug_verbose
+                                               "" ] if hyrax_works_controller_behavior_debug_verbose
         return rv
       end
 
@@ -45,7 +46,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "",
-                                               "" ] if works_controller_behavior_debug_verbose
+                                               "" ] if hyrax_works_controller_behavior_debug_verbose
         _, document_list = search_results(search_params)
         return document_list.first unless document_list.empty?
         document_not_found!
@@ -54,13 +55,13 @@ module Hyrax
           # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
           #                                        ::Deepblue::LoggingHelper.called_from,
           #                                        "about to redirect - 01",
-          #                                        "" ] if works_controller_behavior_debug_verbose
+          #                                        "" ] if hyrax_works_controller_behavior_debug_verbose
           return redirect_to guest_user_message_url, alert: "unable to present requested work"
         end
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
         #                                        ::Deepblue::LoggingHelper.called_from,
         #                                        "e=#{e}",
-        #                                        "" ] # + e.backtrace if works_controller_behavior_debug_verbose
+        #                                        "" ] # + e.backtrace if hyrax_works_controller_behavior_debug_verbose
         begin
           # check with Fedora to see if the requested id was deleted
           id = params[:id]
@@ -70,7 +71,7 @@ module Hyrax
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "gone=#{gone.class} #{gone.message} at #{gone.backtrace[0]}",
-                                                 "" ] if works_controller_behavior_debug_verbose
+                                                 "" ] if hyrax_works_controller_behavior_debug_verbose
           # okay, since this looks like a deleted curation concern, we can check the provenance log
           # if admin, redirect to the provenance log controller
           if current_ability.admin?
@@ -78,7 +79,7 @@ module Hyrax
             # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
             #                                        ::Deepblue::LoggingHelper.called_from,
             #                                        "about to redirect to url=#{url}",
-            #                                        "" ] if works_controller_behavior_debug_verbose
+            #                                        "" ] if hyrax_works_controller_behavior_debug_verbose
             return redirect_to( provenance_log_url, alert: "\"#{id}\" was deleted." )
           end
         rescue ActiveFedora::ObjectNotFoundError => e2
@@ -89,14 +90,14 @@ module Hyrax
             #                                        ::Deepblue::LoggingHelper.called_from,
             #                                        "e2=#{e2.class} #{e2.message} at #{e2.backtrace[0]}",
             #                                        "about to redirect - 02a - url=#{url}",
-            #                                        "" ] if works_controller_behavior_debug_verbose
+            #                                        "" ] if hyrax_works_controller_behavior_debug_verbose
             return redirect_to( provenance_log_url, alert: "\"#{id}\" not found." )
           end
         end
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
         #                                        ::Deepblue::LoggingHelper.called_from,
         #                                        "about to redirect - 02 - guest_user_message_url=#{guest_user_message_url}",
-        #                                        "" ] if works_controller_behavior_debug_verbose
+        #                                        "" ] if hyrax_works_controller_behavior_debug_verbose
         return redirect_to( guest_user_message_url, alert: "unable to present requested work" )
       end
 
