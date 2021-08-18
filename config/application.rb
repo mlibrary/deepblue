@@ -44,7 +44,12 @@ module DeepBlueDocs
 
     # see ::User and UserHelper
     config.user_role_management_enabled = false
+    config.user_role_management_admin_only = true # should be true for prouction
     config.user_role_management_register_from_role_map = true # set to true load user roles from role_map.yml
+    config.user_role_management_create_users_from_role_map = false # should be false for production
+
+    config.user_helper_debug_verbose = false
+    config.user_helper_persist_roles_debug_verbose = false
 
     config.generators do |g|
       g.test_framework :rspec, spec: true
@@ -94,6 +99,7 @@ module DeepBlueDocs
     # config.static_content_controller_behavior_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
     # config.static_content_cache_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
     config.umrdr_work_behavior_debug_verbose = false
+    config.user_debug_verbose = false
     config.user_stat_importer_debug_verbose = false
     config.work_show_presenter_debug_verbose = false
     # config.work_view_content_service_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
@@ -104,6 +110,18 @@ module DeepBlueDocs
     config.deepblue_works_controller_behavior_debug_verbose = false
     config.hyrax_works_controller_behavior_debug_verbose = false
     # end _debug_verbose flags
+
+    # all ability and permissions debug_verbose variables
+    config.ability_debug_verbose                                = false
+    config.ability_helper_debug_verbose                         = false
+    config.blacklight_access_controls_ability_debug_verbose     = false
+    config.blacklight_access_controls_enforcement_debug_verbose = false
+    config.blacklight_access_controls_permission_query_debug_verbose = false
+    config.hydra_ability_debug_verbose                          = false
+    config.hydra_access_controls_permissions_debug_verbose      = false
+    config.hydra_role_management_user_roles_debug_verbose       = false
+    config.hyrax_ability_debug_verbose                          = false
+    config.permissions_controller_debug_verbose                 = false
 
     # all actor debug verbose variables
     config.actors_terminator_debug_verbose                = false

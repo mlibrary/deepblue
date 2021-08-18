@@ -4,27 +4,28 @@ module Hyrax
 
   class PermissionsController < ApplicationController
 
-    PERMISSIONS_CONTROLLER_DEBUG_VERBOSE = false
+    mattr_accessor :permissions_controller_debug_verbose,
+                   default: ::DeepBlueDocs::Application.config.permissions_controller_debug_verbose
 
     helper_method :curation_concern
 
     def confirm
-      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           Deepblue::LoggingHelper.called_from,
-                                           "" ] if PERMISSIONS_CONTROLLER_DEBUG_VERBOSE
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "" ] if permissions_controller_debug_verbose
       # intentional noop to display default view
       embargo_release_date = curation_concern.embargo_release_date if curation_concern.respond_to? :embargo_release_date
-      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                            "curation_concern.embargo_release_date=#{embargo_release_date}",
-                                           "" ] if PERMISSIONS_CONTROLLER_DEBUG_VERBOSE
+                                           "" ] if permissions_controller_debug_verbose
       copy unless DeepBlueDocs::Application.config.embargo_allow_children_unembargo_choice
     end
 
     def copy
-      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           Deepblue::LoggingHelper.called_from,
-                                           "" ] if PERMISSIONS_CONTROLLER_DEBUG_VERBOSE
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                           "" ] if permissions_controller_debug_verbose
       authorize! :edit, curation_concern
       VisibilityCopyJob.perform_later(curation_concern)
       flash_message = I18n.t("hyrax.embargo.copy_visibility_flash_message")
@@ -32,16 +33,16 @@ module Hyrax
     end
 
     def confirm_access
-      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           Deepblue::LoggingHelper.called_from,
-                                           "" ] if PERMISSIONS_CONTROLLER_DEBUG_VERBOSE
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "" ] if permissions_controller_debug_verbose
       # intentional noop to display default view
     end
 
     def copy_access
-      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           Deepblue::LoggingHelper.called_from,
-                                           "" ] if PERMISSIONS_CONTROLLER_DEBUG_VERBOSE
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "" ] if permissions_controller_debug_verbose
       authorize! :edit, curation_concern
       # copy visibility
       VisibilityCopyJob.perform_later(curation_concern)

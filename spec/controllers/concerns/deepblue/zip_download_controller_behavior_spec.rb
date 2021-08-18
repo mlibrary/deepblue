@@ -59,6 +59,7 @@ RSpec.describe Deepblue::ZipDownloadControllerBehavior, skip: false do
       let(:target_file) { target_dir.join "#{work.id}.zip" }
 
       before do
+        File.delete target_file.to_s if File.exist? target_file.to_s
         if debug_verbose
           expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(:once)
         else

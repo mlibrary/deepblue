@@ -4,6 +4,8 @@ class Ability
   include Hydra::Ability
   include Hyrax::Ability
 
+  mattr_accessor :ability_debug_verbose, default: ::DeepBlueDocs::Application.config.ability_debug_verbose
+
   self.ability_logic += [:everyone_can_create_curation_concerns]
   self.ability_logic += [:deepblue_abilities]
 
@@ -34,6 +36,9 @@ class Ability
 
   # Define any customized permissions here.
   def custom_permissions
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "" ] if ability_debug_verbose
     # Limits deleting objects to a the admin user
     #
     # if current_user.admin?
@@ -47,9 +52,11 @@ class Ability
     # end
 
     if Rails.configuration.user_role_management_enabled
-      # if current_user.admin? || true # for the first time to setup 'admin' role and yourself, but not necessary now
-      # with the UserHelper.ensure_role_map_registered
-      if current_user.admin?
+      if Rails.configuration.user_role_management_admin_only
+        if current_user.admin?
+          can [:create, :show, :add_user, :remove_user, :index, :edit, :update, :destroy], Role
+        end
+      else
         can [:create, :show, :add_user, :remove_user, :index, :edit, :update, :destroy], Role
       end
     end

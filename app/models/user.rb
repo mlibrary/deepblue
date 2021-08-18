@@ -2,7 +2,7 @@
 
 class User < ApplicationRecord
 
-  mattr_accessor :user_debug_verbose, default: false
+  mattr_accessor :user_debug_verbose, default: ::DeepBlueDocs::Application.config.user_debug_verbose
 
   # Connects this user object to Hydra behaviors.
   include Hydra::User

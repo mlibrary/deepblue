@@ -4,8 +4,10 @@ module Hyrax
 
   module UserHelper
 
-    mattr_accessor :user_helper_debug_verbose, default: false
-    mattr_accessor :user_helper_persist_roles_debug_verbose, default: false
+    mattr_accessor :user_helper_debug_verbose,
+                   default: Rails.configuration.user_helper_debug_verbose
+    mattr_accessor :user_helper_persist_roles_debug_verbose,
+                   default: Rails.configuration.user_helper_persist_roles_debug_verbose
 
     def self._hyrax_roles_init
       roles = { 'admin' => 'Administrator' }
@@ -55,6 +57,17 @@ module Hyrax
               ::Deepblue::LoggingHelper.bold_debug( [ ::Deepblue::LoggingHelper.here,
                                                       ::Deepblue::LoggingHelper.called_from,
                                                       "register user=#{email} with role #{role_name}",
+                                                      "" ], bold_puts: from_initializer ) if debug_verbose
+              RolesUser.find_or_create_by( role_id: role.id, user_id: user.id )
+            elsif Rails.configuration.user_role_management_create_users_from_role_map
+              ::Deepblue::LoggingHelper.bold_debug( [ ::Deepblue::LoggingHelper.here,
+                                                      ::Deepblue::LoggingHelper.called_from,
+                                                      "creating user=#{email}",
+                                                      "" ], bold_puts: from_initializer ) if debug_verbose
+              user = ::User.new( email: email, password: 'password' ) { |u| u.save( validate: false ) }
+              ::Deepblue::LoggingHelper.bold_debug( [ ::Deepblue::LoggingHelper.here,
+                                                      ::Deepblue::LoggingHelper.called_from,
+                                                      "creating user=#{email} with role #{role_name}",
                                                       "" ], bold_puts: from_initializer ) if debug_verbose
               RolesUser.find_or_create_by( role_id: role.id, user_id: user.id )
             else
