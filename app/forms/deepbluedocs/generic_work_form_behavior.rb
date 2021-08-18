@@ -28,7 +28,6 @@ module Deepbluedocs
 
       def secondary_terms
         t = [:type_none, :language_none, :description_mapping, :subject, :description_abstract, :description_sponsorship, :description]
-        # jose admin?  not found byebug
         #t << [:keyword, :source, :funding_body, :dspace_community, :dspace_collection] if current_ability.current_user.admin?
         t.flatten
       end
