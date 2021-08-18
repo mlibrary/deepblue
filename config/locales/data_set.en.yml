@@ -104,6 +104,7 @@ en:
       tab_user_activity_log: "User Activity Log"
       total_file_size:      "Total file size"
       total_file_size_human_readable: "Total file size"
+      your_draft_works:       "Your Draft Works"
   simple_form:
     actions:
       data_set:
