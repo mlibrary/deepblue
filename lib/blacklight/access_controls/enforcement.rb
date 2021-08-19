@@ -17,7 +17,8 @@ module Blacklight
       extend ActiveSupport::Concern
 
       # begin monkey
-      ENFORCEMENT_DEBUG_VERBOSE = false
+      mattr_accessor :blacklight_access_controls_enforcement_debug_verbose,
+                     default: ::DeepBlueDocs::Application.config.blacklight_access_controls_enforcement_debug_verbose
       # end monkey
 
       included do
@@ -48,16 +49,24 @@ module Blacklight
       # @return [Array{Array{String}}]
       def gated_discovery_filters(permission_types = discovery_permissions, ability = current_ability)
         # begin monkey
-        ::Deepblue::LoggingHelper.bold_debug [Deepblue::LoggingHelper.here,
-                                              Deepblue::LoggingHelper.called_from,
-                                              ""] if ENFORCEMENT_DEBUG_VERBOSE
+        ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                              ::Deepblue::LoggingHelper.called_from,
+                                              "permission_types=#{permission_types}",
+                                              "ability=#{current_ability}",
+                                              ""] if blacklight_access_controls_enforcement_debug_verbose
         # end monkey
-        rv = solr_access_filters_logic.map { |method| send(method, permission_types, ability).reject(&:blank?) }.reject(&:empty?)
+        rv = solr_access_filters_logic.map do |method|
+          ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                                ::Deepblue::LoggingHelper.called_from,
+                                                "method=#{method}",
+                                                ""] if blacklight_access_controls_enforcement_debug_verbose
+          send(method, permission_types, ability).reject(&:blank?)
+        end.reject(&:empty?)
         # begin monkey
-        ::Deepblue::LoggingHelper.bold_debug [Deepblue::LoggingHelper.here,
-                                              Deepblue::LoggingHelper.called_from,
+        ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                              ::Deepblue::LoggingHelper.called_from,
                                               "solr_access_filters_logic.map returned #{rv}",
-                                              ""] if ENFORCEMENT_DEBUG_VERBOSE
+                                              ""] if blacklight_access_controls_enforcement_debug_verbose
         return rv
         # end monkey
       end
@@ -70,18 +79,18 @@ module Blacklight
       # @note Applies a lucene filter query to the solr :fq parameter for gated discovery.
       def apply_gated_discovery(solr_parameters)
         # begin monkey
-        ::Deepblue::LoggingHelper.bold_debug [Deepblue::LoggingHelper.here,
-                                              Deepblue::LoggingHelper.called_from,
+        ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                              ::Deepblue::LoggingHelper.called_from,
                                               "solr_parameters.inspect=#{solr_parameters.inspect}",
-                                              ""] if ENFORCEMENT_DEBUG_VERBOSE
+                                              ""] if blacklight_access_controls_enforcement_debug_verbose
         # end monkey
         solr_parameters[:fq] ||= []
         solr_parameters[:fq] << gated_discovery_filters.reject(&:blank?).join(' OR ')
         # begin monkey
-        ::Deepblue::LoggingHelper.bold_debug [Deepblue::LoggingHelper.here,
-                                              Deepblue::LoggingHelper.called_from,
+        ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                              ::Deepblue::LoggingHelper.called_from,
                                               "solr_parameters.inspect=#{solr_parameters.inspect}",
-                                              ""] if ENFORCEMENT_DEBUG_VERBOSE
+                                              ""] if blacklight_access_controls_enforcement_debug_verbose
         # end monkey
       end
 
@@ -91,6 +100,13 @@ module Blacklight
       #   [ "({!terms f=discover_access_group_ssim}public,faculty,africana-faculty,registered)",
       #     "({!terms f=read_access_group_ssim}public,faculty,africana-faculty,registered)" ]
       def apply_group_permissions(permission_types, ability = current_ability)
+        # begin monkey
+        ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                              ::Deepblue::LoggingHelper.called_from,
+                                              "permission_types=#{permission_types}",
+                                              "ability=#{ability}",
+                                              ""] if blacklight_access_controls_enforcement_debug_verbose
+        # end monkey
         groups = ability.user_groups
         return [] if groups.empty?
         permission_types.map do |type|

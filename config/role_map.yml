@@ -8,6 +8,9 @@ development:
     # - aaronled@umich.edu # temporary to get back to being fritx
   ummz:
     - fritz@umich.edu
+  patron:
+    - patron1@example.com
+    - leland_himself@example.com
 
 test:
   archivist:

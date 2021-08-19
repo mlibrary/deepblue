@@ -19,7 +19,8 @@
 #  because it already has that information.
 class JobIoWrapper < ApplicationRecord
 
-  JOB_IO_WRAPPER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.job_io_wrapper_debug_verbose
+  mattr_accessor :job_io_wrapper_debug_verbose,
+                 default: ::DeepBlueDocs::Application.config.job_io_wrapper_debug_verbose
 
   belongs_to :user, optional: false
   belongs_to :uploaded_file, optional: true, class_name: 'Hyrax::UploadedFile'
@@ -50,7 +51,7 @@ class JobIoWrapper < ApplicationRecord
                                            "file.class.name=#{file.class.name}",
                                            "relation=#{relation}",
                                            "file_set=#{file_set}",
-                                           "" ] if JOB_IO_WRAPPER_DEBUG_VERBOSE
+                                           "" ] if job_io_wrapper_debug_verbose
     args = { user: user,
              relation: relation.to_s,
              file_set_id: file_set.id }
@@ -72,7 +73,7 @@ class JobIoWrapper < ApplicationRecord
                                            "relation=#{relation}",
                                            "file_set=#{file_set}",
                                            "rv=#{rv}",
-                                           "" ] if JOB_IO_WRAPPER_DEBUG_VERBOSE
+                                           "" ] if job_io_wrapper_debug_verbose
     return rv
   end
 
@@ -109,7 +110,7 @@ class JobIoWrapper < ApplicationRecord
                                            "delete_input_file=#{delete_input_file}",
                                            "job_status=#{job_status}",
                                            "uploaded_file_ids=#{uploaded_file_ids}",
-                                           "" ] if JOB_IO_WRAPPER_DEBUG_VERBOSE
+                                           "" ] if job_io_wrapper_debug_verbose
 
     user_key = nil
     unless user_id.nil?

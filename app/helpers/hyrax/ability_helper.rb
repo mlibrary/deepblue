@@ -1,5 +1,9 @@
 module Hyrax
   module AbilityHelper
+
+    mattr_accessor :ability_helper_debug_verbose,
+                   default: ::DeepBlueDocs::Application.config.ability_helper_debug_verbose
+
     def visibility_options(variant)
       options = [
         Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC,

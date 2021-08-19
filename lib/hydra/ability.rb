@@ -6,7 +6,8 @@ module Hydra
   module Ability
     extend ActiveSupport::Concern
 
-    mattr_accessor :hydra_ability_debug_verbose, default: true
+    mattr_accessor :hydra_ability_debug_verbose,
+                   default: ::DeepBlueDocs::Application.config.hydra_ability_debug_verbose
 
     include Blacklight::AccessControls::Ability
 
