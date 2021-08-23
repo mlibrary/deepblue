@@ -25,6 +25,8 @@ module Hyrax
              :file_size,
              :original_checksum,
              :mime_type,
+             :edit_groups,
+             :read_groups,
              :title,
              :virus_scan_service,
              :virus_scan_status,

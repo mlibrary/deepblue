@@ -25,6 +25,18 @@
                                    work_type: "FileSet",
                                    html_dt: true,
                                    include_empty: true ) %>
+  <% if @presenter.current_ability.admin? %>
+    <%= @presenter.attribute_to_html(:read_groups,
+                                     label: t('show.file_set.labels.read_groups'),
+                                     work_type: "FileSet",
+                                     html_dt: true,
+                                     include_empty: false ) %>
+    <%= @presenter.attribute_to_html(:edit_groups,
+                                     label: t('show.file_set.labels.edit_groups'),
+                                     work_type: "FileSet",
+                                     html_dt: true,
+                                     include_empty: false ) %>
+  <% end %>
   <dt><%= t('show.file_set.labels.characterization') %></dt>
   <dd>
     <% if @presenter.characterized? %>
