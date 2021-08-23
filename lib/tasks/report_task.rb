@@ -2,8 +2,7 @@
 
 module Deepblue
 
-  # mattr_accessor :deepblue_report_task_debug_verbose
-  # @@deepblue_report_task_debug_verbose = true
+  # mattr_accessor :deepblue_report_task_debug_verbose, default: true
 
   require 'csv'
   # require 'tasks/abstract_report_task'

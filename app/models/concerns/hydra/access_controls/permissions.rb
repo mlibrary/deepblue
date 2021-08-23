@@ -199,6 +199,10 @@ module Hydra
       #  => ['one', 'two', 'three']
       #
       def read_groups=(groups)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "groups=#{groups}",
+                                               "" ] if hydra_access_controls_permissions_debug_verbose
         set_read_groups(groups, read_groups)
       end
 
@@ -210,6 +214,10 @@ module Hydra
       #  => ['one', 'two', 'three']
       #
       def read_groups_string=(groups)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "groups=#{groups}",
+                                               "" ] if hydra_access_controls_permissions_debug_verbose
         self.read_groups = groups.split(/[\s,]+/)
       end
 
@@ -234,11 +242,24 @@ module Hydra
       #  => ['one', 'two']  ## 'two' was not eligible to be removed
       #
       def set_read_groups(groups, eligible_groups)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "groups=#{groups}",
+                                               "eligible_groups=#{eligible_groups}",
+                                               "" ] if hydra_access_controls_permissions_debug_verbose
         set_entities(:read, :group, groups, eligible_groups)
       end
 
       def read_users
-        search_by_type_and_mode(:person, ::ACL.Read).map(&:agent_name)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if hydra_access_controls_permissions_debug_verbose
+        rv = search_by_type_and_mode(:person, ::ACL.Read).map(&:agent_name)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "rv=#{rv}",
+                                               "" ] if hydra_access_controls_permissions_debug_verbose
+        return rv
       end
 
       # Grant read permissions to the users specified. Revokes read permission for all other users.
@@ -249,6 +270,10 @@ module Hydra
       #  => ['one', 'two', 'three']
       #
       def read_users=(users)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "users=#{users}",
+                                               "" ] if hydra_access_controls_permissions_debug_verbose
         set_read_users(users, read_users)
       end
 
@@ -308,6 +333,10 @@ module Hydra
       #  => ['one', 'two', 'three']
       #
       def edit_groups=(groups)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "groups=#{groups}",
+                                               "" ] if hydra_access_controls_permissions_debug_verbose
         set_edit_groups(groups, edit_groups)
       end
 
@@ -319,6 +348,10 @@ module Hydra
       #  => ['one', 'two', 'three']
       #
       def edit_groups_string=(groups)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "groups=#{groups}",
+                                               "" ] if hydra_access_controls_permissions_debug_verbose
         self.edit_groups = groups.split(/[\s,]+/)
       end
 
@@ -343,6 +376,11 @@ module Hydra
       #  => ['one', 'two']  ## 'two' was not eligible to be removed
       #
       def set_edit_groups(groups, eligible_groups)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "groups=#{groups}",
+                                               "eligible_groups=#{eligible_groups}",
+                                               "" ] if hydra_access_controls_permissions_debug_verbose
         set_entities(:edit, :group, groups, eligible_groups)
       end
 
@@ -358,6 +396,10 @@ module Hydra
       #  => ['one', 'two', 'three']
       #
       def edit_users=(users)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "users=#{users}",
+                                               "" ] if hydra_access_controls_permissions_debug_verbose
         set_edit_users(users, edit_users)
       end
 
@@ -377,6 +419,11 @@ module Hydra
       #  => ['one', 'two']  ## 'two' was not eligible to be removed
       #
       def set_edit_users(users, eligible_users)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "users=#{users}",
+                                               "eligible_users=#{eligible_users}",
+                                               "" ] if hydra_access_controls_permissions_debug_verbose
         set_entities(:edit, :person, users, eligible_users)
       end
 
@@ -393,6 +440,13 @@ module Hydra
       # @param [Array<String>] values Values to set
       # @param [Array<String>] changeable Values we are allowed to change
       def set_entities(permission, type, values, changeable)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "permission=#{permission}",
+                                               "type=#{type}",
+                                               "values=#{values}",
+                                               "changeable=#{changeable}",
+                                               "" ] if hydra_access_controls_permissions_debug_verbose
         (changeable - values).each do |entity|
           for_destroy = search_by_type_and_mode(type, permission_to_uri(permission)).select { |p| p.agent_name == entity }
           permissions.delete(for_destroy)
@@ -420,6 +474,10 @@ module Hydra
       # @param [Symbol] type (either :group or :person)
       # @return [Array<Permission>]
       def search_by_type(type)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "type=#{type}",
+                                               "" ] if hydra_access_controls_permissions_debug_verbose
         case type
         when :group
           permissions.to_a.select { |p| group_agent?(p.agent) }
@@ -432,6 +490,11 @@ module Hydra
       # @param [::RDF::URI] mode One of the permissions modes, e.g. ACL.Write, ACL.Read, etc.
       # @return [Array<Permission>]
       def search_by_type_and_mode(type, mode)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "type=#{type}",
+                                               "mode=#{mode}",
+                                               "" ] if hydra_access_controls_permissions_debug_verbose
         case type
         when :group
           search_by_mode(mode) { |agent| group_agent?(agent) }
@@ -463,7 +526,15 @@ module Hydra
       end
 
       def group_permissions
-        search_by_type(:group)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if hydra_access_controls_permissions_debug_verbose
+        rv = search_by_type(:group)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "rv=#{rv}",
+                                               "" ] if hydra_access_controls_permissions_debug_verbose
+        return rv
       end
 
       def group_agent?(agent)

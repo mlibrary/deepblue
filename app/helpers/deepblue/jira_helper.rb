@@ -7,49 +7,49 @@ module Deepblue
   module JiraHelper
     extend ActionView::Helpers::TranslationHelper
 
-    FIELD_NAME_CONTACT_INFO = "customfield_11315".freeze
-    FIELD_NAME_CREATOR = "customfield_11304".freeze
-    FIELD_NAME_DEPOSIT_ID = "customfield_11303".freeze
-    FIELD_NAME_DEPOSIT_URL = "customfield_11305".freeze
-    FIELD_NAME_DESCRIPTION = "description".freeze
-    FIELD_NAME_DISCIPLINE = "customfield_11309".freeze
-    FIELD_NAME_REPORTER = "reporter".freeze
-    FIELD_NAME_STATUS = "customfield_12000".freeze
-    FIELD_NAME_SUMMARY = "summary".freeze
+    FIELD_NAME_CONTACT_INFO = "customfield_11315".freeze unless const_defined? :FIELD_NAME_CONTACT_INFO
+    FIELD_NAME_CREATOR = "customfield_11304".freeze unless const_defined? :FIELD_NAME_CREATOR
+    FIELD_NAME_DEPOSIT_ID = "customfield_11303".freeze unless const_defined? :FIELD_NAME_DEPOSIT_ID
+    FIELD_NAME_DEPOSIT_URL = "customfield_11305".freeze unless const_defined? :FIELD_NAME_DEPOSIT_URL
+    FIELD_NAME_DESCRIPTION = "description".freeze unless const_defined? :FIELD_NAME_DESCRIPTION
+    FIELD_NAME_DISCIPLINE = "customfield_11309".freeze unless const_defined? :FIELD_NAME_DISCIPLINE
+    FIELD_NAME_REPORTER = "reporter".freeze unless const_defined? :FIELD_NAME_REPORTER
+    FIELD_NAME_STATUS = "customfield_12000".freeze unless const_defined? :FIELD_NAME_STATUS
+    FIELD_NAME_SUMMARY = "summary".freeze unless const_defined? :FIELD_NAME_SUMMARY
 
     @@_setup_ran = false
 
-    @@jira_allow_add_comment
-    @@jira_allow_create_users
-    @@jira_field_values_discipline_map
-    @@jira_helper_debug_verbose
-    @@jira_integration_hostnames
-    @@jira_integration_hostnames_prod
-    @@jira_integration_enabled
-    @@jira_manager_project_key
-    @@jira_manager_issue_type
-    @@jira_rest_url
-    @@jira_rest_api_url
-    @@jira_rest_create_users_url
-    @@jira_test_mode
-    @@jira_url
-    @@jira_use_authoremail_as_requester = false
+    # @@jira_allow_add_comment
+    # @@jira_allow_create_users
+    # @@jira_field_values_discipline_map
+    # @@jira_helper_debug_verbose
+    # @@jira_integration_hostnames
+    # @@jira_integration_hostnames_prod
+    # @@jira_integration_enabled
+    # @@jira_manager_project_key
+    # @@jira_manager_issue_type
+    # @@jira_rest_url
+    # @@jira_rest_api_url
+    # @@jira_rest_create_users_url
+    # @@jira_test_mode
+    # @@jira_url
+    # @@jira_use_authoremail_as_requester = false
 
-    mattr_accessor  :jira_allow_add_comment,
-                    :jira_allow_create_users,
-                    :jira_field_values_discipline_map,
-                    :jira_helper_debug_verbose,
-                    :jira_integration_hostnames,
-                    :jira_integration_hostnames_prod,
-                    :jira_integration_enabled,
-                    :jira_manager_project_key,
-                    :jira_manager_issue_type,
-                    :jira_rest_url,
-                    :jira_rest_api_url,
-                    :jira_rest_create_users_url,
-                    :jira_test_mode,
-                    :jira_url,
-                    :jira_use_authoremail_as_requester
+    mattr_accessor :jira_allow_add_comment
+    mattr_accessor :jira_allow_create_users
+    mattr_accessor :jira_field_values_discipline_map
+    mattr_accessor :jira_helper_debug_verbose
+    mattr_accessor :jira_integration_hostnames
+    mattr_accessor :jira_integration_hostnames_prod
+    mattr_accessor :jira_integration_enabled
+    mattr_accessor :jira_manager_project_key
+    mattr_accessor :jira_manager_issue_type
+    mattr_accessor :jira_rest_url
+    mattr_accessor :jira_rest_api_url
+    mattr_accessor :jira_rest_create_users_url
+    mattr_accessor :jira_test_mode
+    mattr_accessor :jira_url
+    mattr_accessor :jira_use_authoremail_as_requester, default: false
 
     def self.setup
       yield self if @@_setup_ran == false

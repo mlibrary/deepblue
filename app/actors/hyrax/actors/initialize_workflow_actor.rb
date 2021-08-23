@@ -48,6 +48,13 @@ module Hyrax
 
         # @return [TrueClass]
         def create_workflow(env)
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "env=#{env}",
+                                                 "env.curation_concern.id=#{env.curation_concern.id}",
+                                                 "env.attributes=#{env.attributes}",
+                                                 "env.user=#{env.user}",
+                                                 "" ] if initialize_workflow_actor_debug_verbose
           workflow_factory.create(env.curation_concern, env.attributes, env.user)
         end
     end

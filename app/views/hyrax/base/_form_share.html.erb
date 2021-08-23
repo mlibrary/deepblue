@@ -52,10 +52,10 @@
 
 <table class="table">
   <tr id="file_permissions">
-    <td width="20%">
+    <td style="width:20%;">
       <%= Hyrax.config.owner_permission_levels.keys[0] %>
     </td>
-    <td width="60%">
+    <td style="width:60%;">
       <%= label_tag :owner_access, class: "control-label" do %>
         Depositor (<span id="file_owner" data-depositor="<%= depositor %>"><%= link_to_profile depositor %></span>)
       <% end %>

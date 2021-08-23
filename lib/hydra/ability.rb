@@ -43,6 +43,9 @@ module Hydra
     end
 
     def edit_permissions
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if hydra_ability_debug_verbose
       # Loading an object from Fedora can be slow, so assume that if a string is passed, it's an object id
       can [:edit, :update, :destroy], String do |id|
         test_edit(id)
@@ -59,6 +62,9 @@ module Hydra
     end
 
     def read_permissions
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if hydra_ability_debug_verbose
       super
 
       can :read, ActiveFedora::Base do |obj|
@@ -90,6 +96,10 @@ module Hydra
     protected
 
     def test_edit(id)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "" ] if hydra_ability_debug_verbose
       Rails.logger.debug("[CANCAN] Checking edit permissions for user: #{current_user.user_key} with groups: #{user_groups.inspect}") if hydra_ability_debug_verbose
       group_intersection = user_groups & edit_groups(id)
       result = !group_intersection.empty? || edit_users(id).include?(current_user.user_key)
@@ -98,6 +108,10 @@ module Hydra
     end
 
     def edit_groups(id)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "" ] if hydra_ability_debug_verbose
       doc = permissions_doc(id)
       return [] if doc.nil?
       eg = doc[self.class.edit_group_field] || []
@@ -107,6 +121,10 @@ module Hydra
 
     # edit implies read, so read_groups is the union of edit and read groups
     def read_groups(id)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "" ] if hydra_ability_debug_verbose
       rg = super
       rg |= edit_groups(id)
       Rails.logger.debug("[CANCAN] read_groups: #{rg.inspect}") if hydra_ability_debug_verbose
@@ -114,6 +132,10 @@ module Hydra
     end
 
     def edit_users(id)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "" ] if hydra_ability_debug_verbose
       doc = permissions_doc(id)
       return [] if doc.nil?
       ep = doc[self.class.edit_user_field] ||  []
@@ -123,6 +145,10 @@ module Hydra
 
     # edit implies read, so read_users is the union of edit and read users
     def read_users(id)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "" ] if hydra_ability_debug_verbose
       rp = super
       rp |= edit_users(id)
       Rails.logger.debug("[CANCAN] read_users: #{rp.inspect}") if hydra_ability_debug_verbose
