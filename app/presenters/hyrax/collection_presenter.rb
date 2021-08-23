@@ -101,8 +101,16 @@ module Hyrax
        :related_url ]
     end
 
+    def self.admin_only_terms
+      [:edit_groups,
+       :edit_people,
+       :read_groups ]
+    end
+
     def terms_with_values
-      self.class.terms.select { |t| self[t].present? }
+      rv = self.class.terms.select { |t| self[t].present? }
+      rv += self.class.admin_only_terms.select { |t| self[t].present? } if current_ability.admin?
+      return rv
     end
 
     def [](key)

@@ -1,16 +1,36 @@
 require 'rails_helper'
 
 RSpec.describe Hyrax::CollectionPresenter, skip: false do
+
   describe ".terms" do
     subject { described_class.terms }
 
     it do
-      is_expected.to eq [:total_items, :size, :resource_type, :creator,
-                         :contributor, :keyword, :license, :publisher,
-                         :date_created, :subject, :language, :identifier,
+      is_expected.to eq [:total_items,
+                         :size,
+                         :resource_type,
+                         :creator,
+                         :contributor,
+                         :keyword,
+                         :license,
+                         :publisher,
+                         :date_created,
+                         :subject,
+                         :language,
+                         :identifier,
                          :based_near,
                          :referenced_by,
                          :related_url]
+    end
+  end
+
+  describe ".admin_only_terms" do
+    subject { described_class.admin_only_terms }
+
+    it do
+      is_expected.to eq [:edit_groups,
+                         :edit_people,
+                         :read_groups]
     end
   end
 
@@ -82,6 +102,10 @@ RSpec.describe Hyrax::CollectionPresenter, skip: false do
     # DBD actually supports size, but not this way
     subject { presenter.terms_with_values }
 
+    before do
+      allow(ability).to receive(:admin?).and_return false
+    end
+
     it do
       is_expected.to eq [:total_items,
                          # :size,
@@ -91,6 +115,28 @@ RSpec.describe Hyrax::CollectionPresenter, skip: false do
                          :based_near,
                          :referenced_by,
                          :related_url]
+    end
+  end
+
+  describe "#terms_with_values when admin" do
+    # DBD actually supports size, but not this way
+    subject { presenter.terms_with_values }
+
+    before do
+      allow(ability).to receive(:admin?).and_return true
+    end
+
+    it do
+      is_expected.to eq [:total_items,
+                         # :size,
+                         :resource_type,
+                         :keyword,
+                         :date_created,
+                         :based_near,
+                         :referenced_by,
+                         :related_url,
+                         :edit_people,
+                         :read_groups]
     end
   end
 
