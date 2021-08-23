@@ -142,7 +142,7 @@ module DeepBlueDocs
     config.featured_work_actor_debug_verbose              = false
     config.file_actor_debug_verbose                       = false
     config.file_set_actor_debug_verbose                   = false
-    config.initialize_workflow_actor_debug_verbose        = false
+    config.initialize_workflow_actor_debug_verbose        = true
     config.interpret_visibility_actor_debug_verbose       = false
     config.model_actor_debug_verbose                      = false
     config.optimistic_lock_actor_debug_verbose            = false

@@ -37,15 +37,15 @@ Flipflop.configure do
   group :masthead_banner_announcements do
 
     feature :display_masthead_banner_standard,
-            default: true,
+            default: false,
             description: "Default masthead banner"
 
     feature :display_masthead_banner_maintenance,
-            default: true,
+            default: false,
             description: "Maintenance masthead banner"
 
     feature :display_masthead_banner_slow,
-            default: true,
+            default: false,
             description: "Slow masthead banner"
 
     feature :display_masthead_banner_outage,

@@ -101,6 +101,14 @@
 <% if presenter.current_ability.admin? && !presenter.tombstone_permissions_hack? %>
   <%= presenter.attribute_to_html(:prior_identifier, label: t('show.labels.prior_identifier') ) %>
 <% end %>
+
+<% if presenter.current_ability.admin? %>
+  <%= presenter.attribute_to_html(:read_users, label: "View Users" ) %>
+  <%= presenter.attribute_to_html(:edit_users, label: "Edit Users" ) %>
+  <%= presenter.attribute_to_html(:read_groups, label: "View Groups" ) %>
+  <%= presenter.attribute_to_html(:edit_groups, label: "Edit Groups" ) %>
+<% end %>
+
 <%# "secondary" attributes %>
 <%= presenter.attribute_to_html(:description_abstract) %>
 <%= presenter.attribute_to_html(:identifier_orcid) %>

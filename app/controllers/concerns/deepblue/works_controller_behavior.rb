@@ -603,6 +603,26 @@ module Deepblue
       curation_concern.doi.present?
     end
 
+    def edit_groups
+      curation_concern
+      curation_concern&.edit_groups
+    end
+
+    def edit_users
+      curation_concern
+      curation_concern&.edit_users
+    end
+
+    def read_groups
+      curation_concern
+      curation_concern&.read_groups
+    end
+
+    def read_users
+      curation_concern
+      curation_concern&.read_users
+    end
+
     # TODO: move to work_permissions_behavior
     def editor?
       return false if anonymous_link?

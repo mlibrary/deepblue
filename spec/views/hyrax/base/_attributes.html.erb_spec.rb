@@ -34,7 +34,11 @@ RSpec.describe 'hyrax/base/_attributes.html.erb' do
   before do
     allow(presenter).to receive(:id).and_return id
     allow(presenter).to receive(:member_of_collection_presenters).and_return([])
-    allow( presenter ).to receive( :tombstone_permissions_hack? ).and_return false
+    allow(presenter).to receive(:tombstone_permissions_hack? ).and_return false
+    allow(presenter).to receive(:edit_groups).and_return []
+    allow(presenter).to receive(:edit_users).and_return []
+    allow(presenter).to receive(:read_groups).and_return []
+    allow(presenter).to receive(:read_users).and_return []
     allow(view).to receive(:dom_class) { '' }
 
     stub_template 'shared/_show_curation_notes.html.erb' => ''
