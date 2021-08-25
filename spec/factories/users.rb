@@ -25,6 +25,11 @@ FactoryBot.define do
 
     factory :admin do
       groups { ['admin'] }
+      after(:create) do |user|
+        if Rails.configuration.user_role_management_enabled
+          user.roles << Role.find_or_create_by(name: 'admin')
+        end
+      end
     end
 
     factory :user_with_mail do
