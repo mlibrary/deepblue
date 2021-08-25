@@ -26,6 +26,7 @@ module DeepBlueDocs
     # -- all .rb files in that directory are automatically loaded.
     #
     # reference config values like: ::DeepBlueDocs::Application.config.variable_name
+    #                           or: Rails.configuration.variable_name
     #
     config.load_timestamp = DateTime.now.freeze
     # puts "Rails.const_defined? 'Console' = #{Rails.const_defined? 'Console'}"
@@ -59,18 +60,18 @@ module DeepBlueDocs
     # look for true || before production release
     # look for DEBUG_VERBOSE = true before production release
     # TODO: move this section into a debug_initializer
-    config.abstract_notification_debug_verbose = false
-    config.abstract_filter_debug_verbose = false
-    config.application_controller_debug_verbose = false
-    config.catalog_controller_debug_verbose = false
-    config.collection_debug_verbose = false
-    config.collection_presenter_debug_verbose = false
-    config.collections_controller_debug_verbose = false
+    config.abstract_notification_debug_verbose           = false
+    config.abstract_filter_debug_verbose                 = false
+    config.application_controller_debug_verbose          = false
+    config.catalog_controller_debug_verbose              = false
+    config.collection_debug_verbose                      = false
+    config.collection_presenter_debug_verbose            = false
+    config.collections_controller_debug_verbose          = false
     config.collections_controller_behavior_debug_verbose = false
-    config.data_set_debug_verbose = false
-    config.data_set_presenter_debug_verbose = false
-    config.data_sets_controller_debug_verbose = false
-    config.deep_blue_presenter_debug_verbose = false
+    config.data_set_debug_verbose                        = false
+    config.data_set_presenter_debug_verbose              = false
+    config.data_sets_controller_debug_verbose            = false
+    config.deep_blue_presenter_debug_verbose             = false
     # config.doi_minting_service_debug_verbose -- see config/integration/doi_minting_service_integration.rb
     config.downloads_controller_debug_verbose = false
     config.ds_file_set_presenter_debug_verbose = false

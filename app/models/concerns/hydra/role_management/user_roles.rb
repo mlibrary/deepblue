@@ -7,7 +7,7 @@ module Hydra
       extend ActiveSupport::Concern
 
       mattr_accessor :hydra_role_management_user_roles_debug_verbose,
-                     default: ::DeepBlueDocs::Application.config.hydra_role_management_user_roles_debug_verbose
+                     default: Rails.configuration.hydra_role_management_user_roles_debug_verbose
 
       included do
         has_and_belongs_to_many :roles
@@ -16,9 +16,13 @@ module Hydra
       def groups
         ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
                                               ::Deepblue::LoggingHelper.called_from,
-                                              ""] if hydra_role_management_user_roles_debug_verbose
+                                              "", bold_puts: false] if hydra_role_management_user_roles_debug_verbose
         g = roles.map(&:name)
         g += ['registered'] unless new_record? || guest?
+        ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                              ::Deepblue::LoggingHelper.called_from,
+                                              "g=#{g}",
+                                              "", bold_puts: false] if hydra_role_management_user_roles_debug_verbose
         g
       end
 

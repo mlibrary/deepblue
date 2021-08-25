@@ -17,10 +17,16 @@ RSpec.describe Hyrax::Actors::TransactionalRequest, skip: false do
     end
   end
 
+  let(:depositor) do
+    if Rails.configuration.user_role_management_enabled
+      instance_double(User, "depositor", new_record?: true, guest?: true, id: nil, user_key: nil, admin?: false)
+    else
+      instance_double(User, "depositor", new_record?: true, guest?: true, id: nil, user_key: nil)
+    end
+  end
   let(:ability) { ::Ability.new(depositor) }
   let(:env) { Hyrax::Actors::Environment.new(work, ability, attributes) }
   let(:terminator) { Hyrax::Actors::Terminator.new }
-  let(:depositor) { instance_double(User, new_record?: true, guest?: true, id: nil, user_key: nil) }
   let(:work) { double(:work) }
 
   subject(:middleware) do
@@ -34,6 +40,11 @@ RSpec.describe Hyrax::Actors::TransactionalRequest, skip: false do
 
   describe "create" do
     let(:attributes) { {} }
+
+    before do
+      allow(ability).to receive(:admin?).and_return false
+      #allow(depositor).to receive(:admin?).and_return false
+    end
 
     subject { middleware.create(env) }
 
