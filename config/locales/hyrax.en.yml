@@ -704,6 +704,11 @@ en:
         header: "Edit Work"
       draft:
         header: "Edit Draft Work"
+    works:
+      form:
+        tab:
+          files: "Add Files"
+          uploaded: "Deposited Files"
   samvera:
     persona:
       users:

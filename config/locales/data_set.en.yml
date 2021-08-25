@@ -45,6 +45,9 @@ en:
       data_set:
         description:          "Data set works"
         name:                 "Data Set"
+    works:
+      nofiles: "No files have ever been uploaded and attached to this work."
+      somefiles: "This is a list of all the files uploaded and attached to this work."
     base:
       required_descriptions_deepblue: Please complete required descriptions
       required_agreement_deepblue: Check deposit agreement below

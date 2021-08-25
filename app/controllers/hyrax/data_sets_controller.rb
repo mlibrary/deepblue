@@ -93,6 +93,14 @@ module Hyrax
       @tombstone_permissions_hack
     end
 
+    def edit
+      # To have presenter available in work edit edit
+      # so that the files attached to work can be displaye.
+      presenter_init && parent_presenter
+      presenter.controller = self
+      build_form
+    end
+
     def analytics_subscribe
       ::AnalyticsHelper.monthly_events_report_subscribe_data_set( user: current_user, cc_id: params[:id] )
       redirect_to current_show_path( append: "#analytics" )
