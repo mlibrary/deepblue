@@ -103,10 +103,10 @@
 <% end %>
 
 <% if presenter.current_ability.admin? %>
-  <%= presenter.attribute_to_html(:read_users, label: "View Users" ) %>
-  <%= presenter.attribute_to_html(:edit_users, label: "Edit Users" ) %>
-  <%= presenter.attribute_to_html(:read_groups, label: "View Groups" ) %>
-  <%= presenter.attribute_to_html(:edit_groups, label: "Edit Groups" ) %>
+  <%= presenter.attribute_to_html(:read_users, label: t('show.labels.read_users') ) %>
+  <%= presenter.attribute_to_html(:edit_users, label: t('show.labels.edit_users') ) %>
+  <%= presenter.attribute_to_html(:read_groups, label: t('show.labels.read_groups') ) %>
+  <%= presenter.attribute_to_html(:edit_groups, label: t('show.labels.read_groups') ) %>
 <% end %>
 
 <%# "secondary" attributes %>
