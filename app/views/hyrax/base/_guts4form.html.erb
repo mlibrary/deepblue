@@ -1,8 +1,8 @@
 <% # we will yield to content_for for each tab, e.g. :files_tab %>
 <% if current_ability.admin? %>
-  <% tabs = %w[metadata files relationships share] %>
+  <% tabs = %w[metadata files uploaded relationships share] %>
 <% else %>
-  <% tabs = %w[metadata files] %>
+  <% tabs = %w[metadata files uploaded] %>
 <% end %>
 
 <div class="row">

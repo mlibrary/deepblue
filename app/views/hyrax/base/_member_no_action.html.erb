@@ -1,0 +1,52 @@
+<% if @presenter.tombstone.present? %>
+  <tr class="<%= dom_class(member_no_action) %> attributes">
+    <td class="attribute thumbnail"><center>-</center></td>
+    <td class="attribute attribute-filename"><%= member_no_action.link_name %></td>
+    <td class="attribute date_uploaded"><%= member_no_action.try(:date_uploaded) %></td>
+    <td class="attribute date_modified"><%= member_no_action.try(:date_modified) %></td>
+    <td class="attribute attribute-file_size"><%= member_no_action.file_size_human_readable %></td>
+  </tr>
+<% else %>
+  <tr class="<%= dom_class(member_no_action) %> attributes">
+    <%#
+      ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                            ::Deepblue::LoggingHelper.called_from,
+                                            "member.class=#{member.class.name}",
+                                            "member.member_thumbnail_url_options( member )=#{member.member_thumbnail_url_options( member )}",
+                                            ""]
+    %>
+    <td class="thumbnail">
+      <% thumbnail_tag = render_thumbnail_tag( member_no_action.solr_document,
+                                               member_no_action.member_thumbnail_image_options( member_no_action ),
+                                               member_no_action.member_thumbnail_url_options( member_no_action ) ) %>
+      <%= raw @presenter.member_thumbnail_post_process( main_app: main_app, member: member_no_action, tag: thumbnail_tag ) %>
+    </td>
+    <%# if can?(:download, member.id) %>
+    <% if member_no_action.can_download_file? && !member_no_action.anonymous_show? %>
+      <% unless member_no_action.file_size_too_large_to_download? %>
+        <td role="menuitem" tabindex="-1">
+          <%= link_to truncate(member_no_action.link_name, length: 40, omission: "...#{member_no_action.link_name[-5, 5]}"),
+                      @presenter.download_path_link( main_app: main_app, curation_concern: member_no_action ),
+                      title: t('.download_title', file_set: member_no_action),
+                      target: "_blank",
+                      id: "file_download",
+                      data: { label: member_no_action.id } %>
+        </td>
+      <% else %>
+        <td class="attribute filename">
+          <span class="hastooltip">
+            <%= truncate(member_no_action.link_name, length: 40, omission: "...#{member_no_action.link_name[-5, 5]}") %>
+            <% unless member_no_action.anonymous_show? %>
+              <span class="tooltip"><%= t('simple_form.hints.file_set.too_large_to_download_directly') %></span>
+            <% end %>
+          </span>
+        </td>
+      <% end %>
+    <% else %>
+      <td class="attribute filename"><%= truncate(member_no_action.title.first, length: 40, omission: "...#{member_no_action.title.first[-5, 5]}") %></td>
+    <% end %>
+    <td class="attribute attribute-date_uploaded"><%= member_no_action.try(:date_uploaded) %></td>
+    <td class="attribute attribute-date_modified"><%= member_no_action.try(:date_modified) %></td>
+    <td class="attribute attribute-file_size"><%= member_no_action.file_size_human_readable %></td>
+  </tr>
+<% end %>

@@ -1,0 +1,7 @@
+<%# This is where you list all the files attached to the work. %>
+<% if @presenter.nil? || @presenter.file_set_presenters.empty? %>
+  <%= t("hyrax.works.nofiles") %>
+<% else %>
+  <%= t("hyrax.works.somefiles") %>
+  <%= render 'items_no_action', presenter: @presenter %>
+<% end %>
