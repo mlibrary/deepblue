@@ -7,8 +7,8 @@ module Hyrax
 
   class WorkShowPresenter
 
-    mattr_accessor :work_show_presenter_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.work_show_presenter_debug_verbose
+    mattr_accessor :work_show_presenter_debug_verbose, default: Rails.configuration.work_show_presenter_debug_verbose
+    mattr_accessor :work_show_presenter_members_debug_verbose, default: false
 
     include ActionDispatch::Routing::PolymorphicRoutes
     include ModelProxy
@@ -441,6 +441,10 @@ module Hyrax
                                              "rv.class.name=#{rv.class.name}",
                                              "" ] if work_show_presenter_debug_verbose
       return rv
+    end
+
+    def members_debug_verbose
+      WorkShowPresenter.work_show_presenter_members_debug_verbose
     end
 
     def member_presenters( ids = member_presenter_factory.ordered_ids,

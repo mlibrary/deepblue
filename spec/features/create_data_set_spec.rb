@@ -72,7 +72,7 @@ RSpec.feature 'Create a DataSet', type: :feature, js: true, workflow: true, clea
       choose 'data_set_rights_license_httpcreativecommonsorgpublicdomainzero10'
       select 'Arts', from: 'Discipline'
 
-      click_link "Files" # switch tab
+      click_link "Add Files" # switch tab
       expect(page).to have_content( add_files_note, wait: wait_after_click )
       expect(page).to have_content "Add files"
       # not in DBD:
@@ -92,7 +92,7 @@ RSpec.feature 'Create a DataSet', type: :feature, js: true, workflow: true, clea
       # choose('data_set_visibility_open')
 
       click_link "Descriptions" # switch tab
-      page.find_link( 'Files', wait: wait_after_click )
+      page.find_link( 'Add Files', wait: wait_after_click )
 
       # expect(page).to have_content 'I have read and agree to the Deposit Agreement'
       check('agreement', wait: wait_after_click)

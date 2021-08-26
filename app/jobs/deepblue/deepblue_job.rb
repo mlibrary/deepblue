@@ -15,6 +15,7 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
   def debug_verbose
     @debug_verbose ||= deepblue_job_debug_verbose
   end
+
   alias :debug_verbose? :debug_verbose
 
   def email_all_targets( task_name:, event:, body: nil, debug_verbose: deepblue_job_debug_verbose )

@@ -6,7 +6,7 @@ class ServerAfterInitializeService
   @@_setup_ran = false
   @@_setup_failed = false
 
-  mattr_accessor :server_after_initialize_service_debug_verbose, default: true
+  mattr_accessor :server_after_initialize_service_debug_verbose, default: false
 
   mattr_accessor :server_after_initialize_ran, default: false
   mattr_accessor :server_after_initialize_failed, default: false

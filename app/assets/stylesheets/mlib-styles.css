@@ -893,7 +893,7 @@ div.versioning-files-input {
 }
 
 div.versioning-files-row {
-    border-top: solid 1px #dddddd;
+    xborder-top: solid 1px #dddddd;
     padding-top: 10px;
 }
 

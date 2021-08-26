@@ -67,7 +67,7 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
         choose 'data_set_rights_license_httpcreativecommonsorgpublicdomainzero10'
         select 'Arts', from: 'Discipline'
 
-        click_link "Files" # switch tab
+        click_link "Add Files" # switch tab
         expect(page).to have_content( add_files_note, wait: wait_after_upload )
         expect(page).to have_content "Add files"
         expect(page).to_not have_content "Add folder"
@@ -88,7 +88,7 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
         # choose('data_set_visibility_open')
 
         click_link "Descriptions" # switch tab back
-        page.find_link( 'Files', wait: 10 )
+        page.find_link( 'Add Files', wait: 10 )
         # expect(page).to have_content 'I have read and agree to the Deposit Agreement'
         check('agreement')
 
@@ -141,7 +141,7 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
         choose 'data_set_rights_license_httpcreativecommonsorgpublicdomainzero10'
         select 'Arts', from: 'Discipline'
 
-        click_link "Files" # switch tab
+        click_link "Add Files" # switch tab
         expect(page).to have_content( add_files_note, wait: 10 )
         expect(page).to have_content "Add files"
         within('span#addfiles') do
@@ -202,7 +202,7 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
         choose 'data_set_rights_license_httpcreativecommonsorgpublicdomainzero10'
         select 'Arts', from: 'Discipline'
 
-        click_link "Files" # switch to the Files tab
+        click_link "Add Files" # switch to the Files tab
         expect(page).to have_content( add_files_note, wait: 10 )
         expect(page).to have_content "Add files"
         expect(page).to_not have_content 'image.jp2'
@@ -223,7 +223,7 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
         expect(page).to_not have_content( 'image.jp2', wait: 10 )
 
         click_link "Descriptions" # switch tab back
-        page.find_link( 'Files', wait: 10 )
+        page.find_link( 'Add Files', wait: 10 )
         # expect(page).to have_content 'I have read and agree to the Deposit Agreement'
         check('agreement')
 
@@ -298,7 +298,7 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
         choose 'data_set_rights_license_httpcreativecommonsorgpublicdomainzero10'
         select 'Arts', from: 'Discipline'
 
-        click_link "Files" # switch tab
+        click_link "Add Files" # switch tab
         expect(page).to have_content( add_files_note, wait: 10 )
         expect(page).to have_content "Add files"
         expect(page).to_not have_content "Add folder"
@@ -319,7 +319,7 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
         # choose('data_set_visibility_open')
 
         click_link "Descriptions" # switch tab back
-        page.find_link( 'Files', wait: 10 )
+        page.find_link( 'Add Files', wait: 10 )
         # expect(page).to have_content 'I have read and agree to the Deposit Agreement'
         check('agreement')
 
@@ -388,7 +388,7 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
         choose 'data_set_rights_license_httpcreativecommonsorgpublicdomainzero10'
         select 'Arts', from: 'Discipline'
 
-        click_link "Files" # switch to the Files tab
+        click_link "Add Files" # switch to the Files tab
         expect(page).to have_content( add_files_note, wait: 10 )
         expect(page).to have_content "Add files"
         expect(page).to_not have_content 'image.jp2'
@@ -408,7 +408,7 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
         click_button( 'Delete', wait: wait_after_click ) # delete the file
         expect(page).to_not have_content( 'image.jp2', wait: 10 )
         click_link "Descriptions" # switch tab back
-        page.find_link( 'Files', wait: 10 )
+        page.find_link( 'Add Files', wait: 10 )
         # expect(page).to have_content 'I have read and agree to the Deposit Agreement'
         check('agreement')
 

@@ -562,7 +562,8 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "" ] if deepblue_works_controller_behavior_debug_verbose
-      return redirect_to my_works_path, notice: "You do not have sufficient privileges for this action." unless can_delete_work?
+      return redirect_to my_works_path,
+                         notice: I18n.t('hyrax.insufficent_privileges_for_action') unless can_delete_work?
       respond_to do |wants|
         wants.html do
           destroy_rest
@@ -923,7 +924,8 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              ::Deepblue::LoggingHelper.obj_class( 'actor.class', actor ),
                                              "" ] if deepblue_works_controller_behavior_debug_verbose
-      return redirect_to my_works_path, notice: "You do not have sufficient privileges for this action." unless can_edit_work?
+      return redirect_to my_works_path,
+                         notice: I18n.t('hyrax.insufficent_privileges_for_action') unless can_edit_work?
       respond_to do |wants|
         wants.html do
           had_error = update_rest draft 

@@ -1,0 +1,32 @@
+
+<% versions_debug_verbose = false %>
+
+<%
+  ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                        ::Deepblue::LoggingHelper.called_from,
+                                        ""] if versions_debug_verbose
+%>
+
+<div class="panel panel-default panel-items">
+  <div class="table-scroll--container" style="width: 100%">
+    <table class="table table-striped related-files">
+      <thead>
+        <tr>
+          <th>&nbsp;</th>
+          <th><%= t('hyrax.file_sets.versioning.date_uploaded') %></th>
+          <th><%= t('hyrax.file_sets.versioning.uploaded_by') %></th>
+          <!-- th><%#= t('hyrax.file_sets.versioning.file_size') %></th -->
+        </tr>
+      </thead>
+      <tbody>
+        <%
+          ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                                ::Deepblue::LoggingHelper.called_from,
+                                                "@version_list.size=#{@version_list.size}",
+                                                ""] if versions_debug_verbose
+        %>
+        <%= render partial: 'version', collection: @version_list %>
+      </tbody>
+    </table>
+  </div>
+</div>
