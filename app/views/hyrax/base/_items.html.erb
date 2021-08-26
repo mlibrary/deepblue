@@ -23,7 +23,7 @@
             ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
                                                   ::Deepblue::LoggingHelper.called_from,
                                                   "@presenter.member_presenters.size=#{@presenter.member_presenters.size}",
-                                                  ""]
+                                                  ""] if @presenter.view_debug_verbose
           %>
           <%= render partial: 'member', collection: @presenter.member_presenters %>
         </tbody>

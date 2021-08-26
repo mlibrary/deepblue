@@ -62,25 +62,14 @@ module DeepBlueDocs
     # TODO: move this section into a debug_initializer
     config.abstract_notification_debug_verbose           = false
     config.abstract_filter_debug_verbose                 = false
-    config.application_controller_debug_verbose          = false
-    config.catalog_controller_debug_verbose              = false
     config.collection_debug_verbose                      = false
-    config.collection_presenter_debug_verbose            = false
-    config.collections_controller_debug_verbose          = false
-    config.collections_controller_behavior_debug_verbose = false
     config.data_set_debug_verbose                        = false
-    config.data_set_presenter_debug_verbose              = false
-    config.data_sets_controller_debug_verbose            = false
-    config.deep_blue_presenter_debug_verbose             = false
     # config.doi_minting_service_debug_verbose -- see config/integration/doi_minting_service_integration.rb
-    config.downloads_controller_debug_verbose = false
-    config.ds_file_set_presenter_debug_verbose = false
     # config.email_debug_verbose -- see configure email below
-    config.email_behavior_debug_verbose = false
+    config.email_behavior_debug_verbose                  = false
     # config.file_content_helper_debug_verbose -- see config/integration/file_content_integration.rb
-    config.file_set_debug_verbose = false
-    config.file_set_derivatives_service_debug_verbose = false
-    config.file_sets_controller_debug_verbose = false
+    config.file_set_debug_verbose                        = false
+    config.file_set_derivatives_service_debug_verbose    = false
     config.hydra_derivatives_processors_document_debug_verbose = false
     config.hydra_derivatives_processors_image_debug_verbose = false
     # config.hydra_derivatives_runner_debug_verbose = false # using this causes an error in spec tests
@@ -90,26 +79,20 @@ module DeepBlueDocs
     # config.interpolation_helper_debug_verbose = false -- see config/integration/work_view_content.rb
     # config.jira_helper_debug_verbose -- see config/integration/jira_integration
     config.job_io_wrapper_debug_verbose = false
-    config.member_presenter_factory_debug_verbose = false
     # config.metadata_behavior_debug_verbose = false # moved to app/services/deepblue/metadata_behavior_integration_service.rb
     # config.new_content_service_debug_verbose = false
     config.provenance_behavior_debug_verbose = false
     config.shell_based_processor_debug_verbose = false
     config.solr_document_behavior_debug_verbose = false
     config.solr_document_debug_verbose = false
-    # config.static_content_controller_behavior_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
     # config.static_content_cache_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
     config.umrdr_work_behavior_debug_verbose = false
     config.user_debug_verbose = false
     config.user_stat_importer_debug_verbose = false
-    config.work_show_presenter_debug_verbose = false
     # config.work_view_content_service_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
     # config.work_view_content_service_email_templates_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
     # config.work_view_content_service_i18n_templates_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
     # config.work_view_content_service_view_templates_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
-    config.workflow_event_behavior_debug_verbose = false
-    config.deepblue_works_controller_behavior_debug_verbose = false
-    config.hyrax_works_controller_behavior_debug_verbose = false
     # end _debug_verbose flags
 
     # all ability and permissions debug_verbose variables
@@ -143,10 +126,34 @@ module DeepBlueDocs
     config.featured_work_actor_debug_verbose              = false
     config.file_actor_debug_verbose                       = false
     config.file_set_actor_debug_verbose                   = false
-    config.initialize_workflow_actor_debug_verbose        = true
+    config.initialize_workflow_actor_debug_verbose        = false
     config.interpret_visibility_actor_debug_verbose       = false
     config.model_actor_debug_verbose                      = false
     config.optimistic_lock_actor_debug_verbose            = false
+
+    # controller debug_verbose_variables
+    config.application_controller_debug_verbose          = false
+    config.catalog_controller_debug_verbose              = false
+    config.collections_controller_debug_verbose          = false
+    config.collections_controller_behavior_debug_verbose = false
+    config.workflow_event_behavior_debug_verbose         = false
+    config.data_sets_controller_debug_verbose            = false
+    config.downloads_controller_debug_verbose            = false
+    config.file_sets_controller_debug_verbose            = false
+    # config.static_content_controller_behavior_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
+    config.deepblue_works_controller_behavior_debug_verbose = false
+    config.hyrax_works_controller_behavior_debug_verbose = false
+
+    # presenter debug_verbose variables
+    config.collection_presenter_debug_verbose             = false
+    config.data_set_presenter_debug_verbose               = false
+    config.deep_blue_presenter_debug_verbose              = false
+    config.ds_file_set_presenter_debug_verbose            = false
+    config.ds_file_set_presenter_view_debug_verbose       = false
+    config.member_presenter_factory_debug_verbose         = false
+    config.version_list_presenter_debug_verbose           = false
+    config.version_presenter_debug_verbose                = false
+    config.work_show_presenter_debug_verbose              = false
 
     # config.middleware.insert_before Rack::Runtime, RackMultipartBufSizeSetter
 

@@ -52,6 +52,7 @@ en:
           title_tesim: Title
   hyrax:
     account_label: User
+    insufficent_privileges_for_action: "You do not have sufficient privileges for this action."
     admin:
       admin_sets:
         form_visibility:
@@ -512,18 +513,21 @@ en:
         insufficient_rights_to_assign_as_read_me: >
           You do not have the rights to assigned "%{filename}" as readme.
       versioning:
-        choose_file: Choose New Version File
-        current: Current Version
-        header: Versions
-        previous: Previous
-        remove: Remove
+        choose_file:          Choose New Version File
+        current:              Current Version
+        date_uploaded:        Date Uploaded
+        header:               Replace Current Version
+        file_size:            File Size
+        previous:             Previous
+        remove:               Remove
         remove_current_files: Remove Current Files
-        remove_new_version: Remove New Version File
-        restore: Restore Previous Version
-        restore_from: Restore From
-        save: Save Revision
-        save_your_note: You must click &quot;Save Revision&quot; to revert a previous version of this file
-        upload: Upload New Version
+        remove_new_version:   Remove New Version File
+        restore:              Restore Previous Version
+        restore_from:         Restore From
+        save:                 Save Revision
+        save_your_note:       You must click &quot;Save Revision&quot; to revert a previous version of this file
+        upload:               Upload New Version
+        uploaded_by:          Uploaded By
     footer:
       copyright_html: "<strong>Copyright &copy; 2017 Samvera</strong> Licensed under the Apache License, Version 2.0"
       service_html: A service of <a href="http://samvera.org/" class="navbar-link" target="_blank" rel="noopener noreferrer">Samvera</a>.

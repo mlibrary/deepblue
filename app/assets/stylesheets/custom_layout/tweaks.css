@@ -697,3 +697,6 @@ table.datatable thead th.no-sort {
   border-bottom: 2px solid rgb(231, 117, 4);
 }
 
+.indent-left {
+  padding-left: 2em;
+}

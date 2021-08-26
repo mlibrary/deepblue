@@ -1,0 +1,13 @@
+
+<tr>
+  <td>
+    <div class="radio">
+      <label class="radio <%= version.current? ? 'disabled' : '' %>">
+        <%= radio_button_tag(:revision, version.label, false, disabled: version.current?, required: 'required') %>
+      </label>
+    </div>
+  </td>
+  <td><%= version.created %></td>
+  <td><%= version.committer %></td>
+  <!-- td><%#= version.file_size_human_readable %></td -->
+</tr>

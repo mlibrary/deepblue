@@ -5,7 +5,10 @@ module Hyrax
   class DsFileSetPresenter < Hyrax::FileSetPresenter
 
     mattr_accessor :ds_file_set_presenter_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.ds_file_set_presenter_debug_verbose
+                   default: Rails.configuration.ds_file_set_presenter_debug_verbose
+
+    mattr_accessor :ds_file_set_presenter_view_debug_verbose,
+                   default: Rails.configuration.ds_file_set_presenter_view_debug_verbose
 
     include Deepblue::DeepbluePresenterBehavior
 
@@ -43,6 +46,14 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if ds_file_set_presenter_debug_verbose
       super( solr_document, current_ability, request )
+    end
+
+    def debug_verbose
+      DsFileSetPresenter.ds_file_set_presenter_debug_verbose
+    end
+
+    def debug_verbose
+      DsFileSetPresenter.ds_file_set_presenter_view_debug_verbose
     end
 
     def anonymous_link_download( main_app:, curation_concern: solr_document )

@@ -287,14 +287,16 @@ module Hyrax
     # DELETE /concern/file_sets/:id
     def destroy
       parent = curation_concern.parent
-      return redirect_to [main_app, curation_concern], notice: "You do not have sufficient privileges for this action." unless can_delete_file?
+      return redirect_to [main_app, curation_concern],
+                         notice: I18n.t('hyrax.insufficent_privileges_for_action') unless can_delete_file?
       actor.destroy
       redirect_to [main_app, parent], notice: 'The file has been deleted.'
     end
 
     # GET /concern/file_sets/:id
     def edit
-      return redirect_to [main_app, curation_concern], notice: "You do not have sufficient privileges for this action." unless can_edit_file?
+      return redirect_to [main_app, curation_concern],
+                         notice: I18n.t('hyrax.insufficent_privileges_for_action') unless can_edit_file?
       initialize_edit_form
     end
 

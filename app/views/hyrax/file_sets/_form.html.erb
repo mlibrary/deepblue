@@ -1,4 +1,21 @@
+
+<% form_debug_verbose = false %>
+
+<%
+  ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                        ::Deepblue::LoggingHelper.called_from,
+                                        ""] if form_debug_verbose
+%>
+
 <%= simple_form_for [main_app, curation_concern], html: {multipart: true} do |f| %>
+
+  <%
+    ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                          ::Deepblue::LoggingHelper.called_from,
+                                          "f.class.name=#{f.class.name}",
+                                          ""] if form_debug_verbose
+  %>
+
   <%# Should the description field be available to edit by the admin? %>
   <!-- fieldset class="required" -->
   <!-- span class="control-label" -->
