@@ -5,7 +5,7 @@ module Hyrax
   class PresenterRenderer
 
     # begin monkey
-    PRESENTER_RENDERER_DEBUG_VERBOSE = false
+    mattr_accessor :presenter_renderer_debug_verbose, default: false
     # end monkey
 
     include ActionView::Helpers::TranslationHelper
@@ -40,7 +40,7 @@ module Hyrax
         ["#{collection_path}/show_fields/_#{field_name}", "records/show_fields/_#{field_name}",
          "#{collection_path}/show_fields/_default", "records/show_fields/_default"].find do |partial|
           # begin monkey
-          Rails.logger.debug "Looking for show field partial #{partial}" if PRESENTER_RENDERER_DEBUG_VERBOSE
+          Rails.logger.debug "Looking for show field partial #{partial}" if presenter_renderer_debug_verbose
           # end monkey
           return partial.sub(/\/_/, '/') if partial_exists?(partial)
         end

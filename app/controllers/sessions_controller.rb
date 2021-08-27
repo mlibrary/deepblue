@@ -3,6 +3,8 @@
 # this class is specific to UMich authentication only
 class SessionsController < ApplicationController
 
+  mattr_accessor :session_controller_debug_verbose, default: false
+
   def destroy
     if user_signed_in?
       sso_logout
@@ -14,11 +16,11 @@ class SessionsController < ApplicationController
   def new
     raise unless Rails.configuration.authentication_method == "umich"
     if user_signed_in?
-      Rails.logger.debug "[AUTHN] sessions#new, redirecting"
+      Rails.logger.debug "[AUTHN] sessions#new, redirecting" if session_controller_debug_verbose
       # redirect to where user came from (see Devise::Controllers::StoreLocation#stored_location_for)
       redirect_to stored_location_for(:user) || hyrax.dashboard_path
     else
-      Rails.logger.debug "[AUTHN] sessions#new, failed because user_signed_in? was false"
+      Rails.logger.debug "[AUTHN] sessions#new, failed because user_signed_in? was false" if session_controller_debug_verbose
       # should have been redirected via mod_cosign - error out instead of going through redirect loop
       render(:status => :forbidden, :text => 'Forbidden')
     end

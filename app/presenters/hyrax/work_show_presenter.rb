@@ -36,8 +36,14 @@ module Hyrax
     delegate :has?, :first, :fetch, :export_formats, :export_as, to: :solr_document
 
     # delegate fields from Hyrax::Works::Metadata to solr_document
-    delegate :based_near_label, :related_url, :depositor, :identifier, :resource_type,
-             :keyword, :itemtype, :admin_set, to: :solr_document
+    delegate :based_near_label,
+             :related_url,
+             :depositor,
+             :identifier,
+             :resource_type,
+             :keyword,
+             :itemtype,
+             :admin_set, to: :solr_document
 
     # @param [SolrDocument] solr_document
     # @param [Ability] current_ability
@@ -313,7 +319,7 @@ module Hyrax
     end
 
     def draft_mode?
-      return true if solr_document.admin_set&.first&.eql? ::Deepblue::EmailHelper.t("hyrax.admin_set.name")
+      return true if solr_document.admin_set&.first&.eql? ::Deepblue::DraftAdminSetService.draft_admin_set_id
       false
     end
     

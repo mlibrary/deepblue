@@ -1,4 +1,5 @@
 <!-- Curation note(s) -->
+<% view_curation_notes_debug_verbose = false %>
 <% case mode %>
 <% when 'list' %>
   <!-- Curation notes as list -->
@@ -102,9 +103,10 @@
                                            ::Deepblue::LoggingHelper.called_from,
                                            "presenter.class.name=#{presenter.class.name}",
                                            "presenter.current_ability.admin?=#{presenter.current_ability.admin?}",
-                                           ""]
+                                           ""] if view_curation_notes_debug_verbose
   %>
-  <% if presenter.curation_notes_admin.present? && presenter.current_ability.admin? && !presenter.tombstone_permissions_hack? %>
+  <% if presenter.curation_notes_admin.present? &&
+    presenter.current_ability.admin? && !presenter.tombstone_permissions_hack? %>
     <tr>
       <th><%= t( i18n_label_admin ) %></th>
       <td>
