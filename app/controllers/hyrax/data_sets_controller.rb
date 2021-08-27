@@ -148,7 +148,7 @@ module Hyrax
     def assign_admin_set
       admin_sets = Hyrax::AdminSetService.new(self).search_results(:deposit)
       admin_sets.each do |admin_set|
-        if admin_set.id != "admin_set/default"
+        if admin_set.id != Rails.configuration.default_admin_set_id
           params[PARAMS_KEY]['admin_set_id'] = admin_set.id
         end
       end

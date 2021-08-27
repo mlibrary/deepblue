@@ -8,7 +8,7 @@ module Hyrax
     class InitializeWorkflowActor < AbstractActor
 
       mattr_accessor :initialize_workflow_actor_debug_verbose,
-                     default: ::DeepBlueDocs::Application.config.initialize_workflow_actor_debug_verbose
+                     default: Rails.configuration.initialize_workflow_actor_debug_verbose
 
       class_attribute :workflow_factory
       self.workflow_factory = ::Hyrax::Workflow::WorkflowFactory
@@ -20,14 +20,29 @@ module Hyrax
       end
 
       def update(env)
-        # A work that was a draft is now being published ( the admin set is no longer the Draft Admin Set ), 
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "env=#{env}",
+                                               "env.curation_concern.id=#{env.curation_concern.id}",
+                                               "env.attributes=#{env.attributes}",
+                                               "env.user=#{env.user}",
+                                               "" ] if initialize_workflow_actor_debug_verbose
+        # A work that was a draft is now being published ( the admin set is no longer the Draft Admin Set ),
         # so you need to put it in the mediated workflow.
-        if ( env.curation_concern.to_sipity_entity&.workflow_state_name.eql?("draft")  && env.curation_concern.admin_set_id != ::Deepblue::DraftAdminSetService.draft_admin_set_id )
+        if ::Deepblue::DraftAdminSetService.is_draft_curation_concern? env.curation_concern
           work_id = env.curation_concern.id
-
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "work_id=#{work_id}",
+                                                 "" ] if initialize_workflow_actor_debug_verbose
           #Get the entity
           entity = env.curation_concern.to_sipity_entity
-          wf = env.curation_concern.active_workflow 
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "entity.class.name=#{entity.class.name}",
+                                                 "entity=#{entity}",
+                                                 "" ] if initialize_workflow_actor_debug_verbose
+          wf = env.curation_concern.active_workflow
 
           # initiate the workflow state
           action_name = "pending_review"

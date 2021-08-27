@@ -133,7 +133,7 @@ module Deepblue
 
       # Indicate Draft work in subject line
       subject = ::Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_created" )
-      if ( cc_type.eql? "work" ) && ( self.admin_set&.title&.first&.eql? ::Deepblue::EmailHelper.t("hyrax.admin_set.name") )
+      if ( cc_type.eql? 'work' ) && ::Deepblue::DraftAdminSetService.has_draft_admin_set?( self )
         subject = ::Deepblue::EmailHelper.t( "hyrax.email.subject.draft_created" )
       end
 

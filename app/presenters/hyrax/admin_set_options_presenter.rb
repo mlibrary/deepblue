@@ -17,7 +17,7 @@ module Hyrax
     def select_options_default_admin(access = :deposit)
       a = []
       @service.search_results(access).each do |admin_set|
-        if admin_set.id == "admin_set/default"
+        if admin_set.id == Rails.configuration.default_admin_set_id
            a << [admin_set.to_s, admin_set.id, data_attributes(admin_set)]
         end
       end
@@ -28,7 +28,7 @@ module Hyrax
     def select_options_non_default_admin(access = :deposit)
       a = []
       @service.search_results(access).each do |admin_set|
-        if admin_set.id != "admin_set/default"
+        if admin_set.id != Rails.configuration.default_admin_set_id
            a << [admin_set.to_s, admin_set.id, data_attributes(admin_set)]
         end
       end

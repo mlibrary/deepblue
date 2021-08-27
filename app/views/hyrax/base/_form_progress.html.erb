@@ -1,3 +1,4 @@
+<% view_form_progress_debug_verbose = false %>
 <aside id="form-progress" class="form-progress panel panel-default">
   <div class="panel-heading">
     <h2 class="panel-title"><%= t("hyrax.works.progress.header") %></h2>
@@ -50,18 +51,51 @@
     <%= f.input Hyrax::Actors::OptimisticLockValidator.version_field, as: :hidden if f.object.persisted? %>
 
     <%# The admin set will tell you if the work is a draft %>
-    <% if f.object.admin_set_id.eql? "admin_set/default" %> <%# creaing work for the first time %>
-      <%= f.submit value: t('helpers.action.work.review'), class: 'btn btn-primary', onclick: "confirmation_needed = false;", id: "with_files_submit", name: "save_with_files" %>
-      <%= f.submit value: t('helpers.action.work.draft'), class: 'btn btn-primary', onclick: "confirmation_needed = false;", id: "save_as_draft", name: "save_as_draft"  %>
-      <%= link_to t('.cancel'), hyrax.my_works_path, class: 'btn btn-default'%>
-    <% elsif f.object.admin_set_id.eql? ::Deepblue::DraftAdminSetService.draft_admin_set_id %>  <%# User must be updating draft %>
-      <%= f.submit value: t('helpers.action.work.review'), class: 'btn btn-primary', onclick: "confirmation_needed = false;", id: "with_files_submit", name: "save_with_files" %>
-      <%= f.submit value: t('helpers.action.work.draft'), class: 'btn btn-primary', onclick: "confirmation_needed = false;", id: "save_as_draft", name: "save_as_draft"  %>
-      <%= link_to t('.cancel'), hyrax.my_works_path, class: 'btn btn-default' %>
+    <% if Rails.configuration.work_save_as_draft_enable %>
+      <%
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "f.object&.admin_set_id=#{f.object&.admin_set_id}",
+                                               "Rails.configuration.default_admin_set_id=#{Rails.configuration.default_admin_set_id}",
+                                               "::Deepblue::DraftAdminSetService.draft_admin_set_id=#{::Deepblue::DraftAdminSetService.draft_admin_set_id}",
+                                               "" ] if view_form_progress_debug_verbose
+      %>
+      <% if f.object&.admin_set_id.eql? Rails.configuration.default_admin_set_id %>
+        <%# creaing work for the first time %>
+        <%= f.submit value: t('helpers.action.work.review'),
+                     class: 'btn btn-primary',
+                     onclick: "confirmation_needed = false;",
+                     id: "with_files_submit",
+                     name: "save_with_files" %>
+        <%= f.submit value: t('helpers.action.work.draft'),
+                     class: 'btn btn-primary',
+                     onclick: "confirmation_needed = false;",
+                     id: "save_as_draft", name: "save_as_draft" %>
+      <% elsif f.object&.admin_set_id.eql? ::Deepblue::DraftAdminSetService.draft_admin_set_id %>
+        <%# User must be updating draft %>
+        <%= f.submit value: t('helpers.action.work.review'),
+                     class: 'btn btn-primary',
+                     onclick: "confirmation_needed = false;",
+                     id: "with_files_submit",
+                     name: "save_with_files" %>
+        <%= f.submit value: t('helpers.action.work.draft'),
+                     class: 'btn btn-primary',
+                     onclick: "confirmation_needed = false;",
+                     id: "save_as_draft",
+                     name: "save_as_draft" %>
+      <% else %>
+        <%= f.submit class: 'btn btn-primary',
+                     onclick: "confirmation_needed = false;",
+                     id: "with_files_submit",
+                     name: "save_with_files" %>
+      <% end %>
     <% else %> <%# The updating a work that has been published already %>
-      <%= f.submit class: 'btn btn-primary', onclick: "confirmation_needed = false;", id: "with_files_submit", name: "save_with_files" %>
-      <%= link_to t('.cancel'), hyrax.my_works_path, class: 'btn btn-default'%>
+      <%= f.submit class: 'btn btn-primary',
+                   onclick: "confirmation_needed = false;",
+                   id: "with_files_submit",
+                   name: "save_with_files" %>
     <% end %>
+    <%= link_to t('.cancel'), hyrax.my_works_path, class: 'btn btn-default'%>
 
     <p><%= t('simple_form.actions.data_set.submit_help') %></p>
   </div>

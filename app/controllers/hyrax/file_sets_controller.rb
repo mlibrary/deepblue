@@ -7,6 +7,7 @@ module Hyrax
 
     mattr_accessor :file_sets_controller_debug_verbose,
                    default: ::DeepBlueDocs::Application.config.file_sets_controller_debug_verbose # monkey
+
     PARAMS_KEY = 'file_set' # monkey
 
     include Blacklight::Base
@@ -370,8 +371,8 @@ module Hyrax
                                              "file_set.original_file.size=#{file_set.original_file.size}",
                                              "" ] if file_sets_controller_debug_verbose
       allowed = can_display_file_contents?
-      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
                                            "file_set.id=#{file_set.id}",
                                            "file_set.mime_type=#{file_set.mime_type}",
                                            "file_set.original_file.size=#{file_set.original_file.size}",
@@ -510,7 +511,7 @@ module Hyrax
       curation_concern.provenance_destroy( current_user: current_user, event_note: 'FileSetsController' )
       if curation_concern.parent.present?
         parent = curation_concern.parent
-        Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "provenance_child_remove",
                                              "parent.id=#{parent.id}",
@@ -565,42 +566,42 @@ module Hyrax
     protected
 
     def attempt_update
-      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
                                            "current_user=#{current_user}",
-                                           Deepblue::LoggingHelper.obj_class( "actor", actor ) ]
+                                           ::Deepblue::LoggingHelper.obj_class( "actor", actor ) ]
       if wants_to_revert?
-        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "params=#{params}",
                                              "current_user=#{current_user}",
-                                             Deepblue::LoggingHelper.obj_class( "actor", actor ),
+                                             ::Deepblue::LoggingHelper.obj_class( "actor", actor ),
                                              "wants to revert" ] if file_sets_controller_debug_verbose
         actor.revert_content(params[:revision])
       elsif params.key?(:file_set)
         if params[:file_set].key?(:files)
-          Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
                                                "params=#{params}",
                                                "current_user=#{current_user}",
-                                               Deepblue::LoggingHelper.obj_class( "actor", actor ),
+                                               ::Deepblue::LoggingHelper.obj_class( "actor", actor ),
                                                "actor.update_content" ] if file_sets_controller_debug_verbose
           actor.update_content(params[:file_set][:files].first)
         else
-          Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
                                                "params=#{params}",
                                                "current_user=#{current_user}",
                                                "update_metadata" ] if file_sets_controller_debug_verbose
           update_metadata
         end
       elsif params.key?(:files_files) # version file already uploaded with ref id in :files_files array
-        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "params=#{params}",
                                              "current_user=#{current_user}",
-                                             Deepblue::LoggingHelper.obj_class( "actor", actor ),
+                                             ::Deepblue::LoggingHelper.obj_class( "actor", actor ),
                                              "actor.update_content" ] if file_sets_controller_debug_verbose
         uploaded_files = Array(Hyrax::UploadedFile.find(params[:files_files]))
         actor.update_content(uploaded_files.first)

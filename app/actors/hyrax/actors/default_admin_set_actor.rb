@@ -35,7 +35,7 @@ module Hyrax
             ensure_permission_template!(admin_set_id: env.attributes[:admin_set_id])
           else
             AdminSet.find_each do |admin_set|
-              unless admin_set.id.eql? ("admin_set/default")
+              unless admin_set.id.eql? Rails.configuration.default_admin_set_id
                 env.attributes[:admin_set_id] = admin_set.id
               end
             end
