@@ -64,35 +64,35 @@ module DeepBlueDocs
     # look for true || before production release
     # look for DEBUG_VERBOSE = true before production release
     # TODO: move this section into a debug_initializer
-    config.abstract_notification_debug_verbose           = false
-    config.abstract_filter_debug_verbose                 = false
-    config.collection_debug_verbose                      = false
-    config.data_set_debug_verbose                        = false
+    config.abstract_notification_debug_verbose              = false
+    config.abstract_filter_debug_verbose                    = false
+    config.collection_debug_verbose                         = false
+    config.data_set_debug_verbose                           = false
     # config.doi_minting_service_debug_verbose -- see config/integration/doi_minting_service_integration.rb
     # config.email_debug_verbose -- see configure email below
-    config.email_behavior_debug_verbose                  = false
+    config.email_behavior_debug_verbose                     = false
     # config.file_content_helper_debug_verbose -- see config/integration/file_content_integration.rb
-    config.file_set_debug_verbose                        = false
-    config.file_set_derivatives_service_debug_verbose    = false
+    config.file_set_debug_verbose                           = false
+    config.file_set_derivatives_service_debug_verbose       = false
     config.hydra_derivatives_processors_document_debug_verbose = false
     config.hydra_derivatives_processors_image_debug_verbose = false
     # config.hydra_derivatives_runner_debug_verbose = false # using this causes an error in spec tests
-    config.hydra_works_derivatives_debug_verbose = false
-    # config.ingest_content_service_debug_verbose = false
+    config.hydra_works_derivatives_debug_verbose            = false
+    # config.ingest_content_service_debug_verbose           = false
     # config.ingest_integration_service_setup_debug_verbose = false
     # config.interpolation_helper_debug_verbose = false -- see config/integration/work_view_content.rb
     # config.jira_helper_debug_verbose -- see config/integration/jira_integration
-    config.job_io_wrapper_debug_verbose = false
+    config.job_io_wrapper_debug_verbose                     = false
     # config.metadata_behavior_debug_verbose = false # moved to app/services/deepblue/metadata_behavior_integration_service.rb
     # config.new_content_service_debug_verbose = false
-    config.provenance_behavior_debug_verbose = false
-    config.shell_based_processor_debug_verbose = false
-    config.solr_document_behavior_debug_verbose = false
-    config.solr_document_debug_verbose = false
+    config.provenance_behavior_debug_verbose                = false
+    config.shell_based_processor_debug_verbose              = false
+    config.solr_document_behavior_debug_verbose             = false
+    config.solr_document_debug_verbose                      = false
     # config.static_content_cache_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
-    config.umrdr_work_behavior_debug_verbose = false
-    config.user_debug_verbose = false
-    config.user_stat_importer_debug_verbose = false
+    config.umrdr_work_behavior_debug_verbose                = false
+    config.user_debug_verbose                               = false
+    config.user_stat_importer_debug_verbose                 = false
     # config.work_view_content_service_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
     # config.work_view_content_service_email_templates_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
     # config.work_view_content_service_i18n_templates_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
@@ -180,6 +180,7 @@ module DeepBlueDocs
 
     ## ensure tmp directories are defined
     verbose_init = false
+    puts "verbose_init in application.rb is true" if verbose_init
     puts "ENV['TMPDIR']=#{ENV['TMPDIR']}" if verbose_init
     puts "ENV['_JAVA_OPTIONS']=#{ENV['_JAVA_OPTIONS']}" if verbose_init
     puts "ENV['JAVA_OPTIONS']=#{ENV['JAVA_OPTIONS']}" if verbose_init
