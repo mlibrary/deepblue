@@ -6,7 +6,7 @@ module Hyrax
   # This search builder requires that a accessor named "collection" exists in the scope
   class CollectionMemberSearchBuilder < ::SearchBuilder
     # begin monkey
-    COLLECTION_MEMBER_SEARCH_BUILDER_DEBUG_VERBOSE = false
+    mattr_accessor :collection_member_search_builder_debug_verbose, default: false
     # end monkey
 
     include Hyrax::FilterByType
@@ -29,7 +29,7 @@ module Hyrax
                                              "scope=#{scope}",
                                              "collection.id=#{collection.id}",
                                              "search_includes_models=#{search_includes_models}",
-                                             "" ] if COLLECTION_MEMBER_SEARCH_BUILDER_DEBUG_VERBOSE
+                                             "" ] if collection_member_search_builder_debug_verbose
     # end monkey
     @collection = collection
       @search_includes_models = search_includes_models
@@ -41,7 +41,7 @@ module Hyrax
       # begin monkey
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if COLLECTION_MEMBER_SEARCH_BUILDER_DEBUG_VERBOSE
+                                             "" ] if collection_member_search_builder_debug_verbose
       # begin monkey
       solr_parameters[:fq] ||= []
       solr_parameters[:fq] << "#{collection_membership_field}:#{collection.id}"
@@ -60,7 +60,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
-                                             "" ] if COLLECTION_MEMBER_SEARCH_BUILDER_DEBUG_VERBOSE
+                                             "" ] if collection_member_search_builder_debug_verbose
       # begin monkey
       return rv
     end
