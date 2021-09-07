@@ -54,6 +54,10 @@ module Deepblue
       rv = rv.all
     end
 
+    def has_versions?
+      0 == version_count
+    end
+
     def latest_version
       versions.last
     end
