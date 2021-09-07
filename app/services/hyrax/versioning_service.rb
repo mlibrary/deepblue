@@ -1,6 +1,4 @@
-
 module Hyrax
-
   class VersioningService
     # Make a version and record the version committer
     # @param [ActiveFedora::File] content
@@ -33,7 +31,5 @@ module Hyrax
 
       file.id
     end
-
   end
-
 end
