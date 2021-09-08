@@ -459,6 +459,7 @@ en:
         collection_unpublished: "DBD: Collection Unpublished"
         work_created:       "DBD: Work Created"
         draft_created:      "DBD: Draft Work Created"
+        draft_submitted:    "DBD: Draft Work Submitted for Review"
         work_deleted:       "DBD: Work Deleted"
         work_published:     "DBD: Work Published"
         work_unpublished:   "DBD: Work Unpublished"

@@ -7,7 +7,8 @@ class Hyrax::CatalogSearchBuilder < Hyrax::SearchBuilder
     :add_access_controls_to_solr_params,
     :show_works_or_works_that_contain_files,
     :show_only_active_records,
-    :filter_collection_facet_for_access
+    :filter_collection_facet_for_access,
+    :remove_draft_works
   ]
 
   # show both works that match the query and works that contain files that match the query
