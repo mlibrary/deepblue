@@ -1,4 +1,4 @@
-<% draft_works_debug_verbose = true %>
+<% draft_works_debug_verbose = false %>
 <% draft_works = ::Deepblue::DraftAdminSetService.draft_works( email: current_ability.current_user.email ) %>
 <%
   ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
