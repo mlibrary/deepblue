@@ -8,6 +8,9 @@ RSpec.describe 'hyrax/my/works/index.html.erb', type: :view do
   let(:subscribe_analytics) { t('simple_form.actions.data_set.analytics_subscribe') }
   let(:unsubcribe_analytics) { t('simple_form.actions.data_set.analytics_unsubscribe') }
   let( :empty_admin ) { double('adminset') }
+  let(:user) { create(:user) }
+  let(:current_user) { user }
+  let(:ability) { Ability.new(current_user) }
 
   before do
     allow(view).to receive(:current_ability).and_return(ability)
@@ -33,7 +36,9 @@ RSpec.describe 'hyrax/my/works/index.html.erb', type: :view do
   end
 
   context "when the user can add works" do
-    let(:ability) { instance_double(Ability, can_create_any_work?: true) }
+    before do
+      allow(ability).to receive(:can_create_any_work?).and_return true
+    end
 
     context 'with many presenters' do
       let(:batch_enabled) { true }

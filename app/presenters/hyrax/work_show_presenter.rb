@@ -319,8 +319,7 @@ module Hyrax
     end
 
     def draft_mode?
-      return true if solr_document.admin_set&.first&.eql? ::Deepblue::DraftAdminSetService.draft_admin_set_id
-      false
+      ::Deepblue::DraftAdminSetService.has_draft_admin_set? solr_document
     end
     
     def can_perform_workflow_actions?

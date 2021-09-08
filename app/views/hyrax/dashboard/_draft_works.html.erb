@@ -1,7 +1,12 @@
-<%  a = ::Deepblue::DraftAdminSetService.draft_admin_set %>
-<% works = a.present? ? a.members : [] %>
-<% works = works.select { |work| work.depositor.eql? current_ability.current_user.email } %>
-<% if works.size > 0 %>
+<% draft_works_debug_verbose = true %>
+<% draft_works = ::Deepblue::DraftAdminSetService.draft_works( email: current_ability.current_user.email ) %>
+<%
+  ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
+                                        ::Deepblue::LoggingHelper.called_from,
+                                        "draft_works=#{draft_works}",
+                                        ""] if draft_works_debug_verbose
+%>
+<% if draft_works.size > 0 %>
   <div class="row">
     <div class="col-md-12">
       <div class="panel panel-default">
@@ -20,7 +25,7 @@
               </tr>
             </thead>
             <tbody>
-              <% works.each do |work| %>
+              <% draft_works.each do |work| %>
                 <tr>
                   <td>
                     <%= link_to work.title.first,

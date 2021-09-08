@@ -399,19 +399,26 @@ module Deepblue
 
 
     def create
-      # store the Save as Draft selection
-      draft = params[:save_as_draft]
-
-      #When you are using the draft option, you want to put teh work in the Admin Set that is for
-      #Drafts, otherwise want to put it in the DataSetAdmin Set. actor_enviroment will already have
-      #the DataSetAdmi Set set.
-      env = actor_environment
-      env.attributes[:admin_set_id] = ::Deepblue::DraftAdminSetService.draft_admin_set_id if draft.eql? t('helpers.action.work.draft')
-
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "params[:save_as_draft]=#{params[:save_as_draft]}",
                                              "" ] if deepblue_works_controller_behavior_debug_verbose
+      # store the Save as Draft selection
+      save_as_draft = params[:save_as_draft]
+
+      # When you are using the save_as_draft option, you want to put the work in the Admin Set that is for
+      # Drafts, otherwise want to put it in the DataSetAdmin Set. actor_enviroment will already have
+      # the DataSetAdminSet set.
+      env = actor_environment
+      draft_admin_set_id = ::Deepblue::DraftAdminSetService.draft_admin_set_id
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "params[:save_as_draft]=#{params[:save_as_draft]}",
+                                             "draft_admin_set_id=#{draft_admin_set_id}",
+                                             "" ] if deepblue_works_controller_behavior_debug_verbose
+      env.attributes[:admin_set_id] = admin_set_id if save_as_draft.eql? t('helpers.action.work.draft')
       respond_to do |wants|
         wants.html do
           if actor.create( env )
@@ -916,7 +923,7 @@ module Deepblue
 
     def update
       #Stores the button selection
-      draft = params[:save_as_draft]
+      save_as_draft = params[:save_as_draft]
 
       @curation_concern ||= ::Deepblue::WorkViewContentService.content_find_by_id( id: params[:id] )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -928,7 +935,7 @@ module Deepblue
                          notice: I18n.t('hyrax.insufficent_privileges_for_action') unless can_edit_work?
       respond_to do |wants|
         wants.html do
-          had_error = update_rest draft 
+          had_error = update_rest save_as_draft
           if had_error
             build_form
             render 'edit', status: :unprocessable_entity
@@ -941,7 +948,7 @@ module Deepblue
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "" ] if deepblue_works_controller_behavior_debug_verbose
-          had_error = update_rest  draft 
+          had_error = update_rest  save_as_draft
           if had_error
             if curation_concern.present?
               render_json_response( response_type: :unprocessable_entity, options: { errors: curation_concern.errors } )
@@ -953,16 +960,23 @@ module Deepblue
       end
     end
 
-    def update_rest( draft )
+    def update_rest( save_as_draft )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "draft=#{draft}",
+                                             "save_as_draft=#{save_as_draft}",
                                              "" ] if deepblue_works_controller_behavior_debug_verbose
       had_error = false
       if curation_concern.present?
         act_env = actor_environment
-        #if user saving as draft when updating a work, set the admin set to the Draft Admin Set.
-        act_env.attributes[:admin_set_id] = ::Deepblue::DraftAdminSetService.draft_admin_set_id if draft.eql? t('helpers.action.work.draft')
+        draft_admin_set_id = ::Deepblue::DraftAdminSetService.draft_admin_set_id
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                               "save_as_draft=#{save_as_draft}",
+                                               "draft_admin_set_id=#{draft_admin_set_id}",
+                                               "" ] if deepblue_works_controller_behavior_debug_verbose
+        # if user saving as save_as_draft when updating a work, set the admin set to the Draft Admin Set.
+        act_env.attributes[:admin_set_id] = draft_admin_set_id if save_as_draft.eql? t('helpers.action.work.draft')
 
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,

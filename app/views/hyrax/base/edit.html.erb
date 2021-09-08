@@ -1,6 +1,6 @@
 <% provide :page_title, curation_concern_page_title(curation_concern) %>
 <% provide :page_header do %>
-  <% if curation_concern.admin_set&.title&.first&.eql? ::Deepblue::DraftAdminSetService.draft_admin_set_id %>
+  <% if ::Deepblue::DraftAdminSetService.has_draft_admin_set? curation_concern %>
     <h1><span class="fa fa-edit" aria-hidden="true"></span><%= t("hyrax.work.draft.header") %></h1>
   <% else %>
     <h1><span class="fa fa-edit" aria-hidden="true"></span><%= t("hyrax.work.update.header") %></h1>

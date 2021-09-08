@@ -71,7 +71,7 @@
                      class: 'btn btn-primary',
                      onclick: "confirmation_needed = false;",
                      id: "save_as_draft", name: "save_as_draft" %>
-      <% elsif f.object&.admin_set_id.eql? ::Deepblue::DraftAdminSetService.draft_admin_set_id %>
+      <% elsif ::Deepblue::DraftAdminSetService.has_draft_admin_set? f.object %>
         <%# User must be updating draft %>
         <%= f.submit value: t('helpers.action.work.review'),
                      class: 'btn btn-primary',

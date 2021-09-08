@@ -225,7 +225,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
 
     context 'when create is successful' do
       let(:work) { stub_model(DataSet) }
-      let(:admin_set) { double }
+      let(:admin_set) { instance_double( AdminSet, id: 'admin_set_id' ) }
 
       it 'creates a work' do
         allow(controller).to receive(:curation_concern).and_return(work)
@@ -261,7 +261,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     context "with files" do
       let(:actor) { double('An actor') }
       let(:work) { create(:data_set_work) }
-      let(:admin_set) { double }
+      let(:admin_set) { instance_double( AdminSet, id: 'admin_set_id' ) }
 
       before do
         allow(controller).to receive(:actor).and_return(actor)
@@ -326,7 +326,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
           let(:work) do
             create(:data_set_work, user: user, title: ['test title'])
           end
-          let(:admin_set) { double }
+          let(:admin_set) { instance_double( AdminSet, id: 'admin_set_id' ) }
 
           it "records the work" do
             allow(work).to receive(:admin_set).and_return admin_set

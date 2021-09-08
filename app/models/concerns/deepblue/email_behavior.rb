@@ -115,7 +115,7 @@ module Deepblue
                                 email_key_values: email_key_values )
     end
 
-    def email_event_create_user( current_user:, event_note: '' )
+    def email_event_create_user( current_user:, event_note: '', was_draft: false )
       return unless DeepBlueDocs::Application.config.use_email_notification_for_creation_events
       to, _to_note, from = email_address_user( current_user )
       cc_title = EmailHelper.cc_title curation_concern: self
@@ -132,9 +132,12 @@ module Deepblue
                                            "" ] if EMAIL_BEHAVIOR_DEBUG_VERBOSE
 
       # Indicate Draft work in subject line
-      subject = ::Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_created" )
       if ( cc_type.eql? 'work' ) && ::Deepblue::DraftAdminSetService.has_draft_admin_set?( self )
         subject = ::Deepblue::EmailHelper.t( "hyrax.email.subject.draft_created" )
+      elsif was_draft
+        subject = ::Deepblue::EmailHelper.t( "hyrax.email.subject.draft_submitted" )
+      else
+        subject = ::Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_created" )
       end
 
       body = EmailHelper.t( "hyrax.email.notify_user_#{cc_type}_created_html",
