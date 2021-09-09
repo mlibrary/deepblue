@@ -3,7 +3,7 @@ module Hyrax
     class InterpretVisibilityActor < AbstractActor
 
       mattr_accessor :interpret_visibility_actor_debug_verbose,
-                     default: ::DeepBlueDocs::Application.config.interpret_visibility_actor_debug_verbose
+                     default: Rails.configuration.interpret_visibility_actor_debug_verbose
 
       class Intention
         def initialize(attributes)
@@ -118,7 +118,13 @@ module Hyrax
 
         # Validate against selected AdminSet's PermissionTemplate (if any)
         def validate(env, intention, attributes)
-          # If AdminSet was selected, look for its PermissionTemplate
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "env=#{env}",
+                                                 "intention=#{intention}",
+                                                 "attributes=#{attributes}",
+                                                 "attributes[:admin_set_id]='#{attributes[:admin_set_id]}'",
+                                                 "" ]
           template = PermissionTemplate.find_by!(source_id: attributes[:admin_set_id]) if attributes[:admin_set_id].present?
 
           validate_lease(env, intention, template) &&

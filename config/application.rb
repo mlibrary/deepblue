@@ -53,7 +53,8 @@ module DeepBlueDocs
     config.user_helper_persist_roles_debug_verbose = false
 
     config.work_save_as_draft_enable = true
-    config.default_admin_set_id = "admin_set/default"
+    config.default_admin_set_id = 'admin_set/default'
+    config.data_set_admin_set_title = 'DataSet Admin Set'
 
     config.generators do |g|
       g.test_framework :rspec, spec: true

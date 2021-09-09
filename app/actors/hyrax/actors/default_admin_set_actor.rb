@@ -9,7 +9,7 @@ module Hyrax
     class DefaultAdminSetActor < Hyrax::Actors::AbstractActor
 
       mattr_accessor :default_admin_set_actor_debug_verbose,
-                     default: ::DeepBlueDocs::Application.config.default_admin_set_actor_debug_verbose
+                     default: Rails.configuration.default_admin_set_actor_debug_verbose
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if create was successful
@@ -28,6 +28,10 @@ module Hyrax
       private
 
         def ensure_admin_set_attribute!(env)
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "env.attributes[:admin_set_id]=#{env.attributes[:admin_set_id]}",
+                                                 "" ] if default_admin_set_actor_debug_verbose
           if env.attributes[:admin_set_id].present?
             ensure_permission_template!(admin_set_id: env.attributes[:admin_set_id])
           elsif env.curation_concern.admin_set_id.present?
@@ -35,8 +39,19 @@ module Hyrax
             ensure_permission_template!(admin_set_id: env.attributes[:admin_set_id])
           else
             AdminSet.find_each do |admin_set|
-              unless admin_set.id.eql? Rails.configuration.default_admin_set_id
+              ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                     ::Deepblue::LoggingHelper.called_from,
+                                                     "admin_set=#{admin_set}",
+                                                     "admin_set.title=#{admin_set&.title}",
+                                                     "" ] if default_admin_set_actor_debug_verbose
+              unless admin_set.id.eql? Rails.configuration.default_admin_set_id &&
+                                         admin_set&.title&.first == Rails.configuration.data_set_admin_set_title
+                ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                       ::Deepblue::LoggingHelper.called_from,
+                                                       "assigning admin set id=#{admin_set.id}",
+                                                       "" ] if default_admin_set_actor_debug_verbose
                 env.attributes[:admin_set_id] = admin_set.id
+                break
               end
             end
           end

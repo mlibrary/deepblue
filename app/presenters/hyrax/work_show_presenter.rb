@@ -319,9 +319,21 @@ module Hyrax
     end
 
     def draft_mode?
-      ::Deepblue::DraftAdminSetService.has_draft_admin_set? solr_document
+      @draft_mode ||= draft_mode_init
     end
-    
+
+    def draft_mode_init
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if work_show_presenter_debug_verbose
+      rv = ::Deepblue::DraftAdminSetService.has_draft_admin_set? solr_document
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "" ] if work_show_presenter_debug_verbose
+      return rv
+    end
+
     def can_perform_workflow_actions?
       return false if tombstoned?
       return true if current_ability.admin?

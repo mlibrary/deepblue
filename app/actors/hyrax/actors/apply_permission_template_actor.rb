@@ -5,7 +5,7 @@ module Hyrax
     class ApplyPermissionTemplateActor < Hyrax::Actors::AbstractActor
 
       mattr_accessor :apply_permissions_template_actor_debug_verbose,
-                     default: ::DeepBlueDocs::Application.config.apply_permissions_template_actor_debug_verbose
+                     default: Rails.configuration.apply_permissions_template_actor_debug_verbose
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if create was successful
@@ -26,6 +26,11 @@ module Hyrax
         end
 
         def add_admin_set_participants(env)
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "env=#{env}",
+                                                 "env.attributes[:admin_set_id]='#{env.attributes[:admin_set_id]}'",
+                                                 "" ] if apply_permissions_template_actor_debug_verbose
           return if env.attributes[:admin_set_id].blank?
           template = Hyrax::PermissionTemplate.find_by!(source_id: env.attributes[:admin_set_id])
           set_curation_concern_access(env, template)
