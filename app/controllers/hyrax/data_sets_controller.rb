@@ -9,7 +9,7 @@ module Hyrax
     PARAMS_KEY = 'data_set'
 
     mattr_accessor :data_sets_controller_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.data_sets_controller_debug_verbose
+                   default: Rails.configuration.data_sets_controller_debug_verbose
 
     include ActionView::Helpers::TextHelper
     include ::Deepblue::WorksControllerBehavior
@@ -146,10 +146,33 @@ module Hyrax
     end
 
     def assign_admin_set
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params=#{params}",
+                                             "params[:admin_set_id]=#{params[:admin_set_id]}",
+                                             "params[PARAMS_KEY]=#{params[PARAMS_KEY]}",
+                                             "params[PARAMS_KEY][:admin_set_id]=#{params[PARAMS_KEY][:admin_set_id]}",
+                                             "" ] if data_sets_controller_debug_verbose
       admin_sets = Hyrax::AdminSetService.new(self).search_results(:deposit)
       admin_sets.each do |admin_set|
-        if admin_set.id != Rails.configuration.default_admin_set_id
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "admin_set=#{admin_set}",
+                                               "admin_set.id=#{admin_set.id}",
+                                               "admin_set.title=#{admin_set.title}",
+                                               "Rails.configuration.default_admin_set_id=#{Rails.configuration.default_admin_set_id}",
+                                               "" ] if data_sets_controller_debug_verbose
+        if admin_set.id != Rails.configuration.default_admin_set_id &&
+                    admin_set&.title&.first == Rails.configuration.data_set_admin_set_title
+
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "set params[PARAMS_KEY]['admin_set_id'] to",
+                                                 "admin_set.id=#{admin_set.id}",
+                                                 "admin_set.title=#{admin_set.id}",
+                                                 "" ] if data_sets_controller_debug_verbose
           params[PARAMS_KEY]['admin_set_id'] = admin_set.id
+          break
         end
       end
     end

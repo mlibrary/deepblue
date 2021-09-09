@@ -46,7 +46,7 @@ module Deepblue
                                                "admin_set.title.first='#{admin_set.title.first}'",
                                                "draft_admin_set_title='#{draft_admin_set_title}'",
                                                "" ], bold_puts: bold_puts if draft_admin_set_service_debug_verbose
-        if admin_set.title.first.eql? draft_admin_set_title
+        if admin_set&.title&.first&.eql? draft_admin_set_title
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "found",
@@ -92,6 +92,11 @@ module Deepblue
     end
 
     def self.has_draft_admin_set?( obj )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "obj.class.name=#{obj.class.name}",
+                                             "obj=#{obj}",
+                                             "" ] if draft_admin_set_service_debug_verbose
       return false unless obj.respond_to? :admin_set
       is_draft_admin_set? obj.admin_set
     end
@@ -99,9 +104,11 @@ module Deepblue
     def self.is_draft_admin_set?( admin_set )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "admin_set=#{draft_admin_set_id}",
+                                             "admin_set.class.name=#{admin_set.class.name}",
+                                             "admin_set=#{admin_set}",
                                              "" ] if draft_admin_set_service_debug_verbose
       return false if admin_set.blank?
+      # solr documents return arrays when admin_set is called
       if admin_set.is_a? Array
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
@@ -121,11 +128,17 @@ module Deepblue
     def self.is_draft_curation_concern?( curation_concern )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "curation_concern.class.name=#{curation_concern.class.name}",
                                              "curation_concern.to_sipity_entity&.workflow_state_name=#{curation_concern.to_sipity_entity&.workflow_state_name}",
                                              "draft_workflow_state_name=#{draft_workflow_state_name}",
                                              "" ] if draft_admin_set_service_debug_verbose
-      return false if curation_concern.to_sipity_entity&.workflow_state_name.eql? draft_workflow_state_name
-      has_draft_admin_set? curation_concern
+      return true if curation_concern.to_sipity_entity&.workflow_state_name&.eql? draft_workflow_state_name
+      rv = has_draft_admin_set? curation_concern
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "" ] if draft_admin_set_service_debug_verbose
+      return rv
     end
 
     def self.query_partial_to_remove_works_with_draft_admin_set
@@ -134,10 +147,8 @@ module Deepblue
                                              "draft_admin_set_id=#{draft_admin_set_id}",
                                              "draft_admin_set_title=#{draft_admin_set_title}",
                                              "" ] if draft_admin_set_service_debug_verbose
-      # "{!df=admin_set_sim}NOT \"#{draft_admin_set_id}\""
       "{!df=admin_set_sim}NOT \"#{draft_admin_set_title}\""
     end
-
 
     def self.setup
       return if @@_setup_ran == true

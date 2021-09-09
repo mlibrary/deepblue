@@ -61,7 +61,7 @@ RSpec.describe ::Deepblue::NewContentService, skip: false do
   describe 'constants' do
     it "resolves them" do
       expect( described_class.new_content_service_debug_verbose ).to eq false
-      expect( described_class::DEFAULT_DATA_SET_ADMIN_SET_NAME ).to eq "DataSet Admin Set"
+      expect( described_class::DEFAULT_DATA_SET_ADMIN_SET_NAME ).to eq Rails.configuration.data_set_admin_set_title
       expect( described_class::DEFAULT_DIFF_ATTRS_SKIP ).to eq [ :creator_ordered,
                                   :curation_notes_admin_ordered, :curation_notes_user_ordered,
                                   :date_created, :date_modified,

@@ -23,7 +23,7 @@ module Deepblue
     mattr_accessor :new_content_service_debug_verbose
     @@new_content_service_debug_verbose = ::Deepblue::IngestIntegrationService.new_content_service_debug_verbose
 
-    DEFAULT_DATA_SET_ADMIN_SET_NAME = "DataSet Admin Set"
+    DEFAULT_DATA_SET_ADMIN_SET_NAME = Rails.configuration.data_set_admin_set_title
     DEFAULT_DIFF_ATTRS_SKIP = [ :creator_ordered,
                                 :curation_notes_admin_ordered, :curation_notes_user_ordered,
                                 :date_created, :date_modified,

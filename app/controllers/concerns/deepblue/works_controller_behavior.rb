@@ -17,7 +17,7 @@ module Deepblue
     include Deepblue::IngestAppendScriptControllerBehavior
 
     mattr_accessor :deepblue_works_controller_behavior_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.deepblue_works_controller_behavior_debug_verbose
+                   default: Rails.configuration.deepblue_works_controller_behavior_debug_verbose
 
     class_methods do
       def curation_concern_type=(curation_concern_type)
@@ -63,6 +63,7 @@ module Deepblue
                                              "params=#{params}",
                                              "params[:action]=#{params[:action]}",
                                              "params[:format]=#{params[:format]}",
+                                             "params[:admin_set_id]=#{params[:admin_set_id]}",
                                              "" ] if deepblue_works_controller_behavior_debug_verbose
       attrs_for_actor = if data_set_version?
                           attributes_for_actor
@@ -101,6 +102,7 @@ module Deepblue
                                              "env=#{env}",
                                              "env.attributes.class.name=#{env.attributes.class.name}",
                                              "env.attributes=#{env.attributes}",
+                                             "env.attributes[:admin_set_id]=#{env.attributes[:admin_set_id]}",
                                              "env.action=#{env.action}",
                                              "env.wants_format=#{env.wants_format}",
                                              "" ] if deepblue_works_controller_behavior_debug_verbose
@@ -397,12 +399,12 @@ module Deepblue
       @form.merge_date_coverage_attributes! cov_params
     end
 
-
     def create
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "params[:save_as_draft]=#{params[:save_as_draft]}",
+                                             "params[:admin_set_id]=#{params[:admin_set_id]}",
                                              "" ] if deepblue_works_controller_behavior_debug_verbose
       # store the Save as Draft selection
       save_as_draft = params[:save_as_draft]
@@ -417,8 +419,9 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "params[:save_as_draft]=#{params[:save_as_draft]}",
                                              "draft_admin_set_id=#{draft_admin_set_id}",
+                                             "env.attributes[:admin_set_id]='#{env.attributes[:admin_set_id]}'",
                                              "" ] if deepblue_works_controller_behavior_debug_verbose
-      env.attributes[:admin_set_id] = admin_set_id if save_as_draft.eql? t('helpers.action.work.draft')
+      env.attributes[:admin_set_id] = draft_admin_set_id if save_as_draft.eql? t('helpers.action.work.draft')
       respond_to do |wants|
         wants.html do
           if actor.create( env )
@@ -671,6 +674,8 @@ module Deepblue
     def new_rest
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "current_user.user_key=#{current_user.user_key}",
+                                             "admin_set_id_for_new='#{admin_set_id_for_new}'",
                                              "" ] if deepblue_works_controller_behavior_debug_verbose
       # TODO: move these lines to the work form builder in Hyrax
       curation_concern.depositor = current_user.user_key
