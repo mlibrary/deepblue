@@ -41,12 +41,14 @@ module Hyrax
                                                  "" ] if initialize_workflow_actor_debug_verbose
           #Get the entity
           entity = env.curation_concern.to_sipity_entity
+          entity.proxy_for.title = env.curation_concern.title
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "entity.class.name=#{entity.class.name}",
                                                  "entity=#{entity}",
                                                  "" ] if initialize_workflow_actor_debug_verbose
           wf = env.curation_concern.active_workflow
+
 
           # initiate the workflow state
           action_name = "pending_review"
@@ -56,20 +58,9 @@ module Hyrax
 
           entity.update!( workflow: wf, workflow_state_id: action.id, workflow_state: wf_state )
 
-          next_actor.create(env) # TODO: should this be next_actor.update(env) ??
+          next_actor.update(env) && send_notification(env, entity, action)# TODO: should this be next_actor.update(env) ??
 
-          #Send a notification letting it known that the work has transition from draft to mediated workflow
-          notifier = Hyrax::Workflow::NotificationService.new(entity: entity, action: action, comment: true, user: env.user)
 
-          notification = Sipity::Notification.new
-          notification.id = 1
-          notification.name ="Hyrax::Workflow::PendingReviewNotification"
-          notification.notification_type ="email"
-          now = Time.now.strftime("%Y-%m-%d")
-          notification.created_at = now
-          notification.updated_at = now
-
-          notifier.send_notification(notification)
         else
           super
         end
@@ -89,6 +80,22 @@ module Hyrax
                                                  "" ] if initialize_workflow_actor_debug_verbose
           workflow_factory.create(env.curation_concern, env.attributes, env.user)
         end
+
+        def send_notification(env, entity, action)
+          #Send a notification letting it known that the work has transition from draft to mediated workflow
+          notifier = Hyrax::Workflow::NotificationService.new(entity: entity, action: action, comment: true, user: env.user)
+
+          notification = Sipity::Notification.new
+          notification.id = 1
+          notification.name ="Hyrax::Workflow::PendingReviewNotification"
+          notification.notification_type ="email"
+          now = Time.now.strftime("%Y-%m-%d")
+          notification.created_at = now
+          notification.updated_at = now
+
+          notifier.send_notification(notification)
+        end
+
     end
   end
 end
