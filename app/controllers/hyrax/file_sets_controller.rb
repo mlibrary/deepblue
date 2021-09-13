@@ -6,7 +6,7 @@ module Hyrax
   class FileSetsController < ApplicationController
 
     mattr_accessor :file_sets_controller_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.file_sets_controller_debug_verbose # monkey
+                   default: Rails.configuration.file_sets_controller_debug_verbose # monkey
 
     PARAMS_KEY = 'file_set' # monkey
 

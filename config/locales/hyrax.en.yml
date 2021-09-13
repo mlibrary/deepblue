@@ -517,6 +517,7 @@ en:
         choose_file:          Choose New Version File
         current:              Current Version
         date_uploaded:        Date Uploaded
+        download_link:        Download
         header:               Replace Current Version
         file_size:            File Size
         previous:             Previous
