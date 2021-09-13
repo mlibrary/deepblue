@@ -74,10 +74,10 @@ module DeepBlueDocs
     # config.file_content_helper_debug_verbose -- see config/integration/file_content_integration.rb
     config.file_set_debug_verbose                        = false
     config.file_set_derivatives_service_debug_verbose    = false
-    config.hydra_derivatives_processors_document_debug_verbose = false
-    config.hydra_derivatives_processors_image_debug_verbose = false
+    config.hydra_derivatives_processors_document_debug_verbose  = false
+    config.hydra_derivatives_processors_image_debug_verbose     = false
     # config.hydra_derivatives_runner_debug_verbose = false # using this causes an error in spec tests
-    config.hydra_works_derivatives_debug_verbose = false
+    config.hydra_works_derivatives_debug_verbose                = false
     # config.ingest_content_service_debug_verbose = false
     # config.ingest_integration_service_setup_debug_verbose = false
     # config.interpolation_helper_debug_verbose = false -- see config/integration/work_view_content.rb
@@ -92,7 +92,7 @@ module DeepBlueDocs
     # config.static_content_cache_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
     config.umrdr_work_behavior_debug_verbose = false
     config.user_debug_verbose = false
-    config.user_stat_importer_debug_verbose = false
+    config.user_stat_importer_debug_verbose                     = false
     # config.work_view_content_service_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
     # config.work_view_content_service_email_templates_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
     # config.work_view_content_service_i18n_templates_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
