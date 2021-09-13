@@ -9,12 +9,5 @@
   </td>
   <td><%= version.created %></td>
   <td><%= version.committer %></td>
-  <%# TODO: check with file set for size being reasonable before adding a download link %>
-  <td> <%= link_to version.label,
-                main_app.version_download_link_path( id: curation_concern.id, version: version.label),
-                   # class: 'btn btn-primary',
-                target: "_blank",
-                title: version.label %>
-  </td>
   <!-- td><%#= version.file_size_human_readable %></td -->
 </tr>

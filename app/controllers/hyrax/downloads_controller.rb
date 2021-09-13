@@ -8,7 +8,7 @@ module Hyrax
 
     # begin monkey
     mattr_accessor :downloads_controller_debug_verbose,
-                   default: Rails.configuration.downloads_controller_debug_verbose
+                   default: ::DeepBlueDocs::Application.config.downloads_controller_debug_verbose
     # end monkey
 
     include Hydra::Controller::DownloadBehavior
@@ -32,10 +32,10 @@ module Hyrax
                                              "params=#{params}",
                                              "params[:format]=#{params[:format]}",
                                              "" ] if downloads_controller_debug_verbose
-      # end monkey
+      # begin monkey
       @show_html = false
-      # monkey: replace case statements to check class with if file.is_a? so version proxy will work
-      if file.is_a? ActiveFedora::File
+      case file
+      when ActiveFedora::File
         # begin monkey
         #
         # check if file is too big to download, this will happen when it is a json request
@@ -50,16 +50,14 @@ module Hyrax
         #                                        "file.metadata.attributes[::RDF::Vocab::EBUCore.fileSize.to_s]=#{file.metadata.attributes[::RDF::Vocab::EBUCore.fileSize.to_s]}",
         #                                        #"file.metadata.methods.sort=#{file.metadata.methods.sort}",
         #                                        "" ] if downloads_controller_debug_verbose
-        # end monkey
+
         relation = file.metadata.attributes[::RDF::Vocab::EBUCore.fileSize.to_s]
-        # begin monkey
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
         #                                        ::Deepblue::LoggingHelper.called_from,
         #                                        "relation.methods.sort=#{relation.methods.sort}",
         #                                        "relation.first=#{relation.first}",
         #                                        "relation.first.to_i=#{relation.first.to_i}",
         #                                        "" ] if downloads_controller_debug_verbose
-        # end monkey
 
         file_size = 0
         file_size = relation.first.to_i if relation.present?
@@ -84,7 +82,7 @@ module Hyrax
           end
         end
         # end monkey
-      elsif file.is_a? String
+      when String
         # For derivatives stored on the local file system
         send_local_content
       else
@@ -136,9 +134,8 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "params=#{params}",
-                                               "params[:file]=#{params[:file]}",
                                                "" ] if downloads_controller_debug_verbose
-        # end monkey
+        # begin monkey
         file_reference = params[:file]
         return default_file unless file_reference
 
@@ -147,29 +144,13 @@ module Hyrax
       end
 
       def default_file
-        # begin monkey
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "asset.class.name=#{asset.class.name}",
-                                               "" ] if downloads_controller_debug_verbose
-        # end monkey
         default_file_reference = if asset.class.respond_to?(:default_file_path)
                                    asset.class.default_file_path
                                  else
                                    DownloadsController.default_content_path
                                  end
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "default_file_reference=#{default_file_reference}",
-                                               "" ] if downloads_controller_debug_verbose
         association = dereference_file(default_file_reference)
-        rv = association&.reader
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "association=#{association}",
-                                               "association&.reader=#{rv}",
-                                               "" ] if downloads_controller_debug_verbose
-        return rv
+        association&.reader
       end
 
       def mime_type_for(file)
@@ -177,17 +158,8 @@ module Hyrax
       end
 
       def dereference_file(file_reference)
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "file_reference=#{file_reference}",
-                                               "" ] if downloads_controller_debug_verbose
         return false if file_reference.nil?
         association = asset.association(file_reference.to_sym)
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "association.class.name=#{association.class.name}",
-                                               "association=#{association}",
-                                               "" ] if downloads_controller_debug_verbose
         association if association && association.is_a?(ActiveFedora::Associations::SingularAssociation)
       end
 

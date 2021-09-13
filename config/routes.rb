@@ -129,8 +129,6 @@ Rails.application.routes.draw do
 
   post 'single_use_link/download/:id' => 'hyrax/single_use_links_viewer#download', as: :download_single_use_link
 
-  get 'version_download/:id/version/:version' => 'hyrax/version_downloads#show', as: :version_download_link
-
   namespace :hyrax, path: :concern do
     resources :collections do
       member do
