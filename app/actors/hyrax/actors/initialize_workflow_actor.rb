@@ -57,6 +57,19 @@ module Hyrax
           entity.update!( workflow: wf, workflow_state_id: action.id, workflow_state: wf_state )
 
           next_actor.create(env) # TODO: should this be next_actor.update(env) ??
+
+          #Send a notification letting it known that the work has transition from draft to mediated workflow
+          notifier = Hyrax::Workflow::NotificationService.new(entity: entity, action: action, comment: true, user: env.user)
+
+          notification = Sipity::Notification.new
+          notification.id = 1
+          notification.name ="Hyrax::Workflow::PendingReviewNotification"
+          notification.notification_type ="email"
+          now = Time.now.strftime("%Y-%m-%d")
+          notification.created_at = now
+          notification.updated_at = now
+
+          notifier.send_notification(notification)
         else
           super
         end
