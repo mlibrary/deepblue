@@ -10,6 +10,13 @@
                     "name": "deposit",
                     "from_states": [],
                     "transition_to": "draft",
+                    "notifications": [
+                        {
+                            "notification_type": "email",
+                            "name": "Hyrax::Workflow::DraftCreationNotification",
+                            "to": []
+                        }
+                    ],
                     "methods": [
                         "Hyrax::Workflow::GrantEditToDepositor",
                         "Hyrax::Workflow::DeactivateObject"
