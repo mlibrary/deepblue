@@ -8,7 +8,7 @@ module Deepblue
   module WorkflowEventBehavior
 
     mattr_accessor :workflow_event_behavior_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.workflow_event_behavior_debug_verbose
+                   default: Rails.configuration.workflow_event_behavior_debug_verbose
 
     def workflow_create( current_user:, event_note: "" )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -120,11 +120,24 @@ module Deepblue
     end
 
     def workflow_update_before( current_user:, event_note: "" )
-
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "current_user=#{current_user}",
+                                             "event_note=#{event_note}",
+                                             "" ] if workflow_event_behavior_debug_verbose
     end
 
     def workflow_update_after( current_user:, event_note: "", was_draft: false )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "current_user=#{current_user}",
+                                             "event_note=#{event_note}",
+                                             "was_draft=#{was_draft}",
+                                             "" ] if workflow_event_behavior_debug_verbose
       if was_draft
+        email_event_create_rds( current_user: current_user, event_note: event_note, was_draft: true )
         email_event_create_user( current_user: current_user, event_note: event_note, was_draft: true )
         # Send this Jira message, if it used to be a draft work, and now it's a regular work
         JiraNewTicketJob.perform_later( work_id: id, current_user: current_user )

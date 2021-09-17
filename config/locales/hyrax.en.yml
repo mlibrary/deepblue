@@ -402,6 +402,23 @@ en:
         Sincerely,<br/>
         <br/>
         The Deep Blue Data team<br/>
+      notify_user_draft_work_created_html: >
+        Dear %{depositor},
+        <p>
+        Thank you for depositing with Deep Blue Data. The record for &quot;<a href='%{url}'>%{title}</a>&quot; has
+        been created and saved as a draft. You will receive a separate email confirming any file uploads.
+        </p>
+        <p>
+        We will begin our review and publication process once you finalize your deposit and submit it using
+        the “Submit for Review” button in Deep Blue Data.
+        </p>
+        <p>
+        Please do contact us if you have any questions. Thanks for using Deep Blue Data.
+        </p>
+        <br/>
+        Sincerely,<br/>
+        <br/>
+        The Deep Blue Data team<br/>
       notify_user_work_created_html: >
         Dear %{depositor},
         <p>

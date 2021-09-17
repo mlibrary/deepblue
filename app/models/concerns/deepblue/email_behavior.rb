@@ -10,7 +10,7 @@ module Deepblue
   module EmailBehavior
     include AbstractEventBehavior
 
-    EMAIL_BEHAVIOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.email_behavior_debug_verbose
+    mattr_accessor :email_behavior_debug_verbose, default: Rails.configuration.email_behavior_debug_verbose
 
     def attributes_all_for_email
       %i[]
@@ -90,8 +90,17 @@ module Deepblue
       body.string
     end
 
-    def email_event_create_rds( current_user:, event_note: '', return_email_parameters: false, send_it: true )
-      return unless DeepBlueDocs::Application.config.use_email_notification_for_creation_events
+    def email_create_to_user( current_user:, event_note: '' ) # TODO: delete this method
+      email_create( current_user: current_user, event_note: event_note )
+    end
+
+    def email_event_create_rds( current_user:,
+                                event_note: '',
+                                return_email_parameters: false,
+                                send_it: true,
+                                was_draft: false )
+
+      return unless Rails.configuration.use_email_notification_for_creation_events
       attributes, ignore_blank_key_values = attributes_for_email_event_create_rds
       email_key_values = {}
       email_key_values = map_email_attributes!( event: EVENT_CREATE,
@@ -103,7 +112,7 @@ module Deepblue
       email_event_notification( to: to,
                                 to_note: to_note,
                                 from: from,
-                                subject: ::Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_created" ),
+                                subject: email_subject_work_created( cc_type: cc_type, was_draft: was_draft ),
                                 attributes: attributes,
                                 current_user: current_user,
                                 event: EVENT_CREATE,
@@ -116,7 +125,7 @@ module Deepblue
     end
 
     def email_event_create_user( current_user:, event_note: '', was_draft: false )
-      return unless DeepBlueDocs::Application.config.use_email_notification_for_creation_events
+      return unless Rails.configuration.use_email_notification_for_creation_events
       to, _to_note, from = email_address_user( current_user )
       cc_title = EmailHelper.cc_title curation_concern: self
       cc_type = EmailHelper.curation_concern_type( curation_concern: self )
@@ -129,18 +138,8 @@ module Deepblue
                                            "cc_title=#{cc_title}",
                                            "cc_url=#{cc_url}",
                                            "cc_depositor=#{cc_depositor}",
-                                           "" ] if EMAIL_BEHAVIOR_DEBUG_VERBOSE
-
-      # Indicate Draft work in subject line
-      if ( cc_type.eql? 'work' ) && ::Deepblue::DraftAdminSetService.has_draft_admin_set?( self )
-        subject = ::Deepblue::EmailHelper.t( "hyrax.email.subject.draft_created" )
-      elsif was_draft
-        subject = ::Deepblue::EmailHelper.t( "hyrax.email.subject.draft_submitted" )
-      else
-        subject = ::Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_created" )
-      end
-
-      body = EmailHelper.t( "hyrax.email.notify_user_#{cc_type}_created_html",
+                                           "" ] if email_behavior_debug_verbose
+      body = EmailHelper.t( email_template_key( cc_type: cc_type, event: 'created' ),
                             title: EmailHelper.escape_html( cc_title ),
                             url: cc_url,
                             depositor: cc_depositor,
@@ -148,7 +147,7 @@ module Deepblue
       email_notification( to: to,
                           from: from,
                           content_type: "text/html",
-                          subject: subject,
+                          subject: email_subject_work_created( cc_type: cc_type, was_draft: was_draft ),
                           body: body,
                           current_user: current_user,
                           event: EVENT_CREATE,
@@ -224,7 +223,7 @@ module Deepblue
                                            "cc_depositor=#{cc_depositor}",
                                            "cc_contact_email=#{cc_contact_email}",
                                            "template_key=#{template_key}",
-                                           "" ] if EMAIL_BEHAVIOR_DEBUG_VERBOSE
+                                           "" ] if email_behavior_debug_verbose
       # for the work's authoremail
       body = EmailHelper.t( template_key,
                             title: cc_title,
@@ -276,8 +275,25 @@ module Deepblue
       ::Deepblue::JiraHelper.jira_add_comment( curation_concern: self, event: EVENT_UNPUBLISH, comment: body )
     end
 
-    def email_create_to_user( current_user:, event_note: '' ) # TODO: delete this method
-      email_create( current_user: current_user, event_note: event_note )
+    def email_subject_work_created( cc_type:, was_draft: )
+      # Indicate Draft work in subject line
+      subject = if ( cc_type.eql? 'work' ) && ::Deepblue::DraftAdminSetService.has_draft_admin_set?( self )
+                  ::Deepblue::EmailHelper.t( "hyrax.email.subject.draft_created" )
+                elsif was_draft
+                  ::Deepblue::EmailHelper.t( "hyrax.email.subject.draft_submitted" )
+                else
+                  ::Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_created" )
+                end
+      return subject
+    end
+
+    def email_template_key( cc_type:, event: )
+      key = if ( cc_type.eql? 'work' ) && ::Deepblue::DraftAdminSetService.has_draft_admin_set?( self )
+              "hyrax.email.notify_user_draft_#{cc_type}_#{event}_html"
+            else
+              "hyrax.email.notify_user_#{cc_type}_#{event}_html"
+            end
+      return key
     end
 
     def for_email_class
