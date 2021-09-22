@@ -6,7 +6,7 @@ module Hyrax
   class FileSetsController < ApplicationController
 
     mattr_accessor :file_sets_controller_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.file_sets_controller_debug_verbose # monkey
+                   default: Rails.configuration.file_sets_controller_debug_verbose # monkey
 
     PARAMS_KEY = 'file_set' # monkey
 
@@ -170,6 +170,10 @@ module Hyrax
       cc_anonymous_link.present?
     end
 
+    def assign_to_work_as_read_me_test
+      # do nothing
+    end
+
     def assign_to_work_as_read_me
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -179,6 +183,7 @@ module Hyrax
                                              "curation_concern.parent.read_me_file_set_id=#{curation_concern.parent.read_me_file_set_id}",
                                              "" ] if file_sets_controller_debug_verbose
       if current_ability.can( :edit, curation_concern.id )
+        assign_to_work_as_read_me_test
         curation_concern.parent.read_me_update( file_set: curation_concern )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
@@ -543,7 +548,7 @@ module Hyrax
 
     def display_provenance_log
       # load provenance log for this work
-      file_path = Deepblue::ProvenancePath.path_for_reference( curation_concern.id )
+      file_path = ::Deepblue::ProvenancePath.path_for_reference( curation_concern.id )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "file_path=#{file_path}",
