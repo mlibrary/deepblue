@@ -192,18 +192,18 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
 
     end
 
-    # context 'private work pending doi' do
-    #   let(:work) { create(:private_data_set, user: user, title: ['test title'], doi: ::Deepblue::DoiBehavior::DOI_PENDING ) }
-    #
-    #   it 'redirects' do
-    #     allow(ActiveFedora::Base).to receive(:find).with(work.id).and_return(work)
-    #     expect(controller).to receive(:doi_mint).and_return expected_mint_msg
-    #     # expect(work).to_not receive(:doi_mint).with( current_user: user, event_note: DataSet.class.name )
-    #     get :doi, params: { id: work }
-    #     expect(response).to redirect_to main_app.hyrax_data_set_path(work, locale: 'en')
-    #   end
-    #
-    # end
+    context 'private work pending doi', skip: true do
+      let(:work) { create(:private_data_set, user: user, title: ['test title'], doi: ::Deepblue::DoiBehavior::DOI_PENDING ) }
+
+      it 'redirects' do
+        allow(ActiveFedora::Base).to receive(:find).with(work.id).and_return(work)
+        expect(controller).to receive(:doi_mint).and_return expected_mint_msg
+        # expect(work).to_not receive(:doi_mint).with( current_user: user, event_note: DataSet.class.name )
+        get :doi, params: { id: work }
+        expect(response).to redirect_to main_app.hyrax_data_set_path(work, locale: 'en')
+      end
+
+    end
 
   end
 
