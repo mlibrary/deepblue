@@ -456,6 +456,43 @@ en:
         Sincerely,<br/>
         <br/>
         The Deep Blue Data team<br/>
+      notify_user_work_submit_for_review_html: >
+        Dear %{depositor},
+        <p>
+        Thank you for depositing with Deep Blue Data. The record for
+        &quot;<a href='%{url}'>%{title}</a>&quot; has been submitted for review and publication.
+        We will begin reviewing your data and documentation in the next few days.
+        You will receive a separate email confirming any file uploads.
+        </p>
+        <p>
+        We review every deposit before publication it to ensure that the data is as easy as possible for others to
+        understand and use. We generally publish datasets following our full review, which can take up to a week or
+        two, but if you are working under a tight deadline please let us know. Our process entails:
+        </p>
+        <ul>
+        <li>Review of your data and documentation:</li>
+        <ul>
+        <li>If you would like more information or resources on creating appropriate documentation for your data, see our
+        <a href='https://deepblue.lib.umich.edu/data/dbd-documentation-guide'>Documentation Guide</a> and
+        <a href='https://deepblue.lib.umich.edu/data/Deep_Blue_Data_Example_Readme.txt'>example readme</a>.</li>
+        <li>We may work with the <a href='https://datacurationnetwork.org/'>Data Curation Network</a> (DCN) to
+        review your data set. The DCN is a consortium through which we have access to a broad
+        range of subject and format expertise for curation.</li>
+        </ul>
+        <li>Creation of a permanent, unique identifier for your deposit - once you have uploaded your data and
+        documentation, you can generate a DOI for your work using the "Mint DOI" button in the record. Otherwise,
+        we will generate a DOI for you upon publication.</li>
+        <li>Recommendations for your deposit - we may request additional information or revisions so that we can best
+        represent your work.</li>
+        </ul>
+        <p>
+        Please feel free to contact us at <a href='mailto:%{contact_us_at}'>%{contact_us_at}</a> if you have any
+        questions in the meantime, or if there is anything else we can do to be of help.
+        </p>
+        <br/>
+        Sincerely,<br/>
+        <br/>
+        The Deep Blue Data team<br/>
       notify_user_work_published_html: >
         Dear %{depositor},
         <p>

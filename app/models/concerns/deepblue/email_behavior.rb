@@ -139,7 +139,7 @@ module Deepblue
                                            "cc_url=#{cc_url}",
                                            "cc_depositor=#{cc_depositor}",
                                            "" ] if email_behavior_debug_verbose
-      body = EmailHelper.t( email_template_key( cc_type: cc_type, event: 'created' ),
+      body = EmailHelper.t( email_template_key( cc_type: cc_type, event: 'created', was_draft: was_draft ),
                             title: EmailHelper.escape_html( cc_title ),
                             url: cc_url,
                             depositor: cc_depositor,
@@ -287,9 +287,11 @@ module Deepblue
       return subject
     end
 
-    def email_template_key( cc_type:, event: )
+    def email_template_key( cc_type:, event:, was_draft: )
       key = if ( cc_type.eql? 'work' ) && ::Deepblue::DraftAdminSetService.has_draft_admin_set?( self )
               "hyrax.email.notify_user_draft_#{cc_type}_#{event}_html"
+            elsif was_draft && event == 'created'
+              "hyrax.email.notify_user_#{cc_type}_submit_for_review_html"
             else
               "hyrax.email.notify_user_#{cc_type}_#{event}_html"
             end
