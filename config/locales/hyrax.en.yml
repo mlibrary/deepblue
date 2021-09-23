@@ -413,7 +413,8 @@ en:
         the “Submit for Review” button in Deep Blue Data.
         </p>
         <p>
-        Please do contact us if you have any questions. Thanks for using Deep Blue Data.
+        Please feel free to contact us at <a href='mailto:%{contact_us_at}'>%{contact_us_at}</a> if you have any
+        questions in the meantime, or if there is anything else we can do to be of help.
         </p>
         <br/>
         Sincerely,<br/>
