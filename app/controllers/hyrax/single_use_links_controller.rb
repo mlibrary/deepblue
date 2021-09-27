@@ -21,7 +21,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if single_use_links_controller_debug_verbose
       if current_user&.persisted?
-        redirect_to main_app.root_url, alert:  t('hyrax.single_use_links.alert.insufficient_privileges')
+        redirect_to main_app.root_url, alert: t('hyrax.single_use_links.alert.insufficient_privileges')
       else
         session["user_return_to"] = request.url
         redirect_to new_user_session_url, alert: exception.message
@@ -96,14 +96,14 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "links=#{links}",
                                              "pres=#{pres}",
-                                             "pres.link=#{pres.link}",
-                                             "pres.link_type=#{pres.link_type}",
+                                             "pres&.link=#{pres&.link}",
+                                             "pres&.link_type=#{pres&.link_type}",
                                              "" ] if single_use_links_controller_debug_verbose
-      su_link = pres.link
+      su_link = pres&.link
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "su_link.path=#{su_link.path}",
-                                             "su_link.user_id=#{su_link.user_id}",
+                                             "su_link&.path=#{su_link&.path}",
+                                             "su_link&.user_id=#{su_link&.user_id}",
                                              "" ] if single_use_links_controller_debug_verbose
       if su_link =~ /concern\/file_sets/
         partial_path = 'hyrax/file_sets/single_use_link_rows'

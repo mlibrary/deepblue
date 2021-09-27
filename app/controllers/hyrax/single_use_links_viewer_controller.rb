@@ -143,7 +143,9 @@ module Hyrax
                                              "current_user=#{current_user}",
                                              "single_use_link=#{single_use_link}",
                                              "" ] if single_use_links_viewer_controller_debug_verbose
-      @current_ability ||= SingleUseLinksViewerController::Ability.new current_user, single_use_link
+      @current_ability ||= SingleUseLinksViewerController::Ability.new( current_user,
+                                                                        single_use_link,
+                                                                        single_use_links_viewer_controller_debug_verbose )
     end
 
     def _prefixes
@@ -157,12 +159,13 @@ module Hyrax
 
       attr_reader :single_use_link
 
-      def initialize(user, single_use_link)
+      def initialize(user, single_use_link, debug_verbose = false)
+        @debug_verbose = debug_verbose
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "user=#{user}",
                                                "single_use_link=#{single_use_link}",
-                                               "" ] if SingleUseLinksViewerController.single_use_links_viewer_controller_debug_verbose
+                                               "" ] if debug_verbose
         @user = user || ::User.new
         return if single_use_link.blank?
 
@@ -173,7 +176,7 @@ module Hyrax
                                                  "single_use_link&.valid?=#{single_use_link&.valid?}",
                                                  "single_use_link&.itemId=#{single_use_link&.itemId}",
                                                  "obj.id=#{obj.id}",
-                                                 "" ] if SingleUseLinksViewerController.single_use_links_viewer_controller_debug_verbose
+                                                 "" ] if @debug_verbose
           single_use_link.valid? && single_use_link.itemId == obj.id # && single_use_link.destroy!
         end
       end

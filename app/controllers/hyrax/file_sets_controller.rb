@@ -572,10 +572,11 @@ module Hyrax
 
     def attempt_update
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "params=#{params}",
-                                           "current_user=#{current_user}",
-                                           ::Deepblue::LoggingHelper.obj_class( "actor", actor ) ]
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params=#{params}",
+                                             "current_user=#{current_user}",
+                                             ::Deepblue::LoggingHelper.obj_class( "actor", actor ),
+                                             "" ] if file_sets_controller_debug_verbose
       if wants_to_revert?
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

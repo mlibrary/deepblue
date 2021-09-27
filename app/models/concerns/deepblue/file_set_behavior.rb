@@ -7,6 +7,8 @@ module Deepblue
   module FileSetBehavior
     extend ActiveSupport::Concern
 
+    mattr_accessor :file_set_behavior_debug_verbose, default: false
+
     include ::Deepblue::VirusScanService
 
     included do
@@ -87,7 +89,9 @@ module Deepblue
     # virus scanning
 
     def virus_scan
-      LoggingHelper.bold_debug [ LoggingHelper.here, LoggingHelper.called_from, "original_file = #{original_file}" ]
+      LoggingHelper.bold_debug [ LoggingHelper.here,
+                                 LoggingHelper.called_from, "original_file = #{original_file}",
+                                 "" ] if file_set_behavior_debug_verbose
       # check file size here to avoid making a temp copy of the file in VirusCheckerService
       needed = virus_scan_needed?
       if needed && virus_scan_file_too_big?
@@ -126,7 +130,8 @@ module Deepblue
     def virus_scan_needed?
       # really, it's always needed.
       true
-      # LoggingHelper.bold_debug [ LoggingHelper.here, LoggingHelper.called_from ]
+      # LoggingHelper.bold_debug [ LoggingHelper.here, LoggingHelper.called_from,
+      #                                  "" ] if file_set_behavior_debug_verbose ]
       # return true if original_file && original_file.new_record?
       # return false unless DeepBlueDocs::Application.config.virus_scan_retry
       # scan_status = virus_scan_status
@@ -157,7 +162,8 @@ module Deepblue
       LoggingHelper.bold_debug [ LoggingHelper.here,
                                  LoggingHelper.called_from,
                                "scan_result=#{scan_result}",
-                               "previous_scan_result=#{previous_scan_result}" ]
+                               "previous_scan_result=#{previous_scan_result}",
+                                 "" ] if file_set_behavior_debug_verbose
       # Oops. Really don't want to consider previous result as we want the new timestamp
       # return scan_result if previous_scan_result.present? && scan_result == previous_scan_result
       # for some reason, this does not save the attributes

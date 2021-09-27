@@ -9,6 +9,8 @@ require 'clamav/client'
 
 class UMichClamAVDaemonScanner < AbstractVirusScanner
 
+  mattr_accessor :umich_clamav_daemon_scanner_debug_verbose, default: false
+
   # standard umich clamav configuration (from /etc/clamav/clamav.conf)
 
   CONNECTION_TYPE = :tcp
@@ -51,8 +53,9 @@ class UMichClamAVDaemonScanner < AbstractVirusScanner
 
   def infected?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                               ::Deepblue::LoggingHelper.called_from,
-                               "UMichClamAVDaemonScanner.infected? File '#{file}' exists? #{File.exist? file}" ]
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "UMichClamAVDaemonScanner.infected? File '#{file}' exists? #{File.exist? file}",
+                                           "" ] if umich_clamav_daemon_scanner_debug_verbose
     unless alive?
       warning "Cannot connect to virus scanner. Skipping file #{file}"
       return ::Deepblue::VirusScanService::VIRUS_SCAN_SKIPPED_SERVICE_UNAVAILABLE

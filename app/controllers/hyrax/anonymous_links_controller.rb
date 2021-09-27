@@ -86,13 +86,13 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "links=#{links}",
                                              "pres=#{pres}",
-                                             "pres.link=#{pres.link}",
-                                             "pres.link_type=#{pres.link_type}",
+                                             "pres&.link=#{pres&.link}",
+                                             "pres&.link_type=#{pres&.link_type}",
                                              "" ] if anonymous_links_controller_debug_verbose
-      anon_link = pres.link
+      anon_link = pres&.link
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "anon_link.path=#{anon_link.path}",
+                                             "anon_link&.path=#{anon_link&.path}",
                                              "" ] if anonymous_links_controller_debug_verbose
       if anon_link =~ /concern\/file_sets/
         partial_path = 'hyrax/file_sets/anonymous_link_rows'

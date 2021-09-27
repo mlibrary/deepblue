@@ -124,7 +124,7 @@ module Hyrax
                                                  "intention=#{intention}",
                                                  "attributes=#{attributes}",
                                                  "attributes[:admin_set_id]='#{attributes[:admin_set_id]}'",
-                                                 "" ]
+                                                 "" ] if interpret_visibility_actor_debug_verbose
           template = PermissionTemplate.find_by!(source_id: attributes[:admin_set_id]) if attributes[:admin_set_id].present?
 
           validate_lease(env, intention, template) &&
