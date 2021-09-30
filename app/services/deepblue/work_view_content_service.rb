@@ -31,6 +31,8 @@ module Deepblue
     mattr_accessor :static_content_interpolation_pattern,            default: nil
     mattr_accessor :static_controller_redirect_to_work_view_content, default: false
 
+    mattr_accessor :static_content_documentation_collection_id
+
     def self.setup
       yield self if @@_setup_ran == false
       @@_setup_ran = true

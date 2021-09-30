@@ -4,8 +4,10 @@ FactoryBot.define do
 
   factory :file_set do
     transient do
-      user { create(:user) }
-      content { nil }
+      user         { create(:user) }
+      content      { nil }
+      fixture_path { './spec/fixtures' }
+      file_path    { nil }
     end
     after(:build) do |fs, evaluator|
       fs.apply_depositor_metadata evaluator.user.user_key
@@ -39,6 +41,28 @@ FactoryBot.define do
         # work.members << file
       end
     end
+
+    factory :file_set_with_files do
+      after(:create) do |file_set, evaluator|
+        # puts "file_set_with_files -- after(:create) file_set=#{file_set}"
+        # allow(file_set).to receive(:warn) # suppress virus warnings
+        file_name = evaluator.label
+        file_name ||= 'world.png'
+        file_path = evaluator.file_path
+        file_path ||= File.join evaluator.fixture_path, file_name
+        file = File.open(file_path).tap do |file|
+          file.define_singleton_method( :original_name ) { file_name }
+          # file.define_singleton_method( :current_user ) { user }
+        end
+        # Hydra::Works::AddFileToFileSet.add_file_to_file_set_debug_verbose = true
+        # ::Deepblue::LoggingHelper.echo_to_puts = true
+        Hydra::Works::AddFileToFileSet.call_enhanced_version(file_set, file, :original_file)
+        # ::Deepblue::LoggingHelper.echo_to_puts = false
+        # Hydra::Works::AddFileToFileSet.add_file_to_file_set_debug_verbose = false
+        # puts "file_set_with_files -- after(:create) last"
+      end
+    end
+
   end
 
 end

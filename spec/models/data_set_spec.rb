@@ -4,19 +4,28 @@ require 'rails_helper'
 
 RSpec.describe DataSet do
 
-  let( :author_email ) { 'authoremail@umich.edu' }
-  let( :creator ) { 'Creator, A' }
-  let( :current_user ) { 'user@umich.edu' }
-  let( :date_created ) { '2018-02-28' }
-  let( :depositor ) { author_email }
-  let( :description ) { 'The Description' }
-  let( :id ) { '0123458678' }
-  let( :methodology ) { 'The Methodology' }
-  let( :rights_license ) { 'The Rights License' }
-  let( :title ) { 'The Title' }
-  let( :visibility_private ) { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE }
-  let( :visibility_public ) { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC }
-  let( :metadata_keys_all ) {
+  let(:debug_verbose) { false }
+
+  describe 'class debug verbose variables' do
+    it "they have the right values" do
+      expect( described_class.data_set_debug_verbose ).to eq( debug_verbose )
+    end
+  end
+
+
+  let(:author_email)       { 'authoremail@umich.edu' }
+  let(:creator)            { 'Creator, A' }
+  let(:current_user)       { 'user@umich.edu' }
+  let(:date_created)       { '2018-02-28' }
+  let(:depositor)          { author_email }
+  let(:description)        { 'The Description' }
+  let(:id)                 { '0123458678' }
+  let(:methodology)        { 'The Methodology' }
+  let(:rights_license)     { 'The Rights License' }
+  let(:title)              { 'The Title' }
+  let(:visibility_private) { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE }
+  let(:visibility_public)  { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC }
+  let(:metadata_keys_all)  {
     %i[
       access_deepblue
       admin_set_id
@@ -168,71 +177,78 @@ RSpec.describe DataSet do
   end
 
   describe 'provenance metadata overrides' do
-    before do
-      subject.id = id
-      subject.authoremail = author_email
-      subject.title = [title]
-      subject.creator = [creator]
-      subject.depositor = depositor
-      subject.date_created = date_created
-      subject.description = [description]
-      subject.methodology = [methodology]
-      subject.rights_license = rights_license
-      subject.state = Vocab::FedoraResourceStatus.active
-      subject.visibility = visibility_public
-    end
+    RSpec.shared_examples 'shared provenance metadata overrides' do |dbg_verbose|
+      before do
+        described_class.data_set_debug_verbose = dbg_verbose
+        expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(:once) if dbg_verbose
+        expect(::Deepblue::LoggingHelper).to_not receive(:bold_debug) unless dbg_verbose
+      end
+      after do
+        described_class.data_set_debug_verbose = debug_verbose
+      end
+      context do
+        let(:prov_key_values)         { { test: 'testing' } }
+        let(:ignore_blank_key_values) { false }
+        before do
+          subject.id = id
+          subject.authoremail = author_email
+          subject.title = [title]
+          subject.creator = [creator]
+          subject.depositor = depositor
+          subject.date_created = date_created
+          subject.description = [description]
+          subject.methodology = [methodology]
+          subject.rights_license = rights_license
+          subject.state = Vocab::FedoraResourceStatus.active
+          subject.visibility = visibility_public
+        end
 
-    it 'provides file_set_ids' do
-      prov_key_values = { test: 'testing' }
-      attribute = :file_set_ids
-      ignore_blank_key_values = false
-      expect( subject.map_provenance_attributes_override!( event: '',
-                                                           attribute: attribute,
-                                                           ignore_blank_key_values: ignore_blank_key_values,
-                                                           prov_key_values: prov_key_values ) ).to eq true
-      expect( prov_key_values[:file_set_ids] ).to eq []
-      expect( prov_key_values[:test] ).to eq 'testing'
-      expect( prov_key_values.size ).to eq 2
-    end
+        it 'provides file_set_ids' do
+          attribute = :file_set_ids
+          expect( subject.map_provenance_attributes_override!( event: '',
+                                                               attribute: attribute,
+                                                               ignore_blank_key_values: ignore_blank_key_values,
+                                                               prov_key_values: prov_key_values ) ).to eq true
+          expect( prov_key_values[:file_set_ids] ).to eq []
+          expect( prov_key_values[:test] ).to eq 'testing'
+          expect( prov_key_values.size ).to eq 2
+        end
 
-    it 'provides state' do
-      prov_key_values = { test: 'testing' }
-      attribute = :state
-      ignore_blank_key_values = false
-      expect( subject.map_provenance_attributes_override!( event: '',
-                                                           attribute: attribute,
-                                                           ignore_blank_key_values: ignore_blank_key_values,
-                                                           prov_key_values: prov_key_values ) ).to eq true
-      expect( prov_key_values[:state] ).to eq 'active'
-      expect( prov_key_values[:test] ).to eq 'testing'
-      expect( prov_key_values.size ).to eq 2
-    end
+        it 'provides state' do
+          attribute = :state
+          expect( subject.map_provenance_attributes_override!( event: '',
+                                                               attribute: attribute,
+                                                               ignore_blank_key_values: ignore_blank_key_values,
+                                                               prov_key_values: prov_key_values ) ).to eq true
+          expect( prov_key_values[:state] ).to eq 'active'
+          expect( prov_key_values[:test] ).to eq 'testing'
+          expect( prov_key_values.size ).to eq 2
+        end
 
-    it 'provides visibility' do
-      prov_key_values = { test: 'testing' }
-      attribute = :visibility
-      ignore_blank_key_values = false
-      expect( subject.map_provenance_attributes_override!( event: '',
-                                                           attribute: attribute,
-                                                           ignore_blank_key_values: ignore_blank_key_values,
-                                                           prov_key_values: prov_key_values ) ).to eq true
-      expect( prov_key_values[:visibility] ).to eq visibility_public
-      expect( prov_key_values[:test] ).to eq 'testing'
-      expect( prov_key_values.size ).to eq 2
-    end
+        it 'provides visibility' do
+          attribute = :visibility
+          expect( subject.map_provenance_attributes_override!( event: '',
+                                                               attribute: attribute,
+                                                               ignore_blank_key_values: ignore_blank_key_values,
+                                                               prov_key_values: prov_key_values ) ).to eq true
+          expect( prov_key_values[:visibility] ).to eq visibility_public
+          expect( prov_key_values[:test] ).to eq 'testing'
+          expect( prov_key_values.size ).to eq 2
+        end
 
-    it 'does not provide some arbritrary metadata' do
-      prov_key_values = { test: 'testing' }
-      attribute = :some_arbritrary_metadata
-      ignore_blank_key_values = false
-      expect( subject.map_provenance_attributes_override!( event: '',
-                                                           attribute: attribute,
-                                                           ignore_blank_key_values: ignore_blank_key_values,
-                                                           prov_key_values: prov_key_values ) ).to eq false
-      expect( prov_key_values[:test] ).to eq 'testing'
-      expect( prov_key_values.size ).to eq 1
+        it 'does not provide some arbritrary metadata' do
+          attribute = :some_arbritrary_metadata
+          expect( subject.map_provenance_attributes_override!( event: '',
+                                                               attribute: attribute,
+                                                               ignore_blank_key_values: ignore_blank_key_values,
+                                                               prov_key_values: prov_key_values ) ).to eq false
+          expect( prov_key_values[:test] ).to eq 'testing'
+          expect( prov_key_values.size ).to eq 1
+        end
+      end
     end
-
+    it_behaves_like 'shared provenance metadata overrides', false
+    it_behaves_like 'shared provenance metadata overrides', true
   end
 
   describe 'properties' do
