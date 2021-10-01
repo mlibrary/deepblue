@@ -30,7 +30,7 @@ module Deepblue
     mattr_accessor :user_stat_importer_job_debug_verbose,           default: false
     mattr_accessor :works_report_job_debug_verbose,                 default: false
 
-    mattr_accessor :allowed_job_tasks, default: [ "tmp:clean" ].freeze
+    mattr_accessor :allowed_job_tasks,             default: [ "tmp:clean" ].freeze
     mattr_accessor :job_failure_email_subscribers, default: []
 
     def self.email_exec_results( targets:,

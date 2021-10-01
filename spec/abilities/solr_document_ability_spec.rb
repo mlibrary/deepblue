@@ -2,7 +2,7 @@ require 'rails_helper'
 require 'cancan/matchers'
 
 # rubocop:disable RSpec/EmptyExampleGroup
-RSpec.describe 'SolrDocumentAbility' do
+RSpec.describe Hyrax::Ability::SolrDocumentAbility do
   subject { ability }
 
   let(:ability) { Ability.new(current_user) }

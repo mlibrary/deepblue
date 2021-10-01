@@ -21,19 +21,8 @@ require File.expand_path("../../config/environment", __FILE__)
 #   end
 # end
 
-def coverage_needed?
-  ENV['COVERALLS_REPO_TOKEN']
-end
-
-if coverage_needed?
-  require 'coveralls'
-  Coveralls.wear! do
-    # add_filter '.bundle' # include this since we have tests that cover included gem files
-    add_filter 'config'
-    add_filter 'lib/spec'
-    add_filter 'spec'
-    # add_filter 'lib/tasks'
-  end
+def skip_because( _comment = nil )
+  true
 end
 
 require 'rspec/rails'
@@ -45,7 +34,18 @@ require 'rspec/retry'
 require 'support/controller_level_helpers'
 
 def coverage_needed?
-  ENV['COVERAGE'] || ENV['TRAVIS']
+  ENV['COVERAGE'] || ENV['TRAVIS'] || ENV['COVERALLS_REPO_TOKEN']
+end
+
+if coverage_needed?
+  require 'coveralls'
+  Coveralls.wear! do
+    # add_filter '.bundle' # include this since we have tests that cover included gem files
+    add_filter 'config'
+    add_filter 'lib/spec'
+    add_filter 'spec'
+    # add_filter 'lib/tasks'
+  end
 end
 
 def ci_build?

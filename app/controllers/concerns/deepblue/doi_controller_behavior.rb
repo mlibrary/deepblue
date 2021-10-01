@@ -4,15 +4,14 @@ module Deepblue
 
   module DoiControllerBehavior
 
-    mattr_accessor :doi_controller_behavior_debug_verbose
-    @@doi_controller_behavior_debug_verbose = false
+    mattr_accessor :doi_controller_behavior_debug_verbose, default: false
 
     def doi
       msg = doi_mint
       respond_to do |wants|
         wants.html { redirect_to [main_app, curation_concern], notice: msg }
         wants.json do
-          unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
+          unless Rails.configuration.rest_api_allow_mutate
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
           render :show,
@@ -27,10 +26,10 @@ module Deepblue
     end
 
     def doi_mint
-      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           Deepblue::LoggingHelper.called_from,
-                                           Deepblue::LoggingHelper.obj_class( "self", self ),
-                                           Deepblue::LoggingHelper.obj_class( "curation_concern", curation_concern ),
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           ::Deepblue::LoggingHelper.obj_class( "self", self ),
+                                           ::Deepblue::LoggingHelper.obj_class( "curation_concern", curation_concern ),
                                            "curation_concern.id=#{curation_concern.id}",
                                            "curation_concern.depositor=#{curation_concern.depositor}",
                                            "current_user.email=#{current_user.email}",
@@ -54,13 +53,14 @@ module Deepblue
             elsif curation_concern.doi_mint( current_user: current_user, event_note: curation_concern.class.name )
               MsgHelper.t( 'data_set.doi_minting_started' )
             end
-      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           Deepblue::LoggingHelper.called_from,
-                                           Deepblue::LoggingHelper.obj_class( "self", self ),                                           Deepblue::LoggingHelper.obj_class( "curation_concern", curation_concern ),
-                                           Deepblue::LoggingHelper.obj_class( "curation_concern", curation_concern ),
-                                           "curation_concern.id=#{curation_concern.id}",
-                                           "msg=#{msg}",
-                                           "" ] if doi_controller_behavior_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                            ::Deepblue::LoggingHelper.called_from,
+                                            ::Deepblue::LoggingHelper.obj_class( "self", self ),
+                                            ::Deepblue::LoggingHelper.obj_class( "curation_concern", curation_concern ),
+                                            ::Deepblue::LoggingHelper.obj_class( "curation_concern", curation_concern ),
+                                            "curation_concern.id=#{curation_concern.id}",
+                                            "msg=#{msg}",
+                                            "" ] if doi_controller_behavior_debug_verbose
       return msg
     end
 

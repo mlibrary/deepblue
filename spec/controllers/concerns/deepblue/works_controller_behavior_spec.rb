@@ -19,7 +19,6 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
   let(:hyrax) { Hyrax::Engine.routes.url_helpers }
 
   let(:debug_verbose) { false }
-  let(:empty_hash) { {} }
 
   describe 'module debug verbose variables' do
     it "they have the right values" do
@@ -28,6 +27,8 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
       expect( ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose ).to eq( debug_verbose )
     end
   end
+
+  let(:empty_hash) { {} }
 
   describe 'all controller tests with debug' do
     RSpec.shared_examples 'shared all controller tests' do |dbg_verbose|

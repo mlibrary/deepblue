@@ -5,8 +5,7 @@ module Hyrax
   module Ability
     extend ActiveSupport::Concern
 
-    mattr_accessor :hyrax_ability_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.hyrax_ability_debug_verbose
+    mattr_accessor :hyrax_ability_debug_verbose, default: Rails.configuration.hyrax_ability_debug_verbose
 
     included do
       include Hyrax::Ability::AdminSetAbility

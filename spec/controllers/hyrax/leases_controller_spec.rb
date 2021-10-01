@@ -6,8 +6,8 @@ RSpec.describe Hyrax::LeasesController, skip: false do
   routes { Hyrax::Engine.routes }
 
   let(:user) { create(:user) }
-  let(:a_work) { create(:generic_work, user: user) }
-  let(:not_my_work) { create(:generic_work) }
+  let(:a_work) { create(:data_set, user: user) }
+  let(:not_my_work) { create(:data_set) }
 
   before { sign_in user }
 

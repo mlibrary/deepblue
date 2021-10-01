@@ -239,10 +239,18 @@ module Deepblue
     end
 
     def self.derivative_excluded_ext_set?( file_ext )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "file_ext=#{file_ext}",
+                                             "" ], bold_puts: ingest_helper_debug_verbose_puts if ingest_helper_debug_verbose
       DeepBlueDocs::Application.config.derivative_excluded_ext_set.key? file_ext
     end
 
     def self.file_too_big(file_name)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "file_name=#{file_name}",
+                                             "" ], bold_puts: ingest_helper_debug_verbose_puts if ingest_helper_debug_verbose
       threshold_file_size = DeepBlueDocs::Application.config.derivative_max_file_size
       threshold_file_size > -1 && File.exist?(file_name) && File.size(file_name) > threshold_file_size
     end

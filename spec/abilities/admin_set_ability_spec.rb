@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'cancan/matchers'
 
-RSpec.describe 'AdminSetAbility' do
+RSpec.describe Hyrax::Ability::AdminSetAbility do
   subject { ability }
 
   let(:ability) { Ability.new(current_user) }

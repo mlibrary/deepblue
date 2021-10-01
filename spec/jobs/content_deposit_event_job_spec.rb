@@ -3,8 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe ContentDepositEventJob do
-  let(:user) { create(:user) }
-  let(:mock_time) { Time.zone.at(1) }
+
+  let(:user)             { create(:user) }
+  let(:mock_time)        { Time.zone.at(1) }
   let(:curation_concern) { create(:work, title: ['MacBeth'], user: user) }
   let(:event) do
     {
@@ -27,4 +28,5 @@ RSpec.describe ContentDepositEventJob do
     expect(user.profile_events.first).to eq(event)
     expect(curation_concern.events.first).to eq(event)
   end
+
 end

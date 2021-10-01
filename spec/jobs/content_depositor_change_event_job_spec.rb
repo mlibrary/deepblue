@@ -2,14 +2,15 @@
 
 require 'rails_helper'
 
-RSpec.describe ContentDepositorChangeEventJob, skip: true do
-  let(:user) { create(:user) }
+RSpec.describe ContentDepositorChangeEventJob, skip: false do
+
+  let(:user)         { create(:user) }
   let(:another_user) { create(:user) }
-  let(:generic_work) { create(:generic_work, title: ['BethsMac'], user: user) }
-  let(:mock_time) { Time.zone.at(1) }
+  let(:data_set)     { create(:data_set, title: ['BethsMac'], user: user) }
+  let(:mock_time)    { Time.zone.at(1) }
   let(:event) do
     { action: "User <a href=\"/users/#{user.to_param}\">#{user.user_key}</a> " \
-                          "has transferred <a href=\"/concern/generic_works/#{generic_work.id}\">BethsMac</a> " \
+                          "has transferred <a href=\"/concern/data_sets/#{data_set.id}\">BethsMac</a> " \
                           "to user <a href=\"/users/#{another_user.to_param}\">#{another_user.user_key}</a>",
       timestamp: '1' }
   end
@@ -20,13 +21,14 @@ RSpec.describe ContentDepositorChangeEventJob, skip: true do
 
   it "logs the event to the proxy depositor's profile, the depositor's dashboard, and the FileSet" do
     expect do
-      described_class.perform_now(generic_work, another_user)
+      described_class.perform_now(data_set, another_user)
     end.to change { user.profile_events.length }.by(1)
                                                 .and change { another_user.events.length }.by(1)
-                                                                                          .and change { generic_work.events.length }.by(1)
+                                                .and change { data_set.events.length }.by(1)
 
     expect(user.profile_events.first).to eq(event)
     expect(another_user.events.first).to eq(event)
-    expect(generic_work.events.first).to eq(event)
+    expect(data_set.events.first).to eq(event)
   end
+
 end

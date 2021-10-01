@@ -4,13 +4,15 @@ require 'rails_helper'
 
 RSpec.describe FindAndFixJob, skip: false do
 
-  let(:sched_helper) { class_double( Deepblue::SchedulerHelper ).as_stubbed_const(:transfer_nested_constants => true) }
+  let(:debug_verbose) { false }
 
   describe 'module debug verbose variables' do
     it "they have the right values" do
-      expect( described_class.find_and_fix_job_debug_verbose ).to eq( false )
+      expect( described_class.find_and_fix_job_debug_verbose ).to eq debug_verbose
     end
   end
+
+  let(:sched_helper) { class_double( Deepblue::SchedulerHelper ).as_stubbed_const(:transfer_nested_constants => true) }
 
   describe 'find and fix job' do
     let(:find_and_fix_empty_file_size) { true }
@@ -25,11 +27,15 @@ RSpec.describe FindAndFixJob, skip: false do
                      'subscription_service_id' => 'find_and_fix_job',
                      'verbose' => verbose } }
     let(:options) { args }
-    let(:job)       { described_class.send( :job_or_instantiate, *args ) }
+    let(:job)     { described_class.send( :job_or_instantiate, *args ) }
 
-    RSpec.shared_examples 'it called initialize_from_args during perform job' do |run_the_job|
+    RSpec.shared_examples 'it called initialize_from_args during perform job' do |run_the_job, dbg_verbose|
       before do
-        expect( described_class.find_and_fix_job_debug_verbose ).to eq false
+        described_class.find_and_fix_job_debug_verbose = dbg_verbose
+        expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(:once) if dbg_verbose
+        expect(::Deepblue::LoggingHelper).to_not receive(:bold_debug) unless dbg_verbose
+
+        expect( described_class.find_and_fix_job_debug_verbose ).to eq dbg_verbose
         expect( job ).to receive( :initialize_from_args ).with( any_args ).and_call_original
         expect( job ).to receive( :job_options_value ).with( options,
                                                              key: 'verbose',
@@ -86,6 +92,11 @@ RSpec.describe FindAndFixJob, skip: false do
         end
 
       end
+
+      after do
+        described_class.find_and_fix_job_debug_verbose = debug_verbose
+      end
+
       it 'runs the job with the options specified' do
         ActiveJob::Base.queue_adapter = :test
         job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
@@ -96,7 +107,8 @@ RSpec.describe FindAndFixJob, skip: false do
       let(:hostnames) { build(:hostnames_allowed) }
       run_the_job = true
 
-      it_behaves_like 'it called initialize_from_args during perform job', run_the_job
+      it_behaves_like 'it called initialize_from_args during perform job', run_the_job, true
+      it_behaves_like 'it called initialize_from_args during perform job', run_the_job, false
 
     end
 
@@ -104,7 +116,8 @@ RSpec.describe FindAndFixJob, skip: false do
       let(:hostnames) { build(:hostnames_not_allowed) }
       run_the_job = false
 
-      it_behaves_like 'it called initialize_from_args during perform job', run_the_job
+      it_behaves_like 'it called initialize_from_args during perform job', run_the_job, true
+      it_behaves_like 'it called initialize_from_args during perform job', run_the_job, false
 
     end
 

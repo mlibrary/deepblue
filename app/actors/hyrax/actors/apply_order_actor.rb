@@ -2,13 +2,13 @@ module Hyrax
   module Actors
     class ApplyOrderActor < AbstractActor
 
-      mattr_accessor :apply_order_actor_debug_verbose,
-                     default: ::DeepBlueDocs::Application.config.apply_order_actor_debug_verbose
+      mattr_accessor :apply_order_actor_debug_verbose, default: Rails.configuration.apply_order_actor_debug_verbose
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if update was successful
       def update(env)
-        ::Deepblue::LoggingHelper.bold_debug "ApplyOrderActor.update: next_actor = #{next_actor.class.name}" if apply_order_actor_debug_verbose
+        ::Deepblue::LoggingHelper.bold_debug ["ApplyOrderActor.update: next_actor = #{next_actor.class.name}"
+                                             ] if apply_order_actor_debug_verbose
         ordered_member_ids = env.attributes.delete(:ordered_member_ids)
         sync_members(env, ordered_member_ids) &&
           apply_order(env.curation_concern, ordered_member_ids) &&
@@ -24,7 +24,8 @@ module Hyrax
         end
 
         def sync_members(env, ordered_member_ids)
-          ::Deepblue::LoggingHelper.bold_debug "ApplyOrderActor.sync_members ordered_member_ids = #{ordered_member_ids}" if apply_order_actor_debug_verbose
+          ::Deepblue::LoggingHelper.bold_debug ["ApplyOrderActor.sync_members ordered_member_ids = #{ordered_member_ids}"
+                                               ] if apply_order_actor_debug_verbose
           return true if ordered_member_ids.nil?
           cleanup_ids_to_remove_from_curation_concern(env.curation_concern, ordered_member_ids)
           add_new_work_ids_not_already_in_curation_concern(env, ordered_member_ids)
@@ -34,7 +35,8 @@ module Hyrax
         # @todo Why is this not doing work.save?
         # @see Hyrax::Actors::AddToWorkActor for duplication
         def cleanup_ids_to_remove_from_curation_concern(curation_concern, ordered_member_ids)
-          ::Deepblue::LoggingHelper.bold_debug "ApplyOrderActor.cleanup_ids_to_remove_from_curation_concern ordered_member_ids = #{ordered_member_ids}" if apply_order_actor_debug_verbose
+          ::Deepblue::LoggingHelper.bold_debug ["ApplyOrderActor.cleanup_ids_to_remove_from_curation_concern ordered_member_ids = #{ordered_member_ids}"
+                                               ] if apply_order_actor_debug_verbose
           (curation_concern.ordered_member_ids - ordered_member_ids).each do |old_id|
             work = ::PersistHelper.find(old_id)
             curation_concern.ordered_members.delete(work)
@@ -43,20 +45,23 @@ module Hyrax
         end
 
         def add_new_work_ids_not_already_in_curation_concern(env, ordered_member_ids)
-          ::Deepblue::LoggingHelper.bold_debug "ApplyOrderActor.add_new_work_ids_not_already_in_curation_concern ordered_member_ids = #{ordered_member_ids}" if apply_order_actor_debug_verbose
+          ::Deepblue::LoggingHelper.bold_debug ["ApplyOrderActor.add_new_work_ids_not_already_in_curation_concern ordered_member_ids = #{ordered_member_ids}"
+                                               ] if apply_order_actor_debug_verbose
           (ordered_member_ids - env.curation_concern.ordered_member_ids).each do |work_id|
             work = ::PersistHelper.find(work_id)
             if can_edit_both_works?(env, work)
               env.curation_concern.ordered_members << work
               env.curation_concern.save!
             else
-              env.curation_concern.errors[:ordered_member_ids] << "Works can only be related to each other if user has ability to edit both."
+              env.curation_concern.errors[:ordered_member_ids] <<
+                "Works can only be related to each other if user has ability to edit both."
             end
           end
         end
 
         def apply_order(curation_concern, new_order)
-          ::Deepblue::LoggingHelper.bold_debug "ApplyOrderActor.apply_order new_order = #{new_order}" if apply_order_actor_debug_verbose
+          ::Deepblue::LoggingHelper.bold_debug ["ApplyOrderActor.apply_order new_order = #{new_order}"
+                                               ] if apply_order_actor_debug_verbose
           return true unless new_order
           curation_concern.ordered_member_proxies.each_with_index do |proxy, index|
             unless new_order[index]

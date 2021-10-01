@@ -5,6 +5,7 @@ module Deepblue
   module DiskUtilitiesHelper
 
     mattr_accessor :disk_utilities_helper_debug_verbose, default: false
+    mattr_accessor :disk_utilities_helper_bold_puts, default: false
 
     def self.add_msg( msg_queue: nil, prefix:, path:, test_mode: false )
       return if msg_queue.nil? && !test_mode
