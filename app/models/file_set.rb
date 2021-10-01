@@ -2,7 +2,7 @@
 
 class FileSet < ActiveFedora::Base
 
-  FILE_SET_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.file_set_debug_verbose
+  mattr_accessor :file_set_debug_verbose, default: Rails.configuration.file_set_debug_verbose
 
   include ::Deepblue::FileSetMetadata # must be before `include ::Hyrax::FileSetBehavior`
   include ::Hyrax::FileSetBehavior
@@ -203,8 +203,23 @@ class FileSet < ActiveFedora::Base
   end
 
   def files_to_file
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "files=#{files}",
+                                           "" ] if file_set_debug_verbose
+    # caller_locations(0..5).each { |cl| puts cl }
+    # caller_locations(0..25).each { |cl| puts cl }
     return nil if files.blank?
+    # puts "label=#{label}"
     files.each do |f|
+      # puts "f=#{f}"
+      # # puts "f.file_name.class=#{f.file_name.class}"
+      # # puts "Array(f.file_name)=#{Array(f.file_name)}"
+      # # puts "f.file_name.to_a=#{f.file_name.to_a}"
+      # # #puts "f.file_name.get_values=#{f.file_name.get_values}"
+      # # #puts "f.file_name.methods.sort=#{f.file_name.methods.sort}"
+      # puts "f.original_name=#{f.original_name}"
+      # # puts "f.original_name.class=#{f.original_name.class}"
       return f if f.original_name.present?
     end
     nil
@@ -232,6 +247,13 @@ class FileSet < ActiveFedora::Base
                                            attribute:,
                                            ignore_blank_key_values:,
                                            prov_key_values: )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "event=#{event}",
+                                           "attribute=#{attribute}",
+                                           "ignore_blank_key_values=#{ignore_blank_key_values}",
+                                           "prov_key_values=#{prov_key_values}",
+                                           "" ] if file_set_debug_verbose
     value = nil
     handled = case attribute.to_s
               when 'file_extension'

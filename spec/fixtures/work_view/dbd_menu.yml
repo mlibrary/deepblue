@@ -1,0 +1,38 @@
+# dbd_menu.yml
+---
+:menu:
+  :about:
+    :link: '/data/about-top'
+    :label: 'About'
+    :menu:
+      :about_us:
+        :link: '/data/about'
+        :label: 'About Deep Blue Data'
+      :services:
+        :link: '/data/services'
+        :label: 'Services'
+      :agreement:
+        :link: '/data/agreement'
+        :label: 'Policies and Terms of Use'
+  :help:
+    :link: '/data/help'
+    :label: 'Help'
+    :menu:
+      :faq:
+        :link: '/data/faq'
+        :label: "FAQ"
+      :depositor-guide:
+        :link: '/data/depositor-guide'
+        :label: 'Depositor Guide'
+      :user-guide:
+        :link: '/data/user-guide'
+        :label: 'User Guide'
+      :dbd-glossary:
+        :link: '/data/dbd-glossary'
+        :label: 'Deep Blue Data Glossary'
+      :rest-api:
+        :link: '/data/rest-api'
+        :label: 'REST API'
+  :contact:
+    :link: '/data/contact'
+    :label: 'Contact Us'

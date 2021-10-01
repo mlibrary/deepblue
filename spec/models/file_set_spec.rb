@@ -6,23 +6,19 @@ RSpec.describe FileSet do
 
   include Hyrax::FactoryHelpers
 
-  # before(:all) do
-  #   #puts "DataSet ids before=#{DataSet.all.map { |ds| ds.id }}"
-  #   puts "FileSet ids before=#{FileSet.all.map { |fs| fs.id }}"
-  # end
-  #
-  # after(:all) do
-  #   puts "FileSet ids after=#{FileSet.all.map { |fs| fs.id }}"
-  #   #puts "DataSet ids after=#{DataSet.all.map { |ds| ds.id }}"
-  #   # clean up created DataSet
-  #   #DataSet.all.each { |ds| ds.delete }
-  #   FileSet.all.each { |fs| fs.delete }
-  # end
+  let(:debug_verbose) { false }
 
-  let( :id ) { '0123458678' }
-  let( :visibility_private ) { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE }
-  let( :visibility_public ) { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC }
-  let( :metadata_keys_all ) {
+  describe 'class debug verbose variables' do
+    it "they have the right values" do
+      expect( described_class.file_set_debug_verbose ).to eq( debug_verbose )
+    end
+  end
+
+  let(:id )                 { '0123458678' }
+  let(:label )              { 'the_filename.ext' }
+  let(:visibility_private ) { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE }
+  let(:visibility_public )  { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC }
+  let(:metadata_keys_all )  {
     %i[
       curation_notes_admin
       curation_notes_user
@@ -89,6 +85,73 @@ RSpec.describe FileSet do
       expect( subject.attributes_update_for_provenance ).to eq metadata_keys_update
     end
 
+  end
+
+  describe 'provenance metadata overrides' do
+    RSpec.shared_examples 'shared provenance metadata overrides' do |dbg_verbose|
+      before do
+        described_class.file_set_debug_verbose = dbg_verbose
+        expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(:once) if dbg_verbose
+        expect(::Deepblue::LoggingHelper).to_not receive(:bold_debug) unless dbg_verbose
+      end
+      after do
+        described_class.file_set_debug_verbose = debug_verbose
+      end
+      context do
+        let(:prov_key_values)         { { test: 'testing' } }
+        let(:ignore_blank_key_values) { false }
+        before do
+          subject.id = id
+          subject.label = label
+          subject.visibility = visibility_public
+        end
+
+        it 'provides file_extension' do
+          attribute = :file_extension
+          expect( subject.map_provenance_attributes_override!( event: '',
+                                                               attribute: attribute,
+                                                               ignore_blank_key_values: ignore_blank_key_values,
+                                                               prov_key_values: prov_key_values ) ).to eq true
+          expect( prov_key_values[:file_extension] ).to eq '.ext'
+          expect( prov_key_values[:test] ).to eq 'testing'
+          expect( prov_key_values.size ).to eq 2
+        end
+
+        it 'provides label' do
+          attribute = :label
+          expect( subject.map_provenance_attributes_override!( event: '',
+                                                               attribute: attribute,
+                                                               ignore_blank_key_values: ignore_blank_key_values,
+                                                               prov_key_values: prov_key_values ) ).to eq true
+          expect( prov_key_values[:label] ).to eq label
+          expect( prov_key_values[:test] ).to eq 'testing'
+          expect( prov_key_values.size ).to eq 2
+        end
+
+        it 'provides visibility' do
+          attribute = :visibility
+          expect( subject.map_provenance_attributes_override!( event: '',
+                                                               attribute: attribute,
+                                                               ignore_blank_key_values: ignore_blank_key_values,
+                                                               prov_key_values: prov_key_values ) ).to eq true
+          expect( prov_key_values[:visibility] ).to eq visibility_public
+          expect( prov_key_values[:test] ).to eq 'testing'
+          expect( prov_key_values.size ).to eq 2
+        end
+
+        it 'does not provide some arbritrary metadata' do
+          attribute = :some_arbritrary_metadata
+          expect( subject.map_provenance_attributes_override!( event: '',
+                                                               attribute: attribute,
+                                                               ignore_blank_key_values: ignore_blank_key_values,
+                                                               prov_key_values: prov_key_values ) ).to eq false
+          expect( prov_key_values[:test] ).to eq 'testing'
+          expect( prov_key_values.size ).to eq 1
+        end
+      end
+    end
+    it_behaves_like 'shared provenance metadata overrides', false
+    it_behaves_like 'shared provenance metadata overrides', true
   end
 
   describe 'rdf type' do
@@ -469,7 +532,9 @@ RSpec.describe FileSet do
       before do
         subject.paranoid_edit_permissions =
             [
-                { key: :edit_users, message: 'Depositor must have edit access', condition: ->(obj) { !obj.edit_users.include?(obj.depositor) } }
+                { key: :edit_users,
+                  message: 'Depositor must have edit access',
+                  condition: ->(obj) { !obj.edit_users.include?(obj.depositor) } }
             ]
         subject.permissions = [Hydra::AccessControls::Permission.new(type: 'person', name: 'mjg36', access: 'read')]
       end
@@ -507,7 +572,7 @@ RSpec.describe FileSet do
   describe 'file content validation' do
     subject { create(:file_set) }
 
-    let(:file_path) { fixture_path + '/small_file.txt' }
+    let(:file_path) { File.join fixture_path, 'small_file.txt' }
 
     context 'when file contains a virus', skip: true do
       before do
@@ -534,8 +599,8 @@ RSpec.describe FileSet do
   end
 
   describe '#where_digest_is', :clean_repo do
-    let(:file) { create(:file_set) }
-    let(:file_path) { fixture_path + '/small_file.txt' }
+    let(:file)          { create(:file_set) }
+    let(:file_path)     { File.join fixture_path, 'small_file.txt' }
     let(:digest_string) { '88fb4e88c15682c18e8b19b8a7b6eaf8770d33cf' }
 
     before do
@@ -804,6 +869,50 @@ RSpec.describe FileSet do
     subject { file_set.to_global_id }
 
     it { is_expected.to be_kind_of GlobalID }
+  end
+
+  describe '#files', :clean_repo do
+    let(:file_name) { 'small_file.txt' }
+    let(:file_set)  { create(:file_set_with_files, label: file_name) }
+
+    it do
+      expect(file_set.files_to_file).to_not eq nil
+      expect(file_set.files_to_file.class).to eq Hydra::PCDM::File
+      expect(file_set.files_to_file.original_name).to eq file_name
+    end
+  end
+
+  describe '#files_to_file' do
+    RSpec.shared_examples 'shared #files_to_file' do |dbg_verbose|
+      subject { described_class }
+      before do
+        described_class.file_set_debug_verbose = dbg_verbose
+        expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(:once) if dbg_verbose
+        expect(::Deepblue::LoggingHelper).to_not receive(:bold_debug) unless dbg_verbose
+      end
+      after do
+        described_class.file_set_debug_verbose = debug_verbose
+      end
+      context do
+        # let(:file_name) { 'small_file.txt' }
+        # let(:file_set)  { create(:file_set_with_files, label: file_name) }
+        let(:file_name) { 'about.html' }
+        let(:path)      { File.join fixture_path, 'work_view', file_name}
+        let(:file_set)  { create(:file_set_with_files, label: file_name, file_path: path) }
+
+        it do
+          expect(file_set.files.class).to eq ActiveFedora::Associations::ContainerProxy
+          expect(file_set.files.size).to eq 1
+          expect(file_set.files[0].class).to eq Hydra::PCDM::File
+          expect(file_set.files_to_file).to_not eq nil
+          expect(file_set.files_to_file.class).to eq Hydra::PCDM::File
+          expect(file_set.files_to_file.original_name).to eq file_name
+          # is_expected.to eq 'test'
+        end
+      end
+    end
+    it_behaves_like 'shared #files_to_file', false
+    it_behaves_like 'shared #files_to_file', true
   end
 
 end

@@ -6,6 +6,9 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
   routes { Rails.application.routes }
   let(:main_app) { Rails.application.routes.url_helpers }
   let(:hyrax) { Hyrax::Engine.routes.url_helpers }
+
+  let(:debug_verbose) { false }
+
   let(:user) { create(:user) }
 
   before { sign_in user }
@@ -413,209 +416,226 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
   end
 
   describe '#show' do
-    before do
-      create(:sipity_entity, proxy_for_global_id: work.to_global_id.to_s)
-    end
-
-    context 'while logged out' do
-      let(:work) { create(:public_data_set, user: user, title: ['public thing']) }
-
-      before { sign_out user }
-
-      context "without a referer" do
-        it "sets the default breadcrumbs" do
-          # TODO: expect(controller).to receive(:add_breadcrumb).with('Home', Hyrax::Engine.routes.url_helpers.root_path(locale: 'en'))
-          get :show, params: { id: work }
-          expect(response).to be_successful
-        end
-      end
-
-      context "with a referer" do
-        before do
-          request.env['HTTP_REFERER'] = 'http://test.host/foo'
-        end
-
-        it "sets breadcrumbs to authorized pages" do
-          # TODO: expect(controller).to receive(:add_breadcrumb).with('Home', main_app.root_path(locale: 'en'))
-          expect(controller).not_to receive(:add_breadcrumb).with('Dashboard', hyrax.dashboard_path(locale: 'en'))
-          expect(controller).not_to receive(:add_breadcrumb).with('Your Works', hyrax.my_works_path(locale: 'en'))
-          # TODO: expect(controller).to receive(:add_breadcrumb).with('public thing', main_app.hyrax_data_set_path(work.id, locale: 'en'))
-          get :show, params: { id: work }
-          expect(response).to be_successful
-          expect(response).to render_template("layouts/hyrax/1_column")
-        end
-      end
-    end
-
-    context 'my own private work' do
-      let(:work) { create(:private_data_set, user: user, title: ['test title']) }
-
-      it 'shows me the page' do
-        get :show, params: { id: work }
-        expect(response).to be_success
-        expect(assigns(:presenter)).to be_kind_of Hyrax::WorkShowPresenter
-      end
-
-      context "without a referer" do
-        it "sets breadcrumbs" do
-          # TODO: expect(controller).to receive(:add_breadcrumb).with('Home', Hyrax::Engine.routes.url_helpers.root_path(locale: 'en'))
-          # TODO: expect(controller).to receive(:add_breadcrumb).with("Dashboard", hyrax.dashboard_path(locale: 'en'))
-          get :show, params: { id: work }
-          expect(response).to be_successful
-        end
-      end
-
-      # context "with a referer" do
-      #   before do
-      #     request.env['HTTP_REFERER'] = 'http://test.host/foo'
-      #   end
-      #
-      #   it "sets breadcrumbs" do
-      #     expect(controller).to receive(:add_breadcrumb).with('Home', Hyrax::Engine.routes.url_helpers.root_path(locale: 'en'))
-      #     expect(controller).to receive(:add_breadcrumb).with('Dashboard', hyrax.dashboard_path(locale: 'en'))
-      #     expect(controller).to receive(:add_breadcrumb).with('Works', hyrax.my_works_path(locale: 'en'))
-      #     expect(controller).to receive(:add_breadcrumb).with('test title', main_app.hyrax_data_set_path(work.id, locale: 'en'))
-      #     get :show, params: { id: work }
-      #     expect(response).to be_successful
-      #     expect(response).to render_template("layouts/hyrax/1_column")
-      #   end
-      # end
-
-      context "with a parent work" do
-        let(:parent) { create(:data_set_work, title: ['Parent Work'], user: user, ordered_members: [work]) }
-
-        before do
-          create(:sipity_entity, proxy_for_global_id: parent.to_global_id.to_s)
-        end
-
-        it "sets the parent presenter" do
-          get :show, params: { id: work, parent_id: parent }
-          expect(response).to be_success
-          expect(assigns[:parent_presenter]).to be_instance_of Hyrax::DataSetPresenter
-        end
-      end
-
-      context "with an endnote file" do
-        let(:disposition)  { response.header.fetch("Content-Disposition") }
-        let(:content_type) { response.header.fetch("Content-Type") }
-
-        render_views
-
-        it 'downloads the file' do
-          get :show, params: { id: work, format: 'endnote' }
-          expect(response).to be_successful
-          expect(disposition).to include("attachment")
-          expect(content_type).to eq("application/x-endnote-refer")
-          expect(response.body).to include("%T test title")
-        end
-      end
-    end
-
-    context 'someone elses private work' do
-      let(:work) { create(:private_data_set) }
-
-      it 'shows unauthorized message' do
-        get :show, params: { id: work }
-        expect(response.code).to eq '200'
-        # TODO:
-        # expect(response).to render_template(:unauthorized)
-      end
-    end
-
-    context 'someone else\'s public work' do
-      let(:work) { create(:public_data_set) }
-
-      context "html" do
-        it 'shows me the page' do
-          expect(controller). to receive(:additional_response_formats).with(ActionController::MimeResponds::Collector)
-          get :show, params: { id: work }
-          expect(response).to be_success
-        end
-      end
-
-      context "ttl" do
-        let(:presenter) { double }
-
-        before do
-          allow(controller).to receive(:presenter).and_return(presenter)
-          allow(presenter).to receive(:export_as_ttl).and_return("ttl graph")
-          allow(presenter).to receive(:editor?).and_return(true)
-        end
-
-        # TODO: fix
-        it 'renders a turtle file', skip: true do
-          get :show, params: { id: '99999999', format: :ttl }
-
-          expect(response).to be_successful
-          expect(response.body).to eq "ttl graph"
-          expect(response.content_type).to eq 'text/turtle'
-        end
-      end
-    end
-
-    context 'when I am a repository manager' do
-      before { allow(::User.group_service).to receive(:byname).and_return(user.user_key => ['admin']) }
-      let(:work) { create(:private_data_set) }
-
-      it 'someone elses private work should show me the page' do
-        get :show, params: { id: work }
-        expect(response).to be_success
-      end
-    end
-
-    context 'with work still in workflow' do
+    RSpec.shared_examples 'shared #show' do |dbg_verbose|
+      subject { described_class }
       before do
-        allow(controller).to receive(:search_results).and_return([nil, document_list])
+        described_class.data_sets_controller_debug_verbose = dbg_verbose
+        expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(:once) if dbg_verbose
+        expect(::Deepblue::LoggingHelper).to_not receive(:bold_debug) unless dbg_verbose
       end
-      let(:work) { instance_double(DataSet, id: '99999', to_global_id: '99999') }
-
-      context 'with a user lacking both workflow permission and read access' do
+      after do
+        described_class.data_sets_controller_debug_verbose = debug_verbose
+      end
+      context do
         before do
-          allow(SolrDocument).to receive(:find).and_return(document)
-          allow(controller.current_ability).to receive(:can?).with(:read, document).and_return(false)
-        end
-        let(:document_list) { [] }
-        let(:document) { instance_double(SolrDocument, suppressed?: true) }
-
-        it 'shows the unauthorized message' do
-          get :show, params: { id: work.id }
-          expect(response.code).to eq '401'
-          expect(response).to render_template(:unauthorized)
+          create(:sipity_entity, proxy_for_global_id: work.to_global_id.to_s)
         end
 
-        context 'with a user who lacks workflow permission but has read access' do
+        context 'while logged out' do
+          let(:work) { create(:public_data_set, user: user, title: ['public thing']) }
+
+          before { sign_out user }
+
+          context "without a referer" do
+            it "sets the default breadcrumbs" do
+              # TODO: expect(controller).to receive(:add_breadcrumb).with('Home', Hyrax::Engine.routes.url_helpers.root_path(locale: 'en'))
+              get :show, params: { id: work }
+              expect(response).to be_successful
+            end
+          end
+
+          context "with a referer" do
+            before do
+              request.env['HTTP_REFERER'] = 'http://test.host/foo'
+            end
+
+            it "sets breadcrumbs to authorized pages" do
+              # TODO: expect(controller).to receive(:add_breadcrumb).with('Home', main_app.root_path(locale: 'en'))
+              expect(controller).not_to receive(:add_breadcrumb).with('Dashboard', hyrax.dashboard_path(locale: 'en'))
+              expect(controller).not_to receive(:add_breadcrumb).with('Your Works', hyrax.my_works_path(locale: 'en'))
+              # TODO: expect(controller).to receive(:add_breadcrumb).with('public thing', main_app.hyrax_data_set_path(work.id, locale: 'en'))
+              get :show, params: { id: work }
+              expect(response).to be_successful
+              expect(response).to render_template("layouts/hyrax/1_column")
+            end
+          end
+        end
+
+        context 'my own private work' do
+          let(:work) { create(:private_data_set, user: user, title: ['test title']) }
+
+          it 'shows me the page' do
+            get :show, params: { id: work }
+            expect(response).to be_success
+            expect(assigns(:presenter)).to be_kind_of Hyrax::WorkShowPresenter
+          end
+
+          context "without a referer" do
+            it "sets breadcrumbs" do
+              # TODO: expect(controller).to receive(:add_breadcrumb).with('Home', Hyrax::Engine.routes.url_helpers.root_path(locale: 'en'))
+              # TODO: expect(controller).to receive(:add_breadcrumb).with("Dashboard", hyrax.dashboard_path(locale: 'en'))
+              get :show, params: { id: work }
+              expect(response).to be_successful
+            end
+          end
+
+          # context "with a referer" do
+          #   before do
+          #     request.env['HTTP_REFERER'] = 'http://test.host/foo'
+          #   end
+          #
+          #   it "sets breadcrumbs" do
+          #     expect(controller).to receive(:add_breadcrumb).with('Home', Hyrax::Engine.routes.url_helpers.root_path(locale: 'en'))
+          #     expect(controller).to receive(:add_breadcrumb).with('Dashboard', hyrax.dashboard_path(locale: 'en'))
+          #     expect(controller).to receive(:add_breadcrumb).with('Works', hyrax.my_works_path(locale: 'en'))
+          #     expect(controller).to receive(:add_breadcrumb).with('test title', main_app.hyrax_data_set_path(work.id, locale: 'en'))
+          #     get :show, params: { id: work }
+          #     expect(response).to be_successful
+          #     expect(response).to render_template("layouts/hyrax/1_column")
+          #   end
+          # end
+
+          context "with a parent work" do
+            let(:parent) { create(:data_set_work, title: ['Parent Work'], user: user, ordered_members: [work]) }
+
+            before do
+              create(:sipity_entity, proxy_for_global_id: parent.to_global_id.to_s)
+            end
+
+            it "sets the parent presenter" do
+              get :show, params: { id: work, parent_id: parent }
+              expect(response).to be_success
+              expect(assigns[:parent_presenter]).to be_instance_of Hyrax::DataSetPresenter
+            end
+          end
+
+          context "with an endnote file" do
+            let(:disposition)  { response.header.fetch("Content-Disposition") }
+            let(:content_type) { response.header.fetch("Content-Type") }
+
+            render_views
+
+            it 'downloads the file' do
+              get :show, params: { id: work, format: 'endnote' }
+              expect(response).to be_successful
+              expect(disposition).to include("attachment")
+              expect(content_type).to eq("application/x-endnote-refer")
+              expect(response.body).to include("%T test title")
+            end
+          end
+        end
+
+        context 'someone elses private work' do
+          let(:work) { create(:private_data_set) }
+
+          it 'shows unauthorized message' do
+            get :show, params: { id: work }
+            expect(response.code).to eq '200'
+            # TODO:
+            # expect(response).to render_template(:unauthorized)
+          end
+        end
+
+        context 'someone else\'s public work' do
+          let(:work) { create(:public_data_set) }
+
+          context "html" do
+            it 'shows me the page' do
+              expect(controller). to receive(:additional_response_formats).with(ActionController::MimeResponds::Collector)
+              get :show, params: { id: work }
+              expect(response).to be_success
+            end
+          end
+
+          context "ttl" do
+            let(:presenter) { double }
+
+            before do
+              allow(controller).to receive(:presenter).and_return(presenter)
+              allow(presenter).to receive(:export_as_ttl).and_return("ttl graph")
+              allow(presenter).to receive(:editor?).and_return(true)
+            end
+
+            # TODO: fix
+            it 'renders a turtle file', skip: true do
+              get :show, params: { id: '99999999', format: :ttl }
+
+              expect(response).to be_successful
+              expect(response.body).to eq "ttl graph"
+              expect(response.content_type).to eq 'text/turtle'
+            end
+          end
+        end
+
+        context 'when I am a repository manager' do
+          before { allow(::User.group_service).to receive(:byname).and_return(user.user_key => ['admin']) }
+          let(:work) { create(:private_data_set) }
+
+          it 'someone elses private work should show me the page' do
+            get :show, params: { id: work }
+            expect(response).to be_success
+          end
+        end
+
+        context 'with work still in workflow' do
           before do
-            allow(SolrDocument).to receive(:find).and_return(document)
-            allow(controller.current_ability).to receive(:can?).with(:read, document).and_return(true)
+            allow(controller).to receive(:search_results).and_return([nil, document_list])
           end
-          let(:document_list) { [] }
-          let(:document) { instance_double(SolrDocument, suppressed?: true) }
+          let(:work) { instance_double(DataSet, id: '99999', to_global_id: '99999') }
 
-          it 'shows the unavailable message' do
-            get :show, params: { id: work.id }
-            expect(response.code).to eq '401'
-            expect(response).to render_template(:unavailable)
-            expect(flash[:notice]).to eq 'The work is not currently available because it has not yet completed the approval process'
+          context 'with a user lacking both workflow permission and read access' do
+            before do
+              allow(SolrDocument).to receive(:find).and_return(document)
+              allow(controller.current_ability).to receive(:can?).with(:read, document).and_return(false)
+            end
+            let(:document_list) { [] }
+            let(:document) { instance_double(SolrDocument, suppressed?: true) }
+
+            it 'shows the unauthorized message' do
+              get :show, params: { id: work.id }
+              expect(response.code).to eq '401'
+              expect(response).to render_template(:unauthorized)
+              ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
+            end
+
+            context 'with a user who lacks workflow permission but has read access' do
+              before do
+                allow(SolrDocument).to receive(:find).and_return(document)
+                allow(controller.current_ability).to receive(:can?).with(:read, document).and_return(true)
+              end
+              let(:document_list) { [] }
+              let(:document) { instance_double(SolrDocument, suppressed?: true) }
+
+              it 'shows the unavailable message' do
+                get :show, params: { id: work.id }
+                expect(response.code).to eq '401'
+                expect(response).to render_template(:unavailable)
+                expect(flash[:notice]).to eq 'The work is not currently available because it has not yet completed the approval process'
+                ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
+              end
+            end
           end
-        end
-      end
 
-      context 'with a user granted workflow permission' do
-        let(:document_list) { [document] }
-        let(:document) { instance_double(SolrDocument) }
-        before do
-          allow(document).to receive(:[]).and_return(nil)
-          allow(controller).to receive(:read_me_file_set).and_return("this should be a file set");
-        end
+          context 'with a user granted workflow permission' do
+            let(:document_list) { [document] }
+            let(:document) { instance_double(SolrDocument) }
+            before do
+              allow(document).to receive(:[]).and_return(nil)
+              allow(controller).to receive(:read_me_file_set).and_return("this should be a file set")
+            end
 
-        it 'renders without the unauthorized message' do
-          get :show, params: { id: work.id }
-          expect(response.code).to eq '200'
-          expect(response).to render_template(:show)
-          expect(flash[:notice]).to be_nil
+            it 'renders without the unauthorized message' do
+              get :show, params: { id: work.id }
+              expect(response.code).to eq '200'
+              expect(response).to render_template(:show)
+              expect(flash[:notice]).to be_nil
+            end
+          end
         end
       end
     end
+    it_behaves_like 'shared #show', false
+    it_behaves_like 'shared #show', true
   end
 
   describe '#update' do

@@ -5,7 +5,8 @@ module Hydra::Works
   # monkey
   class AddFileToFileSet
 
-    ADD_FILE_TO_FILE_SET_DEBUG_VERBOSE = ::Deepblue::IngestIntegrationService.add_file_to_file_set_debug_verbose
+    mattr_accessor :add_file_to_file_set_debug_verbose,
+                   default: ::Deepblue::IngestIntegrationService.add_file_to_file_set_debug_verbose
 
     # Adds a file to the file_set
     # @param [Hydra::PCDM::FileSet] file_set the file will be added to
@@ -21,7 +22,7 @@ module Hydra::Works
                                              "type=#{type}",
                                              "update_existing=#{update_existing}",
                                              "versioning=#{versioning}",
-                                             "" ] if ADD_FILE_TO_FILE_SET_DEBUG_VERBOSE
+                                             "" ] if add_file_to_file_set_debug_verbose
 
       fail ArgumentError, 'supplied object must be a file set' unless file_set.file_set?
       fail ArgumentError, 'supplied file must respond to read' unless file.respond_to? :read
@@ -62,14 +63,14 @@ module Hydra::Works
                                              "job_status.message=#{job_status.message}",
                                              "job_status.error=#{job_status.error}",
                                              "job_status.user_id=#{job_status.user_id}",
-                                             "" ] if ADD_FILE_TO_FILE_SET_DEBUG_VERBOSE
+                                             "" ] if add_file_to_file_set_debug_verbose
       rv = call( file_set, file, type, update_existing: update_existing, versioning: versioning )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
                                              "file_set&.id=#{file_set&.id}",
                                              "file_set&.original_file=#{file_set&.original_file}",
-                                             "" ] if ADD_FILE_TO_FILE_SET_DEBUG_VERBOSE
+                                             "" ] if add_file_to_file_set_debug_verbose
       if file.respond_to? :user_id
         ingester = User.find file.user_id
         ingester = ingester.user_key
@@ -80,7 +81,7 @@ module Hydra::Works
       end
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "ingester=#{ingester}" ] if ADD_FILE_TO_FILE_SET_DEBUG_VERBOSE
+                                             "ingester=#{ingester}" ] if add_file_to_file_set_debug_verbose
       file_set.provenance_ingest( current_user: ::Deepblue::ProvenanceHelper.system_as_current_user,
                                   calling_class: 'Hydra::Works::AddFileToFileSet',
                                   ingest_id: '',
@@ -103,7 +104,10 @@ module Hydra::Works
                                                "AddFileToFileSet #{file_set} #{e.class}: #{e.message} at #{e.backtrace[0]}",
                                                "" ] + e.backtrace # error
       end
-      ::Deepblue::LoggingHelper.bold_debug "File attached to file set #{file_set.id}" if ADD_FILE_TO_FILE_SET_DEBUG_VERBOSE
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "File attached to file set #{file_set.id}",
+                                             "" ] if add_file_to_file_set_debug_verbose
       return rv
     rescue Exception => e # rubocop:disable Lint/RescueException
       msg = "AddFileToFileSet #{file_set} #{e.class}: #{e.message} at #{e.backtrace[0]}"

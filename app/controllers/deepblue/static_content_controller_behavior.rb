@@ -55,8 +55,18 @@ module Deepblue
     end
 
     def self.static_content_find_by_id( id:, cache_id_with_key: nil, raise_error: false )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "cache_id_with_key=#{cache_id_with_key}",
+                                             "raise_error=#{raise_error}",
+                                             "" ] if static_content_controller_behavior_verbose
       return nil if id.blank?
       content = ::PersistHelper.find( id )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "content=#{content}",
+                                             "" ] if static_content_controller_behavior_verbose
       return content unless work_view_content_enable_cache
       if content.present? && cache_id_with_key.present?
         return content if @@static_content_cache.key?( cache_id_with_key )
@@ -64,9 +74,17 @@ module Deepblue
       end
       return content
     rescue Ldp::Gone
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "Ldp::Gone",
+                                             "" ] if static_content_controller_behavior_verbose
       raise if raise_error
       return nil
     rescue ActiveFedora::ObjectNotFoundError
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "ActiveFedora::ObjectNotFoundError",
+                                             "" ] if static_content_controller_behavior_verbose
       raise if raise_error
       return nil
     end
@@ -495,12 +513,22 @@ module Deepblue
                                              "options=#{options}",
                                              "" ] if static_content_controller_behavior_verbose
       file_set = static_content_find_by_id( id: id ) if file_set.nil? && id.present?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "file_set&.id=#{file_set&.id}",
+                                             "file_set=#{file_set}",
+                                             "" ] if static_content_controller_behavior_verbose
       source_uri = nil
       if file_set.nil? && id.blank?
         static_content_send_msg "file_set and id both nil"
       elsif file_set.nil?
         static_content_send_msg "failed to find file_set with id #{id}"
       else
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "file_set.id=#{file_set.id}",
+                                               "file_set.files=#{file_set.files}",
+                                               "" ] if static_content_controller_behavior_verbose
         file = file_set.files_to_file
         if file.nil?
           static_content_send_msg "file_set.id #{file_set.id} files_to_file returned nil"
@@ -638,7 +666,7 @@ module Deepblue
       end
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "fs.title.join(#{fs.title.join}) ==? file_set_title(#{file_set_title})",
+                                             "file_set_title=#{file_set_title})",
                                              ">>> Not found <<<",
                                              "" ] if static_content_controller_behavior_verbose
       return nil

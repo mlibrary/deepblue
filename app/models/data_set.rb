@@ -2,7 +2,7 @@
 
 class DataSet < ActiveFedora::Base
 
-  mattr_accessor :data_set_debug_verbose, default: ::DeepBlueDocs::Application.config.data_set_debug_verbose
+  mattr_accessor :data_set_debug_verbose, default: Rails.configuration.data_set_debug_verbose
 
   include ::Hyrax::WorkBehavior
 
@@ -437,6 +437,13 @@ class DataSet < ActiveFedora::Base
                                            attribute:,
                                            ignore_blank_key_values:,
                                            prov_key_values: )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "event=#{event}",
+                                           "attribute=#{attribute}",
+                                           "ignore_blank_key_values=#{ignore_blank_key_values}",
+                                           "prov_key_values=#{prov_key_values}",
+                                           "" ] if data_set_debug_verbose
     value = nil
     handled = case attribute.to_s
               when 'file_set_ids'
