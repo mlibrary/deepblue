@@ -5,7 +5,7 @@ module Deepblue
   module DeepbluePresenterBehavior
 
     mattr_accessor :deep_blue_presenter_behavior_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.deep_blue_presenter_debug_verbose
+                   default: Rails.configuration.deep_blue_presenter_debug_verbose
 
     include Rails.application.routes.url_helpers
     include ActionDispatch::Routing::PolymorphicRoutes
