@@ -2,16 +2,17 @@ require 'rails_helper'
 require 'cancan/matchers'
 
 RSpec.describe 'User' do
+
   describe 'Abilities' do
     subject { ability }
 
-    let(:ability) { Ability.new(current_user) }
-    let(:visibility) { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE }
+    let(:ability)       { Ability.new(current_user) }
+    let(:visibility)    { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE }
     let(:creating_user) { create(:user) }
-    let(:user) { create(:user) }
-    let(:current_user) { user }
-    let(:generic_work) { create(:generic_work, visibility: visibility, user: creating_user) }
-    let(:file_set) { create(:file_set, visibility: visibility, user: creating_user) }
+    let(:user)          { create(:user) }
+    let(:current_user)  { user }
+    let(:data_set)      { create(:data_set, visibility: visibility, user: creating_user) }
+    let(:file_set)      { create(:file_set, visibility: visibility, user: creating_user) }
 
     describe 'without embargo' do
       describe 'creator of object' do

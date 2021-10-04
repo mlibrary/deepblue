@@ -15,6 +15,7 @@ RSpec.describe Hyrax::AnonymousLinksViewerController, skip: false do
       expect( described_class.anonymous_links_viewer_controller_debug_verbose ).to eq( debug_verbose )
     end
   end
+
   describe 'retrieval links' do
     let(:user) { build(:user) }
     let(:file) do

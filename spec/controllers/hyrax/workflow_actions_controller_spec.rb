@@ -5,12 +5,19 @@ RSpec.describe Hyrax::WorkflowActionsController, type: :controller, skip: false 
   include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
   let(:main_app) { Rails.application.routes.url_helpers }
+  routes { Rails.application.routes }
+
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables', skip: skip_because( 'no debug_verbose module var' ) do
+    it "they have the right values" do
+      expect( described_class.hyrax_workflow_actions_controller_debug_verbose ).to eq debug_verbose
+    end
+  end
 
   let(:user) { create(:user) }
   let(:data_set) { stub_model(DataSet, id: '123') }
   let(:form) { instance_double(Hyrax::Forms::WorkflowActionForm) }
-
-  routes { Rails.application.routes }
 
   before do
     allow(ActiveFedora::Base).to receive(:find).with(data_set.to_param).and_return(data_set)

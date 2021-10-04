@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'cancan/matchers'
 
-RSpec.describe 'Hyrax::Ability', :clean_repo, type: :model do
+RSpec.describe Hyrax::Ability, :clean_repo, type: :model do
 
   let(:ability) { Ability.new(user) }
 

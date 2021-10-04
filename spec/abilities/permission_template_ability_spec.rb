@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'cancan/matchers'
 
-RSpec.describe 'PermissionTemplateAbility' do
+RSpec.describe Hyrax::Ability::PermissionTemplateAbility do
   subject { ability }
 
   let(:ability) { Ability.new(current_user) }
@@ -9,7 +9,9 @@ RSpec.describe 'PermissionTemplateAbility' do
   let(:current_user) { user }
   let(:collection_type_gid) { create(:collection_type).gid }
 
-  let!(:collection) { create(:collection_lw, with_permission_template: true, collection_type_gid: collection_type_gid) }
+  let!(:collection) { create(:collection_lw,
+                             with_permission_template: true,
+                             collection_type_gid: collection_type_gid) }
   let(:permission_template) { collection.permission_template }
   let!(:permission_template_access) do
     create(:permission_template_access,

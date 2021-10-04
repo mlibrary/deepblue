@@ -1,6 +1,118 @@
 # frozen_string_literal: true
 
+class TestFromHere
+
+  def call_from_here
+    Deepblue::LoggingHelper.here
+  end
+
+  def call_call_caller
+    call_caller
+  end
+
+  def call_caller
+    Deepblue::LoggingHelper.caller
+  end
+
+  def call_call_called_from
+    call_called_from
+  end
+
+  def call_called_from
+    Deepblue::LoggingHelper.called_from
+  end
+
+end
+
+
 RSpec.describe Deepblue::LoggingHelper, type: :helper do
+
+  describe 'module variables' do
+    it "they have the right values" do
+      expect(described_class.echo_to_puts).to eq false
+    end
+  end
+
+  describe '.bold_error' do
+    let( :begin_error ) { "<<<<<<<<<< BEGIN ERROR >>>>>>>>>>" }
+    let( :end_error ) { "<<<<<<<<<<< END ERROR >>>>>>>>>>>" }
+    let( :msg ) { 'The message.' }
+
+    context 'with msg' do
+      before do
+        allow( Rails.logger ).to receive( :error ).with( any_args )
+      end
+      it do
+        Deepblue::LoggingHelper.bold_error( msg )
+        expect( Rails.logger ).to have_received( :error ).with( begin_error )
+        expect( Rails.logger ).to have_received( :error ).with( end_error )
+        expect( Rails.logger ).to have_received( :error ).with( msg )
+        expect( Rails.logger ).to have_received( :error ).exactly( 3 ).times
+      end
+    end
+
+    context 'with msg and lines: 2' do
+      before do
+        allow( Rails.logger ).to receive( :error ).with( any_args )
+      end
+      it do
+        Deepblue::LoggingHelper.bold_error( msg, lines: 2 )
+        expect( Rails.logger ).to have_received( :error ).with( begin_error ).exactly( 2 ).times
+        expect( Rails.logger ).to have_received( :error ).with( end_error ).exactly( 2 ).times
+        expect( Rails.logger ).to have_received( :error ).with( msg )
+        expect( Rails.logger ).to have_received( :error ).exactly( 5 ).times
+      end
+    end
+
+    context 'with msg as array' do
+      let( :msg_line_1 ) { "line 1" }
+      let( :msg_line_2 ) { "line 2" }
+      let( :msg_array ) { [ msg_line_1, msg_line_2 ] }
+      before do
+        allow( Rails.logger ).to receive( :error ).with( any_args )
+      end
+      it do
+        Deepblue::LoggingHelper.bold_error( msg_array )
+        expect( Rails.logger ).to have_received( :error ).with( begin_error )
+        expect( Rails.logger ).to have_received( :error ).with( end_error )
+        expect( Rails.logger ).to have_received( :error ).with( msg_line_1 )
+        expect( Rails.logger ).to have_received( :error ).with( msg_line_1 )
+        expect( Rails.logger ).to have_received( :error ).exactly( 4 ).times
+      end
+    end
+
+    context 'with msg as hash' do
+      let( :msg_key1 ) { :key1 }
+      let( :msg_key2 ) { :key2 }
+      let( :msg_value_1 ) { "value 1" }
+      let( :msg_value_2 ) { "value 2" }
+      let( :msg_hash ) { [ msg_key1 => msg_value_1, msg_key2 => msg_value_2 ] }
+      before do
+        allow( Rails.logger ).to receive( :error ).with( any_args )
+      end
+      it do
+        Deepblue::LoggingHelper.bold_error( msg_hash )
+        expect( Rails.logger ).to have_received( :error ).with( begin_error )
+        expect( Rails.logger ).to have_received( :error ).with( end_error )
+        expect( Rails.logger ).to have_received( :error ).with( "#{msg_key1}: #{msg_value_1}" )
+        expect( Rails.logger ).to have_received( :error ).with( "#{msg_key2}: #{msg_value_2}" )
+        expect( Rails.logger ).to have_received( :error ).exactly( 4 ).times
+      end
+    end
+
+    # context 'with block msg' do
+    #   let( :block_msg ) { 'The block message.' }
+    #   before do
+    #     allow( Rails.logger ).to receive( :error ).with( any_args )
+    #   end
+    #   it do
+    #     Deepblue::LoggingHelper.bold_error( lines: 2 ) { block_msg }
+    #     expect( Rails.logger ).to have_received( :error ).with( arrow_line ).exactly( 4 ).times
+    #     expect( Rails.logger ).to have_received( :error ).with( block_msg )
+    #     expect( Rails.logger ).to have_received( :error ).exactly( 5 ).times
+    #   end
+    # end
+  end
 
   describe '.bold_debug' do
     let( :arrow_line ) { ">>>>>>>>>>" }
@@ -78,7 +190,25 @@ RSpec.describe Deepblue::LoggingHelper, type: :helper do
     # end
   end
 
-  describe '.initialize_key_values' do
+  describe '#called_from' do
+    let(:call_from_here) { TestFromHere.new }
+    subject { call_from_here.call_call_called_from }
+    it { is_expected.to include( "logging_helper_spec.rb:18:in `call_call_called_from'" ) }
+  end
+
+  describe '#caller' do
+    let(:call_from_here) { TestFromHere.new }
+    subject { call_from_here.call_call_caller }
+    it { is_expected.to include( "logging_helper_spec.rb:10:in `call_call_caller'" ) }
+  end
+
+  describe '#here' do
+    let(:call_from_here) { TestFromHere.new }
+    subject { call_from_here.call_from_here }
+    it { is_expected.to include( "logging_helper_spec.rb:6:in `call_from_here'" ) }
+  end
+
+  describe '#initialize_key_values' do
     let( :event_note ) { 'the_event_note' }
     let( :user_email ) { 'user@email.com' }
 

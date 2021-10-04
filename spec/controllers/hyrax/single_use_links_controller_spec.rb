@@ -9,14 +9,14 @@ RSpec.describe Hyrax::SingleUseLinksController, type: :controller do
 
   let(:debug_verbose) { false }
 
-  let(:user) { create(:user) }
-  let(:file) { create(:file_set, user: user) }
-
   describe 'module debug verbose variables' do
     it "they have the right values" do
       expect( described_class.single_use_links_controller_debug_verbose ).to eq( debug_verbose )
     end
   end
+
+  let(:user) { create(:user) }
+  let(:file) { create(:file_set, user: user) }
 
   describe '#show_presenter' do
     RSpec.shared_examples 'shared show_presenter' do |dbg_verbose|

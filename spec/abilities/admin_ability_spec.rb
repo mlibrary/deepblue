@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'cancan/matchers'
 
-RSpec.describe 'Hyrax::Ability', type: :model do
+RSpec.describe Hyrax::Ability, type: :model do
   context "with a registered user" do
     let(:user) { create(:user) }
 

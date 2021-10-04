@@ -10,13 +10,15 @@ end
 
 RSpec.describe Deepblue::DoiControllerBehavior do
 
-  subject { MockDeepblueDoiControllerBehavior.new }
+  let(:debug_verbose) { false }
 
   describe 'module debug verbose variables' do
     it "they have the right values" do
-      expect( described_class.doi_controller_behavior_debug_verbose ).to eq( false )
+      expect( described_class.doi_controller_behavior_debug_verbose ).to eq( debug_verbose )
     end
   end
+
+  subject { MockDeepblueDoiControllerBehavior.new }
 
   it { expect( subject.doi_minting_enabled? ).to eq ::Deepblue::DoiBehavior::DOI_MINTING_ENABLED }
 
@@ -44,10 +46,9 @@ RSpec.describe Deepblue::DoiControllerBehavior do
         allow(subject).to receive(:current_user).and_return current_user
         allow(subject).to receive(:current_ability).and_return ability
         expect(data_set).to receive(:doi_mint).with(any_args).and_return true if mints_doi
-        save_debug_verbose = described_class.doi_controller_behavior_debug_verbose
         described_class.doi_controller_behavior_debug_verbose = dbg_verbose
         expect(subject.doi_mint).to eq doi_msg
-        described_class.doi_controller_behavior_debug_verbose = save_debug_verbose
+        described_class.doi_controller_behavior_debug_verbose = debug_verbose
       end
 
     end
