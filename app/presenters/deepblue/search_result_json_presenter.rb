@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Deepblue
 
   class SearchResultJsonPresenter < ::Blacklight::JsonPresenter
