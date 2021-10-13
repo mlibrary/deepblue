@@ -20,7 +20,7 @@ RSpec.describe Deepblue::DoiControllerBehavior do
 
   subject { MockDeepblueDoiControllerBehavior.new }
 
-  it { expect( subject.doi_minting_enabled? ).to eq ::Deepblue::DoiBehavior::DOI_MINTING_ENABLED }
+  it { expect( subject.doi_minting_enabled? ).to eq ::Deepblue::DoiBehavior.doi_minting_enabled }
 
   describe '.doi_mint' do
     let(:current_user_email) { "current_user@test.com" }
@@ -55,7 +55,7 @@ RSpec.describe Deepblue::DoiControllerBehavior do
 
     context 'doi pending' do
       let(:data_set) do
-        work = create(:data_set_with_one_file, depositor: depositor_email, doi: ::Deepblue::DoiBehavior::DOI_PENDING)
+        work = create(:data_set_with_one_file, depositor: depositor_email, doi: ::Deepblue::DoiBehavior.doi_pending)
         work.depositor = depositor_email
         work
       end

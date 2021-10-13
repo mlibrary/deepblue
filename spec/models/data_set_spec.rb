@@ -84,7 +84,7 @@ RSpec.describe DataSet do
 
   describe 'constants' do
     it do
-      expect( ::Deepblue::DoiBehavior::DOI_PENDING ).to eq 'doi_pending'
+      expect( ::Deepblue::DoiBehavior.doi_pending ).to eq 'doi_pending'
     end
   end
 

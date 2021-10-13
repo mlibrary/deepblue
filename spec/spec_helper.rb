@@ -32,6 +32,8 @@ require 'rspec/matchers'
 require 'rspec/active_model/mocks'
 require 'rspec/retry'
 require 'support/controller_level_helpers'
+require 'webmock/rspec'
+WebMock.disable_net_connect!(allow_localhost: true, allow: 'chromedriver.storage.googleapis.com')
 
 def coverage_needed?
   ENV['COVERAGE'] || ENV['TRAVIS'] || ENV['COVERALLS_REPO_TOKEN']

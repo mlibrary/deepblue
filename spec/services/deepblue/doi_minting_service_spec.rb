@@ -2,7 +2,21 @@
 
 require 'rails_helper'
 
-RSpec.describe Deepblue::DoiMintingService do
+require_relative '../../../app/services/deepblue/doi_minting_service'
+
+RSpec.describe ::Deepblue::DoiMintingService do
+
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it "they have the right values" do
+      expect( described_class.doi_minting_service_debug_verbose ).to eq( debug_verbose )
+    end
+  end
+
+  describe 'module variables' do
+    it { expect(described_class.doi_minting_2021_service_enabled).to eq true }
+  end
 
   context "when minting a new doi" do
     subject { described_class.new( curation_concern: work,

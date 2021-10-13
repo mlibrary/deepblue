@@ -3,7 +3,7 @@ require 'rails_helper'
 require 'spec_helper'
 
 RSpec.describe 'hyrax/dashboard/collections/_work_action_menu.html.erb', type: :view, skip: true do
-  let(:item) { stub_model(GenericWork) }
+  let(:item) { stub_model(DataSet) }
   let(:collection) { stub_model(Collection) }
 
   before do

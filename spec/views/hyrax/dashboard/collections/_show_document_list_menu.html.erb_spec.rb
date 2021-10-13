@@ -8,7 +8,7 @@ RSpec.describe 'hyrax/dashboard/collections/_show_document_list_menu.html.erb', 
 
     before do
       view.extend Hyrax::TrophyHelper
-      allow(document).to receive(:to_model).and_return(stub_model(GenericWork))
+      allow(document).to receive(:to_model).and_return(stub_model(DataSet))
       allow(controller).to receive(:current_ability).and_return(ability)
     end
 

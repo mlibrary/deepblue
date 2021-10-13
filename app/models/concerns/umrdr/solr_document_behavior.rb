@@ -64,12 +64,12 @@ module Umrdr
     end
 
     def doi_minting_enabled?
-      ::Deepblue::DoiBehavior::DOI_MINTING_ENABLED
+      ::Deepblue::DoiBehavior.doi_minting_enabled
     end
 
     def doi_pending?
-      #@solr_document[ Solrizer.solr_name( 'doi', :symbol ) ].first == ::Deepblue::DoiBehavior::DOI_PENDING
-      doi == ::Deepblue::DoiBehavior::DOI_PENDING
+      #@solr_document[ Solrizer.solr_name( 'doi', :symbol ) ].first == ::Deepblue::DoiBehavior.doi_pending
+      doi == ::Deepblue::DoiBehavior.doi_pending
     end
 
     ## end DOI methods

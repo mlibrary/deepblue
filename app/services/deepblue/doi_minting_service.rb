@@ -4,24 +4,28 @@ module Deepblue
 
   class DoiMintingService
 
-    @@doi_minting_service_debug_verbose = false
+    mattr_accessor :doi_minting_service_debug_verbose, default: false
 
-    @@doi_mint_on_publication_event
-    @@doi_minting_service_integration_enabled
-    @@doi_minting_service_integration_hostnames
-    @@doi_minting_service_integration_hostnames_prod
-    @@doi_publisher_name
-    @@doi_resource_type
-    @@doi_resource_types
+    mattr_accessor :doi_mint_on_publication_event,                  default: false
+    mattr_accessor :doi_minting_service_integration_enabled,        default: false
+    mattr_accessor :doi_minting_service_integration_hostnames,      default: [ 'deepblue.local',
+                                                                              'testing.deepblue.lib.umich.edu',
+                                                                              'staging.deepblue.lib.umich.edu',
+                                                                              'deepblue.lib.umich.edu' ].freeze
+    mattr_accessor :doi_minting_service_integration_hostnames_prod, default: [ 'deepblue.lib.umich.edu',
+                                                                              'testing.deepblue.lib.umich.edu' ].freeze
+    mattr_accessor :doi_publisher_name,                             default: 'University of Michigan'.freeze
+    mattr_accessor :doi_resource_type,                              default: 'Dataset'.freeze
+    mattr_accessor :doi_resource_types,                             default: [ 'Dataset', 'Fileset' ].freeze
 
-    mattr_accessor :doi_mint_on_publication_event,
-                   :doi_minting_service_debug_verbose,
-                   :doi_minting_service_integration_enabled,
-                   :doi_minting_service_integration_hostnames,
-                   :doi_minting_service_integration_hostnames_prod,
-                   :doi_publisher_name,
-                   :doi_resource_type,
-                   :doi_resource_types
+
+    mattr_accessor :doi_minting_2021_service_enabled,               default: true
+
+    mattr_accessor :test_base_url,           default: "https://api.test.datacite.org/"
+    mattr_accessor :test_mds_base_url,       default: "https://mds.test.datacite.org/"
+    mattr_accessor :production_base_url,     default: "https://api.datacite.org/"
+    mattr_accessor :production_mds_base_url, default: "https://mds.datacite.org/"
+
 
     @@_setup_ran = false
 
@@ -65,6 +69,43 @@ module Deepblue
         curation_concern.doi
       end
       raise
+    end
+
+    def self.doi_mint_job( curation_concern:, current_user: nil, event_note: '', job_delay: 0 )
+
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "curation_concern.id=#{curation_concern.id}",
+                                             "class.name=#{curation_concern.class.name}",
+                                             "doi=#{doi}",
+                                             "current_user=#{current_user}",
+                                             "event_note=#{event_note}",
+                                             "job_delay=#{job_delay}",
+                                             "" ] if doi_minting_service_debug_verbose
+      current_user = current_user.email if current_user.respond_to? :email
+      target_url = EmailHelper.curation_concern_url( curation_concern: curation_concern )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "curation_concern.id=#{id}",
+                                             "class.name=#{curation_concern.class.name}",
+                                             "target_url=#{target_url}",
+                                             "doi=#{doi}",
+                                             "about to call doi minting job",
+                                             "" ] if doi_minting_service_debug_verbose
+      raise IllegalOperation, "Attempting to mint doi before id is created." if target_url.blank?
+      if DoiMintingService.doi_minting_2021_service_enabled
+        ::RegisterDoiJob.perform_later( curation_concern,
+                                        registrar: curation_concern.doi_registrar.presence,
+                                        registrar_opts: curation_concern.doi_registrar_opts )
+      else
+        ::DoiMintingJob.perform_later( curation_concern.id,
+                                       current_user: current_user,
+                                       job_delay: job_delay,
+                                       target_url: target_url )
+      end
+      return true
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      Rails.logger.error "DoiBehavior.doi_mint for curation_concern.id #{id} -- #{e.class}: #{e.message} at #{e.backtrace[0]}"
     end
 
     attr :current_user, :curation_concern, :metadata, :target_url
