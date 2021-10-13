@@ -22,7 +22,7 @@ module Deepblue
     end
 
     def doi_minting_enabled?
-      ::Deepblue::DoiBehavior::DOI_MINTING_ENABLED
+      ::Deepblue::DoiBehavior.doi_minting_enabled
     end
 
     def doi_mint

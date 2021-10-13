@@ -12,7 +12,7 @@ RSpec.describe DoiMintingJob do
 
   RSpec.shared_examples 'it performs the job' do |doi_call_success, debug_verbose_count|
     let(:dbg_verbose) { debug_verbose_count > 0 }
-    let(:data_set)    { create(:data_set_with_one_file, doi: ::Deepblue::DoiBehavior::DOI_PENDING) }
+    let(:data_set)    { create(:data_set_with_one_file, doi: ::Deepblue::DoiBehavior.doi_pending) }
     let(:job_delay)   { 0 }
     let(:target_url)  { nil }
     let(:job)         { described_class.send( :job_or_instantiate,

@@ -919,7 +919,7 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
 
           context 'private work pending doi', skip: true do
             let(:file_set) do
-              create(:file_set, user: user, doi: ::Deepblue::DoiBehavior::DOI_PENDING).tap do |file_set|
+              create(:file_set, user: user, doi: ::Deepblue::DoiBehavior.doi_pending).tap do |file_set|
                 parent.ordered_members << file_set
                 parent.save!
               end

@@ -49,16 +49,16 @@ RSpec.describe Hyrax::HomepageController, type: :controller, skip: false do
       expect(titles).not_to include('Test Private Document')
     end
 
-    it "includes only GenericWork objects in recent documents" do
+    it "includes only DataSet objects in recent documents" do
       get :index
       assigns(:recent_documents).each do |doc|
-        expect(doc[Solrizer.solr_name("has_model", :symbol)]).to eql ["GenericWork"]
+        expect(doc[Solrizer.solr_name("has_model", :symbol)]).to eql ["DataSet"]
       end
     end
 
     context "with a document not created this second", clean_repo: true do
       before do
-        gw3 = GenericWork.new(title: ['Test 3 Document'], read_groups: ['public'])
+        gw3 = DataSet.new(title: ['Test 3 Document'], read_groups: ['public'])
         gw3.apply_depositor_metadata('mjg36')
         # stubbing to_solr so we know we have something that didn't create in the current second
         old_to_solr = gw3.method(:to_solr)

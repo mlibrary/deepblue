@@ -41,6 +41,12 @@ class ServerAfterInitializeService
     ::Deepblue::WorkViewContentService.load_view_templates( debug_verbose: debug_verbose )
     puts "Finished after i18n and view templates load." if debug_verbose
 
+
+    require 'bolognese'
+    Bolognese::Metadata.prepend Bolognese::Readers::HyraxWorkReader
+    Bolognese::Metadata.prepend Bolognese::Writers::HyraxWorkWriter
+
+
     @@server_after_initialize_ran = true
     puts "Finished server_after_initialize_callback." if debug_verbose
   rescue Exception => e # rubocop:disable Lint/RescueException

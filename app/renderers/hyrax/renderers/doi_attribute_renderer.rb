@@ -9,7 +9,7 @@ module Hyrax
         ##
         # Special treatment for doi.
         def attribute_value_to_html(value)
-          rv = if value == ::Deepblue::DoiBehavior::DOI_PENDING
+          rv = if value == ::Deepblue::DoiBehavior.doi_pending
                  value
                elsif value.start_with? 'http'
                  value

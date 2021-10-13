@@ -21,4 +21,14 @@ Deepblue::DoiMintingService.setup do |config|
   config.doi_resource_type = "Dataset".freeze
   config.doi_resource_types = [ "Dataset", "Fileset" ].freeze
 
+
+
+  config.doi_minting_2021_service_enabled = true
+
+  config.test_base_url = "https://api.test.datacite.org/"
+  config.test_mds_base_url = "https://mds.test.datacite.org/"
+  config.production_base_url = "https://api.datacite.org/"
+  config.production_mds_base_url = "https://mds.datacite.org/"
+
+
 end

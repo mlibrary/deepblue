@@ -71,6 +71,9 @@ gem 'edtf'
 gem 'rails', '>= 5.2'
 gem 'redis-rails'
 gem 'json', '>= 2.1.0'
+# gem 'bolognese', '~> 1.8', '>= 1.8.6'
+gem 'maremma', git: 'https://github.com/mlibrary/maremma'
+gem 'bolognese', git: 'https://github.com/mlibrary/bolognese'
 
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3', '~> 1.3.6'
@@ -230,4 +233,5 @@ group :development, :test do
   gem 'shoulda-callback-matchers', '~> 1.1.1'
   gem 'shoulda-matchers', '~> 3.1'
   gem 'solr_wrapper', '~> 2.1.0'
+  gem 'webmock'
 end
