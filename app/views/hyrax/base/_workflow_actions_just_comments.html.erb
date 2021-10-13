@@ -10,7 +10,11 @@
         <% if @presenter.workflow.state == "deposited" %>
           <h3>Work has been Approved and Deposited</h3>
         <% else %>
-          <h3>Work is under Review</h3>
+          <% if @presenter.draft_mode? %>
+            <h3>Work is in draft mode, not under review</h3>
+          <% else %>
+            <h3>Work is under review</h3>
+          <% end %>
         <% end %>
       </div>
       <div class="col-sm-9 workflow-comments">
