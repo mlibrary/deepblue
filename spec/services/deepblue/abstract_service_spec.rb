@@ -94,13 +94,16 @@ RSpec.describe ::Deepblue::AbstractService do
     end
 
     context 'with options unparsable string' do
-      let( :error_msg ) { "WARNING: options error 809: unexpected token at 'garbage'" }
+      # let( :error_msg ) { "WARNING: options error 859: unexpected token at 'garbage'" }
       it 'has default values' do
         allow(service).to receive(:console_puts)
         service.send(:initialize, options: "garbage" )
-        expect(service).to have_received(:console_puts).with( error_msg )
+        # expect(service).to have_received(:console_puts).with( error_msg )
+        expect(service).to have_received(:console_puts)  do |args|
+          expect( args ).to match /WARNING: options error 8\d\d: unexpected token at 'garbage'/
+        end
         expect(service.logger).to        eq default_logger
-        expect(service.options_error.message).to eq "809: unexpected token at 'garbage'"
+        expect(service.options_error.message).to match /8\d\d: unexpected token at 'garbage'/
         expect(service.quiet).to         eq default_quiet
         expect(service.rake_task).to     eq default_rake_task
         expect(service.subscription_service_id).to eq default_subscription_service_id

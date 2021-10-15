@@ -85,6 +85,12 @@ ezid:
   port: 443
   timeout: 300
 
+datacite:
+  mode: test
+  user: datacite.invalid
+  password: datacitepassword.invalid
+  prefix: 10.5072/FK2
+
 jira:
   username: jirausername.invalid
   password: jirapassword.invalid

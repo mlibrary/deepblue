@@ -3,9 +3,12 @@
 module Deepblue
 
   class DataCiteRegistrar < Hyrax::Identifier::Registrar
+
+    mattr_accessor :data_cite_registrar_debug_verbose,
+                   default: ::Deepblue::DoiMintingService.data_cite_registrar_debug_verbose
+
     STATES = %w[draft registered findable].freeze
 
-    # FIXME: make this configurable in a different way so tenants can have different configs in Hyku
     class_attribute :prefix, :username, :password, :mode
 
     def initialize(builder: Hyrax::Identifier::Builder.new(prefix: self.prefix))
@@ -17,6 +20,9 @@ module Deepblue
     #
     # @return [#identifier]
     def register!(object: work)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if data_cite_registrar_debug_verbose
       doi = Array(object.try(:doi)).first
 
       # Return the existing DOI or nil if nothing needs to be done
@@ -33,6 +39,9 @@ module Deepblue
     end
 
     def mint_draft_doi
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if data_cite_registrar_debug_verbose
       client.create_draft_doi
     end
 
@@ -63,14 +72,28 @@ module Deepblue
     end
 
     def client
-      @client ||= ::Deepblue::DoiMinting2021Service.new(username: self.username,
-                                                        password: self.password,
-                                                        prefix: self.prefix,
-                                                        mode: mode)
+      @client ||= client_init
+    end
+
+    def client_init
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "username=#{self.username}",
+                                             "password=#{self.password}",
+                                             "prefix=#{self.prefix}",
+                                             "mode=#{mode}",
+                                             "" ] if data_cite_registrar_debug_verbose
+      ::Deepblue::DoiMinting2021Service.new(username: self.username,
+                                            password: self.password,
+                                            prefix: self.prefix,
+                                            mode: mode)
     end
 
     # Do the heavy lifting of submitting the metadata, registering the url, and ensuring the correct status
     def submit_to_datacite(work, doi)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if data_cite_registrar_debug_verbose
       # 1. Add metadata to the DOI (or update it)
       # TODO: check that required metadata is present if current DOI record is registered or findable OR handle error?
       client.put_metadata(doi, work_to_datacite_xml(work))
@@ -90,6 +113,9 @@ module Deepblue
     end
 
     def work_to_datacite_xml(work)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if data_cite_registrar_debug_verbose
       Bolognese::Metadata.new(input: work.attributes.merge(has_model: work.has_model.first).to_json,
                               from: 'hyrax_work').datacite
     end

@@ -4,7 +4,16 @@ module Deepblue
 
   class DoiMintingService
 
-    mattr_accessor :doi_minting_service_debug_verbose, default: false
+    mattr_accessor :doi_minting_service_debug_verbose,          default: false
+    mattr_accessor :doi_minting_2021_service_debug_verbose,     default: false
+
+    mattr_accessor :doi_behavior_debug_verbose,                 default: false
+    mattr_accessor :doi_minting_job_debug_verbose,              default: false
+    mattr_accessor :register_doi_job_debug_verbose,             default: false
+    mattr_accessor :bolognese_hyrax_work_readers_debug_verbose, default: false
+    mattr_accessor :bolognese_hyrax_work_writers_debug_verbose, default: false
+    mattr_accessor :data_cite_registrar_debug_verbose,          default: false
+    mattr_accessor :hyrax_identifier_dispatcher_debug_verbose,  default: false
 
     mattr_accessor :doi_mint_on_publication_event,                  default: false
     mattr_accessor :doi_minting_service_integration_enabled,        default: false
@@ -20,6 +29,7 @@ module Deepblue
 
 
     mattr_accessor :doi_minting_2021_service_enabled,               default: true
+    mattr_accessor :doi_minting_service_email_user_on_success,      default: false
 
     mattr_accessor :test_base_url,           default: "https://api.test.datacite.org/"
     mattr_accessor :test_mds_base_url,       default: "https://mds.test.datacite.org/"
@@ -34,21 +44,27 @@ module Deepblue
       @@_setup_ran = true
     end
 
-    def self.mint_doi_for( curation_concern:, current_user:, target_url: )
+    # <b>DEPRECATED:</b> Please use <tt>registrar_mint_doi</tt> instead.
+    def self.mint_doi_for( curation_concern:,
+                           current_user:,
+                           target_url:,
+                           debug_verbose: ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose )
+
+      warn "[DEPRECATION] `mint_doi_for` is deprecated.  Please use `registrar_mint_doi` instead."
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
                                              "current_user=#{current_user}",
                                              "target_url=#{target_url}",
-                                             "" ] if DoiMintingService.doi_minting_service_debug_verbose
-      service = Deepblue::DoiMintingService.new( curation_concern: curation_concern,
+                                             "" ] if debug_verbose
+      service = ::Deepblue::DoiMintingService.new( curation_concern: curation_concern,
                                                  current_user: current_user,
                                                  target_url: target_url )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
                                              "about to call service.run",
-                                             "" ] if DoiMintingService.doi_minting_service_debug_verbose
+                                             "" ] if debug_verbose
       service.run
     rescue Exception => e # rubocop:disable Lint/RescueException
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -57,7 +73,7 @@ module Deepblue
                                              "current_user=#{current_user}",
                                              "target_url=#{target_url}",
                                              "rescue exception -- Exception: #{e.class}: #{e.message} at #{e.backtrace[0]}",
-                                             "" ] if DoiMintingService.doi_minting_service_debug_verbose
+                                             "" ] if debug_verbose
       Rails.logger.debug "DoiMintingService.mint_doi_for( curation_concern id = #{curation_concern.id},"\
                          " current_user = #{current_user}, target_url = #{target_url} )"\
                          " rescue exception -- Exception: #{e.class}: #{e.message} at #{e.backtrace[0]}"
@@ -71,7 +87,11 @@ module Deepblue
       raise
     end
 
-    def self.doi_mint_job( curation_concern:, current_user: nil, event_note: '', job_delay: 0 )
+    def self.doi_mint_job( curation_concern:,
+                           current_user: nil,
+                           event_note: '',
+                           job_delay: 0,
+                           debug_verbose: ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose )
 
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -91,53 +111,112 @@ module Deepblue
                                              "target_url=#{target_url}",
                                              "doi=#{doi}",
                                              "about to call doi minting job",
-                                             "" ] if doi_minting_service_debug_verbose
+                                             "" ] if debug_verbose
       raise IllegalOperation, "Attempting to mint doi before id is created." if target_url.blank?
       if DoiMintingService.doi_minting_2021_service_enabled
         ::RegisterDoiJob.perform_later( curation_concern,
+                                        current_user: current_user,
+                                        debug_verbose: debug_verbose,
                                         registrar: curation_concern.doi_registrar.presence,
                                         registrar_opts: curation_concern.doi_registrar_opts )
       else
         ::DoiMintingJob.perform_later( curation_concern.id,
                                        current_user: current_user,
                                        job_delay: job_delay,
-                                       target_url: target_url )
+                                       target_url: target_url,
+                                       debug_verbose: debug_verbose )
       end
       return true
     rescue Exception => e # rubocop:disable Lint/RescueException
       Rails.logger.error "DoiBehavior.doi_mint for curation_concern.id #{id} -- #{e.class}: #{e.message} at #{e.backtrace[0]}"
     end
 
-    attr :current_user, :curation_concern, :metadata, :target_url
+    def self.registrar_mint_doi( curation_concern:,
+                                 current_user: nil,
+                                 debug_verbose: ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose,
+                                 registrar: Hyrax.config.identifier_registrars.keys.first,
+                                 registrar_opts: {})
 
-    def initialize( curation_concern:, current_user:, target_url: )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "curation_concern.class.name=#{curation_concern.class.name}",
+                                             "curation_concern&.id=#{model&.id}",
+                                             "curation_concern&.doi=#{model&.doi}",
+                                             "current_user=#{current_user}",
+                                             "registrar=#{registrar}",
+                                             "registrar_opts=#{registrar_opts}",
+                                             "" ] if debug_verbose
+      current_user = curation_concern.depositor if current_user.blank?
+      user = User.find_by_user_key( current_user )
+      Hyrax::Identifier::Dispatcher.for(registrar.to_sym,
+                                        **registrar_opts).assign_for_single_value!(object: curation_concern,
+                                                                                   attribute: :doi) do
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "RegisterDoiJob model (id #{id}) updated.",
+                                               "curation_concern.class.name=#{curation_concern.class.name}",
+                                               "curation_concern.id=#{curation_concern.id}",
+                                               "curation_concern.doi=#{curation_concern.doi}",
+                                               "" ] if debug_verbose
+      end
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "RegisterDoiJob model (id #{id}) updated.",
+                                             "curation_concern.class.name=#{curation_concern.class.name}",
+                                             "curation_concern.id=#{curation_concern.id}",
+                                             "curation_concern.doi=#{curation_concern.doi}",
+                                             "" ] if debug_verbose
+      curation_concern.provenance_mint_doi( current_user: current_user, event_note: 'DoiMintingService' )
+      if curation_concern.respond_to?( :email_event_mint_doi_user ) && ::Deepblue::DoiMintingService.doi_minting_service_email_user_on_success
+        curation_concern.email_event_mint_doi_user( current_user: current_user, event_note: event_note, message: message )
+      end
+      # do success callback
+      if Hyrax.config.callback.set?( :after_doi_success )
+        Hyrax.config.callback.run( :after_doi_success, curation_concern, user, timestamp_end )
+      end
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      Rails.logger.error "RegisterDoiJob.perform(#{id}, #{e.class}: #{e.message} at #{e.backtrace[0]}"
+      raise
+    end
+
+    attr :current_user, :curation_concern, :metadata, :target_url, :debug_verbose
+
+    def initialize( curation_concern:,
+                    current_user:,
+                    target_url:,
+                    debug_verbose: ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose )
+
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
-                                             "" ] if DoiMintingService.doi_minting_service_debug_verbose
+                                             "" ] if debug_verbose
       @curation_concern = curation_concern
       @current_user = current_user
       @target_url = target_url
       @metadata = generate_metadata
+      @debug_verbose = debug_verbose
     end
 
     def run
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
-                                             "" ] if DoiMintingService.doi_minting_service_debug_verbose
+                                             "" ] if debug_verbose
       rv = doi_server_reachable?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
                                              "doi_server_reachable? rv=#{rv}",
-                                             "" ] if DoiMintingService.doi_minting_service_debug_verbose
+                                             "" ] if debug_verbose
       return mint_doi_failed unless rv
       curation_concern.reload # consider locking curation_concern
       curation_concern.doi = mint_doi
       curation_concern.save
       curation_concern.reload
       curation_concern.provenance_mint_doi( current_user: current_user, event_note: 'DoiMintingService' )
+      if curation_concern.respond_to?( :email_event_mint_doi_user ) && ::Deepblue::DoiMintingService.doi_minting_service_email_user_on_success
+        curation_concern.email_event_mint_doi_user( current_user: current_user, event_note: event_note, message: message )
+      end
       curation_concern.doi
     end
 
@@ -188,7 +267,7 @@ module Deepblue
                                                ::Deepblue::LoggingHelper.called_from,
                                                "curation_concern.id=#{curation_concern.id}",
                                                "metadata=#{metadata}",
-                                               "" ] if DoiMintingService.doi_minting_service_debug_verbose
+                                               "" ] if debug_verbose
 
         # Rails.logger.debug "DoiMintingService.mint_doi( #{metadata} )"
         # msg = ezid_config.join("\n")
@@ -196,9 +275,16 @@ module Deepblue
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "curation_concern.id=#{curation_concern.id}",
-                                               "", ] + ezid_config if DoiMintingService.doi_minting_service_debug_verbose
+                                               "", ] + ezid_config if debug_verbose
         shoulder = Ezid::Client.config.default_shoulder
         identifier = Ezid::Identifier.mint( shoulder, @metadata )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "curation_concern.id=#{curation_concern.id}",
+                                               "metadata=#{metadata}",
+                                               "identifier=#{identifier}",
+                                               "identifier.id=#{identifier.id}",
+                                               "" ] if debug_verbose
         identifier.id
       end
 

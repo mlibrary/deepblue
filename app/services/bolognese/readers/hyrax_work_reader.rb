@@ -10,6 +10,10 @@ module Bolognese
     # Or:
     # m.ris
     module HyraxWorkReader
+
+      mattr_accessor :bolognese_hyrax_work_readers_debug_verbose,
+                     default: ::Deepblue::DoiMintingService.bolognese_hyrax_work_readers_debug_verbose
+
       # Not usable right now given how Metadata#initialize works
       # def get_hyrax_work(id: nil, **options)
       #   work = ActiveFedora::Base.find(id)
@@ -17,6 +21,9 @@ module Bolognese
       # end
 
       def read_hyrax_work(string: nil, **options)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if bolognese_hyrax_work_readers_debug_verbose
         read_options = ActiveSupport::HashWithIndifferentAccess.new(options.except(:doi, :id, :url, :sandbox, :validate, :ra))
 
         meta = string.present? ? Maremma.from_json(string) : {}

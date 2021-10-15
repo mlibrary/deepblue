@@ -229,7 +229,7 @@ group :development, :test do
   gem 'rspec-its'
   gem 'rspec-rails'
   gem 'rspec-retry'
-  gem 'selenium-webdriver'
+  gem 'selenium-webdriver', '< 4.0.0' # something broke in 4.0 release
   gem 'shoulda-callback-matchers', '~> 1.1.1'
   gem 'shoulda-matchers', '~> 3.1'
   gem 'solr_wrapper', '~> 2.1.0'

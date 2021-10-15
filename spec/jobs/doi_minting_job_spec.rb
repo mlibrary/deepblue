@@ -2,13 +2,15 @@ require 'rails_helper'
 
 RSpec.describe DoiMintingJob do
 
-  let(:user) { create(:user) }
+  let(:debug_verbose) { false }
 
   describe 'module debug verbose variables' do
     it "they have the right values" do
-      expect( described_class.doi_minting_job_debug_verbose ).to eq( false )
+      expect( ::Deepblue::DoiMintingService.doi_minting_job_debug_verbose ).to eq( debug_verbose )
     end
   end
+
+  let(:user) { create(:user) }
 
   RSpec.shared_examples 'it performs the job' do |doi_call_success, debug_verbose_count|
     let(:dbg_verbose) { debug_verbose_count > 0 }
@@ -38,15 +40,16 @@ RSpec.describe DoiMintingJob do
     end
 
     it 'it performs the job' do
-      save_debug_verbose = described_class.doi_minting_job_debug_verbose
-      described_class.doi_minting_job_debug_verbose = dbg_verbose
-      expect(described_class.doi_minting_job_debug_verbose).to eq dbg_verbose
+      save_debug_verbose = ::Deepblue::DoiMintingService.doi_minting_job_debug_verbose
+      ::Deepblue::DoiMintingService.doi_minting_job_debug_verbose = dbg_verbose
+      expect(::Deepblue::DoiMintingService.doi_minting_job_debug_verbose).to eq dbg_verbose
       expect(::Deepblue::DoiMintingService).to receive(:mint_doi_for).with( curation_concern: data_set,
                                                                             current_user: user,
-                                                                            target_url: target_url ).and_return doi_call_success
+                                                                            target_url: target_url,
+                                                                            debug_verbose: dbg_verbose ).and_return doi_call_success
       ActiveJob::Base.queue_adapter = :test
       job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
-      described_class.doi_minting_job_debug_verbose = save_debug_verbose
+      ::Deepblue::DoiMintingService.doi_minting_job_debug_verbose = save_debug_verbose
     end
 
   end
