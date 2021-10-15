@@ -44,17 +44,17 @@ module DeepBlueDocs
     config.authentication_method = "umich"
 
     # see ::User and UserHelper
-    config.user_role_management_enabled = false
-    config.user_role_management_admin_only = true # should be true for prouction
-    config.user_role_management_register_from_role_map = true # set to true load user roles from role_map.yml
+    config.user_role_management_enabled                    = false
+    config.user_role_management_admin_only                 = true # should be true for prouction
+    config.user_role_management_register_from_role_map     = true # set to true load user roles from role_map.yml
     config.user_role_management_create_users_from_role_map = false # should be false for production
 
-    config.user_helper_debug_verbose = false
+    config.user_helper_debug_verbose               = false
     config.user_helper_persist_roles_debug_verbose = false
 
     config.work_save_as_draft_enable = true
-    config.default_admin_set_id = 'admin_set/default'
-    config.data_set_admin_set_title = 'DataSet Admin Set'
+    config.default_admin_set_id      = 'admin_set/default'
+    config.data_set_admin_set_title  = 'DataSet Admin Set'
 
     config.generators do |g|
       g.test_framework :rspec, spec: true
@@ -64,36 +64,36 @@ module DeepBlueDocs
     # look for true || before production release
     # look for DEBUG_VERBOSE = true before production release
     # TODO: move this section into a debug_initializer
-    config.abstract_notification_debug_verbose           = false
-    config.abstract_filter_debug_verbose                 = false
-    config.collection_debug_verbose                      = false
-    config.data_set_debug_verbose                        = false
+    config.abstract_notification_debug_verbose                 = false
+    config.abstract_filter_debug_verbose                       = false
+    config.collection_debug_verbose                            = false
+    config.data_set_debug_verbose                              = false
     # config.doi_minting_service_debug_verbose -- see config/integration/doi_minting_service_integration.rb
     # config.email_debug_verbose -- see configure email below
-    config.email_behavior_debug_verbose                  = false
+    config.email_behavior_debug_verbose                        = false
     # config.file_content_helper_debug_verbose -- see config/integration/file_content_integration.rb
-    config.file_set_debug_verbose                        = false
-    config.file_set_derivatives_service_debug_verbose    = false
+    config.file_set_debug_verbose                              = false
+    config.file_set_derivatives_service_debug_verbose          = false
     config.hydra_derivatives_processors_document_debug_verbose = false
-    config.hydra_derivatives_processors_image_debug_verbose = false
+    config.hydra_derivatives_processors_image_debug_verbose    = false
     # config.hydra_derivatives_runner_debug_verbose = false # using this causes an error in spec tests
-    config.hydra_works_derivatives_debug_verbose = false
-    # config.ingest_content_service_debug_verbose = false
-    # config.ingest_integration_service_setup_debug_verbose = false
+    config.hydra_works_derivatives_debug_verbose               = false
+    # config.ingest_content_service_debug_verbose              = false
+    # config.ingest_integration_service_setup_debug_verbose    = false
     # config.interpolation_helper_debug_verbose = false -- see config/integration/work_view_content.rb
     # config.jira_helper_debug_verbose -- see config/integration/jira_integration
-    config.job_io_wrapper_debug_verbose = false
-    # config.metadata_behavior_debug_verbose = false # moved to app/services/deepblue/metadata_behavior_integration_service.rb
-    # config.new_content_service_debug_verbose = false
-    config.provenance_behavior_debug_verbose = false
-    config.shell_based_processor_debug_verbose = false
-    config.solr_document_behavior_debug_verbose = false
-    config.solr_document_debug_verbose = false
-    # config.static_content_cache_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
-    config.umrdr_work_behavior_debug_verbose = false
-    config.user_debug_verbose = false
-    config.user_stat_importer_debug_verbose = false
-    # config.work_view_content_service_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
+    config.job_io_wrapper_debug_verbose                        = false
+    # config.metadata_behavior_debug_verbose                   = false # moved to app/services/deepblue/metadata_behavior_integration_service.rb
+    # config.new_content_service_debug_verbose                 = false
+    config.provenance_behavior_debug_verbose                   = false
+    config.shell_based_processor_debug_verbose                 = false
+    config.solr_document_behavior_debug_verbose                = false
+    config.solr_document_debug_verbose                         = false
+    # config.static_content_cache_debug_verbose                = false # moved to app/services/deepblue/work_view_content_service.rb
+    config.umrdr_work_behavior_debug_verbose                   = false
+    config.user_debug_verbose                                  = false
+    config.user_stat_importer_debug_verbose                    = false
+    # config.work_view_content_service_debug_verbose           = false # moved to app/services/deepblue/work_view_content_service.rb
     # config.work_view_content_service_email_templates_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
     # config.work_view_content_service_i18n_templates_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
     # config.work_view_content_service_view_templates_debug_verbose = false # moved to app/services/deepblue/work_view_content_service.rb

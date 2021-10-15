@@ -83,6 +83,16 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
     return @options
   end
 
+  def initialize_no_args_hash( debug_verbose: deepblue_job_debug_verbose )
+    @debug_verbose = debug_verbose
+    @options = {}
+    @verbose = false
+    job_status_init
+    initialize_email_targets
+    timestamp_begin
+    return @options
+  end
+
   def is_quiet
     @is_quiet ||= ::Deepblue::JobTaskHelper.is_quiet( job: self, options: options, debug_verbose: @debug_verbose  )
   end

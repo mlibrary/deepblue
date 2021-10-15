@@ -3,6 +3,15 @@
 require 'rails_helper'
 
 RSpec.describe ::Deepblue::RegisterDoiJob, type: :job do
+
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it "they have the right values" do
+      expect( ::Deepblue::DoiMintingService.register_doi_job_debug_verbose ).to eq( debug_verbose )
+    end
+  end
+
   # let(:model_class) do
   #   Class.new(DataSet) do
   #     include Deepblue::DoiBehavior
@@ -22,7 +31,7 @@ RSpec.describe ::Deepblue::RegisterDoiJob, type: :job do
       expect { described_class.perform_later(work) }
         .to enqueue_job(described_class)
         .with(work)
-        .on_queue(Hyrax.config.ingest_queue_name)
+        .on_queue(:doi_minting)
     end
   end
 

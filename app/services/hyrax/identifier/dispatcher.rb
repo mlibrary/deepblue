@@ -5,6 +5,10 @@
 module Hyrax
   module Identifier
     class Dispatcher
+
+      mattr_accessor :hyrax_identifier_dispatcher_debug_verbose,
+                     default: ::Deepblue::DoiMintingService.hyrax_identifier_dispatcher_debug_verbose
+
       ##
       # @!attribute [rw] registrar
       #   @return [Hyrax::Identifier::Registrar]
@@ -61,14 +65,21 @@ module Hyrax
       end
 
       # begin monkey
-      def assign_for_single_value!(object:, attribute: :identifier)
+      def assign_for_single_value!(object:, attribute: :identifier, &block)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if hyrax_identifier_dispatcher_debug_verbose
         assign_for_single_value(object: object, attribute: attribute).save!
+        yield if block_given?
         object
       end
       # end monkey
 
       # begin monkey
       def assign_for_single_value(object:, attribute: :identifier)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if hyrax_identifier_dispatcher_debug_verbose
         record = registrar.register!(object: object)
         object.public_send("#{attribute}=".to_sym, record.identifier)
         object

@@ -25,6 +25,9 @@ ezid:
   host: ez.datacite.org
   shoulder: invalid:invalid
 
+datacite:
+
+
 jira:
   username: jirausername.invalid
   password: jirapassword.invalid

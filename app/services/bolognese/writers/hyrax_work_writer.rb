@@ -8,7 +8,14 @@ module Bolognese
     # Then crosswalk it with:
     # m.hyrax_work
     module HyraxWorkWriter
+
+      mattr_accessor :bolognese_hyrax_work_writers_debug_verbose,
+                     default: ::Deepblue::DoiMintingService.bolognese_hyrax_work_writers_debug_verbose
+
       def hyrax_work
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if bolognese_hyrax_work_writers_debug_verbose
         attributes = {
           'identifier' => Array(identifiers).select { |id| id["identifierType"] != "DOI" }.pluck("identifier"),
           'doi' => build_hyrax_work_doi,
@@ -30,17 +37,17 @@ module Bolognese
 
       def determine_hyrax_work_class
         # Need to check that the class `responds_to? :doi`?
-        types["hyrax"]&.safe_constantize || build_hyrax_work_class
+        types["hyrax"]&.safe_constantize # || build_hyrax_work_class
       end
 
-      def build_hyrax_work_class
-        Class.new(ActiveFedora::Base).tap do |c|
-          c.include ::Hyrax::WorkBehavior
-          c.include ::Hyrax::DOI::DOIBehavior
-          # Put BasicMetadata include last since it finalizes the metadata schema
-          c.include ::Hyrax::BasicMetadata
-        end
-      end
+      # def build_hyrax_work_class
+      #   Class.new(ActiveFedora::Base).tap do |c|
+      #     c.include ::Hyrax::WorkBehavior
+      #     c.include ::Hyrax::DOI::DOIBehavior
+      #     # Put BasicMetadata include last since it finalizes the metadata schema
+      #     c.include ::Hyrax::BasicMetadata
+      #   end
+      # end
 
       def build_hyrax_work_doi
         Array(doi&.sub('https://doi.org/', ''))

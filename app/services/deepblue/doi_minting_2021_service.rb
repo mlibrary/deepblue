@@ -3,9 +3,20 @@
 module Deepblue
 
   class DoiMinting2021Service
+
+    mattr_accessor :doi_minting_2021_service_debug_verbose,
+                   default: ::Deepblue::DoiMintingService.doi_minting_2021_service_debug_verbose
+
     attr_reader :username, :password, :prefix, :mode
 
     def initialize(username:, password:, prefix:, mode: :production)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "username=#{username}",
+                                             "password=#{password}",
+                                             "prefix=#{prefix}",
+                                             "mode=#{mode}",
+                                             "" ] if doi_minting_2021_service_debug_verbose
       @username = username
       @password = password
       @prefix = prefix
@@ -16,6 +27,9 @@ module Deepblue
     # If you already have a DOI and want to register it as a draft then go through the normal
     # process (put_metadata/register_url)
     def create_draft_doi
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                              "" ] if doi_minting_2021_service_debug_verbose
       # Use regular api instead of mds for metadata-less url-less draft doi creation
       response = connection.post('dois', draft_doi_payload.to_json, "Content-Type" => "application/vnd.api+json")
       raise Error.new("Failed creating draft DOI using #{draft_doi_payload.to_json}", response) unless response.status == 201
@@ -24,6 +38,9 @@ module Deepblue
     end
 
     def delete_draft_doi(doi)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if doi_minting_2021_service_debug_verbose
       response = mds_connection.delete("doi/#{doi}")
       raise Error.new("Failed deleting draft DOI '#{doi}'", response) unless response.status == 200
 
@@ -31,6 +48,9 @@ module Deepblue
     end
 
     def get_metadata(doi)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if doi_minting_2021_service_debug_verbose
       response = mds_connection.get("metadata/#{doi}")
       raise Error.new("Failed getting DOI '#{doi}' metadata", response) unless response.status == 200
 
@@ -41,6 +61,9 @@ module Deepblue
     # The passed datacite xml needs an identifier (just the prefix when minting new DOIs)
     # Beware: This will convert registered DOIs into findable!
     def put_metadata(doi, metadata)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if doi_minting_2021_service_debug_verbose
       doi = prefix if doi.blank?
       response = mds_connection.put("metadata/#{doi}", metadata, { 'Content-Type': 'application/xml;charset=UTF-8' })
       raise Error.new("Failed creating metadata for DOI '#{doi}'", response) unless response.status == 201
@@ -53,6 +76,9 @@ module Deepblue
     # Otherwise this has no effect on the DOI's metadata (even when draft)
     # Beware: Attempts to delete the metadata of an unknown DOI will actually create a blank draft DOI
     def delete_metadata(doi)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if doi_minting_2021_service_debug_verbose
       response = mds_connection.delete("metadata/#{doi}")
       raise Error.new("Failed deleting DOI '#{doi}' metadata", response) unless response.status == 200
 
@@ -60,6 +86,9 @@ module Deepblue
     end
 
     def get_url(doi)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if doi_minting_2021_service_debug_verbose
       response = mds_connection.get("doi/#{doi}")
       raise Error.new("Failed getting DOI '#{doi}' url", response) unless response.status == 200
 
@@ -69,6 +98,9 @@ module Deepblue
     # Beware: This will convert draft DOIs to findable!
     # Metadata needs to be registered for a DOI before a url can be registered
     def register_url(doi, url)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if doi_minting_2021_service_debug_verbose
       payload = "doi=#{doi}\nurl=#{url}"
       response = mds_connection.put("doi/#{doi}", payload, { 'Content-Type': 'text/plain;charset=UTF-8' })
       raise Error.new("Failed registering url '#{url}' for DOI '#{doi}'", response) unless response.status == 201

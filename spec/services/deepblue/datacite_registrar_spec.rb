@@ -6,13 +6,23 @@ require_relative '../../../app/services/deepblue/datacite_registrar'
 require_relative '../../../app/services/deepblue/doi_minting_2021_service'
 
 describe ::Deepblue::DataCiteRegistrar, :datacite_api do
+
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it "they have the right values" do
+      expect( described_class.data_cite_registrar_debug_verbose ).to eq( debug_verbose )
+      expect( ::Deepblue::DoiMintingService.data_cite_registrar_debug_verbose ).to eq( debug_verbose )
+    end
+  end
+
   let(:registrar) { ::Deepblue::DataCiteRegistrar.new }
-  let(:username) { 'username' }
-  let(:password) { 'password' }
-  let(:prefix) { '10.1234' }
+  let(:username)  { 'username' }
+  let(:password)  { 'password' }
+  let(:prefix)    { '10.1234' }
   let(:draft_doi) { "#{prefix}/draft-doi" }
   let(:registered_doi) { "#{prefix}/registered-doi" }
-  let(:findable_doi) { "#{prefix}/findable-doi" }
+  let(:findable_doi)   { "#{prefix}/findable-doi" }
   # let(:model_class) do
   #   Class.new(DataSet) do
   #     include Deepblue::DoiBehavior

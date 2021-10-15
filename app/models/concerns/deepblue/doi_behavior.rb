@@ -7,7 +7,7 @@ module Deepblue
 
   module DoiBehavior
 
-    mattr_accessor :doi_behavior_debug_verbose, default: false
+    mattr_accessor :doi_behavior_debug_verbose, default: ::Deepblue::DoiMintingService.doi_behavior_debug_verbose
 
     mattr_accessor :doi_minting_enabled, default: true
     mattr_accessor :doi_pending, default: 'doi_pending'

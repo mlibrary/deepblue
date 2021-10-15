@@ -4,7 +4,8 @@ module Umrdr
 
   module SolrDocumentBehavior
 
-    SOLR_DOCUMENT_BEHAVIOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.solr_document_behavior_debug_verbose
+    mattr_accessor :solr_document_behavior_debug_verbose,
+                   default: Rails.configuration.solr_document_behavior_debug_verbose
 
     extend ActiveSupport::Concern
 
@@ -50,7 +51,7 @@ module Umrdr
       #                                        Deepblue::LoggingHelper.called_from,
       #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
       #                                        "rv = #{rv}",
-      #                                        "" ] if SOLR_DOCUMENT_BEHAVIOR_DEBUG_VERBOSE
+      #                                        "" ] if solr_document_behavior_debug_verbose
       return nil unless rv.present?
       return Array( rv ).first
     end
@@ -110,7 +111,7 @@ module Umrdr
       #                                        Deepblue::LoggingHelper.called_from,
       #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
       #                                        "rv = #{rv}",
-      #                                        "" ] if SOLR_DOCUMENT_BEHAVIOR_DEBUG_VERBOSE
+      #                                        "" ] if solr_document_behavior_debug_verbose
       return Array( rv ).first
     end
 

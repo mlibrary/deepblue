@@ -494,6 +494,19 @@ en:
         Sincerely,<br/>
         <br/>
         The Deep Blue Data team<br/>
+      notify_user_work_doi_minted_html: >
+          Dear %{depositor},
+          <p>
+          Thank you for your submission to Deep Blue Data. Your deposit, <a href='%{url}'>%{title}</a>, now has
+          the DOI: '%{doi}'.
+          </p>
+          <p>
+          Please feel free to contact us at <a href='mailto:%{contact_us_at}'>%{contact_us_at}</a> if you have any
+          questions in the meantime, or if there is anything else we can do to be of help.
+          </p>
+          Sincerely,<br/>
+          <br/>
+          The Deep Blue Data team<br/>
       notify_user_work_published_html: >
         Dear %{depositor},
         <p>
@@ -516,6 +529,7 @@ en:
         draft_created:      "DBD: Draft Work Created"
         draft_submitted:    "DBD: Draft Work Submitted for Review"
         work_deleted:       "DBD: Work Deleted"
+        work_doi_minted:    "DBD: DOI Minted"
         work_published:     "DBD: Work Published"
         work_unpublished:   "DBD: Work Unpublished"
     embargo:
