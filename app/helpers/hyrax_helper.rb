@@ -2,6 +2,7 @@ module HyraxHelper
   include ::BlacklightHelper
   include Hyrax::BlacklightOverride
   include Hyrax::HyraxHelperBehavior
+  include Hyrax::Doi::HelperBehavior
 
 
   # @param [Hash] options from blacklight invocation of helper_method

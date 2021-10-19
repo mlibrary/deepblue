@@ -1,5 +1,9 @@
 en:
 
+  deepblue:
+    doi:
+      label: 'DOI'
+
   helpers:
     action:
       batch:

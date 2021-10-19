@@ -1,0 +1,116 @@
+<%# TODO: determine these from actual DataCite data instead of the intention field stored in fedora %>
+<% disable_do_not_mint = @curation_concern.doi_status_when_public != nil %>
+<% disable_draft = @curation_concern.doi_status_when_public.in?(['registered','findable']) %>
+
+<div>
+  <%# Render DOI input as a single field even though it is stored as multivalued %>
+  <%= f.input :doi, input_html: { value: @curation_concern.doi.first,
+                                  name: "#{f.object.model_name.param_key}[doi][]",
+                                  style: "max-width: 40em" } %>
+
+  <%# Only show an actionable button if the work doesn't have a DOI already %>
+  <% if @curation_concern.doi.blank? && Flipflop.enabled?(:doi_minting) %>
+    <%= link_to "Create draft DOI",
+                Rails.application.routes.url_helpers.create_draft_doi_path,
+                remote: true,
+                method: :get,
+                data: {
+									disable_with: t("hyrax.works.form.mint.button.disable_with"),
+                  params: {
+                    curation_concern: @curation_concern.class.name.underscore,
+                    attribute: 'doi'
+                  }
+                },
+                class: 'btn btn-default',
+                id: 'doi-create-draft-btn' %>
+  <% else %>
+    <div id='doi-create-draft-btn' class='btn btn-default' disabled>Create draft DOI</div>
+  <% end %>
+
+  <%= link_to "Autofill form",
+              Rails.application.routes.url_helpers.autofill_path,
+              remote: true,
+              method: :get,
+              data: {
+                confirm: t("hyrax.works.form.autofill.button.confirm"),
+                disable_with: t("hyrax.works.form.autofill.button.disable_with"),
+                params: { curation_concern: curation_concern.class.name.underscore }
+              },
+              class: 'btn btn-primary',
+              id: 'doi-autofill-btn' %>
+
+  <br/><br/><br/>
+
+	<% if Flipflop.enabled?(:doi_minting) %>
+		<fieldset class="set-doi-status-when-public">
+			<label class="control-label">DOI status when work is public</label>
+
+			<div class="form-group" style="margin-left: 20px">
+				<label class="radio" style="font-weight: normal">
+					<%= f.radio_button :doi_status_when_public, '', disabled: disable_do_not_mint, style: 'margin-top: 0px;' %>
+					Do not mint
+				</label>
+				<label class="radio" style="font-weight: normal">
+					<%= f.radio_button :doi_status_when_public, 'draft', disabled: disable_draft, style: 'margin-top: 0px;' %>
+					Draft
+				</label>
+				<label class="radio" style="font-weight: normal">
+					<%= f.radio_button :doi_status_when_public, 'registered', style: 'margin-top: 0px;' %>
+					Registered
+				</label>
+				<label class="radio" style="font-weight: normal">
+					<%= f.radio_button :doi_status_when_public, 'findable', style: 'margin-top: 0px;' %>
+					Findable
+				</label>
+			</div>
+		</fieldset>
+	<% end %>
+</div>
+
+<script type="text/javascript">
+  // Append the DOI filled in the form to the request
+  // Note this uses jQuery since we're using jquery-ujs still
+  // There is probably a better way to do this but this works for now
+  $("#doi-autofill-btn").on("ajax:beforeSend", function(e, xhr, settings) {
+    doi = $('<%= "##{curation_concern.class.name.underscore}_doi" %>').val()
+    settings.url = settings.url + "&doi=" + encodeURIComponent(doi)
+  });
+
+  $("#doi-create-draft-btn").on("ajax:error", function(e, xhr, status, error) {
+    alert(xhr.responseText);
+  });
+
+	// To override this action and add your own ajax error listener, you can use jQuery's `off` method,
+	// before registering your own listener. E.g. $("#doi-autofill-btn").off("ajax:error")
+  $("#doi-autofill-btn").on("ajax:error", function(e, xhr, status, error) {
+    alert(xhr.responseText);
+  });
+
+  // Force the user to confirm using fallback defaults when DataCite mandatory fields
+  // not filled in on the deposit form.  This only applies when the DOI is set to become
+  // registered or findable.  Let drafts be drafts.
+  $(document).ready(function() {
+    curation_concern = '<%= curation_concern.class.name.underscore %>';
+    document.getElementById('with_files_submit').addEventListener("click", function(event){
+      if (["findable", "registered"].indexOf(document.querySelector('input[name="' + curation_concern + '[doi_status_when_public]"]:checked').value) < 0)
+        return;
+
+      const empty_fields = [];
+      if (document.querySelector('.' + curation_concern + '_title .form-control').value == "")
+        empty_fields.push("Title")
+      if (document.querySelector('.' + curation_concern + '_creator .form-control').value == "")
+        empty_fields.push("Creator")
+      if (document.querySelector('.' + curation_concern + '_publisher .form-control').value == "")
+        empty_fields.push("Publisher")
+      if (document.querySelector('.' + curation_concern + '_date_created .form-control').value == "")
+        empty_fields.push("Date Created")
+      if (empty_fields.length == 0)
+        return;
+
+      if(!window.confirm("DataCite DOI mandatory fields ("+ empty_fields.join(', ') +") are missing.  Placeholder values will be submitted to DataCite instead.  Do you want to proceed?")){
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+    }, false);
+  });
+</script>
