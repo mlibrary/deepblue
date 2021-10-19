@@ -43,7 +43,7 @@ module Bolognese
       # def build_hyrax_work_class
       #   Class.new(ActiveFedora::Base).tap do |c|
       #     c.include ::Hyrax::WorkBehavior
-      #     c.include ::Hyrax::DOI::DOIBehavior
+      #     c.include ::Deepblue::Doi::DoiBehavior
       #     # Put BasicMetadata include last since it finalizes the metadata schema
       #     c.include ::Hyrax::BasicMetadata
       #   end

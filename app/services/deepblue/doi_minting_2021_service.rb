@@ -2,6 +2,11 @@
 
 module Deepblue
 
+  module Doi
+    class Error < ::StandardError; end
+    class NotFoundError < ::Deepblue::Doi::Error; end
+  end
+
   class DoiMinting2021Service
 
     mattr_accessor :doi_minting_2021_service_debug_verbose,

@@ -129,6 +129,9 @@ Rails.application.routes.draw do
 
   post 'single_use_link/download/:id' => 'hyrax/single_use_links_viewer#download', as: :download_single_use_link
 
+  get '/create_draft_doi', controller: 'hyrax_doi', action: 'create_draft_doi', as: 'create_draft_doi'
+  get '/autofill', controller: 'hyrax_doi', action: 'autofill', as: 'autofill'
+
   namespace :hyrax, path: :concern do
     resources :collections do
       member do
