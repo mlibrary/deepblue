@@ -4,11 +4,13 @@ require 'rails_helper'
 
 RSpec.describe SchedulerStartJob, skip: false do
 
+  let(:autostart) { false }
   let(:job_delay) { 0 }
   let(:restart)   { false }
   let(:options)   { {} }
   let(:user)      { create(:user) }
   let(:job)       { described_class.send( :job_or_instantiate,
+                                          autostart: autostart,
                                           job_delay: job_delay,
                                           restart: restart,
                                           user_email: user.email,
@@ -26,11 +28,15 @@ RSpec.describe SchedulerStartJob, skip: false do
     let(:email_msg) { "DBD scheduler already running on #{hostname}" }
 
     before do
+      allow( ::Deepblue::SchedulerIntegrationService ).to receive(:scheduler_active).and_return true
       expect( described_class.scheduler_start_job_debug_verbose ).to eq false
       expect( job ).to receive( :delay_job ).with( job_delay )
       expect( job ).to receive( :scheduler_pid ).with( no_args ).and_return sched_pid
       expect( job ).to receive( :hostname ).with( no_args ).and_return hostname
-      expect( job ).to receive( :scheduler_emails ).with( to: [user.email], subject: email_msg, body: email_msg )
+      expect( job ).to receive( :scheduler_emails ).with( autostart: autostart,
+                                                          to: [user.email],
+                                                          subject: email_msg,
+                                                          body: email_msg )
     end
 
     it 'starts the scheduler' do

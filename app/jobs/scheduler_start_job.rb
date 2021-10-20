@@ -10,7 +10,8 @@ class SchedulerStartJob < ::Deepblue::DeepblueJob
   attr_accessor :rails_bin_scheduler, :rails_log_scheduler
 
   # job_delay in seconds
-  def perform( job_delay: ::Deepblue::SchedulerIntegrationService.scheduler_start_job_default_delay,
+  def perform( autostart: false,
+               job_delay: ::Deepblue::SchedulerIntegrationService.scheduler_start_job_default_delay,
                restart: true,
                user_email: '',
                debug_verbose: scheduler_start_job_debug_verbose,
@@ -18,13 +19,20 @@ class SchedulerStartJob < ::Deepblue::DeepblueJob
 
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
+                                           "::Deepblue::SchedulerIntegrationService.scheduler_active=#{::Deepblue::SchedulerIntegrationService.scheduler_active}",
+                                           "autostart=#{autostart}",scheduler_start_job_spec.rb,
                                            "job_delay=#{job_delay}",
                                            "restart=#{restart}",
                                            "user_email=#{user_email}",
                                            "options=#{options}",
                                            "" ] if debug_verbose
+    return unless ::Deepblue::SchedulerIntegrationService.scheduler_active
 
     initialize_with( debug_verbose: debug_verbose )
+    user_emails = []
+    if user_email.present?
+      user_emails = Array( user_email )
+    end
     log( event: "scheduler start job" )
     @rails_bin_scheduler = Rails.application.root.join( 'bin', 'scheduler.sh' ).to_s
     @rails_log_scheduler = Rails.application.root.join( 'log', 'scheduler.sh.out' ).to_s
@@ -37,13 +45,13 @@ class SchedulerStartJob < ::Deepblue::DeepblueJob
       pid = scheduler_pid
       if pid.present?
         msg = "DBD scheduler failed to kill resque-scheduler on #{hostname}"
-        scheduler_emails( to: [user_email], subject: msg, body: msg )
+        scheduler_emails( autostart: autostart, to: user_emails, subject: msg, body: msg )
         return
       end
       restarted = pid.blank?
     elsif pid.present?
       msg = "DBD scheduler already running on #{hostname}"
-      scheduler_emails( to: [user_email], subject: msg, body: msg )
+      scheduler_emails( autostart: autostart, to: user_emails, subject: msg, body: msg )
       return
     end
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -76,11 +84,11 @@ class SchedulerStartJob < ::Deepblue::DeepblueJob
                 "DBD scheduler failed to start on #{hostname}"
               end
     body = "#{subject}\n\n#{msg_lines.join("\n")}"
-    scheduler_emails( to: [user_email], subject: subject, body: body )
+    scheduler_emails( autostart: autostart, to: user_emails, subject: subject, body: body )
     job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
     job_status_register( exception: e )
-    email_failure( targets: [user_email], task_name: self.class.name, exception: e, event: self.class.name )
+    email_failure( targets: user_emails, task_name: self.class.name, exception: e, event: self.class.name )
     raise e
   end
 
@@ -96,7 +104,7 @@ class SchedulerStartJob < ::Deepblue::DeepblueJob
     sleep 5.seconds # TODO configure sleep time
   end
 
-  def scheduler_email( email_target:, subject:, body: nil )
+  def scheduler_email( autostart: false, email_target:, subject:, body: nil )
     subject = subject
     body = body
     body = subject if body.empty?
@@ -105,7 +113,7 @@ class SchedulerStartJob < ::Deepblue::DeepblueJob
     ::Deepblue::EmailHelper.log( class_name: self.class.name,
                                  current_user: nil,
                                  event: "SchedulerStartJobEmail",
-                                 event_note: '',
+                                 event_note: autostart ? 'autostart' : '',
                                  id: 'NA',
                                  to: email,
                                  subject: subject,
@@ -113,10 +121,10 @@ class SchedulerStartJob < ::Deepblue::DeepblueJob
                                  email_sent: email_sent )
   end
 
-  def scheduler_emails( to:, subject:, body: '' )
+  def scheduler_emails( autostart: false, to:, subject:, body: '' )
     emails = to & ::Deepblue::SchedulerIntegrationService.scheduler_started_email
     emails.each do |email_target|
-      scheduler_email( email_target: email_target, subject: subject, body: body )
+      scheduler_email( autostart: autostart, email_target: email_target, subject: subject, body: body )
     end
   end
 
