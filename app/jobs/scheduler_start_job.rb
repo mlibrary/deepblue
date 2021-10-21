@@ -20,13 +20,13 @@ class SchedulerStartJob < ::Deepblue::DeepblueJob
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "::Deepblue::SchedulerIntegrationService.scheduler_active=#{::Deepblue::SchedulerIntegrationService.scheduler_active}",
-                                           "autostart=#{autostart}",scheduler_start_job_spec.rb,
+                                           "autostart=#{autostart}",
                                            "job_delay=#{job_delay}",
                                            "restart=#{restart}",
                                            "user_email=#{user_email}",
                                            "options=#{options}",
                                            "" ] if debug_verbose
-    return unless ::Deepblue::SchedulerIntegrationService.scheduler_active
+    # return unless ::Deepblue::SchedulerIntegrationService.scheduler_active
 
     initialize_with( debug_verbose: debug_verbose )
     user_emails = []
