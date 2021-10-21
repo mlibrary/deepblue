@@ -343,7 +343,9 @@ module DeepBlueDocs
       # Deepblue::WorkViewContentService.load_i18n_templates( debug_verbose: after_initialize_debug_verbose )
       # Deepblue::WorkViewContentService.load_view_templates( debug_verbose: after_initialize_debug_verbose )
       # puts "Finished after i18n and view templates load." if after_initialize_debug_verbose
-      ServerAfterInitializeService.server_after_initialize_callback( config )
+      ServerAfterInitializeService.server_after_initialize_callback( config,
+                                                                     debug_verbose: after_initialize_debug_verbose,
+                                                                     debug_verbose_work_view_conent_service: false )
       puts "Finished after initialize." if after_initialize_debug_verbose
     end
 

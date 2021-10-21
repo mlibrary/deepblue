@@ -7,6 +7,7 @@ class ServerAfterInitializeService
   @@_setup_failed = false
 
   mattr_accessor :server_after_initialize_service_debug_verbose, default: false
+  mattr_accessor :server_after_initialize_service_work_view_content_debug_verbose, default: false
 
   mattr_accessor :server_after_initialize_ran, default: false
   mattr_accessor :server_after_initialize_failed, default: false
@@ -22,7 +23,9 @@ class ServerAfterInitializeService
     end
   end
 
-  def self.server_after_initialize_callback( config, debug_verbose: server_after_initialize_service_debug_verbose )
+  def self.server_after_initialize_callback( config,
+             debug_verbose: server_after_initialize_service_debug_verbose,
+             debug_verbose_work_view_conent_service: server_after_initialize_service_work_view_content_debug_verbose )
     return if server_after_initialize_ran || server_after_initialize_failed
 
     puts "Begin server_after_initialize_callback..." if debug_verbose
@@ -36,16 +39,18 @@ class ServerAfterInitializeService
     config.i18n_backend = I18n.backend
     puts I18n.backend if debug_verbose
     # note that the debug statements in load_email_templates will not go to the log when called from here
-    ::Deepblue::WorkViewContentService.load_email_templates( debug_verbose: debug_verbose )
-    ::Deepblue::WorkViewContentService.load_i18n_templates( debug_verbose: debug_verbose )
-    ::Deepblue::WorkViewContentService.load_view_templates( debug_verbose: debug_verbose )
+    ::Deepblue::WorkViewContentService.load_email_templates( debug_verbose: debug_verbose_work_view_conent_service )
+    ::Deepblue::WorkViewContentService.load_i18n_templates( debug_verbose: debug_verbose_work_view_conent_service )
+    ::Deepblue::WorkViewContentService.load_view_templates( debug_verbose: debug_verbose_work_view_conent_service )
     puts "Finished after i18n and view templates load." if debug_verbose
 
-
-    require 'bolognese'
+    require 'bolognese' # support for hyrax-doi minting
     Bolognese::Metadata.prepend Bolognese::Readers::HyraxWorkReader
     Bolognese::Metadata.prepend Bolognese::Writers::HyraxWorkWriter
 
+    puts "Before scheduler_autostart" if debug_verbose
+    ::Deepblue::SchedulerIntegrationService.scheduler_autostart( debug_verbose: debug_verbose )
+    puts "After scheduler_autostart" if debug_verbose
 
     @@server_after_initialize_ran = true
     puts "Finished server_after_initialize_callback." if debug_verbose
