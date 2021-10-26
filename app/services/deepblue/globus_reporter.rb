@@ -11,6 +11,9 @@ module Deepblue
     attr_accessor :locked_ids
     attr_accessor :prep_dir_ids
     attr_accessor :prep_dir_tmp_ids
+    attr_accessor :ready_ids
+    attr_accessor :quiet
+    attr_accessor :debug_verbose
 
     attr_accessor :out
 
@@ -18,21 +21,21 @@ module Deepblue
                     locked_ids: {},
                     prep_dir_ids: {},
                     prep_dir_tmp_ids: {},
-                    rake_task: false,
-                    options: {} )
+                    ready_ids: {},
+                    quiet: true,
+                    debug_verbose: false,
+                    as_html: false, # TODO
+                    rake_task: false )
 
       # TODO: ?? merge the keys from various hashes
       super( rake_task: rake_task, options: options )
-      # # TODO: @file_ext_re = TaskHelper.task_options_value( @options, key: 'file_ext_re', default_value: DEFAULT_FILE_EXT_RE )
-      # report_file_prefix = task_options_value( key: 'report_file_prefix', default_value: DEFAULT_REPORT_FILE_PREFIX )
-      # @prefix = expand_path_partials( report_file_prefix )
-      # report_dir = task_options_value( key: 'report_dir', default_value: DEFAULT_REPORT_DIR )
-      # @report_dir = expand_path_partials( report_dir )
-      # @file_ext_re = DEFAULT_FILE_EXT_RE
       @error_ids = error_ids
       @locked_ids = locked_ids
       @prep_dir_ids = prep_dir_ids
       @prep_dir_tmp_ids = prep_dir_tmp_ids
+      @ready_ids = ready_ids
+      @quiet = quiet
+      @debug_verbose = debug_verbose
     end
 
     def initialize_report_values
@@ -50,15 +53,17 @@ module Deepblue
       report_section( header: "Globus Works with Lock Files:", hash: locked_ids )
       report_section( header: "Globus Works with Prep Dirs:", hash: prep_dir_ids )
       report_section( header: "Globus Works with Prep Tmp Dirs:", hash: prep_dir_tmp_ids )
+      report_section( header: "Globus Works Ready:", hash: ready_ids )
     end
 
     def report_section( header:, hash: )
+      return if quiet && !hash.present?
       r_puts( header )
       unless hash.present?
         r_puts "None."
       else
         hash.each_key do |id|
-          r_puts id # TODO: put link to work
+          r_puts ::Deepblue::EmailHelper.data_set_url( id: id ) # TODO: make this a link
         end
       end
     end

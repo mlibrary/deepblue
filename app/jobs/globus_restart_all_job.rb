@@ -20,7 +20,7 @@ class GlobusRestartAllJob < GlobusJob
       # Deepblue::LoggingHelper.debug "#{@globus_log_prefix} prep_dir_re=#{prep_dir_re}" unless @globus_job_quiet
       prep_tmp_dir_re = Regexp.compile( '^' + prefix + '([0-9a-z-]+)_tmp' + '$' )
       starts_with_path = "#{::Deepblue::GlobusIntegrationService.globus_prep_dir}#{File::SEPARATOR}"
-      files = Dir.glob( "#{starts_with_path}*" )
+      files = Dir.glob( "#{starts_with_path}*", File::FNM_DOTMATCH )
       # ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} files.size=#{files.size}" unless @globus_job_quiet
       files.each do |f|
         # ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} processing #{f}"
