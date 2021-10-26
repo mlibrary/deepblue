@@ -24,14 +24,16 @@ describe "about_to_expire_embargoes_task.rake" do
     before do
       expect( ::Deepblue::GlobusErrorsReport ).to receive(:new).with( options: options ).at_least(:once).and_return invoked
       expect(invoked).to receive(:run).with(no_args).at_least(:once).and_call_original
-      expect(::Deepblue::GlobusIntegrationService).to receive(:globus_errors_report).with(options: options,
+      expect(::Deepblue::GlobusIntegrationService).to receive(:globus_errors_report).with(quiet: true,
                                                                                           debug_verbose: false,
                                                                                           rake_task: true).at_least(:once).and_call_original
       expect(::Deepblue::GlobusReporter).to receive(:new).with( error_ids: {},
                                                                 locked_ids: {},
                                                                 prep_dir_ids: {},
                                                                 prep_dir_tmp_ids: {},
-                                                                options: options,
+                                                                ready_ids: {},
+                                                                quiet: true,
+                                                                debug_verbose: false,
                                                                 rake_task: true ).at_least(:once).and_return reporter
       expect(reporter).to receive(:run).at_least(:once)
     end

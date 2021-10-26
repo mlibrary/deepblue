@@ -43,14 +43,12 @@ module Deepblue
       puts "globus_int_srv"
     end
 
-    def self.globus_errors_report( options: {},
-                                   quiet: true,
+    def self.globus_errors_report( quiet: true,
                                    debug_verbose: globus_integration_service_debug_verbose,
                                    rake_task: false )
 
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "options=#{options}",
                                              "quiet=#{quiet}",
                                              "rake_task=#{rake_task}",
                                              "" ], bold_puts: rake_task if debug_verbose
@@ -62,6 +60,8 @@ module Deepblue
       prep_dir_prefix = GlobusJob.target_file_name( nil, "#{GlobusJob.server_prefix(str: '_')}#{base_name}" ).to_s
       prep_dir_re = Regexp.compile( '^' + prep_dir_prefix + '([0-9a-z-]+)' + '$' )
       prep_tmp_dir_re = Regexp.compile( '^' + prep_dir_prefix + '([0-9a-z-]+)_tmp' + '$' )
+      ready_file_prefix = GlobusJob.target_file_name_env(nil, 'ready', base_name ).to_s
+      ready_file_re = Regexp.compile( '^' + ready_file_prefix + '([0-9a-z-]+)' + '$' )
       starts_with_path = "#{::Deepblue::GlobusIntegrationService.globus_prep_dir}#{File::SEPARATOR}"
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -72,9 +72,11 @@ module Deepblue
                                              "prep_dir_prefix=#{prep_dir_prefix}",
                                              "prep_dir_re=#{prep_dir_re}",
                                              "prep_tmp_dir_re=#{prep_tmp_dir_re}",
+                                             # "ready_file_prefix=#{prep_dir_re}",
+                                             # "ready_file_re=#{prep_tmp_dir_re}",
                                              "starts_with_path=#{starts_with_path}",
                                              "" ], bold_puts: rake_task if debug_verbose
-      files = Dir.glob( "#{starts_with_path}*" )
+      files = Dir.glob( "#{starts_with_path}*", File::FNM_DOTMATCH )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "files.size=#{files.size}",
@@ -83,6 +85,7 @@ module Deepblue
       error_ids = {}
       prep_dir_ids = {}
       prep_dir_tmp_ids = {}
+      ready_ids = {}
       files.each do |f|
         f1 = f
         f = f.slice( (starts_with_path.length)..(f.length) ) if f.starts_with? starts_with_path
@@ -91,19 +94,143 @@ module Deepblue
                                                "processing '#{f1}'",
                                                "strip leading path '#{f}'",
                                                "" ], bold_puts: rake_task if debug_verbose
-        globus_add_status( matcher: lock_file_re, path: f, hash: locked_ids, type: 'locked', debug_verbose: debug_verbose, rake_task: rake_task )
-        globus_add_status( matcher: error_file_re, path: f, hash: error_ids, type: 'error', debug_verbose: debug_verbose, rake_task: rake_task )
-        globus_add_status( matcher: prep_dir_re, path: f, hash: prep_dir_ids, type: 'prep', debug_verbose: debug_verbose, rake_task: rake_task )
-        globus_add_status( matcher: prep_dir_tmp_re, path: f, hash: prep_dir_tmp_ids, type: 'prep tmp', debug_verbose: debug_verbose, rake_task: rake_task )
+        globus_add_status( matcher: lock_file_re,
+                           path: f,
+                           hash: locked_ids,
+                           type: 'locked',
+                           debug_verbose: debug_verbose,
+                           rake_task: rake_task )
+        globus_add_status( matcher: error_file_re,
+                           path: f,
+                           hash: error_ids,
+                           type: 'error',
+                           debug_verbose: debug_verbose,
+                           rake_task: rake_task )
+        globus_add_status( matcher: prep_dir_re,
+                           path: f,
+                           hash: prep_dir_ids,
+                           type: 'prep',
+                           debug_verbose: debug_verbose,
+                           rake_task: rake_task )
+        globus_add_status( matcher: prep_tmp_dir_re,
+                           path: f,
+                           hash: prep_dir_tmp_ids,
+                           type: 'prep tmp',
+                           debug_verbose: debug_verbose,
+                           rake_task: rake_task )
+        # globus_add_status( matcher: ready_file_re,
+        #                    path: f,
+        #                    hash: ready_ids,
+        #                    type: 'ready',
+        #                    debug_verbose: debug_verbose,
+        #                    rake_task: rake_task )
       end
       reporter = ::Deepblue::GlobusReporter.new( error_ids: error_ids,
                                                  locked_ids: locked_ids,
                                                  prep_dir_ids: prep_dir_ids,
                                                  prep_dir_tmp_ids: prep_dir_tmp_ids,
-                                                 options: options,
+                                                 ready_ids: ready_ids,
+                                                 quiet: quiet,
+                                                 debug_verbose: debug_verbose,
                                                  rake_task: rake_task )
       reporter.run
       puts reporter.out if rake_task
+      return reporter
+    end
+
+    def self.globus_report( quiet: true,
+                            debug_verbose: globus_integration_service_debug_verbose,
+                            rake_task: false )
+
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "quiet=#{quiet}",
+                                             "rake_task=#{rake_task}",
+                                             "" ], bold_puts: rake_task if debug_verbose
+      base_name = GlobusJob.target_base_name ''
+      lock_file_prefix = GlobusJob.target_file_name_env(nil, 'lock', base_name ).to_s
+      lock_file_re = Regexp.compile( '^' + lock_file_prefix + '([0-9a-z-]+)' + '$' )
+      error_file_prefix = GlobusJob.target_file_name_env(nil, 'error', base_name ).to_s
+      error_file_re = Regexp.compile( '^' + error_file_prefix + '([0-9a-z-]+)' + '$' )
+      prep_dir_prefix = GlobusJob.target_file_name( nil, "#{GlobusJob.server_prefix(str: '_')}#{base_name}" ).to_s
+      prep_dir_re = Regexp.compile( '^' + prep_dir_prefix + '([0-9a-z-]+)' + '$' )
+      prep_tmp_dir_re = Regexp.compile( '^' + prep_dir_prefix + '([0-9a-z-]+)_tmp' + '$' )
+      ready_file_prefix = GlobusJob.target_file_name_env(nil, 'ready', base_name ).to_s
+      ready_file_re = Regexp.compile( '^' + ready_file_prefix + '([0-9a-z-]+)' + '$' )
+      starts_with_path = "#{::Deepblue::GlobusIntegrationService.globus_prep_dir}#{File::SEPARATOR}"
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "lock_file_prefix=#{lock_file_prefix}",
+                                             "lock_file_re=#{lock_file_re}",
+                                             "error_file_prefix=#{error_file_prefix}",
+                                             "error_file_re=#{error_file_re}",
+                                             "prep_dir_prefix=#{prep_dir_prefix}",
+                                             "prep_dir_re=#{prep_dir_re}",
+                                             "prep_tmp_dir_re=#{prep_tmp_dir_re}",
+                                             "ready_file_prefix=#{prep_dir_re}",
+                                             "ready_file_re=#{prep_tmp_dir_re}",
+                                             "starts_with_path=#{starts_with_path}",
+                                             "" ], bold_puts: rake_task if debug_verbose
+      files = Dir.glob( "#{starts_with_path}*", File::FNM_DOTMATCH )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "files.size=#{files.size}",
+                                             "" ], bold_puts: rake_task if debug_verbose
+      locked_ids = {}
+      error_ids = {}
+      prep_dir_ids = {}
+      prep_dir_tmp_ids = {}
+      ready_ids = {}
+      files.each do |f|
+        f1 = f
+        f = f.slice( (starts_with_path.length)..(f.length) ) if f.starts_with? starts_with_path
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "processing '#{f1}'",
+                                               "strip leading path '#{f}'",
+                                               "" ], bold_puts: rake_task if debug_verbose
+        globus_add_status( matcher: lock_file_re,
+                           path: f,
+                           hash: locked_ids,
+                           type: 'locked',
+                           debug_verbose: debug_verbose,
+                           rake_task: rake_task )
+        globus_add_status( matcher: error_file_re,
+                           path: f,
+                           hash: error_ids,
+                           type: 'error',
+                           debug_verbose: debug_verbose,
+                           rake_task: rake_task )
+        globus_add_status( matcher: prep_dir_re,
+                           path: f,
+                           hash: prep_dir_ids,
+                           type: 'prep',
+                           debug_verbose: debug_verbose,
+                           rake_task: rake_task )
+        globus_add_status( matcher: prep_tmp_dir_re,
+                           path: f,
+                           hash: prep_dir_tmp_ids,
+                           type: 'prep tmp',
+                           debug_verbose: debug_verbose,
+                           rake_task: rake_task )
+        globus_add_status( matcher: ready_file_re,
+                           path: f,
+                           hash: ready_ids,
+                           type: 'ready',
+                           debug_verbose: debug_verbose,
+                           rake_task: rake_task )
+      end
+      reporter = ::Deepblue::GlobusReporter.new( error_ids: error_ids,
+                                                 locked_ids: locked_ids,
+                                                 prep_dir_ids: prep_dir_ids,
+                                                 prep_dir_tmp_ids: prep_dir_tmp_ids,
+                                                 ready_ids: ready_ids,
+                                                 quiet: quiet,
+                                                 debug_verbose: debug_verbose,
+                                                 rake_task: rake_task )
+      reporter.run
+      puts reporter.out if rake_task
+      return reporter
     end
 
     def self.globus_add_status( matcher:, path:, hash:, type:, debug_verbose:, rake_task: false )
