@@ -3,6 +3,8 @@ Deepblue::GlobusIntegrationService.setup do |config|
 
   verbose_initialization = false && DeepBlueDocs::Application.config.program_name != 'resque-pool'
 
+  config.globus_integration_service_debug_verbose = false
+
   # TODO: some of these are dependent and can be made readonly
 
   ## configure for Globus

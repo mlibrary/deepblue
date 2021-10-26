@@ -14,7 +14,7 @@ class GlobusCleanJob < GlobusJob
     @globus_job_quiet = false
     @globus_log_prefix = "#{log_prefix}globus_clean_job(#{concern_id})"
 
-    Deepblue::LoggingHelper.debug "#{@globus_log_prefix} begin globus clean" unless @globus_job_quiet
+    ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} begin globus clean" unless @globus_job_quiet
     @target_download_dir = GlobusJob.target_download_dir @globus_concern_id
     @target_prep_dir     = GlobusJob.target_prep_dir( @globus_concern_id, prefix: nil )
     @target_prep_dir_tmp = GlobusJob.target_prep_tmp_dir( @globus_concern_id, prefix: nil )

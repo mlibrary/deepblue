@@ -19,6 +19,7 @@ module Deepblue
     mattr_accessor :deepblue_job_debug_verbose,                     default: false
     mattr_accessor :export_documentation_job_debug_verbose,         default: false
     mattr_accessor :fedora_accessible_job_debug_verbose,            default: false
+    mattr_accessor :globus_errors_report_job_debug_verbose,         default: false
     mattr_accessor :heartbeat_job_debug_verbose,                    default: false
     mattr_accessor :heartbeat_email_job_debug_verbose,              default: false
     mattr_accessor :monthly_analytics_report_job_debug_verbose,     default: false
