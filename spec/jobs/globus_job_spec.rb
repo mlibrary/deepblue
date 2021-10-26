@@ -247,7 +247,7 @@ describe GlobusJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do 
         allow( Rails.logger ).to receive( :debug ).with( "Globus:  skipping already complete globus job" )
       end
       it "does not call globus block" do
-        expect( GlobusJob.class_variable_get( :@@globus_enabled ) ).to eq( true )
+        expect( ::Deepblue::GlobusIntegrationService.globus_enabled ).to eq( true )
         expect( job ).not_to receive( :globus_acquire_lock? )
         expect( job ).not_to receive( :inside_block )
         job.send( :globus_job_perform, concern_id: "id321", &globus_block )
@@ -261,7 +261,7 @@ describe GlobusJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do 
         allow( Rails.logger ).to receive( :debug ).with( lock_file_msg )
       end
       it "does not call globus block." do
-        expect( GlobusJob.class_variable_get( :@@globus_enabled ) ).to eq( true )
+        expect( ::Deepblue::GlobusIntegrationService.globus_enabled ).to eq( true )
         expect( job ).not_to receive( :inside_block )
         job.send( :globus_job_perform, concern_id: "id321", &globus_block )
       end
@@ -278,7 +278,7 @@ describe GlobusJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do 
         allow( job ).to receive( :globus_unlock )
       end
       it "calls globus block." do
-        expect( GlobusJob.class_variable_get( :@@globus_enabled ) ).to eq( true )
+        expect( ::Deepblue::GlobusIntegrationService.globus_enabled ).to eq( true )
         job.send( :globus_job_perform, concern_id: "id321", &globus_block )
         expect( job ).to have_received( :globus_unlock ).exactly( 2 ).times
       end
@@ -296,7 +296,7 @@ describe GlobusJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do 
         allow( job ).to receive( :globus_unlock )
       end
       it "calls globus block." do
-        expect( GlobusJob.class_variable_get( :@@globus_enabled ) ).to eq( true )
+        expect( ::Deepblue::GlobusIntegrationService.globus_enabled ).to eq( true )
         expect( job ).not_to receive( :globus_job_perform_complete )
         job.send( :globus_job_perform, concern_id: "id321", &globus_block )
         expect( Rails.logger ).to have_received( :error ).with( /^Globus:  StandardError: generated error at/ )

@@ -10,7 +10,7 @@ class GlobusCopyJob < GlobusJob
   # @param [String, nil ] user_email
   def perform( concern_id, log_prefix: "Globus: ", generate_error: false, delay_per_file_seconds: 0, user_email: nil )
     globus_job_perform( concern_id: concern_id, email: user_email, log_prefix: "#{log_prefix}globus_copy_job" ) do
-      Deepblue::LoggingHelper.debug "#{@globus_log_prefix} begin copy" unless @globus_job_quiet
+      ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} begin copy" unless @globus_job_quiet
       @target_download_dir = target_download_dir2 @globus_concern_id
       @target_prep_dir     = target_prep_dir2( @globus_concern_id, prefix: nil, mkdir: true )
       @target_prep_dir_tmp = target_prep_tmp_dir2( @globus_concern_id, prefix: nil, mkdir: true )
@@ -22,25 +22,28 @@ class GlobusCopyJob < GlobusJob
       FileUtils.move( metadata_file, move_destination )
       file_sets = curation_concern.file_sets
       do_copy_predicate = ->(target_file_name, _target_file) { globus_do_copy?( target_file_name ) }
-      Deepblue::ExportFilesHelper.export_file_sets( target_dir: @target_prep_dir_tmp,
-                                                    file_sets: file_sets,
-                                                    log_prefix: @globus_log_prefix,
-                                                    do_export_predicate: do_copy_predicate ) do |target_file_name, target_file|
+      ::Deepblue::ExportFilesHelper.export_file_sets( target_dir: @target_prep_dir_tmp,
+                                                      file_sets: file_sets,
+                                                      log_prefix: @globus_log_prefix,
+                                                      do_export_predicate: do_copy_predicate ) do |target_file_name, target_file|
+
         sleep delay_per_file_seconds if delay_per_file_seconds.positive?
         move_destination = GlobusJob.target_file_name( @target_prep_dir, target_file_name )
         Deepblue::LoggingHelper.debug "#{@globus_log_prefix} mv #{target_file} to #{move_destination}" unless @globus_job_quiet
-        FileUtils.chmod( @@globus_copy_file_permissions, target_file )
-        FileUtils.chown( nil, @@globus_copy_file_group, target_file ) unless @@globus_copy_file_group.blank?
+        FileUtils.chmod( ::Deepblue::GlobusIntegrationService.globus_copy_file_permissions, target_file )
+        FileUtils.chown( nil,
+                         ::Deepblue::GlobusIntegrationService.globus_copy_file_group,
+                         target_file ) unless ::Deepblue::GlobusIntegrationService.globus_copy_file_group.blank?
         FileUtils.move( target_file, move_destination )
         if generate_error
           @globus_lock_file = nil
           raise StandardError, "generated error"
         end
       end
-      Deepblue::LoggingHelper.debug "#{@globus_log_prefix} mv #{@target_prep_dir} to #{@target_download_dir}" unless @globus_job_quiet
+      ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} mv #{@target_prep_dir} to #{@target_download_dir}" unless @globus_job_quiet
       FileUtils.move( @target_prep_dir, @target_download_dir )
       FileUtils.rmdir @target_prep_dir_tmp
-      Deepblue::LoggingHelper.debug "#{@globus_log_prefix} copy complete" unless @globus_job_quiet
+      ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} copy complete" unless @globus_job_quiet
       begin
         globus_copy_job_email_add( user_email )
         globus_copy_job_email_add( Deepblue::EmailHelper.notification_email_to )

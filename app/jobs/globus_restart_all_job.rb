@@ -5,9 +5,9 @@ class GlobusRestartAllJob < GlobusJob
 
   # @param [String, "Globus: "] log_prefix
   def perform( log_prefix: "Globus: ", quiet: false )
-    Deepblue::LoggingHelper.debug "#{log_prefix}globus_restart_all_job starting..." unless quiet
+    ::Deepblue::LoggingHelper.debug "#{log_prefix}globus_restart_all_job starting..." unless quiet
     globus_job_perform( concern_id: "Restart_All", log_prefix: "#{log_prefix}globus_restart_all_job", quiet: quiet ) do
-      Deepblue::LoggingHelper.debug "#{@globus_log_prefix} begin restart all" unless @globus_job_quiet
+      ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} begin restart all" unless @globus_job_quiet
       concern_ids_to_restart = {}
       base_name = GlobusJob.target_base_name ''
       prefix = GlobusJob.target_file_name_env(nil, 'lock', base_name ).to_s
@@ -19,11 +19,11 @@ class GlobusRestartAllJob < GlobusJob
       prep_dir_re = Regexp.compile( '^' + prefix + '([0-9a-z-]+)' + '$' )
       # Deepblue::LoggingHelper.debug "#{@globus_log_prefix} prep_dir_re=#{prep_dir_re}" unless @globus_job_quiet
       prep_tmp_dir_re = Regexp.compile( '^' + prefix + '([0-9a-z-]+)_tmp' + '$' )
-      starts_with_path = "#{@@globus_prep_dir}#{File::SEPARATOR}"
+      starts_with_path = "#{::Deepblue::GlobusIntegrationService.globus_prep_dir}#{File::SEPARATOR}"
       files = Dir.glob( "#{starts_with_path}*" )
-      # Deepblue::LoggingHelper.debug "#{@globus_log_prefix} files.size=#{files.size}" unless @globus_job_quiet
+      # ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} files.size=#{files.size}" unless @globus_job_quiet
       files.each do |f|
-        # Deepblue::LoggingHelper.debug "#{@globus_log_prefix} processing #{f}"
+        # ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} processing #{f}"
         f = f.slice( (starts_with_path.length)..(f.length) ) if f.starts_with? starts_with_path
         # Deepblue::LoggingHelper.debug "#{@globus_log_prefix} processing #{f}" unless @globus_job_quiet
         match = lock_file_re.match( f )
@@ -57,14 +57,16 @@ class GlobusRestartAllJob < GlobusJob
         # Deepblue::LoggingHelper.debug "#{@globus_log_prefix} restart copy job #{concern_id}" unless @globus_job_quiet
         ::GlobusCopyJob.perform_later( concern_id )
       end
-      Deepblue::LoggingHelper.debug "#{@globus_log_prefix} restart all complete" unless @globus_job_quiet
+      ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} restart all complete" unless @globus_job_quiet
     end
   end
 
   protected
 
     def globus_job_complete_file
-      GlobusJob.target_file_name_env( @@globus_prep_dir, 'restarted', GlobusJob.target_base_name( @globus_concern_id ) )
+      GlobusJob.target_file_name_env( ::Deepblue::GlobusIntegrationService.globus_prep_dir,
+                                      'restarted',
+                                      GlobusJob.target_base_name( @globus_concern_id ) )
     end
 
     def globus_job_complete?
@@ -73,8 +75,8 @@ class GlobusRestartAllJob < GlobusJob
       return false unless File.exist? file
       last_complete_time = last_complete_time file
       token_time = ::GlobusJob.era_token_time
-      Deepblue::LoggingHelper.debug "#{@globus_log_prefix} token_time:#{token_time} <= last_complete_time:#{last_complete_time}" unless @globus_job_quiet
-      Deepblue::LoggingHelper.debug "#{@globus_log_prefix} token_time.class:#{token_time.class} <= last_complete_time.class:#{last_complete_time.class}" unless @globus_job_quiet
+      ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} token_time:#{token_time} <= last_complete_time:#{last_complete_time}" unless @globus_job_quiet
+      ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} token_time.class:#{token_time.class} <= last_complete_time.class:#{last_complete_time.class}" unless @globus_job_quiet
       token_time <= last_complete_time
     end
 

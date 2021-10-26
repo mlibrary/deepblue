@@ -5,24 +5,24 @@ class GlobusJob < ::Hyrax::ApplicationJob
   @@globus_era_timestamp = ::Deepblue::GlobusIntegrationService.globus_era_timestamp
   @@globus_era_token = ::Deepblue::GlobusIntegrationService.globus_era_token.freeze
 
-  @@globus_enabled = ::Deepblue::GlobusIntegrationService.globus_enabled.freeze
-  @@globus_base_file_name = ::Deepblue::GlobusIntegrationService.globus_base_file_name.freeze
-  @@globus_base_url = ::Deepblue::GlobusIntegrationService.globus_base_url.freeze
-  @@globus_download_dir = ::Deepblue::GlobusIntegrationService.globus_download_dir.freeze
-  @@globus_prep_dir = ::Deepblue::GlobusIntegrationService.globus_prep_dir.freeze
-  @@globus_dir_modifier = ::Deepblue::GlobusIntegrationService.globus_dir_modifier.freeze
+  # @@globus_enabled = ::Deepblue::GlobusIntegrationService.globus_enabled.freeze
+  # @@globus_base_file_name = ::Deepblue::GlobusIntegrationService.globus_base_file_name.freeze
+  # @@globus_base_url = ::Deepblue::GlobusIntegrationService.globus_base_url.freeze
+  # @@globus_download_dir = ::Deepblue::GlobusIntegrationService.globus_download_dir.freeze
+  # @@globus_prep_dir = ::Deepblue::GlobusIntegrationService.globus_prep_dir.freeze
+  # @@globus_dir_modifier = ::Deepblue::GlobusIntegrationService.globus_dir_modifier.freeze
 
-  @@globus_copy_file_group = ::Deepblue::GlobusIntegrationService.globus_copy_file_group.freeze
-  @@globus_copy_file_permissions = ::Deepblue::GlobusIntegrationService.globus_copy_file_permissions.freeze
+  # @@globus_copy_file_group = ::Deepblue::GlobusIntegrationService.globus_copy_file_group.freeze
+  # @@globus_copy_file_permissions = ::Deepblue::GlobusIntegrationService.globus_copy_file_permissions.freeze
 
   def self.files_available?( concern_id )
-    return false unless @@globus_enabled
+    return false unless ::Deepblue::GlobusIntegrationService.globus_enabled
     copy_complete? concern_id
   end
 
   def self.copy_complete?( id )
-    return false unless @@globus_enabled
-    dir = @@globus_download_dir
+    return false unless ::Deepblue::GlobusIntegrationService.globus_enabled
+    dir = ::Deepblue::GlobusIntegrationService.globus_download_dir
     dir = dir.join files_target_file_name( id )
     Dir.exist? dir
   end
@@ -42,7 +42,7 @@ class GlobusJob < ::Hyrax::ApplicationJob
   end
 
   def self.error_file( id )
-    target_file_name_env( @@globus_prep_dir, 'error', target_base_name( id ) )
+    target_file_name_env( ::Deepblue::GlobusIntegrationService.globus_prep_dir, 'error', target_base_name( id ) )
   end
 
   def self.error_file_contents( id )
@@ -60,7 +60,7 @@ class GlobusJob < ::Hyrax::ApplicationJob
       if write_error_to_log
         msg = nil
         File.open( error_file, 'r' ) { |f| msg = f.read; msg.chomp! } # rubocop:disable Style/Semicolon
-        Deepblue::LoggingHelper.debug "#{log_prefix} error file contains: #{msg}" unless quiet
+        ::Deepblue::LoggingHelper.debug "#{log_prefix} error file contains: #{msg}" unless quiet
       end
       error_file_exists = true
     end
@@ -68,12 +68,14 @@ class GlobusJob < ::Hyrax::ApplicationJob
   end
 
   def self.external_url( id )
-    return "#{@@globus_base_url}#{@@globus_dir_modifier}%2F#{files_target_file_name(id)}%2F" if @@globus_dir_modifier.present?
-    "#{@@globus_base_url}#{files_target_file_name(id)}%2F"
+    globus_base_url = ::Deepblue::GlobusIntegrationService.globus_base_url
+    globus_dir_modifer = ::Deepblue::GlobusIntegrationService.globus_dir_modifier
+    return "#{globus_base_url}#{globus_dir_modifier}%2F#{files_target_file_name(id)}%2F" if globus_dir_modifier.present?
+    "#{globus_base_url}#{files_target_file_name(id)}%2F"
   end
 
   def self.files_target_file_name( id = '' )
-    "#{@@globus_base_file_name}#{id}"
+    "#{::Deepblue::GlobusIntegrationService.globus_base_file_name}#{id}"
   end
 
   def self.files_prepping?( id )
@@ -81,16 +83,16 @@ class GlobusJob < ::Hyrax::ApplicationJob
     rv
   end
 
-  def self.lock( concern_id, log_prefix )
+  def self.lock( concern_id, log_prefix, quiet: )
     lock_token = era_token
     lock_file = lock_file concern_id
-    Deepblue::LoggingHelper.debug "#{log_prefix} writing lock token #{lock_token} to #{lock_file}" unless @globus_job_quiet
+    ::Deepblue::LoggingHelper.debug "#{log_prefix} writing lock token #{lock_token} to #{lock_file}" unless quiet
     File.open( lock_file, 'w' ) { |f| f << lock_token << "\n" }
     File.exist? lock_file
   end
 
   def self.lock_file( id = '' )
-    target_file_name_env( @@globus_prep_dir, 'lock', target_base_name( id ) )
+    target_file_name_env( ::Deepblue::GlobusIntegrationService.globus_prep_dir, 'lock', target_base_name( id ) )
   end
 
   def self.locked?( concern_id, log_prefix: '', quiet: true )
@@ -100,7 +102,7 @@ class GlobusJob < ::Hyrax::ApplicationJob
     current_token = era_token
     lock_token = read_token lock_file
     rv = ( current_token == lock_token )
-    Deepblue::LoggingHelper.debug "#{log_prefix} testing token from #{lock_file}: current_token: #{current_token} == lock_token: #{lock_token}: #{rv}" unless @quiet
+    ::Deepblue::LoggingHelper.debug "#{log_prefix} testing token from #{lock_file}: current_token: #{current_token} == lock_token: #{lock_token}: #{rv}" unless @quiet
     rv
   end
 
@@ -116,7 +118,7 @@ class GlobusJob < ::Hyrax::ApplicationJob
 
   def self.target_base_name( id = '', prefix: '', postfix: '' )
     prefix = server_prefix( str: '_' ) if prefix.nil?
-    "#{prefix}#{@@globus_base_file_name}#{id}#{postfix}"
+    "#{prefix}#{::Deepblue::GlobusIntegrationService.globus_base_file_name}#{id}#{postfix}"
   end
 
   def self.target_file_name_env( dir, file_type, base_name )
@@ -129,7 +131,7 @@ class GlobusJob < ::Hyrax::ApplicationJob
   end
 
   def self.target_download_dir( concern_id )
-    target_dir_name( @@globus_download_dir, target_base_name(concern_id ) )
+    target_dir_name( ::Deepblue::GlobusIntegrationService.globus_download_dir, target_base_name(concern_id ) )
   end
 
   def self.target_dir_name( dir, subdir, mkdir: false )
@@ -143,7 +145,7 @@ class GlobusJob < ::Hyrax::ApplicationJob
   def self.target_prep_dir( concern_id, prefix: '', postfix: '', mkdir: false )
     prefix = server_prefix( str: '_' ) if prefix.nil?
     subdir = target_base_name( concern_id, prefix: prefix, postfix: postfix )
-    target_dir_name( @@globus_prep_dir, subdir, mkdir: mkdir )
+    target_dir_name( ::Deepblue::GlobusIntegrationService.globus_prep_dir, subdir, mkdir: mkdir )
   end
 
   def self.target_prep_tmp_dir( concern_id, prefix: '', postfix: '', mkdir: false )
@@ -168,10 +170,11 @@ class GlobusJob < ::Hyrax::ApplicationJob
 
   # @param [String] concern_id
   # @param [String, "Globus: "] log_prefix
-  def perform( concern_id, log_prefix: "Globus: " )
+  def perform( concern_id, log_prefix: "Globus: ", globus_job_quiet: true )
     @globus_concern_id = concern_id
     @globus_log_prefix = log_prefix
     @globus_lock_file = GlobusJob.lock_file concern_id
+    @globus_job_quiet = globus_job_quiet
   end
 
   protected
@@ -185,7 +188,7 @@ class GlobusJob < ::Hyrax::ApplicationJob
       Dir.exist? target_download_dir2 concern_id
     end
 
-    def globus_copy_job_email_clean
+    def globus_copy_job_email_clean()
       email_file = globus_copy_job_email_file
       Deepblue::LoggingHelper.debug "#{@globus_log_prefix} globus_copy_job_email_reset exists? #{email_file}" unless @globus_job_quiet
       return unless File.exist? email_file
@@ -194,7 +197,7 @@ class GlobusJob < ::Hyrax::ApplicationJob
     end
 
     def globus_copy_job_email_file
-      rv = GlobusJob.target_file_name_env( @@globus_prep_dir,
+      rv = GlobusJob.target_file_name_env( ::Deepblue::GlobusIntegrationService.globus_prep_dir,
                                            'copy_job_emails',
                                            GlobusJob.target_base_name( @globus_concern_id ) )
       return rv
@@ -214,7 +217,9 @@ class GlobusJob < ::Hyrax::ApplicationJob
     end
 
     def globus_error_file
-      GlobusJob.target_file_name_env( @@globus_prep_dir, 'error', GlobusJob.target_base_name( @globus_concern_id ) )
+      GlobusJob.target_file_name_env( ::Deepblue::GlobusIntegrationService.globus_prep_dir,
+                                      'error',
+                                      GlobusJob.target_base_name( @globus_concern_id ) )
     end
 
     def globus_error_file_exists?( write_error_to_log: false )
@@ -252,14 +257,14 @@ class GlobusJob < ::Hyrax::ApplicationJob
       @globus_log_prefix = log_prefix
       @globus_lock_file = nil
       @globus_job_quiet = quiet
-      return unless @@globus_enabled
+      return unless ::Deepblue::GlobusIntegrationService.globus_enabled
       begin
         if globus_job_complete?
           globus_job_perform_already_complete( email: email )
           return
         end
         @globus_lock_file = GlobusJob.lock_file @globus_concern_id
-        Deepblue::LoggingHelper.debug "#{@globus_log_prefix} lock file #{@globus_lock_file}" unless @globus_job_quiet
+        ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} lock file #{@globus_lock_file}" unless @globus_job_quiet
       rescue Exception => e # rubocop:disable Lint/RescueException
         msg = "#{@globus_log_prefix} #{e.class}: #{e.message} at #{e.backtrace[0]}"
         # Rails.logger.error msg
@@ -289,17 +294,17 @@ class GlobusJob < ::Hyrax::ApplicationJob
 
     def globus_job_perform_already_complete( email: nil )
       if email.nil?
-        Deepblue::LoggingHelper.debug "#{@globus_log_prefix} skipping already complete globus job" unless @globus_job_quiet
+        ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} skipping already complete globus job" unless @globus_job_quiet
       else
-        Deepblue::LoggingHelper.debug "#{@globus_log_prefix} skipping already complete globus job, email=#{email}" unless @globus_job_quiet
+        ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} skipping already complete globus job, email=#{email}" unless @globus_job_quiet
       end
     end
 
     def globus_job_perform_in_progress( email: nil )
       if email.nil?
-        Deepblue::LoggingHelper.debug "#{@globus_log_prefix} skipping in progress globus job" unless @globus_job_quiet
+        ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} skipping in progress globus job" unless @globus_job_quiet
       else
-        Deepblue::LoggingHelper.debug "#{@globus_log_prefix} skipping in progress globus job, email=#{email}" unless @globus_job_quiet
+        ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} skipping in progress globus job, email=#{email}" unless @globus_job_quiet
       end
     end
 
@@ -319,7 +324,7 @@ class GlobusJob < ::Hyrax::ApplicationJob
     end
 
     def globus_lock
-      GlobusJob.lock( @globus_concern_id, @globus_log_prefix )
+      GlobusJob.lock( @globus_concern_id, @globus_log_prefix, quiet: @globus_job_quie )
     end
 
     def globus_lock_file( id = '' )
@@ -331,13 +336,15 @@ class GlobusJob < ::Hyrax::ApplicationJob
     end
 
     def globus_ready_file
-      GlobusJob.target_file_name_env( @@globus_prep_dir, 'ready', GlobusJob.target_base_name( @globus_concern_id ) )
+      GlobusJob.target_file_name_env( ::Deepblue::GlobusIntegrationService.globus_prep_dir,
+                                      'ready',
+                                      GlobusJob.target_base_name( @globus_concern_id ) )
     end
 
     def globus_unlock
       return nil if @globus_lock_file.nil?
       return nil unless File.exist? @globus_lock_file
-      Deepblue::LoggingHelper.debug "#{@globus_log_prefix} unlock by deleting file #{@globus_lock_file}" unless @globus_job_quiet
+      ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} unlock by deleting file #{@globus_lock_file}" unless @globus_job_quiet
       File.delete @globus_lock_file
       nil
     end
