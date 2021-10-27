@@ -138,9 +138,9 @@ module Deepblue
       return reporter
     end
 
-    def self.globus_report( quiet: true,
-                            debug_verbose: globus_integration_service_debug_verbose,
-                            rake_task: false )
+    def self.globus_status_report( quiet: true,
+                                  debug_verbose: globus_integration_service_debug_verbose,
+                                  rake_task: false )
 
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
