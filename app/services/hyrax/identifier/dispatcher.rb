@@ -68,9 +68,17 @@ module Hyrax
       def assign_for_single_value!(object:, attribute: :identifier, &block)
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
+                                               "object=#{object}",
+                                               "object.public_send(#{attribute})=#{object.public_send(attribute)}",
                                                "" ] if hyrax_identifier_dispatcher_debug_verbose
         assign_for_single_value(object: object, attribute: attribute).save!
         yield if block_given?
+        object.reload
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "object=#{object}",
+                                               "object.public_send(#{attribute})=#{object.public_send(attribute)}",
+                                               "" ] if hyrax_identifier_dispatcher_debug_verbose
         object
       end
       # end monkey
@@ -79,9 +87,18 @@ module Hyrax
       def assign_for_single_value(object:, attribute: :identifier)
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
+                                               "object=#{object}",
+                                               "attribute=#{attribute}",
+                                               "object.public_send(#{attribute})=#{object.public_send(attribute)}",
                                                "" ] if hyrax_identifier_dispatcher_debug_verbose
         record = registrar.register!(object: object)
         object.public_send("#{attribute}=".to_sym, record.identifier)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "object=#{object}",
+                                               "attribute=#{attribute}",
+                                               "object.public_send(#{attribute})=#{object.public_send(attribute)}",
+                                               "" ] if hyrax_identifier_dispatcher_debug_verbose
         object
       end
       # end monkey

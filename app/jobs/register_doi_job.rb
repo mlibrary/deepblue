@@ -32,7 +32,7 @@ class RegisterDoiJob < ::Deepblue::DeepblueJob
                                                       registrar_opts: registrar_opts )
     job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
-    Rails.logger.error "RegisterDoiJob.perform(#{id}, #{e.class}: #{e.message} at #{e.backtrace[0]}"
+    Rails.logger.error "RegisterDoiJob.perform(#{model&.id}, #{e.class}: #{e.message} at #{e.backtrace[0]}"
     raise
   end
 

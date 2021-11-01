@@ -188,7 +188,7 @@ module Deepblue
                                 ignore_blank_key_values: ignore_blank_key_values )
     end
 
-    def email_event_mint_doi_user( current_user:, event_note: '', message: '' )
+    def email_event_mint_doi_user( current_user:, event_note: '' )
       # to_from = email_address_user( current_user )
       cc_title = EmailHelper.cc_title curation_concern: self
       cc_title = EmailHelper.escape_html( cc_title )
@@ -229,6 +229,7 @@ module Deepblue
       return if cc_contact_email.blank? || cc_depositor == cc_contact_email
       body = EmailHelper.t( template_key,
                             title: cc_title,
+                            doi: cc_doi,
                             url: cc_url,
                             depositor: cc_contact_email,
                             contact_us_at: ::Deepblue::EmailHelper.contact_us_at )

@@ -8,6 +8,7 @@ module Deepblue
     mattr_accessor :doi_minting_2021_service_debug_verbose,     default: false
 
     mattr_accessor :doi_behavior_debug_verbose,                 default: false
+    mattr_accessor :doi_controller_behavior_debug_verbose,      default: false
     mattr_accessor :doi_minting_job_debug_verbose,              default: false
     mattr_accessor :register_doi_job_debug_verbose,             default: false
     mattr_accessor :bolognese_hyrax_work_readers_debug_verbose, default: false
@@ -89,15 +90,16 @@ module Deepblue
 
     def self.doi_mint_job( curation_concern:,
                            current_user: nil,
-                           event_note: '',
+                           event_note: 'DoiMintingService',
                            job_delay: 0,
                            debug_verbose: ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose )
 
+      id = curation_concern.id
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
                                              "class.name=#{curation_concern.class.name}",
-                                             "doi=#{doi}",
+                                             "curation_concern.doi=#{curation_concern.doi}",
                                              "current_user=#{current_user}",
                                              "event_note=#{event_note}",
                                              "job_delay=#{job_delay}",
@@ -109,7 +111,7 @@ module Deepblue
                                              "curation_concern.id=#{id}",
                                              "class.name=#{curation_concern.class.name}",
                                              "target_url=#{target_url}",
-                                             "doi=#{doi}",
+                                             "curation_concern.doi=#{curation_concern.doi}",
                                              "about to call doi minting job",
                                              "" ] if debug_verbose
       raise IllegalOperation, "Attempting to mint doi before id is created." if target_url.blank?
@@ -140,8 +142,8 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.class.name=#{curation_concern.class.name}",
-                                             "curation_concern&.id=#{model&.id}",
-                                             "curation_concern&.doi=#{model&.doi}",
+                                             "curation_concern&.id=#{curation_concern&.id}",
+                                             "curation_concern&.doi=#{curation_concern&.doi}",
                                              "current_user=#{current_user}",
                                              "registrar=#{registrar}",
                                              "registrar_opts=#{registrar_opts}",
@@ -153,7 +155,7 @@ module Deepblue
                                                                                    attribute: :doi) do
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "RegisterDoiJob model (id #{id}) updated.",
+                                               "RegisterDoiJob model (curation_concern.id #{curation_concern.id}) updated.",
                                                "curation_concern.class.name=#{curation_concern.class.name}",
                                                "curation_concern.id=#{curation_concern.id}",
                                                "curation_concern.doi=#{curation_concern.doi}",
@@ -161,21 +163,21 @@ module Deepblue
       end
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "RegisterDoiJob model (id #{id}) updated.",
+                                             "RegisterDoiJob model (curation_concern.id #{curation_concern.id}) updated.",
                                              "curation_concern.class.name=#{curation_concern.class.name}",
                                              "curation_concern.id=#{curation_concern.id}",
                                              "curation_concern.doi=#{curation_concern.doi}",
                                              "" ] if debug_verbose
       curation_concern.provenance_mint_doi( current_user: current_user, event_note: 'DoiMintingService' )
       if curation_concern.respond_to?( :email_event_mint_doi_user ) && ::Deepblue::DoiMintingService.doi_minting_service_email_user_on_success
-        curation_concern.email_event_mint_doi_user( current_user: current_user, event_note: event_note, message: message )
+        curation_concern.email_event_mint_doi_user( current_user: current_user, event_note: 'DoiMintingService' )
       end
       # do success callback
       if Hyrax.config.callback.set?( :after_doi_success )
         Hyrax.config.callback.run( :after_doi_success, curation_concern, user, timestamp_end )
       end
     rescue Exception => e # rubocop:disable Lint/RescueException
-      Rails.logger.error "RegisterDoiJob.perform(#{id}, #{e.class}: #{e.message} at #{e.backtrace[0]}"
+      Rails.logger.error "RegisterDoiJob.perform(#{curation_concern&.id}, #{e.class}: #{e.message} at #{e.backtrace[0]}"
       raise
     end
 
@@ -215,7 +217,7 @@ module Deepblue
       curation_concern.reload
       curation_concern.provenance_mint_doi( current_user: current_user, event_note: 'DoiMintingService' )
       if curation_concern.respond_to?( :email_event_mint_doi_user ) && ::Deepblue::DoiMintingService.doi_minting_service_email_user_on_success
-        curation_concern.email_event_mint_doi_user( current_user: current_user, event_note: event_note, message: message )
+        curation_concern.email_event_mint_doi_user( current_user: current_user, event_note: 'DoiMintingService', message: message )
       end
       curation_concern.doi
     end

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative './doi_minting_2021_service'
+
 module Deepblue
 
   class DataCiteRegistrar < Hyrax::Identifier::Registrar
@@ -22,18 +24,41 @@ module Deepblue
     def register!(object: work)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "object=#{object}",
                                              "" ] if data_cite_registrar_debug_verbose
       doi = Array(object.try(:doi)).first
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "doi=#{doi}",
+                                             "" ] if data_cite_registrar_debug_verbose
 
       # Return the existing DOI or nil if nothing needs to be done
-      return Struct.new(:identifier).new(doi) unless register?(object)
+      registered = register?(object)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "registered=#{registered}",
+                                             "" ] if data_cite_registrar_debug_verbose
+      return Struct.new(:identifier).new(doi) unless registered
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "doi=#{doi}",
+                                             "" ] if data_cite_registrar_debug_verbose
 
       # Create a draft DOI (if necessary)
-      doi ||= mint_draft_doi
-
+      if doi.blank? || doi == 'doi_pending'
+        doi = mint_draft_doi
+      end
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "doi=#{doi}",
+                                             "" ] if data_cite_registrar_debug_verbose
       # Submit metadata, register url, and ensure proper status
       submit_to_datacite(object, doi)
-
+      doi = "doi:#{doi}" unless doi.start_with?( "doi:" )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "doi=#{doi}",
+                                             "" ] if data_cite_registrar_debug_verbose
       # Return the doi (old or new)
       Struct.new(:identifier).new(doi)
     end
@@ -50,10 +75,21 @@ module Deepblue
     # Should the work be submitted for registration (or updating)?
     # @return [boolean]
     def register?(work)
-      doi_enabled_work_type?(work) &&
-        doi_minting_enabled? && work.doi_has_status?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "work=#{work}",
+                                             "doi_enabled_work_type?(work)=#{doi_enabled_work_type?(work)}",
+                                             "doi_minting_enabled?=#{doi_minting_enabled?}",
+                                             "work.doi_has_status?=#{work.doi_has_status?}",
+                                             "" ] if data_cite_registrar_debug_verbose
+      rv = doi_enabled_work_type?(work) && doi_minting_enabled? && work.doi_has_status?
       # TODO: add more checks here to catch cases when updating is unnecessary
       # TODO: check that required metadata is present if set to registered or findable
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "" ] if data_cite_registrar_debug_verbose
+      return rv
     end
 
     # Check if work is DOI enabled
@@ -93,6 +129,8 @@ module Deepblue
     def submit_to_datacite(work, doi)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "work=#{work}",
+                                             "doi=#{doi}",
                                              "" ] if data_cite_registrar_debug_verbose
       # 1. Add metadata to the DOI (or update it)
       # TODO: check that required metadata is present if current DOI record is registered or findable OR handle error?
@@ -115,6 +153,7 @@ module Deepblue
     def work_to_datacite_xml(work)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "work=#{work}",
                                              "" ] if data_cite_registrar_debug_verbose
       Bolognese::Metadata.new(input: work.attributes.merge(has_model: work.has_model.first).to_json,
                               from: 'hyrax_work').datacite
