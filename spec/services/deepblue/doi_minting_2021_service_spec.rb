@@ -6,6 +6,9 @@ require_relative '../../../app/services/deepblue/doi_minting_2021_service'
 
 describe ::Deepblue::DoiMinting2021Service, :datacite_api do
 
+  # datacite_prefix = ::Deepblue::DataCiteRegistrar.prefix
+  # datacite_prefix_test = '10.1234'
+
   let(:debug_verbose) { false }
 
   describe 'module debug verbose variables' do
@@ -21,8 +24,10 @@ describe ::Deepblue::DoiMinting2021Service, :datacite_api do
         described_class.doi_minting_2021_service_debug_verbose = dbg_verbose
         expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(:once) if dbg_verbose
         expect(::Deepblue::LoggingHelper).to_not receive(:bold_debug) unless dbg_verbose
+        # ::Deepblue::DataCiteRegistrar.prefix = datacite_prefix_test
       end
       after do
+        # ::Deepblue::DataCiteRegistrar.prefix = datacite_prefix
         described_class.doi_minting_2021_service_debug_verbose = debug_verbose
       end
       context do
@@ -147,6 +152,7 @@ describe ::Deepblue::DoiMinting2021Service, :datacite_api do
 
           it 'ends with a slash' do
             expect(url.chars.last(1).first).to eq('/')
+            ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
           end
         end
 
