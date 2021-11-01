@@ -4,7 +4,8 @@ module Deepblue
 
   module DoiControllerBehavior
 
-    mattr_accessor :doi_controller_behavior_debug_verbose, default: false
+    mattr_accessor :doi_controller_behavior_debug_verbose,
+                   default: ::Deepblue::DoiMintingService.doi_controller_behavior_debug_verbose
 
     def doi
       msg = doi_mint
@@ -32,8 +33,8 @@ module Deepblue
                                            ::Deepblue::LoggingHelper.obj_class( "curation_concern", curation_concern ),
                                            "curation_concern.id=#{curation_concern.id}",
                                            "curation_concern.depositor=#{curation_concern.depositor}",
-                                           "current_user.email=#{current_user.email}",
-                                           "current_ability.admin?=#{current_ability.admin?}",
+                                           "current_user&.email=#{current_user&.email}",
+                                           "current_ability&.admin?=#{current_ability&.admin?}",
                                            "curation_concern.doi=#{curation_concern.doi}",
                                            "curation_concern.doi_pending?=#{curation_concern.doi_pending?}",
                                            "curation_concern.doi_minted?=#{curation_concern.doi_minted?}",
@@ -48,7 +49,7 @@ module Deepblue
               MsgHelper.t( 'data_set.doi_already_exists' )
             elsif curation_concern.work? && curation_concern.file_sets.count < 1
               MsgHelper.t( 'data_set.doi_requires_work_with_files' )
-            elsif ( curation_concern.depositor != current_user.email ) && !current_ability.admin?
+            elsif ( curation_concern.depositor != current_user&.email ) && !current_ability&.admin?
               MsgHelper.t( 'data_set.doi_user_without_access' )
             elsif curation_concern.doi_mint( current_user: current_user, event_note: curation_concern.class.name )
               MsgHelper.t( 'data_set.doi_minting_started' )
@@ -56,7 +57,6 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                             ::Deepblue::LoggingHelper.called_from,
                                             ::Deepblue::LoggingHelper.obj_class( "self", self ),
-                                            ::Deepblue::LoggingHelper.obj_class( "curation_concern", curation_concern ),
                                             ::Deepblue::LoggingHelper.obj_class( "curation_concern", curation_concern ),
                                             "curation_concern.id=#{curation_concern.id}",
                                             "msg=#{msg}",

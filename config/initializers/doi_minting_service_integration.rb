@@ -9,6 +9,7 @@ Deepblue::DoiMintingService.setup do |config|
   config.doi_minting_2021_service_debug_verbose     = false
 
   config.doi_behavior_debug_verbose                 = false
+  config.doi_controller_behavior_debug_verbose      = false
   config.doi_minting_job_debug_verbose              = false
   config.register_doi_job_debug_verbose             = false
   config.bolognese_hyrax_work_readers_debug_verbose = false
@@ -31,7 +32,7 @@ Deepblue::DoiMintingService.setup do |config|
   config.doi_resource_type       = "Dataset".freeze
   config.doi_resource_types      = [ "Dataset", "Fileset" ].freeze
 
-  config.doi_minting_2021_service_enabled          = false
+  config.doi_minting_2021_service_enabled          = true
   config.doi_minting_service_email_user_on_success = false
 
   config.test_base_url           = "https://api.test.datacite.org/"
