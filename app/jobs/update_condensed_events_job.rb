@@ -27,6 +27,10 @@ END_OF_SCHEDULER_ENTRY
   queue_as :scheduler
 
   def perform( *args )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "args=#{args}",
+                                           "" ] if update_condensed_events_job_debug_verbose
     initialize_options_from( *args, debug_verbose: update_condensed_events_job_debug_verbose )
     log( event: "update condensed events job", hostname_allowed: hostname_allowed? )
     is_quiet?

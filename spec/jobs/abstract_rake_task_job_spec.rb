@@ -55,8 +55,12 @@ RSpec.describe AbstractRakeTaskJob, skip: false do
       expect(job).to receive(:options).and_return []
     end
     it "returns value" do
-      expect(job).to receive(:job_options_value).with( [], key: key, default_value: default_value, verbose: false )
-      job.options_value(key: key, default_value: default_value)
+      expect(job).to receive(:job_options_value).with( [],
+                                                       key: key,
+                                                       default_value: default_value,
+                                                       task: false,
+                                                       verbose: false )
+      job.options_value(key: key, default_value: default_value, task: false)
     end
   end
 

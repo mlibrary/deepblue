@@ -32,11 +32,20 @@ END_OF_SCHEDULER_ENTRY
   attr_accessor :this_month
 
   def perform( *args )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "args=#{args}",
+                                           "" ] if monthly_events_report_job_debug_verbose
     initialize_options_from( *args, debug_verbose: monthly_events_report_job_debug_verbose )
-    log( event: "monthly events report job", hostname_allowed: hostname_allowed? )
+    hostname_allowed = hostname_allowed?
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "hostname_allowed=#{hostname_allowed}",
+                                           "" ] if monthly_events_report_job_debug_verbose
+    log( event: "monthly events report job", hostname_allowed: hostname_allowed )
     is_quiet?
-    return job_finished unless hostname_allowed?
-    this_month = job_options_value( options, key: 'this_month', default_value: false )
+    return job_finished unless hostname_allowed
+    this_month = job_options_value( options, key: 'this_month', default_value: false, task: task )
     if this_month
       date_range = ::AnalyticsHelper.date_range_for_month_of( time: Time.now )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

@@ -19,7 +19,7 @@ module Deepblue
 
   class RunJobTask < AbstractTask
 
-    RUN_JOB_TASK_DEBUG_VERBOSE = ::Deepblue::JobTaskHelper.run_job_task_debug_verbose
+    mattr_accessor :run_job_task_debug_verbose, default: ::Deepblue::JobTaskHelper.run_job_task_debug_verbose
 
     DEFAULT_PERFORM_LATER = false
 
@@ -28,6 +28,7 @@ module Deepblue
     end
 
     def run
+      @options = @options.merge( { task: true } )
       @verbose = TaskHelper.task_options_value( @options, key: 'verbose', default_value: DEFAULT_VERBOSE )
       @job_class = TaskHelper.task_options_value( @options, key: 'job_class', default_value: "" )
       @perform_later = TaskHelper.task_options_value( @options, key: 'perform_later', default_value: DEFAULT_PERFORM_LATER )
@@ -37,7 +38,7 @@ module Deepblue
                                              "@job_class=#{@job_class}",
                                              "@verbose=#{@verbose}",
                                              "@peform_later=#{@perform_later}",
-                                             "" ] if RUN_JOB_TASK_DEBUG_VERBOSE
+                                             "" ], bold_puts: true if run_job_task_debug_verbose
       return if @job_class.blank?
       job_class = Object.const_get( @job_class )
       job = job_class.new( *@options )

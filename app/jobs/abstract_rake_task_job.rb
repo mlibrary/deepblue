@@ -11,6 +11,7 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
                 :job_delay,
                 :options,
                 :subscription_service_id,
+                :task,
                 :verbose
 
   def default_value_is( value, default_value = nil )
@@ -48,33 +49,42 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
                                            "timestamp_begin=#{timestamp_begin}",
                                            "options=#{options}",
                                            "" ] if abstract_rake_task_job_debug_verbose
+    @task = job_options_value( options,
+                               key: 'task',
+                               default_value: default_value_is( task, false ),
+                               task: false )
     @verbose = job_options_value( options,
                                   key: 'verbose',
-                                  default_value: default_value_is( verbose, false ) )
+                                  default_value: default_value_is( verbose, false ),
+                                  task: task )
     @job_delay = job_options_value( options,
-                                  key: 'job_delay',
-                                  default_value: default_value_is( job_delay, 0 ),
-                                  verbose: verbose )
+                                    key: 'job_delay',
+                                    default_value: default_value_is( job_delay, 0 ),
+                                    verbose: verbose,
+                                    task: task )
     ::Deepblue::LoggingHelper.debug "verbose=#{verbose}" if verbose
     email_targets << job_options_value( options,
-                                           key: 'email_results_to',
-                                           default_value: default_value_is( email_targets, [] ),
-                                           verbose: verbose )
+                                        key: 'email_results_to',
+                                        default_value: default_value_is( email_targets, [] ),
+                                        verbose: verbose,
+                                        task: task )
     @subscription_service_id = job_options_value( options,
                                                   key: 'subscription_service_id',
                                                   default_value: default_value_is( subscription_service_id ),
-                                                  verbose: verbose )
+                                                  verbose: verbose,
+                                                  task: task )
     @hostnames = job_options_value( options,
                                     key: 'hostnames',
                                     default_value: default_value_is( hostnames, [] ),
-                                    verbose: verbose )
+                                    verbose: verbose,
+                                    task: task )
     return true if hostnames.blank?
     # @hostname = ::DeepBlueDocs::Application.config.hostname
     hostnames.include? hostname
   end
 
-  def options_value( key:, default_value: nil, verbose: self.verbose )
-    job_options_value( options, key: key, default_value: default_value, verbose: verbose )
+  def options_value( key:, default_value: nil, verbose: self.verbose, task: self.task )
+    job_options_value( options, key: key, default_value: default_value, verbose: verbose, task: task )
   end
 
   def run_job_delay

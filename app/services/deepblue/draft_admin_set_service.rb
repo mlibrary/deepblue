@@ -17,6 +17,7 @@ module Deepblue
     @@draft_admin_set_id = nil
 
     def self.draft_admin_set
+      return nil if @@draft_admin_set_id == NOT_AN_ADMIN_SET_ID
       return AdminSet.find @@draft_admin_set_id unless @@draft_admin_set_id.nil?
       draft_admin_set_init
       return nil if @@draft_admin_set_id == NOT_AN_ADMIN_SET_ID

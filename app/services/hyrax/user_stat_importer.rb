@@ -45,15 +45,14 @@ module Hyrax
   # this is called by 'rake hyrax:stats:user_stats'
   class UserStatImporter
 
-    USER_STAT_IMPORTER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.user_stat_importer_debug_verbose
+    mattr_accessor :user_stat_importer_debug_verbose, default: Rails.configuration.user_stat_importer_debug_verbose
 
     UserRecord = Struct.new("UserRecord", :id, :user_key, :last_stats_update)
 
     def initialize(options = {})
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             "" ] if USER_STAT_IMPORTER_DEBUG_VERBOSE
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if user_stat_importer_debug_verbose
       if options[:echo_to_stdout]
         stdout_logger = Logger.new(STDOUT)
         stdout_logger.level = Logger::INFO
@@ -77,10 +76,9 @@ module Hyrax
     delegate :depositor_field, to: DepositSearchBuilder
 
     def import
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             "" ] if USER_STAT_IMPORTER_DEBUG_VERBOSE
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if user_stat_importer_debug_verbose
       log_message('Begin import of User stats.')
 
       users = sorted_users

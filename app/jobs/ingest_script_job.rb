@@ -2,8 +2,8 @@
 
 class IngestScriptJob < ::Hyrax::ApplicationJob
 
-  mattr_accessor :ingest_script_job_debug_verbose
-  @@ingest_script_job_debug_verbose = ::Deepblue::IngestIntegrationService.ingest_script_job_debug_verbose
+  mattr_accessor :ingest_script_job_debug_verbose,
+                 default: ::Deepblue::IngestIntegrationService.ingest_script_job_debug_verbose
 
   include JobHelper # see JobHelper for :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as ::Deepblue::IngestIntegrationService.ingest_append_queue_name

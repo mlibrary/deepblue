@@ -2,8 +2,7 @@
 
 module FindAndFixEmptyFileSizesBehavior
 
-  mattr_accessor :find_and_fix_empty_file_sizes_debug_verbose
-  @@find_and_fix_empty_file_sizes_debug_verbose = false
+  mattr_accessor :find_and_fix_empty_file_sizes_debug_verbose, default: false
 
   def find_and_fix_empty_file_sizes( messages:, ids_fixed: [], filter:, test_mode: false, verbose: false )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
