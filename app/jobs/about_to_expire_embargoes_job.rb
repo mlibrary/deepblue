@@ -11,6 +11,7 @@ class AboutToExpireEmbargoesJob < AbstractRakeTaskJob
                                            expiration_lead_days: 7,
                                            skip_file_sets: true,
                                            test_mode: false,
+                                           task: false,
                                            verbose: false }
 
 

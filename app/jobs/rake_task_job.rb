@@ -45,7 +45,7 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
                                            "args=#{args}",
                                            "" ] if rake_task_job_debug_verbose
     initialized = initialize_from_args( *args )
-    rake_task = job_options_value( options, key: 'rake_task', default_value: "", verbose: verbose )
+    rake_task = job_options_value( options, key: 'rake_task', default_value: "", verbose: verbose, task: task )
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event_note: rake_task )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,

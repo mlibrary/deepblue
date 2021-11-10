@@ -26,23 +26,21 @@ RSpec.describe Deepblue::JobTaskHelper, type: :helper do
   end
 
   describe 'module debug verbose variables' do
-    it "they have the right values" do
-      expect( described_class.job_task_helper_debug_verbose ).to eq( false )
-      expect( described_class.run_job_task_debug_verbose ).to eq( false )
-      expect( described_class.about_to_expire_embargoes_job_debug_verbose ).to eq( false )
-      expect( described_class.abstract_rake_task_job_debug_verbose ).to eq( false )
-      expect( described_class.deactivate_expired_embargoes_job_debug_verbose ).to eq( false )
-      expect( described_class.heartbeat_job_debug_verbose ).to eq( false )
-      expect( described_class.heartbeat_email_job_debug_verbose ).to eq( false )
-      expect( described_class.monthly_analytics_report_job_debug_verbose ).to eq( false )
-      expect( described_class.monthly_events_report_job_debug_verbose ).to eq( false )
-      expect( described_class.rake_task_job_debug_verbose ).to eq( false )
-      expect( described_class.run_job_task_debug_verbose ).to eq( false )
-      expect( described_class.scheduler_start_job_debug_verbose ).to eq( false )
-      expect( described_class.update_condensed_events_job_debug_verbose ).to eq( false )
-      expect( described_class.user_stat_importer_job_debug_verbose ).to eq( false )
-      expect( described_class.works_report_job_debug_verbose ).to eq( false )
-    end
+    it { expect( described_class.job_task_helper_debug_verbose                  ).to eq false }
+    it { expect( described_class.run_job_task_debug_verbose                     ).to eq false }
+    it { expect( described_class.about_to_expire_embargoes_job_debug_verbose    ).to eq false }
+    it { expect( described_class.abstract_rake_task_job_debug_verbose           ).to eq false }
+    it { expect( described_class.deactivate_expired_embargoes_job_debug_verbose ).to eq false }
+    it { expect( described_class.heartbeat_job_debug_verbose                    ).to eq false }
+    it { expect( described_class.heartbeat_email_job_debug_verbose              ).to eq false }
+    it { expect( described_class.monthly_analytics_report_job_debug_verbose     ).to eq false }
+    it { expect( described_class.monthly_events_report_job_debug_verbose        ).to eq false }
+    it { expect( described_class.rake_task_job_debug_verbose                    ).to eq false }
+    it { expect( described_class.run_job_task_debug_verbose                     ).to eq false }
+    it { expect( described_class.scheduler_start_job_debug_verbose              ).to eq false }
+    it { expect( described_class.update_condensed_events_job_debug_verbose      ).to eq false }
+    it { expect( described_class.user_stat_importer_job_debug_verbose           ).to eq false }
+    it { expect( described_class.works_report_job_debug_verbose                 ).to eq false }
   end
 
   describe 'module variables' do
@@ -57,6 +55,7 @@ RSpec.describe Deepblue::JobTaskHelper, type: :helper do
   end
 
   describe '.hostname_allowed' do
+    let(:task) { false }
 
     context 'when hostname not allowed' do
       let(:hostnames) { [] }
@@ -67,7 +66,8 @@ RSpec.describe Deepblue::JobTaskHelper, type: :helper do
         expect( job ).to receive( :job_options_value ).with( options,
                                                              key: 'hostnames',
                                                              default_value: [],
-                                                             verbose: false ).and_call_original
+                                                             verbose: false,
+                                                             task: task ).and_call_original
       end
       it { expect( subject ).to eq( false ) }
     end
@@ -81,7 +81,8 @@ RSpec.describe Deepblue::JobTaskHelper, type: :helper do
         expect( job ).to receive( :job_options_value ).with( options,
                                                              key: 'hostnames',
                                                              default_value: [],
-                                                             verbose: false ).and_call_original
+                                                             verbose: false,
+                                                             task: task ).and_call_original
       end
       it { expect( subject ).to eq( true ) }
     end

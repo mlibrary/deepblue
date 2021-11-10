@@ -15,6 +15,7 @@ RSpec.describe RakeTaskJob, skip: false do
   describe 'rake task job' do
     let(:job)       { described_class.send( :job_or_instantiate, *args ) }
     let(:rake_task) { 'run_this' }
+    let(:task)      { false }
     let(:verbose)   { false }
     let(:args)   { { 'rake_task' => rake_task,
                      'hostnames' => hostnames,
@@ -26,28 +27,38 @@ RSpec.describe RakeTaskJob, skip: false do
         expect( described_class.rake_task_job_debug_verbose ).to eq false
         expect(job).to receive(:initialize_from_args).with( any_args ).and_call_original
         expect(job).to receive(:job_options_value).with( options,
-                                                             key: 'verbose',
-                                                             default_value: false ).and_call_original
+                                                         key: 'task',
+                                                         default_value: false,
+                                                         task: false ).and_call_original
         expect(job).to receive(:job_options_value).with( options,
-                                                             key: 'job_delay',
-                                                             default_value: 0,
-                                                             verbose: verbose ).and_call_original
+                                                         key: 'verbose',
+                                                         default_value: false,
+                                                         task: task ).and_call_original
+        expect(job).to receive(:job_options_value).with( options,
+                                                         key: 'job_delay',
+                                                         default_value: 0,
+                                                         verbose: verbose,
+                                                         task: task ).and_call_original
         expect(job).to receive(:job_options_value).with( options,
                                                              key: 'email_results_to',
                                                              default_value: [],
-                                                             verbose: verbose ).and_call_original
+                                                             verbose: verbose,
+                                                         task: task ).and_call_original
         expect(job).to receive(:job_options_value).with( options,
                                                              key: 'subscription_service_id',
                                                              default_value: nil,
-                                                             verbose: verbose ).and_call_original
+                                                             verbose: verbose,
+                                                         task: task ).and_call_original
         expect(job).to receive(:job_options_value).with( options,
                                                              key: 'hostnames',
                                                              default_value: [],
-                                                             verbose: verbose ).and_call_original
+                                                             verbose: verbose,
+                                                         task: task ).and_call_original
         expect(job).to receive(:job_options_value).with( options,
                                                              key: 'rake_task',
                                                              default_value: '',
-                                                             verbose: verbose ).and_call_original
+                                                             verbose: verbose,
+                                                         task: task ).and_call_original
         expect(sched_helper).to receive(:log).with( class_name: described_class.name, event_note: rake_task )
         if run_the_job
           expect(job).to receive(:allowed_job_task?).with(no_args).and_return true

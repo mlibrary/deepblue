@@ -9,6 +9,7 @@ RSpec.describe CleanDerivativesDirJob do
       expect(described_class.clean_derivatives_dir_job_debug_verbose).to eq( false )
       expect(described_class.default_args).to eq( { days_old: 7,
                                                     to_console: false,
+                                                    task: false,
                                                     verbose: false } )
     end
   end
@@ -25,6 +26,8 @@ RSpec.describe CleanDerivativesDirJob do
       let(:time_before)   { DateTime.now - 1.second }
       let(:to_console)    { false }
       before do
+        task = args["task"]
+        task = described_class.default_args[:task] if task.blank?
         verbose = args["verbose"]
         verbose = described_class.default_args[:verbose] if verbose.blank?
         days_old = args["days_old"]
@@ -32,30 +35,40 @@ RSpec.describe CleanDerivativesDirJob do
         expect( described_class.clean_derivatives_dir_job_debug_verbose ).to eq false
         expect(job).to receive(:initialize_from_args).with( any_args ).and_call_original
         expect(job).to receive(:job_options_value).with( options,
+                                                         key: 'task',
+                                                         default_value: described_class.default_args[:task],
+                                                         task: false ).and_call_original
+        expect(job).to receive(:job_options_value).with( options,
                                                          key: 'verbose',
-                                                         default_value: described_class.default_args[:verbose] ).and_call_original
+                                                         default_value: described_class.default_args[:verbose],
+                                                         task: task ).and_call_original
         expect(job).to receive(:job_options_value).with( options,
                                                          key: 'job_delay',
                                                          default_value: 0,
-                                                         verbose: verbose ).and_call_original
+                                                         verbose: verbose,
+                                                         task: task ).and_call_original
         expect(job).to receive(:job_options_value).with( options,
                                                          key: 'email_results_to',
                                                          default_value: [],
-                                                         verbose: verbose ).and_call_original
+                                                         verbose: verbose,
+                                                         task: task ).and_call_original
         expect(job).to receive(:job_options_value).with( options,
                                                          key: 'subscription_service_id',
                                                          default_value: nil,
-                                                         verbose: verbose ).and_call_original
+                                                         verbose: verbose,
+                                                         task: task ).and_call_original
         expect(job).to receive(:job_options_value).with( options,
                                                          key: 'hostnames',
                                                          default_value: [],
-                                                         verbose: verbose ).and_call_original
+                                                         verbose: verbose,
+                                                         task: task ).and_call_original
         expect(job).to receive(:options_value).with( key: 'days_old',
                                                      default_value: described_class.default_args[:days_old] ).and_call_original
         expect(job).to receive(:job_options_value).with( options,
                                                          key: 'days_old',
                                                          default_value: described_class.default_args[:days_old],
-                                                         verbose: verbose ).and_call_original
+                                                         verbose: verbose,
+                                                         task: task ).and_call_original
         expect(sched_helper).to receive(:log).with(class_name: described_class.name, event: event_name )
         if 0 < debug_verbose_count
           expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(debug_verbose_count).times

@@ -2,12 +2,15 @@
 #
 class InheritPermissionsJob < Hyrax::ApplicationJob
 
-  INHERIT_PERMISSIONS_JOB_DEBUG_VERBOSE = false
+  mattr_accessor :inherit_permissions_job_debug_verbose, default: false
 
   # Perform the copy from the work to the contained filesets
   #
   # @param work containing access level and filesets
   def perform(work)
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "" ] if inherit_permissions_job_debug_verbose
     work.file_sets.each do |file|
       begin
         attribute_map = work.permissions.map(&:to_hash)
@@ -27,14 +30,14 @@ class InheritPermissionsJob < Hyrax::ApplicationJob
         # ignore, the file set has been deleted
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "" ] if INHERIT_PERMISSIONS_JOB_DEBUG_VERBOSE
+                                               "" ] if inherit_permissions_job_debug_verbose
       end
     end
   rescue Ldp::Gone => g
     # ignore, the work has been deleted
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "" ] if INHERIT_PERMISSIONS_JOB_DEBUG_VERBOSE
+                                           "" ] if inherit_permissions_job_debug_verbose
   end
 
 end

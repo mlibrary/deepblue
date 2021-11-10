@@ -11,11 +11,9 @@ end
 RSpec.describe ::Deepblue::AbstractService do
 
   describe 'constants' do
-    it do
-      expect( ::Deepblue::AbstractService::DEFAULT_QUIET ).to eq false
-      expect( ::Deepblue::AbstractService::DEFAULT_TO_CONSOLE ).to eq false
-      expect( ::Deepblue::AbstractService::DEFAULT_VERBOSE ).to eq false
-    end
+    it { expect( ::Deepblue::AbstractService::DEFAULT_QUIET ).to eq false }
+    it { expect( ::Deepblue::AbstractService::DEFAULT_TO_CONSOLE ).to eq false }
+    it { expect( ::Deepblue::AbstractService::DEFAULT_VERBOSE ).to eq false }
   end
 
   describe 'new' do
@@ -30,7 +28,7 @@ RSpec.describe ::Deepblue::AbstractService do
     let( :service )               { MockService.allocate }
     let( :subscription_service_id ) { "subscriptionServiceID" }
 
-    context 'empty initialzer' do
+    context 'empty initializer' do
       it 'has default values' do
         allow(service).to receive(:console_puts)
         service.send(:initialize)

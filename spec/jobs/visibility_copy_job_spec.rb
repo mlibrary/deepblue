@@ -38,7 +38,7 @@ RSpec.describe VisibilityCopyJob do
     end
   end
 
-  describe 'an leased work' do
+  describe 'a leased work' do
     let(:work) { create(:leased_data_set_with_files) }
     let(:file) { work.file_sets.first }
 

@@ -14,10 +14,10 @@ end
 
 RSpec.describe AbstractIngestJob do
 
+  let(:debug_verbose) { false }
+
   describe 'module debug verbose variables' do
-    it "they have the right values" do
-      expect( described_class.abstract_ingest_job_debug_verbose ).to eq( false )
-    end
+    it { expect( described_class.abstract_ingest_job_debug_verbose ).to eq( debug_verbose ) }
   end
 
   describe '.find_or_create_job_status_started' do

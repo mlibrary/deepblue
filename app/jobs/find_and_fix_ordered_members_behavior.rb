@@ -2,8 +2,7 @@
 
 module FindAndFixOrderedMembersBehavior
 
-  mattr_accessor :find_and_fix_all_ordered_members_nils_debug_verbose
-  @@find_and_fix_all_ordered_members_nils_debug_verbose = false
+  mattr_accessor :find_and_fix_all_ordered_members_nils_debug_verbose, default: false
 
   def find_and_fix_all_ordered_members_containing_nils( messages:,
                                                         ids_fixed: [],

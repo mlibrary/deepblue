@@ -2,8 +2,7 @@
 
 module FindAndFixOverFileSetsBehavior
 
-  mattr_accessor :find_and_fix_over_file_sets_debug_verbose
-  @@find_and_fix_over_file_sets_debug_verbose = false
+  mattr_accessor :find_and_fix_over_file_sets_debug_verbose, default: false
 
   def find_and_fix_over_file_sets( messages:,
                                    ids_fixed: [],

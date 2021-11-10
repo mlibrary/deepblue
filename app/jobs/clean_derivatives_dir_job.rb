@@ -8,6 +8,7 @@ class CleanDerivativesDirJob < AbstractRakeTaskJob
 
   mattr_accessor :default_args, default: { days_old: 7,
                                            to_console: false,
+                                           task: false,
                                            verbose: false }
 
   SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY

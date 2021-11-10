@@ -10,6 +10,7 @@ class DeactivateExpiredEmbargoesJob < AbstractRakeTaskJob
   mattr_accessor :default_args, default: { email_owner: true,
                                            skip_file_sets: true,
                                            test_mode: false,
+                                           task: false,
                                            verbose: false }
 
 SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY

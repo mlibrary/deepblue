@@ -92,6 +92,22 @@ FactoryBot.define do
       id { AdminSet::DEFAULT_ID }
       title { AdminSet::DEFAULT_TITLE }
     end
+
+
+    factory :draft_data_set_adminset, class: AdminSet do
+      # transient do
+      #   with_permission_template do
+      #     {
+      #       deposit_groups: [::Ability.registered_group_name],
+      #       manage_groups: [::Ability.admin_group_name]
+      #     }
+      #   end
+      #   with_solr_document { true }
+      # end
+      id { 'draftadminset' }
+      title { [::Deepblue::DraftAdminSetService::draft_admin_set_title] }
+    end
+
   end
 
   factory :no_solr_grants_adminset, class: AdminSet do
