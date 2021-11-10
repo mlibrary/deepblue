@@ -30,6 +30,10 @@ module FindAndFixOrderedMembersBehavior
         next unless ordered_members.include? nil
         messages << "Compacting ordered_members for #{curation_concern.id}." if verbose
         ordered_members.compact
+        # in case we've lost track of file_sets
+        if curation_concern.respond_to?( :file_sets ) && ordered_members.size < curation_concern.file_sets.size
+          ordered_members = curation_concern.file_sets
+        end
         curation_concern.ordered_members = ordered_members
         curation_concern.save!( validate: false )
         ids_fixed << curation_concern.id
