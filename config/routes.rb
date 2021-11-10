@@ -17,8 +17,12 @@ Rails.application.routes.draw do
   if '/data' == Settings.relative_url_root
     # note that this path assumes a leading /data
     get '/concern/generic_works/(*rest)', to: redirect( '/data/concern/data_sets/%{rest}', status: 302 )
+    get '/metadata-guidance', to: redirect( '/data/depositor-guide#deposit-in-dbd', status: 302 )
+    get '/dbd-documentation-guide', to: redirect( '/data/depositor-guide#prepare-documentation', status: 302 )
   elsif '/' == Settings.relative_url_root
     get '/concern/generic_works/(*rest)', to: redirect( '/concern/data_sets/%{rest}', status: 302 )
+    get '/metadata-guidance', to: redirect( '/depositor-guide#deposit-in-dbd', status: 302 )
+    get '/dbd-documentation-guide', to: redirect( '/depositor-guide#prepare-documentation', status: 302 )
   end
 
   get 'static/show/:layout/:doc/:file', to: 'hyrax/static#show_layout_doc'
