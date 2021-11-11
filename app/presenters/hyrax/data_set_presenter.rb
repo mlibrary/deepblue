@@ -218,7 +218,27 @@ module Hyrax
       true
     end
 
-    # end tombstone
+    def creator_for_json
+      authors = ""
+      creator.each do |author|
+         authors +=  "{ \"@type\": \"Person\",
+                      \"name\": \"#{author}\"},"
+      end
+      # remove last comma
+      authors[0...-1]
+    end
+
+    def create_cc_for_json
+      if rights_license[0] == "http://creativecommons.org/publicdomain/zero/1.0/"
+        "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication"
+      elsif rights_license[0] == "http://creativecommons.org/licenses/by/4.0/"
+        "Attribution 4.0 International (CC BY 4.0)"
+      elsif rights_license[0] == "http://creativecommons.org/licenses/by-nc/4.0/"
+        "Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)"
+      else
+        rights_license_other.first
+      end
+    end
 
   end
 
