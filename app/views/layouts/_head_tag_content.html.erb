@@ -1,0 +1,71 @@
+<%= csrf_meta_tag %>
+<meta charset="utf-8" />
+<%# Only display meta tag, which enables creation of the ActionCable
+consumer, when realtime notifications are enabled and the user is
+signed in %>
+<% if Hyrax.config.realtime_notifications? && signed_in? %>
+    <%= tag :meta, name: 'current-user', data: { user_key: current_user.user_key } %>
+<% end %>
+<!-- added for use on small devices like phones -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="resourcesync" href="<%= hyrax.capability_list_url %>" />
+
+<!-- Twitter card metadata -->
+<%= yield :twitter_meta %>
+<!-- Google Scholar metadata -->
+<%= yield :gscholar_meta %>
+
+<!-- Add Schema for Google Search for work view; the if check is here to make sure you are in work page -->
+<% if ( ( @presenter.respond_to?  :title ) && ( @presenter.respond_to?  :doi ) ) %>
+  <script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Dataset",
+    "@id": "<%= @presenter.doi.first if @presenter.doi.present? %>",
+    "name": "<%= @presenter.title.first %>",  
+    "description": ["<%= @presenter.description.first %>"],  
+    "url": "https://deepblue.lib.umich.edu/data/concern/data_sets/<%= @presenter.id %>",
+    "identifier": "<%= @presenter.doi.first if @presenter.doi.present? %>",
+    "isAccessibleForFree": true,
+    "keywords": [<%= raw @presenter.keyword.map { |i| "\"" + i.to_s + "\"" }.join(",")  if @presenter.keyword.present? %>],
+    "creator": [<%= raw @presenter.creator_for_json %>],
+    <% if @presenter.date_coverage.present? %>
+      <% tempCovDate = @presenter.date_coverage.split(" to ") %>
+      "temporalCoverage": [
+        "<%= tempCovDate[0] if tempCovDate[0].present? %>",
+        "<%= tempCovDate[1] if tempCovDate[1].present? %>"
+      ],
+    <% end %>
+    "citation": "<%= raw export_as_mla_citation(@presenter).gsub(/<\/?[^>]*>/, "") %>",
+    "license":
+      {"@type": "CreativeWork",     
+       "name": "<%= @presenter.create_cc_for_json %>",     
+       "license": "<%= @presenter.rights_license[0] %>"},
+    "publisher":
+      {"@id": "https://deepblue.lib.umich.edu/data/",     
+       "@type": "Organization",     
+       "legalName": "University of Michigan - Deep Blue Data",     
+       "name": "Deep Blue Data",     
+       "url": "https://deepblue.lib.umich.edu/data"},
+    "provider":
+      {"@id": "https://deepblue.lib.umich.edu/data"}
+  }
+  </script>
+<% end %>
+
+
+<title><%= content_for?(:page_title) ? yield(:page_title) : default_page_title %></title>
+
+<!-- application css -->
+<%= stylesheet_link_tag 'application' %>
+
+<!-- application js -->
+<%= javascript_include_tag 'application' %>
+<%= tinymce_assets if can? :update, ContentBlock %>
+<%= render 'shared/appearance_styles' %>
+
+<!-- Google Analytics -->
+<%= render partial: '/ga', formats: [:html] %>
+
+<!-- for extras, e.g., a favicon -->
+<%= render partial: '/head_tag_extras', formats: [:html] %>
