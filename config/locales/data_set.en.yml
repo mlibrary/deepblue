@@ -60,7 +60,7 @@ en:
           <p>After you have uploaded files and submitted your Work, the system may take a few minutes to process the
           changes and update the Work page. You will receive an email when file processing is complete. You must
           include some form of documentation for your dataset to be published. See the
-          <a href="/data/dbd-documentation-guide" target="_blank">
+          <a href="/data/depositor-guide#prepare-documentation" target="_blank">
           Guide to Creating Documentation for Your Dataset</a>
           or <a href="/data/Deep_Blue_Data_Example_Readme.txt">this Example readme</a> for more information.</p>
           <p>'Add folder...' will upload individual files within the selected folder.</p>
@@ -69,7 +69,7 @@ en:
           <p>After you have uploaded files and submitted your Work, the system may take a few minutes to process the
           changes and update the Work page. You will receive an email when file processing is complete. You must
           include some form of documentation for your dataset to be reviewed and published. See the
-          <a href="/data/dbd-documentation-guide" target="_blank">
+          <a href="/data/depositor-guide#prepare-documentation" target="_blank">
           Guide to Creating Documentation for Your Dataset</a>
           or <a href="/data/Deep_Blue_Data_Example_Readme.txt">this Example readme</a> for more information.</p>
       form_progress:
@@ -242,7 +242,7 @@ en:
           Please provide information about your data set (referred to as a "work") in the following fields, keeping in
           mind that your responses will enable people to discover, identify, and understand your data. If you are
           uncertain of how to complete any of these fields, we recommend that you read or refer to the
-          <a href="/data/metadata-guidance">Guide to Metadata</a> in Deep Blue Data’s Help pages.
+          <a href="/data/depositor-guide#deposit-in-dbd">Guide to Metadata</a> in Deep Blue Data’s Help pages.
         description: >
           Provide a general description of the research that produced this data. If specific software or scripts 
           are required to access your data, this is a good place to document that as well.

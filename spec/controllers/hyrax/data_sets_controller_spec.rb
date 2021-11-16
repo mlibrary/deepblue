@@ -9,15 +9,13 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
 
   let(:debug_verbose) { false }
 
+  describe 'module debug verbose variables' do
+    it { expect( described_class.data_sets_controller_debug_verbose ).to eq debug_verbose }
+  end
+
   let(:user) { create(:user) }
 
   before { sign_in user }
-
-  describe 'module debug verbose variables' do
-    it "they have the right values" do
-      expect( described_class.data_sets_controller_debug_verbose ).to eq( false )
-    end
-  end
 
   describe 'integration test for suppressed documents' do
     let(:work) do

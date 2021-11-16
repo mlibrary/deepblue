@@ -45,7 +45,7 @@ module DeepBlueDocs
 
     # see ::User and UserHelper
     config.user_role_management_enabled                    = false
-    config.user_role_management_admin_only                 = true # should be true for prouction
+    config.user_role_management_admin_only                 = true # should be true for production
     config.user_role_management_register_from_role_map     = true # set to true load user roles from role_map.yml
     config.user_role_management_create_users_from_role_map = false # should be false for production
 
