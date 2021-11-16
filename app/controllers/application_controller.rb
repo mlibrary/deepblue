@@ -3,7 +3,17 @@
 class ApplicationController < ActionController::Base
 
   mattr_accessor :application_controller_debug_verbose,
-                 default: ::DeepBlueDocs::Application.config.application_controller_debug_verbose
+                 default: Rails.configuration.application_controller_debug_verbose
+
+  ANTISPAM_TIMESTAMP = 'antispam_timestamp'
+
+  def antispam_timestamp
+    session[ANTISPAM_TIMESTAMP]
+  end
+
+  def antispam_timestamp=(antispam_timestamp)
+    session[ANTISPAM_TIMESTAMP]=antispam_timestamp
+  end
 
   helper Openseadragon::OpenseadragonHelper
   # Adds a few additional behaviors into the application controller
@@ -79,6 +89,7 @@ class ApplicationController < ActionController::Base
     #                                        "" ] if application_controller_debug_verbose
     search = session[:search].dup if session[:search]
     flash = session[:flash].dup if session[:flash]
+    save_antispam_timestamp = session[ANTISPAM_TIMESTAMP].dup if session[ANTISPAM_TIMESTAMP]
     request.env['warden'].logout unless single_use_link_request? || user_logged_in?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
@@ -93,6 +104,7 @@ class ApplicationController < ActionController::Base
                                            "" ] if application_controller_debug_verbose
     session[:search] = search if search
     session[:flash] = flash if flash
+    session[ANTISPAM_TIMESTAMP] = save_antispam_timestamp if save_antispam_timestamp
     # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
     #                                        ::Deepblue::LoggingHelper.called_from,
     #                                        "[AUTHN] clear_session_user: #{current_user.try(:email) || '(no user)'}",

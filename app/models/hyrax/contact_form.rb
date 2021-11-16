@@ -1,5 +1,7 @@
 module Hyrax
+
   class ContactForm
+
     include ActiveModel::Model
     attr_accessor :contact_method, :category, :name, :email, :subject, :message
     validates :email, :category, :name, :subject, :message, presence: true
@@ -33,5 +35,7 @@ module Hyrax
         I18n.t( 'hyrax.contact_form.issue_types.size', max_upload_size: ::DeepBlueDocs::Application.config.upload_max_file_size_str )
       ]
     end
+
   end
+
 end

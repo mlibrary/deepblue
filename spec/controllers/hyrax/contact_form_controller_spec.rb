@@ -5,6 +5,18 @@ RSpec.describe Hyrax::ContactFormController, skip: false do
   include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
 
+  let(:debug_verbose) { true }
+
+  describe 'module debug verbose variables' do
+    it { expect( described_class.contact_form_controller_debug_verbose ).to eq debug_verbose }
+  end
+
+  describe 'module variables' do
+    it { expect( described_class.contact_form_log_delivered ).to eq true }
+    it { expect( described_class.contact_form_log_spam ).to eq true }
+    it { expect( described_class.antispam_timeout_in_seconds ).to eq 5 }
+  end
+
   let(:user) { create(:user) }
   let(:required_params) do
     {
@@ -87,7 +99,7 @@ RSpec.describe Hyrax::ContactFormController, skip: false do
     end
   end
 
-  context "when encoutering a RuntimeError" do
+  context "when encountering a RuntimeError" do
     let(:logger) { double(info?: true) }
 
     before do
@@ -95,8 +107,10 @@ RSpec.describe Hyrax::ContactFormController, skip: false do
       allow(Hyrax::ContactMailer).to receive(:contact).and_raise(RuntimeError)
     end
     it "is logged via Rails" do
-      expect(logger).to receive(:error).with("Contact form failed to send: #<RuntimeError: RuntimeError>")
+      # expect(logger).to receive(:error).with("Contact form failed to send: #<RuntimeError: RuntimeError>")
+      expect(::Deepblue::LoggingHelper ).to receive(:bold_error).with("Contact form failed to send: #<RuntimeError: RuntimeError>")
       post :create, params: { contact_form: required_params }
     end
   end
+
 end
