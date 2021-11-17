@@ -5,12 +5,11 @@ require 'rails_helper'
 RSpec.describe ::Deepblue::DiskUtilitiesHelper do
 
   let(:debug_verbose) { false }
+  let(:bold_puts) { false }
 
   describe 'module debug verbose variables' do
-    it "they have the right values" do
-      expect( described_class.disk_utilities_helper_debug_verbose ).to eq debug_verbose
-      expect( disk_utilities_helper_bold_puts ).to eq false
-    end
+    it { expect(described_class.disk_utilities_helper_debug_verbose).to eq debug_verbose }
+    it { expect( disk_utilities_helper_bold_puts ).to eq bold_puts }
   end
 
   describe 'all', skip: false do

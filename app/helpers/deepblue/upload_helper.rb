@@ -9,22 +9,15 @@ module Deepblue
     extend JsonLoggerHelper
     extend JsonLoggerHelper::ClassMethods
 
-    # rubocop:disable Style/ClassVars
-    def self.echo_to_rails_logger
-      @@echo_to_rails_logger ||= DeepBlueDocs::Application.config.upload_log_echo_to_rails_logger
-    end
-
-    def self.echo_to_rails_logger=( echo_to_rails_logger )
-      @@echo_to_rails_logger = echo_to_rails_logger
-    end
-    # rubocop:enable Style/ClassVars
+    mattr_accessor :upload_log_echo_to_rails_logger,
+                   default: Rails.configuration.upload_log_echo_to_rails_logger
 
     def self.log( class_name: 'UnknownClass',
                   event: 'unknown',
                   event_note: '',
                   id: 'unknown_id',
                   timestamp: timestamp_now,
-                  echo_to_rails_logger: UploadHelper.echo_to_rails_logger,
+                  echo_to_rails_logger: upload_log_echo_to_rails_logger,
                   **log_key_values )
 
       msg = msg_to_log( class_name: class_name,

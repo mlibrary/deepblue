@@ -140,7 +140,7 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
            id: '',
            hostname_allowed: "N/A",
            timestamp: DateTime.now,
-           echo_to_rails_logger: ::Deepblue::SchedulerHelper.echo_to_rails_logger,
+           echo_to_rails_logger: ::Deepblue::SchedulerHelper.scheduler_log_echo_to_rails_logger,
            **log_key_values )
 
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name,

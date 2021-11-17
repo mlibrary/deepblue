@@ -1,31 +1,36 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
+require_relative '../../../lib/hyrax/contact_form_logger'
 
-RSpec.describe Deepblue::UploadHelper, type: :helper do
+RSpec.describe Hyrax::ContactFormHelper, type: :helper, skip: false do
 
   describe 'module variables' do
-    it { expect(described_class.upload_log_echo_to_rails_logger).to eq true }
+    it { expect(described_class.contact_form_log_echo_to_rails_logger).to eq true }
   end
 
   describe '.log_raw' do
-    let(:msg) { 'Upload a pizza with fresh fungus.' }
+    let(:msg) { 'Requesting a pizza with anchovies.' }
     before do
-      expect(::Deepblue::UPLOAD_LOGGER).to receive(:info).with msg
+      expect(Hyrax::CONTACT_FORM_LOGGER).to receive(:info).with msg
     end
     it 'receives the message' do
       described_class.log_raw msg
     end
   end
 
-  describe '.log', skip: true do
+  describe '.log' do
     let(:class_name) { 'UnknownClass' }
     let(:event)      { 'unknown' }
     let(:event_note) { '' }
     let(:id)         { '' }
     let(:timestamp)  { DateTime.now }
 
-    let(:hostname_allowed)   { 'Maybe' }
+    let(:category)   { 'Depositing content' }
+    let(:name)       { 'Rose Tyler' }
+    let(:email)      { 'rose@timetraveler.org' }
+    let(:subject)    { 'The Doctor' }
+    let(:message)    { 'Run' }
+    let(:contact_method) { nil } # filled in for spam
     let(:extra_value1)   { 'extra_value1' }
 
     let(:key_values)   do
@@ -35,8 +40,13 @@ RSpec.describe Deepblue::UploadHelper, type: :helper do
                class_name: class_name,
                id: id,
                extra_value1: extra_value1,
-               hostname_allowed: hostname_allowed
-      }
+               contact_method: contact_method,
+               category: category,
+               name: name,
+               email: email,
+               subject: subject,
+               message: message
+             }
       ::Deepblue::JsonLoggerHelper.logger_json_encode(value: hash)
     end
 
@@ -49,13 +59,19 @@ RSpec.describe Deepblue::UploadHelper, type: :helper do
 
     it 'gets the msg' do
       # puts;puts expected_msg
-      expect(described_class.scheduler_log_echo_to_rails_logger).to eq true
+      expect(described_class.contact_form_log_echo_to_rails_logger).to eq true
       described_class.log( class_name: class_name,
                            event: event,
                            event_note: event_note,
                            id: id,
-                           hostname_allowed: hostname_allowed,
                            timestamp: timestamp,
+                           echo_to_rails_logger: true,
+                           contact_method: contact_method,
+                           category: category,
+                           name: name,
+                           email: email,
+                           subject: subject,
+                           message: message,
                            extra_value1: extra_value1 )
     end
 

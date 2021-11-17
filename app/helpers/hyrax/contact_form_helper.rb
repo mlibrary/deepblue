@@ -6,19 +6,18 @@ module Hyrax
 
   module ContactFormHelper
 
-    # extend JsonLoggerHelper
-    # extend JsonLoggerHelper::ClassMethods
+    extend ::Deepblue::JsonLoggerHelper
+    extend ::Deepblue::JsonLoggerHelper::ClassMethods
 
-    def self.echo_to_rails_logger
-      ContactFormIntegrationService.contact_form_log_echo_to_rails_logger
-    end
+    mattr_accessor :contact_form_log_echo_to_rails_logger,
+                   default: ContactFormIntegrationService.contact_form_log_echo_to_rails_logger
 
     def self.log( class_name: 'UnknownClass',
                   event: 'unknown',
                   event_note: '',
                   id: '',
                   timestamp: timestamp_now,
-                  echo_to_rails_logger: ContactFormIntegrationService.contact_form_log_echo_to_rails_logger,
+                  echo_to_rails_logger: contact_form_log_echo_to_rails_logger,
                   contact_method:,
                   category:,
                   name:,
@@ -38,8 +37,9 @@ module Hyrax
                         event_note: event_note,
                         id: id,
                         timestamp: timestamp,
-                        time_zone: LoggingHelper.timestamp_zone,
+                        time_zone: ::Deepblue::LoggingHelper.timestamp_zone,
                         **log_key_values )
+      # puts msg
       log_raw msg
       Rails.logger.info msg if echo_to_rails_logger
     end

@@ -9,15 +9,8 @@ module Deepblue
     extend JsonLoggerHelper
     extend JsonLoggerHelper::ClassMethods
 
-    # rubocop:disable Style/ClassVars
-    def self.echo_to_rails_logger
-      @@echo_to_rails_logger ||= ::Deepblue::SchedulerIntegrationService.scheduler_log_echo_to_rails_logger
-    end
-
-    def self.echo_to_rails_logger=( echo_to_rails_logger )
-      @@echo_to_rails_logger = echo_to_rails_logger
-    end
-    # rubocop:enable Style/ClassVars
+    mattr_accessor :scheduler_log_echo_to_rails_logger,
+                   default: ::Deepblue::SchedulerIntegrationService.scheduler_log_echo_to_rails_logger
 
     def self.log( class_name: 'UnknownClass',
                   event: 'unknown',
@@ -25,7 +18,7 @@ module Deepblue
                   id: '',
                   hostname_allowed: "N/A",
                   timestamp: timestamp_now,
-                  echo_to_rails_logger: SchedulerHelper.echo_to_rails_logger,
+                  echo_to_rails_logger: scheduler_log_echo_to_rails_logger,
                   **log_key_values )
 
       log_key_values = log_key_values.merge( hostname_allowed: hostname_allowed )
@@ -36,6 +29,7 @@ module Deepblue
                         timestamp: timestamp,
                         time_zone: LoggingHelper.timestamp_zone,
                         **log_key_values )
+      # puts msg
       log_raw msg
       Rails.logger.info msg if echo_to_rails_logger
     end

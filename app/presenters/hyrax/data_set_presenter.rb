@@ -235,6 +235,8 @@ module Hyrax
         "Attribution 4.0 International (CC BY 4.0)"
       elsif rights_license[0] == "http://creativecommons.org/licenses/by-nc/4.0/"
         "Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)"
+      elsif rights_license_other.blank?
+        ''
       else
         rights_license_other.first
       end
