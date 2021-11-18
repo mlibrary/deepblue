@@ -4,20 +4,20 @@ module Hyrax
 
   class ContactFormController < ApplicationController
 
-    ALL_LOCAL = true # so new code isn't called
+    ALL_LOCAL = false # so new code isn't called
 
-    # mattr_accessor :contact_form_controller_debug_verbose,
-    #                default: ContactFormIntegrationService.contact_form_controller_debug_verbose
-    #
-    # mattr_accessor :contact_form_log_delivered, default: ContactFormIntegrationService.contact_form_log_delivered
-    # mattr_accessor :contact_form_log_spam, default: ContactFormIntegrationService.contact_form_log_spam
-    # mattr_accessor :antispam_timeout_in_seconds, default: ContactFormIntegrationService.antispam_timeout_in_seconds
+    mattr_accessor :contact_form_controller_debug_verbose,
+                   default: ContactFormIntegrationService.contact_form_controller_debug_verbose
 
-    mattr_accessor :contact_form_controller_debug_verbose, default: true
-    mattr_accessor :contact_form_log_delivered, default: true
-    mattr_accessor :contact_form_log_spam, default: true
-    mattr_accessor :antispam_timeout_in_seconds, default: 5
-    # mattr_accessor :antispam_timeout_in_seconds, default: 5_000_000
+    mattr_accessor :contact_form_log_delivered, default: ContactFormIntegrationService.contact_form_log_delivered
+    mattr_accessor :contact_form_log_spam, default: ContactFormIntegrationService.contact_form_log_spam
+    mattr_accessor :antispam_timeout_in_seconds, default: ContactFormIntegrationService.antispam_timeout_in_seconds
+
+    # mattr_accessor :contact_form_controller_debug_verbose, default: true
+    # mattr_accessor :contact_form_log_delivered, default: true
+    # mattr_accessor :contact_form_log_spam, default: true
+    # mattr_accessor :antispam_timeout_in_seconds, default: 5
+    # # mattr_accessor :antispam_timeout_in_seconds, default: 5_000_000
 
     # NOTE: the save a timestamp of the first visit to the contact form to the session, then use to measure the
     # time spent on the contact form. If it is short, as determined by the configuration, currently defaulting

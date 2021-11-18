@@ -7,9 +7,7 @@ RSpec.describe MonthlyEventsReportJob, skip: false do
   let(:debug_verbose) { false }
 
   describe 'module debug verbose variables' do
-    it "they have the right values" do
-      expect( described_class.monthly_events_report_job_debug_verbose ).to eq debug_verbose
-    end
+    it { expect(described_class.monthly_events_report_job_debug_verbose).to eq debug_verbose }
   end
 
   let(:sched_helper) { class_double( Deepblue::SchedulerHelper ).as_stubbed_const(:transfer_nested_constants => true) }
@@ -60,7 +58,7 @@ RSpec.describe MonthlyEventsReportJob, skip: false do
           expect( args[:class_name]).to eq described_class.name
           expect( args[:event] ).to eq "monthly events report job"
         end
-        expect(sched_helper).to receive( :echo_to_rails_logger ).with(any_args).and_return false
+        expect(sched_helper).to receive(:scheduler_log_echo_to_rails_logger).with(any_args).and_return false
         if run_the_job
           expect( job ).to receive( :job_options_value ).with( options,
                                                                key: 'this_month',
