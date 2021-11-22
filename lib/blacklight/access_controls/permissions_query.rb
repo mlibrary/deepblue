@@ -5,7 +5,7 @@ module Blacklight::AccessControls
     extend ActiveSupport::Concern
 
     mattr_accessor :blacklight_access_controls_permission_query_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.blacklight_access_controls_permission_query_debug_verbose
+                   default: Rails.configuration.blacklight_access_controls_permission_query_debug_verbose
 
     def permissions_doc(pid)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

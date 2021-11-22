@@ -5,7 +5,7 @@ module Hydra
       include Hydra::AccessControls::Visibility
 
       mattr_accessor :hydra_access_controls_permissions_debug_verbose,
-                     default: ::DeepBlueDocs::Application.config.hydra_access_controls_permissions_debug_verbose
+                     default: Rails.configuration.hydra_access_controls_permissions_debug_verbose
 
       included do
         belongs_to :access_control, predicate: ::ACL.accessControl, class_name: 'Hydra::AccessControl'

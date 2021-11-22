@@ -8,10 +8,17 @@ module Hyrax
 
     # begin monkey
     mattr_accessor :hyrax_works_controller_behavior_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.hyrax_works_controller_behavior_debug_verbose
+                   default: Rails.configuration.hyrax_works_controller_behavior_debug_verbose
     # end monkey
 
     private
+
+      def curation_concern_from_search_results_debug_maybe
+        search_params = params.dup
+        search_params.merge!( debug: 'all' )
+        search_params.delete :page
+        search_result_document(search_params)
+      end
 
       def curation_concern_from_search_results
         search_params = params
@@ -45,7 +52,7 @@ module Hyrax
       def search_result_document(search_params)
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "",
+                                               "search_params=#{search_params}",
                                                "" ] if hyrax_works_controller_behavior_debug_verbose
         _, document_list = search_results(search_params)
         return document_list.first unless document_list.empty?
@@ -102,6 +109,10 @@ module Hyrax
       end
 
       def document_not_found!
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "params[:id]=#{params[:id]}",
+                                               "" ] if hyrax_works_controller_behavior_debug_verbose
         doc = ::SolrDocument.find(params[:id])
         raise WorkflowAuthorizationException if doc.suppressed? && current_ability.can?(:read, doc)
         raise CanCan::AccessDenied.new(nil, :show)

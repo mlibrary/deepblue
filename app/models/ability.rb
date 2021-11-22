@@ -4,7 +4,7 @@ class Ability
   include Hydra::Ability
   include Hyrax::Ability
 
-  mattr_accessor :ability_debug_verbose, default: ::DeepBlueDocs::Application.config.ability_debug_verbose
+  mattr_accessor :ability_debug_verbose, default: Rails.configuration.ability_debug_verbose
 
   self.ability_logic += [:everyone_can_create_curation_concerns]
   self.ability_logic += [:deepblue_abilities]

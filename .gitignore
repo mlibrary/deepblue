@@ -59,13 +59,14 @@ data/branding/
 # per environment. See bin/setup
 config/analytics.yml
 config/analytics_id.yml
-config/box_config.yml
+config/box_config.yml_form_files.html.erb_spec.rb
 config/box_config_init.yml
 config/box_config_init.yml.initialized
 config/jetty.yml
 config/umich.yml
 config/doi.yml
 config/browse_everything_providers.yml
+config/initializers/browse_everything_providers.yml
 config/arkivo.yml
 config/zotero.yml
 config/ezid.yml

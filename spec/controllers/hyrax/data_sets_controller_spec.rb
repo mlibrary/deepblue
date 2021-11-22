@@ -14,10 +14,11 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
   end
 
   let(:user) { create(:user) }
+  let(:user_other) { create(:user) }
 
   before { sign_in user }
 
-  describe 'integration test for suppressed documents' do
+  describe 'integration test for suppressed documents', skip: false do
     let(:work) do
       create(:data_set_work, :public, state: Vocab::FedoraResourceStatus.inactive)
     end
@@ -35,7 +36,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     end
   end
 
-  describe 'integration test for depositor of a suppressed documents without a workflow role' do
+  describe 'integration test for depositor of a suppressed documents without a workflow role', skip: false do
     let(:work) do
       create(:data_set_work, :public, state: Vocab::FedoraResourceStatus.inactive, user: user)
     end
@@ -53,7 +54,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     end
   end
 
-  describe '#anonymous_link' do
+  describe '#anonymous_link', skip: false do
     let(:work) do
       w = create(:data_set_with_one_file, user: user, depositor: user.email)
       w.depositor = user.email
@@ -116,7 +117,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
 
   end
 
-  describe '#destroy' do
+  describe '#destroy', skip: false do
     let(:work_to_be_deleted) { create(:private_data_set, user: user) }
     let(:parent_collection) { build(:collection_lw) }
 
@@ -166,7 +167,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     end
   end
 
-  describe '#doi' do
+  describe '#doi', skip: false do
     let(:expected_mint_msg) { "The expected mint message." }
 
     # see doi_controller_behavior.rb
@@ -208,7 +209,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
 
   end
 
-  describe '#new' do
+  describe '#new', skip: false do
     context 'my work' do
       it 'shows me the page' do
         get :new
@@ -222,7 +223,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     end
   end
 
-  describe '#create' do
+  describe '#create', skip: false do
     let(:actor) { double(create: create_status) }
     let(:create_status) { true }
 
@@ -362,8 +363,9 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     end
   end
 
-  describe '#edit' do
-    context 'my own private work' do
+  describe '#edit', skip: false do
+
+    context 'my own private work', skip: false do
       let(:work) { create(:private_data_set, user: user) }
 
       it 'shows me the page and sets breadcrumbs' do
@@ -381,9 +383,9 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
       end
     end
 
-    context 'someone elses private work' do
+    context 'someone elses private work', skip: false do
       routes { Rails.application.class.routes }
-      let(:work) { create(:private_data_set) }
+      let(:work) { create(:private_data_set, user: user_other) }
 
       it 'shows the unauthorized message' do
         get :edit, params: { id: work }
@@ -392,8 +394,8 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
       end
     end
 
-    context 'someone elses public work' do
-      let(:work) { create(:public_data_set) }
+    context 'someone elses public work', skip: false do
+      let(:work) { create(:public_data_set, user: user_other) }
 
       it 'shows the unauthorized message' do
         get :edit, params: { id: work }
@@ -402,7 +404,22 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
       end
     end
 
-    context 'when I am a repository manager' do
+    context 'someone elses public work and have edit access', skip: false do
+      let(:work) { create(:public_data_set, user: user_other, edit_users: [user.email]) }
+
+      it 'can edit' do
+        # puts
+        # puts "user.email=#{user.email}"
+        # puts "user_other.email=#{user_other.email}"
+        # puts
+        get :edit, params: { id: work }
+        # expect(response.code).to eq '401'
+        expect(response).to be_success
+        expect(flash[:notice]).not_to eq 'The work is not currently available because it has not yet completed the approval process'
+      end
+    end
+
+    context 'when I am a repository manager', skip: false do
       before { allow(::User.group_service).to receive(:byname).and_return(user.user_key => ['admin']) }
       let(:work) { create(:private_data_set) }
 
@@ -413,7 +430,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     end
   end
 
-  describe '#show' do
+  describe '#show', skip: false do
     RSpec.shared_examples 'shared #show' do |dbg_verbose|
       subject { described_class }
       before do
@@ -636,7 +653,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     it_behaves_like 'shared #show', true
   end
 
-  describe '#update' do
+  describe '#update', skip: false do
     let(:work) { stub_model(DataSet) }
     let(:visibility_changed) { false }
     let(:actor) { double(update: true) }
@@ -736,7 +753,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     end
   end
 
-  describe '#file_manager' do
+  describe '#file_manager', skip: false do
     let(:work) { create(:private_data_set, user: user) }
 
     before do
@@ -751,7 +768,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
 
   end
 
-  describe '#item_identifier' do
+  describe '#item_identifier', skip: false do
     let(:work) { create(:public_data_set) }
 
     before do
@@ -767,7 +784,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
   end
 
 
-  describe '#zip_download' do
+  describe '#zip_download', skip: false do
     let(:work) { create(:data_set_with_two_children, total_file_size: 1.kilobyte, user: user) }
 
     before do
@@ -840,40 +857,40 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
   end
 
   # TODO: reactivate when using IIIF
-  # describe '#manifest' do
-  #   let(:work) { create(:data_set_with_one_file, user: user) }
-  #   let(:file_set) { work.ordered_members.to_a.first }
-  #   let(:manifest_factory) { double(to_h: { test: 'manifest' }) }
-  #
-  #   before do
-  #     Hydra::Works::AddFileToFileSet.call(file_set,
-  #                                         File.open(fixture_path + '/world.png'),
-  #                                         :original_file)
-  #     allow(IIIFManifest::ManifestFactory).to receive(:new)
-  #       .with(Hyrax::IiifManifestPresenter)
-  #       .and_return(manifest_factory)
-  #   end
-  #
-  #   it 'uses the configured service' do
-  #     custom_builder = double(manifest_for: { test: 'cached manifest' })
-  #     allow(described_class).to receive(:iiif_manifest_builder).and_return(custom_builder)
-  #
-  #     get :manifest, params: { id: work, format: :json }
-  #     expect(response.body).to eq "{\"test\":\"cached manifest\"}"
-  #   end
-  #
-  #   it "produces a manifest for a json request" do
-  #     get :manifest, params: { id: work, format: :json }
-  #     expect(response.body).to eq "{\"test\":\"manifest\"}"
-  #   end
-  #
-  #   it "produces a manifest for a html request" do
-  #     get :manifest, params: { id: work, format: :html }
-  #     expect(response.body).to eq "{\"test\":\"manifest\"}"
-  #   end
-  # end
+  describe '#manifest', skip: true do
+    let(:work) { create(:data_set_with_one_file, user: user) }
+    let(:file_set) { work.ordered_members.to_a.first }
+    let(:manifest_factory) { double(to_h: { test: 'manifest' }) }
 
-  describe 'private methods' do
+    before do
+      Hydra::Works::AddFileToFileSet.call(file_set,
+                                          File.open(fixture_path + '/world.png'),
+                                          :original_file)
+      allow(IIIFManifest::ManifestFactory).to receive(:new)
+        .with(Hyrax::IiifManifestPresenter)
+        .and_return(manifest_factory)
+    end
+
+    it 'uses the configured service' do
+      custom_builder = double(manifest_for: { test: 'cached manifest' })
+      allow(described_class).to receive(:iiif_manifest_builder).and_return(custom_builder)
+
+      get :manifest, params: { id: work, format: :json }
+      expect(response.body).to eq "{\"test\":\"cached manifest\"}"
+    end
+
+    it "produces a manifest for a json request" do
+      get :manifest, params: { id: work, format: :json }
+      expect(response.body).to eq "{\"test\":\"manifest\"}"
+    end
+
+    it "produces a manifest for a html request" do
+      get :manifest, params: { id: work, format: :html }
+      expect(response.body).to eq "{\"test\":\"manifest\"}"
+    end
+  end
+
+  describe 'private methods', skip: false do
 
     context '.get_date_uploaded_from_solr', skip: true do
 

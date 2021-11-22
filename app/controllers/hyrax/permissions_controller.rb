@@ -5,7 +5,7 @@ module Hyrax
   class PermissionsController < ApplicationController
 
     mattr_accessor :permissions_controller_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.permissions_controller_debug_verbose
+                   default: Rails.configuration.permissions_controller_debug_verbose
 
     helper_method :curation_concern
 

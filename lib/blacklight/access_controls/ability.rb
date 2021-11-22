@@ -8,7 +8,7 @@ module Blacklight
       extend ActiveSupport::Concern
 
       mattr_accessor :blacklight_access_controls_ability_debug_verbose,
-                     default: ::DeepBlueDocs::Application.config.blacklight_access_controls_ability_debug_verbose
+                     default: Rails.configuration.blacklight_access_controls_ability_debug_verbose
 
       included do
         include CanCan::Ability

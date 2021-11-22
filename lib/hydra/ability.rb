@@ -6,8 +6,7 @@ module Hydra
   module Ability
     extend ActiveSupport::Concern
 
-    mattr_accessor :hydra_ability_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.hydra_ability_debug_verbose
+    mattr_accessor :hydra_ability_debug_verbose, default: Rails.configuration.hydra_ability_debug_verbose
 
     include Blacklight::AccessControls::Ability
 
@@ -19,7 +18,12 @@ module Hydra
       include Hydra::PermissionsQuery
       include Blacklight::SearchHelper
 
-      self.ability_logic = [:create_permissions, :edit_permissions, :read_permissions, :discover_permissions, :download_permissions, :custom_permissions]
+      self.ability_logic = [:create_permissions,
+                            :edit_permissions,
+                            :read_permissions,
+                            :discover_permissions,
+                            :download_permissions,
+                            :custom_permissions]
     end
 
     def self.user_class

@@ -18,7 +18,7 @@ module Blacklight
 
       # begin monkey
       mattr_accessor :blacklight_access_controls_enforcement_debug_verbose,
-                     default: ::DeepBlueDocs::Application.config.blacklight_access_controls_enforcement_debug_verbose
+                     default: Rails.configuration.blacklight_access_controls_enforcement_debug_verbose
       # end monkey
 
       included do
@@ -82,7 +82,7 @@ module Blacklight
         ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
                                               ::Deepblue::LoggingHelper.called_from,
                                               "solr_parameters.inspect=#{solr_parameters.inspect}",
-                                              ""] if blacklight_access_controls_enforcement_debug_verbose
+                                              "" ] + caller_locations(0,20) if blacklight_access_controls_enforcement_debug_verbose
         # end monkey
         solr_parameters[:fq] ||= []
         solr_parameters[:fq] << gated_discovery_filters.reject(&:blank?).join(' OR ')
@@ -122,7 +122,7 @@ module Blacklight
         user = ability.current_user
         return [] unless user && user.user_key.present?
         permission_types.map do |type|
-          escape_filter(solr_field_for(type, 'user'), user.user_key)
+          escape_filter2(solr_field_for(type, 'user'), user.user_key)
         end
       end
 
@@ -137,6 +137,11 @@ module Blacklight
 
       def escape_filter(key, value)
         [key, escape_value(value)].join(':')
+      end
+
+      def escape_filter2(key, value)
+        #"({!join from=#{key} to=id}id:#{escape_value(value)})"
+        "#{key}:(#{escape_value(value)})"
       end
 
       def escape_value(value)
