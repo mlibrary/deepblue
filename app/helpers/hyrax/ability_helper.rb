@@ -1,8 +1,7 @@
 module Hyrax
   module AbilityHelper
 
-    mattr_accessor :ability_helper_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.ability_helper_debug_verbose
+    mattr_accessor :ability_helper_debug_verbose, default: Rails.configuration.ability_helper_debug_verbose
 
     def visibility_options(variant)
       options = [

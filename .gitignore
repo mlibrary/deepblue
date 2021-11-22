@@ -66,6 +66,7 @@ config/jetty.yml
 config/umich.yml
 config/doi.yml
 config/browse_everything_providers.yml
+config/initializers/browse_everything_providers.yml
 config/arkivo.yml
 config/zotero.yml
 config/ezid.yml

@@ -44,7 +44,12 @@ FactoryBot.define do
     end
 
     factory :private_data_set, aliases: [:private_data_set_work] do
-      # visibility Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
+      visibility { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE }
+    end
+
+    factory :pending_data_set, aliases: [ :pending_data_set_work ] do
+      visibility { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC }
+      # TODO
     end
 
     factory :registered_data_set do
