@@ -14,6 +14,7 @@
   <%= f.date_field( :embargo_release_date,
                     wrapper: :inline,
                     value: embargo_release_date.strftime("%Y-%m-%d"),
+                    min: embargo_release_date.strftime("%Y-%m-%d"),
                     class: 'datepicker form-control') %>
   <%= t( 'hyrax.visibility.then_change_it_to' ) %>
   <bold><%= t( 'hyrax.visibility.open.text' ) %></bold>
