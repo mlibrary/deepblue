@@ -9,7 +9,7 @@ module Hyrax
     class FileSetActor
 
       mattr_accessor :file_set_actor_debug_verbose,
-                     default: ::DeepBlueDocs::Application.config.file_set_actor_debug_verbose
+                     default: Rails.configuration.file_set_actor_debug_verbose
 
       include Lockable
       attr_reader :file_set, :user, :attributes

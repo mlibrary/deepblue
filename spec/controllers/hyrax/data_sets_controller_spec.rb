@@ -494,21 +494,21 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
             end
           end
 
-          # context "with a referer" do
-          #   before do
-          #     request.env['HTTP_REFERER'] = 'http://test.host/foo'
-          #   end
-          #
-          #   it "sets breadcrumbs" do
-          #     expect(controller).to receive(:add_breadcrumb).with('Home', Hyrax::Engine.routes.url_helpers.root_path(locale: 'en'))
-          #     expect(controller).to receive(:add_breadcrumb).with('Dashboard', hyrax.dashboard_path(locale: 'en'))
-          #     expect(controller).to receive(:add_breadcrumb).with('Works', hyrax.my_works_path(locale: 'en'))
-          #     expect(controller).to receive(:add_breadcrumb).with('test title', main_app.hyrax_data_set_path(work.id, locale: 'en'))
-          #     get :show, params: { id: work }
-          #     expect(response).to be_successful
-          #     expect(response).to render_template("layouts/hyrax/1_column")
-          #   end
-          # end
+          context "with a referer", skip: true do
+            before do
+              request.env['HTTP_REFERER'] = 'http://test.host/foo'
+            end
+
+            it "sets breadcrumbs" do
+              expect(controller).to receive(:add_breadcrumb).with('Home', Hyrax::Engine.routes.url_helpers.root_path(locale: 'en'))
+              expect(controller).to receive(:add_breadcrumb).with('Dashboard', hyrax.dashboard_path(locale: 'en'))
+              expect(controller).to receive(:add_breadcrumb).with('Works', hyrax.my_works_path(locale: 'en'))
+              expect(controller).to receive(:add_breadcrumb).with('test title', main_app.hyrax_data_set_path(work.id, locale: 'en'))
+              get :show, params: { id: work }
+              expect(response).to be_successful
+              expect(response).to render_template("layouts/hyrax/1_column")
+            end
+          end
 
           context "with a parent work" do
             let(:parent) { create(:data_set_work, title: ['Parent Work'], user: user, ordered_members: [work]) }

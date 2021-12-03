@@ -56,7 +56,7 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
         end
       end
 
-      it 'creates the work' do
+      it 'creates the work', skip: true do
 
         fill_in 'Title', with: work_title
         fill_in 'Creator', with: 'Dr. Creator'
@@ -377,7 +377,7 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
         end
       end
 
-      it 'updates the required file check status' do
+      it 'updates the required file check status', skip: true do
 
         fill_in 'Title', with: work_title
         fill_in 'Creator', with: 'Dr. Creator'

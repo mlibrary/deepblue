@@ -6,7 +6,7 @@ RSpec.describe IngestJob do
 
   describe 'module debug verbose variables' do
     it "they have the right values" do
-      expect( described_class.ingest_job_debug_spec ).to eq false
+      expect( described_class.ingest_job_debug_verbose ).to eq false
     end
   end
 

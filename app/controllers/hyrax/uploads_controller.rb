@@ -4,14 +4,14 @@ module Hyrax
 
   class UploadsController < ApplicationController
 
-    UPLOADS_CONTROLLER_DEBUG_VERBOSE = false
+    mattr_accessor :uploads_controller_debug_verbose, default: false
 
     load_and_authorize_resource class: Hyrax::UploadedFile
 
     def create
       file = params[:files].first
-      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
                                            "file=#{file}",
                                            "file.path=#{file.path}",
@@ -22,11 +22,11 @@ module Hyrax
                                            # "file.tempfile.class=#{file.tempfile.class}",
                                            # "file.tempfile.methods=#{file.tempfile.methods.sort}",
                                            "current_user=#{current_user}",
-                                         "" ] if UPLOADS_CONTROLLER_DEBUG_VERBOSE
+                                         "" ] if uploads_controller_debug_verbose
       @upload.attributes = { file: file, user: current_user }
       @upload.save!
-      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
                                            "file=#{file}",
                                            "file.path=#{file.path}",
@@ -34,13 +34,13 @@ module Hyrax
                                            "file.original_filename=#{file.original_filename}",
                                            "current_user=#{current_user}",
                                            "@upload=#{@upload}",
-                                           # Deepblue::LoggingHelper.obj_methods( "@upload",  @upload ),
-                                           # Deepblue::LoggingHelper.obj_instance_variables( "@upload", @upload ),
-                                           # Deepblue::LoggingHelper.obj_attribute_names( "@upload", @upload ),
-                                           Deepblue::LoggingHelper.obj_to_json( "@upload", @upload ),
-                                           "" ] if UPLOADS_CONTROLLER_DEBUG_VERBOSE
+                                           # ::Deepblue::LoggingHelper.obj_methods( "@upload",  @upload ),
+                                           # ::Deepblue::LoggingHelper.obj_instance_variables( "@upload", @upload ),
+                                           # ::Deepblue::LoggingHelper.obj_attribute_names( "@upload", @upload ),
+                                           ::Deepblue::LoggingHelper.obj_to_json( "@upload", @upload ),
+                                           "" ] if uploads_controller_debug_verbose
       upload_json = @upload.to_json
-      Deepblue::UploadHelper.log( class_name: self.class.name,
+      ::Deepblue::UploadHelper.log( class_name: self.class.name,
                                   event: "create",
                                   id: "NA",
                                   path: file.path,
@@ -51,7 +51,7 @@ module Hyrax
                                   user: current_user.to_s )
     rescue Exception => e # rubocop:disable Lint/RescueException
       Rails.logger.error "UploadsController.create #{e.class}: #{e.message} at #{e.backtrace[0]}"
-      Deepblue::UploadHelper.log( class_name: self.class.name,
+      ::Deepblue::UploadHelper.log( class_name: self.class.name,
                                   event: "create",
                                   event_note: "failed",
                                   id: "NA",
@@ -61,13 +61,13 @@ module Hyrax
     end
 
     def destroy
-      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                           Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
-                                           Deepblue::LoggingHelper.obj_to_json( "@upload", @upload ),
-                                           "" ] if UPLOADS_CONTROLLER_DEBUG_VERBOSE
+                                           ::Deepblue::LoggingHelper.obj_to_json( "@upload", @upload ),
+                                           "" ] if uploads_controller_debug_verbose
       upload_json = @upload.to_json
-      Deepblue::UploadHelper.log( class_name: self.class.name,
+      ::Deepblue::UploadHelper.log( class_name: self.class.name,
                                   event: "destroy",
                                   id: "NA",
                                   path: @upload.file.path,
@@ -79,7 +79,7 @@ module Hyrax
       head :no_content
     rescue Exception => e # rubocop:disable Lint/RescueException
       Rails.logger.error "UploadsController.destroy #{e.class}: #{e.message} at #{e.backtrace[0]}"
-      Deepblue::UploadHelper.log( class_name: self.class.name,
+      ::Deepblue::UploadHelper.log( class_name: self.class.name,
                                   event: "destroy",
                                   event_note: "failed",
                                   id: "NA",

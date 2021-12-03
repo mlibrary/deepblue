@@ -35,6 +35,8 @@ module Hyrax
              :virus_scan_status,
              :virus_scan_status_date, to: :solr_document
 
+    delegate :rights_license, to: :parent_presenter
+
     attr_accessor :cc_anonymous_link
     attr_accessor :cc_parent_anonymous_link
     attr_accessor :cc_parent_single_use_link
@@ -311,6 +313,38 @@ module Hyrax
       false
     end
 
+    def creator_for_json
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "parent.class.name=#{@parent.class.name}",
+                                             "" ] # if ds_file_set_presenter_debug_verbose
+      authors = ""
+      parent.creator.each do |author|
+        authors +=  "{ \"@type\": \"Person\",
+                      \"name\": \"#{author}\"},"
+      end
+      # remove last comma
+      authors[0...-1]
+    end
+
+    def create_cc_for_json
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "parent.class.name=#{@parent.class.name}",
+                                             "" ] # if ds_file_set_presenter_debug_verbose
+      if parent.rights_license[0] == "http://creativecommons.org/publicdomain/zero/1.0/"
+        "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication"
+      elsif parent.rights_license[0] == "http://creativecommons.org/licenses/by/4.0/"
+        "Attribution 4.0 International (CC BY 4.0)"
+      elsif parent.rights_license[0] == "http://creativecommons.org/licenses/by-nc/4.0/"
+        "Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)"
+      elsif parent.rights_license_other.blank?
+        ''
+      else
+        parent.rights_license_other.first
+      end
+    end
+
     def curation_notes_admin
       rv = @solr_document.curation_notes_admin
       return rv
@@ -504,13 +538,26 @@ module Hyrax
     def fetch_parent_presenter
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
                                              "" ] if ds_file_set_presenter_debug_verbose
       ids = ActiveFedora::SolrService.query("{!field f=member_ids_ssim}#{id}",
                                             fl: ActiveFedora.id_field)
                 .map { |x| x.fetch(ActiveFedora.id_field) }
-      Hyrax::PresenterFactory.build_for(ids: ids,
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "id=#{id}",
+      #                                        "ids=#{ids}",
+      #                                        "" ] if ds_file_set_presenter_debug_verbose
+      rv = Hyrax::PresenterFactory.build_for(ids: ids,
                                         presenter_class: WorkShowPresenter,
                                         presenter_args: current_ability).first
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "id=#{id}",
+      #                                        "rv=#{rv}",
+      #                                        "rv.class.name=#{rv.class.name}",
+      #                                        "" ] if ds_file_set_presenter_debug_verbose
+      return rv
     end
 
     def parent_data_set
