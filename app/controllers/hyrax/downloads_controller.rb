@@ -8,7 +8,7 @@ module Hyrax
 
     # begin monkey
     mattr_accessor :downloads_controller_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.downloads_controller_debug_verbose
+                   default: Rails.configuration.downloads_controller_debug_verbose
     # end monkey
 
     include Hydra::Controller::DownloadBehavior
@@ -86,6 +86,12 @@ module Hyrax
         # For derivatives stored on the local file system
         send_local_content
       else
+        ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "params=#{params}",
+                                               "params[:format]=#{params[:format]}",
+                                               "file=#{file}",
+                                               "" ] + caller_locations(0,20) if downloads_controller_debug_verbose
         raise ActiveFedora::ObjectNotFoundError
       end
     end

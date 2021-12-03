@@ -8,7 +8,7 @@ module Hyrax
     class BeforeAddToWorkActor < AbstractEventActor
 
       mattr_accessor :before_add_to_work_actor_debug_verbose,
-                     default: ::DeepBlueDocs::Application.config.before_add_to_work_actor_debug_verbose
+                     default: Rails.configuration.before_add_to_work_actor_debug_verbose
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if create was successful

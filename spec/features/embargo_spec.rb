@@ -1,7 +1,7 @@
 require 'rails_helper'
 include Warden::Test::Helpers
 
-RSpec.describe 'embargo', type: :feature, js: true, workflow: true, clean_repo: true do
+RSpec.describe 'embargo', type: :feature, js: true, workflow: true, clean_repo: true, skip: false do
 
   mattr_accessor :embargo_spec_debug_verbose
   @@embargo_spec_debug_verbose = false
@@ -15,12 +15,12 @@ RSpec.describe 'embargo', type: :feature, js: true, workflow: true, clean_repo: 
     sign_in user
   end
 
-  describe 'creating an embargoed object' do
+  describe 'creating an embargoed object', skip: true do
     let(:work_title) { "Embargo test" }
     let(:future_date) { 5.days.from_now }
     let(:later_future_date) { 10.days.from_now }
 
-    it 'can be created, displayed, but not updated', :clean_repo, :workflow, skip: ENV['CIRCLECI'].present? do
+    it 'can be created, displayed, but not updated', :clean_repo, :workflow, skip: true || ENV['CIRCLECI'].present? do
       visit '/concern/data_sets/new'
       page.find_link( 'Description', wait: 10 )
       expect(page).to have_content edit_note

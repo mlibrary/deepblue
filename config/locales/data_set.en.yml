@@ -52,6 +52,7 @@ en:
       required_descriptions_deepblue: Please complete required descriptions
       required_agreement_deepblue: Check deposit agreement below
       form_files:
+        dropzone: Drop files here.
         local_upload_contact_html: >
           <p>If you have more than %{max_num_files} files or files larger than %{files_larger_than}
           please <a href="%{contact_path}">Contact Us</a> for assistance in uploading your data.</p>
@@ -64,6 +65,12 @@ en:
           Guide to Creating Documentation for Your Dataset</a>
           or <a href="/data/Deep_Blue_Data_Example_Readme.txt">this Example readme</a> for more information.</p>
           <p>'Add folder...' will upload individual files within the selected folder.</p>
+        local_upload_browse_everything_html: >
+          <p>You may also add one or more files to associate with this work from a cloud provider.</p>
+          <p>Note that if you use a cloud provider to upload a large number of
+          files within a short period of time, the provider may not be able to
+          accommodate your request. If you experience errors uploading from the
+          cloud, let us know at <a href="%{contact_path}">Contact Us</a>.</p>
         local_upload_no_dir_html: >
           <p>Upload data files (e.g. .xls, .sas) and documentation files (e.g. codebooks, readme.txt).</p>
           <p>After you have uploaded files and submitted your Work, the system may take a few minutes to process the

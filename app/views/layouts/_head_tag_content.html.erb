@@ -29,7 +29,7 @@ signed in %>
     "isAccessibleForFree": true,
     "keywords": [<%= raw @presenter.keyword.map { |i| "\"" + i.to_s + "\"" }.join(",")  if @presenter.keyword.present? %>],
     "creator": [<%= raw @presenter.creator_for_json %>],
-    <% if @presenter.date_coverage.present? %>
+    <% if @presenter.respond_to?(:date_coverage) && @presenter.date_coverage.present? %>
       <% tempCovDate = @presenter.date_coverage.split(" to ") %>
       "temporalCoverage": [
         "<%= tempCovDate[0] if tempCovDate[0].present? %>",

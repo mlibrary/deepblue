@@ -12,7 +12,13 @@ module Integrator
     module WorksBehavior
       extend ActiveSupport::Concern
 
+      mattr_accessor :integrator_hyrax_works_behavior_debug_verbose, default: false
+      # default: ::Deepblue::IngestIntegrationService.ingest_job_debug_verbose
+
       def upload_files
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if integrator_hyrax_works_behavior_debug_verbose
         return if @files.blank?
         @file_ids = []
         @uploaded_files = {}
@@ -33,6 +39,9 @@ module Integrator
       end
 
       def add_work
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if integrator_hyrax_works_behavior_debug_verbose
         @object = find_work if @object.blank?
         if @object
           update_work
@@ -42,6 +51,9 @@ module Integrator
       end
 
       def upload_files_with_attributes
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if integrator_hyrax_works_behavior_debug_verbose
         return if @uploaded_files.blank?
         @uploaded_files.each do |file_name, uploaded_file|
           create_file_set_with_attributes(uploaded_file)
@@ -49,6 +61,9 @@ module Integrator
       end
 
       def find_work_by_query(work_id = params[:id])
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if integrator_hyrax_works_behavior_debug_verbose
         model = find_work_klass(work_id)
         return nil if model.blank?
         @work_klass = model.constantize
@@ -56,22 +71,34 @@ module Integrator
       end
 
       def find_work(work_id = params[:id])
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if integrator_hyrax_works_behavior_debug_verbose
         # params[:id] = SecureRandom.uuid unless params[:id].present?
         return find_work_by_id(work_id) if work_id
       end
 
       def find_work_by_id(work_id = params[:id])
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if integrator_hyrax_works_behavior_debug_verbose
         @work_klass.find(work_id)
       rescue ActiveFedora::ActiveFedoraError
         nil
       end
 
       def update_work
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if integrator_hyrax_works_behavior_debug_verbose
         raise "Object doesn't exist" unless @object
         work_actor.update(environment(update_attributes))
       end
 
       def create_work
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if integrator_hyrax_works_behavior_debug_verbose
         attrs = create_attributes
         #the object 
         @object = @work_klass.new

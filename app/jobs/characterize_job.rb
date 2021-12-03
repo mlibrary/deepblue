@@ -2,8 +2,6 @@
 
 class CharacterizeJob < AbstractIngestJob
 
-  # CHARACTERIZE_JOB_DEBUG_VERBOSE = ::Deepblue::IngestIntegrationService.characterize_job_debug_verbose
-
   mattr_accessor :characterize_job_debug_verbose,
                  default: ::Deepblue::IngestIntegrationService.characterize_job_debug_verbose
 

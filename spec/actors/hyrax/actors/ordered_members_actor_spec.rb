@@ -53,8 +53,9 @@ RSpec.describe Hyrax::Actors::OrderedMembersActor, skip: false do
 
   describe "#runs callbacks" do
     it 'runs callbacks' do
-      expect(FileSetAttachedEventJob).to receive(:perform_later).with(file_set, user)
+      expect(Hyrax::FileSetAttachedEventJob).to receive(:perform_later).with(file_set, user)
       actor.attach_ordered_members_to_work(work)
     end
   end
+
 end

@@ -3,20 +3,20 @@ Deepblue::IngestIntegrationService.setup do |config|
 
   INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE = false
 
-  config.abstract_ingest_job_debug_verbose = false
-  config.add_file_to_file_set_debug_verbose = false
-  config.attach_files_to_work_job_debug_verbose = false
-  config.characterize_job_debug_verbose = false
-  config.characterization_service_verbose = false
-  config.ingest_content_service_debug_verbose = false
-  config.create_derivatives_job_debug_verbose = false
-  config.ingest_helper_debug_verbose = false
-  config.ingest_job_debug_verbose = false
-  config.ingest_job_status_debug_verbose = false
-  config.ingest_script_job_debug_verbose = false
+  config.abstract_ingest_job_debug_verbose         = false
+  config.add_file_to_file_set_debug_verbose        = false
+  config.attach_files_to_work_job_debug_verbose    = false
+  config.characterize_job_debug_verbose            = false
+  config.characterization_service_verbose          = false
+  config.ingest_content_service_debug_verbose      = false
+  config.create_derivatives_job_debug_verbose      = false
+  config.ingest_helper_debug_verbose               = false
+  config.ingest_job_debug_verbose                  = false
+  config.ingest_job_status_debug_verbose           = false
+  config.ingest_script_job_debug_verbose           = false
   config.multiple_ingest_scripts_job_debug_verbose = false
-  config.new_content_service_debug_verbose = false
-  config.report_task_job_debug_verbose = false
+  config.new_content_service_debug_verbose         = false
+  config.report_task_job_debug_verbose             = false
 
   config.characterize_excluded_ext_set = { '.csv' => 'text/plain' }.freeze # , '.nc' => 'text/plain' }.freeze
   config.characterize_enforced_mime_type = { '.csv' => 'text/csv' }.freeze # , '.nc' => 'text/plain' }.freeze

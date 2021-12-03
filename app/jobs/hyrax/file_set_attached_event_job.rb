@@ -1,13 +1,17 @@
 # frozen_string_literal: true
 
 # Log a fileset attachment to activity streams
-class FileSetAttachedEventJob < ContentEventJob
+class Hyrax::FileSetAttachedEventJob < ContentEventJob
+  # monkey
+
+  mattr_accessor :file_set_attached_event_job_debug_verbose, default: false
+  # default: ::Deepblue::IngestIntegrationService.ingest_job_debug_verbose
 
   # Log the event to the fileset's and its container's streams
   def log_event(repo_object)
     repo_object.log_event(event)
     curation_concern.log_event(event)
-    Deepblue::EventHelper.after_create_fileset_callback( file_set: curation_concern, user: depositor )
+    ::Deepblue::EventHelper.after_create_fileset_callback( file_set: curation_concern, user: depositor )
   end
 
   def action

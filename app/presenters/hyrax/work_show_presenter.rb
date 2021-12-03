@@ -45,6 +45,29 @@ module Hyrax
              :itemtype,
              :admin_set, to: :solr_document
 
+    delegate  :authoremail,
+              :curation_notes_admin,
+              :curation_notes_user,
+              :date_coverage,
+              :date_published, :date_published2,
+              :doi,
+              :doi_minted?,
+              :doi_minting_enabled?,
+              :doi_pending?,
+              :fundedby,
+              :fundedby_other,
+              :grantnumber,
+              :methodology,
+              :prior_identifier,
+              :read_me_file_set_id,
+              :referenced_by,
+              :rights_license,
+              :rights_license_other,
+              :subject_discipline,
+              :total_file_size,
+              :access_deepblue,
+              to: :solr_document
+
     # @param [SolrDocument] solr_document
     # @param [Ability] current_ability
     # @param [ActionDispatch::Request] request the http request context. Used so
