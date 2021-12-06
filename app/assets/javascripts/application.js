@@ -11,11 +11,10 @@
 // about supported directives.
 //
 //= require jquery
-// require jquery_ujs // use rails-ujs instead
-//= require rails-ujs
+//= require jquery_ujs
 //= require dataTables/jquery.dataTables
 //= require dataTables/bootstrap/3/jquery.dataTables.bootstrap
-//= require activestorage
+//= require jquery_ujs
 //= require turbolinks
 //= require browse_everything
 //
@@ -31,5 +30,4 @@
 
 //= require hyrax/anonymous_links_manager
 
-//= require_tree .
 //= require hyrax

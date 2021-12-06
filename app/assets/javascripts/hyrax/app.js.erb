@@ -27,7 +27,7 @@ Hyrax = {
 
     // Search for a user to transfer a work to
     relative_url_root: function () {
-        return "<%= ::DeepBlueDocs::Application.config.relative_url_root %>";
+        return "<%= Rails.configuration.relative_url_root %>";
     },
 
     // Add WYSIWYG editor functionality to editable content blocks
@@ -132,7 +132,7 @@ Hyrax = {
         if ($("meta[name='current-user']").length === 0)
             return;
         <% if Hyrax.config.realtime_notifications? %>
-        var consumer = ActionCable.createConsumer("<%= ::DeepBlueDocs::Application.config.relative_url_root %>" + "<%= Hyrax::Engine.routes.url_helpers.notifications_endpoint_path %>");
+        var consumer = ActionCable.createConsumer("<%= Rails.configuration.relative_url_root %>" + "<%= Hyrax::Engine.routes.url_helpers.notifications_endpoint_path %>");
         consumer.subscriptions.create("Hyrax::NotificationsChannel", {
             connected: function(data) {
                 this.perform("update_locale", { locale: $('html').attr('lang') });
