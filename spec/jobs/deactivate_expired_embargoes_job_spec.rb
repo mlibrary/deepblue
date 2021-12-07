@@ -7,19 +7,15 @@ RSpec.describe DeactivateExpiredEmbargoesJob do
   let(:debug_verbose) { false }
 
   describe 'module debug verbose variables' do
-    it "they have the right values" do
-      expect(described_class.deactivate_expired_embargoes_job_debug_verbose).to eq debug_verbose
-    end
+    it { expect(described_class.deactivate_expired_embargoes_job_debug_verbose).to eq debug_verbose }
   end
 
   describe 'module variables' do
-    it "they have the right values" do
-      expect(described_class.default_args).to eq( { email_owner: true,
+    it { expect(described_class.default_args).to eq( { email_owner: true,
                                                     skip_file_sets: true,
                                                     test_mode: false,
                                                     task: false,
-                                                    verbose: false } )
-    end
+                                                    verbose: false } ) }
   end
 
   describe 'job calls service' do

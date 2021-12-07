@@ -5,13 +5,11 @@ RSpec.describe CleanDerivativesDirJob do
   let(:sched_helper) { class_double( Deepblue::SchedulerHelper ).as_stubbed_const(:transfer_nested_constants => true) }
 
   describe 'module debug verbose variables' do
-    it "they have the right values" do
-      expect(described_class.clean_derivatives_dir_job_debug_verbose).to eq( false )
-      expect(described_class.default_args).to eq( { days_old: 7,
+    it { expect(described_class.clean_derivatives_dir_job_debug_verbose).to eq false }
+    it { expect(described_class.default_args).to eq( { days_old: 7,
                                                     to_console: false,
                                                     task: false,
-                                                    verbose: false } )
-    end
+                                                    verbose: false } ) }
   end
 
   describe 'shared' do

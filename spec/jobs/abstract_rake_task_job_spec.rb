@@ -8,17 +8,17 @@ end
 
 RSpec.describe AbstractRakeTaskJob, skip: false do
 
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it {  expect( described_class.abstract_rake_task_job_debug_verbose ).to eq debug_verbose }
+  end
+
   let(:job) { MockJobForAbstractRakeTaskJob.new }
   let(:hostname_allowed) { [::DeepBlueDocs::Application.config.hostname] }
 
   before do
     allow(job).to receive(:verbose).and_return false
-  end
-
-  describe 'module debug verbose variables' do
-    it "they have the right values" do
-      expect( described_class.abstract_rake_task_job_debug_verbose ).to eq( false )
-    end
   end
 
   describe ".default_value_is" do

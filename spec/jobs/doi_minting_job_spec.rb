@@ -5,9 +5,7 @@ RSpec.describe DoiMintingJob do
   let(:debug_verbose) { false }
 
   describe 'module debug verbose variables' do
-    it "they have the right values" do
-      expect( ::Deepblue::DoiMintingService.doi_minting_job_debug_verbose ).to eq( debug_verbose )
-    end
+    it { expect( ::Deepblue::DoiMintingService.doi_minting_job_debug_verbose ).to eq debug_verbose }
   end
 
   let(:user) { create(:user) }

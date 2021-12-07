@@ -4,23 +4,23 @@ require 'rails_helper'
 
 RSpec.describe RakeTaskJob, skip: false do
 
-  let(:sched_helper) { class_double( Deepblue::SchedulerHelper ).as_stubbed_const(:transfer_nested_constants => true) }
+  let(:debug_verbose) { false }
 
   describe 'module debug verbose variables' do
-    it "they have the right values" do
-      expect( described_class.rake_task_job_debug_verbose ).to eq( false )
-    end
+    it { expect( described_class.rake_task_job_debug_verbose ).to eq debug_verbose }
   end
 
-  describe 'rake task job' do
-    let(:job)       { described_class.send( :job_or_instantiate, *args ) }
+  let(:sched_helper) { class_double( Deepblue::SchedulerHelper ).as_stubbed_const(:transfer_nested_constants => true) }
+
+  describe 'rake task job', skip: false do
     let(:rake_task) { 'run_this' }
     let(:task)      { false }
     let(:verbose)   { false }
-    let(:args)   { { 'rake_task' => rake_task,
-                     'hostnames' => hostnames,
-                     'verbose' => verbose } }
-    let(:options) { args }
+    let(:args)      { { 'rake_task' => rake_task,
+                        'hostnames' => hostnames,
+                        'verbose' => verbose } }
+    let(:options)   { args }
+    let(:job)       { described_class.send( :job_or_instantiate, *args ) }
 
     RSpec.shared_examples 'it called initialize_from_args during perform job' do |run_the_job|
       before do
@@ -102,6 +102,88 @@ RSpec.describe RakeTaskJob, skip: false do
       it 'execs call to external program' do
         expect( job.exec_rake_task( "echo this_is_test") ).to eq "this_is_test\n"
       end
+    end
+
+  end
+
+  describe 'example.allowed_job_task?', skip: true do
+    RSpec.shared_examples 'shared #example' do |dbg_verbose|
+      subject { described_class }
+      before do
+        described_class.apply_order_actor_debug_verbose = dbg_verbose
+        expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(:once) if dbg_verbose
+        expect(::Deepblue::LoggingHelper).to_not receive(:bold_debug) unless dbg_verbose
+      end
+      after do
+        described_class.apply_order_actor_debug_verbose = debug_verbose
+      end
+      context do
+      end
+    end
+    it_behaves_like 'shared #example', false
+    it_behaves_like 'shared #example', true
+  end
+
+ describe '.allowed_job_task?', skip: false do
+    let(:hostnames) { [] } # needed for creation of job
+    let(:task)      { false }
+    let(:verbose)   { false }
+
+    context 'when not allowed', skip: false do
+      let(:rake_task) { 'not_allowed_task' }
+      let(:args)      { { 'rake_task' => rake_task,
+                          'hostnames' => hostnames,
+                          'verbose' => verbose } }
+      let(:job)       { described_class.send( :job_or_instantiate, *args ) }
+
+      before do
+        expect(job).to_not receive(:exec_rake_task)
+      end
+
+      it 'returns false' do
+        ActiveJob::Base.queue_adapter = :test
+        job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
+        expect(job.allowed_job_task?).to eq false
+      end
+
+    end
+
+    context 'when allowed', skip: false do
+      let(:rake_task) { '-T' } # allowed task
+      let(:args)      { { 'rake_task' => rake_task,
+                          'hostnames' => hostnames,
+                          'verbose' => verbose } }
+      let(:job)       { described_class.send( :job_or_instantiate, *args ) }
+
+      before do
+        expect(job).to receive(:exec_rake_task).with( "bundle exec rake #{rake_task}" ).and_return ''
+      end
+
+      it 'returns true' do
+        ActiveJob::Base.queue_adapter = :test
+        job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
+        expect(job.allowed_job_task?).to eq true
+      end
+
+    end
+
+    context 'when allowed and via matching', skip: false do
+      let(:rake_task) { 'blacklight:delete_old_searches[30]' } # allowed task via matching
+      let(:args)      { { 'rake_task' => rake_task,
+                          'hostnames' => hostnames,
+                          'verbose' => verbose } }
+      let(:job)       { described_class.send( :job_or_instantiate, *args ) }
+
+      before do
+        expect(job).to receive(:exec_rake_task).with( "bundle exec rake #{rake_task}" ).and_return ''
+      end
+
+      it 'returns true' do
+        ActiveJob::Base.queue_adapter = :test
+        job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
+        expect(job.allowed_job_task?).to eq true
+      end
+
     end
 
   end

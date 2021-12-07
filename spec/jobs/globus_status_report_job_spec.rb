@@ -5,9 +5,7 @@ RSpec.describe GlobusStatusReportJob do
   let(:debug_verbose)   {false}
 
   describe 'module debug verbose variables' do
-    it "they have the right values" do
-      expect( ::Deepblue::JobTaskHelper.globus_status_report_job_debug_verbose ).to eq debug_verbose
-    end
+    it { expect( ::Deepblue::JobTaskHelper.globus_status_report_job_debug_verbose ).to eq debug_verbose }
   end
 
   describe 'all', skip: false do

@@ -23,6 +23,7 @@ module Deepblue
     mattr_accessor :globus_status_report_job_debug_verbose,         default: false
     mattr_accessor :heartbeat_job_debug_verbose,                    default: false
     mattr_accessor :heartbeat_email_job_debug_verbose,              default: false
+    mattr_accessor :jira_new_ticket_job_debug_verbose,              default: false
     mattr_accessor :monthly_analytics_report_job_debug_verbose,     default: false
     mattr_accessor :monthly_events_report_job_debug_verbose,        default: false
     mattr_accessor :rake_task_job_debug_verbose,                    default: false
@@ -33,6 +34,7 @@ module Deepblue
     mattr_accessor :works_report_job_debug_verbose,                 default: false
 
     mattr_accessor :allowed_job_tasks,             default: [ "tmp:clean" ].freeze
+    mattr_accessor :allowed_job_task_matching,     default: [].freeze
     mattr_accessor :job_failure_email_subscribers, default: []
 
     def self.email_exec_results( targets:,

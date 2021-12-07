@@ -4,8 +4,13 @@ require 'rails_helper'
 
 RSpec.describe AttachFilesToWorkJob, perform_enqueued: [AttachFilesToWorkJob] do
 
-  mattr_accessor :attach_files_to_work_job_spec_debug_verbose
-  @@attach_files_to_work_job_spec_debug_verbose = false
+  mattr_accessor :attach_files_to_work_job_spec_debug_verbose, default: false
+
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it { expect( described_class.attach_files_to_work_job_debug_verbose ).to eq debug_verbose }
+  end
 
   let(:subject_job) { class_double(AttachFilesToWorkJob ).as_stubbed_const(:transfer_nested_constants => true) }
 
@@ -15,12 +20,6 @@ RSpec.describe AttachFilesToWorkJob, perform_enqueued: [AttachFilesToWorkJob] do
   let(:uploaded_file2) { build(:uploaded_file, file: file2) }
   let(:data_set) { create(:public_data_set) }
   let(:user) { create(:user) }
-
-  describe 'module debug verbose variables' do
-    it "they have the right values" do
-      expect( described_class.attach_files_to_work_job_debug_verbose ).to eq false
-    end
-  end
 
   shared_examples 'a file attacher', perform_enqueued: [AttachFilesToWorkJob, IngestJob] do
     let(:job) { described_class.send( :job_or_instantiate,

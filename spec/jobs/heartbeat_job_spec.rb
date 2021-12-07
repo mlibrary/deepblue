@@ -5,9 +5,7 @@ RSpec.describe HeartbeatJob do
   let(:debug_verbose)   {false}
 
   describe 'module debug verbose variables' do
-    it "they have the right values" do
-      expect( described_class.heartbeat_job_debug_verbose ).to eq debug_verbose
-    end
+    it { expect( described_class.heartbeat_job_debug_verbose ).to eq debug_verbose }
   end
 
   describe 'all', skip: false do

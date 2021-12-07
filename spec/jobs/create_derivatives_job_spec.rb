@@ -4,8 +4,7 @@ require 'rails_helper'
 
 RSpec.describe CreateDerivativesJob, skip: false do
 
-  mattr_accessor :spec_create_derivatives_job_debug_verbose
-  @@spec_create_derivatives_job_debug_verbose = false
+  mattr_accessor :spec_create_derivatives_job_debug_verbose, default: false
 
   before :all do
     if spec_create_derivatives_job_debug_verbose
@@ -23,6 +22,10 @@ RSpec.describe CreateDerivativesJob, skip: false do
     end
   end
 
+  describe 'module debug verbose variables' do
+    it { expect( described_class.create_derivatives_job_debug_verbose ).to eq false } unless spec_create_derivatives_job_debug_verbose
+  end
+
   # let(:ingest_helper) { class_double(::Deepblue::IngestHelper).as_stubbed_const(:transfer_nested_constants => true) }
   let(:user) { create(:user) }
 
@@ -31,12 +34,6 @@ RSpec.describe CreateDerivativesJob, skip: false do
     Hyrax.config.enable_ffmpeg = true
     example.run
     Hyrax.config.enable_ffmpeg = ffmpeg_enabled
-  end
-
-  describe 'module debug verbose variables' do
-    it "they have the right values" do
-      expect( described_class.create_derivatives_job_debug_verbose ).to eq( false ) unless spec_create_derivatives_job_debug_verbose
-    end
   end
 
   context "with an audio file", skip: false do
