@@ -8,9 +8,7 @@ RSpec.describe HeartbeatEmailJob do
   # let(:sched_helper) { class_double(Deepblue::SchedulerHelper).as_stubbed_const(:transfer_nested_constants => true) }
 
   describe 'module debug verbose variables' do
-    it "they have the right values" do
-      expect( described_class.heartbeat_email_job_debug_verbose ).to eq debug_verbose
-    end
+    it { expect( described_class.heartbeat_email_job_debug_verbose ).to eq debug_verbose }
   end
 
   describe 'defines scheduler entry' do

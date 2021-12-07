@@ -4,8 +4,7 @@ require 'rails_helper'
 
 RSpec.describe CharacterizeJob do
 
-  mattr_accessor :spec_characterize_job_debug_verbose
-  @@spec_characterize_job_debug_verbose = false
+  mattr_accessor :spec_characterize_job_debug_verbose, default: false
 
   before :all do
     if spec_characterize_job_debug_verbose
@@ -25,6 +24,10 @@ RSpec.describe CharacterizeJob do
       AbstractIngestJob.abstract_ingest_job_debug_verbose = false
       JobStatus.job_status_debug_verbose = false
     end
+  end
+
+  describe 'module debug verbose variables' do
+    it { expect( described_class.characterize_job_debug_verbose ).to eq false }
   end
 
   # let(:user) { create(:user) }
@@ -57,12 +60,6 @@ RSpec.describe CharacterizeJob do
     allow(FileSet).to receive(:find).with(file_set_id).and_return(file_set)
     # TODO: need to be able to find the job status, so use the user_id to find it
     # allow(CreateDerivativesJob).to receive(:perform_now).with(file_set, file.id, filename)
-  end
-
-  describe 'module debug verbose variables' do
-    it "they have the right values" do
-      expect( described_class.characterize_job_debug_verbose ).to eq( false )
-    end
   end
 
   context 'with valid filepath param' do

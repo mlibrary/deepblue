@@ -7,9 +7,7 @@ RSpec.describe ::Deepblue::RegisterDoiJob, type: :job do
   let(:debug_verbose) { false }
 
   describe 'module debug verbose variables' do
-    it "they have the right values" do
-      expect( ::Deepblue::DoiMintingService.register_doi_job_debug_verbose ).to eq( debug_verbose )
-    end
+    it { expect( ::Deepblue::DoiMintingService.register_doi_job_debug_verbose ).to eq debug_verbose }
   end
 
   describe 'all', skip: false do

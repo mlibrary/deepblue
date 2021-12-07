@@ -118,13 +118,31 @@ find_and_fix_all_ordered_members_containing_nils:
     subscription_service_id: find_and_fix_job
     verbose: true
 
+clean_search:
+  # Run once a day, 36 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  #       M H D
+  cron: '36 4 * * *'
+  class: RakeTaskJob
+  queue: scheduler
+  description: Run rake blacklight:delete_old_searches
+  args:
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'staging.deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
+    email_results_to:
+      - 'fritx@umich.edu'
+    job_delay: 0
+    rake_task: 'blacklight:delete_old_searches[30]'
+    verbose: true
+
 clean_tmp:
   # Run once a week on Saturday, 6 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #       M H D
   cron: '6 4 * * 6'
   class: RakeTaskJob
   queue: scheduler
-  description: Run rake tmp:clean (Saturdays
+  description: Run rake tmp:clean (Saturdays)
   args:
     hostnames:
       - 'deepblue.lib.umich.edu'

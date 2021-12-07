@@ -2,25 +2,21 @@ require 'rails_helper'
 
 RSpec.describe AboutToExpireEmbargoesJob do
 
-  let(:sched_helper) { class_double( Deepblue::SchedulerHelper ).as_stubbed_const(:transfer_nested_constants => true) }
-
   let(:debug_verbose) { false }
 
   describe 'module debug verbose variables' do
-    it "they have the right values" do
-      expect(described_class.about_to_expire_embargoes_job_debug_verbose).to eq debug_verbose
-    end
+    it { expect(described_class.about_to_expire_embargoes_job_debug_verbose).to eq debug_verbose }
   end
 
+  let(:sched_helper) { class_double( Deepblue::SchedulerHelper ).as_stubbed_const(:transfer_nested_constants => true) }
+
   describe 'module variables' do
-    it "they have the right values" do
-      expect(described_class.default_args).to eq( { email_owner: true,
+    it { expect(described_class.default_args).to eq( { email_owner: true,
                                                     expiration_lead_days: 7,
                                                     skip_file_sets: true,
                                                     test_mode: false,
                                                     task: false,
-                                                    verbose: false } )
-    end
+                                                    verbose: false } ) }
   end
 
   describe 'shared' do

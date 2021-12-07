@@ -5,9 +5,11 @@ require "abstract_rake_task_job"
 class RakeTaskJob < AbstractRakeTaskJob
 
   # bundle exec rake deepblue:run_job['{"job_class":"RakeTaskJob"\,"verbose":true\,"rake_task":"-T"\,"email_results_to":["fritx@umich.edu"]\,"job_delay":0}']
-  # bundle exec rake deepblue:run_job['{"job_class":"RakeTaskJob"\,"verbose":true\,"rake_task":"tmp:clear"\,"email_results_to":["fritx@umich.edu"]}']
+  # bundle exec rake deepblue:run_job['{"job_class":"RakeTaskJob"\,"verbose":true\,"rake_task":"tmp:clean"\,"email_results_to":["fritx@umich.edu"]}']
+  # bundle exec rake deepblue:run_job['{"job_class":"RakeTaskJob"\,"verbose":true\,"rake_task":"blacklight:delete_old_searches[30]"\,"email_results_to":["fritx@umich.edu"]}']
 
   mattr_accessor :rake_task_job_debug_verbose, default: ::Deepblue::JobTaskHelper.rake_task_job_debug_verbose
+  mattr_accessor :rake_task_job_bold_puts, default: false
 
   # queue_as :scheduler
 
@@ -43,9 +45,9 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "args=#{args}",
-                                           "" ] if rake_task_job_debug_verbose
+                                           "" ], bold_puts: rake_task_job_bold_puts if rake_task_job_debug_verbose
     initialized = initialize_from_args( *args )
-    rake_task = job_options_value( options, key: 'rake_task', default_value: "", verbose: verbose, task: task )
+    @rake_task = job_options_value( options, key: 'rake_task', default_value: "", verbose: verbose, task: task )
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event_note: rake_task )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
@@ -58,7 +60,7 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
                                            "job_delay=#{job_delay}",
                                            "rake_task=#{rake_task}",
                                            "allowed_job_tasks.include? #{rake_task}=#{::Deepblue::JobTaskHelper.allowed_job_tasks.include? rake_task}",
-                                           "" ] if rake_task_job_debug_verbose
+                                           "" ], bold_puts: rake_task_job_bold_puts if rake_task_job_debug_verbose
     return unless initialized
     return if rake_task.blank?
     return unless allowed_job_task?
@@ -70,7 +72,7 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
                                            ::Deepblue::LoggingHelper.called_from,
                                            "timestamp_end=#{timestamp_end}",
                                            "rv=#{rv}",
-                                           "" ] if rake_task_job_debug_verbose
+                                           "" ], bold_puts: rake_task_job_bold_puts if rake_task_job_debug_verbose
     email_exec_results( exec_str: exec_str, rv: rv, event: 'rake task job', event_note: rake_task )
   rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
@@ -84,7 +86,22 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
   end
 
   def allowed_job_task?
-    ::Deepblue::JobTaskHelper.allowed_job_tasks.include? rake_task
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "rake_task=#{rake_task}",
+                                           "" ], bold_puts: rake_task_job_bold_puts if rake_task_job_debug_verbose
+    return true if ::Deepblue::JobTaskHelper.allowed_job_tasks.include? rake_task
+    ::Deepblue::JobTaskHelper.allowed_job_task_matching.each do |matcher|
+      rv = matcher =~ rake_task
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "rake_task=#{rake_task}",
+                                             "matcher=#{matcher}",
+                                             "rv=#{rv}",
+                                             "" ], bold_puts: rake_task_job_bold_puts if rake_task_job_debug_verbose
+      return true if rv
+    end
+    return false
   end
 
   # def self.queue
