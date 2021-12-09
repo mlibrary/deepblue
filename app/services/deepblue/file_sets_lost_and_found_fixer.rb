@@ -46,7 +46,7 @@ module Deepblue
       solr_query = "+generic_type_sim:Work AND +title_tesim:#{lost_and_found_work_title}"
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "title=#{title}",
+                                             "lost_and_found_work_title=#{lost_and_found_work_title}",
                                              "solr_query=#{solr_query}",
                                              "" ], bold_puts: task if file_sets_lost_and_found_fixer_debug_verbose
       results = ::ActiveFedora::SolrService.query( solr_query, rows: 10 )
@@ -54,11 +54,22 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "results.class.name=#{results.class.name}",
                                              "results=#{results}",
+                                             "results&.size=#{results&.size}",
                                              "" ], bold_puts: task if file_sets_lost_and_found_fixer_debug_verbose
       return 'not found' unless results.present?
-      return results if results.is_a? DataSet
-      result = results[0] if results
-      return result
+      # results are an array of solr documents, extract the id from the first one and look it up
+      id = results[0].id
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "" ], bold_puts: task if file_sets_lost_and_found_fixer_debug_verbose
+      result = results[0]
+      work = PersistHelper.find(id)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "work=#{work}",
+                                             "" ], bold_puts: task if file_sets_lost_and_found_fixer_debug_verbose
+      return work
     end
 
   end

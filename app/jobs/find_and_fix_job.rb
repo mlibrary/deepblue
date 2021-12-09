@@ -26,9 +26,6 @@ find_and_fix_job:
       - 'fritx@umich.edu'
     filter_date_begin: now - 7 days
     filter_date_end: now
-    find_and_fix_empty_file_size: true
-    find_and_fix_over_file_sets: true
-    find_and_fix_all_ordered_members_containing_nils: true
     hostnames:
       - 'deepblue.lib.umich.edu'
       - 'staging.deepblue.lib.umich.edu'

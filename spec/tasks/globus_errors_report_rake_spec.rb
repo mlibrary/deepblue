@@ -10,11 +10,11 @@ require_relative '../../lib/tasks/globus_errors_report'
 #require_relative '../../lib/tasks/globus_errors_report.rake'
 require_relative '../../app/services/deepblue/globus_integration_service'
 
-describe "about_to_expire_embargoes_task.rake" do
+describe "globus errors report rake" do
 
   # reference: https://tasdikrahman.me/2020/10/20/testing-rake-tasks-with-rspec/
 
-  context "about_to_expire_embargoes_task" do
+  context "task is run" do
 
     let(:options)  { {} }
     let(:quiet)    { false }
@@ -33,6 +33,7 @@ describe "about_to_expire_embargoes_task.rake" do
                                                                 prep_dir_tmp_ids: {},
                                                                 ready_ids: {},
                                                                 quiet: true,
+                                                                as_html: true,
                                                                 debug_verbose: false,
                                                                 rake_task: true ).at_least(:once).and_return reporter
       expect(reporter).to receive(:run).at_least(:once)

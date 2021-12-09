@@ -183,6 +183,11 @@ module Hyrax
       ::GlobusJob.error_file_contents concern_id
     end
 
+    def globus_error_file_exists?
+      concern_id = @solr_document.id
+      ::GlobusJob.error_file_exists? concern_id
+    end
+
     # end globus
 
     def hdl

@@ -132,6 +132,7 @@ module Deepblue
                                                  ready_ids: ready_ids,
                                                  quiet: quiet,
                                                  debug_verbose: debug_verbose,
+                                                 as_html: true,
                                                  rake_task: rake_task )
       reporter.run
       puts reporter.out if rake_task
@@ -227,6 +228,7 @@ module Deepblue
                                                  ready_ids: ready_ids,
                                                  quiet: quiet,
                                                  debug_verbose: debug_verbose,
+                                                 as_html: true,
                                                  rake_task: rake_task )
       reporter.run
       puts reporter.out if rake_task

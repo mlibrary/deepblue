@@ -11,6 +11,7 @@ class GlobusCopyJob < GlobusJob
   def perform( concern_id, log_prefix: "Globus: ", generate_error: false, delay_per_file_seconds: 0, user_email: nil )
     globus_job_perform( concern_id: concern_id, email: user_email, log_prefix: "#{log_prefix}globus_copy_job" ) do
       ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} begin copy" unless @globus_job_quiet
+      GlobusJob.error_file_delete @globus_concern_id
       @target_download_dir = target_download_dir2 @globus_concern_id
       @target_prep_dir     = target_prep_dir2( @globus_concern_id, prefix: nil, mkdir: true )
       @target_prep_dir_tmp = target_prep_tmp_dir2( @globus_concern_id, prefix: nil, mkdir: true )
@@ -59,15 +60,12 @@ class GlobusCopyJob < GlobusJob
   end
 
   def globus_copy_job_email_add( email = nil )
+    return if email.blank?
     email_file = globus_copy_job_email_file
     Deepblue::LoggingHelper.debug "#{@globus_log_prefix} globus_copy_job_email_add #{email} to #{email_file}" unless @globus_job_quiet
     File.open( email_file, 'a' ) do |file|
       globus_file_lock( file ) do |out|
-        out << if email.nil?
-                 ''
-               else
-                 "#{email}\n"
-               end
+        out << "#{email}\n"
       end
     end
   end

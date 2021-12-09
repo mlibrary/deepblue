@@ -91,7 +91,7 @@
               <% if last_globus_error %>
                 <p><%= "Last globus error: #{last_globus_error}" %></p>
               <% end %>
-              <% if @presenter.globus_files_available? || last_globus_error %>
+              <% if @presenter.globus_files_available? || @presenter.globus_error_file_exists? %>
                 <%= form_tag( main_app.globus_clean_download_hyrax_data_set_path(@presenter.id), method: 'delete' ) do %>
                   <br/>
                   <%= hidden_field_tag('data_set[nop]') %>
