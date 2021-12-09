@@ -9,6 +9,8 @@ Deepblue::JobTaskHelper.setup do |config|
   config.abstract_rake_task_job_debug_verbose           = false
   config.deactivate_expired_embargoes_job_debug_verbose = false
   config.deepblue_job_debug_verbose                     = false
+  config.globus_errors_report_job_debug_verbose         = false
+  config.globus_status_report_job_debug_verbose         = false
   config.heartbeat_job_debug_verbose                    = false
   config.heartbeat_email_job_debug_verbose              = false
   config.jira_new_ticket_job_debug_verbose              = false
@@ -19,9 +21,7 @@ Deepblue::JobTaskHelper.setup do |config|
   config.update_condensed_events_job_debug_verbose      = false
   config.works_report_job_debug_verbose                 = false
 
-  config.allowed_job_tasks             = [ '-T',
-                                           'tmp:clean',
-                                           'blacklight:delete_old_searches[30]' ].freeze
+  config.allowed_job_tasks             = [ '-T', 'tmp:clean' ].freeze
   config.allowed_job_task_matching     = [ /blacklight:delete_old_searches\[\d+\]/ ].freeze
   config.job_failure_email_subscribers = [ 'fritx@umich.edu' ]
 

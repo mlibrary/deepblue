@@ -4,7 +4,7 @@ class GlobusStatusReportJob < ::Deepblue::DeepblueJob
 
   SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 
-monthly_events_report_job:
+globus_status_report_job:
   # Run once a day, 5 minutes after six pm (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M H D
   cron: '5 18 * * *'
@@ -30,10 +30,10 @@ END_OF_SCHEDULER_ENTRY
     log( event: "globus status report job", hostname_allowed: hostname_allowed? )
     is_quiet?
     return job_finished unless hostname_allowed?
-    report = ::Deepblue::GlobusServiceIntegration.globus_status_report( quiet: is_quiet?, debug_verbose: debug_verbose )
+    report = ::Deepblue::GlobusIntegrationService.globus_status_report( quiet: is_quiet?, debug_verbose: debug_verbose )
     if report.out.present?
       event = "globus status report job"
-      email_all_targets( task_name: "globus status report", event: event, body: report.out )
+      email_all_targets( task_name: "globus status report", event: event, body: report.out, content_type: 'text/html' )
     end
     job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException

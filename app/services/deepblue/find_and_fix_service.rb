@@ -58,7 +58,7 @@ module Deepblue
         filter_date = FindAndFixCurationConcernFilterDate.new( begin_date: filter_date_begin,
                                                                end_date: filter_date_end,
                                                                debug_verbose: debug_verbose )
-        messages << "Filter dates between #{filter_date.begin_date} and #{filter_date.filter_date_end}."
+        messages << "Filter dates between #{filter_date.begin_date} and #{filter_date.end_date}."
       end
       fixer = FindAndFix.new( filter: filter_date,
                               messages: messages,

@@ -3,6 +3,7 @@
 require "abstract_rake_task_job"
 # require "find_and_fix_empty_file_sizes_behavior"
 # require "find_and_fix_ordered_members_behavior"
+require_relative '../../app/services/deepblue/find_and_fix_curation_concern_filter_date'
 
 class FindAndFixOldJob < AbstractRakeTaskJob
 
@@ -70,8 +71,9 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
                                           verbose: verbose,
                                           task: task )
     if @filter_date_begin.present? || @filter_date_end
-      @filter_date = FindAndFixCurationConcernFilterDate.new( begin_date: filter_date_begin, end_date: filter_date_end )
-      job_msg_queue << "Filter dates between #{filter_date.begin_date} and #{filter_date.filter_date_end}."
+      @filter_date = ::Deepblue::FindAndFixCurationConcernFilterDate.new( begin_date: filter_date_begin,
+                                                                          end_date: filter_date_end )
+      job_msg_queue << "Filter dates between #{filter_date.begin_date} and #{filter_date.end_date}."
     end
     find_and_fix_empty_file_size = job_options_value( options,
                                                       key: 'find_and_fix_empty_file_size',

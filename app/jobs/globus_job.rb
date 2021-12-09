@@ -53,6 +53,11 @@ class GlobusJob < ::Hyrax::ApplicationJob
     return contents
   end
 
+  def self.error_file_delete( id )
+    error_file = error_file( id )
+    clean_file( error_file )
+  end
+
   def self.error_file_exists?( id, write_error_to_log: false, log_prefix: '', quiet: true )
     error_file = error_file( id )
     error_file_exists = false

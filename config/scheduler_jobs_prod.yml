@@ -118,6 +118,23 @@ find_and_fix_all_ordered_members_containing_nils:
     subscription_service_id: find_and_fix_job
     verbose: true
 
+globus_errors_report_job:
+  # Run once a day, 5 minutes after six pm (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  #      M H D
+  cron: '5 18 * * *'
+  class: GlobusErrorsReportJob
+  queue: scheduler
+  description: Globus error report job.
+  args:
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'staging.deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
+    quiet: true
+    subscription_service_id: globus_errors_report_job
+    user_email:
+      - 'fritx@umich.edu'
+
 clean_search:
   # Run once a day, 36 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #       M H D
@@ -134,6 +151,7 @@ clean_search:
       - 'fritx@umich.edu'
     job_delay: 0
     rake_task: 'blacklight:delete_old_searches[30]'
+    subscription_service_id: clean_search
     verbose: true
 
 clean_tmp:
@@ -152,6 +170,7 @@ clean_tmp:
       - 'fritx@umich.edu'
     job_delay: 0
     rake_task: 'tmp:clean'
+    subscription_service_id: clean_tmp
     verbose: true
 
 clean_tmp2:

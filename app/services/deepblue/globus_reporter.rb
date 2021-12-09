@@ -7,6 +7,7 @@ module Deepblue
 
   class GlobusReporter < AbstractService
 
+    attr_accessor :as_html
     attr_accessor :error_ids
     attr_accessor :locked_ids
     attr_accessor :prep_dir_ids
@@ -35,6 +36,7 @@ module Deepblue
       @prep_dir_tmp_ids = prep_dir_tmp_ids
       @ready_ids = ready_ids
       @quiet = quiet
+      @as_html = as_html
       @debug_verbose = debug_verbose
     end
 
@@ -58,13 +60,55 @@ module Deepblue
 
     def report_section( header:, hash: )
       return if quiet && !hash.present?
-      r_puts( header )
+      r_header( header )
       unless hash.present?
         r_puts "None."
       else
+        r_list_begin( 'ul' )
         hash.each_key do |id|
-          r_puts ::Deepblue::EmailHelper.data_set_url( id: id ) # TODO: make this a link
+          r_list_item( ::Deepblue::EmailHelper.data_set_url( id: id ), as_link: true )
         end
+        r_list_end( 'ul' )
+      end
+    end
+
+    def r_header( header )
+      if as_html
+        r_puts( "<em>#{header}</em><br/>" )
+      else
+        r_puts( header )
+      end
+    end
+
+    def r_line( line )
+      if as_html
+        r_puts( "#{line}<br/>" )
+      else
+        r_puts( line )
+      end
+    end
+
+    def r_list_begin( list_type )
+      if as_html
+        r_puts( "<#{list_type}>" )
+      end
+    end
+
+    def r_list_end( list_type )
+      if as_html
+        r_puts( "</#{list_type}>" )
+      end
+    end
+
+    def r_list_item( item, as_link: false )
+      if as_html
+        if as_link
+          r_puts( "<li><a href=\"#{item}\"></a>#{item}</li>" )
+        else
+          r_puts( "<li>#{item}</li>" )
+        end
+      else
+        r_puts( item )
       end
     end
 

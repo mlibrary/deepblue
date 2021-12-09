@@ -218,8 +218,8 @@ module Deepblue
     end
 
     def self.mailto_contact_us_html( label: nil, new_window: false )
-      LoggingHelper.bold_debug [  Deepblue::LoggingHelper.here,
-                                  Deepblue::LoggingHelper.called_from,
+      LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                  ::Deepblue::LoggingHelper.called_from,
                                   "" ] if Rails.configuration.email_debug_verbose
       to = contact_us_at
       label = to if label.blank?
@@ -228,16 +228,16 @@ module Deepblue
            else
              "<a href=\"mailto:#{to}\">#{label}</a>"
            end
-      LoggingHelper.bold_debug [  Deepblue::LoggingHelper.here,
-                                  Deepblue::LoggingHelper.called_from,
+      LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                  ::Deepblue::LoggingHelper.called_from,
                                   "rv=#{rv}",
                                   "" ] if Rails.configuration.email_debug_verbose
       rv
     end
 
     def self.mailto_workflow_html( label: nil, new_window: false )
-      LoggingHelper.bold_debug [  Deepblue::LoggingHelper.here,
-                                  Deepblue::LoggingHelper.called_from,
+      LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                  ::Deepblue::LoggingHelper.called_from,
                                   "" ] if Rails.configuration.email_debug_verbose
       to = notification_email_workflow_to
       label = to if label.blank?
@@ -246,8 +246,8 @@ module Deepblue
            else
              "<a href=\"mailto:#{to}\">#{label}</a>"
            end
-      LoggingHelper.bold_debug [  Deepblue::LoggingHelper.here,
-                                  Deepblue::LoggingHelper.called_from,
+      LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                  ::Deepblue::LoggingHelper.called_from,
                                   "rv=#{rv}",
                                   "" ] if Rails.configuration.email_debug_verbose
       rv
@@ -258,64 +258,64 @@ module Deepblue
     end
 
     def self.notification_email_contact_form_to
-      LoggingHelper.bold_debug [  Deepblue::LoggingHelper.here,
-                                  Deepblue::LoggingHelper.called_from,
+      LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                  ::Deepblue::LoggingHelper.called_from,
                                   "rv=#{Rails.configuration.notification_email_contact_form_to}",
                                   "" ] if Rails.configuration.email_debug_verbose
       Rails.configuration.notification_email_contact_form_to
     end
 
     def self.notification_email_contact_us_to
-      LoggingHelper.bold_debug [  Deepblue::LoggingHelper.here,
-                                  Deepblue::LoggingHelper.called_from,
+      LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                  ::Deepblue::LoggingHelper.called_from,
                                   "rv=#{Rails.configuration.notification_email_contact_us_to}",
                                   "" ] if Rails.configuration.email_debug_verbose
       Rails.configuration.notification_email_contact_us_to
     end
 
     def self.notification_email_deepblue_to
-      LoggingHelper.bold_debug [  Deepblue::LoggingHelper.here,
-                                  Deepblue::LoggingHelper.called_from,
+      LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                  ::Deepblue::LoggingHelper.called_from,
                                   "rv=#{Rails.configuration.notification_email_deepblue_to}",
                                   "" ] if Rails.configuration.email_debug_verbose
       Rails.configuration.notification_email_deepblue_to
     end
 
     def self.notification_email_from
-      LoggingHelper.bold_debug [  Deepblue::LoggingHelper.here,
-                                  Deepblue::LoggingHelper.called_from,
+      LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                  ::Deepblue::LoggingHelper.called_from,
                                   "rv=#{Rails.configuration.notification_email_from}",
                                   "" ] if Rails.configuration.email_debug_verbose
       Rails.configuration.notification_email_from
     end
 
     def self.notification_email_jira_to
-      LoggingHelper.bold_debug [  Deepblue::LoggingHelper.here,
-                                  Deepblue::LoggingHelper.called_from,
+      LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                  ::Deepblue::LoggingHelper.called_from,
                                   "rv=#{Rails.configuration.notification_email_jira_to}",
                                   "" ] if Rails.configuration.email_debug_verbose
       Rails.configuration.notification_email_jira_to
     end
 
     def self.notification_email_rds_to
-      LoggingHelper.bold_debug [  Deepblue::LoggingHelper.here,
-                                  Deepblue::LoggingHelper.called_from,
+      LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                  ::Deepblue::LoggingHelper.called_from,
                                   "rv=#{Rails.configuration.notification_email_rds_to}",
                                   "" ] if Rails.configuration.email_debug_verbose
       Rails.configuration.notification_email_rds_to
     end
 
     def self.notification_email_to
-      LoggingHelper.bold_debug [  Deepblue::LoggingHelper.here,
-                                  Deepblue::LoggingHelper.called_from,
+      LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                  ::Deepblue::LoggingHelper.called_from,
                                   "rv=#{Rails.configuration.notification_email_to}",
                                   "" ] if Rails.configuration.email_debug_verbose
       Rails.configuration.notification_email_to
     end
 
     def self.notification_email_workflow_to
-      LoggingHelper.bold_debug [  Deepblue::LoggingHelper.here,
-                                  Deepblue::LoggingHelper.called_from,
+      LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                  ::Deepblue::LoggingHelper.called_from,
                                   "rv=#{Rails.configuration.notification_email_workflow_to}",
                                   "" ] if Rails.configuration.email_debug_verbose
       Rails.configuration.notification_email_workflow_to
@@ -329,13 +329,14 @@ module Deepblue
                          body:,
                          log: false,
                          content_type: nil )
-
+      subject = subject.join( '' ) if subject.is_a? Array
+      body = body.join( "\n" ) if body.is_a? Array
       subject = EmailHelper.clean_str subject if EmailHelper.needs_cleaning subject
       body = EmailHelper.clean_str body if EmailHelper.needs_cleaning body
       email_enabled = DeepBlueDocs::Application.config.email_enabled
       is_enabled = email_enabled ? "is enabled" : "is not enabled"
-      LoggingHelper.bold_debug [  Deepblue::LoggingHelper.here,
-                                  Deepblue::LoggingHelper.called_from,
+      LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                  ::Deepblue::LoggingHelper.called_from,
                                   "is_enabled=#{is_enabled}",
                                   "to=#{to}",
                                   "cc=#{cc}",
