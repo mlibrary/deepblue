@@ -44,11 +44,13 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
                                            ::Deepblue::LoggingHelper.called_from,
                                            "args=#{args}",
                                            "" ] if find_and_fix_job_debug_verbose
-    initialized = initialize_from_args( *args )
+    initialized = initialize_from_args *args
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "initialized=#{initialized}",
                                            "" ], bold_puts: task if find_and_fix_job_debug_verbose
+    ::Deepblue::SchedulerHelper.log( class_name: self.class.name )
+    return unless initialized
     filter_date_begin = job_options_value( options,
                                            key: 'filter_date_begin',
                                            default_value: nil,
@@ -59,8 +61,6 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
                                          default_value: nil,
                                          verbose: verbose,
                                          task: task )
-    ::Deepblue::SchedulerHelper.log( class_name: self.class.name )
-    return unless initialized
     run_job_delay
     ::Deepblue::FindAndFixService.find_and_fix( filter_date_begin: filter_date_begin,
                                                 filter_date_end: filter_date_end,

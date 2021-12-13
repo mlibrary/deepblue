@@ -45,7 +45,7 @@ END_OF_SCHEDULER_ENTRY
     log( event: "monthly events report job", hostname_allowed: hostname_allowed )
     is_quiet?
     return job_finished unless hostname_allowed
-    this_month = job_options_value( options, key: 'this_month', default_value: false, task: task )
+    this_month = job_options_value( options, key: 'this_month', default_value: false, task: task, verbose: verbose )
     if this_month
       date_range = ::AnalyticsHelper.date_range_for_month_of( time: Time.now )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

@@ -34,6 +34,7 @@ RSpec.describe UpdateCondensedEventsJob, skip: false do
           let(:args)      { { hostnames: hostnames, quiet: true } }
           let(:options)   { { 'hostnames' => hostnames, 'quiet' => true } }
           let(:task)      { false }
+          let(:verbose)   { false }
 
           before do
             # TODO: reactivate this
@@ -42,28 +43,7 @@ RSpec.describe UpdateCondensedEventsJob, skip: false do
             allow(sched_helper).to receive(:log)
             allow(sched_helper).to receive(:scheduler_log_echo_to_rails_logger).and_return false
             expect( analytics_helper ).to receive(:update_current_month_condensed_events)
-            expect(job).to receive(:job_options_value).with( options,
-                                                             key: 'hostnames',
-                                                             default_value: [],
-                                                             verbose: dbg_verbose,
-                                                             task: task ).and_call_original
-            expect(job).to receive(:job_options_value).with( options,
-                                                             key: 'task',
-                                                             default_value: false,
-                                                             task: task ).and_call_original
-            expect(job).to receive(:job_options_value).with( options,
-                                                             key: 'verbose',
-                                                             default_value: false,
-                                                             task: task ).and_call_original
-            expect(job).to receive(:job_options_value).with( options,
-                                                             key: 'user_email',
-                                                             default_value: '',
-                                                             task: task ).and_call_original
-            expect(job).to receive(:job_options_value).with( options,
-                                                             key: 'quiet',
-                                                             default_value: false,
-                                                             verbose: dbg_verbose,
-                                                             task: task ).and_call_original
+            allow( job ).to receive(:job_options_value).with( any_args ).and_call_original
           end
 
           it 'calls update_current_month_condensed_events' do
@@ -86,33 +66,7 @@ RSpec.describe UpdateCondensedEventsJob, skip: false do
             allow(sched_helper).to receive(:log)
             allow(sched_helper).to receive(:scheduler_log_echo_to_rails_logger).and_return false
             expect( analytics_helper ).to_not receive(:update_current_month_condensed_events)
-            expect(job).to receive(:job_options_value).with( options,
-                                                             key: 'hostnames',
-                                                             default_value: [],
-                                                             verbose: dbg_verbose,
-                                                             task: task ).at_least(:once).and_call_original
-            expect(job).to receive(:job_options_value).with( options,
-                                                             key: 'task',
-                                                             default_value: false,
-                                                             task: task ).and_call_original
-            expect(job).to receive(:job_options_value).with( options,
-                                                             key: 'verbose',
-                                                             default_value: false,
-                                                             task: task ).and_call_original
-            expect(job).to receive(:job_options_value).with( options,
-                                                             key: 'user_email',
-                                                             default_value: '',
-                                                             task: task ).and_call_original
-            expect(job).to receive(:job_options_value).with( options,
-                                                             key: 'quiet',
-                                                             default_value: false,
-                                                             verbose: dbg_verbose ,
-                                                             task: task).and_call_original
-            # expect(job).to receive(:job_options_value).with( options,
-            #                                                      key: 'hostnames',
-            #                                                      default_value: [],
-            #                                                      verbose: dbg_verbose ,
-            #                                                              task: task ).and_call_original
+            allow( job ).to receive(:job_options_value).with( any_args ).and_call_original
           end
 
           it 'does not call update_current_month_condensed_events' do

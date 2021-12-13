@@ -26,41 +26,25 @@ RSpec.describe RakeTaskJob, skip: false do
       before do
         expect( described_class.rake_task_job_debug_verbose ).to eq false
         expect(job).to receive(:initialize_from_args).with( any_args ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                         key: 'task',
-                                                         default_value: false,
-                                                         task: false ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                         key: 'verbose',
-                                                         default_value: false,
-                                                         task: task ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                         key: 'job_delay',
-                                                         default_value: 0,
-                                                         verbose: verbose,
-                                                         task: task ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                             key: 'email_results_to',
-                                                             default_value: [],
-                                                             verbose: verbose,
-                                                         task: task ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                             key: 'subscription_service_id',
-                                                             default_value: nil,
-                                                             verbose: verbose,
-                                                         task: task ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                             key: 'hostnames',
-                                                             default_value: [],
-                                                             verbose: verbose,
-                                                         task: task ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                             key: 'rake_task',
-                                                             default_value: '',
-                                                             verbose: verbose,
-                                                         task: task ).and_call_original
-        expect(sched_helper).to receive(:log).with( class_name: described_class.name, event_note: rake_task )
+        { task:                 false,
+          verbose:              false,
+          by_request_only:      false,
+          from_dashboard:       '',
+          is_quiet:             false,
+          job_delay:            0,
+          email_results_to:     [],
+          subscription_service_id: nil,
+          hostnames:            [],
+          rake_task:            '' }.each_pair do |key,value|
+
+          expect(job).to receive(:job_options_value).with( options,
+                                                           key: key.to_s,
+                                                           default_value: value,
+                                                           task: false,
+                                                           verbose: false ).at_least(:once).and_call_original
+        end
         if run_the_job
+          expect(sched_helper).to receive(:log).with( class_name: described_class.name, event_note: rake_task )
           expect(job).to receive(:allowed_job_task?).with(no_args).and_return true
           expect(job).to receive(:run_job_delay).with(no_args) #.and_call_original
           expect(job).to receive(:exec_rake_task).with("bundle exec rake #{rake_task}").and_return 'Success!'

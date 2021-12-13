@@ -11,11 +11,14 @@ RSpec.describe DeactivateExpiredEmbargoesJob do
   end
 
   describe 'module variables' do
-    it { expect(described_class.default_args).to eq( { email_owner: true,
-                                                    skip_file_sets: true,
-                                                    test_mode: false,
-                                                    task: false,
-                                                    verbose: false } ) }
+    it { expect(described_class.default_args).to eq( { by_request_only: false,
+                                                       from_dashboard: '',
+                                                       is_quiet: false,
+                                                       email_owner: true,
+                                                       skip_file_sets: true,
+                                                       test_mode: false,
+                                                       task: false,
+                                                       verbose: false } ) }
   end
 
   describe 'job calls service' do
@@ -29,8 +32,8 @@ RSpec.describe DeactivateExpiredEmbargoesJob do
       let(:event_name)    { 'deactivate expired embargoes' }
       let(:time_before)   { DateTime.now }
       before do
-        task = args["task"]
-        task = described_class.default_args[:task] if task.blank?
+        # task = args["task"]
+        # task = described_class.default_args[:task] if task.blank?
         verbose = args["verbose"]
         verbose = described_class.default_args[:verbose] if verbose.blank?
         email_owner = args["email_owner"]
@@ -41,55 +44,38 @@ RSpec.describe DeactivateExpiredEmbargoesJob do
         test_mode = described_class.default_args[:test_mode] if test_mode.blank?
         expect( described_class.deactivate_expired_embargoes_job_debug_verbose ).to eq false
         expect(job).to receive(:initialize_from_args).with( any_args ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                         key: 'task',
-                                                         default_value: described_class.default_args[:task],
-                                                         task: false ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                         key: 'verbose',
-                                                         default_value: described_class.default_args[:verbose],
-                                                         task: task ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                         key: 'job_delay',
-                                                         default_value: 0,
-                                                         verbose: verbose,
-                                                         task: task ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                         key: 'email_results_to',
-                                                         default_value: [],
-                                                         verbose: verbose,
-                                                         task: task ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                         key: 'subscription_service_id',
-                                                         default_value: nil,
-                                                         verbose: verbose,
-                                                         task: task ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                         key: 'hostnames',
-                                                         default_value: [],
-                                                         verbose: verbose,
-                                                         task: task ).and_call_original
-        expect(job).to receive(:options_value).with( key: 'email_owner',
-                                                     default_value: described_class.default_args[:email_owner] ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                         key: 'email_owner',
-                                                         default_value: described_class.default_args[:email_owner],
-                                                         verbose: verbose,
-                                                         task: task ).and_call_original
-        expect(job).to receive(:options_value).with( key: 'skip_file_sets',
-                                                     default_value: described_class.default_args[:skip_file_sets] ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                         key: 'skip_file_sets',
-                                                         default_value: described_class.default_args[:skip_file_sets],
-                                                         verbose: verbose,
-                                                         task: task ).and_call_original
-        expect(job).to receive(:options_value).with( key: 'test_mode',
-                                                     default_value: described_class.default_args[:test_mode] ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                         key: 'test_mode',
-                                                         default_value: described_class.default_args[:test_mode],
-                                                         verbose: verbose,
-                                                         task: task ).and_call_original
+        { verbose:              described_class.default_args[:verbose],
+          task:                 described_class.default_args[:task] }.each_pair do |key,value|
+
+          expect(job).to receive(:job_options_value).with( options,
+                                                           key: key.to_s,
+                                                           default_value: value,
+                                                           verbose: false,
+                                                           task: false ).at_least(:once).and_call_original
+        end
+        { by_request_only:      described_class.default_args[:by_request_only],
+          from_dashboard:       described_class.default_args[:from_dashboard],
+          is_quiet:             described_class.default_args[:is_quiet],
+          job_delay:            0,
+          email_results_to:     [],
+          subscription_service_id: nil,
+          hostnames:            [],
+          email_owner:          described_class.default_args[:email_owner],
+          skip_file_sets:       described_class.default_args[:skip_file_sets],
+          test_mode:            described_class.default_args[:test_mode] }.each_pair do |key,value|
+
+          expect(job).to receive(:job_options_value).with( options,
+                                                           key: key.to_s,
+                                                           default_value: value,
+                                                           verbose: verbose,
+                                                           task: false ).at_least(:once).and_call_original
+        end
+        { email_owner:          described_class.default_args[:email_owner],
+          skip_file_sets:       described_class.default_args[:skip_file_sets],
+          test_mode:            described_class.default_args[:test_mode] }.each_pair do |key,value|
+
+          expect(job).to receive(:options_value).with( key: key.to_s, default_value: value ).and_call_original
+        end
         expect(sched_helper).to receive(:log).with(class_name: described_class.name, event: event_name )
         if 0 < debug_verbose_count
           expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(debug_verbose_count).times
@@ -102,7 +88,7 @@ RSpec.describe DeactivateExpiredEmbargoesJob do
                                                     job_msg_queue: job_msg_queue,
                                                     skip_file_sets: skip_file_sets,
                                                     test_mode: test_mode,
-                                                    verbose: verbose).and_return service
+                                                    verbose: verbose ).and_return service
           expect(job).to receive(:email_results).with(any_args)
         else
           expect(::Deepblue::DeactivateExpiredEmbargoesService).to_not receive(:new)

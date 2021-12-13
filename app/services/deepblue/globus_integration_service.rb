@@ -60,8 +60,8 @@ module Deepblue
       prep_dir_prefix = GlobusJob.target_file_name( nil, "#{GlobusJob.server_prefix(str: '_')}#{base_name}" ).to_s
       prep_dir_re = Regexp.compile( '^' + prep_dir_prefix + '([0-9a-z-]+)' + '$' )
       prep_tmp_dir_re = Regexp.compile( '^' + prep_dir_prefix + '([0-9a-z-]+)_tmp' + '$' )
-      ready_file_prefix = GlobusJob.target_file_name_env(nil, 'ready', base_name ).to_s
-      ready_file_re = Regexp.compile( '^' + ready_file_prefix + '([0-9a-z-]+)' + '$' )
+      # ready_file_prefix = GlobusJob.target_file_name_env(nil, 'ready', base_name ).to_s
+      # ready_file_re = Regexp.compile( '^' + ready_file_prefix + '([0-9a-z-]+)' + '$' )
       starts_with_path = "#{::Deepblue::GlobusIntegrationService.globus_prep_dir}#{File::SEPARATOR}"
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

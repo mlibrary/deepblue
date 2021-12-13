@@ -30,7 +30,7 @@ works_report_job_monthly:
 END_OF_SCHEDULER_ENTRY
 
 
-  include JobHelper # see JobHelper for :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
+  include JobHelper # see JobHelper for :by_request_only, :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as :scheduler
 
   attr_accessor :echo_to_stdout, :hostnames, :options, :quiet, :verbose

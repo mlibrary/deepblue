@@ -6,9 +6,12 @@ class CleanDerivativesDirJob < AbstractRakeTaskJob
 
   mattr_accessor :clean_derivatives_dir_job_debug_verbose, default: false
 
-  mattr_accessor :default_args, default: { days_old: 7,
-                                           to_console: false,
+  mattr_accessor :default_args, default: { by_request_only: false,
+                                           from_dashboard: '',
+                                           is_quiet: false,
+                                           days_old: 7,
                                            task: false,
+                                           to_console: false,
                                            verbose: false }
 
   SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
@@ -30,7 +33,7 @@ clean_derivatives_dir_job:
 
 END_OF_SCHEDULER_ENTRY
 
-  include JobHelper # see JobHelper for :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
+  include JobHelper # see JobHelper for :by_request_only, :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as :scheduler
 
   def perform( *args )
@@ -45,6 +48,7 @@ END_OF_SCHEDULER_ENTRY
                                            "initialized=#{initialized}",
                                            "" ] if clean_derivatives_dir_job_debug_verbose
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event: event_name )
+    return unless initialized
     days_old = options_value( key: 'days_old', default_value: default_args[:days_old] )
     ::Deepblue::CleanDerivativesDirService.new( days_old: days_old,
                                                 job_msg_queue: job_msg_queue,

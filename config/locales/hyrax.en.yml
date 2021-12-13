@@ -611,6 +611,10 @@ en:
       ingest_file_paths:    "Ingest File Paths"
     institution_name:       "Institution"
     institution_name_full:  "The Institution Name"
+    jobs:
+      do_not_run_in_dev:    "Jobs don't run in development."
+      running:              "#{jobs_count} job(s) are running as of #{now}"
+      running_header:       "Jobs Running"
     manage_email:
       actions_header:      "Manage Email Actions"
     menu:
@@ -641,6 +645,9 @@ en:
       can_not_run_html:     "Scheduler can <strong>not</strong> run on %{hostname}"
       can_run:              "Scheduler can run on %{hostname}"
       edit_schedule_header: "Edit Schedule"
+      jobs_do_not_run_in_dev: "Jobs don't run in development."
+      jobs_running:         "#{jobs_count} job(s) are running as of #{now}"
+      jobs_running_header:  "Jobs Running"
       not_running_html:     "Scheduler is <strong>not</strong> Running"
       run_job:              "Run Scheduler Job Now"
       running:              "Scheduler is Running"

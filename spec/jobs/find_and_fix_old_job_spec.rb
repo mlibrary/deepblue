@@ -17,7 +17,7 @@ RSpec.describe FindAndFixOldJob, skip: false do
     let(:find_and_fix_over_file_sets) { true }
     let(:find_and_fix_all_ordered_members_containing_nils) { true }
     let(:task) { false }
-    let(:verbose) { true }
+    let(:verbose) { false }
     let(:args)   { { 'email_results_to' => 'fritx@umich.edu',
                      'find_and_fix_empty_file_size' => find_and_fix_empty_file_size,
                      'find_and_fix_over_file_sets' => find_and_fix_over_file_sets,
@@ -36,61 +36,36 @@ RSpec.describe FindAndFixOldJob, skip: false do
 
         expect( described_class.find_and_fix_old_job_debug_verbose ).to eq dbg_verbose
         expect(job).to receive( :initialize_from_args ).with( any_args ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                         key: 'task',
-                                                         default_value: false,
-                                                         task: task ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                           key: 'verbose',
-                                                           default_value: false,
-                                                           task: task ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                           key: 'job_delay',
-                                                           default_value: 0,
-                                                           verbose: verbose,
-                                                           task: task ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                           key: 'email_results_to',
-                                                           default_value: [],
-                                                           verbose: verbose,
-                                                           task: task ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                           key: 'subscription_service_id',
-                                                           default_value: nil,
-                                                           verbose: verbose,
-                                                           task: task ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                           key: 'hostnames',
-                                                           default_value: [],
-                                                           verbose: verbose,
-                                                           task: task ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                           key: 'filter_date_begin',
-                                                           default_value: nil,
-                                                           verbose: verbose,
-                                                           task: task ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                           key: 'filter_date_end',
-                                                           default_value: nil,
-                                                           verbose: verbose,
-                                                           task: task ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                           key: 'find_and_fix_empty_file_size',
-                                                           default_value: true,
-                                                           verbose: verbose,
-                                                           task: task ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                           key: 'find_and_fix_over_file_sets',
-                                                           default_value: true,
-                                                           verbose: verbose,
-                                                           task: task ).and_call_original
-        expect(job).to receive(:job_options_value).with( options,
-                                                           key: 'find_and_fix_all_ordered_members_containing_nils',
-                                                           default_value: true,
-                                                           verbose: verbose,
-                                                           task: task ).and_call_original
-        expect(sched_helper).to receive(:log).with( class_name: described_class.name )
+        { task:                 false,
+          verbose:              false,
+          by_request_only:      false,
+          from_dashboard:       '',
+          is_quiet:             false,
+          job_delay:            0,
+          email_results_to:     [],
+          subscription_service_id: nil,
+          hostnames:            [] }.each_pair do |key,value|
+
+          expect(job).to receive(:job_options_value).with( options,
+                                                           key: key.to_s,
+                                                           default_value: value,
+                                                           task: false,
+                                                           verbose: false ).at_least(:once).and_call_original
+        end
+        expect(sched_helper).to receive(:log).with( class_name: described_class.name, event: "find and fix old" )
         if run_the_job
+          { filter_date_begin:    nil,
+            filter_date_end:      nil,
+            find_and_fix_empty_file_size: true,
+            find_and_fix_over_file_sets: true,
+            find_and_fix_all_ordered_members_containing_nils: true }.each_pair do |key,value|
+
+            expect(job).to receive(:job_options_value).with( options,
+                                                             key: key.to_s,
+                                                             default_value: value,
+                                                             verbose: false,
+                                                             task: false ).and_call_original
+          end
           expect(job).to receive(:run_job_delay).with(no_args) #.and_call_original
           expect(job).to receive(:find_and_fix_empty_file_sizes).with(any_args)
           expect(job).to receive(:find_and_fix_over_file_sets).with(any_args)

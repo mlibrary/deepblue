@@ -7,7 +7,10 @@ class DeactivateExpiredEmbargoesJob < AbstractRakeTaskJob
   mattr_accessor :deactivate_expired_embargoes_job_debug_verbose,
                  default: ::Deepblue::JobTaskHelper.deactivate_expired_embargoes_job_debug_verbose
 
-  mattr_accessor :default_args, default: { email_owner: true,
+  mattr_accessor :default_args, default: { by_request_only: false,
+                                           from_dashboard: '',
+                                           is_quiet: false,
+                                           email_owner: true,
                                            skip_file_sets: true,
                                            test_mode: false,
                                            task: false,
@@ -31,7 +34,7 @@ deactivate_expired_embargoes_job:
 END_OF_SCHEDULER_ENTRY
 
 
-  include JobHelper # see JobHelper for :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
+  include JobHelper # see JobHelper for :by_request_only, :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as :scheduler
 
   def perform( *args )
@@ -47,6 +50,7 @@ END_OF_SCHEDULER_ENTRY
                                            "initialized=#{initialized}",
                                            "" ] if deactivate_expired_embargoes_job_debug_verbose
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name,  event: event_name )
+    return unless initialized
     email_owner    = options_value( key: 'email_owner',    default_value: default_args[:email_owner] )
     skip_file_sets = options_value( key: 'skip_file_sets', default_value: default_args[:skip_file_sets] )
     test_mode      = options_value( key: 'test_mode',      default_value: default_args[:test_mode] )

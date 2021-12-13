@@ -122,7 +122,7 @@ class SchedulerStartJob < ::Deepblue::DeepblueJob
   end
 
   def scheduler_emails( autostart: false, to:, subject:, body: '' )
-    emails = to & ::Deepblue::SchedulerIntegrationService.scheduler_started_email
+    emails = to | ::Deepblue::SchedulerIntegrationService.scheduler_started_email
     emails.each do |email_target|
       scheduler_email( autostart: autostart, email_target: email_target, subject: subject, body: body )
     end

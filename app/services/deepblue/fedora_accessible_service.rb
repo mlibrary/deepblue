@@ -11,6 +11,7 @@ module Deepblue
       body =<<-END_BODY
 #{subject}<br/>
 END_BODY
+      targets = targets.uniq
       targets.each do |email|
         ::Deepblue::JobTaskHelper.send_email( email_target: email,
                                               content_type: 'text/html',

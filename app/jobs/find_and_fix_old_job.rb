@@ -54,11 +54,13 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
                                            ::Deepblue::LoggingHelper.called_from,
                                            "args=#{args}",
                                            "" ] if find_and_fix_old_job_debug_verbose
-    initialized = initialize_from_args( *args )
+    initialized = initialize_from_args *args
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "initialized=#{initialized}",
                                            "" ] if find_and_fix_old_job_debug_verbose
+    ::Deepblue::SchedulerHelper.log( class_name: self.class.name,  event: event_name )
+    return unless initialized
     @filter_date = nil
     @filter_date_begin = job_options_value( options,
                                             key: 'filter_date_begin',
@@ -93,7 +95,6 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
                                                       verbose: verbose,
                                                                           task: task )
     job_msg_queue << "find_and_fix_all_ordered_members_containing_nils=#{find_and_fix_all_ordered_members_containing_nils}"
-    ::Deepblue::SchedulerHelper.log( class_name: self.class.name )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "options=#{options}",
@@ -106,7 +107,6 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
                                            "find_and_fix_empty_file_size=#{find_and_fix_empty_file_size}",
                                            "find_and_fix_all_ordered_members_containing_nils=#{find_and_fix_all_ordered_members_containing_nils}",
                                            "" ] if find_and_fix_old_job_debug_verbose
-    return unless initialized
     run_job_delay
     if find_and_fix_empty_file_size
       file_set_ids_fixed = []

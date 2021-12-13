@@ -31,7 +31,8 @@ example_rake_task_job:
       - 'testing.deepblue.lib.umich.edu'
     email_results_to:
       - 'fritx@umich.edu'
-    verbose: true 
+    is_quiet: true
+    verbose: false
 
 END_OF_EXAMPLE_SCHEDULER_ENTRY
 
@@ -46,9 +47,9 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
                                            ::Deepblue::LoggingHelper.called_from,
                                            "args=#{args}",
                                            "" ], bold_puts: rake_task_job_bold_puts if rake_task_job_debug_verbose
-    initialized = initialize_from_args( *args )
+    initialized = initialize_from_args *args
     @rake_task = job_options_value( options, key: 'rake_task', default_value: "", verbose: verbose, task: task )
-    ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event_note: rake_task )
+    return if !initialized || @rake_task.blank?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "options=#{options}",
@@ -56,14 +57,13 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
                                            "verbose=#{verbose}",
                                            "hostnames=#{hostnames}",
                                            "email_targets=#{email_targets}",
-                                           "initialized=#{initialized}",
+                                           # "initialized=#{initialized}",
                                            "job_delay=#{job_delay}",
                                            "rake_task=#{rake_task}",
                                            "allowed_job_tasks.include? #{rake_task}=#{::Deepblue::JobTaskHelper.allowed_job_tasks.include? rake_task}",
                                            "" ], bold_puts: rake_task_job_bold_puts if rake_task_job_debug_verbose
-    return unless initialized
-    return if rake_task.blank?
     return unless allowed_job_task?
+    ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event_note: rake_task )
     run_job_delay
     exec_str = "bundle exec rake #{rake_task}"
     rv = exec_rake_task( exec_str )
@@ -73,7 +73,7 @@ END_OF_EXAMPLE_SCHEDULER_ENTRY
                                            "timestamp_end=#{timestamp_end}",
                                            "rv=#{rv}",
                                            "" ], bold_puts: rake_task_job_bold_puts if rake_task_job_debug_verbose
-    email_exec_results( exec_str: exec_str, rv: rv, event: 'rake task job', event_note: rake_task )
+    email_exec_results( exec_str: exec_str, rv: rv, event: 'rake task job', event_note: rake_task ) unless is_quiet
   rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
     Rails.logger.error e.backtrace[0..20].join("\n")

@@ -15,6 +15,10 @@ module MsgHelper
     curation_concern.description.join( field_sep )
   end
 
+  def self.display_now
+    DeepblueHelper.display_timestamp DateTime.now
+  end
+
   def self.globus_link( curation_concern )
     ::GlobusJob.external_url curation_concern.id
   end
