@@ -32,9 +32,9 @@ END_OF_SCHEDULER_ENTRY
                                            "args=#{args}",
                                            "" ] if update_condensed_events_job_debug_verbose
     initialize_options_from( *args, debug_verbose: update_condensed_events_job_debug_verbose )
+    return job_finished unless hostname_allowed?
     log( event: "update condensed events job", hostname_allowed: hostname_allowed? )
     is_quiet?
-    return job_finished unless hostname_allowed?
     ::AnalyticsHelper.update_current_month_condensed_events
     job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException

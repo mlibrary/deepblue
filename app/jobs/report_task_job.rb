@@ -17,12 +17,12 @@ class ReportTaskJob < ::Hyrax::ApplicationJob
                                                                 './data/reports/',
                                                                 '/deepbluedata-globus/uploads/' ]
 
-  include JobHelper # see JobHelper for :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
+  include JobHelper # see JobHelper for :by_request_only, :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as :default
 
   attr_accessor :options, :reporter, :report_file_path
 
-  def perform(  reporter:, report_file_path:, **options )
+  def perform( reporter:, report_file_path:, **options )
     timestamp_begin
     email_targets << reporter if reporter.present?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

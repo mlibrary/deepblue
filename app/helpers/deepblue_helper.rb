@@ -5,7 +5,7 @@ module DeepblueHelper
 	def self.display_timestamp( timestamp )
 		timestamp = timestamp.to_datetime if timestamp.is_a? Time
 		timestamp = DateTime.parse timestamp if timestamp.is_a? String
-		if DeepBlueDocs::Application.config.datetime_stamp_display_local_time_zone
+		if Rails.configuration.datetime_stamp_display_local_time_zone
 			timestamp = timestamp.new_offset( DeepBlueDocs::Application.config.timezone_offset )
 			"#{timestamp.strftime("%Y-%m-%d %H:%M:%S")}"
 		else

@@ -23,7 +23,7 @@ user_stat_importer_job:
 END_OF_SCHEDULER_ENTRY
 
 
-  include JobHelper # see JobHelper for :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
+  include JobHelper # see JobHelper for :by_request_only, :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as :scheduler
 
   attr_accessor :hostnames, :options, :verbose

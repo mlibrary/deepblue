@@ -11,7 +11,7 @@ class MultipleIngestScriptsJob < ::Hyrax::ApplicationJob
   mattr_accessor :scripts_allowed_path_prefixes
   @@scripts_allowed_path_prefixes = [ '/deepbluedata-prep/', './data/reports/', '/deepbluedata-globus/upload/' ]
 
-  include JobHelper # see JobHelper for :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
+  include JobHelper # see JobHelper for :by_request_only, :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as Hyrax.config.ingest_queue_name
 
   attr_accessor :ingest_mode, :ingester, :paths_to_scripts

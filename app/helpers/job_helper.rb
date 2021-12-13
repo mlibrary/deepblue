@@ -2,27 +2,43 @@
 
 module JobHelper
 
-  mattr_accessor :job_helper_debug_verbose, default: false
+  mattr_accessor :job_helper_debug_verbose, default: ::Deepblue::JobTaskHelper.job_helper_debug_verbose
 
+  attr_accessor :by_request_only
   attr_accessor :email_targets
+  attr_accessor :hostname
+  attr_accessor :job_msg_queue
+  attr_accessor :timestamp_begin
+  attr_accessor :timestamp_end
+
+  def by_request_only
+    @by_request_only ||= false
+  end
+  alias :by_request_only? :by_request_only
+
+  def default_value_is( value, default_value = nil )
+    return value if value.present?
+    default_value
+  end
 
   def email_targets
     @email_targets ||= []
   end
 
-  attr_accessor :hostname
-
-  def hostname
-    @hostname ||= ::DeepBlueDocs::Application.config.hostname
+  def email_targets_add( targets )
+    targets = Array( targets )
+    return unless targets.present?
+    @email_targets << targets
+    @email_targets.flatten!
   end
 
-  attr_accessor :job_msg_queue
+  def hostname
+    @hostname ||= Rails.configuration.hostname
+  end
 
   def job_msg_queue
     @job_msg_queue ||= []
   end
-
-  attr_accessor :timestamp_begin, :timestamp_end
 
   def timestamp_begin
     @timestamp_begin ||= DateTime.now
@@ -46,8 +62,9 @@ module JobHelper
                                            "task_name=#{task_name}",
                                            "job_msg_queue=#{job_msg_queue}",
                                            "" ] if job_helper_debug_verbose
-    targets = [] if targets.blank?
-    targets = ::Deepblue::JobTaskHelper.job_failure_email_subscribers & targets
+    targets = Array(targets)
+    dashboard = Array(from_dashboard)
+    targets = ::Deepblue::JobTaskHelper.job_failure_email_subscribers | targets | dashboard
     return unless targets.present?
     return unless targets[0].present?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -91,7 +108,7 @@ module JobHelper
     @job_options_keys_found ||= []
   end
 
-  def job_options_value( options, key:, default_value: nil, verbose: false, task: false )
+  def job_options_value( options, key:, default_value: nil, task: false, verbose: false )
     # ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
     #                                        ::Deepblue::LoggingHelper.called_from,
     #                                       "options=#{options}",
@@ -107,8 +124,13 @@ module JobHelper
     @job_options_keys_found ||= []
     @job_options_keys_found << key
     ::Deepblue::LoggingHelper.debug "set key #{key} to #{options[key]}" if verbose
-    puts "set key #{key} to #{options[key]}" if task
+    puts "set key #{key} to #{options[key]}" if verbose && task
     return options[key]
+  end
+
+  def init_from_arg( arg:, default_var: nil, default_value: nil, task: @task, verbose: false )
+    default_value = default_value_is( default_var, default_value )
+    job_options_value( options, key: arg, default_value: default_value, task: task, verbose: verbose )
   end
 
   def queue_exception_msgs( exception, include_backtrace: true )

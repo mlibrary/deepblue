@@ -129,6 +129,9 @@ class SchedulerDashboardController < ApplicationController
                                            "" ] if scheduler_dashboard_controller_debug_verbose
     # Add this hostname to hostnames if it exists
     args['hostnames'] << ::DeepBlueDocs::Application.config.hostname if args.has_key? 'hostnames'
+    # Ensure that job isn't 'quiet', i.e. send always send results
+    args['quiet'] = false if args.has_key? 'quiet'
+    args['from_dashboard'] = current_user.email
     job_class = job_class_name.constantize
     job_class.set( queue: :default ).perform_later( *args ) if Rails.env.production?
     job_class.perform_now( args ) if Rails.env.development?

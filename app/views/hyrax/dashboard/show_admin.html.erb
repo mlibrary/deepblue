@@ -97,6 +97,10 @@
 
 </div>
 
+<h2 class="title-header"><%= t('hyrax.jobs.running_header') %></h2>
+<label><%= raw ::Deepblue::JobTaskHelper.jobs_running %></label>
+<br/>
+
 <%= render 'admin_sets' %>
 <%= render 'draft_works' %>
 

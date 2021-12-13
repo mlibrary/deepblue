@@ -12,6 +12,7 @@ globus_errors_report_job:
   queue: scheduler
   description: Globus error report job.
   args:
+    by_request_only: false
     hostnames:
       - 'deepblue.lib.umich.edu'
       - 'staging.deepblue.lib.umich.edu'
@@ -29,9 +30,10 @@ END_OF_SCHEDULER_ENTRY
     initialize_options_from( *args, debug_verbose: ::Deepblue::JobTaskHelper.globus_errors_report_job_debug_verbose )
     log( event: "globus errors report job", hostname_allowed: hostname_allowed? )
     is_quiet?
+    return job_finished unless by_request_only? && from_dashboard.present?
     return job_finished unless hostname_allowed?
     report = ::Deepblue::GlobusIntegrationService.globus_errors_report( quiet: is_quiet?, debug_verbose: debug_verbose )
-    if report.out.present?
+    if report.out.present? && !suppress_if_quiet
       event = "globus errors report job"
       email_all_targets( task_name: "globus errors report", event: event, body: report.out, content_type: 'text/html' )
     end
@@ -40,6 +42,10 @@ END_OF_SCHEDULER_ENTRY
     job_status_register( exception: e, args: args )
     email_failure( task_name: self.class.name, exception: e, event: self.class.name )
     raise
+  end
+
+  def suppress_if_quiet
+    false
   end
 
 end
