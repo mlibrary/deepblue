@@ -59,10 +59,11 @@ module Deepblue
     end
 
     def report_section( header:, hash: )
+      return if hash.nil?
       return if quiet && !hash.present?
       r_header( header )
       unless hash.present?
-        r_puts "None."
+        r_line "None."
       else
         r_list_begin( 'ul' )
         hash.each_key do |id|
