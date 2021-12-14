@@ -74,6 +74,15 @@ redis:
   port: 6379
   thread_safe: true
 
+browse_everything:
+  # disable file_system before going to production
+  file_system:
+    home: ./tmp
+  dropbox:
+    client_id: dropbox_client_id.invalid
+    client_secret: dropbox_client_secret.invalid
+    download_directory: ./tmp/
+
 # EZID Client configuration; see initializer/ezid.rb
 # The doi:10.5072/FK2 shoulder is a defined temporary/testing namespace.
 # Set real values in settings.local.yml or local environment file.
