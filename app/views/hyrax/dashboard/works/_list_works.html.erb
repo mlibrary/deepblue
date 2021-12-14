@@ -35,17 +35,35 @@
 
   <% if presenter.tombstoned? %>
      <td class='text-center'><span class="label label-danger">Tombstone</span></td>
+
      <% if presenter.current_ability.admin? %>
-      <td class='text-center'><%= render 'work_action_menu', presenter: presenter, document: document %></td>
-    <% else %>
-     <td class="text-center">Tombstoned</td>
+       <th class="text-center"><%= ::AnalyticsHelper.download_cnt( controller_class: Hyrax::DataSetsController, cc_id: presenter.id, date_range: ::AnalyticsHelper.date_range_for_month_previous ) %></th>
+       <th class="text-center"><%= ::AnalyticsHelper.download_cnt( controller_class: Hyrax::DataSetsController, cc_id: presenter.id, date_range: ::AnalyticsHelper.date_range_since_start ) %></th>
+     <% end %>
+
+     <% if presenter.current_ability.admin? %>
+        <td class='text-center'><%= render 'work_action_menu', presenter: presenter, document: document %></td>
+     <% else %>
+       <td class="text-center">Tombstoned</td>
      <% end %>
   <% else %>
     <% if presenter.can_edit_work? && !Flipflop. disable_desposits_and_edits? %>
       <td class='text-center'><%= render_visibility_link document %></td>
+
+      <% if presenter.current_ability.admin? %>
+        <th class="text-center"><%= ::AnalyticsHelper.download_cnt( controller_class: Hyrax::DataSetsController, cc_id: presenter.id, date_range: ::AnalyticsHelper.date_range_for_month_previous ) %></th>
+        <th class="text-center"><%= ::AnalyticsHelper.download_cnt( controller_class: Hyrax::DataSetsController, cc_id: presenter.id, date_range: ::AnalyticsHelper.date_range_since_start ) %></th>
+      <% end %>
+
       <td class='text-center'><%= render 'work_action_menu', presenter: presenter, document: document %></td>
     <% else %>
       <td class='text-center'><%= render_visibility_link document %></td>
+
+      <% if presenter.current_ability.admin? %>
+        <th class="text-center"><%= ::AnalyticsHelper.download_cnt( controller_class: Hyrax::DataSetsController, cc_id: presenter.id, date_range: ::AnalyticsHelper.date_range_for_month_previous ) %></th>
+        <th class="text-center"><%= ::AnalyticsHelper.download_cnt( controller_class: Hyrax::DataSetsController, cc_id: presenter.id, date_range: ::AnalyticsHelper.date_range_since_start ) %></th>
+      <% end %>
+
       <td class='text-center'>-</td> 
     <% end %>
   <% end %>

@@ -8,6 +8,12 @@
       <th class="date text-center"><%= t("hyrax.dashboard.my.heading.date_modified") %></th>
       <th class="text-center"><%= t("blacklight.search.fields.facet.suppressed_bsi") %></th>
       <th class="text-center"><%= t("hyrax.dashboard.my.heading.visibility") %></th>
+      
+      <% if current_ability.admin? %>
+        <th class="text-center"><%= t("hyrax.dashboard.my.heading.cnt_prev_month") %></th>
+        <th class="text-center"><%= t("hyrax.dashboard.my.heading.cnt_since_start") %></th>
+      <% end %>
+
       <th class="text-center"><%= t("hyrax.dashboard.my.heading.action") %></th>
     </tr>
   </thead>
