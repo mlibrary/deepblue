@@ -613,7 +613,7 @@ en:
     institution_name_full:  "The Institution Name"
     jobs:
       do_not_run_in_dev:    "Jobs don't run in development."
-      running:              "#{jobs_count} job(s) are running as of #{now}"
+      running:              "%{jobs_count} job(s) are running as of %{now}"
       running_header:       "Jobs Running"
     manage_email:
       actions_header:      "Manage Email Actions"

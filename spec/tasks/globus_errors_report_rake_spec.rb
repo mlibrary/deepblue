@@ -31,7 +31,7 @@ describe "globus errors report rake" do
                                                                 locked_ids: {},
                                                                 prep_dir_ids: {},
                                                                 prep_dir_tmp_ids: {},
-                                                                ready_ids: {},
+                                                                ready_ids: nil,
                                                                 quiet: true,
                                                                 as_html: true,
                                                                 debug_verbose: false,

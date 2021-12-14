@@ -85,7 +85,7 @@ module Deepblue
       error_ids = {}
       prep_dir_ids = {}
       prep_dir_tmp_ids = {}
-      ready_ids = {}
+      # ready_ids = {}
       files.each do |f|
         f1 = f
         f = f.slice( (starts_with_path.length)..(f.length) ) if f.starts_with? starts_with_path
@@ -129,7 +129,7 @@ module Deepblue
                                                  locked_ids: locked_ids,
                                                  prep_dir_ids: prep_dir_ids,
                                                  prep_dir_tmp_ids: prep_dir_tmp_ids,
-                                                 ready_ids: ready_ids,
+                                                 ready_ids: nil,
                                                  quiet: quiet,
                                                  debug_verbose: debug_verbose,
                                                  as_html: true,
