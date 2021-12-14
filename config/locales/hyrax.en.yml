@@ -254,6 +254,8 @@ en:
         heading:
           date_created:     "Date Created"
           date_uploaded:    "Date Created"
+          cnt_prev_month:   "Downloads Last Month" 
+          cnt_since_start:  "Downloads Since Deposited"
       report:
         title:              "Manage Reports"
       review_submissions:

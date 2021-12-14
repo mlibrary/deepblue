@@ -46,6 +46,13 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     date_range_for_month_of( time: Time.now.beginning_of_month - 1.day )
   end
 
+  def self.date_range_since_start
+    previous_month = Time.now.beginning_of_month - 1.day 
+    end_of_previous_month = previous_month.end_of_month.end_of_day
+    beginning_of_time = Time.now.beginning_of_month - 100.year
+    date_range = beginning_of_time..end_of_previous_month
+  end
+
   def self.enable_local_analytics_ui?
     Flipflop.enable_local_analytics_ui?
   end
@@ -75,7 +82,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     return user.id
   end
 
-  def self.events_by_date( name:, cc_id: nil, data_name: nil, date_range: nil )
+  def self.events_by_date( name:, cc_id: nil, data_name: nil, date_range: nil, group_by_day: true )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "name=#{name}",
@@ -89,21 +96,40 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     end
     rv = if cc_id.present?
            if date_range.blank?
-             Ahoy::Event.where( name: name, cc_id: cc_id ).group_by_day( :time ).count
+             if group_by_day
+               Ahoy::Event.where( name: name, cc_id: cc_id ).group_by_day( :time ).count
+             else
+               Ahoy::Event.where( name: name, cc_id: cc_id ).count
+             end
            else
-             sql = Ahoy::Event.where( name: name, cc_id: cc_id, time: date_range ).group_by_day( :time ).to_sql
+             sql = Ahoy::Event.where( name: name, cc_id: cc_id, time: date_range ).to_sql
+             sql = Ahoy::Event.where( name: name, cc_id: cc_id, time: date_range ).group_by_day( :time ).to_sql if group_by_day
              ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                     ::Deepblue::LoggingHelper.called_from,
                                                     "sql=#{sql}",
                                                     "" ] if analytics_helper_debug_verbose
-             Ahoy::Event.where( name: name,
-                                cc_id: cc_id,
-                                time: date_range ).group_by_day( :time ).count
+             if group_by_day       
+               Ahoy::Event.where( name: name,
+                                  cc_id: cc_id,
+                                  time: date_range ).group_by_day( :time ).count
+             else
+               Ahoy::Event.where( name: name,
+                                  cc_id: cc_id,
+                                  time: date_range ).count
+             end
            end
          elsif date_range.present?
-           Ahoy::Event.where( name: name, time: date_range ).group_by_day( :time ).count
+           if group_by_day
+             Ahoy::Event.where( name: name, time: date_range ).group_by_day( :time ).count
+           else
+             Ahoy::Event.where( name: name, time: date_range ).count
+           end
          else
-           Ahoy::Event.where( name: name ).group_by_day( :time ).count
+           if group_by_day
+             Ahoy::Event.where( name: name ).group_by_day( :time ).count
+           else
+             Ahoy::Event.where( name: name ).count
+           end
          end
     rv = { name: data_name, data: rv } if data_name.present?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -498,6 +524,16 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
 
   def self.page_hits_by_date( controller_class:, cc_id: nil, date_range: nil )
     events_by_date( name: "#{controller_class.name}#show", cc_id: cc_id, date_range: date_range )
+  end
+
+  def self.download_cnt ( controller_class:, cc_id: nil, date_range: nil )
+    value = page_zip_hits_by_date( controller_class: controller_class, cc_id: cc_id, date_range: date_range )
+    return "-" if value.empty?
+    return value[:data]
+  end
+
+  def self.page_zip_hits_by_date( controller_class:, cc_id: nil, date_range: nil )
+    events_by_date( name: "#{controller_class.name}#zip_download", cc_id: cc_id, data_name: "zip", date_range: date_range, group_by_day: false )
   end
 
   def self.show_hit_graph?( current_ability, presenter: nil )
