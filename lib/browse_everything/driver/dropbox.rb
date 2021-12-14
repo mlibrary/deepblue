@@ -5,8 +5,14 @@ require 'dropbox_api'
 require_relative 'authentication_factory'
 
 module BrowseEverything
+
   module Driver
     class Dropbox < Base
+
+      # begin monkey
+      mattr_accessor :browse_everything_driver_dropbox_debug_verbose, default: false
+      # end monkey
+
       class FileEntryFactory
         def self.build(metadata:, key:)
           factory_klass = klass_for metadata
@@ -76,6 +82,10 @@ module BrowseEverything
       end
 
       def validate_config
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "config[:client_id]=#{config[:client_id]}",
+                                               "" ] if browse_everything_driver_dropbox_debug_verbose
         raise InitializationError, 'Dropbox driver requires a :client_id argument' unless config[:client_id]
         raise InitializationError, 'Dropbox driver requires a :client_secret argument' unless config[:client_secret]
       end
@@ -139,6 +149,10 @@ module BrowseEverything
       private
 
       def session
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "config[:client_id]=#{config[:client_id]}",
+                                               "" ] if browse_everything_driver_dropbox_debug_verbose
         AuthenticationFactory.new(
           self.class.authentication_klass,
           config[:client_id],
@@ -163,18 +177,18 @@ module BrowseEverything
                                                ::Deepblue::LoggingHelper.called_from,
                                                "url_options=#{url_options}",
                                                "method(:connector_response_url).source_location=#{method(:connector_response_url).source_location}",
-                                               "" ] # if browse_everything_controller_debug_verbose
+                                               "" ] if browse_everything_driver_dropbox_debug_verbose
         rv = connector_response_url(**url_options)
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "rv=#{rv}",
-                                               "" ] # if browse_everything_controller_debug_verbose
+                                               "" ] if browse_everything_driver_dropbox_debug_verbose
         # Unfortunately, the connector_response_url does not return with /data as part of its path
         rv = rv.gsub( '/browse', '/data/browse' )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "rv=#{rv}",
-                                               "" ] # if browse_everything_controller_debug_verbose
+                                               "" ] if browse_everything_driver_dropbox_debug_verbose
         return rv
       end
 
@@ -194,4 +208,5 @@ module BrowseEverything
       end
     end
   end
+
 end

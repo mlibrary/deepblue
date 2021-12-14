@@ -1,13 +1,23 @@
 # frozen_string_literal: true
 
 module BrowseEverything
+
   module Driver
     class FileSystem < Base
+
+      # begin monkey
+      mattr_accessor :browse_everything_driver_file_system_debug_verbose, default: false
+      # end monkey
+
       def icon
         'file'
       end
 
       def validate_config
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "config[:client_id]=#{config[:client_id]}",
+                                               "" ] if browse_everything_driver_file_system_debug_verbose
         raise BrowseEverything::InitializationError, 'FileSystem driver requires a :home argument' if config[:home].blank?
       end
 
