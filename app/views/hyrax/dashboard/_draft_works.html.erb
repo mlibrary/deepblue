@@ -6,12 +6,40 @@
                                         "draft_works=#{draft_works}",
                                         ""] if draft_works_debug_verbose
 %>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <div style="font-weight: 700;"><%= t("hyrax.dashboard.my.heading.userinfo") %></div>
+      </div>
+      <div class="panel-body">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th><%= t("hyrax.dashboard.my.heading.name") %></th>
+              <th><%= t("hyrax.dashboard.my.heading.affiliations") %></th>
+              <th><%= t("hyrax.dashboard.my.heading.orcid") %></th>
+            </tr>
+          </thead>
+          <tbody>
+              <tr>
+                <td><%= ::McommunityHelper.get_name ( current_ability.current_user.uid ) %></td>
+                <td><%= ::McommunityHelper.get_affiliation ( current_ability.current_user.uid ) %></td>
+                <td><%= ::McommunityHelper.get_orchid( current_ability.current_user.uid ) %></td>
+              </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
 <% if draft_works.size > 0 %>
   <div class="row">
     <div class="col-md-12">
       <div class="panel panel-default">
         <div class="panel-heading">
-
           <div style="font-weight: 700;"><%= t('show.labels.your_draft_works') %></div>
         </div>
         <div class="panel-body">

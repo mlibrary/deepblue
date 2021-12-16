@@ -252,6 +252,10 @@ en:
         action:
           add_work_to_collection_note: 'Check one or more works to add them to a collection.'
         heading:
+          userinfo:         "User Information"
+          affiliations:     "Affiliations"
+          orcid:            "ORCID"
+          name:             "Name"
           date_created:     "Date Created"
           date_uploaded:    "Date Created"
           cnt_prev_month:   "Downloads Last Month" 
