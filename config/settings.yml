@@ -105,6 +105,12 @@ jira:
   password: jirapassword.invalid
   site_url: https://tools.lib.umich.edu
 
+# For M-community api
+mcommunity:
+  url: url.invalid
+  authorization: authorization.invalid
+  client_id: client_id.invalid
+  cookie: cookie.invalid
 
 # These are keys used to bridge between settings and the standard Rails files.
 rails:

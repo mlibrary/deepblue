@@ -26,6 +26,9 @@ RSpec.describe 'hyrax/my/works/index.html.erb', type: :view do
     allow(Flipflop).to receive(:disable_desposits_and_edits?).and_return(disable_desposits_and_edits)
     allow(AdminSet).to receive(:find).and_return empty_admin
     allow(empty_admin).to receive(:members).and_return []
+    allow(::McommunityHelper).to receive(:get_name).and_return "John Smith"
+    allow(::McommunityHelper).to receive(:get_affiliation).and_return "Affiliation"
+    allow(::McommunityHelper).to receive(:get_orchid).and_return "ORCID"
     stub_template 'shared/_select_work_type_modal.html.erb' => 'modal'
     stub_template 'hyrax/my/works/_tabs.html.erb' => 'tabs'
     stub_template 'hyrax/my/works/_search_header.html.erb' => 'search'
