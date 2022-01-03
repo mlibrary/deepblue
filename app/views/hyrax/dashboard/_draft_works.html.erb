@@ -24,9 +24,9 @@
           </thead>
           <tbody>
               <tr>
-                <td><%= ::McommunityHelper.get_name ( current_ability.current_user.uid ) %></td>
-                <td><%= ::McommunityHelper.get_affiliation ( current_ability.current_user.uid ) %></td>
-                <td><%= ::McommunityHelper.get_orchid( current_ability.current_user.uid ) %></td>
+                <td><%= ::McommunityHelper.get_name ( current_ability.current_user.email.to_s ) %></td>
+                <td><%= ::McommunityHelper.get_affiliation ( current_ability.current_user.email.to_s ) %></td>
+                <td><%= ::McommunityHelper.get_orchid( current_ability.current_user.email.to_s ) %></td>
               </tr>
           </tbody>
         </table>

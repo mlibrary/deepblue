@@ -44,20 +44,20 @@ module McommunityHelper
     return obj['access_token']
 	end
 
-  def self.get_orchid( uid )
-    unique_id = uid.split('@')[0].strip
+  def self.get_orchid( email )
+    unique_id = email.split('@')[0].strip
     obj = make_request ( unique_id )
     return obj['person']['scholarId']
   end
 
-  def self.get_name( uid )
-    unique_id = uid.split('@')[0].strip
+  def self.get_name( email )
+    unique_id = email.split('@')[0].strip
     obj = make_request ( unique_id )
     return obj['person']['displayName']
   end 
 
-  def self.get_affiliation( uid )
-    unique_id = uid.split('@')[0].strip
+  def self.get_affiliation( email )
+    unique_id = email.split('@')[0].strip
     obj = make_request ( unique_id )
     return "" if obj['person']['affiliation'].nil? || obj['person']['affiliation'].empty?
     return obj['person']['affiliation'].join('; ')
