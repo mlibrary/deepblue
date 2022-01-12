@@ -8,7 +8,7 @@
   <%#= form_tag main_app.hyrax_workflow_action_path(presenter), method: :put do %>
     <div id="job_statuses_controls_collapse" class="panel-body panel-collapse collapse panel-job-statuses">
       <% if @presenter.job_statuses.empty? %>
-        <%= t('hyrax.base.job_statuses.empty', "Work" ) %>
+        <%= t('hyrax.base.job_statuses.empty', type: "Work" ) %>
       <% else %>
         <table>
           <thead>
