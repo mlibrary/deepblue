@@ -258,8 +258,9 @@ en:
           name:             "Name"
           date_created:     "Date Created"
           date_uploaded:    "Date Created"
-          cnt_prev_month:   "Downloads Last Month" 
+          cnt_prev_month:   "Downloads Last Month"
           cnt_since_start:  "Downloads Since Deposited"
+          download_note:    "Counts presently are not filtering out bots and crawlers."
       report:
         title:              "Manage Reports"
       review_submissions:

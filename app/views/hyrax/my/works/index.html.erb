@@ -86,4 +86,6 @@
   </div>
 </div>
 
+<p><sup>*</sup><%= t("hyrax.dashboard.my.heading.download_note") %></p>
+
 <%= render '/shared/select_work_type_modal', create_work_presenter: @create_work_presenter if @create_work_presenter.many? && !Flipflop.only_use_data_set_work_type? %>
