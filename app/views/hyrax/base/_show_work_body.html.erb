@@ -2,6 +2,7 @@
   <div class="row">
     <% if @presenter.can_view_work_details? && !Flipflop.disable_desposits_and_edits? %>
       <%= render 'workflow_actions_widget', presenter: @presenter %>
+      <%= render 'job_statuses_actions_widget', presenter: @presenter %>
       <% if @presenter.iiif_viewer? %>
         <div class="col-sm-12">
           <%= render 'representative_media', presenter: @presenter, viewer: true %>
@@ -29,6 +30,7 @@
       <div class="col-sm-12">
         <% unless @presenter.anonymous_show? %>
           <%= render 'relationships', presenter: @presenter %>
+          <%#= render '/shared/job_status_cc', locals: { presenter: @presenter } %>
         <% end %>
         <% if @presenter.is_tabbed? %>
           <%= render 'show_work_body_tabbed', presenter: @presenter %>

@@ -23,6 +23,8 @@ class BrowseEverythingController < ApplicationController
   def provider_contents
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
+                                           "provider=#{provider}",
+                                           "provider.class.name=#{provider.class.name}",
                                            "" ] if browse_everything_controller_debug_verbose
     raise BrowseEverything::NotImplementedError, 'No provider supported' if provider.nil?
     raise BrowseEverything::NotAuthorizedError, 'Not authorized' unless provider.authorized?
@@ -45,15 +47,22 @@ class BrowseEverythingController < ApplicationController
                                            "params=#{params}",
                                            "" ] if browse_everything_controller_debug_verbose
     render partial: 'files', layout: !request.xhr?
-  rescue StandardError => error
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+  rescue StandardError => e
+    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                        ::Deepblue::LoggingHelper.called_from,
+    #                                        "error=#{e}",
+    #                                        "" ] if browse_everything_controller_debug_verbose
+    Rails.logger.error "#{e.class} -- #{e.message} at #{e.backtrace[0]}"
+    ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "error=#{error}",
-                                           "" ] if browse_everything_controller_debug_verbose
+                                           "ERROR",
+                                           "e=#{e.class.name}",
+                                           "e.message=#{e.message}",
+                                           "e.backtrace:" ] + e.backtrace # error
     reset_provider_session!
 
     # Should an error be raised, log the error and redirect the use to reauthenticate
-    logger.warn "Failed to retrieve the hosted files: #{error}"
+    logger.warn "Failed to retrieve the hosted files: #{e}"
     render partial: 'auth', layout: !request.xhr?
   end
 
@@ -123,6 +132,9 @@ class BrowseEverythingController < ApplicationController
   def connector_response_url_options
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
+                                           "protocol: #{request.protocol}",
+                                           "host: #{request.host}",
+                                           "port: #{request.port}",
                                            "" ] if browse_everything_controller_debug_verbose
     { protocol: request.protocol, host: request.host, port: request.port }
   end
@@ -132,9 +144,18 @@ class BrowseEverythingController < ApplicationController
   def auth_link
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
+                                           "provider=#{provider}",
                                            "" ] if browse_everything_controller_debug_verbose
     @auth_link ||= if provider.present?
+                     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                            ::Deepblue::LoggingHelper.called_from,
+                                                            "" ] if browse_everything_controller_debug_verbose
                      link, data = provider.auth_link(connector_response_url_options)
+                     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                            ::Deepblue::LoggingHelper.called_from,
+                                                            "link=#{link}",
+                                                            "data=#{data}",
+                                                            "" ] if browse_everything_controller_debug_verbose
                      provider_session.data = data
                      link = "#{link}&state=#{provider.key}" unless link.to_s.include?('state')
                      link

@@ -357,6 +357,15 @@ module Hyrax
       return rv
     end
 
+    def can_perform_job_statuses_actions?
+      return false if tombstoned?
+      return true if current_ability.admin?
+      # return false unless current_ability.current_user.present?
+      # return true if depositor == current_ability.current_user.email
+      # return true if current_ability.current_user.user_approver?( current_ability.current_user )
+      return false
+    end
+
     def can_perform_workflow_actions?
       return false if tombstoned?
       return true if current_ability.admin?
@@ -468,6 +477,10 @@ module Hyrax
       else
         "http://schema.org/Dataset"
       end
+    end
+
+    def job_statuses
+      JobStatus.where( main_cc_id: id )
     end
 
     def member_presenter_factory

@@ -8,6 +8,11 @@ require_relative 'authentication_factory'
 module BrowseEverything
   module Driver
     class GoogleDrive < Base
+
+      # begin monkey
+      mattr_accessor :browse_everything_driver_google_drive_debug_verbose, default: false
+      # end monkey
+
       class << self
         attr_accessor :authentication_klass
 
@@ -43,6 +48,10 @@ module BrowseEverything
 
       # Validates the configuration for the Google Drive provider
       def validate_config
+        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+        #                                        ::Deepblue::LoggingHelper.called_from,
+        #                                        "config[:client_id]=#{config[:client_id]}",
+        #                                        "" ] if browse_everything_driver_google_drive_debug_verbose
         raise InitializationError, 'GoogleDrive driver requires a :client_id argument' unless config[:client_id]
         raise InitializationError, 'GoogleDrive driver requires a :client_secret argument' unless config[:client_secret]
       end
@@ -122,18 +131,60 @@ module BrowseEverything
       # Provides a URL for authorizing against Google Drive
       # @return [String] the URL
       def auth_link(*_args)
-        Addressable::URI.parse(authorizer.get_authorization_url)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "authorizer=#{authorizer}",
+                                               "authorizer.class.name=#{authorizer.class.name}",
+                                               "" ] if browse_everything_driver_google_drive_debug_verbose
+        auth_url = authorizer.get_authorization_url
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "auth_url=#{auth_url}",
+                                               "" ] if browse_everything_driver_google_drive_debug_verbose
+        rv = Addressable::URI.parse(auth_url)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "rv=#{rv}",
+                                               "" ] if browse_everything_driver_google_drive_debug_verbose
+        return rv
+      end
+
+      # delegate :authenticate, to: :session
+
+      def authenticate
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "session=#{session}",
+                                               "" ] if browse_everything_driver_google_drive_debug_verbose
+        session.authenticate
+      rescue Exception => e # rubocop:disable Lint/RescueException
+        Rails.logger.error "#{e.class} -- #{e.message} at #{e.backtrace[0]}"
+        ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "ERROR",
+                                               "e=#{e.class.name}",
+                                               "e.message=#{e.message}",
+                                               "e.backtrace:" ] + e.backtrace # error
+        raise
       end
 
       # Whether or not the current provider is authorized
       # @return [true,false]
       def authorized?
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "@token=#{@token}",
+                                               "" ] if browse_everything_driver_google_drive_debug_verbose
         @token.present?
       end
 
       # Client ID for authorizing against the Google API's
       # @return [Google::Auth::ClientId]
       def client_id
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "client_secrets=#{client_secrets}",
+                                               "" ] if browse_everything_driver_google_drive_debug_verbose
         @client_id ||= Google::Auth::ClientId.from_hash(client_secrets)
       end
 
@@ -145,6 +196,10 @@ module BrowseEverything
       end
 
       def session
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "client_id=#{client_id}",
+                                               "" ] if browse_everything_driver_google_drive_debug_verbose
         AuthenticationFactory.new(
           self.class.authentication_klass,
           client_id,
@@ -153,8 +208,6 @@ module BrowseEverything
           callback
         )
       end
-
-      delegate :authenticate, to: :session
 
       # Authorization Object for Google API
       # @return [Google::Auth::UserAuthorizer]
@@ -166,8 +219,18 @@ module BrowseEverything
       # This is *the* method which, passing an HTTP request, redeems an authorization code for an access token
       # @return [String] a new access token
       def authorize!
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "user_id=#{user_id}",
+                                               "code=#{code}",
+                                               "" ] if browse_everything_driver_google_drive_debug_verbose
         @credentials = authorizer.get_credentials_from_code(user_id: user_id, code: code)
         @token = @credentials.access_token
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "@credentials=#{@credentials}",
+                                               "@token=#{@token}",
+                                               "" ] if browse_everything_driver_google_drive_debug_verbose
         @code = nil # The authorization code can only be redeemed for an access token once
         @token
       end
@@ -192,6 +255,11 @@ module BrowseEverything
       private
 
       def client_secrets
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "config[:client_id]=#{config[:client_id]}",
+                                               "config[:client_secret]=#{config[:client_secret]}",
+                                               "" ] if browse_everything_driver_google_drive_debug_verbose
         {
           Google::Auth::ClientId::WEB_APP => {
             Google::Auth::ClientId::CLIENT_ID => config[:client_id],

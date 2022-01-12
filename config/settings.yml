@@ -76,12 +76,18 @@ redis:
 
 browse_everything:
   # disable file_system before going to production
-  file_system:
-    home: ./tmp
+#  file_system:
+#    home: ./tmp
   dropbox:
+    management_url: https://www.dropbox.com/developers/apps/info/dropbox_client_id.invalid
     client_id: dropbox_client_id.invalid
     client_secret: dropbox_client_secret.invalid
     download_directory: ./tmp/
+#  google_drive:
+#    app_id: google_drive_app_id.invalid
+#    management_url: https://console.cloud.google.com/apis/api/drive.googleapis.com/overview?project=google_drive_app_id.invalid
+#    client_id: google_drive_client_id.invalid
+#    client_secret: google_drive_client_secret.invalid
 
 # EZID Client configuration; see initializer/ezid.rb
 # The doi:10.5072/FK2 shoulder is a defined temporary/testing namespace.
