@@ -7,7 +7,7 @@
     <%#= render 'relationships_parent_rows', presenter: presenter %>
   <!--/dl-->
   <% if @presenter.job_statuses.empty? %>
-    <%= t('hyrax.base.job_statuses.empty', "Work" ) %>
+    <%= t('hyrax.base.job_statuses.empty', type: "Work" ) %>
   <% else %>
     <table>
       <thead>
