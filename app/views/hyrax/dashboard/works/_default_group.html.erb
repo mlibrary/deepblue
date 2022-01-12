@@ -10,8 +10,8 @@
       <th class="text-center"><%= t("hyrax.dashboard.my.heading.visibility") %></th>
       
       <% if current_ability.admin? %>
-        <th class="text-center"><%= t("hyrax.dashboard.my.heading.cnt_prev_month") %></th>
-        <th class="text-center"><%= t("hyrax.dashboard.my.heading.cnt_since_start") %></th>
+        <th class="text-center"><%= t("hyrax.dashboard.my.heading.cnt_prev_month") %><sup>*</sup></th>
+        <th class="text-center"><%= t("hyrax.dashboard.my.heading.cnt_since_start") %><sup>*</sup></th>
       <% end %>
 
       <th class="text-center"><%= t("hyrax.dashboard.my.heading.action") %></th>
