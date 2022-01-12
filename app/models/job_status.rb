@@ -2,8 +2,7 @@
 
 class JobStatus < ApplicationRecord
 
-  JOB_STATUS_DEBUG_VERBOSE = false
-  mattr_accessor :job_status_debug_verbose, default: JOB_STATUS_DEBUG_VERBOSE
+  mattr_accessor :job_status_debug_verbose, default: false
 
   FINISHED = 'finished'.freeze
   STARTED = 'started'.freeze

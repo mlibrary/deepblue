@@ -6,12 +6,15 @@
 # To make browse-everything aware of a provider, uncomment the info for that provider and add your API key information.
 # The file_system provider can be a path to any directory on the server where your application is running.
 #
-file_system:
-  home: <%= Settings.browse_everything.file_system.home %>
+#file_system:
+#  home: <%#= Settings.browse_everything.file_system.home %>
 dropbox:
   client_id: <%= Settings.browse_everything.dropbox.client_id %>
   client_secret: <%= Settings.browse_everything.dropbox.client_secret %>
   download_directory: <%= Settings.browse_everything.dropbox.download_directory %>
+#google_drive:
+#  client_id: <%#= Settings.browse_everything.google_drive.client_id %>
+#  client_secret: <%#= Settings.browse_everything.google_drive.client_secret %>
 # dropbox:
 #   client_id: YOUR_DROPBOX_APP_KEY
 #   client_secret: YOUR_DROPBOX_APP_SECRET

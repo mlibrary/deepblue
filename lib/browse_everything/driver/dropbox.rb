@@ -82,10 +82,10 @@ module BrowseEverything
       end
 
       def validate_config
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "config[:client_id]=#{config[:client_id]}",
-                                               "" ] if browse_everything_driver_dropbox_debug_verbose
+        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+        #                                        ::Deepblue::LoggingHelper.called_from,
+        #                                        "config[:client_id]=#{config[:client_id]}",
+        #                                        "" ] if browse_everything_driver_dropbox_debug_verbose
         raise InitializationError, 'Dropbox driver requires a :client_id argument' unless config[:client_id]
         raise InitializationError, 'Dropbox driver requires a :client_secret argument' unless config[:client_secret]
       end
@@ -161,6 +161,10 @@ module BrowseEverything
       end
 
       def authenticate
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "session=#{session}",
+                                               "" ] if browse_everything_driver_dropbox_debug_verbose
         session.authenticate
       end
 

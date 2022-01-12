@@ -399,6 +399,56 @@ END_BODY
                                    email_sent: email_sent )
     end
 
+    def self.hash_get( hash, key, default = nil )
+      return {} if hash.nil?
+      value = hash[key]
+      return default if value.nil?
+      return value
+    end
+
+    def self.resque_worker_payload(job)
+      hash_get( job, 'payload', {} )
+    end
+
+    def self.resque_worker_args(job)
+      args = hash_get( hash_get(job,'payload',{}), 'args', [] )
+      return [] if args.size < 1
+      return args[0]
+    end
+
+    def self.resque_worker_arguments(job)
+      hash_get( resque_worker_args(job), 'arguments', [] )
+    end
+
+    def self.resque_worker_argument(job,index,default=nil)
+      arguments = resque_worker_arguments(job)
+      return default unless index < arguments.size
+      return arguments[index]
+    end
+
+    def self.resque_worker_argument?(job,index,value)
+      resque_worker_argument(job,index) == value
+    end
+
+    def self.resque_worker_job_class(job)
+      hash_get( resque_worker_args(job), 'job_class', '' )
+    end
+
+    def self.resque_worker_job_class?(job,job_class)
+      resque_worker_job_class(job) == job_class
+    end
+
+    def self.resque_worker_job_for_id?( job, id )
+      queue = job['queue']
+      case queue
+      when 'globus_copy'
+        return false unless resque_worker_job_class?(job,'GlobusCopyJob')
+        return resque_worker_argument?(job,0,id)
+      else
+        false
+      end
+    end
+
   end
 
 end

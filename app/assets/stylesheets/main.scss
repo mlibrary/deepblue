@@ -620,6 +620,16 @@ ul.tabular li.attribute-fundedby {
   }
 }
 
+.panel-job-statuses {
+  h2 {
+    font-size: 1.25em;
+  }
+
+  dl.job-status-show dt {
+    padding-left: 0.5em;
+  }
+}
+
 .panel-relationships {
   h2 {
     font-size: 1.25em;
@@ -1042,4 +1052,8 @@ div.facets h3 {
   .dropdown-menu > li > a, .twitter-typeahead .tt-menu > li > a {
     color: #fff !important;
   }
+}
+
+.job-statuses-actions {
+  background-color: #f8f8f8;
 }

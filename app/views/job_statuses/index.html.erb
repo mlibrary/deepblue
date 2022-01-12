@@ -45,7 +45,7 @@
 <table>
   <thead>
     <tr>
-      <th colspan="5"></th>
+      <th colspan="7"></th>
     </tr>
   </thead>
 
@@ -55,6 +55,7 @@
         <td><%= job_status.id %></td>
         <td><%= job_status.updated_at %></td>
         <td><%= job_status.job_class %></td>
+        <td><%= job_status.main_cc_id %></td>
         <td><%= job_status.status %></td>
         <td><%= job_status.error_snipped %></td>
         <td><%= link_to 'Show', Rails.application.routes.url_helpers.job_status_url( id: job_status.id, only_path: true ) %></td>

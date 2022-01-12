@@ -1,0 +1,37 @@
+<% if current_ability.admin? %>
+<div class="panel panel-default panel-job-statuses">
+  <div class="panel-heading">
+    <h2><%= t('hyrax.base.job_statuses.header') %></h2>
+  </div>
+  <!-- dl class="work-show" -->
+    <%#= render 'relationships_parent_rows', presenter: presenter %>
+  <!--/dl-->
+  <% if @presenter.job_statuses.empty? %>
+    <%= t('hyrax.base.job_statuses.empty', "Work" ) %>
+  <% else %>
+    <table>
+      <thead>
+      <tr>
+        <td><%= t('hyrax.base.job_statuses.label.id') %></td>
+        <td><%= t('hyrax.base.job_statuses.label.updated_at') %></td>
+        <td><%= t('hyrax.base.job_statuses.label.job_class') %></td>
+        <td><%= t('hyrax.base.job_statuses.label.status') %></td>
+        <td><%= t('hyrax.base.job_statuses.label.error_snipped') %></td>
+      </tr>
+      </thead>
+
+      <tbody>
+      <% @presenter.job_statuses.each do |job_status| %>
+        <tr>
+          <td><%= job_status.id %></td>
+          <td><%= job_status.updated_at %></td>
+          <td><%= job_status.job_class %></td>
+          <td><%= job_status.status %></td>
+          <td><%= job_status.error_snipped %></td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</div>
+<% end %>
