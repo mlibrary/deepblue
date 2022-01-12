@@ -30,6 +30,9 @@ Your events report for the month of %{month}:
 
 END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
 
+ BEGINNING_OF_TIME = Time.new(1972,1,1)
+ END_OF_TIME = BEGINNING_OF_TIME + 1000.year
+
   def self.chartkick?
     return false unless enable_local_analytics_ui?
     ::Deepblue::AnalyticsIntegrationService.enable_chartkick
@@ -49,8 +52,15 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
   def self.date_range_since_start
     previous_month = Time.now.beginning_of_month - 1.day 
     end_of_previous_month = previous_month.end_of_month.end_of_day
-    beginning_of_time = Time.now.beginning_of_month - 100.year
+    beginning_of_time = BEGINNING_OF_TIME
     date_range = beginning_of_time..end_of_previous_month
+
+    #For testing on local machine
+    #date_range = BEGINNING_OF_TIME..END_OF_TIME
+  end
+
+  def self.date_range_all
+    date_range = BEGINNING_OF_TIME..END_OF_TIME
   end
 
   def self.enable_local_analytics_ui?
@@ -80,6 +90,113 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     user = User.find_by_user_key email
     return nil if user.blank?
     return user.id
+  end
+
+  #This is called by the cronjob in UpdateCondensedEventsJob
+  def self.updated_condensed_event_downloads (force: false)
+    #Only do this at the 1st of the month
+    return if Date.today > Date.today.at_beginning_of_month && !force
+    date_range_month = AnalyticsHelper.date_range_for_month_previous
+    date_range_all = AnalyticsHelper.date_range_all
+    date_range_start = AnalyticsHelper.date_range_since_start
+    DataSet.all.each do | work |
+      update_condensed_events_for_work_files_in_date_range( name: "WorkFileDownloadsPerMonth", filter: "Hyrax::DownloadsController#show", work: work, date_range: date_range_month, force: true )
+      update_condensed_events_for_work_files_in_date_range( name: "WorkFileDownloadsToDate", filter: "Hyrax::DownloadsController#show", work: work, date_range: date_range_all, date_range_filter: date_range_start, force: true )
+
+      update_condensed_events_for_work_zip_globus_downloads_in_date_range( name: "WorkZipDownloadsPerMonth", filter: "Hyrax::DataSetsController#zip_download", work: work, date_range: date_range_month, force: true )
+      update_condensed_events_for_work_zip_globus_downloads_in_date_range( name: "WorkZipDownloadsToDate", filter: "Hyrax::DataSetsController#zip_download", work: work, date_range: date_range_all, date_range_filter: date_range_start, force: true )
+
+      update_condensed_events_for_work_zip_globus_downloads_in_date_range( name: "WorkGlobusDownloadsPerMonth", filter: "Hyrax::DataSetsController#globus_download_redirect", work: work, date_range: date_range_month, force: true )
+      update_condensed_events_for_work_zip_globus_downloads_in_date_range( name: "WorkGlobusDownloadsToDate", filter: "Hyrax::DataSetsController#globus_download_redirect", work: work, date_range: date_range_all, date_range_filter: date_range_start, force: true )
+    end
+  end
+
+  # This is just needed at the time the stats are setup from rails console
+  def self.drop_condesed_event_downloads
+     Ahoy::CondensedEvent.where( name: "WorkFileDownloadsPerMonth" ).destroy_all
+     Ahoy::CondensedEvent.where( name: "WorkFileDownloadsToDate" ).destroy_all
+     Ahoy::CondensedEvent.where( name: "WorkZipDownloadsPerMonth" ).destroy_all
+     Ahoy::CondensedEvent.where( name: "WorkZipDownloadsToDate" ).destroy_all
+     Ahoy::CondensedEvent.where( name: "WorkGlobusDownloadsPerMonth" ).destroy_all
+     Ahoy::CondensedEvent.where( name: "WorkGlobusDownloadsToDate" ).destroy_all
+  end
+
+  # This is just needed at the time the stats are setup from rails console
+  def self.initialize_condensed_event_downloads ( force: false )
+    date_range_all = AnalyticsHelper.date_range_all
+    date_range_start = AnalyticsHelper.date_range_since_start
+    DataSet.all.each do | work |
+      update_condensed_events_for_work_zip_globus_downloads_in_date_range( name: "WorkZipDownloadsToDate", filter: "Hyrax::DataSetsController#zip_download", work: work, date_range: date_range_all, date_range_filter: date_range_start, force: force )
+      records = Ahoy::Event.where( name: "Hyrax::DataSetsController#zip_download", cc_id: work.id, time: date_range_all )
+      records.each do |record|
+        date_range_month = AnalyticsHelper.date_range_for_month_of( time: record.time )
+        update_condensed_events_for_work_zip_globus_downloads_in_date_range( name: "WorkZipDownloadsPerMonth", filter: "Hyrax::DataSetsController#zip_download", work: work, date_range: date_range_month, force: force )
+      end
+
+      update_condensed_events_for_work_zip_globus_downloads_in_date_range( name: "WorkGlobusDownloadsToDate", filter: "Hyrax::DataSetsController#globus_download_redirect", work: work, date_range: date_range_all, date_range_filter: date_range_start, force: force )
+      records = Ahoy::Event.where( name: "Hyrax::DataSetsController#globus_download_redirect", cc_id: work.id, time: date_range_all )
+      records.each do |record|
+        date_range_month = AnalyticsHelper.date_range_for_month_of( time: record.time )
+        update_condensed_events_for_work_zip_globus_downloads_in_date_range( name: "WorkGlobusDownloadsPerMonth", filter: "Hyrax::DataSetsController#globus_download_redirect", work: work, date_range: date_range_month, force: force )
+      end
+
+      update_condensed_events_for_work_files_in_date_range( name: "WorkFileDownloadsToDate", filter: "Hyrax::DownloadsController#show", work: work, date_range: date_range_all, date_range_filter: date_range_start, force: force )
+      work.file_set_ids.each do |fid|
+        records = Ahoy::Event.where( name: "Hyrax::DownloadsController#show", cc_id: fid, time: date_range_all )
+        records.each do |record|
+          date_range_month = AnalyticsHelper.date_range_for_month_of( time: record.time )
+          update_condensed_events_for_work_files_in_date_range( name: "WorkFileDownloadsPerMonth", filter: "Hyrax::DownloadsController#show", work: work, date_range: date_range_month, force: force )
+        end
+      end
+    end
+  end
+
+  def self.update_condensed_events_for_work_zip_globus_downloads_in_date_range( name:, filter:, work:, date_range:, date_range_filter: nil, force: false )
+    #For monthly, the date_range_filter and the date_range should be the same.  date_range_filter is not passed in.
+    #For toDate, the date_range_filter is used to access teh Event Table, so this entry will be 1972..2022-12-31 ( something like that )
+    #For toDate, the date_range is used for the CondensedEvent Table, so this entry will be one entry 1972..2972
+    #find_by grabs one record.
+    #where clause can grab more than one record
+    date_range_filter = date_range if date_range_filter.blank?
+    begin_date = date_range.first
+    end_date = date_range.last
+    record = Ahoy::CondensedEvent.find_by( name: name, cc_id: work.id, date_begin: begin_date, date_end: end_date )
+    return if record.present? && !force
+    condensed_event = { "total_downloads" => 0 }
+
+    records = Ahoy::Event.where( name: filter, cc_id: work.id, time: date_range_filter )
+    records.each do |r|
+      condensed_event["total_downloads"] = condensed_event["total_downloads"] + 1
+    end  
+
+    return if condensed_event["total_downloads"] == 0
+    # store results to condensed events table
+    record = Ahoy::CondensedEvent.new( name: name, cc_id: work.id, date_begin: begin_date, date_end: end_date ) if record.blank?
+    record.condensed_event = condensed_event
+    record.save
+  end
+
+  def self.update_condensed_events_for_work_files_in_date_range( name:, filter:, work:, date_range:, date_range_filter: nil, force: false )
+    date_range_filter = date_range if date_range_filter.blank?
+    begin_date = date_range.first
+    end_date = date_range.last
+    record = Ahoy::CondensedEvent.find_by( name: name, cc_id: work.id, date_begin: begin_date, date_end: end_date )
+    return if record.present? && !force
+    condensed_event = { "total_downloads" => 0 }
+    work.file_set_ids.each do |fid|
+      records = Ahoy::Event.where( name: filter, cc_id: fid, time: date_range_filter )
+      records.each do |r|
+        next if r.properties["file"] == "thumbnail"
+        condensed_event["total_downloads"] = condensed_event["total_downloads"] + 1
+        condensed_event[fid] = 0 unless condensed_event[fid].present?
+        condensed_event[fid] = condensed_event[fid] + 1
+      end  
+    end
+    return if condensed_event["total_downloads"] == 0
+    # store results to condensed events table
+    record = Ahoy::CondensedEvent.new( name: name, cc_id: work.id, date_begin: begin_date, date_end: end_date ) if record.blank?
+    record.condensed_event = condensed_event
+    record.save
   end
 
   def self.events_by_date( name:, cc_id: nil, data_name: nil, date_range: nil, group_by_day: true )
@@ -526,15 +643,29 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     events_by_date( name: "#{controller_class.name}#show", cc_id: cc_id, date_range: date_range )
   end
 
-  def self.download_cnt ( controller_class:, cc_id: nil, date_range: nil )
-    value = page_zip_hits_by_date( controller_class: controller_class, cc_id: cc_id, date_range: date_range )
-    return "-" if value.empty?
-    return value[:data]
+  def self.download_monthly_cnt ( work_id:, date_range: nil )
+    zip_download_cnt = monthly_hits_by_date_and_name( work_id: work_id, name: "WorkZipDownloadsPerMonth", date_range: date_range )
+    globus_download_cnt = monthly_hits_by_date_and_name( work_id: work_id, name: "WorkGlobusDownloadsPerMonth", date_range: date_range )
+    file_download_cnt = monthly_hits_by_date_and_name( work_id: work_id, name: "WorkFileDownloadsPerMonth", date_range: date_range )
+
+    return zip_download_cnt + globus_download_cnt + file_download_cnt
   end
 
-  def self.page_zip_hits_by_date( controller_class:, cc_id: nil, date_range: nil )
-    events_by_date( name: "#{controller_class.name}#zip_download", cc_id: cc_id, data_name: "zip", date_range: date_range, group_by_day: false )
+  def self.download_todate_cnt ( work_id:, date_range: nil )
+    zip_download_cnt = monthly_hits_by_date_and_name( work_id: work_id, name: "WorkZipDownloadsToDate", date_range: date_range )
+    globus_download_cnt = monthly_hits_by_date_and_name( work_id: work_id, name: "WorkGlobusDownloadsToDate", date_range: date_range )
+    file_download_cnt = monthly_hits_by_date_and_name( work_id: work_id, name: "WorkFileDownloadsToDate", date_range: date_range )
+
+    return zip_download_cnt + globus_download_cnt + file_download_cnt
   end
+
+  def self.monthly_hits_by_date_and_name( work_id:, name:, date_range: )
+    return 0 if work_id.blank? 
+    return 0 if date_range.blank?     
+    r = Ahoy::CondensedEvent.find_by( name: name, cc_id: work_id, date_begin: date_range.first, date_end: date_range.last )
+    return 0 if r.blank?
+    return r.condensed_event["total_downloads"]
+  end 
 
   def self.show_hit_graph?( current_ability, presenter: nil )
     return false unless enable_local_analytics_ui?
