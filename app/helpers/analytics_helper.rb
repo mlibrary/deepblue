@@ -644,6 +644,8 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
   end
 
   def self.download_monthly_cnt ( work_id:, date_range: nil )
+    date_range = truncate_date(date_range.first)..truncate_date(date_range.last) unless date_range.nil?
+
     zip_download_cnt = monthly_hits_by_date_and_name( work_id: work_id, name: "WorkZipDownloadsPerMonth", date_range: date_range )
     globus_download_cnt = monthly_hits_by_date_and_name( work_id: work_id, name: "WorkGlobusDownloadsPerMonth", date_range: date_range )
     file_download_cnt = monthly_hits_by_date_and_name( work_id: work_id, name: "WorkFileDownloadsPerMonth", date_range: date_range )
@@ -738,6 +740,10 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
                              data_name: "globus",
                              date_range: date_range )
     [ visits, zip, globus ]
+  end
+
+  def self.truncate_date( time )
+    time.getutc + time.gmt_offset.seconds
   end
 
 end
