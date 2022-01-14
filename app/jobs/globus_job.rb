@@ -74,7 +74,7 @@ class GlobusJob < ::Hyrax::ApplicationJob
 
   def self.external_url( id )
     globus_base_url = ::Deepblue::GlobusIntegrationService.globus_base_url
-    globus_dir_modifer = ::Deepblue::GlobusIntegrationService.globus_dir_modifier
+    globus_dir_modifier = ::Deepblue::GlobusIntegrationService.globus_dir_modifier
     return "#{globus_base_url}#{globus_dir_modifier}%2F#{files_target_file_name(id)}%2F" if globus_dir_modifier.present?
     "#{globus_base_url}#{files_target_file_name(id)}%2F"
   end
