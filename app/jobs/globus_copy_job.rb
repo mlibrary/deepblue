@@ -157,7 +157,7 @@ class GlobusCopyJob < GlobusJob
 
     def globus_job_perform_in_progress( email: nil )
       globus_copy_job_email_add( email )
-      super.globus_job_perform_in_progress( email: email )
+      super( email: email )
     end
 
 end

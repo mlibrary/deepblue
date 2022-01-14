@@ -2,8 +2,6 @@
 
 module Deepblue
 
-  require 'json'
-
   require_relative './log_extracter'
   require_relative './log_filter'
 
@@ -12,11 +10,11 @@ module Deepblue
     mattr_accessor :provenance_log_service_debug_verbose, default: false
 
     def self.provenance_log_name
-      DeepBlueDocs::Application.config.provenance_log_name
+      Rails.configuration.provenance_log_name
     end
 
     def self.provenance_log_path
-      DeepBlueDocs::Application.config.provenance_log_path
+      Rails.configuration.provenance_log_path
     end
 
     def self.entries( id, refresh: false )
@@ -57,30 +55,8 @@ module Deepblue
       return { entry: entry, line_number: line_number, parse_error: e }
     end
 
-    def self.pp_key_values( raw_key_values )
-      return JSON.pretty_generate( JSON.parse( raw_key_values ) )
-    end
-
     def self.key_values_to_table( key_values, parse: false )
-      key_values = JSON.parse( key_values ) if parse
-      if key_values.is_a? Array
-        case key_values.size
-        when 0 then return "<table>\n<tr><td>&nbsp;</td></tr>\n</table>\n"
-        when 1 then return "<table>\n<tr><td>#{ERB::Util.html_escape( key_values[0] )}</td></tr>\n</table>\n"
-        else
-          arr = key_values.map { |x| key_values_to_table( x ) }
-          return "<table>\n<tr><td>#{arr.join("</td></tr>\n<tr><td>")}</td></tr>\n</table>\n"
-        end
-      elsif key_values.is_a? Hash
-        rv = "<table>\n"
-        key_values.each_pair do |key,value|
-          rv += "<tr><td>#{ERB::Util.html_escape( key )}</td><td>#{key_values_to_table( value )}</td></tr>\n"
-        end
-        rv += "</table>\n"
-        return rv
-      else
-        return ERB::Util.html_escape( key_values )
-      end
+      JsonHelper.key_values_to_table( key_values, parse: parse )
     end
 
     def self.read_entries( file_path )

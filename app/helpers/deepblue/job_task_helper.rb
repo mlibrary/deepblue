@@ -263,7 +263,6 @@ END_BODY
       job.hostnames = job.job_options_value( options,
                                              key: 'hostnames',
                                              default_value: [],
-                                             verbose: verbose,
                                              task: task ,
                                              verbose: verbose )
       job.hostname = self.hostname
@@ -378,8 +377,8 @@ END_BODY
                          timestamp_begin: nil,
                          timestamp_end: DateTime.now  )
 
-      hostname = ::DeepBlueDocs::Application.config.hostname if hostname.nil?
-      subject = "DBD #{task_name} from #{hostname}" if subject.blank?
+      hostname = Rails.configuration.hostname if hostname.nil?
+      subject = MsgHelper.t( 'hyrax.email.subject.default', task_name: task_name, hostname: hostname ) if subject.blank?
       # TODO: integrate timestamps
       body = subject if body.blank?
       email_sent = ::Deepblue::EmailHelper.send_email( to: email_target,
@@ -399,25 +398,18 @@ END_BODY
                                    email_sent: email_sent )
     end
 
-    def self.hash_get( hash, key, default = nil )
-      return {} if hash.nil?
-      value = hash[key]
-      return default if value.nil?
-      return value
-    end
-
     def self.resque_worker_payload(job)
-      hash_get( job, 'payload', {} )
+      HashHelper.get( job, 'payload', {} )
     end
 
     def self.resque_worker_args(job)
-      args = hash_get( hash_get(job,'payload',{}), 'args', [] )
+      args = HashHelper.get( HashHelper.get(job,'payload',{}), 'args', [] )
       return [] if args.size < 1
       return args[0]
     end
 
     def self.resque_worker_arguments(job)
-      hash_get( resque_worker_args(job), 'arguments', [] )
+      HashHelper.get( resque_worker_args(job), 'arguments', [] )
     end
 
     def self.resque_worker_argument(job,index,default=nil)
@@ -431,7 +423,7 @@ END_BODY
     end
 
     def self.resque_worker_job_class(job)
-      hash_get( resque_worker_args(job), 'job_class', '' )
+      HashHelper.get( resque_worker_args(job), 'job_class', '' )
     end
 
     def self.resque_worker_job_class?(job,job_class)

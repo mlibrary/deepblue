@@ -767,8 +767,25 @@ module Hyrax
                                  presenter_args: presenter_factory_arguments)
     end
 
-    def link_name
-      current_ability.can?(:read, id) ? to_s : 'File'
+    def link_name( truncate: true )
+      # current_ability.can?(:read, id) ? to_s : 'File'
+      if ( current_ability.admin? || current_ability.can?(:read, id) )
+        title_first( truncate: truncate )
+      else
+        'File'
+      end
+    end
+
+    def first_title
+      title.first
+    end
+
+    def title_first( truncate: true )
+      # sometimes files don't have titles, this can happen for lost and found files
+      rv = title&.first
+      return 'File' if rv.blank?
+      return truncate(rv, length: 40, omission: "...#{rv[-5, 5]}") if truncate
+      return rv
     end
 
     def export_as_nt

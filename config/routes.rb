@@ -266,6 +266,9 @@ Rails.application.routes.draw do
   resource :email_subscription
   get 'email_subscriptions', to: 'email_subscriptions#index', as: 'email_subscriptions' # index
 
+  get 'job_workers', to: 'job_workers#index', as: 'job_workers' # index
+  # get '/job_statuses_failed/' => 'job_statuses#status_failed'
+
   # resource :job_status #, only: [:index, :show, :update]
   resource :job_status
   get 'job_statuses', to: 'job_statuses#index', as: 'job_statuses' # index
