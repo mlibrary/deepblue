@@ -19,7 +19,7 @@ signed in %>
 <% if ( ( @presenter.respond_to?  :title ) && ( @presenter.respond_to?  :doi ) ) %>
   <script type="application/ld+json">
   {
-    "@context": "http://schema.org",
+    "@context": "http://schema.org/",
     "@type": "Dataset",
     "@id": "<%= @presenter.doi.first if @presenter.doi.present? %>",
     "name": "<%= @presenter.title.first %>",  
