@@ -509,9 +509,9 @@ module Hyrax
     end
 
     # To handle large files.
-    def link_name
+    def link_name( truncate: true )
       if ( current_ability.admin? || current_ability.can?(:read, id) )
-        first_title
+        title_first( truncate: truncate )
       else
         'File'
       end
@@ -784,6 +784,14 @@ module Hyrax
     end
 
     # end display_provenance_log
+
+    def title_first( truncate: true )
+      # sometimes files don't have titles, this can happen for lost and found files
+      rv = title&.first
+      return 'File' if rv.blank?
+      return truncate(rv, length: 40, omission: "...#{rv[-5, 5]}") if truncate
+      return rv
+    end
 
     def tombstone
       solr_value = @solr_document[Solrizer.solr_name('tombstone', :symbol)]

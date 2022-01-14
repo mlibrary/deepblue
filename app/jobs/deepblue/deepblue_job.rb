@@ -32,11 +32,18 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
   end
   alias :debug_verbose? :debug_verbose
 
-  def email_all_targets( task_name:, event:, body: nil, content_type: nil, debug_verbose: deepblue_job_debug_verbose )
+  def email_all_targets( task_name:,
+                         event:,
+                         subject: nil,
+                         body: nil,
+                         content_type: nil,
+                         debug_verbose: deepblue_job_debug_verbose )
+
     if from_dashboard.present? # just email user running the job from the dashboard
       ::Deepblue::JobTaskHelper.send_email( email_target: from_dashboard,
                                             task_name: task_name,
                                             event: event,
+                                            subject: subject,
                                             body: body,
                                             content_type: content_type )
     else
@@ -45,6 +52,7 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
         ::Deepblue::JobTaskHelper.send_email( email_target: email_target,
                                               task_name: task_name,
                                               event: event,
+                                              subject: subject,
                                               body: body,
                                               content_type: content_type )
       end

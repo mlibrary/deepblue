@@ -24,14 +24,12 @@
       <%= raw @presenter.member_thumbnail_post_process( main_app: main_app, member: member, tag: thumbnail_tag ) %>
     </td>
     <%# if can?(:download, member.id) %>
-    <% if member&.can_download_file? && !member&.anonymous_show? %>
-      <% link_name = member.link_name %>
-      <% link_name ||= 'NilLinkName' %>
-      <% unless member&.file_size_too_large_to_download? %>
+    <% if member.can_download_file? && !member.anonymous_show? %>
+      <% unless member.file_size_too_large_to_download? %>
         <td role="menuitem" tabindex="-1">
-          <%= link_to truncate(link_name, length: 40, omission: "...#{link_name[-5, 5]}"),
+          <%= link_to member.link_name,
                       @presenter.download_path_link( main_app: main_app, curation_concern: member ),
-                      title: t('.download_title', file_set: member),
+                      title: t('.download_title', file_set: member.title_first),
                       target: "_blank",
                       id: "file_download",
                       data: { label: member.id } %>
@@ -39,15 +37,15 @@
       <% else %>
         <td class="attribute filename">
           <span class="hastooltip">
-             <%= link_to truncate(link_name, length: 40, omission: "...#{link_name[-5, 5]}") %>
-            <% unless member&.anonymous_show? %>
+             <%= link_to member.link_name %>
+            <% unless member.anonymous_show? %>
               <span class="tooltip"><%= t('simple_form.hints.file_set.too_large_to_download_directly') %></span>
             <% end %>
           </span>
         </td>
       <% end %>
     <% else %>
-      <td class="attribute filename"><%= truncate(member.title.first, length: 40, omission: "...#{member.title.first[-5, 5]}") %></td>
+      <td class="attribute filename"><%= member.title_first %></td>
     <% end %>
     <td class="attribute attribute-date_uploaded"><%= member.try(:date_uploaded) %></td>
     <td class="attribute attribute-date_modified"><%= member.try(:date_modified) %></td>

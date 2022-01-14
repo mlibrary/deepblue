@@ -547,6 +547,7 @@ en:
         collection_deleted:     "DBD: Collection Deleted"
         collection_published:   "DBD: Collection Published"
         collection_unpublished: "DBD: Collection Unpublished"
+        default:                "DBD %{task_name} from %{hostname}"
         work_created:       "DBD: Work Created"
         draft_created:      "DBD: Draft Work Created"
         draft_submitted:    "DBD: Draft Work Submitted for Review"

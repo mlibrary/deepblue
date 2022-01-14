@@ -406,6 +406,7 @@ module Deepblue
       options[:title] = cc_title( curation_concern: curation_concern )
       options[:curation_concern_url] = curation_concern_url( curation_concern: curation_concern )
       options[:url] = options[:curation_concern_url]
+      options[:hostname] = Rails.configuration.hostname
       options
     end
 

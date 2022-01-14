@@ -1,0 +1,59 @@
+<% provide :page_header do %>
+  <h1><%= "Job Workers" %></h1>
+<% end %>
+
+<!-- h2 class="title-header">Actions</h2 -->
+<%#= link_to(
+      'All',
+      Rails.application.routes.url_helpers.job_statuses_path,
+      class: 'btn btn-default'
+    ) %>
+&nbsp;&nbsp;
+
+<br/>
+
+<table>
+  <thead>
+  <tr>
+    <td>Job ID</td>
+    <td>Queue Name</td>
+    <td>Priority</td>
+    <td>Job Class</td>
+    <td>Provider Job ID</td>
+    <td>Arguments</td>
+  </tr>
+  </thead>
+
+  <tbody>
+    <% @job_workers.each do |job_worker| %>
+      <tr>
+        <td><%= job_worker.job_id %></td>
+        <td><%= job_worker.queue_name %></td>
+        <td><%= job_worker.priority %></td>
+        <td><%= job_worker.job_class %></td>
+        <td><%= job_worker.provider_job_id %></td>
+        <td><%= raw job_worker.arguments %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+  <tr>
+    <td>Job as Keys Table</td>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @job_workers.each do |job_worker| %>
+    <tr>
+      <td><%= raw job_worker.job_as_keys_table %></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
+
+<br>
+
+

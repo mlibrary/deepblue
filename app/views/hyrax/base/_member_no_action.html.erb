@@ -22,14 +22,12 @@
       <%= raw @presenter.member_thumbnail_post_process( main_app: main_app, member: member_no_action, tag: thumbnail_tag ) %>
     </td>
     <%# if can?(:download, member.id) %>
-    <% if member_no_action&.can_download_file? && !member_no_action&.anonymous_show? %>
-      <% link_name = member_no_action.link_name %>
-      <% link_name ||= 'NilLinkName' %>
-      <% unless member_no_action&.file_size_too_large_to_download? %>
+    <% if member_no_action.can_download_file? && !member_no_action.anonymous_show? %>
+      <% unless member_no_action.file_size_too_large_to_download? %>
         <td role="menuitem" tabindex="-1">
-          <%= link_to truncate(link_name, length: 40, omission: "...#{link_name[-5, 5]}"),
+          <%= link_to member_no_action.link_name,
                       @presenter.download_path_link( main_app: main_app, curation_concern: member_no_action ),
-                      title: t('.download_title', file_set: member_no_action),
+                      title: t('hyrax.file_sets.actions.download_title', file_set: member_no_action.title_first),
                       target: "_blank",
                       id: "file_download",
                       data: { label: member_no_action.id } %>
@@ -37,15 +35,15 @@
       <% else %>
         <td class="attribute filename">
           <span class="hastooltip">
-            <%= truncate(link_name, length: 40, omission: "...#{link_name[-5, 5]}") %>
-            <% unless member_no_action&.anonymous_show? %>
+            <%= member_no_action.link_name %>
+            <% unless member_no_action.anonymous_show? %>
               <span class="tooltip"><%= t('simple_form.hints.file_set.too_large_to_download_directly') %></span>
             <% end %>
           </span>
         </td>
       <% end %>
     <% else %>
-      <td class="attribute filename"><%= truncate(member_no_action.title.first, length: 40, omission: "...#{member_no_action.title.first[-5, 5]}") %></td>
+      <td class="attribute filename"><%= member_no_action.title_first %></td>
     <% end %>
     <td class="attribute attribute-date_uploaded"><%= member_no_action.try(:date_uploaded) %></td>
     <td class="attribute attribute-date_modified"><%= member_no_action.try(:date_modified) %></td>
