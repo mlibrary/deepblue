@@ -12,11 +12,12 @@
 
 <br/>
 
-<table>
+<!-- table>
   <thead>
   <tr>
+    <td>Run At</td>
+    <td>Queue</td>
     <td>Job ID</td>
-    <td>Queue Name</td>
     <td>Priority</td>
     <td>Job Class</td>
     <td>Provider Job ID</td>
@@ -25,30 +26,33 @@
   </thead>
 
   <tbody>
-    <% @job_workers.each do |job_worker| %>
+    <%# @job_workers.each do |job_worker| %>
       <tr>
-        <td><%= job_worker.job_id %></td>
-        <td><%= job_worker.queue_name %></td>
-        <td><%= job_worker.priority %></td>
-        <td><%= job_worker.job_class %></td>
-        <td><%= job_worker.provider_job_id %></td>
-        <td><%= raw job_worker.arguments %></td>
+        <td><%#= job_worker.run_at %></td>
+        <td><%#= job_worker.queue %></td>
+        <td><%#= job_worker.job_id %></td>
+        <td><%#= job_worker.priority %></td>
+        <td><%#= job_worker.job_class %></td>
+        <td><%#= job_worker.provider_job_id %></td>
+        <td><%#= raw job_worker.job_args_as_table %></td>
       </tr>
-    <% end %>
+    <%# end %>
   </tbody>
-</table>
+</table -->
 
 <table>
   <thead>
   <tr>
-    <td>Job as Keys Table</td>
+    <td>Run At</td>
+    <td>Arguments</td>
   </tr>
   </thead>
 
   <tbody>
   <% @job_workers.each do |job_worker| %>
     <tr>
-      <td><%= raw job_worker.job_as_keys_table %></td>
+      <td><%= job_worker.run_at %></td>
+      <td><div class="documentation-div"><%= raw job_worker.job_args_as_table %></div></td>
     </tr>
   <% end %>
   </tbody>

@@ -33,7 +33,7 @@ class JobWorkersController < ApplicationController
   # GET /job_workers or /job_workers.json
   def index
     raise CanCan::AccessDenied unless current_ability.admin?
-    @job_workers = Resque::Worker.all.map(&:job)
+    @job_workers = init_job_workers
   end
 
   private
