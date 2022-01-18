@@ -12,9 +12,9 @@ RSpec.describe Hyrax::ContactFormController, skip: false do
   end
 
   describe 'module variables' do
-    it { expect( described_class.contact_form_log_delivered ).to eq true }
-    it { expect( described_class.contact_form_log_spam ).to eq true }
-    it { expect( described_class.antispam_timeout_in_seconds ).to eq 5 }
+    it { expect( described_class.contact_form_log_delivered  ).to eq true }
+    it { expect( described_class.contact_form_log_spam       ).to eq true }
+    it { expect( described_class.antispam_timeout_in_seconds ).to eq 8    }
   end
 
   let(:user) { create(:user) }
