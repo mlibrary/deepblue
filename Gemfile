@@ -131,7 +131,7 @@ gem 'willow_sword', git: 'https://github.com/CottageLabs/willow_sword.git', bran
 
 # gem 'samvera-persona' #, '0.1.7'
 # gem 'samvera-persona', :github => 'samvera-labs/samvera-persona', :branch => 'remove-generator-config'
-gem 'samvera-persona'
+gem 'samvera-persona', '< 0.3.0' # This adds the use of 'class.module_parent_name'
 
 # Begin security vulnerability mitigation
 # bundle update --source gem-name
@@ -214,6 +214,9 @@ gem 'irus_analytics', git: 'https://github.com/mlibrary/irus_analytics'
 
 # https://github.com/samvera/hydra-role-management
 gem 'hydra-role-management'
+
+# https://github.com/jonahb/akismet
+gem 'akismet'
 
 group :development, :test do
   gem 'capybara'
