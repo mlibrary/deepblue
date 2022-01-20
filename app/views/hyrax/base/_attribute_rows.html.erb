@@ -38,7 +38,7 @@
   <span class="hide"><%= Rails.application.routes.url_helpers.hyrax_data_set_url( id: presenter.id ) %></span>
 </span>
 
-<%= presenter.attribute_to_html(:creator, render_as: :faceted, label: t('show.labels.creator') ) %>
+<%= raw (presenter.attribute_to_html(:creator, render_as: :faceted, label: t('show.labels.creator') )).gsub!('itemscope itemtype="http://schema.org/Person"', '') %>
 
 
 <% presenter.depositor.gsub!('@', 'at_sign_at') %>
@@ -82,7 +82,7 @@
 
 <%= presenter.attribute_to_html(:source) %>
 
-<span itemprop="identifier" itemscope itemtype="http://schema.org/Identifier">
+<span itemprop="identifier">
   <%= presenter.attribute_to_html(:doi, label: t('show.labels.doi'), work_type: "DataSet", render_as: :doi ) %>
 </span>
 

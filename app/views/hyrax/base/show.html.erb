@@ -16,7 +16,7 @@
     <%= render 'work_type', presenter: @presenter %>
   </div>
   <div class="col-xs-12">&nbsp;</div>
-  <div itemscope itemtype="<%= @presenter.itemscope_itemtype %>" class="col-xs-12">
+  <div>
     <div class="panel panel-default work-details-container">
       <%= render 'work_description_and_title', presenter: @presenter %>
       <%= render 'show_work_body' %>

@@ -1,0 +1,6 @@
+<% record.creator.each do |creator| %>
+<span itemprop="creator">
+  <span itemprop="name"><%= link_to_facet(creator, Solrizer.solr_name("creator", :facetable)) %></span>
+</span>
+<br />
+<% end %>
