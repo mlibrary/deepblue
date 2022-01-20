@@ -284,9 +284,13 @@ module ActiveFedora
       end
 
       def save_contained_resources
-        contained_resources.changed.each do |_, resource|
+        # begin monkey
+        # Split into two steps due to stack overflow issue while saving works with large numbers of ordered members
+        changed = contained_resources.changed
+        changed.each do |_, resource|
           resource.save
         end
+        # end monkey
       end
 
       def contained_resources

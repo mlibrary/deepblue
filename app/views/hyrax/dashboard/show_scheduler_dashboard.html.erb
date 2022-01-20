@@ -35,29 +35,69 @@
 <% end %>
 <br/>
 
-<h2 class="title-header"><%= t('hyrax.scheduler.subscribe') %></h2>
-<%= form_tag(main_app.scheduler_dashboard_subscribe_path, method: 'post') do %>
+<!-- h2 class="title-header"><%#= t('hyrax.scheduler.subscribe') %></h2>
+<%# form_tag(main_app.scheduler_dashboard_subscribe_path, method: 'post') do %>
   <ul class='submit-button-list'>
-  <% @presenter.scheduler_subscribe_jobs.each do |name_subscribed_pair| %>
-    <% if name_subscribed_pair[1] %>
-      <li><%= submit_tag( name_subscribed_pair[0] + " (unsubscribe)", class: 'btn btn-primary' ) %><li>
-    <% else %>
-      <li><%= submit_tag( name_subscribed_pair[0] + " (subscribe)", class: 'btn btn-primary' ) %><li>
-    <% end %>
-  <% end %>
+  <%# @presenter.scheduler_subscribe_jobs.each do |name_subscribed_pair| %>
+    <%# if name_subscribed_pair[1] %>
+      <li><%#= submit_tag( name_subscribed_pair[0] + " (unsubscribe)", class: 'btn btn-primary' ) %></li>
+    <%# else %>
+      <li><%#= submit_tag( name_subscribed_pair[0] + " (subscribe)", class: 'btn btn-primary' ) %></li>
+    <%# end %>
+  <%# end %>
   </ul>
-<% end %>
+<%# end %>
 <br/>
 
-<h2 class="title-header"><%= t('hyrax.scheduler.run_job') %></h2>
-<%= form_tag(main_app.scheduler_dashboard_run_job_path, method: 'post') do %>
+<h2 class="title-header"><%#= t('hyrax.scheduler.run_job') %></h2>
+<%#= form_tag(main_app.scheduler_dashboard_run_job_path, method: 'post') do %>
   <ul class='submit-button-list'>
-  <% @presenter.job_schedule_jobs.each do |job| %>
-      <li><%= submit_tag( job, class: 'btn btn-primary' ) %><li>
-  <% end %>
+  <%# @presenter.job_schedule_jobs.each do |job| %>
+      <li><%#= submit_tag( job, class: 'btn btn-primary' ) %><li>
+  <%# end %>
   </ul>
-<% end %>
+<%# end %>
+-->
+<h2 class="title-header"><%= t('hyrax.scheduler.job_actions') %></h2>
+<table>
+  <thead>
+  <tr>
+    <td><%= t('hyrax.scheduler.labels.job_id') %></td>
+    <td><%= t('hyrax.scheduler.labels.cron') %></td>
+    <td><%= t('hyrax.scheduler.labels.description') %></td>
+    <td><%= t('hyrax.scheduler.labels.run_job') %></td>
+    <td><%= t('hyrax.scheduler.labels.subscribe') %></td>
+  </tr>
+  </thead>
+
+  <tbody>
+    <% @presenter.job_schedule.each do |job_name,job_parameters| %>
+      <% args = job_parameters['args'] %>
+      <tr>
+        <%= form_tag(main_app.scheduler_dashboard_job_action_path, method: 'post') do %>
+          <%= hidden_field_tag('job_name', job_name.to_s) %>
+          <td><%= job_name %></td>
+          <td><span class="monospace-code"><%= job_parameters['cron'] %></span></td>
+          <td><%= job_parameters['description'] %></td>
+          <td><%= submit_tag( t('hyrax.scheduler.submit.run'), class: 'btn btn-primary' ) %></td>
+          <% if args.present? && args['subscription_service_id'].present? %>
+            <% ssid = args['subscription_service_id'] %>
+            <% if @presenter.scheduler_subscribe_jobs_hash[ssid] %>
+              <td><%= submit_tag( t('hyrax.scheduler.submit.unsubscribe'), class: 'btn btn-primary' ) %></td>
+            <% else %>
+              <td><%= submit_tag( t('hyrax.scheduler.submit.subscribe'), class: 'btn btn-primary' ) %></td>
+            <% end %>
+          <% else %>
+            <td>&nbsp;</td>
+          <% end %>
+        <% end %>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
 <br/>
+<br/>
+
 
 <h2 class="title-header"><%= t('hyrax.scheduler.edit_schedule_header') %></h2>
 <%= form_tag(main_app.scheduler_dashboard_update_schedule_path, method: 'post') do %>

@@ -2,8 +2,7 @@
 
 class IngestDashboardController < ApplicationController
 
-  mattr_accessor :ingest_dashboard_controller_debug_verbose
-  @@ingest_dashboard_controller_debug_verbose = false
+  mattr_accessor :ingest_dashboard_controller_debug_verbose, default: false
 
   include ActiveSupport::Concern
   include Blacklight::Base

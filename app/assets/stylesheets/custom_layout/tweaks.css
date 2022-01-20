@@ -468,6 +468,10 @@ table.datatable thead th.no-sort {
     overflow-x: scroll;
 }
 
+.monospace-code {
+    font-family: monospace,monospace;
+}
+
 .documentation-div {
 
 }
