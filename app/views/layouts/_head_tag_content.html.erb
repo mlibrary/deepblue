@@ -17,6 +17,12 @@ signed in %>
 
 <!-- Add Schema for Google Search for work view; the if check is here to make sure you are in work page -->
 <% if ( ( @presenter.respond_to?  :title ) && ( @presenter.respond_to?  :doi ) ) %>
+
+  <%  if @presenter.doi.present?  %>
+  <meta name="dc.identifier" content="doi:<%= @presenter.doi.first.gsub("https://doi.org/", "") %>"/>
+  <% end %>
+  <meta name="dc.title" content="<%= @presenter.title.first %>" />
+
   <script type="application/ld+json">
   {
     "@context": "http://schema.org/",
