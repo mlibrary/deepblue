@@ -669,6 +669,7 @@ en:
       can_run:              "Scheduler can run on %{hostname}"
       edit_schedule_header: "Edit Schedule"
       jobs_do_not_run_in_dev: "Jobs don't run in development."
+      job_actions:          "Job Actions"
       jobs_running:         "#{jobs_count} job(s) are running as of #{now}"
       jobs_running_header:  "Jobs Running"
       not_running_html:     "Scheduler is <strong>not</strong> Running"
@@ -677,6 +678,16 @@ en:
       status_header:        "Scheduler Status"
       subscribe:            "Subscribe to Scheduler Jobs"
       uptime_header:        "Uptimes"
+      labels:
+        job_id:             "Job ID"
+        cron:               "CRON"
+        description:        "Description"
+        run_job:            "Run Now"
+        subscribe:          "Subscribe"
+      submit:
+        run:                "Run"
+        subscribe:          "Subscribe"
+        unsubscribe:        "Unsubscribe"
     share_button:           "Deposit Your Work"
     single_use_links:
       alert:

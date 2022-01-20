@@ -5,11 +5,13 @@ class SchedulerDashboardPresenter
   include Deepblue::DeepbluePresenterBehavior
 
   delegate :edit_schedule,
+           :job_schedule,
            :job_schedule_jobs,
            :scheduler_active,
            :scheduler_active_status,
            :scheduler_not_active,
            :scheduler_subscribe_jobs,
+           :scheduler_subscribe_jobs_hash,
            :scheduler_running,
            :scheduler_status, to: :controller
 
