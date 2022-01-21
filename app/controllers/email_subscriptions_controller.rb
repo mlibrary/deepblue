@@ -2,6 +2,12 @@
 
 class EmailSubscriptionsController < ApplicationController
 
+  include AdminOnlyControllerBehavior
+
+  with_themed_layout 'dashboard'
+
+  before_action :authenticate_user!
+  before_action :ensure_admin!
   before_action :set_email_subscription, only: %i[ show edit update destroy ]
 
   # GET /email_subscriptions or /email_subscriptions.json

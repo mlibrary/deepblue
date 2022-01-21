@@ -8,7 +8,10 @@ class SchedulerDashboardController < ApplicationController
   include Blacklight::Base
   include Blacklight::AccessControls::Catalog
   include Hyrax::Breadcrumbs
+  include AdminOnlyControllerBehavior
+
   with_themed_layout 'dashboard'
+
   before_action :authenticate_user!
   before_action :ensure_admin!
   before_action :build_breadcrumbs, only: [:show]
@@ -132,15 +135,15 @@ class SchedulerDashboardController < ApplicationController
                                            "job_class_name=#{job_class_name}",
                                            "args=#{args}",
                                            "" ] if scheduler_dashboard_controller_debug_verbose
-    # # Add this hostname to hostnames if it exists
-    # args['hostnames'] << ::DeepBlueDocs::Application.config.hostname if args.has_key? 'hostnames'
-    # # Ensure that job isn't 'quiet', i.e. send always send results
-    # args['quiet'] = false if args.has_key? 'quiet'
-    # args['from_dashboard'] = current_user.email
-    # job_class = job_class_name.constantize
-    # job_class.set( queue: :default ).perform_later( *args ) if Rails.env.production?
-    # job_class.perform_now( args ) if Rails.env.development?
-    return "Should start #{job} to run in the background."
+    # Add this hostname to hostnames if it exists
+    args['hostnames'] << ::DeepBlueDocs::Application.config.hostname if args.has_key? 'hostnames'
+    # Ensure that job isn't 'quiet', i.e. send always send results
+    args['quiet'] = false if args.has_key? 'quiet'
+    args['from_dashboard'] = current_user.email
+    job_class = job_class_name.constantize
+    job_class.set( queue: :default ).perform_later( *args ) if Rails.env.production?
+    job_class.perform_now( args ) if Rails.env.development?
+    return "Start #{job_name} to run in the background."
   end
 
   def job_action_subscribe( job_name: )
@@ -149,6 +152,10 @@ class SchedulerDashboardController < ApplicationController
                                            "job_name=#{job_name}",
                                            "" ] if scheduler_dashboard_controller_debug_verbose
     subscription_service_id = subscription_service_id( job_name: job_name )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "subscription_service_id=#{subscription_service_id}",
+                                           "" ] if scheduler_dashboard_controller_debug_verbose
     if subscription_service_id.blank?
       @action_error = true
       return "'#{job_name}' subscription id not found."
@@ -189,59 +196,19 @@ class SchedulerDashboardController < ApplicationController
     @job_schedule_jobs ||= job_schedule_jobs_init
   end
 
-  def job_schedule_job_args( job: )
-    schedule_entry = job_schedule[job]
-    return nil if schedule_entry.nil?
+  def job_schedule_job_args( job_name: )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "job_name=#{job_name}",
+                                           "" ] if scheduler_dashboard_controller_debug_verbose
+    schedule_entry = job_schedule[job_name]
+    return {} if schedule_entry.nil?
     args = schedule_entry['args']
     return args
   end
 
   def job_schedule_jobs_init
     job_schedule.keys
-  end
-
-  def run_job
-  #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-  #                                          ::Deepblue::LoggingHelper.called_from,
-  #                                          "params=#{params}",
-  #                                          "params[:commit]=#{params[:commit]}",
-  #                                          "" ] if scheduler_dashboard_controller_debug_verbose
-  #   job = params[:commit]
-  #   job_entry = job_schedule[job]
-  #
-  #
-  #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-  #                                          ::Deepblue::LoggingHelper.called_from,
-  #                                          "job_entry=#{job_entry}",
-  #                                          "" ] if scheduler_dashboard_controller_debug_verbose
-  #   if job_entry.blank?
-  #     msg = "Job #{job} not found."
-  #     return redirect_to scheduler_dashboard_path, alert: msg
-  #   end
-  #   job_class_name = job_entry['class']
-  #   args = job_entry['args']
-  #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-  #                                          ::Deepblue::LoggingHelper.called_from,
-  #                                          "job_class_name=#{job_class_name}",
-  #                                          "args=#{args}",
-  #                                          "" ] if scheduler_dashboard_controller_debug_verbose
-  #   # Add this hostname to hostnames if it exists
-  #   args['hostnames'] << ::DeepBlueDocs::Application.config.hostname if args.has_key? 'hostnames'
-  #   # Ensure that job isn't 'quiet', i.e. send always send results
-  #   args['quiet'] = false if args.has_key? 'quiet'
-  #   args['from_dashboard'] = current_user.email
-  #   job_class = job_class_name.constantize
-  #   job_class.set( queue: :default ).perform_later( *args ) if Rails.env.production?
-  #   job_class.perform_now( args ) if Rails.env.development?
-  #   msg = "Started #{job} to run in the background."
-  #   return redirect_to scheduler_dashboard_path, notice: msg
-  # rescue Exception => e
-  #   msg = "ERROR: #{e}"
-  #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-  #                                          ::Deepblue::LoggingHelper.called_from,
-  #                                          "msg=#{msg}",
-  #                                          "" ] if scheduler_dashboard_controller_debug_verbose
-  #   redirect_to scheduler_dashboard_path, alert: msg + e.backtrace[0..5].join("\n")
   end
 
   def scheduler_active
@@ -261,7 +228,15 @@ class SchedulerDashboardController < ApplicationController
                                            "" ] if scheduler_dashboard_controller_debug_verbose
     record = EmailSubscription.find_or_create_by( subscription_name: subscription_service_id,
                                                   user_id: current_ability.current_user.id )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "record=#{record}",
+                                           "" ] if scheduler_dashboard_controller_debug_verbose
     record.email = current_user.email
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "record=#{record}",
+                                           "" ] if scheduler_dashboard_controller_debug_verbose
     record.save
   end
 
@@ -273,6 +248,10 @@ class SchedulerDashboardController < ApplicationController
                                            "" ] if scheduler_dashboard_controller_debug_verbose
     record = EmailSubscription.where( subscription_name: subscription_service_id,
                                       user_id: current_ability.current_user.id ).limit( 1 )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "record=#{record}",
+                                           "" ] if scheduler_dashboard_controller_debug_verbose
     return if record.blank?
     record = record.first
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -304,9 +283,15 @@ class SchedulerDashboardController < ApplicationController
   end
 
   def subscription_service_id( job_name: )
-    job_entry = job_schedule['job_name']
-    return nil if job_entry.blank?
-    args = job_entry['args']
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "job_name=#{job_name}",
+                                           "" ] if scheduler_dashboard_controller_debug_verbose
+    args = job_schedule_job_args( job_name: job_name )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "args=#{args}",
+                                           "" ] if scheduler_dashboard_controller_debug_verbose
     return nil if args.blank?
     rv = args['subscription_service_id']
     return rv
@@ -367,26 +352,6 @@ class SchedulerDashboardController < ApplicationController
     render 'hyrax/dashboard/show_scheduler_dashboard'
   end
 
-  def subscribe
-    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                        ::Deepblue::LoggingHelper.called_from,
-    #                                        "params=#{params}",
-    #                                        "params[:commit]=#{params[:commit]}",
-    #                                        "" ] if scheduler_dashboard_controller_debug_verbose
-    # subscription_service_id = params[:commit]
-    # case subscription_service_id
-    # when /^(.+) \(unsubscribe\)$/
-    #   subscription_service_id = Regexp.last_match(1)
-    #   scheduler_job_unsubscribe( subscription_service_id: subscription_service_id )
-    #   msg = "#Unsubscribed from '#{subscription_service_id}'"
-    # when /^(.+) \(subscribe\)$/
-    #   subscription_service_id = Regexp.last_match(1)
-    #   scheduler_job_subscribe( subscription_service_id: subscription_service_id )
-    #   msg = "#Subscribed to '#{subscription_service_id}'"
-    # end
-    # redirect_to scheduler_dashboard_path, notice: msg
-  end
-
   def update_schedule
     edit_schedule_save
     redirect_to scheduler_dashboard_path
@@ -416,9 +381,5 @@ class SchedulerDashboardController < ApplicationController
                                              "" ] if scheduler_dashboard_controller_debug_verbose
       ::Deepblue::SchedulerIntegrationService.scheduler_stop( debug_verbose: scheduler_dashboard_controller_debug_verbose )
     end
-
-  def ensure_admin!
-    authorize! :read, :admin_dashboard
-  end
 
 end
