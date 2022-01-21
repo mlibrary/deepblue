@@ -8,8 +8,12 @@ class IngestDashboardController < ApplicationController
   include Blacklight::Base
   include Blacklight::AccessControls::Catalog
   include Hyrax::Breadcrumbs
+  include AdminOnlyControllerBehavior
+
   with_themed_layout 'dashboard'
+
   before_action :authenticate_user!
+  before_action :ensure_admin!
   before_action :build_breadcrumbs, only: [:show]
 
   class_attribute :presenter_class

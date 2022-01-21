@@ -4,7 +4,12 @@ class JobWorkersController < ApplicationController
 
   mattr_accessor :job_workers_controller_debug_verbose, default: false
 
-  # before_action :set_job_worker, only: %i[ show ]
+  include AdminOnlyControllerBehavior
+
+  with_themed_layout 'dashboard'
+
+  before_action :authenticate_user!
+  before_action :ensure_admin!
 
   attr_reader :action_error
 

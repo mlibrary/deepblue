@@ -4,6 +4,12 @@ class JobStatusesController < ApplicationController
 
   mattr_accessor :job_statuses_controller_debug_verbose, default: false
 
+  include AdminOnlyControllerBehavior
+
+  with_themed_layout 'dashboard'
+
+  before_action :authenticate_user!
+  before_action :ensure_admin!
   before_action :set_job_status, only: %i[ show edit update destroy ]
 
   attr_reader :action_error

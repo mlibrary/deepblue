@@ -50,10 +50,16 @@ module Deepblue
       # :owner: 'fritx@umich.edu'
       script << "#{generate_depth( depth: depth )}:filenames:"
       files = ingest_file_path_list.split("\n")
+      files.sort!
       files = files.reject { |f| f =~ /^\s+$/ } # remove blank lines
       depth += 1
       @ingest_script_messages << "WARNING: No files found or specified." if files.blank?
+      file_count_comment_written = false
       files.each do |f|
+        unless file_count_comment_written
+          script << "#{generate_depth( depth: depth )}# #{files.size} file(s) found"
+          file_count_comment_written = true
+        end
         f.strip!
         filename = ingest_file_path_name( f )
         msg = ingest_file_path_msg( f )
