@@ -218,6 +218,9 @@ gem 'hydra-role-management'
 # https://github.com/jonahb/akismet
 gem 'akismet'
 
+# https://github.com/igorkasyanchuk/new_google_recaptcha
+gem 'new_google_recaptcha'
+
 group :development, :test do
   gem 'capybara'
   gem 'chromedriver-helper'

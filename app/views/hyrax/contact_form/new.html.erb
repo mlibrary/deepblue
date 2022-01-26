@@ -1,3 +1,10 @@
+<% if Settings.new_google_recaptcha.enabled %>
+  <%= content_for :recaptcha_js do %>
+    <%= include_recaptcha_js %>
+  <% end %>
+<% else %>
+  <!-- no google recaptcha for you -->
+<% end %>
 <div class="alert alert-info">
   <%= render 'directions' %>
 </div>
@@ -14,8 +21,9 @@
   <% em = '' %>
 <% end %>
 
-<%= form_for @contact_form, url: hyrax.contact_form_index_path,
-                            html: { class: 'form-horizontal' } do |f| %>
+<%= form_for @contact_form, url: hyrax.contact_form_index_path, html: { class: 'form-horizontal' } do |f| %>
+
+  <%# TODO: remove this field if recaptcha used %>
   <%= f.text_field :contact_method, class: 'hide' %>
   <div class="form-group">
     <%= f.label :category, t('hyrax.contact_form.type_label'), class: "col-sm-2 control-label" %>
@@ -44,6 +52,13 @@
     <%= f.label :message, t('hyrax.contact_form.message_label'), class: "col-sm-2 control-label" %>
     <div class="col-sm-10"><%= f.text_area :message, rows: 4, class: 'form-control', required: true %></div>
   </div>
+
+  <% if Settings.new_google_recaptcha.enabled %>
+    <%#= 'checkout' is action name to be verified later %>
+    <%= recaptcha_action(hyrax.contact_form_index_path) %>
+  <% else %>
+    <!-- no google recaptcha checkbox for you -->
+  <% end %>
 
   <%= f.submit value: t('hyrax.contact_form.button_label'), class: "btn btn-primary" %>
 <% end %>

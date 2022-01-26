@@ -118,6 +118,12 @@ mcommunity:
   client_id: client_id.invalid
   cookie: cookie.invalid
 
+new_google_recaptcha:
+  enabled: false
+  secret_key: secret_key.invalid
+  site_key: site_key.invalid
+  minimum_score: 0.5
+
 # These are keys used to bridge between settings and the standard Rails files.
 rails:
   # Database settings as they will be mapped into database.yml for the running
