@@ -14,6 +14,8 @@ signed in %>
 <%= yield :twitter_meta %>
 <!-- Google Scholar metadata -->
 <%= yield :gscholar_meta %>
+<!-- Google Recaptcha -->
+<%= yield :recaptcha_js %>
 
 <!-- Add Schema for Google Search for work view; the if check is here to make sure you are in work page -->
 <% if ( ( @presenter.respond_to?  :title ) && ( @presenter.respond_to?  :doi ) ) %>

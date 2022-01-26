@@ -5,6 +5,7 @@ module Hyrax
   class ContactFormController < ApplicationController
 
     ALL_LOCAL = false # so new code isn't called
+    JUST_HUMAN_TEST = true
 
     mattr_accessor :contact_form_controller_debug_verbose,
                    default: ContactFormIntegrationService.contact_form_controller_debug_verbose
@@ -34,6 +35,8 @@ module Hyrax
       @create_timestamp = Time.now.to_i
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "params[:action]=#{params[:action]}",
+                                             "hyrax.contact_form_index_path=#{hyrax.contact_form_index_path}",
                                              "@create_timestamp=#{@create_timestamp}",
                                              "antispam_timestamp=#{antispam_timestamp}",
                                              "antispam_delta_in_seconds=#{antispam_delta_in_seconds}",
@@ -41,7 +44,45 @@ module Hyrax
                                              "params=#{params}",
                                              "@contact_form.valid?=#{@contact_form.valid?}",
                                              "@contact_form.spam?=#{@contact_form.spam?}",
+                                             "Settings.new_google_recaptcha.enabled=#{Settings.new_google_recaptcha.enabled}",
                                              "" ] if contact_form_controller_debug_verbose
+      @is_human = true # assume this is true and allow google recaptcha to set it to false as necessary
+      @humanity_details = nil
+      if Settings.new_google_recaptcha.enabled
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "params=#{params}",
+                                               "post_params=#{post_params}",
+                                               "NewGoogleRecaptcha.minimum_score=#{NewGoogleRecaptcha.minimum_score}",
+                                               "" ] if contact_form_controller_debug_verbose
+        post = Post.new(post_params)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "post=#{post}",
+                                               "" ] if contact_form_controller_debug_verbose
+        if JUST_HUMAN_TEST
+          @is_human = NewGoogleRecaptcha.human?( params[:new_google_recaptcha_token],
+                                                hyrax.contact_form_index_path,
+                                                NewGoogleRecaptcha.minimum_score,
+                                                post )
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "is_human=#{is_human}",
+                                                 "" ] if contact_form_controller_debug_verbose
+        else
+          @humanity_details = NewGoogleRecaptcha.get_humanity_detailed( params[:new_google_recaptcha_token],
+                                                                       hyrax.contact_form_index_path,
+                                                                       NewGoogleRecaptcha.minimum_score,
+                                                                       @post )
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "@humanity_details=#{@humanity_details}",
+                                                 "@humanity_details[:score]=#{@humanity_details[:score]}",
+                                                 "@humanity_details[:is_human]=#{@humanity_details[:is_human]}",
+                                                 "" ] if contact_form_controller_debug_verbose
+          @is_human = @humanity_details[:is_human]
+        end
+      end
       if @contact_form.valid?
         ContactMailer.contact(@contact_form).deliver_now unless is_spam?
         flash.now[:notice] = 'Thank you for your message!' # TODO: localize
@@ -135,6 +176,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "ALL_LOCAL=#{ALL_LOCAL}",
+                                             "Settings.new_google_recaptcha.enabled=#{Settings.new_google_recaptcha.enabled}",
                                              "event=#{event}",
                                              "contact_method=#{contact_method}",
                                              "category=#{category}",
@@ -168,6 +210,10 @@ module Hyrax
                                    remote_address:request.env['REMOTE_ADDR'],
                                    antispam_delta_in_seconds: antispam_delta_in_seconds,
                                    antispam_timeout_in_seconds: antispam_timeout_in_seconds )
+        if Settings.new_google_recaptcha.enabled && @humanity_details.present?
+          log_key_values.merge!( is_human: @humanity_details[:is_human],
+                                 humanity_score: @humanity_details[:score] )
+        end
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "log_key_values=#{log_key_values}",
@@ -188,6 +234,9 @@ module Hyrax
     end
 
     def is_spam?
+      if Settings.new_google_recaptcha.enabled
+        return !@is_human
+      end
       return true if @contact_form.spam?
       return true if is_antispam_delta_under_timeout?
       return false

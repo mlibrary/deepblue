@@ -186,8 +186,25 @@ en:
           mla_partial:           "[%{work_type}]. University of Michigan - Deep Blue Data. "
           mla_partial_with_year: ", (%{year}). [%{work_type}] University of Michigan - Deep Blue Data. "
     contact_form:
+      button_label: Send
+      email_label: Your Email
+      header: Contact Form
       issue_types:
+        browsing: Browsing and searching
+        changing: Making changes to my content
+        depositing: Depositing content
+        general: General inquiry or request
+        reporting: Reporting a problem
         size:               "My deposit is larger than %{max_upload_size}"
+      message_label: Message
+      name_label: Your Name
+      notice: >
+        Please use the contact form to submit inquiries about this system; to report a problem you are experiencing
+        with the system; to request assistance using the system; or to provide general feedback. See the Help page for
+        additional information about this system.
+      select_type: Select an Issue Type
+      subject_label: Subject
+      type_label: Issue Type
     dashboard:
       collections:
         form_share:
