@@ -761,7 +761,7 @@ en:
         no_links:           "No active single-use links are available – please click on appropriate create link button"
       title:                "Single-Use Links"
       user_comment_label:   "With note:"
-    site_copyright:         "© 2020 Regents of the University of Michigan"
+    site_copyright:         "© 2022 Regents of the University of Michigan"
     site_logo_href:         "https://www.lib.umich.edu/"
     site_logo_img_html: >
      <img class="site-logo"
