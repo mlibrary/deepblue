@@ -11,6 +11,15 @@ class Hyrax::Actors::MusicalWork
 end
 
 RSpec.describe Hyrax::Actors::ModelActor, skip: false do
+
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it "they have the right values" do
+      expect( described_class.model_actor_debug_verbose ).to eq debug_verbose
+    end
+  end
+
   let(:work) { MusicalWork::Cover.new }
   let(:depositor) { create(:user) }
   let(:depositor_ability) { ::Ability.new(depositor) }
@@ -23,4 +32,5 @@ RSpec.describe Hyrax::Actors::ModelActor, skip: false do
       is_expected.to be_kind_of Hyrax::Actors::MusicalWork::CoverActor
     end
   end
+
 end

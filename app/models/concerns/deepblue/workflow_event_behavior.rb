@@ -20,12 +20,20 @@ module Deepblue
                                              "" ] if workflow_event_behavior_debug_verbose
       return if id.blank?
       provenance_create( current_user: current_user, event_note: event_note )
-      email_event_create_rds( current_user: current_user, event_note: event_note )
-      email_event_create_user( current_user: current_user, event_note: event_note )
+      email_event_create_rds( current_user: current_user, event_note: event_note, was_draft: false )
+      email_event_create_user( current_user: current_user, event_note: event_note, was_draft: false )
 
       # Don't send Jira message if doing a draft work.
       # This gets called by collection create and in that case, the admin_set method is not avaialable.
-      return if ::Deepblue::DraftAdminSetService.has_draft_admin_set? self
+      is_draft = ::Deepblue::DraftAdminSetService.has_draft_admin_set?( self )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "current_user=#{current_user}",
+                                             "id=#{id}",
+                                             "is_draft=#{is_draft}",
+                                             "" ] if workflow_event_behavior_debug_verbose
+      return if is_draft
       JiraNewTicketJob.perform_later( work_id: id, current_user: current_user )
     end
 
@@ -128,20 +136,24 @@ module Deepblue
                                              "" ] if workflow_event_behavior_debug_verbose
     end
 
-    def workflow_update_after( current_user:, event_note: "", was_draft: false )
+    def workflow_update_after( current_user:, event_note: "", submit_for_review: false )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "current_user=#{current_user}",
                                              "event_note=#{event_note}",
-                                             "was_draft=#{was_draft}",
+                                             "submit_for_review=#{submit_for_review}",
                                              "" ] if workflow_event_behavior_debug_verbose
-      if was_draft
-        email_event_create_rds( current_user: current_user, event_note: event_note, was_draft: true )
-        email_event_create_user( current_user: current_user, event_note: event_note, was_draft: true )
-        # Send this Jira message, if it used to be a draft work, and now it's a regular work
-        JiraNewTicketJob.perform_later( work_id: id, current_user: current_user )
-      end
+      return unless submit_for_review
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "About to email RDS, email user, and create jira ticket",
+                                             "" ] if workflow_event_behavior_debug_verbose
+      email_event_create_rds( current_user: current_user, event_note: event_note, was_draft: true )
+      email_event_create_user( current_user: current_user, event_note: event_note, was_draft: true )
+      # Send this Jira message, if it used to be a draft work, and now it's a regular work
+      JiraNewTicketJob.perform_later( work_id: id, current_user: current_user )
     end
 
   end

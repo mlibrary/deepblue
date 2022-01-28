@@ -1,6 +1,15 @@
 require 'rails_helper'
 
 RSpec.describe Hyrax::Actors::OptimisticLockValidator, skip: false do
+
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it "they have the right values" do
+      expect( described_class.optimistic_lock_actor_debug_verbose ).to eq debug_verbose
+    end
+  end
+
   let(:env) { Hyrax::Actors::Environment.new(work, ability, attributes) }
   let(:ability) { ::Ability.new(depositor) }
 

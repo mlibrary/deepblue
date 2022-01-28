@@ -5,13 +5,15 @@ RSpec.describe Hyrax::ContactFormController, skip: false do
   include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
 
-  let(:debug_verbose) { true }
+  let(:debug_verbose) { false }
 
   describe 'module debug verbose variables' do
     it { expect( described_class.contact_form_controller_debug_verbose ).to eq debug_verbose }
   end
 
   describe 'module variables' do
+    it { expect( described_class::ALL_LOCAL                  ).eq false   }
+    it { expect( described_class::NGR_JUST_HUMAN_TEST        ).eq false   }
     it { expect( described_class.contact_form_log_delivered  ).to eq true }
     it { expect( described_class.contact_form_log_spam       ).to eq true }
     it { expect( described_class.antispam_timeout_in_seconds ).to eq 8    }

@@ -2,6 +2,14 @@ require 'rails_helper'
 
 RSpec.describe Hyrax::Actors::AttachMembersActor, skip: false do
 
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it "they have the right values" do
+      expect( described_class.attach_members_actor_debug_verbose ).to eq debug_verbose
+    end
+  end
+
   let(:depositor)    { create(:user) }
   let(:ability)      { ::Ability.new(depositor) }
   let(:env)          { Hyrax::Actors::Environment.new(work, ability, attributes) }

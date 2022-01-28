@@ -121,7 +121,7 @@ module DeepBlueDocs
     config.before_add_to_work_actor_debug_verbose         = false
     config.before_attach_member_actor_debug_verbose       = false
     config.before_model_actor_debug_verbose               = false
-    config.cleanup_file_set_actor_debug_verbose           = false
+    config.cleanup_file_sets_actor_debug_verbose          = false
     config.cleanup_trophies_actor_debug_verbose           = false
     config.create_with_files_actor_debug_verbose          = false
     config.data_set_actor_debug_verbose                   = false
@@ -140,6 +140,7 @@ module DeepBlueDocs
     config.catalog_controller_debug_verbose              = false
     config.collections_controller_debug_verbose          = false
     config.collections_controller_behavior_debug_verbose = false
+    config.controller_workflow_event_behavior_debug_verbose = false
     config.workflow_event_behavior_debug_verbose         = false
     config.data_sets_controller_debug_verbose            = false
     config.downloads_controller_debug_verbose            = false

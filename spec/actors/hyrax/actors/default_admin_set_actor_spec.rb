@@ -1,6 +1,15 @@
 require 'rails_helper'
 
 RSpec.describe Hyrax::Actors::DefaultAdminSetActor, skip: false do
+
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it "they have the right values" do
+      expect( described_class.default_admin_set_actor_debug_verbose ).to eq debug_verbose
+    end
+  end
+
   let(:depositor) { create(:user) }
   let(:depositor_ability) { ::Ability.new(depositor) }
   let(:work) { build(:data_set) }

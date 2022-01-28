@@ -2,6 +2,14 @@ require 'rails_helper'
 
 RSpec.describe Hyrax::Actors::EmbargoActor, skip: true do
 
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it "they have the right values" do
+      expect( described_class.embargo_actor_debug_verbose ).to eq debug_verbose
+    end
+  end
+
   let(:work) do
     DataSet.new do |work|
       work.apply_depositor_metadata 'foo'

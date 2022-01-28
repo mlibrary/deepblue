@@ -9,7 +9,7 @@ module Deepblue
 
   class DoiMinting2021Service
 
-    mattr_accessor :doi_minting_2021_service_debug_verbose, # default: true
+    mattr_accessor :doi_minting_2021_service_debug_verbose,
       default: ::Deepblue::DoiMintingService.doi_minting_2021_service_debug_verbose
 
     attr_reader :username, :password, :prefix, :mode

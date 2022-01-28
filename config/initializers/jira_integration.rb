@@ -12,8 +12,8 @@ Deepblue::JiraHelper.setup do |config|
   # testing jira integration is disabled
   config.jira_integration_hostnames_prod = [ 'deepblue.lib.umich.edu',
                                              'disabled.testing.deepblue.lib.umich.edu' ].freeze
-  config.jira_integration_enabled = config.jira_integration_hostnames.include?( DeepBlueDocs::Application.config.hostname )
-  config.jira_test_mode = !config.jira_integration_hostnames_prod.include?( DeepBlueDocs::Application.config.hostname )
+  config.jira_integration_enabled = config.jira_integration_hostnames.include?( Rails.configuration.hostname )
+  config.jira_test_mode = !config.jira_integration_hostnames_prod.include?( Rails.configuration.hostname )
 
   # use jira_use_authoremail_as_requester to test creation of new users in jira
   # config.jira_use_authoremail_as_requester = true if DeepBlueDocs::Application.config.hostname == 'testing.deepblue.lib.umich.edu'

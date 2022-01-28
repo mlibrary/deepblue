@@ -158,6 +158,7 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
   alias :is_quiet? :is_quiet
 
   def job_finished
+    job_status.add_messages( job_msg_queue )
     job_status.finished!
     return @job_status
   end
@@ -166,13 +167,13 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "restartable=#{restartable}",
-                                           "" ] if debug_verbose
+                                           "" ] if debug_verbose || deepblue_job_debug_verbose
     @restartable = restartable
     @job_status = JobStatus.find_or_create_job_started( job: self )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "job_status=#{job_status}",
-                                           "" ] if debug_verbose
+                                           "" ] if debug_verbose || deepblue_job_debug_verbose
     @job_status
   end
 
@@ -181,6 +182,8 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
     Rails.logger.error msg if rails_log
     job_status = JobStatus.find_or_create_job_error( job: self, error: msg )
     return job_status if job_status.nil?
+    job_status.add_messages( job_msg_queue )
+    job_status.add_message!( msg )
     return job_status.status! status unless status.nil?
     return job_status.status! JobStatus::FINISHED unless restartable
     job_status
