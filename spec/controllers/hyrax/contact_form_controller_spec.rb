@@ -12,8 +12,8 @@ RSpec.describe Hyrax::ContactFormController, skip: false do
   end
 
   describe 'module variables' do
-    it { expect( described_class::ALL_LOCAL                  ).eq false   }
-    it { expect( described_class::NGR_JUST_HUMAN_TEST        ).eq false   }
+    it { expect( described_class::ALL_LOCAL                  ).to eq false   }
+    it { expect( described_class::NGR_JUST_HUMAN_TEST        ).to eq false   }
     it { expect( described_class.contact_form_log_delivered  ).to eq true }
     it { expect( described_class.contact_form_log_spam       ).to eq true }
     it { expect( described_class.antispam_timeout_in_seconds ).to eq 8    }
