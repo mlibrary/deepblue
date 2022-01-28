@@ -223,7 +223,7 @@ module Deepblue
                                            bold_puts: is_verbose if is_verbose || jira_helper_debug_verbose
 
       if client.blank? && !jira_enabled
-        msg_queue << "jira client is blank and jira is not enabled" unless msg_queue.present?
+        msg_queue << "jira client is blank and jira is not enabled" unless msg_queue.nil?
         return nil
       end
 
