@@ -31,8 +31,14 @@ module Hyrax
         # A work that was a draft is now being published ( the admin set is no longer the Draft Admin Set ),
         # so you need to put it in the mediated workflow.
         admin_set_id = env.attributes[:admin_set_id]
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "admin_set_id=#{admin_set_id}",
+                                               "::Deepblue::DraftAdminSetService.draft_admin_set_id=#{::Deepblue::DraftAdminSetService.draft_admin_set_id}",
+                                               "" ] if initialize_workflow_actor_debug_verbose
         if ::Deepblue::DraftAdminSetService.draft_admin_set_id != admin_set_id &&
-             ::Deepblue::DraftAdminSetService.is_draft_curation_concern?( env.curation_concern )
+             ::Deepblue::DraftAdminSetService.is_draft_curation_concern?( env.curation_concern,
+                                                                          debug_verbose: initialize_workflow_actor_debug_verbose )
 
           work_id = env.curation_concern.id
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

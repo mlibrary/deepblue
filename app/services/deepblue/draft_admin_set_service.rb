@@ -92,12 +92,12 @@ module Deepblue
       return rv
     end
 
-    def self.has_draft_admin_set?( obj )
+    def self.has_draft_admin_set?( obj, debug_verbose: draft_admin_set_service_debug_verbose )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "obj.class.name=#{obj.class.name}",
                                              "obj=#{obj}",
-                                             "" ] if draft_admin_set_service_debug_verbose
+                                             "" ] if debug_verbose || draft_admin_set_service_debug_verbose
       return false unless obj.respond_to? :admin_set
       is_draft_admin_set? obj.admin_set
     end
@@ -126,19 +126,19 @@ module Deepblue
       admin_set.id == draft_admin_set_id
     end
 
-    def self.is_draft_curation_concern?( curation_concern )
+    def self.is_draft_curation_concern?( curation_concern, debug_verbose: draft_admin_set_service_debug_verbose )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.class.name=#{curation_concern.class.name}",
                                              "curation_concern.to_sipity_entity&.workflow_state_name=#{curation_concern.to_sipity_entity&.workflow_state_name}",
                                              "draft_workflow_state_name=#{draft_workflow_state_name}",
-                                             "" ] if draft_admin_set_service_debug_verbose
+                                             "" ] if debug_verbose || draft_admin_set_service_debug_verbose
       return true if curation_concern.to_sipity_entity&.workflow_state_name&.eql? draft_workflow_state_name
-      rv = has_draft_admin_set? curation_concern
+      rv = has_draft_admin_set?( curation_concern, debug_verbose: debug_verbose )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
-                                             "" ] if draft_admin_set_service_debug_verbose
+                                             "" ] if debug_verbose || draft_admin_set_service_debug_verbose
       return rv
     end
 

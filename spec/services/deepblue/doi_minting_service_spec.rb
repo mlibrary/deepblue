@@ -10,9 +10,9 @@ RSpec.describe ::Deepblue::DoiMintingService do
 
   describe 'module debug verbose variables' do
     it "they have the right values" do
-      expect( described_class.doi_minting_service_debug_verbose ).to eq( debug_verbose )
-      expect( described_class.doi_minting_job_debug_verbose     ).to eq( debug_verbose )
-      expect( described_class.register_doi_job_debug_verbose    ).to eq( debug_verbose )
+      expect( described_class.doi_minting_service_debug_verbose ).to eq( false )
+      expect( described_class.doi_minting_job_debug_verbose     ).to eq( false )
+      expect( described_class.register_doi_job_debug_verbose    ).to eq( false )
     end
   end
 

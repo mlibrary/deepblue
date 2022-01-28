@@ -2,6 +2,15 @@ require 'rails_helper'
 require 'redlock'
 
 RSpec.describe Hyrax::Actors::FileSetActor, skip: false do
+
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it "they have the right values" do
+      expect( described_class.file_set_actor_debug_verbose ).to eq debug_verbose
+    end
+  end
+
   include ActionDispatch::TestProcess
 
   let(:user)          { create(:user) }

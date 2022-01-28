@@ -2,8 +2,8 @@
 
 class IngestJobStatus
 
-  mattr_accessor :intest_job_status_debug_verbose
-  @@intest_job_status_debug_verbose = ::Deepblue::IngestIntegrationService.ingest_job_status_debug_verbose
+  mattr_accessor :intest_job_status_debug_verbose,
+                 default: ::Deepblue::IngestIntegrationService.ingest_job_status_debug_verbose
 
   def self.null_ingest_job_status
     @@null_ingest_job_status ||= IngestJobStatus.new( job_status: ::JobStatus::Null.instance )

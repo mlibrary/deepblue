@@ -4,8 +4,8 @@ module Hyrax
     # Responsible for removing FileSets related to the given curation concern.
     class CleanupFileSetsActor < Hyrax::Actors::AbstractActor
 
-      mattr_accessor :cleanup_file_set_actor_debug_verbose,
-                     default: ::DeepBlueDocs::Application.config.cleanup_file_set_actor_debug_verbose
+      mattr_accessor :cleanup_file_sets_actor_debug_verbose,
+                     default: Rails.configuration.cleanup_file_sets_actor_debug_verbose
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if destroy was successful

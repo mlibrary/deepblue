@@ -1,6 +1,6 @@
 # These events are triggered by actions within Hyrax Actors
 
-HYRAX_CALLBACKS_DEBUG_VERBOSE = true
+HYRAX_CALLBACKS_DEBUG_VERBOSE = false
 HYRAX_CALLBACKS_CALL_DEEPBLUE_EVENT_HELPER = false
 
 Hyrax.config.callback.set(:after_create_concern) do |curation_concern, user|

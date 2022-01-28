@@ -170,6 +170,16 @@ class JobStatus < ApplicationRecord
     return self
   end
 
+  def add_messages( messages, sep: "\n" )
+    return if messages.blank?
+    messages.each { |m| add_message( m, sep: sep ) }
+  end
+
+  def add_messages!( messages, sep: "\n" )
+    add_messages( messages, sep: sep )
+    save!
+  end
+
   def error!( error: nil )
     self.error = error.to_s
     save!

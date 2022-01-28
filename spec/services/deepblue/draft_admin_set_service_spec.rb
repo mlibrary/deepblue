@@ -4,9 +4,11 @@ require 'rails_helper'
 
 RSpec.describe ::Deepblue::DraftAdminSetService do
 
+  let(:debug_verbose) { false }
+
   describe 'resolve constants and module variables' do
     it { expect( ::Deepblue::DraftAdminSetService::NOT_AN_ADMIN_SET_ID ).to eq 'NOT_AN_ADMIN_SET_ID' }
-    it { expect( ::Deepblue::DraftAdminSetService.draft_admin_set_service_debug_verbose ).to eq false }
+    it { expect( ::Deepblue::DraftAdminSetService.draft_admin_set_service_debug_verbose ).to eq debug_verbose }
     it { expect( ::Deepblue::DraftAdminSetService.draft_admin_set_title ).to eq 'Draft works Admin Set' }
     it { expect( ::Deepblue::DraftAdminSetService.draft_workflow_state_name ).to eq 'draft' }
   end

@@ -6,6 +6,17 @@ require_relative "../../app/jobs/deepblue/deepblue_job"
 
 RSpec.describe JobStatus, type: :model do
 
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it { expect( described_class.job_status_debug_verbose ).to eq debug_verbose }
+  end
+
+  describe 'other module values' do
+    it { expect( described_class::FINISHED ).to eq 'finished' }
+    it { expect( described_class::STARTED  ).to eq 'started'  }
+  end
+
   let( :job_id )     { 'job-id-4321' }
   let( :job_class )  { 'JobClassDummy'}
   # let( :job_status ) { described_class.new( job_id: job_id, job_class: job_class ) }

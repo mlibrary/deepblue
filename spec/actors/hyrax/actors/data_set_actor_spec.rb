@@ -3,6 +3,14 @@ require 'redlock'
 
 RSpec.describe Hyrax::Actors::DataSetActor do
 
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it "they have the right values" do
+      expect( described_class.data_set_actor_debug_verbose ).to eq debug_verbose
+    end
+  end
+
   include ActionDispatch::TestProcess
 
   let(:env)       { Hyrax::Actors::Environment.new(curation_concern, ability, attributes) }

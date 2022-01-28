@@ -205,6 +205,7 @@ module Deepblue
                               requester:,
                               requester_email:,
                               summary:,
+                              msg_queue: nil,
                               is_verbose: false )
 
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -221,7 +222,10 @@ module Deepblue
                                              "" ],
                                            bold_puts: is_verbose if is_verbose || jira_helper_debug_verbose
 
-      return nil if client.blank? && !jira_enabled
+      if client.blank? && !jira_enabled
+        msg_queue << "jira client is blank and jira is not enabled" unless msg_queue.present?
+        return nil
+      end
 
       summary = summary.gsub( /\n/, ' ' ) if summary.present?
       # requester is a structure, we need to pass requester_email, but since raiseOnBehalfOf and requestParticipants
@@ -499,11 +503,40 @@ module Deepblue
       return nil
     end
 
-    def self.jira_ticket_for_create( client: nil, curation_concern:, is_verbose: false )
+    def self.jira_ticket_curation_notes_admin_contains( curation_concern:, search_value: )
+      return false unless curation_concern.respond_to? :curation_notes_admin
+      note_str = curation_concern.curation_notes_admin.join(" ")
+      if search_value.is_a? String
+        return note_str.include? search_value
+      elsif search_value.is_a? Regexp
+        rv = note_str =~ search_value
+        return !rv.nil?
+      end
+      return false
+    end
+
+    def self.jira_ticket_for_create( client: nil,
+                                     curation_concern:,
+                                     check_admin_notes_for_existing_jira_ticket: true,
+                                     is_verbose: false,
+                                     msg_queue: nil )
+
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
+                                             "check_admin_notes_for_existing_jira_ticket=#{check_admin_notes_for_existing_jira_ticket}",
+                                             "is_verbose=#{is_verbose}",
+                                             "msg_queue=#{msg_queue}",
                                              "" ] if jira_helper_debug_verbose
+
+      curation_admin_note_jira_ticket_prefix = "Jira ticket: "
+      if check_admin_notes_for_existing_jira_ticket
+        if jira_ticket_curation_notes_admin_contains( curation_concern: curation_concern,
+                                                        search_value: curation_admin_note_jira_ticket_prefix )
+          msg_queue << "curation concern admin notes already contains jira ticket" unless msg_queue.nil?
+          return
+        end
+      end
 
       # Issue type: Data deposit
       # * issue type field name: "issuetype"
@@ -562,18 +595,15 @@ module Deepblue
                                              "jira_url=#{jira_url}",
                                              "" ] if jira_helper_debug_verbose
 
-      return if jira_url.nil?
-      curation_concern.add_curation_note_admin( note: "Jira ticket: #{jira_url}" ) if curation_concern.respond_to? :add_curation_note_admin
-      # return unless curation_concern.respond_to? :curation_notes_admin
-      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-      #                                        ::Deepblue::LoggingHelper.called_from,
-      #                                        "curation_concern.curation_notes_admin=#{curation_concern.curation_notes_admin}",
-      #                                        "" ] if jira_helper_debug_verbose
-      # curation_concern.date_modified = DateTime.now # touch it so it will save updated attributes
-      # notes = curation_concern.curation_notes_admin
-      # notes = [] if notes.nil?
-      # curation_concern.curation_notes_admin = notes << "Jira ticket: #{jira_url}"
-      # curation_concern.save!
+      if jira_url.nil?
+        msg_queue << "jira_url is nil - failed to create jira ticket" unless msg_queue.nil?
+        return
+      end
+      unless curation_concern.respond_to? :add_curation_note_admin
+        msg_queue << "curation concern #{curation_concern.id} does not respond to :add_curation_note_admin" unless msg_queue.nil?
+      else
+        curation_concern.add_curation_note_admin( note: "#{curation_admin_note_jira_ticket_prefix}#{jira_url}" )
+      end
     end
 
     def self.jira_user_as_hash( user:, client: nil, is_verbose: false )
