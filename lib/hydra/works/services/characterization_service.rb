@@ -28,7 +28,7 @@ module Hydra::Works
                                            Deepblue::LoggingHelper.called_from,
                                            Deepblue::LoggingHelper.obj_class( "omdoc", omdoc ),
                                            "omdoc=#{omdoc}",
-                                           "" ] if Deepblue::IngestIntegrationService.characterization_service_verbose
+                                           "" ] if Deepblue::IngestIntegrationService.characterization_service_debug_verbose
       keys = []
       omdoc.class.terminology.terms.each_pair do |key, target|
         keys << key
@@ -44,7 +44,7 @@ module Hydra::Works
                                            Deepblue::LoggingHelper.called_from,
                                            "keys=#{keys}",
                                            "h=#{JSON.pretty_generate(h)}",
-                                           "" ] if Deepblue::IngestIntegrationService.characterization_service_verbose
+                                           "" ] if Deepblue::IngestIntegrationService.characterization_service_debug_verbose
       # begin monkey patch
       h = clean_and_override_mime_type( h )
       # end monkey patch
@@ -56,7 +56,7 @@ module Hydra::Works
       Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
                                            "h[:file_mime_type]=#{h[:file_mime_type]}",
-                                           "" ] if Deepblue::IngestIntegrationService.characterization_service_verbose
+                                           "" ] if Deepblue::IngestIntegrationService.characterization_service_debug_verbose
       # make sure mime_type does not contain a comma, like: "mime/type,mime/type"
       h[:file_mime_type] = [h[:file_mime_type].first.split( ',' ).first]
       h[:format_label] = [h[:format_label].first.split( ',' ).first]
@@ -64,14 +64,14 @@ module Hydra::Works
       Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
                                            "h[:file_mime_type]=#{h[:file_mime_type]}",
-                                           "" ] if Deepblue::IngestIntegrationService.characterization_service_verbose
+                                           "" ] if Deepblue::IngestIntegrationService.characterization_service_debug_verbose
       fname = file_name
       file_ext = File.extname fname
       Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
                                            "fname=#{fname}",
                                            "file_ext=#{file_ext}",
-                                           "" ] if Deepblue::IngestIntegrationService.characterization_service_verbose
+                                           "" ] if Deepblue::IngestIntegrationService.characterization_service_debug_verbose
       if Deepblue::IngestIntegrationService.characterize_mime_type_ext_mismatch.key? h[:file_mime_type].first
         fixed_mime_type = Array( Deepblue::IngestIntegrationService.characterize_mime_type_ext_mismatch_fix[file_ext] )
         h[:file_mime_type] = fixed_mime_type
@@ -79,7 +79,7 @@ module Hydra::Works
                                              Deepblue::LoggingHelper.called_from,
                                              "fixed mime type",
                                              "h[:file_mime_type]=#{h[:file_mime_type]}",
-                                             "" ] if Deepblue::IngestIntegrationService.characterization_service_verbose
+                                             "" ] if Deepblue::IngestIntegrationService.characterization_service_debug_verbose
       elsif Deepblue::IngestIntegrationService.characterize_excluded_ext_set.key? file_ext
         # TODO: should log this if the enforced mime type is different than the one determined
         enforced_mime_type = Array( Deepblue::IngestIntegrationService.characterize_enforced_mime_type[file_ext] )
@@ -88,7 +88,7 @@ module Hydra::Works
                                              Deepblue::LoggingHelper.called_from,
                                              "enforced mime type",
                                              "h[:file_mime_type]=#{h[:file_mime_type]}",
-                                             "" ] if Deepblue::IngestIntegrationService.characterization_service_verbose
+                                             "" ] if Deepblue::IngestIntegrationService.characterization_service_debug_verbose
       end
       return h
     end
@@ -105,7 +105,7 @@ module Hydra::Works
                                            Deepblue::LoggingHelper.called_from,
                                            Deepblue::LoggingHelper.obj_class( "metadata", metadata ),
                                            "metadata=#{metadata}",
-                                           "" ] if Deepblue::IngestIntegrationService.characterization_service_verbose
+                                           "" ] if Deepblue::IngestIntegrationService.characterization_service_debug_verbose
       omdoc = parser_class.new
       omdoc.ng_xml = Nokogiri::XML(metadata) if metadata.present?
       omdoc.__cleanup__ if omdoc.respond_to? :__cleanup__

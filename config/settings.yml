@@ -118,8 +118,11 @@ mcommunity:
   client_id: client_id.invalid
   cookie: cookie.invalid
 
+akismet:
+  api_key: api_key.invalid
+  app_url: app_url.invalid
+
 new_google_recaptcha:
-  enabled: false
   secret_key: secret_key.invalid
   site_key: site_key.invalid
   minimum_score: 0.5

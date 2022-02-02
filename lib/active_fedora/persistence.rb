@@ -35,6 +35,9 @@ module ActiveFedora
     # @return [Boolean] true if save was successful, otherwise false
     def save(*options)
       create_or_update(*options)
+    rescue Exception => e
+      puts "Exception: #{e}"
+      puts e.backtrace[0..30]
     end
 
     def save!(*args)
@@ -286,10 +289,29 @@ module ActiveFedora
       def save_contained_resources
         # begin monkey
         # Split into two steps due to stack overflow issue while saving works with large numbers of ordered members
+        # puts "caller.size=#{caller.size}"
+        # changed is a hash
         changed = contained_resources.changed
-        changed.each do |_, resource|
+        # puts "changed.size=#{changed.size}"
+        # puts "changed[changed.keys.first].class.name=#{changed[changed.keys.first].class.name}" if changed.size > 0
+        # puts "changed[changed.keys.last].class.name=#{changed[changed.keys.last].class.name}" if changed.size > 0
+        keys = []
+        keys = changed.keys if changed.size > 0
+        i = 0
+        n = keys.size
+        while i < n do
+          resource = changed[keys[i]]
           resource.save
+          i += 1
         end
+        # changed.each do |_, resource|
+        #   resource.save
+        # end
+      rescue SystemStackError => e
+        # puts "SystemStackError backtrace.size="
+        # puts e.backtrace.size
+        # puts e.backtrace[0..20]
+        raise
         # end monkey
       end
 

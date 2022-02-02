@@ -12,11 +12,19 @@ RSpec.describe Hyrax::ContactFormController, skip: false do
   end
 
   describe 'module variables' do
-    it { expect( described_class::ALL_LOCAL                  ).to eq false   }
-    it { expect( described_class::NGR_JUST_HUMAN_TEST        ).to eq false   }
     it { expect( described_class.contact_form_log_delivered  ).to eq true }
     it { expect( described_class.contact_form_log_spam       ).to eq true }
     it { expect( described_class.antispam_timeout_in_seconds ).to eq 8    }
+
+    it { expect( described_class.akismet_enabled             ).to eq false }
+    it { expect( described_class.akismet_env_slice_keys      ).to eq( %w{ HTTP_ACCEPT
+                                                                          HTTP_ACCEPT_ENCODING
+                                                                          REQUEST_METHOD
+                                                                          SERVER_PROTOCOL
+                                                                          SERVER_SOFTWARE
+                                                                        } ) }
+    it { expect( described_class.ngr_enabled                 ).to eq false }
+    it { expect( described_class.ngr_just_human_test         ).to eq false }
   end
 
   let(:user) { create(:user) }
