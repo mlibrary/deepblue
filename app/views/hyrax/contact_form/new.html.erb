@@ -1,4 +1,4 @@
-<% if Settings.new_google_recaptcha.enabled %>
+<% if Hyrax::ContactFormController.ngr_enabled %>
   <%= content_for :recaptcha_js do %>
     <%= include_recaptcha_js %>
   <% end %>
@@ -53,7 +53,7 @@
     <div class="col-sm-10"><%= f.text_area :message, rows: 4, class: 'form-control', required: true %></div>
   </div>
 
-  <% if Settings.new_google_recaptcha.enabled %>
+  <% if Hyrax::ContactFormController.ngr_enabled %>
     <%#= 'checkout' is action name to be verified later %>
     <%= recaptcha_action(hyrax.contact_form_index_path) %>
   <% else %>

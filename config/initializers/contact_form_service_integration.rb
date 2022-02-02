@@ -10,4 +10,16 @@ Hyrax::ContactFormIntegrationService.setup do |config|
   config.contact_form_log_delivered            = true
   config.contact_form_log_spam                 = true
 
+  config.akismet_enabled                       = false
+  # config.akismet_env_slice_keys                = %w{ HTTP_ACCEPT HTTP_ACCEPT_ENCODING }
+  config.akismet_env_slice_keys                = %w{ HTTP_ACCEPT
+                                                     HTTP_ACCEPT_ENCODING
+                                                     REQUEST_METHOD
+                                                     SERVER_PROTOCOL
+                                                     SERVER_SOFTWARE
+                                                   }
+
+  config.new_google_recaptcha_enabled          = false
+  config.new_google_recaptcha_just_human_test  = false
+
 end
