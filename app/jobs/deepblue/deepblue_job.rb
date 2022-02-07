@@ -73,6 +73,7 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
 
   def hostname_allowed( debug_verbose: deepblue_job_debug_verbose )
     @hostname_allowed = ::Deepblue::JobTaskHelper.hostname_allowed( job: self,
+                                                                    options: options,
                                                                     debug_verbose: debug_verbose,
                                                                     task: task )
     @hostname_allowed

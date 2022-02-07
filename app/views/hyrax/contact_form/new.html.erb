@@ -55,7 +55,8 @@
 
   <% if Hyrax::ContactFormController.ngr_enabled %>
     <%#= 'checkout' is action name to be verified later %>
-    <%= recaptcha_action(hyrax.contact_form_index_path) %>
+    <%#= recaptcha_action(hyrax.contact_form_index_path) %>
+    <%= recaptcha_action('/data/contact') %>
   <% else %>
     <!-- no google recaptcha checkbox for you -->
   <% end %>

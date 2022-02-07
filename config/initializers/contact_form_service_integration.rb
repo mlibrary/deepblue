@@ -22,4 +22,19 @@ Hyrax::ContactFormIntegrationService.setup do |config|
   config.new_google_recaptcha_enabled          = false
   config.new_google_recaptcha_just_human_test  = false
 
+  case Rails.configuration.hostname
+  when ::Deepblue::InitializationConstants::HOSTNAME_PROD
+    config.new_google_recaptcha_enabled = true
+  when ::Deepblue::InitializationConstants::HOSTNAME_TESTING
+    config.new_google_recaptcha_enabled = true
+  when ::Deepblue::InitializationConstants::HOSTNAME_STAGING
+    config.new_google_recaptcha_enabled = true
+  when ::Deepblue::InitializationConstants::HOSTNAME_TEST
+    config.new_google_recaptcha_enabled = false
+  when ::Deepblue::InitializationConstants::HOSTNAME_LOCAL
+    config.new_google_recaptcha_enabled = false
+  else
+    config.new_google_recaptcha_enabled = false
+  end
+
 end

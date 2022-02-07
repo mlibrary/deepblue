@@ -44,7 +44,9 @@ END_OF_SCHEDULER_ENTRY
     ::Deepblue::JobTaskHelper.has_options( *args, job: self, debug_verbose: works_report_job_debug_verbose )
     ::Deepblue::JobTaskHelper.is_verbose( job: self, debug_verbose: works_report_job_debug_verbose )
     ::Deepblue::JobTaskHelper.is_quiet( job: self, debug_verbose: works_report_job_debug_verbose )
-    return unless ::Deepblue::JobTaskHelper.hostname_allowed( job: self, debug_verbose: works_report_job_debug_verbose )
+    return unless ::Deepblue::JobTaskHelper.hostname_allowed( job: self,
+                                                              options: options,
+                                                              debug_verbose: works_report_job_debug_verbose )
     test = job_options_value( options, key: 'test', default_value: true, verbose: verbose )
     if quiet
       echo_to_stdout = false

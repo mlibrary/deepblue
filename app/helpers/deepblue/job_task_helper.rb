@@ -251,7 +251,7 @@ END_BODY
     end
 
     def self.hostname_allowed( job:,
-                               options: job.options,
+                               options:,
                                debug_verbose: job_task_helper_debug_verbose,
                                task: false,
                                verbose: false )
