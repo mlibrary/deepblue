@@ -36,7 +36,9 @@ END_OF_SCHEDULER_ENTRY
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event: "user stat importer" )
     ::Deepblue::JobTaskHelper.has_options( *args, job: self, debug_verbose: USER_STAT_IMPORTER_JOB_DEBUG_VERBOSE )
     ::Deepblue::JobTaskHelper.is_verbose( job: self, debug_verbose: USER_STAT_IMPORTER_JOB_DEBUG_VERBOSE )
-    return unless ::Deepblue::JobTaskHelper.hostname_allowed( job: self, debug_verbose: USER_STAT_IMPORTER_JOB_DEBUG_VERBOSE )
+    return unless ::Deepblue::JobTaskHelper.hostname_allowed( job: self,
+                                                              options: options,
+                                                              debug_verbose: USER_STAT_IMPORTER_JOB_DEBUG_VERBOSE )
     test = job_options_value( options, key: 'test', default_value: true, verbose: verbose )
     echo_to_stdout = job_options_value( options, key: 'echo_to_stdout', default_value: false, verbose: verbose )
     logging = job_options_value( options, key: 'logging', default_value: false, verbose: verbose )

@@ -10,6 +10,15 @@ module PersistHelper
     ::ActiveFedora::Base.find( id )
   end
 
+  # returns nil Ldp::Gone or ActiveFedora::ObjectNotFoundError
+  def self.find_or_nil( id )
+    PersistHelper.find( id )
+  rescue Ldp::Gone
+    nil
+  rescue ::ActiveFedora::ObjectNotFoundError
+    nil
+  end
+
   # Allows the user to find out if an id has been used in the system and then been deleted
   # @param uri id in fedora that may or may not have been deleted
   def self.gone?( uri )

@@ -36,6 +36,7 @@ module Hyrax
       @ngr_is_human = nil # assume this is true and allow google recaptcha to set it to false as necessary
       @ngr_humanity_details = nil
       @contact_form = Hyrax::ContactForm.new(contact_form_params)
+      @referrer_ip = nil
     end
 
     def new; end
@@ -43,11 +44,16 @@ module Hyrax
     def create
       @create_timestamp = Time.now.to_i
       env = request.env
+      @referrer_ip = env['action_dispatch.remote_ip'].to_s
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "request.class.name=#{request.class.name}",
                                              "env.class.name=#{env.class.name}",
                                              "env.keys=#{env.keys}",
+                                             "env['REMOTE_ADDR']=#{env['REMOTE_ADDR']}",
+                                             "env['REQUEST_URI']=#{env['REQUEST_URI']}",
+                                             "env['HTTP_USER_AGENT']=#{env['HTTP_USER_AGENT']}",
+                                             "@referrer_ip=#{@referrer_ip}",
                                              # "env=#{env}",
                                              "akismet_env_vars=#{akismet_env_vars}",
                                              "params[:action]=#{params[:action]}",
@@ -63,7 +69,7 @@ module Hyrax
                                              "ngr_enabled=#{ngr_enabled}",
                                              "" ] if contact_form_controller_debug_verbose
       akismet_is_spam? if @spam_status_unknown && akismet_enabled
-      new_google_recaptcha if @spam_status_unkown && ngr_enabled
+      new_google_recaptcha if @spam_status_unknown && ngr_enabled
       if @contact_form.valid?
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
@@ -103,7 +109,7 @@ module Hyrax
       if is_spam?
         if is_antispam_delta_under_timeout?
           # TODO: move this to LoggingHelper
-          Rails.logger.warn "Possible spam from IP #{request.env['REMOTE_ADDR']}. " +
+          Rails.logger.warn "Possible spam from IP #{@referrer_ip}. " +
                               "Antispam threshold seconds #{antispam_delta_in_seconds} is less than #{antispam_timeout_in_seconds}"
         end
         log( event: 'spam',
@@ -165,7 +171,7 @@ module Hyrax
                                              "email=#{email}",
                                              "subject=#{subject}",
                                              "message=#{message}",
-                                             "request.env['REMOTE_ADDR']=#{request.env['REMOTE_ADDR']}",
+                                             "@referrer_ip=#{@referrer_ip}",
                                              "antispam_delta_in_seconds=#{antispam_delta_in_seconds}",
                                              "antispam_timeout_in_seconds=#{antispam_timeout_in_seconds}",
                                              "" ] if contact_form_controller_debug_verbose
@@ -175,7 +181,7 @@ module Hyrax
                                  email: email,
                                  subject: subject,
                                  message: message,
-                                 remote_address: request.env['REMOTE_ADDR'],
+                                 referrer_ip: @referrer_ip,
                                  antispam_delta_in_seconds: antispam_delta_in_seconds,
                                  antispam_timeout_in_seconds: antispam_timeout_in_seconds )
       if @akismet_used
@@ -184,15 +190,18 @@ module Hyrax
       end
       if @ngr_used
         unless @ngr_humanity_details.present?
-          log_key_values.merge!( ngr_is_human: @ngr_is_human )
+          log_key_values.merge!( ngr_minimum_score: NewGoogleRecaptcha.minimum_score,
+                                 ngr_is_human: @ngr_is_human )
         else
-          log_key_values.merge!( ngr_is_human: @ngr_humanity_details[:is_human],
-                                 ngr_humanity_score: @ngr_humanity_details[:score] )
+          log_key_values.merge!( ngr_humanity_details_is_human: @ngr_humanity_details[:is_human],
+                                 ngr_humanity_score: @ngr_humanity_details[:score],
+                                 ngr_minimum_score: NewGoogleRecaptcha.minimum_score,
+                                 ngr_is_human: @ngr_is_human )
         end
       end
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "log_key_values=#{log_key_values}",
+                                             "log_key_values=#{log_key_values.to_s}",
                                              "" ] if contact_form_controller_debug_verbose
       msg = ::Deepblue::LoggingHelper.msg_to_log( class_name: self.class.name,
                         event: event,
@@ -288,13 +297,15 @@ module Hyrax
           @ngr_humanity_details = NewGoogleRecaptcha.get_humanity_detailed( params[:new_google_recaptcha_token],
                                                                             hyrax.contact_form_index_path,
                                                                             NewGoogleRecaptcha.minimum_score )
+          @ngr_is_human = NewGoogleRecaptcha.minimum_score <= @ngr_humanity_details[:score]
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "@ngr_humanity_details=#{@ngr_humanity_details}",
                                                  "@ngr_humanity_details[:score]=#{@ngr_humanity_details[:score]}",
                                                  "@ngr_humanity_details[:is_human]=#{@ngr_humanity_details[:is_human]}",
+                                                 "NewGoogleRecaptcha.minimum_score=#{NewGoogleRecaptcha.minimum_score}",
+                                                 "@ngr_is_human=#{@ngr_is_human}",
                                                  "" ] if contact_form_controller_debug_verbose
-          @ngr_is_human = @ngr_humanity_details[:ngr_is_human]
         end
         @ngr_used = true
         @spam_status_unknown = false

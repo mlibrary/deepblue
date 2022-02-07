@@ -60,9 +60,9 @@ RSpec.describe Deepblue::JobTaskHelper, type: :helper do
     context 'when hostname not allowed' do
       let(:hostnames) { [] }
       let(:options)   { { 'hostnames' => hostnames, 'quiet' => true } }
-      subject { described_class.hostname_allowed( job: job ) }
+      subject { described_class.hostname_allowed( job: job, options: options ) }
       before do
-        expect( job ).to receive( :options ).and_return options
+        #expect( job ).to receive( :options ).and_return options
         expect( job ).to receive( :job_options_value ).with( options,
                                                              key: 'hostnames',
                                                              default_value: [],
@@ -75,9 +75,9 @@ RSpec.describe Deepblue::JobTaskHelper, type: :helper do
     context 'when hostname allowed' do
       let(:hostnames) { [::DeepBlueDocs::Application.config.hostname] }
       let(:options)   { { 'hostnames' => hostnames, 'quiet' => true } }
-      subject { described_class.hostname_allowed( job: job ) }
+      subject { described_class.hostname_allowed( job: job, options: options ) }
       before do
-        expect( job ).to receive( :options ).and_return options
+        #expect( job ).to receive( :options ).and_return options
         expect( job ).to receive( :job_options_value ).with( options,
                                                              key: 'hostnames',
                                                              default_value: [],

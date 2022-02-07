@@ -209,7 +209,8 @@ module Deepblue
                                              "" ] if file_content_helper_debug_verbose
       id = work.read_me_file_set_id
       if id.present?
-        FileSet.find id
+        PersistHelper.find_or_nil( id ) # returns nil Ldp::Gone
+        # FileSet.find id
       elsif read_me_file_set_auto_read_me_attach
         fs = find_read_me_file_set( work: work, raise_error: raise_error )
         return nil if fs.blank?
