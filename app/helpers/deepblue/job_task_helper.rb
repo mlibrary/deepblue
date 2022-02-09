@@ -270,13 +270,14 @@ END_BODY
     end
 
     def self.initialize_options_from( *args, debug_verbose: job_task_helper_debug_verbose, task: false )
+      debug_verbose ||= job_task_helper_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "args=#{args}",
                                              "" ] if debug_verbose
       options = {}
       return options unless args.present?
-      args = args[0] while ( args.is_a?( Array ) && 1 == args.length )
+      args = normalize_args( *args, debug_verbose: debug_verbose )
       args.each do |key,value|
         options[key.to_s] = value
       end
@@ -341,6 +342,71 @@ END_BODY
       else
         puts str
       end
+    end
+
+    def self.normalize_args( *args, debug_verbose: job_task_helper_debug_verbose )
+      debug_verbose ||= job_task_helper_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "args=#{args}",
+                                             "" ] if debug_verbose
+      return args if args.is_a? Hash
+      # Don't want to strip outermost array unless the its of the form [[[x,y]]], so it doesn't strip if [[x,y]]
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "args=#{args}",
+                                             "args.is_a?( Array )=#{args.is_a?( Array )}",
+                                             "args.length=#{args.length}",
+                                             "" ] if debug_verbose
+      if ( args.is_a?( Array ) && 1 == args.length  )
+        arg0 = args[0]
+        if ( arg0.is_a?( Array ) && ( arg0[0].is_a?( String ) || arg0[0].is_a?( Symbol ) ) )
+          # skip
+        else
+          args = args[0]
+        end
+      end
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "args=#{args}",
+                                             "" ] if debug_verbose
+      return args
+    end
+
+    def self.normalize_args2( *args, debug_verbose: job_task_helper_debug_verbose )
+      debug_verbose ||= job_task_helper_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "args=#{args}",
+                                             "" ], bold_puts: true if debug_verbose
+      return args if args.is_a? Hash
+      # Don't want to strip outermost array unless the its of the form [[[x,y]]], so it doesn't strip if [[x,y]]
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "args=#{args}",
+                                             "args.is_a?( Array )=#{args.is_a?( Array )}",
+                                             "args.length=#{args.length}",
+                                             "args[0]=#{args[0]}",
+                                             "args[0].is_a?( Array )=#{args[0].is_a?( Array )}",
+                                             "args[0].length=#{args[0].length}",
+                                             "" ], bold_puts: true if debug_verbose
+      while ( args.is_a?( Array ) && 1 == args.length && args[0].is_a?( Array ) && 1 == args[0].length ) do
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "args=#{args}",
+                                               "args.is_a?( Array )=#{args.is_a?( Array )}",
+                                               "args[0]=#{args[0]}",
+                                               "args.length=#{args.length}",
+                                               "args[0].is_a?( Array )=#{args[0].is_a?( Array )}",
+                                               "args[0].length=#{args[0].length}",
+                                               "" ], bold_puts: true if debug_verbose
+        args = args[0]
+      end
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "args=#{args}",
+                                             "" ], bold_puts: true if debug_verbose
+      return args
     end
 
     def self.options_from_args( *args )

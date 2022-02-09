@@ -4,6 +4,8 @@ require_relative '../services/deepblue/sitemap_generator_service'
 
 class SitemapGeneratorJob < ::Deepblue::DeepblueJob
 
+  mattr_accessor :sitemap_generator_job_debug_verbose, default: false
+
 SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 
 sitemap_generator_job:
@@ -19,13 +21,19 @@ sitemap_generator_job:
       - 'deepblue.lib.umich.edu'
       - 'staging.deepblue.lib.umich.edu'
       - 'testing.deepblue.lib.umich.edu'
+    verbose: false
 
 END_OF_SCHEDULER_ENTRY
 
   queue_as :default
 
   def perform( *args )
-    initialize_options_from( *args )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "args=#{args}",
+                                           "" ] if sitemap_generator_job_debug_verbose
+    debug_verbose = sitemap_generator_job_debug_verbose
+    initialize_options_from( *args, debug_verbose: sitemap_generator_job_debug_verbose )
     log( event: "sitemap generator job", hostname_allowed: hostname_allowed? )
     is_quiet?
     return job_finished unless hostname_allowed?
