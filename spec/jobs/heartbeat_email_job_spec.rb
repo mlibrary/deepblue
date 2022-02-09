@@ -20,17 +20,14 @@ RSpec.describe HeartbeatEmailJob do
   RSpec.shared_examples 'it performs the job' do |allowed_to_run_on_server, debug_verbose_count|
     let(:event)        { "heartbeat email job" }
     let(:dbg_verbose)  { debug_verbose_count > 0 }
-    let(:args)         { { hostnames: hostnames } }
-    let(:init_options) { {"hostnames" => hostnames, :debug_verbose => dbg_verbose} }
-    let(:job)          { described_class.send( :job_or_instantiate, args ) }
-    let(:options)      { { "hostnames" => hostnames } }
+    let(:job)          { described_class.send( :job_or_instantiate, *args ) }
     let(:time_before)  { DateTime.now }
 
     before do
       expect(job).to receive(:perform_now).with(no_args).and_call_original
       expect(job).to receive(:job_status_init).with(no_args).and_call_original
       expect(job).to receive(:timestamp_begin).with(no_args).at_least(:once).and_call_original
-      expect(job).to receive(:initialize_options_from).with(args, debug_verbose: dbg_verbose).and_call_original
+      expect(job).to receive(:initialize_options_from).with(*args, debug_verbose: dbg_verbose).and_call_original
       expect(job).to receive(:hostname_allowed).with(debug_verbose: dbg_verbose).at_least(:once).and_call_original
       expect(job).to receive(:log).with({event: event, hostname_allowed: allowed})
       if allowed_to_run_on_server
@@ -68,6 +65,8 @@ RSpec.describe HeartbeatEmailJob do
       let(:allowed) { true }
       let(:email_targets) { ["fritx@umich.edu"] }
       let(:hostnames) { build(:hostnames_allowed) }
+      let(:options)      { { "hostnames" => hostnames } }
+      let(:args)         { { hostnames: hostnames } }
 
       allowed_to_run_on_server = true
       debug_verbose_count = 0
@@ -78,6 +77,8 @@ RSpec.describe HeartbeatEmailJob do
       let(:allowed) { true }
       let(:email_targets) { ["fritx@umich.edu"] }
       let(:hostnames) { build(:hostnames_allowed) }
+      let(:options)      { { "hostnames" => hostnames } }
+      let(:args)         { { hostnames: hostnames } }
 
       allowed_to_run_on_server = true
       debug_verbose_count = 1
@@ -88,10 +89,27 @@ RSpec.describe HeartbeatEmailJob do
       let(:allowed) { false }
       let(:email_targets) { [] }
       let(:hostnames) { build(:hostnames_not_allowed) }
+      let(:options)      { { "hostnames" => hostnames } }
+      let(:args)         { { hostnames: hostnames } }
 
       allowed_to_run_on_server = false
       debug_verbose_count = 0
       it_behaves_like 'it performs the job', allowed_to_run_on_server, debug_verbose_count
+    end
+
+    describe 'runs the job with SCHEDULER_ENTRY args' do
+      let(:allowed) { false }
+      let(:scheduler_entry) { described_class::SCHEDULER_ENTRY }
+      let(:yaml)      { YAML.load scheduler_entry }
+      let(:args)      { yaml[yaml.keys.first]['args'] }
+      let(:options)   { args }
+      let(:email_targets) { [] }
+      let(:hostnames) { args['hostnames'] }
+
+      allowed_to_run_on_server = false
+      debug_verbose_count = 0
+      it_behaves_like 'it performs the job', allowed_to_run_on_server, debug_verbose_count
+
     end
 
   end

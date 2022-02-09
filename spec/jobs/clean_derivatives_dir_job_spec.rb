@@ -135,6 +135,18 @@ RSpec.describe CleanDerivativesDirJob do
 
     end
 
+    describe 'runs the job with SCHEDULER_ENTRY args' do
+      let(:scheduler_entry) { described_class::SCHEDULER_ENTRY }
+      let(:yaml) { YAML.load scheduler_entry }
+      let(:args) { yaml[yaml.keys.first]['args'] }
+
+      run_the_job = true
+
+      debug_verbose_count = 0
+      it_behaves_like 'CleanDerivativesDirJob', run_the_job, debug_verbose_count
+
+    end
+
   end
 
 end
