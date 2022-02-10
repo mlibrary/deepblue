@@ -22,6 +22,12 @@ RSpec.describe AboutToExpireEmbargoesJob do
                                                        verbose: false } ) }
   end
 
+  describe 'defines scheduler entry' do
+    it 'has scheduler entry' do
+      expect( described_class::SCHEDULER_ENTRY ).to include( "class: #{described_class.name}" )
+    end
+  end
+
   describe 'shared' do
 
     RSpec.shared_examples 'AboutToExpireEmbargoesJob' do |run_the_job, debug_verbose_count|

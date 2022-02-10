@@ -17,7 +17,7 @@ RSpec.describe HeartbeatEmailJob do
     end
   end
 
-  RSpec.shared_examples 'it performs the job' do |allowed_to_run_on_server, debug_verbose_count|
+  RSpec.shared_examples 'it performs the job' do |run_on_server, debug_verbose_count|
     let(:event)        { "heartbeat email job" }
     let(:dbg_verbose)  { debug_verbose_count > 0 }
     let(:job)          { described_class.send( :job_or_instantiate, *args ) }
@@ -30,7 +30,7 @@ RSpec.describe HeartbeatEmailJob do
       expect(job).to receive(:initialize_options_from).with(*args, debug_verbose: dbg_verbose).and_call_original
       expect(job).to receive(:hostname_allowed).with(debug_verbose: dbg_verbose).at_least(:once).and_call_original
       expect(job).to receive(:log).with({event: event, hostname_allowed: allowed})
-      if allowed_to_run_on_server
+      if run_on_server
         expect(job).to receive(:find_all_email_targets).with(additional_email_targets: email_targets).and_call_original
         expect(job).to receive(:email_all_targets).with(task_name: "scheduler heartbeat", event: event)
       end
@@ -68,9 +68,9 @@ RSpec.describe HeartbeatEmailJob do
       let(:options)      { { "hostnames" => hostnames } }
       let(:args)         { { hostnames: hostnames } }
 
-      allowed_to_run_on_server = true
+      run_on_server = true
       debug_verbose_count = 0
-      it_behaves_like 'it performs the job', allowed_to_run_on_server, debug_verbose_count
+      it_behaves_like 'it performs the job', run_on_server, debug_verbose_count
     end
 
     context 'with valid arguments and allowed to run on server debug verbose' do
@@ -80,9 +80,9 @@ RSpec.describe HeartbeatEmailJob do
       let(:options)      { { "hostnames" => hostnames } }
       let(:args)         { { hostnames: hostnames } }
 
-      allowed_to_run_on_server = true
+      run_on_server = true
       debug_verbose_count = 1
-      it_behaves_like 'it performs the job', allowed_to_run_on_server, debug_verbose_count
+      it_behaves_like 'it performs the job', run_on_server, debug_verbose_count
     end
 
     context 'with valid arguments and not allowed to run on server' do
@@ -92,9 +92,9 @@ RSpec.describe HeartbeatEmailJob do
       let(:options)      { { "hostnames" => hostnames } }
       let(:args)         { { hostnames: hostnames } }
 
-      allowed_to_run_on_server = false
+      run_on_server = false
       debug_verbose_count = 0
-      it_behaves_like 'it performs the job', allowed_to_run_on_server, debug_verbose_count
+      it_behaves_like 'it performs the job', run_on_server, debug_verbose_count
     end
 
     describe 'runs the job with SCHEDULER_ENTRY args' do
@@ -106,10 +106,9 @@ RSpec.describe HeartbeatEmailJob do
       let(:email_targets) { [] }
       let(:hostnames) { args['hostnames'] }
 
-      allowed_to_run_on_server = false
+      run_on_server = false
       debug_verbose_count = 0
-      it_behaves_like 'it performs the job', allowed_to_run_on_server, debug_verbose_count
-
+      it_behaves_like 'it performs the job', run_on_server, debug_verbose_count
     end
 
   end

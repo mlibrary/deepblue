@@ -8,6 +8,12 @@ RSpec.describe GlobusErrorsReportJob do
     it { expect( ::Deepblue::JobTaskHelper.globus_errors_report_job_debug_verbose ).to eq debug_verbose }
   end
 
+  describe 'defines scheduler entry' do
+    it 'has scheduler entry' do
+      expect( described_class::SCHEDULER_ENTRY ).to include( "class: #{described_class.name}" )
+    end
+  end
+
   describe 'all', skip: false do
     RSpec.shared_examples 'shared all' do |dbg_verbose|
       subject { described_class }

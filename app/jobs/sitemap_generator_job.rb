@@ -21,7 +21,6 @@ sitemap_generator_job:
       - 'deepblue.lib.umich.edu'
       - 'staging.deepblue.lib.umich.edu'
       - 'testing.deepblue.lib.umich.edu'
-    verbose: false
 
 END_OF_SCHEDULER_ENTRY
 

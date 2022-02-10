@@ -13,7 +13,7 @@ class RakeTaskJob < AbstractRakeTaskJob
 
   # queue_as :scheduler
 
-EXAMPLE_SCHEDULER_ENTRY = <<-END_OF_EXAMPLE_SCHEDULER_ENTRY
+SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 
 example_rake_task_job:
 # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
@@ -34,7 +34,7 @@ example_rake_task_job:
     is_quiet: true
     verbose: false
 
-END_OF_EXAMPLE_SCHEDULER_ENTRY
+END_OF_SCHEDULER_ENTRY
 
   attr_accessor :rake_task
 

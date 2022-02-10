@@ -12,17 +12,19 @@ RSpec.describe FindAndFixJob, skip: false do
 
   let(:sched_helper) { class_double( Deepblue::SchedulerHelper ).as_stubbed_const(:transfer_nested_constants => true) }
 
+  describe 'defines scheduler entry' do
+    it 'has scheduler entry' do
+      expect( described_class::SCHEDULER_ENTRY ).to include( "class: #{described_class.name}" )
+    end
+  end
+
   describe 'find and fix job' do
     let(:task) { false }
     let(:verbose) { false }
-    let(:args)   { { 'email_results_to' => 'fritx@umich.edu',
-                     'hostnames' => hostnames,
-                     'subscription_service_id' => 'find_and_fix_job',
-                     'verbose' => verbose } }
     let(:options) { args }
     let(:job)     { described_class.send( :job_or_instantiate, *args ) }
 
-    RSpec.shared_examples 'it called initialize_from_args during perform job' do |run_the_job, dbg_verbose|
+    RSpec.shared_examples 'it called initialize_from_args during perform job' do |run_on_server, dbg_verbose|
       before do
         described_class.find_and_fix_job_debug_verbose = dbg_verbose
         expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(:once) if dbg_verbose
@@ -47,7 +49,7 @@ RSpec.describe FindAndFixJob, skip: false do
                                                            task: false ).and_call_original
         end
         expect(sched_helper).to receive(:log).with( class_name: described_class.name )
-        if run_the_job
+        if run_on_server
           { filter_date_begin:    nil,
             filter_date_end:      nil }.each_pair do |key,value|
 
@@ -78,20 +80,40 @@ RSpec.describe FindAndFixJob, skip: false do
 
     describe 'with valid hostname' do
       let(:hostnames) { build(:hostnames_allowed) }
-      run_the_job = true
+      let(:args)   { { 'email_results_to' => 'fritx@umich.edu',
+                       'hostnames' => hostnames,
+                       'subscription_service_id' => 'find_and_fix_job',
+                       'verbose' => verbose } }
+      run_on_server = true
 
-      it_behaves_like 'it called initialize_from_args during perform job', run_the_job, true
-      it_behaves_like 'it called initialize_from_args during perform job', run_the_job, false
+      it_behaves_like 'it called initialize_from_args during perform job', run_on_server, true
+      it_behaves_like 'it called initialize_from_args during perform job', run_on_server, false
 
     end
 
     describe 'without valid hostnames', skip: false do
       let(:hostnames) { build(:hostnames_not_allowed) }
-      run_the_job = false
+      let(:args)   { { 'email_results_to' => 'fritx@umich.edu',
+                       'hostnames' => hostnames,
+                       'subscription_service_id' => 'find_and_fix_job',
+                       'verbose' => verbose } }
+      run_on_server = false
 
-      it_behaves_like 'it called initialize_from_args during perform job', run_the_job, true
-      it_behaves_like 'it called initialize_from_args during perform job', run_the_job, false
+      it_behaves_like 'it called initialize_from_args during perform job', run_on_server, true
+      it_behaves_like 'it called initialize_from_args during perform job', run_on_server, false
 
+    end
+
+    describe 'runs the job with SCHEDULER_ENTRY args' do
+      let(:scheduler_entry) { described_class::SCHEDULER_ENTRY }
+      let(:yaml)            { YAML.load scheduler_entry }
+      let(:args)            { yaml[yaml.keys.first]['args'] }
+      let(:hostnames)       { args['hostnames'] }
+      let(:options)         { args.with_indifferent_access }
+
+      run_on_server = false
+      it_behaves_like 'it called initialize_from_args during perform job', run_on_server, false
+      it_behaves_like 'it called initialize_from_args during perform job', run_on_server, true
     end
 
   end
