@@ -21,6 +21,12 @@ RSpec.describe DeactivateExpiredEmbargoesJob do
                                                        verbose: false } ) }
   end
 
+  describe 'defines scheduler entry' do
+    it 'has scheduler entry' do
+      expect( described_class::SCHEDULER_ENTRY ).to include( "class: #{described_class.name}" )
+    end
+  end
+
   describe 'job calls service' do
 
     RSpec.shared_examples 'DeactivateExpiredEmbargoesJob' do |run_the_job, debug_verbose_count|
@@ -149,6 +155,18 @@ RSpec.describe DeactivateExpiredEmbargoesJob do
       run_the_job = true
 
       debug_verbose_count = 1
+      it_behaves_like 'DeactivateExpiredEmbargoesJob', run_the_job, debug_verbose_count
+
+    end
+
+    describe 'runs the job with SCHEDULER_ENTRY args' do
+      let(:scheduler_entry) { described_class::SCHEDULER_ENTRY }
+      let(:yaml) { YAML.load scheduler_entry }
+      let(:args) { yaml[yaml.keys.first]['args'] }
+
+      run_the_job = true
+
+      debug_verbose_count = 0
       it_behaves_like 'DeactivateExpiredEmbargoesJob', run_the_job, debug_verbose_count
 
     end

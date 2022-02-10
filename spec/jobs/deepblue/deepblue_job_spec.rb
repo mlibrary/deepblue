@@ -49,6 +49,23 @@ RSpec.describe ::Deepblue::DeepblueJob do
     end
   end
 
+  describe '.initialize_no_args_hash' do
+
+    let(:args) { {} }
+    let(:job) { MockDeepblueJob.send( :job_or_instantiate, *args ) }
+    it 'does it' do
+      expect( job ).to receive(:job_status_init).and_call_original
+      expect( job ).to receive(:initialize_email_targets).and_call_original
+      expect( job ).to receive(:timestamp_begin).and_call_original
+      expect( job.initialize_no_args_hash( debug_verbose: false ) ).to eq( {} )
+      expect( job.debug_verbose ).to eq false
+      expect( job.options ).to eq( {} )
+      expect( job.task ).to eq false
+      expect( job.verbose ).to eq false
+    end
+
+  end
+
   describe '.initialize_options_from' do
     let(:debug_verbose) { false }
     let(:args)  { {x: 'y'} }

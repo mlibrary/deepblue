@@ -7,7 +7,7 @@ class FedoraAccessibleJob < ::Hyrax::ApplicationJob
   mattr_accessor :fedora_accessible_job_debug_verbose,
                  default: ::Deepblue::JobTaskHelper.fedora_accessible_job_debug_verbose
 
-  EXAMPLE_SCHEDULER_ENTRY = <<-END_OF_EXAMPLE_SCHEDULER_ENTRY
+SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 
 fedora_accessible_job:
 # Run every five minutes
@@ -21,7 +21,7 @@ fedora_accessible_job:
       - 'fritx@umich.edu'
     verbose: true
 
-END_OF_EXAMPLE_SCHEDULER_ENTRY
+END_OF_SCHEDULER_ENTRY
 
   attr_accessor :email_targets_when_not_accessible, :verbose
 

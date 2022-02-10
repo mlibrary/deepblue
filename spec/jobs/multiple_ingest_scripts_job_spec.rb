@@ -121,6 +121,7 @@ RSpec.describe MultipleIngestScriptsJob, skip: false do
         end
       end
     end
+
     it_behaves_like 'shared all', false
     it_behaves_like 'shared all', true
   end

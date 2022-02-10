@@ -12,6 +12,12 @@ RSpec.describe RakeTaskJob, skip: false do
 
   let(:sched_helper) { class_double( Deepblue::SchedulerHelper ).as_stubbed_const(:transfer_nested_constants => true) }
 
+  describe 'defines scheduler entry' do
+    it 'has scheduler entry' do
+      expect( described_class::SCHEDULER_ENTRY ).to include( "class: #{described_class.name}" )
+    end
+  end
+
   describe 'rake task job', skip: false do
     let(:rake_task) { 'run_this' }
     let(:task)      { false }
@@ -160,6 +166,27 @@ RSpec.describe RakeTaskJob, skip: false do
 
       before do
         expect(job).to receive(:exec_rake_task).with( "bundle exec rake #{rake_task}" ).and_return ''
+      end
+
+      it 'returns true' do
+        ActiveJob::Base.queue_adapter = :test
+        job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
+        expect(job.allowed_job_task?).to eq true
+      end
+
+    end
+
+    context 'runs the job with SCHEDULER_ENTRY args' do
+      let(:scheduler_entry) { described_class::SCHEDULER_ENTRY }
+      let(:yaml)            { YAML.load scheduler_entry }
+      let(:args)            { yaml[yaml.keys.first]['args'] }
+      let(:hostnames)       { args['hostnames'] }
+      let(:rake_task)       { args['rake_task'] }
+      let(:options)         { args.with_indifferent_access }
+      let(:job)             { described_class.send( :job_or_instantiate, *args ) }
+
+      before do
+        expect(job).to_not receive(:exec_rake_task).with( "bundle exec rake #{rake_task}" )
       end
 
       it 'returns true' do

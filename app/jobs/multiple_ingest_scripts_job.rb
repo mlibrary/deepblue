@@ -5,11 +5,10 @@ class MultipleIngestScriptsJob < ::Hyrax::ApplicationJob
   mattr_accessor :multiple_ingest_scripts_job_debug_verbose,
                  default: ::Deepblue::IngestIntegrationService.multiple_ingest_scripts_job_debug_verbose
 
-  mattr_accessor :scripts_allowed_path_extensions
-  @@scripts_allowed_path_extensions = [ '.yml', '.yaml' ]
+  mattr_accessor :scripts_allowed_path_extensions, default: [ '.yml', '.yaml' ]
 
-  mattr_accessor :scripts_allowed_path_prefixes
-  @@scripts_allowed_path_prefixes = [ '/deepbluedata-prep/', './data/reports/', '/deepbluedata-globus/upload/' ]
+  mattr_accessor :scripts_allowed_path_prefixes,
+                 default: [ '/deepbluedata-prep/', './data/reports/', '/deepbluedata-globus/upload/' ]
 
   include JobHelper # see JobHelper for :by_request_only, :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as Hyrax.config.ingest_queue_name

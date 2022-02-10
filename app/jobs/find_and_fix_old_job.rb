@@ -17,7 +17,7 @@ class FindAndFixOldJob < AbstractRakeTaskJob
 
   # queue_as :scheduler
 
-EXAMPLE_SCHEDULER_ENTRY = <<-END_OF_EXAMPLE_SCHEDULER_ENTRY
+SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 
 find_and_fix_old_job:
 # Run once a day, 15 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
@@ -39,9 +39,9 @@ find_and_fix_old_job:
       - 'staging.deepblue.lib.umich.edu'
       - 'testing.deepblue.lib.umich.edu'
     subscription_service_id: find_and_fix_old_job
-    verbose: true
+    verbose: false
 
-END_OF_EXAMPLE_SCHEDULER_ENTRY
+END_OF_SCHEDULER_ENTRY
 
   def self.perform( *args )
     RakeTaskJob.perform_now( *args )
