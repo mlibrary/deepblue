@@ -165,9 +165,10 @@ RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: false
                                  batch_document_ids: [asset3.id],
                                  stay_on_edit: true }
         end.to change { collection.reload.member_objects.size }.by(1)
-        expect(response).to redirect_to routes.url_helpers.edit_dashboard_collection_path(collection, locale: 'en')
+        expect(response).to redirect_to routes.url_helpers.dashboard_collection_path(collection, locale: 'en')
         expect(assigns[:collection].member_objects).to match_array [asset1, asset2, asset3]
       end
+
 
       it "adds members to the collection from other than the edit form" do
         expect do
