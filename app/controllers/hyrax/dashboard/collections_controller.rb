@@ -143,6 +143,26 @@ module Hyrax
         banner_info&.delete_all
       end
 
+      # This method was monkey patched becuase we wanted the users to go back to
+      # the collection page, rather than stay in Edit collection page as hyrax does.
+      def update
+        unless params[:update_collection].nil?
+          process_banner_input
+          process_logo_input
+        end
+
+        process_member_changes
+        @collection.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE unless @collection.discoverable?
+        # we don't have to reindex the full graph when updating collection
+        @collection.reindex_extent = Hyrax::Adapters::NestingIndexAdapter::LIMITED_REINDEX
+        if @collection.update(collection_params.except(:members))
+          # This is the reason for the monkey patch.
+          redirect_to hyrax.dashboard_collection_path, notice: t('hyrax.dashboard.my.action.collection_update_success')
+        else
+          after_update_error
+        end
+      end
+
       ## end monkey patch banner
 
     end
