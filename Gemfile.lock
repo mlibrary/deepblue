@@ -791,7 +791,7 @@ GEM
       pry (>= 0.10.4)
     public_suffix (2.0.5)
     pul_uv_rails (2.0.1)
-    puma (4.3.10)
+    puma (4.3.11)
       nio4r (~> 2.0)
     qa (5.7.0)
       activerecord-import
@@ -1246,7 +1246,7 @@ DEPENDENCIES
   pry
   pry-byebug
   pry-rails
-  puma (~> 4.3.5)
+  puma (~> 4.3.11)
   rack (~> 2.1.4)
   rails (>= 5.2)
   rails-controller-testing
