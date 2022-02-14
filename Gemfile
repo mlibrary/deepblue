@@ -231,6 +231,7 @@ group :development, :test do
   gem 'pry-byebug'
   gem 'pry-rails'
   gem 'rails-controller-testing'
+  gem 'rdf-spec', github: 'ruby-rdf/rdf-spec', branch: 'develop'
   gem 'rspec-activemodel-mocks'
   gem 'rspec-its'
   gem 'rspec-rails'
