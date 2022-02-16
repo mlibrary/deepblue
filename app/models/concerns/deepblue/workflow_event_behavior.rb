@@ -56,6 +56,10 @@ module Deepblue
                                              "" ] if workflow_event_behavior_debug_verbose
       provenance_destroy( current_user: current_user, event_note: event_note )
       email_event_destroy_rds( current_user: current_user, event_note: event_note )
+
+      # Send an email to the user ( depositor )
+      is_draft = ::Deepblue::DraftAdminSetService.has_draft_admin_set?( self )
+      email_event_destroy_user( current_user: current_user, event_note: event_note, was_draft: is_draft )
     end
 
     def workflow_publish( current_user:, event_note: "", message: "" )

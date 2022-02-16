@@ -36,6 +36,10 @@ module Deepblue
       return attributes_standard_for_email, USE_BLANK_KEY_VALUES
     end
 
+    def attributes_for_email_event_destroy_user
+      return attributes_standard_for_email, USE_BLANK_KEY_VALUES
+    end
+
     def attributes_for_email_event_globus_rds
       return attributes_brief_for_email, IGNORE_BLANK_KEY_VALUES
     end
@@ -171,6 +175,42 @@ module Deepblue
                                        ignore_blank_key_values: ignore_blank_key_values,
                                        return_email_body: true )
       ::Deepblue::JiraHelper.jira_add_comment( curation_concern: self, event: EVENT_DESTROY, comment: body )
+    end
+
+    def email_event_destroy_user( current_user:, event_note: '', was_draft: false )
+      to, _to_note, from = email_address_user( current_user )
+      cc_title = EmailHelper.cc_title curation_concern: self
+      cc_type = EmailHelper.curation_concern_type( curation_concern: self )
+      cc_url = EmailHelper.curation_concern_url( curation_concern: self )
+      cc_depositor = EmailHelper.cc_depositor( curation_concern: self )
+      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                           Deepblue::LoggingHelper.called_from,
+                                           "to, to_note, from=#{to}, #{_to_note}, #{from}",
+                                           "cc_type=#{cc_type}",
+                                           "cc_title=#{cc_title}",
+                                           "cc_url=#{cc_url}",
+                                           "cc_depositor=#{cc_depositor}",
+                                           "" ] if email_behavior_debug_verbose
+      body = EmailHelper.t( email_template_key( cc_type: cc_type, event: 'destroyed', was_draft: was_draft ),
+                            title: EmailHelper.escape_html( cc_title ),
+                            url: cc_url,
+                            depositor: cc_depositor,
+                            contact_us_at: ::Deepblue::EmailHelper.contact_us_at )
+      email_notification( to: to,
+                          from: from,
+                          content_type: "text/html",
+                          subject: ::Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_deleted" ),
+                          body: body,
+                          current_user: current_user,
+                          event: EVENT_DESTROY,
+                          event_note: event_note,
+                          id: for_email_id )
+
+      #Send the dopositor a notification that the work was deleted.
+      message = I18n.t('hyrax.email.message.deleted_message') + cc_url
+      message = I18n.t('hyrax.email.message.deleted_draft_message') + cc_url if was_draft
+
+      Hyrax::MessengerService.deliver(current_user, current_user, message, ::Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_deleted" ))
     end
 
     def email_event_globus_rds( current_user:, event_note: )
