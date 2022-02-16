@@ -12,7 +12,7 @@ class RegisterDoiJob < ::Deepblue::DeepblueJob
   def perform(model,
               current_user: nil,
               debug_verbose: ::Deepblue::DoiMintingService.register_doi_job_debug_verbose,
-              registrar: Hyrax.config.identifier_registrars.keys.first,
+              registrar: nil,
               registrar_opts: {})
 
     initialize_no_args_hash( debug_verbose: debug_verbose )
@@ -28,6 +28,7 @@ class RegisterDoiJob < ::Deepblue::DeepblueJob
                                            "" ] if debug_verbose
     ::Deepblue::DoiMintingService.registrar_mint_doi( curation_concern: model,
                                                       current_user: current_user,
+                                                      debug_verbose: debug_verbose,
                                                       registrar: registrar,
                                                       registrar_opts: registrar_opts )
     job_finished

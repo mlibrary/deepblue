@@ -62,16 +62,23 @@ RSpec.describe ::Deepblue::RegisterDoiJob, type: :job do
           let(:registrar_opts) { { builder: 'CustomBuilderClass', connection: 'CustomConnectionClass' } }
 
           before do
-            allow(Hyrax.config).to receive(:identifier_registrars).and_return(abstract: Hyrax::Identifier::Registrar,
-                                                                              moomin: registrar_class)
+            # allow(Hyrax.config).to receive(:identifier_registrars).and_return(abstract: Hyrax::Identifier::Registrar,
+            #                                                                   moomin: registrar_class)
+            expect(Hyrax.config).to_not receive(:identifier_registrars)
             allow(registrar_class).to receive(:new).and_call_original
+            expect(::Deepblue::DoiMintingService).to receive(:registrar_mint_doi).with( curation_concern: work,
+                                                              current_user: nil,
+                                                              debug_verbose: dbg_verbose,
+                                                              registrar: nil,
+                                                              registrar_opts: registrar_opts )
           end
 
           it 'calls the registrar' do
-            expect { described_class.perform_now(work, registrar: registrar.to_s, registrar_opts: registrar_opts) }
-              .to change { work.doi }
-                    .to eq doi
-            expect(registrar_class).to have_received(:new).with(registrar_opts)
+            # expect { described_class.perform_now(work, registrar: registrar.to_s, registrar_opts: registrar_opts) }
+            #   .to change { work.doi }
+            #         .to eq doi
+            #expect(registrar_class).to have_received(:new).with(registrar_opts)
+            described_class.perform_now(work, registrar: nil, registrar_opts: registrar_opts)
           end
         end
       end

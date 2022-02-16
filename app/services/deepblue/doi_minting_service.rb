@@ -30,6 +30,7 @@ module Deepblue
 
 
     mattr_accessor :doi_minting_2021_service_enabled,               default: true
+    mattr_accessor :doi_minting_2021_service_direct,                default: true
     mattr_accessor :doi_minting_service_email_user_on_success,      default: false
 
     mattr_accessor :test_base_url,           default: "https://api.test.datacite.org/"
@@ -51,6 +52,7 @@ module Deepblue
                            target_url:,
                            debug_verbose: ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose )
 
+      debug_verbose ||= ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose
       warn "[DEPRECATION] `mint_doi_for` is deprecated.  Please use `registrar_mint_doi` instead."
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -94,6 +96,7 @@ module Deepblue
                            job_delay: 0,
                            debug_verbose: ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose )
 
+      debug_verbose ||= ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose
       id = curation_concern.id
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -136,11 +139,13 @@ module Deepblue
     def self.registrar_mint_doi( curation_concern:,
                                  current_user: nil,
                                  debug_verbose: ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose,
-                                 registrar: Hyrax.config.identifier_registrars.keys.first,
+                                 registrar: nil,
                                  registrar_opts: {})
 
+      debug_verbose ||= ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "doi_minting_2021_service_direct=#{doi_minting_2021_service_direct}",
                                              "curation_concern.class.name=#{curation_concern.class.name}",
                                              "curation_concern&.id=#{curation_concern&.id}",
                                              "curation_concern&.doi=#{curation_concern&.doi}",
@@ -150,16 +155,23 @@ module Deepblue
                                              "" ] if debug_verbose
       current_user = curation_concern.depositor if current_user.blank?
       user = User.find_by_user_key( current_user )
-      Hyrax::Identifier::Dispatcher.for(registrar.to_sym,
-                                        **registrar_opts).assign_for_single_value!(object: curation_concern,
-                                                                                   attribute: :doi) do
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "RegisterDoiJob model (curation_concern.id #{curation_concern.id}) updated.",
-                                               "curation_concern.class.name=#{curation_concern.class.name}",
-                                               "curation_concern.id=#{curation_concern.id}",
-                                               "curation_concern.doi=#{curation_concern.doi}",
-                                               "" ] if debug_verbose
+      if doi_minting_2021_service_direct
+        datacite = ::Deepblue::DataCiteRegistrar.new
+        datacite.debug_verbose = debug_verbose
+        datacite.mint_doi( work: curation_concern )
+      else
+        registrar ||= ::Deepblue::DataCiteRegistrar
+        Hyrax::Identifier::Dispatcher.for(registrar.to_sym,
+                                          **registrar_opts).assign_for_single_value!(object: curation_concern,
+                                                                                     attribute: :doi) do
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "RegisterDoiJob model (curation_concern.id #{curation_concern.id}) updated.",
+                                                 "curation_concern.class.name=#{curation_concern.class.name}",
+                                                 "curation_concern.id=#{curation_concern.id}",
+                                                 "curation_concern.doi=#{curation_concern.doi}",
+                                                 "" ] if debug_verbose
+        end
       end
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -188,6 +200,7 @@ module Deepblue
                     target_url:,
                     debug_verbose: ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose )
 
+      debug_verbose ||= ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
@@ -240,7 +253,7 @@ module Deepblue
                "Ezid::Client.config.default_shoulder = #{config.default_shoulder}" ]
     end
 
-    private
+    # private # lets not bother with private stuff until this is actually working
 
       # Any error raised during connection is considered false
       def doi_server_reachable?
