@@ -49,7 +49,23 @@
 <%= presenter.attribute_to_html(:contributor, render_as: :faceted) %>
 <%= presenter.attribute_to_html(:subject_discipline, render_as: :faceted, label: t('show.labels.subject_discipline')) %>
 <%= presenter.attribute_to_html(:fundedby, label: t('show.labels.fundedby') ) %>
-<%= presenter.attribute_to_html(:fundedby_other, label: t('show.labels.fundedby_other') ) %>
+
+<% unless presenter.fundedby_other.nil? %>
+  <tr><th><%= t('show.labels.fundedby_other') %></th><td><ul class='tabular_list'>
+  <% num_para = presenter.fundedby_other.count %>
+  <% presenter.fundedby_other.each do |fundedby_other| %>
+  <li class="attribute attribute-fundedby_other"><span itemprop="fundedby_other">
+     <%= raw ("<span class=\"more\">" + iconify_auto_link(fundedby_other) + "</span>") %>
+     </span>
+     <% if num_para > 1 %>
+       <p></p>
+       <% num_para = num_para - 1 %>
+     <% end %>
+  </li>
+  <% end %>
+  </ul></td></tr>
+<% end %>
+
 <%= presenter.attribute_to_html(:grantnumber, label: t('show.labels.grantnumber') ) %>
 
 <%= presenter.attribute_to_html(:keyword, render_as: :faceted) %>
