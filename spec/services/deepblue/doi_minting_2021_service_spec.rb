@@ -34,10 +34,12 @@ describe ::Deepblue::DoiMinting2021Service, :datacite_api do
         let(:client) { ::Deepblue::DoiMinting2021Service.new(username: username,
                                                              password: password,
                                                              prefix: prefix,
+                                                             publisher: publisher,
                                                              mode: :test) }
-        let(:username) { 'username' }
-        let(:password) { 'password' }
-        let(:prefix) { '10.1234' }
+        let(:username)  { 'username' }
+        let(:password)  { 'password' }
+        let(:prefix)    { '10.1234' }
+        let(:publisher) { 'University of Michigan - Test Publishing' }
         let(:draft_doi) { "#{prefix}/draft-doi" }
         let(:findable_doi) { "#{prefix}/findable-doi" }
         let(:unknown_doi) { "#{prefix}/unknown-doi" }
@@ -160,6 +162,7 @@ describe ::Deepblue::DoiMinting2021Service, :datacite_api do
           let(:client) { ::Deepblue::DoiMinting2021Service.new(username: username,
                                                                password: password,
                                                                prefix: prefix,
+                                                               publisher: publisher,
                                                                mode: mode) }
 
           context "when in production" do
@@ -203,6 +206,7 @@ describe ::Deepblue::DoiMinting2021Service, :datacite_api do
           let(:client) { ::Deepblue::DoiMinting2021Service.new(username: username,
                                                                password: password,
                                                                prefix: prefix,
+                                                               publisher: publisher,
                                                                mode: mode) }
 
           context "when in production" do

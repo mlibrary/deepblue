@@ -33,6 +33,7 @@ Deepblue::DoiMintingService.setup do |config|
   config.doi_resource_types      = [ "Dataset", "Fileset" ].freeze
 
   config.doi_minting_2021_service_enabled          = true
+  config.doi_minting_2021_service_direct           = true
   config.doi_minting_service_email_user_on_success = false
 
   config.test_base_url           = "https://api.test.datacite.org/"
@@ -56,13 +57,16 @@ Deepblue::DoiMintingService.setup do |config|
   ## Remote identifiers configuration
   # Add registrar implementations by uncommenting and adding to the hash below.
   # See app/services/hyrax/identifier/registrar.rb for the registrar interface
-  Hyrax.config.identifier_registrars = { datacite: ::Deepblue::DataCiteRegistrar }
+  Hyrax.config.identifier_registrars = { datacite: ::Deepblue::DataCiteRegistrar } unless config.doi_minting_2021_service_direct
 
   ## For DataCite DOIs
   ::Deepblue::DataCiteRegistrar.mode = :ENV['DATACITE_MODE'] || Settings.datacite.mode # Possible options are [:production, :test]
   ::Deepblue::DataCiteRegistrar.mode = ::Deepblue::DataCiteRegistrar.mode.to_sym unless ::Deepblue::DataCiteRegistrar.mode.nil?
   ::Deepblue::DataCiteRegistrar.mode = :test if ::Deepblue::DataCiteRegistrar.mode.nil?
   ::Deepblue::DataCiteRegistrar.prefix = ENV['DATACITE_PREFIX'] || Settings.datacite.prefix
+  # TODO
+  # ::Deepblue::DataCiteRegistrar.publisher = ENV['DATACITE_PUBLISHER'] || Settings.datacite.publisher
+  ::Deepblue::DataCiteRegistrar.publisher = 'University of Michigan - Deep Blue Data'
   ::Deepblue::DataCiteRegistrar.username = ENV['DATACITE_USERNAME'] || Settings.datacite.user
   ::Deepblue::DataCiteRegistrar.password = ENV['DATACITE_PASSWORD'] || Settings.datacite.password
 
