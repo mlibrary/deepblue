@@ -38,8 +38,29 @@
   <span class="hide"><%= Rails.application.routes.url_helpers.hyrax_data_set_url( id: presenter.id ) %></span>
 </span>
 
-<%= raw (presenter.attribute_to_html(:creator, render_as: :faceted, label: t('show.labels.creator') )).gsub!('itemscope itemtype="http://schema.org/Person"', '') %>
 
+<%# if there are more than 5 authors, the author list is diplayed in paragraph form %>
+<% if presenter.creator.count > 5 %>
+<tr>
+  <th>Creator</th>
+  <td>
+    <ul class='tabular_list'>
+      <li class="attribute attribute-creator"><span itemprop="creator">
+
+        <%# remove tags and reformat output %>
+        <% authors = raw (presenter.attribute_to_html(:creator, render_as: :faceted, label: t('show.labels.creator') ).gsub!('itemscope itemtype="http://schema.org/Person"', '').gsub!('<td>', '').gsub!('</td>', '').gsub!('<tr>', '').gsub!('</tr>', '').gsub!(/<th.*?>(.+?)<\/th>/, '').gsub!(/<ul.*?>(.+?)<\/ul>/, '\1').gsub!(/<li.*?>(.+?)<\/li>/, '\1|  ').gsub!(/<span.*?>(.+?)<\/span>/, '\1')) %>
+        <% authors = authors.reverse.sub('|', '').sub('|', ' dna ').reverse.gsub!('|', ';') %>
+
+        <%= raw ("<span class=\"more\">") + authors + raw("</span>" ) %>
+
+      </li>
+    </ul>
+  </td>
+</tr>
+
+<% else %>
+  <%= raw (presenter.attribute_to_html(:creator, render_as: :faceted, label: t('show.labels.creator') )).gsub!('itemscope itemtype="http://schema.org/Person"', '') %>
+<% end %>
 
 <% presenter.depositor.gsub!('@', 'at_sign_at') %>
 <% presenter.depositor.gsub!('TOMBSTONE-', '') %>
