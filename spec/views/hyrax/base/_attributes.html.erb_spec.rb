@@ -39,7 +39,8 @@ RSpec.describe 'hyrax/base/_attributes.html.erb' do
     allow(presenter).to receive(:edit_users).and_return []
     allow(presenter).to receive(:read_groups).and_return []
     allow(presenter).to receive(:read_users).and_return []
-    allow(view).to receive(:dom_class) { '' }
+    allow(presenter).to receive(:read_users).and_return []
+    allow(presenter).to receive(:creator).and_return ["Bilbo"]
 
     stub_template 'shared/_show_curation_notes.html.erb' => ''
     render 'hyrax/base/attributes', presenter: presenter
