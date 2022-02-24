@@ -485,8 +485,8 @@ class CatalogController < ApplicationController
     config.add_sort_field "#{modified_field} asc", label: "last modified \u25B2"
 
     # Need to reindex the collection to be able to use these.
-    # config.add_sort_field "titl_ssi desc", label: "date modified \u25BC"
-    # config.add_sort_field "title_ssi asc", label: "date modified \u25B2"
+    config.add_sort_field "title_ssi desc", label: "title \u25BC"
+    config.add_sort_field "title_ssi asc", label: "title \u25B2"
 
     # If there are more than this many search results, no spelling ("did you
     # mean") suggestion is offered.

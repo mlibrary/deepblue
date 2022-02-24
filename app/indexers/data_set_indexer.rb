@@ -34,12 +34,11 @@ class DataSetIndexer < Hyrax::WorkIndexer
       # value = Array( object.referenced_by ).join( " " )
       # solr_doc[Solrizer.solr_name('referenced_by', :stored_searchable)] = value
 
-      # So that we can sort by title.
+      # So that title sort can be done ...
       value = Array( object.title ).join( " " )
-      solr_doc[Solrizer.solr_name('title', :stored_searchable,)] = value
+      solr_doc[Solrizer.solr_name('title', :stored_searchable)] = value
       solr_doc[Solrizer.solr_name('title', :stored_sortable)] = value
 
-      solr_doc[Solrizer.solr_name('title_ordered', :stored_searchable)] = object.title_ordered
       solr_doc[Solrizer.solr_name('tombstone', :symbol)] = object.tombstone
       # solr_doc[Solrizer.solr_name('total_file_size', Hyrax::FileSetIndexer::STORED_LONG)] = object.total_file_size
       solr_doc[Solrizer.solr_name('total_file_size', Hyrax::FileSetIndexer::STORED_LONG)] = object.size_of_work
