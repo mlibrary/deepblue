@@ -103,6 +103,24 @@ module Hyrax
         add_new_banner(uploaded_file_ids) if uploaded_file_ids
       end
 
+      def process_logo_records(uploaded_file_ids)
+        public_files = []
+        uploaded_file_ids.each_with_index do |ufi, i|
+          # If user has chosen a new logo, the ufi will be an integer
+          # If the logo was previously chosen, the ufil will be a path
+          # ufi.match(/\D/) will return a nil, fi ufi is an integer
+          # if it is a path, you want to update the, else create a new rec
+          if ! ufi.match(/\D/).nil?
+            update_logo_info(ufi, params["alttext"][i], verify_linkurl(params["linkurl"][i]))
+            public_files << ufi
+          else # brand new one, insert in the database
+            logo_info = create_logo_info(ufi, params["alttext"][i], verify_linkurl(params["linkurl"][i]))
+            public_files << logo_info.local_path
+          end
+        end
+        public_files
+      end
+
       def update_existing_banner
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
         #                                        ::Deepblue::LoggingHelper.called_from,
