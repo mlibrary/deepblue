@@ -7,6 +7,7 @@ module Hyrax
     mattr_accessor :contact_form_controller_debug_verbose,
                    default: ContactFormIntegrationService.contact_form_controller_debug_verbose
 
+    mattr_accessor :contact_form_index_path, default: '/data/contact'
     mattr_accessor :contact_form_log_delivered, default: ContactFormIntegrationService.contact_form_log_delivered
     mattr_accessor :contact_form_log_spam, default: ContactFormIntegrationService.contact_form_log_spam
     mattr_accessor :antispam_timeout_in_seconds, default: ContactFormIntegrationService.antispam_timeout_in_seconds
@@ -57,7 +58,7 @@ module Hyrax
                                              # "env=#{env}",
                                              "akismet_env_vars=#{akismet_env_vars}",
                                              "params[:action]=#{params[:action]}",
-                                             "hyrax.contact_form_index_path=#{hyrax.contact_form_index_path}",
+                                             "contact_form_index_path=#{contact_form_index_path}",
                                              "@create_timestamp=#{@create_timestamp}",
                                              "antispam_timestamp=#{antispam_timestamp}",
                                              "antispam_delta_in_seconds=#{antispam_delta_in_seconds}",
@@ -199,6 +200,16 @@ module Hyrax
                                  ngr_is_human: @ngr_is_human )
         end
       end
+      ContactFormHelper.log( class_name: self.class.name,
+                            event: event,
+                            echo_to_rails_logger: false,
+                            contact_method: contact_method,
+                            category: category,
+                            name: name,
+                            email: email,
+                            subject: subject,
+                            message: message,
+                            **log_key_values )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "log_key_values=#{log_key_values.to_s}",
@@ -288,14 +299,16 @@ module Hyrax
                                                "" ] if contact_form_controller_debug_verbose
         if ngr_just_human_test
           @ngr_is_human = NewGoogleRecaptcha.human?( params[:new_google_recaptcha_token],
-                                                     hyrax.contact_form_index_path,
+                                                     # hyrax.contact_form_index_path,
+                                                     contact_form_index_path,
                                                      NewGoogleRecaptcha.minimum_score )
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "@ngr_is_human=#{@ngr_is_human}" ] if contact_form_controller_debug_verbose
         else
           @ngr_humanity_details = NewGoogleRecaptcha.get_humanity_detailed( params[:new_google_recaptcha_token],
-                                                                            hyrax.contact_form_index_path,
+                                                                            # hyrax.contact_form_index_path,
+                                                                            contact_form_index_path,
                                                                             NewGoogleRecaptcha.minimum_score )
           @ngr_is_human = NewGoogleRecaptcha.minimum_score <= @ngr_humanity_details[:score]
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
