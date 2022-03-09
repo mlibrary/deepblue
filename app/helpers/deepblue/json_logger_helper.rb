@@ -7,7 +7,7 @@ module Deepblue
 
   module JsonLoggerHelper
 
-    JSON_LOGGING_HELPER_DEBUG_VERBOSE = false
+    mattr_accessor :json_logging_helper_debug_verbose, default: Rails.configuration.json_logging_helper_debug_verbose
 
     TIMESTAMP_FORMAT = '\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d'.freeze
     RE_TIMESTAMP_FORMAT = Regexp.compile "^#{TIMESTAMP_FORMAT}$".freeze
@@ -24,7 +24,7 @@ module Deepblue
                                                "curation_concern.id=#{curation_concern.id}",
                                                "update_key_prefix=#{update_key_prefix}",
                                                "form_params=#{form_params}",
-                                               "" ] if JSON_LOGGING_HELPER_DEBUG_VERBOSE
+                                               "" ] if json_logging_helper_debug_verbose
         embargo_values = {}
         key = "embargo_release_date"
         new_value = form_params[key]

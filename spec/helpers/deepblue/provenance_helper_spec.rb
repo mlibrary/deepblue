@@ -363,10 +363,10 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
   describe '.log_raw' do
     let( :msg ) { 'The message.' }
     before do
-      allow( PROV_LOGGER ).to receive( :info ).with( msg )
+      expect( PROV_LOGGER ).to receive( :info ).with( msg )
     end
     it do
-      Deepblue::ProvenanceHelper.log_raw msg
+      subject.log_raw msg
     end
   end
 

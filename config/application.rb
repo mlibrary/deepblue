@@ -305,6 +305,11 @@ module DeepBlueDocs
     config.file_sets_contents_view_max_size = 500.kilobytes
     config.file_sets_contents_view_mime_types = [ "text/html", "text/plain", "text/x-yaml", "text/xml" ].freeze
 
+    # irus log config
+    config.irus_log_echo_to_rails_logger = true
+
+    config.json_logging_helper_debug_verbose = false
+
     # provenance log config
     config.provenance_log_name = "provenance_#{Rails.env}.log"
     config.provenance_log_path = Rails.root.join( 'log', config.provenance_log_name )

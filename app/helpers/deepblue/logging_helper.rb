@@ -331,7 +331,7 @@ module Deepblue
     end
 
     def self.timestamp_zone
-      DeepBlueDocs::Application.config.timezone_zone
+      Rails.configuration.timezone_zone
     end
 
     def self.to_log_format_timestamp( timestamp )
