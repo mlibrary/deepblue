@@ -633,7 +633,10 @@ module Hyrax
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if ::IrusAnalytics::Configuration.verbose_debug || data_sets_controller_debug_verbose
 
-        # return if skip_send_irus_analytics2?
+        ::Deepblue::IrusHelper.log( class_name: self.class.name,
+                                    event: "analytics_investigation",
+                                    request: request,
+                                    id: params[:id] )
         send_irus_analytics_investigation
       end
 
@@ -642,7 +645,10 @@ module Hyrax
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if ::IrusAnalytics::Configuration.verbose_debug || data_sets_controller_debug_verbose
 
-        # return if skip_send_irus_analytics2?
+        ::Deepblue::IrusHelper.log( class_name: self.class.name,
+                                    event: "analytics_request",
+                                    request: request,
+                                    id: params[:id] )
         send_irus_analytics_request
       end
 

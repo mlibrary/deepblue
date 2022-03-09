@@ -196,7 +196,10 @@ module Hyrax
                                              "download_skip_send_irus_analytics?=#{skip}",
                                              "" ] if ::IrusAnalytics::Configuration.verbose_debug || downloads_controller_debug_verbose
       return if skip
-      # puts "about to call send_irus_analytics_request"
+      ::Deepblue::IrusHelper.log( class_name: self.class.name,
+                                  event: "analytics_request",
+                                  request: request,
+                                  id: params[:id] )
       send_irus_analytics_request
     end
 
