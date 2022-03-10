@@ -5,6 +5,9 @@ module AnalyticsHelper
   mattr_accessor :analytics_helper_debug_verbose,
                  default: ::Deepblue::AnalyticsIntegrationService.analytics_helper_debug_verbose
 
+  mattr_accessor :max_visit_filter_count,
+                 default: ::Deepblue::AnalyticsIntegrationService.max_visit_filter_count
+
   # TODO: move this to email templates
   MONTHLY_ANALYTICS_REPORT_EMAIL_TEMPLATE = <<-END_OF_MONTHLY_ANALYTICS_REPORT_EMAIL_TEMPLATE
 Your analytics report for the month of %{month}:
@@ -151,6 +154,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     end
   end
 
+  # This one is called for zip and globus requests.
   def self.update_condensed_events_for_work_zip_globus_downloads_in_date_range( name:, filter:, work:, date_range:, date_range_filter: nil, force: false )
     #For monthly, the date_range_filter and the date_range should be the same.  date_range_filter is not passed in.
     #For toDate, the date_range_filter is used to access teh Event Table, so this entry will be 1972..2022-12-31 ( something like that )
@@ -166,6 +170,9 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
 
     records = Ahoy::Event.where( name: filter, cc_id: work.id, time: date_range_filter )
     records.each do |r|
+      visits = Ahoy::Event.where( name: filter, visit_id: r.visit_id, cc_id: r.cc_id, time: date_range_filter )
+      next if visits.count > max_visit_filter_count
+
       condensed_event["total_downloads"] = condensed_event["total_downloads"] + 1
     end  
 
@@ -187,6 +194,10 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
       records = Ahoy::Event.where( name: filter, cc_id: fid, time: date_range_filter )
       records.each do |r|
         next if r.properties["file"] == "thumbnail"
+
+        visits = Ahoy::Event.where( name: filter, visit_id: r.visit_id, cc_id: r.cc_id, time: date_range_filter )
+        next if visits.count > max_visit_filter_count
+
         condensed_event["total_downloads"] = condensed_event["total_downloads"] + 1
         condensed_event[fid] = 0 unless condensed_event[fid].present?
         condensed_event[fid] = condensed_event[fid] + 1

@@ -23,6 +23,7 @@ Deepblue::AnalyticsIntegrationService.setup do |config|
   end
   config.hit_graph_day_window = 30 # set to < 1 for no limit
 
+  config.max_visit_filter_count = 50
   config.monthly_analytics_report_subscription_id = 'MonthlyAnalyticsReport'
   config.monthly_events_report_subscription_id = 'MonthlyEventsReport'
 
