@@ -106,8 +106,8 @@ module Integrator
 
         collection_id = params["collection_id"]
         unless collection_id.blank?
-          collection_id =  WillowSword.config.default_collection[:id] if collection_id.eql? ("default")
-          collection = Collection.find (collection_id)
+          collection_id =  WillowSword::IntegrationService.default_collection_id if collection_id.eql? "default"
+          collection = Collection.find collection_id
           @object.member_of_collections << collection
           @object.save!
         end

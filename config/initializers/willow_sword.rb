@@ -6,7 +6,8 @@ WillowSword.setup do |config|
   config.title = 'Deep Blue Data Sword V2 server'
   # If you do not want to use collections in Sword, it will use this as a default collection
   # This is the default collection in production
-  config.default_collection = {id: '5999n365p', title: ['SWORD Default Collection']}
+  # config.default_collection = {id: '5999n365p', title: ['SWORD Default Collection']}
+  config.default_collection = {id: 'default', title: ['SWORD Default Collection']}
   # The name of the model for retreiving collections (based on Hyrax integration)
   config.collection_models = ['Collection']
   # The work models supported by Sword (based on Hyrax integration)
@@ -29,5 +30,7 @@ WillowSword.setup do |config|
   config.xw_to_xml_for_fileset = WillowSword::CrosswalkFilesetToDc
   # Authorize Sword requests using Api-key header
   config.authorize_request = true
+
+  config.default_collection_title = 'SWORD Default Collection'
 
 end
