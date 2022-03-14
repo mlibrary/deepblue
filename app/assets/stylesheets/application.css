@@ -13,5 +13,6 @@
  *= require_tree .
  *= require dataTables/bootstrap/3/jquery.dataTables.bootstrap
  *= require_self
+ *= require custom_layout/umich-design-token
  *= require custom_layout/tweaks
  */
