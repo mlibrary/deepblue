@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css?family=Crimson+Text%7CMuli:400,600,700');
+:root {
+    --color-blue-100: #f7f8f9;
+    --color-blue-200: #b2bec9;
+    --color-blue-300: #4c6781;
+    --color-blue-400: #00274c;
+    --color-blue-500: #001324;
+    --color-maize-100: #fff9e6;
+    --color-maize-200: #ffea9b;
+    --color-maize-300: #ffda50;
+    --color-maize-400: #ffcb05;
+    --color-maize-500: #eaba02;
+    --color-neutral-100: #e5e9ed;
+    --color-neutral-200: #8a96a1;
+    --color-neutral-300: #637381;
+    --color-neutral-400: #212b36;
+    --color-neutral-500: #06080a;
+    --color-teal-100: #e9f2f5;
+    --color-teal-200: #a7cddb;
+    --color-teal-300: #65a8bf;
+    --color-teal-400: #1d7491;
+    --color-teal-500: #106684;
+    --color-orange-100: #fff1eb;
+    --color-orange-200: #ffb899;
+    --color-orange-300: #ff8a58;
+    --color-orange-400: #f25f1f;
+    --color-orange-500: #c74e1a;
+    --color-pink-100: #fcebeb;
+    --color-pink-200: #f29d9d;
+    --color-pink-300: #ec6969;
+    --color-pink-400: #d93838;
+    --color-pink-500: #bf3232;
+    --color-indigo-100: #eef1f9;
+    --color-indigo-200: #aab9e3;
+    --color-indigo-300: #7c93d4;
+    --color-indigo-400: #506fc5;
+    --color-indigo-500: #274391;
+    --color-green-100: #eaf8ee;
+    --color-green-200: #96dbaa;
+    --color-green-300: #57bc75;
+    --color-green-400: #20a848;
+    --color-green-500: #198539;
+    --font-base-family: "Muli",sans-serif;
+    --font-second-family: "Crimson Text",serif;
+    --bold: 700;
+    --regular: 400;
+    --semibold: 600;
+    --line-height-default: 1.5;
+    --line-height-heading: 1.25;
+    --line-height-page-heading: 1.125;
+    --text-base-size: 16px;
+    --text-xxx-large: 3.5rem;
+    --text-xx-large: 2.25rem;
+    --text-x-large: 2rem;
+    --text-large: 1.75rem;
+    --text-medium: 1.5rem;
+    --text-small: 1.125rem;
+    --text-x-small: 1.125rem;
+    --text-xx-small: 1rem;
+    --text-xxx-small: 0.875rem;
+    --space-xxx-small: 2px;
+    --space-xx-small: 4px;
+    --space-x-small: 8px;
+    --space-small: 12px;
+    --space-medium: 16px;
+    --space-large: 24px;
+    --space-x-large: 32px;
+    --space-xx-large: 40px;
+    --space-xxx-large: 48px;
+    --space-xxxx-large: 64px;
+    --space-xxxxx-large: 96px;
+    --z-space-small: rgba(0,0,0,0.2) 0px 2px 8px 0px;
+    --z-space-medium: rgba(0,0,0,0.2) 0px 2px 16px 0px;
+    --opacity-75: 0.75;
+    --opacity-50: 0.50;
+    --opacity-30: 0.30;
+    --radius-default: 4px;
+}
+
+.jose_test_uh
+{
+      font-style: italic;  
+}
+
+:root {
+  --viewport-margin: var(--space-medium);
+  --page-heading-size: var(--space-xx-large);
+}
+@media (min-width: 720px) {
+  :root {
+    --viewport-margin: var(--space-xx-large);
+    --page-heading-size: var(--space-xxx-large);
+  }
+}
+
+html,
+body {
+  margin: 0;
+}
