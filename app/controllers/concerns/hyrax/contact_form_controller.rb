@@ -7,6 +7,8 @@ module Hyrax
     mattr_accessor :contact_form_controller_debug_verbose,
                    default: ContactFormIntegrationService.contact_form_controller_debug_verbose
 
+    mattr_accessor :contact_form_send_email, default: ContactFormIntegrationService.contact_form_send_email
+
     mattr_accessor :contact_form_index_path, default: '/data/contact'
     mattr_accessor :contact_form_log_delivered, default: ContactFormIntegrationService.contact_form_log_delivered
     mattr_accessor :contact_form_log_spam, default: ContactFormIntegrationService.contact_form_log_spam
@@ -64,10 +66,13 @@ module Hyrax
                                              "antispam_delta_in_seconds=#{antispam_delta_in_seconds}",
                                              "is_spam?=#{is_spam?}",
                                              "params=#{params}",
+                                             "contact_form_send_email=#{contact_form_send_email}",
                                              "@contact_form.valid?=#{@contact_form.valid?}",
                                              "@contact_form.spam?=#{@contact_form.spam?}",
                                              "akismet_enabled=#{akismet_enabled}",
                                              "ngr_enabled=#{ngr_enabled}",
+                                             "contact_form_send_email=#{contact_form_send_email}",
+                                             "@spam_status_unknown=#{@spam_status_unknown}",
                                              "" ] if contact_form_controller_debug_verbose
       akismet_is_spam? if @spam_status_unknown && akismet_enabled
       new_google_recaptcha if @spam_status_unknown && ngr_enabled
@@ -76,7 +81,9 @@ module Hyrax
                                                ::Deepblue::LoggingHelper.called_from,
                                                "is_spam?=#{is_spam?}",
                                                "" ] if contact_form_controller_debug_verbose
-        ContactMailer.contact(@contact_form).deliver_now unless is_spam?
+        if contact_form_send_email
+          ContactMailer.contact(@contact_form).deliver_now unless is_spam?
+        end
         flash.now[:notice] = 'Thank you for your message!' # TODO: localize
         after_deliver
         @contact_form = ContactForm.new
@@ -164,7 +171,9 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "akismet_enabled=#{akismet_enabled}",
+                                             "@akismet_used=#{@akismet_used}",
                                              "ngr_enabled=#{ngr_enabled}",
+                                             "@ngr_used=#{@ngr_used}",
                                              "event=#{event}",
                                              "contact_method=#{contact_method}",
                                              "category=#{category}",
@@ -175,6 +184,7 @@ module Hyrax
                                              "@referrer_ip=#{@referrer_ip}",
                                              "antispam_delta_in_seconds=#{antispam_delta_in_seconds}",
                                              "antispam_timeout_in_seconds=#{antispam_timeout_in_seconds}",
+                                             "contact_form_send_email=#{contact_form_send_email}",
                                              "" ] if contact_form_controller_debug_verbose
       log_key_values = {}.merge( contact_method: contact_method,
                                  category: category,
@@ -185,21 +195,65 @@ module Hyrax
                                  referrer_ip: @referrer_ip,
                                  antispam_delta_in_seconds: antispam_delta_in_seconds,
                                  antispam_timeout_in_seconds: antispam_timeout_in_seconds )
+      if akismet_enabled && contact_form_controller_debug_verbose
+        log_key_values.merge!( akismet_enabled: akismet_enabled, akismet_used: @akismet_used )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "akismet_enabled=#{akismet_enabled}",
+                                               "" ] if contact_form_controller_debug_verbose
+      end
       if @akismet_used
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "@akismet_is_spam=#{@akismet_is_spam}",
+                                               "@akismet_is_blatant=#{@akismet_is_blatant}",
+                                               "" ] if contact_form_controller_debug_verbose
         log_key_values.merge!( akismet_is_spam: @akismet_is_spam,
                                akismet_is_blatant: @akismet_is_blatant )
       end
+      if ngr_enabled && contact_form_controller_debug_verbose
+        log_key_values.merge!( ngr_enabled: ngr_enabled, ngr_used: @ngr_used )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "ngr_enabled=#{ngr_enabled}",
+                                               "@ngr_humanity_details.present?=#{@ngr_humanity_details.present?}",
+                                               "" ] if contact_form_controller_debug_verbose
+      end
       if @ngr_used
         unless @ngr_humanity_details.present?
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "ngr_minimum_score=#{NewGoogleRecaptcha.minimum_score}",
+                                                 "ngr_is_human=#{@ngr_is_human}",
+                                                 "" ] if contact_form_controller_debug_verbose
           log_key_values.merge!( ngr_minimum_score: NewGoogleRecaptcha.minimum_score,
                                  ngr_is_human: @ngr_is_human )
         else
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "ngr_humanity_details_is_human=#{@ngr_humanity_details[:is_human]}",
+                                                 "ngr_humanity_score=#{@ngr_humanity_details[:score]}",
+                                                 "ngr_minimum_score=#{NewGoogleRecaptcha.minimum_score}",
+                                                 "ngr_is_human=#{@ngr_is_human}",
+                                                 "" ] if contact_form_controller_debug_verbose
           log_key_values.merge!( ngr_humanity_details_is_human: @ngr_humanity_details[:is_human],
                                  ngr_humanity_score: @ngr_humanity_details[:score],
                                  ngr_minimum_score: NewGoogleRecaptcha.minimum_score,
                                  ngr_is_human: @ngr_is_human )
         end
       end
+      unless contact_form_send_email
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "contact_form_send_email=#{contact_form_send_email}",
+                                               "" ] if contact_form_controller_debug_verbose
+        log_key_values.merge!( contact_form_send_email: contact_form_send_email )
+      end
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "log_key_values=",
+                                             log_key_values,
+                                             "" ] if contact_form_controller_debug_verbose
       ContactFormHelper.log( class_name: self.class.name,
                             event: event,
                             echo_to_rails_logger: false,
@@ -229,6 +283,9 @@ module Hyrax
     end
 
     def akismet_is_spam?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if contact_form_controller_debug_verbose
       return unless @spam_status_unknown
       #   name: @contact_form.name,
       #   email: @contact_form.email,
@@ -238,19 +295,24 @@ module Hyrax
       # see: https://akismet.com/development/api/#comment-check
       # category: @contact_form.category,
       akismet_params = {
-        blog: Rails.configuration.hostname,
+        # blog: Rails.configuration.hostname, # invalid param name
         type: 'contact-form',
-        text: URI.encode( @contact_form.message ),
+        text: URI.encode_www_form_component( @contact_form.message ), # replace URI.escape
         created_at: @create_timestamp,
-        author: URI.encode( @contact_form.name ),
-        author_email: URI.encode( @contact_form.email ),
+        author: URI.encode_www_form_component( @contact_form.name ),
+        author_email: URI.encode_www_form_component( @contact_form.email ),
         # author_url: 'http://geocities.com/eldont',
         # post_url: 'http://example.com/posts/1',
-        honeypot_field_name: 'contact_method',
-        hidden_honeypot_field: URI.encode( @contact_form.contact_method ),
+        # honeypot_field_name: 'contact_method', # invalid param name
+        # hidden_honeypot_field: URI.encode_www_form_component( @contact_form.contact_method ), # invalid param name
         referrer: request.env['HTTP_REFERER'],
         env: akismet_env_vars
       }
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "akismet_params=",
+                                             akismet_params,
+                                             "" ] if contact_form_controller_debug_verbose
 
       begin
         # @akismet_is_spam = Akismet.spam?(request.ip, request.user_agent, akismet_params)
@@ -287,6 +349,9 @@ module Hyrax
     end
 
     def new_google_recaptcha
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if contact_form_controller_debug_verbose
       return unless @spam_status_unknown
       begin
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

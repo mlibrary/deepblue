@@ -17,7 +17,7 @@ module Deepblue
     HOSTNAME_PROD = 'deepblue.lib.umich.edu'.freeze unless const_defined? :HOSTNAME_PROD
     HOSTNAME_TEST = 'test.deepblue.lib.umich.edu'.freeze unless const_defined? :HOSTNAME_TEST
     HOSTNAME_TESTING = 'testing.deepblue.lib.umich.edu'.freeze unless const_defined? :HOSTNAME_TESTING
-    HOSTNAME_STAGING = 'staging.deepblue.lib.umich.edu'.freeze unless const_defined? :STAGING
+    HOSTNAME_STAGING = 'staging.deepblue.lib.umich.edu'.freeze unless const_defined? :HOSTNAME_STAGING
 
   end
 
