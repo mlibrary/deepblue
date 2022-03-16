@@ -13,6 +13,8 @@ module Hyrax
 
     mattr_accessor :contact_form_controller_debug_verbose, default: false
 
+    mattr_accessor :contact_form_send_email,               default: true
+
     mattr_accessor :antispam_timeout_in_seconds,           default: 5
     mattr_accessor :contact_form_log_echo_to_rails_logger, default: true
     mattr_accessor :contact_form_log_delivered,            default: true

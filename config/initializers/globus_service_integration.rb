@@ -1,7 +1,7 @@
 
 Deepblue::GlobusIntegrationService.setup do |config|
 
-  verbose_initialization = false && DeepBlueDocs::Application.config.program_name != 'resque-pool'
+  verbose_initialization = false && Rails.configuration.program_name != 'resque-pool'
 
   config.globus_integration_service_debug_verbose = false
 
@@ -21,7 +21,7 @@ Deepblue::GlobusIntegrationService.setup do |config|
   else
     config.globus_dir = '/deepbluedata-globus'
   end
-  puts "globus_dir=#{config.globus_dir}" if verbose_initialization if verbose_initialization
+  puts "globus_dir=#{config.globus_dir}" if verbose_initialization
   config.globus_dir = Pathname.new config.globus_dir
   config.globus_dir_modifier = ''
   config.globus_download_dir = config.globus_dir.join ::Deepblue::InitializationConstants::DOWNLOAD
