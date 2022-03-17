@@ -12,7 +12,6 @@ RSpec.describe DataSet do
     end
   end
 
-
   let(:author_email)       { 'authoremail@umich.edu' }
   let(:creator)            { 'Creator, A' }
   let(:current_user)       { 'user@umich.edu' }
@@ -72,6 +71,36 @@ RSpec.describe DataSet do
       visibility
     ]
   }
+  let(:metadata_keys_report)  {
+    %i[
+      access_deepblue
+      authoremail
+      creator
+      curation_notes_user
+      date_coverage
+      date_published
+      depositor
+      description
+      doi
+      fundedby
+      fundedby_other
+      grantnumber
+      keyword
+      language
+      methodology
+      read_me_file_set_id
+      referenced_by
+      rights_license
+      rights_license_other
+      subject_discipline
+      state
+      title
+      total_file_count
+      total_file_size_human_readable
+      visibility
+      workflow_state
+    ]
+  }
   let( :metadata_keys_update ) {
     %i[
       authoremail
@@ -81,6 +110,15 @@ RSpec.describe DataSet do
   }
   let( :exp_class_name ) { 'DataSet' }
   let( :exp_location ) { "/concern/data_sets/#{id}" }
+
+  describe 'metadata_arrays' do
+
+    it { expect(subject.metadata_keys_all).to eq metadata_keys_all }
+    it { expect(subject.metadata_keys_brief).to eq metadata_keys_brief }
+    it { expect(subject.metadata_keys_report).to eq metadata_keys_report }
+    it { expect(subject.metadata_keys_update).to eq metadata_keys_update }
+
+  end
 
   describe 'constants' do
     it do

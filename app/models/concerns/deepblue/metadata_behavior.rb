@@ -69,12 +69,43 @@ module Deepblue
       %i[]
     end
 
+    def metadata_keys_brief
+      %i[]
+    end
+
     def metadata_keys_report
       %i[]
     end
 
-    def metadata_keys_brief
+    def metadata_keys_update
       %i[]
+    end
+
+    def metadata_as_array( metadata_keys: metadata_keys_all )
+      row = []
+      metadata_keys.each do |key|
+        row << metadata_hash_value( key: key )
+      end
+      return row
+    end
+
+    def metadata_csv( csv: nil, metadata_keys: metadata_keys_all )
+      if csv.nil?
+        csv = CSV.generate( force_quotes: true )
+        csv << [ 'key', 'value' ]
+      end
+      metadata_keys.each do |key|
+        csv << [ key, metadata_hash_value( key: key ) ]
+      end
+      return csv
+    end
+
+    def metadata_csv_add_row( csv: nil, metadata_keys: metadata_keys_all )
+      if csv.nil?
+        csv = CSV.generate( force_quotes: true )
+        csv << Array( metadata_keys )
+      end
+      csv << metadata_as_array( metadata_keys: metadata_keys )
     end
 
     def metadata_hash( metadata_keys:, ignore_blank_values:, **key_values )
@@ -116,11 +147,57 @@ module Deepblue
       key_values
     end
 
+    def metadata_hash_value( key: )
+      override_hash = {}
+      if metadata_hash_override( key: key, ignore_blank_values: false, key_values: override_hash )
+        value = override_hash[key]
+      else
+        value = case key.to_s
+                when 'id'
+                  for_metadata_id
+                when 'location'
+                  for_metadata_route
+                when 'route'
+                  for_metadata_route
+                when 'state'
+                  for_metadata_state
+                when 'title'
+                  for_metadata_title
+                when 'visibility'
+                  metadata_report_visibility_value( self.visibility )
+                when 'workflow_state'
+                  for_metadata_workflow_state
+                else
+                  self[key]
+                end
+      end
+      return value
+    end
+
     # override this if there is anything extra to add
+    # insert value into key_values hash using key given
     # return true if handled
     def metadata_hash_override( key:, ignore_blank_values:, key_values: ) # rubocop:disable Lint/UnusedMethodArgument
       handled = false
       return handled
+    end
+
+    def metadata_properties_csv
+      CSV.generate( force_quotes: true ) do |csv|
+        csv << ['key', 'type', 'multiple?', 'predicate']
+        metadata_keys_all.each do |key|
+          begin
+            property = DataSet.properties[key.to_s]
+            if property.blank?
+              csv << [key, 'N/A', 'N/A', 'N/A']
+            else
+              csv << [key, property.type.to_s, property.multiple?.to_s, property.predicate.to_s]
+            end
+          rescue Exception => e
+            csv << [key, 'N/A', 'N/A', 'N/A']
+          end
+        end
+      end
     end
 
     def metadata_report( dir: nil,
