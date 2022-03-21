@@ -51,7 +51,7 @@
         <% authors = raw (presenter.attribute_to_html(:creator, render_as: :faceted, label: t('show.labels.creator') ).gsub!('itemscope itemtype="http://schema.org/Person"', '').gsub!('<td>', '').gsub!('</td>', '').gsub!('<tr>', '').gsub!('</tr>', '').gsub!(/<th.*?>(.+?)<\/th>/, '').gsub!(/<ul.*?>(.+?)<\/ul>/, '\1').gsub!(/<li.*?>(.+?)<\/li>/, '\1|  ').gsub!(/<span.*?>(.+?)<\/span>/, '\1')) %>
         <% authors = authors.reverse.sub('|', '').sub('|', ' dna ').reverse.gsub!('|', ';') %>
 
-        <%= raw ( authors ) %>
+        <%= raw ("<span class=\"moreauthor\">") + authors + raw("</span>" ) %>
 
       </li>
     </ul>
