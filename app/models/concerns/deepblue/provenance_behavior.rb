@@ -7,7 +7,7 @@ module Deepblue
   module ProvenanceBehavior
 
     mattr_accessor :provenance_behavior_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.provenance_behavior_debug_verbose
+                   default: Rails.configuration.provenance_behavior_debug_verbose
 
     include AbstractEventBehavior
 

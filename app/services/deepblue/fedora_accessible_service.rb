@@ -14,7 +14,7 @@ END_BODY
       targets = targets.uniq
       targets.each do |email|
         ::Deepblue::JobTaskHelper.send_email( email_target: email,
-                                              content_type: 'text/html',
+                                              content_type: ::Deepblue::EmailHelper::TEXT_HTML,
                                               task_name: 'FedoraAccessibleJob',
                                               subject: subject,
                                               body: body,

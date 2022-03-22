@@ -502,7 +502,7 @@ module Deepblue
     end
 
     def report_email_content_type
-      # 'text/html'
+      # ::Deepblue::EmailHelper::TEXT_HTML
       nil
     end
 

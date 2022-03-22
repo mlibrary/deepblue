@@ -3,7 +3,11 @@
 module Deepblue
 
   module EmailHelper
-    # extend ActionView::Helpers::TranslationHelper
+
+    mattr_accessor :email_helper_debug_verbose, default: false
+
+    TEXT_HTML = 'text/html'.freeze unless const_defined? :TEXT_HTML
+    UTF8 = 'UTF-8'.freeze unless const_defined? :UTF8
 
     def self.t( key, **options )
       I18n.t( key, options )
@@ -19,8 +23,8 @@ module Deepblue
     #
     # Returns self as valid UTF-8.
     def self.clean_str!(str)
-      return str if str.encoding.to_s == "UTF-8"
-      str.force_encoding("binary").encode("UTF-8", :invalid => :replace, :undef => :replace, :replace => '?')
+      return str if str.encoding.to_s == UTF8
+      str.force_encoding("binary").encode(UTF8, :invalid => :replace, :undef => :replace, :replace => '?')
     end
 
     # Replace invalid UTF-8 character sequences with a replacement character
@@ -30,46 +34,8 @@ module Deepblue
       clean_str!(str.dup)
     end
 
-    def self.needs_cleaning( str )
-      str.encoding.to_s == "UTF-8"
-    end
-
-    def self.contact_email
-      # Settings.hyrax.contact_email
-      notification_email_contact_us_to
-    end
-
-    def self.curation_concern_type( curation_concern: )
-      if curation_concern.is_a?( DataSet )
-        'work'
-      elsif curation_concern.is_a?( FileSet )
-        'file'
-      elsif curation_concern.is_a?( Collection )
-        'collection'
-      else
-        'unknown'
-      end
-    end
-
-    def self.curation_concern_url( curation_concern: )
-      if curation_concern.is_a?( DataSet )
-        data_set_url( id: curation_concern.id )
-      elsif curation_concern.is_a?( FileSet )
-        file_set_url( id: curation_concern.id )
-      elsif curation_concern.is_a?( Collection )
-        collection_url( id: curation_concern.id )
-      else
-        ""
-      end
-    end
-
-    def self.collection_url( id: nil, collection: nil )
-      id = collection.id if collection.present?
-      host = hostname
-      Rails.application.routes.url_helpers.hyrax_collection_url( id: id, host: host, only_path: false )
-    rescue ActionController::UrlGenerationError => e
-      Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
-      return ''
+    def self.clean_str_needed?( str )
+      str.encoding.to_s != UTF8
     end
 
     def self.cc_contact_email( curation_concern: )
@@ -141,6 +107,48 @@ module Deepblue
         curation_concern.title.join( join_with )
       else
         "Title"
+      end
+    end
+
+    def self.contact_email
+      # Settings.hyrax.contact_email
+      notification_email_contact_us_to
+    end
+
+    def self.collection_url( id: nil, collection: nil )
+      id = collection.id if collection.present?
+      host = hostname
+      Rails.application.routes.url_helpers.hyrax_collection_url( id: id, host: host, only_path: false )
+    rescue ActionController::UrlGenerationError => e
+      Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
+      return ''
+    end
+
+    def self.content_html?( content_type )
+      ::Deepblue::EmailHelper::TEXT_HTML == content_type
+    end
+
+    def self.curation_concern_type( curation_concern: )
+      if curation_concern.is_a?( DataSet )
+        'work'
+      elsif curation_concern.is_a?( FileSet )
+        'file'
+      elsif curation_concern.is_a?( Collection )
+        'collection'
+      else
+        'unknown'
+      end
+    end
+
+    def self.curation_concern_url( curation_concern: )
+      if curation_concern.is_a?( DataSet )
+        data_set_url( id: curation_concern.id )
+      elsif curation_concern.is_a?( FileSet )
+        file_set_url( id: curation_concern.id )
+      elsif curation_concern.is_a?( Collection )
+        collection_url( id: curation_concern.id )
+      else
+        ""
       end
     end
 
@@ -331,8 +339,8 @@ module Deepblue
                          content_type: nil )
       subject = subject.join( '' ) if subject.is_a? Array
       body = body.join( "\n" ) if body.is_a? Array
-      subject = EmailHelper.clean_str subject if EmailHelper.needs_cleaning subject
-      body = EmailHelper.clean_str body if EmailHelper.needs_cleaning body
+      subject = EmailHelper.clean_str subject if EmailHelper.clean_str_needed? subject
+      body = EmailHelper.clean_str body if EmailHelper.clean_str_needed? body
       email_enabled = DeepBlueDocs::Application.config.email_enabled
       is_enabled = email_enabled ? "is enabled" : "is not enabled"
       LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -408,6 +416,16 @@ module Deepblue
       options[:url] = options[:curation_concern_url]
       options[:hostname] = Rails.configuration.hostname
       options
+    end
+
+    def self.to_anchor( value )
+      "<a href=#{value}>#{value}</a>"
+    end
+
+    def self.to_anchor?( value )
+      return false if value.blank?
+      return false unless value.is_a? String
+      value.start_with? 'http' # TODO: other starting values, like doi: or it looks like an email address
     end
 
     def self.to_mon( datetime )

@@ -3,11 +3,11 @@
 require_relative '../../../../app/models/concerns/deepblue/abstract_event_behavior'
 require_relative '../../../../app/models/concerns/deepblue/metadata_behavior'
 
-class CurationConcernEmptyMock
+class MetadataBehaviorCCEmptyMock
   include ::Deepblue::MetadataBehavior
 end
 
-class CurationConcernMock
+class MetadataBehaviorCCMock
   include ::Deepblue::MetadataBehavior
 
   def description
@@ -56,8 +56,8 @@ end
 
 RSpec.describe Deepblue::MetadataBehavior do
 
-  let( :empty_mock ) { CurationConcernEmptyMock.new }
-  let( :mock ) { CurationConcernMock.new }
+  let( :empty_mock ) { MetadataBehaviorCCEmptyMock.new }
+  let( :mock ) { MetadataBehaviorCCMock.new }
 
   describe 'module debug verbose variables' do
     it "they have the right values" do
@@ -66,8 +66,8 @@ RSpec.describe Deepblue::MetadataBehavior do
   end
 
   describe 'constants' do
+    it { expect( Deepblue::MetadataBehavior.metadata_field_sep ).to eq '; ' }
     it do
-      expect( Deepblue::MetadataBehavior.metadata_field_sep ).to eq '; '
       expect( Deepblue::MetadataBehavior.metadata_report_default_depth ).to eq 2
       expect( Deepblue::MetadataBehavior.metadata_report_default_filename_post ).to eq '_metadata_report'
       expect( Deepblue::MetadataBehavior.metadata_report_default_filename_ext ).to eq '.txt'
@@ -75,9 +75,11 @@ RSpec.describe Deepblue::MetadataBehavior do
   end
 
   describe 'default values' do
+    it { expect( empty_mock.metadata_keys_all ).to eq [] }
+    it { expect( empty_mock.metadata_keys_brief ).to eq [] }
+    it { expect( empty_mock.metadata_keys_report ).to eq [] }
+    it { expect( empty_mock.metadata_keys_update ).to eq [] }
     it do
-      expect( empty_mock.metadata_keys_all ).to eq []
-      expect( empty_mock.metadata_keys_brief ).to eq []
       expect( empty_mock.metadata_hash_override( key: 'key',
                                                  ignore_blank_values: false,
                                                  key_values: [ key: 'value' ] ) ).to eq false

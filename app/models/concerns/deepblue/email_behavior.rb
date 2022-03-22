@@ -83,14 +83,16 @@ module Deepblue
       [to, 'user-workflow-event', from]
     end
 
-    def email_compose_body( message:, email_key_values: )
+    def email_compose_body( message:, email_key_values:, content_type: nil )
       body = StringIO.new
       body.puts message.to_s if message.present?
+      body.puts "<pre>" if ::Deepblue::EmailHelper.content_html? content_type
       email_key_values.each_pair do |key, value|
         label = for_email_label key
-        value = for_email_value( key, value )
+        value = for_email_value( key, value, content_type: content_type )
         body.puts "#{label}#{value}"
       end
+      body.puts "</pre>" if ::Deepblue::EmailHelper.content_html? content_type
       body.string
     end
 
@@ -150,7 +152,7 @@ module Deepblue
                             contact_us_at: ::Deepblue::EmailHelper.contact_us_at )
       email_notification( to: to,
                           from: from,
-                          content_type: "text/html",
+                          content_type: ::Deepblue::EmailHelper::TEXT_HTML,
                           subject: email_subject_work_created( cc_type: cc_type, was_draft: was_draft ),
                           body: body,
                           current_user: current_user,
@@ -233,7 +235,7 @@ module Deepblue
                             contact_us_at: ::Deepblue::EmailHelper.contact_us_at )
       email_notification( to: cc_depositor,
                           from: EmailHelper.notification_email_from,
-                          content_type: "text/html",
+                          content_type: ::Deepblue::EmailHelper::TEXT_HTML,
                           subject: ::Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_doi_minted" ),
                           body: body,
                           current_user: current_user,
@@ -250,7 +252,7 @@ module Deepblue
                             contact_us_at: ::Deepblue::EmailHelper.contact_us_at )
       email_notification( to: cc_contact_email,
                           from: EmailHelper.notification_email_from,
-                          content_type: "text/html",
+                          content_type: ::Deepblue::EmailHelper::TEXT_HTML,
                           subject: ::Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_doi_minted" ),
                           body: body,
                           current_user: current_user,
@@ -273,6 +275,7 @@ module Deepblue
                                 event_note: event_note,
                                 message: message,
                                 id: for_email_id,
+                                content_type: ::Deepblue::EmailHelper::TEXT_HTML,
                                 ignore_blank_key_values: ignore_blank_key_values )
     end
 
@@ -303,7 +306,7 @@ module Deepblue
                             contact_us_at: ::Deepblue::EmailHelper.contact_us_at )
       email_notification( to: cc_depositor,
                           from: EmailHelper.notification_email_from,
-                          content_type: "text/html",
+                          content_type: ::Deepblue::EmailHelper::TEXT_HTML,
                           subject: ::Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_published" ),
                           body: body,
                           current_user: current_user,
@@ -319,7 +322,7 @@ module Deepblue
                             contact_us_at: ::Deepblue::EmailHelper.contact_us_at )
       email_notification( to: cc_contact_email,
                           from: EmailHelper.notification_email_from,
-                          content_type: "text/html",
+                          content_type: ::Deepblue::EmailHelper::TEXT_HTML,
                           subject: ::Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_published" ),
                           body: body,
                           current_user: current_user,
@@ -397,7 +400,13 @@ module Deepblue
       "DBD: #{subject_rest}"
     end
 
-    def for_email_value( key, value )
+    def for_email_user( current_user )
+      return '' if current_user.blank?
+      return current_user if current_user.is_a? String
+      EmailHelper.user_email_from( current_user )
+    end
+
+    def for_email_value( key, value, content_type: nil )
       return '' if value.blank?
       if value.respond_to? :each
         value = if 1 == value.size
@@ -405,8 +414,11 @@ module Deepblue
                 else
                   value.join( for_email_value_sep( key: key ) )
                 end
+        return value
       end
-      value
+      return value unless ::Deepblue::EmailHelper.content_html? content_type
+      return value unless ::Deepblue::EmailHelper.to_anchor? value
+      ::Deepblue::EmailHelper.to_anchor( value )
     end
 
     def for_email_value_sep( key: )
@@ -417,12 +429,6 @@ module Deepblue
              '; '
            end
       rv
-    end
-
-    def for_email_user( current_user )
-      return '' if current_user.blank?
-      return current_user if current_user.is_a? String
-      EmailHelper.user_email_from( current_user )
     end
 
     def map_email_attributes!( event:, attributes:, ignore_blank_key_values:, **email_key_values )
@@ -467,7 +473,7 @@ module Deepblue
       return handled
     end
 
-    protected
+    # protected
 
       def email_notification( to:,
                               cc: nil,
@@ -524,6 +530,7 @@ module Deepblue
                                     id:,
                                     return_email_parameters: false,
                                     return_email_body: false,
+                                    content_type: nil,
                                     send_it: true,
                                     email_key_values: nil )
 
@@ -536,10 +543,14 @@ module Deepblue
                                                                   ignore_blank_key_values: ignore_blank_key_values )
         end
         event_attributes_cache_write( event: event, id: id, behavior: :EmailBehavior )
-        body = email_compose_body( message: message, email_key_values: email_key_values )
+        body = email_compose_body( message: message, email_key_values: email_key_values, content_type: content_type )
         email_sent = false
         if send_it
-          email_sent = EmailHelper.send_email( to: to, from: from, subject: subject, body: body )
+          email_sent = EmailHelper.send_email( to: to,
+                                               from: from,
+                                               subject: subject,
+                                               body: body,
+                                               content_type: content_type )
           email_event_notification_failed( to: to,
                                            to_note: to_note,
                                            from: from,
@@ -550,7 +561,7 @@ module Deepblue
         end
         class_name = for_email_class.name
         EmailHelper.log( class_name: class_name,
-                         current_user: current_user,
+                         # current_user: current_user,
                          event: event,
                          event_note: event_note,
                          id: id,

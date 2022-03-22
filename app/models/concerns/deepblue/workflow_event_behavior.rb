@@ -37,16 +37,6 @@ module Deepblue
       JiraNewTicketJob.perform_later( work_id: id, current_user: current_user )
     end
 
-    def workflow_embargo( current_user:, event_note: "" )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             "current_user=#{current_user}",
-                                             "event_note=#{event_note}",
-                                             "" ] if workflow_event_behavior_debug_verbose
-      provenance_embargo( current_user: current_user, event_note: event_note )
-    end
-
     def workflow_destroy( current_user:, event_note: "" )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -54,12 +44,24 @@ module Deepblue
                                              "current_user=#{current_user}",
                                              "event_note=#{event_note}",
                                              "" ] if workflow_event_behavior_debug_verbose
+      return if id.blank?
       provenance_destroy( current_user: current_user, event_note: event_note )
       email_event_destroy_rds( current_user: current_user, event_note: event_note )
 
       # Send an email to the user ( depositor )
       is_draft = ::Deepblue::DraftAdminSetService.has_draft_admin_set?( self )
       email_event_destroy_user( current_user: current_user, event_note: event_note, was_draft: is_draft )
+    end
+
+    def workflow_embargo( current_user:, event_note: "" )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "current_user=#{current_user}",
+                                             "event_note=#{event_note}",
+                                             "" ] if workflow_event_behavior_debug_verbose
+      return if id.blank?
+      provenance_embargo( current_user: current_user, event_note: event_note )
     end
 
     def workflow_publish( current_user:, event_note: "", message: "" )
@@ -70,6 +72,7 @@ module Deepblue
                                              "event_note=#{event_note}",
                                              "message=#{message}",
                                              "" ] if workflow_event_behavior_debug_verbose
+      return if id.blank?
       if respond_to? :date_published
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
         #                                        ::Deepblue::LoggingHelper.called_from,
@@ -105,6 +108,7 @@ module Deepblue
                                              "event_note=#{event_note}",
                                              "respond_to? :doi_mint=#{respond_to?( :doi_mint )}",
                                              "" ] if workflow_event_behavior_debug_verbose
+      return if id.blank?
       return unless respond_to? :doi_mint
       return unless ::Deepblue::DoiMintingService.doi_mint_on_publication_event
       doi_mint( current_user: current_user, event_note: event_note )
@@ -117,7 +121,8 @@ module Deepblue
                                              "current_user=#{current_user}",
                                              "event_note=#{event_note}",
                                              "" ] if workflow_event_behavior_debug_verbose
-      provenance_embargo( current_user: current_user, event_note: event_note )
+      return if id.blank?
+      provenance_unembargo( current_user: current_user, event_note: event_note )
     end
 
     def workflow_unpublish( current_user:, event_note: "" )
@@ -127,6 +132,7 @@ module Deepblue
                                              "current_user=#{current_user}",
                                              "event_note=#{event_note}",
                                              "" ] if workflow_event_behavior_debug_verbose
+      return if id.blank?
       provenance_unpublish( current_user: current_user, event_note: event_note )
       email_event_unpublish_rds( current_user: current_user, event_note: event_note )
     end
@@ -148,6 +154,7 @@ module Deepblue
                                              "event_note=#{event_note}",
                                              "submit_for_review=#{submit_for_review}",
                                              "" ] if workflow_event_behavior_debug_verbose
+      return if id.blank?
       return unless submit_for_review
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

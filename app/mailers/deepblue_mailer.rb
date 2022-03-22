@@ -14,7 +14,13 @@ class DeepblueMailer < ApplicationMailer
   end
 
   def send_an_email_html( to:, cc: nil, bcc: nil, from:, subject:, body: )
-    mail( to: to, cc: cc, bcc: bcc, from: from, body: body, content_type: "text/html", subject: subject )
+    mail( to: to,
+          cc: cc,
+          bcc: bcc,
+          from: from,
+          body: body,
+          content_type: ::Deepblue::EmailHelper::TEXT_HTML,
+          subject: subject )
   end
 
 end

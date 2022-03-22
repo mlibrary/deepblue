@@ -35,7 +35,10 @@ END_OF_SCHEDULER_ENTRY
     report = ::Deepblue::GlobusIntegrationService.globus_errors_report( quiet: is_quiet?, debug_verbose: debug_verbose )
     if report.out.present? && !suppress_if_quiet
       event = "globus errors report job"
-      email_all_targets( task_name: "globus errors report", event: event, body: report.out, content_type: 'text/html' )
+      email_all_targets( task_name: "globus errors report",
+                         event: event,
+                         body: report.out,
+                         content_type: ::Deepblue::EmailHelper::TEXT_HTML )
     end
     job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException

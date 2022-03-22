@@ -142,7 +142,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       email_sent = ::Deepblue::EmailHelper.send_email( to: to,
                                                        subject: subject,
                                                        body: body,
-                                                       content_type: "text/html" )
+                                                       content_type: ::Deepblue::EmailHelper::TEXT_HTML )
       ::Deepblue::EmailHelper.log( class_name: self.class.name,
                                    current_user: nil,
                                    event: Deepblue::AbstractEventBehavior::EVENT_UPLOAD,

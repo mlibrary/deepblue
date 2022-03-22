@@ -82,7 +82,7 @@ END_BODY
       targets = targets.uniq
       targets.each do |email|
         send_email( email_target: email,
-                    content_type: 'text/html',
+                    content_type: ::Deepblue::EmailHelper::TEXT_HTML,
                     task_name: exec_str,
                     subject: subject,
                     body: body,
@@ -146,7 +146,7 @@ END_BODY
       targets = targets.uniq
       targets.each do |email|
         send_email( email_target: email,
-                    content_type: 'text/html',
+                    content_type: ::Deepblue::EmailHelper::TEXT_HTML,
                     task_name: task_name,
                     subject: subject,
                     body: body,
@@ -196,7 +196,7 @@ END_BODY
       targets = targets.uniq
       targets.each do |email|
         send_email( email_target: email,
-                    content_type: 'text/html',
+                    content_type: ::Deepblue::EmailHelper::TEXT_HTML,
                     task_name: task_name,
                     subject: subject,
                     body: body,

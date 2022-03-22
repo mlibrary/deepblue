@@ -7,31 +7,31 @@ module Deepblue
 
   module AbstractEventBehavior
 
-    EVENT_CHARACTERIZE      = 'characterize'.freeze
-    EVENT_CHILD_ADD         = 'child_add'.freeze
-    EVENT_CHILD_REMOVE      = 'child_remove'.freeze
-    EVENT_CREATE            = 'create'.freeze
-    EVENT_CREATE_DERIVATIVE = 'create_derivative'.freeze
-    EVENT_DESTROY           = 'destroy'.freeze
-    EVENT_DOWNLOAD          = 'download'.freeze
-    EVENT_EMBARGO           = 'embargo'.freeze
-    EVENT_FIXITY_CHECK      = 'fixity_check'.freeze
-    EVENT_GLOBUS            = 'globus'.freeze
-    EVENT_INGEST            = 'ingest'.freeze
-    EVENT_MIGRATE           = 'migrate'.freeze
-    EVENT_MINT_DOI          = 'mint_doi'.freeze
-    EVENT_PUBLISH           = 'publish'.freeze
-    EVENT_TRANSFER          = 'transfer'.freeze
-    EVENT_TOMBSTONE         = 'tombstone'.freeze
-    EVENT_UNEMBARGO         = 'unembargo'.freeze
-    EVENT_UNPUBLISH         = 'unpublish'.freeze
-    EVENT_UPDATE            = 'update'.freeze
-    EVENT_UPDATE_AFTER      = 'update_after'.freeze
-    EVENT_UPDATE_BEFORE     = 'update_before'.freeze
-    EVENT_UPDATE_VERSION    = 'update_version'.freeze
-    EVENT_UPLOAD            = 'upload'.freeze
-    EVENT_VIRUS_SCAN        = 'virus_scan'.freeze
-    EVENT_WORKFLOW          = 'workflow'.freeze
+    EVENT_CHARACTERIZE      = 'characterize'.freeze      unless const_defined? :EVENT_CHARACTERIZE
+    EVENT_CHILD_ADD         = 'child_add'.freeze         unless const_defined? :EVENT_CHILD_ADD
+    EVENT_CHILD_REMOVE      = 'child_remove'.freeze      unless const_defined? :EVENT_CHILD_REMOVE
+    EVENT_CREATE            = 'create'.freeze            unless const_defined? :EVENT_CREATE
+    EVENT_CREATE_DERIVATIVE = 'create_derivative'.freeze unless const_defined? :EVENT_CREATE_DERIVATIVE
+    EVENT_DESTROY           = 'destroy'.freeze           unless const_defined? :EVENT_DESTROY
+    EVENT_DOWNLOAD          = 'download'.freeze          unless const_defined? :EVENT_DOWNLOAD
+    EVENT_EMBARGO           = 'embargo'.freeze           unless const_defined? :EVENT_EMBARGO
+    EVENT_FIXITY_CHECK      = 'fixity_check'.freeze      unless const_defined? :EVENT_FIXITY_CHECK
+    EVENT_GLOBUS            = 'globus'.freeze            unless const_defined? :EVENT_GLOBUS
+    EVENT_INGEST            = 'ingest'.freeze            unless const_defined? :EVENT_INGEST
+    EVENT_MIGRATE           = 'migrate'.freeze           unless const_defined? :EVENT_MIGRATE
+    EVENT_MINT_DOI          = 'mint_doi'.freeze          unless const_defined? :EVENT_MINT_DOI
+    EVENT_PUBLISH           = 'publish'.freeze           unless const_defined? :EVENT_PUBLISH
+    EVENT_TRANSFER          = 'transfer'.freeze          unless const_defined? :EVENT_TRANSFER
+    EVENT_TOMBSTONE         = 'tombstone'.freeze         unless const_defined? :EVENT_TOMBSTONE
+    EVENT_UNEMBARGO         = 'unembargo'.freeze         unless const_defined? :EVENT_UNEMBARGO
+    EVENT_UNPUBLISH         = 'unpublish'.freeze         unless const_defined? :EVENT_UNPUBLISH
+    EVENT_UPDATE            = 'update'.freeze            unless const_defined? :EVENT_UPDATE
+    EVENT_UPDATE_AFTER      = 'update_after'.freeze      unless const_defined? :EVENT_UPDATE_AFTER
+    EVENT_UPDATE_BEFORE     = 'update_before'.freeze     unless const_defined? :EVENT_UPDATE_BEFORE
+    EVENT_UPDATE_VERSION    = 'update_version'.freeze    unless const_defined? :EVENT_UPDATE_VERSION
+    EVENT_UPLOAD            = 'upload'.freeze            unless const_defined? :EVENT_UPLOAD
+    EVENT_VIRUS_SCAN        = 'virus_scan'.freeze        unless const_defined? :EVENT_VIRUS_SCAN
+    EVENT_WORKFLOW          = 'workflow'.freeze          unless const_defined? :EVENT_WORKFLOW
     EVENTS                  =
       [
         EVENT_CHARACTERIZE,
@@ -59,10 +59,10 @@ module Deepblue
         EVENT_UPLOAD,
         EVENT_VIRUS_SCAN,
         EVENT_WORKFLOW
-      ].freeze
+      ].freeze unless const_defined? :EVENT
 
-    IGNORE_BLANK_KEY_VALUES = true
-    USE_BLANK_KEY_VALUES = false
+    IGNORE_BLANK_KEY_VALUES = true.freeze unless const_defined? :IGNORE_BLANK_KEY_VALUES
+    USE_BLANK_KEY_VALUES = false.freeze   unless const_defined? :USE_BLANK_KEY_VALUES
 
     def event_attributes_cache_exist?( event:, id:, behavior: nil )
       key = event_attributes_cache_key( event: event, id: id, behavior: behavior )
