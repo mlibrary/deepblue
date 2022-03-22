@@ -1,21 +1,21 @@
 # frozen_string_literal: true
 
-class CurationConcernMock
+class AbstractEventCCMock
   include ::Deepblue::AbstractEventBehavior
 end
 
 RSpec.describe Deepblue::AbstractEventBehavior do
 
-  let( :event ) { 'the_event' }
-  let( :id ) { 'id1234' }
-  let( :behavior ) { 'some_behavior' }
-  let( :key ) { "#{id}.#{event}" }
+  let( :event )             { 'the_event' }
+  let( :id )                { 'id1234' }
+  let( :behavior )          { 'some_behavior' }
+  let( :key )               { "#{id}.#{event}" }
   let( :key_with_behavior ) { "#{id}.#{event}.#{behavior}" }
-  let( :cache_value ) { 'the cache value ' }
+  let( :cache_value )       { 'the cache value ' }
 
   describe 'constants' do
+    it { expect( Deepblue::AbstractEventBehavior::EVENT_CHARACTERIZE ).to eq 'characterize' }
     it do
-      expect( Deepblue::AbstractEventBehavior::EVENT_CHARACTERIZE ).to eq 'characterize'
       expect( Deepblue::AbstractEventBehavior::EVENT_CHILD_ADD ).to eq 'child_add'
       expect( Deepblue::AbstractEventBehavior::EVENT_CHILD_REMOVE ).to eq 'child_remove'
       expect( Deepblue::AbstractEventBehavior::EVENT_CREATE ).to eq 'create'
@@ -73,7 +73,7 @@ RSpec.describe Deepblue::AbstractEventBehavior do
   end
 
   describe '.event_attributes_cache_exist?' do
-    subject { CurationConcernMock.new }
+    subject { AbstractEventCCMock.new }
     context 'with behavior' do
       before do
         allow( Rails.cache ).to receive( :exist? ).with( key_with_behavior ).and_return true
@@ -93,7 +93,7 @@ RSpec.describe Deepblue::AbstractEventBehavior do
   end
 
   describe '.event_attributes_cache_fetch' do
-    subject { CurationConcernMock.new }
+    subject { AbstractEventCCMock.new }
     context 'with behavior' do
       before do
         allow( Rails.cache ).to receive( :fetch ).with( key_with_behavior ).and_return cache_value
@@ -114,7 +114,7 @@ RSpec.describe Deepblue::AbstractEventBehavior do
   end
 
   describe '.event_attributes_cache_key' do
-    subject { CurationConcernMock.new }
+    subject { AbstractEventCCMock.new }
     context 'with behavior' do
       let( :result ) { key_with_behavior }
       it do
@@ -132,7 +132,7 @@ RSpec.describe Deepblue::AbstractEventBehavior do
   end
 
   describe '.event_attributes_cache_write' do
-    subject { CurationConcernMock.new }
+    subject { AbstractEventCCMock.new }
     context 'with behavior' do
       before do
         allow( Rails.cache ).to receive( :write ).with( key_with_behavior, cache_value )
