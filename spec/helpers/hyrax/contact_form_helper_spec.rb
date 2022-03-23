@@ -4,6 +4,13 @@ require_relative '../../../lib/hyrax/contact_form_logger'
 
 RSpec.describe Hyrax::ContactFormHelper, type: :helper, skip: false do
 
+
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it { expect( described_class.contact_form_helper_debug_verbose ).to eq debug_verbose }
+  end
+
   describe 'module variables' do
     it { expect(described_class.contact_form_log_echo_to_rails_logger).to eq true }
   end

@@ -1,6 +1,14 @@
 require 'rails_helper'
 
 RSpec.describe Hyrax::FileSetHelper, skip: true do
+
+
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it { expect( described_class.file_set_helper_debug_verbose ).to eq debug_verbose }
+  end
+
   describe '#media_display' do
     let(:file_set) { SolrDocument.new(mime_type_ssi: mime_type) }
     let(:mime_type) { 'image/tiff' }

@@ -37,6 +37,15 @@ module JsonHelper
       end
       rv += "</table>\n"
       return rv
+    elsif key_values.is_a? String
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "String",
+                                             "" ] if json_helper_debug_verbose
+      arr = key_values.split(/[\r\n]+/ )
+      return ERB::Util.html_escape( key_values ) if arr.size <= 1
+      arr.each_with_index { |v,i| arr[i] = ERB::Util.html_escape( v ) }
+      return "#{arr.join("<br/>")}"
     else
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

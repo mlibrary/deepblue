@@ -9,7 +9,7 @@ module Deepblue
 
     # rubocop:disable Style/ClassVars
     def self.echo_to_rails_logger
-      @@echo_to_rails_logger ||= DeepBlueDocs::Application.config.provenance_log_echo_to_rails_logger
+      @@echo_to_rails_logger ||= Rails.configuration.provenance_log_echo_to_rails_logger
     end
 
     def self.echo_to_rails_logger=( echo_to_rails_logger )

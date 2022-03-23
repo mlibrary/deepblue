@@ -15,6 +15,8 @@ module Deepblue
     RE_LOG_LINE = Regexp.compile "^(#{TIMESTAMP_FORMAT}) ([^/]+)/([^/]*)/([^/]+)/([^/ ]*) (.*)$".freeze
     PREFIX_UPDATE_ATTRIBUTE = 'UpdateAttribute_'.freeze
 
+    TIMESTAMP_PARSE_FORMAT = '%Y-%m-%d %H:%M:%S'
+
     module ClassMethods
 
       def extract_embargo_form_values( curation_concern:, update_key_prefix:, form_params: )
@@ -185,6 +187,10 @@ module Deepblue
 
       def parse_log_line_key_values( key_values )
         ActiveSupport::JSON.decode key_values
+      end
+
+      def parse_timestamp( timestamp )
+        DateTime.strptime( timestamp, TIMESTAMP_PARSE_FORMAT )
       end
 
       def system_as_current_user

@@ -3,13 +3,11 @@
 RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
 
   describe 'constants' do
-    it do
-      expect( Deepblue::JsonLoggerHelper::TIMESTAMP_FORMAT ).to eq '\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d'
-      expect( Deepblue::JsonLoggerHelper::RE_TIMESTAMP_FORMAT.source ).to eq '^\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d$'
-      expect( Deepblue::JsonLoggerHelper::RE_LOG_LINE.source ).to \
-        eq '^(\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d) ([^/]+)/([^/]*)/([^/]+)/([^/ ]*) (.*)$'
-      expect( Deepblue::JsonLoggerHelper::PREFIX_UPDATE_ATTRIBUTE ).to eq 'UpdateAttribute_'
-    end
+    it { expect( Deepblue::JsonLoggerHelper::TIMESTAMP_FORMAT ).to eq '\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d' }
+    it { expect( Deepblue::JsonLoggerHelper::RE_TIMESTAMP_FORMAT.source ).to eq '^\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d$' }
+    it { expect( Deepblue::JsonLoggerHelper::RE_LOG_LINE.source ).to \
+        eq '^(\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d) ([^/]+)/([^/]*)/([^/]+)/([^/ ]*) (.*)$' }
+    it { expect( Deepblue::JsonLoggerHelper::PREFIX_UPDATE_ATTRIBUTE ).to eq 'UpdateAttribute_' }
   end
 
   describe '.echo_to_rails_logger' do

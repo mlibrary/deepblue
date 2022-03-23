@@ -4,6 +4,16 @@ require 'rails_helper'
 
 RSpec.describe AnalyticsHelper, type: :helper do
 
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it { expect( described_class.analytics_helper_debug_verbose ).to eq debug_verbose }
+  end
+
+  describe 'other module values' do
+    it { expect( described_class.max_visit_filter_count ).to eq 50  }
+  end
+
   let(:user) { build(:user) }
   let(:another_user) { build(:user) }
   # let( :flipflop ) { class_double( "Flipflop" ) }
