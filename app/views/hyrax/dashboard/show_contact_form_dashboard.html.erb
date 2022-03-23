@@ -4,10 +4,22 @@
     <h2 class="title-header"><%= t('hyrax.dashboard.contact_form.heading.actions') %></h2>
     <br/>
     <%= form_tag(main_app.contact_form_dashboard_action_path, method: 'post') do %>
+      <% if ::Hyrax::ContactFormController.akismet_enabled %>
+        <%= submit_tag(t('simple_form.actions.contact_form.akismet_disabled'), class: 'btn btn-primary') %>&nbsp;
+      <% else %>
+        <%= submit_tag(t('simple_form.actions.contact_form.akismet_enabled'), class: 'btn btn-primary') %>
+      <% end %>
+      &nbsp;
+      <% if ::Hyrax::ContactFormController.ngr_enabled %>
+        <%= submit_tag(t('simple_form.actions.contact_form.new_google_recaptcha_disabled'), class: 'btn btn-primary') %>&nbsp;
+      <% else %>
+        <%= submit_tag(t('simple_form.actions.contact_form.new_google_recaptcha_enabled'), class: 'btn btn-primary') %>
+      <% end %>
+      &nbsp;
       <% if ::Hyrax::ContactFormController.contact_form_controller_debug_verbose %>
         <%= submit_tag(t('simple_form.actions.contact_form.debug_controller_verbose_disable'), class: 'btn btn-primary') %>&nbsp;
       <% else %>
-        <%= submit_tag(t('simple_form.actions.contact_form.debug_controller_verbose_enable'), class: 'btn btn-primary') %>&nbsp;
+        <%= submit_tag(t('simple_form.actions.contact_form.debug_controller_verbose_enable'), class: 'btn btn-primary') %>
       <% end %>
     <% end %>
   <% end %>

@@ -29,6 +29,16 @@ class ContactFormDashboardController < ApplicationController
     action = params[:commit]
     @action_error = false
     msg = case action
+          when t( 'simple_form.actions.contact_form.akismet_enable' )
+            ::Hyrax::ContactFormController.akismet_enabled = true
+            ::Hyrax::ContactFormController.ngr_enabled = false
+          when t( 'simple_form.actions.contact_form.akismet_disable' )
+            ::Hyrax::ContactFormController.akismet_enabled = false
+          when t( 'simple_form.actions.contact_form.new_google_recaptcha_enabled' )
+            ::Hyrax::ContactFormController.ngr_enabled = true
+            ::Hyrax::ContactFormController.akismet_enabled = false
+          when t( 'simple_form.actions.contact_form.new_google_recaptcha_disabled' )
+            ::Hyrax::ContactFormController.ngr_enabled = false
           when t( 'simple_form.actions.contact_form.debug_controller_verbose_enable' )
             ::Hyrax::ContactFormController.contact_form_controller_debug_verbose = true
           when t( 'simple_form.actions.contact_form.debug_controller_verbose_disable' )

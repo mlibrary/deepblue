@@ -32,6 +32,10 @@ en:
   simple_form:
     actions:
       contact_form:
+        akismet_enabled:                  "Enable Akismet"
+        akismet_disabled:                 "Disable Akismet"
+        new_google_recaptcha_enabled:     "Enable New Google Reptcha"
+        new_google_recaptcha_disabled:    "Disable New Google Recptcha"
         debug_controller_verbose_enable:  "Enable Contact Form Controller Debug Verbose"
         debug_controller_verbose_disable: "Disable Contact Form Controller Debug Verbose"
       data_set:
