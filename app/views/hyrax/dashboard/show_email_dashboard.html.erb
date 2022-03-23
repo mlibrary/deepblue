@@ -1,41 +1,40 @@
 <% provide :page_header do %>
   <h1><%= t("hyrax.dashboard.manage_email.title") %></h1>
   <% provide :page_header do %>
-    <h2 class="title-header"><%= t('hyrax.manage_email.actions_header') %></h2>
+    <h2 class="title-header"><%= t('hyrax.dashboard.manage_email.heading.actions') %></h2>
     <br/>
-    <%= form_tag(main_app.work_view_documentation_action_path, method: 'post') do %>
-      <%= submit_tag(t('simple_form.actions.email_management.reload_email_templates'),
-                     class: 'btn btn-primary') %>&nbsp;
+    <%= form_tag(main_app.email_dashboard_action_path, method: 'post') do %>
+      <%= submit_tag(t('simple_form.actions.email_management.reload_email_templates'), class: 'btn btn-primary') %>&nbsp;
     <% end %>
   <% end %>
 <% end %>
-<h2 class="title-header">Email Values</h2>
+<h2 class="title-header"><%= t('hyrax.dashboard.manage_email.heading.email_values') %></h2>
 <div class='documentation-div'>
   <ul>
     <li><%= t("hyrax.email.labels.notification_email") %>
-      <%= DeepBlueDocs::Application.config.notification_email %></li>
+      <%= Rails.configuration.notification_email %></li>
     <li><%= t("hyrax.email.labels.notification_email_contact_form_to") %>
-      <%= DeepBlueDocs::Application.config.notification_email_contact_form_to %></li>
+      <%= Rails.configuration.notification_email_contact_form_to %></li>
     <li><%= t("hyrax.email.labels.notification_email_contact_us_to") %>
-      <%= DeepBlueDocs::Application.config.notification_email_contact_us_to %></li>
+      <%= Rails.configuration.notification_email_contact_us_to %></li>
     <li><%= t("hyrax.email.labels.notification_email_deepblue_to") %>
-      <%= DeepBlueDocs::Application.config.notification_email_deepblue_to %></li>
+      <%= Rails.configuration.notification_email_deepblue_to %></li>
     <li><%= t("hyrax.email.labels.notification_email_from") %>
-      <%= DeepBlueDocs::Application.config.notification_email_from %></li>
+      <%= Rails.configuration.notification_email_from %></li>
     <li><%= t("hyrax.email.labels.notification_email_jira_to") %>
-      <%= DeepBlueDocs::Application.config.notification_email_jira_to %></li>
+      <%= Rails.configuration.notification_email_jira_to %></li>
     <li><%= t("hyrax.email.labels.notification_email_rds_to") %>
-      <%= DeepBlueDocs::Application.config.notification_email_rds_to %></li>
+      <%= Rails.configuration.notification_email_rds_to %></li>
     <li><%= t("hyrax.email.labels.notification_email_to") %>
-      <%= DeepBlueDocs::Application.config.notification_email_to %></li>
+      <%= Rails.configuration.notification_email_to %></li>
     <li><%= t("hyrax.email.labels.notification_email_workflow_to") %>
-      <%= DeepBlueDocs::Application.config.notification_email_workflow_to %></li>
+      <%= Rails.configuration.notification_email_workflow_to %></li>
     <li><%= t("hyrax.email.labels.use_email_notification_for_creation_events") %>
-      <%= DeepBlueDocs::Application.config.use_email_notification_for_creation_events %></li>
+      <%= Rails.configuration.use_email_notification_for_creation_events %></li>
   </ul>
 </div>
 <br/>
-<h2 class="title-header">Email Templates Status</h2>
+<h2 class="title-header"><%= t('hyrax.dashboard.manage_email.heading.email_templates_status') %></h2>
 <div class='documentation-div'>
   <ul>
     <li><%= t("hyrax.dashboard.manage_email.heading.email_templates_loaded") %> <%= t("hyrax.email.templates.loaded") %></li>
@@ -46,7 +45,7 @@
   </ul>
 </div>
 
-<h2 class="title-header">Email Templates</h2>
+<h2 class="title-header"><%= t('hyrax.dashboard.manage_email.heading.email_templates') %></h2>
 <div class='documentation-div'>
   <% @presenter.email_template_keys.each do |key| %>
     <h3><%= key %></h3>

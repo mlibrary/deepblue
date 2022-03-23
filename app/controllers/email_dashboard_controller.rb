@@ -2,7 +2,7 @@
 
 class EmailDashboardController < ApplicationController
 
-  mattr_accessor :email_dashboard_debug_verbose, default: false
+  mattr_accessor :email_dashboard_controller_debug_verbose, default: false
 
   include ActiveSupport::Concern
   include Blacklight::Base
@@ -26,7 +26,7 @@ class EmailDashboardController < ApplicationController
                                            Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
                                            "params[:commit]=#{params[:commit]}",
-                                           "" ] if email_dashboard_debug_verbose
+                                           "" ] if email_dashboard_controller_debug_verbose
     action = params[:commit]
     @action_error = false
     msg = case action

@@ -48,6 +48,8 @@
           <li class="dropdown-menu-indent"><%= link_to t('hyrax.admin.sidebar.users'), hyrax.admin_users_path %>
         <% end %>
         <% if can? :read, :admin_dashboard %>
+          <li class="dropdown-menu-indent"><%= link_to t('hyrax.admin.sidebar.manage_contact_form'),
+                                                       main_app.contact_form_dashboard_path %>
           <li class="dropdown-menu-indent"><%= link_to t('hyrax.admin.sidebar.documentation'),
                                                        main_app.work_view_documentation_path %>
           <li class="dropdown-menu-indent"><%= link_to t('hyrax.admin.sidebar.manage_email'),

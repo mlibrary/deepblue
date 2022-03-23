@@ -31,6 +31,9 @@ en:
       enable_local_analytics_ui:        "Enable local analytics access through the UI."
   simple_form:
     actions:
+      contact_form:
+        debug_controller_verbose_enable:  "Enable Contact Form Controller Debug Verbose"
+        debug_controller_verbose_disable: "Disable Contact Form Controller Debug Verbose"
       data_set:
         edit:                           "Edit"
       email_management:

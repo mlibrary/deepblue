@@ -8,6 +8,12 @@ end
 
 RSpec.describe JobHelper, type: :helper do
 
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it { expect( described_class.job_helper_debug_verbose ).to eq debug_verbose }
+  end
+
   let(:message1) { "Message Number 1." }
 
   describe '#job_options_keys_found' do

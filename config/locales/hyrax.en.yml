@@ -63,6 +63,7 @@ en:
       sidebar:
         documentation:      "Manage Documentation"
         google_analytics:   "Google Analytics"
+        manage_contact_form: "Manage Contact Form"
         manage_email:       "Manage Email"
         manage_embargoes:   "Manage Embargoes"
         manage_ingest:      "Manage Ingest"
@@ -266,6 +267,11 @@ en:
           last_updated:         "Last Updated"
           referenced_by:        "Referenced By"
           total_items:          "Total Items"
+      contact_form:
+        heading:
+          actions:          "Actions"
+          log:              "Log"
+        title:              "View Contact Form Log"
       documentation:
         title:              "Manage Documentation"
       ingest:
@@ -274,9 +280,13 @@ en:
         title:              "Google Analytics Dashboard"
       manage_email:
         heading:
+          actions:                      "Manage Email Actions"
+          email_template_keys_found:    "Email template keys found:"
+          email_templates:              "Email Templates"
           email_templates_loaded:       "Email templates loaded:"
           email_templates_last_loaded:  "Email templates last loaded:"
-          email_template_keys_found:    "Email template keys found:"
+          email_templates_status:       "Email Templates Status"
+          email_values:                 "Email Values"
         title:              "Manage Email"
       my_active_embargoes:  "Active Embargoes"
       my_active_drafts:     "Works in Draft Mode"
@@ -658,8 +668,6 @@ en:
       do_not_run_in_dev:    "Jobs don't run in development."
       running:              "%{job_count} job(s) are running as of %{now}"
       running_header:       "Jobs Running"
-    manage_email:
-      actions_header:      "Manage Email Actions"
     menu:
       about:
         about:              "About Deep Blue Data"

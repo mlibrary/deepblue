@@ -22,6 +22,11 @@
   <% end %>
 
   <% if can? :read, :admin_dashboard %>
+    <%= menu.nav_link(main_app.contact_form_dashboard_path) do %>
+      <span class="fa fa-flag" aria-hidden="true"></span>
+      <span class="sidebar-action-text"><%= t('hyrax.admin.sidebar.manage_contact_form') %></span>
+    <% end %>
+
     <%= menu.nav_link(main_app.work_view_documentation_path) do %>
       <span class="fa fa-flag" aria-hidden="true"></span>
       <span class="sidebar-action-text"><%= t('hyrax.admin.sidebar.documentation') %></span>

@@ -227,6 +227,10 @@ Rails.application.routes.draw do
     end
   end
 
+  get '/contact_form_dashboard/' => 'contact_form_dashboard#show'
+  post '/contact_form_dashboard/' => 'contact_form_dashboard#show'
+  get '/contact_form_dashboard_action/' => 'contact_form_dashboard#action'
+  post '/contact_form_dashboard_action/' => 'contact_form_dashboard#action'
   get '/email_dashboard/' => 'email_dashboard#show'
   get '/email_dashboard_action/' => 'email_dashboard#action'
   get '/google_analytics_dashboard/' => 'google_analytics_dashboard#show'
