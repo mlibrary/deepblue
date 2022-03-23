@@ -9,7 +9,7 @@ Hyrax::ContactFormIntegrationService.setup do |config|
 
   config.contact_form_controller_debug_verbose = false
 
-  config.contact_form_send_email               = true
+  config.contact_form_send_email               = false
 
   config.antispam_timeout_in_seconds           = 8
   config.contact_form_log_echo_to_rails_logger = true
@@ -30,17 +30,20 @@ Hyrax::ContactFormIntegrationService.setup do |config|
 
   case Rails.configuration.hostname
   when ::Deepblue::InitializationConstants::HOSTNAME_PROD
-    config.akismet_enabled              = true
-    config.new_google_recaptcha_enabled = true
+    config.akismet_enabled              = false
+    config.new_google_recaptcha_enabled = !config.aksimet_enabled
+    config.contact_form_send_email      = true
   when ::Deepblue::InitializationConstants::HOSTNAME_TESTING
-    config.akismet_enabled              = true
-    config.new_google_recaptcha_enabled = true
+    config.akismet_enabled              = false
+    config.new_google_recaptcha_enabled = !config.aksimet_enabled
+    config.contact_form_send_email      = false
   when ::Deepblue::InitializationConstants::HOSTNAME_STAGING
     config.akismet_enabled              = true
     config.new_google_recaptcha_enabled = true
   when ::Deepblue::InitializationConstants::HOSTNAME_TEST
     config.akismet_enabled              = false
     config.new_google_recaptcha_enabled = false
+    config.contact_form_send_email      = true
   when ::Deepblue::InitializationConstants::HOSTNAME_LOCAL
     config.akismet_enabled              = true
     config.new_google_recaptcha_enabled = false
