@@ -5,6 +5,11 @@ require 'rails_helper'
 RSpec.describe ::Deepblue::WorkViewContentService do
 
   let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it { expect( described_class.work_view_content_service_debug_verbose ).to eq debug_verbose }
+  end
+
   let(:documentation_collection_title) { "DBDDocumentationCollection" }
 
   before do
@@ -12,16 +17,14 @@ RSpec.describe ::Deepblue::WorkViewContentService do
   end
 
   describe 'module debug verbose variables' do
-    it "they have the right values" do
-      expect( described_class.interpolation_helper_debug_verbose ).to eq false
-      expect( described_class.static_content_controller_behavior_verbose ).to eq( false )
-      expect( described_class.static_content_cache_debug_verbose ).to eq( false )
-      expect( described_class.work_view_documentation_controller_debug_verbose ).to eq( false )
-      expect( described_class.work_view_content_service_debug_verbose ).to eq( debug_verbose )
-      expect( described_class.work_view_content_service_email_templates_debug_verbose ).to eq( false )
-      expect( described_class.work_view_content_service_i18n_templates_debug_verbose ).to eq( false )
-      expect( described_class.work_view_content_service_view_templates_debug_verbose ).to eq( false )
-    end
+    it { expect( described_class.interpolation_helper_debug_verbose ).to eq false }
+    it { expect( described_class.static_content_controller_behavior_verbose ).to eq( false ) }
+    it { expect( described_class.static_content_cache_debug_verbose ).to eq( false ) }
+    it { expect( described_class.work_view_documentation_controller_debug_verbose ).to eq( false ) }
+    it { expect( described_class.work_view_content_service_debug_verbose ).to eq( debug_verbose ) }
+    it { expect( described_class.work_view_content_service_email_templates_debug_verbose ).to eq( false ) }
+    it { expect( described_class.work_view_content_service_i18n_templates_debug_verbose ).to eq( false ) }
+    it { expect( described_class.work_view_content_service_view_templates_debug_verbose ).to eq( false ) }
   end
 
   describe 'other module values' do

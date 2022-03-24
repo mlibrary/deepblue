@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe EmailDashboardController do
+RSpec.describe ContactFormDashboardController do
 
   include Devise::Test::ControllerHelpers
   routes { Rails.application.routes }
@@ -10,11 +10,11 @@ RSpec.describe EmailDashboardController do
   let(:debug_verbose) { false }
 
   describe 'module debug verbose variables' do
-    it { expect( described_class.email_dashboard_controller_debug_verbose ).to eq debug_verbose }
+    it { expect( described_class.contact_form_dashboard_controller_debug_verbose ).to eq debug_verbose }
   end
 
   describe 'class variables' do
-    it { expect( described_class.presenter_class ).to eq EmailDashboardPresenter }
+    it { expect( described_class.presenter_class ).to eq ContactFormDashboardPresenter }
   end
 
   let(:themed_layout) { 'dashboard' }

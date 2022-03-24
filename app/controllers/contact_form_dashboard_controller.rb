@@ -2,7 +2,7 @@
 
 class ContactFormDashboardController < ApplicationController
 
-  mattr_accessor :contact_form_dashboard_debug_verbose, default: true
+  mattr_accessor :contact_form_dashboard_controller_debug_verbose, default: false
 
   include Hyrax::Breadcrumbs
   include AdminOnlyControllerBehavior
@@ -25,24 +25,30 @@ class ContactFormDashboardController < ApplicationController
                                            Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
                                            "params[:commit]=#{params[:commit]}",
-                                           "" ] if contact_form_dashboard_debug_verbose
+                                           "" ] if contact_form_dashboard_controller_debug_verbose
     action = params[:commit]
     @action_error = false
     msg = case action
-          when t( 'simple_form.actions.contact_form.akismet_enable' )
+          when t( 'simple_form.actions.contact_form.akismet_enabled' )
             ::Hyrax::ContactFormController.akismet_enabled = true
             ::Hyrax::ContactFormController.ngr_enabled = false
-          when t( 'simple_form.actions.contact_form.akismet_disable' )
+            action
+          when t( 'simple_form.actions.contact_form.akismet_disabled' )
             ::Hyrax::ContactFormController.akismet_enabled = false
+            action
           when t( 'simple_form.actions.contact_form.new_google_recaptcha_enabled' )
             ::Hyrax::ContactFormController.ngr_enabled = true
             ::Hyrax::ContactFormController.akismet_enabled = false
+            action
           when t( 'simple_form.actions.contact_form.new_google_recaptcha_disabled' )
             ::Hyrax::ContactFormController.ngr_enabled = false
+            action
           when t( 'simple_form.actions.contact_form.debug_controller_verbose_enable' )
             ::Hyrax::ContactFormController.contact_form_controller_debug_verbose = true
+            action
           when t( 'simple_form.actions.contact_form.debug_controller_verbose_disable' )
             ::Hyrax::ContactFormController.contact_form_controller_debug_verbose = false
+            action
           else
             @action_error = true
             "Unkown action #{action}"
@@ -71,7 +77,7 @@ class ContactFormDashboardController < ApplicationController
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
-                                           "" ] if contact_form_dashboard_debug_verbose
+                                           "" ] if contact_form_dashboard_controller_debug_verbose
     @begin_date = ViewHelper.to_date(params[:begin_date])
     @begin_date ||= Date.today - 1.week
     @end_date = ViewHelper.to_date(params[:end_date])

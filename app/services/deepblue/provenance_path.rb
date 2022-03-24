@@ -4,6 +4,8 @@ module Deepblue
 
   class ProvenancePath
 
+    mattr_accessor :provenance_path_debug_verbose, default: false
+
     attr_reader :id, :destination_name
 
     class << self
@@ -11,7 +13,9 @@ module Deepblue
       # Path on file system where derivative file is stored
       # @param [ActiveFedora::Base or String] object either the AF object or its id
       def path_for_reference( object )
-        new( object, "provenance" ).provenance_path
+        pp = new( object, "provenance" )
+        rv = pp.provenance_path
+        return rv
       end
 
       # # @param [ActiveFedora::Base or String] object either the AF object or its id
@@ -22,14 +26,18 @@ module Deepblue
 
     end
 
+    attr_reader :id, :destination_name
+
     # @param [ActiveFedora::Base, String] object either the AF object or its id
     def initialize( object, destination_name = nil )
-      @id = object.is_a?(String) ? object : object.id
+      @id = object.id if object.respond_to? :id
+      @id ||= object.to_s
       @destination_name = destination_name
     end
 
     def provenance_path
-      "#{path_prefix}-#{file_name}" # TODO
+      rv = "#{path_prefix}-#{file_name}" # TODO
+      return rv
     end
 
     # def all_paths

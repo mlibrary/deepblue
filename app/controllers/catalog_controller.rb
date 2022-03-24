@@ -11,12 +11,12 @@ class CatalogController < ApplicationController
   # This filter applies the hydra access controls
   before_action :enforce_show_permissions, only: :show
 
-  def self.uploaded_field
-    solr_name('system_create', :stored_sortable, type: :date)
-  end
-
   def self.modified_field
     solr_name('system_modified', :stored_sortable, type: :date)
+  end
+
+  def self.uploaded_field
+    solr_name('system_create', :stored_sortable, type: :date)
   end
 
   def self.configure_facet_fields( config )

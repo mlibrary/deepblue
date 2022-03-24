@@ -4,8 +4,10 @@ require 'rails_helper'
 
 RSpec.describe ::Deepblue::ZipDownloadService do
 
+  let(:debug_verbose) { false }
+
   describe 'module debug verbose variables' do
-    it { expect( described_class.zip_download_service_debug_verbose             ).to eq false }
+    it { expect( described_class.zip_download_service_debug_verbose             ).to eq debug_verbose }
     it { expect( described_class.zip_download_controller_behavior_debug_verbose ).to eq false }
     it { expect( described_class.zip_download_presenter_behavior_debug_verbose  ).to eq false }
   end

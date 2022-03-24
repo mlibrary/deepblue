@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class GoogleAnalyticsDashboardController < ApplicationController
+
   include ActiveSupport::Concern
   include Blacklight::Base
   include Blacklight::AccessControls::Catalog

@@ -20,10 +20,11 @@ module JsonHelper
                                              "array",
                                              "" ] if json_helper_debug_verbose
       case key_values.size
-      when 0 then return "<table>\n<tr><td>&nbsp;</td></tr>\n</table>\n"
-      when 1 then return "<table>\n<tr><td>#{ERB::Util.html_escape( key_values[0] )}</td></tr>\n</table>\n"
+        #when 0 then return "<table>\n<tr><td>&nbsp;</td></tr>\n</table>\n"
+      when 0 then return "&nbsp;"
+      when 1 then return "<table>\n<tr><td>#{key_values_to_table( key_values[0], parse: false )}</td></tr>\n</table>\n"
       else
-        arr = key_values.map { |x| key_values_to_table( x ) }
+        arr = key_values.map { |x| key_values_to_table( x, parse: false ) }
         return "<table>\n<tr><td>#{arr.join("</td></tr>\n<tr><td>")}</td></tr>\n</table>\n"
       end
     elsif key_values.is_a? Hash
@@ -42,10 +43,13 @@ module JsonHelper
                                              ::Deepblue::LoggingHelper.called_from,
                                              "String",
                                              "" ] if json_helper_debug_verbose
-      arr = key_values.split(/[\r\n]+/ )
+      return "&nbsp;" if key_values.blank?
+      arr = split_str_into_lines( key_values )
       return ERB::Util.html_escape( key_values ) if arr.size <= 1
-      arr.each_with_index { |v,i| arr[i] = ERB::Util.html_escape( v ) }
+      arr = arr.map { |x| ERB::Util.html_escape( x ) }
       return "#{arr.join("<br/>")}"
+    elsif key_values.nil?
+      return "&nbsp;"
     else
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -57,6 +61,12 @@ module JsonHelper
 
   def self.pp_key_values( raw_key_values )
     return JSON.pretty_generate( JSON.parse( raw_key_values ) )
+  end
+
+  def self.split_str_into_lines( str )
+    arr = str.split( /[\r\n]+/ )
+    return arr if arr.size > 1
+    str.split( /(?:\\n|\\r)+/ )
   end
 
 end
