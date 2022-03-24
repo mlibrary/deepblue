@@ -2,15 +2,14 @@
 
 module ProvenanceLogControllerBehavior
 
-  PROVENANCE_LOG_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE = false
+  mattr_accessor :provenance_log_controller_behavior_debug_verbose, default: false
 
   include Deepblue::ControllerWorkflowEventBehavior
 
   attr_accessor :provenance_log_entries
 
   def provenance_log_entries?( id: )
-    file_path = ::Deepblue::ProvenancePath.path_for_reference( id )
-    File.exist? file_path
+    File.exist? provenance_log_path( id: id )
   end
 
   def provenance_log_entries_present?
@@ -20,17 +19,21 @@ module ProvenanceLogControllerBehavior
   def provenance_log_entries_refresh( id: )
     return if id.blank?
     # load provenance log for id specified
-    file_path = ::Deepblue::ProvenancePath.path_for_reference( id )
+    file_path = provenance_log_path( id: id )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                             ::Deepblue::LoggingHelper.called_from,
                                            "id=#{id}",
                                            "file_path=#{file_path}",
-                                            "" ] if PROVENANCE_LOG_CONTROLLER_BEHAVIOR_DEBUG_VERBOSE
+                                            "" ] if provenance_log_controller_behavior_debug_verbose
     ::Deepblue::ProvenanceLogService.entries( id, refresh: true )
   end
 
   def provenance_log_display_enabled?
     true
+  end
+
+  def provenance_log_path( id: )
+    ::Deepblue::ProvenancePath.path_for_reference( id )
   end
 
 end

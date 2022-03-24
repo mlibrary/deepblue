@@ -21,6 +21,9 @@ RSpec.describe CatalogController, type: :controller do
     end
   end
 
+  it { expect(described_class.modified_field).to eq 'system_modified_dtsi' }
+  it { expect(described_class.uploaded_field).to eq 'system_create_dtsi' }
+
   describe 'all', skip: false do
     RSpec.shared_examples 'shared all' do |dbg_verbose|
       subject { described_class }

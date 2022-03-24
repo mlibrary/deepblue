@@ -9,27 +9,23 @@ RSpec.describe Hyrax::StaticController, type: :controller do
   let(:debug_verbose) { false }
 
   describe 'module debug verbose variables', skip: false do
-    it "they have the right values" do
-      expect( described_class.static_controller_debug_verbose ).to eq( debug_verbose )
-      expect( ::Deepblue::StaticContentControllerBehavior.static_content_controller_behavior_verbose ).to eq( debug_verbose )
-      expect( ::Deepblue::StaticContentControllerBehavior.static_content_cache_debug_verbose ).to eq( false )
-    end
+    it { expect( described_class.static_controller_debug_verbose ).to eq( debug_verbose ) }
+    it { expect( ::Deepblue::StaticContentControllerBehavior.static_content_controller_behavior_verbose ).to eq( debug_verbose ) }
+    it { expect( ::Deepblue::StaticContentControllerBehavior.static_content_cache_debug_verbose ).to eq( false ) }
   end
 
   describe '::Deepblue::WorkViewContentService constants', skip: false do
-    it "resolves them" do
-      expect(::Deepblue::WorkViewContentService.documentation_collection_title ).to eq "DBDDocumentationCollection"
-      expect(::Deepblue::WorkViewContentService.documentation_work_title_prefix ).to eq "DBDDoc-"
-      expect(::Deepblue::WorkViewContentService.documentation_email_title_prefix ).to eq "DBDEmail-"
-      expect(::Deepblue::WorkViewContentService.documentation_i18n_title_prefix ).to eq "DBDI18n-"
-      expect(::Deepblue::WorkViewContentService.documentation_view_title_prefix ).to eq "DBDView-"
-      expect(::Deepblue::WorkViewContentService.export_documentation_path ).to eq '/tmp/documentation_export'
+    it { expect(::Deepblue::WorkViewContentService.documentation_collection_title ).to eq "DBDDocumentationCollection" }
+    it { expect(::Deepblue::WorkViewContentService.documentation_work_title_prefix ).to eq "DBDDoc-" }
+    it { expect(::Deepblue::WorkViewContentService.documentation_email_title_prefix ).to eq "DBDEmail-" }
+    it { expect(::Deepblue::WorkViewContentService.documentation_i18n_title_prefix ).to eq "DBDI18n-" }
+    it { expect(::Deepblue::WorkViewContentService.documentation_view_title_prefix ).to eq "DBDView-" }
+    it { expect(::Deepblue::WorkViewContentService.export_documentation_path ).to eq '/tmp/documentation_export' }
 
-      expect(::Deepblue::WorkViewContentService.static_content_controller_behavior_menu_verbose ).to eq false
-      expect(::Deepblue::WorkViewContentService.static_content_enable_cache ).to eq true
-      expect(::Deepblue::WorkViewContentService.static_content_interpolation_pattern ).to eq /(?-mix:%%)|(?-mix:%\{([\w|]+)\})|(?-mix:%<(\w+)>(.*?\d*\.?\d*[bBdiouxXeEfgGcps]))/
-      expect(::Deepblue::WorkViewContentService.static_controller_redirect_to_work_view_content ).to eq false
-    end
+    it { expect(::Deepblue::WorkViewContentService.static_content_controller_behavior_menu_verbose ).to eq false }
+    it { expect(::Deepblue::WorkViewContentService.static_content_enable_cache ).to eq true }
+    it { expect(::Deepblue::WorkViewContentService.static_content_interpolation_pattern ).to eq /(?-mix:%%)|(?-mix:%\{([\w|]+)\})|(?-mix:%<(\w+)>(.*?\d*\.?\d*[bBdiouxXeEfgGcps]))/ }
+    it { expect(::Deepblue::WorkViewContentService.static_controller_redirect_to_work_view_content ).to eq false }
   end
 
   def create_documentation_collection( dbddocs: [] )

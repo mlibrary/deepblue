@@ -4,13 +4,15 @@ module Deepblue
 
   module VirusScanService
 
-    VIRUS_SCAN_ERROR = 'scan error'
-    VIRUS_SCAN_NOT_VIRUS = 'not virus'
-    VIRUS_SCAN_SKIPPED = 'scan skipped'
-    VIRUS_SCAN_SKIPPED_SERVICE_UNAVAILABLE = 'scan skipped service unavailable'
-    VIRUS_SCAN_SKIPPED_TOO_BIG = 'scan skipped too big'
-    VIRUS_SCAN_UNKNOWN = 'scan unknown'
-    VIRUS_SCAN_VIRUS = 'virus'
+    mattr_accessor :virus_scan_service_debug_verbose, default: false
+
+    VIRUS_SCAN_ERROR = 'scan error'.freeze
+    VIRUS_SCAN_NOT_VIRUS = 'not virus'.freeze
+    VIRUS_SCAN_SKIPPED = 'scan skipped'.freeze
+    VIRUS_SCAN_SKIPPED_SERVICE_UNAVAILABLE = 'scan skipped service unavailable'.freeze
+    VIRUS_SCAN_SKIPPED_TOO_BIG = 'scan skipped too big'.freeze
+    VIRUS_SCAN_UNKNOWN = 'scan unknown'.freeze
+    VIRUS_SCAN_VIRUS = 'virus'.freeze
 
     def virus_scan_detected_virus?( scan_result: )
       VIRUS_SCAN_VIRUS == scan_result
