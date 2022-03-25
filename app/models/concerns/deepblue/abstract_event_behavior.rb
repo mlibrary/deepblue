@@ -65,25 +65,19 @@ module Deepblue
     USE_BLANK_KEY_VALUES = false.freeze   unless const_defined? :USE_BLANK_KEY_VALUES
 
     def event_attributes_cache_exist?( event:, id:, behavior: nil )
-      key = event_attributes_cache_key( event: event, id: id, behavior: behavior )
-      rv = Rails.cache.exist?( key )
-      rv
+      ::Deepblue::CacheService.event_attributes_cache_exist?( event: event, id: id, behavior: behavior )
     end
 
     def event_attributes_cache_fetch( event:, id:, behavior: nil )
-      key = event_attributes_cache_key( event: event, id: id, behavior: behavior )
-      rv = Rails.cache.fetch( key )
-      rv
+      ::Deepblue::CacheService.event_attributes_cache_fetch( event: event, id: id, behavior: behavior )
     end
 
     def event_attributes_cache_key( event:, id:, behavior: nil )
-      return "#{id}.#{event}" if behavior.blank?
-      "#{id}.#{event}.#{behavior}"
+      ::Deepblue::CacheService.event_attributes_cache_key( event: event, id: id, behavior: behavior )
     end
 
     def event_attributes_cache_write( event:, id:, attributes: DateTime.now, behavior: nil )
-      key = event_attributes_cache_key( event: event, id: id, behavior: behavior )
-      Rails.cache.write( key, attributes )
+      ::Deepblue::CacheService.event_attributes_cache_write( event: event, id: id, attributes: attributes, behavior: behavior )
     end
 
   end

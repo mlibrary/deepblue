@@ -4,21 +4,117 @@ module Hyrax
 
   class ContactFormController < ApplicationController
 
-    mattr_accessor :contact_form_controller_debug_verbose,
+    mattr_accessor :mattr_contact_form_controller_debug_verbose,
                    default: ContactFormIntegrationService.contact_form_controller_debug_verbose
 
-    mattr_accessor :contact_form_send_email, default: ContactFormIntegrationService.contact_form_send_email
+    mattr_accessor :mattr_contact_form_send_email, default: ContactFormIntegrationService.contact_form_send_email
 
     mattr_accessor :contact_form_index_path, default: '/data/contact'
     mattr_accessor :contact_form_log_delivered, default: ContactFormIntegrationService.contact_form_log_delivered
     mattr_accessor :contact_form_log_spam, default: ContactFormIntegrationService.contact_form_log_spam
     mattr_accessor :antispam_timeout_in_seconds, default: ContactFormIntegrationService.antispam_timeout_in_seconds
 
-    mattr_accessor :akismet_enabled, default: ContactFormIntegrationService.akismet_enabled
+    mattr_accessor :mattr_akismet_enabled, default: ContactFormIntegrationService.akismet_enabled
     mattr_accessor :akismet_env_slice_keys, default: ContactFormIntegrationService.akismet_env_slice_keys
 
-    mattr_accessor :ngr_enabled, default: ContactFormIntegrationService.new_google_recaptcha_enabled
+    mattr_accessor :mattr_ngr_enabled, default: ContactFormIntegrationService.new_google_recaptcha_enabled
     mattr_accessor :ngr_just_human_test, default: ContactFormIntegrationService.new_google_recaptcha_just_human_test
+
+    def self.contact_form_controller_debug_verbose
+      if Rails.env.production? && ::Deepblue::CacheService.cache_available?
+        ::Deepblue::CacheService.var_cache_fetch( klass: ContactFormDashboardController,
+                                                  var: :contact_form_controller_debug_verbose,
+                                                  default_value: mattr_contact_form_controller_debug_verbose )
+      else
+        mattr_contact_form_controller_debug_verbose
+      end
+    end
+
+    def self.contact_form_controller_debug_verbose=(value)
+      if Rails.env.production? && ::Deepblue::CacheService.cache_available?
+        ::Deepblue::CacheService.var_cache_write( klass: ContactFormDashboardController,
+                                                  var: :contact_form_controller_debug_verbose,
+                                                  value: value )
+      else
+        ContactFormController.mattr_contact_form_controller_debug_verbose = value
+      end
+    end
+
+    def self.contact_form_send_email
+      if Rails.env.production? && ::Deepblue::CacheService.cache_available?
+        ::Deepblue::CacheService.var_cache_fetch( klass: ContactFormDashboardController,
+                                                  var: :contact_form_send_email,
+                                                  default_value: mattr_contact_form_send_email )
+      else
+        mattr_contact_form_send_email
+      end
+    end
+
+    def self.contact_form_send_email=(value)
+      if Rails.env.production? && ::Deepblue::CacheService.cache_available?
+        ::Deepblue::CacheService.var_cache_write( klass: ContactFormDashboardController,
+                                                  var: :contact_form_send_email,
+                                                  value: value )
+      else
+        ContactFormController.mattr_contact_form_send_email = value
+      end
+    end
+
+    def self.akismet_enabled
+      if Rails.env.production? && ::Deepblue::CacheService.cache_available?
+        ::Deepblue::CacheService.var_cache_fetch( klass: ContactFormDashboardController,
+                                                  var: :akismet_enabled,
+                                                  default_value: mattr_akismet_enabled )
+      else
+        mattr_akismet_enabled
+      end
+    end
+
+    def self.akismet_enabled=(value)
+      if Rails.env.production? && ::Deepblue::CacheService.cache_available?
+        ::Deepblue::CacheService.var_cache_write( klass: ContactFormDashboardController,
+                                                  var: :akismet_enabled,
+                                                  value: value )
+      else
+        ContactFormController.mattr_akismet_enabled = value
+      end
+    end
+
+    def self.ngr_enabled
+      if Rails.env.production? && ::Deepblue::CacheService.cache_available?
+        ::Deepblue::CacheService.var_cache_fetch( klass: ContactFormDashboardController,
+                                                  var: :ngr_enabled,
+                                                  default_value: mattr_ngr_enabled )
+      else
+        mattr_ngr_enabled
+      end
+    end
+
+    def self.ngr_enabled=(value)
+      if Rails.env.production? && ::Deepblue::CacheService.cache_available?
+        ::Deepblue::CacheService.var_cache_write( klass: ContactFormDashboardController,
+                                                  var: :ngr_enabled,
+                                                  value: value )
+      else
+        ContactFormController.mattr_ngr_enabled = value
+      end
+    end
+
+    def contact_form_controller_debug_verbose
+      @contact_form_controller_debug_verbose ||= ContactFormController.contact_form_controller_debug_verbose
+    end
+
+    def contact_form_send_email
+      @contact_form_send_email ||= ContactFormController.contact_form_send_email
+    end
+
+    def akismet_enabled
+      @akismet_enabled ||= ContactFormController.akismet_enabled
+    end
+
+    def ngr_enabled
+      @ngr_enabled ||= ContactFormController.ngr_enabled
+    end
 
     # NOTE: the save a timestamp of the first visit to the contact form to the session, then use to measure the
     # time spent on the contact form. If it is short, as determined by the configuration, currently defaulting

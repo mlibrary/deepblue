@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ContactFormDashboardPresenter
+class JobStatusesPresenter
 
   include Deepblue::DeepbluePresenterBehavior
 
@@ -8,7 +8,7 @@ class ContactFormDashboardPresenter
 
   delegate :begin_date, :end_date, to: :controller
 
-  delegate  :log_entries, :log_parse_entry, :log_key_values_to_table, to: :controller
+  # delegate  :log_entries, :log_parse_entry, :log_key_values_to_table, to: :controller
 
   def initialize( controller:, current_ability: )
     @controller = controller

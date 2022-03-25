@@ -21,6 +21,19 @@
       <% else %>
         <%= submit_tag(t('simple_form.actions.contact_form.debug_controller_verbose_enable'), class: 'btn btn-primary') %>
       <% end %>
+      &nbsp;
+      <% if ContactFormDashboardController.contact_form_dashboard_controller_debug_verbose %>
+        <%= submit_tag(t('simple_form.actions.contact_form.debug_dashboard_controller_verbose_disable'), class: 'btn btn-primary') %>&nbsp;
+      <% else %>
+        <%= submit_tag(t('simple_form.actions.contact_form.debug_dashboard_controller_verbose_enable'), class: 'btn btn-primary') %>
+      <% end %>
+      &nbsp;
+      <% if ::Hyrax::ContactFormController.contact_form_send_email %>
+        <%= submit_tag(t('simple_form.actions.contact_form.send_email_disabled'), class: 'btn btn-primary') %>&nbsp;
+      <% else %>
+        <%= submit_tag(t('simple_form.actions.contact_form.send_email_enabled'), class: 'btn btn-primary') %>
+      <% end %>
+
     <% end %>
   <% end %>
 <% end %>

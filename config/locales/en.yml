@@ -38,6 +38,10 @@ en:
         new_google_recaptcha_disabled:    "Disable New Google Recptcha"
         debug_controller_verbose_enable:  "Enable Contact Form Controller Debug Verbose"
         debug_controller_verbose_disable: "Disable Contact Form Controller Debug Verbose"
+        debug_dashboard_controller_verbose_enable:  "Enable Contact Form Dashboard Controller Debug Verbose"
+        debug_dashboard_controller_verbose_disable: "Disable Contact Form Dashboard Controller Debug Verbose"
+        send_email_enabled:                  "Enable Send Email"
+        send_email_disabled:                 "Disable Send Email"
       data_set:
         edit:                           "Edit"
       email_management:
