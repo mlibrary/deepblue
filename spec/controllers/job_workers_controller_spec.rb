@@ -30,11 +30,11 @@ RSpec.describe JobWorkersController do
         sign_in admin
       end
       it "is successful get" do
-        get :show, params: {}
+        get :index, params: {}
         expect(response).to be_success
       end
       it "is successful put" do
-        put :show, params: {}
+        put :index, params: {}
         expect(response).to be_success
       end
     end
@@ -44,12 +44,12 @@ RSpec.describe JobWorkersController do
         sign_in user
       end
       it "is unauthorized get" do
-        get :show, params: {}
+        get :index, params: {}
         expect(response).to redirect_to(root_path)
         expect(flash[:alert]).to eq access_denied
       end
       it "is unauthorized put" do
-        put :show, params: {}
+        put :index, params: {}
         expect(response).to redirect_to(root_path)
         expect(flash[:alert]).to eq access_denied
       end
