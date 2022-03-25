@@ -42,6 +42,22 @@
 
 <br/>
 
+<%= form_tag( main_app.job_statuses_path, method: 'post' ) do %>
+  <table style="width:40em;">
+    <tr>
+      <td><%= label_tag(:begin_date_label, 'Begin Date') %></td>
+      <td>
+        <%= date_field_tag( :begin_date, @presenter.begin_date.strftime("%Y-%m-%d"), class: 'datepicker form-control') %>
+      </td>
+      <td><%= label_tag(:end_date_label, 'End Date') %></td>
+      <td>
+        <%= date_field_tag( :end_date, @presenter.end_date.strftime("%Y-%m-%d"), class: 'datepicker form-control') %>
+      </td>
+      <td> <%= submit_tag( "Reload", class: 'btn btn-primary' ) %> </td>
+    </tr>
+  </table>
+<% end %>
+
 <table>
   <thead>
     <tr>

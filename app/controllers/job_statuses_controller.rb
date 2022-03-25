@@ -10,7 +10,12 @@ class JobStatusesController < ApplicationController
 
   before_action :authenticate_user!
   before_action :ensure_admin!
+  before_action :set_date_range, only: %i[ index ]
   before_action :set_job_status, only: %i[ show edit update destroy ]
+
+  class_attribute :presenter_class, default: JobStatusesPresenter
+
+  attr_accessor :begin_date, :end_date
 
   attr_reader :action_error
 
@@ -39,6 +44,8 @@ class JobStatusesController < ApplicationController
   # GET /job_statuses or /job_statuses.json
   def index
     raise CanCan::AccessDenied unless current_ability.admin?
+    # @job_status = JobStatus.find params[:id]
+    @presenter = presenter_class.new( controller: self, current_ability: current_ability )
     @job_statuses = JobStatus.all
   end
 
@@ -81,7 +88,6 @@ class JobStatusesController < ApplicationController
                                            ::Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
                                            "" ] if job_statuses_controller_debug_verbose
-    @job_status = JobStatus.find params[:id]
   end
 
   # GET /job_statuses/new
@@ -135,15 +141,33 @@ class JobStatusesController < ApplicationController
     end
   end
 
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_job_status
-      @job_status = JobStatus.find(params[:id])
-    end
+  # private
 
-    # Only allow a list of trusted parameters through.
-    def job_status_params
-      params.fetch(:job_status, {})
-    end
+  def set_date_range
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "params=#{params}",
+                                           "params[:begin_date]=#{params[:begin_date]}",
+                                           "params[:end_date]=#{params[:end_date]}",
+                                           "" ] if job_statuses_controller_debug_verbose
+    @begin_date = ViewHelper.to_date(params[:begin_date])
+    @begin_date ||= Date.today - 1.week
+    @end_date = ViewHelper.to_date(params[:end_date])
+    @end_date ||= Date.tomorrow
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "@begin_date=#{@begin_date}",
+                                           "@end_date=#{@end_date}",
+                                           "" ] if job_statuses_controller_debug_verbose
+  end
+
+  def set_job_status
+    @job_status = JobStatus.find(params[:id])
+  end
+
+  # Only allow a list of trusted parameters through.
+  def job_status_params
+    params.fetch(:job_status, {})
+  end
 
 end
