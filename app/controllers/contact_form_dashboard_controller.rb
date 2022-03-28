@@ -22,7 +22,7 @@ class ContactFormDashboardController < ApplicationController
                                            ::Deepblue::LoggingHelper.called_from,
                                            "value=#{value}",
                                            "" ] if mattr_contact_form_dashboard_controller_debug_verbose
-    if Rails.env.production? && ::Deepblue::CacheService.cache_available
+    if Rails.env.production? && ::Deepblue::CacheService.cache_available?
       ::Deepblue::CacheService.var_cache_write( klass: ContactFormDashboardController,
                                                 var: :contact_form_dashboard_controller_debug_verbose,
                                                 value: value )

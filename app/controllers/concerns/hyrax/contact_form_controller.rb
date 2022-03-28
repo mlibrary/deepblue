@@ -16,6 +16,8 @@ module Hyrax
 
     mattr_accessor :mattr_akismet_enabled, default: ContactFormIntegrationService.akismet_enabled
     mattr_accessor :akismet_env_slice_keys, default: ContactFormIntegrationService.akismet_env_slice_keys
+    mattr_accessor :akismet_is_spam_only_if_blatant,
+                   default: ContactFormIntegrationService.akismet_is_spam_only_if_blatant
 
     mattr_accessor :mattr_ngr_enabled, default: ContactFormIntegrationService.new_google_recaptcha_enabled
     mattr_accessor :ngr_just_human_test, default: ContactFormIntegrationService.new_google_recaptcha_just_human_test
@@ -130,7 +132,8 @@ module Hyrax
       @spam_status_unknown = true
       @akismet_used = false
       @akismet_is_spam = false
-      @akismet_is_blatant = false
+      @akismet_check_rv_is_spam = false
+      @akismet_check_rv_is_blatant = false
       @ngr_used = false
       @ngr_is_human = nil # assume this is true and allow google recaptcha to set it to false as necessary
       @ngr_humanity_details = nil
@@ -302,10 +305,12 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "@akismet_is_spam=#{@akismet_is_spam}",
-                                               "@akismet_is_blatant=#{@akismet_is_blatant}",
+                                               "@akismet_check_rv_is_spam=#{@akismet_check_rv_is_spam}",
+                                               "@akismet_check_rv_is_blatant=#{@akismet_check_rv_is_blatant}",
                                                "" ] if contact_form_controller_debug_verbose
         log_key_values.merge!( akismet_is_spam: @akismet_is_spam,
-                               akismet_is_blatant: @akismet_is_blatant )
+                               akismet_check_rv_is_spam: @akismet_check_rv_is_spam,
+                               akismet_check_rv_is_blatant: @akismet_check_rv_is_blatant )
       end
       if ngr_enabled && contact_form_controller_debug_verbose
         log_key_values.merge!( ngr_enabled: ngr_enabled, ngr_used: @ngr_used )
@@ -383,6 +388,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if contact_form_controller_debug_verbose
       return unless @spam_status_unknown
+      ContactFormIntegrationService.akismet_setup
       #   name: @contact_form.name,
       #   email: @contact_form.email,
       #   subject: @contact_form.subject,
@@ -412,14 +418,21 @@ module Hyrax
 
       begin
         # @akismet_is_spam = Akismet.spam?(request.ip, request.user_agent, akismet_params)
-        @akismet_is_spam, @akismet_is_blatant = Akismet.check(request.ip, request.user_agent, akismet_params)
-        @akismet_is_spam = ( @akismet_is_spam || @akismet_is_blatant )
+        @akismet_check_rv_is_spam, @akismet_check_rv_is_blatant = Akismet.check( request.ip,
+                                                                                 request.user_agent,
+                                                                                 akismet_params )
+        @akismet_is_spam = if akismet_is_spam_only_if_blatant
+                             ( @akismet_check_rv_is_spam && @akismet_check_rv_is_blatant )
+                           else
+                             ( @akismet_check_rv_is_spam || @akismet_check_rv_is_blatant )
+                           end
         @akismet_used = true
         @spam_status_unknown = false
       rescue => e
         Rails.logger.error("Unable to connect to Akismet: #{e}, skipping check")
         @akismet_is_spam = nil
-        @akismet_is_blatant = nil
+        @akismet_check_rv_is_spam = nil
+        @akismet_check_rv_is_blatant = nil
         @akismet_used = false
       end
     end

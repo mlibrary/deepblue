@@ -25,6 +25,7 @@ RSpec.describe Hyrax::ContactFormController, skip: false do
                                                                           SERVER_PROTOCOL
                                                                           SERVER_SOFTWARE
                                                                         } ) }
+    it { expect( described_class.akismet_is_spam_only_if_blatant ).to eq true }
     it { expect( described_class.ngr_enabled                 ).to eq false }
     it { expect( described_class.ngr_just_human_test         ).to eq false }
   end

@@ -24,6 +24,7 @@ Hyrax::ContactFormIntegrationService.setup do |config|
                                                      SERVER_PROTOCOL
                                                      SERVER_SOFTWARE
                                                    }
+  config.akismet_is_spam_only_if_blatant       = true
 
   config.new_google_recaptcha_enabled          = false
   config.new_google_recaptcha_just_human_test  = false
@@ -31,15 +32,16 @@ Hyrax::ContactFormIntegrationService.setup do |config|
   case Rails.configuration.hostname
   when ::Deepblue::InitializationConstants::HOSTNAME_PROD
     config.akismet_enabled              = false
-    config.new_google_recaptcha_enabled = !config.aksimet_enabled
+    config.new_google_recaptcha_enabled = true
     config.contact_form_send_email      = true
   when ::Deepblue::InitializationConstants::HOSTNAME_TESTING
     config.akismet_enabled              = false
-    config.new_google_recaptcha_enabled = !config.aksimet_enabled
+    config.new_google_recaptcha_enabled = true
     config.contact_form_send_email      = false
   when ::Deepblue::InitializationConstants::HOSTNAME_STAGING
     config.akismet_enabled              = true
     config.new_google_recaptcha_enabled = true
+    config.contact_form_send_email      = false
   when ::Deepblue::InitializationConstants::HOSTNAME_TEST
     config.akismet_enabled              = false
     config.new_google_recaptcha_enabled = false
@@ -47,9 +49,11 @@ Hyrax::ContactFormIntegrationService.setup do |config|
   when ::Deepblue::InitializationConstants::HOSTNAME_LOCAL
     config.akismet_enabled              = true
     config.new_google_recaptcha_enabled = false
+    config.contact_form_send_email      = false
   else
     config.akismet_enabled              = false
     config.new_google_recaptcha_enabled = false
+    config.contact_form_send_email      = false
   end
 
   if verbose_initialization
@@ -59,9 +63,7 @@ Hyrax::ContactFormIntegrationService.setup do |config|
   end
 
   if config.akismet_enabled
-    # see: https://github.com/jonahb/akismet#basics
-    Akismet.api_key = Settings.akismet.api_key
-    Akismet.app_url = Settings.akismet.app_url
+    config.akismet_setup
   end
 
 end
