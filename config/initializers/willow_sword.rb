@@ -1,5 +1,7 @@
 WillowSword.setup do |config|
 
+  config.willow_sword_integration_service_debug_verbose = false
+
   # See: https://github.com/CottageLabs/willow_sword/wiki/Configuring-willow-sword
 
   # The title used by the sword server, in the service document
