@@ -12,7 +12,7 @@ RSpec.describe ::WillowSword::IntegrationService do
   end
 
   describe 'class variables' do
-    it { expect( described_class.default_collection_title ).to eq 'SWORD Default Collection' }
+    it { expect( described_class.default_collection_title ).to eq 'SWORDDefaultCollection' }
   end
 
   describe '#default_collection_id' do
