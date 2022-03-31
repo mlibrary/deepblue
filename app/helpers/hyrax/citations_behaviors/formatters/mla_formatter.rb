@@ -84,7 +84,12 @@ module Hyrax
             i = name.index(',') 
             unless ( i.nil? )
               last = name[0..i-1]
-              first = name[i+ 1]
+              fnames_full = ""
+              fnames = name[i+1, name.size].rstrip.lstrip.split
+              fnames.each { | fname |
+                fnames_full += fname[0].upcase + ". "
+              }
+              first = fnames_full.reverse.sub('. '.reverse, '').reverse
               text << last + ", " + first + "., "
             else
               text << name.strip + ", "
