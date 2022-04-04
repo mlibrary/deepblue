@@ -77,11 +77,12 @@ module Hyrax
         # load provenance log for this work
         id = @collection.id # curation_concern.id
         file_path = Deepblue::ProvenancePath.path_for_reference( id )
-        Deepblue::LoggingHelper.bold_debug [ "CollectionsController", "display_provenance_log", file_path ] if hyrax_my_collections_controller_debug_verbose
-        Deepblue::ProvenanceLogService.entries( id, refresh: true )
-        # continue on to normal display
-        #redirect_to [main_app, curation_concern]
-        redirect_to :back
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "file_path=#{file_path}",
+                                               "" ] if hyrax_my_collections_controller_debug_verbose
+        ::Deepblue::ProvenanceLogService.entries( id, refresh: true )
+        redirect_back fallback_location: [main_app, curation_concern]
       end
 
       def display_provenance_log_enabled?

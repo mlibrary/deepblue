@@ -50,9 +50,9 @@ module Hyrax
     ## Provenance log
 
     def provenance_log_update_after
-      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-      #                                        Deepblue::LoggingHelper.called_from,
-      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        ::Deepblue::LoggingHelper.obj_class( 'class', self ),
       #                                        "" ] if hyrax_collection_controller_debug_verbose
       curation_concern.provenance_log_update_after( current_user: current_user,
                                                     # event_note: 'CollectionsController.provenance_log_update_after',
@@ -60,9 +60,9 @@ module Hyrax
     end
 
     def provenance_log_update_before
-      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-      #                                        Deepblue::LoggingHelper.called_from,
-      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        ::Deepblue::LoggingHelper.obj_class( 'class', self ),
       #                                        "@update_attr_key_values=#{@update_attr_key_values}",
       #                                        "" ] if hyrax_collection_controller_debug_verbose
       return unless @update_attr_key_values.nil?
@@ -77,11 +77,12 @@ module Hyrax
       # load provenance log for this work
       id = @collection.id # curation_concern.id
       file_path = Deepblue::ProvenancePath.path_for_reference( id )
-      Deepblue::LoggingHelper.bold_debug [ "CollectionsController", "display_provenance_log", file_path ] if hyrax_collection_controller_debug_verbose
-      Deepblue::ProvenanceLogService.entries( id, refresh: true )
-      # continue on to normal display
-      #redirect_to [main_app, curation_concern]
-      redirect_to :back
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "file_path=#{file_path}",
+                                             "" ] if hyrax_collection_controller_debug_verbose
+      ::Deepblue::ProvenanceLogService.entries( id, refresh: true )
+      redirect_back fallback_location: [main_app, curation_concern]
     end
 
     def display_provenance_log_enabled?
@@ -97,9 +98,9 @@ module Hyrax
     ## visibility / publish
 
     def visiblity_changed
-      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-      #                                        Deepblue::LoggingHelper.called_from,
-      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        ::Deepblue::LoggingHelper.obj_class( 'class', self ),
       #                                        "" ] if hyrax_collection_controller_debug_verbose
       @update_attr_key_values = curation_concern.provenance_log_update_before( form_params: params[PARAMS_KEY].dup )
       if visibility_to_private?
@@ -110,9 +111,9 @@ module Hyrax
     end
 
     def visibility_changed_update
-      # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-      #                                        Deepblue::LoggingHelper.called_from,
-      #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        ::Deepblue::LoggingHelper.obj_class( 'class', self ),
       #                                        "" ] if hyrax_collection_controller_debug_verbose
       if curation_concern.private? && @visibility_changed_to_private
         workflow_unpublish
