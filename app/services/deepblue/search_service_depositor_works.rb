@@ -5,12 +5,12 @@ module Deepblue
       mattr_accessor :search_service_managed_works_debug_verbose, default: false
 
       def self.depositor_works_count(scope:)
-        query_builder = Hyrax::Dashboard::DepositorWorksSearchBuilder.new(scope).rows(0)
+        query_builder = ::Hyrax::Dashboard::DepositorWorksSearchBuilder.new(scope).rows(0)
         scope.repository.search(query_builder.query).response["numFound"]
       end
 
       def self.depositor_works_list(scope:)
-        query_builder = Hyrax::Dashboard::DepositorWorksSearchBuilder.new(scope).rows(100)
+        query_builder = ::Hyrax::Dashboard::DepositorWorksSearchBuilder.new(scope).rows(100)
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "query_builder=#{query_builder}",
