@@ -274,9 +274,9 @@ module Hyrax
       if user_signed_in?
         user_email = Deepblue::EmailHelper.user_email_from( current_user )
         globus_copy_job( user_email: user_email, delay_per_file_seconds: 0 )
-        #flash_and_go_back globus_files_prepping_msg( user_email: user_email )
-        msg = globus_files_prepping_msg( user_email: user_email )
-        redirect_to [main_app, curation_concern], notice: msg
+        flash_and_go_back globus_files_prepping_msg( user_email: user_email )
+        # msg = globus_files_prepping_msg( user_email: user_email )
+        # redirect_to [main_app, curation_concern], notice: msg
       elsif params[:user_email_one].present? || params[:user_email_two].present?
         user_email_one = params[:user_email_one].present? ? params[:user_email_one].strip : ''
         user_email_two = params[:user_email_two].present? ? params[:user_email_two].strip : ''
@@ -574,12 +574,12 @@ module Hyrax
 
       def flash_and_go_back( msg )
         ::Deepblue::LoggingHelper.debug msg
-        redirect_to :back, notice: msg
+        redirect_back fallback_location: [main_app, curation_concern], notice: msg
       end
 
       def flash_error_and_go_back( msg )
         ::Deepblue::LoggingHelper.debug msg
-        redirect_to :back, error: msg
+        redirect_back fallback_location: [main_app, curation_concern], error: msg
       end
 
       def flash_and_redirect_to_main_cc( msg )
