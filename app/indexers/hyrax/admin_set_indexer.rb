@@ -11,9 +11,8 @@ module Hyrax
         Solrizer.set_field(solr_doc, 'generic_type', 'Admin Set', :facetable)
 
         # So that title sort can be done ...
-        value = Array( object.title ).join( " " )
-        solr_doc[Solrizer.solr_name('title', :stored_searchable)] = value
-        solr_doc[Solrizer.solr_name('title', :stored_sortable)] = value
+        solr_doc['title_sort_ssi'] = Array(object.title).first.downcase unless object.title.blank?
+
       end
     end
   end
