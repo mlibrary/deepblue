@@ -15,9 +15,7 @@ module Hyrax
         solr_doc['visibility_ssi'] = object.visibility
 
         # So that title sort can be done ...
-        value = Array( object.title ).join( " " )
-        solr_doc[Solrizer.solr_name('title', :stored_searchable)] = value
-        solr_doc[Solrizer.solr_name('title', :stored_sortable)] = value
+        solr_doc['title_sort_ssi'] = Array(object.title).first.downcase unless object.title.blank?
 
         object.in_collections.each do |col|
           (solr_doc['member_of_collection_ids_ssim'] ||= []) << col.id
