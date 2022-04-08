@@ -63,6 +63,7 @@ en:
       sidebar:
         documentation:      "Manage Documentation"
         google_analytics:   "Google Analytics"
+        job_statuses:       "Job Statuses"
         manage_contact_form: "Manage Contact Form"
         manage_email:       "Manage Email"
         manage_embargoes:   "Manage Embargoes"

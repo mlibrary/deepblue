@@ -41,17 +41,84 @@ class JobStatusesController < ApplicationController
     end
   end
 
+  def init_begin_end_dates
+    @begin_date = ViewHelper.to_date(params[:begin_date])
+    @begin_date ||= Date.today - 1.week
+    @end_date = ViewHelper.to_date(params[:end_date])
+    @end_date ||= Date.tomorrow
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "@begin_date=#{@begin_date}",
+                                           "@end_date=#{@end_date}",
+                                           "" ] if job_statuses_controller_debug_verbose
+  end
+
+  def init_job_statuses( status: nil, not_status: nil )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "status=#{status}",
+                                           "not_status=#{not_status}",
+                                           "" ] if job_statuses_controller_debug_verbose
+    init_begin_end_dates
+    @job_statuses = if status.blank? && not_status.blank?
+                      JobStatus.where(['created_at >= ? AND created_at <= ?', begin_date, end_date])
+                               .order(created_at: :desc)
+                    elsif not_status.blank?
+                      JobStatus.where(['created_at >= ? AND created_at <= ?', begin_date, end_date])
+                               .where(status: status)
+                               .order(created_at: :desc)
+                    elsif status.blank?
+                      JobStatus.where(['created_at >= ? AND created_at <= ?', begin_date, end_date])
+                               .where.not(status: not_status)
+                               .order(created_at: :desc)
+                    else
+                      JobStatus.where(['created_at >= ? AND created_at <= ?', begin_date, end_date])
+                               .where(status: status)
+                               .where.not(status: not_status)
+                               .order(created_at: :desc)
+                    end
+  end
+
+  def init_job_statuses_errors
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "errors=#{errors}",
+                                           "" ] if job_statuses_controller_debug_verbose
+    init_begin_end_dates
+    @job_statuses = JobStatus.where(['created_at >= ? AND created_at <= ?', begin_date, end_date])
+                               .where.not( error: [nil, ''] )
+                               .order(created_at: :desc)
+  end
+
   # GET /job_statuses or /job_statuses.json
   def index
     raise CanCan::AccessDenied unless current_ability.admin?
-    # @job_status = JobStatus.find params[:id]
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "params[:commit]=#{params[:commit]}",
+                                           "" ] if job_statuses_controller_debug_verbose
+    case params[:commit]
+    when 'All'
+      init_job_statuses
+    when 'Failed'
+      init_job_statuses( status: 'failed' )
+    when 'Finished'
+      init_job_statuses( status: JobStatus::FINISHED )
+    when 'Has Error'
+      init_job_statuses_errors
+    when 'Not Finished'
+      init_job_statuses( not_status: JobStatus::FINISHED )
+    when 'Started'
+      init_job_statuses( status: JobStatus::STARTED )
+    else
+      init_job_statuses
+    end
     @presenter = presenter_class.new( controller: self, current_ability: current_ability )
-    @job_statuses = JobStatus.all
   end
 
   def has_error
     raise CanCan::AccessDenied unless current_ability.admin?
-    @job_statuses = JobStatus.where.not( error: [nil, ''] )
+    init_job_statuses_errors
     render 'index'
   end
 
@@ -59,25 +126,25 @@ class JobStatusesController < ApplicationController
 
   def status_failed
     raise CanCan::AccessDenied unless current_ability.admin?
-    @job_statuses = JobStatus.where( status: 'failed' )
+    init_job_statuses( status: 'failed' )
     render 'index'
   end
 
   def status_not_finished
     raise CanCan::AccessDenied unless current_ability.admin?
-    @job_statuses = JobStatus.where.not( status: JobStatus::FINISHED )
+    init_job_statuses( not_status: JobStatus::FINISHED )
     render 'index'
   end
 
   def status_finished
     raise CanCan::AccessDenied unless current_ability.admin?
-    @job_statuses = JobStatus.where( status: JobStatus::FINISHED )
+    init_job_statuses( status: JobStatus::FINISHED )
     render 'index'
   end
 
   def status_started
     raise CanCan::AccessDenied unless current_ability.admin?
-    @job_statuses = JobStatus.where( status: JobStatus::STARTED )
+    init_job_statuses( status: JobStatus::STARTED )
     render 'index'
   end
 
