@@ -2,45 +2,45 @@
   <h1><%= "Job Statuses" %></h1>
 <% end %>
 
-<h2 class="title-header">Actions</h2>
-<%= link_to(
+<!-- h2 class="title-header">Actions</h2 -->
+<%#= link_to(
       'All',
       Rails.application.routes.url_helpers.job_statuses_path,
       class: 'btn btn-default'
     ) %>
 &nbsp;
-<%= link_to(
+<%#= link_to(
       'Failed',
       Rails.application.routes.url_helpers.job_statuses_failed_path,
       class: 'btn btn-default'
     ) %>
 &nbsp;
-<%= link_to(
+<%#= link_to(
       'Finished',
       Rails.application.routes.url_helpers.job_statuses_finished_path,
       class: 'btn btn-default'
     ) %>
 &nbsp;
-<%= link_to(
+<%#= link_to(
       'Has Error',
       Rails.application.routes.url_helpers.job_statuses_has_error_path,
       class: 'btn btn-default'
     ) %>
 &nbsp;
-<%= link_to(
+<%#= link_to(
       'Not Finished',
       Rails.application.routes.url_helpers.job_statuses_not_finished_path,
       class: 'btn btn-default'
     ) %>
 &nbsp;
-<%= link_to(
+<%#= link_to(
       'Started',
       Rails.application.routes.url_helpers.job_statuses_started_path,
       class: 'btn btn-default'
     ) %>
 &nbsp;
 
-<br/>
+<!-- br/ -->
 
 <%= form_tag( main_app.job_statuses_path, method: 'post' ) do %>
   <table style="width:40em;">
@@ -53,7 +53,16 @@
       <td>
         <%= date_field_tag( :end_date, @presenter.end_date.strftime("%Y-%m-%d"), class: 'datepicker form-control') %>
       </td>
-      <td> <%= submit_tag( "Reload", class: 'btn btn-primary' ) %> </td>
+    </tr>
+  </table>
+  <table style="width:40em;">
+    <tr>
+      <td> <%= submit_tag( 'All', class: 'btn btn-primary' ) %> </td>
+      <td> <%= submit_tag( 'Failed', class: 'btn btn-primary' ) %> </td>
+      <td> <%= submit_tag( 'Finished', class: 'btn btn-primary' ) %> </td>
+      <td> <%= submit_tag( 'Has Error', class: 'btn btn-primary' ) %> </td>
+      <td> <%= submit_tag( 'Not Finished', class: 'btn btn-primary' ) %> </td>
+      <td> <%= submit_tag( 'Started', class: 'btn btn-primary' ) %> </td>
     </tr>
   </table>
 <% end %>

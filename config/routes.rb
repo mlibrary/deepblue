@@ -279,6 +279,7 @@ Rails.application.routes.draw do
   # resource :job_status #, only: [:index, :show, :update]
   resource :job_status
   get 'job_statuses', to: 'job_statuses#index', as: 'job_statuses' # index
+  post 'job_statuses', to: 'job_statuses#index' #, as: 'job_statuses' # index
   put 'job_statuses', to: 'job_statuses#index' #, as: 'job_statuses' # index
   get '/job_statuses_failed/' => 'job_statuses#status_failed'
   get '/job_statuses_finished/' => 'job_statuses#status_finished'
