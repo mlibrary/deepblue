@@ -1,19 +1,55 @@
-<footer class="footer" role="contentinfo">
-  <div class="footer--dark">
-    <div class="footer-container footer-text--light">
+<footer class="page-footer">
+  <div class="viewport-container">
+    <div class="page-footer__content">
+      <section>
+        <h2>University of Michigan Library</h2>
         <ul>
-          <li><a href="<%= hyrax.help_path('help') %>">Help</a></li>
-            <li><a href="<%= hyrax.root_path %>" class="footer-link">Home</a></li>
-            <li><a href="<%= hyrax.agreement_path('agreement') %> " class="footer-link">Policy &amp; Terms of Use</a></li>
+          <li>
+            <a  href="https://www.lib.umich.edu/">U-M Library</a>
+          </li>
+          <li>
+            <a href="https://publishing.umich.edu/">Michigan Publishing</a>
+          </li>
+          <li>
+            <a href="https://www.lib.umich.edu/about-us/about-library/diversity-equity-inclusion-and-accessibility/accessibility">Accessibility</a>
+          </li>
         </ul>
-        <p class="column-two">Questions? Contact us <%= render partial: '/contact_us' %></p>
-      </div>
-  </div>
+      </section>
 
-  <div class="footer-subfooter footer--light">
-    <div class="footer-container">
-        <p><%= t('hyrax.site_copyright') %></p>
-        <p class="column-two"><%= t('hyrax.site_powered_by_html') %></p>
+      <section>
+        <h2>About Deep Blue Data</h2>
+        <ul>
+            <li>
+                <a href="https://www.lib.umich.edu/collections/deep-blue-repositories">Deep Blue Repositories</a>
+            </li>
+            <li>
+                <a href="/data/contact?locale=en">Contact Us</a>
+            </li>
+            <li>
+                <a href="/data/help.help?locale=en">Frequently Asked Questions</a>
+            </li>
+            <li>
+                <a href="/data/agreement.agreement?locale=en">Policy and Terms of Use</a>
+            </li>
+
+        </ul>
+      </section>
+
+      <section>
+        <h2>Privacy and copyright</h2>
+        <ul>
+          <li>
+            <a href="https://lib.umich.edu/about-us/policies/library-privacy-statement">Library Privacy Statement</a>
+          </li>
+        </ul>
+
+      </section>
+    </div>
+  </div>
+  <div class="page-footer__disclaimer">
+    <div class="viewport-container">
+      <p>© <%= Time.current.year %>, Regents of the University of Michigan. Powered by Samvera</p>
     </div>
   </div>
 </footer>
+

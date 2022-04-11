@@ -176,10 +176,6 @@ a.morelink {
   background-color: #f2f2f2;
 }
 
-footer {
-  background-color: #fff;
-}
-
 /*** Deposit Work Page ***/
 
 div.not-required {
@@ -331,12 +327,6 @@ form.copy-url > .input-group {
 
 .dashboard-btn {
   margin: 0.5em 0;
-}
-
-/**** Footer ****/
-
-footer > .ribbon-content p {
-  padding-left: 0;
 }
 
 /**** Utility Classes ****/
@@ -704,3 +694,130 @@ table.datatable thead th.no-sort {
 .indent-left {
   padding-left: 2em;
 }
+
+
+/* Footer css, came from changes in docs on the footer. */
+
+.viewport-container {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--viewport-margin);
+  padding-right: var(--viewport-margin);
+}
+
+footer.page-footer {
+        background: var(--color-blue-400);
+}
+
+footer.page-footer > ul {
+        list-style: none !important;
+        margin: 0;
+        padding: 0;
+}
+
+footer.page-footer > ul li > a {
+        display: block;
+        padding: var(--space-x-small) 0;
+        color: white !important;
+        text-decoration: none;
+}
+
+footer.page-footer > ul li > a:hover {
+        text-decoration: none;
+        color: white;
+}
+
+footer.page-footer p a {
+        text-decoration: underline;
+}
+
+footer.page-footer p a :hover {
+        text-decoration-thickness: 2px;
+}
+
+.page-footer__content {
+        color: var(--color-blue-100);
+        padding: var(--space-xxx-large) 0;
+        background: var(--color-blue-400);
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(36ch, 1fr));
+        grid-gap: var(--space-xx-large);
+}
+
+.page-footer__content h2 {
+        color: var(--color-blue-200);
+        font-size: 0.875rem;
+        font-weight: 800;
+        letter-spacing: 1.25px;
+        text-transform: uppercase;
+        margin-bottom: var(--space-medium);
+}
+
+.page-footer__content > section {
+        margin-bottom: var(--space-x-large);
+}
+
+.page-footer__content section  ul  li {
+        list-style: none !important;
+        margin: 0;
+        padding: 0;
+}
+
+.page-footer__content  ul li  a {
+        display: block;
+        padding: var(--space-xx-small) 0;
+        color: white !important;
+        text-decoration: none;
+}
+
+.page-footer__content  ul  {
+        padding-left: 0;
+}
+
+.page-footer__content  p  a {
+        color: white !important;
+}
+
+.page-footer__content  ul li  a:hover {
+        text-decoration: underline;
+        color: white;
+}
+
+.page-footer__content p a {
+        text-decoration: underline;
+}
+
+.page-footer__content p a :hover {
+        text-decoration-thickness: 2px;
+}
+
+.page-footer__disclaimer {
+        background: var(--color-blue-500);
+        color: var(--color-blue-200);
+        padding: var(--space-medium) 0;
+}
+
+.page-footer__disclaimer p {
+        margin: 0;
+}
+
+.page-footer__disclaimer a {
+        color: var(--color-blue-200);
+}
+
+@media screen and (min-width: 820px) {
+        .page-footer__disclaimer p {
+                display: "inline-block";
+        }
+
+        .page-footer__disclaimer p + p {
+                margin-left: var(--space-x-large);
+        }
+}
+
+
+/* end footer */
+
+
