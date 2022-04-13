@@ -31,7 +31,7 @@ signed in %>
     "@type": "Dataset",
     "@id": "<%= @presenter.doi.first if @presenter.doi.present? %>",
     "name": "<%= @presenter.title.first %>",  
-    "description": ["<%= @presenter.description.first %>"],  
+    "description": "<%= @presenter.description.first %>",
     "url": "https://deepblue.lib.umich.edu/data/concern/data_sets/<%= @presenter.id %>",
     "identifier": "<%= @presenter.doi.first if @presenter.doi.present? %>",
     "isAccessibleForFree": true,
