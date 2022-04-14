@@ -14,7 +14,7 @@ Your analytics report for the month of %{month}:
 
 %{report_lines}
 
-  END_OF_MONTHLY_ANALYTICS_REPORT_EMAIL_TEMPLATE
+END_OF_MONTHLY_ANALYTICS_REPORT_EMAIL_TEMPLATE
 
   MONTHLY_ANAYLYTICS_REPORT_EVENT_NAMES = [ "Hyrax::DataSetsController#show",
                                             "Hyrax::DataSetsController#zip_download",
@@ -115,7 +115,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
   end
 
   # This is just needed at the time the stats are setup from rails console
-  def self.drop_condesed_event_downloads
+  def self.drop_condensed_event_downloads
      Ahoy::CondensedEvent.where( name: "WorkFileDownloadsPerMonth" ).destroy_all
      Ahoy::CondensedEvent.where( name: "WorkFileDownloadsToDate" ).destroy_all
      Ahoy::CondensedEvent.where( name: "WorkZipDownloadsPerMonth" ).destroy_all
