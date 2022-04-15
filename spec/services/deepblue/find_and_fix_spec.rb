@@ -69,11 +69,11 @@ RSpec.describe ::Deepblue::FindAndFix do
 
       it 'has initialize values' do
         find_and_fix.send(:initialize,
-                   debug_verbose: default_debug_verbose,
-                   filter: filter,
-                   messages: messages,
-                   task: task,
-                   verbose: verbose )
+                          debug_verbose: default_debug_verbose,
+                          filter: filter,
+                          messages: messages,
+                          task: task,
+                          verbose: verbose )
         expect(find_and_fix.debug_verbose).to  eq default_debug_verbose
         expect(find_and_fix.filter).to         eq filter
         expect(find_and_fix.messages).to       eq messages
