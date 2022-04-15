@@ -12,15 +12,19 @@ RSpec.describe ::Deepblue::FindAndFix do
 
   describe 'module variables have the expected values' do
     it { expect( ::Deepblue::FindAndFixService.find_and_fix_default_verbose ).to eq true }
-    it { expect( ::Deepblue::FindAndFixService.find_and_fix_file_sets_lost_and_found_work_title ).to eq 'DBD_Find_and_Fix_FileSets_Lost_and_Found' }
+    it { expect( ::Deepblue::FindAndFixService.find_and_fix_empty_file_sizes_debug_verbose ).to eq false }
+    it { expect( ::Deepblue::FindAndFixService.find_and_fix_file_sets_lost_and_found_work_title )
+           .to eq 'DBD_Find_and_Fix_FileSets_Lost_and_Found' }
   end
 
   describe 'module related variables have the expected values' do
     it { expect( ::Deepblue::FindAndFixService.find_and_fix_over_collections ).to eq [] }
-    it { expect( ::Deepblue::FindAndFixService.find_and_fix_over_file_sets ).to eq [ 'Deepblue::FileSetsLostAndFoundFixer',
+    it { expect( ::Deepblue::FindAndFixService.find_and_fix_over_file_sets ).to eq [
+                                             'Deepblue::FileSetsLostAndFoundFixer',
                                              'Deepblue::FileSetsVisibilityFixer' ] }
-    it { expect( ::Deepblue::FindAndFixService.find_and_fix_over_works ).to eq [ 'Deepblue::WorksOrderedMembersNilsFixer',
-                                                                                 'Deepblue::WorksOrderedMembersFileSetsSizeFixer' ] }
+    it { expect( ::Deepblue::FindAndFixService.find_and_fix_over_works ).to eq [
+                                             'Deepblue::WorksOrderedMembersNilsFixer',
+                                             'Deepblue::WorksOrderedMembersFileSetsSizeFixer' ] }
   end
 
   def expected_fixers_after_initialization(find_and_fix)

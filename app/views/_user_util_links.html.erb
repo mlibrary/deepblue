@@ -74,9 +74,9 @@
           <% end %>
           <li class="dropdown-menu-indent"><%= link_to t('hyrax.admin.sidebar.provenance_log'),
                                                        main_app.provenance_log_path %>
-          <% if defined?(Rails.application.routes.url_helpers.resque_web_path) %>
+          <% if defined?(main_app.resque_web_path) %>
             <li class="dropdown-menu-indent"><%= link_to t('hyrax.admin.sidebar.resque_web'),
-                                                         Rails.application.routes.url_helpers.resque_web_path %>
+                                                         main_app.resque_web_path %>
           <% end %>
           <li class="dropdown-menu-indent"><%= link_to t('hyrax.admin.sidebar.technical'),
                                                hyrax.admin_features_path %>

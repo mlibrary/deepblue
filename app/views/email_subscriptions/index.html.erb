@@ -16,7 +16,7 @@
         <td><%= email_subscription.user_id %></td>
         <td><%= email_subscription.email %> (email)</td>
         <td><%= email_subscription.subscription_name %></td>
-        <td><%= link_to 'Show', Rails.application.routes.url_helpers.email_subscription_url( id: email_subscription.id, only_path: true ) %></td>
+        <td><%= link_to 'Show', main_app.email_subscription_url( id: email_subscription.id, only_path: true ) %></td>
         <!-- td><%= link_to 'Edit', edit_email_subscription_path(email_subscription) %></td -->
       </tr>
     <% end %>
