@@ -2,56 +2,16 @@
   <h1><%= "Job Statuses" %></h1>
 <% end %>
 
-<!-- h2 class="title-header">Actions</h2 -->
-<%#= link_to(
-      'All',
-      Rails.application.routes.url_helpers.job_statuses_path,
-      class: 'btn btn-default'
-    ) %>
-&nbsp;
-<%#= link_to(
-      'Failed',
-      Rails.application.routes.url_helpers.job_statuses_failed_path,
-      class: 'btn btn-default'
-    ) %>
-&nbsp;
-<%#= link_to(
-      'Finished',
-      Rails.application.routes.url_helpers.job_statuses_finished_path,
-      class: 'btn btn-default'
-    ) %>
-&nbsp;
-<%#= link_to(
-      'Has Error',
-      Rails.application.routes.url_helpers.job_statuses_has_error_path,
-      class: 'btn btn-default'
-    ) %>
-&nbsp;
-<%#= link_to(
-      'Not Finished',
-      Rails.application.routes.url_helpers.job_statuses_not_finished_path,
-      class: 'btn btn-default'
-    ) %>
-&nbsp;
-<%#= link_to(
-      'Started',
-      Rails.application.routes.url_helpers.job_statuses_started_path,
-      class: 'btn btn-default'
-    ) %>
-&nbsp;
-
-<!-- br/ -->
-
 <%= form_tag( main_app.job_statuses_path, method: 'post' ) do %>
   <table style="width:40em;">
     <tr>
       <td><%= label_tag(:begin_date_label, 'Begin Date') %></td>
       <td>
-        <%= date_field_tag( :begin_date, @presenter.begin_date.strftime("%Y-%m-%d"), class: 'datepicker form-control') %>
+        <%= date_field_tag( :begin_date, @presenter.begin_date_parm, class: 'datepicker form-control') %>
       </td>
       <td><%= label_tag(:end_date_label, 'End Date') %></td>
       <td>
-        <%= date_field_tag( :end_date, @presenter.end_date.strftime("%Y-%m-%d"), class: 'datepicker form-control') %>
+        <%= date_field_tag( :end_date, @presenter.end_date_parm, class: 'datepicker form-control') %>
       </td>
     </tr>
   </table>
@@ -70,7 +30,7 @@
 <table>
   <thead>
     <tr>
-      <th colspan="7"></th>
+      <th colspan="9"></th>
     </tr>
   </thead>
 
@@ -83,8 +43,15 @@
         <td><%= job_status.main_cc_id %></td>
         <td><%= job_status.status %></td>
         <td><%= job_status.error_snipped %></td>
-        <td><%= link_to 'Show', Rails.application.routes.url_helpers.job_status_url( id: job_status.id, only_path: true ) %></td>
-        <!-- td><%= link_to 'Edit', edit_job_status_path(job_status) %></td -->
+        <td><%#= link_to 'Show', Rails.application.routes.url_helpers.job_status_url( id: job_status.id, only_path: true ) %>
+          <%= link_to 'Show', main_app.job_status_url( id: job_status.id,
+                                                       begin_date: @presenter.begin_date_parm,
+                                                       end_date: @presenter.end_date_parm ) %>
+        </td>
+        <!-- td><%#= link_to 'Edit', edit_job_status_path(job_status) %></td -->
+        <td><%= job_status.messages_snipped %></td>
+        <td><%= job_status.state_snipped %></td>
+
       </tr>
     <% end %>
   </tbody>
@@ -92,4 +59,4 @@
 
 <br>
 
-<%= link_to 'New Job Status', new_job_status_path %>
+<%#= link_to 'New Job Status', new_job_status_path %>

@@ -6,6 +6,7 @@ Deepblue::FindAndFixService.setup do |config|
   config.file_sets_lost_and_found_fixer_debug_verbose   = false
   config.file_sets_visibility_fixer_debug_verbose       = false
   config.find_and_fix_debug_verbose                     = false
+  config.find_and_fix_empty_file_sizes_debug_verbose    = false
   config.find_and_fix_job_debug_verbose                 = false
   config.works_ordered_members_file_sets_size_fixer_debug_verbose = false
   config.works_ordered_members_nils_fixer_debug_verbose = false
