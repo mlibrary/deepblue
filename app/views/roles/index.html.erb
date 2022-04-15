@@ -4,7 +4,7 @@
 
 <ul>
   <% @roles.each do |role| %>
-    <li><%=link_to role.name, role_management.role_path(role) %></li>
+    <li><%= link_to role.name, role_management.role_path(role) %></li>
   <% end %>
 </ul>
 

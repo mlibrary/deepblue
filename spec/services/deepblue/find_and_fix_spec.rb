@@ -20,11 +20,11 @@ RSpec.describe ::Deepblue::FindAndFix do
   describe 'module related variables have the expected values' do
     it { expect( ::Deepblue::FindAndFixService.find_and_fix_over_collections ).to eq [] }
     it { expect( ::Deepblue::FindAndFixService.find_and_fix_over_file_sets ).to eq [
-                                                                                     'Deepblue::FileSetsLostAndFoundFixer',
-                                                                                     'Deepblue::FileSetsVisibilityFixer' ] }
+                                             'Deepblue::FileSetsLostAndFoundFixer',
+                                             'Deepblue::FileSetsVisibilityFixer' ] }
     it { expect( ::Deepblue::FindAndFixService.find_and_fix_over_works ).to eq [
-                                                                                 'Deepblue::WorksOrderedMembersNilsFixer',
-                                                                                 'Deepblue::WorksOrderedMembersFileSetsSizeFixer' ] }
+                                             'Deepblue::WorksOrderedMembersNilsFixer',
+                                             'Deepblue::WorksOrderedMembersFileSetsSizeFixer' ] }
   end
 
   def expected_fixers_after_initialization(find_and_fix)

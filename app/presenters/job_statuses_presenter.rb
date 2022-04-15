@@ -15,4 +15,16 @@ class JobStatusesPresenter
     @current_ability = current_ability
   end
 
+  def begin_date_parm
+    rv = begin_date
+    return '' unless rv.present?
+    rv.strftime("%Y-%m-%d")
+  end
+
+  def end_date_parm
+    rv = end_date
+    return '' unless rv.present?
+    rv.strftime("%Y-%m-%d")
+  end
+
 end
