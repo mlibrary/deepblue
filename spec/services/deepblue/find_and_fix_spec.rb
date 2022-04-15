@@ -12,14 +12,18 @@ RSpec.describe ::Deepblue::FindAndFix do
 
   describe 'module variables have the expected values' do
     it { expect( ::Deepblue::FindAndFixService.find_and_fix_default_verbose ).to eq true }
-    it { expect( ::Deepblue::FindAndFixService.find_and_fix_file_sets_lost_and_found_work_title ).to eq 'DBD_Find_and_Fix_FileSets_Lost_and_Found' }
+    it { expect( ::Deepblue::FindAndFixService.find_and_fix_empty_file_sizes_debug_verbose ).to eq false }
+    it { expect( ::Deepblue::FindAndFixService.find_and_fix_file_sets_lost_and_found_work_title )
+           .to eq 'DBD_Find_and_Fix_FileSets_Lost_and_Found' }
   end
 
   describe 'module related variables have the expected values' do
     it { expect( ::Deepblue::FindAndFixService.find_and_fix_over_collections ).to eq [] }
-    it { expect( ::Deepblue::FindAndFixService.find_and_fix_over_file_sets ).to eq [ 'Deepblue::FileSetsLostAndFoundFixer',
-                                             'Deepblue::FileSetsVisibilityFixer' ] }
-    it { expect( ::Deepblue::FindAndFixService.find_and_fix_over_works ).to eq [ 'Deepblue::WorksOrderedMembersNilsFixer',
+    it { expect( ::Deepblue::FindAndFixService.find_and_fix_over_file_sets ).to eq [
+                                                                                     'Deepblue::FileSetsLostAndFoundFixer',
+                                                                                     'Deepblue::FileSetsVisibilityFixer' ] }
+    it { expect( ::Deepblue::FindAndFixService.find_and_fix_over_works ).to eq [
+                                                                                 'Deepblue::WorksOrderedMembersNilsFixer',
                                                                                  'Deepblue::WorksOrderedMembersFileSetsSizeFixer' ] }
   end
 
@@ -65,11 +69,11 @@ RSpec.describe ::Deepblue::FindAndFix do
 
       it 'has initialize values' do
         find_and_fix.send(:initialize,
-                   debug_verbose: default_debug_verbose,
-                   filter: filter,
-                   messages: messages,
-                   task: task,
-                   verbose: verbose )
+                          debug_verbose: default_debug_verbose,
+                          filter: filter,
+                          messages: messages,
+                          task: task,
+                          verbose: verbose )
         expect(find_and_fix.debug_verbose).to  eq default_debug_verbose
         expect(find_and_fix.filter).to         eq filter
         expect(find_and_fix.messages).to       eq messages
