@@ -18,7 +18,7 @@ RSpec.describe ::Deepblue::FindAndFix do
   describe 'module related variables have the expected values' do
     it { expect( ::Deepblue::FindAndFixService.find_and_fix_over_collections ).to eq [] }
     it { expect( ::Deepblue::FindAndFixService.find_and_fix_over_file_sets ).to eq [ 'Deepblue::FileSetsLostAndFoundFixer',
-                                             'Deepblue::FileSetsVisibilityFixer' ] }
+                                                                                     'Deepblue::FileSetsVisibilityFixer' ] }
     it { expect( ::Deepblue::FindAndFixService.find_and_fix_over_works ).to eq [ 'Deepblue::WorksOrderedMembersNilsFixer',
                                                                                  'Deepblue::WorksOrderedMembersFileSetsSizeFixer' ] }
   end
@@ -65,11 +65,11 @@ RSpec.describe ::Deepblue::FindAndFix do
 
       it 'has initialize values' do
         find_and_fix.send(:initialize,
-                   debug_verbose: default_debug_verbose,
-                   filter: filter,
-                   messages: messages,
-                   task: task,
-                   verbose: verbose )
+                          debug_verbose: default_debug_verbose,
+                          filter: filter,
+                          messages: messages,
+                          task: task,
+                          verbose: verbose )
         expect(find_and_fix.debug_verbose).to  eq default_debug_verbose
         expect(find_and_fix.filter).to         eq filter
         expect(find_and_fix.messages).to       eq messages
