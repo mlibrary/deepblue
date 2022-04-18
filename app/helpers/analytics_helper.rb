@@ -154,6 +154,22 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     end
   end
 
+  def self.compute_ip_count_for_object ( name:, cc_id:, visit_id:, time: )
+    # Get all the events for this time period and this id
+    events = Ahoy::Event.where( name: name,  cc_id: cc_id, time: time )
+
+    # Get the visit information for this specific event
+    visit_to_test = Ahoy::Visit.where( id: visit_id )
+
+    count = 0
+    events.each do |e|
+      v = Ahoy::Visit.where( id: e.visit_id )
+      count += 1 if v.first.ip.eql?(visit_to_test.first.ip)
+    end
+    count
+  end
+
+
   # This one is called for zip and globus requests.
   def self.update_condensed_events_for_work_zip_globus_downloads_in_date_range( name:, filter:, work:, date_range:, date_range_filter: nil, force: false )
     #For monthly, the date_range_filter and the date_range should be the same.  date_range_filter is not passed in.
@@ -172,6 +188,9 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     records.each do |r|
       visits = Ahoy::Event.where( name: filter, visit_id: r.visit_id, cc_id: r.cc_id, time: date_range_filter )
       next if visits.count > max_visit_filter_count
+      
+      ip_count = compute_ip_count_for_object( name: filter, cc_id: r.cc_id, visit_id: r.visit_id, time: date_range_filter )
+      next if ip_count > max_visit_filter_count
 
       condensed_event["total_downloads"] = condensed_event["total_downloads"] + 1
     end  
@@ -198,6 +217,9 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
         visits = Ahoy::Event.where( name: filter, visit_id: r.visit_id, cc_id: r.cc_id, time: date_range_filter )
         next if visits.count > max_visit_filter_count
 
+        ip_count = compute_ip_count_for_object( name: filter, cc_id: r.cc_id, visit_id: r.visit_id, time: date_range_filter )
+        next if ip_count > max_visit_filter_count
+        
         condensed_event["total_downloads"] = condensed_event["total_downloads"] + 1
         condensed_event[fid] = 0 unless condensed_event[fid].present?
         condensed_event[fid] = condensed_event[fid] + 1
