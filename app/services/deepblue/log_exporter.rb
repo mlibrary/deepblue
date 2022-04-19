@@ -7,7 +7,7 @@ module Deepblue
   # rubocop:disable Metrics/ParameterLists
   class LogExporter < LogReader
 
-    DEFAULT_PP_EXPORT = false
+    DEFAULT_PP_EXPORT = false unless const_defined? :DEFAULT_PP_EXPORT
 
     attr_accessor :output, :output_mode
     attr_reader :lines_exported

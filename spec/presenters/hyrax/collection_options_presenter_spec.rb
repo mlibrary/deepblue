@@ -1,5 +1,7 @@
 require 'rails_helper'
 
+# remove this test or find the replacement test for hyrax v3
+
 RSpec.describe Hyrax::CollectionOptionsPresenter, skip: false do
   before { allow(Deprecation).to receive(:warn) }
 

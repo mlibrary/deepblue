@@ -65,7 +65,7 @@ RSpec.describe Hyrax::AnonymousLinksViewerController, skip: false do
                                                                        type: 'image/png')
               get :download, params: { id: download_link_hash }
               expect(response.body).to eq expected_content
-              expect(response).to be_success
+              expect(response).to be_successful
               # expect { AnonymousLink.find_by_downloadKey!(download_link_hash) }.to raise_error ActiveRecord::RecordNotFound
             end
 

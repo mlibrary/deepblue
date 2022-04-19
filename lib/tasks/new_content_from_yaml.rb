@@ -14,11 +14,11 @@ module Deepblue
 
   class NewContentFromYaml < AbstractTask
 
-    DEFAULT_SOURCE_DIR = '/deepbluedata-prep'
-    DEFAULT_INGESTER = nil
-    DEFAULT_MODE = "populate"
-    DEFAULT_PREFIX = ""
-    DEFAULT_POSTFIX = ""
+    DEFAULT_SOURCE_DIR = '/deepbluedata-prep' unless const_defined? :DEFAULT_SOURCE_DIR
+    DEFAULT_INGESTER = nil unless const_defined? :DEFAULT_INGESTER
+    DEFAULT_MODE = "populate" unless const_defined? :DEFAULT_MODE
+    DEFAULT_PREFIX = "" unless const_defined? :DEFAULT_PREFIX
+    DEFAULT_POSTFIX = "" unless const_defined? :DEFAULT_POSTFIX
 
     def initialize( base_file_names:, options: )
       super( options: options )

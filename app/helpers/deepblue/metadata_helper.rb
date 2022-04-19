@@ -4,21 +4,21 @@ module Deepblue
 
   module MetadataHelper
 
-    SOURCE_DBDv1 = 'DBDv1' # rubocop:disable Style/ConstantName
-    SOURCE_DBDv2 = 'DBDv2' # rubocop:disable Style/ConstantName
-    DEFAULT_BASE_DIR = "/deepbluedata-prep/"
-    DEFAULT_SOURCE = SOURCE_DBDv2
-    DEFAULT_TASK = 'populate'
-    FIELD_SEP = '; '
-    HEADER_TYPE_COLLECTIONS = ':collections:'
-    HEADER_TYPE_USERS = ':users:'
-    HEADER_TYPE_WORKS = ':works:'
-    MODE_APPEND = 'append'
-    MODE_BUILD = 'build'
-    MODE_MIGRATE = 'migrate'
-    PREFIX_COLLECTION = 'c_'
-    PREFIX_USERS = 'users'
-    PREFIX_WORK = 'w_'
+    SOURCE_DBDv1 = 'DBDv1' unless const_defined? :SOURCE_DBDv1 # rubocop:disable Style/ConstantName
+    SOURCE_DBDv2 = 'DBDv2' unless const_defined? :SOURCE_DBDv2 # rubocop:disable Style/ConstantName
+    DEFAULT_BASE_DIR = "/deepbluedata-prep/" unless const_defined? :DEFAULT_BASE_DIR
+    DEFAULT_SOURCE = SOURCE_DBDv2 unless const_defined? :DEFAULT_SOURCE
+    DEFAULT_TASK = 'populate' unless const_defined? :DEFAULT_TASK
+    FIELD_SEP = '; ' unless const_defined? :FIELD_SEP
+    HEADER_TYPE_COLLECTIONS = ':collections:' unless const_defined? :HEADER_TYPE_COLLECTIONS
+    HEADER_TYPE_USERS = ':users:' unless const_defined? :HEADER_TYPE_USERS
+    HEADER_TYPE_WORKS = ':works:' unless const_defined? :HEADER_TYPE_WORKS
+    MODE_APPEND = 'append' unless const_defined? :MODE_APPEND
+    MODE_BUILD = 'build' unless const_defined? :MODE_BUILD
+    MODE_MIGRATE = 'migrate' unless const_defined? :MODE_MIGRATE
+    PREFIX_COLLECTION = 'c_' unless const_defined? :PREFIX_COLLECTION
+    PREFIX_USERS = 'users' unless const_defined? :PREFIX_USERS
+    PREFIX_WORK = 'w_' unless const_defined? :PREFIX_WORK
 
     ATTRIBUTE_NAMES_ALWAYS_INCLUDE_CC = %w[ admin_set_id
                                             authoremail
@@ -60,7 +60,7 @@ module Deepblue
                                             tombstone
                                             access_deepblue
                                             access_deepblue_ordered
-                                            total_file_size ].freeze
+                                            total_file_size ].freeze unless const_defined? :ATTRIBUTE_NAMES_ALWAYS_INCLUDE_CC
     ATTRIBUTE_NAMES_ALWAYS_INCLUDE_FILE_SET = %w[ creator
                                                   curation_notes_admin
                                                   curation_notes_admin_ordered
@@ -78,14 +78,14 @@ module Deepblue
                                                   title
                                                   virus_scan_service
                                                   virus_scan_status
-                                                  virus_scan_status_date ].freeze
-    ATTRIBUTE_NAMES_ALWAYS_INCLUDE_USER = %w[ id email ].freeze
+                                                  virus_scan_status_date ].freeze unless const_defined? :ATTRIBUTE_NAMES_ALWAYS_INCLUDE_FILE_SET
+    ATTRIBUTE_NAMES_ALWAYS_INCLUDE_USER = %w[ id email ].freeze unless const_defined? :ATTRIBUTE_NAMES_ALWAYS_INCLUDE_USER
     ATTRIBUTE_NAMES_IGNORE = %w[ access_control_id
                                  collection_type_gid
                                  file_size
                                  head
                                  part_of tail
-                                 thumbnail_id ].freeze
+                                 thumbnail_id ].freeze unless const_defined? :ATTRIBUTE_NAMES_IGNORE
     ATTRIBUTE_NAMES_IGNORE_IMPORT = %w[ creator_ordered
                                         curation_notes_admin_ordered
                                         curation_notes_user_ordered
@@ -96,7 +96,7 @@ module Deepblue
                                         representative_id
                                         resource_type
                                         title_ordered
-                                        total_file_size ].freeze
+                                        total_file_size ].freeze unless const_defined? :ATTRIBUTE_NAMES_IGNORE_IMPORT
     ATTRIBUTE_NAMES_IGNORE_IMPORT_FILE_SET = %w[ description
                                                  file_size
                                                  file_size_human_readable
@@ -104,15 +104,15 @@ module Deepblue
                                                  language
                                                  representative_id
                                                  resource_type
-                                                 title ].freeze
+                                                 title ].freeze unless const_defined? :ATTRIBUTE_NAMES_IGNORE_IMPORT_FILE_SET
     ATTRIBUTE_NAMES_MAP_V1_V2 = { 'isReferencedBy': 'referenced_by',
                                   'rights': 'rights_license',
-                                  'subject': 'subject_discipline' }.freeze
-    ATTRIBUTE_NAMES_MAP_V2_V1 = {}.freeze
+                                  'subject': 'subject_discipline' }.freeze unless const_defined? :ATTRIBUTE_NAMES_MAP_V1_V2
+    ATTRIBUTE_NAMES_MAP_V2_V1 = {}.freeze unless const_defined? :ATTRIBUTE_NAMES_MAP_V2_V1
     ATTRIBUTE_NAMES_USER_IGNORE = %w[ current_sign_in_at
                                       current_sign_in_ip
                                       reset_password_token
-                                      reset_password_sent_at ].freeze
+                                      reset_password_sent_at ].freeze unless const_defined? :ATTRIBUTE_NAMES_USER_IGNORE
     # encrypted_password
 
     def self.attribute_names_always_include_cc

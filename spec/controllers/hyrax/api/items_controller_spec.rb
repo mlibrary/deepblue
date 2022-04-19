@@ -146,7 +146,7 @@ RSpec.describe Hyrax::API::ItemsController, type: :controller, skip: true do
   #     # TODO: This test belongs in the Actor test as an integration test.
   #     specify do
   #       pending 'move test to arkivo actor spec as integration test.'
-  #       expect(response).to be_success
+  #       expect(response).to be_successful
   #       expect(response.status).to eq 201
   #       expect(response.headers['Location']).to match %r{/api/items/.{9}}
   #       expect(deposited_file).not_to be_nil
@@ -175,7 +175,7 @@ RSpec.describe Hyrax::API::ItemsController, type: :controller, skip: true do
   #     let(:item) { FactoryBot.json(:post_item, token: token) }
   #
   #     it "is unathorized" do
-  #       expect(response).not_to be_success
+  #       expect(response).not_to be_successful
   #       expect(subject.status).to eq 401
   #       expect(subject.body).to include("invalid user token: #{token}")
   #     end
@@ -232,7 +232,7 @@ RSpec.describe Hyrax::API::ItemsController, type: :controller, skip: true do
   #     end
   #
   #     it "is forbidden" do
-  #       expect(subject).not_to be_success
+  #       expect(subject).not_to be_successful
   #       expect(subject.status).to eq 403
   #       expect(subject.body).to include("Forbidden: #{non_arkivo_gw} not deposited via Arkivo")
   #     end
@@ -265,7 +265,7 @@ RSpec.describe Hyrax::API::ItemsController, type: :controller, skip: true do
   #     end
   #
   #     it "is unauthorized" do
-  #       expect(subject).not_to be_success
+  #       expect(subject).not_to be_successful
   #       expect(assigns[:work]).to eq gw
   #       expect(subject.status).to eq 401
   #       expect(subject.body).to include("#{user} lacks access to #{gw}")
@@ -281,7 +281,7 @@ RSpec.describe Hyrax::API::ItemsController, type: :controller, skip: true do
   #     end
   #
   #     it "is unauthorized" do
-  #       expect(subject).not_to be_success
+  #       expect(subject).not_to be_successful
   #       expect(subject.status).to eq 401
   #       expect(subject.body).to include("invalid user token: #{bad_token}")
   #     end

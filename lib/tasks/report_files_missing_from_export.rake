@@ -20,8 +20,8 @@ module Deepblue
 
   class ReportFilesMissingFromExport < AbstractTask
 
-    DEFAULT_EXPORT_DIR = Pathname.new "/deepbluedata-tmp/2018_DBDv1"
-    DEFAULT_INPUT_CSV_FILE = "/deepbluedata-tmp/2018_DBDv1_baseline/20181019_works_report_file_sets.csv"
+    DEFAULT_EXPORT_DIR = Pathname.new "/deepbluedata-tmp/2018_DBDv1" unless const_defined? :DEFAULT_EXPORT_DIR
+    DEFAULT_INPUT_CSV_FILE = "/deepbluedata-tmp/2018_DBDv1_baseline/20181019_works_report_file_sets.csv" unless const_defined? :DEFAULT_INPUT_CSV_FILE
 
     attr_reader :input_csv_file, :export_dir
     attr_reader :work_ids_with_missing_files, :file_ids_missing

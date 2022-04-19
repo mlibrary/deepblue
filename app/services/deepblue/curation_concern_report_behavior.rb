@@ -4,16 +4,16 @@ module Deepblue
 
   module CurationConcernReportBehavior
 
-    DEFAULT_FILE_EXT_RE = Regexp.compile( '^.+\.([^\.]+)$' ).freeze
+    DEFAULT_FILE_EXT_RE = Regexp.compile( '^.+\.([^\.]+)$' ).freeze unless const_defined? :DEFAULT_FILE_EXT_RE
 
-    DEFAULT_REPORT_DIR = "."
-    DEFAULT_REPORT_FILE_PREFIX = nil
+    DEFAULT_REPORT_DIR = "." unless const_defined? :DEFAULT_REPORT_DIR
+    DEFAULT_REPORT_FILE_PREFIX = nil unless const_defined? :DEFAULT_REPORT_FILE_PREFIX
 
     VISIBILITY_KEYS = [ Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC,
                         Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_EMBARGO,
                         Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_LEASE,
                         Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_AUTHENTICATED,
-                        Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE ]
+                        Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE ] unless const_defined? :VISIBILITY_KEYS
 
     attr_accessor :file_ext_re
     attr_accessor :collections_file, :works_file, :file_sets_file

@@ -21,7 +21,7 @@ module Deepblue
 
     mattr_accessor :run_job_task_debug_verbose, default: ::Deepblue::JobTaskHelper.run_job_task_debug_verbose
 
-    DEFAULT_PERFORM_LATER = false
+    DEFAULT_PERFORM_LATER = false unless const_defined? :DEFAULT_PERFORM_LATER
 
     def initialize( options: {} )
       super( options: options )

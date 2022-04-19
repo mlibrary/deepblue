@@ -487,7 +487,7 @@ RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: false
 
     it "is successful" do
       get :edit, params: { id: collection }
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(assigns[:form]).to be_instance_of Hyrax::Forms::CollectionForm
       expect(flash[:notice]).to be_nil
     end
@@ -523,7 +523,7 @@ RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: false
 
     it 'shows a list of member files' do
       get :files, params: { id: collection }, format: :json
-      expect(response).to be_success
+      expect(response).to be_successful
     end
   end
 end

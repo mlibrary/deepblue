@@ -20,10 +20,10 @@ module Deepblue
   # rubocop:disable Rails/Output
   class NewContentService
 
-    mattr_accessor :new_content_service_debug_verbose
-    @@new_content_service_debug_verbose = ::Deepblue::IngestIntegrationService.new_content_service_debug_verbose
+    mattr_accessor :new_content_service_debug_verbose,
+                   default: ::Deepblue::IngestIntegrationService.new_content_service_debug_verbose
 
-    DEFAULT_DATA_SET_ADMIN_SET_NAME = Rails.configuration.data_set_admin_set_title
+    DEFAULT_DATA_SET_ADMIN_SET_NAME = Rails.configuration.data_set_admin_set_title unless const_defined? :DEFAULT_DATA_SET_ADMIN_SET_NAME
     DEFAULT_DIFF_ATTRS_SKIP = [ :creator_ordered,
                                 :curation_notes_admin_ordered, :curation_notes_user_ordered,
                                 :date_created, :date_modified,
@@ -31,7 +31,7 @@ module Deepblue
                                 :keyword_ordered, :language_ordered,
                                 :methodology_ordered,
                                 :referenced_by_ordered, :title_ordered,
-                                :visibility ].freeze
+                                :visibility ].freeze unless const_defined? :DEFAULT_DIFF_ATTRS_SKIP
     DEFAULT_DIFF_ATTRS_SKIP_IF_BLANK = [ :creator_ordered,
                                          :curation_notes_admin, :curation_notes_admin_ordered,
                                          :curation_notes_user, :curation_notes_user_ordered,
@@ -43,24 +43,24 @@ module Deepblue
                                          :keyword_ordered, :language_ordered,
                                          :methodology_ordered,
                                          :prior_identifier,
-                                         :referenced_by_ordered, :title_ordered ].freeze
+                                         :referenced_by_ordered, :title_ordered ].freeze unless const_defined? :DEFAULT_DIFF_ATTRS_SKIP_IF_BLANK
     DEFAULT_DIFF_USER_ATTRS_SKIP = [ :created_at,
                                      :current_sign_in_at, :current_sign_in_ip,
                                      :email, :encrypted_password,
                                      :id,
-                                     :updated_at ].freeze
-    DEFAULT_DIFF_COLLECTIONS_RECURSE = false
-    DEFAULT_EMAIL_AFTER = false
-    DEFAULT_EMAIL_AFTER_ADD_LOG_MSGS = true
-    DEFAULT_EMAIL_BEFORE = false
-    DEFAULT_EMAIL_EACH = false
-    DEFAULT_EMAIL_DEPOSITOR = false
-    DEFAULT_EMAIL_INGESTER = false
-    DEFAULT_EMAIL_OWNER = false
-    DEFAULT_EMAIL_REST = false
-    DEFAULT_EMAIL_TEST_MODE = false
-    DEFAULT_SKIP_ADDING_PRIOR_IDENTIFIER = true
-    DEFAULT_UPDATE_ADD_FILES = true
+                                     :updated_at ].freeze unless const_defined? :DEFAULT_DIFF_USER_ATTRS_SKIP
+    DEFAULT_DIFF_COLLECTIONS_RECURSE = false unless const_defined? :DEFAULT_DIFF_COLLECTIONS_RECURSE
+    DEFAULT_EMAIL_AFTER = false unless const_defined? :DEFAULT_EMAIL_AFTER
+    DEFAULT_EMAIL_AFTER_ADD_LOG_MSGS = true unless const_defined? :DEFAULT_EMAIL_AFTER_ADD_LOG_MSGS
+    DEFAULT_EMAIL_BEFORE = false unless const_defined? :DEFAULT_EMAIL_BEFORE
+    DEFAULT_EMAIL_EACH = false unless const_defined? :DEFAULT_EMAIL_EACH
+    DEFAULT_EMAIL_DEPOSITOR = false unless const_defined? :DEFAULT_EMAIL_DEPOSITOR
+    DEFAULT_EMAIL_INGESTER = false unless const_defined? :DEFAULT_EMAIL_INGESTER
+    DEFAULT_EMAIL_OWNER = false unless const_defined? :DEFAULT_EMAIL_OWNER
+    DEFAULT_EMAIL_REST = false unless const_defined? :DEFAULT_EMAIL_REST
+    DEFAULT_EMAIL_TEST_MODE = false unless const_defined? :DEFAULT_EMAIL_TEST_MODE
+    DEFAULT_SKIP_ADDING_PRIOR_IDENTIFIER = true unless const_defined? :DEFAULT_SKIP_ADDING_PRIOR_IDENTIFIER
+    DEFAULT_UPDATE_ADD_FILES = true unless const_defined? :DEFAULT_UPDATE_ADD_FILES
     DEFAULT_UPDATE_ATTRS_SKIP = [ :creator_ordered,
                                   :curation_notes_admin_ordered, :curation_notes_user_ordered,
                                   :date_created, :date_modified, :date_uploaded,
@@ -69,7 +69,7 @@ module Deepblue
                                   :keyword_ordered, :language_ordered,
                                   :original_name,
                                   :referenced_by_ordered, :title_ordered,
-                                  :visibility ].freeze
+                                  :visibility ].freeze unless const_defined? :DEFAULT_UPDATE_ATTRS_SKIP
     DEFAULT_UPDATE_ATTRS_SKIP_IF_BLANK = [ :creator_ordered, :curation_notes_admin, :curation_notes_admin_ordered,
                                            :curation_notes_user, :curation_notes_user_ordered,
                                            :checksum_algorithm, :checksum_value,
@@ -77,28 +77,28 @@ module Deepblue
                                            :fundedby_other, :keyword_ordered, :language_ordered,
                                            :methodology_ordered,
                                            :prior_identifier,
-                                           :referenced_by_ordered, :title_ordered ].freeze
-    DEFAULT_UPDATE_COLLECTIONS_RECURSE = false
-    DEFAULT_UPDATE_DELETE_FILES = true
+                                           :referenced_by_ordered, :title_ordered ].freeze unless const_defined? :DEFAULT_UPDATE_ATTRS_SKIP_IF_BLANK
+    DEFAULT_UPDATE_COLLECTIONS_RECURSE = false unless const_defined? :DEFAULT_UPDATE_COLLECTIONS_RECURSE
+    DEFAULT_UPDATE_DELETE_FILES = true unless const_defined? :DEFAULT_UPDATE_DELETE_FILES
     DEFAULT_UPDATE_USER_ATTRS_SKIP = [ :created_at,
                                        :current_sign_in_at, :current_sign_in_ip,
                                        :email, :encrypted_password,
                                        :id,
-                                       :updated_at ].freeze
-    DEFAULT_USER_CREATE = true
-    DEFAULT_VERBOSE = true
-    DIFF_DATES = false
-    DOI_MINT_NOW = 'mint_now'
-    MODE_APPEND = 'append'
-    MODE_BUILD = 'build'
-    MODE_DIFF = 'diff'
-    MODE_MIGRATE = 'migrate'
-    MODE_UPDATE = 'update'
-    # DEFAULT_UPDATE_BUILD_MODE = MODE_BUILD
-    DEFAULT_UPDATE_BUILD_MODE = MODE_MIGRATE
-    SOURCE_DBDv1 = 'DBDv1' # rubocop:disable Style/ConstantName
-    SOURCE_DBDv2 = 'DBDv2' # rubocop:disable Style/ConstantName
-    STOP_NEW_CONTENT_SERVICE_FILE_NAME = 'stop_umrdr_new_content'
+                                       :updated_at ].freeze unless const_defined? :DEFAULT_UPDATE_USER_ATTRS_SKIP
+    DEFAULT_USER_CREATE = true unless const_defined? :DEFAULT_USER_CREATE
+    DEFAULT_VERBOSE = true unless const_defined? :DEFAULT_VERBOSE
+    DIFF_DATES = false unless const_defined? :DIFF_DATES
+    DOI_MINT_NOW = 'mint_now' unless const_defined? :DOI_MINT_NOW
+    MODE_APPEND = 'append' unless const_defined? :MODE_APPEND
+    MODE_BUILD = 'build' unless const_defined? :MODE_BUILD
+    MODE_DIFF = 'diff' unless const_defined? :MODE_DIFF
+    MODE_MIGRATE = 'migrate' unless const_defined? :MODE_MIGRATE
+    MODE_UPDATE = 'update' unless const_defined? :MODE_UPDATE
+    # DEFAULT_UPDATE_BUILD_MODE = MODE_BUILD unless const_defined? :DEFAULT_UPDATE_BUILD_MODE
+    DEFAULT_UPDATE_BUILD_MODE = MODE_MIGRATE unless const_defined? :DEFAULT_UPDATE_BUILD_MODE
+    SOURCE_DBDv1 = 'DBDv1' unless const_defined? :SOURCE_DBDv1 # rubocop:disable Style/ConstantName
+    SOURCE_DBDv2 = 'DBDv2' unless const_defined? :SOURCE_DBDv2 # rubocop:disable Style/ConstantName
+    STOP_NEW_CONTENT_SERVICE_FILE_NAME = 'stop_umrdr_new_content' unless const_defined? :STOP_NEW_CONTENT_SERVICE_FILE_NAME
 
     class RestrictedVocabularyError < RuntimeError
     end

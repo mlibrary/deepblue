@@ -178,7 +178,7 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
                                                                   url_helpers.hyrax_file_set_path(file_set, locale: 'en'))
             get :edit, params: { id: file_set }
 
-            expect(response).to be_success
+            expect(response).to be_successful
             expect(assigns[:file_set]).to eq file_set
             expect(assigns[:version_list]).to be_kind_of Hyrax::VersionListPresenter
             expect(assigns[:parent]).to eq parent

@@ -357,6 +357,7 @@ RSpec.describe FileSet do
       before do
         class AltFile < ActiveFedora::Base
           include Hyrax::FileSetBehavior
+          # include ::Hyrax::Works::FileSetBehavior # hyrax v3 update
         end
       end
       after do

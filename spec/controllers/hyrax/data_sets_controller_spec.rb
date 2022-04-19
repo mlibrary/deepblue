@@ -213,7 +213,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     context 'my work' do
       it 'shows me the page' do
         get :new
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(assigns[:form]).to be_kind_of Hyrax::DataSetForm
         expect(assigns[:form].depositor).to eq user.user_key
         expect(assigns[:curation_concern]).to be_kind_of DataSet
@@ -377,7 +377,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
         # expect(controller).to receive(:add_breadcrumb).with('Edit', main_app.edit_hyrax_data_set_path(work.id))
 
         get :edit, params: { id: work }
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(assigns[:form]).to be_kind_of Hyrax::DataSetForm
         expect(response).to render_template("layouts/hyrax/dashboard")
       end
@@ -414,7 +414,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
         # puts
         get :edit, params: { id: work }
         # expect(response.code).to eq '401'
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(flash[:notice]).not_to eq 'The work is not currently available because it has not yet completed the approval process'
       end
     end
@@ -425,7 +425,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
 
       it 'someone elses private work should show me the page' do
         get :edit, params: { id: work }
-        expect(response).to be_success
+        expect(response).to be_successful
       end
     end
   end
@@ -481,7 +481,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
 
           it 'shows me the page' do
             get :show, params: { id: work }
-            expect(response).to be_success
+            expect(response).to be_successful
             expect(assigns(:presenter)).to be_kind_of Hyrax::WorkShowPresenter
           end
 
@@ -519,7 +519,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
 
             it "sets the parent presenter" do
               get :show, params: { id: work, parent_id: parent }
-              expect(response).to be_success
+              expect(response).to be_successful
               expect(assigns[:parent_presenter]).to be_instance_of Hyrax::DataSetPresenter
             end
           end
@@ -558,7 +558,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
             it 'shows me the page' do
               expect(controller). to receive(:additional_response_formats).with(ActionController::MimeResponds::Collector)
               get :show, params: { id: work }
-              expect(response).to be_success
+              expect(response).to be_successful
             end
           end
 
@@ -588,7 +588,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
 
           it 'someone elses private work should show me the page' do
             get :show, params: { id: work }
-            expect(response).to be_success
+            expect(response).to be_successful
           end
         end
 
@@ -762,7 +762,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
 
     it "is successful" do
       get :file_manager, params: { id: work.id }
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(assigns(:form)).not_to be_blank
     end
 
