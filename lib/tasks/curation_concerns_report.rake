@@ -20,7 +20,7 @@ module Deepblue
 
   class CurationConcernsReport < CurationConcernReportTask
 
-    DEFAULT_IDS = ''
+    DEFAULT_IDS = '' unless const_defined? :DEFAULT_IDS
 
     attr_accessor :ids
 

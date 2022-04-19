@@ -25,7 +25,7 @@ RSpec.describe Hyrax::EmbargoesController, skip: false do
         expect(controller).to receive(:add_breadcrumb).with('Dashboard', dashboard_path)
         expect(controller).to receive(:add_breadcrumb).with('Manage Embargoes', embargoes_path)
         get :index
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(response).to render_template('dashboard')
       end
     end
@@ -46,7 +46,7 @@ RSpec.describe Hyrax::EmbargoesController, skip: false do
         expect(controller).to receive(:add_breadcrumb).with('Manage Embargoes', embargoes_path)
         expect(controller).to receive(:add_breadcrumb).with('Update Embargo', '#')
         get :edit, params: { id: a_work }
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(response).to render_template('dashboard')
       end
     end

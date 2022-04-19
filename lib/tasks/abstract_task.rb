@@ -10,9 +10,8 @@ module Deepblue
   # rubocop:disable Rails/Output
   class AbstractTask
 
-    DEFAULT_TO_CONSOLE = true
-
-    DEFAULT_VERBOSE = false
+    DEFAULT_TO_CONSOLE = true unless const_defined? :DEFAULT_TO_CONSOLE
+    DEFAULT_VERBOSE = false unless const_defined? :DEFAULT_VERBOSE
 
     attr_accessor :msg_queue
     attr_reader :options

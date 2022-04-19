@@ -77,43 +77,43 @@ module Deepblue
     class ParseError < RuntimeError
     end
 
-    RE_VISIBILITY = '(open|restricted)'
+    RE_VISIBILITY = '(open|restricted)' unless const_defined? :RE_VISIBILITY
 
-    RE_ADMIN_SET_ID = 'admin set id: (.*)'
-    RE_BY_CREATORS = 'by (.+)'
-    RE_BY_PLUS_CREATORS = 'by \+ (.+)'
-    RE_CONTENT_TYPE = 'content type: (.*)'
-    RE_DESCRIPTION = 'description: (.*)'
-    RE_EMAIL = '((?:[a-zA-Z0-9_\-\.]+)@(?:[a-zA-Z0-9_\-\.]+)\.(?:[a-zA-Z]{2,5}))'
-    RE_ID = 'id: ([a-z0-9]+)'
-    RE_ID2 = '([a-z0-9]+)'
-    RE_LINK_GENERIC_WORK = '\(https?:\/\/deepblue\.lib\.umich\.edu\/data\/concern\/generic_works\/([a-z0-9]+)(?:\?locale=en)?\)'
-    RE_METHODOLOGY = 'methodology: (.*)'
-    RE_ON = 'on: (\d\d\d\d\-.*)'
-    RE_ORIGINAL_NAME = 'original name: (.*)'
-    RE_PARENT_ID = 'parent[ _]id: ([a-z0-9]+)'
-    RE_PUBLISHER = 'publisher: (.*)'
-    RE_REST = '(.*)'
-    RE_RIGHTS = 'rights: (.*)'
-    RE_SIZE = '(\d*)'
-    RE_START_DATE = '(\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d)'
-    RE_SUBJECT = 'subject: (.*)'
-    RE_TITLE = 'title: (.*)'
-    RE_TITLE_FIRST = '(.+)'
-    RE_TOTAL_SIZE = 'total size: (\d*)'
-    RE_VALUE = '([^:,]*)'
-    RE_WITH_ACCESS = "with #{RE_VISIBILITY} access"
+    RE_ADMIN_SET_ID = 'admin set id: (.*)' unless const_defined? :RE_ADMIN_SET_ID
+    RE_BY_CREATORS = 'by (.+)' unless const_defined? :RE_BY_CREATORS
+    RE_BY_PLUS_CREATORS = 'by \+ (.+)' unless const_defined? :RE_BY_PLUS_CREATORS
+    RE_CONTENT_TYPE = 'content type: (.*)' unless const_defined? :RE_CONTENT_TYPE
+    RE_DESCRIPTION = 'description: (.*)' unless const_defined? :RE_DESCRIPTION
+    RE_EMAIL = '((?:[a-zA-Z0-9_\-\.]+)@(?:[a-zA-Z0-9_\-\.]+)\.(?:[a-zA-Z]{2,5}))' unless const_defined? :RE_EMAIL
+    RE_ID = 'id: ([a-z0-9]+)' unless const_defined? :RE_ID
+    RE_ID2 = '([a-z0-9]+)' unless const_defined? :RE_ID2
+    RE_LINK_GENERIC_WORK = '\(https?:\/\/deepblue\.lib\.umich\.edu\/data\/concern\/generic_works\/([a-z0-9]+)(?:\?locale=en)?\)' unless const_defined? :RE_LINK_GENERIC_WORK
+    RE_METHODOLOGY = 'methodology: (.*)' unless const_defined? :RE_METHODOLOGY
+    RE_ON = 'on: (\d\d\d\d\-.*)' unless const_defined? :RE_ON
+    RE_ORIGINAL_NAME = 'original name: (.*)' unless const_defined? :RE_ORIGINAL_NAME
+    RE_PARENT_ID = 'parent[ _]id: ([a-z0-9]+)' unless const_defined? :RE_PARENT_ID
+    RE_PUBLISHER = 'publisher: (.*)' unless const_defined? :RE_PUBLISHER
+    RE_REST = '(.*)' unless const_defined? :RE_REST
+    RE_RIGHTS = 'rights: (.*)' unless const_defined? :RE_RIGHTS
+    RE_SIZE = '(\d*)' unless const_defined? :RE_SIZE
+    RE_START_DATE = '(\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d)' unless const_defined? :RE_START_DATE
+    RE_SUBJECT = 'subject: (.*)' unless const_defined? :RE_SUBJECT
+    RE_TITLE = 'title: (.*)' unless const_defined? :RE_TITLE
+    RE_TITLE_FIRST = '(.+)' unless const_defined? :RE_TITLE_FIRST
+    RE_TOTAL_SIZE = 'total size: (\d*)' unless const_defined? :RE_TOTAL_SIZE
+    RE_VALUE = '([^:,]*)' unless const_defined? :RE_VALUE
+    RE_WITH_ACCESS = "with #{RE_VISIBILITY} access" unless const_defined? :RE_WITH_ACCESS
 
-    RE_DISCARD_DOI_CANNOT_BE_MINTED = 'DOI cannot be minted for a work without files.'
-    RE_DISCARD_OPEN_TO_OPEN_ACCESS = ".+#{RE_LINK_GENERIC_WORK} #{RE_BY_PLUS_CREATORS} with open access was previously deposited by #{RE_EMAIL}, was updated to open access"
-    RE_DISCARD_GLOBUS_CLEAN = ".+#{RE_LINK_GENERIC_WORK} #{RE_BY_PLUS_CREATORS} with #{RE_VISIBILITY} cleaned Globus directories"
+    RE_DISCARD_DOI_CANNOT_BE_MINTED = 'DOI cannot be minted for a work without files.' unless const_defined? :RE_DISCARD_DOI_CANNOT_BE_MINTED
+    RE_DISCARD_OPEN_TO_OPEN_ACCESS = ".+#{RE_LINK_GENERIC_WORK} #{RE_BY_PLUS_CREATORS} with open access was previously deposited by #{RE_EMAIL}, was updated to open access" unless const_defined? :RE_DISCARD_OPEN_TO_OPEN_ACCESS
+    RE_DISCARD_GLOBUS_CLEAN = ".+#{RE_LINK_GENERIC_WORK} #{RE_BY_PLUS_CREATORS} with #{RE_VISIBILITY} cleaned Globus directories" unless const_defined? :RE_DISCARD_GLOBUS_CLEAN
 
-    SPLITTER_TICK_COMMA_TICK = "','"
-    SPLITTER_NEWLINES = "\\n\\n"
-    SPLITTER_SEMICOLON_SPACE = '; '
-    SPLITTER_CREATOR = [ SPLITTER_TICK_COMMA_TICK, SPLITTER_SEMICOLON_SPACE ].freeze
-    SPLITTER_SUBJECT = [ SPLITTER_TICK_COMMA_TICK, SPLITTER_SEMICOLON_SPACE ].freeze
-    SPLITTER_TITLE = [ SPLITTER_TICK_COMMA_TICK, SPLITTER_SEMICOLON_SPACE ].freeze
+    SPLITTER_TICK_COMMA_TICK = "','" unless const_defined? :SPLITTER_TICK_COMMA_TICK
+    SPLITTER_NEWLINES = "\\n\\n" unless const_defined? :SPLITTER_NEWLINES
+    SPLITTER_SEMICOLON_SPACE = '; ' unless const_defined? :SPLITTER_SEMICOLON_SPACE
+    SPLITTER_CREATOR = [ SPLITTER_TICK_COMMA_TICK, SPLITTER_SEMICOLON_SPACE ].freeze unless const_defined? :SPLITTER_CREATOR
+    SPLITTER_SUBJECT = [ SPLITTER_TICK_COMMA_TICK, SPLITTER_SEMICOLON_SPACE ].freeze unless const_defined? :SPLITTER_SUBJECT
+    SPLITTER_TITLE = [ SPLITTER_TICK_COMMA_TICK, SPLITTER_SEMICOLON_SPACE ].freeze unless const_defined? :SPLITTER_TITLE
 
     def initialize( input_file:, output_file:, report_file:, output_mode: "w" )
       @input_file = input_file

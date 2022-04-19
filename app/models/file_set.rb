@@ -6,6 +6,7 @@ class FileSet < ActiveFedora::Base
 
   include ::Deepblue::FileSetMetadata # must be before `include ::Hyrax::FileSetBehavior`
   include ::Hyrax::FileSetBehavior
+  # include ::Hyrax::Works::FileSetBehavior # hyrax v3 update
   include ::Deepblue::FileSetBehavior
   include ::Deepblue::MetadataBehavior
   include ::Deepblue::ProvenanceBehavior

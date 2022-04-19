@@ -8,13 +8,13 @@ module Deepblue
   # rubocop:disable Metrics/ParameterLists
   class EmailLogReporter < LogReporter
 
-    DEFAULT_REPORT_DAYS = true
-    DEFAULT_REPORT_DAYS_NUM = 7
+    DEFAULT_REPORT_DAYS = true unless const_defined? :DEFAULT_REPORT_DAYS
+    DEFAULT_REPORT_DAYS_NUM = 7 unless const_defined? :DEFAULT_REPORT_DAYS_NUM
 
-    DEFAULT_REPORT_TAIL = false
-    DEFAULT_REPORT_TAIL_NUM = 10
+    DEFAULT_REPORT_TAIL = false unless const_defined? :DEFAULT_REPORT_TAIL
+    DEFAULT_REPORT_TAIL_NUM = 10 unless const_defined? :DEFAULT_REPORT_TAIL_NUM
 
-    DEFAULT_REPORT_NUM = -1
+    DEFAULT_REPORT_NUM = -1 unless const_defined? :DEFAULT_REPORT_NUM
 
     attr_reader :line_count, :num, :report_days, :report_days_num, :report_tail, :report_tail_num
 

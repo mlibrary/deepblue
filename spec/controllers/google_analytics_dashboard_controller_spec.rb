@@ -26,11 +26,11 @@ RSpec.describe GoogleAnalyticsDashboardController do
       end
       it "is successful get" do
         get :show, params: {}
-        expect(response).to be_success
+        expect(response).to be_successful
       end
       it "is successful put" do
         put :show, params: {}
-        expect(response).to be_success
+        expect(response).to be_successful
       end
     end
 
@@ -40,11 +40,11 @@ RSpec.describe GoogleAnalyticsDashboardController do
       end
       it "is successful get" do
         get :show, params: {}
-        expect(response).to be_success
+        expect(response).to be_successful
       end
       it "is successful put" do
         put :show, params: {}
-        expect(response).to be_success
+        expect(response).to be_successful
       end
       # it "is unauthorized get" do
       #   get :show, params: {}

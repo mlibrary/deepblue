@@ -31,11 +31,11 @@ RSpec.describe JobStatusesController do
       end
       it "is successful get" do
         get :index, params: {}
-        expect(response).to be_success
+        expect(response).to be_successful
       end
       it "is successful put" do
         put :index, params: {}
-        expect(response).to be_success
+        expect(response).to be_successful
       end
     end
 

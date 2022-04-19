@@ -8,27 +8,27 @@ module Deepblue
 
   class ExportImportCmdGenerator < AbstractTask
 
-    DEFAULT_CMD_MODE = 'export'
-    DEFAULT_EXPORT_FILES = true
-    DEFAULT_IMPORT_OPTIONS = "-w -d -v"
-    DEFAULT_INPUT_DIR = "/deepbluedata-prep"
-    DEFAULT_INPUT_CSV_FILE = "#{DEFAULT_INPUT_DIR}/reports/works_report_works_sorted.csv"
-    DEFAULT_INPUT_CSV_FILE_HAS_HEADER = true
-    DEFAULT_MAX_ID_COUNT = 20
-    DEFAULT_MAX_FILE_COUNT = 400
-    DEFAULT_MAX_FILE_SIZE = 1024 * 1024 * 1024 * 100 # 100 GB
-    DEFAULT_MODE = "migrate"
-    DEFAULT_NOHUP_ALLOWED = true
-    DEFAULT_NOHUP_FILE_COUNT = DEFAULT_MAX_FILE_COUNT / 2
-    DEFAULT_NOHUP_FILE_SIZE = DEFAULT_MAX_FILE_SIZE / 2
-    DEFAULT_OUTPUT_DIR = "/deepbluedata-prep/tmp"
-    DEFAULT_RAKE_TASK = "yaml_populate_from_multiple_works"
-    DEFAULT_SHELL_TASK = "migrate"
-    DEFAULT_TARGET_SCRIPT_DIR = "#{DEFAULT_OUTPUT_DIR}/scripts/"
+    DEFAULT_CMD_MODE = 'export' unless const_defined? :DEFAULT_CMD_MODE
+    DEFAULT_EXPORT_FILES = true unless const_defined? :DEFAULT_EXPORT_FILES
+    DEFAULT_IMPORT_OPTIONS = "-w -d -v" unless const_defined? :DEFAULT_IMPORT_OPTIONS
+    DEFAULT_INPUT_DIR = "/deepbluedata-prep" unless const_defined? :DEFAULT_INPUT_DIR
+    DEFAULT_INPUT_CSV_FILE = "#{DEFAULT_INPUT_DIR}/reports/works_report_works_sorted.csv" unless const_defined? :DEFAULT_INPUT_CSV_FILE
+    DEFAULT_INPUT_CSV_FILE_HAS_HEADER = true unless const_defined? :DEFAULT_INPUT_CSV_FILE_HAS_HEADER
+    DEFAULT_MAX_ID_COUNT = 20 unless const_defined? :DEFAULT_MAX_ID_COUNT
+    DEFAULT_MAX_FILE_COUNT = 400 unless const_defined? :DEFAULT_MAX_FILE_COUNT
+    DEFAULT_MAX_FILE_SIZE = 1024 * 1024 * 1024 * 100 unless const_defined? :DEFAULT_MAX_FILE_SIZE # 100 GB
+    DEFAULT_MODE = "migrate" unless const_defined? :DEFAULT_MODE
+    DEFAULT_NOHUP_ALLOWED = true unless const_defined? :DEFAULT_NOHUP_ALLOWED
+    DEFAULT_NOHUP_FILE_COUNT = DEFAULT_MAX_FILE_COUNT / 2 unless const_defined? :DEFAULT_NOHUP_FILE_COUNT
+    DEFAULT_NOHUP_FILE_SIZE = DEFAULT_MAX_FILE_SIZE / 2 unless const_defined? :DEFAULT_NOHUP_FILE_SIZE
+    DEFAULT_OUTPUT_DIR = "/deepbluedata-prep/tmp" unless const_defined? :DEFAULT_OUTPUT_DIR
+    DEFAULT_RAKE_TASK = "yaml_populate_from_multiple_works" unless const_defined? :DEFAULT_RAKE_TASK
+    DEFAULT_SHELL_TASK = "migrate" unless const_defined? :DEFAULT_SHELL_TASK
+    DEFAULT_TARGET_SCRIPT_DIR = "#{DEFAULT_OUTPUT_DIR}/scripts/" unless const_defined? :DEFAULT_TARGET_SCRIPT_DIR
 
-    DEFAULT_CSV_ROW_INDEX_ID = 0
-    DEFAULT_CSV_ROW_INDEX_FILE_COUNT = 6
-    DEFAULT_CSV_ROW_INDEX_FILE_SIZE = 7
+    DEFAULT_CSV_ROW_INDEX_ID = 0 unless const_defined? :DEFAULT_CSV_ROW_INDEX_ID
+    DEFAULT_CSV_ROW_INDEX_FILE_COUNT = 6 unless const_defined? :DEFAULT_CSV_ROW_INDEX_FILE_COUNT
+    DEFAULT_CSV_ROW_INDEX_FILE_SIZE = 7 unless const_defined? :DEFAULT_CSV_ROW_INDEX_FILE_SIZE
 
     attr_accessor :input_dir, :output_dir, :input_csv_file, :input_csv_file_has_header
     attr_accessor :target_script_dir, :rake_task, :shell_task, :tstr

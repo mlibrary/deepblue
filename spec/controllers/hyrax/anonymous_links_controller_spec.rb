@@ -61,7 +61,7 @@ RSpec.describe Hyrax::AnonymousLinksController, type: :controller, skip: false d
           describe "creating a anonymous download link" do
             it "returns a link for downloading" do
               post 'create_anonymous_download', params: { id: file }
-              expect(response).to be_success
+              expect(response).to be_successful
               expect(response.body).to eq main_app.download_anonymous_link_url(hash, host: request.host, locale: 'en')
             end
           end
@@ -69,7 +69,7 @@ RSpec.describe Hyrax::AnonymousLinksController, type: :controller, skip: false d
           describe "creating a anonymous show link", skip: false do
             it "returns a link for showing" do
               post 'create_anonymous_show', params: { id: file }
-              expect(response).to be_success
+              expect(response).to be_successful
               expect(response.body).to eq main_app.show_anonymous_link_url(hash, host: request.host, locale: 'en')
             end
           end
@@ -81,7 +81,7 @@ RSpec.describe Hyrax::AnonymousLinksController, type: :controller, skip: false d
             before { get :index, params: { id: file } }
             subject { response }
 
-            it { is_expected.to be_success }
+            it { is_expected.to be_successful }
           end
         end
 
@@ -91,7 +91,7 @@ RSpec.describe Hyrax::AnonymousLinksController, type: :controller, skip: false d
 
           it "deletes the link" do
             expect { delete :destroy, params: { id: file, link_id: link } }.to change { AnonymousLink.count }.by(-1)
-            expect(response).to be_success
+            expect(response).to be_successful
           end
         end
       end
@@ -123,7 +123,7 @@ RSpec.describe Hyrax::AnonymousLinksController, type: :controller, skip: false d
         describe 'creating a anonymous download link' do
           before { post 'create_anonymous_download', params: { id: file } }
           it 'fails' do
-            is_expected.not_to be_success
+            is_expected.not_to be_successful
             expect(response).to redirect_to(root_path)
             expect(flash[:alert]).to eq I18n.t('hyrax.anonymous_links.alert.insufficient_privileges')
           end
@@ -132,7 +132,7 @@ RSpec.describe Hyrax::AnonymousLinksController, type: :controller, skip: false d
         describe 'creating a anonymous show link' do
           before { post 'create_anonymous_show', params: { id: file } }
           it 'fails' do
-            is_expected.not_to be_success
+            is_expected.not_to be_successful
             expect(response).to redirect_to(root_path)
             expect(flash[:alert]).to eq I18n.t('hyrax.anonymous_links.alert.insufficient_privileges')
           end
@@ -141,7 +141,7 @@ RSpec.describe Hyrax::AnonymousLinksController, type: :controller, skip: false d
         describe 'viewing existing links' do
           before { get :index, params: { id: file } }
           it 'fails' do
-            is_expected.not_to be_success
+            is_expected.not_to be_successful
             expect(response).to redirect_to(root_path)
             expect(flash[:alert]).to eq I18n.t('hyrax.anonymous_links.alert.insufficient_privileges')
           end

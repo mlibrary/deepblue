@@ -31,7 +31,7 @@ RSpec.describe Hyrax::Admin::FeaturesController, skip: false do
         expect(controller).to receive(:add_breadcrumb).with('Configuration', '#')
         expect(controller).to receive(:add_breadcrumb).with('Features', admin_features_path)
         get :index
-        expect(response).to be_success
+        expect(response).to be_successful
       end
     end
   end

@@ -277,13 +277,13 @@ RSpec.describe Hyrax::StaticController, type: :controller do
       context do
         it "renders page" do
           get "mendeley"
-          expect(response).to be_success
+          expect(response).to be_successful
           expect(response).to render_template "layouts/homepage"
           ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
         end
         it "renders no layout with javascript" do
           get :mendeley, xhr: true
-          expect(response).to be_success
+          expect(response).to be_successful
           expect(response).not_to render_template "layouts/homepage"
           ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
         end
@@ -308,13 +308,13 @@ RSpec.describe Hyrax::StaticController, type: :controller do
       context do
         it "renders page" do
           get "zotero"
-          expect(response).to be_success
+          expect(response).to be_successful
           expect(response).to render_template "layouts/homepage"
           ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
         end
         it "renders no layout with javascript" do
           get :zotero, xhr: true
-          expect(response).to be_success
+          expect(response).to be_successful
           expect(response).not_to render_template "layouts/homepage"
           ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
         end

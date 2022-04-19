@@ -16,6 +16,15 @@ module Deepblue
         self.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC if new_record?
       end
 
+      # upgrade to hyrax v3 needs the following for tests to run.
+      # TODO: figure out why. Perhaps the path to default metadata has changed.
+      # TODO: visit presenters as necessary to support these additions
+      # property :alternative_title, predicate: ::RDF::Vocab::DC.alternative # add for hyrax v3
+      # property :abstract, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/abstract") # add for hyrax v3, note the predicate is a clash with the other predicate
+      # property :rights_notes, predicate: ::RDF::URI.new('http://purl.org/dc/elements/1.1/rights'), multiple: true # add for hyrax v3
+      # property :access_right, predicate: ::RDF::Vocab::DC.accessRights # add for hyrax v3
+      # end of hyrax v3 mode
+
       property :additional_information, predicate: ::RDF::Vocab::DC.description do |index|
         index.as :stored_searchable
       end

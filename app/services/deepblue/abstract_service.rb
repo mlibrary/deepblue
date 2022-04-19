@@ -7,9 +7,9 @@ module Deepblue
   # rubocop:disable Rails/Output
   class AbstractService
 
-    DEFAULT_QUIET = false
-    DEFAULT_TO_CONSOLE = false
-    DEFAULT_VERBOSE = false
+    DEFAULT_QUIET = false unless const_defined? :DEFAULT_QUIET
+    DEFAULT_TO_CONSOLE = false unless const_defined? :DEFAULT_TO_CONSOLE
+    DEFAULT_VERBOSE = false unless const_defined? :DEFAULT_VERBOSE
 
     attr_reader :options
 

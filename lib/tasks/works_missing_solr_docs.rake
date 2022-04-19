@@ -19,9 +19,9 @@ module Deepblue
 
   class WorksMissingSolrdocs < MissingSolrdocs
 
-    DEFAULT_REPORT_MISSING_FILES = false
-    DEFAULT_REPORT_MISSING_OTHER = false
-    DEFAULT_USER_PACIFIER = false
+    DEFAULT_REPORT_MISSING_FILES = false unless const_defined? :DEFAULT_REPORT_MISSING_FILES
+    DEFAULT_REPORT_MISSING_OTHER = false unless const_defined? :DEFAULT_REPORT_MISSING_OTHER
+    DEFAULT_USER_PACIFIER = false unless const_defined? :DEFAULT_USER_PACIFIER
 
     attr_accessor :report_missing_files, :report_missing_other, :user_pacifier
 
