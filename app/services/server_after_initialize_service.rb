@@ -39,10 +39,14 @@ class ServerAfterInitializeService
     config.i18n_backend = I18n.backend
     puts I18n.backend if debug_verbose
     # note that the debug statements in load_email_templates will not go to the log when called from here
-    ::Deepblue::WorkViewContentService.load_email_templates( debug_verbose: debug_verbose_work_view_conent_service )
-    ::Deepblue::WorkViewContentService.load_i18n_templates( debug_verbose: debug_verbose_work_view_conent_service )
-    ::Deepblue::WorkViewContentService.load_view_templates( debug_verbose: debug_verbose_work_view_conent_service )
-    puts "Finished after i18n and view templates load." if debug_verbose
+    #
+    # can skip the loads as the ThreadedVarService has taken this over
+    # ::Deepblue::WorkViewContentService.load_email_templates( debug_verbose: debug_verbose_work_view_conent_service )
+    # ::Deepblue::WorkViewContentService.load_i18n_templates( debug_verbose: debug_verbose_work_view_conent_service )
+    # ::Deepblue::WorkViewContentService.load_view_templates( debug_verbose: debug_verbose_work_view_conent_service )
+    ::Deepblue::ThreadedVarService.initialize_cached_threaded_var_semaphores
+    ::Deepblue::ThreadedVarService.threaded_var_autoload( debug_verbose: debug_verbose_work_view_conent_service )
+    puts "Finished threaded var loading." if debug_verbose
 
     require 'bolognese' # support for hyrax-doi minting
     Bolognese::Metadata.prepend Bolognese::Readers::HyraxWorkReader

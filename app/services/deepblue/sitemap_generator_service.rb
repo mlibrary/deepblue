@@ -12,7 +12,7 @@ module Deepblue
       DataSet.all.each do |work|
         next unless work.published?  
         next unless work.embargo_release_date.nil?
-        if !work.embargo_release_date.nil?
+        unless work.embargo_release_date.nil?
           next if work.embargo_release_date <= Date.today
         end
 
