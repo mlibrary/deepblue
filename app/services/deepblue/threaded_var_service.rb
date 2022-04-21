@@ -4,7 +4,7 @@ module Deepblue
 
   module ThreadedVarService
 
-    mattr_accessor :threaded_var_service_debug_verbose, default: true
+    mattr_accessor :threaded_var_service_debug_verbose, default: false
 
     mattr_accessor :threaded_var_service_autoload, default: true
 
