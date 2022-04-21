@@ -7,9 +7,16 @@ module Hyrax
     class AttributeRenderer
       # TODO: add support for multiple work_types in options
 
+      mattr_accessor :attribute_renderer_debug_verbose, default: false
 
       # Draw the dt row for the attribute
       def render_dt_row
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "field=#{field}",
+                                               "values=#{values}",
+                                               "options=#{options}",
+                                               "" ] if attribute_renderer_debug_verbose
         markup = ''
         return markup if values.blank? && !options[:include_empty]
         markup << %(<dt>#{label}</dt>\n<dd>)

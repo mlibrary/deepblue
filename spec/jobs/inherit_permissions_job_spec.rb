@@ -12,7 +12,7 @@ RSpec.describe InheritPermissionsJob, skip: true do
 
 
   describe 'all', skip: false do
-    RSpec.shared_examples 'shared all' do |dbg_verbose|
+    RSpec.shared_examples 'shared InheritPermissionsJob' do |dbg_verbose|
       subject { described_class }
       before do
         described_class.inherit_permissions_job_debug_verbose = dbg_verbose
@@ -118,8 +118,8 @@ RSpec.describe InheritPermissionsJob, skip: true do
         end
       end
     end
-    it_behaves_like 'shared all', false
-    it_behaves_like 'shared all', true
+    it_behaves_like 'shared InheritPermissionsJob', false
+    it_behaves_like 'shared InheritPermissionsJob', true
   end
 
 end

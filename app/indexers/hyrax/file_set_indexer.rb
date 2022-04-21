@@ -32,7 +32,9 @@ module Hyrax
         solr_doc['file_title_tesim']        = object.file_title
         solr_doc['duration_tesim']          = object.duration
         solr_doc['sample_rate_tesim']       = object.sample_rate
-        solr_doc['original_checksum_tesim'] = object.original_checksum
+        # solr_doc['original_checksum_tesim'] = object.original_checksum
+        solr_doc['checksum_value_tesim'] = object.checksum_value
+        solr_doc['checksum_algorithm_tesim'] = object.checksum_algorithm
       end
     end
 

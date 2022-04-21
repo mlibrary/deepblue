@@ -6,11 +6,11 @@ module Deepblue
 
   class AbstractLogTask < AbstractTask
 
-    DEFAULT_BEGIN = ''
-    DEFAULT_END = ''
-    DEFAULT_FORMAT = ''
-    DEFAULT_INPUT = './log/provenance_production.log'
-    DEFAULT_OUTPUT = ''
+    DEFAULT_BEGIN = '' unless const_defined? :DEFAULT_BEGIN
+    DEFAULT_END = '' unless const_defined? :DEFAULT_END
+    DEFAULT_FORMAT = '' unless const_defined? :DEFAULT_FORMAT
+    DEFAULT_INPUT = './log/provenance_production.log' unless const_defined? :DEFAULT_INPUT
+    DEFAULT_OUTPUT = '' unless const_defined? :DEFAULT_OUTPUT
 
     attr_accessor :input, :options_to_pass, :output
 

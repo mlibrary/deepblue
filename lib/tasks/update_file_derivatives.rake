@@ -116,7 +116,7 @@ module Deepblue
       # see characterization_helper.rb - CharacterizationHelper.characterize
       return unless no_original_checksum? file_set
       file_ext = File.extname file_set.label
-      if DeepBlueDocs::Application.config.characterize_excluded_ext_set.key? file_ext
+      if Rails.configuration.characterize_excluded_ext_set.key? file_ext
         pacify "<!#{file_ext}>"
         return
       end
@@ -159,7 +159,7 @@ module Deepblue
     def create_derivatives_fs( file_set )
       # see characterization_helper.rb - CharacterizationHelper.create_derivatives
       file_ext = File.extname file_set.label
-      if DeepBlueDocs::Application.config.derivative_excluded_ext_set.key? file_ext
+      if Rails.configuration.derivative_excluded_ext_set.key? file_ext
         pacify "<!#{file_ext}>"
         return
       end

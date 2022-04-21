@@ -37,7 +37,7 @@ module Hyrax
           :filename,
           :well_formed,
           :last_modified,
-          :original_checksum, # TODO: revisit this...
+          # :original_checksum, # TODO: revisit this...
           :mime_type
         ]
       end

@@ -25,7 +25,7 @@ RSpec.describe ::Deepblue::DoiMintingService do
   end
 
   describe 'all', skip: false do
-    RSpec.shared_examples 'shared all' do |dbg_verbose,service_enabled,email_user|
+    RSpec.shared_examples 'shared ::Deepblue::DoiMintingService' do |dbg_verbose,service_enabled,email_user|
       subject { described_class }
       before do
         described_class.doi_minting_service_debug_verbose = dbg_verbose
@@ -172,21 +172,21 @@ RSpec.describe ::Deepblue::DoiMintingService do
                                    creator: ['Smith, John', 'Smith, Jane', 'O\'Rielly, Kelly'])}
           let( :current_user ) { "test_doi_minting_service@umich.edu" }
           it "mints a doi" do
+            ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
             skip unless ENV['INTEGRATION']
             expect( described_class. mint_doi_for( curation_concern: work,
                                                    current_user: current_user,
                                                    target_url: work_url ) ).to start_with 'doi:10.5072/FK2'
-            ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
           end
         end
       end
     end
-    it_behaves_like 'shared all', false,false,false
-    it_behaves_like 'shared all', false,true,false
-    it_behaves_like 'shared all', false,true,true
-    it_behaves_like 'shared all', true,false,false
-    it_behaves_like 'shared all', true,true,false
-    it_behaves_like 'shared all', true,true,true
+    it_behaves_like 'shared ::Deepblue::DoiMintingService', false,false,false
+    it_behaves_like 'shared ::Deepblue::DoiMintingService', false,true,false
+    it_behaves_like 'shared ::Deepblue::DoiMintingService', false,true,true
+    it_behaves_like 'shared ::Deepblue::DoiMintingService', true,false,false
+    it_behaves_like 'shared ::Deepblue::DoiMintingService', true,true,false
+    it_behaves_like 'shared ::Deepblue::DoiMintingService', true,true,true
   end
 
 end

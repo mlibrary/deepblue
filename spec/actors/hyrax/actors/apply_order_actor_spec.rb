@@ -11,7 +11,7 @@ RSpec.describe Hyrax::Actors::ApplyOrderActor, skip: false do
   end
 
   describe 'all', skip: false do
-    RSpec.shared_examples 'shared all' do |dbg_verbose|
+    RSpec.shared_examples 'shared Hyrax::Actors::ApplyOrderActor' do |dbg_verbose|
       subject { described_class }
       before do
         described_class.apply_order_actor_debug_verbose = dbg_verbose
@@ -130,8 +130,8 @@ RSpec.describe Hyrax::Actors::ApplyOrderActor, skip: false do
         end
       end
     end
-    it_behaves_like 'shared all', false
-    it_behaves_like 'shared all', true
+    it_behaves_like 'shared Hyrax::Actors::ApplyOrderActor', false
+    it_behaves_like 'shared Hyrax::Actors::ApplyOrderActor', true
   end
 
 end

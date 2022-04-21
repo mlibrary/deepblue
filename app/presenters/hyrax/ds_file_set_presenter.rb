@@ -21,7 +21,9 @@ module Hyrax
       @show_actions_bold_puts ||= false
     end
 
-    delegate :doi,
+    delegate :checksum_algorithm,
+             :checksum_value,
+             :doi,
              :doi_minted?,
              :doi_minting_enabled?,
              :doi_pending?,
@@ -317,7 +319,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "parent.class.name=#{@parent.class.name}",
-                                             "" ] # if ds_file_set_presenter_debug_verbose
+                                             "" ] if ds_file_set_presenter_debug_verbose
       authors = ""
       parent.creator.each do |author|
         authors +=  "{ \"@type\": \"Person\",
@@ -331,7 +333,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "parent.class.name=#{@parent.class.name}",
-                                             "" ] # if ds_file_set_presenter_debug_verbose
+                                             "" ] if ds_file_set_presenter_debug_verbose
       if parent.rights_license[0] == "http://creativecommons.org/publicdomain/zero/1.0/"
         "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication"
       elsif parent.rights_license[0] == "http://creativecommons.org/licenses/by/4.0/"

@@ -3,24 +3,22 @@ module Hyrax
 
     # This is used by PresentsAttributes to show licenses
     #   e.g.: presenter.attribute_to_html(:doi, render_as: :doi)
-    class DoiAttributeRenderer < AttributeRenderer
+    class ChecksumAttributeRenderer < AttributeRenderer
 
-      mattr_accessor :doi_attribute_renderer_debug_verbose, default: false
+      mattr_accessor :checksum_attribute_renderer_debug_verbose, default: false
 
-      ##
-      # Special treatment for doi.
       def attribute_value_to_html(value)
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "value=#{value}",
-                                               "" ] if doi_attribute_renderer_debug_verbose
-        rv = if value == ::Deepblue::DoiBehavior.doi_pending
-               value
-             elsif value.start_with? 'http'
-               value
+                                               "options=#{options}",
+                                               "" ] if checksum_attribute_renderer_debug_verbose
+        rv = if options[:algorithm].present?
+               "#{value}/#{options[:algorithm]}"
              else
-               value.sub! 'doi:', 'https://doi.org/'
+               value
              end
+        rv = 'nbsp;' if rv.blank? && options[:include_empty]
         return rv
       end
 

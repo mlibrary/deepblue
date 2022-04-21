@@ -29,9 +29,11 @@ module Hyrax
           :page_count,
           :file_title,
           :last_modified,
-          :original_checksum,
+          #:original_checksum,
           :duration,
-          :sample_rate
+          :sample_rate,
+          :checksum_algorithm,
+          :checksum_value
         ]
         self.characterization_proxy = :original_file
 

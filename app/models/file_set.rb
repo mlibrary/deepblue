@@ -21,6 +21,8 @@ class FileSet < ActiveFedora::Base
 
   def metadata_keys_all
     %i[
+      checksum_algorithm
+      checksum_value
       curation_notes_admin
       curation_notes_user
       date_created
@@ -51,6 +53,8 @@ class FileSet < ActiveFedora::Base
 
   def self.metadata_keys_all
     @@metadata_keys_all ||= %i[
+      checksum_algorithm
+      checksum_value
       curation_notes_admin
       curation_notes_user
       date_created
@@ -110,6 +114,8 @@ class FileSet < ActiveFedora::Base
   def self.metadata_keys_json
     @@metadata_keys_json ||= %i[
       id
+      checksum_algorithm
+      checksum_value
       creator
       curation_notes_user
       date_modified

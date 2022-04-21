@@ -16,7 +16,7 @@ RSpec.describe ::Deepblue::IngestHelper, type: :helper do
   end
 
   describe 'all', skip: false do
-    RSpec.shared_examples 'shared all' do |dbg_verbose|
+    RSpec.shared_examples 'shared ::Deepblue::IngestHelper' do |dbg_verbose|
       subject { described_class }
       before do
         described_class.ingest_helper_debug_verbose = dbg_verbose
@@ -31,10 +31,12 @@ RSpec.describe ::Deepblue::IngestHelper, type: :helper do
         let(:filename)      { Rails.root.join('tmp', 'uploads', 'ab', 'c1', '23', '45', 'abc12345', 'picture.png').to_s }
 
         it "#after_create_derivative" do
+          ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
           skip "the test code goes here"
         end
 
         it "#characterize" do
+          ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
           skip "the test code goes here"
         end
 
@@ -167,10 +169,12 @@ RSpec.describe ::Deepblue::IngestHelper, type: :helper do
         end
 
         it "#current_user" do
+          ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
           skip "the test code goes here"
         end
 
         it "#delete_file" do
+          ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
           skip "the test code goes here"
         end
 
@@ -197,6 +201,7 @@ RSpec.describe ::Deepblue::IngestHelper, type: :helper do
         end
 
         it "#file_set_actor_create_content" do
+          ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
           skip "the test code goes here"
         end
 
@@ -259,34 +264,42 @@ RSpec.describe ::Deepblue::IngestHelper, type: :helper do
         end
 
         it "#ingest" do
+          ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
           skip "the test code goes here"
         end
 
         it "#label_for" do
+          ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
           skip "the test code goes here"
         end
 
         it "#log_error" do
+          ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
           skip "the test code goes here"
         end
 
         it "#related_file" do
+          ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
           skip "the test code goes here"
         end
 
         it "#perform_create_derivatives_job" do
+          ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
           skip "the test code goes here"
         end
 
         it "#update_total_file_size" do
+          ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
           skip "the test code goes here"
         end
 
         it "#virus_scan" do
+          ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
           skip "the test code goes here"
         end
 
         it "#compose_e_msg" do
+          ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
           skip "the test code goes here"
         end
 
@@ -395,8 +408,8 @@ RSpec.describe ::Deepblue::IngestHelper, type: :helper do
         end
       end
     end
-    it_behaves_like 'shared all', false
-    it_behaves_like 'shared all', true
+    it_behaves_like 'shared ::Deepblue::IngestHelper', false
+    it_behaves_like 'shared ::Deepblue::IngestHelper', true
   end
 
 

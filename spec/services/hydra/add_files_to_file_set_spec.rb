@@ -4,6 +4,7 @@ require 'rails_helper'
 require 'spec_helper'
 
 describe Hydra::Works::AddFileToFileSet do
+
   let(:debug_verbose) { false }
 
   describe 'module debug verbose variables' do
@@ -13,7 +14,7 @@ describe Hydra::Works::AddFileToFileSet do
   end
 
   describe 'all' do
-    RSpec.shared_examples 'shared all' do |dbg_verbose|
+    RSpec.shared_examples 'shared Hydra::Works::AddFileToFileSet' do |dbg_verbose|
       subject { described_class }
       before do
         described_class.add_file_to_file_set_debug_verbose = dbg_verbose
@@ -162,8 +163,8 @@ describe Hydra::Works::AddFileToFileSet do
         end
       end
     end
-    it_behaves_like 'shared all', false
-    it_behaves_like 'shared all', true
+    it_behaves_like 'shared Hydra::Works::AddFileToFileSet', false
+    it_behaves_like 'shared Hydra::Works::AddFileToFileSet', true
   end
 
 end

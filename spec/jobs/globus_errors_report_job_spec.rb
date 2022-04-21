@@ -15,7 +15,7 @@ RSpec.describe GlobusErrorsReportJob do
   end
 
   describe 'all', skip: false do
-    RSpec.shared_examples 'shared all' do |dbg_verbose|
+    RSpec.shared_examples 'shared GlobusErrorsReportJob' do |dbg_verbose|
       subject { described_class }
       before do
         ::Deepblue::JobTaskHelper.globus_errors_report_job_debug_verbose = dbg_verbose
@@ -54,8 +54,8 @@ RSpec.describe GlobusErrorsReportJob do
 
       end
     end
-    it_behaves_like 'shared all', false
-    it_behaves_like 'shared all', true
+    it_behaves_like 'shared GlobusErrorsReportJob', false
+    it_behaves_like 'shared GlobusErrorsReportJob', true
   end
 
 

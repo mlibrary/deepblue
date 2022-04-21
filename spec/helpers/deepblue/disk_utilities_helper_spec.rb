@@ -13,7 +13,7 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
   end
 
   describe 'all', skip: false do
-    RSpec.shared_examples 'shared all' do |dbg_verbose|
+    RSpec.shared_examples 'shared ::Deepblue::DiskUtilitiesHelper' do |dbg_verbose|
       subject { described_class }
       before do
         described_class.disk_utilities_helper_debug_verbose = dbg_verbose
@@ -601,8 +601,8 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
         end
       end
     end
-    it_behaves_like 'shared all', false
-    it_behaves_like 'shared all', true
+    it_behaves_like 'shared ::Deepblue::DiskUtilitiesHelper', false
+    it_behaves_like 'shared ::Deepblue::DiskUtilitiesHelper', true
   end
 
 

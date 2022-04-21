@@ -1,6 +1,14 @@
 require 'rails_helper'
 
 RSpec.describe Hyrax::PresenterRenderer, type: :view, skip: false do
+
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it { expect( described_class.presenter_renderer_debug_verbose ).to eq debug_verbose }
+  end
+  let(:user) { create(:admin) }
+
   let(:ability) { double }
   let(:document) { SolrDocument.new(data) }
   let(:data) do
@@ -29,4 +37,5 @@ RSpec.describe Hyrax::PresenterRenderer, type: :view, skip: false do
       it { is_expected.to eq 'Date uploaded' }
     end
   end
+
 end

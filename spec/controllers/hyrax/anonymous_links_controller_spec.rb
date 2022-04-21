@@ -19,7 +19,7 @@ RSpec.describe Hyrax::AnonymousLinksController, type: :controller, skip: false d
   end
 
   describe '#show_presenter' do
-    RSpec.shared_examples 'shared show_presenter' do |dbg_verbose|
+    RSpec.shared_examples 'shared show_presenter Hyrax::AnonymousLinksController' do |dbg_verbose|
       subject { described_class }
       before do
         described_class.anonymous_links_controller_debug_verbose = dbg_verbose
@@ -34,12 +34,12 @@ RSpec.describe Hyrax::AnonymousLinksController, type: :controller, skip: false d
         is_expected.to eq(Hyrax::AnonymousLinkPresenter)
       end
     end
-    it_behaves_like 'shared show_presenter', false
+    it_behaves_like 'shared show_presenter Hyrax::AnonymousLinksController', false
     # it_behaves_like 'shared show_presenter', true # no debug statements to trigger
   end
 
   describe 'logged in user with edit permission', skip: false do
-    RSpec.shared_examples 'shared logged in user with edit permission' do |dbg_verbose|
+    RSpec.shared_examples 'shared logged in user with edit permission Hyrax::AnonymousLinksController' do |dbg_verbose|
       before do
         described_class.anonymous_links_controller_debug_verbose = dbg_verbose
         expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(:once) if dbg_verbose
@@ -96,12 +96,12 @@ RSpec.describe Hyrax::AnonymousLinksController, type: :controller, skip: false d
         end
       end
     end
-    it_behaves_like 'shared logged in user with edit permission', false
-    it_behaves_like 'shared logged in user with edit permission', true
+    it_behaves_like 'shared logged in user with edit permission Hyrax::AnonymousLinksController', false
+    it_behaves_like 'shared logged in user with edit permission Hyrax::AnonymousLinksController', true
   end
 
   describe 'logged in user without edit permission' do
-    RSpec.shared_examples 'shared logged in user without edit permission' do |dbg_verbose|
+    RSpec.shared_examples 'shared logged in user without edit permission Hyrax::AnonymousLinksController' do |dbg_verbose|
       before do
         described_class.anonymous_links_controller_debug_verbose = dbg_verbose
         expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(:once) if dbg_verbose
@@ -148,12 +148,12 @@ RSpec.describe Hyrax::AnonymousLinksController, type: :controller, skip: false d
         end
       end
     end
-    it_behaves_like 'shared logged in user without edit permission', false
-    it_behaves_like 'shared logged in user without edit permission', true
+    it_behaves_like 'shared logged in user without edit permission Hyrax::AnonymousLinksController', false
+    it_behaves_like 'shared logged in user without edit permission Hyrax::AnonymousLinksController', true
   end
 
   describe 'unknown user' do
-    RSpec.shared_examples 'it requires login' do
+    RSpec.shared_examples 'it requires login Hyrax::AnonymousLinksController' do
       let(:flash_msg) { "You need to sign in or sign up before continuing." }
       # let(:flash_msg) { I18n.t('devise.failure.unauthenticated') }
       # let(:flash_msg) { I18n.t(:"unauthorized.default", default: 'You are not authorized to access this page.') }
@@ -165,7 +165,7 @@ RSpec.describe Hyrax::AnonymousLinksController, type: :controller, skip: false d
         expect(flash[:alert]).to eq flash_msg
       end
     end
-    RSpec.shared_examples 'shared unknown user' do |dbg_verbose|
+    RSpec.shared_examples 'shared unknown user Hyrax::AnonymousLinksController' do |dbg_verbose|
       before do
         described_class.anonymous_links_controller_debug_verbose = dbg_verbose
         expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(:once) if dbg_verbose
@@ -179,22 +179,22 @@ RSpec.describe Hyrax::AnonymousLinksController, type: :controller, skip: false d
 
         describe "creating a anonymous download link" do
           before { post 'create_anonymous_download', params: { id: file } }
-          it_behaves_like 'it requires login'
+          it_behaves_like 'it requires login Hyrax::AnonymousLinksController'
         end
 
         describe "creating a anonymous show link" do
           before { post 'create_anonymous_show', params: { id: file } }
-          it_behaves_like 'it requires login'
+          it_behaves_like 'it requires login Hyrax::AnonymousLinksController'
         end
 
         describe "viewing existing links" do
           before { get :index, params: { id: file } }
-          it_behaves_like 'it requires login'
+          it_behaves_like 'it requires login Hyrax::AnonymousLinksController'
         end
       end
     end
-    it_behaves_like 'shared unknown user', false
-    # it_behaves_like 'shared unknown user', true # no debug statements to trigger
+    it_behaves_like 'shared unknown user Hyrax::AnonymousLinksController', false
+    # it_behaves_like 'shared unknown user Hyrax::AnonymousLinksController', true # no debug statements to trigger
   end
 
 end

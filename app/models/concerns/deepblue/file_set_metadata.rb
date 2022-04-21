@@ -6,6 +6,16 @@ module Deepblue
 
     included do
 
+      property :checksum_algorithm, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#checksum_algorithm'), multiple: false do |index|
+        index.type :text
+        index.as :stored_searchable
+      end
+
+      property :checksum_value, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#checksum_value'), multiple: false do |index|
+        index.type :text
+        index.as :stored_searchable
+      end
+
       property :curation_notes_admin, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#curation_notes_admin'), multiple: true do |index|
         index.type :text
         index.as :stored_searchable

@@ -7,7 +7,7 @@ module Deepblue
   module FileSetBehavior
     extend ActiveSupport::Concern
 
-    mattr_accessor :file_set_behavior_debug_verbose, default: false
+    mattr_accessor :file_set_behavior_debug_verbose, default: Rails.configuration.file_set_behavior_debug_verbose
 
     include ::Deepblue::VirusScanService
 
@@ -21,6 +21,31 @@ module Deepblue
         # self.visibility = 'open'
       end
 
+    end
+
+    def checksum_update_from_files
+      LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                 ::Deepblue::LoggingHelper.called_from,
+                                 "" ] if file_set_behavior_debug_verbose
+
+      algorithm, value = self.files_checksum_algorithm_and_value
+
+      self['checksum_algorithm'] = algorithm
+      self['checksum_value'] = value
+      save!( validate: false )
+    end
+
+    def checksum_update_from_files!
+      checksum_update_from_files
+      save!( validate: false )
+    end
+
+    def files_checksum_algorithm_and_value
+      file = ::Deepblue::MetadataHelper.file_from_file_set self
+      return '', '' if file.nil?
+      value = file.checksum.value
+      algorithm = file.checksum.algorithm
+      return algorithm, value
     end
 
     # Cast to a SolrDocument by querying from Solr
@@ -159,8 +184,8 @@ module Deepblue
     end
 
     def virus_scan_status_update( scan_result:, previous_scan_result: nil )
-      LoggingHelper.bold_debug [ LoggingHelper.here,
-                                 LoggingHelper.called_from,
+      LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                 ::Deepblue::LoggingHelper.called_from,
                                "scan_result=#{scan_result}",
                                "previous_scan_result=#{previous_scan_result}",
                                  "" ] if file_set_behavior_debug_verbose

@@ -17,6 +17,14 @@ module Umrdr
       Array(self[Solrizer.solr_name('authoremail')]).first
     end
 
+    def checksum_algorithm
+      Array(self['checksum_algorithm_tesim']).first
+    end
+
+    def checksum_value
+      Array(self['checksum_value_tesim']).first
+    end
+
     def curation_notes_admin
       fetch(Solrizer.solr_name('curation_notes_admin'), [])
     end
@@ -102,7 +110,7 @@ module Umrdr
     end
 
     def original_checksum
-      Array(self[Solrizer.solr_name('original_checksum')]).first
+      Array(self['original_checksum_tesim']).first
     end
 
     def read_me_file_set_id
