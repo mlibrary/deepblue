@@ -2,6 +2,14 @@
 require 'iiif_manifest'
 
 RSpec.describe Hyrax::DsFileSetPresenter do
+
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it { expect( described_class.ds_file_set_presenter_debug_verbose ).to eq debug_verbose }
+    it { expect( described_class.ds_file_set_presenter_view_debug_verbose ).to eq false }
+  end
+
   subject(:presenter) { described_class.new(solr_document, ability) }
   let(:solr_document) { SolrDocument.new(attributes) }
   let(:ability) { Ability.new(user) }
@@ -415,6 +423,8 @@ RSpec.describe Hyrax::DsFileSetPresenter do
         "page_count",
         "file_title",
         "last_modified",
+        "checksum_algorithm",
+        "checksum_value",
         "original_checksum",
         "mime_type",
         "duration",

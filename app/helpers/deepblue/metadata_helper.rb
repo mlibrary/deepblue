@@ -61,7 +61,9 @@ module Deepblue
                                             access_deepblue
                                             access_deepblue_ordered
                                             total_file_size ].freeze unless const_defined? :ATTRIBUTE_NAMES_ALWAYS_INCLUDE_CC
-    ATTRIBUTE_NAMES_ALWAYS_INCLUDE_FILE_SET = %w[ creator
+    ATTRIBUTE_NAMES_ALWAYS_INCLUDE_FILE_SET = %w[ checksum_algorithm
+                                                  checksum_value
+                                                  creator
                                                   curation_notes_admin
                                                   curation_notes_admin_ordered
                                                   curation_notes_user
@@ -279,7 +281,9 @@ module Deepblue
       report_item( out, "Date uploaded: ", file_set.date_uploaded )
       report_item( out, "Date modified: ", file_set.date_modified )
       report_item( out, "Total file size: ", human_readable_size( file_set.file_size[0] ) )
-      report_item( out, "Checksum: ", file_set.original_checksum )
+      # report_item( out, "Checksum: ", file_set.original_checksum )
+      report_item( out, "Checksum: ", file_set.checksum_value )
+      report_item( out, "Checksum algorithm: ", file_set.checksum_algorithm )
       report_item( out, "Mimetype: ", file_set.mime_type )
     end
 
@@ -471,9 +475,11 @@ module Deepblue
         yaml_item_prior_identifier( out, indent, curation_concern: file_set, source: source )
         file_path = yaml_export_file_path( target_dirname: target_dirname, file_set: file_set )
         yaml_item( out, indent, ':file_path:', file_path.to_s, escape: true )
-        checksum = yaml_file_set_checksum( file_set: file_set )
-        yaml_item( out, indent, ":checksum_algorithm:", checksum.present? ? checksum.algorithm : '', escape: true )
-        yaml_item( out, indent, ":checksum_value:", checksum.present? ? checksum.value : '', escape: true )
+        # checksum = yaml_file_set_checksum( file_set: file_set )
+        # yaml_item( out, indent, ":checksum_algorithm:", checksum.present? ? checksum.algorithm : '', escape: true )
+        # yaml_item( out, indent, ":checksum_value:", checksum.present? ? checksum.value : '', escape: true )
+        yaml_item( out, indent, ":checksum_algorithm:", file_set.checksum_algorithm, escape: true )
+        yaml_item( out, indent, ":checksum_value:", file_set.checksum_value, escape: true )
         yaml_item( out, indent, ":edit_users:", file_set.edit_users, escape: true )
         file_size = if file_set.file_size.blank?
                       file_set.original_file.nil? ? 0 : file_set.original_file.size

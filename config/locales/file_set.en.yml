@@ -4,6 +4,8 @@ en:
       labels:
         authoremail:          "Contact information"
         characterization:     "Characterization"
+        checksum_algorithm:   "Checksum Alg."
+        checksum_value:       "Checksum"
         creator:              "Creator"
         curation_notes_admin: "Curation Notes for Admins"
         curation_notes_admin_html: "Curation Notes<br/> for Admins"

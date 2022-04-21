@@ -21,7 +21,7 @@ RSpec.describe ReportTaskJob, skip: false do
   end
 
   describe 'all', skip: false do
-    RSpec.shared_examples 'shared all' do |dbg_verbose|
+    RSpec.shared_examples 'shared ReportTaskJob' do |dbg_verbose|
       subject { described_class }
       before do
         described_class.report_task_job_debug_verbose = dbg_verbose
@@ -88,8 +88,8 @@ RSpec.describe ReportTaskJob, skip: false do
         end
       end
     end
-    it_behaves_like 'shared all', false
-    it_behaves_like 'shared all', true
+    it_behaves_like 'shared ReportTaskJob', false
+    it_behaves_like 'shared ReportTaskJob', true
   end
 
 end

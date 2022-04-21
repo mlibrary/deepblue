@@ -16,7 +16,7 @@ RSpec.describe Deepblue::DeepbluePresenterBehavior do
   end
 
   describe 'all', skip: false do
-    RSpec.shared_examples 'shared all' do |dbg_verbose|
+    RSpec.shared_examples 'shared Deepblue::DeepbluePresenterBehavior' do |dbg_verbose|
       subject { described_class }
       before do
         described_class.deep_blue_presenter_behavior_debug_verbose = dbg_verbose
@@ -80,8 +80,8 @@ RSpec.describe Deepblue::DeepbluePresenterBehavior do
 
       end
     end
-    it_behaves_like 'shared all', false
-    it_behaves_like 'shared all', true
+    it_behaves_like 'shared Deepblue::DeepbluePresenterBehavior', false
+    it_behaves_like 'shared Deepblue::DeepbluePresenterBehavior', true
   end
 
 end

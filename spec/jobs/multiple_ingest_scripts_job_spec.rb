@@ -20,7 +20,7 @@ RSpec.describe MultipleIngestScriptsJob, skip: false do
   end
 
   describe 'all', skip: false do
-    RSpec.shared_examples 'shared all' do |dbg_verbose|
+    RSpec.shared_examples 'shared MultipleIngestScriptsJob' do |dbg_verbose|
       subject { described_class }
       before do
         described_class.multiple_ingest_scripts_job_debug_verbose = dbg_verbose
@@ -122,8 +122,8 @@ RSpec.describe MultipleIngestScriptsJob, skip: false do
       end
     end
 
-    it_behaves_like 'shared all', false
-    it_behaves_like 'shared all', true
+    it_behaves_like 'shared MultipleIngestScriptsJob', false
+    it_behaves_like 'shared MultipleIngestScriptsJob', true
   end
 
 end

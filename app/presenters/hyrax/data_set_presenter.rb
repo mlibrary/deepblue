@@ -4,8 +4,7 @@ module Hyrax
 
   class DataSetPresenter < DeepbluePresenter
 
-    mattr_accessor :data_set_presenter_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.data_set_presenter_debug_verbose
+    mattr_accessor :data_set_presenter_debug_verbose, default: Rails.configuration.data_set_presenter_debug_verbose
 
     delegate  :authoremail,
               :curation_notes_admin,

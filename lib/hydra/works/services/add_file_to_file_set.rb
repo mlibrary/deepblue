@@ -87,6 +87,7 @@ module Hydra::Works
                                   ingest_id: '',
                                   ingester: ingester,
                                   ingest_timestamp: nil )
+      file_set.checksum_update_from_files! if file_set.respond_to? :checksum_update_from_files!
       begin
         file_set.virus_scan
       rescue Exception => e # rubocop:disable Lint/RescueException

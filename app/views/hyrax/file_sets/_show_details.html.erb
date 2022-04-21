@@ -9,7 +9,11 @@
                                    work_type: "FileSet",
                                    html_dt: true) %>
   <span itemprop="identifier" itemscope itemtype="http://schema.org/Identifier">
-    <%= @presenter.attribute_to_html(:doi, label: t('show.labels.doi'), work_type: "FileSet", render_as: :doi, html_dt: true) %>
+    <%= @presenter.attribute_to_html(:doi,
+                                     label: t('show.labels.doi'),
+                                     work_type: "FileSet",
+                                     render_as: :doi,
+                                     html_dt: true) %>
   </span>
   <%= render partial: 'shared/show_curation_notes',
              locals: { presenter: @presenter,
@@ -24,6 +28,13 @@
                                    label: t('show.file_set.labels.date_modified'),
                                    work_type: "FileSet",
                                    html_dt: true,
+                                   include_empty: true ) %>
+  <%= @presenter.attribute_to_html(:checksum_value,
+                                   label: t('show.file_set.labels.checksum_value'),
+                                   work_type: "FileSet",
+                                   html_dt: true,
+                                   render_as: :checksum,
+                                   algorithm: Array(@presenter.checksum_algorithm).first,
                                    include_empty: true ) %>
   <% if @presenter.current_ability.admin? %>
     <%= @presenter.attribute_to_html(:read_groups,

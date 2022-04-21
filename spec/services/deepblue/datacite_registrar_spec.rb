@@ -17,7 +17,7 @@ describe ::Deepblue::DataCiteRegistrar, :datacite_api do
   end
 
   describe 'all', skip: false do
-    RSpec.shared_examples 'shared all' do |dbg_verbose|
+    RSpec.shared_examples 'shared ::Deepblue::DataCiteRegistrar' do |dbg_verbose|
       subject { described_class }
       before do
         described_class.data_cite_registrar_debug_verbose = dbg_verbose
@@ -196,8 +196,8 @@ describe ::Deepblue::DataCiteRegistrar, :datacite_api do
         end
       end
     end
-    it_behaves_like 'shared all', false
-    it_behaves_like 'shared all', true
+    it_behaves_like 'shared ::Deepblue::DataCiteRegistrar', false
+    it_behaves_like 'shared ::Deepblue::DataCiteRegistrar', true
   end
 
 end

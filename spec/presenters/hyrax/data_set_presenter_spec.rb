@@ -3,6 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe Hyrax::DataSetPresenter, clean_repo: true do
+
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it { expect( described_class.data_set_presenter_debug_verbose ).to eq debug_verbose }
+  end
+
   subject { described_class.new(double, double) }
   let(:solr_document) { SolrDocument.new(attributes) }
   let(:request) { double(host: 'example.org', base_url: 'http://example.org') }

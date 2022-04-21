@@ -9,7 +9,7 @@ RSpec.describe Hyrax::CreateWorkPresenterBehavior do
 
   let(:dummy_class) { double }
 
-  xit "retrieves characterization metadata" do
+  it "retrieves characterization metadata", skip: true do
   	presenter = TestPresenter.new
   	allow(Hyrax::CreateWorkPresenterBehavior).to receive(:create_work_presenter_class).and_return "test"
 

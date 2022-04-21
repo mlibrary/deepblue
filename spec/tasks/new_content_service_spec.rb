@@ -53,6 +53,12 @@ end
 
 RSpec.describe ::Deepblue::NewContentService, skip: false do
 
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it { expect( described_class.new_content_service_debug_verbose ).to eq debug_verbose }
+  end
+
   let(:user) { create(:user) }
   let(:user2) { create(:user) }
   let(:base_path) { "./fixtures" }
@@ -60,7 +66,7 @@ RSpec.describe ::Deepblue::NewContentService, skip: false do
 
   describe 'constants' do
     it "resolves them" do
-      expect( described_class.new_content_service_debug_verbose ).to eq false
+      expect( described_class.new_content_service_debug_verbose ).to eq debug_verbose
       expect( described_class::DEFAULT_DATA_SET_ADMIN_SET_NAME ).to eq Rails.configuration.data_set_admin_set_title
       expect( described_class::DEFAULT_DIFF_ATTRS_SKIP ).to eq [ :creator_ordered,
                                   :curation_notes_admin_ordered, :curation_notes_user_ordered,

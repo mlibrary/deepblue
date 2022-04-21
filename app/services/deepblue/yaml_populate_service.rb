@@ -74,9 +74,11 @@ module Deepblue
         yaml_item_prior_identifier( out, indent, curation_concern: file_set )
         file_path = yaml_export_file_path( target_dirname: target_dirname, file_set: file_set )
         yaml_item( out, indent, ':file_path:', file_path.to_s, escape: true )
-        checksum = yaml_file_set_checksum( file_set: file_set )
-        yaml_item( out, indent, ":checksum_algorithm:", checksum.present? ? checksum.algorithm : '', escape: true )
-        yaml_item( out, indent, ":checksum_value:", checksum.present? ? checksum.value : '', escape: true )
+        # checksum = yaml_file_set_checksum( file_set: file_set )
+        # yaml_item( out, indent, ":checksum_algorithm:", checksum.present? ? checksum.algorithm : '', escape: true )
+        # yaml_item( out, indent, ":checksum_value:", checksum.present? ? checksum.value : '', escape: true )
+        yaml_item( out, indent, ":checksum_algorithm:", checksum.checksum_algorithm, escape: true )
+        yaml_item( out, indent, ":checksum_value:", checksum.checksum_value, escape: true )
         yaml_item( out, indent, ":edit_users:", file_set.edit_users, escape: true )
         file_size = if file_set.file_size.blank?
                       file_set.original_file.nil? ? 0 : file_set.original_file.size

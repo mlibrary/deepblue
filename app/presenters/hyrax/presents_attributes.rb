@@ -5,6 +5,8 @@ module Hyrax
   # monkey patch Presenters::Hyrax::PresentsAttributes
   module PresentsAttributes
 
+    mattr_accessor :presents_attribute_debug_verbose, default: false
+
     ##
     # Present the attribute as an HTML table row or dl row.
     #
@@ -17,18 +19,55 @@ module Hyrax
     # @option options [String] :label The default label for the field if no translation is found
     # @option options [TrueClass, FalseClass] :include_empty should we display a row if there are no values?
     # @option options [String] :work_type name of work type class (e.g., "GenericWork")
-    def attribute_to_html(field, options = {})
+    def attribute_to_html(field, options = {}) # monkey override
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "field=#{field}",
+                                             "options=#{options}",
+                                             "" ] if presents_attribute_debug_verbose
       unless respond_to?(field)
         Rails.logger.warn("#{self.class} attempted to render #{field}, but no method exists with that name.")
         return
       end
 
+      value = send(field)
+      renderer = renderer_for(field, options).new(field, value, options)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "field=#{field}",
+                                             "value=#{value}",
+                                             "renderer.class.name=#{renderer.class.name}",
+                                             "" ] if presents_attribute_debug_verbose
       if options[:html_dt]
-        renderer_for(field, options).new(field, send(field), options).render_dt_row
+        renderer.render_dt_row
       elsif options[:html_dl]
-        renderer_for(field, options).new(field, send(field), options).render_dl_row
+        renderer.render_dl_row
       else
-        renderer_for(field, options).new(field, send(field), options).render
+        renderer.render
+      end
+    end
+
+    def find_renderer_class(name) # monkey
+      renderer = nil
+      ['Renderer', 'AttributeRenderer'].each do |suffix|
+        const_name = "#{name.to_s.camelize}#{suffix}".to_sym
+        renderer = begin
+                     Renderers.const_get(const_name)
+                   rescue NameError
+                     nil
+                   end
+        break unless renderer.nil?
+      end
+      raise NameError, "unknown renderer type `#{name}`" if renderer.nil?
+      renderer
+    end
+
+    # monkey
+    def renderer_for(_field, options) # monkey override
+      if options[:render_as]
+        find_renderer_class(options[:render_as])
+      else
+        Renderers::AttributeRenderer
       end
     end
 

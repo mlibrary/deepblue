@@ -18,7 +18,7 @@ describe ::Deepblue::DoiMinting2021Service, :datacite_api do
   end
 
   describe 'all', skip: false do
-    RSpec.shared_examples 'shared all' do |dbg_verbose|
+    RSpec.shared_examples 'shared ::Deepblue::DoiMinting2021Service' do |dbg_verbose|
       subject { described_class }
       before do
         described_class.doi_minting_2021_service_debug_verbose = dbg_verbose
@@ -247,8 +247,8 @@ describe ::Deepblue::DoiMinting2021Service, :datacite_api do
         end
       end
     end
-    it_behaves_like 'shared all', false
-    it_behaves_like 'shared all', true
+    it_behaves_like 'shared ::Deepblue::DoiMinting2021Service', false
+    it_behaves_like 'shared ::Deepblue::DoiMinting2021Service', true
   end
 
 

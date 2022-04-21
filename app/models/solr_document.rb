@@ -212,6 +212,8 @@ class SolrDocument
     'peerreviewed',
     'alt_title',
     'bibliographic_citation',
+    'checksum_algorithm',
+    'checksum_value',
     'conference_location',
     'conference_name',
     'conference_section',

@@ -1,6 +1,13 @@
 require 'rails_helper'
 
 RSpec.describe Hyrax::MemberPresenterFactory, skip: false do
+
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it { expect( described_class.member_presenter_factory_debug_verbose ).to eq debug_verbose }
+  end
+
   describe "#file_set_presenters" do
     describe "getting presenters from factory" do
       let(:solr_document) { SolrDocument.new(attributes) }

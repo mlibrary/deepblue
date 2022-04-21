@@ -73,6 +73,7 @@ module DeepBlueDocs
     config.email_behavior_debug_verbose                        = false
     # config.file_content_helper_debug_verbose -- see config/integration/file_content_integration.rb
     config.file_set_debug_verbose                              = false
+    config.file_set_behavior_debug_verbose                     = false
     config.file_set_derivatives_service_debug_verbose          = false
     config.hydra_derivatives_processors_document_debug_verbose = false
     config.hydra_derivatives_processors_image_debug_verbose    = false

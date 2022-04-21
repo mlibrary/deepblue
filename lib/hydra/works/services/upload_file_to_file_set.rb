@@ -33,6 +33,7 @@ module Hydra::Works
         service.call(file_set)
       end
 
+      file_set.checksum_update_from_files if file_set.respond_to? :checksum_update_from_files
       file_set.save
       file_set
     end

@@ -25,7 +25,7 @@ RSpec.describe CatalogController, type: :controller do
   it { expect(described_class.uploaded_field).to eq 'system_create_dtsi' }
 
   describe 'all', skip: false do
-    RSpec.shared_examples 'shared all' do |dbg_verbose|
+    RSpec.shared_examples 'shared CatalogController' do |dbg_verbose|
       subject { described_class }
       before do
         described_class.catalog_controller_debug_verbose = dbg_verbose
@@ -170,8 +170,8 @@ RSpec.describe CatalogController, type: :controller do
         end
       end
     end
-    it_behaves_like 'shared all', false
-    it_behaves_like 'shared all', true
+    it_behaves_like 'shared CatalogController', false
+    it_behaves_like 'shared CatalogController', true
   end
 
 end

@@ -9,9 +9,7 @@ RSpec.describe FileSet do
   let(:debug_verbose) { false }
 
   describe 'class debug verbose variables' do
-    it "they have the right values" do
-      expect( described_class.file_set_debug_verbose ).to eq( debug_verbose )
-    end
+    it { expect( described_class.file_set_debug_verbose ).to eq( debug_verbose ) }
   end
 
   let(:id )                 { '0123458678' }
@@ -20,6 +18,8 @@ RSpec.describe FileSet do
   let(:visibility_public )  { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC }
   let(:metadata_keys_all )  {
     %i[
+      checksum_algorithm
+      checksum_value
       curation_notes_admin
       curation_notes_user
       date_created
@@ -225,6 +225,8 @@ RSpec.describe FileSet do
   describe 'metadata' do
     it 'has descriptive metadata' do
       expect(subject).to respond_to(:based_near)
+      expect(subject).to respond_to(:checksum_algorithm)
+      expect(subject).to respond_to(:checksum_value)
       expect(subject).to respond_to(:contributor)
       expect(subject).to respond_to(:creator)
       expect(subject).to respond_to(:curation_notes_admin)
@@ -259,6 +261,8 @@ RSpec.describe FileSet do
       expect(subject).to respond_to(:last_modified)
       expect(subject).to respond_to(:mime_type)
       expect(subject).to respond_to(:original_checksum)
+      expect(subject).to respond_to(:checksum_algorithm)
+      expect(subject).to respond_to(:checksum_value)
       expect(subject).to respond_to(:page_count)
       expect(subject).to respond_to(:sample_rate)
       expect(subject).to respond_to(:well_formed)

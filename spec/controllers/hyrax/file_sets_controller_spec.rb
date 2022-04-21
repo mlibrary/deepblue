@@ -20,12 +20,12 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
     end
   end
 
-  RSpec.shared_examples 'Not anonymous link' do
+  RSpec.shared_examples 'Not anonymous link Hyrax::FileSetsController' do
     it { expect(controller.anonymous_link_request?).to eq false }
     it { expect(controller.anonymous_show?).to eq false }
   end
 
-  RSpec.shared_examples 'it requires login' do
+  RSpec.shared_examples 'it requires login Hyrax::FileSetsController' do
     let(:flash_msg) { "You need to sign in or sign up before continuing." }
     # let(:flash_msg) { I18n.t('devise.failure.unauthenticated') }
     # let(:flash_msg) { I18n.t(:"unauthorized.default", default: 'You are not authorized to access this page.') }
@@ -39,7 +39,7 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
     end
   end
 
-  RSpec.shared_examples 'it is successful' do
+  RSpec.shared_examples 'it is successful Hyrax::FileSetsController' do
     it 'successful' do
       expect(controller.anonymous_link?).to eq false
       expect(response).to_not be_nil
@@ -47,7 +47,7 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
     end
   end
 
-  RSpec.shared_examples 'it is successful anonymous' do
+  RSpec.shared_examples 'it is successful anonymous Hyrax::FileSetsController' do
     it 'successful' do
       expect(controller.anonymous_link?).to eq true
       expect(response).to_not be_nil
@@ -56,7 +56,7 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
   end
 
   describe 'unknown user' do
-    RSpec.shared_examples 'shared when not signed in' do |dbg_verbose|
+    RSpec.shared_examples 'shared when not signed in Hyrax::FileSetsController' do |dbg_verbose|
       before do
         described_class.file_sets_controller_debug_verbose = dbg_verbose
         expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(:once) if dbg_verbose
@@ -71,7 +71,7 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
 
         describe '#edit' do
           before { get :edit, params: { id: public_file_set } }
-          it_behaves_like 'it requires login'
+          it_behaves_like 'it requires login Hyrax::FileSetsController'
         end
 
         describe '#show' do
@@ -85,18 +85,18 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
               expect(controller).to receive(:additional_response_formats).with(ActionController::MimeResponds::Collector)
               get :show, params: { id: public_file_set }
             end
-            it_behaves_like 'it is successful'
+            it_behaves_like 'it is successful Hyrax::FileSetsController'
           end
         end
 
       end
     end
-    it_behaves_like 'shared when not signed in', false
-    # it_behaves_like 'shared when not signed in', true # no debug statements to trigger
+    it_behaves_like 'shared when not signed in Hyrax::FileSetsController', false
+    # it_behaves_like 'shared when not signed in Hyrax::FileSetsController', true # no debug statements to trigger
   end
 
   describe 'when signed in' do
-    RSpec.shared_examples 'shared when signed in' do |dbg_verbose|
+    RSpec.shared_examples 'shared when signed in Hyrax::FileSetsController' do |dbg_verbose|
       subject { described_class }
       before do
         described_class.file_sets_controller_debug_verbose = dbg_verbose
@@ -446,18 +446,18 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
 
           describe '#show' do
             before { get :show, params: { id: public_file_set } }
-            it_behaves_like 'it is successful'
+            it_behaves_like 'it is successful Hyrax::FileSetsController'
           end
 
         end
       end
     end
-    it_behaves_like 'shared when signed in', false
-    it_behaves_like 'shared when signed in', true
+    it_behaves_like 'shared when signed in Hyrax::FileSetsController', false
+    it_behaves_like 'shared when signed in Hyrax::FileSetsController', true
   end
 
   describe 'anonymous_link' do
-    RSpec.shared_examples 'shared anonymous_link' do |dbg_verbose|
+    RSpec.shared_examples 'shared anonymous_link Hyrax::FileSetsController' do |dbg_verbose|
       subject { described_class }
       before do
         described_class.file_sets_controller_debug_verbose = dbg_verbose
@@ -599,7 +599,7 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
                 expect(controller).to receive(:additional_response_formats).with(ActionController::MimeResponds::Collector)
                 get :anonymous_link, params: { id: file_set, anon_link_id: anon_link_id }
               end
-              it_behaves_like 'it is successful anonymous'
+              it_behaves_like 'it is successful anonymous Hyrax::FileSetsController'
             end
           end
 
@@ -607,12 +607,12 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
 
       end
     end
-    it_behaves_like 'shared anonymous_link', false
-    it_behaves_like 'shared anonymous_link', true
+    it_behaves_like 'shared anonymous_link Hyrax::FileSetsController', false
+    it_behaves_like 'shared anonymous_link Hyrax::FileSetsController', true
   end
 
   describe '#assign_to_work_as_read_me' do
-    RSpec.shared_examples 'shared #assign_to_work_as_read_me' do |dbg_verbose|
+    RSpec.shared_examples 'shared #assign_to_work_as_read_me Hyrax::FileSetsController' do |dbg_verbose|
       subject { described_class }
       before do
         described_class.file_sets_controller_debug_verbose = dbg_verbose
@@ -627,7 +627,7 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
         describe 'when not signed in' do
           let(:file_set)  { create(:file_set, read_groups: ['public']) }
           before { get :assign_to_work_as_read_me, params: { id: file_set.id } }
-          it_behaves_like 'it requires login'
+          it_behaves_like 'it requires login Hyrax::FileSetsController'
         end
 
         describe 'when not editor' do
@@ -706,12 +706,12 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
 
       end
     end
-    it_behaves_like 'shared #assign_to_work_as_read_me', false
-    it_behaves_like 'shared #assign_to_work_as_read_me', true
+    it_behaves_like 'shared #assign_to_work_as_read_me Hyrax::FileSetsController', false
+    it_behaves_like 'shared #assign_to_work_as_read_me Hyrax::FileSetsController', true
   end
 
   describe '#create_anonymous_link' do
-    RSpec.shared_examples 'shared #create_anonymous_link' do |dbg_verbose|
+    RSpec.shared_examples 'shared #create_anonymous_link Hyrax::FileSetsController' do |dbg_verbose|
       # subject { described_class }
       before do
         described_class.file_sets_controller_debug_verbose = dbg_verbose
@@ -728,7 +728,7 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
           before do
             get :create_anonymous_link, params: { id: file_set.id }
           end
-          it_behaves_like 'it requires login'
+          it_behaves_like 'it requires login Hyrax::FileSetsController'
         end
 
         describe 'when editor' do
@@ -772,12 +772,12 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
 
       end
     end
-    it_behaves_like 'shared #create_anonymous_link', false
-    it_behaves_like 'shared #create_anonymous_link', true
+    it_behaves_like 'shared #create_anonymous_link Hyrax::FileSetsController', false
+    it_behaves_like 'shared #create_anonymous_link Hyrax::FileSetsController', true
   end
 
   describe '#create_single_use_link' do
-    RSpec.shared_examples 'shared #create_single_use_link' do |dbg_verbose|
+    RSpec.shared_examples 'shared #create_single_use_link Hyrax::FileSetsController' do |dbg_verbose|
       subject { described_class }
       before do
         described_class.file_sets_controller_debug_verbose = dbg_verbose
@@ -793,17 +793,17 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
           before do
             get :create_single_use_link, params: { id: file_set.id }
           end
-          it_behaves_like 'it requires login'
+          it_behaves_like 'it requires login Hyrax::FileSetsController'
         end
 
       end
     end
-    it_behaves_like 'shared #create_single_use_link', false
-    it_behaves_like 'shared #create_single_use_link', true
+    it_behaves_like 'shared #create_single_use_link Hyrax::FileSetsController', false
+    it_behaves_like 'shared #create_single_use_link Hyrax::FileSetsController', true
   end
 
   describe '#display_provenance_log' do
-    RSpec.shared_examples 'shared #display_provenance_log' do |dbg_verbose|
+    RSpec.shared_examples 'shared #display_provenance_log Hyrax::FileSetsController' do |dbg_verbose|
       subject { described_class }
       before do
         described_class.file_sets_controller_debug_verbose = dbg_verbose
@@ -824,7 +824,7 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
           before do
             get :display_provenance_log, params: { id: file_set.id }
           end
-          it_behaves_like 'it requires login'
+          it_behaves_like 'it requires login Hyrax::FileSetsController'
         end
 
         describe 'signed in' do
@@ -847,12 +847,12 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
 
       end
     end
-    it_behaves_like 'shared #display_provenance_log', false
-    it_behaves_like 'shared #display_provenance_log', true
+    it_behaves_like 'shared #display_provenance_log Hyrax::FileSetsController', false
+    it_behaves_like 'shared #display_provenance_log Hyrax::FileSetsController', true
   end
 
   describe '#doi' do
-    RSpec.shared_examples 'shared #doi' do |dbg_verbose|
+    RSpec.shared_examples 'shared #doi Hyrax::FileSetsController' do |dbg_verbose|
       subject { described_class }
       before do
         described_class.file_sets_controller_debug_verbose = dbg_verbose
@@ -869,7 +869,7 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
           before do
             get :doi, params: { id: file_set.id }
           end
-          it_behaves_like 'it requires login'
+          it_behaves_like 'it requires login Hyrax::FileSetsController'
         end
 
         context 'when signed in' do
@@ -939,8 +939,8 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
 
       end
     end
-    it_behaves_like 'shared #doi', false
-    it_behaves_like 'shared #doi', true
+    it_behaves_like 'shared #doi Hyrax::FileSetsController', false
+    it_behaves_like 'shared #doi Hyrax::FileSetsController', true
   end
 
   context '#file_contents', skip: true do

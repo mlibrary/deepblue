@@ -22,7 +22,8 @@ module Deepblue
       target_file = "#{tmp_dir}/files_report.csv"
       puts "target_file=#{target_file}"
       File.open( target_file, 'w' ) do |out|
-        out.puts "w_id,fs_id,visibility,depositor,date_uploaded,time_uploaded,label,dupe,file0_nil?,original_checksum,original_size,uri_bytes"
+        # out.puts "w_id,fs_id,visibility,depositor,date_uploaded,time_uploaded,label,dupe,file0_nil?,original_checksum,original_size,uri_bytes"
+        out.puts "w_id,fs_id,visibility,depositor,date_uploaded,time_uploaded,label,dupe,file0_nil?,checksum_value,checksum_algorithm,original_size,uri_bytes"
         TaskHelper.all_works.each { |w| report_work( out, w ) }
       end
       puts
@@ -76,13 +77,13 @@ module Deepblue
             date_uploaded = fs.date_uploaded.strftime('%Y%m%d')
             time_uploaded = fs.date_uploaded.strftime('%H%M%S')
           end
-          original_checksum = ''
-          begin
-            original_checksum = fs.original_checksum[0] unless fs.original_checksum.length.zero?
-          rescue Exception => e # rubocop:disable Lint/RescueException
-            pacify '!'
-            original_checksum = "\"#{e.class}: #{e.message}>\""
-          end
+          # original_checksum = ''
+          # begin
+          #   original_checksum = fs.original_checksum[0] unless fs.original_checksum.length.zero?
+          # rescue Exception => e # rubocop:disable Lint/RescueException
+          #   pacify '!'
+          #   original_checksum = "\"#{e.class}: #{e.message}>\""
+          # end
           original_size = ''
           begin
             original_size = fs.original_file.size
@@ -91,7 +92,8 @@ module Deepblue
             original_size = "\"#{e.class}: #{e.message}>\""
           end
           uri_bytes = get_uri_byte_count fs
-          out.puts "#{w.id},#{fs.id},#{fs.visibility},#{fs.depositor},\"#{date_uploaded}\",\"#{time_uploaded}\",\"#{fs.label}\",#{dupe},#{file0_nil},#{original_checksum},#{original_size},#{uri_bytes}"
+          # out.puts "#{w.id},#{fs.id},#{fs.visibility},#{fs.depositor},\"#{date_uploaded}\",\"#{time_uploaded}\",\"#{fs.label}\",#{dupe},#{file0_nil},#{original_checksum},#{original_size},#{uri_bytes}"
+          out.puts "#{w.id},#{fs.id},#{fs.visibility},#{fs.depositor},\"#{date_uploaded}\",\"#{time_uploaded}\",\"#{fs.label}\",#{dupe},#{file0_nil},#{fs.checksum_value},#{fs.checksum_algorithm},#{original_size},#{uri_bytes}"
         rescue Exception => e # rubocop:disable Lint/RescueException
           pacify "<#{fs.id} -- #{e.class}: #{e.message}>"
         end

@@ -21,7 +21,7 @@ RSpec.describe UpdateCondensedEventsJob, skip: false do
   end
 
   describe 'all', skip: false do
-    RSpec.shared_examples 'shared all' do |run_on_server, dbg_verbose|
+    RSpec.shared_examples 'shared UpdateCondensedEventsJob' do |run_on_server, dbg_verbose|
       subject { described_class }
       before do
         described_class.update_condensed_events_job_debug_verbose = dbg_verbose
@@ -93,8 +93,8 @@ RSpec.describe UpdateCondensedEventsJob, skip: false do
       # let(:options)   { { 'hostnames' => hostnames, 'quiet' => true } }
 
       run_on_server = true
-      it_behaves_like 'shared all', run_on_server, false
-      it_behaves_like 'shared all', run_on_server, true
+      it_behaves_like 'shared UpdateCondensedEventsJob', run_on_server, false
+      it_behaves_like 'shared UpdateCondensedEventsJob', run_on_server, true
     end
 
     context 'without valid hostname' do
@@ -104,8 +104,8 @@ RSpec.describe UpdateCondensedEventsJob, skip: false do
       # let(:options)   { { 'hostnames' => hostnames, 'quiet' => true } }
 
       run_on_server = false
-      it_behaves_like 'shared all', run_on_server, false
-      it_behaves_like 'shared all', run_on_server, true
+      it_behaves_like 'shared UpdateCondensedEventsJob', run_on_server, false
+      it_behaves_like 'shared UpdateCondensedEventsJob', run_on_server, true
     end
 
     context 'runs the job with SCHEDULER_ENTRY args' do
@@ -116,8 +116,8 @@ RSpec.describe UpdateCondensedEventsJob, skip: false do
       let(:options)         { args.with_indifferent_access }
 
       run_on_server = false
-      it_behaves_like 'shared all', run_on_server, false
-      it_behaves_like 'shared all', run_on_server, true
+      it_behaves_like 'shared UpdateCondensedEventsJob', run_on_server, false
+      it_behaves_like 'shared UpdateCondensedEventsJob', run_on_server, true
     end
 
   end

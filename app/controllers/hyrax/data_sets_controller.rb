@@ -6,10 +6,9 @@ module Hyrax
 
   class DataSetsController < DeepblueController
 
-    PARAMS_KEY = 'data_set'
+    PARAMS_KEY = 'data_set' unless const_defined? :PARAMS_KEY
 
-    mattr_accessor :data_sets_controller_debug_verbose,
-                   default: Rails.configuration.data_sets_controller_debug_verbose
+    mattr_accessor :data_sets_controller_debug_verbose, default: Rails.configuration.data_sets_controller_debug_verbose
 
     include ActionView::Helpers::TextHelper
     include ::Deepblue::WorksControllerBehavior
