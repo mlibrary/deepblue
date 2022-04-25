@@ -177,6 +177,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     #For toDate, the date_range is used for the CondensedEvent Table, so this entry will be one entry 1972..2972
     #find_by grabs one record.
     #where clause can grab more than one record
+    return unless work.published?
     date_range_filter = date_range if date_range_filter.blank?
     begin_date = date_range.first
     end_date = date_range.last
@@ -188,9 +189,11 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     records.each do |r|
       visits = Ahoy::Event.where( name: filter, visit_id: r.visit_id, cc_id: r.cc_id, time: date_range_filter )
       next if visits.count > max_visit_filter_count
-      
+
       ip_count = compute_ip_count_for_object( name: filter, cc_id: r.cc_id, visit_id: r.visit_id, time: date_range_filter )
       next if ip_count > max_visit_filter_count
+
+      next if user_is_admin( user_id: r.user_id )
 
       condensed_event["total_downloads"] = condensed_event["total_downloads"] + 1
     end  
@@ -202,7 +205,16 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     record.save
   end
 
+  def self.user_is_admin( user_id: )
+    email = User.where( id: user_id ).first.email
+    admin_users = RoleMapper.map["admin"]
+
+    admin_users.include? email
+  end
+
   def self.update_condensed_events_for_work_files_in_date_range( name:, filter:, work:, date_range:, date_range_filter: nil, force: false )
+    return unless work.published?
+
     date_range_filter = date_range if date_range_filter.blank?
     begin_date = date_range.first
     end_date = date_range.last
@@ -219,6 +231,8 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
 
         ip_count = compute_ip_count_for_object( name: filter, cc_id: r.cc_id, visit_id: r.visit_id, time: date_range_filter )
         next if ip_count > max_visit_filter_count
+
+        next if user_is_admin( user_id: r.user_id )
         
         condensed_event["total_downloads"] = condensed_event["total_downloads"] + 1
         condensed_event[fid] = 0 unless condensed_event[fid].present?
