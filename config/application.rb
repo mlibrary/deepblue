@@ -345,11 +345,10 @@ module DeepBlueDocs
       # I18n.backend = I18n::Backend::Chain.new( config.key_value_backend, I18n.backend )
       # config.i18n_backend = I18n.backend
       # puts I18n.backend if after_initialize_debug_verbose
-      # # note that the debug statements in load_email_templates will not go to the log when called from here
-      # Deepblue::WorkViewContentService.load_email_templates( debug_verbose: after_initialize_debug_verbose )
-      # Deepblue::WorkViewContentService.load_i18n_templates( debug_verbose: after_initialize_debug_verbose )
-      # Deepblue::WorkViewContentService.load_view_templates( debug_verbose: after_initialize_debug_verbose )
-      # puts "Finished after i18n and view templates load." if after_initialize_debug_verbose
+      Deepblue::WorkViewContentService.load_email_templates( debug_verbose: after_initialize_debug_verbose )
+      Deepblue::WorkViewContentService.load_i18n_templates( debug_verbose: after_initialize_debug_verbose )
+      Deepblue::WorkViewContentService.load_view_templates( debug_verbose: after_initialize_debug_verbose )
+      puts "Finished after i18n and view templates load." if after_initialize_debug_verbose
       ServerAfterInitializeService.server_after_initialize_callback( config,
                                                                      debug_verbose: after_initialize_debug_verbose,
                                                                      debug_verbose_work_view_conent_service: false )
