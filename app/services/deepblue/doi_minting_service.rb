@@ -136,6 +136,33 @@ module Deepblue
       Rails.logger.error "DoiBehavior.doi_mint for curation_concern.id #{id} -- #{e.class}: #{e.message} at #{e.backtrace[0]}"
     end
 
+    def self.doi_pending_finder( data_set_ids_found:,
+                                 file_set_ids_found:,
+                                 msg_queue: nil,
+                                 rake_task: false,
+                                 debug_verbose: ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose )
+      debug_verbose ||= ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "data_set_ids_found.is_a? Array=#{data_set_ids_found.is_a? Array}",
+                                             "file_set_ids_found.is_a? Array=#{file_set_ids_found.is_a? Array}",
+                                             "msg_queue=#{msg_queue}",
+                                             "" ], bold_puts: rake_task if debug_verbose
+
+      if data_set_ids_found.is_a? Array
+        DataSet.all.each do |work|
+          data_set_ids_found << work.id if work.doi_pending?
+        end
+      end
+
+      if file_set_ids_found.is_a? Array
+        FileSet.all.each do |fs|
+          file_set_ids_found << fs.id if fs.doi_pending?
+        end
+      end
+
+    end
+
     def self.registrar_mint_doi( curation_concern:,
                                  current_user: nil,
                                  debug_verbose: ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose,

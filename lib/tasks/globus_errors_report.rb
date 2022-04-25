@@ -2,10 +2,10 @@
 
 module Deepblue
 
-  require 'tasks/abstract_task'
+  require 'tasks/abstract_report_task'
   require_relative '../../app/services/deepblue/globus_integration_service'
 
-  class GlobusErrorsReport < AbstractTask
+  class GlobusErrorsReport < AbstractReportTask
 
     DEFAULT_REPORT_DIR = nil unless const_defined? :DEFAULT_REPORT_DIR
     DEFAULT_REPORT_FILE_PREFIX = nil unless const_defined? :DEFAULT_REPORT_FILE_PREFIX

@@ -8,7 +8,7 @@ module Deepblue
 
   class AbstractReportTask < ::Deepblue::AbstractTask
 
-    DEFAULT_REPORT_FORMAT = 'report.yml'
+    DEFAULT_REPORT_FORMAT = 'report.yml' unless const_defined? :DEFAULT_REPORT_FORMAT
 
     attr_accessor :report_format
 
@@ -18,6 +18,16 @@ module Deepblue
 
     def initialize_input
       task_options_value( key: 'report_format', default_value: DEFAULT_REPORT_FORMAT )
+    end
+
+    def expand_path_partials( path )
+      return path unless path.present?
+      now = Time.now
+      path = path.gsub( /\%date\%/, "#{now.strftime('%Y%m%d')}" )
+      path = path.gsub( /\%time\%/, "#{now.strftime('%H%M%S')}" )
+      path = path.gsub( /\%timestamp\%/, "#{now.strftime('%Y%m%d%H%M%S')}" )
+      path = path.gsub( /\%hostname\%/, "#{::DeepBlueDocs::Application.config.hostname}" )
+      return path
     end
 
     def run

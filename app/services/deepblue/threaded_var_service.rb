@@ -24,7 +24,7 @@ module Deepblue
     @@threaded_var_last_loaded_in_thread = {}
 
     def self.initialize_cached_threaded_var_semaphores
-      puts "::Deepblue::ThreadedVarService.initialize_cached_threaded_var_semaphores"
+      # puts "::Deepblue::ThreadedVarService.initialize_cached_threaded_var_semaphores"
       THREADED_VAR_IDS.each { |id| touch_semaphore id }
     end
 

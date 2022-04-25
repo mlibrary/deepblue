@@ -3,9 +3,9 @@
 module Deepblue
 
   require 'tasks/abstract_report_task'
-  require_relative '../../app/services/deepblue/globus_integration_service'
+  require_relative '../../app/services/deepblue/doi_pending_reporter'
 
-  class GlobusStatusReport < AbstractReportTask
+  class DoiPendingReportTask < AbstractReportTask
 
     DEFAULT_REPORT_DIR = nil unless const_defined? :DEFAULT_REPORT_DIR
     DEFAULT_REPORT_FILE_PREFIX = nil unless const_defined? :DEFAULT_REPORT_FILE_PREFIX
@@ -23,17 +23,20 @@ module Deepblue
       # puts "options=#{options}"
       @quiet = task_options_value( key: 'quiet', default_value: DEFAULT_REPORT_QUIET )
       @verbose = false if quiet
-      reporter = GlobusIntegrationService.globus_status_report( quiet: quiet, debug_verbose: verbose, rake_task: true )
+      reporter = DoiPendingReporter.new( quiet: quiet, debug_verbose: verbose, rake_task: true )
+      reporter.run
       report = reporter.out
       return unless report.present?
       @report_dir = task_options_value( key: 'report_dir', default_value: DEFAULT_REPORT_DIR )
+      puts "Report dir: '#{@report_dir}' not found" unless @report_dir.present?
       return unless @report_dir.present?
       @prefix = task_options_value( key: 'report_file_prefix', default_value: DEFAULT_REPORT_FILE_PREFIX )
-      @prefix = "#{Time.now.strftime('%Y%m%d')}_globus_status_report" if @prefix.nil?
+      @prefix = "#{Time.now.strftime('%Y%m%d')}_doi_pending_report" if @prefix.nil?
       @prefix = expand_path_partials( prefix )
       @report_dir = expand_path_partials( report_dir )
       @report_file = Pathname.new( report_dir ).join "#{prefix}.txt"
       File.open( report_file, 'w' ) { |f| f << report << "\n" }
+      puts "Report file: #{@report_file}"
     end
 
   end
