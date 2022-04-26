@@ -5,14 +5,14 @@ class DoiPendingReportJob < ::Deepblue::DeepblueJob
   SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 
 doi_pending_report_job:
-  # Run once a day, 5 minutes after six pm (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  # Run once on Saturdays at two am (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M H D
-  cron: '5 18 * * *'
+  cron: '0 6 * * 6'
   class: DoiPendingReportJob
   queue: scheduler
   description: DOI pending report job.
   args:
-    by_request_only: false
+    by_request_only: true
     hostnames:
       - 'deepblue.lib.umich.edu'
       - 'staging.deepblue.lib.umich.edu'
@@ -34,11 +34,11 @@ END_OF_SCHEDULER_ENTRY
     return job_finished unless hostname_allowed?
     reporter = ::Deepblue::DoiPendingReporter.new( quiet: is_quiet?, debug_verbose: debug_verbose )
     reporter.run
-    if report.out.present? && !suppress_if_quiet
+    if reporter.out.present? && !suppress_if_quiet
       event = "doi pending report job"
       email_all_targets( task_name: "doi pending report",
                          event: event,
-                         body: report.out,
+                         body: reporter.out,
                          content_type: ::Deepblue::EmailHelper::TEXT_HTML )
     end
     job_finished
