@@ -147,6 +147,24 @@ module Deepblue
       return rv
     end
 
+    def self.csv_all_metadata_to_file( output_file )
+      CSV.open( output_file, "w", {:force_quotes=>true} ) do |csv|
+          csv << DataSet.metadata_keys_all
+          DataSet.all.each { |w| csv << csv_metadata_to_row( w ) }
+      end
+    end
+
+    def csv_metadata_to_row( work )
+      values = work.metadata_hash( metadata_keys: DataSet.metadata_keys_all, ignore_blank_values: false ).values
+      values.map do |v|
+        if v.respond_to? :to_a
+          v.to_a.join(';')
+        else
+          v.to_s
+        end
+      end
+    end
+
     def self.file_from_file_set( file_set )
       file = nil
       files = file_set.files
