@@ -79,6 +79,12 @@ class ContactFormDashboardController < ApplicationController
           when t( 'simple_form.actions.contact_form.new_google_recaptcha_disabled' )
             ::Hyrax::ContactFormController.ngr_enabled = false
             action
+          when t( 'simple_form.actions.contact_form.contact_form_email_passthrough_enabled_enable' )
+            ::Hyrax::ContactFormController.contact_form_email_passthrough_enabled = true
+            action
+          when t( 'simple_form.actions.contact_form.contact_form_email_passthrough_enabled_disable' )
+            ::Hyrax::ContactFormController.contact_form_email_passthrough_enabled = false
+            action
           when t( 'simple_form.actions.contact_form.debug_controller_verbose_enable' )
             ::Hyrax::ContactFormController.contact_form_controller_debug_verbose = true
             action

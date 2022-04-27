@@ -20,6 +20,9 @@ module Hyrax
     mattr_accessor :contact_form_log_delivered,            default: true
     mattr_accessor :contact_form_log_spam,                 default: true
 
+    mattr_accessor :contact_form_email_passthrough_re,     default: /^.*\@umich.edu$/
+    mattr_accessor :contact_form_email_passthrough_enabled, default: true
+
     mattr_accessor :akismet_enabled,                       default: false
     mattr_accessor :akismet_env_slice_keys,                default: %w{ HTTP_ACCEPT
                                                                         HTTP_ACCEPT_ENCODING

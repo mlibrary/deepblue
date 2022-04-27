@@ -11,13 +11,15 @@ Hyrax::ContactFormIntegrationService.setup do |config|
 
   config.contact_form_send_email               = false
 
+  config.contact_form_email_passthrough_re     = /^.*\@umich.edu$/
+  config.contact_form_email_passthrough_enabled = true
+
   config.antispam_timeout_in_seconds           = 8
   config.contact_form_log_echo_to_rails_logger = true
   config.contact_form_log_delivered            = true
   config.contact_form_log_spam                 = true
 
   config.akismet_enabled                       = false
-  # config.akismet_env_slice_keys                = %w{ HTTP_ACCEPT HTTP_ACCEPT_ENCODING }
   config.akismet_env_slice_keys                = %w{ HTTP_ACCEPT
                                                      HTTP_ACCEPT_ENCODING
                                                      REQUEST_METHOD

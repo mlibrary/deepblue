@@ -16,6 +16,12 @@
         <%= submit_tag(t('simple_form.actions.contact_form.new_google_recaptcha_enabled'), class: 'btn btn-primary') %>
       <% end %>
       &nbsp;
+      <% if ::Hyrax::ContactFormController.contact_form_email_passthrough_enabled %>
+        <%= submit_tag(t('simple_form.actions.contact_form.contact_form_email_passthrough_enabled_disable'), class: 'btn btn-primary') %>&nbsp;
+      <% else %>
+        <%= submit_tag(t('simple_form.actions.contact_form.contact_form_email_passthrough_enabled_enable'), class: 'btn btn-primary') %>
+      <% end %>
+      &nbsp;
       <% if ::Hyrax::ContactFormController.contact_form_controller_debug_verbose %>
         <%= submit_tag(t('simple_form.actions.contact_form.debug_controller_verbose_disable'), class: 'btn btn-primary') %>&nbsp;
       <% else %>

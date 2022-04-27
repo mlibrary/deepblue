@@ -14,6 +14,9 @@ module Hyrax
     mattr_accessor :contact_form_log_spam, default: ContactFormIntegrationService.contact_form_log_spam
     mattr_accessor :antispam_timeout_in_seconds, default: ContactFormIntegrationService.antispam_timeout_in_seconds
 
+    mattr_accessor :contact_form_email_passthrough_re,     default: ContactFormIntegrationService.contact_form_email_passthrough_re
+    mattr_accessor :mattr_contact_form_email_passthrough_enabled, default: ContactFormIntegrationService.contact_form_email_passthrough_enabled
+
     mattr_accessor :mattr_akismet_enabled, default: ContactFormIntegrationService.akismet_enabled
     mattr_accessor :akismet_env_slice_keys, default: ContactFormIntegrationService.akismet_env_slice_keys
     mattr_accessor :akismet_is_spam_only_if_blatant,
@@ -21,6 +24,26 @@ module Hyrax
 
     mattr_accessor :mattr_ngr_enabled, default: ContactFormIntegrationService.new_google_recaptcha_enabled
     mattr_accessor :ngr_just_human_test, default: ContactFormIntegrationService.new_google_recaptcha_just_human_test
+
+    def self.akismet_enabled
+      if Rails.env.production? && ::Deepblue::CacheService.cache_available?
+        ::Deepblue::CacheService.var_cache_fetch( klass: ContactFormDashboardController,
+                                                  var: :akismet_enabled,
+                                                  default_value: mattr_akismet_enabled )
+      else
+        mattr_akismet_enabled
+      end
+    end
+
+    def self.akismet_enabled=(value)
+      if Rails.env.production? && ::Deepblue::CacheService.cache_available?
+        ::Deepblue::CacheService.var_cache_write( klass: ContactFormDashboardController,
+                                                  var: :akismet_enabled,
+                                                  value: value )
+      else
+        ContactFormController.mattr_akismet_enabled = value
+      end
+    end
 
     def self.contact_form_controller_debug_verbose
       if Rails.env.production? && ::Deepblue::CacheService.cache_available?
@@ -39,6 +62,26 @@ module Hyrax
                                                   value: value )
       else
         ContactFormController.mattr_contact_form_controller_debug_verbose = value
+      end
+    end
+
+    def self.contact_form_email_passthrough_enabled
+      if Rails.env.production? && ::Deepblue::CacheService.cache_available?
+        ::Deepblue::CacheService.var_cache_fetch( klass: ContactFormDashboardController,
+                                                  var: :contact_form_email_passthrough_enabled,
+                                                  default_value: mattr_contact_form_controller_debug_verbose )
+      else
+        mattr_contact_form_email_passthrough_enabled
+      end
+    end
+
+    def self.contact_form_email_passthrough_enabled=(value)
+      if Rails.env.production? && ::Deepblue::CacheService.cache_available?
+        ::Deepblue::CacheService.var_cache_write( klass: ContactFormDashboardController,
+                                                  var: :contact_form_email_passthrough_enabled,
+                                                  value: value )
+      else
+        ContactFormController.mattr_contact_form_email_passthrough_enabled = value
       end
     end
 
@@ -62,26 +105,6 @@ module Hyrax
       end
     end
 
-    def self.akismet_enabled
-      if Rails.env.production? && ::Deepblue::CacheService.cache_available?
-        ::Deepblue::CacheService.var_cache_fetch( klass: ContactFormDashboardController,
-                                                  var: :akismet_enabled,
-                                                  default_value: mattr_akismet_enabled )
-      else
-        mattr_akismet_enabled
-      end
-    end
-
-    def self.akismet_enabled=(value)
-      if Rails.env.production? && ::Deepblue::CacheService.cache_available?
-        ::Deepblue::CacheService.var_cache_write( klass: ContactFormDashboardController,
-                                                  var: :akismet_enabled,
-                                                  value: value )
-      else
-        ContactFormController.mattr_akismet_enabled = value
-      end
-    end
-
     def self.ngr_enabled
       if Rails.env.production? && ::Deepblue::CacheService.cache_available?
         ::Deepblue::CacheService.var_cache_fetch( klass: ContactFormDashboardController,
@@ -100,22 +123,6 @@ module Hyrax
       else
         ContactFormController.mattr_ngr_enabled = value
       end
-    end
-
-    def contact_form_controller_debug_verbose
-      @contact_form_controller_debug_verbose ||= ContactFormController.contact_form_controller_debug_verbose
-    end
-
-    def contact_form_send_email
-      @contact_form_send_email ||= ContactFormController.contact_form_send_email
-    end
-
-    def akismet_enabled
-      @akismet_enabled ||= ContactFormController.akismet_enabled
-    end
-
-    def ngr_enabled
-      @ngr_enabled ||= ContactFormController.ngr_enabled
     end
 
     # NOTE: the save a timestamp of the first visit to the contact form to the session, then use to measure the
@@ -137,69 +144,23 @@ module Hyrax
       @ngr_used = false
       @ngr_is_human = nil # assume this is true and allow google recaptcha to set it to false as necessary
       @ngr_humanity_details = nil
+      @email_passthrough = nil
       @contact_form = Hyrax::ContactForm.new(contact_form_params)
       @referrer_ip = nil
     end
 
-    def new; end
-
-    def create
-      @create_timestamp = Time.now.to_i
-      env = request.env
-      @referrer_ip = env['action_dispatch.remote_ip'].to_s
+    def add_antispam_timestamp_to_session
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "request.class.name=#{request.class.name}",
-                                             "env.class.name=#{env.class.name}",
-                                             "env.keys=#{env.keys}",
-                                             "env['REMOTE_ADDR']=#{env['REMOTE_ADDR']}",
-                                             "env['REQUEST_URI']=#{env['REQUEST_URI']}",
-                                             "env['HTTP_USER_AGENT']=#{env['HTTP_USER_AGENT']}",
-                                             "@referrer_ip=#{@referrer_ip}",
-                                             # "env=#{env}",
-                                             "akismet_env_vars=#{akismet_env_vars}",
-                                             "params[:action]=#{params[:action]}",
-                                             "contact_form_index_path=#{contact_form_index_path}",
-                                             "@create_timestamp=#{@create_timestamp}",
                                              "antispam_timestamp=#{antispam_timestamp}",
-                                             "antispam_delta_in_seconds=#{antispam_delta_in_seconds}",
-                                             "is_spam?=#{is_spam?}",
-                                             "params=#{params}",
-                                             "contact_form_send_email=#{contact_form_send_email}",
-                                             "@contact_form.valid?=#{@contact_form.valid?}",
-                                             "@contact_form.spam?=#{@contact_form.spam?}",
-                                             "akismet_enabled=#{akismet_enabled}",
-                                             "ngr_enabled=#{ngr_enabled}",
-                                             "contact_form_send_email=#{contact_form_send_email}",
-                                             "@spam_status_unknown=#{@spam_status_unknown}",
                                              "" ] if contact_form_controller_debug_verbose
-      akismet_is_spam? if @spam_status_unknown && akismet_enabled
-      new_google_recaptcha if @spam_status_unknown && ngr_enabled
-      if @contact_form.valid?
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "is_spam?=#{is_spam?}",
-                                               "" ] if contact_form_controller_debug_verbose
-        if contact_form_send_email
-          ContactMailer.contact(@contact_form).deliver_now unless is_spam?
-        end
-        flash.now[:notice] = 'Thank you for your message!' # TODO: localize
-        after_deliver
-        @contact_form = ContactForm.new
-      else
-        flash.now[:error] = 'Sorry, this message was not sent successfully. ' +
-          @contact_form.errors.full_messages.map(&:to_s).join(", ")
-        after_error
+      if antispam_timestamp.blank?
+        antispam_timestamp = Time.now.to_i
       end
-      render :new
-    rescue RuntimeError => exception
-      handle_create_exception(exception)
-    end
-
-    def handle_create_exception(exception)
-      ::Deepblue::LoggingHelper.bold_error("Contact form failed to send: #{exception.inspect}")
-      flash.now[:error] = 'Sorry, this message was not delivered.' # TODO: localize
-      render :new
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "antispam_timestamp=#{antispam_timestamp}",
+                                             "" ] if contact_form_controller_debug_verbose
     end
 
     # Override this method if you want to perform additional operations
@@ -241,29 +202,93 @@ module Hyrax
       # TODO
     end
 
+    def akismet_enabled
+      ContactFormController.akismet_enabled
+    end
+
     def antispam_delta_in_seconds
       @antispam_delta_in_seconds ||= @create_timestamp - antispam_timestamp.to_i
     end
 
-    private
+    def contact_form_controller_debug_verbose
+      ContactFormController.contact_form_controller_debug_verbose
+    end
 
-    def add_antispam_timestamp_to_session
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "antispam_timestamp=#{antispam_timestamp}",
-                                             "" ] if contact_form_controller_debug_verbose
-      if antispam_timestamp.blank?
-        antispam_timestamp = Time.now.to_i
-      end
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "antispam_timestamp=#{antispam_timestamp}",
-                                             "" ] if contact_form_controller_debug_verbose
+    def contact_form_email_passthrough_enabled
+      ContactFormController.contact_form_email_passthrough_enabled
     end
 
     def contact_form_params
       return {} unless params.key?(:contact_form)
       params.require(:contact_form).permit(:contact_method, :category, :name, :email, :subject, :message)
+    end
+
+    def contact_form_send_email
+      ContactFormController.contact_form_send_email
+    end
+
+    def create
+      @create_timestamp = Time.now.to_i
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "@contact_form.valid?=#{@contact_form.valid?}",
+                                             "" ] if contact_form_controller_debug_verbose
+      if @contact_form.valid?
+        env = request.env
+        @referrer_ip = env['action_dispatch.remote_ip'].to_s
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "@contact_form.valid?=#{@contact_form.valid?}",
+                                               "@contact_form.spam?=#{@contact_form.spam?}",
+                                               "request.class.name=#{request.class.name}",
+                                               "env.class.name=#{env.class.name}",
+                                               "env.keys=#{env.keys}",
+                                               "env['REMOTE_ADDR']=#{env['REMOTE_ADDR']}",
+                                               "env['REQUEST_URI']=#{env['REQUEST_URI']}",
+                                               "env['HTTP_USER_AGENT']=#{env['HTTP_USER_AGENT']}",
+                                               "@referrer_ip=#{@referrer_ip}",
+                                               # "env=#{env}",
+                                               "akismet_env_vars=#{akismet_env_vars}",
+                                               "params[:action]=#{params[:action]}",
+                                               "contact_form_index_path=#{contact_form_index_path}",
+                                               "@create_timestamp=#{@create_timestamp}",
+                                               "antispam_timestamp=#{antispam_timestamp}",
+                                               "antispam_delta_in_seconds=#{antispam_delta_in_seconds}",
+                                               "is_spam?=#{is_spam?}",
+                                               "params=#{params}",
+                                               "contact_form_send_email=#{contact_form_send_email}",
+                                               "akismet_enabled=#{akismet_enabled}",
+                                               "ngr_enabled=#{ngr_enabled}",
+                                               "contact_form_send_email=#{contact_form_send_email}",
+                                               "@spam_status_unknown=#{@spam_status_unknown}",
+                                               "" ] if contact_form_controller_debug_verbose
+        email_passthrough? if @spam_status_unknown && contact_form_email_passthrough_enabled
+        akismet_is_spam? if @spam_status_unknown && akismet_enabled
+        new_google_recaptcha if @spam_status_unknown && ngr_enabled
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "is_spam?=#{is_spam?}",
+                                               "" ] if contact_form_controller_debug_verbose
+        if contact_form_send_email
+          ContactMailer.contact(@contact_form).deliver_now unless is_spam?
+        end
+        flash.now[:notice] = 'Thank you for your message!' # TODO: localize
+        after_deliver
+        @contact_form = ContactForm.new
+      else
+        flash.now[:error] = 'Sorry, this message was not sent successfully. ' +
+          @contact_form.errors.full_messages.map(&:to_s).join(", ")
+        after_error
+      end
+      render :new
+    rescue RuntimeError => exception
+      handle_create_exception(exception)
+    end
+
+    def handle_create_exception(exception)
+      ::Deepblue::LoggingHelper.bold_error("Contact form failed to send: #{exception.inspect}")
+      flash.now[:error] = 'Sorry, this message was not delivered.' # TODO: localize
+      render :new
     end
 
     def log( event:, contact_method:, category:, name:, email:, subject:, message: )
@@ -273,6 +298,7 @@ module Hyrax
                                              "@akismet_used=#{@akismet_used}",
                                              "ngr_enabled=#{ngr_enabled}",
                                              "@ngr_used=#{@ngr_used}",
+                                             "@email_passthrough=#{@email_passthrough}",
                                              "event=#{event}",
                                              "contact_method=#{contact_method}",
                                              "category=#{category}",
@@ -294,6 +320,9 @@ module Hyrax
                                  referrer_ip: @referrer_ip,
                                  antispam_delta_in_seconds: antispam_delta_in_seconds,
                                  antispam_timeout_in_seconds: antispam_timeout_in_seconds )
+      if contact_form_email_passthrough_enabled && @email_passthrough.present?
+        log_key_values.merge!( email_passthrough: @email_passthrough )
+      end
       if akismet_enabled && contact_form_controller_debug_verbose
         log_key_values.merge!( akismet_enabled: akismet_enabled, akismet_used: @akismet_used )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -379,6 +408,12 @@ module Hyrax
       Rails.logger.info msg
     end
 
+    def new; end
+
+    def ngr_enabled
+      ContactFormController.ngr_enabled
+    end
+
     def akismet_env_vars
       request.env.slice(*akismet_env_slice_keys)
     end
@@ -434,6 +469,20 @@ module Hyrax
         @akismet_check_rv_is_spam = nil
         @akismet_check_rv_is_blatant = nil
         @akismet_used = false
+      end
+    end
+
+    def email_passthrough?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if contact_form_controller_debug_verbose
+      return unless @spam_status_unknown
+      begin
+        email = @contact_form.email
+        if email =~ contact_form_email_passthrough_re
+          @spam_status_unknown = false
+          @email_passthrough = email
+        end
       end
     end
 
