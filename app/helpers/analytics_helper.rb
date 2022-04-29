@@ -206,7 +206,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
   end
 
   def self.user_is_admin( user_id: )
-    email = User.where( id: user_id ).first.email
+    email = User.where( id: user_id )&.first&.email
     admin_users = RoleMapper.map["admin"]
 
     admin_users.include? email
