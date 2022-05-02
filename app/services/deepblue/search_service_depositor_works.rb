@@ -1,4 +1,6 @@
 
+require_relative '../../search_builders/hyrax/depositor_works_search_builder'
+
 module Deepblue
     module SearchServiceDepositorWorks
 
