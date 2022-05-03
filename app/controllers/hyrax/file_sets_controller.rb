@@ -265,7 +265,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if file_sets_controller_debug_verbose
-        SingleUseLink.create( itemId: curation_concern.id,
+        SingleUseLink.create( item_id: curation_concern.id,
                               path: hyrax.download_path( id: curation_concern.id ),
                               user_id: current_ability.current_user.id,
                               user_comment: params[:user_comment] )
@@ -273,7 +273,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if file_sets_controller_debug_verbose
-        SingleUseLink.create( itemId: curation_concern.id,
+        SingleUseLink.create( item_id: curation_concern.id,
                               path: current_show_path,
                               user_id: current_ability.current_user.id,
                               user_comment: params[:user_comment] )

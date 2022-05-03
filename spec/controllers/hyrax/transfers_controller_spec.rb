@@ -9,7 +9,7 @@ RSpec.describe Hyrax::TransfersController, type: :controller, skip: false do
   let( :authoremail ) { 'authoremail@umich.edu' }
   let( :creator ) { 'Creator, A' }
   let( :current_user ) { 'user@umich.edu' }
-  let( :date_created ) { '2018-02-28' }
+  let( :date_created ) { ['2018-02-28'] }
   let( :depositor ) { authoremail }
   let( :description ) { 'The Description' }
   let( :id ) { '0123458678' }

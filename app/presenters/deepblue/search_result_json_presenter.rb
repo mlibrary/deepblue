@@ -16,7 +16,7 @@ module Deepblue
     def metadata_browse( doc )
       h = {}
       doc.model_property_names_browse.each do |name|
-        solr_name = Solrizer.solr_name(name)
+        solr_name = Solrizer.solr_name(name) # TODO: how to replace the Solrizer.solr_name(name)
         Rails.logger.debug "doc[#{name}]=#{doc[solr_name]}" if search_result_json_presenter_debug_verbose
         h[name] = doc[solr_name]
       end

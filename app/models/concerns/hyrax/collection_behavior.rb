@@ -45,7 +45,7 @@ module Hyrax
     # Field name to look up when locating the size of each file in Solr.
     # Override for your own installation if using something different
     def file_size_field
-      Solrizer.solr_name(:file_size, Hyrax::FileSetIndexer::STORED_LONG)
+      :file_size_lts
     end
 
   end

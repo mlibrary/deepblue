@@ -77,9 +77,9 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",
-                                             "single_use_link.itemId=#{single_use_link.itemId}",
+                                             "single_use_link.item_id=#{single_use_link.item_id}",
                                              "" ] if single_use_links_viewer_controller_debug_verbose
-      _, document_list = search_results( id: single_use_link.itemId )
+      _, document_list = search_results( id: single_use_link.item_id )
       solr_doc = document_list.first
       model = solr_doc['has_model_ssim'].first
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -131,7 +131,7 @@ module Hyrax
 
     def asset
       @asset ||= if single_use_link.is_a? SingleUseLink
-                   ::PersistHelper.find(single_use_link.itemId)
+                   ::PersistHelper.find(single_use_link.item_id)
                  else
                    ''
                  end
@@ -174,10 +174,10 @@ module Hyrax
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "single_use_link&.valid?=#{single_use_link&.valid?}",
-                                                 "single_use_link&.itemId=#{single_use_link&.itemId}",
+                                                 "single_use_link&.item_id=#{single_use_link&.item_id}",
                                                  "obj.id=#{obj.id}",
                                                  "" ] if @debug_verbose
-          single_use_link.valid? && single_use_link.itemId == obj.id # && single_use_link.destroy!
+          single_use_link.valid? && single_use_link.item_id == obj.id # && single_use_link.destroy!
         end
       end
 

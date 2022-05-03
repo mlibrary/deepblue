@@ -20,7 +20,7 @@ RSpec.describe 'hyrax/file_sets/_anonymous_links.html.erb', type: :view do
   end
 
   context "with anonymous links" do
-    let(:link)           { SingleUseLink.create(itemId: "1234", downloadKey: "sha2hashb") }
+    let(:link)           { SingleUseLink.create(item_id: "1234", download_key: "sha2hashb") }
     let(:link_presenter) { Hyrax::AnonymousLinkPresenter.new(link) }
 
     before do

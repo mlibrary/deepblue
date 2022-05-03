@@ -13,11 +13,10 @@ class UMichClamAVDaemonScanner < AbstractVirusScanner
 
   # standard umich clamav configuration (from /etc/clamav/clamav.conf)
 
-  CONNECTION_TYPE = :tcp
-  PORT            = 3310
-  MACHINE         = '127.0.0.1'
-
-  CHUNKSIZE = 4096
+  CONNECTION_TYPE = :tcp        unless const_defined? :CONNECTION_TYPE
+  PORT            = 3310        unless const_defined? :PORT
+  MACHINE         = '127.0.0.1' unless const_defined? :MACHINE
+  CHUNKSIZE       = 4096        unless const_defined? :CHUNKSIZE
 
   class CannotConnectClient < NullVirusScanner
 
@@ -57,7 +56,7 @@ class UMichClamAVDaemonScanner < AbstractVirusScanner
                                            "UMichClamAVDaemonScanner.infected? File '#{file}' exists? #{File.exist? file}",
                                            "" ] if umich_clamav_daemon_scanner_debug_verbose
     unless alive?
-      warning "Cannot connect to virus scanner. Skipping file #{file}"
+      warning "Cannot connect to virus scanner. Skipping file #{file}" unless Rails.env.test?
       return ::Deepblue::VirusScanService::VIRUS_SCAN_SKIPPED_SERVICE_UNAVAILABLE
     end
     resp = scan_response

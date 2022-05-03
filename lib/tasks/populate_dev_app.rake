@@ -247,7 +247,7 @@ def demo_content
   puts "user: #{user.user_key}"
 
   # Create work and attribute to user if they don't already have at least one.
-  return unless DataSet.where( Solrizer.solr_name('depositor', :symbol) => user.user_key ).count < 1
+  return unless DataSet.where( 'depositor_ssim' => user.user_key ).count < 1
   create_demo_work( user: user )
   puts "demo work created."
 end

@@ -35,17 +35,17 @@ RSpec.describe Hyrax::SingleUseLinksViewerController do
       context do
 
         let :show_link do
-          SingleUseLink.create itemId: file.id,
+          SingleUseLink.create item_id: file.id,
                                path: Rails.application.routes.url_helpers.hyrax_file_set_path(id: file, locale: 'en')
         end
 
         let :download_link do
           Hydra::Works::AddFileToFileSet.call_enhanced_version( file, File.open(fixture_path + '/world.png'), :original_file )
-          SingleUseLink.create itemId: file.id, path: Hyrax::Engine.routes.url_helpers.download_path(id: file, locale: 'en')
+          SingleUseLink.create item_id: file.id, path: Hyrax::Engine.routes.url_helpers.download_path(id: file, locale: 'en')
         end
 
-        let(:show_link_hash) { show_link.downloadKey }
-        let(:download_link_hash) { download_link.downloadKey }
+        let(:show_link_hash) { show_link.download_key }
+        let(:download_link_hash) { download_link.download_key }
 
         describe "GET 'download'", skip: false do
           let(:expected_content) { ActiveFedora::Base.find(file.id).original_file.content }
@@ -57,11 +57,11 @@ RSpec.describe Hyrax::SingleUseLinksViewerController do
             get :download, params: { id: download_link_hash }
             expect(response.body).to eq expected_content
             expect(response).to be_successful
-            expect { SingleUseLink.find_by_downloadKey!(download_link_hash) }.to raise_error ActiveRecord::RecordNotFound
+            expect { SingleUseLink.find_by_download_key!(download_link_hash) }.to raise_error ActiveRecord::RecordNotFound
           end
 
           context "when the key is not found", skip: false do
-            before { SingleUseLink.find_by_downloadKey!(download_link_hash).destroy }
+            before { SingleUseLink.find_by_download_key!(download_link_hash).destroy }
 
             it "shows the main page with message" do
               get :download, params: { id: download_link_hash }
@@ -78,11 +78,11 @@ RSpec.describe Hyrax::SingleUseLinksViewerController do
             expect(response).to redirect_to( "http://test.host/concern/file_sets/#{file.id}/single_use_link/#{show_link_hash}" )
             expect(flash[:notice]).to include(I18n.t('hyrax.single_use_links.notice.show_file_html'))
             # expect(assigns[:presenter].id).to eq file.id
-            # expect { SingleUseLink.find_by_downloadKey!(show_link_hash) }.to raise_error ActiveRecord::RecordNotFound
+            # expect { SingleUseLink.find_by_download_key!(show_link_hash) }.to raise_error ActiveRecord::RecordNotFound
           end
 
           context "shows the main page with message when the key is not found" do
-            before { SingleUseLink.find_by_downloadKey!(show_link_hash).destroy }
+            before { SingleUseLink.find_by_download_key!(show_link_hash).destroy }
             it "redirects to the main page" do
               get :show, params: { id: show_link_hash }
               expect(response).to redirect_to(root_path)

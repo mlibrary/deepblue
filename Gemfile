@@ -54,9 +54,9 @@ end
 abort( exit_log_lines.join("\n" ) ) if gemfile_abort_to_report && !exit_log_lines.nil? && exit_log_lines.size > 0
 
 # https://github.com/samvera/hyrax/releases
-gem 'hyrax', '2.9.5'
-# gem 'hyrax', '3.0.2'
-# gem 'solrizer', '>= 4.1.0' # because solrizer is no longer included in Hyrax 3
+# gem 'hyrax', '2.9.5'
+gem 'hyrax', '3.0.2' # hyrax v3 update
+gem 'solrizer', '>= 4.1.0' # because solrizer is no longer included in Hyrax 3
 gem 'linkeddata', '<= 3.1.1'
 gem 'rdf-rdfa', '< 3.1.1'
 gem 'rdf-vocab', '<= 3.1.4'

@@ -16,18 +16,29 @@ module Deepblue
         self.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC if new_record?
       end
 
-      # upgrade to hyrax v3 needs the following for tests to run.
-      # TODO: figure out why. Perhaps the path to default metadata has changed.
-      # TODO: visit presenters as necessary to support these additions
+      # attribute :admin_set_id,             Valkyrie::Types::ID
+      # attribute :member_ids,               Valkyrie::Types::Array.of(Valkyrie::Types::ID).meta(ordered: true)
+      # attribute :member_of_collection_ids, Valkyrie::Types::Set.of(Valkyrie::Types::ID)
+      # attribute :on_behalf_of,             Valkyrie::Types::String
+      # attribute :proxy_depositor,          Valkyrie::Types::String
+      # attribute :state,                    Valkyrie::Types::URI.default(Hyrax::ResourceStatus::ACTIVE)
+      # attribute :representative_id,        Valkyrie::Types::ID
+      # attribute :thumbnail_id,             Valkyrie::Types::ID
+
+
+      # # upgrade to hyrax v3 needs the following for tests to run.
+      # # TODO: figure out why. Perhaps the path to default metadata has changed.
+      # # TODO: visit presenters as necessary to support these additions
       # property :alternative_title, predicate: ::RDF::Vocab::DC.alternative # add for hyrax v3
       # property :abstract, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/abstract") # add for hyrax v3, note the predicate is a clash with the other predicate
       # property :rights_notes, predicate: ::RDF::URI.new('http://purl.org/dc/elements/1.1/rights'), multiple: true # add for hyrax v3
       # property :access_right, predicate: ::RDF::Vocab::DC.accessRights # add for hyrax v3
-      # end of hyrax v3 mode
+      # # end of hyrax v3 mode
 
-      property :additional_information, predicate: ::RDF::Vocab::DC.description do |index|
-        index.as :stored_searchable
-      end
+      # already defined property in hyrax v3
+      # property :additional_information, predicate: ::RDF::Vocab::DC.description do |index|
+      #   index.as :stored_searchable
+      # end
 
       # multiple: false, until "conference" is converted to a nested attribute so that the location, name, and section are all related/stored together
       property :conference_location, predicate: ::RDF::URI.new("http://d-nb.info/standards/elementset/gnd#placeOfConferenceOrEvent"), multiple: false do |index|
@@ -117,9 +128,10 @@ module Deepblue
         index.as :stored_searchable, :facetable
       end
 
-      property :import_url, predicate: ::RDF::URI.new('http://scholarsphere.psu.edu/ns#importUrl'), multiple: false do |index|
-        index.as :stored_searchable
-      end
+      # already defined property in hyrax v3
+      # property :import_url, predicate: ::RDF::URI.new('http://scholarsphere.psu.edu/ns#importUrl'), multiple: false do |index|
+      #   index.as :stored_searchable
+      # end
 
       property :in_series, predicate: ::RDF::URI.new("http://lsdis.cs.uga.edu/projects/semdis/opus#in_series") do |index|
         index.as :stored_searchable
@@ -129,9 +141,10 @@ module Deepblue
         index.as :stored_searchable
       end
 
-      property :label, predicate: ActiveFedora::RDF::Fcrepo::Model.downloadFilename, multiple: false do |index|
-        index.as :stored_searchable
-      end
+      # already defined property in hyrax v3
+      # property :label, predicate: ActiveFedora::RDF::Fcrepo::Model.downloadFilename, multiple: false do |index|
+      #   index.as :stored_searchable
+      # end
 
       property :license, predicate: ::RDF::Vocab::DC.rights do |index|
         index.as :stored_searchable, :facetable
@@ -152,25 +165,29 @@ module Deepblue
 
       # property :read_me_file_set_idb -- see app/models/concerns/umrdr/umrdr_work_metadata.rb
 
-      property :related_url, predicate: ::RDF::RDFS.seeAlso do |index|
-        index.as :stored_searchable
-      end
+      # already defined property in hyrax v3
+      # property :related_url, predicate: ::RDF::RDFS.seeAlso do |index|
+      #   index.as :stored_searchable
+      # end
 
-      property :relative_path, predicate: ::RDF::URI.new('http://scholarsphere.psu.edu/ns#relativePath'), multiple: false do |index|
-        index.as :stored_searchable
-      end
+      # already defined property in hyrax v3
+      # property :relative_path, predicate: ::RDF::URI.new('http://scholarsphere.psu.edu/ns#relativePath'), multiple: false do |index|
+      #   index.as :stored_searchable
+      # end
 
       property :replaces, predicate: ::RDF::Vocab::DC.replaces, multiple: false do |index|
         index.as :stored_searchable
       end
 
-      property :resource_type, predicate: ::RDF::Vocab::DC.type do |index|
-        index.as :stored_searchable, :facetable
-      end
+      # already defined property in hyrax v3
+      # property :resource_type, predicate: ::RDF::Vocab::DC.type do |index|
+      #   index.as :stored_searchable, :facetable
+      # end
 
-      property :rights_statement, predicate: ::RDF::Vocab::EDM.rights do |index|
-        index.as :stored_searchable, :facetable
-      end
+      # already defined property in hyrax v3
+      # property :rights_statement, predicate: ::RDF::Vocab::EDM.rights do |index|
+      #   index.as :stored_searchable, :facetable
+      # end
 
       property :source, predicate: ::RDF::Vocab::DC.source do |index|
         index.as :stored_searchable
@@ -203,10 +220,11 @@ module Deepblue
         index.as :stored_searchable
       end
 
-      # 6  contributor
-      property :contributor, predicate: ::RDF::Vocab::DC11.contributor do |index|
-        index.as :stored_searchable
-      end
+      # already defined property in hyrax v3
+      # # 6  contributor
+      # property :contributor, predicate: ::RDF::Vocab::DC11.contributor do |index|
+      #   index.as :stored_searchable
+      # end
 
       # 7  coverage     spatial - part of basic metadata
       property :based_near, predicate: ::RDF::Vocab::DC.spatial, class_name: Hyrax::ControlledVocabularies::Location do |index|
@@ -218,10 +236,11 @@ module Deepblue
         index.as :stored_searchable
       end
 
-      # 9 creator null - part of basic
-      property :creator, predicate: ::RDF::Vocab::DC11.creator do |index|
-        index.as :stored_searchable, :facetable
-      end
+      # already defined property in hyrax v3
+      # # 9 creator null - part of basic
+      # property :creator, predicate: ::RDF::Vocab::DC11.creator do |index|
+      #   index.as :stored_searchable, :facetable
+      # end
 
       #  10  date
       property :date, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/date") do |index|
@@ -243,10 +262,11 @@ module Deepblue
         index.as :stored_searchable, :facetable
       end
 
-      #  14  date         created - part of basic metadata
-      property :date_created, predicate: ::RDF::Vocab::DC.created, multiple: false do |index|
-        index.as :stored_searchable, :facetable
-      end
+      # already defined property in hyrax v3
+      # #  14  date         created - part of basic metadata
+      # property :date_created, predicate: ::RDF::Vocab::DC.created, multiple: false do |index|
+      #   index.as :stored_searchable, :facetable
+      # end
 
       #  15  date         issued
       property :date_issued, predicate: ::RDF::Vocab::DC.issued, multiple: false do |index|
@@ -258,13 +278,15 @@ module Deepblue
         index.as :stored_searchable
       end
 
-      # 17  identifier - part of basic metadata
-      property :identifier, predicate: ::RDF::Vocab::DC.identifier do |index|
-        index.as :stored_searchable
-      end
+      # already defined property in hyrax v3
+      # # 17  identifier - part of basic metadata
+      # property :identifier, predicate: ::RDF::Vocab::DC.identifier do |index|
+      #   index.as :stored_searchable
+      # end
 
-      #  18  identifier   citation - part of basic metadata
-      property :bibliographic_citation, predicate: ::RDF::Vocab::DC.bibliographicCitation
+      # already defined property in hyrax v3
+      # #  18  identifier   citation - part of basic metadata
+      # property :bibliographic_citation, predicate: ::RDF::Vocab::DC.bibliographicCitation
 
       #  19  identifier   govdoc
       property :identifier_govdoc, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/identifierGovdoc") do |index|
@@ -306,13 +328,16 @@ module Deepblue
         index.as :stored_searchable
       end
 
-      # 26 description null - part of basic metadata
-      property :description, predicate: ::RDF::Vocab::DC11.description do |index|
-        index.as :stored_searchable
-      end
+      # already defined property in hyrax v3
+      # # 26 description null - part of basic metadata
+      # property :description, predicate: ::RDF::Vocab::DC11.description do |index|
+      #   index.as :stored_searchable
+      # end
 
       # 27  description  abstract
-      property :description_abstract, predicate: ::RDF::Vocab::DC.abstract do |index|
+      # already defined property predicate in hyrax v3 --> abstract
+      # property :description_abstract, predicate: ::RDF::Vocab::DC.abstract do |index|
+      property :description_abstract, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#abstract') do |index|
         index.as :stored_searchable
       end
 
@@ -366,15 +391,17 @@ module Deepblue
         index.as :stored_searchable
       end
 
-      # 38  language     iso - part of basic metadata
-      property :language, predicate: ::RDF::Vocab::DC11.language do |index|
-        index.as :stored_searchable, :facetable
-      end
+      # already defined property in hyrax v3
+      # # 38  language     iso - part of basic metadata
+      # property :language, predicate: ::RDF::Vocab::DC11.language do |index|
+      #   index.as :stored_searchable, :facetable
+      # end
 
-      # 39  publisher  - part of basic metadata
-      property :publisher, predicate: ::RDF::Vocab::DC11.publisher do |index|
-        index.as :stored_searchable
-      end
+      # already defined property in hyrax v3
+      # # 39  publisher  - part of basic metadata
+      # property :publisher, predicate: ::RDF::Vocab::DC11.publisher do |index|
+      #   index.as :stored_searchable
+      # end
 
       # 40  relation
       property :relation_none, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/relationNone") do |index|
@@ -502,7 +529,8 @@ module Deepblue
       end
 
       # 65  title        alternative
-      property :alt_title, predicate: ::RDF::Vocab::DC.alternative do |index|
+      # property :alt_title, predicate: ::RDF::Vocab::DC.alternative do |index| # upgrade to hyrax v3 -- predicate clash with alternate_title
+      property :alt_title, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#alt_title') do |index|
         index.as :stored_searchable
       end
 
@@ -590,8 +618,10 @@ module Deepblue
         index.as :stored_searchable
       end
 
+      # already defined property predicate in hyrax v3 - clash with access_right
       # 82  description  withdrawalreason
-      property :embargo_reason, predicate: ::RDF::Vocab::DC.accessRights, multiple: false do |index|
+      # property :embargo_reason, predicate: ::RDF::Vocab::DC.accessRights, multiple: false do |index|
+      property :embargo_reason, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#embargo_reason'), multiple: false do |index|
         index.as :stored_searchable
       end
 
@@ -732,6 +762,8 @@ module Deepblue
 
       class_attribute :controlled_properties
       self.controlled_properties = [:based_near]
+
+      include ::Hyrax::BasicMetadata
 
       accepts_nested_attributes_for :based_near, allow_destroy: true, reject_if: proc { |a| a[:id].blank? }
       # accepts_nested_attributes_for :nested_geo, :allow_destroy => true, :reject_if => :all_blank

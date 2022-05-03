@@ -103,32 +103,32 @@ module Deepblue
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "su_link=#{su_link}",
-                                               "su_link.downloadKey=#{su_link.downloadKey}",
-                                               "su_link.itemId=#{su_link.itemId}",
+                                               "su_link.download_key=#{su_link.download_key}",
+                                               "su_link.item_id=#{su_link.item_id}",
                                                "su_link.path=#{su_link.path}",
                                                "" ] if zip_download_presenter_behavior_debug_verbose
-        rv = "/data/single_use_link/download/#{su_link.downloadKey}" # TODO: fix
+        rv = "/data/single_use_link/download/#{su_link.download_key}" # TODO: fix
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "rv=#{rv}",
                                                "" ] if zip_download_presenter_behavior_debug_verbose
-        # return "/data/downloads/#{curation_concern.id}/single_use_link/#{su_link.downloadKey}" # TODO: fix
+        # return "/data/downloads/#{curation_concern.id}/single_use_link/#{su_link.download_key}" # TODO: fix
       end
       if anonymous_use_show?
         anon_link = anonymous_link_download( main_app: main_app, curation_concern: curation_concern )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "anon_link=#{anon_link}",
-                                               "anon_link.downloadKey=#{anon_link.downloadKey}",
-                                               "anon_link.itemId=#{anon_link.itemId}",
+                                               "anon_link.download_key=#{anon_link.download_key}",
+                                               "anon_link.item_id=#{anon_link.item_id}",
                                                "anon_link.path=#{anon_link.path}",
                                                "" ] if debug_verbose
-        rv = "/data/anonymous_link/download/#{anon_link.downloadKey}" # TODO: fix
+        rv = "/data/anonymous_link/download/#{anon_link.download_key}" # TODO: fix
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "rv=#{rv}",
                                                "" ] if debug_verbose
-        # return "/data/downloads/#{curation_concern.id}/anonymous_link/#{anon_link.downloadKey}" # TODO: fix
+        # return "/data/downloads/#{curation_concern.id}/anonymous_link/#{anon_link.download_key}" # TODO: fix
       end
       return rv
     end

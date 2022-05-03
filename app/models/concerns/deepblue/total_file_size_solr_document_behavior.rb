@@ -6,7 +6,6 @@ module Deepblue
     extend ActiveSupport::Concern
 
     def total_file_size
-      # standard lookup Solrizer.solr_name('total_file_size') produces 'total_file_size_tesim', which is incorrect
       Array( self['total_file_size_lts'] ).first
     end
 

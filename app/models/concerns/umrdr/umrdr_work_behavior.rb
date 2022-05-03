@@ -4,8 +4,7 @@ module Umrdr
 
   module UmrdrWorkBehavior
 
-    mattr_accessor :umrdr_work_behavior_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.umrdr_work_behavior_debug_verbose
+    mattr_accessor :umrdr_work_behavior_debug_verbose, default: Rails.configuration.umrdr_work_behavior_debug_verbose
 
     extend ActiveSupport::Concern
 

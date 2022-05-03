@@ -1,0 +1,10 @@
+es:
+  hyrax:
+    icons:
+      test_work:     'fa fa-file-text-o'
+    select_type:
+      test_work:
+        # TODO: translate `human_name` into Spanish
+        description:        "Test work trabajos"
+        name:               "Test Work"
+        # TODO: translate `human_name` into Spanish

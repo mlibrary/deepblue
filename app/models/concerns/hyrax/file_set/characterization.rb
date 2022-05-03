@@ -11,7 +11,7 @@
 # MyFileSet.characterization_proxy = :master_file
 # MyFileSet.characterization_terms = [:term1, :term2, :term3]
 module Hyrax
-  module FileSet # change from module to class for hyrax v3
+  class FileSet # change from module to class for hyrax v3
     module Characterization
       extend ActiveSupport::Concern
 

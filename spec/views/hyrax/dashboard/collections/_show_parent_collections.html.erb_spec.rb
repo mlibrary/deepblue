@@ -6,7 +6,7 @@ RSpec.describe 'hyrax/dashboard/collections/_show_parent_collections.html.erb', 
       id: '999',
       "has_model_ssim" => ["Collection"],
       "title_tesim" => ["Title 1"],
-      'date_created_tesim' => '2000-01-01'
+      'date_created_tesim' => ['2000-01-01']
     }
   end
   let(:subject) { render('show_parent_collections.html.erb', presenter: presenter) }

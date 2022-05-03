@@ -5,6 +5,8 @@ Hyrax.config do |config|
   config.register_curation_concern :data_set
   config.register_curation_concern :dissertation
   # config.register_curation_concern :generic_work
+  # Injected via `rails g hyrax:work TestWork`
+  config.register_curation_concern :test_work
 
   # Register roles that are expected by your implementation.
   # @see Hyrax::RoleRegistry for additional details.

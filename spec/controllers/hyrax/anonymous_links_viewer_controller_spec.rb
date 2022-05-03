@@ -42,7 +42,7 @@ RSpec.describe Hyrax::AnonymousLinksViewerController, skip: false do
 
         describe "retrieval links", skip: false do
           let :show_link do
-            AnonymousLink.create itemId: file.id,
+            AnonymousLink.create item_id: file.id,
                                  path: Rails.application.routes.url_helpers.hyrax_file_set_path(id: file, locale: 'en')
           end
 
@@ -50,11 +50,11 @@ RSpec.describe Hyrax::AnonymousLinksViewerController, skip: false do
             Hydra::Works::AddFileToFileSet.call_enhanced_version( file,
                                                                   File.open(fixture_path + '/world.png'),
                                                                   :original_file )
-            AnonymousLink.create itemId: file.id, path: hyrax.download_path(id: file, locale: 'en')
+            AnonymousLink.create item_id: file.id, path: hyrax.download_path(id: file, locale: 'en')
           end
 
-          let(:show_link_hash) { show_link.downloadKey }
-          let(:download_link_hash) { download_link.downloadKey }
+          let(:show_link_hash) { show_link.download_key }
+          let(:download_link_hash) { download_link.download_key }
 
           describe "GET 'download'" do
             let(:expected_content) { ActiveFedora::Base.find(file.id).original_file.content }
@@ -66,11 +66,11 @@ RSpec.describe Hyrax::AnonymousLinksViewerController, skip: false do
               get :download, params: { id: download_link_hash }
               expect(response.body).to eq expected_content
               expect(response).to be_successful
-              # expect { AnonymousLink.find_by_downloadKey!(download_link_hash) }.to raise_error ActiveRecord::RecordNotFound
+              # expect { AnonymousLink.find_by_download_key!(download_link_hash) }.to raise_error ActiveRecord::RecordNotFound
             end
 
             context "when the key is not found" do
-              before { AnonymousLink.find_by_downloadKey!(download_link_hash).destroy }
+              before { AnonymousLink.find_by_download_key!(download_link_hash).destroy }
 
               it "shows the main page with message" do
                 get :download, params: { id: download_link_hash }
@@ -87,11 +87,11 @@ RSpec.describe Hyrax::AnonymousLinksViewerController, skip: false do
               expect(response).to redirect_to( "http://test.host/concern/file_sets/#{file.id}/anonymous_link/#{show_link_hash}" )
               expect(flash[:notice]).to include(I18n.t('hyrax.anonymous_links.notice.show_file_html'))
               # expect(assigns[:presenter].id).to eq file.id
-              # expect { AnonymousLink.find_by_downloadKey!(show_link_hash) }.to raise_error ActiveRecord::RecordNotFound
+              # expect { AnonymousLink.find_by_download_key!(show_link_hash) }.to raise_error ActiveRecord::RecordNotFound
             end
 
             context "shows the main page with message when the key is not found" do
-              before { AnonymousLink.find_by_downloadKey!(show_link_hash).destroy }
+              before { AnonymousLink.find_by_download_key!(show_link_hash).destroy }
               it "redirects to the main page" do
                 get :show, params: { id: show_link_hash }
                 expect(response).to redirect_to(root_path)

@@ -149,8 +149,8 @@ RSpec.describe Deepblue::ZipDownloadPresenterBehavior do
           allow(presenter).to receive(:anonymous_show?).and_return true
           allow(presenter).to receive(:single_use_show?).and_return true
           allow(presenter).to receive(:single_use_link_download).and_return test_object
-          allow(test_object).to receive(:downloadKey).and_return "123"
-          allow(test_object).to receive(:itemId).and_return 'itemId'
+          allow(test_object).to receive(:download_key).and_return "123"
+          allow(test_object).to receive(:item_id).and_return 'item_id'
           allow(test_object).to receive(:path).and_return 'path'
 
           dc = presenter.zip_download_path_link(main_app: test_object, curation_concern: solr_document)

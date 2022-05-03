@@ -6,21 +6,21 @@ RSpec.describe 'hshared/show_curation_notes.html.erb' do
 
   let( :attributes_curation_notes_admin ) do
     {
-        Solrizer.solr_name('has_model', :symbol) => ["DataSet"],
+        'has_model_ssim' => ["DataSet"],
         curation_notes_admin_tesim: curation_notes_admin,
         curation_notes_user_tesim: []
     }
   end
   let( :attributes_curation_notes_both ) do
     {
-        Solrizer.solr_name('has_model', :symbol) => ["DataSet"],
+        'has_model_ssim' => ["DataSet"],
         curation_notes_admin_tesim: curation_notes_admin,
         curation_notes_user_tesim: curation_notes_user
     }
   end
   let( :attributes_curation_notes_user ) do
     {
-      Solrizer.solr_name('has_model', :symbol) => ["DataSet"],
+      'has_model_ssim' => ["DataSet"],
       curation_notes_admin_tesim: [],
       curation_notes_user_tesim: curation_notes_user
     }

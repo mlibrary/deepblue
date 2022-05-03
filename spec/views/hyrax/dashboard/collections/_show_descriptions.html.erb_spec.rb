@@ -7,7 +7,7 @@ RSpec.describe 'hyrax/dashboard/collections/_show_descriptions.html.erb', type: 
         id: '999',
         "has_model_ssim" => ["Collection"],
         "title_tesim" => ["Title 1"],
-        'date_created_tesim' => '2000-01-01'
+        'date_created_tesim' => ['2000-01-01']
       }
     end
     let(:ability) { double }

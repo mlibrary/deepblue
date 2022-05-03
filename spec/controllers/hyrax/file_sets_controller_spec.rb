@@ -487,11 +487,11 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
               end
             end
             let :anon_link_obj do
-              AnonymousLink.create itemId: file_set.id,
+              AnonymousLink.create item_id: file_set.id,
                                    path: Rails.application.routes.url_helpers.hyrax_file_set_path(id: file_set,
                                                                                                   locale: 'en')
             end
-            let(:anon_link_id) { anon_link_obj.downloadKey }
+            let(:anon_link_id) { anon_link_obj.download_key }
 
             context 'allows access' do
 
@@ -535,11 +535,11 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
               end
             end
             let :anon_link_obj do
-              AnonymousLink.create itemId: file_set.id,
+              AnonymousLink.create item_id: file_set.id,
                                    path: Rails.application.routes.url_helpers.hyrax_file_set_path(id: file_set,
                                                                                                   locale: 'en')
             end
-            let(:anon_link_id) { anon_link_obj.downloadKey }
+            let(:anon_link_id) { anon_link_obj.download_key }
 
             context 'allows access' do
 
@@ -583,11 +583,11 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
               end
             end
             let :anon_link_obj do
-              AnonymousLink.create itemId: file_set.id,
+              AnonymousLink.create item_id: file_set.id,
                                    path: Rails.application.routes.url_helpers.hyrax_file_set_path(id: file_set,
                                                                                                   locale: 'en')
             end
-            let(:anon_link_id) { anon_link_obj.downloadKey }
+            let(:anon_link_id) { anon_link_obj.download_key }
 
             context 'allows access' do
 

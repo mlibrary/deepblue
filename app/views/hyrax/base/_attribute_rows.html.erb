@@ -45,21 +45,17 @@
   <th>Creator</th>
   <td>
     <ul class='tabular_list'>
-      <li class="attribute attribute-creator"><span itemprop="creator">
-
+      <li class="attribute attribute-creator"><span itemprop="creator"><%= raw presenter.present_authors_compact %></span></li>
         <%# remove tags and reformat output %>
-        <% authors = raw (presenter.attribute_to_html(:creator, render_as: :faceted, label: t('show.labels.creator') ).gsub!('itemscope itemtype="http://schema.org/Person"', '').gsub!('<td>', '').gsub!('</td>', '').gsub!('<tr>', '').gsub!('</tr>', '').gsub!(/<th.*?>(.+?)<\/th>/, '').gsub!(/<ul.*?>(.+?)<\/ul>/, '\1').gsub!(/<li.*?>(.+?)<\/li>/, '\1|  ').gsub!(/<span.*?>(.+?)<\/span>/, '\1')) %>
-        <% authors = authors.reverse.sub('|', '').sub('|', ' dna ').reverse.gsub!('|', ';') %>
-
-        <%= raw ("<span class=\"moreauthor\">") + authors + raw("</span>" ) %>
-
-      </li>
+        <%# authors = raw (presenter.attribute_to_html(:creator, render_as: :faceted, label: t('show.labels.creator') ).gsub!('itemscope itemtype="http://schema.org/Person"', '').gsub!('<td>', '').gsub!('</td>', '').gsub!('<tr>', '').gsub!('</tr>', '').gsub!(/<th.*?>(.+?)<\/th>/, '').gsub!(/<ul.*?>(.+?)<\/ul>/, '\1').gsub!(/<li.*?>(.+?)<\/li>/, '\1|  ').gsub!(/<span.*?>(.+?)<\/span>/, '\1')) %>
+        <%# authors = authors.reverse.sub('|', '').sub('|', ' dna ').reverse.gsub!('|', ';') %>
+        <%#= raw ("<span class=\"moreauthor\">") + authors + raw("</span>" ) %>
     </ul>
   </td>
 </tr>
-
 <% else %>
-  <%= raw (presenter.attribute_to_html(:creator, render_as: :faceted, label: t('show.labels.creator') )).gsub!('itemscope itemtype="http://schema.org/Person"', '') %>
+  <%= raw presenter.present_authors %>
+  <%#= raw (presenter.attribute_to_html(:creator, render_as: :faceted, label: t('show.labels.creator') )).gsub!('itemscope itemtype="http://schema.org/Person"', '') %>
 <% end %>
 
 <% presenter.depositor.gsub!('@', 'at_sign_at') %>
@@ -110,6 +106,7 @@
 <%= presenter.attribute_to_html(:date_modified, label: t('show.labels.date_modified') ) %>
 <%= presenter.attribute_to_html(:date_published2, render_as: :date_attribute, label: t('show.labels.date_published') ) %>
 <%= presenter.attribute_to_html(:language, render_as: :faceted, label: t('show.labels.language') ) %>
+<%= presenter.attribute_to_html(:license, render_as: :license, html_dl: true) # added for hyrax v3 %>
 
 <%= presenter.attribute_to_html(:subject, render_as: :faceted, label: t('show.labels.subject')) %>
 <%= presenter.attribute_to_html(:identifier, render_as: :linked, search_field: 'identifier_tesim') %>

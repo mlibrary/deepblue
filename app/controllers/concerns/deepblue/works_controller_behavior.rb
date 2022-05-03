@@ -476,7 +476,7 @@ module Deepblue
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if deepblue_works_controller_behavior_debug_verbose
-        SingleUseLink.create( itemId: curation_concern.id,
+        SingleUseLink.create( item_id: curation_concern.id,
                               path: current_show_path( append: "/single_use_link_zip_download" ),
                               user_id: current_ability.current_user.id,
                               user_comment: params[:user_comment] )
@@ -484,7 +484,7 @@ module Deepblue
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if deepblue_works_controller_behavior_debug_verbose
-        SingleUseLink.create( itemId: curation_concern.id,
+        SingleUseLink.create( item_id: curation_concern.id,
                               path: current_show_path,
                               user_id: current_ability.current_user.id,
                               user_comment: params[:user_comment] )

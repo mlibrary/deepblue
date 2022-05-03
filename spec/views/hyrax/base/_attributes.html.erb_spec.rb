@@ -14,9 +14,9 @@ RSpec.describe 'hyrax/base/_attributes.html.erb' do
   let(:attributes) do
     {
       id: id,
-      Solrizer.solr_name( 'has_model', :symbol ) => ["DataSet"],
-      Solrizer.solr_name( 'authoremail', :symbol ) => authoremail,
-      Solrizer.solr_name( 'depositor', :symbol ) => depositor,
+      :has_model_tesim => ["DataSet"],
+      :authoremail_tesim => authoremail,
+      :depositor_tesim => depositor,
       contributor_tesim: contributor,
       creator_tesim: creator,
       description_tesim: description,

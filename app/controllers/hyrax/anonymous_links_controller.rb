@@ -41,16 +41,16 @@ module Hyrax
                                              "asset_path=#{asset_path}",
                                              "" ] if anonymous_links_controller_debug_verbose
       if asset_path =~ /concern\/file_sets/
-        @anon = AnonymousLink.create( itemId: params[:id], path: hyrax.download_path(id: params[:id]) )
+        @anon = AnonymousLink.create( item_id: params[:id], path: hyrax.download_path(id: params[:id]) )
       else
         asset_path = asset_path.gsub( /\?locale\=.+$/, '/anonymous_link_zip_download' )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "asset_path=#{asset_path}",
                                                "" ] if anonymous_links_controller_debug_verbose
-        @anon = AnonymousLink.create( itemId: params[:id], path: asset_path )
+        @anon = AnonymousLink.create( item_id: params[:id], path: asset_path )
       end
-      render plain: main_app.download_anonymous_link_url(@anon.downloadKey)
+      render plain: main_app.download_anonymous_link_url(@anon.download_key)
     end
 
     def create_anonymous_show
@@ -59,12 +59,12 @@ module Hyrax
                                              "params[:id]=#{params[:id]}",
                                              "params=#{params}",
                                              "" ] if anonymous_links_controller_debug_verbose
-      @anon = AnonymousLink.create( itemId: params[:id], path: asset_show_path )
+      @anon = AnonymousLink.create( item_id: params[:id], path: asset_show_path )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "@anon=#{@anon}",
                                              "" ] if anonymous_links_controller_debug_verbose
-      url = main_app.show_anonymous_link_url(@anon.downloadKey)
+      url = main_app.show_anonymous_link_url(@anon.download_key)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "url=#{url}",
@@ -78,7 +78,7 @@ module Hyrax
                                              "params[:id]=#{params[:id]}",
                                              "params[:link_type]=#{params[:link_type]}",
                                              "" ] if anonymous_links_controller_debug_verbose
-      links = AnonymousLink.where( itemId: params[:id] ).map do |link|
+      links = AnonymousLink.where( item_id: params[:id] ).map do |link|
         show_presenter.new( link )
       end
       pres = links.first
@@ -111,7 +111,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:anon_link_id]=#{params[:anon_link_id]}",
                                              "" ] if anonymous_links_controller_debug_verbose
-      anon_link = AnonymousLink.find_by_downloadKey(params[:anon_link_id])
+      anon_link = AnonymousLink.find_by_download_key(params[:anon_link_id])
       anon_link.destroy if anon_link.present?
       head :ok
     end

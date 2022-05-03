@@ -89,9 +89,9 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",
-                                             "anonymous_link.itemId=#{anonymous_link.itemId}",
+                                             "anonymous_link.item_id=#{anonymous_link.item_id}",
                                              "" ] if anonymous_links_viewer_controller_debug_verbose
-      _, document_list = search_results( id: anonymous_link.itemId )
+      _, document_list = search_results( id: anonymous_link.item_id )
       solr_doc = document_list.first
       model = solr_doc['has_model_ssim'].first
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -143,7 +143,7 @@ module Hyrax
 
     def asset
       @asset ||= if anonymous_link.is_a? AnonymousLink
-                   ::PersistHelper.find(anonymous_link.itemId)
+                   ::PersistHelper.find(anonymous_link.item_id)
                  else
                    ''
                  end
@@ -183,10 +183,10 @@ module Hyrax
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "anonymous_link&.valid?=#{anonymous_link&.valid?}",
-                                                 "anonymous_link&.itemId=#{anonymous_link&.itemId}",
+                                                 "anonymous_link&.item_id=#{anonymous_link&.item_id}",
                                                  "obj.id=#{obj.id}",
                                                  "" ] if AnonymousLinksViewerController.anonymous_links_viewer_controller_debug_verbose
-          anonymous_link.valid? && anonymous_link.itemId == obj.id # && anonymous_link.destroy!
+          anonymous_link.valid? && anonymous_link.item_id == obj.id # && anonymous_link.destroy!
         end
       end
 

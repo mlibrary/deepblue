@@ -121,12 +121,15 @@ module Deepblue
       needed = virus_scan_needed?
       if needed && virus_scan_file_too_big?
         virus_scan_status_update( scan_result: VIRUS_SCAN_SKIPPED_TOO_BIG )
+        return false
       elsif needed
         # TODO: figure out how to retry the virus scan as this only works for ( original_file && original_file.new_record? )
         scan_result = Hydra::Works::VirusCheckerService.file_has_virus? original_file
         virus_scan_status_update( scan_result: scan_result, previous_scan_result: virus_scan_status )
+        return scan_result == ::Deepblue::VirusScanService::VIRUS_SCAN_VIRUS
       else
         logger.info "Virus scan not needed." # TODO: improve message
+        return false
       end
     end
 
@@ -153,7 +156,8 @@ module Deepblue
     end
 
     def virus_scan_needed?
-      # really, it's always needed.
+      return false if original_file.nil?
+      # otherwise, really, it's always needed.
       true
       # LoggingHelper.bold_debug [ LoggingHelper.here, LoggingHelper.called_from,
       #                                  "" ] if file_set_behavior_debug_verbose ]
@@ -199,7 +203,7 @@ module Deepblue
       self['virus_scan_service'] = virus_scan_service_name
       self['virus_scan_status'] = scan_result
       self['virus_scan_status_date'] = virus_scan_timestamp_now
-      save! # ( validate: false )
+      save!( validate: false ) # validating will send it back to be virus checked, which leads to a stack overflow
       provenance_virus_scan( scan_result: scan_result ) # if respond_to? :provenance_virus_scan
       return scan_result
     end

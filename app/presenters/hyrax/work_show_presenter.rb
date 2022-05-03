@@ -192,13 +192,13 @@ module Hyrax
 
     def anonymous_link_need_create_download_button?( main_app:, curation_concern: solr_document )
       path = anonymous_link_path_download( main_app: main_app, curation_concern: curation_concern )
-      anon_links = AnonymousLink.where( itemId: curation_concern.id, path: path )
+      anon_links = AnonymousLink.where( item_id: curation_concern.id, path: path )
       anon_links.blank?
     end
 
     def anonymous_link_need_create_show_button?( main_app:, curation_concern: solr_document )
       path = anonymous_link_path_show( main_app: main_app, curation_concern: curation_concern )
-      anon_links = AnonymousLink.where( itemId: curation_concern.id, path: path )
+      anon_links = AnonymousLink.where( item_id: curation_concern.id, path: path )
       anon_links.blank?
     end
 
@@ -208,13 +208,13 @@ module Hyrax
 
     def anonymous_links_init
       debug_verbose = work_show_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
-      anon_links = AnonymousLink.where( itemId: id )
+      anon_links = AnonymousLink.where( item_id: id )
       anon_links = anon_links.select do |anon_link|
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "anon_link=#{anon_link}",
                                                "anon_link.valid?=#{anon_link.valid?}",
-                                               "anon_link.itemId=#{anon_link.itemId}",
+                                               "anon_link.item_id=#{anon_link.item_id}",
                                                "anon_link.path=#{anon_link.path}",
                                                "" ] if debug_verbose
         true
@@ -633,7 +633,7 @@ module Hyrax
                                              "" ] if work_show_presenter_debug_verbose
       user_id = nil
       user_id = current_ability.current_user.id unless anonymous_show?
-      rv = SingleUseLink.create( itemId: curation_concern.id,
+      rv = SingleUseLink.create( item_id: curation_concern.id,
                                  path: "/data/concern/data_sets/#{id}/single_use_link_zip_download",
                                  user_id: user_id )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -653,14 +653,14 @@ module Hyrax
     end
 
     def single_use_links_init
-      su_links = SingleUseLink.where( itemId: id, user_id: current_ability.current_user.id )
+      su_links = SingleUseLink.where( item_id: id, user_id: current_ability.current_user.id )
       su_links = su_links.select do |su_link|
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "su_link=#{su_link}",
                                                "su_link.valid?=#{su_link.valid?}",
                                                "su_link.expired?=#{su_link.expired?}",
-                                               "su_link.itemId=#{su_link.itemId}",
+                                               "su_link.item_id=#{su_link.item_id}",
                                                "su_link.path=#{su_link.path}",
                                                "su_link.user_id=#{su_link.user_id}",
                                                "su_link.user_comment=#{su_link.user_comment}",
@@ -685,7 +685,7 @@ module Hyrax
 
     def tombstone_init
       return nil unless tombstone_enabled?
-      solr_value = @solr_document[Solrizer.solr_name('tombstone', :symbol)]
+      solr_value = @solr_document['tombstone_ssim']
       return nil if solr_value.blank?
       solr_value.first
     end

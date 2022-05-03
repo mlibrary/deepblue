@@ -447,7 +447,8 @@ module Deepblue
         creator = Array( collection_hash[:creator] )
         curation_notes_admin = Array( collection_hash[:curation_notes_admin] )
         curation_notes_user = Array( collection_hash[:curation_notes_user] )
-        date_created = build_date( hash: collection_hash, key: :date_created )
+        # date_created = build_date( hash: collection_hash, key: :date_created )
+        date_created = Array( build_date( hash: collection_hash, key: :date_created ) ) # update for hyrax v3
         date_modified = build_date( hash: collection_hash, key: :date_modified )
         date_uploaded = build_date( hash: collection_hash, key: :date_uploaded )
         description = Array( collection_hash[:description] )
@@ -899,7 +900,8 @@ module Deepblue
         curation_notes_admin = Array( work_hash[:curation_notes_admin] )
         curation_notes_user = Array( work_hash[:curation_notes_user] )
         date_coverage = build_date_coverage( hash: work_hash )
-        date_created = build_date( hash: work_hash, key: :date_created )
+        # date_created = build_date( hash: work_hash, key: :date_created )
+        date_created = Array( build_date( hash: work_hash, key: :date_created ) ) # update for hyrax v3
         date_modified = build_date( hash: work_hash, key: :date_modified )
         date_published = build_date( hash: work_hash, key: :date_published )
         date_uploaded = build_date( hash: work_hash, key: :date_uploaded )
