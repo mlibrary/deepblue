@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe Hyrax::My::WorksController, type: :controller, skip: false do
+RSpec.describe ::Hyrax::My::WorksController, type: :controller, skip: false do
 
   include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }

@@ -6,8 +6,20 @@ module PersistHelper
     ::ActiveFedora::Base.all
   end
 
-  def self.find( id )
-    ::ActiveFedora::Base.find( id )
+  def self.find( id, use_valkyrie: false )
+    if use_valkyrie
+      ::Hyrax.query_service.find_by_alternate_identifier(alternate_identifier: id, use_valkyrie: use_valkyrie)
+    else
+      ::ActiveFedora::Base.find(id)
+    end
+  end
+
+  def self.find_many( ids, use_valkyrie: false )
+    if use_valkyrie
+      ::Hyrax.custom_queries.find_many_by_alternate_ids(alternate_ids: ids, use_valkyrie: use_valkyrie)
+    else
+      ::ActiveFedora::Base.find(ids)
+    end
   end
 
   # returns nil Ldp::Gone or ActiveFedora::ObjectNotFoundError
@@ -21,7 +33,7 @@ module PersistHelper
 
   # Allows the user to find out if an id has been used in the system and then been deleted
   # @param uri id in fedora that may or may not have been deleted
-  def self.gone?( uri )
+  def self.gone?( uri, use_valkyrie: false )
     ::ActiveFedora::Base.find( uri )
     false
   rescue Ldp::Gone
@@ -31,7 +43,7 @@ module PersistHelper
   end
 
   def self.id_to_uri( id )
-    ::ActiveFedora::Base.id_to_uri( id )
+    ::Hyrax::Base.id_to_uri( id )
   end
 
   def self.search_with_conditions( conditions, opts = {} )
@@ -39,11 +51,29 @@ module PersistHelper
   end
 
   def self.uri_to_id( uri )
-    ::ActiveFedora::Base.uri_to_id( uri )
+    ::Hyrax::Base.uri_to_id( uri )
   end
 
   def self.where( values )
     ::ActiveFedora::Base.where( values )
+  end
+
+
+  # TODO: alias this?
+  def self.find_curation_concern( id, use_valkyrie: false )
+    find( id, use_valkyrie: use_valkyrie )
+  end
+
+  def member_of_collection_by_id(id)
+    where("member_of_collection_ids_ssim:#{id}")
+  end
+
+  def self.uncached(&block)
+    ::Hyrax::Base.uncached(&block)
+  end
+
+  def self.file_sets_for(curation_concern)
+    Hyrax.custom_queries.find_child_filesets(resource: curation_concern)
   end
 
 end

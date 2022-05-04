@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe Hyrax::Dashboard::WorksController, type: :controller, skip: false do
+RSpec.describe ::Hyrax::Dashboard::WorksController, type: :controller, skip: false do
   describe "#search_builder_class" do
     subject { controller.search_builder_class }
 

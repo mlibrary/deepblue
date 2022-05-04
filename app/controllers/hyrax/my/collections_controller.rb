@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 module Hyrax
 
@@ -7,16 +8,16 @@ module Hyrax
 
       mattr_accessor :hyrax_my_collections_controller_debug_verbose, default: false
 
-      EVENT_NOTE = 'Hyrax::My::CollectionsController'
-      PARAMS_KEY = 'collection'
+      EVENT_NOTE = 'Hyrax::My::CollectionsController' unless const_defined? :EVENT_NOTE
+      PARAMS_KEY = 'collection' unless const_defined? :PARAMS_KEY
 
       # Define collection specific filter facets.
       def self.configure_facets
         configure_blacklight do |config|
           # Name of pivot facet must match field name that uses helper_method
-          config.add_facet_field Collection.collection_type_gid_document_field_name,
+          config.add_facet_field Hyrax.config.collection_type_index_field,
                                  helper_method: :collection_type_label, limit: 5,
-                                 pivot: ['has_model_ssim', Collection.collection_type_gid_document_field_name],
+                                 pivot: ['has_model_ssim', Hyrax.config.collection_type_index_field],
                                  label: I18n.t('hyrax.dashboard.my.heading.collection_type')
           # This causes AdminSets to also be shown with the Collection Type label
           config.add_facet_field 'has_model_ssim',
@@ -152,9 +153,9 @@ module Hyrax
 
       ## end visibility / publish
 
-      def search_builder_class
-        Hyrax::My::CollectionsSearchBuilder
-      end
+      # def search_builder_class
+      #   Hyrax::My::CollectionsSearchBuilder
+      # end
 
       def index
         add_breadcrumb t(:'hyrax.controls.home'), root_path

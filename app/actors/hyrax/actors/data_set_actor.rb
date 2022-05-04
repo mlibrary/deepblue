@@ -5,8 +5,7 @@ module Hyrax
 
     class DataSetActor < Hyrax::Actors::BaseActor
 
-      mattr_accessor :data_set_actor_debug_verbose,
-                     default: ::DeepBlueDocs::Application.config.data_set_actor_debug_verbose
+      mattr_accessor :data_set_actor_debug_verbose, default: Rails.configuration.data_set_actor_debug_verbose
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if update was successful

@@ -58,7 +58,17 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
 
   # @param [ActiveFedora::Base] work - the work object
   # @param [Array<Hyrax::UploadedFile>] uploaded_files - an array of files to attach
-  def perform( work, uploaded_files, user_key, **work_attributes )
+  def perform(work, uploaded_files, user_key, **work_attributes)
+    case work
+    when ActiveFedora::Base
+      perform_af(work, uploaded_files, user_key, work_attributes)
+    else
+      Hyrax::WorkUploadsHandler.new(work: work).add(files: uploaded_files).attach ||
+        raise("Could not complete AttachFilesToWorkJob. Some of these are probably in an undesirable state: #{uploaded_files}")
+    end
+  end
+
+  def perform_af( work, uploaded_files, user_key, work_attributes )
     @work = work
     @user_key = user_key
     @uploaded_files = Array( uploaded_files )

@@ -8,7 +8,7 @@ module Hyrax
     class CreateWithFilesActor < Hyrax::Actors::AbstractActor
 
       mattr_accessor :create_with_files_actor_debug_verbose,
-                     default: ::DeepBlueDocs::Application.config.create_with_files_actor_debug_verbose
+                     default: Rails.configuration.create_with_files_actor_debug_verbose
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if create was successful
@@ -20,7 +20,12 @@ module Hyrax
         env.log_event( next_actor: next_actor ) if env.respond_to? :log_event
         uploaded_file_ids = filter_file_ids(env.attributes.delete(:uploaded_files))
         files = uploaded_files(uploaded_file_ids)
-        validate_files(files, env) && next_actor.create(env) && attach_files(files, env)
+        # get a current copy of attributes, to protect against future mutations
+        attributes        = env.attributes.clone
+
+        validate_files(files, env) &&
+          next_actor.create(env) &&
+          attach_files(files, env.curation_concern, env.user.id, attributes)
       end
 
       # @param [Hyrax::Actors::Environment] env
@@ -28,7 +33,12 @@ module Hyrax
       def update(env)
         uploaded_file_ids = filter_file_ids(env.attributes.delete(:uploaded_files))
         files = uploaded_files(uploaded_file_ids)
-        validate_files(files, env) && next_actor.update(env) && attach_files(files, env)
+        # get a current copy of attributes, to protect against future mutations
+        attributes        = env.attributes.clone
+
+        validate_files(files, env) &&
+          next_actor.update(env) &&
+          attach_files(files, env.curation_concern, env.user.id, attributes)
       end
 
       private
@@ -50,9 +60,10 @@ module Hyrax
         end
 
         # @return [TrueClass]
-        def attach_files(files, env)
+        def attach_files(files, curation_concern, user_id, attributes)
           return true if files.blank?
-          AttachFilesToWorkJob.perform_later( env.curation_concern, files, env.user.user_key, env.attributes.to_h.symbolize_keys )
+          email = ::User.where( id: user_id )&.first&.email
+          AttachFilesToWorkJob.perform_later(curation_concern, files, email, attributes.to_h.symbolize_keys)
           true
         end
 

@@ -9,17 +9,24 @@ module Hyrax
     # monkey patch Hyrax::Dashboard::CollectionsController
 
     ## Shows a list of all collections to the admins
-    class CollectionsController < Hyrax::My::CollectionsController
+    class CollectionsController < ::Hyrax::My::CollectionsController
+      include Blacklight::AccessControls::Catalog
+      include Blacklight::Base
+
+      configure_blacklight do |config|
+        config.search_builder_class = Hyrax::Dashboard::CollectionsSearchBuilder
+      end
+
       include ::Hyrax::BrandingHelper
-      include Deepblue::CollectionsControllerBehavior
+      include ::Deepblue::CollectionsControllerBehavior
 
       # begin monkey
       mattr_accessor :collections_controller_debug_verbose,
-                     default: ::DeepBlueDocs::Application.config.collections_controller_debug_verbose
+                     default: Rails.configuration.collections_controller_debug_verbose
       # end monkey
 
-      EVENT_NOTE = 'Hyrax::Dashboard::CollectionsController'
-      PARAMS_KEY = 'collection'
+      EVENT_NOTE = 'Hyrax::Dashboard::CollectionsController' unless const_defined? :EVENT_NOTE
+      PARAMS_KEY = 'collection' unless const_defined? :PARAMS_KEY
 
       ## begin monkey patch overrides
 

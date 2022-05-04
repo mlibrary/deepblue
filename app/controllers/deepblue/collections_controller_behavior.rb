@@ -5,11 +5,11 @@ module Deepblue
   module CollectionsControllerBehavior
 
     mattr_accessor :collection_controller_behavior_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.collections_controller_behavior_debug_verbose
+                   default: Rails.configuration.collections_controller_behavior_debug_verbose
 
-    include Deepblue::ControllerWorkflowEventBehavior
+    include ::Deepblue::ControllerWorkflowEventBehavior
 
-    PARAMS_KEY = 'collection'
+    PARAMS_KEY = 'collection' unless const_defined? :PARAMS_KEY
 
     ## Provenance log
 
