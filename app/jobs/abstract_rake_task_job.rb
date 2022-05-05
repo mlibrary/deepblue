@@ -67,7 +67,7 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
     @subscription_service_id = init_from_arg( arg: 'subscription_service_id', default_var: subscription_service_id, default_value: nil )
     @hostnames = init_from_arg( arg: 'hostnames', default_var: hostnames, default_value: [] )
     return true if hostnames.blank?
-    # @hostname = ::DeepBlueDocs::Application.config.hostname
+    # @hostname = Rails.configuration.hostname
     hostnames.include? hostname
   end
 

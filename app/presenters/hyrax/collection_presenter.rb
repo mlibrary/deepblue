@@ -26,7 +26,7 @@ module Hyrax
     attr_writer :collection_type
 
     mattr_accessor :collection_presenter_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.collection_presenter_debug_verbose
+                   default: Rails.configuration.collection_presenter_debug_verbose
 
     class_attribute :create_work_presenter_class
     self.create_work_presenter_class = ::Deepblue::SelectTypeListPresenter
@@ -155,7 +155,7 @@ module Hyrax
     # end display_provenance_log
 
     def relative_url_root
-      rv = ::DeepBlueDocs::Application.config.relative_url_root
+      rv = Rails.configuration.relative_url_root
       return rv if rv
       ''
     end

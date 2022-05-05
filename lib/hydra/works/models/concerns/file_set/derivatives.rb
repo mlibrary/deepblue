@@ -4,7 +4,7 @@
 module Hydra::Works
   module Derivatives
 
-    HYDRA_WORKS_DERIVATIVES_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.hydra_works_derivatives_debug_verbose
+    HYDRA_WORKS_DERIVATIVES_DEBUG_VERBOSE = Rails.configuration.hydra_works_derivatives_debug_verbose
 
     extend ActiveSupport::Concern
     include Hydra::Derivatives

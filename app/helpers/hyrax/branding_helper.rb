@@ -38,7 +38,7 @@ module Hyrax
                                              "local_path = #{local_path}",
                                              "local_path_relative=#{local_path_relative}",
                                              "" ] if branding_helper_debug_verbose
-      rv = ::DeepBlueDocs::Application.config.relative_url_root + "/" + local_path_relative
+      rv = Rails.configuration.relative_url_root + "/" + local_path_relative
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv = #{rv}",

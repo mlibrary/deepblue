@@ -432,7 +432,7 @@ module Deepblue
           end
         end
         wants.json do
-          unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
+          unless Rails.configuration.rest_api_allow_mutate
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
           if actor.create( env )
@@ -579,7 +579,7 @@ module Deepblue
           destroy_rest
         end
         wants.json do
-          unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
+          unless Rails.configuration.rest_api_allow_mutate
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
           destroy_rest
@@ -663,7 +663,7 @@ module Deepblue
           new_rest
         end
         wants.json do
-          unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
+          unless Rails.configuration.rest_api_allow_mutate
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
           new_rest
@@ -888,7 +888,7 @@ module Deepblue
                                                  "" ] if deepblue_works_controller_behavior_debug_verbose
         end
         wants.json do
-          unless ::DeepBlueDocs::Application.config.rest_api_allow_read
+          unless Rails.configuration.rest_api_allow_read
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
           # load and authorize @curation_concern manually because it's skipped for html
@@ -923,7 +923,7 @@ module Deepblue
 
     def update_allow_json?
       return true if data_set_version?
-      return ::DeepBlueDocs::Application.config.rest_api_allow_mutate
+      return Rails.configuration.rest_api_allow_mutate
     end
 
     def update

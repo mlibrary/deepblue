@@ -6,7 +6,7 @@ module Deepblue
   class AbstractFilter
 
     mattr_accessor :abstract_filter_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.abstract_filter_debug_verbose
+                   default: Rails.configuration.abstract_filter_debug_verbose
 
     attr_accessor :verbose
 

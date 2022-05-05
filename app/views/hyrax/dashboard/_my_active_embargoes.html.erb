@@ -5,7 +5,7 @@
     </tr>
   </thead>
   <tbody>
-  <% hide_files = DeepBlueDocs::Application.config.embargo_manage_hide_files %>
+  <% hide_files = Rails.configuration.embargo_manage_hide_files %>
   <% my_assets_under_embargo( current_ability.current_user.email.to_s ).each do |curation_concern| %>
     <% hrt = curation_concern.human_readable_type %>
     <% next if hide_files && hrt == "File" %>

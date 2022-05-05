@@ -33,7 +33,7 @@ RSpec.describe IngestScriptJob, skip: false do
                                                        ingest_mode: ingest_mode,
                                                        ingester: ingester,
                                                        **options ) }
-          let(:hostname)  { DeepBlueDocs::Application.config.hostname }
+          let(:hostname)  { Rails.configuration.hostname }
 
           before do
             expect( described_class.ingest_script_job_debug_verbose ).to eq dbg_verbose

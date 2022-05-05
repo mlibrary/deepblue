@@ -202,7 +202,7 @@ module Deepblue
       end
 
       def timestamp_zone
-        DeepBlueDocs::Application.config.timezone_zone
+        Rails.configuration.timezone_zone
       end
 
       def to_log_format_timestamp( timestamp )

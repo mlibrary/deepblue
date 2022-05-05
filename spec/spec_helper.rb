@@ -77,6 +77,15 @@ FactoryBot.register_strategy(:json, JsonStrategy)
 FactoryBot.definition_file_paths = [File.expand_path("../factories", __FILE__)]
 FactoryBot.find_definitions
 
+require 'shoulda/matchers'
+require 'shoulda/callback/matchers'
+Shoulda::Matchers.configure do |config|
+  config.integrate do |with|
+    with.test_framework :rspec
+    with.library :rails
+  end
+end
+
 def coverage_needed?
   ENV['COVERAGE'] || ENV['TRAVIS'] || ENV['COVERALLS_REPO_TOKEN']
 end
@@ -118,15 +127,6 @@ module EngineRoutes
   end
 end
 
-# require 'shoulda/matchers'
-# require 'shoulda/callback/matchers'
-# Shoulda::Matchers.configure do |config|
-#   config.integrate do |with|
-#     with.test_framework :rspec
-#     with.library :rails
-#   end
-# end
-#
 # ActiveJob::Base.queue_adapter = :test
 
 Shoulda::Matchers.configure do |config|

@@ -26,7 +26,7 @@ module Deepblue
       path = path.gsub( /\%date\%/, "#{now.strftime('%Y%m%d')}" )
       path = path.gsub( /\%time\%/, "#{now.strftime('%H%M%S')}" )
       path = path.gsub( /\%timestamp\%/, "#{now.strftime('%Y%m%d%H%M%S')}" )
-      path = path.gsub( /\%hostname\%/, "#{::DeepBlueDocs::Application.config.hostname}" )
+      path = path.gsub( /\%hostname\%/, "#{Rails.configuration.hostname}" )
       return path
     end
 

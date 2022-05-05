@@ -374,7 +374,7 @@ module Deepblue
     end
 
     def provenance_destroy( current_user:, event_note: '' )
-      unless DeepBlueDocs::Application.config.provenance_log_redundant_events
+      unless Rails.configuration.provenance_log_redundant_events
         return if for_provenance_event_cache_exist?( event: EVENT_DESTROY )
       end
       attributes, ignore_blank_key_values = attributes_for_provenance_destroy

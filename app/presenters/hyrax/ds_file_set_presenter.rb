@@ -203,12 +203,12 @@ module Hyrax
                                            "mime_type=#{mime_type}",
                                            "file_size=#{file_size}",
                                            "" ] if ds_file_set_presenter_debug_verbose
-      return false unless ::DeepBlueDocs::Application.config.file_sets_contents_view_allow
+      return false unless Rails.configuration.file_sets_contents_view_allow
       return false if anonymous_show?
       return false unless ( current_ability.admin? ) # || current_ability.can?(:read, id) )
-      return false unless ::DeepBlueDocs::Application.config.file_sets_contents_view_mime_types.include?( mime_type )
+      return false unless Rails.configuration.file_sets_contents_view_mime_types.include?( mime_type )
       return false if file_size.blank?
-      return false if file_size > ::DeepBlueDocs::Application.config.file_sets_contents_view_max_size
+      return false if file_size > Rails.configuration.file_sets_contents_view_max_size
       return true
     end
 
@@ -234,7 +234,7 @@ module Hyrax
 
     def can_download_file_confirm?
       size = file_size
-      max_file_size_to_download = ::DeepBlueDocs::Application.config.max_file_size_to_download
+      max_file_size_to_download = Rails.configuration.max_file_size_to_download
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "max_file_size_to_download < size=#{max_file_size_to_download < size}",
@@ -486,7 +486,7 @@ module Hyrax
     def file_size_too_large_to_download?
       size = @solr_document.file_size
       return false if size.nil?
-      size >= DeepBlueDocs::Application.config.max_file_size_to_download
+      size >= Rails.configuration.max_file_size_to_download
     end
 
     def first_title
@@ -592,7 +592,7 @@ module Hyrax
     end
 
     def relative_url_root
-      rv = ::DeepBlueDocs::Application.config.relative_url_root
+      rv = Rails.configuration.relative_url_root
       return rv if rv
       ''
     end

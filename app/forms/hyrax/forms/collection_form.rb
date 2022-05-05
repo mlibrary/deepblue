@@ -121,7 +121,7 @@ module Hyrax
       end
 
       def relative_url_root
-        rv = ::DeepBlueDocs::Application.config.relative_url_root
+        rv = Rails.configuration.relative_url_root
         return rv if rv
         ''
       end

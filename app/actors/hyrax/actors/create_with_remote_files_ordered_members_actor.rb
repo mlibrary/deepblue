@@ -48,7 +48,7 @@ module Hyrax
       # monkey
 
       mattr_accessor :create_with_remove_files_ordered_members_actor_debug_verbose, default: false
-      #               default: ::DeepBlueDocs::Application.config.file_set_actor_debug_verbose
+      #               default: Rails.configuration.file_set_actor_debug_verbose
 
       attr_reader :ordered_members
 

@@ -25,7 +25,7 @@ module DeepBlueDocs
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
     #
-    # reference config values like: ::DeepBlueDocs::Application.config.variable_name
+    # reference config values like: Rails.configuration.variable_name
     #                           or: Rails.configuration.variable_name
     #
     config.load_timestamp = DateTime.now.freeze
@@ -287,7 +287,7 @@ module DeepBlueDocs
 
     # FIXME: This unless reveals bugs. There are places in the app that hard-code the
     #        /data prefix and the tests break when it is set.
-    # See references to: DeepBlueDocs::Application.config.relative_url_root
+    # See references to: Rails.configuration.relative_url_root
     config.relative_url_root = Settings.relative_url_root unless Rails.env.test?
     config.relative_url_root = '' if Rails.env.test?
 

@@ -97,7 +97,7 @@ class SchedulerStartJob < ::Deepblue::DeepblueJob
   end
 
   def hostname
-    ::DeepBlueDocs::Application.config.hostname
+    Rails.configuration.hostname
   end
 
   def retry_sleep

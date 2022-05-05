@@ -18,7 +18,7 @@ module Hydra
             # return if it's a FileSet
             return if record.is_a? FileSet # The parent dataset will have already validated this date
             if attribute.to_s == "embargo_release_date"
-              return unless DeepBlueDocs::Application.config.embargo_enforce_future_release_date
+              return unless Rails.configuration.embargo_enforce_future_release_date
             end
             if date <= Date.today
               # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,

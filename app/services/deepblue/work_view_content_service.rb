@@ -113,7 +113,7 @@ module Deepblue
     def self.load_email_templates( debug_verbose: work_view_content_service_email_templates_debug_verbose ||
                                     work_view_content_service_debug_verbose )
       # puts "Current I18n.backend=#{I18n.backend}"
-      # puts "DeepBlueDocs::Application.config.i18n_backend=#{DeepBlueDocs::Application.config.i18n_backend}"
+      # puts "Rails.configuration.i18n_backend=#{Rails.configuration.i18n_backend}"
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if debug_verbose
@@ -298,7 +298,7 @@ module Deepblue
     end
 
     def work_view_content_enable_cache
-      ::DeepBlueDocs::Application.config.static_content_enable_cache
+      Rails.configuration.static_content_enable_cache
     end
 
   end

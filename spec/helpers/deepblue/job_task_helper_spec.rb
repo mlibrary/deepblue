@@ -80,7 +80,7 @@ RSpec.describe Deepblue::JobTaskHelper, type: :helper do
     end
 
     context 'when hostname allowed' do
-      let(:hostnames) { [::DeepBlueDocs::Application.config.hostname] }
+      let(:hostnames) { [Rails.configuration.hostname] }
       let(:options)   { { 'hostnames' => hostnames, 'quiet' => true } }
       subject { described_class.hostname_allowed( job: job, options: options ) }
       before do

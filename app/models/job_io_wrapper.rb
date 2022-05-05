@@ -20,7 +20,7 @@
 class JobIoWrapper < ApplicationRecord
 
   mattr_accessor :job_io_wrapper_debug_verbose,
-                 default: ::DeepBlueDocs::Application.config.job_io_wrapper_debug_verbose
+                 default: Rails.configuration.job_io_wrapper_debug_verbose
 
   belongs_to :user, optional: false
   belongs_to :uploaded_file, optional: true, class_name: 'Hyrax::UploadedFile'

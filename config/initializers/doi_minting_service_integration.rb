@@ -25,7 +25,7 @@ Deepblue::DoiMintingService.setup do |config|
   config.doi_minting_service_integration_hostnames_prod = [ 'deepblue.lib.umich.edu',
                                              'testing.deepblue.lib.umich.edu' ].freeze
   config.doi_minting_service_integration_enabled = config.doi_minting_service_integration_hostnames.include?(
-      DeepBlueDocs::Application.config.hostname )
+      Rails.configuration.hostname )
   config.doi_mint_on_publication_event = config.doi_minting_service_integration_enabled && false
 
   config.doi_publisher_name      = "University of Michigan".freeze

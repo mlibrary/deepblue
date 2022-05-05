@@ -39,7 +39,7 @@ module Hyrax
           super
         end
         wants.json do
-          unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
+          unless Rails.configuration.rest_api_allow_mutate
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
           super
@@ -58,7 +58,7 @@ module Hyrax
           super
         end
         wants.json do
-          unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
+          unless Rails.configuration.rest_api_allow_mutate
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
           super
@@ -77,7 +77,7 @@ module Hyrax
           super
         end
         wants.json do
-          unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
+          unless Rails.configuration.rest_api_allow_mutate
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
           super
@@ -105,7 +105,7 @@ module Hyrax
           end
         end
         wants.json do
-          unless ::DeepBlueDocs::Application.config.rest_api_allow_read
+          unless Rails.configuration.rest_api_allow_read
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
           @curation_concern ||= ::PersistHelper.find( params[:id] )
@@ -146,7 +146,7 @@ module Hyrax
           super
         end
         wants.json do
-          unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
+          unless Rails.configuration.rest_api_allow_mutate
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
           super

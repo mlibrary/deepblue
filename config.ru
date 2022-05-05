@@ -2,7 +2,7 @@
 
 require_relative 'config/environment'
 
-APP_ROOT = DeepBlueDocs::Application.config.relative_url_root || "/"
+APP_ROOT = Rails.configuration.relative_url_root || "/"
 
 map APP_ROOT do
   run Rails.application

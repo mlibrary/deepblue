@@ -3,7 +3,7 @@ require 'mini_magick'
 module Hydra::Derivatives::Processors
   class Image < Processor
 
-    HYDRA_DERIVATIVES_PROCESSORS_IMAGE_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.hydra_derivatives_processors_image_debug_verbose
+    HYDRA_DERIVATIVES_PROCESSORS_IMAGE_DEBUG_VERBOSE = Rails.configuration.hydra_derivatives_processors_image_debug_verbose
 
     class_attribute :timeout
 

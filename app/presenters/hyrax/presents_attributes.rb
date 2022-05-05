@@ -72,14 +72,14 @@ module Hyrax
     end
 
     # monkey
-    def present_author
-      author = attribute_to_html(:creator, render_as: :faceted, label: t('show.labels.creator') )
+    def present_authors
+      author = attribute_to_html(:creator, render_as: :faceted, label: I18n.t('show.labels.creator') )
       author.gsub!('itemscope itemtype="http://schema.org/Person"', '')
     end
 
     # monkey
     def present_authors_compact
-      authors = attribute_to_html(:creator, render_as: :faceted, label: t('show.labels.creator') )
+      authors = attribute_to_html(:creator, render_as: :faceted, label: I18n.t('show.labels.creator') )
       author.gsub!('itemscope itemtype="http://schema.org/Person"', '')
             .gsub!('<td>', '')
             .gsub!('</td>', '')

@@ -1,10 +1,10 @@
 
 Deepblue::UptimeService.setup do |config|
 
-  # puts "DeepBlueDocs::Application.config.program_name=#{DeepBlueDocs::Application.config.program_name}"
+  # puts "Rails.configuration.program_name=#{Rails.configuration.program_name}"
   # puts "ARGV=#{ARGV}"
-  # puts "DeepBlueDocs::Application.config.program_args=#{DeepBlueDocs::Application.config.program_args}"
-  config.program_arg1 = DeepBlueDocs::Application.config.program_args.first
+  # puts "Rails.configuration.program_args=#{Rails.configuration.program_args}"
+  config.program_arg1 = Rails.configuration.program_args.first
 
   if config.is_rake?
     # puts "is_rake? #{config.is_rake?}"

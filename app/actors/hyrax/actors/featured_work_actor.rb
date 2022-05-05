@@ -5,7 +5,7 @@ module Hyrax
     class FeaturedWorkActor < Hyrax::Actors::AbstractActor
 
       mattr_accessor :featured_work_actor_debug_verbose,
-                     default: ::DeepBlueDocs::Application.config.featured_work_actor_debug_verbose
+                     default: Rails.configuration.featured_work_actor_debug_verbose
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if destroy was successful

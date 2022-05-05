@@ -109,6 +109,10 @@ module Umrdr
       Array(self['original_checksum_tesim']).first
     end
 
+    def prior_identifier
+      fetch('prior_identifier_tesim', [])
+    end
+
     def read_me_file_set_id
       rv = self['read_me_file_set_id_tesim']
       # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
@@ -121,6 +125,10 @@ module Umrdr
 
     def referenced_by
       fetch('referenced_by_tesim', [])
+    end
+
+    def rights_license
+      Array(self['rights_license_tesim']).first
     end
 
     def rights_license_other

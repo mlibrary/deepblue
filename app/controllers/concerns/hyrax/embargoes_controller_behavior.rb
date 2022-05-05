@@ -42,7 +42,7 @@ module Hyrax
       filter_docs_with_edit_access!
       copy_visibility = []
       copy_visibility = params[:embargoes].values.map { |h| h[:copy_visibility] } if params[:embargoes]
-      af_objects = :PersistHelper.find_many(batch)
+      af_objects = ::PersistHelper.find_many(batch)
       af_objects.each do |curation_concern|
         # Hyrax::Actors::EmbargoActor.new(curation_concern).destroy
         copy_visibility_to_files = if curation_concern.file_set?

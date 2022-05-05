@@ -37,7 +37,7 @@ END_BODY
     end
 
     def self.hostname
-      ::DeepBlueDocs::Application.config.hostname
+      Rails.configuration.hostname
     end
 
     def self.solr_accessible?

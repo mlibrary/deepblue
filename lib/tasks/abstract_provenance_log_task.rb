@@ -11,7 +11,7 @@ module Deepblue
     end
 
     def initialize_input
-      task_options_value( key: 'input', default_value: DeepBlueDocs::Application.config.provenance_log_path )
+      task_options_value( key: 'input', default_value: Rails.configuration.provenance_log_path )
     end
 
   end

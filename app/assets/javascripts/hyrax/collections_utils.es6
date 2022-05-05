@@ -41,7 +41,7 @@ class AddParticipants {
 
     $.ajax({
       type: 'POST',
-      url: "/data" + url, // monkey: <%=::DeepBlueDocs::Application.config.relative_url_root%>
+      url: "/data" + url, // monkey: <%=Rails.configuration.relative_url_root%>
       data: serialized
     })
       .done(function(response) {

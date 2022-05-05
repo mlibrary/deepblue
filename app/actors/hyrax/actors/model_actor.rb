@@ -4,7 +4,7 @@ module Hyrax
     class ModelActor < AbstractActor
 
       mattr_accessor :model_actor_debug_verbose,
-                     default: ::DeepBlueDocs::Application.config.model_actor_debug_verbose
+                     default: Rails.configuration.model_actor_debug_verbose
 
       # See: https://github.com/bbatsov/rubocop/issues/5393
       # rubocop:disable Rails/Delegate

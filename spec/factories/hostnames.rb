@@ -1,7 +1,7 @@
 FactoryBot.define do
 
   factory :hostnames_allowed, class: Array do
-    initialize_with { [ ::DeepBlueDocs::Application.config.hostname,
+    initialize_with { [ Rails.configuration.hostname,
                         'deepblue.lib.umich.edu',
                         'staging.deepblue.lib.umich.edu',
                         'testing.deepblue.lib.umich.edu' ] }

@@ -68,16 +68,16 @@ module Deepblue
     end
 
     def self.program_args
-      DeepBlueDocs::Application.config.program_args
+      Rails.configuration.program_args
     end
 
     def self.program_load_timestamp
-      DeepBlueDocs::Application.config.load_timestamp
+      Rails.configuration.load_timestamp
     end
 
     def self.program_name
       return 'rails-console' if Rails.const_defined? 'Console'
-      DeepBlueDocs::Application.config.program_name
+      Rails.configuration.program_name
     end
 
     def self.uptime

@@ -667,7 +667,7 @@ RSpec.describe DataSet do
                                      before: nil,
                                      after: nil,
                                      exp_timestamp: nil,
-                                     exp_time_zone: DeepBlueDocs::Application.config.timezone_zone,
+                                     exp_time_zone: Rails.configuration.timezone_zone,
                                      exp_event:,
                                      exp_event_note: nil,
                                      exp_class_name:,

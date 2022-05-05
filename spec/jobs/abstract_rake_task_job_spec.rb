@@ -15,7 +15,7 @@ RSpec.describe AbstractRakeTaskJob, skip: false do
   end
 
   let(:job) { MockJobForAbstractRakeTaskJob.new }
-  let(:hostname_allowed) { [::DeepBlueDocs::Application.config.hostname] }
+  let(:hostname_allowed) { [Rails.configuration.hostname] }
 
   before do
     allow(job).to receive(:verbose).and_return false

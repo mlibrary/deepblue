@@ -63,7 +63,7 @@ module Hyrax
   # Responsible for creating and cleaning up the derivatives of a file_set
   class FileSetDerivativesService
 
-    FILE_SET_DERIVATIVES_SERVICE_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.file_set_derivatives_service_debug_verbose # monkey
+    FILE_SET_DERIVATIVES_SERVICE_DEBUG_VERBOSE = Rails.configuration.file_set_derivatives_service_debug_verbose # monkey
 
     attr_reader :file_set
     delegate :uri, :mime_type, to: :file_set

@@ -1,4 +1,5 @@
 require 'rails_helper'
+
 class MockDeepblueWorksControllerBehavior < Hyrax::DeepblueController
   include Deepblue::WorksControllerBehavior
   include Deepblue::ZipDownloadControllerBehavior
@@ -530,7 +531,8 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
             allow(test_object).to receive(:rest_api_allow_mutate).and_return "done"
 
             dc = dummy_class.update_allow_json?
-            expect(dc).to eq("done")
+            expect(dc).to eq(true)
+            #expect(dc).to eq("done")
           end
 
           it 'workflow_state' do

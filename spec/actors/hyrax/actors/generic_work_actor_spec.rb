@@ -130,7 +130,7 @@ RSpec.describe Hyrax::Actors::GenericWorkActor, skip: true do
           before do
             allow(Hyrax::TimeService).to receive(:time_in_utc) { xmas }
             allow(Hyrax::Actors::FileActor).to receive(:new).and_return(file_actor)
-            allow(Hyrax.config.callback).to receive(:run).with(:after_create_concern, GenericWork, user)
+            allow(Hyrax.config.callback).to receive(:run).with(:after_create_concern, DataSet, user)
           end
 
           it 'stamps each file with the access rights and runs callbacks' do

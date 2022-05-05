@@ -3,7 +3,7 @@
 class SolrDocument
 
   mattr_accessor :solr_document_debug_verbose,
-                 default: ::DeepBlueDocs::Application.config.solr_document_debug_verbose
+                 default: Rails.configuration.solr_document_debug_verbose
 
   include Blacklight::Solr::Document
   include BlacklightOaiProvider::SolrDocument

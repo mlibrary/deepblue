@@ -6,7 +6,7 @@ module Hyrax
       # monkey
 
       mattr_accessor :file_set_ordered_ordered_members_actor_debug_verbose, default: false
-      #               default: ::DeepBlueDocs::Application.config.file_set_actor_debug_verbose
+      #               default: Rails.configuration.file_set_actor_debug_verbose
 
       # Adds representative and thumbnail to work; sets file_set visibility
       # @param [ActiveFedora::Base] work the parent work

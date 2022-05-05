@@ -136,7 +136,7 @@ module Deepblue
     def virus_scan_file_too_big?
       fsize = virus_scan_file_size
       return false if fsize.blank?
-      rv = fsize.to_i > DeepBlueDocs::Application.config.virus_scan_max_file_size
+      rv = fsize.to_i > Rails.configuration.virus_scan_max_file_size
       return rv
     end
 
@@ -162,7 +162,7 @@ module Deepblue
       # LoggingHelper.bold_debug [ LoggingHelper.here, LoggingHelper.called_from,
       #                                  "" ] if file_set_behavior_debug_verbose ]
       # return true if original_file && original_file.new_record?
-      # return false unless DeepBlueDocs::Application.config.virus_scan_retry
+      # return false unless Rails.configuration.virus_scan_retry
       # scan_status = virus_scan_status
       # return true if scan_status.blank?
       # case scan_status
@@ -173,11 +173,11 @@ module Deepblue
       # when VIRUS_SCAN_SKIPPED_TOO_BIG
       #   false
       # when VIRUS_SCAN_SKIPPED_SERVICE_UNAVAILABLE
-      #   DeepBlueDocs::Application.config.virus_scan_retry_on_service_unavailable
+      #   Rails.configuration.virus_scan_retry_on_service_unavailable
       # when VIRUS_SCAN_ERROR
-      #   DeepBlueDocs::Application.config.virus_scan_retry_on_error
+      #   Rails.configuration.virus_scan_retry_on_error
       # when VIRUS_SCAN_UNKNOWN
-      #   DeepBlueDocs::Application.config.virus_scan_retry_on_unknown
+      #   Rails.configuration.virus_scan_retry_on_unknown
       # else
       #   true
       # end

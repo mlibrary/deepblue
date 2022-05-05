@@ -3,17 +3,17 @@ require 'rails_helper'
 
 RSpec.describe 'autofilling the form from DOI', :js, skip: true do
   let(:model_class) do
-    Class.new(GenericWork) do
+    Class.new(DataSet) do
       include ::Deepblue::DoiBehavior
       include Hyrax::Doi::DataCiteDoiBehavior
     end
   end
   let(:form_class) do
-    Class.new(Hyrax::GenericWorkForm) do
+    Class.new(Hyrax::DataSetForm) do
       include Hyrax::Doi::DoiFormBehavior
       include Hyrax::Doi::DataCiteDoiFormBehavior
 
-      self.model_class = GenericWork
+      self.model_class = DataSet
     end
   end
   let(:helper_module) do
@@ -35,10 +35,10 @@ RSpec.describe 'autofilling the form from DOI', :js, skip: true do
       # Adds Hyrax behaviors to the controller.
       include Hyrax::WorksControllerBehavior
       include Hyrax::BreadcrumbsForWorks
-      self.curation_concern_type = GenericWork
+      self.curation_concern_type = DataSet
 
       # Use this line if you want to use a custom presenter
-      self.show_presenter = Hyrax::GenericWorkPresenter
+      self.show_presenter = Hyrax::DataSetPresenter
 
       helper Rails.helpers
     end
@@ -50,11 +50,11 @@ RSpec.describe 'autofilling the form from DOI', :js, skip: true do
 
   before do
     # Override test app classes and module to simulate generators having been run
-    stub_const("GenericWork", model_class)
-    stub_const("Hyrax::GenericWorkForm", form_class)
+    stub_const("DataSet", model_class)
+    stub_const("Hyrax::DataSetForm", form_class)
     stub_const("HyraxHelper", helper_module)
     stub_const("SolrDocument", solr_document_class)
-    stub_const("Hyrax::GenericWorksController", controller_class)
+    stub_const("Hyrax::DataSetsController", controller_class)
 
     # Mock Bolognese so it doesn't have to make a network request
     allow(Bolognese::Metadata).to receive(:new).and_return(metadata)

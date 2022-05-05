@@ -165,7 +165,7 @@ $(function () {
       messages: {
           acceptFileTypes: '<%= t( ".options.messages.accept_file_types", file_name: curation_concern.label ) %>',
           maxFileSize: '<%= t( ".options.messages.max_file_size",
-                                max_file_size: DeepBlueDocs::Application.config.upload_max_file_size_str ) %>',
+                                max_file_size: Rails.configuration.upload_max_file_size_str ) %>',
           maxNumberOfFiles: '<%= t(".options.messages.max_number_of_files") %>',
           minFileSize: '<%= t(".options.messages.min_file_size") %>',
       }});

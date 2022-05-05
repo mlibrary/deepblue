@@ -107,7 +107,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "email_target=#{email_target}",
                                              "" ] if email_subscription_service_debug_verbose
-      hostname = ::DeepBlueDocs::Application.config.hostname if hostname.nil?
+      hostname = Rails.configuration.hostname if hostname.nil?
       # TODO: integrate timestamps
       body = subject if body.blank?
       email = email_target

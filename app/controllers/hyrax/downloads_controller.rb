@@ -63,7 +63,7 @@ module Hyrax
         file_size = relation.first.to_i if relation.present?
         respond_to do |wants|
           wants.html do
-            if file_size > DeepBlueDocs::Application.config.max_file_size_to_download
+            if file_size > Rails.configuration.max_file_size_to_download
               raise ActiveFedora::IllegalOperation # TODO need better error than this
             end
             # For original files that are stored in fedora
@@ -71,10 +71,10 @@ module Hyrax
             super
           end
           wants.json do
-            unless ::DeepBlueDocs::Application.config.rest_api_allow_read
+            unless Rails.configuration.rest_api_allow_read
               return render_json_response( response_type: :bad_request, message: "Method not allowed." )
             end
-            if file_size > DeepBlueDocs::Application.config.max_file_size_to_download
+            if file_size > Rails.configuration.max_file_size_to_download
               return render_json_response( response_type: :unprocessable_entity, message: "file too large to download" )
             end
             # For original files that are stored in fedora

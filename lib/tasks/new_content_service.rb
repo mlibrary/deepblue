@@ -1750,7 +1750,7 @@ module Deepblue
         if use_rails_logger
           @logger = Rails.logger
         else
-          DeepBlueDocs::Application.config.provenance_log_echo_to_rails_logger = false
+          Rails.configuration.provenance_log_echo_to_rails_logger = false
           ProvenanceHelper.echo_to_rails_logger = false
         end
 

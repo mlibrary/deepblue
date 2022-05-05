@@ -30,7 +30,7 @@ module Hyrax
       when "about-top"
         doc = "about"
       when "globus-help"
-        return redirect_to( "#{::DeepBlueDocs::Application.config.relative_url_root}/user-guide#download-globus" )
+        return redirect_to( "#{Rails.configuration.relative_url_root}/user-guide#download-globus" )
       when "help"
         doc = "faq"
       else
@@ -43,7 +43,7 @@ module Hyrax
       file_set = static_content_find_documentation_file_set( work_title: work_title, file_name: file_name, path: path )
       if file_set.present?
         if ::Deepblue::WorkViewContentService.static_controller_redirect_to_work_view_content
-          redirect_to( "#{::DeepBlueDocs::Application.config.relative_url_root}/work_view_content/#{prefix}#{doc}/#{doc}.html" )
+          redirect_to( "#{Rails.configuration.relative_url_root}/work_view_content/#{prefix}#{doc}/#{doc}.html" )
         else
           show_static_content_doc( work_title: work_title,
                                    file_name: file_name,
@@ -52,9 +52,9 @@ module Hyrax
                                    path: path )
         end
       elsif static_content_file_set( work_title: "DBDDocumentation", file_set_title: "#{doc}.html", path: path ).present?
-        redirect_to( "#{::DeepBlueDocs::Application.config.relative_url_root}/work_view_content/DBDDocumentation/#{doc}.html" )
+        redirect_to( "#{Rails.configuration.relative_url_root}/work_view_content/DBDDocumentation/#{doc}.html" )
       elsif static_content_file_set( work_title: "#{prefix}#{doc}", file_set_title: "#{doc}.html", path: path ).present?
-        redirect_to( "#{::DeepBlueDocs::Application.config.relative_url_root}/work_view_content/#{prefix}#{doc}/#{doc}.html" )
+        redirect_to( "#{Rails.configuration.relative_url_root}/work_view_content/#{prefix}#{doc}/#{doc}.html" )
       elsif doc =~ %r{
                       about|
                       about-top|

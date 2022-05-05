@@ -19,7 +19,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                            "curation_concern.embargo_release_date=#{embargo_release_date}",
                                            "" ] if permissions_controller_debug_verbose
-      copy unless DeepBlueDocs::Application.config.embargo_allow_children_unembargo_choice
+      copy unless Rails.configuration.embargo_allow_children_unembargo_choice
     end
 
     def copy

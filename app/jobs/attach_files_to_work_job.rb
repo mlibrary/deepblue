@@ -187,8 +187,8 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
     end
 
     def notify_attach_files_to_work_job_complete( successful_uploads:, failed_uploads: )
-      notify_user = DeepBlueDocs::Application.config.notify_user_file_upload_and_ingest_are_complete
-      notify_managers = DeepBlueDocs::Application.config.notify_managers_file_upload_and_ingest_are_complete
+      notify_user = Rails.configuration.notify_user_file_upload_and_ingest_are_complete
+      notify_managers = Rails.configuration.notify_managers_file_upload_and_ingest_are_complete
       return unless notify_user || notify_managers
       work_depositor = ::Deepblue::EmailHelper.cc_depositor( curation_concern: work )
       title = ::Deepblue::EmailHelper.cc_title curation_concern: work

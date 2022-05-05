@@ -49,10 +49,10 @@ Deepblue::IngestIntegrationService.setup do |config|
   config.ingest_allowed_path_prefixes = allowed_dirs
   ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                          Deepblue::LoggingHelper.called_from,
-                                         "DeepBlueDocs::Application.config.hostname = #{DeepBlueDocs::Application.config.hostname}",
+                                         "Rails.configuration.hostname = #{Rails.configuration.hostname}",
                                          "" ] if INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE
 
-  case DeepBlueDocs::Application.config.hostname
+  case Rails.configuration.hostname
   when ::Deepblue::InitializationConstants::HOSTNAME_PROD
     config.ingest_script_dir = File.join config.ingest_script_dir, ::Deepblue::InitializationConstants::PRODUCTION
   when ::Deepblue::InitializationConstants::HOSTNAME_TESTING

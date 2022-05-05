@@ -4,17 +4,17 @@ require 'rails_helper'
 describe 'Hyrax::Doi::WorkFormHelper', skip: true do
   describe 'render_doi?' do
     let(:doi_presenter_class) do
-      Class.new(Hyrax::GenericWorkPresenter) do
+      Class.new(Hyrax::DataSetPresenter) do
         include Hyrax::Doi::DoiPresenterBehavior
       end
     end
     let(:datacite_presenter_class) do
-      Class.new(Hyrax::GenericWorkPresenter) do
+      Class.new(Hyrax::DataSetPresenter) do
         include Hyrax::Doi::DoiPresenterBehavior
         include Hyrax::Doi::DataCiteDoiPresenterBehavior
       end
     end
-    let(:non_doi_presenter_class) { Hyrax::GenericWorkPresenter }
+    let(:non_doi_presenter_class) { Hyrax::DataSetPresenter }
     let(:solr_document_class) do
       Class.new(SolrDocument) do
         include Hyrax::Doi::SolrDocument::DoiBehavior

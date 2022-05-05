@@ -1,5 +1,5 @@
 # Generated via
-#  `rails generate hyrax:work GenericWork`
+#  `rails generate hyrax:work DataSet`
 require 'rails_helper'
 
 RSpec.describe Hyrax::GenericWorkForm do

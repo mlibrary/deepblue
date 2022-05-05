@@ -8,7 +8,7 @@ RSpec.describe Hyrax::Actors::DoiActor, skip: true do
   let(:next_actor) { Hyrax::Actors::Terminator.new }
   let(:user)       { FactoryBot.build(:user) }
   let(:model_class) do
-    Class.new(GenericWork) do
+    Class.new(DataSet) do
       include ::Deepblue::DoiBehavior
     end
   end
@@ -64,7 +64,7 @@ RSpec.describe Hyrax::Actors::DoiActor, skip: true do
 
     context 'when the work implements registrar_name and registrar_opts' do
       let(:model_class) do
-        Class.new(GenericWork) do
+        Class.new(DataSet) do
           include ::Deepblue::DoiBehavior
 
           def doi_registrar

@@ -14,7 +14,7 @@ module Deepblue
       # @verbose = task_options_value( key: 'verbose', default_value: false )
       # ::Deepblue::LoggingHelper.debug "verbose=#{verbose}" if verbose
       # @hostnames = task_options_value( key: 'hostnames', default_value: [], verbose: verbose )
-      # @hostname = ::DeepBlueDocs::Application.config.hostname
+      # @hostname = Rails.configuration.hostname
       # return unless @hostnames.include? @hostname
       @test = task_options_value( key: 'test', default_value: true, verbose: verbose )
       @echo_to_stdout = task_options_value( key: 'echo_to_stdout', default_value: false, verbose: verbose )

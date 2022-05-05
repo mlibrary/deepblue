@@ -1,6 +1,7 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
-# frozen_string_literal: true
 RSpec.describe ::Collection, type: :model, skip: false do
   let(:collection) { build(:public_collection_lw) }
 
@@ -8,7 +9,8 @@ RSpec.describe ::Collection, type: :model, skip: false do
     expect(collection.read_groups).to eq ['public']
   end
 
-  describe '#bytes' do
+  describe '#bytes', skip: true do
+    # this has been reactivated in DBD
     it 'returns a hard-coded integer and issues a deprecation warning' do
       expect(Deprecation).to receive(:warn).at_least(:once)
       expect(collection.bytes).to eq(0)
@@ -100,7 +102,7 @@ RSpec.describe ::Collection, type: :model, skip: false do
     end
 
     it "does not delete member files when deleted" do
-      expect(GenericWork.exists?(work1.id)).to be true
+      expect(DataSet.exists?(work1.id)).to be true
     end
   end
 
@@ -237,9 +239,9 @@ RSpec.describe ::Collection, type: :model, skip: false do
     end
 
     it 'resets group read access' do
-      expect(collection.read_groups).to match_array([])
+      expect(collection.read_groups).to match_array(['public'])
       collection.reset_access_controls!
-      expect(collection.read_groups).to match_array(['viewers', 'depositors', ::Ability.admin_group_name])
+      expect(collection.read_groups).to match_array(['viewers', 'depositors', 'public', ::Ability.admin_group_name])
     end
   end
 

@@ -79,7 +79,7 @@ module Hydra
       end
 
       def visibility_after_embargo_default
-        ::DeepBlueDocs::Application.config.embargo_visibility_after_default_status
+        Rails.configuration.embargo_visibility_after_default_status
       end
 
       def visibility_after_lease_default
@@ -87,7 +87,7 @@ module Hydra
       end
 
       def visibility_during_embargo_default
-        ::DeepBlueDocs::Application.config.embargo_visibility_during_default_status
+        Rails.configuration.embargo_visibility_during_default_status
       end
 
       def visibility_during_lease_default

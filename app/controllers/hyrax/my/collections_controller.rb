@@ -11,6 +11,10 @@ module Hyrax
       EVENT_NOTE = 'Hyrax::My::CollectionsController' unless const_defined? :EVENT_NOTE
       PARAMS_KEY = 'collection' unless const_defined? :PARAMS_KEY
 
+      configure_blacklight do |config|
+        config.search_builder_class = Hyrax::My::CollectionsSearchBuilder
+      end
+
       # Define collection specific filter facets.
       def self.configure_facets
         configure_blacklight do |config|

@@ -43,7 +43,7 @@ module Deepblue
 
     def initialize( works, restart_with_work_id: nil )
       puts "ENV['TMPDIR']=#{ENV['TMPDIR']}"
-      # puts "DeepBlueDocs::Application.config.tmpdir=#{DeepBlueDocs::Application.config.tmpdir}"
+      # puts "Rails.configuration.tmpdir=#{Rails.configuration.tmpdir}"
       puts "ENV['_JAVA_OPTIONS']=#{ENV['_JAVA_OPTIONS']}"
       @tmpdir = Pathname.new "/deepbluedata-prep/fedora-extract"
       Dir.mkdir @tmpdir unless Dir.exist? @tmpdir
@@ -66,7 +66,7 @@ module Deepblue
 
       @derivative_min_file_size = 0 # can skip over small sizes
       @derivative_max_file_size = 100_000_000 # something smaller than 4_000_000_000
-      # @derivative_max_file_size = DeepBlueDocs::Application.config.derivative_max_file_size
+      # @derivative_max_file_size = Rails.configuration.derivative_max_file_size
       @skip_derivative_ext = { '.zip' => true, '.gz' => true }
       @tracking_report_to_console = false
 

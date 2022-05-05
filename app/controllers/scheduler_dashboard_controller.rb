@@ -136,7 +136,7 @@ class SchedulerDashboardController < ApplicationController
                                            "args=#{args}",
                                            "" ] if scheduler_dashboard_controller_debug_verbose
     # Add this hostname to hostnames if it exists
-    args['hostnames'] << ::DeepBlueDocs::Application.config.hostname if args.has_key? 'hostnames'
+    args['hostnames'] << Rails.configuration.hostname if args.has_key? 'hostnames'
     # Ensure that job isn't 'quiet', i.e. send always send results
     args['quiet'] = false if args.has_key? 'quiet'
     args['from_dashboard'] = current_user.email
@@ -216,8 +216,8 @@ class SchedulerDashboardController < ApplicationController
   end
 
   def scheduler_active_status
-    return MsgHelper.t( 'hyrax.scheduler.can_run', hostname: DeepBlueDocs::Application.config.hostname ) if scheduler_active
-    MsgHelper.t( 'hyrax.scheduler.can_not_run_html', hostname: DeepBlueDocs::Application.config.hostname )
+    return MsgHelper.t( 'hyrax.scheduler.can_run', hostname: Rails.configuration.hostname ) if scheduler_active
+    MsgHelper.t( 'hyrax.scheduler.can_not_run_html', hostname: Rails.configuration.hostname )
   end
 
   def scheduler_job_subscribe( subscription_service_id: )

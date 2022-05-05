@@ -6,7 +6,7 @@ module Hyrax
     class BeforeModelActor < AbstractEventActor
 
       mattr_accessor :before_model_actor_debug_verbose,
-                     default: ::DeepBlueDocs::Application.config.before_model_actor_debug_verbose
+                     default: Rails.configuration.before_model_actor_debug_verbose
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if create was successful

@@ -44,7 +44,7 @@ module Hyrax
             destroy_rest
           end
           wants.json do
-            unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
+            unless Rails.configuration.rest_api_allow_mutate
               return render_json_response( response_type: :bad_request, message: "Method not allowed." )
             end
             destroy_rest
@@ -63,7 +63,7 @@ module Hyrax
             show_rest
           end
           wants.json do
-            unless ::DeepBlueDocs::Application.config.rest_api_allow_read
+            unless Rails.configuration.rest_api_allow_read
               return render_json_response( response_type: :bad_request, message: "Method not allowed." )
             end
             show_rest

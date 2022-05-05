@@ -47,12 +47,12 @@ Hyrax.config do |config|
   # Options to control the file uploader
   # Run `bundle exec rake tmp:cache:clear` to clear all the contents of public/assets
   # Run `bundle exec rake assets:clobber assets:precompile` in dev for this to take effect
-  # If updating maxNumberOfFiles: 100, # Also update: DeepBlueDocs::Application.config.upload_max_number_of_files
-  # If updating maxFileSize: 5.gigabytes, # Also update: DeepBlueDocs::Application.config.upload_max_file_size
+  # If updating maxNumberOfFiles: 100, # Also update: Rails.configuration.upload_max_number_of_files
+  # If updating maxFileSize: 5.gigabytes, # Also update: Rails.configuration.upload_max_file_size
   if Rails.env.test?
     uploader_url = '/uploads'
   else
-    uploader_url = ::DeepBlueDocs::Application.config.relative_url_root + '/uploads' # monkey: ::DeepBlueDocs::Application.config.relative_url_root
+    uploader_url = Rails.configuration.relative_url_root + '/uploads' # monkey: Rails.configuration.relative_url_root
   end
   config.uploader = {
       limitConcurrentUploads: 6,

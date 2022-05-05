@@ -200,7 +200,7 @@ module Deepblue
                   email_sent:,
                   **key_values )
 
-      email_enabled = DeepBlueDocs::Application.config.email_enabled
+      email_enabled = Rails.configuration.email_enabled
       added_key_values = { to: to }
       added_key_values.merge!( { to_note: to_note } ) if to_note.present?
       added_key_values.merge!( { cc: cc } ) if cc.present?
@@ -341,7 +341,7 @@ module Deepblue
       body = body.join( "\n" ) if body.is_a? Array
       subject = EmailHelper.clean_str subject if EmailHelper.clean_str_needed? subject
       body = EmailHelper.clean_str body if EmailHelper.clean_str_needed? body
-      email_enabled = DeepBlueDocs::Application.config.email_enabled
+      email_enabled = Rails.configuration.email_enabled
       is_enabled = email_enabled ? "is enabled" : "is not enabled"
       LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                   ::Deepblue::LoggingHelper.called_from,
@@ -391,7 +391,7 @@ module Deepblue
       return unless email_enabled
       subject = "Send email error encountered"
       body = "#{exception.class} #{exception.message} at:\n#{exception.backtrace.join("\n")}"
-      DeepBlueDocs::Application.config.email_error_alert_addresses.each do |to|
+      Rails.configuration.email_error_alert_addresses.each do |to|
         email = DeepblueMailer.send_an_email( to: to,
                                               from: from,
                                               subject: subject,

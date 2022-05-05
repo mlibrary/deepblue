@@ -6,7 +6,7 @@ module Hydra
   module Derivatives
     class Runner
 
-      HYDRA_DERIVATIVES_RUNNER_DEBUG_VERBOSE = false # ::DeepBlueDocs::Application.config.hydra_derivatives_runner_debug_verbose # monkey
+      HYDRA_DERIVATIVES_RUNNER_DEBUG_VERBOSE = false # Rails.configuration.hydra_derivatives_runner_debug_verbose # monkey
 
       class << self
         attr_writer :output_file_service
@@ -49,7 +49,7 @@ module Hydra
                                                    ::Deepblue::LoggingHelper.called_from,
                                                    "processor.class.name=#{processor.class.name}",
                                                    "" ] if HYDRA_DERIVATIVES_RUNNER_DEBUG_VERBOSE
-            processor_class.timeout = ::DeepBlueDocs::Application.config.derivative_timeout if processor_class.respond_to? :timeout=
+            processor_class.timeout = Rails.configuration.derivative_timeout if processor_class.respond_to? :timeout=
             ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                    ::Deepblue::LoggingHelper.called_from,
                                                    "processor.class.name=#{processor.class.name}",

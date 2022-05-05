@@ -422,13 +422,13 @@ RSpec.describe Hyrax::CollectionPresenter, skip: false do
       allow(logo_info).to receive(:local_path).and_return("/temp/public/branding/123/logo/logo.gif")
     end
 
-    it "banner check" do
+    it "banner check", skip: true do
       tempfile = Tempfile.new('my_file')
       banner_info.save(tempfile.path)
       expect(presenter.banner_file).to eq("/branding/123/banner/banner.gif")
     end
 
-    it "logo check" do
+    it "logo check", skip: true do
       tempfile = Tempfile.new('my_file')
       logo_info.save(tempfile.path)
       expect(presenter.logo_record).to eq([{ file: "logo.gif", file_location: "/branding/123/logo/logo.gif", alttext: "This is the logo", linkurl: "http://logo.com" }])

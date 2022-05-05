@@ -88,14 +88,14 @@ module Hyrax
                                              "" ] if single_use_links_viewer_controller_debug_verbose
       if 'FileSet' == model
         # TODO: properly generate this route
-        url = "#{::DeepBlueDocs::Application.config.relative_url_root}/concern/file_sets/#{solr_doc.id}/single_use_link/#{params[:id]}"
+        url = "#{Rails.configuration.relative_url_root}/concern/file_sets/#{solr_doc.id}/single_use_link/#{params[:id]}"
         flash_msg =  t('hyrax.single_use_links.notice.show_file_html')
-        # flash_msg =  t('hyrax.single_use_links.notice.show_file_with_help_link_html', help_link: "#{::DeepBlueDocs::Application.config.relative_url_root}/help" )
+        # flash_msg =  t('hyrax.single_use_links.notice.show_file_with_help_link_html', help_link: "#{Rails.configuration.relative_url_root}/help" )
       else
         # TODO: properly generate this route
-        url = "#{::DeepBlueDocs::Application.config.relative_url_root}/concern/data_sets/#{solr_doc.id}/single_use_link/#{params[:id]}"
+        url = "#{Rails.configuration.relative_url_root}/concern/data_sets/#{solr_doc.id}/single_use_link/#{params[:id]}"
         flash_msg =  t('hyrax.single_use_links.notice.show_work_html')
-        # flash_msg =  t('hyrax.single_use_links.notice.show_work_with_help_link_html', help_link: "#{::DeepBlueDocs::Application.config.relative_url_root}/help" )
+        # flash_msg =  t('hyrax.single_use_links.notice.show_work_with_help_link_html', help_link: "#{Rails.configuration.relative_url_root}/help" )
       end
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

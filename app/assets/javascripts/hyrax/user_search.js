@@ -16,7 +16,7 @@
           callback(data);
         },
         ajax: { // Use the jQuery.ajax wrapper provided by Select2
-          url: "/data/users.json", // monkey: ::DeepBlueDocs::Application.config.relative_url_root
+          url: "/data/users.json", // monkey: Rails.configuration.relative_url_root
           dataType: "json",
           data: function (term, page) {
             return {
