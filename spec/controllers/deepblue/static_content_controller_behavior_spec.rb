@@ -157,7 +157,7 @@ RSpec.describe Deepblue::StaticContentControllerBehavior do
   it 'returns content based solr query' do  
   	allow(dummy_class).to receive(:static_content_find_by_id).and_return(nil)
     allow(dummy_class).to receive(:documentation_work_title_prefix).and_return("abc")
-    allow(::ActiveFedora::SolrService).to receive(:query).and_return([test_file_set])
+    allow(::Hyrax::SolrService).to receive(:query).and_return([test_file_set])
     allow(dummy_class).to receive(:static_content_find_by_id).and_return("content")        
 
     dc = dummy_class.static_content_find_by_title( title: "abTitle", id: "abcxyz", solr_query: "")

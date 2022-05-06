@@ -220,7 +220,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "solr_query=#{solr_query}",
                                              "" ] if static_content_controller_behavior_verbose
-      results = ::ActiveFedora::SolrService.query( solr_query, rows: 10 )
+      results = ::Hyrax::SolrService.query( solr_query, rows: 10 )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "results=#{results}",

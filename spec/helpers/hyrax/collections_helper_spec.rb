@@ -34,9 +34,9 @@ RSpec.describe Hyrax::CollectionsHelper, skip: true do
       let!(:work_doc) { SolrDocument.new(id: '123', title_tesim: ['My DataSet'], member_of_collection_ids_ssim: coll_ids) }
 
       before do
-        ActiveFedora::SolrService.add(coll1_attrs)
-        ActiveFedora::SolrService.add(coll2_attrs)
-        ActiveFedora::SolrService.commit
+        Hyrax::SolrService.add(coll1_attrs)
+        Hyrax::SolrService.add(coll2_attrs)
+        Hyrax::SolrService.commit
       end
 
       it 'renders a list of links to the collections' do

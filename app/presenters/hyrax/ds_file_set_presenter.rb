@@ -542,7 +542,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
                                              "" ] if ds_file_set_presenter_debug_verbose
-      ids = ActiveFedora::SolrService.query("{!field f=member_ids_ssim}#{id}",
+      ids = Hyrax::SolrService.query("{!field f=member_ids_ssim}#{id}",
                                             fl: ActiveFedora.id_field)
                 .map { |x| x.fetch(ActiveFedora.id_field) }
       # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

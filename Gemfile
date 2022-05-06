@@ -150,6 +150,8 @@ gem 'sprockets', '~> 3.7.2'
 gem 'websocket-extensions', '>= 0.1.5'
 # End security vulnerability mitigation
 
+gem 'font-awesome-sass', '>= 6.0'
+
 # To have OAI
 gem 'blacklight_oai_provider', '6.0.0.pre1'
 

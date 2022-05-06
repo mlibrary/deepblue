@@ -1263,6 +1263,7 @@ DEPENDENCIES
   ezid-client
   factory_bot
   fcrepo_wrapper
+  font-awesome-sass (>= 6.0)
   groupdate
   hydra-role-management
   hyrax (= 3.0.2)

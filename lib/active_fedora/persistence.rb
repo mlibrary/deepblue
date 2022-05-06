@@ -79,7 +79,7 @@ module ActiveFedora
         raise ObjectNotFoundError, "Unable to find #{id} in the repository"
       end
 
-      ActiveFedora::SolrService.delete(id) if ActiveFedora.enable_solr_updates?
+      ActiveFedora::SolrService.delete(id) if ActiveFedora.enable_solr_updates? # TODO: hyrax v3 update
       self.class.eradicate(id) if opts[:eradicate]
       freeze
     end

@@ -54,7 +54,7 @@ module Hyrax
     # # TODO: Extract this to ActiveFedora::Aggregations::ListSource
     # def ordered_ids
     #   @ordered_ids ||= begin
-    #                      ActiveFedora::SolrService.query("proxy_in_ssi:#{id}",
+    #                      Hyrax::SolrService.query("proxy_in_ssi:#{id}",
     #                                                      rows: 10_000,
     #                                                      fl: "ordered_targets_ssim")
     #                                               .flat_map { |x| x.fetch("ordered_targets_ssim", []) }
@@ -72,7 +72,7 @@ module Hyrax
       # Arbitrarily maxed at 10 thousand; had to specify rows due to solr's default of 10
       def file_set_ids
         @file_set_ids ||= begin
-                            ActiveFedora::SolrService.query("{!field f=has_model_ssim}FileSet",
+                            Hyrax::SolrService.query("{!field f=has_model_ssim}FileSet",
                                                             rows: 10_000,
                                                             fl: ActiveFedora.id_field,
                                                             fq: "{!join from=ordered_targets_ssim to=id}id:\"#{id}/list_source\"")

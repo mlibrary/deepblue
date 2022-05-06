@@ -84,7 +84,7 @@ module Hyrax
                                       # monkey .pluck('DISTINCT source_id') # monkey
                                       # monkey -- get rid of: DEPRECATION WARNING: Dangerous query method (method whose arguments are used as raw SQL) called with non-attribute argument(s): "DISTINCT source_id".
         query = "_query_:\"{!raw f=has_model_ssim}AdminSet\" AND {!terms f=id}#{ids.join(',')}"
-        ActiveFedora::SolrService.count(query).positive?
+        Hyrax::SolrService.count(query).positive?
       end
 
       # This overrides hydra-head, (and restores the method from blacklight-access-controls)

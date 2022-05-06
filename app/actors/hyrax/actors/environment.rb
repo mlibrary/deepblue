@@ -18,7 +18,14 @@ module Hyrax
         @attributes = attributes.to_h.with_indifferent_access unless attributes.is_a? EnvironmentAttributes
       end
 
-      attr_reader :curation_concern, :current_ability, :attributes
+      ##
+      # @!attribute [rw] attributes
+      #   @return [Hash]
+      # @!attribute [rw] curation_concern
+      #   @return [Object]
+      # @!attribute [rw] current_ability
+      #   @return [Hyrax::Ability]
+      attr_accessor :curation_concern, :current_ability, :attributes
 
       # @return [User] the user from the current_ability
       def user

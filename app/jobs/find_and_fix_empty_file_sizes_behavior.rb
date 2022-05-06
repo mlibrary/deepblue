@@ -121,14 +121,14 @@ WHERE { }
         fs.save!( validate: false )
         batch << fs.to_solr
         if batch.size >= 5
-          ActiveFedora::SolrService.add(batch, softCommit: true)
-          ActiveFedora::SolrService.commit
+          Hyrax::SolrService.add(batch, softCommit: true)
+          Hyrax::SolrService.commit
           batch = []
         end
       end
       if batch.size > 0
-        ActiveFedora::SolrService.add(batch, softCommit: true)
-        ActiveFedora::SolrService.commit
+        Hyrax::SolrService.add(batch, softCommit: true)
+        Hyrax::SolrService.commit
       end
       messages << "FileSet #{fs_id} parent work #{fs.parent.id} updating total file size." if verbose
     end
