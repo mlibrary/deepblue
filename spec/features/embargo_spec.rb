@@ -1,7 +1,7 @@
 require 'rails_helper'
 include Warden::Test::Helpers
 
-RSpec.describe 'embargo', type: :feature, js: true, workflow: true, clean_repo: true, skip: false do
+RSpec.describe 'embargo', type: :feature, js: true, workflow: true, clean_repo: true, skip: ENV['CIRCLECI'].present? do
 
   mattr_accessor :embargo_spec_debug_verbose
   @@embargo_spec_debug_verbose = false
