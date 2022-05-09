@@ -85,7 +85,7 @@ module Hyrax
           work = ::PersistHelper.find work_title
           StaticContentHelper.static_content_cache_title_id( title: work_title, id: work.id )
           return work
-        rescue ActiveFedora::ObjectNotFoundError
+        rescue Hyrax::ObjectNotFoundError
           # ignore and continue
         end
       end

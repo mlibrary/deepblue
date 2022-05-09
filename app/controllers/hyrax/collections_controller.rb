@@ -6,8 +6,8 @@ module Hyrax
 
     mattr_accessor :hyrax_collection_controller_debug_verbose, default: false
 
-    EVENT_NOTE = 'Hyrax::CollectionsController'
-    PARAMS_KEY = 'collection'
+    EVENT_NOTE = 'Hyrax::CollectionsController' unless const_defined? :EVENT_NOTE
+    PARAMS_KEY = 'collection' unless const_defined? :PARAMS_KEY
 
     include Hyrax::CollectionsControllerBehavior
     include Deepblue::ControllerWorkflowEventBehavior

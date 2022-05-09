@@ -341,7 +341,7 @@ module Deepblue
             work.member_of_collections << collection
             log_provenance_add_child( parent: collection, child: work )
             work.save!
-          rescue ActiveFedora::ObjectNotFoundError
+          rescue Hyrax::ObjectNotFoundError
             puts "Collection #{collection_id} not found. Unable to add work #{work.id} to it."
           end
         end
@@ -422,7 +422,7 @@ module Deepblue
         return admin_set_work if AdminSet.default_set? admin_set_id
         begin
           admin_set = AdminSet.find( admin_set_id )
-        rescue ActiveFedora::ObjectNotFoundError
+        rescue Hyrax::ObjectNotFoundError
           # TODO: Log this
           admin_set = admin_set_work
         rescue Ldp::Gone
@@ -1570,7 +1570,7 @@ module Deepblue
       def find_collection_using_id( id: )
         return nil if id.blank?
         Collection.find id
-      rescue ActiveFedora::ObjectNotFoundError
+      rescue Hyrax::ObjectNotFoundError
         return nil
       end
 
@@ -1605,7 +1605,7 @@ module Deepblue
       def find_file_set_using_id( id: )
         return nil if id.blank?
         FileSet.find id
-      rescue ActiveFedora::ObjectNotFoundError
+      rescue Hyrax::ObjectNotFoundError
         return nil
       end
 
@@ -1651,7 +1651,7 @@ module Deepblue
         # owner = Array(work_hash[:owner])
         work = TaskHelper.work_find( id: id[0] )
         return work, id[0]
-      rescue ActiveFedora::ObjectNotFoundError
+      rescue Hyrax::ObjectNotFoundError
         raise if error_if_not_found
         return nil, id[0]
       end
@@ -1686,7 +1686,7 @@ module Deepblue
       def find_work_using_id( id: )
         return nil if id.blank?
         TaskHelper.work_find( id: id.to_s )
-      rescue ActiveFedora::ObjectNotFoundError
+      rescue Hyrax::ObjectNotFoundError
         return nil
       end
 

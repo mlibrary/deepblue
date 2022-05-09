@@ -80,10 +80,10 @@ module Deepblue
                                              "" ] if static_content_controller_behavior_verbose
       raise if raise_error
       return nil
-    rescue ActiveFedora::ObjectNotFoundError
+    rescue Hyrax::ObjectNotFoundError
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "ActiveFedora::ObjectNotFoundError",
+                                             "Hyrax::ObjectNotFoundError",
                                              "" ] if static_content_controller_behavior_verbose
       raise if raise_error
       return nil

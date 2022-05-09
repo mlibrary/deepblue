@@ -159,7 +159,7 @@ module ActiveFedora
         false
       rescue Ldp::Gone
         true
-      rescue ActiveFedora::ObjectNotFoundError
+      rescue Hyrax::ObjectNotFoundError
         false
       end
 

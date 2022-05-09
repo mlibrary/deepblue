@@ -501,7 +501,7 @@ module Deepblue
     def thumbnail_fetch( object )
       return object if object.thumbnail_id == object.id
       ::PersistHelper.find(object.thumbnail_id)
-    rescue ActiveFedora::ObjectNotFoundError
+    rescue Hyrax::ObjectNotFoundError
       puts "Couldn't find thumbnail #{object.thumbnail_id} for #{object.id}"
       nil
     end

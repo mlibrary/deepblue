@@ -48,7 +48,7 @@ module Deepblue
           else
             puts "#{work.id}: skipping old date_published" if verbose
           end
-        rescue ActiveFedora::ObjectNotFoundError
+        rescue Hyrax::ObjectNotFoundError
           puts "#{id}: work not found"
         end
       end

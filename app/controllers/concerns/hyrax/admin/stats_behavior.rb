@@ -22,8 +22,6 @@ module Hyrax
         self.admin_stats_services  = {}
       end
 
-      @hyrax_admin_stats_behavior_test_variable = "Hyrax admin stats behavior test variable."
-
       def show
         authorize! :read, Hyrax::Statistics
         stats_filters = params.fetch(:stats_filters, {})

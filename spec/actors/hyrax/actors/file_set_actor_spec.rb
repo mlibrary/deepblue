@@ -263,7 +263,7 @@ RSpec.describe Hyrax::Actors::FileSetActor, skip: false do
   describe "#destroy" do
     it "destroys the object", skip: true do
       actor.destroy
-      expect { file_set.reload }.to raise_error ActiveFedora::ObjectNotFoundError
+      expect { file_set.reload }.to raise_error Hyrax::ObjectNotFoundError
     end
 
     context "representative, renderings and thumbnail of a work" do

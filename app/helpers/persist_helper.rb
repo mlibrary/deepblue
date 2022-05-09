@@ -22,12 +22,12 @@ module PersistHelper
     end
   end
 
-  # returns nil Ldp::Gone or ActiveFedora::ObjectNotFoundError
+  # returns nil Ldp::Gone or Hyrax::ObjectNotFoundError
   def self.find_or_nil( id )
     PersistHelper.find( id )
   rescue Ldp::Gone
     nil
-  rescue ::ActiveFedora::ObjectNotFoundError
+  rescue ::Hyrax::ObjectNotFoundError
     nil
   end
 
@@ -38,7 +38,7 @@ module PersistHelper
     false
   rescue Ldp::Gone
     true
-  rescue ::ActiveFedora::ObjectNotFoundError
+  rescue ::Hyrax::ObjectNotFoundError
     false
   end
 

@@ -21,6 +21,7 @@ module Hyrax
                                            "" ] if permissions_controller_debug_verbose
       copy unless Rails.configuration.embargo_allow_children_unembargo_choice
     end
+    deprecation_deprecate confirm: "Use the #confirm_access action instead."
 
     def copy
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

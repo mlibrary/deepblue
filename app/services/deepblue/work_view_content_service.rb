@@ -77,7 +77,7 @@ module Deepblue
     rescue Ldp::Gone
       raise if raise_error
       return nil
-    rescue ActiveFedora::ObjectNotFoundError
+    rescue Hyrax::ObjectNotFoundError
       raise if raise_error
       return nil
     end

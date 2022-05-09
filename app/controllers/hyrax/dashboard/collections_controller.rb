@@ -80,6 +80,26 @@ module Hyrax
         query_collection_members
       end
 
+      # This method was monkey patched becuase we wanted the users to go back to
+      # the collection page, rather than stay in Edit collection page as hyrax does.
+      def update
+        unless params[:update_collection].nil?
+          process_banner_input
+          process_logo_input
+        end
+
+        process_member_changes
+        @collection.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE unless @collection.discoverable?
+        # we don't have to reindex the full graph when updating collection
+        @collection.reindex_extent = Hyrax::Adapters::NestingIndexAdapter::LIMITED_REINDEX
+        if @collection.update(collection_params.except(:members))
+          # This is the reason for the monkey patch.
+          redirect_to hyrax.dashboard_collection_path, notice: t('hyrax.dashboard.my.action.collection_update_success')
+        else
+          after_update_error
+        end
+      end
+
       ## end monkey patch overrides
 
       before_action :provenance_log_update_before, only: [:update]
@@ -110,30 +130,13 @@ module Hyrax
         add_new_banner(uploaded_file_ids) if uploaded_file_ids
       end
 
-      def process_logo_records(uploaded_file_ids)
-        public_files = []
-        uploaded_file_ids.each_with_index do |ufi, i|
-          # If user has chosen a new logo, the ufi will be an integer
-          # If the logo was previously chosen, the ufil will be a path
-          # ufi.match(/\D/) will return a nil, fi ufi is an integer
-          # if it is a path, you want to update the, else create a new rec
-          if ! ufi.match(/\D/).nil?
-            update_logo_info(ufi, params["alttext"][i], verify_linkurl(params["linkurl"][i]))
-            public_files << ufi
-          else # brand new one, insert in the database
-            logo_info = create_logo_info(ufi, params["alttext"][i], verify_linkurl(params["linkurl"][i]))
-            public_files << logo_info.local_path
-          end
-        end
-        public_files
-      end
-
       def update_existing_banner
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
         #                                        ::Deepblue::LoggingHelper.called_from,
         #                                        "@collection.id = #{@collection.id}",
         #                                        "" ] if collections_controller_debug_verbose
         banner_info = collection_banner_info( id: @collection.id )
+        # banner_info = CollectionBrandingInfo.where(collection_id: @collection.id.to_s).where(role: "banner")
         banner_info.first.save(banner_info.first.local_path, false)
       end
 
@@ -165,27 +168,22 @@ module Hyrax
         #                                        "@collection.id = #{@collection.id}",
         #                                        "" ] if collections_controller_debug_verbose
         banner_info = collection_banner_info( id: @collection.id )
+        # banner_info = CollectionBrandingInfo.where(collection_id: @collection.id.to_s).where(role: "banner")
         banner_info&.delete_all
       end
 
-      # This method was monkey patched becuase we wanted the users to go back to
-      # the collection page, rather than stay in Edit collection page as hyrax does.
-      def update
-        unless params[:update_collection].nil?
-          process_banner_input
-          process_logo_input
+      def process_logo_records(uploaded_file_ids)
+        public_files = []
+        uploaded_file_ids.each_with_index do |ufi, i|
+          if ufi.include?('public')
+            update_logo_info(ufi, params["alttext"][i], verify_linkurl(params["linkurl"][i]))
+            public_files << ufi
+          else # brand new one, insert in the database
+            logo_info = create_logo_info(ufi, params["alttext"][i], verify_linkurl(params["linkurl"][i]))
+            public_files << logo_info.local_path
+          end
         end
-
-        process_member_changes
-        @collection.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE unless @collection.discoverable?
-        # we don't have to reindex the full graph when updating collection
-        @collection.reindex_extent = Hyrax::Adapters::NestingIndexAdapter::LIMITED_REINDEX
-        if @collection.update(collection_params.except(:members))
-          # This is the reason for the monkey patch.
-          redirect_to hyrax.dashboard_collection_path, notice: t('hyrax.dashboard.my.action.collection_update_success')
-        else
-          after_update_error
-        end
+        public_files
       end
 
       ## end monkey patch banner
