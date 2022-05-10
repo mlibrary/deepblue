@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+# monkey override
+
 # Added to allow for the My controller to show only things I have edit access to
 class Hyrax::HomepageSearchBuilder < Hyrax::SearchBuilder
 

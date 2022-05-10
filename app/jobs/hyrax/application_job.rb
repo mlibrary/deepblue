@@ -1,12 +1,20 @@
 # frozen_string_literal: true
 
-# require File.join(Gem::Specification.find_by_name("railties").full_gem_path, "lib/rails/generators/rails/app/templates/app/jobs/application_job.rb")
-
 module Hyrax
   # A common base class for all Hyrax jobs.
   # This allows downstream applications to manipulate all the hyrax jobs by
   # including modules on this class.
   class ApplicationJob < ActiveJob::Base
   # class ApplicationJob < ::ApplicationJob
+    before_enqueue do |job|
+      job.arguments.map! do |arg|
+        case arg
+        when Valkyrie::Resource
+          Hyrax::ValkyrieGlobalIdProxy.new(resource: arg)
+        else
+          arg
+        end
+      end
+    end
   end
 end

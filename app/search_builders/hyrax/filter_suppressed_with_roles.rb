@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# monkey override
+
 module Hyrax
 
   # Overrides FilterSuppressed filter to hide documents marked as
@@ -15,17 +17,27 @@ module Hyrax
 
     include FilterSuppressed
 
-    # Skip the filter if the current user is permitted to take
-    # workflow actions on the work corresponding to the SolrDocument
-    # with id = `blacklight_params[:id]`
+    # Skip the filter if the current user is:
+    #
+    # *  permitted to take workflow actions on the work
+    # *  the depositor
+    #
+    # corresponding to the SolrDocument with id = `blacklight_params[:id]`
+    #
+    # @note This is another case in which the Sipity workflows and the
+    #       SOLR permissions are not adequately synchronized.  Sipity COULD
+    #       be used to include that information, however that is not
+    #       presently scoped work.
     def only_active_works(solr_parameters)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "self.class.name=#{self.class.name}",
                                              "solr_parameters=#{solr_parameters}",
                                              "" ] if hyrax_filter_suppressed_with_roles_debug_verbose
-      return if current_ability.current_user.guest? || current_ability.current_user.new_record?
-      return if user_has_active_workflow_role? || depositor?
+      # return if current_ability.current_user.guest? || current_ability.current_user.new_record?
+      return if user_has_active_workflow_role?(current_work: current_work)
+      # return if user_has_active_workflow_role? || depositor?
+      return if depositor?(current_work: current_work)
       super
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -36,10 +48,10 @@ module Hyrax
     private
 
       def current_work
-        ::SolrDocument.find(blacklight_params[:id])
+        @current_work ||= ::SolrDocument.find(blacklight_params[:id])
       end
 
-      def user_has_active_workflow_role?
+      def user_has_active_workflow_role?(current_work:)
         Hyrax::Workflow::PermissionQuery.scope_permitted_workflow_actions_available_for_current_state(user: current_ability.current_user,
                                                                                                       entity: current_work).any?
       rescue PowerConverter::ConversionError
@@ -47,7 +59,7 @@ module Hyrax
         false
       end
 
-      def depositor?
+    def depositor?(current_work:)
         depositors = current_work[DepositSearchBuilder.depositor_field]
 
         return false if depositors.nil?

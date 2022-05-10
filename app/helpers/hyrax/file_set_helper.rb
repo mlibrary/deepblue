@@ -1,16 +1,19 @@
-
+# frozen_string_literal: true
 module Hyrax::FileSetHelper
 
   mattr_accessor :file_set_helper_debug_verbose, default: false
 
   def parent_path(parent)
-    if parent.is_a?(Collection)
+    if parent.is_a?(::Collection)
       main_app.collection_path(parent)
     else
       polymorphic_path([main_app, parent])
     end
   end
 
+  # REVIEW: Since this media display could theoretically work for
+  #         any object that inplements to_s and the Mime Type methos (image? audio? ...),
+  #         Should this really be in file_set or could it be in it's own helper class like media_helper?
   def media_display( file_set, current_ability, presenter = nil, locals = {} )
     ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
                                           ::Deepblue::LoggingHelper.called_from,

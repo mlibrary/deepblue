@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+# monkey override
+
 # class WorkUsage follows the model established by FileUsage
 # Called by the stats controller, it finds cached work pageview data,
 # and prepares it for visualization in /app/views/stats/work.html.erb

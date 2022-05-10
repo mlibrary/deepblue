@@ -8,6 +8,7 @@ describe Hyrax::Forms::CollectionForm do
     subject { described_class.terms }
 
     it { is_expected.to eq %i[
+      alternative_title
       authoremail
       based_near
       collection_type_gid

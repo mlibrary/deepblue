@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+# monkey override
+
 module Hyrax
   class WorkflowPresenter
     include ActionView::Helpers::TagHelper
@@ -21,13 +25,8 @@ module Hyrax
     # Returns an array of tuples (key, label) appropriate for a radio group
     def actions
       return [] unless sipity_entity && current_ability
-      actions_scope.map { |action| [action.name, action_label(action)] }
-    end
-
-    def actions_scope
-      Hyrax::Workflow::PermissionQuery.
-        scope_permitted_workflow_actions_available_for_current_state(entity: sipity_entity,
-                                                                     user: current_ability.current_user)
+      actions = Hyrax::Workflow::PermissionQuery.scope_permitted_workflow_actions_available_for_current_state(entity: sipity_entity, user: current_ability.current_user)
+      actions.map { |action| [action.name, action_label(action)] }
     end
 
     def comments
@@ -37,7 +36,7 @@ module Hyrax
 
     def badge
       return unless state
-      content_tag(:span, state_label, class: "state state-#{state} label label-primary")
+      tag.span(state_label, class: "state state-#{state} label label-primary")
     end
 
     private
@@ -47,7 +46,7 @@ module Hyrax
       end
 
       def sipity_entity
-        PowerConverter.convert(solr_document, to: :sipity_entity)
+      Sipity::Entity(solr_document)
       rescue PowerConverter::ConversionError
         nil
       end

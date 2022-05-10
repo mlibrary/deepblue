@@ -1,8 +1,12 @@
+# frozen_string_literal: true
+
+# monkey override
+
 module Hyrax
-  class SearchBuilder < Blacklight::SearchBuilder
-    include Blacklight::Solr::SearchBuilderBehavior
-    include Hydra::AccessControlsEnforcement
-    include Hyrax::SearchFilters
+  class SearchBuilder < ::SearchBuilder
+    # include Blacklight::Solr::SearchBuilderBehavior
+    # include Hydra::AccessControlsEnforcement
+    # include Hyrax::SearchFilters
 
     mattr_accessor :hyrax_search_builder_debug_verbose, default: false
 

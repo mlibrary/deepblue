@@ -85,14 +85,22 @@ class JobIoWrapper < ApplicationRecord
     super || extracted_mime_type
   end
 
-  def file_set
-    FileSet.find(file_set_id)
+  def size2
+    return file.size.to_s if file.respond_to? :size
+    return file.stat.size.to_s if file.respond_to? :stat
+    nil # unable to determine
+  end
+
+  def file_set(use_valkyrie: false)
+    return FileSet.find(file_set_id) unless use_valkyrie
+    Hyrax.query_service.find_by(id: Valkyrie::ID.new(file_set_id))
   end
 
   def file_actor
     Hyrax::Actors::FileActor.new(file_set, relation.to_sym, user)
   end
 
+  # @return [Hyrax::FileMetadata, FalseClass] the created file metadata on success, false on failure
   def ingest_file( continue_job_chain: true,
                    continue_job_chain_later: true,
                    delete_input_file: true,
@@ -126,6 +134,19 @@ class JobIoWrapper < ApplicationRecord
                       uploaded_file_ids: uploaded_file_ids )
   end
 
+  def to_file_metadata
+    Hyrax::FileMetadata.new(label: original_name,
+                            original_filename: original_name,
+                            mime_type: mime_type,
+                            use: [Hyrax::FileMetadata::Use::ORIGINAL_FILE])
+  end
+
+  # The magic that switches *once* between local filepath and CarrierWave file
+  # @return [File, StringIO, #read] File-like object ready to #read
+  def file
+    @file ||= (file_from_path || file_from_uploaded_file!)
+  end
+
   private
 
     def extracted_original_name
@@ -136,12 +157,6 @@ class JobIoWrapper < ApplicationRecord
 
     def extracted_mime_type
       uploaded_file ? uploaded_file.uploader.content_type : Hydra::PCDM::GetMimeTypeForFile.call(original_name)
-    end
-
-    # The magic that switches *once* between local filepath and CarrierWave file
-    # @return [File, StringIO, #read] File-like object ready to #read
-    def file
-      @file ||= (file_from_path || file_from_uploaded_file!)
     end
 
     # @return [File, StringIO] depending on CarrierWave configuration

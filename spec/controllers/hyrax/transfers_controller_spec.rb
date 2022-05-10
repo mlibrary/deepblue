@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Hyrax::TransfersController, type: :controller, skip: false do
@@ -94,7 +96,7 @@ RSpec.describe Hyrax::TransfersController, type: :controller, skip: false do
         expect do
           post :create, params: { id: work.id, proxy_deposit_request: { transfer_to: 'foo' } }
         end.not_to change(ProxyDepositRequest, :count)
-        expect(assigns[:proxy_deposit_request].errors[:transfer_to]).to eq(['must be an existing user'])
+        expect(assigns[:proxy_deposit_request].errors[:transfer_to]).to eq(['Must be an existing user'])
         expect(assigns[:work]).to be_instance_of DataSet
         expect(response).to be_successful
       end

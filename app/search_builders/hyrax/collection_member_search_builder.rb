@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 # monkey patch
 
@@ -6,11 +7,11 @@ module Hyrax
   # This search builder requires that a accessor named "collection" exists in the scope
   class CollectionMemberSearchBuilder < ::SearchBuilder
     # begin monkey
-    COLLECTION_MEMBER_SEARCH_BUILDER_DEBUG_VERBOSE = false
+    mattr_accessor :collection_member_search_builder_debug_verbose, default: false
     # end monkey
 
     include Hyrax::FilterByType
-    attr_reader :collection, :search_includes_models
+    attr_writer :collection, :search_includes_models
 
     class_attribute :collection_membership_field
     self.collection_membership_field = 'member_of_collection_ids_ssim'
@@ -18,22 +19,36 @@ module Hyrax
     # Defines which search_params_logic should be used when searching for Collection members
     self.default_processor_chain += [:member_of_collection]
 
-    # @param [scope] Typically the controller object
-    # @param [Symbol] :works, :collections, (anything else retrieves both)
-    def initialize(scope:,
-                   collection:,
-                   search_includes_models: :works)
-      # begin monkey
+    # @param [Object] scope Typically the controller object
+    # @param [Symbol] search_includes_models +:works+ or +:collections+; (anything else retrieves both)
+    def initialize(*args,
+                   scope: nil,
+                   collection: nil,
+                   search_includes_models: nil)
+    # begin monkey
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "scope=#{scope}",
                                              "collection.id=#{collection.id}",
                                              "search_includes_models=#{search_includes_models}",
-                                             "" ] if COLLECTION_MEMBER_SEARCH_BUILDER_DEBUG_VERBOSE
+                                             "" ] if collection_member_search_builder_debug_verbose
     # end monkey
     @collection = collection
       @search_includes_models = search_includes_models
-      super(scope)
+
+      if args.any?
+        super(*args)
+      else
+        super(scope)
+      end
+    end
+
+    def collection
+      @collection || (scope.context[:collection] if scope&.respond_to?(:context))
+    end
+
+    def search_includes_models
+      @search_includes_models || :works
     end
 
     # include filters into the query to only include the collection memebers
@@ -41,7 +56,7 @@ module Hyrax
       # begin monkey
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if COLLECTION_MEMBER_SEARCH_BUILDER_DEBUG_VERBOSE
+                                             "" ] if collection_member_search_builder_debug_verbose
       # begin monkey
       solr_parameters[:fq] ||= []
       solr_parameters[:fq] << "#{collection_membership_field}:#{collection.id}"
@@ -49,6 +64,11 @@ module Hyrax
 
     # This overrides the models in FilterByType
     def models
+      work_classes + collection_classes
+    end
+
+    # This overrides the models in FilterByType
+    def models_v2
       rv = case search_includes_models
       when :collections
         collection_classes
@@ -60,9 +80,18 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
-                                             "" ] if COLLECTION_MEMBER_SEARCH_BUILDER_DEBUG_VERBOSE
+                                             "" ] if collection_member_search_builder_debug_verbose
       # begin monkey
       return rv
     end
+
+    def only_works?
+      search_includes_models == :works
+    end
+
+    def only_collections?
+      search_includes_models == :collections
+    end
+
   end
 end

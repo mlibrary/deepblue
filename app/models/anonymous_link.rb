@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 class AnonymousLink < ActiveRecord::Base
+  include LinkBehavior
+
+  alias_attribute :downloadKey, :download_key
+  alias_attribute :itemId, :item_id
+
+  after_initialize :set_defaults
 
   def self.find_or_create( id:,
                            path:,
@@ -29,8 +35,6 @@ class AnonymousLink < ActiveRecord::Base
     return rv
   end
 
-  after_initialize :set_defaults
-
   def create_for_path(path)
     self.class.create(item_id: item_id, path: path)
   end
@@ -39,23 +43,11 @@ class AnonymousLink < ActiveRecord::Base
     false
   end
 
-  def path_eq?( other_path )
-    path_strip_locale( path ) == path_strip_locale( other_path )
-  end
-
   def to_param
     download_key
   end
 
   private
-
-    def path_strip_locale( the_path )
-      return the_path if the_path.blank?
-      if the_path =~ /^(.+)\?.+/
-        return Regexp.last_match[1]
-      end
-      return the_path
-    end
 
     def cannot_be_destroyed
       errors[:base] << "Anonymous Link has already been destroyed" if destroyed? # TODO: convert to I18N
@@ -67,7 +59,7 @@ class AnonymousLink < ActiveRecord::Base
       #                                        "user_id=#{user_id}",
       #                                        "" ] if ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
       return unless new_record?
-      self.download_key ||= (Digest::SHA2.new << rand(1_000_000_000).to_s).to_s
+      self.download_key ||= generate_download_key
     end
 
 end

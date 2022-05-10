@@ -32,6 +32,7 @@ module Hyrax
           #:original_checksum,
           :duration,
           :sample_rate,
+          :alpha_channels,
           :checksum_algorithm,
           :checksum_value
         ]

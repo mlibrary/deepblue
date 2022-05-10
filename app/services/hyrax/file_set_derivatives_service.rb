@@ -63,7 +63,8 @@ module Hyrax
   # Responsible for creating and cleaning up the derivatives of a file_set
   class FileSetDerivativesService
 
-    FILE_SET_DERIVATIVES_SERVICE_DEBUG_VERBOSE = Rails.configuration.file_set_derivatives_service_debug_verbose # monkey
+    mattr_accessor :file_set_derivatives_service_debug_verbose,
+                   default: Rails.configuration.file_set_derivatives_service_debug_verbose # monkey
 
     attr_reader :file_set
     delegate :uri, :mime_type, to: :file_set
@@ -88,21 +89,21 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "About to call create_derivatives(#{filename})",
-                                             # "" ] + caller_locations(0,20) if FILE_SET_DERIVATIVES_SERVICE_DEBUG_VERBOSE
-                                             "" ] if FILE_SET_DERIVATIVES_SERVICE_DEBUG_VERBOSE
+                                             # "" ] + caller_locations(0,20) if file_set_derivatives_service_debug_verbose
+                                             "" ] if file_set_derivatives_service_debug_verbose
       create_derivatives_monkey(filename)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "Returned from call create_derivatives(#{filename})",
-                                             "" ] if FILE_SET_DERIVATIVES_SERVICE_DEBUG_VERBOSE
+                                             "" ] if file_set_derivatives_service_debug_verbose
     rescue Exception => e # rubocop:disable Lint/RescueException
       # TODO: remove this in favor of higher catch (or make it configurable)
       # Rails.logger.error "create_derivatives error #{filename} - #{e.class}: #{e.message}" + caller_locations(0,10).join("\n")
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "create_derivatives error #{filename} - #{e.class}: #{e.message}",
-                                             # "" ] + caller_locations(0,20) if FILE_SET_DERIVATIVES_SERVICE_DEBUG_VERBOSE
-                                             "" ] if FILE_SET_DERIVATIVES_SERVICE_DEBUG_VERBOSE
+                                             # "" ] + caller_locations(0,20) if file_set_derivatives_service_debug_verbose
+                                             "" ] if file_set_derivatives_service_debug_verbose
       raise
       # monkey end
     end

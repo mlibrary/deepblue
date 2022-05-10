@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# monkey override
+
 module Hyrax
 
   module Workflow
@@ -17,11 +19,12 @@ module Hyrax
         end
 
         def message
-          "#{title} (#{link_to work_id, document_path}) was approved by #{user.user_key}. #{comment}"
+          I18n.t('hyrax.notifications.workflow.deposited.message', title: title, link: (link_to work_id, document_path),
+                 user: user.user_key, comment: comment)
         end
 
         def subject
-          'Deposit has been approved'
+          I18n.t('hyrax.notifications.workflow.deposited.subject')
         end
 
         def users_to_notify

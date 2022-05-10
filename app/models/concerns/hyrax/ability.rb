@@ -1,7 +1,29 @@
-
-# monkey override, only to get rid of: DEPRECATION WARNING: Dangerous query method (method whose arguments are used as raw SQL) called with non-attribute argument(s): "DISTINCT source_id".
+# frozen_string_literal: true
 
 module Hyrax
+
+  ##
+  # Provides Hyrax's engine level user/group permissions.
+  #
+  # @note This is intended as a mixin layered over
+  #   +Blacklight::AccessControls::Ability+ and +Hydra::AccessControls+. Its
+  #   implementation may depend in part on behavioral details of either of those
+  #   two mixins. As of Hyrax 3.0.0 there's an ongoing effort to clarify and
+  #   document the specific dependencies.
+  #
+  # @todo catalog and document the actions we authorize here. everything we
+  #   allow or disable from this module should be clear to application side
+  #   adopters.
+  #
+  # @example creating an application Ability
+  #   # app/models/ability.rb
+  #   class Ability
+  #     include Hydra::Ability
+  #     include Hyrax::Ability
+  #   end
+  #
+  # @see https://www.rubydoc.info/github/CanCanCommunity/cancancan
+  # @see https://www.rubydoc.info/gems/blacklight-access_controls/
   module Ability
     extend ActiveSupport::Concern
 
@@ -15,10 +37,11 @@ module Hyrax
       include Hyrax::Ability::SolrDocumentAbility
 
       class_attribute :admin_group_name, :registered_group_name, :public_group_name
-      self.admin_group_name = 'admin'
-      self.registered_group_name = 'registered'
-      self.public_group_name = 'public' # TODO: find hard coded values and replace with this
+      self.admin_group_name = Hyrax.config.admin_user_group_name
+      self.registered_group_name = Hyrax.config.registered_user_group_name
+      self.public_group_name = Hyrax.config.public_user_group_name
       self.ability_logic += [:admin_permissions,
+                             :edit_resources,
                              :curation_concerns_permissions,
                              :operation_abilities,
                              :add_to_collection,
@@ -73,21 +96,12 @@ module Hyrax
 
     private
 
-      # @return [Boolean] true if the user has at least one admin set they can deposit into.
-      def admin_set_with_deposit?
-        ids = PermissionTemplateAccess.for_user(ability: self,
-                                                access: ['deposit', 'manage'])
-                                      .joins(:permission_template)
-                                      .select(:source_id) # monkey
-                                      .distinct # monkey
-                                      .pluck(:source_id) # monkey
-                                      # monkey .pluck('DISTINCT source_id') # monkey
-                                      # monkey -- get rid of: DEPRECATION WARNING: Dangerous query method (method whose arguments are used as raw SQL) called with non-attribute argument(s): "DISTINCT source_id".
-        query = "_query_:\"{!raw f=has_model_ssim}AdminSet\" AND {!terms f=id}#{ids.join(',')}"
-        Hyrax::SolrService.count(query).positive?
-      end
+      # @!group Ability Logic Library
 
-      # This overrides hydra-head, (and restores the method from blacklight-access-controls)
+      ##
+      # @api public
+      #
+      # Overrides hydra-head, (and restores the method from blacklight-access-controls)
       def download_permissions
         can :download, String do |id|
           test_download(id)
@@ -99,13 +113,41 @@ module Hyrax
         end
       end
 
-      # Add this to your ability_logic if you want all logged in users to be able
-      # to submit content
+      ##
+      # @api public
+      #
+      # Allows
+      def edit_resources
+        can [:edit, :update, :destroy], Hyrax::Resource do |resource|
+          test_edit(resource.id)
+        end
+      end
+
+      ##
+      # @api public
+      #
+      # Add this to your {.ability_logic} if you want all logged in users to be able
+      # to submit content.
+      #
+      # @note this is normally injected into an application +::Ability+ by the
+      #   hyrax install generator.
+      #
+      # @example
+      #   self.ability_logic += [:everyone_can_create_curation_concerns]
       def everyone_can_create_curation_concerns
         return unless registered_user?
         can :create, curation_concerns_models
       end
 
+      ##
+      # @api public
+      #
+      # Allow registered users to create {UploadedFile} and {BatchUploadItem}
+      #
+      # @note included in {.ability_logic} by default.
+      #
+      # @example
+      #   self.ability_logic += [:uploaded_file_abilities]
       def uploaded_file_abilities
         return unless registered_user?
         can :create, [UploadedFile, BatchUploadItem]
@@ -115,6 +157,15 @@ module Hyrax
         # Note: cannot call `authorized_models` without going recursive.
       end
 
+      ##
+      # @api public
+      #
+      # Permissions for work transfers and proxy deposit models.
+      #
+      # @note included in {.ability_logic} by default.
+      #
+      # @example
+      #   self.ability_logic += [:proxy_deposit_abilities]
       def proxy_deposit_abilities
         if Flipflop.transfer_works?
           can :transfer, String do |id|
@@ -130,15 +181,48 @@ module Hyrax
         can :destroy, ProxyDepositRequest, sending_user_id: current_user.id, status: 'pending'
       end
 
+      ##
+      # @api public
+      #
+      # Permissions for users to edit themselves and view other users
+      #
+      # @note included in {.ability_logic} by default.
+      #
+      # @example
+      #   self.ability_logic += [:user_abilities]
       def user_abilities
         can [:edit, :update, :toggle_trophy], ::User, id: current_user.id
         can :show, ::User
       end
 
+      ##
+      # @api public
+      #
+      # Allow admins to manage {FeaturedWork} data.
+      #
+      # @note included in {.ability_logic} by default.
+      #
+      # @example
+      #   self.ability_logic += [:featured_work_abilities]
       def featured_work_abilities
         can [:create, :destroy, :update], FeaturedWork if admin?
       end
 
+      ##
+      # @api public
+      #
+      # Allow everyone to read {ContentBlock} data.
+      #
+      # Allow admins to read the admin dashboard, update {ContentBlock}, and edit
+      # {SolrDocument}(!?)
+      #
+      # @todo why does this allow so many different things? what is going on with
+      #   `can :edit, ::SolrDocument`.
+      #
+      # @note included in {.ability_logic} by default.
+      #
+      # @example
+      #   self.ability_logic += [:editor_abilities]
       def editor_abilities
         can :read, ContentBlock
         return unless admin?
@@ -148,26 +232,76 @@ module Hyrax
         can :edit, ::SolrDocument
       end
 
+      ##
+      # @api public
+      #
+      # Allow admins to read {Hyrax::Statistics}; allow read users to do the
+      # +:stats+ action.
+      #
+      # @note included in {.ability_logic} by default.
+      #
+      # @example
+      #   self.ability_logic += [:stats_abilities]
       def stats_abilities
         can :read, Hyrax::Statistics if admin?
         alias_action :stats, to: :read
       end
 
+      ##
+      # @api public
+      #
+      # Allow read users to do the +:citation+ action
+      #
+      # @note included in {.ability_logic} by default.
+      #
+      # @example
+      #   self.ability_logic += [:citation_abilities]
       def citation_abilities
         alias_action :citation, to: :read
       end
 
+      ##
+      # @api public
+      #
+      # Allow admin users to manage {Hyrax::Feature} data.
+      #
+      # @note included in {.ability_logic} by default.
+      #
+      # @example
+      #   self.ability_logic += [:feature_abilities]
       def feature_abilities
         can :manage, Hyrax::Feature if admin?
       end
 
+      ##
+      # @api public
+      #
+      # Allow users to read their own {Hyrax::Operation} data.
+      #
+      # @note included in {.ability_logic} by default.
+      #
+      # @example
+      #   self.ability_logic += [:operation_abilities]
       def operation_abilities
         can :read, Hyrax::Operation, user_id: current_user.id
       end
 
-      # We check based on the depositor, because the depositor may not have edit
-      # access to the work if it went through a mediated deposit workflow that
-      # removes edit access for the depositor.
+      ##
+      # @api public
+      #
+      # Allow depositors to create and destroy {Trophy} data.
+      #
+      # @note We check based on the depositor, because the depositor may not have
+      #   edit access to the work if it went through a mediated deposit workflow
+      #   that removes edit access for the depositor.
+      #
+      # @note included in {.ability_logic} by default.
+      #
+      # @todo the note isn't very convincing. why do depositors without edit
+      #   access need trophy management abilities?
+      #
+      # @example
+      #   self.ability_logic += [:trophy_abilities]
       def trophy_abilities
         can [:create, :destroy], Trophy do |t|
           doc = ActiveFedora::Base.search_by_id(t.work_id, fl: 'depositor_ssim')
@@ -175,6 +309,17 @@ module Hyrax
         end
       end
 
+      ##
+      # @api public
+      #
+      # Allow editor to view versions and the file manager; block non-admins from
+      # indexing embargo and lease.
+      #
+      # @note included in {.ability_logic} by default.
+      # @todo make this do one thing. extract embargo/lease rules elsewhere.
+      #
+      # @example
+      #   self.ability_logic += [:curation_concerns_permissions]
       def curation_concerns_permissions
         # user can version if they can edit
         alias_action :versions, to: :update
@@ -185,6 +330,15 @@ module Hyrax
         cannot :index, Hydra::AccessControls::Lease
       end
 
+      ##
+      # @api public
+      #
+      # Give admins sweeping permissions.
+      #
+      # @note included in {.ability_logic} by default.
+      #
+      # @example
+      #   self.ability_logic += [:admin_permissions]
       def admin_permissions
         return unless admin?
         # TODO: deprecate this. We no longer have a dashboard just for admins
@@ -199,11 +353,39 @@ module Hyrax
         can :manage, :collection_types
       end
 
-      # TODO: elr - How is this used?  How does it fit with collection participants?
+      ##
+      # @api public
+      #
+      # Allow registered users to +:collect+ everything, and to +:files+ thing
+      # they can read.
+      #
+      # @note included in {.ability_logic} by default.
+      #
+      # @todo what in the world does it mean to +:files+? what does "members will
+      #   be filtered separately" mean?
+      #
+      # @example
+      #   self.ability_logic += [:add_to_collection]
       def add_to_collection
         return unless registered_user?
         alias_action :files, to: :read # members will be filtered separately
         can :collect, :all
+      end
+
+      # @!endgroup
+
+      # @return [Boolean] true if the user has at least one admin set they can deposit into.
+      def admin_set_with_deposit?
+        ids = PermissionTemplateAccess.for_user(ability: self,
+                                                access: ['deposit', 'manage'])
+                                      .joins(:permission_template)
+                                      .select(:source_id)
+                                      .distinct
+                                      .pluck(:source_id)
+
+        # query = "_query_:\"{!raw f=has_model_ssim}AdminSet\" AND {!terms f=id}#{ids.join(',')}"
+        # Hyrax::SolrService.count(query).positive?
+        Hyrax.custom_queries.find_ids_by_model(model: Hyrax::AdministrativeSet, ids: ids).any?
       end
 
       def registered_user?
@@ -238,5 +420,15 @@ module Hyrax
                .where('sipity_workflow_roles.role_id' => approving_role.id).any?
         end
       end
+
+      def extract_subjects(subject)
+        case subject
+        when Draper::Decorator
+          super(subject.model)
+        else
+          super
+        end
+      end
+
   end
 end

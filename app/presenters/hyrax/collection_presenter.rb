@@ -113,6 +113,9 @@ module Hyrax
       return rv
     end
 
+    ##
+    # @param [Symbol] key
+    # @return [Object]
     def [](key)
       case key
       when :size
@@ -164,6 +167,18 @@ module Hyrax
       number_to_human_size(@solr_document['bytes_lts'])
     end
 
+    # @deprecated to be removed in 4.0.0; this feature was replaced with a
+    #   hard-coded null implementation
+    # @return [String] 'unknown'
+    def size2
+      Deprecation.warn('#size has been deprecated for removal in Hyrax 4.0.0; ' \
+                       'The implementation of the indexed Collection size ' \
+                       'feature is extremely inefficient, so it has been removed. ' \
+                       'This method now returns a hard-coded `"unknown"` for ' \
+                       'compatibility.')
+      'unknown'
+    end
+
     def sorted_methods
       methods.sort
     end
@@ -199,11 +214,11 @@ module Hyrax
     alias work_member_ids work_members_of_this_collection_ids
 
     def total_items
-      member_of_this_collection.count
+      Hyrax::SolrService.new.count("member_of_collection_ids_ssim:#{id}")
     end
 
     def total_viewable_items
-      member_of_this_collection.accessible_by(current_ability).count
+      ::PersistHelper.where("member_of_collection_ids_ssim:#{id}").accessible_by(current_ability).count
     end
 
     def total_viewable_works
@@ -212,11 +227,11 @@ module Hyrax
                                              "id=#{id}",
                                              "current_ability=#{current_ability}",
                                              "" ] if collection_presenter_debug_verbose
-      work_members_of_this_collection.accessible_by(current_ability).count
+      ::PersistHelper.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Work").accessible_by(current_ability).count
     end
 
     def total_viewable_collections
-      collection_members_of_this_collection.accessible_by(current_ability).count
+      ::PersistHelper.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Collection").accessible_by(current_ability).count
     end
 
     def collection_type_badge
@@ -244,9 +259,11 @@ module Hyrax
     end
 
     def show_path
-      Hyrax::Engine.routes.url_helpers.dashboard_collection_path(id)
+      Hyrax::Engine.routes.url_helpers.dashboard_collection_path(id, locale: I18n.locale)
     end
 
+    ##
+    # @return [#to_s, nil] a download path for the banner file
     def banner_file
       branding_banner_file( id: id )
     end
@@ -279,7 +296,7 @@ module Hyrax
 
     def available_parent_collections(scope:)
       return @available_parents if @available_parents.present?
-      collection = Collection.find(id)
+      collection = ::Collection.find(id)
       colls = Hyrax::Collections::NestedCollectionQueryService.available_parent_collections(child: collection, scope: scope, limit_to_id: nil)
       @available_parents = colls.map do |col|
         { "id" => col.id, "title_first" => col.title.first }

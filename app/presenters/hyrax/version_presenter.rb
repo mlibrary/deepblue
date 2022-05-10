@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+# monkey override
+
 module Hyrax
 
   class VersionPresenter

@@ -6,7 +6,7 @@
 # @see Hyrax::WorkQueryService
 class ProxyDepositRequest < ActiveRecord::Base
 
-  PROXY_DEPOSIT_REQUEST_DEBUG_VERBOSE = false
+  mattr_accessor :proxy_deposit_request_debug_verbose, default: false
 
   include ActionView::Helpers::UrlHelper
 
@@ -46,7 +46,7 @@ class ProxyDepositRequest < ActiveRecord::Base
 
   validates :sending_user, :work_id, presence: true
   validate :transfer_to_should_be_a_valid_username
-  validate :sending_user_should_not_be_receiving_user
+  validate :sending_user_should_not_be_receiving_user, unless: :sender_is_admin?
   validate :should_not_be_already_part_of_a_transfer
 
   after_save :send_request_transfer_message
@@ -67,17 +67,21 @@ class ProxyDepositRequest < ActiveRecord::Base
   private
 
     def transfer_to_should_be_a_valid_username
-      errors.add(:transfer_to, "must be an existing user") unless receiving_user
+    errors.add(:transfer_to, I18n.t('hyrax.notifications.proxy_deposit_request.validation.valid_username')) unless receiving_user
     end
 
     def sending_user_should_not_be_receiving_user
-      errors.add(:transfer_to, 'specify a different user to receive the work') if receiving_user && receiving_user.user_key == sending_user.user_key
+    errors.add(:transfer_to, I18n.t('hyrax.notifications.proxy_deposit_request.validation.sender_is_not_receiver')) if receiving_user && receiving_user.user_key == sending_user.user_key
     end
 
     def should_not_be_already_part_of_a_transfer
       transfers = ProxyDepositRequest.where(work_id: work_id, status: PENDING)
-      errors.add(:open_transfer, 'must close open transfer on the work before creating a new one') unless transfers.blank? || (transfers.count == 1 && transfers[0].id == id)
-    end
+    errors.add(:open_transfer, I18n.t('hyrax.notifications.proxy_deposit_request.validation.open_transfer')) unless transfers.blank? || (transfers.count == 1 && transfers[0].id == id)
+  end
+
+  def sender_is_admin?
+    sending_user.ability.admin?
+  end
 
   public
 
@@ -93,23 +97,30 @@ class ProxyDepositRequest < ActiveRecord::Base
 
     def send_request_transfer_message_as_part_of_create
       user_link = link_to(sending_user.name, Hyrax::Engine.routes.url_helpers.user_path(sending_user))
-      transfer_link = link_to('transfer requests', Rails.configuration.relative_url_root + Hyrax::Engine.routes.url_helpers.transfers_path)
-      message = "#{user_link} wants to transfer a work to you. Review all #{transfer_link}"
-      Hyrax::MessengerService.deliver(::User.batch_user, receiving_user, message, "Ownership Change Request")
+      transfer_link = link_to(I18n.t('hyrax.notifications.proxy_deposit_request.transfer_on_create.transfer_link_label'), Hyrax::Engine.routes.url_helpers.transfers_path)
+      message = I18n.t('hyrax.notifications.proxy_deposit_request.transfer_on_create.message', user_link: user_link,
+                                                                                               transfer_link: transfer_link)
+      Hyrax::MessengerService.deliver(::User.batch_user, receiving_user, message,
+                                      I18n.t('hyrax.notifications.proxy_deposit_request.transfer_on_create.subject'))
     end
 
     def send_request_transfer_message_as_part_of_update
-      message = "Your transfer request was #{status}."
-      message += " Comments: #{receiver_comment}" if receiver_comment.present?
-      Hyrax::MessengerService.deliver(::User.batch_user, sending_user, message, "Ownership Change #{status}")
+      message = I18n.t('hyrax.notifications.proxy_deposit_request.transfer_on_update.message', status: status)
+      if receiver_comment.present?
+        message += " " + I18n.t('hyrax.notifications.proxy_deposit_request.transfer_on_update.comments',
+                                receiver_comment: receiver_comment)
+      end
+      Hyrax::MessengerService.deliver(::User.batch_user, sending_user, message,
+                                      I18n.t('hyrax.notifications.proxy_deposit_request.transfer_on_update.subject',
+                                             status: status))
     end
 
   public
 
-  ACCEPTED = 'accepted'.freeze
-  PENDING = 'pending'.freeze
-  CANCELED = 'canceled'.freeze
-  REJECTED = 'rejected'.freeze
+  ACCEPTED = 'accepted'.freeze unless const_defined? :ACCEPTED
+  PENDING = 'pending'.freeze unless const_defined? :PENDING
+  CANCELED = 'canceled'.freeze unless const_defined? :CANCELED
+  REJECTED = 'rejected'.freeze unless const_defined? :REJECTED
 
   enum(
     status: {
@@ -141,7 +152,7 @@ class ProxyDepositRequest < ActiveRecord::Base
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "status=#{status}",
-                                             "" ] if PROXY_DEPOSIT_REQUEST_DEBUG_VERBOSE
+                                             "" ] if proxy_deposit_request_debug_verbose
       self.receiver_comment = comment if comment
       self.status = status
       self.fulfillment_date = Time.current

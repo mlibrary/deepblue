@@ -40,7 +40,8 @@ module Hyrax
         visibility_badge(document.visibility),
         path,
         id: "permission_#{document.id}",
-        class: 'visibility-link'
+        class: 'visibility-link',
+        title: "#{t('hyrax.works.form.tab.share')}: #{document.title_or_label}"
       )
     end
 
