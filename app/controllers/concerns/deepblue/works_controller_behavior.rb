@@ -57,6 +57,20 @@ module Deepblue
     attr_accessor :cc_anonymous_link
     attr_accessor :cc_single_use_link
 
+
+    def controller_curation_concern
+      @controller_curation_concern ||= find_curation_concern
+    end
+
+    def find_curation_concern
+      # cc = @collection
+      # return cc unless cc.blank?
+      cc = curation_concern
+      return cc if cc.blank?
+      return ::PersistHelper.find(cc.id) if cc.is_a? SolrDocument
+      cc
+    end
+
     def actor_environment
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

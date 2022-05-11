@@ -35,6 +35,10 @@ module Hyrax
     # @param [Ability] current_ability
     # @param [ActionDispatch::Request] request the http request context
     def initialize(solr_document, current_ability, request = nil)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "solr_document.class.name=#{solr_document.class.name}",
+                                             "" ] if collection_presenter_debug_verbose
       @solr_document = solr_document
       @current_ability = current_ability
       @request = request
@@ -80,6 +84,14 @@ module Hyrax
              :title_or_label,
              :visibility,
              to: :solr_document
+
+    # def thumbnail_path
+    #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                          ::Deepblue::LoggingHelper.called_from,
+    #                                          "solr_document.class.name=#{solr_document.class.name}",
+    #                                          "" ] if collection_presenter_debug_verbose
+    #   solr_document.thumbnail_path
+    # end
 
     # Terms is the list of fields displayed by
     # app/views/collections/_show_descriptions.html.erb

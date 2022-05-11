@@ -7,6 +7,12 @@ RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: false
   include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
 
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it { expect( described_class.dashboard_collections_controller_debug_verbose ).to eq( debug_verbose ) }
+  end
+
   let(:user)  { create(:user) }
   let(:other) { build(:user) }
   let(:collection_type_gid) { FactoryBot.create(:user_collection_type).to_global_id.to_s }

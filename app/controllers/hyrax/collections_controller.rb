@@ -9,8 +9,8 @@ module Hyrax
     EVENT_NOTE = 'Hyrax::CollectionsController' unless const_defined? :EVENT_NOTE
     PARAMS_KEY = 'collection' unless const_defined? :PARAMS_KEY
 
-    include Hyrax::CollectionsControllerBehavior
-    include Deepblue::ControllerWorkflowEventBehavior
+    include ::Hyrax::CollectionsControllerBehavior
+    include ::Deepblue::ControllerWorkflowEventBehavior
     include BreadcrumbsForCollections
 
     before_action :deepblue_collections_controller_debug

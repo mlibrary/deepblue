@@ -24,7 +24,7 @@
     </div>
     <% if Flipflop.proxy_deposit? && current_user.can_make_deposits_for.any? %>
         <div class="list-group-item">
-          <%= f.input :on_behalf_of, collection: current_user.can_make_deposits_for.map(&:user_key), prompt: "Yourself" %>
+          <%= f.input :on_behalf_of, collection: current_user.can_make_deposits_for.map(&:user_key), prompt:  t(".yourself") %>
         </div>
     <% end %>
   </div>
@@ -105,7 +105,7 @@
   <div class="panel-footer hidden">
     <div class="progress">
       <div class="progress-bar progress-bar-striped progress-bar-complete active">
-        <span id="form-feedback" aria-live="assertive">Saving your work. This may take a few moments</span>
+        <span id="form-feedback" aria-live="assertive"><%= t(".saving_your_work") %></span>
       </div>
     </div>
   </div>

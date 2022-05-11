@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe 'hyrax/collections/_show_document_list.html.erb', type: :view, skip: false do

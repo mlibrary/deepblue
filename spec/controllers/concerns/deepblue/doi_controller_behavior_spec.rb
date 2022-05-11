@@ -13,9 +13,7 @@ RSpec.describe Deepblue::DoiControllerBehavior do
   let(:debug_verbose) { false }
 
   describe 'module debug verbose variables' do
-    it "they have the right values" do
-      expect( described_class.doi_controller_behavior_debug_verbose ).to eq( debug_verbose )
-    end
+    it { expect( described_class.doi_controller_behavior_debug_verbose ).to eq( debug_verbose ) }
   end
 
   subject { MockDeepblueDoiControllerBehavior.new }

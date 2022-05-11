@@ -3,6 +3,12 @@ require 'rails_helper'
 
 RSpec.describe Hyrax::CollectionPresenter, skip: false do
 
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it { expect( described_class.collection_presenter_debug_verbose ).to eq( debug_verbose ) }
+  end
+
   subject(:presenter) { described_class.new(solr_doc, ability) }
 
   let(:collection) do

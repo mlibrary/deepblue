@@ -15,7 +15,7 @@
     </dl>
   </div>
 </div>
-<% if ( document.collection? ) %>
+<% if document.collection? %>
   <% collection_presenter = Hyrax::CollectionPresenter.new(document, current_ability) %>
 <div class="col-md-12">
   <div class="collection-counts-wrapper">

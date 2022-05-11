@@ -139,16 +139,16 @@ module DeepBlueDocs
     # controller debug_verbose_variables
     config.application_controller_debug_verbose          = false
     config.catalog_controller_debug_verbose              = false
-    config.collections_controller_debug_verbose          = false
     config.collections_controller_behavior_debug_verbose = false
     config.controller_workflow_event_behavior_debug_verbose = false
-    config.workflow_event_behavior_debug_verbose         = false
+    config.dashboard_collections_controller_debug_verbose = false
     config.data_sets_controller_debug_verbose            = false
     config.downloads_controller_debug_verbose            = false
     config.file_sets_controller_debug_verbose            = false
     # config.static_content_controller_behavior_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
     config.deepblue_works_controller_behavior_debug_verbose = false
     config.hyrax_works_controller_behavior_debug_verbose = false
+    config.workflow_event_behavior_debug_verbose         = false
 
     # presenter debug_verbose variables
     config.collection_presenter_debug_verbose             = false

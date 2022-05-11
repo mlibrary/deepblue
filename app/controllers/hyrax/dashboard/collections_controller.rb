@@ -21,8 +21,8 @@ module Hyrax
       include ::Deepblue::CollectionsControllerBehavior
 
       # begin monkey
-      mattr_accessor :collections_controller_debug_verbose,
-                     default: Rails.configuration.collections_controller_debug_verbose
+      mattr_accessor :dashboard_collections_controller_debug_verbose,
+                     default: Rails.configuration.dashboard_collections_controller_debug_verbose
       # end monkey
 
       EVENT_NOTE = 'Hyrax::Dashboard::CollectionsController' unless const_defined? :EVENT_NOTE
@@ -106,7 +106,13 @@ module Hyrax
       after_action :provenance_log_update_after, only: [:update]
 
       def curation_concern
-        @collection ||= ::PersistHelper.find(params[:id])
+        # @collection ||= ::PersistHelper.find(params[:id]) # hyax v2 version
+        # Query Solr for the collection.
+        # run the solr query to find the collection members
+        response, _docs = single_item_search_service.search_results
+        curation_concern = response.documents.first
+        raise CanCan::AccessDenied unless curation_concern
+        curation_concern
       end
 
       def default_event_note
@@ -117,13 +123,19 @@ module Hyrax
         PARAMS_KEY
       end
 
+      def presenter
+        @presenter ||= begin
+                         presenter_class.new(curation_concern, current_ability)
+                       end
+      end
+
       ## begin monkey patch banner
 
       def process_banner_input
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
         #                                        ::Deepblue::LoggingHelper.called_from,
         #                                        "@collection.id = #{@collection.id}",
-        #                                        "" ] if collections_controller_debug_verbose
+        #                                        "" ] if dashboard_collections_controller_debug_verbose
         return update_existing_banner if params["banner_unchanged"] == "true"
         remove_banner
         uploaded_file_ids = params["banner_files"]
@@ -134,7 +146,7 @@ module Hyrax
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
         #                                        ::Deepblue::LoggingHelper.called_from,
         #                                        "@collection.id = #{@collection.id}",
-        #                                        "" ] if collections_controller_debug_verbose
+        #                                        "" ] if dashboard_collections_controller_debug_verbose
         banner_info = collection_banner_info( id: @collection.id )
         # banner_info = CollectionBrandingInfo.where(collection_id: @collection.id.to_s).where(role: "banner")
         banner_info.first.save(banner_info.first.local_path, false)
@@ -145,13 +157,13 @@ module Hyrax
         #                                        ::Deepblue::LoggingHelper.called_from,
         #                                        "@collection.id = #{@collection.id}",
         #                                        "uploaded_file_ids = #{uploaded_file_ids}",
-        #                                        "" ] if collections_controller_debug_verbose
+        #                                        "" ] if dashboard_collections_controller_debug_verbose
         f = uploaded_files(uploaded_file_ids).first
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
         #                                        ::Deepblue::LoggingHelper.called_from,
         #                                        "@collection.id = #{@collection.id}",
         #                                        "f.file_url = #{f.file_url}",
-        #                                        "" ] if collections_controller_debug_verbose
+        #                                        "" ] if dashboard_collections_controller_debug_verbose
         banner_info = CollectionBrandingInfo.new(
             collection_id: @collection.id,
             filename: File.split(f.file_url).last,
@@ -166,7 +178,7 @@ module Hyrax
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
         #                                        ::Deepblue::LoggingHelper.called_from,
         #                                        "@collection.id = #{@collection.id}",
-        #                                        "" ] if collections_controller_debug_verbose
+        #                                        "" ] if dashboard_collections_controller_debug_verbose
         banner_info = collection_banner_info( id: @collection.id )
         # banner_info = CollectionBrandingInfo.where(collection_id: @collection.id.to_s).where(role: "banner")
         banner_info&.delete_all

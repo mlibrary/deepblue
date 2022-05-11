@@ -6,7 +6,7 @@ module Hyrax
     include Blacklight::AccessControls::Catalog
     include Blacklight::Base
 
-    mattr_accessor :collections_controller_behavior_debug_verbose, default: false
+    mattr_accessor :hyrax_collections_controller_behavior_debug_verbose, default: false
 
     included do
       # include the display_trophy_link view helper method
@@ -33,7 +33,7 @@ module Hyrax
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "params[:id]=#{params[:id]}",
-                                             "params=#{params}" ] if collections_controller_behavior_debug_verbose
+                                             "params=#{params}" ] if hyrax_collections_controller_behavior_debug_verbose
       respond_to do |wants|
         wants.html do
           super
@@ -52,7 +52,7 @@ module Hyrax
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "params[:id]=#{params[:id]}",
-                                             "params=#{params}" ] if collections_controller_behavior_debug_verbose
+                                             "params=#{params}" ] if hyrax_collections_controller_behavior_debug_verbose
       respond_to do |wants|
         wants.html do
           super
@@ -71,7 +71,7 @@ module Hyrax
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "params[:id]=#{params[:id]}",
-                                             "params=#{params}" ] if collections_controller_behavior_debug_verbose
+                                             "params=#{params}" ] if hyrax_collections_controller_behavior_debug_verbose
       respond_to do |wants|
         wants.html do
           super
@@ -90,13 +90,13 @@ module Hyrax
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                             "params[:id]=#{params[:id]}",
-                                            "params=#{params}" ] if collections_controller_behavior_debug_verbose
+                                            "params=#{params}" ] if hyrax_collections_controller_behavior_debug_verbose
       respond_to do |wants|
         ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                                Deepblue::LoggingHelper.called_from,
                                                Deepblue::LoggingHelper.obj_class( 'wants', wants ),
                                                "wants.format=#{wants.format}",
-                                               "" ] if collections_controller_behavior_debug_verbose
+                                               "" ] if hyrax_collections_controller_behavior_debug_verbose
         wants.html do
           @curation_concern ||= ::PersistHelper.find( params[:id] )
           if @curation_concern.present?
@@ -130,7 +130,7 @@ module Hyrax
                                              "response_type=#{response_type}",
                                              "message=#{message}",
                                              "options=#{options}",
-                                             "" ] if collections_controller_behavior_debug_verbose
+                                             "" ] if hyrax_collections_controller_behavior_debug_verbose
       json_body = Hyrax::API.generate_response_body(response_type: response_type, message: message, options: options)
       render json: json_body, status: response_type
     end
@@ -140,7 +140,7 @@ module Hyrax
                                              Deepblue::LoggingHelper.called_from,
                                              Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "params[:id]=#{params[:id]}",
-                                             "params=#{params}" ] if collections_controller_behavior_debug_verbose
+                                             "params=#{params}" ] if hyrax_collections_controller_behavior_debug_verbose
       respond_to do |wants|
         wants.html do
           super
