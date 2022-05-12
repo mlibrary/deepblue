@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Hyrax::FileSetsController, :clean_repo do
+RSpec.describe Hyrax::FileSetsController, :clean_repo, skip: false do
 
   include Devise::Test::ControllerHelpers
   routes { Rails.application.routes }
@@ -14,10 +14,8 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo do
   let(:not_authorized) { I18n.t(:"unauthorized.default", default: 'You are not authorized to access this page.') }
 
   describe 'module debug verbose variables' do
-    it "they have the right values" do
-      expect( described_class.file_sets_controller_debug_verbose ).to eq( false )
-      expect( ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose ).to eq( debug_verbose )
-    end
+    it { expect( described_class.file_sets_controller_debug_verbose ).to eq( false ) }
+    it { expect( ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose ).to eq( debug_verbose ) }
   end
 
   RSpec.shared_examples 'Not anonymous link Hyrax::FileSetsController' do

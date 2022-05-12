@@ -4,7 +4,7 @@ module Hyrax
 
   class AnonymousLinkService
 
-    INVALID_ANONYMOUS_LINK = ''.freeze
+    INVALID_ANONYMOUS_LINK = ''.freeze unless const_defined? :INVALID_ANONYMOUS_LINK
 
     mattr_accessor :enable_anonymous_links, default: true
 

@@ -11,9 +11,11 @@ RSpec.describe Deepblue::SingleUseLinkControllerBehavior do
   let(:debug_verbose) { false }
 
   describe 'module debug verbose variables' do
-    it "they have the right values" do
-      expect( described_class.single_use_link_controller_behavior_debug_verbose ).to eq debug_verbose
-    end
+    it { expect( described_class.single_use_link_controller_behavior_debug_verbose ).to eq debug_verbose }
+  end
+
+  describe 'other module variables' do
+    it { expect( Hyrax::SingleUseLinkService.enable_single_use_links ).to eq false }
   end
 
   subject { MockSingleUseLinkControllerBehavior.new }
