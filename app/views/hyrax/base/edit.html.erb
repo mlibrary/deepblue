@@ -1,6 +1,6 @@
-<br/><b>Hyrax v3 upgrade -- Presenter: <%= @presenter.class.name %> in <%= __FILE__ %></b><br/>
+<!-- Hyrax v3 upgrade -- Presenter: <%= @presenter.class.name %> in <%= __FILE__ %> -->
 <% provide :page_title, title_presenter(curation_concern).page_title %>
-<br/><b>End hyrax v3 upgrade</b><br/>
+<!-- End hyrax v3 upgrade -->
 <% provide :page_title, curation_concern_page_title(curation_concern) %>
 <% provide :page_header do %>
   <% if ::Deepblue::DraftAdminSetService.has_draft_admin_set? curation_concern %>
