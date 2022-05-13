@@ -352,6 +352,7 @@ module DeepBlueDocs
       ServerAfterInitializeService.server_after_initialize_callback( config,
                                                                      debug_verbose: after_initialize_debug_verbose,
                                                                      debug_verbose_work_view_conent_service: false )
+
       puts "Finished after initialize." if after_initialize_debug_verbose
     end
 
