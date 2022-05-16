@@ -9,17 +9,24 @@ module Hyrax
     # monkey patch Hyrax::Dashboard::CollectionsController
 
     ## Shows a list of all collections to the admins
-    class CollectionsController < Hyrax::My::CollectionsController
+    class CollectionsController < ::Hyrax::My::CollectionsController
+      include Blacklight::AccessControls::Catalog
+      include Blacklight::Base
+
+      configure_blacklight do |config|
+        config.search_builder_class = Hyrax::Dashboard::CollectionsSearchBuilder
+      end
+
       include ::Hyrax::BrandingHelper
-      include Deepblue::CollectionsControllerBehavior
+      include ::Deepblue::CollectionsControllerBehavior
 
       # begin monkey
-      mattr_accessor :collections_controller_debug_verbose,
-                     default: ::DeepBlueDocs::Application.config.collections_controller_debug_verbose
+      mattr_accessor :dashboard_collections_controller_debug_verbose,
+                     default: Rails.configuration.dashboard_collections_controller_debug_verbose
       # end monkey
 
-      EVENT_NOTE = 'Hyrax::Dashboard::CollectionsController'
-      PARAMS_KEY = 'collection'
+      EVENT_NOTE = 'Hyrax::Dashboard::CollectionsController' unless const_defined? :EVENT_NOTE
+      PARAMS_KEY = 'collection' unless const_defined? :PARAMS_KEY
 
       ## begin monkey patch overrides
 
@@ -37,7 +44,7 @@ module Hyrax
             destroy_rest
           end
           wants.json do
-            unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
+            unless Rails.configuration.rest_api_allow_mutate
               return render_json_response( response_type: :bad_request, message: "Method not allowed." )
             end
             destroy_rest
@@ -56,7 +63,7 @@ module Hyrax
             show_rest
           end
           wants.json do
-            unless ::DeepBlueDocs::Application.config.rest_api_allow_read
+            unless Rails.configuration.rest_api_allow_read
               return render_json_response( response_type: :bad_request, message: "Method not allowed." )
             end
             show_rest
@@ -71,94 +78,6 @@ module Hyrax
         end
         presenter
         query_collection_members
-      end
-
-      ## end monkey patch overrides
-
-      before_action :provenance_log_update_before, only: [:update]
-      after_action :provenance_log_update_after, only: [:update]
-
-      def curation_concern
-        @collection ||= ::PersistHelper.find(params[:id])
-      end
-
-      def default_event_note
-        EVENT_NOTE
-      end
-
-      def params_key
-        PARAMS_KEY
-      end
-
-      ## begin monkey patch banner
-
-      def process_banner_input
-        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-        #                                        ::Deepblue::LoggingHelper.called_from,
-        #                                        "@collection.id = #{@collection.id}",
-        #                                        "" ] if collections_controller_debug_verbose
-        return update_existing_banner if params["banner_unchanged"] == "true"
-        remove_banner
-        uploaded_file_ids = params["banner_files"]
-        add_new_banner(uploaded_file_ids) if uploaded_file_ids
-      end
-
-      def process_logo_records(uploaded_file_ids)
-        public_files = []
-        uploaded_file_ids.each_with_index do |ufi, i|
-          # If user has chosen a new logo, the ufi will be an integer
-          # If the logo was previously chosen, the ufil will be a path
-          # ufi.match(/\D/) will return a nil, fi ufi is an integer
-          # if it is a path, you want to update the, else create a new rec
-          if ! ufi.match(/\D/).nil?
-            update_logo_info(ufi, params["alttext"][i], verify_linkurl(params["linkurl"][i]))
-            public_files << ufi
-          else # brand new one, insert in the database
-            logo_info = create_logo_info(ufi, params["alttext"][i], verify_linkurl(params["linkurl"][i]))
-            public_files << logo_info.local_path
-          end
-        end
-        public_files
-      end
-
-      def update_existing_banner
-        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-        #                                        ::Deepblue::LoggingHelper.called_from,
-        #                                        "@collection.id = #{@collection.id}",
-        #                                        "" ] if collections_controller_debug_verbose
-        banner_info = collection_banner_info( id: @collection.id )
-        banner_info.first.save(banner_info.first.local_path, false)
-      end
-
-      def add_new_banner(uploaded_file_ids)
-        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-        #                                        ::Deepblue::LoggingHelper.called_from,
-        #                                        "@collection.id = #{@collection.id}",
-        #                                        "uploaded_file_ids = #{uploaded_file_ids}",
-        #                                        "" ] if collections_controller_debug_verbose
-        f = uploaded_files(uploaded_file_ids).first
-        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-        #                                        ::Deepblue::LoggingHelper.called_from,
-        #                                        "@collection.id = #{@collection.id}",
-        #                                        "f.file_url = #{f.file_url}",
-        #                                        "" ] if collections_controller_debug_verbose
-        banner_info = CollectionBrandingInfo.new(
-            collection_id: @collection.id,
-            filename: File.split(f.file_url).last,
-            role: "banner",
-            alt_txt: "",
-            target_url: ""
-        )
-        banner_info.save f.file_url
-      end
-
-      def remove_banner
-        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-        #                                        ::Deepblue::LoggingHelper.called_from,
-        #                                        "@collection.id = #{@collection.id}",
-        #                                        "" ] if collections_controller_debug_verbose
-        banner_info = collection_banner_info( id: @collection.id )
-        banner_info&.delete_all
       end
 
       # This method was monkey patched becuase we wanted the users to go back to
@@ -179,6 +98,104 @@ module Hyrax
         else
           after_update_error
         end
+      end
+
+      ## end monkey patch overrides
+
+      before_action :provenance_log_update_before, only: [:update]
+      after_action :provenance_log_update_after, only: [:update]
+
+      def curation_concern
+        # @collection ||= ::PersistHelper.find(params[:id]) # hyax v2 version
+        # Query Solr for the collection.
+        # run the solr query to find the collection members
+        response, _docs = single_item_search_service.search_results
+        curation_concern = response.documents.first
+        raise CanCan::AccessDenied unless curation_concern
+        curation_concern
+      end
+
+      def default_event_note
+        EVENT_NOTE
+      end
+
+      def params_key
+        PARAMS_KEY
+      end
+
+      def presenter
+        @presenter ||= begin
+                         presenter_class.new(curation_concern, current_ability)
+                       end
+      end
+
+      ## begin monkey patch banner
+
+      def process_banner_input
+        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+        #                                        ::Deepblue::LoggingHelper.called_from,
+        #                                        "@collection.id = #{@collection.id}",
+        #                                        "" ] if dashboard_collections_controller_debug_verbose
+        return update_existing_banner if params["banner_unchanged"] == "true"
+        remove_banner
+        uploaded_file_ids = params["banner_files"]
+        add_new_banner(uploaded_file_ids) if uploaded_file_ids
+      end
+
+      def update_existing_banner
+        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+        #                                        ::Deepblue::LoggingHelper.called_from,
+        #                                        "@collection.id = #{@collection.id}",
+        #                                        "" ] if dashboard_collections_controller_debug_verbose
+        banner_info = collection_banner_info( id: @collection.id )
+        # banner_info = CollectionBrandingInfo.where(collection_id: @collection.id.to_s).where(role: "banner")
+        banner_info.first.save(banner_info.first.local_path, false)
+      end
+
+      def add_new_banner(uploaded_file_ids)
+        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+        #                                        ::Deepblue::LoggingHelper.called_from,
+        #                                        "@collection.id = #{@collection.id}",
+        #                                        "uploaded_file_ids = #{uploaded_file_ids}",
+        #                                        "" ] if dashboard_collections_controller_debug_verbose
+        f = uploaded_files(uploaded_file_ids).first
+        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+        #                                        ::Deepblue::LoggingHelper.called_from,
+        #                                        "@collection.id = #{@collection.id}",
+        #                                        "f.file_url = #{f.file_url}",
+        #                                        "" ] if dashboard_collections_controller_debug_verbose
+        banner_info = CollectionBrandingInfo.new(
+            collection_id: @collection.id,
+            filename: File.split(f.file_url).last,
+            role: "banner",
+            alt_txt: "",
+            target_url: ""
+        )
+        banner_info.save f.file_url
+      end
+
+      def remove_banner
+        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+        #                                        ::Deepblue::LoggingHelper.called_from,
+        #                                        "@collection.id = #{@collection.id}",
+        #                                        "" ] if dashboard_collections_controller_debug_verbose
+        banner_info = collection_banner_info( id: @collection.id )
+        # banner_info = CollectionBrandingInfo.where(collection_id: @collection.id.to_s).where(role: "banner")
+        banner_info&.delete_all
+      end
+
+      def process_logo_records(uploaded_file_ids)
+        public_files = []
+        uploaded_file_ids.each_with_index do |ufi, i|
+          if ufi.include?('public')
+            update_logo_info(ufi, params["alttext"][i], verify_linkurl(params["linkurl"][i]))
+            public_files << ufi
+          else # brand new one, insert in the database
+            logo_info = create_logo_info(ufi, params["alttext"][i], verify_linkurl(params["linkurl"][i]))
+            public_files << logo_info.local_path
+          end
+        end
+        public_files
       end
 
       ## end monkey patch banner

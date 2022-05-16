@@ -51,7 +51,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "su_link.valid?=#{su_link.valid?}",
-                                             "su_link.itemId=#{su_link.itemId}",
+                                             "su_link.item_id=#{su_link.item_id}",
                                              "su_link.path=#{su_link.path}",
                                              "item_id=#{item_id}",
                                              "path=#{path}",
@@ -62,10 +62,10 @@ module Deepblue
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "item_id=#{item_id}",
-                                               "su_link.itemId=#{su_link.itemId}",
-                                               "destroy unless?=#{su_link.itemId == item_id}",
+                                               "su_link.item_id=#{su_link.item_id}",
+                                               "destroy unless?=#{su_link.item_id == item_id}",
                                                "" ] if single_use_link_controller_behavior_debug_verbose
-        return destroy_and_return_rv( destroy_flag: destroy_if_not_valid, rv: false, su_link: su_link ) unless su_link.itemId == item_id
+        return destroy_and_return_rv( destroy_flag: destroy_if_not_valid, rv: false, su_link: su_link ) unless su_link.item_id == item_id
       end
       if path.present?
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -94,7 +94,7 @@ module Deepblue
 
       def find_single_use_link_obj( link_id: )
         return INVALID_SINGLE_USE_LINK if link_id.blank?
-        rv = SingleUseLink.find_by_downloadKey!( link_id )
+        rv = SingleUseLink.find_by_download_key!( link_id )
         return rv
       rescue ActiveRecord::RecordNotFound => _ignore
         return INVALID_SINGLE_USE_LINK # blank, so we only try looking it up once

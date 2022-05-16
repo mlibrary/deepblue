@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Hyrax::TransfersController, type: :controller, skip: false do
@@ -9,7 +11,7 @@ RSpec.describe Hyrax::TransfersController, type: :controller, skip: false do
   let( :authoremail ) { 'authoremail@umich.edu' }
   let( :creator ) { 'Creator, A' }
   let( :current_user ) { 'user@umich.edu' }
-  let( :date_created ) { '2018-02-28' }
+  let( :date_created ) { ['2018-02-28'] }
   let( :depositor ) { authoremail }
   let( :description ) { 'The Description' }
   let( :id ) { '0123458678' }
@@ -94,7 +96,7 @@ RSpec.describe Hyrax::TransfersController, type: :controller, skip: false do
         expect do
           post :create, params: { id: work.id, proxy_deposit_request: { transfer_to: 'foo' } }
         end.not_to change(ProxyDepositRequest, :count)
-        expect(assigns[:proxy_deposit_request].errors[:transfer_to]).to eq(['must be an existing user'])
+        expect(assigns[:proxy_deposit_request].errors[:transfer_to]).to eq(['Must be an existing user'])
         expect(assigns[:work]).to be_instance_of DataSet
         expect(response).to be_successful
       end

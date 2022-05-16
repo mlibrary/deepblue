@@ -9,7 +9,7 @@ module Hyrax
     class OptimisticLockValidator < Actors::AbstractActor
 
       mattr_accessor :optimistic_lock_actor_debug_verbose,
-                     default: ::DeepBlueDocs::Application.config.optimistic_lock_actor_debug_verbose
+                     default: Rails.configuration.optimistic_lock_actor_debug_verbose
 
       class_attribute :version_field
       self.version_field = 'version'

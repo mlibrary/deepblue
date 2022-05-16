@@ -341,7 +341,7 @@ module Deepblue
             work.member_of_collections << collection
             log_provenance_add_child( parent: collection, child: work )
             work.save!
-          rescue ActiveFedora::ObjectNotFoundError
+          rescue Hyrax::ObjectNotFoundError
             puts "Collection #{collection_id} not found. Unable to add work #{work.id} to it."
           end
         end
@@ -422,7 +422,7 @@ module Deepblue
         return admin_set_work if AdminSet.default_set? admin_set_id
         begin
           admin_set = AdminSet.find( admin_set_id )
-        rescue ActiveFedora::ObjectNotFoundError
+        rescue Hyrax::ObjectNotFoundError
           # TODO: Log this
           admin_set = admin_set_work
         rescue Ldp::Gone
@@ -447,7 +447,8 @@ module Deepblue
         creator = Array( collection_hash[:creator] )
         curation_notes_admin = Array( collection_hash[:curation_notes_admin] )
         curation_notes_user = Array( collection_hash[:curation_notes_user] )
-        date_created = build_date( hash: collection_hash, key: :date_created )
+        # date_created = build_date( hash: collection_hash, key: :date_created )
+        date_created = Array( build_date( hash: collection_hash, key: :date_created ) ) # update for hyrax v3
         date_modified = build_date( hash: collection_hash, key: :date_modified )
         date_uploaded = build_date( hash: collection_hash, key: :date_uploaded )
         description = Array( collection_hash[:description] )
@@ -899,7 +900,8 @@ module Deepblue
         curation_notes_admin = Array( work_hash[:curation_notes_admin] )
         curation_notes_user = Array( work_hash[:curation_notes_user] )
         date_coverage = build_date_coverage( hash: work_hash )
-        date_created = build_date( hash: work_hash, key: :date_created )
+        # date_created = build_date( hash: work_hash, key: :date_created )
+        date_created = Array( build_date( hash: work_hash, key: :date_created ) ) # update for hyrax v3
         date_modified = build_date( hash: work_hash, key: :date_modified )
         date_published = build_date( hash: work_hash, key: :date_published )
         date_uploaded = build_date( hash: work_hash, key: :date_uploaded )
@@ -1568,7 +1570,7 @@ module Deepblue
       def find_collection_using_id( id: )
         return nil if id.blank?
         Collection.find id
-      rescue ActiveFedora::ObjectNotFoundError
+      rescue Hyrax::ObjectNotFoundError
         return nil
       end
 
@@ -1603,7 +1605,7 @@ module Deepblue
       def find_file_set_using_id( id: )
         return nil if id.blank?
         FileSet.find id
-      rescue ActiveFedora::ObjectNotFoundError
+      rescue Hyrax::ObjectNotFoundError
         return nil
       end
 
@@ -1649,7 +1651,7 @@ module Deepblue
         # owner = Array(work_hash[:owner])
         work = TaskHelper.work_find( id: id[0] )
         return work, id[0]
-      rescue ActiveFedora::ObjectNotFoundError
+      rescue Hyrax::ObjectNotFoundError
         raise if error_if_not_found
         return nil, id[0]
       end
@@ -1684,7 +1686,7 @@ module Deepblue
       def find_work_using_id( id: )
         return nil if id.blank?
         TaskHelper.work_find( id: id.to_s )
-      rescue ActiveFedora::ObjectNotFoundError
+      rescue Hyrax::ObjectNotFoundError
         return nil
       end
 
@@ -1748,7 +1750,7 @@ module Deepblue
         if use_rails_logger
           @logger = Rails.logger
         else
-          DeepBlueDocs::Application.config.provenance_log_echo_to_rails_logger = false
+          Rails.configuration.provenance_log_echo_to_rails_logger = false
           ProvenanceHelper.echo_to_rails_logger = false
         end
 

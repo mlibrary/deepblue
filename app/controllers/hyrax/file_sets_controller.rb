@@ -8,7 +8,7 @@ module Hyrax
     mattr_accessor :file_sets_controller_debug_verbose,
                    default: Rails.configuration.file_sets_controller_debug_verbose # monkey
 
-    PARAMS_KEY = 'file_set' # monkey
+    PARAMS_KEY = 'file_set' unless const_defined? :PARAMS_KEY # monkey
 
     include Blacklight::Base
     include Blacklight::AccessControls::Catalog
@@ -265,7 +265,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if file_sets_controller_debug_verbose
-        SingleUseLink.create( itemId: curation_concern.id,
+        SingleUseLink.create( item_id: curation_concern.id,
                               path: hyrax.download_path( id: curation_concern.id ),
                               user_id: current_ability.current_user.id,
                               user_comment: params[:user_comment] )
@@ -273,7 +273,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if file_sets_controller_debug_verbose
-        SingleUseLink.create( itemId: curation_concern.id,
+        SingleUseLink.create( item_id: curation_concern.id,
                               path: current_show_path,
                               user_id: current_ability.current_user.id,
                               user_comment: params[:user_comment] )
@@ -293,10 +293,11 @@ module Hyrax
     # DELETE /concern/file_sets/:id
     def destroy
       parent = curation_concern.parent
+      guard_for_workflow_restriction_on!(parent: presenter.parent) # TODO: verify for hyrax v3
       return redirect_to [main_app, curation_concern],
                          notice: I18n.t('hyrax.insufficent_privileges_for_action') unless can_delete_file?
       actor.destroy
-      redirect_to [main_app, parent], notice: 'The file has been deleted.'
+      redirect_to [main_app, parent],  notice: view_context.t('hyrax.file_sets.asset_deleted_flash.message')
     end
 
     # GET /concern/file_sets/:id
@@ -341,6 +342,8 @@ module Hyrax
 
     # GET /concern/parent/:parent_id/file_sets/:id
     def show
+      presenter
+      guard_for_workflow_restriction_on!(parent: presenter.parent) # TODO: verify for hyrax v3
       respond_to do |wants|
         wants.html { presenter }
         wants.json { presenter }
@@ -355,6 +358,8 @@ module Hyrax
 
     # PATCH /concern/file_sets/:id
     def update
+      parent = curation_concern.parent
+      guard_for_workflow_restriction_on!(parent: parent) # TODO: verify for hyrax v3
       if attempt_update
         after_update_response
       else
@@ -365,6 +370,15 @@ module Hyrax
       logger.error "FileSetsController::update rescued #{error.class}\n\t#{error.message}\n #{error.backtrace.join("\n")}\n\n"
       render action: 'edit'
     end
+
+
+    # GET /files/:id/stats
+    def stats
+      @stats = FileUsage.new(params[:id])
+    end
+
+    # GET /files/:id/citation
+    def citation; end
 
     # monkey begin
 
@@ -472,11 +486,11 @@ module Hyrax
                                            "file_set.mime_type=#{file_set.mime_type}",
                                            "file_set.original_file.size=#{file_set.original_file.size}",
                                            "" ] if file_sets_controller_debug_verbose
-      return false unless ::DeepBlueDocs::Application.config.file_sets_contents_view_allow
+      return false unless Rails.configuration.file_sets_contents_view_allow
       return false unless ( current_ability.admin? ) # || current_ability.can?(:read, id) )
-      return false unless ::DeepBlueDocs::Application.config.file_sets_contents_view_mime_types.include?( file_set.mime_type )
+      return false unless Rails.configuration.file_sets_contents_view_mime_types.include?( file_set.mime_type )
       return false if file_set.original_file.size.blank?
-      return false if file_set.original_file.size > ::DeepBlueDocs::Application.config.file_sets_contents_view_max_size
+      return false if file_set.original_file.size > Rails.configuration.file_sets_contents_view_max_size
       return true
     end
 
@@ -706,7 +720,7 @@ module Hyrax
                                                               id: id )
           return redirect_to( url, error: "#{id} was deleted." )
         end
-      rescue ActiveFedora::ObjectNotFoundError => e2
+      rescue Hyrax::ObjectNotFoundError => e2
         # nope, never existed
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
@@ -743,7 +757,8 @@ module Hyrax
     def after_update_response
       respond_to do |wants|
         wants.html do
-          redirect_to [main_app, curation_concern], notice: "The file #{view_context.link_to(curation_concern, [main_app, curation_concern])} has been updated."
+          link_to_file = view_context.link_to(curation_concern, [main_app, curation_concern])
+          redirect_to [main_app, curation_concern], notice: view_context.t('hyrax.file_sets.asset_updated_flash.message', link_to_file: link_to_file)
         end
         wants.json do
           @presenter = show_presenter.new(curation_concern, current_ability)
@@ -769,10 +784,10 @@ module Hyrax
 
     def add_breadcrumb_for_action
       case action_name
-      when 'edit'.freeze
+      when 'edit'
         add_breadcrumb I18n.t("hyrax.file_set.browse_view"), main_app.hyrax_file_set_path(params["id"])
-      when 'show'.freeze
-        add_breadcrumb presenter.parent.to_s, main_app.polymorphic_path(presenter.parent) unless presenter.parent.nil?
+      when 'show'
+        add_breadcrumb presenter.parent.to_s, main_app.polymorphic_path(presenter.parent) if presenter.parent.present?
         add_breadcrumb presenter.to_s, main_app.polymorphic_path(presenter)
       end
     end
@@ -784,9 +799,23 @@ module Hyrax
 
     def initialize_edit_form
       @parent = @file_set.in_objects.first
+      guard_for_workflow_restriction_on!(parent: @parent) # TODO: verify for hyrax v3
       original = @file_set.original_file
       @version_list = Hyrax::VersionListPresenter.new(original ? original.versions.all : [])
       @groups = current_user.groups
+    end
+
+    include WorkflowsHelper # Provides #workflow_restriction?, and yes I mean include not helper; helper exposes the module methods
+
+    # @param parent [Hyrax::WorkShowPresenter, GenericWork, #suppressed?] an
+    #        object on which we check if the current can take action.
+    #
+    # @return true if we did not encounter any workflow restrictions
+    # @raise WorkflowAuthorizationException if we encountered some workflow_restriction
+    def guard_for_workflow_restriction_on!(parent:) # TODO: verify for hyrax v3
+      return false # skip this check for now.
+      # return true unless workflow_restriction?(parent, ability: current_ability)
+      # raise WorkflowAuthorizationException
     end
 
     def actor
@@ -800,13 +829,25 @@ module Hyrax
     # monkey begin
     # def presenter
     #   @presenter ||= begin
-    #     _, document_list = search_results(params)
-    #     curation_concern = document_list.first
-    #     raise CanCan::AccessDenied unless curation_concern
-    #     show_presenter.new(curation_concern, current_ability, request)
-    #   end
+    #                    presenter = show_presenter.new(curation_concern_document, current_ability, request)
+    #                    raise WorkflowAuthorizationException if presenter.parent.blank?
+    #                    presenter
+    #                  end
     # end
     # monkey end
+
+    def curation_concern_document
+      # Query Solr for the collection.
+      # run the solr query to find the collection members
+      response, _docs = single_item_search_service.search_results
+      curation_concern = response.documents.first
+      raise CanCan::AccessDenied unless curation_concern
+      curation_concern
+    end
+
+    def single_item_search_service
+      Hyrax::SearchService.new(config: blacklight_config, user_params: params.except(:q, :page), scope: self, search_builder_class: search_builder_class)
+    end
 
     def wants_to_revert?
       params.key?(:revision) && params[:revision] != curation_concern.latest_content_version.label
@@ -832,6 +873,36 @@ module Hyrax
     #   File.join(theme, layout)
     # end
     # monkey end
+
+    # rubocop:disable Metrics/MethodLength
+    def render_unavailable
+      message = I18n.t("hyrax.workflow.unauthorized_parent")
+      respond_to do |wants|
+        wants.html do
+          unavailable_presenter
+          flash[:notice] = message
+          render 'unavailable', status: :unauthorized
+        end
+        wants.json do
+          render plain: message, status: :unauthorized
+        end
+        additional_response_formats(wants)
+        wants.ttl do
+          render plain: message, status: :unauthorized
+        end
+        wants.jsonld do
+          render plain: message, status: :unauthorized
+        end
+        wants.nt do
+          render plain: message, status: :unauthorized
+        end
+      end
+    end
+    # rubocop:enable Metrics/MethodLength
+
+    def unavailable_presenter
+      @presenter ||= show_presenter.new(::SolrDocument.find(params[:id]), current_ability, request)
+    end
 
   end
 

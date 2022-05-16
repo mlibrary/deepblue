@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Hyrax
 
   module Actors
@@ -6,7 +8,7 @@ module Hyrax
     class Terminator
 
       mattr_accessor :actors_terminator_debug_verbose,
-                     default: ::DeepBlueDocs::Application.config.actors_terminator_debug_verbose
+                     default: Rails.configuration.actors_terminator_debug_verbose
 
       def create(env)
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

@@ -171,7 +171,8 @@ module Deepblue
       unless files.nil? || files.size.zero?
         file = files[0]
         files.each do |f|
-          file = f unless f.original_name.empty?
+
+          file = f unless f&.original_name&.empty?
         end
       end
       return file
@@ -223,7 +224,7 @@ module Deepblue
 
     def self.ordered( ordered_values: nil, values: nil )
       return nil if values.nil?
-      if DeepBlueDocs::Application.config.do_ordered_list_hack
+      if Rails.configuration.do_ordered_list_hack
         unless ordered_values.nil?
           begin
             values = OrderedStringHelper.deserialize( ordered_values )
@@ -239,8 +240,8 @@ module Deepblue
     def self.ordered_values( ordered_values: nil, values: nil )
       return nil if values.nil?
       rv = nil
-      if DeepBlueDocs::Application.config.do_ordered_list_hack
-        if DeepBlueDocs::Application.config.do_ordered_list_hack_save
+      if Rails.configuration.do_ordered_list_hack
+        if Rails.configuration.do_ordered_list_hack_save
           rv = OrderedStringHelper.serialize( values )
         elsif !ordered_values.nil?
           rv = OrderedStringHelper.serialize( values )

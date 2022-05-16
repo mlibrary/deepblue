@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Hyrax::DashboardHelperBehavior, type: :helper, skip: false do
@@ -20,7 +22,6 @@ RSpec.describe Hyrax::DashboardHelperBehavior, type: :helper, skip: false do
   end
 
   describe "#number_of_works" do
-    let(:conn) { ActiveFedora::SolrService.instance.conn }
     let(:user1) { User.new(email: "abc@test") }
     let(:user2) { User.new(email: "abc@test.123") }
 
@@ -28,13 +29,22 @@ RSpec.describe Hyrax::DashboardHelperBehavior, type: :helper, skip: false do
       create_models("DataSet", user1, user2)
     end
 
-    it "finds 3 works" do
-      expect(helper.number_of_works(user1)).to eq(3)
+    it "finds 2 works" do
+      expect(helper.number_of_works(user1)).to eq(2)
+    end
+
+    context "with an over-riddent :where clause" do
+      it "finds 3 works when passed an empty where" do
+        expect(helper.number_of_works(user1, where: {})).to eq(3)
+      end
+
+      it "limits to those matching the where clause" do
+        expect(helper.number_of_works(user1, where: { "generic_type_sim" => "Big Work" })).to eq(1)
+      end
     end
   end
 
   describe "#number_of_files" do
-    let(:conn) { ActiveFedora::SolrService.instance.conn }
     let(:user1) { User.new(email: "abc@test") }
     let(:user2) { User.new(email: "abc@test.123") }
 
@@ -48,7 +58,6 @@ RSpec.describe Hyrax::DashboardHelperBehavior, type: :helper, skip: false do
   end
 
   describe "#number_of_collections" do
-    let(:conn) { ActiveFedora::SolrService.instance.conn }
     let(:user1) { User.new(email: "abc@test") }
     let(:user2) { User.new(email: "abc@test.123") }
 
@@ -62,15 +71,19 @@ RSpec.describe Hyrax::DashboardHelperBehavior, type: :helper, skip: false do
   end
 
   def create_models(model, user1, user2)
+    solr_service = Hyrax::SolrService
+
     # deposited by the first user
-    3.times do |t|
-      conn.add id: "199#{t}", Solrizer.solr_name('depositor', :stored_searchable) => user1.user_key, "has_model_ssim" => [model],
-               Solrizer.solr_name('depositor', :symbol) => user1.user_key
+    2.times do |t|
+      solr_service.add id: "199#{t}", "depositor_tesim" => user1.user_key, "has_model_ssim" => [model],
+                       "depositor_ssim" => user1.user_key, "generic_type_sim" => "Work"
     end
 
+    solr_service.add id: "1993", "depositor_tesim" => user1.user_key, "generic_type_sim" => "Big Work", "has_model_ssim" => [model], "depositor_ssim" => user1.user_key
+
     # deposited by the second user, but editable by the first
-    conn.add id: "1994", Solrizer.solr_name('depositor', :stored_searchable) => user2.user_key, "has_model_ssim" => [model],
-             Solrizer.solr_name('depositor', :symbol) => user2.user_key, "edit_access_person_ssim" => user1.user_key
-    conn.commit
+    solr_service.add id: "1994", "depositor_tesim" => user2.user_key, "has_model_ssim" => [model],
+                     "depositor_ssim" => user2.user_key, "edit_access_person_ssim" => user1.user_key
+    solr_service.commit
   end
 end

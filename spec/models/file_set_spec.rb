@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'hyrax/specs/shared_specs/hydra_works'
 
 RSpec.describe FileSet do
 
@@ -697,8 +698,8 @@ RSpec.describe FileSet do
     end
 
     let(:depositor) { 'jcoyne' }
-    let(:depositor_key) { Solrizer.solr_name('depositor') }
-    let(:title_key) { Solrizer.solr_name('title', :stored_searchable, type: :string) }
+    let(:depositor_key) { 'depositor_tesim' }
+    let(:title_key) { 'title_tesim' }
     let(:title) { ['abc123'] }
     let(:no_terms) { described_class.find(subject.id).to_solr }
     let(:terms) do

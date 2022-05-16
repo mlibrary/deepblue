@@ -102,7 +102,7 @@ RSpec.describe 'collection', type: :feature, js: true, clean_repo: true, skip: E
           "nesting_collection__parent_ids_ssim" => [collection.id],
           "edit_access_person_ssim" => [user.user_key] }
       end
-      ActiveFedora::SolrService.add(docs, commit: true)
+      Hyrax::SolrService.add(docs, commit: true)
 
       sign_in user
     end
@@ -134,7 +134,7 @@ RSpec.describe 'collection', type: :feature, js: true, clean_repo: true, skip: E
           "nesting_collection__parent_ids_ssim" => [collection.id],
           "edit_access_person_ssim" => [user.user_key] }
       end
-      ActiveFedora::SolrService.add(docs, commit: true)
+      Hyrax::SolrService.add(docs, commit: true)
 
       sign_in user
     end

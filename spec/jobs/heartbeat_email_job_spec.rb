@@ -44,7 +44,7 @@ RSpec.describe HeartbeatEmailJob do
     it 'it performs the job' do
       save_debug_verbose = described_class.heartbeat_email_job_debug_verbose
       described_class.heartbeat_email_job_debug_verbose = dbg_verbose
-      expect(job.hostname).to eq ::DeepBlueDocs::Application.config.hostname
+      expect(job.hostname).to eq Rails.configuration.hostname
       ActiveJob::Base.queue_adapter = :test
       job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
       time_after = DateTime.now

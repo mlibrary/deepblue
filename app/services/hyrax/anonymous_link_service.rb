@@ -4,7 +4,7 @@ module Hyrax
 
   class AnonymousLinkService
 
-    INVALID_ANONYMOUS_LINK = ''.freeze
+    INVALID_ANONYMOUS_LINK = ''.freeze unless const_defined? :INVALID_ANONYMOUS_LINK
 
     mattr_accessor :enable_anonymous_links, default: true
 
@@ -45,7 +45,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "anon_link.valid?=#{anon_link.valid?}",
-                                             "anon_link.itemId=#{anon_link.itemId}",
+                                             "anon_link.item_id=#{anon_link.item_id}",
                                              "anon_link.path=#{anon_link.path}",
                                              "item_id=#{item_id}",
                                              "path=#{path}",
@@ -58,12 +58,12 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "item_id=#{item_id}",
-                                               "anon_link.itemId=#{anon_link.itemId}",
-                                               "destroy unless?=#{anon_link.itemId == item_id}",
+                                               "anon_link.item_id=#{anon_link.item_id}",
+                                               "destroy unless?=#{anon_link.item_id == item_id}",
                                                "" ] if anonymous_link_service_debug_verbose
         return destroy_if_necessary_and_return_rv( destroy_flag: destroy_if_not_valid,
                                                    rv: false,
-                                                   anon_link: anon_link ) unless anon_link.itemId == item_id
+                                                   anon_link: anon_link ) unless anon_link.item_id == item_id
       end
       if path.present?
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -95,12 +95,12 @@ module Hyrax
                                              "link_id=#{link_id}",
                                              "" ] if anonymous_link_service_debug_verbose
       return INVALID_ANONYMOUS_LINK if link_id.blank?
-      anon_link = AnonymousLink.find_by_downloadKey!( link_id )
+      anon_link = AnonymousLink.find_by_download_key!( link_id )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "link_id=#{link_id}",
                                              "anon_link=#{anon_link}",
-                                             "anon_link.itemId=#{anon_link.itemId}",
+                                             "anon_link.item_id=#{anon_link.item_id}",
                                              "anon_link.path=#{anon_link.path}",
                                              "" ] if anonymous_link_service_debug_verbose
       return anon_link

@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+# monkey override
+
 module Hyrax
   # Returns all works, either active or suppressed.
   # This should only be used by an admin user

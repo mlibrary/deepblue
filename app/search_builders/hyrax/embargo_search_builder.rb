@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
+# monkey override
+
 module Hyrax
   # Finds embargoed objects
   class EmbargoSearchBuilder < Blacklight::SearchBuilder
     self.default_processor_chain = [:with_pagination, :with_sorting, :only_active_embargoes]
 
-    # TODO: add more complex pagination
     def with_pagination(solr_params)
       solr_params[:rows] = 1000
     end
@@ -14,7 +17,7 @@ module Hyrax
 
     def only_active_embargoes(solr_params)
       solr_params[:fq] ||= []
-      solr_params[:fq] = 'embargo_release_date_dtsi:*'
+      solr_params[:fq] = 'embargo_release_date_dtsi:[* TO *]'
     end
   end
 end

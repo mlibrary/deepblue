@@ -8,15 +8,17 @@
   </td>
   <td>
     <div class="media">
-      <%= link_to [main_app, document], class: "media-left" do %>
-        <%= render_thumbnail_tag document, { class: "hidden-xs file_listing_thumbnail" }, { suppress_link: true } %>
+      <%= link_to [main_app, document], "class" => "media-left", "aria-hidden" => "true" do %>
+        <%= render_thumbnail_tag document, { class: "hidden-xs file_listing_thumbnail", alt: document.title_or_label }, { suppress_link: true } %>
       <% end %>
       <div class="media-body">
         <p class="media-heading">
           <strong><%= link_to document.title_or_label, [main_app, document], id: "src_copy_link#{id}", class: "#{'document-title' if document.title_or_label == document.label}" %></strong>
           <a href="#" class="small" title="Click for more details"><i id="expand_<%= id %>" class="glyphicon glyphicon-chevron-right"></i></a>
         </p>
-        <%= render_collection_links(document) %>
+        <!-- br/><b>Hyrax v3 upgrade -- Presenter: <%= @presenter.class.name %> in <%= __FILE__ %></b><br/ -->
+        <%= render_other_collection_links(document, @presenter.id) %>
+        <%#= render_collection_links(document) %>
       </div>
     </div>
   </td>
@@ -34,11 +36,11 @@
 <tr id="detail_<%= id %>"> <!--  document detail"> -->
   <td colspan="6">
     <dl class="expanded-details row">
-      <dt class="col-xs-3 col-lg-2">Creator:</dt>
+      <dt class="col-xs-3 col-lg-2"><%= t('.creator') %></dt>
       <dd class="col-xs-9 col-lg-4"><%= document.creator.to_a.to_sentence %></dd>
-      <dt class="col-xs-3 col-lg-2">Depositor:</dt>
+      <dt class="col-xs-3 col-lg-2"><%=  t('.depositor') %></dt>
       <dd class="col-xs-9 col-lg-4"><%= link_to_profile document.depositor %></dd>
-      <dt class="col-xs-3 col-lg-2">Edit Access:</dt>
+      <dt class="col-xs-3 col-lg-2"><%= t('.edit_access') %></dt>
       <dd class="col-xs-9 col-lg-10">
         <% if document.edit_groups.present? %>
           Groups: <%= document.edit_groups.join(', ') %>

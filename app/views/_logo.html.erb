@@ -3,7 +3,7 @@
     <%= t( "hyrax.site_logo_img_html" ) %>
     <!-- span class="site-title"><%= application_name %></span -->
   </a>
-  <a href='<%= ::DeepBlueDocs::Application.config.relative_url_root %>' class="site-link">
+  <a href='<%= Rails.configuration.relative_url_root %>' class="site-link">
     <span class="site-title"><%= application_name %></span>
   </a>
 </span>

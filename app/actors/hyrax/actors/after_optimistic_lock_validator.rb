@@ -6,7 +6,7 @@ module Hyrax
     class AfterOptimisticLockValidator < AbstractEventActor
 
       mattr_accessor :after_optimistic_lock_validator_debug_verbose,
-                     default: ::DeepBlueDocs::Application.config.after_optimistic_lock_validator_debug_verbose
+                     default: Rails.configuration.after_optimistic_lock_validator_debug_verbose
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if create was successful

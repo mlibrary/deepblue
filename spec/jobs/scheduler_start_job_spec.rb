@@ -36,7 +36,7 @@ RSpec.describe SchedulerStartJob, skip: false do
                                                 **options ) }
 
         context 'with valid arguments and scheduler running' do
-          let(:hostname)  { ::DeepBlueDocs::Application.config.hostname }
+          let(:hostname)  { Rails.configuration.hostname }
           let(:sched_pid) { 123 }
           let(:email_msg) { "DBD scheduler already running on #{hostname}" }
 
@@ -65,7 +65,7 @@ RSpec.describe SchedulerStartJob, skip: false do
 
         describe '.hostname' do
           it 'returns the application hostname' do
-            expect( job.hostname ).to eq ::DeepBlueDocs::Application.config.hostname
+            expect( job.hostname ).to eq Rails.configuration.hostname
             ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
           end
         end

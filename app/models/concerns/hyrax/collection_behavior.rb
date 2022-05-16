@@ -10,6 +10,7 @@ module Hyrax
   module CollectionBehavior
     include ::Deepblue::WorkflowEventBehavior
 
+    # monkey to keep
     # Compute the sum of each file in the collection using Solr to
     # avoid having to access Fedora
     #
@@ -24,13 +25,15 @@ module Hyrax
       member_object_ids.collect { |work_id| size_for_work(work_id) }.sum
     end
 
-    # Use this query to get the ids of the member objects (since the containment
-    # association has been flipped)
-    def member_object_ids
-      return [] unless id
-      ::PersistHelper.search_with_conditions("member_of_collection_ids_ssim:#{id}", rows: 1000 ).map(&:id)
-    end
+    # use the hyrax v3 version of #member_object_ids
+    # # Use this query to get the ids of the member objects (since the containment
+    # # association has been flipped)
+    # def member_object_ids
+    #   return [] unless id
+    #   ::PersistHelper.search_with_conditions("member_of_collection_ids_ssim:#{id}", rows: 1000 ).map(&:id)
+    # end
 
+    # monkey to add
     # Calculate the size of all the files in the work
     # @param work_id [String] identifer for a work
     # @return [Integer] the size in bytes
@@ -42,10 +45,11 @@ module Hyrax
       files.reduce(0) { |sum, f| sum + f[file_size_field].to_i }
     end
 
+    # monkey to add
     # Field name to look up when locating the size of each file in Solr.
     # Override for your own installation if using something different
     def file_size_field
-      Solrizer.solr_name(:file_size, Hyrax::FileSetIndexer::STORED_LONG)
+      :file_size_lts
     end
 
   end

@@ -1,8 +1,12 @@
+# frozen_string_literal: true
+
+# monkey override
+
 module Hyrax
 
   module Lockable
 
-    LOCKABLE_DEBUG_VERBOSE = false
+    mattr_accessor :lockable_debug_verbose, default: false
 
     extend ActiveSupport::Concern
 
@@ -10,7 +14,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "lock_key=#{lock_key}",
-                                             "" ] if LOCKABLE_DEBUG_VERBOSE
+                                             "" ] if lockable_debug_verbose
       lock_manager.lock(lock_key, &block)
     end
 
@@ -24,7 +28,7 @@ module Hyrax
                                              "Hyrax.config.lock_time_to_live=#{Hyrax.config.lock_time_to_live}",
                                              "Hyrax.config.lock_retry_count=#{Hyrax.config.lock_retry_count}",
                                              "Hyrax.config.lock_retry_delay=#{Hyrax.config.lock_retry_delay}",
-                                             "" ] if LOCKABLE_DEBUG_VERBOSE
+                                             "" ] if lockable_debug_verbose
       LockManager.new(
           Hyrax.config.lock_time_to_live,
           Hyrax.config.lock_retry_count,

@@ -6,7 +6,7 @@ require 'open3'
 module Hydra::Derivatives::Processors
   module ShellBasedProcessor
 
-    SHELL_BASED_PROCESSOR_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.shell_based_processor_debug_verbose
+    SHELL_BASED_PROCESSOR_DEBUG_VERBOSE = Rails.configuration.shell_based_processor_debug_verbose
 
     extend ActiveSupport::Concern
 

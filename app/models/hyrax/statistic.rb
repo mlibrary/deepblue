@@ -1,10 +1,11 @@
+# frozen_string_literal: true
 
 module Hyrax
 
-  # see: https://github.com/samvera/hyrax/wiki/Analytics-workaround-for-non-production-environments
-  require 'legato'
-  require 'hyrax/pageview'
-  require 'hyrax/download'
+  # # see: https://github.com/samvera/hyrax/wiki/Analytics-workaround-for-non-production-environments
+  # require 'legato'
+  # require 'hyrax/pageview'
+  # require 'hyrax/download'
 
   class Statistic < ActiveRecord::Base
 
@@ -29,7 +30,6 @@ module Hyrax
       end
 
       def statistics(object, start_date, user_id = nil)
-        # Rails.logger.info "self.class.name=#{self.class.name}, start_date=#{start_date}, user_id=#{user_id}"
         combined_stats object, start_date, cache_column, event_type, user_id
       end
 
@@ -37,13 +37,16 @@ module Hyrax
       # see Legato::ProfileMethods.method_name_from_klass
       def ga_statistics(start_date, object)
         path = polymorphic_path(object)
-        Rails.logger.info "Statistic.ga_statistics path=#{path}"
         profile = Hyrax::Analytics.profile
         unless profile
           Rails.logger.error("Google Analytics profile has not been established. Unable to fetch statistics.")
           return []
         end
-        profile.hyrax__pageview(sort: 'date', start_date: start_date).for_path(path)
+        profile.hyrax__pageview(sort: 'date',
+                                start_date: start_date,
+                                end_date: Date.yesterday,
+                                limit: 10_000)
+               .for_path(path)
       end
 
       private
@@ -60,13 +63,11 @@ module Hyrax
           if stat_cache_info[:ga_start_date] < Time.zone.today
             ga_stats = ga_statistics(stat_cache_info[:ga_start_date], object)
             ga_stats.each do |stat|
-              Rails.logger.info "Statistic.cached_stats stat=#{stat}"
               lstat = build_for(object, date: stat[:date], object_method => stat[ga_key], user_id: user_id)
               lstat.save unless Date.parse(stat[:date]) == Time.zone.today
               stats << lstat
             end
           end
-          Rails.logger.info "Statistic.cached_stats stats.count=#{stats.count}"
           stats
         end
     end

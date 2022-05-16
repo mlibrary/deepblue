@@ -88,10 +88,11 @@ module Umrdr
         index.as :stored_searchable
       end
 
-      property :referenced_by, predicate: ::RDF::Vocab::DC.isReferencedBy, multiple: true do |index|
-        index.type :text
-        index.as :stored_searchable
-      end
+      # already defined property in hyrax v3
+      # property :referenced_by, predicate: ::RDF::Vocab::DC.isReferencedBy, multiple: true do |index|
+      #   index.type :text
+      #   index.as :stored_searchable
+      # end
 
       property :referenced_by_ordered, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#referenced_by_ordered'), multiple: false do |index|
         index.type :text

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# monkey override
+
 module Hyrax
 
   # Injects a search builder filter to hide documents marked as suppressed

@@ -76,7 +76,7 @@ module Hyrax
                                    subject: subject,
                                    body: body,
                                    email_sent: email_sent )
-      return unless DeepBlueDocs::Application.config.embargo_about_to_expire_email_workflow
+      return unless Rails.configuration.embargo_about_to_expire_email_workflow
       email = ::Deepblue::EmailHelper.notification_email_workflow_to
       email_sent = false
       email_sent = ::Deepblue::EmailHelper.send_email( to: email,
@@ -167,7 +167,7 @@ module Hyrax
                                    subject: subject,
                                    body: body,
                                    email_sent: email_sent )
-      return unless DeepBlueDocs::Application.config.embargo_deactivate_email_workflow
+      return unless Rails.configuration.embargo_deactivate_email_workflow
       email = ::Deepblue::EmailHelper.notification_email_workflow_to
       email_sent = false
       email_sent = ::Deepblue::EmailHelper.send_email( to: email,
@@ -196,10 +196,38 @@ module Hyrax
       false
     end
 
+    ##
+    # @since 3.0.0
+    #
+    # @param [Valkyrie::Resource, ActiveFedora::Base] resource
+    #
+    # @return [Boolean] whether the resource has an embargo that is currently
+    #   enforced (regardless of whether it has expired)
+    #
+    # @note Hyrax::Forms::Failedsubmissionformwrapper is a place
+    #   holder until we switch to Valkyrie::ChangeSet instead of Form
+    #   objects
+    def embargo_enforced?(resource)
+      # This is a guard; from the UI rendering perspective, there's no
+      # active embargo enforcement until the object is saved.
+      return false unless resource.persisted?
+
+      case resource
+      when Hydra::AccessControls::Embargoable
+        !resource.embargo_release_date.nil?
+      when HydraEditor::Form, Hyrax::Forms::FailedSubmissionFormWrapper
+        embargo_enforced?(resource.model)
+      when Valkyrie::ChangeSet
+        Hyrax::EmbargoManager.new(resource: resource.model).enforced?
+      else
+        Hyrax::EmbargoManager.new(resource: resource).enforced?
+      end
+    end
+
     def have_assets_under_embargo?( current_user_key )
       embargoes = my_assets_under_embargo( current_user_key )
       return false if embargoes.blank?
-      hide_files = DeepBlueDocs::Application.config.embargo_manage_hide_files
+      hide_files = Rails.configuration.embargo_manage_hide_files
       return true unless hide_files
       embargoes.each do |curation_concern|
         hrt = curation_concern.human_readable_type

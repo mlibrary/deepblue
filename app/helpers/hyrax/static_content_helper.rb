@@ -85,7 +85,7 @@ module Hyrax
           work = ::PersistHelper.find work_title
           StaticContentHelper.static_content_cache_title_id( title: work_title, id: work.id )
           return work
-        rescue ActiveFedora::ObjectNotFoundError
+        rescue Hyrax::ObjectNotFoundError
           # ignore and continue
         end
       end
@@ -95,7 +95,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "solr_query=#{solr_query}",
                                              "" ] if static_content_helper_debug_verbose
-      results = ::ActiveFedora::SolrService.query(solr_query, rows: 10 )
+      results = ::Hyrax::SolrService.query(solr_query, rows: 10 )
       if results.size > 0
         result = results[0] if results
         id = result.id

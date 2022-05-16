@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+# monkey override
+
 module Hyrax
   # Added to allow for the Hyrax::My::WorksController to show only things I have deposited
   # If the work went through mediated deposit, I may no longer have edit access to it.

@@ -18,7 +18,7 @@ module Hyrax
     class BeforeAttachMembersActor < AbstractEventActor
 
       mattr_accessor :before_attach_member_actor_debug_verbose,
-                     default: ::DeepBlueDocs::Application.config.before_attach_member_actor_debug_verbose
+                     default: Rails.configuration.before_attach_member_actor_debug_verbose
 
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if update was successful

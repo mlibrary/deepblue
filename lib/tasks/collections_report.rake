@@ -45,7 +45,7 @@ module Deepblue
       end
 
       def report
-        out_report << "Report server: #{::DeepBlueDocs::Application.config.hostname}" << "\n"
+        out_report << "Report server: #{Rails.configuration.hostname}" << "\n"
         out_report << "Report started: " << Time.new.to_s << "\n"
         @prefix = "#{Time.now.strftime('%Y%m%d')}_collections_report" if @prefix.nil?
         @collections_file = Pathname.new( report_dir ).join "#{prefix}_collections.csv"

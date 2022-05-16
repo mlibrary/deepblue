@@ -1,9 +1,21 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
 
 RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
+
+  @skip_iiif_tests = true
+
+  let(:debug_verbose) { Rails.configuration.work_show_presenter_debug_verbose }
+
+  describe 'module debug verbose variables' do
+    it { expect( described_class.work_show_presenter_debug_verbose ).to eq debug_verbose }
+    it { expect( described_class.work_show_presenter_members_debug_verbose ).to eq false }
+  end
+
   let(:solr_document) { SolrDocument.new(attributes) }
   let(:request) { double(host: 'example.org', base_url: 'http://example.org') }
   let(:user_key) { 'a_user_key' }
-  let(:debug_verbose) {::DeepBlueDocs::Application.config.work_show_presenter_debug_verbose}
 
   let(:attributes) do
     { "id" => '888888',
@@ -590,7 +602,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
     # TODO: fix this
     # context "solr query" do
     #   before do
-    #     expect(ActiveFedora::SolrService).to receive(:query).twice.with(anything, hash_including(rows: 10_000)).and_return([])
+    #     expect(Hyrax::SolrService).to receive(:query).twice.with(anything, hash_including(rows: 10_000)).and_return([])
     #   end
     #
     #   it "requests >10 rows" do
@@ -675,9 +687,11 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
     subject { presenter }
 
     it "delegates to the class attribute of the model" do
-      allow(DataSet).to receive(:valid_child_concerns).and_return([DataSet])
-
-      expect(subject.valid_child_concerns).to eq [DataSet]
+      #allow(DataSet).to receive(:valid_child_concerns).and_return([DataSet])
+      child_concerns = subject.valid_child_concerns
+      expect(child_concerns.is_a? Hyrax::ChildTypes).to eq true
+      child_concerns = child_concerns.map { |cc| cc.model_name.name }
+      expect(child_concerns.include? "DataSet").to eq true
     end
   end
 
@@ -790,8 +804,8 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
     end
 
     # When we added title sorting, this tests failed
-    # Since we are not using III, lets skip this test.
-    describe "#manifest_metadata", skip: true do
+    # Since we are not using IIIF, lets skip this test.
+    describe "#manifest_metadata", skip: @skip_iiif_tests do
       subject do
         presenter.manifest_metadata
       end
@@ -802,7 +816,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
 
       it "returns an array of metadata values" do
         expect(subject[0]['label']).to eq('Title')
-        expect(subject[0]['value']).to eq Array( work.title.join( ' ' ) )
+        expect(subject[0]['value']).to eq work.title
       end
     end
   end

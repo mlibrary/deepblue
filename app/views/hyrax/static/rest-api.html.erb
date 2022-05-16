@@ -1,5 +1,5 @@
 <div class="documentation-div">
-<% host_url = "http://#{DeepBlueDocs::Application.config.hostname}" %>
+<% host_url = "http://#{Rails.configuration.hostname}" %>
 <h2 id="rest-api">REST API</h2>
   <ul>
     <li><a href="#rest-api">REST API</a></li>
@@ -256,7 +256,7 @@
   :creator => [ String, ... ],
   :curation_notes_user => [ String, ... ],
   :date_coverage => String,
-  :date_created => String,
+  :date_created => [ String, ... ],
   :date_modified => String,
   :date_published => String,
   :date_updated => String,

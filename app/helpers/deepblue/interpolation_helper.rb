@@ -12,7 +12,7 @@ module Deepblue
     def self.new_interporlation_values
       values = {}
       values[:contact_us_at] = EmailHelper.contact_us_at
-      values[:host_url] = DeepBlueDocs::Application.config.hostname
+      values[:host_url] = Rails.configuration.hostname
       # TODO: fix these (by adding values to config)
       values[:example_collection_id] = "c1234567"
       values[:example_data_set_id] = "d1234567"

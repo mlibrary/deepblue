@@ -30,7 +30,7 @@ module Hyrax
                           copy_visibility_to_files: true )
       flash[:notice] = curation_concern.embargo_history.last
       if curation_concern.work? && curation_concern.file_sets.present? &&
-            DeepBlueDocs::Application.config.embargo_allow_children_unembargo_choice
+                    Rails.configuration.embargo_allow_children_unembargo_choice
         redirect_to confirm_permission_path
       else
         redirect_to edit_embargo_path
@@ -40,8 +40,10 @@ module Hyrax
     # Updates a batch of embargos
     def update
       filter_docs_with_edit_access!
-      copy_visibility = params[:embargoes].values.map { |h| h[:copy_visibility] }
-      ::PersistHelper.find(batch).each do |curation_concern|
+      copy_visibility = []
+      copy_visibility = params[:embargoes].values.map { |h| h[:copy_visibility] } if params[:embargoes]
+      af_objects = ::PersistHelper.find_many(batch)
+      af_objects.each do |curation_concern|
         # Hyrax::Actors::EmbargoActor.new(curation_concern).destroy
         copy_visibility_to_files = if curation_concern.file_set?
                                      true

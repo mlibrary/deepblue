@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Hyrax
   # Creates the presenters of the members (member works and file sets) of a specific object
   class MemberPresenterFactory
@@ -13,7 +15,7 @@ module Hyrax
     self.work_presenter_class = WorkShowPresenter
 
     def initialize(work, ability, request = nil)
-      @work = work
+      @work = Hyrax::SolrDocument::OrderedMembers.decorate(work)
       @current_ability = ability
       @request = request
     end
@@ -54,7 +56,7 @@ module Hyrax
     # # TODO: Extract this to ActiveFedora::Aggregations::ListSource
     # def ordered_ids
     #   @ordered_ids ||= begin
-    #                      ActiveFedora::SolrService.query("proxy_in_ssi:#{id}",
+    #                      Hyrax::SolrService.query("proxy_in_ssi:#{id}",
     #                                                      rows: 10_000,
     #                                                      fl: "ordered_targets_ssim")
     #                                               .flat_map { |x| x.fetch("ordered_targets_ssim", []) }
@@ -62,7 +64,7 @@ module Hyrax
     # end
 
     def ordered_ids
-      @ordered_ids ||= Hyrax::SolrDocument::OrderedMembers.decorate(@work).ordered_member_ids
+      @work.ordered_member_ids
     end
 
     # private
@@ -72,11 +74,11 @@ module Hyrax
       # Arbitrarily maxed at 10 thousand; had to specify rows due to solr's default of 10
       def file_set_ids
         @file_set_ids ||= begin
-                            ActiveFedora::SolrService.query("{!field f=has_model_ssim}FileSet",
+                            Hyrax::SolrService.query("{!field f=has_model_ssim}FileSet",
                                                             rows: 10_000,
-                                                            fl: ActiveFedora.id_field,
+                                                            fl: Hyrax.config.id_field,
                                                             fq: "{!join from=ordered_targets_ssim to=id}id:\"#{id}/list_source\"")
-                                                     .flat_map { |x| x.fetch(ActiveFedora.id_field, []) }
+                                                     .flat_map { |x| x.fetch(Hyrax.config.id_field, []) }
                           end
       end
 

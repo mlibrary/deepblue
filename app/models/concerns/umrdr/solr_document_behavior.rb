@@ -10,11 +10,11 @@ module Umrdr
     extend ActiveSupport::Concern
 
     def access_deepblue 
-      fetch(Solrizer.solr_name('access_deepblue'), [])
+      fetch('access_deepblue_tesim', [])
     end
 
     def authoremail
-      Array(self[Solrizer.solr_name('authoremail')]).first
+      Array(self['authoremail_tesim']).first
     end
 
     def checksum_algorithm
@@ -26,15 +26,15 @@ module Umrdr
     end
 
     def curation_notes_admin
-      fetch(Solrizer.solr_name('curation_notes_admin'), [])
+      fetch('curation_notes_admin_tesim', [])
     end
 
     def curation_notes_user
-      fetch(Solrizer.solr_name('curation_notes_user'), [])
+      fetch('curation_notes_user_tesim', [])
     end
 
     def date_coverage
-      Array(self[Solrizer.solr_name('date_coverage')]).first
+      Array(self['date_coverage_tesim']).first
     end
 
     def date_published
@@ -46,15 +46,14 @@ module Umrdr
     end
 
     def description_file_set
-      fetch(Solrizer.solr_name('description_file_set'), []).first
+      fetch('description_file_set_tesim', []).first
     end
 
     ## begin DOI methods
 
 
     def doi
-      # rv = Array( self[Solrizer.solr_name('doi')] ).first
-      rv = self[ Solrizer.solr_name( 'doi' ) ] #, :symbol ) ]
+      rv = self[ 'doi_tesim' ]
       # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
       #                                        Deepblue::LoggingHelper.called_from,
       #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
@@ -66,7 +65,6 @@ module Umrdr
 
     def doi_minted?
       # the first time this is called, doi will not be in solr.
-      # @solr_document[ Solrizer.solr_name( 'doi', :symbol ) ].first
       doi.present?
     rescue
       nil
@@ -77,14 +75,13 @@ module Umrdr
     end
 
     def doi_pending?
-      #@solr_document[ Solrizer.solr_name( 'doi', :symbol ) ].first == ::Deepblue::DoiBehavior.doi_pending
       doi == ::Deepblue::DoiBehavior.doi_pending
     end
 
     ## end DOI methods
 
     def file_size
-      Array(self['file_size_lts']).first # standard lookup Solrizer.solr_name('file_size')] produces solr_document['file_size_tesim']
+      Array(self['file_size_lts']).first
     end
 
     def file_size_human_readable
@@ -93,28 +90,31 @@ module Umrdr
     end
 
     def fundedby
-      fetch(Solrizer.solr_name('fundedby'), [])
+      fetch('fundedby_tesim', [])
     end
 
     def fundedby_other
-      Array(self[Solrizer.solr_name('fundedby_other')]).first
+      Array(self['fundedby_other_tesim']).first
     end
 
     def grantnumber
-      Array(self[Solrizer.solr_name('grantnumber')]).first
+      Array(self['grantnumber_tesim']).first
     end
 
     def methodology
-      #Array(self[Solrizer.solr_name('methodology')]).first
-      fetch(Solrizer.solr_name('methodology'), [])
+      fetch('methodology_tesim', [])
     end
 
     def original_checksum
       Array(self['original_checksum_tesim']).first
     end
 
+    def prior_identifier
+      fetch('prior_identifier_tesim', [])
+    end
+
     def read_me_file_set_id
-      rv = self[ Solrizer.solr_name( 'read_me_file_set_id' ) ] #, :symbol ) ]
+      rv = self['read_me_file_set_id_tesim']
       # ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
       #                                        Deepblue::LoggingHelper.called_from,
       #                                        Deepblue::LoggingHelper.obj_class( 'class', self ),
@@ -124,24 +124,27 @@ module Umrdr
     end
 
     def referenced_by
-      # Array(self[Solrizer.solr_name('referenced_by')]).first
-      fetch(Solrizer.solr_name('referenced_by'), [])
+      fetch('referenced_by_tesim', [])
+    end
+
+    def rights_license
+      Array(self['rights_license_tesim']).first
     end
 
     def rights_license_other
-      Array(self[Solrizer.solr_name('rights_license_other')]).first
+      Array(self['rights_license_other_tesim']).first
     end
 
     def subject_discipline
-      fetch(Solrizer.solr_name('subject_discipline'), [])
+      fetch('subject_discipline_tesim', [])
     end
 
     def tombstone
-      Array(self[Solrizer.solr_name('tombstone')]).first
+      Array(self['tombstone_tesim']).first
     end
 
     def total_file_size
-      rv = Array(self['total_file_size_lts']).first # standard lookup Solrizer.solr_name('total_file_size')] produces solr_document['file_size_tesim']
+      rv = Array(self['total_file_size_lts']).first
       return 0 if rv.blank?
       rv
     end
@@ -152,15 +155,15 @@ module Umrdr
     end
 
     def virus_scan_service
-      Array(self[Solrizer.solr_name('virus_scan_service')]).first
+      Array(self['virus_scan_service_tesim']).first
     end
 
     def virus_scan_status
-      Array(self[Solrizer.solr_name('virus_scan_status')]).first
+      Array(self['virus_scan_status_tesim']).first
     end
 
     def virus_scan_status_date
-      Array(self[Solrizer.solr_name('virus_scan_status_date')]).first
+      Array(self['virus_scan_status_date_tesim']).first
     end
 
   end

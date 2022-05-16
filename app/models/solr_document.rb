@@ -3,7 +3,7 @@
 class SolrDocument
 
   mattr_accessor :solr_document_debug_verbose,
-                 default: ::DeepBlueDocs::Application.config.solr_document_debug_verbose
+                 default: Rails.configuration.solr_document_debug_verbose
 
   include Blacklight::Solr::Document
   include BlacklightOaiProvider::SolrDocument
@@ -38,21 +38,21 @@ class SolrDocument
 
   use_extension( Hydra::ContentNegotiation )
 
-  def self.solrized_methods(property_names)
-    property_names.each do |property_name|
-      define_method property_name.to_sym do
-        self[Solrizer.solr_name(property_name)]
-      end
-    end
-  end
-
-  def self.all_property_names
-    @@all_property_names
-  end
-
-  def all_property_names
-    @@all_property_names
-  end
+  # def self.solrized_methods(property_names) # upgrade to hyrax v3
+  #   property_names.each do |property_name|
+  #     define_method property_name.to_sym do
+  #       self[Solrizer.solr_name(property_name)]
+  #     end
+  #   end
+  # end
+  #
+  # def self.all_property_names  # upgrade to hyrax v3
+  #   @@all_property_names
+  # end
+  #
+  # def all_property_names # upgrade to hyrax v3
+  #   @@all_property_names
+  # end
 
   # Oai - to have sets.
   def sets
@@ -157,13 +157,13 @@ class SolrDocument
   end
 
   def nested_geo
-    self[Solrizer.solr_name('nested_geo_label', :symbol)] || []
+    self['nested_geo_label_ssim'] || []
   end
 
   def nested_related_items_label
     # references to ScholarsArchive raise ActionView::Template::Error (uninitialized constant SolrDocument::ScholarsArchive)
     # ScholarsArchive::LabelParserService.parse_label_uris(self[Solrizer.solr_name('nested_related_items_label', :symbol)]) || []
-    self[Solrizer.solr_name('nested_related_items_label', :symbol)] || []
+    self['nested_related_items_label_ssim'] || []
   end
 
   def other_affiliation_label
@@ -204,97 +204,97 @@ class SolrDocument
     Time.parse self['system_create_dtsi']
   end
 
-  @@all_property_names = [
-    'abstract',
-    'academic_affiliation',
-    'additional_information',
-    'language_none',
-    'peerreviewed',
-    'alt_title',
-    'bibliographic_citation',
-    'checksum_algorithm',
-    'checksum_value',
-    'conference_location',
-    'conference_name',
-    'conference_section',
-    'contributor_advisor',
-    'contributor_affiliationumcampus',
-    'contributor_author',
-    'contributor_committeemember',
-    'curation_notes_admin',
-    'curation_notes_user',
-    'date_accepted',
-    'date_available',
-    'date_collected',
-    'date_copyright',
-    'date_issued',
-    'date_published',
-    'date_reviewed',
-    'date_submitted',
-    'date_valid',
-    'degree_discipline',
-    'degree_field',
-    'degree_grantors',
-    'degree_level',
-    'degree_name',
-    'description_abstract',
-    'description_file_set',
-    'description_mapping',
-    'description_sponsorship',
-    'description_thesisdegreediscipline',
-    'description_thesisdegreegrantor',
-    'description_thesisdegreename',
-    'digitization_spec',
-    'doi',
-    'dspace_collection',
-    'dspace_community',
-    'duration',
-    'editor',
-    'embargo_reason',
-    'file_extent',
-    'file_format',
-    'fundedby',
-    'fundedby_other',
-    'funding_body',
-    'funding_statement',
-    'graduation_year',
-    'grantnumber',
-    'has_journal',
-    'has_number',
-    'has_volume',
-    'hydrologic_unit_code',
-    'identifier',
-    'identifier_orcid',
-    'identifier_source',
-    'identifier_uniqname',
-    'in_series',
-    'interactivity_type',
-    'is_based_on_url',
-    'isbn',
-    'issn',
-    'language',
-    'learning_resource_type',
-    'methodology',
-    'other_affiliation',
-    'prior_identifier',
-    'read_me_file_set_id',
-    'referenced_by',
-    'relation_ispartofseries',
-    'replaces',
-    'rights_license',
-    'rights_license_other',
-    'subject_discipline',
-    'subject_other',
-    'tableofcontents',
-    'time_required',
-    'type_none',
-    'typical_age_range',
-    'virus_scan_service',
-    'virus_scan_status',
-    'virus_scan_status_date'
-  ]
+  # @@all_property_names = [ # upgrade to hyrax v3
+  #   'abstract',
+  #   'academic_affiliation',
+  #   'additional_information',
+  #   'language_none',
+  #   'peerreviewed',
+  #   'alt_title',
+  #   'bibliographic_citation',
+  #   'checksum_algorithm',
+  #   'checksum_value',
+  #   'conference_location',
+  #   'conference_name',
+  #   'conference_section',
+  #   'contributor_advisor',
+  #   'contributor_affiliationumcampus',
+  #   'contributor_author',
+  #   'contributor_committeemember',
+  #   'curation_notes_admin',
+  #   'curation_notes_user',
+  #   'date_accepted',
+  #   'date_available',
+  #   'date_collected',
+  #   'date_copyright',
+  #   'date_issued',
+  #   'date_published',
+  #   'date_reviewed',
+  #   'date_submitted',
+  #   'date_valid',
+  #   'degree_discipline',
+  #   'degree_field',
+  #   'degree_grantors',
+  #   'degree_level',
+  #   'degree_name',
+  #   'description_abstract',
+  #   'description_file_set',
+  #   'description_mapping',
+  #   'description_sponsorship',
+  #   'description_thesisdegreediscipline',
+  #   'description_thesisdegreegrantor',
+  #   'description_thesisdegreename',
+  #   'digitization_spec',
+  #   'doi',
+  #   'dspace_collection',
+  #   'dspace_community',
+  #   'duration',
+  #   'editor',
+  #   'embargo_reason',
+  #   'file_extent',
+  #   'file_format',
+  #   'fundedby',
+  #   'fundedby_other',
+  #   'funding_body',
+  #   'funding_statement',
+  #   'graduation_year',
+  #   'grantnumber',
+  #   'has_journal',
+  #   'has_number',
+  #   'has_volume',
+  #   'hydrologic_unit_code',
+  #   'identifier',
+  #   'identifier_orcid',
+  #   'identifier_source',
+  #   'identifier_uniqname',
+  #   'in_series',
+  #   'interactivity_type',
+  #   'is_based_on_url',
+  #   'isbn',
+  #   'issn',
+  #   'language',
+  #   'learning_resource_type',
+  #   'methodology',
+  #   'other_affiliation',
+  #   'prior_identifier',
+  #   'read_me_file_set_id',
+  #   'referenced_by',
+  #   'relation_ispartofseries',
+  #   'replaces',
+  #   'rights_license',
+  #   'rights_license_other',
+  #   'subject_discipline',
+  #   'subject_other',
+  #   'tableofcontents',
+  #   'time_required',
+  #   'type_none',
+  #   'typical_age_range',
+  #   'virus_scan_service',
+  #   'virus_scan_status',
+  #   'virus_scan_status_date'
+  # ]
 
-  solrized_methods @@all_property_names
+  # solrized_methods @@all_property_names # upgrade to hyrax v3
 
   # DublinCore uses the semantic field mappings below to assemble an OAI-compliant Dublin Core document
   # Semantic mappings of solr stored fields. Fields may be multi or

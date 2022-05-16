@@ -26,7 +26,7 @@ END_BODY
     def self.fedora_accessible?
       # this tests for fedora, as versus PersistHelper.all.first.id
       ActiveFedora::Base.all.first.id
-      # ActiveFedora::Base.where( id: Rails.configuration.default_admin_set_id )
+      # ::PersistHelper.where( id: Rails.configuration.default_admin_set_id )
       return true
     rescue RSolr::Error::ConnectionRefused
       false
@@ -37,7 +37,7 @@ END_BODY
     end
 
     def self.hostname
-      ::DeepBlueDocs::Application.config.hostname
+      Rails.configuration.hostname
     end
 
     def self.solr_accessible?

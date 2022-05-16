@@ -2,7 +2,6 @@
 
 class ServerAfterInitializeService
 
-
   @@_setup_ran = false
   @@_setup_failed = false
 
@@ -26,9 +25,12 @@ class ServerAfterInitializeService
   def self.server_after_initialize_callback( config,
              debug_verbose: server_after_initialize_service_debug_verbose,
              debug_verbose_work_view_conent_service: server_after_initialize_service_work_view_content_debug_verbose )
+
     return if server_after_initialize_ran || server_after_initialize_failed
 
     puts "Begin server_after_initialize_callback..." if debug_verbose
+
+    ::Deepblue::LoggingIntializationService.initialize_logging(debug_verbose: debug_verbose)
 
     ::Hyrax::UserHelper.ensure_hyrax_roles_registered( from_initializer: true ) unless Rails.env.test?
     ::Hyrax::UserHelper.ensure_role_map_registered( from_initializer: true ) unless Rails.env.test?

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 # monkey replace the original from Hyrax gem: "app/controllers/hyrax/download_controller.rb"
 
@@ -63,7 +64,7 @@ module Hyrax
         file_size = relation.first.to_i if relation.present?
         respond_to do |wants|
           wants.html do
-            if file_size > DeepBlueDocs::Application.config.max_file_size_to_download
+            if file_size > Rails.configuration.max_file_size_to_download
               raise ActiveFedora::IllegalOperation # TODO need better error than this
             end
             # For original files that are stored in fedora
@@ -71,10 +72,10 @@ module Hyrax
             super
           end
           wants.json do
-            unless ::DeepBlueDocs::Application.config.rest_api_allow_read
+            unless Rails.configuration.rest_api_allow_read
               return render_json_response( response_type: :bad_request, message: "Method not allowed." )
             end
-            if file_size > DeepBlueDocs::Application.config.max_file_size_to_download
+            if file_size > Rails.configuration.max_file_size_to_download
               return render_json_response( response_type: :unprocessable_entity, message: "file too large to download" )
             end
             # For original files that are stored in fedora
@@ -92,7 +93,7 @@ module Hyrax
                                                "params[:format]=#{params[:format]}",
                                                "file=#{file}",
                                                "" ] + caller_locations(0,20) if downloads_controller_debug_verbose
-        raise ActiveFedora::ObjectNotFoundError
+        raise Hyrax::ObjectNotFoundError
       end
     end
 
@@ -117,12 +118,7 @@ module Hyrax
         authorize! :download, params[asset_param_key]
       rescue CanCan::AccessDenied
         unauthorized_image = Rails.root.join("app", "assets", "images", "unauthorized.png")
-        if File.exist? unauthorized_image
-          send_file unauthorized_image, status: :unauthorized
-        else
-          Deprecation.warn(self, "redirect_to default_image is deprecated and will be removed from Hyrax 3.0 (copy unauthorized.png image to directory assets/images instead)")
-          redirect_to default_image
-        end
+        send_file unauthorized_image, status: :unauthorized
       end
 
       def default_image

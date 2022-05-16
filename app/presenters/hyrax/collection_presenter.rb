@@ -26,7 +26,7 @@ module Hyrax
     attr_writer :collection_type
 
     mattr_accessor :collection_presenter_debug_verbose,
-                   default: ::DeepBlueDocs::Application.config.collection_presenter_debug_verbose
+                   default: Rails.configuration.collection_presenter_debug_verbose
 
     class_attribute :create_work_presenter_class
     self.create_work_presenter_class = ::Deepblue::SelectTypeListPresenter
@@ -35,6 +35,10 @@ module Hyrax
     # @param [Ability] current_ability
     # @param [ActionDispatch::Request] request the http request context
     def initialize(solr_document, current_ability, request = nil)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "solr_document.class.name=#{solr_document.class.name}",
+                                             "" ] if collection_presenter_debug_verbose
       @solr_document = solr_document
       @current_ability = current_ability
       @request = request
@@ -81,6 +85,14 @@ module Hyrax
              :visibility,
              to: :solr_document
 
+    # def thumbnail_path
+    #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                          ::Deepblue::LoggingHelper.called_from,
+    #                                          "solr_document.class.name=#{solr_document.class.name}",
+    #                                          "" ] if collection_presenter_debug_verbose
+    #   solr_document.thumbnail_path
+    # end
+
     # Terms is the list of fields displayed by
     # app/views/collections/_show_descriptions.html.erb
     def self.terms
@@ -113,6 +125,9 @@ module Hyrax
       return rv
     end
 
+    ##
+    # @param [Symbol] key
+    # @return [Object]
     def [](key)
       case key
       when :size
@@ -155,13 +170,25 @@ module Hyrax
     # end display_provenance_log
 
     def relative_url_root
-      rv = ::DeepBlueDocs::Application.config.relative_url_root
+      rv = Rails.configuration.relative_url_root
       return rv if rv
       ''
     end
 
     def size
       number_to_human_size(@solr_document['bytes_lts'])
+    end
+
+    # @deprecated to be removed in 4.0.0; this feature was replaced with a
+    #   hard-coded null implementation
+    # @return [String] 'unknown'
+    def size2
+      Deprecation.warn('#size has been deprecated for removal in Hyrax 4.0.0; ' \
+                       'The implementation of the indexed Collection size ' \
+                       'feature is extremely inefficient, so it has been removed. ' \
+                       'This method now returns a hard-coded `"unknown"` for ' \
+                       'compatibility.')
+      'unknown'
     end
 
     def sorted_methods
@@ -199,11 +226,11 @@ module Hyrax
     alias work_member_ids work_members_of_this_collection_ids
 
     def total_items
-      member_of_this_collection.count
+      Hyrax::SolrService.new.count("member_of_collection_ids_ssim:#{id}")
     end
 
     def total_viewable_items
-      member_of_this_collection.accessible_by(current_ability).count
+      ::PersistHelper.where("member_of_collection_ids_ssim:#{id}").accessible_by(current_ability).count
     end
 
     def total_viewable_works
@@ -212,11 +239,11 @@ module Hyrax
                                              "id=#{id}",
                                              "current_ability=#{current_ability}",
                                              "" ] if collection_presenter_debug_verbose
-      work_members_of_this_collection.accessible_by(current_ability).count
+      ::PersistHelper.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Work").accessible_by(current_ability).count
     end
 
     def total_viewable_collections
-      collection_members_of_this_collection.accessible_by(current_ability).count
+      ::PersistHelper.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Collection").accessible_by(current_ability).count
     end
 
     def collection_type_badge
@@ -244,9 +271,11 @@ module Hyrax
     end
 
     def show_path
-      Hyrax::Engine.routes.url_helpers.dashboard_collection_path(id)
+      Hyrax::Engine.routes.url_helpers.dashboard_collection_path(id, locale: I18n.locale)
     end
 
+    ##
+    # @return [#to_s, nil] a download path for the banner file
     def banner_file
       branding_banner_file( id: id )
     end
@@ -279,7 +308,7 @@ module Hyrax
 
     def available_parent_collections(scope:)
       return @available_parents if @available_parents.present?
-      collection = Collection.find(id)
+      collection = ::Collection.find(id)
       colls = Hyrax::Collections::NestedCollectionQueryService.available_parent_collections(child: collection, scope: scope, limit_to_id: nil)
       @available_parents = colls.map do |col|
         { "id" => col.id, "title_first" => col.title.first }

@@ -5,14 +5,14 @@ require 'shared_specs/datacite_doi_form_behavior.rb'
 
 describe 'Hyrax::Doi::DataCiteDoiFormBehavior', skip: true do
   let(:model_class) do
-    Class.new(GenericWork) do
+    Class.new(DataSet) do
       include ::Deepblue::DoiBehavior
       include Hyrax::Doi::DataCiteDoiBehavior
     end
   end
   let(:work) { model_class.new(title: ['Moomin']) }
   let(:form_class) do
-    Class.new(Hyrax::GenericWorkForm) do
+    Class.new(Hyrax::DataSetForm) do
       include Hyrax::Doi::DoiFormBehavior
       include Hyrax::Doi::DataCiteDoiFormBehavior
     end

@@ -50,7 +50,7 @@ module Deepblue
                                              "title=#{title}",
                                              "solr_query=#{solr_query}",
                                              "" ] if work_view_content_service_debug_verbose
-      results = ::ActiveFedora::SolrService.query( solr_query, rows: 10 )
+      results = ::Hyrax::SolrService.query( solr_query, rows: 10 )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "results.class.name=#{results.class.name}",
@@ -77,7 +77,7 @@ module Deepblue
     rescue Ldp::Gone
       raise if raise_error
       return nil
-    rescue ActiveFedora::ObjectNotFoundError
+    rescue Hyrax::ObjectNotFoundError
       raise if raise_error
       return nil
     end
@@ -113,7 +113,7 @@ module Deepblue
     def self.load_email_templates( debug_verbose: work_view_content_service_email_templates_debug_verbose ||
                                     work_view_content_service_debug_verbose )
       # puts "Current I18n.backend=#{I18n.backend}"
-      # puts "DeepBlueDocs::Application.config.i18n_backend=#{DeepBlueDocs::Application.config.i18n_backend}"
+      # puts "Rails.configuration.i18n_backend=#{Rails.configuration.i18n_backend}"
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if debug_verbose
@@ -298,7 +298,7 @@ module Deepblue
     end
 
     def work_view_content_enable_cache
-      ::DeepBlueDocs::Application.config.static_content_enable_cache
+      Rails.configuration.static_content_enable_cache
     end
 
   end

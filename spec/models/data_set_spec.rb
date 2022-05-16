@@ -15,7 +15,7 @@ RSpec.describe DataSet do
   let(:author_email)       { 'authoremail@umich.edu' }
   let(:creator)            { 'Creator, A' }
   let(:current_user)       { 'user@umich.edu' }
-  let(:date_created)       { '2018-02-28' }
+  let(:date_created)       { ['2018-02-28'] }
   let(:depositor)          { author_email }
   let(:description)        { 'The Description' }
   let(:id)                 { '0123458678' }
@@ -365,7 +365,7 @@ RSpec.describe DataSet do
                                      exp_id: id,
                                      exp_authoremail: author_email,
                                      exp_creator: [creator],
-                                     exp_date_created: "2018-02-28",
+                                     exp_date_created: ["2018-02-28"],
                                      exp_description: [description],
                                      exp_depositor: exp_despositor,
                                      exp_location: exp_location,
@@ -414,7 +414,7 @@ RSpec.describe DataSet do
                                      exp_id: id,
                                      exp_authoremail: author_email,
                                      exp_creator: [creator],
-                                     exp_date_created: "2018-02-28",
+                                     exp_date_created: ["2018-02-28"],
                                      exp_description: [description],
                                      exp_depositor: exp_despositor,
                                      exp_location: exp_location,
@@ -464,7 +464,7 @@ RSpec.describe DataSet do
                                      exp_id: id,
                                      exp_authoremail: author_email,
                                      exp_creator: [creator],
-                                     exp_date_created: "2018-02-28",
+                                     exp_date_created: ["2018-02-28"],
                                      exp_description: [description],
                                      exp_depositor: exp_despositor,
                                      exp_location: exp_location,
@@ -553,7 +553,7 @@ RSpec.describe DataSet do
                                      exp_id: id,
                                      exp_authoremail: author_email,
                                      exp_creator: [creator],
-                                     exp_date_created: "2018-02-28",
+                                     exp_date_created: ["2018-02-28"],
                                      exp_description: [description],
                                      exp_depositor: exp_depositor,
                                      exp_location: exp_location,
@@ -667,7 +667,7 @@ RSpec.describe DataSet do
                                      before: nil,
                                      after: nil,
                                      exp_timestamp: nil,
-                                     exp_time_zone: DeepBlueDocs::Application.config.timezone_zone,
+                                     exp_time_zone: Rails.configuration.timezone_zone,
                                      exp_event:,
                                      exp_event_note: nil,
                                      exp_class_name:,
@@ -679,7 +679,7 @@ RSpec.describe DataSet do
                                      exp_curation_notes_admin: [],
                                      exp_curation_notes_user: [],
                                      exp_date_coverage: '',
-                                     exp_date_created: '',
+                                     exp_date_created: [],
                                      exp_date_modified: '',
                                      exp_date_published: '',
                                      exp_date_updated: [],

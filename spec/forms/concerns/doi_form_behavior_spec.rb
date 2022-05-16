@@ -4,13 +4,13 @@ require 'shared_specs/doi_form_behavior.rb'
 
 describe 'Hyrax::Doi::DoiFormBehavior', skip: true do
   let(:model_class) do
-    Class.new(GenericWork) do
+    Class.new(DataSet) do
       include ::Deepblue::DoiBehavior
     end
   end
   let(:work) { model_class.new(title: ['Moomin']) }
   let(:form_class) do
-    Class.new(Hyrax::GenericWorkForm) do
+    Class.new(Hyrax::DataSetForm) do
       include Hyrax::Doi::DoiFormBehavior
     end
   end

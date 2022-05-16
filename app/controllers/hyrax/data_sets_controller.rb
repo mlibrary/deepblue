@@ -695,7 +695,7 @@ module Hyrax
     private
 
       def get_date_uploaded_from_solr(file_set)
-        field = file_set.solr_document[Solrizer.solr_name('date_uploaded', :stored_sortable, type: :date)]
+        field = file_set.solr_document['date_uploade_dtsi']
         return if field.blank?
         begin
           Time.parse(field)

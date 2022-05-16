@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# monkey override
+
 module Hyrax
 
   module Workflow
@@ -28,7 +30,8 @@ module Hyrax
     #   end
     class AbstractNotification
 
-      ABSTRACT_NOTIFICATION_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.abstract_notification_debug_verbose
+      mattr_accessor :abstract_notification_debug_verbose,
+                     default: Rails.configuration.abstract_notification_debug_verbose
 
       include ActionView::Helpers::UrlHelper
 
@@ -39,7 +42,7 @@ module Hyrax
                                                "comment=#{comment}",
                                                "user=#{user}",
                                                "recipients=#{recipients}",
-                                               "" ] if ABSTRACT_NOTIFICATION_DEBUG_VERBOSE
+                                               "" ] if abstract_notification_debug_verbose
         new( entity, comment, user, recipients ).call
       end
 
@@ -70,7 +73,7 @@ module Hyrax
 
       private
 
-        # @return [ActiveFedora::Base] the document (work) the the Abstract WorkFlow is creating a notification for
+      # @return [Object] the document (work) the the Abstract WorkFlow is creating a notification for
         def document
           @entity.proxy_for
         end

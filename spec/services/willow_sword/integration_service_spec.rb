@@ -23,7 +23,7 @@ RSpec.describe ::WillowSword::IntegrationService do
       let(:solr_query) { "+generic_type_sim:Collection AND +title_tesim:#{title}" }
 
       before do
-        expect(::ActiveFedora::SolrService).to receive(:query).with(solr_query, rows: 10).and_return [collection]
+        expect(::Hyrax::SolrService).to receive(:query).with(solr_query, rows: 10).and_return [collection]
       end
 
       it 'performs a solr query' do
@@ -36,7 +36,7 @@ RSpec.describe ::WillowSword::IntegrationService do
       let(:cached_id) { 'cached id' }
 
       before do
-        expect(::ActiveFedora::SolrService).to_not receive(:query)
+        expect(::Hyrax::SolrService).to_not receive(:query)
       end
 
       it 'performs a solr query' do

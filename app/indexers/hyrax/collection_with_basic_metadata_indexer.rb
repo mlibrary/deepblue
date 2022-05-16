@@ -6,7 +6,7 @@ module Hyrax
 
     def generate_solr_document
       super.tap do |solr_doc|
-        solr_doc[Solrizer.solr_name('creator_ordered', :stored_searchable)] = object.creator_ordered
+        solr_doc['creator_ordered_tesim'] = object.creator_ordered
       end
     end
 

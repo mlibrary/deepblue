@@ -38,7 +38,7 @@ class ProvenanceLogController < ApplicationController
   rescue Ldp::Gone => g
     @id_msg = "deleted"
     @id_deleted = true
-  rescue ActiveFedora::ObjectNotFoundError => e2
+  rescue Hyrax::ObjectNotFoundError => e2
     @id_msg = "invalid"
     @id_invalid = true
   end

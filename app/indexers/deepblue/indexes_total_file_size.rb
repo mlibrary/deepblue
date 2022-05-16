@@ -7,7 +7,7 @@ module Deepblue
 
     def generate_solr_document
       super.tap do |solr_doc|
-        solr_doc[Solrizer.solr_name('total_file_size', Hyrax::FileSetIndexer::STORED_LONG)] = object.size_of_work
+        solr_doc['total_file_size_lts'] = object.size_of_work
       end
     end
 

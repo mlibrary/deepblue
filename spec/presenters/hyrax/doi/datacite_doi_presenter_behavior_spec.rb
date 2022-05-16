@@ -6,7 +6,7 @@ require 'shared_specs/doi_presenter_behavior.rb'
 
 describe 'Hyrax::Doi::DataCiteDoiPresenterBehavior', skip: true do
   let(:presenter_class) do
-    Class.new(Hyrax::GenericWorkPresenter) do
+    Class.new(Hyrax::DataSetPresenter) do
       include Hyrax::Doi::DoiPresenterBehavior
       include Hyrax::Doi::DataCiteDoiPresenterBehavior
     end

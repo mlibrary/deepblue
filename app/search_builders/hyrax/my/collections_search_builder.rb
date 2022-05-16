@@ -1,5 +1,9 @@
+# frozen_string_literal: true
+
+# monkey override
+
 # Added to allow for the My controller to show only things I have edit access to
-class Hyrax::My::CollectionsSearchBuilder < ::SearchBuilder
+class Hyrax::My::CollectionsSearchBuilder < ::Hyrax::CollectionSearchBuilder
   include Hyrax::My::SearchBuilderBehavior
   include Hyrax::FilterByType
 

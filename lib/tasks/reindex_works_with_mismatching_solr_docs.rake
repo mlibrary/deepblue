@@ -48,7 +48,7 @@ module Deepblue
       end
       begin
         @pacifier.pacify 's' unless @pacifier.nil?
-        ActiveFedora::SolrService.add( batch, softCommit: true )
+        Hyrax::SolrService.add( batch, softCommit: true )
       rescue Exception => e # rubocop:disable Lint/RescueException
         @pacifier.pacify '<!s>' unless @pacifier.nil?
         @logger.error "#{id} -- #{e.class}: #{e.message} at #{e.backtrace[0]}" unless @logger.nil?

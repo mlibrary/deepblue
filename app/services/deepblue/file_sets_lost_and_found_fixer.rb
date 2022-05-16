@@ -49,7 +49,7 @@ module Deepblue
                                              "lost_and_found_work_title=#{lost_and_found_work_title}",
                                              "solr_query=#{solr_query}",
                                              "" ], bold_puts: task if file_sets_lost_and_found_fixer_debug_verbose
-      results = ::ActiveFedora::SolrService.query( solr_query, rows: 10 )
+      results = ::Hyrax::SolrService.query( solr_query, rows: 10 )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "results.class.name=#{results.class.name}",

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Hyrax
   module Admin
     ##
@@ -20,8 +21,6 @@ module Hyrax
         self.admin_stats_presenter = AdminStatsPresenter
         self.admin_stats_services  = {}
       end
-
-      @hyrax_admin_stats_behavior_test_variable = "Hyrax admin stats behavior test variable."
 
       def show
         authorize! :read, Hyrax::Statistics

@@ -57,6 +57,20 @@ module Deepblue
     attr_accessor :cc_anonymous_link
     attr_accessor :cc_single_use_link
 
+
+    def controller_curation_concern
+      @controller_curation_concern ||= find_curation_concern
+    end
+
+    def find_curation_concern
+      # cc = @collection
+      # return cc unless cc.blank?
+      cc = curation_concern
+      return cc if cc.blank?
+      return ::PersistHelper.find(cc.id) if cc.is_a? SolrDocument
+      cc
+    end
+
     def actor_environment
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -432,7 +446,7 @@ module Deepblue
           end
         end
         wants.json do
-          unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
+          unless Rails.configuration.rest_api_allow_mutate
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
           if actor.create( env )
@@ -476,7 +490,7 @@ module Deepblue
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if deepblue_works_controller_behavior_debug_verbose
-        SingleUseLink.create( itemId: curation_concern.id,
+        SingleUseLink.create( item_id: curation_concern.id,
                               path: current_show_path( append: "/single_use_link_zip_download" ),
                               user_id: current_ability.current_user.id,
                               user_comment: params[:user_comment] )
@@ -484,7 +498,7 @@ module Deepblue
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if deepblue_works_controller_behavior_debug_verbose
-        SingleUseLink.create( itemId: curation_concern.id,
+        SingleUseLink.create( item_id: curation_concern.id,
                               path: current_show_path,
                               user_id: current_ability.current_user.id,
                               user_comment: params[:user_comment] )
@@ -579,7 +593,7 @@ module Deepblue
           destroy_rest
         end
         wants.json do
-          unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
+          unless Rails.configuration.rest_api_allow_mutate
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
           destroy_rest
@@ -663,7 +677,7 @@ module Deepblue
           new_rest
         end
         wants.json do
-          unless ::DeepBlueDocs::Application.config.rest_api_allow_mutate
+          unless Rails.configuration.rest_api_allow_mutate
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
           new_rest
@@ -888,7 +902,7 @@ module Deepblue
                                                  "" ] if deepblue_works_controller_behavior_debug_verbose
         end
         wants.json do
-          unless ::DeepBlueDocs::Application.config.rest_api_allow_read
+          unless Rails.configuration.rest_api_allow_read
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
           # load and authorize @curation_concern manually because it's skipped for html
@@ -923,7 +937,7 @@ module Deepblue
 
     def update_allow_json?
       return true if data_set_version?
-      return ::DeepBlueDocs::Application.config.rest_api_allow_mutate
+      return Rails.configuration.rest_api_allow_mutate
     end
 
     def update

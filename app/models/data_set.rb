@@ -48,7 +48,7 @@ class DataSet < ActiveFedora::Base
     find id
   rescue Ldp::Gone => g
     nil
-  rescue ActiveFedora::ObjectNotFoundError => e
+  rescue Hyrax::ObjectNotFoundError => e
     nil
   end
 

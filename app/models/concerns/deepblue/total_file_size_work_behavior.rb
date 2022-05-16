@@ -8,8 +8,8 @@ module Deepblue
     # @return [Integer] the size in bytes
     def size_of_work
       work_id = id
-      file_size_field = Solrizer.solr_name( :file_size, Hyrax::FileSetIndexer::STORED_LONG )
-      member_ids_field = Solrizer.solr_name( 'member_ids', :symbol )
+      file_size_field = 'file_size_lts'
+      member_ids_field = 'member_ids_ssim'
       argz = { fl: "id, #{file_size_field}",
                fq: "{!join from=#{member_ids_field} to=id}id:#{work_id}",
                rows: 10_000 }

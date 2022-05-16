@@ -83,8 +83,8 @@ RSpec.describe ::Deepblue::WorkViewContentService do
 
         before do
           expect(solr_query).to eq "+generic_type_sim:Collection AND +title_tesim:DBDDocumentationCollection"
-          allow(::ActiveFedora::SolrService).to receive(:query).with( solr_query, rows: 10 ).and_return [doc_col]
-          allow(::ActiveFedora::SolrService).to receive(:query).with( "(member_of_collection_ids_ssim:#{doc_col_id})",
+          allow(::Hyrax::SolrService).to receive(:query).with( solr_query, rows: 10 ).and_return [doc_col]
+          allow(::Hyrax::SolrService).to receive(:query).with( "(member_of_collection_ids_ssim:#{doc_col_id})",
                                                                       rows: 1000,
                                                                       sort: ["system_create_dtsi asc"] ).and_call_original
         end

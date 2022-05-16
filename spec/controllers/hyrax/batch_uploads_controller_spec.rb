@@ -31,6 +31,7 @@ RSpec.describe Hyrax::BatchUploadsController, skip: false do
 
   before do
     sign_in user
+    allow(Flipflop).to receive(:batch_upload?).and_return true
   end
 
   describe "#new" do

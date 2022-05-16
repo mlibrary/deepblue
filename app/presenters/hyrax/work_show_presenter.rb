@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-# require File.join(Gem::Specification.find_by_name("hyrax").full_gem_path, "app/presenters/hyrax/work_show_presenter.rb")
+# monkey override Hyrax::WorkShowPresenter
 
-# monkey patch Hyrax::WorkShowPresenter
 module Hyrax
 
   class WorkShowPresenter
@@ -25,6 +24,10 @@ module Hyrax
       @show_actions_bold_puts ||= false
     end
 
+    ##
+    # @!attribute [w] member_presenter_factory
+    #   @return [MemberPresenterFactory]
+    attr_writer :member_presenter_factory
     attr_accessor :solr_document, :current_ability, :request
 
     class_attribute :collection_presenter_class
@@ -81,15 +84,21 @@ module Hyrax
       @request = request
     end
 
+    def page_title2
+      "#{human_readable_type} | #{title.first} | ID: #{id} | #{I18n.t('hyrax.product_name')}"
+    end
+
     # CurationConcern methods
     delegate :stringify_keys,
              :human_readable_type,
              :collection?,
              :to_s,
+             :suppressed?,
              to: :solr_document
 
     # Metadata Methods
-    delegate :authoremail,
+    delegate :alternative_title,
+             :authoremail,
              :contributor,
              :creator,
              :curation_notes_admin,
@@ -192,13 +201,13 @@ module Hyrax
 
     def anonymous_link_need_create_download_button?( main_app:, curation_concern: solr_document )
       path = anonymous_link_path_download( main_app: main_app, curation_concern: curation_concern )
-      anon_links = AnonymousLink.where( itemId: curation_concern.id, path: path )
+      anon_links = AnonymousLink.where( item_id: curation_concern.id, path: path )
       anon_links.blank?
     end
 
     def anonymous_link_need_create_show_button?( main_app:, curation_concern: solr_document )
       path = anonymous_link_path_show( main_app: main_app, curation_concern: curation_concern )
-      anon_links = AnonymousLink.where( itemId: curation_concern.id, path: path )
+      anon_links = AnonymousLink.where( item_id: curation_concern.id, path: path )
       anon_links.blank?
     end
 
@@ -208,13 +217,13 @@ module Hyrax
 
     def anonymous_links_init
       debug_verbose = work_show_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
-      anon_links = AnonymousLink.where( itemId: id )
+      anon_links = AnonymousLink.where( item_id: id )
       anon_links = anon_links.select do |anon_link|
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "anon_link=#{anon_link}",
                                                "anon_link.valid?=#{anon_link.valid?}",
-                                               "anon_link.itemId=#{anon_link.itemId}",
+                                               "anon_link.item_id=#{anon_link.item_id}",
                                                "anon_link.path=#{anon_link.path}",
                                                "" ] if debug_verbose
         true
@@ -523,6 +532,16 @@ module Hyrax
       member_presenters( an_array_of_ids )
     end
 
+    # ##
+    # # @deprecated use `#member_presenters(ids)` instead
+    # #
+    # # @param [Array<String>] ids a list of ids to build presenters for
+    # # @return [Array<presenter_class>] presenters for the array of ids (not filtered by class)
+    # def member_presenters_for(an_array_of_ids)
+    #   Deprecation.warn("Use `#member_presenters` instead.")
+    #   member_presenters(an_array_of_ids)
+    # end
+
     def member_presenters_init( ids = member_presenter_factory.ordered_ids,
                                 presenter_class = member_presenter_factory.composite_presenter_class )
       # replace direct reference to member_presenter_factory.member_presenters with the following initialization
@@ -586,7 +605,7 @@ module Hyrax
     end
 
     def relative_url_root
-      rv = ::DeepBlueDocs::Application.config.relative_url_root
+      rv = Rails.configuration.relative_url_root
       return rv if rv
       ''
     end
@@ -613,6 +632,17 @@ module Hyrax
           end
     end
 
+    # # @return FileSetPresenter presenter for the representative FileSets
+    # def representative_presenter
+    #   return nil if representative_id.blank?
+    #   @representative_presenter ||=
+    #     begin
+    #       result = member_presenters([representative_id]).first
+    #       return nil if result.try(:id) == id
+    #       result.try(:representative_presenter) || result
+    #     end
+    # end
+
     def show_anonymous_link_section?
       debug_verbose = work_show_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -633,7 +663,7 @@ module Hyrax
                                              "" ] if work_show_presenter_debug_verbose
       user_id = nil
       user_id = current_ability.current_user.id unless anonymous_show?
-      rv = SingleUseLink.create( itemId: curation_concern.id,
+      rv = SingleUseLink.create( item_id: curation_concern.id,
                                  path: "/data/concern/data_sets/#{id}/single_use_link_zip_download",
                                  user_id: user_id )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -653,14 +683,14 @@ module Hyrax
     end
 
     def single_use_links_init
-      su_links = SingleUseLink.where( itemId: id, user_id: current_ability.current_user.id )
+      su_links = SingleUseLink.where( item_id: id, user_id: current_ability.current_user.id )
       su_links = su_links.select do |su_link|
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "su_link=#{su_link}",
                                                "su_link.valid?=#{su_link.valid?}",
                                                "su_link.expired?=#{su_link.expired?}",
-                                               "su_link.itemId=#{su_link.itemId}",
+                                               "su_link.item_id=#{su_link.item_id}",
                                                "su_link.path=#{su_link.path}",
                                                "su_link.user_id=#{su_link.user_id}",
                                                "su_link.user_comment=#{su_link.user_comment}",
@@ -685,7 +715,7 @@ module Hyrax
 
     def tombstone_init
       return nil unless tombstone_enabled?
-      solr_value = @solr_document[Solrizer.solr_name('tombstone', :symbol)]
+      solr_value = @solr_document['tombstone_ssim']
       return nil if solr_value.blank?
       solr_value.first
     end
@@ -843,12 +873,13 @@ module Hyrax
       solr_document.to_model
     end
 
-    delegate :ordered_ids, :file_set_presenters, :work_presenters, to: :member_presenter_factory
+    delegate :member_presenters, :ordered_ids, :file_set_presenters, :work_presenters, to: :member_presenter_factory
 
     # @return [Array] list to display with Kaminari pagination
     def list_of_item_ids_to_display
       paginated_item_list(page_array: authorized_item_ids)
     end
+
 
     # IIIF metadata for inclusion in the manifest
     #  Called by the `iiif_manifest` gem to add metadata
@@ -858,8 +889,8 @@ module Hyrax
       metadata = []
       Hyrax.config.iiif_metadata_fields.each do |field|
         metadata << {
-            'label' => I18n.t("simple_form.labels.defaults.#{field}"),
-            'value' => Array.wrap(send(field))
+          'label' => I18n.t("simple_form.labels.defaults.#{field}"),
+          'value' => Array.wrap(send(field).map { |f| Loofah.fragment(f.to_s).scrub!(:whitewash).to_s })
         }
       end
       metadata
@@ -910,12 +941,9 @@ module Hyrax
       end
 
       # list of item ids to display is based on ordered_ids
-      def authorized_item_ids
-        @member_item_list_ids ||= begin
-          items = ordered_ids
-          items.delete_if { |m| !current_ability.can?(:read, m) } if Flipflop.hide_private_items?
-          items
-        end
+      def authorized_item_ids(filter_unreadable: Flipflop.hide_private_items?)
+      @member_item_list_ids ||=
+        filter_unreadable ? ordered_ids.reject { |id| !current_ability.can?(:read, id) } : ordered_ids
       end
 
       # Uses kaminari to paginate an array to avoid need for solr documents for items here
@@ -941,6 +969,7 @@ module Hyrax
       end
 
       def featured?
+      # only look this up if it's not boolean; ||= won't work here
         @featured = FeaturedWork.where(work_id: solr_document.id).exists? if @featured.nil?
         @featured
       end
@@ -955,11 +984,11 @@ module Hyrax
       end
 
       def graph
-        GraphExporter.new(solr_document, request).fetch
+      GraphExporter.new(solr_document, hostname: request.host).fetch
       end
 
+    # @return [Array<String>] member_of_collection_ids with current_ability access
       def member_of_authorized_parent_collections
-        # member_of_collection_ids with current_ability access
         @member_of ||= Hyrax::CollectionMemberService.run(solr_document, current_ability).map(&:id)
       end
 

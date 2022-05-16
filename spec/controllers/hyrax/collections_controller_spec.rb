@@ -5,6 +5,12 @@ RSpec.describe Hyrax::CollectionsController, skip: false do
   include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
 
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it { expect( described_class.hyrax_collection_controller_debug_verbose ).to eq( debug_verbose ) }
+  end
+
   let(:user)  { create(:user) }
   let(:other) { build(:user) }
 

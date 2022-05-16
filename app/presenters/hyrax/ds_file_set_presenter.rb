@@ -86,7 +86,7 @@ module Hyrax
 
     def anonymous_link_need_create_download_button?( main_app:, curation_concern: solr_document )
       debug_verbose = ds_file_set_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
-      anon_links = AnonymousLink.where( itemId: curation_concern.id )
+      anon_links = AnonymousLink.where( item_id: curation_concern.id )
       anon_links.each do |link|
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
@@ -100,7 +100,7 @@ module Hyrax
 
     def anonymous_link_need_create_show_button?( main_app:, curation_concern: solr_document )
       path = anonymous_link_path_show( main_app: main_app, curation_concern: curation_concern )
-      anon_links = AnonymousLink.where( itemId: curation_concern.id, path: path )
+      anon_links = AnonymousLink.where( item_id: curation_concern.id, path: path )
       anon_links.blank?
     end
 
@@ -130,14 +130,14 @@ module Hyrax
 
     def anonymous_links_init
       debug_verbose = ds_file_set_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
-      anon_links = AnonymousLink.where( itemId: id )
+      anon_links = AnonymousLink.where( item_id: id )
       anon_links = anon_links.select do |anon_link|
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "anon_link=#{anon_link}",
                                                "anon_link.valid?=#{anon_link.valid?}",
                                                "anon_link.expired?=#{anon_link.expired?}",
-                                               "anon_link.itemId=#{anon_link.itemId}",
+                                               "anon_link.item_id=#{anon_link.item_id}",
                                                "anon_link.path=#{anon_link.path}",
                                                "anon_link.user_id=#{anon_link.user_id}",
                                                "" ] if debug_verbose
@@ -203,12 +203,12 @@ module Hyrax
                                            "mime_type=#{mime_type}",
                                            "file_size=#{file_size}",
                                            "" ] if ds_file_set_presenter_debug_verbose
-      return false unless ::DeepBlueDocs::Application.config.file_sets_contents_view_allow
+      return false unless Rails.configuration.file_sets_contents_view_allow
       return false if anonymous_show?
       return false unless ( current_ability.admin? ) # || current_ability.can?(:read, id) )
-      return false unless ::DeepBlueDocs::Application.config.file_sets_contents_view_mime_types.include?( mime_type )
+      return false unless Rails.configuration.file_sets_contents_view_mime_types.include?( mime_type )
       return false if file_size.blank?
-      return false if file_size > ::DeepBlueDocs::Application.config.file_sets_contents_view_max_size
+      return false if file_size > Rails.configuration.file_sets_contents_view_max_size
       return true
     end
 
@@ -234,7 +234,7 @@ module Hyrax
 
     def can_download_file_confirm?
       size = file_size
-      max_file_size_to_download = ::DeepBlueDocs::Application.config.max_file_size_to_download
+      max_file_size_to_download = Rails.configuration.max_file_size_to_download
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "max_file_size_to_download < size=#{max_file_size_to_download < size}",
@@ -410,16 +410,16 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "anon_link=#{anon_link}",
-                                             "anon_link.downloadKey=#{anon_link.downloadKey}",
-                                             "anon_link.itemId=#{anon_link.itemId}",
+                                             "anon_link.download_key=#{anon_link.download_key}",
+                                             "anon_link.item_id=#{anon_link.item_id}",
                                              "anon_link.path=#{anon_link.path}",
                                              "" ] if debug_verbose
-      rv = "/data/anonymous_link/download/#{anon_link.downloadKey}" # TODO: fix
+      rv = "/data/anonymous_link/download/#{anon_link.download_key}" # TODO: fix
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
                                              "" ] if debug_verbose
-      # return "/data/downloads/#{curation_concern.id}/anonymous_link/#{anon_link.downloadKey}" # TODO: fix
+      # return "/data/downloads/#{curation_concern.id}/anonymous_link/#{anon_link.download_key}" # TODO: fix
       return rv
     end
 
@@ -429,16 +429,16 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "su_link=#{su_link}",
-                                             "su_link.downloadKey=#{su_link.downloadKey}",
-                                             "su_link.itemId=#{su_link.itemId}",
+                                             "su_link.download_key=#{su_link.download_key}",
+                                             "su_link.item_id=#{su_link.item_id}",
                                              "su_link.path=#{su_link.path}",
                                              "" ] if debug_verbose
-      rv = "/data/single_use_link/download/#{su_link.downloadKey}" # TODO: fix
+      rv = "/data/single_use_link/download/#{su_link.download_key}" # TODO: fix
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
                                              "" ] if debug_verbose
-      # return "/data/downloads/#{curation_concern.id}/single_use_link/#{su_link.downloadKey}" # TODO: fix
+      # return "/data/downloads/#{curation_concern.id}/single_use_link/#{su_link.download_key}" # TODO: fix
       return rv
     end
 
@@ -486,7 +486,7 @@ module Hyrax
     def file_size_too_large_to_download?
       size = @solr_document.file_size
       return false if size.nil?
-      size >= DeepBlueDocs::Application.config.max_file_size_to_download
+      size >= Rails.configuration.max_file_size_to_download
     end
 
     def first_title
@@ -542,9 +542,9 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
                                              "" ] if ds_file_set_presenter_debug_verbose
-      ids = ActiveFedora::SolrService.query("{!field f=member_ids_ssim}#{id}",
-                                            fl: ActiveFedora.id_field)
-                .map { |x| x.fetch(ActiveFedora.id_field) }
+      ids = Hyrax::SolrService.query("{!field f=member_ids_ssim}#{id}",
+                                            fl: Hyrax.config.id_field)
+                .map { |x| x.fetch(Hyrax.config.id_field) }
       # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
       #                                        ::Deepblue::LoggingHelper.called_from,
       #                                        "id=#{id}",
@@ -592,7 +592,7 @@ module Hyrax
     end
 
     def relative_url_root
-      rv = ::DeepBlueDocs::Application.config.relative_url_root
+      rv = Rails.configuration.relative_url_root
       return rv if rv
       ''
     end
@@ -623,32 +623,32 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "anon_link=#{anon_link}",
-                                               "anon_link.downloadKey=#{anon_link.downloadKey}",
-                                               "anon_link.itemId=#{anon_link.itemId}",
+                                               "anon_link.download_key=#{anon_link.download_key}",
+                                               "anon_link.item_id=#{anon_link.item_id}",
                                                "anon_link.path=#{anon_link.path}",
                                                "" ] if debug_verbose
-        rv = "/data/anonymous_link/show/#{anon_link.downloadKey}" # TODO: fix
+        rv = "/data/anonymous_link/show/#{anon_link.download_key}" # TODO: fix
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "rv=#{rv}",
                                                "" ] if debug_verbose
-        # return "/data/downloads/#{curation_concern.id}/anonymous_link/#{su_link.downloadKey}" # TODO: fix
+        # return "/data/downloads/#{curation_concern.id}/anonymous_link/#{su_link.download_key}" # TODO: fix
       end
       if single_use_show?
         su_link = single_use_link_show( main_app: main_app, curation_concern: curation_concern )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "su_link=#{su_link}",
-                                               "su_link.downloadKey=#{su_link.downloadKey}",
-                                               "su_link.itemId=#{su_link.itemId}",
+                                               "su_link.download_key=#{su_link.download_key}",
+                                               "su_link.item_id=#{su_link.item_id}",
                                                "su_link.path=#{su_link.path}",
                                                "" ] if ds_file_set_presenter_debug_verbose
-        rv = "/data/single_use_link/show/#{su_link.downloadKey}" # TODO: fix
+        rv = "/data/single_use_link/show/#{su_link.download_key}" # TODO: fix
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "rv=#{rv}",
                                                "" ] if ds_file_set_presenter_debug_verbose
-        # return "/data/downloads/#{curation_concern.id}/single_use_link/#{su_link.downloadKey}" # TODO: fix
+        # return "/data/downloads/#{curation_concern.id}/single_use_link/#{su_link.download_key}" # TODO: fix
       end
       return rv
     end
@@ -660,14 +660,14 @@ module Hyrax
                                              "" ] if ds_file_set_presenter_debug_verbose
       user_id = nil
       user_id = current_ability.current_user.id unless anonymous_show?
-      rv = SingleUseLink.create( itemId: curation_concern.id,
+      rv = SingleUseLink.create( item_id: curation_concern.id,
                                  path: "/data/downloads/#{curation_concern.id}", # TODO: fix
                                  user_id: user_id )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
-                                             "rv.downloadKey=#{rv.downloadKey}",
-                                             "rv.itemId=#{rv.itemId}",
+                                             "rv.download_key=#{rv.download_key}",
+                                             "rv.item_id=#{rv.item_id}",
                                              "rv.path=#{rv.path}",
                                              "" ] if ds_file_set_presenter_debug_verbose
       return rv
@@ -682,14 +682,14 @@ module Hyrax
       path = "/data/concern/file_sets/#{curation_concern.id}" # TODO: fix
       user_id = nil
       user_id = current_ability.current_user.id unless anonymous_show?
-      rv = SingleUseLink.create( itemId: curation_concern.id,
+      rv = SingleUseLink.create( item_id: curation_concern.id,
                                  path: path,
                                  user_id: user_id )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
-                                             "rv.downloadKey=#{rv.downloadKey}",
-                                             "rv.itemId=#{rv.itemId}",
+                                             "rv.download_key=#{rv.download_key}",
+                                             "rv.item_id=#{rv.item_id}",
                                              "rv.path=#{rv.path}",
                                              "" ] if ds_file_set_presenter_debug_verbose
       return rv
@@ -712,14 +712,14 @@ module Hyrax
     end
 
     def single_use_links_init
-      su_links = SingleUseLink.where( itemId: id, user_id: current_ability.current_user.id )
+      su_links = SingleUseLink.where( item_id: id, user_id: current_ability.current_user.id )
       su_links = su_links.select do |su_link|
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "su_link=#{su_link}",
                                                "su_link.valid?=#{su_link.valid?}",
                                                "su_link.expired?=#{su_link.expired?}",
-                                               "su_link.itemId=#{su_link.itemId}",
+                                               "su_link.item_id=#{su_link.item_id}",
                                                "su_link.path=#{su_link.path}",
                                                "su_link.user_id=#{su_link.user_id}",
                                                "" ] if ds_file_set_presenter_debug_verbose
@@ -796,7 +796,7 @@ module Hyrax
     end
 
     def tombstone
-      solr_value = @solr_document[Solrizer.solr_name('tombstone', :symbol)]
+      solr_value = @solr_document['tombstone_ssim']
       return nil if solr_value.blank?
       solr_value.first
     end

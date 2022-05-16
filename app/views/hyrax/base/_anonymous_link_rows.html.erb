@@ -4,7 +4,7 @@
       <%= t('hyrax.anonymous_links.link_message', link_type: presenter.link_type ) %>
       <br/>
       <button class="btn btn-xs btn-default copy-anonymous-link"
-              data-clipboard-text="<%= main_app.send(presenter.url_helper, presenter.downloadKey) %>"
+              data-clipboard-text="<%= main_app.send(presenter.url_helper, presenter.download_key) %>"
               data-toggle="tooltip" data-placement="bottom"
               title="<%= t('hyrax.anonymous_links.copy.tooltip') %>">
         <%= t('hyrax.anonymous_links.copy.button') %>

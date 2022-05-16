@@ -6,7 +6,7 @@ module Hyrax
       # monkey
 
       mattr_accessor :ordered_members_actor_debug_verbose, default: false
-      #               default: ::DeepBlueDocs::Application.config.file_set_actor_debug_verbose
+      #               default: Rails.configuration.file_set_actor_debug_verbose
 
       include Lockable
       attr_reader :ordered_members, :user
@@ -24,7 +24,7 @@ module Hyrax
           work.ordered_members = ordered_members
           work.save
           ordered_members.each do |file_set|
-            Hyrax.config.callback.run(:after_create_fileset, file_set, user)
+            Hyrax.config.callback.run(:after_create_fileset, file_set, user, warn: false)
           end
         end
       end

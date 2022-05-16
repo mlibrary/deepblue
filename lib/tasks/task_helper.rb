@@ -41,11 +41,11 @@ module Deepblue
     end
 
     def self.dbd_version_1?
-      DeepBlueDocs::Application.config.dbd_version == 'DBDv1'
+      Rails.configuration.dbd_version == 'DBDv1'
     end
 
     def self.dbd_version_2?
-      DeepBlueDocs::Application.config.dbd_version == 'DBDv2'
+      Rails.configuration.dbd_version == 'DBDv2'
     end
 
     def self.ensure_dirs_exist( *dirs )

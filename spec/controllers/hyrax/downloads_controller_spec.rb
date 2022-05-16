@@ -160,7 +160,7 @@ RSpec.describe Hyrax::DownloadsController, skip: false do
           it "raises an error if the requested file does not exist" do
             expect do
               get :show, params: { id: file_set, file: 'thumbnail' }
-            end.to raise_error ActiveFedora::ObjectNotFoundError
+            end.to raise_error Hyrax::ObjectNotFoundError
           end
         end
       end
@@ -168,7 +168,7 @@ RSpec.describe Hyrax::DownloadsController, skip: false do
       it "raises an error if the requested association does not exist" do
         expect do
           get :show, params: { id: file_set, file: 'non-existant' }
-        end.to raise_error ActiveFedora::ObjectNotFoundError
+        end.to raise_error Hyrax::ObjectNotFoundError
       end
     end
   end

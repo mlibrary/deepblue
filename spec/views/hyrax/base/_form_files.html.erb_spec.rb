@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe 'hyrax/base/_form_files.html.erb', type: :view, skip: false do
-  let(:model) { stub_model(GenericWork) }
+  let(:model) { stub_model(DataSet) }
   let(:form) { Hyrax::DataSetForm.new(model, double, controller) }
   let(:f) { double(object: form) }
 
@@ -35,7 +35,7 @@ RSpec.describe 'hyrax/base/_form_files.html.erb', type: :view, skip: false do
 
     it 'shows user timing warning' do
       expect(rendered).to have_content 'Note that if you use a cloud provider to upload a large number of'
-      expect(rendered).to have_selector("button[id='browse-btn'][data-target='#edit_generic_work_#{form.model.id}']")
+      expect(rendered).to have_selector("button[id='browse-btn'][data-target='#edit_data_set_#{form.model.id}']")
     end
   end
 end

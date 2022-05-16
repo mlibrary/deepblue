@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Hyrax
   module Actors
     # Responsible for generating the workflow for the given curation_concern.
@@ -16,7 +18,8 @@ module Hyrax
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if create was successful
       def create(env)
-          next_actor.create(env) && create_workflow(env)
+        # Deprecation.warn('Use Hyrax::Listeners::WorkflowListener instead.')
+        next_actor.create(env) && create_workflow(env)
       end
 
       def update(env)
@@ -84,6 +87,10 @@ module Hyrax
                                                  "env.attributes=#{env.attributes}",
                                                  "env.user=#{env.user}",
                                                  "" ] if initialize_workflow_actor_debug_verbose
+          # if the entity exists, this is already initialized
+          Sipity::Entity(env.curation_concern)
+          true
+        rescue Sipity::ConversionError
           workflow_factory.create(env.curation_concern, env.attributes, env.user)
         end
 

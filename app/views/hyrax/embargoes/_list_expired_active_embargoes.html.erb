@@ -27,7 +27,7 @@
         </tr>
       </thead>
       <tbody>
-      <% hide_files = DeepBlueDocs::Application.config.embargo_manage_hide_files %>
+      <% hide_files = Rails.configuration.embargo_manage_hide_files %>
       <% assets_with_expired_embargoes.each_with_index do |curation_concern, i| %>
         <% hrt = curation_concern.human_readable_type %>
         <% next if hide_files && hrt == "File" %>
@@ -43,7 +43,7 @@
           <td class="visibility-after-embargo"><%= visibility_badge(curation_concern.visibility_after_embargo) %></td>
           <td class="actions"><%= link_to t('.deactivate'), embargo_path(curation_concern), method: :delete, class: 'btn btn-primary' %></td>
         </tr>
-        <% next unless DeepBlueDocs::Application.config.embargo_allow_children_unembargo_choice %>
+        <% next unless Rails.configuration.embargo_allow_children_unembargo_choice %>
         <tr data-behavior="extra" data-id="<%= curation_concern.id %>" class="extra-embargo-info">
           <td></td>
           <td colspan=5>

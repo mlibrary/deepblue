@@ -183,7 +183,7 @@ RSpec.describe ::Deepblue::IngestHelper, type: :helper do
             let(:file_ext) { '.xslx' }
 
             before do
-              allow(  DeepBlueDocs::Application.config ).to receive(:derivative_excluded_ext_set).and_return( { file_ext => true }.freeze )
+              allow(  Rails.configuration ).to receive(:derivative_excluded_ext_set).and_return( { file_ext => true }.freeze )
             end
 
             it 'returns true' do
@@ -207,9 +207,9 @@ RSpec.describe ::Deepblue::IngestHelper, type: :helper do
 
         describe '#file_too_big' do
           let(:file_name2)          { "./some_non_existent_file" }
-          let(:size_max_minus_one) { DeepBlueDocs::Application.config.derivative_max_file_size - 1 }
-          let(:size_max)           { DeepBlueDocs::Application.config.derivative_max_file_size }
-          let(:size_max_plus_one)  { DeepBlueDocs::Application.config.derivative_max_file_size + 1 }
+          let(:size_max_minus_one) { Rails.configuration.derivative_max_file_size - 1 }
+          let(:size_max)           { Rails.configuration.derivative_max_file_size }
+          let(:size_max_plus_one)  { Rails.configuration.derivative_max_file_size + 1 }
 
           context 'non-existent file' do
             it 'returns false' do

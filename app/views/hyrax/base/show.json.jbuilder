@@ -1,3 +1,8 @@
+# frozen_string_literal: true
+# TODO: hyrax v3 upgrade review
+@curation_concern = Wings::ActiveFedoraConverter.convert(resource: @curation_concern) if
+  @curation_concern.is_a? Hyrax::Resource
+
 json.extract! @curation_concern, *@presenter.json_metadata_properties
 
 json.extract! @curation_concern, :file_set_ids

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Hyrax::HomepageController, type: :controller, skip: false do
@@ -52,7 +54,7 @@ RSpec.describe Hyrax::HomepageController, type: :controller, skip: false do
     it "includes only DataSet objects in recent documents" do
       get :index
       assigns(:recent_documents).each do |doc|
-        expect(doc[Solrizer.solr_name("has_model", :symbol)]).to eql ["DataSet"]
+        expect(doc['has_model_ssim']).to eql ["DataSet"]
       end
     end
 
@@ -64,8 +66,8 @@ RSpec.describe Hyrax::HomepageController, type: :controller, skip: false do
         old_to_solr = gw3.method(:to_solr)
         allow(gw3).to receive(:to_solr) do
           old_to_solr.call.merge(
-            Solrizer.solr_name('system_create', :stored_sortable, type: :date) => 1.day.ago.iso8601,
-            Solrizer.solr_name('date_uploaded', :stored_sortable, type: :date) => 1.day.ago.iso8601
+            'system_create_dtsi' => 1.day.ago.iso8601,
+            'date_uploaded_dtsi' => 1.day.ago.iso8601
           )
         end
         gw3.save
@@ -88,8 +90,7 @@ RSpec.describe Hyrax::HomepageController, type: :controller, skip: false do
       before do
         allow(controller).to receive(:repository).and_return(repository)
         allow(controller).to receive(:search_results).and_return([nil, ['recent document']])
-        allow(controller.repository).to receive(:search).with(an_instance_of(Hyrax::CollectionSearchBuilder))
-                                                        .and_return(collection_results)
+        allow_any_instance_of(Hyrax::CollectionsService).to receive(:search_results).and_return(collection_results.documents)
       end
 
       it "initializes the presenter with ability and a list of collections" do
@@ -127,8 +128,7 @@ RSpec.describe Hyrax::HomepageController, type: :controller, skip: false do
 
     context "without solr" do
       before do
-        allow(controller).to receive(:repository).and_return(instance_double(Blacklight::Solr::Repository))
-        allow(controller.repository).to receive(:search).and_raise Blacklight::Exceptions::InvalidRequest
+        allow_any_instance_of(Hyrax::SearchService).to receive(:search_results).and_raise Blacklight::Exceptions::InvalidRequest
       end
 
       it "errors gracefully" do

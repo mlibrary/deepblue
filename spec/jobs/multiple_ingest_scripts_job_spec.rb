@@ -63,7 +63,7 @@ RSpec.describe MultipleIngestScriptsJob, skip: false do
           end
 
           it 'it performs the job' do
-            expect( job.hostname ).to eq ::DeepBlueDocs::Application.config.hostname
+            expect( job.hostname ).to eq Rails.configuration.hostname
             ActiveJob::Base.queue_adapter = :test
             job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
             expect( job.ingest_mode ).to eq ingest_mode
@@ -80,7 +80,7 @@ RSpec.describe MultipleIngestScriptsJob, skip: false do
                                                   paths_to_scripts: [],
                                                   **options ) }
           it 'returns the application hostname' do
-            expect( job.hostname ).to eq ::DeepBlueDocs::Application.config.hostname
+            expect( job.hostname ).to eq Rails.configuration.hostname
             ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
           end
         end

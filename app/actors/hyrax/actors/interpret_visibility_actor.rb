@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Hyrax
   module Actors
     class InterpretVisibilityActor < AbstractActor
@@ -5,9 +7,11 @@ module Hyrax
       mattr_accessor :interpret_visibility_actor_debug_verbose,
                      default: Rails.configuration.interpret_visibility_actor_debug_verbose
 
-      class Intention
+      class Intention < VisibilityIntention
         def initialize(attributes)
           @attributes = attributes
+
+          instance_vars_from_attributes
         end
 
         # returns a copy of attributes with the necessary params removed
@@ -54,6 +58,25 @@ module Hyrax
         end
 
         private
+
+        ##
+        # This method provides compatibility between form attributes passed in
+        # by the Actor, and the interface of `VisibilityIntention`. This
+        # behavior might benefit from being extracted elsewhere (the Actor?
+        # the form object?). Or it might be better to just expect clients to
+        # only pass in one set of end_date/during/after values.
+        #
+        # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+        def instance_vars_from_attributes
+          self.visibility   = @attributes[:visibility]
+          self.release_date = (wants_embargo? && @attributes[:embargo_release_date].presence) ||
+            (wants_lease?   && @attributes[:lease_expiration_date].presence)
+          self.after        = (wants_embargo? && @attributes[:visibility_after_embargo].presence) ||
+            (wants_lease?   && @attributes[:visibility_after_lease].presence)
+          self.during       = (wants_embargo? && @attributes[:visibility_during_embargo].presence) ||
+            (wants_lease?   && @attributes[:visibility_during_lease].presence)
+        end
+        # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
           def sanitize_unrestricted_params
             @attributes.except(:lease_expiration_date,
@@ -125,6 +148,7 @@ module Hyrax
                                                  "attributes=#{attributes}",
                                                  "attributes[:admin_set_id]='#{attributes[:admin_set_id]}'",
                                                  "" ] if interpret_visibility_actor_debug_verbose
+          # If AdminSet was selected, look for its PermissionTemplate
           template = PermissionTemplate.find_by!(source_id: attributes[:admin_set_id]) if attributes[:admin_set_id].present?
 
           validate_lease(env, intention, template) &&
@@ -187,7 +211,7 @@ module Hyrax
           #                                      "attributes=#{attributes}",
           #                                      "embargo_release_date=#{embargo_release_date}" ]
 
-          valid_embargo_release_date = DeepBlueDocs::Application.config.embargo_enforce_future_release_date ? valid_future_date?(env, embargo_release_date) : true
+          valid_embargo_release_date = Rails.configuration.embargo_enforce_future_release_date ? valid_future_date?(env, embargo_release_date) : true
           # valid_template_embargo_date = valid_template_embargo_date?(env, embargo_release_date, template)
           # valid_template_visibility_after_embargo = valid_template_visibility_after_embargo?(env, attributes, template)
           # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
@@ -198,7 +222,7 @@ module Hyrax
           #                                      "valid_template_visibility_after_embargo=#{valid_template_visibility_after_embargo}" ]
 
           # When embargo required, date must be in future AND matches any template requirements
-          return true if valid_embargo_release_date &&
+          return true if valid_future_date?(env, embargo_release_date) # valid_embargo_release_date &&
                          valid_template_embargo_date?(env, embargo_release_date, template) &&
                          valid_template_visibility_after_embargo?(env, attributes, template)
 
@@ -252,16 +276,20 @@ module Hyrax
         def apply_lease(env, intention)
           return true unless intention.wants_lease?
           env.curation_concern.apply_lease(*intention.lease_params)
-          return unless env.curation_concern.lease
-          env.curation_concern.lease.save # see https://github.com/samvera/hydra-head/issues/226
+          # apply_lease returns true if there has been a change in the lease period,
+          # otherwise it returns nil.  Since we want to continue processing, even when the date
+          # does not change, we return true from this method.
+          true
         end
 
         # If they want an embargo, we can assume it's valid
         def apply_embargo(env, intention)
           return true unless intention.wants_embargo?
           env.curation_concern.apply_embargo(*intention.embargo_params)
-          return unless env.curation_concern.embargo
-          env.curation_concern.embargo.save # see https://github.com/samvera/hydra-head/issues/226
+          # apply_embargo returns true if there has been a change in the embargo period,
+          # otherwise it returns nil.  Since we want to continue processing, even when the date
+          # does not change, we return true from this method.
+          true
         end
     end
   end

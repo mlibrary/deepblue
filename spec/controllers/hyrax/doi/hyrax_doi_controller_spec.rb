@@ -99,7 +99,7 @@ RSpec.describe Hyrax::Doi::HyraxDoiController, :datacite_api, type: :controller,
         let(:input) { File.join(Rails.root, 'spec', 'fixtures', 'datacite.json') }
         let(:metadata) { Bolognese::Metadata.new(input: input) }
         let(:model_class) do
-          Class.new(GenericWork) do
+          Class.new(DataSet) do
             include ::Deepblue::DoiBehavior
 
             # Defined here for ActiveModel::Validations error messages

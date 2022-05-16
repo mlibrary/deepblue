@@ -9,7 +9,7 @@ module Hyrax
     # include Rails.application.routes.url_helpers
     # include ActionDispatch::Routing::PolymorphicRoutes
 
-    DEEP_BLUE_PRESENTER_DEBUG_VERBOSE = ::DeepBlueDocs::Application.config.deep_blue_presenter_debug_verbose
+    DEEP_BLUE_PRESENTER_DEBUG_VERBOSE = Rails.configuration.deep_blue_presenter_debug_verbose
 
     def box_enabled?
       false

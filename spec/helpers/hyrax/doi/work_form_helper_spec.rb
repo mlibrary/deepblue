@@ -4,7 +4,7 @@ require 'rails_helper'
 describe 'Hyrax::Doi::WorkFormHelper' do
   describe 'form_tabs_for' do
     let(:model_class) do
-      Class.new(GenericWork) do
+      Class.new(DataSet) do
         include ::Deepblue::DoiBehavior
 
         # Defined here for ActiveModel::Validations error messages
@@ -15,7 +15,7 @@ describe 'Hyrax::Doi::WorkFormHelper' do
     end
     let(:work) { model_class.new(title: ['Moomin']) }
     let(:form_class) do
-      Class.new(Hyrax::GenericWorkForm) do
+      Class.new(Hyrax::DataSetForm) do
         include Hyrax::Doi::DoiFormBehavior
 
         self.model_class = WorkWithDoi
@@ -47,7 +47,7 @@ describe 'Hyrax::Doi::WorkFormHelper' do
     end
 
     context 'with a non-DOI-enabled model' do
-      let(:work) { GenericWork.new(title: ['Moomin']) }
+      let(:work) { GenericWork.new(title: ['Moomin']) } # this needs to not be a DataSet
       let(:form) { Hyrax::GenericWorkForm.new(work, nil, nil) }
 
       it 'does not add doi tab' do

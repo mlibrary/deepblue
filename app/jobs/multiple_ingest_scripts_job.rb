@@ -45,7 +45,7 @@ class MultipleIngestScriptsJob < ::Hyrax::ApplicationJob
   end
 
   def hostname
-    ::DeepBlueDocs::Application.config.hostname
+    Rails.configuration.hostname
   end
 
   def ingest_script_run( path_to_script: )

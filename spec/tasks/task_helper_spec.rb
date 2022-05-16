@@ -8,14 +8,14 @@ RSpec.describe ::Deepblue::TaskHelper, skip: false do
 
   describe '.dbd_version_1?' do
     it "resolves" do
-      expect( ::DeepBlueDocs::Application.config.dbd_version == 'DBDv2' ).to eq true
+      expect( Rails.configuration.dbd_version == 'DBDv2' ).to eq true
       expect( described_class.dbd_version_1? ).to eq false
     end
   end
 
   describe '.dbd_version_2?' do
     it "resolves" do
-      expect( ::DeepBlueDocs::Application.config.dbd_version == 'DBDv2' ).to eq true
+      expect( Rails.configuration.dbd_version == 'DBDv2' ).to eq true
       expect( described_class.dbd_version_2? ).to eq true
     end
   end

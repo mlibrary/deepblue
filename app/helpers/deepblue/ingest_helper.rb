@@ -42,7 +42,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "error msg=#{msg}",
                                              "" ] + e.backtrace[0..8], bold_puts: ingest_helper_debug_verbose_puts if ingest_helper_debug_verbose
-      if ::DeepBlueDocs::Application.config.derivative_create_error_report_to_curation_notes_admin
+      if Rails.configuration.derivative_create_error_report_to_curation_notes_admin
         file_set.add_curation_note_admin( note: msg )
       end
       log_error( msg, job_status: job_status )
@@ -170,7 +170,7 @@ module Deepblue
             return
           end
           if file_too_big(file_name)
-            human_readable = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( DeepBlueDocs::Application.config.derivative_max_file_size, precision: 3 )
+            human_readable = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( Rails.configuration.derivative_max_file_size, precision: 3 )
             Rails.logger.info "Skipping file larger than #{human_readable} for create derivative job file: #{file_name}"
             file_set.add_curation_note_admin( note: "Skipping derivative for file larger than "\
                                               "#{human_readable}." ) if ingest_helper_debug_verbose
@@ -243,7 +243,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "file_ext=#{file_ext}",
                                              "" ], bold_puts: ingest_helper_debug_verbose_puts if ingest_helper_debug_verbose
-      DeepBlueDocs::Application.config.derivative_excluded_ext_set.key? file_ext
+      Rails.configuration.derivative_excluded_ext_set.key? file_ext
     end
 
     def self.file_too_big(file_name)
@@ -251,7 +251,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "file_name=#{file_name}",
                                              "" ], bold_puts: ingest_helper_debug_verbose_puts if ingest_helper_debug_verbose
-      threshold_file_size = DeepBlueDocs::Application.config.derivative_max_file_size
+      threshold_file_size = Rails.configuration.derivative_max_file_size
       threshold_file_size > -1 && File.exist?(file_name) && File.size(file_name) > threshold_file_size
     end
 
@@ -274,7 +274,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "error msg=#{msg}",
                                              "" ] + exception.backtrace[0..50] if ingest_helper_debug_verbose
-      if ::DeepBlueDocs::Application.config.derivative_create_error_report_to_curation_notes_admin
+      if Rails.configuration.derivative_create_error_report_to_curation_notes_admin
         file_set.add_curation_note_admin( note: msg )
       end
       log_error( msg, job_status: job_status )

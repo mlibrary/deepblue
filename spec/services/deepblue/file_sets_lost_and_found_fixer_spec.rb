@@ -94,7 +94,7 @@ RSpec.describe ::Deepblue::FileSetsLostAndFoundFixer do
       parent_work.ordered_members << fix_excluded
       parent_work.save!
       allow(fixer).to receive(:init_lost_and_found_work).and_return lost_and_found_work
-      # allow(::ActiveFedora::SolrService).to receive(:query).with( solr_query, rows: 10 ).and_return lost_and_found_work
+      # allow(::Hyrax::SolrService).to receive(:query).with( solr_query, rows: 10 ).and_return lost_and_found_work
     end
 
     context '.fix_include?' do

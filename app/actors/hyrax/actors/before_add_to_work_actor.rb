@@ -33,7 +33,9 @@ module Hyrax
       def update( env )
         env.log_event( next_actor: next_actor ) if env.respond_to? :log_event
         work_ids = env.attributes.values_at( :in_works_ids )
-        Deepblue::LoggingHelper.bold_debug [ "BeforeAddToWorkActor.update: next_actor = #{next_actor.class.name}",
+        Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "next_actor = #{next_actor.class.name}",
                                              "work_ids=#{work_ids}" ] if before_add_to_work_actor_debug_verbose
         actor = next_actor
         add_to_works( env, work_ids ) && actor.update( env )
@@ -45,8 +47,8 @@ module Hyrax
           # add to new so long as the depositor for the parent and child matches, otherwise igmore
           (new_work_ids - env.curation_concern.in_works_ids).each do |work_id|
             work = ::PersistHelper.find( work_id )
-            Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                                 Deepblue::LoggingHelper.called_from,
+            Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
                                                  "provenance_child_add",
                                                  "parent.id=#{work_id}",
                                                  "child_id=#{env.curation_concern.id}",

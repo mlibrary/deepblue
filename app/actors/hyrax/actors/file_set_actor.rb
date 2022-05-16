@@ -6,15 +6,15 @@ module Hyrax
   module Actors
 
     # Actions are decoupled from controller logic so that they may be called from a controller or a background job.
-    class FileSetActor
+    class FileSetActor # rubocop:disable Metrics/ClassLength
 
-      mattr_accessor :file_set_actor_debug_verbose,
-                     default: Rails.configuration.file_set_actor_debug_verbose
+      mattr_accessor :file_set_actor_debug_verbose, default: Rails.configuration.file_set_actor_debug_verbose
 
       include Lockable
-      attr_reader :file_set, :user, :attributes
+      attr_reader :file_set, :user, :attributes, :use_valkyrie
 
-      def initialize(file_set, user)
+      def initialize(file_set, user, use_valkyrie: false)
+        @use_valkyrie = use_valkyrie
         @file_set = file_set
         @user = user
       end
@@ -141,7 +141,7 @@ module Hyrax
         file_set.date_modified = TimeService.time_in_utc
         file_set.save
         file_set.reload
-        IngestJob.perform_later( wrapper!(file: file, relation: relation), notification: true )
+        IngestJob.perform_later(wrapper!(file: file, relation: relation), notification: true)
       end
 
       # @!endgroup
@@ -191,14 +191,11 @@ module Hyrax
                                                "" ] if file_set_actor_debug_verbose
         acquire_lock_for( work.id ) do
           # Ensure we have an up-to-date copy of the members association, so that we append to the end of the list.
-          work.reload unless work.new_record?
-          file_set.visibility = work.visibility unless assign_visibility?(file_set_params)
-          work.ordered_members << file_set
-          work.representative = file_set if work.representative_id.blank?
-          work.thumbnail = file_set if work.thumbnail_id.blank?
-          # Save the work so the association between the work and the file_set is persisted (head_id)
-          # NOTE: the work may not be valid, in which case this save doesn't do anything.
-          work.save
+          if valkyrie_object?(work)
+            attach_to_valkyrie_work(work, file_set_params)
+          else
+            attach_to_af_work(work, file_set_params)
+          end
           ::Deepblue::UploadHelper.log( class_name: self.class.name,
                                         event: "attach_to_work",
                                         id: file_set.id,
@@ -207,7 +204,7 @@ module Hyrax
                                         work_file_set_count: work.file_set_ids.count )
           provenance_child_add( work: work )
           job_status.did_attach_file_to_work! if job_status.present?
-          Hyrax.config.callback.run(:after_create_fileset, file_set, user)
+          Hyrax.config.callback.run(:after_create_fileset, file_set, user, warn: false)
         end
       rescue Exception => e # rubocop:disable Lint/RescueException
         log_error "#{e.class} work.id=#{work.id} -- #{e.message} at #{e.backtrace[0]}", job_status: job_status
@@ -228,6 +225,32 @@ module Hyrax
       end
       alias attach_file_to_work attach_to_work
       deprecation_deprecate attach_file_to_work: "use attach_to_work instead"
+
+      def attach_to_valkyrie_work(work, file_set_params)
+        work = Hyrax.query_service.find_by(id: work.id) unless work.new_record
+        file_set.visibility = work.visibility unless assign_visibility?(file_set_params)
+        fs = Hyrax.persister.save(resource: file_set)
+        Hyrax.publisher.publish('object.metadata.updated', object: fs, user: user)
+        work.member_ids << fs.id
+        work.representative_id = fs.id if work.representative_id.blank?
+        work.thumbnail_id = fs.id if work.thumbnail_id.blank?
+        # Save the work so the association between the work and the file_set is persisted (head_id)
+        # NOTE: the work may not be valid, in which case this save doesn't do anything.
+        Hyrax.persister.save(resource: work)
+        Hyrax.publisher.publish('object.metadata.updated', object: work, user: user)
+      end
+
+      # Adds a FileSet to the work using ore:Aggregations.
+      def attach_to_af_work(work, file_set_params)
+        work.reload unless work.new_record?
+        file_set.visibility = work.visibility unless assign_visibility?(file_set_params)
+        work.ordered_members << file_set
+        work.representative = file_set if work.representative_id.blank?
+        work.thumbnail = file_set if work.thumbnail_id.blank?
+        # Save the work so the association between the work and the file_set is persisted (head_id)
+        # NOTE: the work may not be valid, in which case this save doesn't do anything.
+        work.save
+       end
 
       def provenance_child_add( work: )
         child_title = file_set.title
@@ -275,7 +298,7 @@ module Hyrax
           return false
         end
         # enforce_parent_visibility
-        Hyrax.config.callback.run(:after_revert_content, file_set, user, revision_id)
+        Hyrax.config.callback.run(:after_revert_content, file_set, user, revision_id, warn: false)
         true
       rescue Exception => e # rubocop:disable Lint/RescueException
         Rails.logger.error "#{e.class} revision_id=#{revision_id} -- #{e.message} at #{e.backtrace[0]}"
@@ -290,10 +313,11 @@ module Hyrax
 
       def enforce_parent_visibility
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                           "file_set=#{file_set}",
-                                           "file_set.visibility=#{file_set.visibility}",
-                                           "file_set.parent.visibility=#{file_set.parent.visibility}" ]
+                                                   ::Deepblue::LoggingHelper.called_from,
+                                                   "file_set=#{file_set}",
+                                                   "file_set.visibility=#{file_set.visibility}",
+                                                   "file_set.parent.visibility=#{file_set.parent.visibility}",
+                                                   "" ] if file_set_actor_debug_verbose
         unless file_set.parent.visibility == file_set.visibility
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
@@ -311,7 +335,7 @@ module Hyrax
       def destroy
         unlink_from_work
         file_set.destroy
-        Hyrax.config.callback.run(:after_destroy, file_set.id, user)
+        Hyrax.config.callback.run(:after_destroy, file_set.id, user, warn: false)
       end
 
       class_attribute :file_actor_class
@@ -328,7 +352,8 @@ module Hyrax
         end
 
         def build_file_actor(relation)
-          file_actor_class.new(file_set, relation, user)
+          fs = use_valkyrie ? file_set.valkyrie_resource : file_set
+          file_actor_class.new(fs, relation, user, use_valkyrie: use_valkyrie)
         end
 
         # replaces file_set.apply_depositor_metadata(user)from hydra-access-controls so depositor doesn't automatically get edit access
@@ -342,12 +367,12 @@ module Hyrax
         # @note This is only useful for labeling the file_set, because of the recourse to import_url
         def label_for(file)
           if file.is_a?(Hyrax::UploadedFile) # filename not present for uncached remote file!
-            file.uploader.filename.present? ? file.uploader.filename : File.basename(Addressable::URI.parse(file.file_url).path)
+          file.uploader.filename.presence || File.basename(Addressable::URI.unencode(file.file_url))
           elsif file.respond_to?(:original_name) # e.g. Hydra::Derivatives::IoDecorator
             file.original_name
           elsif file_set.import_url.present?
             # This path is taken when file is a Tempfile (e.g. from ImportUrlJob)
-            File.basename(Addressable::URI.parse(file_set.import_url).path)
+            File.basename(Addressable::URI.unencode(file.file_url))
           else
             File.basename(file)
           end
@@ -359,12 +384,32 @@ module Hyrax
           job_status.add_error! msg if job_status.present?
         end
 
+        # @param file_set [FileSet]
+        # @return [ActiveFedora::Base]
+        def parent_for(file_set:)
+          file_set.parent
+        end
+
+        # switches between using valkyrie to save or active fedora to save
+        def perform_save(object)
+          obj_to_save = object_to_act_on(object)
+          if valkyrie_object?(obj_to_save)
+            saved_resource = Hyrax.persister.save(resource: obj_to_save)
+            # return the same type of object that was passed in
+            saved_object_to_return = valkyrie_object?(object) ? saved_resource : Wings::ActiveFedoraConverter.new(resource: saved_resource).convert
+          else
+            obj_to_save.save
+            saved_object_to_return = obj_to_save
+          end
+          saved_object_to_return
+        end
+
         # Must clear the fileset from the thumbnail_id, representative_id and rendering_ids fields on the work
         #   and force it to be re-solrized.
         # Although ActiveFedora clears the children nodes it leaves those fields in Solr populated.
         # rubocop:disable Metrics/CyclomaticComplexity
         def unlink_from_work
-          work = file_set.parent
+          work = parent_for(file_set: file_set)
           # monkey patch
           work.total_file_size_subtract_file_set! file_set
           work.read_me_delete( file_set: file_set )
@@ -390,9 +435,20 @@ module Hyrax
                                                           file_set: file_set )
         end
 
-      # rubocop:enable Metrics/AbcSize
-      # rubocop:enable Metrics/CyclomaticComplexity
-    end
+        # if passed a resource or if use_valkyrie==true, object to act on is the valkyrie resource
+        def object_to_act_on(object)
+          return object if valkyrie_object?(object)
+          use_valkyrie ? object.valkyrie_resource : object
+        end
+
+        # determine if the object is a valkyrie resource
+        def valkyrie_object?(object)
+          object.is_a? Valkyrie::Resource
+        end
+        # rubocop:enable Metrics/AbcSize
+        # rubocop:enable Metrics/CyclomaticComplexity
+
+     end
 
   end
 

@@ -276,7 +276,7 @@ RSpec.describe Hyrax::DataSetPresenter, clean_repo: true do
     # TODO: fix this
     # context "solr query" do
     #   before do
-    #     expect(ActiveFedora::SolrService).to receive(:query).twice.with(anything, hash_including(rows: 10_000)).and_return([])
+    #     expect(Hyrax::SolrService).to receive(:query).twice.with(anything, hash_including(rows: 10_000)).and_return([])
     #   end
     #
     #   it "requests >10 rows" do
@@ -361,9 +361,11 @@ RSpec.describe Hyrax::DataSetPresenter, clean_repo: true do
     subject { presenter }
 
     it "delegates to the class attribute of the model" do
-      allow(DataSet).to receive(:valid_child_concerns).and_return([DataSet])
-
-      expect(subject.valid_child_concerns).to eq [DataSet]
+      #allow(DataSet).to receive(:valid_child_concerns).and_return([DataSet])
+      child_concerns = subject.valid_child_concerns
+      expect(child_concerns.is_a? Hyrax::ChildTypes).to eq true
+      child_concerns = child_concerns.map { |cc| cc.model_name.name }
+      expect(child_concerns.include? "DataSet").to eq true
     end
   end
 

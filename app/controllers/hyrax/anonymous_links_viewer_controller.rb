@@ -89,9 +89,9 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",
-                                             "anonymous_link.itemId=#{anonymous_link.itemId}",
+                                             "anonymous_link.item_id=#{anonymous_link.item_id}",
                                              "" ] if anonymous_links_viewer_controller_debug_verbose
-      _, document_list = search_results( id: anonymous_link.itemId )
+      _, document_list = search_results( id: anonymous_link.item_id )
       solr_doc = document_list.first
       model = solr_doc['has_model_ssim'].first
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -100,14 +100,14 @@ module Hyrax
                                              "" ] if anonymous_links_viewer_controller_debug_verbose
       if 'FileSet' == model
         # TODO: properly generate this route
-        url = "#{::DeepBlueDocs::Application.config.relative_url_root}/concern/file_sets/#{solr_doc.id}/anonymous_link/#{params[:id]}"
+        url = "#{Rails.configuration.relative_url_root}/concern/file_sets/#{solr_doc.id}/anonymous_link/#{params[:id]}"
         flash_msg =  t('hyrax.anonymous_links.notice.show_file_html')
-        # flash_msg =  t('hyrax.anonymous_links.notice.show_file_with_help_link_html', help_link: "#{::DeepBlueDocs::Application.config.relative_url_root}/help" )
+        # flash_msg =  t('hyrax.anonymous_links.notice.show_file_with_help_link_html', help_link: "#{Rails.configuration.relative_url_root}/help" )
       else
         # TODO: properly generate this route
-        url = "#{::DeepBlueDocs::Application.config.relative_url_root}/concern/data_sets/#{solr_doc.id}/anonymous_link/#{params[:id]}"
+        url = "#{Rails.configuration.relative_url_root}/concern/data_sets/#{solr_doc.id}/anonymous_link/#{params[:id]}"
         flash_msg =  t('hyrax.anonymous_links.notice.show_work_html')
-        # flash_msg =  t('hyrax.anonymous_links.notice.show_work_with_help_link_html', help_link: "#{::DeepBlueDocs::Application.config.relative_url_root}/help" )
+        # flash_msg =  t('hyrax.anonymous_links.notice.show_work_with_help_link_html', help_link: "#{Rails.configuration.relative_url_root}/help" )
       end
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -143,7 +143,7 @@ module Hyrax
 
     def asset
       @asset ||= if anonymous_link.is_a? AnonymousLink
-                   ::PersistHelper.find(anonymous_link.itemId)
+                   ::PersistHelper.find(anonymous_link.item_id)
                  else
                    ''
                  end
@@ -183,10 +183,10 @@ module Hyrax
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "anonymous_link&.valid?=#{anonymous_link&.valid?}",
-                                                 "anonymous_link&.itemId=#{anonymous_link&.itemId}",
+                                                 "anonymous_link&.item_id=#{anonymous_link&.item_id}",
                                                  "obj.id=#{obj.id}",
                                                  "" ] if AnonymousLinksViewerController.anonymous_links_viewer_controller_debug_verbose
-          anonymous_link.valid? && anonymous_link.itemId == obj.id # && anonymous_link.destroy!
+          anonymous_link.valid? && anonymous_link.item_id == obj.id # && anonymous_link.destroy!
         end
       end
 

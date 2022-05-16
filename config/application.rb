@@ -25,7 +25,7 @@ module DeepBlueDocs
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
     #
-    # reference config values like: ::DeepBlueDocs::Application.config.variable_name
+    # reference config values like: Rails.configuration.variable_name
     #                           or: Rails.configuration.variable_name
     #
     config.load_timestamp = DateTime.now.freeze
@@ -139,16 +139,16 @@ module DeepBlueDocs
     # controller debug_verbose_variables
     config.application_controller_debug_verbose          = false
     config.catalog_controller_debug_verbose              = false
-    config.collections_controller_debug_verbose          = false
     config.collections_controller_behavior_debug_verbose = false
     config.controller_workflow_event_behavior_debug_verbose = false
-    config.workflow_event_behavior_debug_verbose         = false
+    config.dashboard_collections_controller_debug_verbose = false
     config.data_sets_controller_debug_verbose            = false
     config.downloads_controller_debug_verbose            = false
     config.file_sets_controller_debug_verbose            = false
     # config.static_content_controller_behavior_verbose = false # moved to app/services/deepblue/work_view_content_service.rb
     config.deepblue_works_controller_behavior_debug_verbose = false
     config.hyrax_works_controller_behavior_debug_verbose = false
+    config.workflow_event_behavior_debug_verbose         = false
 
     # presenter debug_verbose variables
     config.collection_presenter_debug_verbose             = false
@@ -287,7 +287,7 @@ module DeepBlueDocs
 
     # FIXME: This unless reveals bugs. There are places in the app that hard-code the
     #        /data prefix and the tests break when it is set.
-    # See references to: DeepBlueDocs::Application.config.relative_url_root
+    # See references to: Rails.configuration.relative_url_root
     config.relative_url_root = Settings.relative_url_root unless Rails.env.test?
     config.relative_url_root = '' if Rails.env.test?
 
@@ -352,6 +352,7 @@ module DeepBlueDocs
       ServerAfterInitializeService.server_after_initialize_callback( config,
                                                                      debug_verbose: after_initialize_debug_verbose,
                                                                      debug_verbose_work_view_conent_service: false )
+
       puts "Finished after initialize." if after_initialize_debug_verbose
     end
 

@@ -3,7 +3,7 @@
 module Hyrax
 
   module Forms
-
+    # rubocop:disable Metrics/ClassLength
     class CollectionForm
       include HydraEditor::Form
       include HydraEditor::Form::Permissions
@@ -18,7 +18,8 @@ module Hyrax
                :permissions,
                :human_readable_type,
                :member_ids,
-               :nestable?, to: :model
+               :nestable?,
+               :alternative_title, to: :model
 
       class_attribute :membership_service_class, :default_work_primary_terms, :default_work_secondary_terms
 
@@ -32,6 +33,7 @@ module Hyrax
       delegate :blacklight_config, to: Hyrax::CollectionsController
 
       self.terms = %i[
+        alternative_title
         authoremail
         based_near
         collection_type_gid
@@ -90,7 +92,7 @@ module Hyrax
         end
       end
 
-      # @param model [Collection] the collection model that backs this form
+      # @param model [::Collection] the collection model that backs this form
       # @param current_ability [Ability] the capabilities of the current user
       # @param repository [Blacklight::Solr::Repository] the solr repository
       def initialize(model, current_ability, repository)
@@ -121,7 +123,7 @@ module Hyrax
       end
 
       def relative_url_root
-        rv = ::DeepBlueDocs::Application.config.relative_url_root
+        rv = Rails.configuration.relative_url_root
         return rv if rv
         ''
       end
@@ -187,7 +189,7 @@ module Hyrax
         end
 
     end
-
+    # rubocop:enable Metrics/ClassLength
   end
 
 end

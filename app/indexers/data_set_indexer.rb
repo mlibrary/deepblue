@@ -27,8 +27,8 @@ class DataSetIndexer < Hyrax::WorkIndexer
       # solr_doc['member_of_collections_ssim']    = object.member_of_collections.map(&:first_title)
       # solr_doc['member_of_collection_ids_ssim'] = object.member_of_collections.map(&:id)
 
-      solr_doc[Solrizer.solr_name('creator_ordered', :stored_searchable)] = object.creator_ordered
-      solr_doc[Solrizer.solr_name('doi', :symbol)] = object.doi
+      solr_doc[:creator_ordered_tesim] = object.creator_ordered
+      solr_doc[:doi_tesim] = object.doi
 
       # this causes referenced_by to be displayed as a single string, not a list of values
       # value = Array( object.referenced_by ).join( " " )
@@ -37,9 +37,9 @@ class DataSetIndexer < Hyrax::WorkIndexer
       # So that title sort can be done ...
       solr_doc['title_sort_ssi'] = Array(object.title).first.downcase unless object.title.blank?
 
-      solr_doc[Solrizer.solr_name('tombstone', :symbol)] = object.tombstone
+      solr_doc[:tombstone_tesim] = object.tombstone
       # solr_doc[Solrizer.solr_name('total_file_size', Hyrax::FileSetIndexer::STORED_LONG)] = object.total_file_size
-      solr_doc[Solrizer.solr_name('total_file_size', Hyrax::FileSetIndexer::STORED_LONG)] = object.size_of_work
+      solr_doc[:total_file_size_lts] = object.size_of_work
 
       # ### same as
       # admin_set_label = object.admin_set.to_s

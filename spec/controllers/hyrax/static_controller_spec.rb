@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Hyrax::StaticController, type: :controller do
@@ -138,7 +140,7 @@ RSpec.describe Hyrax::StaticController, type: :controller do
           it 'shows page' do
             get :show, params: { doc: doc }
             expect(response.code).to eq '302'
-            expect(response).to redirect_to "#{::DeepBlueDocs::Application.config.relative_url_root}/work_view_content#{path}"
+            expect(response).to redirect_to "#{Rails.configuration.relative_url_root}/work_view_content#{path}"
             # get :show, params: { doc: doc }
             # expect(response.code).to eq '200'
             # expect(response.body).to include doc_text
@@ -150,7 +152,7 @@ RSpec.describe Hyrax::StaticController, type: :controller do
         #   it 'shows page 200' do
         #     get :show, params: { doc: doc }
         #     expect(response.code).to eq '302'
-        #     expect(response).to redirect_to "#{::DeepBlueDocs::Application.config.relative_url_root}/work_view_content#{path}"
+        #     expect(response).to redirect_to "#{Rails.configuration.relative_url_root}/work_view_content#{path}"
         #     get :show, params: { doc: doc }
         #     expect(response.code).to eq '200'
         #     expect(response.body).to include doc_text
@@ -208,7 +210,7 @@ RSpec.describe Hyrax::StaticController, type: :controller do
 
         describe 'globus-help', skip: false do
           let(:doc)        { 'globus-help' }
-          let(:target_url) {"#{::DeepBlueDocs::Application.config.relative_url_root}/user-guide#download-globus"}
+          let(:target_url) {"#{Rails.configuration.relative_url_root}/user-guide#download-globus"}
           context 'when not logged in' do
             it 'shows page' do
               get :show, params: { doc: doc }

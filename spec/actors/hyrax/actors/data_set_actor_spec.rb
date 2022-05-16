@@ -78,7 +78,7 @@ RSpec.describe Hyrax::Actors::DataSetActor do
 
       it "invokes the after_create_concern callback" do
         expect(Hyrax.config.callback).to receive(:run)
-                                           .with(:after_create_concern, curation_concern, user)
+                                           .with(:after_create_concern, curation_concern, user, warn: false)
         middleware.create(env)
       end
     end
@@ -147,11 +147,11 @@ RSpec.describe Hyrax::Actors::DataSetActor do
           before do
             allow(Hyrax::TimeService).to receive(:time_in_utc) { xmas }
             allow(Hyrax::Actors::FileActor).to receive(:new).and_return(file_actor)
-            allow(Hyrax.config.callback).to receive(:run).with(:after_create_concern, DataSet, user)
+            allow(Hyrax.config.callback).to receive(:run).with(:after_create_concern, DataSet, user, warn: false)
           end
 
           it 'stamps each file with the access rights and runs callbacks' do
-            expect(Hyrax.config.callback).to receive(:run).with(:after_create_concern, curation_concern, user)
+            expect(Hyrax.config.callback).to receive(:run).with(:after_create_concern, curation_concern, user, warn: false)
 
             # expect(file_actor).to receive(:ingest_file).and_return(true)
             expect(middleware.create(env)).to be true
@@ -234,7 +234,7 @@ RSpec.describe Hyrax::Actors::DataSetActor do
 
       it "invokes the after_update_metadata callback" do
         expect(Hyrax.config.callback).to receive(:run)
-                                           .with(:after_update_metadata, curation_concern, user)
+                                           .with(:after_update_metadata, curation_concern, user, warn: false)
         subject.update(env)
       end
     end

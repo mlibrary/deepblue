@@ -24,7 +24,7 @@ module Deepblue
           zip_download_rest( curation_concern: curation_concern )
         end
         wants.json do
-          unless ::DeepBlueDocs::Application.config.rest_api_allow_read
+          unless Rails.configuration.rest_api_allow_read
             return render_json_response( response_type: :bad_request, message: "Method not allowed." )
           end
           if curation_concern.total_file_size > ZipDownloadService.zip_download_max_total_file_size_to_download
