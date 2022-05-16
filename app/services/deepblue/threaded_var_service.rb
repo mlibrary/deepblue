@@ -118,7 +118,7 @@ module Deepblue
                                              "value=#{value}",
                                              "" ] if threaded_var_service_debug_verbose
       if Rails.env.production? && ::Deepblue::CacheService.cache_available?
-        ::Deepblue::CacheService.var_cache_write( klass: threaded_var_semaphores, var: var, value: value )
+        ::Deepblue::CacheService.var_cache_write( klass: ThreadedVarService, var: var, value: value )
       else
         @@threaded_var_semaphores[var] = value
       end
