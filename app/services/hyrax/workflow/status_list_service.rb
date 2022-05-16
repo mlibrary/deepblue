@@ -4,7 +4,7 @@ module Hyrax
     # Finds a list of works that we can perform a workflow action on
     class StatusListService
 
-      mattr_accessor :status_list_service_debug_verbose, default: true
+      mattr_accessor :status_list_service_debug_verbose, default: false
 
       # @param context [#current_user, #logger]
       # @param filter_condition [String] a solr filter
@@ -45,9 +45,14 @@ module Hyrax
                                                ::Deepblue::LoggingHelper.called_from,
                                                "user.user_key=#{user.user_key}",
                                                "actionable_roles=#{actionable_roles}",
-                                               "" ]
+                                               "" ] if status_list_service_debug_verbose
         return [] if actionable_roles.empty?
-        WorkRelation.new.search_with_conditions(query(actionable_roles), rows: 1000, method: :post)
+        q = query(actionable_roles)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "q=#{q}",
+                                               "" ] if status_list_service_debug_verbose
+        WorkRelation.new.search_with_conditions(q, rows: 1000, method: :post)
       end
 
       def query(actionable_roles)
