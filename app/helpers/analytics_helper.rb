@@ -165,6 +165,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     events.each do |e|
       v = Ahoy::Visit.where( id: e.visit_id )
       count += 1 if v.first.ip.eql?(visit_to_test.first.ip)
+      break if count > max_visit_filter_count
     end
     count
   end
