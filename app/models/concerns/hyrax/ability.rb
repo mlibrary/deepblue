@@ -304,7 +304,8 @@ module Hyrax
       #   self.ability_logic += [:trophy_abilities]
       def trophy_abilities
         can [:create, :destroy], Trophy do |t|
-          doc = ActiveFedora::Base.search_by_id(t.work_id, fl: 'depositor_ssim')
+          # doc = ActiveFedora::Base.search_by_id(t.work_id, fl: 'depositor_ssim')
+          doc = ::PersistHelper.search_by_id(t.work_id, fl: 'depositor_ssim')
           current_user.user_key == doc.fetch('depositor_ssim').first
         end
       end
@@ -396,6 +397,11 @@ module Hyrax
       # Returns true if the current user is the depositor of the specified work
       # @param document_id [String] the id of the document.
       def user_is_depositor?(document_id)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "current_user.user_key=#{current_user.user_key}",
+                                               "document_id=#{document_id}",
+                                               "" ] if hyrax_ability_debug_verbose
         Hyrax::WorkRelation.new.search_with_conditions(
           id: document_id,
           DepositSearchBuilder.depositor_field => current_user.user_key
