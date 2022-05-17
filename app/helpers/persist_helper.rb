@@ -46,6 +46,10 @@ module PersistHelper
     ::Hyrax::Base.id_to_uri( id )
   end
 
+  def self.search_by_id(id, opts = {})
+    ActiveFedora::Base.search_by_id(id, opts)
+  end
+
   def self.search_with_conditions( conditions, opts = {} )
     ::ActiveFedora::Base.search_with_conditions( conditions, opts )
   end

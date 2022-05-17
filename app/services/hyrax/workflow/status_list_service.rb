@@ -40,7 +40,12 @@ module Hyrax
 
       def search_solr
         actionable_roles = roles_for_user
-        logger.debug("Actionable roles for #{user.user_key} are #{actionable_roles}")
+        # if the actionable role names contain a space, then the query will fail.
+        # None of these map/substitutions of the names work.
+        # actionable_roles = actionable_roles.map { |r| r.gsub(/ /, '_')}
+        # actionable_roles = actionable_roles.map { |r| r.gsub(/ /, '\ ')}
+        # actionable_roles = actionable_roles.map { |r| "'#{r}'"}
+        # logger.debug("Actionable roles for #{user.user_key} are #{actionable_roles}")
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "user.user_key=#{user.user_key}",
