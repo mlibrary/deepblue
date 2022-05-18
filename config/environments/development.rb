@@ -60,6 +60,16 @@ Rails.application.configure do
   # Suppress logger output for asset requests.
   config.assets.quiet = true
 
+  config.assets.configure do |env|
+    # env.js_compressor  = :uglifier # or :closure, :yui
+    # env.css_compressor = :sass   # or :yui
+    #
+    # require 'my_processor'
+    # env.register_preprocessor 'application/javascript', MyProcessor
+
+    env.logger = Rails.logger
+  end
+
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
 

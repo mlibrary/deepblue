@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../../../lib/hyrax/errors'
+
 module Hyrax
 
   class AnonymousLinksViewerController < DownloadsController
@@ -16,7 +18,7 @@ module Hyrax
     skip_before_action :authorize_download!, only: :show
     skip_before_action :verify_authenticity_token, only: :download
 
-    rescue_from AnonymousError, with: :render_anonymous_error
+    rescue_from ::Hyrax::AnonymousError, with: :render_anonymous_error
     rescue_from CanCan::AccessDenied, with: :render_anonymous_error
     rescue_from ActiveRecord::RecordNotFound, with: :render_anonymous_error
     class_attribute :presenter_class
