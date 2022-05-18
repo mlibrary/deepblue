@@ -23,13 +23,13 @@ Rails.application.configure do
   # Apache or NGINX already handles this.
   config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present?
 
-  # Compress JavaScripts and CSS.
-  # config.assets.js_compressor = :uglifier
-  config.assets.js_compressor = Uglifier.new(harmony: true) # see Uglifier README.md
-  # config.assets.css_compressor = :sass
-
-  # Do not fallback to assets pipeline if a precompiled asset is missed.
-  config.assets.compile = false
+  # # Compress JavaScripts and CSS.
+  # # config.assets.js_compressor = :uglifier
+  # config.assets.js_compressor = Uglifier.new(harmony: true) # see Uglifier README.md
+  # # config.assets.css_compressor = :sass
+  #
+  # # Do not fallback to assets pipeline if a precompiled asset is missed.
+  # config.assets.compile = false
   
   # Debug mode disables concatenation and preprocessing of assets.
   # This option may cause significant delays in view rendering with a large
