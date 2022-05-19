@@ -60,32 +60,39 @@ module ActiveFedora
 
       attr_reader :uri, :priority_models
 
+      attr_accessor :debug_verbose, :job_msg_queue, :logger, :pacifier
+
       def initialize(uri,
                      priority_models: self.class.default_priority_models,
                      exclude_self: false,
                      pacifier: nil,
                      logger: nil,
-                     depth: 0 )
+                     job_msg_queue: nil,
+                     depth: 0,
+                     debug_verbose: false )
+
+        @debug_verbose = debug_verbose
         @uri = uri
         @priority_models = priority_models
         @exclude_self = exclude_self
         @pacifier = pacifier
-        @pacifier_verbose = nil
+        @pacifier_verbose = nil # set this to @pacifier for a more verbose pacifier
         @depth = depth
         @logger = logger
+        @job_msg_queue = job_msg_queue
       end
 
       def descendant_and_self_uris
         partitioned = descendant_and_self_uris_partitioned
-        @pacifier_verbose.pacify "[#{partitioned[:priority].count},#{partitioned[:other].count}]" unless @pacifier_verbose.nil?
+        pacify_verbose "[#{partitioned[:priority].count},#{partitioned[:other].count}]"
         partitioned[:priority] + partitioned[:other]
       end
 
       # returns a hash where key :priority is an array of all prioritized
       # type objects, key :other is an array of the rest.
       def descendant_and_self_uris_partitioned
-        @pacifier.pacify '.' if !@pacifier.nil? && 1 >= @depth
-        @pacifier_verbose.pacify '(' unless @pacifier_verbose.nil?
+        pacify '.' if 1 >= @depth
+        pacify_verbose '('
         resource = Ldp::Resource::RdfSource.new(ActiveFedora.fedora.connection, uri)
         # GET could be slow if it's a big resource, we're using HEAD to avoid this problem,
         # but this causes more requests to Fedora.
@@ -96,17 +103,19 @@ module ActiveFedora
           is_rdf_source = resource.head.rdf_source?
         rescue Exception => e # rubocop:disable Lint/RescueException
           # TODO: collect and report on these errors
-          @pacifier.pacify '!' unless @pacifier.nil?
-          @logger.error "#{uri} - #{e.class}: #{e.message} at #{e.backtrace[0]}" unless @logger.nil?
+          pacify '!'
+          error "#{uri} - #{e.class}: #{e.message} at #{e.backtrace[0]}"
         end
         return partitioned_uris unless is_rdf_source
         ### end update
 
         add_self_to_partitioned_uris unless @exclude_self
 
-        immediate_descendant_uris = rdf_graph.query(predicate: ::RDF::Vocab::LDP.contains).map { |descendant| descendant.object.to_s }
+        immediate_descendant_uris = rdf_graph.query(predicate: ::RDF::Vocab::LDP.contains).map do |descendant|
+          descendant.object.to_s
+        end
         immediate_descendant_uris.each do |descendant_uri|
-          # @pacifier.pacify '.' unless @pacifier.nil?
+          # pacify '.'
           self.class.new(
             descendant_uri,
             priority_models: priority_models,
@@ -114,7 +123,7 @@ module ActiveFedora
             logger: @logger,
             depth: @depth + 1
           ).descendant_and_self_uris_partitioned.tap do |descendant_partitioned|
-            @pacifier_verbose.pacify "[#{descendant_partitioned[:priority].count},#{descendant_partitioned[:other].count}]" unless @pacifier_verbose.nil?
+            pacify_verbose "[#{descendant_partitioned[:priority].count},#{descendant_partitioned[:other].count}]"
             partitioned_uris[:priority].concat descendant_partitioned[:priority]
             partitioned_uris[:other].concat descendant_partitioned[:other]
           end
@@ -159,6 +168,33 @@ module ActiveFedora
             partitioned_uris[:other] << rdf_resource.subject
           end
         end
+
+        def debug( msg )
+          return unless debug_verbose
+          @logger.debug msg unless @logger.nil?
+          @job_msg_queue << msg unless @job_msg_queue.nil?
+        end
+
+        def error( msg )
+          @logger.error msg unless @logger.nil?
+          @job_msg_queue << msg unless @job_msg_queue.nil?
+        end
+
+        def info( msg )
+          @logger.info msg unless @logger.nil?
+          @job_msg_queue << msg unless @job_msg_queue.nil?
+        end
+
+        def pacify( msg )
+          return if @pacifier.nil?
+          @pacifier.pacify msg
+        end
+
+        def pacify_verbose( msg )
+          return if @pacifier_verbose.nil?
+          @pacifier_verbose.pacify msg
+        end
+
     end
   end
 end
