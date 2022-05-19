@@ -13,6 +13,7 @@ module Deepblue
                     add_stack_trace: false,
                     add_stack_trace_depth: 3,
                     lines: 1,
+                    logger: Rails.logger,
                     &block )
 
       LoggingHelper.bold_error( msg,
@@ -22,6 +23,7 @@ module Deepblue
                                 add_stack_trace: add_stack_trace,
                                 add_stack_trace_depth: add_stack_trace_depth,
                                 lines: lines,
+                                logger: logger,
                                 &block )
     end
 
@@ -31,7 +33,9 @@ module Deepblue
                          key_value_lines: true,
                          add_stack_trace: false,
                          add_stack_trace_depth: 2,
-                         lines: 1, &block )
+                         lines: 1,
+                         logger: Rails.logger,
+                         &block )
       bold_puts( msg,
                  label: label,
                  key_value_lines: key_value_lines,
@@ -40,26 +44,26 @@ module Deepblue
                  lines: lines,
                  &block ) if bold_puts
       lines = 1 unless lines.positive?
-      lines.times { Rails.logger.error "<<<<<<<<<< BEGIN ERROR >>>>>>>>>>" }
-      Rails.logger.error label if label.present?
+      lines.times { logger.error "<<<<<<<<<< BEGIN ERROR >>>>>>>>>>" }
+      logger.error label if label.present?
       if msg.respond_to?( :each )
         msg.each do |m|
           if key_value_lines && m.respond_to?( :each_pair )
-            m.each_pair { |k, v| Rails.logger.error "#{k}: #{v}" }
+            m.each_pair { |k, v| logger.error "#{k}: #{v}" }
           else
-            Rails.logger.error m
+            logger.error m
           end
         end
-        caller_locations(add_stack_trace_depth).each { |m| Rails.logger.debug m } if add_stack_trace
-        Rails.logger.debug nil, &block if block_given?
+        caller_locations(add_stack_trace_depth).each { |m| logger.debug m } if add_stack_trace
+        logger.debug nil, &block if block_given?
       elsif add_stack_trace
-        Rails.logger.debug msg
-        caller_locations(add_stack_trace_depth).each { |m| Rails.logger.debug m } if add_stack_trace
-        Rails.logger.debug nil, &block if block_given?
+        logger.debug msg
+        caller_locations(add_stack_trace_depth).each { |m| logger.debug m } if add_stack_trace
+        logger.debug nil, &block if block_given?
       else
-        Rails.logger.error msg, &block
+        logger.error msg, &block
       end
-      lines.times { Rails.logger.error "<<<<<<<<<<< END ERROR >>>>>>>>>>>" }
+      lines.times { logger.error "<<<<<<<<<<< END ERROR >>>>>>>>>>>" }
     end
 
     def bold_debug( msg = nil,
@@ -69,6 +73,7 @@ module Deepblue
                     add_stack_trace: false,
                     add_stack_trace_depth: 3,
                     lines: 1,
+                    logger: Rails.logger,
                     &block )
 
       LoggingHelper.bold_debug( msg,
@@ -78,6 +83,7 @@ module Deepblue
                                 add_stack_trace: add_stack_trace,
                                 add_stack_trace_depth: add_stack_trace_depth,
                                 lines: lines,
+                                logger: logger,
                                 &block )
     end
 
@@ -88,6 +94,7 @@ module Deepblue
                          add_stack_trace: false,
                          add_stack_trace_depth: 2,
                          lines: 1,
+                         logger: Rails.logger,
                          &block )
       bold_puts( msg,
                  label: label,
@@ -97,26 +104,26 @@ module Deepblue
                  lines: lines,
                  &block ) if bold_puts
       lines = 1 unless lines.positive?
-      lines.times { Rails.logger.debug ">>>>>>>>>>" }
-      Rails.logger.debug label if label.present?
+      lines.times { logger.debug ">>>>>>>>>>" }
+      logger.debug label if label.present?
       if msg.respond_to?( :each )
         msg.each do |m|
           if key_value_lines && m.respond_to?( :each_pair )
-            m.each_pair { |k, v| Rails.logger.debug "#{k}: #{v}" }
+            m.each_pair { |k, v| logger.debug "#{k}: #{v}" }
           else
-            Rails.logger.debug m
+            logger.debug m
           end
         end
-        caller_locations(add_stack_trace_depth).each { |m| Rails.logger.debug m } if add_stack_trace
-        Rails.logger.debug nil, &block if block_given?
+        caller_locations(add_stack_trace_depth).each { |m| logger.debug m } if add_stack_trace
+        logger.debug nil, &block if block_given?
       elsif add_stack_trace
-        Rails.logger.debug msg
-        caller_locations(add_stack_trace_depth).each { |m| Rails.logger.debug m } if add_stack_trace
-        Rails.logger.debug nil, &block if block_given?
+        logger.debug msg
+        caller_locations(add_stack_trace_depth).each { |m| logger.debug m } if add_stack_trace
+        logger.debug nil, &block if block_given?
       else
-        Rails.logger.debug msg, &block
+        logger.debug msg, &block
       end
-      lines.times { Rails.logger.debug ">>>>>>>>>>" }
+      lines.times { logger.debug ">>>>>>>>>>" }
     end
 
     def bold_puts( msg = nil,

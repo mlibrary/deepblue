@@ -7,8 +7,8 @@ class ResetCondensedEventsJob < ::Deepblue::DeepblueJob
 
 SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 
-update_condensed_events_job:
-  # Run once a day, twenty-five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
+reset_condensed_events_job:
+  # Run on demand
   #      M H D
   # cron: '*/5 * * * *'
   cron: '25 5 * * *'
@@ -38,8 +38,10 @@ END_OF_SCHEDULER_ENTRY
     return job_finished unless hostname_allowed?
     log( event: "reset condensed events job", hostname_allowed: hostname_allowed? )
     is_quiet?
+    job_msg_queue << "Start dropping condensed events at #{DateTime.now}"
     ::AnalyticsHelper.drop_condensed_event_downloads
-    job_msg_queue << "Done dropping condensed events at #{DateTime.now}" 
+    job_msg_queue << "Done dropping condensed events at #{DateTime.now}"
+    job_msg_queue << "Start initializing condensed events at #{DateTime.now}"
     ::AnalyticsHelper.initialize_condensed_event_downloads
     job_msg_queue << "Done initializing condensed events at #{DateTime.now}"
 
