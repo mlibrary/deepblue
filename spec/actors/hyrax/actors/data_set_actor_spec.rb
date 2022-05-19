@@ -219,6 +219,9 @@ RSpec.describe Hyrax::Actors::DataSetActor do
 
   describe '#update' do
     let(:curation_concern) { create(:data_set, user: user, admin_set_id: admin_set.id) }
+    before do
+      allow(curation_concern).to receive(:to_sipity_entity).and_return(nil)
+    end
 
     context 'failure' do
       let(:attributes) { {} }
