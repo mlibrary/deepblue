@@ -4,6 +4,9 @@ require "email_logger"
 require "provenance_logger"
 require "devise/fake_auth_header"
 
+require "assets_logger"
+require "uglifier_proxy"
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -52,22 +55,24 @@ Rails.application.configure do
   # Raise an error on page load if there are pending migrations.
   config.active_record.migration_error = :page_load
 
-  # Debug mode disables concatenation and preprocessing of assets.
-  # This option may cause significant delays in view rendering with a large
-  # number of complex assets.
-  config.assets.debug = true
-
-  # Suppress logger output for asset requests.
-  config.assets.quiet = true
+  config.assets.quiet = true # Suppress logger output for asset requests.
+  assets_compile_mode = true
+  if assets_compile_mode
+    # Compress JavaScripts and CSS.
+    config.assets.js_compressor = UglifierProxy.new(harmony: true, source_map: true)
+    # config.assets.css_compressor = :sass
+    # Do not fallback to assets pipeline if a precompiled asset is missed.
+    config.assets.compile = false
+  else
+    # Debug mode disables concatenation and preprocessing of assets.
+    # This option may cause significant delays in view rendering with a large
+    # number of complex assets.
+    config.assets.debug = true
+  end
 
   config.assets.configure do |env|
-    # env.js_compressor  = :uglifier # or :closure, :yui
-    # env.css_compressor = :sass   # or :yui
-    #
-    # require 'my_processor'
-    # env.register_preprocessor 'application/javascript', MyProcessor
-
-    env.logger = Rails.logger
+    # env.logger = Rails.logger
+    env.logger = ASSETS_LOGGER
   end
 
   # Raises error for missing translations
