@@ -42,6 +42,7 @@ END_OF_SCHEDULER_ENTRY
                                             job_msg_queue: job_msg_queue,
                                             debug_verbose: resolrize_job_debug_verbose )
     job_msg_queue << "Finished processing at #{DateTime.now}"
+    job_finished
     email_results
   rescue Exception => e # rubocop:disable Lint/RescueException
     job_status_register( exception: e, args: args )
