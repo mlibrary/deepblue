@@ -77,7 +77,7 @@
         <%= form_tag(main_app.scheduler_dashboard_job_action_path, method: 'post') do %>
           <%= hidden_field_tag('job_name', job_name.to_s) %>
           <td><%= job_name %></td>
-          <td><span class="monospace-code"><%= job_parameters['cron'] %></span></td>
+          <td><%= raw @presenter.cron_entry job_parameters %></td>
           <td><%= job_parameters['description'] %></td>
           <td><%= submit_tag( t('hyrax.scheduler.submit.run'), class: 'btn btn-primary' ) %></td>
           <% if args.present? && args['subscription_service_id'].present? %>

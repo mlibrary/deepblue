@@ -297,6 +297,9 @@ GEM
     crack (0.4.5)
       rexml
     crass (1.0.6)
+    cronex (0.11.1)
+      tzinfo
+      unicode
     csl (1.6.0)
       namae (~> 1.0)
       rexml
@@ -1182,6 +1185,7 @@ GEM
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.8.1)
+    unicode (0.4.4.4)
     unicode-display_width (1.8.0)
     unicode-types (1.7.0)
     unicode_utils (1.4.0)
@@ -1255,6 +1259,7 @@ DEPENDENCIES
   coffee-rails (~> 4.2)
   config
   coveralls
+  cronex
   devise
   devise-guests (~> 0.6)
   diffy

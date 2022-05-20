@@ -184,10 +184,10 @@ end
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
+gem 'cronex' # https://github.com/alpinweis/cronex
 gem 'devise'
 gem 'devise-guests', '~> 0.6'
-# https://github.com/samg/diffy
-gem 'diffy'
+gem 'diffy' # https://github.com/samg/diffy
 gem 'jira-ruby', '~> 1.1'
 gem 'okcomputer', '~> 1.17'
 gem 'omniauth'
