@@ -82,15 +82,15 @@ module Hyrax
     # monkey
     def present_authors_compact
       authors = attribute_to_html(:creator, render_as: :faceted, label: I18n.t('show.labels.creator') )
-      author.gsub!('itemscope itemtype="http://schema.org/Person"', '')
-            .gsub!('<td>', '')
-            .gsub!('</td>', '')
-            .gsub!('<tr>', '')
-            .gsub!('</tr>', '')
-            .gsub!(/<th.*?>(.+?)<\/th>/, '')
-            .gsub!(/<ul.*?>(.+?)<\/ul>/, '\1')
-            .gsub!(/<li.*?>(.+?)<\/li>/, '\1|  ')
-            .gsub!(/<span.*?>(.+?)<\/span>/, '\1')
+      authors.gsub!('itemscope itemtype="http://schema.org/Person"', '')
+             .gsub!('<td>', '')
+             .gsub!('</td>', '')
+             .gsub!('<tr>', '')
+             .gsub!('</tr>', '')
+             .gsub!(/<th.*?>(.+?)<\/th>/, '')
+             .gsub!(/<ul.*?>(.+?)<\/ul>/, '\1')
+             .gsub!(/<li.*?>(.+?)<\/li>/, '\1|  ')
+             .gsub!(/<span.*?>(.+?)<\/span>/, '\1')
       authors = authors.reverse.sub('|', '').sub('|', ' dna ').reverse.gsub!('|', ';')
       "<span class=\"moreauthor\">#{authors}</span>"
     end
