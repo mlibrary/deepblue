@@ -752,10 +752,10 @@ GEM
     noid-rails (3.0.3)
       actionpack (>= 5.0.0, < 7)
       noid (~> 0.9)
-    nokogiri (1.13.5)
+    nokogiri (1.13.6)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
-    nokogiri (1.13.5-x86_64-darwin)
+    nokogiri (1.13.6-x86_64-darwin)
       racc (~> 1.4)
     nokogumbo (2.0.5)
       nokogiri (~> 1.8, >= 1.8.4)
@@ -826,8 +826,8 @@ GEM
       rdf
     raabro (1.4.0)
     racc (1.6.0)
-    rack (2.1.4)
-    rack-protection (2.0.8.1)
+    rack (2.2.3)
+    rack-protection (2.2.0)
       rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
@@ -1102,10 +1102,10 @@ GEM
       json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.2)
-    sinatra (2.0.8.1)
+    sinatra (2.2.0)
       mustermann (~> 1.0)
-      rack (~> 2.0)
-      rack-protection (= 2.0.8.1)
+      rack (~> 2.2)
+      rack-protection (= 2.2.0)
       tilt (~> 2.0)
     slop (4.9.2)
     solr_wrapper (2.1.0)
@@ -1285,7 +1285,7 @@ DEPENDENCIES
   mysql2
   net-ldap
   new_google_recaptcha
-  nokogiri (>= 1.13.4)
+  nokogiri (>= 1.13.5)
   okcomputer (~> 1.17)
   omniauth
   omniauth-cas
@@ -1293,7 +1293,7 @@ DEPENDENCIES
   pry-byebug
   pry-rails
   puma (~> 4.3.12)
-  rack (~> 2.1.4)
+  rack (>= 2.2)
   rails (>= 5.2)
   rails-controller-testing
   rdf-rdfa (< 3.1.1)
@@ -1322,7 +1322,7 @@ DEPENDENCIES
   selenium-webdriver (< 4.0.0)
   shoulda-callback-matchers (~> 1.1.1)
   shoulda-matchers (~> 3.1)
-  sinatra (~> 2.0.2)
+  sinatra (>= 2.2.0)
   solr_wrapper (~> 2.1.0)
   solrizer (>= 4.1.0)
   spring
