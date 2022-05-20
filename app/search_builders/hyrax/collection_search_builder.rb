@@ -38,7 +38,9 @@ module Hyrax
 
     # This overrides the models in FilterByType
     def models
-      collection_classes
+      # To make sure that both collections and adminsets are 
+      # sortable in the All collections tab of the dashboard.
+      [AdminSet, Collection]
     end
 
     def with_access(access)
@@ -46,11 +48,10 @@ module Hyrax
       super(access)
     end
 
-    # Sort results by title if no query was supplied.
-    # This overrides the default 'relevance' sort.
+    # If no sort parameter is passed, it will sort
+    # by relevance.
     def add_sorting_to_solr(solr_parameters)
-      return if solr_parameters[:q]
-      solr_parameters[:sort] ||= "#{sort_field} asc"
+      solr_parameters[:sort] = sort unless sort.blank?
     end
 
     # If :deposit access is requested, check to see which collections the user has
