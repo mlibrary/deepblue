@@ -14,7 +14,7 @@ resolrize_job:
   cron: '25 5 * * *'
   class: ResolrizeJob
   queue: scheduler
-  description: Reset the condensed events job.
+  description: Reindex everything in solr.
   args:
     hostnames:
       - 'deepblue.lib.umich.edu'
