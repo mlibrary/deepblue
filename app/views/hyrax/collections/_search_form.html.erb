@@ -1,12 +1,13 @@
 <!-- Hyrax v3 upgrade -- Presenter: <%= presenter.class.name %> in <%= __FILE__ %> -->
- <%= form_for presenter, url: url, method: :get, class: "well form-search" do |f| %>
-      <label for="collection_search" class="sr-only"><%= t('hyrax.collections.search_form.label', title: presenter.to_s) %></label>
-      <div class="input-group">
-        <%= text_field_tag :cq, params[:cq], class: "collection-query form-control", placeholder: t('hyrax.collections.search_form.placeholder'), size: '30', type: "search", id: "collection_search" %>
-        <div class="input-group-btn">
-          <button type="submit" class="btn btn-primary" id="collection_submit"><span class="glyphicon glyphicon-search"></span> <%= t('hyrax.collections.search_form.button_label') %></button>
-        </div>
+<!-- Recovered from Hyrax2.9 to have the Go text show up-->
+<%= form_for presenter, url: url, method: :get, class: "well form-search" do |f| %>
+    <label class="sr-only"><%= t('hyrax.collections.search_form.label', title: presenter.to_s) %></label>
+    <div class="search-group">
+      <%= text_field_tag :cq, params[:cq], class: "collection-query form-control", placeholder: t('hyrax.collections.search_form.placeholder'), size: '30', type: "search", id: "collection_search" %>
+      <div>
+        <button type="submit" class="btn btn-primary" id="collection_submit"><i class="glyphicon glyphicon-search"></i> <%= t('hyrax.collections.search_form.button_label') %></button>
       </div>
-      <%= hidden_field_tag :sort, params[:sort], id: 'collection_sort' %>
-      <%= render_hash_as_hidden_fields(search_state.params_for_search.except(:cq, :sort, :qt, :page)) %>
-  <% end %>
+    </div>
+    <%= hidden_field_tag :sort, params[:sort], id: 'collection_sort' %>
+    <%= render_hash_as_hidden_fields(search_state.params_for_search.except(:cq, :sort, :qt, :page)) %>
+<% end %>
