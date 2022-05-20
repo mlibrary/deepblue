@@ -14,7 +14,7 @@ UGLIFIER_LOGGER = UglifierLogger.new( logfile ) # constant accessible anywhere
 
 class UglifierProxy
 
-  mattr_accessor :uglifier_proxy_debug_verbose, default: true
+  mattr_accessor :uglifier_proxy_debug_verbose, default: false
   mattr_accessor :uglifier_proxy_echo_error_to_stdout, default: false
 
   instance_methods.each do |m|
