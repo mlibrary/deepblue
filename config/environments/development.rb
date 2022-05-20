@@ -56,7 +56,7 @@ Rails.application.configure do
   config.active_record.migration_error = :page_load
 
   config.assets.quiet = true # Suppress logger output for asset requests.
-  assets_compile_mode = true
+  assets_compile_mode = false
   if assets_compile_mode
     # Compress JavaScripts and CSS.
     config.assets.js_compressor = UglifierProxy.new(harmony: true, source_map: true)
