@@ -27,22 +27,15 @@ class SchedulerDashboardPresenter
 
   def cron_entry( job_parameters )
     cron = job_parameters['cron']
-    if scheduler_dashboard_cron_check_args && job_parameters['args']
-      if job_parameters['args']['by_request_only']
-        rv = "By Request"
-      elsif job_parameters['args']['hostnames']
-        rv = 'Disabled' unless job_parameters['args']['hostnames'].include? Rails.configuration.hostname
-      elsif scheduler_dashboard_cron_human_readable
-        rv = cron_human_readable(cron)
-      else
-        rv = "<span class=\"monospace-code\">#{cron}</span>"
-      end
-    elsif scheduler_dashboard_cron_human_readable
-      rv = cron_human_readable(cron)
-    else
-      rv = "<span class=\"monospace-code\">#{cron}</span>"
+    if scheduler_dashboard_cron_check_args && job_parameters['args'].present?
+      args = job_parameters['args']
+      return 'By Request' if args['by_request_only']
+      hostnames = args['hostnames']
+      hostnames ||= []
+      return 'Disabled' unless hostnames.include? Rails.configuration.hostname
     end
-    return rv
+    return cron_human_readable(cron) if scheduler_dashboard_cron_human_readable
+    return "<span class=\"monospace-code\">#{cron}</span>"
   end
 
   def cron_human_readable(cron)
