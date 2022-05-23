@@ -67,7 +67,7 @@
 <%= presenter.attribute_to_html(:subject_discipline, render_as: :faceted, label: t('show.labels.subject_discipline')) %>
 <%= presenter.attribute_to_html(:fundedby, label: t('show.labels.fundedby') ) %>
 
-<% unless presenter.fundedby_other.nil? %>
+<% unless ( presenter.fundedby_other.nil? || presenter.fundedby_other.empty? ) %>
   <tr><th><%= t('show.labels.fundedby_other') %></th><td><ul class='tabular_list'>
   <% num_para = presenter.fundedby_other.count %>
   <% presenter.fundedby_other.each do |fundedby_other| %>
