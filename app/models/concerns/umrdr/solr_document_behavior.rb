@@ -94,7 +94,7 @@ module Umrdr
     end
 
     def fundedby_other
-      Array(self['fundedby_other_tesim']).first
+      fetch('fundedby_other_tesim', [])
     end
 
     def grantnumber
