@@ -9,10 +9,8 @@ RSpec.describe ::Deepblue::IngestHelper, type: :helper do
   let(:debug_verbose) { false }
 
   describe 'module debug verbose variables' do
-    it "they have the right values" do
-      expect( described_class.ingest_helper_debug_verbose ).to eq debug_verbose
-      expect( described_class.ingest_helper_debug_verbose_puts ).to eq false
-    end
+    it { expect( described_class.ingest_helper_debug_verbose ).to eq debug_verbose }
+    it { expect( described_class.ingest_helper_debug_verbose_puts ).to eq false }
   end
 
   describe 'all', skip: false do
