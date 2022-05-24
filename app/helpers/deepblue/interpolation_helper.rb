@@ -46,12 +46,12 @@ module Deepblue
       end
     end
 
-    private
+    # private
 
       # Return String or raises MissingInterpolationArgument exception.
       # Missing argument's logic is handled by I18n.config.missing_interpolation_argument_handler.
       def self.interpolate_string( string, values )
-        raise I18n::ReservedInterpolationKey.new($1.to_sym, string) if string =~ I18n::RESERVED_KEYS_PATTERN
+        raise I18n::ReservedInterpolationKey.new($1.to_sym, string) if string =~ I18n.reserved_keys_pattern
         raise ArgumentError.new('Interpolation values must be a Hash.') unless values.kind_of?(Hash)
         interpolate_hash( string, values )
       end
