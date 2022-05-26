@@ -41,6 +41,7 @@
 
 //= require hyrax/monkey_patch_turbolinks
 //= require hyrax/fileupload
+//= require hyrax/vue
 // Provide AMD module support
 //= require almond
 //= require hyrax/notification
@@ -108,3 +109,4 @@
 
 // this needs to be after batch_select so that the form ids get setup correctly
 //= require hyrax/batch_edit
+
