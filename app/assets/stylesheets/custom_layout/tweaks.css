@@ -817,7 +817,19 @@ footer.page-footer p a :hover {
         }
 }
 
-
 /* end footer */
+
+.page-footer__disclaimer a {
+        color: var(--color-blue-200);
+}
+
+.badge-separator {
+        clear: both; 
+        margin-bottom: 40px;
+}
+
+.badge-block {
+        display: inline-block;
+}
 
 
