@@ -71,6 +71,21 @@
 
 <%= render partial: "/hyrax/dashboard/draft_works" %>
 
+<% if have_assets_under_embargo?( current_ability.current_user.email.to_s ) %>
+<div class="row">
+  <div class="col-md-12">
+    <div class="panel panel-default my_active_embargoes">
+      <div class="panel-heading">
+        <h3 class="panel-title "><%= t("hyrax.dashboard.my_active_embargoes") %></h3>
+      </div>
+      <div class="panel-body">
+        <%= render '/hyrax/dashboard/my_active_embargoes' %>
+      </div>
+    </div>
+  </div>
+</div>
+<% end %>
+
 <div class="row">
   <div class="col-md-12">
     <div class="panel panel-default <%= 'tabs' if current_page?(hyrax.dashboard_works_path(locale: nil)) || @managed_works_count > 0 %>">
