@@ -10,7 +10,8 @@ module BrowseEverything
     class Dropbox < Base
 
       # begin monkey
-      mattr_accessor :browse_everything_driver_dropbox_debug_verbose, default: false
+      mattr_accessor :browse_everything_driver_dropbox_debug_verbose,
+                     default: ::BrowseEverythingIntegrationService.browse_everything_driver_dropbox_debug_verbose
       # end monkey
 
       class FileEntryFactory

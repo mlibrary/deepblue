@@ -142,7 +142,7 @@ gem 'bootstrap-sass', '~> 3.4.1'
 gem 'carrierwave', '~> 1.3.2'
 gem 'loofah', '~> 2.3.1'
 gem 'nokogiri', '>= 1.13.5'
-gem 'rack', '>= 2.2'
+gem 'rack', '>= 2.2.3.1'
 gem 'rubyzip', '~> 2.0.0'
 gem 'sassc', '>= 2.0.0'
 gem "sinatra", ">= 2.2.0"

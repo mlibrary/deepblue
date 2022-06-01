@@ -6,6 +6,11 @@ module BrowseEverything
     class Base
       include BrowseEverything::Engine.routes.url_helpers
 
+      # begin monkey
+      mattr_accessor :browse_everything_driver_base_debug_verbose,
+                     default: ::BrowseEverythingIntegrationService.browse_everything_driver_base_debug_verbose
+      # end monkey
+
       # Provide accessor and mutator methods for @token and @code
       attr_accessor :token, :code
 
@@ -118,18 +123,18 @@ module BrowseEverything
                                                ::Deepblue::LoggingHelper.called_from,
                                                "url_options=#{url_options}",
                                                "method(:connector_response_url).source_location=#{method(:connector_response_url).source_location}",
-                                               "" ] # if browse_everything_controller_debug_verbose
+                                               "" ] if browse_everything_driver_base_debug_verbose
         rv = connector_response_url(**url_options)
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "rv=#{rv}",
-                                               "" ] # if browse_everything_controller_debug_verbose
+                                               "" ] if browse_everything_driver_base_debug_verbose
         # Unfortunately, the connector_response_url does not return with /data as part of its path
         rv = rv.gsub( '/browse', '/data/browse' )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "rv=#{rv}",
-                                               "" ] # if browse_everything_controller_debug_verbose
+                                               "" ] if browse_everything_driver_base_debug_verbose
         return rv
       end
     end

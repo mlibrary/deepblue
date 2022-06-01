@@ -6,7 +6,8 @@ module BrowseEverything
     class AuthenticationFactory
 
       # begin monkey
-      mattr_accessor :browse_everything_driver_authentication_factory_debug_verbose, default: false
+      mattr_accessor :browse_everything_driver_authentication_factory_debug_verbose,
+                     default: ::BrowseEverythingIntegrationService.browse_everything_driver_authentication_factory_debug_verbose
       # end monkey
       #
       # Constructor
