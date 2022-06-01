@@ -5,7 +5,10 @@ require File.expand_path('../helpers/browse_everything_helper', __dir__)
 class BrowseEverythingController < ApplicationController
 
   # begin monkey
-  mattr_accessor :browse_everything_controller_debug_verbose, default: false
+  mattr_accessor :browse_everything_controller_debug_verbose,
+                 default: ::BrowseEverythingIntegrationService.browse_everything_controller_debug_verbose
+  mattr_accessor :browse_everything_controller_debug_verbose2,
+                 default: ::BrowseEverythingIntegrationService.browse_everything_controller_debug_verbose2
   # end monkey
 
   layout 'browse_everything'
@@ -14,10 +17,15 @@ class BrowseEverythingController < ApplicationController
   protect_from_forgery with: :exception
 
   after_action do
-    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                        ::Deepblue::LoggingHelper.called_from,
-    #                                        "" ] if browse_everything_controller_debug_verbose
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "" ] if browse_everything_controller_debug_verbose2
     provider_session.token = provider.token unless provider.nil? || provider.token.blank?
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "provider_session.token = #{provider_session.token}",
+                                           "" ] if browse_everything_controller_debug_verbose2
+    provider_session.token
   end
 
   def provider_contents
@@ -29,7 +37,12 @@ class BrowseEverythingController < ApplicationController
     raise BrowseEverything::NotImplementedError, 'No provider supported' if provider.nil?
     raise BrowseEverything::NotAuthorizedError, 'Not authorized' unless provider.authorized?
 
-    provider.contents(browse_path)
+    rv = provider.contents(browse_path)
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "provider.contents(browse_path) = #{rv}",
+                                           "" ] if browse_everything_controller_debug_verbose2
+    rv
   end
 
   def index
@@ -48,10 +61,10 @@ class BrowseEverythingController < ApplicationController
                                            "" ] if browse_everything_controller_debug_verbose
     render partial: 'files', layout: !request.xhr?
   rescue StandardError => e
-    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                        ::Deepblue::LoggingHelper.called_from,
-    #                                        "error=#{e}",
-    #                                        "" ] if browse_everything_controller_debug_verbose
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "error=#{e}",
+                                           "" ] if browse_everything_controller_debug_verbose2
     Rails.logger.error "#{e.class} -- #{e.message} at #{e.backtrace[0]}"
     ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
@@ -75,6 +88,11 @@ class BrowseEverythingController < ApplicationController
                                            "" ] if browse_everything_controller_debug_verbose
     # params contains the access code with with the key :code
     provider_session.token = provider.connect(params, provider_session.data, connector_response_url_options)
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "provider_session.token=#{provider_session.token}",
+                                           "" ] if browse_everything_controller_debug_verbose
+    provider_session.token
   end
 
   def resolve
@@ -111,17 +129,24 @@ class BrowseEverythingController < ApplicationController
   # Constructs or accesses an existing session manager Object
   # @return [BrowseEverythingSession::ProviderSession] the session manager
   def provider_session
-    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                        ::Deepblue::LoggingHelper.called_from,
-    #                                        "" ] if browse_everything_controller_debug_verbose
-    BrowseEverythingSession::ProviderSession.new(session: session, name: provider_name)
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "" ] if browse_everything_controller_debug_verbose2
+    sess = session
+    prov_name = provider_name
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "session=#{sess}",
+                                           "provider_name=#{prov_name}",
+                                           "" ] if browse_everything_controller_debug_verbose2
+    BrowseEverythingSession::ProviderSession.new(session: sess, name: prov_name)
   end
 
   # Clears all authentication tokens, codes, and other data from the Rails session
   def reset_provider_session!
-    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                        ::Deepblue::LoggingHelper.called_from,
-    #                                        "" ] if browse_everything_controller_debug_verbose
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "" ] if browse_everything_controller_debug_verbose2
     return unless @provider_session
     @provider_session.token = nil
     @provider_session.code = nil
@@ -136,7 +161,12 @@ class BrowseEverythingController < ApplicationController
                                            "host: #{request.host}",
                                            "port: #{request.port}",
                                            "" ] if browse_everything_controller_debug_verbose
-    { protocol: request.protocol, host: request.host, port: request.port }
+    rv = { protocol: request.protocol, host: request.host, port: request.port }
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "rv = #{rv}",
+                                           "" ] if browse_everything_controller_debug_verbose2
+    rv
   end
 
   # Generates the authentication link for a given provider service
@@ -160,45 +190,70 @@ class BrowseEverythingController < ApplicationController
                      link = "#{link}&state=#{provider.key}" unless link.to_s.include?('state')
                      link
                    end
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "@auth_link = #{@auth_link}",
+                                           "" ] if browse_everything_controller_debug_verbose2
+    @auth_link
   end
 
   # Accesses the relative path for browsing from the Rails session
   # @return [String]
   def browse_path
-    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                        ::Deepblue::LoggingHelper.called_from,
-    #                                        "" ] if browse_everything_controller_debug_verbose
-    params[:path] || ''
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "" ] if browse_everything_controller_debug_verbose2
+    rv = params[:path] || ''
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "rv = #{rv}",
+                                           "" ] if browse_everything_controller_debug_verbose2
+    rv
   end
 
   # Generate the provider name from the Rails session state value
   # @return [String]
   def provider_name_from_state
-    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                        ::Deepblue::LoggingHelper.called_from,
-    #                                        "" ] if browse_everything_controller_debug_verbose
-    params[:state].to_s.split(/\|/).last
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "" ] if browse_everything_controller_debug_verbose2
+    rv = params[:state].to_s.split(/\|/).last
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "rv = #{rv}",
+                                           "" ] if browse_everything_controller_debug_verbose2
+    rv
   end
 
   # Generates the name of the provider using Rails session values
   # @return [String]
   def provider_name
-    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                        ::Deepblue::LoggingHelper.called_from,
-    #                                        "" ] if browse_everything_controller_debug_verbose
-    params[:provider] || provider_name_from_state || browser.providers.each_key.to_a.first
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "" ] if browse_everything_controller_debug_verbose2
+    rv = params[:provider] || provider_name_from_state || browser.providers.each_key.to_a.first
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "rv = #{rv}",
+                                           "" ] if browse_everything_controller_debug_verbose2
+    rv
   end
 
   # Retrieve the Driver for each request
   # @return [BrowseEverything::Driver::Base]
   def provider
-    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                        ::Deepblue::LoggingHelper.called_from,
-    #                                        "" ] if browse_everything_controller_debug_verbose
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "" ] if browse_everything_controller_debug_verbose2
     prov_name = provider_name
-    return browser.providers[prov_name.to_sym] if prov_name.present?
-    browser.first_provider
+    rv = browser.providers[prov_name.to_sym] if prov_name.present?
+    rv ||= browser.first_provider
     # browser.providers[provider_name.to_sym] || browser.first_provider
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "rv = #{rv}",
+                                           "" ] if browse_everything_controller_debug_verbose2
+    rv
   end
 
   # Constructs a browser manager Object
@@ -206,10 +261,15 @@ class BrowseEverythingController < ApplicationController
   # Hence, a Browser must be reinstantiated for each request using the state provided in the Rails session
   # @return [BrowseEverything::Browser]
   def browser
-    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                        ::Deepblue::LoggingHelper.called_from,
-    #                                        "" ] if browse_everything_controller_debug_verbose
-    BrowserFactory.build(session: session, url_options: url_options)
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "" ] if browse_everything_controller_debug_verbose2
+    rv = BrowserFactory.build(session: session, url_options: url_options)
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "rv = #{rv}",
+                                           "" ] if browse_everything_controller_debug_verbose2
+    rv
   end
 
   helper_method :auth_link
