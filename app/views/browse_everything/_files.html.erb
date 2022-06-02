@@ -1,8 +1,8 @@
-<% browse_everything_files_debug_verbose = true %>
+<%# browse_everything_files_debug_verbose = true %>
 <%
   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                          ::Deepblue::LoggingHelper.called_from,
-                                         "" ] if browse_everything_files_debug_verbose
+                                         "" ] if true || ::BrowseEverythingIntegrationService.browse_everything_views_debug_verbose
 %>
 <table id="file-list" role="grid" tabindex="-1" title="Choose files to upload from the table below" aria-live="polite">
     <thead>
