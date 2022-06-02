@@ -69,8 +69,9 @@ module Hyrax
                                                    "admin_set=#{admin_set}",
                                                    "admin_set.title=#{admin_set&.title}",
                                                    "" ] if default_admin_set_actor_debug_verbose
-            unless admin_set.id.eql? Rails.configuration.default_admin_set_id &&
-                                       admin_set&.title&.first == Rails.configuration.data_set_admin_set_title
+                                                   byebug
+            unless ( (admin_set.id.eql? Rails.configuration.default_admin_set_id) &&
+                                       (admin_set&.title&.first != Rails.configuration.data_set_admin_set_title) )
               ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                      ::Deepblue::LoggingHelper.called_from,
                                                      "assigning admin set id=#{admin_set.id}",
