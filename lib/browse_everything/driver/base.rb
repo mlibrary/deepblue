@@ -9,6 +9,8 @@ module BrowseEverything
       # begin monkey
       mattr_accessor :browse_everything_driver_base_debug_verbose,
                      default: ::BrowseEverythingIntegrationService.browse_everything_driver_base_debug_verbose
+      mattr_accessor :browse_everything_driver_base2_debug_verbose,
+                     default: ::BrowseEverythingIntegrationService.browse_everything_driver_base2_debug_verbose
       # end monkey
 
       # Provide accessor and mutator methods for @token and @code
@@ -43,7 +45,12 @@ module BrowseEverything
       # Constructor
       # @param config_values [Hash] configuration for the driver
       def initialize(config_values)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "config_values=#{config_values}",
+                                               "" ] if browse_everything_driver_base2_debug_verbose
         @config = config_values
+        # @config = ActiveSupport::HashWithIndifferentAccess.new(@config) if @config.is_a? Hash
         @sorter = self.class.sorter || self.class.default_sorter
         validate_config
       end
@@ -56,7 +63,11 @@ module BrowseEverything
       end
 
       # Abstract method
-      def validate_config; end
+      def validate_config
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if browse_everything_driver_base_debug_verbose
+      end
 
       # Generate the key for the driver
       # @return [String]

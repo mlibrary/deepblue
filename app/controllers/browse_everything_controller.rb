@@ -7,8 +7,8 @@ class BrowseEverythingController < ApplicationController
   # begin monkey
   mattr_accessor :browse_everything_controller_debug_verbose,
                  default: ::BrowseEverythingIntegrationService.browse_everything_controller_debug_verbose
-  mattr_accessor :browse_everything_controller_debug_verbose2,
-                 default: ::BrowseEverythingIntegrationService.browse_everything_controller_debug_verbose2
+  mattr_accessor :browse_everything_controller2_debug_verbose,
+                 default: ::BrowseEverythingIntegrationService.browse_everything_controller2_debug_verbose
   # end monkey
 
   layout 'browse_everything'
@@ -16,15 +16,21 @@ class BrowseEverythingController < ApplicationController
 
   protect_from_forgery with: :exception
 
+  before_action do
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "" ] if true
+  end
+
   after_action do
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "" ] if browse_everything_controller_debug_verbose2
+                                           "" ] if browse_everything_controller2_debug_verbose
     provider_session.token = provider.token unless provider.nil? || provider.token.blank?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "provider_session.token = #{provider_session.token}",
-                                           "" ] if browse_everything_controller_debug_verbose2
+                                           "" ] if browse_everything_controller2_debug_verbose
     provider_session.token
   end
 
@@ -41,7 +47,7 @@ class BrowseEverythingController < ApplicationController
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "provider.contents(browse_path) = #{rv}",
-                                           "" ] if browse_everything_controller_debug_verbose2
+                                           "" ] if browse_everything_controller2_debug_verbose
     rv
   end
 
@@ -64,7 +70,7 @@ class BrowseEverythingController < ApplicationController
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "error=#{e}",
-                                           "" ] if browse_everything_controller_debug_verbose2
+                                           "" ] if browse_everything_controller2_debug_verbose
     Rails.logger.error "#{e.class} -- #{e.message} at #{e.backtrace[0]}"
     ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
@@ -131,14 +137,14 @@ class BrowseEverythingController < ApplicationController
   def provider_session
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "" ] if browse_everything_controller_debug_verbose2
+                                           "" ] if browse_everything_controller2_debug_verbose
     sess = session
     prov_name = provider_name
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "session=#{sess}",
                                            "provider_name=#{prov_name}",
-                                           "" ] if browse_everything_controller_debug_verbose2
+                                           "" ] if browse_everything_controller2_debug_verbose
     BrowseEverythingSession::ProviderSession.new(session: sess, name: prov_name)
   end
 
@@ -146,7 +152,7 @@ class BrowseEverythingController < ApplicationController
   def reset_provider_session!
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "" ] if browse_everything_controller_debug_verbose2
+                                           "" ] if browse_everything_controller2_debug_verbose
     return unless @provider_session
     @provider_session.token = nil
     @provider_session.code = nil
@@ -165,7 +171,7 @@ class BrowseEverythingController < ApplicationController
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "rv = #{rv}",
-                                           "" ] if browse_everything_controller_debug_verbose2
+                                           "" ] if browse_everything_controller2_debug_verbose
     rv
   end
 
@@ -193,7 +199,7 @@ class BrowseEverythingController < ApplicationController
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "@auth_link = #{@auth_link}",
-                                           "" ] if browse_everything_controller_debug_verbose2
+                                           "" ] if browse_everything_controller2_debug_verbose
     @auth_link
   end
 
@@ -202,12 +208,12 @@ class BrowseEverythingController < ApplicationController
   def browse_path
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "" ] if browse_everything_controller_debug_verbose2
+                                           "" ] if browse_everything_controller2_debug_verbose
     rv = params[:path] || ''
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "rv = #{rv}",
-                                           "" ] if browse_everything_controller_debug_verbose2
+                                           "" ] if browse_everything_controller2_debug_verbose
     rv
   end
 
@@ -216,12 +222,12 @@ class BrowseEverythingController < ApplicationController
   def provider_name_from_state
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "" ] if browse_everything_controller_debug_verbose2
+                                           "" ] if browse_everything_controller2_debug_verbose
     rv = params[:state].to_s.split(/\|/).last
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "rv = #{rv}",
-                                           "" ] if browse_everything_controller_debug_verbose2
+                                           "" ] if browse_everything_controller2_debug_verbose
     rv
   end
 
@@ -230,12 +236,12 @@ class BrowseEverythingController < ApplicationController
   def provider_name
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "" ] if browse_everything_controller_debug_verbose2
+                                           "" ] if browse_everything_controller2_debug_verbose
     rv = params[:provider] || provider_name_from_state || browser.providers.each_key.to_a.first
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "rv = #{rv}",
-                                           "" ] if browse_everything_controller_debug_verbose2
+                                           "" ] if browse_everything_controller2_debug_verbose
     rv
   end
 
@@ -244,7 +250,7 @@ class BrowseEverythingController < ApplicationController
   def provider
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "" ] if browse_everything_controller_debug_verbose2
+                                           "" ] if browse_everything_controller2_debug_verbose
     prov_name = provider_name
     rv = browser.providers[prov_name.to_sym] if prov_name.present?
     rv ||= browser.first_provider
@@ -252,7 +258,7 @@ class BrowseEverythingController < ApplicationController
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "rv = #{rv}",
-                                           "" ] if browse_everything_controller_debug_verbose2
+                                           "" ] if browse_everything_controller2_debug_verbose
     rv
   end
 
@@ -263,12 +269,12 @@ class BrowseEverythingController < ApplicationController
   def browser
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "" ] if browse_everything_controller_debug_verbose2
+                                           "" ] if browse_everything_controller2_debug_verbose
     rv = BrowserFactory.build(session: session, url_options: url_options)
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "rv = #{rv}",
-                                           "" ] if browse_everything_controller_debug_verbose2
+                                           "" ] if browse_everything_controller2_debug_verbose
     rv
   end
 

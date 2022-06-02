@@ -1,8 +1,8 @@
-<% browse_everything_auth_debug_verbose = true %>
+<%# browse_everything_auth_debug_verbose = true %>
 <%
   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                          ::Deepblue::LoggingHelper.called_from,
-                                         "" ] if browse_everything_auth_debug_verbose
+                                         "" ] if true || ::BrowseEverythingIntegrationService.browse_everything_views_debug_verbose
 %>
 <h2><%=t('browse_everything.auth_prompt.head', provider: provider.name)%></h2>
 <p><%=t('browse_everything.auth_prompt.text', provider: provider.name)%></p>

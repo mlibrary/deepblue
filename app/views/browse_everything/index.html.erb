@@ -1,4 +1,9 @@
-<% browse_everything_index_debug_verbose = true %>
+<%# browse_everything_index_debug_verbose = true %>
+<%
+  ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                         ::Deepblue::LoggingHelper.called_from,
+                                         "" ] if true || ::BrowseEverythingIntegrationService.browse_everything_views_debug_verbose
+%>
 <div class="modal-dialog modal-lg">
   <div class="modal-content">
     <div class="modal-header">
@@ -18,7 +23,7 @@
             <%
             ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
             ::Deepblue::LoggingHelper.called_from,
-            "" ] if browse_everything_index_debug_verbose
+            "" ] if true || ::BrowseEverythingIntegrationService.browse_everything_views_debug_verbose
             %>
           <% if provider.present? %>
             <% if provider.authorized? %>
@@ -34,7 +39,7 @@
               ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
                                                      ::Deepblue::LoggingHelper.called_from,
                                                      "e.message=#{e.message}",
-                                                     "" ] + e.backtrace if browse_everything_index_debug_verbose
+                                                     "" ] + e.backtrace if true || ::BrowseEverythingIntegrationService.browse_everything_views_debug_verbose
             %>
         <% end %>
         </div>
