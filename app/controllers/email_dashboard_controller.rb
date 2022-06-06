@@ -19,6 +19,8 @@ class EmailDashboardController < ApplicationController
   class_attribute :presenter_class
   self.presenter_class = EmailDashboardPresenter
 
+  attr_accessor :begin_date, :end_date, :log_entries
+
   attr_reader :action_error
 
   def action
@@ -48,7 +50,37 @@ class EmailDashboardController < ApplicationController
     "Reloaded email templates."
   end
 
+  def log_entries
+    @log_entries ||= ::Deepblue::LogFileHelper.log_entries( log_file_path: ::EmailLogger.log_file,
+                                                            begin_date: begin_date,
+                                                            end_date: end_date,
+                                                            raw_key_values: true ).reverse!
+  end
+
+  def log_parse_entry( entry )
+    ::Deepblue::LogFileHelper.log_parse_entry entry
+  end
+
+  def log_key_values_to_table( key_values, parse: false )
+    ::Deepblue::LogFileHelper.log_key_values_to_table( key_values, parse: parse )
+  end
+
   def show
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "params=#{params}",
+                                           "params[:begin_date]=#{params[:begin_date]}",
+                                           "params[:end_date]=#{params[:end_date]}",
+                                           "" ] if email_dashboard_controller_debug_verbose
+    @begin_date = ViewHelper.to_date(params[:begin_date])
+    @begin_date ||= Date.today - 1.week
+    @end_date = ViewHelper.to_date(params[:end_date])
+    @end_date ||= Date.tomorrow
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "@begin_date=#{@begin_date}",
+                                           "@end_date=#{@end_date}",
+                                           "" ] if email_dashboard_controller_debug_verbose
     @presenter = presenter_class.new( controller: self, current_ability: current_ability )
     render 'hyrax/dashboard/show_email_dashboard'
   end

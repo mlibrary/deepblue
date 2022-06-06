@@ -275,6 +275,11 @@ en:
         title:              "View Contact Form Log"
       documentation:
         title:              "Manage Documentation"
+      email:
+        heading:
+          actions:          "Actions"
+          log:              "Email Log"
+        title:              "View Email Log"
       ingest:
         title:              "Manage Ingests"
       google_analytics:

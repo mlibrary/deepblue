@@ -6,7 +6,7 @@ RSpec.describe Deepblue::ProvenanceHelper, type: :helper do
     it { expect( Deepblue::JsonLoggerHelper::TIMESTAMP_FORMAT ).to eq '\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d' }
     it { expect( Deepblue::JsonLoggerHelper::RE_TIMESTAMP_FORMAT.source ).to eq '^\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d$' }
     it { expect( Deepblue::JsonLoggerHelper::RE_LOG_LINE.source ).to \
-        eq '^(\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d) ([^/]+)/([^/]*)/([^/]+)/([^/ ]*) (.*)$' }
+        eq '^(\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d) ([^/]+)/([^/]*)/([^/]+)/([^ ]*) (.*)$' }
     it { expect( Deepblue::JsonLoggerHelper::PREFIX_UPDATE_ATTRIBUTE ).to eq 'UpdateAttribute_' }
   end
 
