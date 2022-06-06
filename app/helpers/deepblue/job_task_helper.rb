@@ -18,6 +18,7 @@ module Deepblue
     mattr_accessor :deactivate_expired_embargoes_job_debug_verbose, default: false
     mattr_accessor :deepblue_job_debug_verbose,                     default: false
     mattr_accessor :export_documentation_job_debug_verbose,         default: false
+    mattr_accessor :export_log_files_job_debug_verbose,             default: false
     mattr_accessor :fedora_accessible_job_debug_verbose,            default: false
     mattr_accessor :globus_errors_report_job_debug_verbose,         default: false
     mattr_accessor :globus_status_report_job_debug_verbose,         default: false

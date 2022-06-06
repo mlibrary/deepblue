@@ -4,6 +4,8 @@ module Deepblue
 
   module ExportFilesHelper
 
+    mattr_accessor :export_files_helper_debug_verbose, default: false
+
     require 'down'
 
     def self.export_file_uri( source_uri:, target_file: )
@@ -77,6 +79,53 @@ module Deepblue
       total_copied = DeepblueHelper.human_readable_size( total_bytes )
       LoggingHelper.debug "#{log_prefix} Finished export to #{target_dir}; total #{total_copied} in #{files_extracted.size} files" unless quiet
       total_bytes
+    end
+
+    def self.export_log_files( msg_queue: nil,
+                               target_path: nil,
+                               task: false,
+                               verbose: false,
+                               debug_verbose: export_files_helper_debug_verbose )
+
+      debug_verbose = debug_verbose || export_files_helper_debug_verbose
+      unless target_path.present?
+        server_part = case Rails.configuration.hostname
+                      when ::Deepblue::InitializationConstants::HOSTNAME_PROD
+                        ::Deepblue::InitializationConstants::PRODUCTION
+                      when ::Deepblue::InitializationConstants::HOSTNAME_TESTING
+                        ::Deepblue::InitializationConstants::TESTING
+                      when ::Deepblue::InitializationConstants::HOSTNAME_STAGING
+                        ::Deepblue::InitializationConstants::STAGING
+                      when ::Deepblue::InitializationConstants::HOSTNAME_TEST
+                        ::Deepblue::InitializationConstants::TEST
+                      when ::Deepblue::InitializationConstants::HOSTNAME_LOCAL
+                        ::Deepblue::InitializationConstants::LOCAL
+                      else
+                        ::Deepblue::InitializationConstants::UNKNOWN
+                      end
+        target_dir_name = Time.now.strftime('%Y%m%d')
+        target_path = "/deepbluedata-prep/logs/#{server_part}/#{target_dir_name}"
+      end
+      msg_queue << "Target dir is: #{target_path}" unless msg_queue.nil?
+      # `ls "/deepbluedata-prep/logs/#{server_part}/"`
+      # `ls "/deepbluedata-prep/logs/"`
+      FileUtils.mkdir_p target_path unless Dir.exist? target_path
+
+      log_path = File.realpath './log'
+
+      # `ls "#{log_path}"`
+      # `ls "#{log_path}/"*`
+      # `ls "#{target_path}"`
+
+      src_path = "#{log_path}/"
+      # `ls "#{src_path}"`
+      # `ls "#{src_path}"*`
+
+      cmd = "cp \"#{src_path}\"* \"#{target_path}\""
+      msg_queue << "Copy started at: #{Time.now}" unless msg_queue.nil?
+      `#{cmd}`
+      # `ls "#{target_path}"`
+      msg_queue << "Copy finished at: #{Time.now}" unless msg_queue.nil?
     end
 
   end

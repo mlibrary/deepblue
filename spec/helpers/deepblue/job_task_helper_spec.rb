@@ -33,6 +33,7 @@ RSpec.describe Deepblue::JobTaskHelper, type: :helper do
     it { expect( described_class.deactivate_expired_embargoes_job_debug_verbose ).to eq false }
     it { expect( described_class.deepblue_job_debug_verbose                     ).to eq false }
     it { expect( described_class.export_documentation_job_debug_verbose         ).to eq false }
+    it { expect( described_class.export_log_files_job_debug_verbose             ).to eq false }
     it { expect( described_class.fedora_accessible_job_debug_verbose            ).to eq false }
     it { expect( described_class.globus_errors_report_job_debug_verbose         ).to eq false }
     it { expect( described_class.globus_status_report_job_debug_verbose         ).to eq false }
