@@ -6,6 +6,40 @@ module Hyrax
 
     mattr_accessor :branding_helper_debug_verbose, default: false
 
+    def self.ensure_public_branding_dir_is_linked(debug_verbose: branding_helper_debug_verbose)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ], bold_puts: true if debug_verbose
+      # There may be an issue when running from circleci
+      begin
+        current_dir = `pwd`
+        current_dir.chomp!
+        public_branding_dir = File.join current_dir, 'public', 'branding'
+        link_exists = File.exist? public_branding_dir
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "public_branding_dir=#{public_branding_dir}",
+                                               "link_exists=#{link_exists}",
+                                               "" ], bold_puts: true if debug_verbose
+        return if link_exists
+        data_branding_dir = File.join current_dir, 'data', 'branding'
+        cmd = "ln -s \"#{data_branding_dir}/\" \"#{public_branding_dir}/\""
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "cmd=#{cmd}",
+                                               "" ], bold_puts: true if debug_verbose
+        rv = `#{cmd}`
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "cmd rv=#{rv}",
+                                               "" ], bold_puts: true if debug_verbose
+        return
+      rescue Exception => e
+        puts "Exception: #{e.to_s}"
+        puts e.backtrace.join("\n")
+      end
+    end
+
     def branding_banner_file( id: )
       # Find Banner filename
       ci = CollectionBrandingInfo.where( collection_id: id, role: "banner" )
