@@ -30,6 +30,8 @@ class ServerAfterInitializeService
 
     puts "Begin server_after_initialize_callback..." if debug_verbose
 
+    ::Hyrax::BrandingHelper.ensure_public_branding_dir_is_linked(debug_verbose: debug_verbose)
+
     ::Deepblue::LoggingIntializationService.initialize_logging(debug_verbose: debug_verbose)
 
     ::Hyrax::UserHelper.ensure_hyrax_roles_registered( from_initializer: true ) unless Rails.env.test?
