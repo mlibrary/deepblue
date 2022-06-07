@@ -564,7 +564,7 @@ module Deepblue
 
     def yaml_work_find( curation_concern: )
       if source == MetadataHelper::SOURCE_DBDv2
-        DataSet.find curation_concern
+        ::PersistHelper.find curation_concern
       else
         GenericWork.find curation_concern
       end

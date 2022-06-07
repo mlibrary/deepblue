@@ -563,7 +563,7 @@ module Hyrax
     end
 
     def parent_data_set
-      @parent_data_set ||= DataSet.find parent.id
+      @parent_data_set ||= ::PersistHelper.find parent.id
     end
 
     def parent_doi_minted?
