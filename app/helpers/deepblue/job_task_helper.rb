@@ -15,6 +15,7 @@ module Deepblue
 
     mattr_accessor :about_to_expire_embargoes_job_debug_verbose,    default: false
     mattr_accessor :abstract_rake_task_job_debug_verbose,           default: false
+    mattr_accessor :clean_blacklight_query_cache_job_debug_verbose, default: false
     mattr_accessor :deactivate_expired_embargoes_job_debug_verbose, default: false
     mattr_accessor :deepblue_job_debug_verbose,                     default: false
     mattr_accessor :export_documentation_job_debug_verbose,         default: false

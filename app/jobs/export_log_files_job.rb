@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../../lib/tasks/yaml_populate_for_collection"
+require_relative "../../app/helpers/deepblue/export_files_helper"
 
 class ExportLogFilesJob < ::Deepblue::DeepblueJob
 
