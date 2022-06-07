@@ -1056,7 +1056,7 @@ module Deepblue
 
     def self.yaml_work_find( curation_concern:, source: )
       if source == SOURCE_DBDv2
-        DataSet.find curation_concern
+        ::PersistHelper.find curation_concern
       else
         GenericWork.find curation_concern
       end

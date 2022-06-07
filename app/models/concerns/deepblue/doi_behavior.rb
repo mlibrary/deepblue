@@ -28,7 +28,7 @@ module Deepblue
     def doi_is_registered?
       # doi_status_when_public.in?(['registered', 'findable'])
       return false unless doi_minted?
-      return false if doi_pending == doi
+      return false if doi_pending?
       return true
     end
 
@@ -98,6 +98,12 @@ module Deepblue
       return true
     rescue Exception => e # rubocop:disable Lint/RescueException
       Rails.logger.error "DoiBehavior.doi_mint for curation_concern.id #{id} -- #{e.class}: #{e.message} at #{e.backtrace[0]}"
+    end
+
+    def ensure_doi_minted
+      ::Deepblue::DoiMintingService.ensure_doi_minted( curation_concern: self,
+                                                       task: false,
+                                                       debug_verbose: doi_behavior_debug_verbose )
     end
 
   end

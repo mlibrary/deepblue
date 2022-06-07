@@ -46,6 +46,81 @@ module Deepblue
       @@_setup_ran = true
     end
 
+    def self.ensure_doi_minted( id: nil,
+                                curation_concern: nil,
+                                debug_verbose: doi_minting_service_debug_verbose,
+                                task: false )
+
+      debug_verbose = debug_verbose || ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "curation_concern.nil?=#{curation_concern.nil?}",
+                                             "task=#{task}",
+                                             "" ], bold_puts: task if debug_verbose
+      id ||= curation_concern&.id
+      w = curation_concern
+      w ||= ::PersistHelper.find id
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "work found=#{w.present?}",
+                                             "" ], bold_puts: task if debug_verbose
+      return false unless w.present?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "work doi_minted?=#{w.doi_minted?}",
+                                             "" ], bold_puts: task if debug_verbose
+      unless w.doi_minted?
+        registrar_mint_doi( curation_concern: w,
+                            current_user: nil,
+                            debug_verbose: debug_verbose,
+                            registrar: nil,
+                            registrar_opts: {} )
+        findable = datacite.doi_findable? w
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "work doi findable=#{findable}",
+                                               "" ], bold_puts: task if debug_verbose
+        return findable
+      end
+
+      datacite = ::Deepblue::DataCiteRegistrar.new
+      datacite.debug_verbose = true if debug_verbose
+      datacite.debug_verbose_puts = true if task && debug_verbose
+      findable = datacite.doi_findable? w
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "work doi findable=#{findable}",
+                                             "" ], bold_puts: task if debug_verbose
+      return true if findable
+
+      # m = datacite.client.get_metadata(w.doi)
+      # raw = datacite.client.get_metadata_raw(w.doi)
+      # xraw = Nokogiri::XML(raw)
+
+      client = datacite.client
+      # w.doi_is_registered?
+      #
+      # client.get_url(w.doi)
+      # ==> error
+      #
+      url = datacite.work_url(w)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "work url=#{url}",
+                                             "" ], bold_puts: task if debug_verbose
+      doi = w.doi
+      doi = doi.sub( /^doi:/, '' )
+      client.register_url(doi, url)
+      findable = datacite.doi_findable? w
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "work doi findable=#{findable}",
+                                             "" ], bold_puts: task if debug_verbose
+      return findable
+    end
+
     # <b>DEPRECATED:</b> Please use <tt>registrar_mint_doi</tt> instead.
     def self.mint_doi_for( curation_concern:,
                            current_user:,

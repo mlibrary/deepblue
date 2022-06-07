@@ -149,7 +149,7 @@ module Deepblue
       if dbd_version_1?
         GenericWork.find id
       else
-        DataSet.find id
+        ::PersistHelper.find id
       end
     end
 
