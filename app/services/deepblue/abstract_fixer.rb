@@ -11,8 +11,11 @@ module Deepblue
 
     attr_accessor :debug_verbose, :filter, :ids_fixed, :prefix, :verbose, :task
 
+    attr_accessor :msg_queue
+
     def initialize( debug_verbose: abstract_fixer_debug_verbose,
                     filter: nil,
+                    msg_queue: nil,
                     prefix:,
                     task: false,
                     verbose: find_and_fix_default_verbose )
@@ -26,16 +29,22 @@ module Deepblue
       @debug_verbose = debug_verbose
       @ids_fixed = []
       @filter = filter
+      @msg_queue = msg_queue
       @prefix = prefix
       @task = task
       @verbose = verbose
     end
 
-    def add_msg( messages, msg )
+    def add_id_fixed( id )
+      @ids_fixed << id
+    end
+
+    def add_msg( msg, messages: nil )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "msg=#{msg}",
                                              "" ], bold_puts: task if debug_verbose
+      messages ||= @msg_queue
       messages << prefix + msg
     end
 

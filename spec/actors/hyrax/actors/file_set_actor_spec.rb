@@ -280,7 +280,7 @@ RSpec.describe Hyrax::Actors::FileSetActor, skip: false do
       end
 
       it "removes representative, renderings, thumbnail, and the proxy association" do
-        gw = DataSet.find(work.id)
+        gw = ::PersistHelper.find work.id
         expect(gw.representative_id).to eq(file_set.id)
         expect(gw.thumbnail_id).to eq(file_set.id)
         expect { actor.destroy }.to change { ActiveFedora::Aggregation::Proxy.count }.by(-1)

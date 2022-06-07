@@ -16,7 +16,7 @@ class MockAbstractFixer < ::Deepblue::AbstractFixer
   end
 
   def fix( curation_concern:, messages: )
-    add_msg messages, curation_concern.to_s
+    add_msg( curation_concern.to_s, messages: messages )
   end
 
 end
@@ -102,9 +102,9 @@ RSpec.describe ::Deepblue::AbstractFixer do
     let(:msg2)           { 'Even more interesting.' }
     it 'adds the message to messages' do
       abstract_fixer.send(:initialize, debug_verbose: false, prefix: prefix )
-      abstract_fixer.add_msg( messages, msg )
+      abstract_fixer.add_msg( msg, messages: messages )
       expect( messages ).to eq [ "#{prefix}#{msg}" ]
-      abstract_fixer.add_msg( messages, msg2 )
+      abstract_fixer.add_msg(  msg2, messages: messages )
       expect( messages ).to eq [ "#{prefix}#{msg}", "#{prefix}#{msg2}" ]
     end
   end
