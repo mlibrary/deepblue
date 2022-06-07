@@ -13,6 +13,7 @@ module Deepblue
     mattr_accessor :find_and_fix_job_debug_verbose,                 default: false
     mattr_accessor :works_ordered_members_file_sets_size_fixer_debug_verbose, default: false
     mattr_accessor :works_ordered_members_nils_fixer_debug_verbose, default: false
+    mattr_accessor :works_total_file_size_fixer_debug_verbose,      default: false
 
     mattr_accessor :find_and_fix_default_filter,   default: nil
     mattr_accessor :find_and_fix_default_verbose,  default: true
@@ -20,7 +21,8 @@ module Deepblue
     mattr_accessor :find_and_fix_over_file_sets,   default: [ 'Deepblue::FileSetsLostAndFoundFixer',
                                                               'Deepblue::FileSetsVisibilityFixer' ]
     mattr_accessor :find_and_fix_over_works,       default: [ 'Deepblue::WorksOrderedMembersNilsFixer',
-                                                              'Deepblue::WorksOrderedMembersFileSetsSizeFixer' ]
+                                                              'Deepblue::WorksOrderedMembersFileSetsSizeFixer',
+                                                              'Deepblue::WorksTotalFileSizeFixer' ]
 
     mattr_accessor :find_and_fix_file_sets_lost_and_found_work_title, default: 'DBD_Find_and_Fix_FileSets_Lost_and_Found'
 
