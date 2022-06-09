@@ -21,14 +21,14 @@ module Deepblue
              task: task )
     end
 
-    def fix_include?( curation_concern:, messages: )
-      @msg_queue ||= messages
+    def fix_include?( curation_concern:, msg_handler: )
+      @msg_handler ||= msg_handler
       return false unless curation_concern.parent.present?
-      return super( curation_concern: curation_concern, messages: messages )
+      return super( curation_concern: curation_concern, msg_handler: msg_handler )
     end
 
-    def fix( curation_concern:, messages: )
-      @msg_queue ||= messages
+    def fix( curation_concern:, msg_handler: )
+      @msg_handler ||= msg_handler
       parent = curation_concern.parent
       if curation_concern.visibility != parent.visibility
         curation_concern.visibility = parent.visibility

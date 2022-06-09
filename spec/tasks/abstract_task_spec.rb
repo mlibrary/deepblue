@@ -29,7 +29,7 @@ RSpec.describe ::Deepblue::AbstractTask, skip: false do
       end
 
       it "has the correct options" do
-        expect( task.options ).to eq options1
+        expect( task.options ).to eq options1.with_indifferent_access
         expect( task.msg_queue ).to eq nil
         expect( task.to_console ).to eq described_class::DEFAULT_TO_CONSOLE
         expect( task.verbose ).to eq described_class::DEFAULT_VERBOSE

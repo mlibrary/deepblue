@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
+require_relative './abstract_task'
 require_relative '../../app/helpers/deepblue/clean_up_helper'
+require_relative '../../app/services/deepblue/message_handler'
 
 module Deepblue
 
@@ -14,6 +16,10 @@ module Deepblue
                                              "options=#{options}",
                                              "" ], bold_puts: true if clean_blacklight_query_cache_task_debug_verbose
       super( options: options )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "@options=#{@options}",
+                                             "" ], bold_puts: true if clean_blacklight_query_cache_task_debug_verbose
       @increment_day_span = task_options_value( key: 'increment_day_span', default_value: 15 )
       @max_day_spans = task_options_value( key: 'max_day_spans', default_value: 0 )
       @start_day_span = task_options_value( key: 'start_day_span', default_value: 30 )
@@ -32,11 +38,14 @@ module Deepblue
                                              "@max_day_spans=#{@max_day_spans}",
                                              "@start_day_span=#{@start_day_span}",
                                              "" ], bold_puts: true if clean_blacklight_query_cache_task_debug_verbose
-      ::Deepblue::CleanUpHelper.clean_blacklight_query_cache( increment_day_span: @increment_day_span,
-                                                              start_day_span: @start_day_span,
-                                                              max_day_spans: @max_day_spans,
-                                                              task: true,
-                                                              verbose: false )
+      msg_handler = MessageHandler.new( msg_queue: nil, task: true, verbose: verbose )
+      CleanUpHelper.clean_blacklight_query_cache( msg_handler: msg_handler,
+                                                  increment_day_span: @increment_day_span,
+                                                  start_day_span: @start_day_span,
+                                                  max_day_spans: @max_day_spans,
+                                                  task: true,
+                                                  verbose: verbose,
+                                                  debug_verbose: clean_blacklight_query_cache_task_debug_verbose )
     end
 
   end

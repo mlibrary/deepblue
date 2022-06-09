@@ -11,6 +11,7 @@ module Deepblue
                              task: false,
                              verbose: false,
                              fixer: nil,
+                             msg_handler: nil,
                              debug_verbose: find_and_fix_helper_debug_verbose )
 
       debug_verbose = debug_verbose || find_and_fix_helper_debug_verbose

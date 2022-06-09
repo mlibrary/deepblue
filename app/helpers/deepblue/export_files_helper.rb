@@ -81,7 +81,7 @@ module Deepblue
       total_bytes
     end
 
-    def self.export_log_files( msg_queue: nil,
+    def self.export_log_files( msg_handler: nil,
                                target_path: nil,
                                task: false,
                                verbose: false,
@@ -106,7 +106,7 @@ module Deepblue
         target_dir_name = Time.now.strftime('%Y%m%d')
         target_path = "/deepbluedata-prep/logs/#{server_part}/#{target_dir_name}"
       end
-      msg_queue << "Target dir is: #{target_path}" unless msg_queue.nil?
+      msg_handler.msg "Target dir is: #{target_path}" unless msg_handler.nil?
       # `ls "/deepbluedata-prep/logs/#{server_part}/"`
       # `ls "/deepbluedata-prep/logs/"`
       FileUtils.mkdir_p target_path unless Dir.exist? target_path
@@ -122,10 +122,10 @@ module Deepblue
       # `ls "#{src_path}"*`
 
       cmd = "cp \"#{src_path}\"* \"#{target_path}\""
-      msg_queue << "Copy started at: #{Time.now}" unless msg_queue.nil?
+      msg_handler.msg "Copy started at: #{Time.now}" unless msg_handler.nil?
       `#{cmd}`
       # `ls "#{target_path}"`
-      msg_queue << "Copy finished at: #{Time.now}" unless msg_queue.nil?
+      msg_handler.msg "Copy finished at: #{Time.now}" unless msg_handler.nil?
     end
 
   end

@@ -25,22 +25,22 @@ module Deepblue
              verbose: verbose )
     end
 
-    def fix_include?( curation_concern:, messages: )
+    def fix_include?( curation_concern:, msg_handler: )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
                                              "" ], bold_puts: task if works_total_file_size_fixer_debug_verbose
-      @msg_queue ||= messages
+      @msg_handler ||= msg_handler
       return false unless curation_concern.respond_to? :file_sets
-      return super( curation_concern: curation_concern, messages: messages )
+      return super( curation_concern: curation_concern, msg_handler: msg_handler )
     end
 
-    def fix( curation_concern:, messages: )
+    def fix( curation_concern:, msg_handler: )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
                                              "" ], bold_puts: task if works_total_file_size_fixer_debug_verbose
-      @msg_queue ||= messages
+      @msg_handler ||= msg_handler
       if FindAndFixHelper.valid_file_sizes?( curation_concern: curation_concern,
                                              fixer: self,
                                              task: false,

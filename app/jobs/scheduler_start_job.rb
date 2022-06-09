@@ -87,7 +87,12 @@ class SchedulerStartJob < ::Deepblue::DeepblueJob
     scheduler_emails( autostart: autostart, to: user_emails, subject: subject, body: body )
     job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
-    job_status_register( exception: e )
+    job_status_register( exception: e, args: [ { autostart: autostart,
+                                         job_delay: job_delay,
+                                         restart: restart,
+                                         user_email: user_email,
+                                         debug_verbose: debug_verbose },
+                                         options ] )
     email_failure( targets: user_emails, task_name: self.class.name, exception: e, event: self.class.name )
     raise e
   end

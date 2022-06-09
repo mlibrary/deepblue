@@ -69,7 +69,7 @@ RSpec.describe ::Deepblue::FileSetsVisibilityFixer do
     let(:fix_included) { create(:file_set, visibility: visible ) }
     let(:fix_included_and_fix) { create(:file_set, visibility: not_visible ) }
     let(:fix_excluded) { create(:file_set) }
-    let(:messages) { [] }
+    let(:msg_handler) { ::Deepblue::MessageHandler.new }
     let(:fixer) { described_class.new( verbose: true )}
 
     before do # another file_set is added
@@ -81,13 +81,13 @@ RSpec.describe ::Deepblue::FileSetsVisibilityFixer do
     context '.fix_include?' do
 
       it 'included' do
-        expect( fixer.fix_include?( curation_concern: fix_included, messages: messages ) ).to eq true
-        expect( messages ).to eq []
+        expect( fixer.fix_include?( curation_concern: fix_included, msg_handler: msg_handler ) ).to eq true
+        expect( msg_handler.msg_queue ).to eq []
       end
 
       it 'excluded' do
-        expect( fixer.fix_include?( curation_concern: fix_excluded, messages: messages ) ).to eq false
-        expect( messages ).to eq []
+        expect( fixer.fix_include?( curation_concern: fix_excluded, msg_handler: msg_handler ) ).to eq false
+        expect( msg_handler.msg_queue ).to eq []
       end
 
     end
@@ -99,15 +99,15 @@ RSpec.describe ::Deepblue::FileSetsVisibilityFixer do
 
         it 'is fixed' do
           expect( parent_work.visibility == fix_included_and_fix.visibility ).to eq false
-          fixer.fix( curation_concern: fix_included_and_fix, messages: messages )
-          expect( messages ).to eq [ "#{prefix}FileSet #{fix_included_and_fix.id} parent work #{parent_work.id} updating visibility." ]
+          fixer.fix( curation_concern: fix_included_and_fix, msg_handler: msg_handler )
+          expect( msg_handler.msg_queue ).to eq [ "#{prefix}FileSet #{fix_included_and_fix.id} parent work #{parent_work.id} updating visibility." ]
           expect( parent_work.visibility == fix_included_and_fix.visibility ).to eq true
         end
 
         it 'is not fixed' do
           expect( parent_work.visibility == fix_included.visibility ).to eq true
-          fixer.fix( curation_concern: fix_included, messages: messages )
-          expect( messages ).to eq []
+          fixer.fix( curation_concern: fix_included, msg_handler: msg_handler )
+          expect( msg_handler.msg_queue ).to eq []
           expect( parent_work.visibility == fix_included.visibility ).to eq true
         end
 

@@ -44,7 +44,7 @@ END_OF_SCHEDULER_ENTRY
                                            "options=#{options}",
                                            "" ] if debug_verbose
     increment_day_span = job_options_value( options, key: 'increment_day_span', default_value: 15, verbose: verbose )
-    max_day_spans = job_options_value( options, key: 'max_day_spans', default_value: 1, verbose: verbose )
+    max_day_spans = job_options_value( options, key: 'max_day_spans', default_value: 0, verbose: verbose )
     start_day_span = job_options_value( options, key: 'start_day_span', default_value: 30, verbose: verbose )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
@@ -55,14 +55,17 @@ END_OF_SCHEDULER_ENTRY
     event = "clean blacklight query cache"
     log( event: event, hostname_allowed: hostname_allowed? )
     return job_finished unless hostname_allowed?
+    msg_handler = ::Deepblue::MessageHandler.new( msg_queue: job_msg_queue, task: task, verbose: verbose )
     ::Deepblue::CleanUpHelper.clean_blacklight_query_cache( increment_day_span: increment_day_span,
                                                             start_day_span: start_day_span,
                                                             max_day_spans: max_day_spans,
-                                                            msg_queue: job_msg_queue,
-                                                            verbose: false )
+                                                            msg_handler: msg_handler,
+                                                            task: task,
+                                                            verbose: verbose,
+                                                            debug_verbose: clean_blacklight_query_cache_job_debug_verbose )
     email_all_targets( task_name: event,
                        event: event ,
-                       body: job_msg_queue.join("\n"),
+                       body: msg_handler.join("\n"),
                        debug_verbose: clean_blacklight_query_cache_job_debug_verbose )
     job_finished
 
@@ -71,7 +74,7 @@ END_OF_SCHEDULER_ENTRY
                        event: event ,
                        body: job_msg_queue.join("\n") + e.message + "\n" + e.backtrace.join("\n"),
                        debug_verbose: clean_blacklight_query_cache_job_debug_verbose )
-    job_status_register( exception: e, args: { user_email: user_email } )
+    job_status_register( exception: e, args: args )
     raise e
 
   end

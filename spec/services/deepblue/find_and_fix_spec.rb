@@ -53,7 +53,7 @@ RSpec.describe ::Deepblue::FindAndFix do
         find_and_fix.send(:initialize)
         expect(find_and_fix.debug_verbose).to  eq default_debug_verbose
         expect(find_and_fix.filter).to         eq default_filter
-        expect(find_and_fix.messages).to       eq default_messages
+        expect(find_and_fix.msg_handler.msg_queue).to eq default_messages
         expect(find_and_fix.task).to           eq default_task
         expect(find_and_fix.verbose).to        eq default_verbose
 
@@ -65,7 +65,7 @@ RSpec.describe ::Deepblue::FindAndFix do
     context 'all values' do
       let(:debug_verbose) { !default_debug_verbose }
       let(:filter)        { "filter" }
-      let(:messages)      { [ 'previous message' ] }
+      let(:msg_handler)   { ::Deepblue::MessageHandler.new( msg_queue: [ 'previous message' ] ) }
       let(:task)          { !default_task }
       let(:verbose)       { !default_verbose }
 
@@ -73,12 +73,12 @@ RSpec.describe ::Deepblue::FindAndFix do
         find_and_fix.send(:initialize,
                           debug_verbose: default_debug_verbose,
                           filter: filter,
-                          messages: messages,
+                          msg_handler: msg_handler,
                           task: task,
                           verbose: verbose )
         expect(find_and_fix.debug_verbose).to  eq default_debug_verbose
         expect(find_and_fix.filter).to         eq filter
-        expect(find_and_fix.messages).to       eq messages
+        expect(find_and_fix.msg_handler).to    eq msg_handler
         expect(find_and_fix.task).to           eq task
         expect(find_and_fix.verbose).to        eq verbose
 

@@ -21,14 +21,14 @@ module Deepblue
              verbose: verbose )
     end
 
-    def fix_include?( curation_concern:, messages: )
-      @msg_queue ||= messages
+    def fix_include?( curation_concern:, msg_handler: )
+      @msg_handler ||= msg_handler
       return false unless curation_concern.respond_to? :file_sets
-      return super( curation_concern: curation_concern, messages: messages )
+      return super( curation_concern: curation_concern, msg_handler: msg_handler )
     end
 
-    def fix( curation_concern:, messages: )
-      @msg_queue ||= messages
+    def fix( curation_concern:, msg_handler: )
+      @msg_handler ||= msg_handler
       ordered_members = Array( curation_concern.ordered_members )
       ordered_member_ids = Array( curation_concern.ordered_member_ids )
       file_sets = curation_concern.file_sets

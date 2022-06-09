@@ -5,7 +5,7 @@ module MsgHelper
 
   mattr_accessor :msg_helper_debug_verbose, default: false
 
-  FIELD_SEP = '; '
+  FIELD_SEP = '; ' unless const_defined? :FIELD_SEP
 
   def self.creator( curation_concern, field_sep: FIELD_SEP )
     curation_concern.creator.join( field_sep )
