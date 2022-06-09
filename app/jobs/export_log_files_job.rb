@@ -27,6 +27,8 @@ export_log_files_job:
 
 END_OF_SCHEDULER_ENTRY
 
+  EVENT = "export log files"
+
   queue_as :default
 
   def perform( *args )
@@ -36,21 +38,25 @@ END_OF_SCHEDULER_ENTRY
                                            "args=#{args}",
                                            "" ] if debug_verbose
     initialize_options_from( *args, debug_verbose: debug_verbose )
-    log( event: "export log files job", hostname_allowed: hostname_allowed? )
+    log( event: EVENT, hostname_allowed: hostname_allowed? )
     return job_finished unless hostname_allowed?
-    ::Deepblue::ExportFilesHelper.export_log_files( msg_queue: msg_queue, verbose: job_msg_queue )
-    email_all_targets( task_name: "export log files",
-                       event: "export log files" ,
-                       body: job_msg_queue.join("\n"),
+    msg_handler = ::Deepblue::MessageHandler.new( msg_queue: job_msg_queue, task: task, verbose: verbose )
+    ::Deepblue::ExportFilesHelper.export_log_files( msg_handler: msg_handler,
+                                                    task: task,
+                                                    verbose: job_msg_queue,
+                                                    debug_verbose: export_log_files_job_debug_verbose )
+    email_all_targets( task_name: EVENT,
+                       event: EVENT,
+                       body: msg_handler.join("\n"),
                        debug_verbose: export_log_files_job_debug_verbose )
     job_finished
 
   rescue Exception => e # rubocop:disable Lint/RescueException
-    email_all_targets( task_name: "export log files",
-                       event: "export log files" ,
+    email_all_targets( task_name: EVENT,
+                       event: EVENT,
                        body: job_msg_queue.join("\n") + e.message + "\n" + e.backtrace.join("\n"),
                        debug_verbose: export_log_files_job_debug_verbose )
-    job_status_register( exception: e, args: { user_email: user_email } )
+    job_status_register( exception: e, args: args )
     raise e
 
   end

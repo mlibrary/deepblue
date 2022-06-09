@@ -18,6 +18,7 @@ module Deepblue
     mattr_accessor :clean_blacklight_query_cache_job_debug_verbose, default: false
     mattr_accessor :deactivate_expired_embargoes_job_debug_verbose, default: false
     mattr_accessor :deepblue_job_debug_verbose,                     default: false
+    mattr_accessor :ensure_doi_minted_job_debug_verbose,            default: false
     mattr_accessor :export_documentation_job_debug_verbose,         default: false
     mattr_accessor :export_log_files_job_debug_verbose,             default: false
     mattr_accessor :fedora_accessible_job_debug_verbose,            default: false
@@ -36,6 +37,7 @@ module Deepblue
     mattr_accessor :scheduler_start_job_debug_verbose,              default: false
     mattr_accessor :update_condensed_events_job_debug_verbose,      default: false
     mattr_accessor :user_stat_importer_job_debug_verbose,           default: false
+    mattr_accessor :work_find_and_fix_job_debug_verbose,            default: false
     mattr_accessor :works_report_job_debug_verbose,                 default: false
 
     mattr_accessor :allowed_job_tasks,             default: [ "tmp:clean" ].freeze
@@ -280,7 +282,7 @@ END_BODY
                                              "args=#{args}",
                                              "" ] if debug_verbose
       options = {}
-      return options unless args.present?
+      return options.with_indifferent_access unless args.present?
       args = normalize_args( *args, debug_verbose: debug_verbose )
       args.each do |key,value|
         options[key.to_s] = value

@@ -17,14 +17,14 @@ module Deepblue
       super( debug_verbose: debug_verbose, filter: filter, prefix: PREFIX, task: task, verbose: verbose )
     end
 
-    def fix_include?( curation_concern:, messages: )
-      @msg_queue ||= messages
+    def fix_include?( curation_concern:, msg_handler: )
+      @msg_handler ||= msg_handler
       return false unless curation_concern.parent.blank?
-      return super( curation_concern: curation_concern, messages: messages )
+      return super( curation_concern: curation_concern, msg_handler: msg_handler )
     end
 
-    def fix( curation_concern:, messages: )
-      @msg_queue ||= messages
+    def fix( curation_concern:, msg_handler: )
+      @msg_handler ||= msg_handler
       work = lost_and_found_work
       if work.is_a? DataSet
         add_msg "FileSet #{curation_concern.id} added to lost and found work #{work.id}" if verbose

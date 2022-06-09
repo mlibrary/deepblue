@@ -15,8 +15,8 @@ class MockAbstractFixer < ::Deepblue::AbstractFixer
            verbose: verbose )
   end
 
-  def fix( curation_concern:, messages: )
-    add_msg( curation_concern.to_s, messages: messages )
+  def fix( curation_concern:, msg_handler: )
+    add_msg( curation_concern.to_s, msg_handler: msg_handler )
   end
 
 end
@@ -97,15 +97,15 @@ RSpec.describe ::Deepblue::AbstractFixer do
   describe '.add_msg' do
     let(:abstract_fixer) { MockAbstractFixer.allocate }
     let(:prefix)         { 'Prefix:' }
-    let(:messages)       { [] }
+    let(:msg_handler)    { ::Deepblue::MessageHandler.new }
     let(:msg)            { 'That was interesting.' }
     let(:msg2)           { 'Even more interesting.' }
-    it 'adds the message to messages' do
+    it 'adds the message to msg_handler' do
       abstract_fixer.send(:initialize, debug_verbose: false, prefix: prefix )
-      abstract_fixer.add_msg( msg, messages: messages )
-      expect( messages ).to eq [ "#{prefix}#{msg}" ]
-      abstract_fixer.add_msg(  msg2, messages: messages )
-      expect( messages ).to eq [ "#{prefix}#{msg}", "#{prefix}#{msg2}" ]
+      abstract_fixer.add_msg( msg, msg_handler: msg_handler )
+      expect( msg_handler.msg_queue ).to eq [ "#{prefix}#{msg}" ]
+      abstract_fixer.add_msg(  msg2, msg_handler: msg_handler )
+      expect( msg_handler.msg_queue ).to eq [ "#{prefix}#{msg}", "#{prefix}#{msg2}" ]
     end
   end
 
@@ -114,22 +114,22 @@ RSpec.describe ::Deepblue::AbstractFixer do
     context 'with defined fix method' do
       let(:abstract_fixer)   { MockAbstractFixer.allocate }
       let(:curation_concern) { "DataSet" }
-      let(:messages)         { [] }
-      it 'adds the message to messages' do
+      let(:msg_handler)      { ::Deepblue::MessageHandler.new }
+      it 'adds the message to msg_handler' do
         abstract_fixer.send(:initialize)
-        abstract_fixer.fix( curation_concern: curation_concern, messages: messages )
-        expect( messages ).to eq [ "#{default_prefix}#{curation_concern}" ]
+        abstract_fixer.fix( curation_concern: curation_concern, msg_handler: msg_handler )
+        expect( msg_handler.msg_queue ).to eq [ "#{default_prefix}#{curation_concern}" ]
       end
     end
 
     context 'without defined fix method' do
       let(:abstract_fixer)   { MockBrokenAbstractFixer.allocate }
       let(:curation_concern) { "DataSet" }
-      let(:messages)         { [] }
-      it 'adds the message to messages' do
+      let(:msg_handler)      { ::Deepblue::MessageHandler.new }
+      it 'adds the message to msg_handler' do
         abstract_fixer.send(:initialize)
         expect { abstract_fixer.fix( curation_concern: curation_concern,
-                                     messages: messages ) }.to raise_error "Attempt to call abstract method."
+                                     msg_handler: msg_handler ) }.to raise_error "Attempt to call abstract method."
       end
     end
 
@@ -139,15 +139,15 @@ RSpec.describe ::Deepblue::AbstractFixer do
     let(:abstract_fixer)   { MockAbstractFixer.allocate }
     let(:curation_concern) { double("curation_concern") }
     let(:filter)           { "filter" }
-    let(:messages)         { [] }
+    let(:msg_handler)      { ::Deepblue::MessageHandler.new }
 
     context 'nil filter filters in' do
       # before do
       #   allow(curation_concern).to receive(:what).and_return what
       # end
-      it 'adds the message to messages' do
+      it 'adds the message to msg_handler' do
         abstract_fixer.send(:initialize, filter: nil)
-        expect(abstract_fixer.fix_include?( curation_concern: curation_concern, messages: messages )).to eq true
+        expect(abstract_fixer.fix_include?( curation_concern: curation_concern, msg_handler: msg_handler )).to eq true
       end
     end
 
@@ -163,8 +163,8 @@ RSpec.describe ::Deepblue::AbstractFixer do
           allow(curation_concern).to receive(:date_modified).and_return fake_date
           allow(filter).to receive(:include?).with(fake_date).and_return true
         end
-        it 'adds the message to messages' do
-          expect(abstract_fixer.fix_include?( curation_concern: curation_concern, messages: messages )).to eq true
+        it 'adds the message to msg_handler' do
+          expect(abstract_fixer.fix_include?( curation_concern: curation_concern, msg_handler: msg_handler )).to eq true
         end
       end
 
@@ -173,8 +173,8 @@ RSpec.describe ::Deepblue::AbstractFixer do
           allow(curation_concern).to receive(:date_modified).and_return fake_date
           allow(filter).to receive(:include?).with(fake_date).and_return false
         end
-        it 'adds the message to messages' do
-          expect(abstract_fixer.fix_include?( curation_concern: curation_concern, messages: messages )).to eq false
+        it 'adds the message to msg_handler' do
+          expect(abstract_fixer.fix_include?( curation_concern: curation_concern, msg_handler: msg_handler )).to eq false
         end
       end
 

@@ -20,11 +20,11 @@ module Deepblue
     def initialize( options: {}, msg_queue: nil )
       @msg_queue = msg_queue
       @options = TaskHelper.task_options_parse options
+      @options = @options.with_indifferent_access if @options.respond_to? :with_indifferent_access
       if  @options.key?( :error )
         report_puts "WARNING: options error #{@options[:error]}"
         report_puts "options=#{options}"
-      end
-      if @options.key?( 'error' )
+      elsif @options.key?( 'error' )
         report_puts "WARNING: options error #{@options['error']}"
         report_puts "options=#{options}"
       end

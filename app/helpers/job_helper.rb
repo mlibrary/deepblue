@@ -115,7 +115,7 @@ module JobHelper
     #                                       "key=#{key}",
     #                                       "default_value=#{default_value}",
     #                                       "verbose=#{verbose}",
-    #                                        "" ], bold_puts: task if job_helper_debug_verbose
+    #                                        "" ] if job_helper_debug_verbose
     return default_value if options.blank?
     return default_value unless options.key? key
     # if [true, false].include? default_value

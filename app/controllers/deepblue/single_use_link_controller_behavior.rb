@@ -7,7 +7,7 @@ module Deepblue
     mattr_accessor :single_use_link_controller_behavior_debug_verbose,
                    default: ::Hyrax::SingleUseLinkService.single_use_link_controller_behavior_debug_verbose
 
-    INVALID_SINGLE_USE_LINK = ''.freeze
+    INVALID_SINGLE_USE_LINK = ''.freeze unless const_defined? :INVALID_SINGLE_USE_LINK
 
     include ActionView::Helpers::TranslationHelper
 

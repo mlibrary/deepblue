@@ -9,7 +9,29 @@ class ExportDocumentationJob < ::Deepblue::DeepblueJob
 
   queue_as :default
 
-  def perform( id:, export_path:, user_email: )
+  SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
+
+export_log_files_job:
+  # Run once a week at midnight
+  #      M H D
+  # cron: '*/5 * * * *'
+  cron: '0 5 * * 0'
+  class: ExportDocumentationJob
+  queue: default
+  description: Export documentation.
+  args:
+    by_request_only: true
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'staging.deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
+    verbose: false
+
+  END_OF_SCHEDULER_ENTRY
+
+  def perform( id: ::Deepblue::WorkViewContentService.content_documentation_collection_id,
+               export_path: ::Deepblue::WorkViewContentService.export_documentation_path,
+               user_email: nil )
     initialize_with( debug_verbose: export_documentation_job_debug_verbose )
     @from_dashboard = user_email
     # initialize_options_from( *args, debug_verbose: export_documentation_job_debug_verbose )

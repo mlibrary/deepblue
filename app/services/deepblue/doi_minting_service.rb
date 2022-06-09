@@ -49,7 +49,8 @@ module Deepblue
     def self.ensure_doi_minted( id: nil,
                                 curation_concern: nil,
                                 debug_verbose: doi_minting_service_debug_verbose,
-                                task: false )
+                                task: false,
+                                msg_handler: nil )
 
       debug_verbose = debug_verbose || ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -58,6 +59,7 @@ module Deepblue
                                              "curation_concern.nil?=#{curation_concern.nil?}",
                                              "task=#{task}",
                                              "" ], bold_puts: task if debug_verbose
+      msg_handler ||= ::Deepblue::MessageHandler.new( task: task )
       id ||= curation_concern&.id
       w = curation_concern
       w ||= ::PersistHelper.find id

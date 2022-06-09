@@ -64,7 +64,7 @@ RSpec.describe ::Deepblue::WorksOrderedMembersNilsFixer do
   describe 'methods are correct' do
     let(:fixed) { create(:data_set) }
     let(:not_fixed) { create(:data_set) }
-    let(:messages) { [] }
+    let(:msg_handler) { ::Deepblue::MessageHandler.new }
     let(:fixer) { described_class.new( verbose: true )}
     let(:one_nil_array) { [ nil ] }
     let(:file_set1) { create(:file_set) }
@@ -78,13 +78,13 @@ RSpec.describe ::Deepblue::WorksOrderedMembersNilsFixer do
     context '.fix_include?' do
 
       it 'include fixed' do
-        expect( fixer.fix_include?( curation_concern: fixed, messages: messages ) ).to eq true
-        expect( messages ).to eq []
+        expect( fixer.fix_include?( curation_concern: fixed, msg_handler: msg_handler ) ).to eq true
+        expect( msg_handler.msg_queue ).to eq []
       end
 
       it 'include not_fixed' do
-        expect( fixer.fix_include?( curation_concern: not_fixed, messages: messages ) ).to eq true
-        expect( messages ).to eq []
+        expect( fixer.fix_include?( curation_concern: not_fixed, msg_handler: msg_handler ) ).to eq true
+        expect( msg_handler.msg_queue ).to eq []
       end
 
     end
@@ -102,13 +102,13 @@ RSpec.describe ::Deepblue::WorksOrderedMembersNilsFixer do
         end
 
         it 'is fixed' do
-          fixer.fix( curation_concern: fixed, messages: messages )
-          expect( messages ).to eq [ "#{prefix}Compacting ordered_members for work #{fixed.id}." ]
+          fixer.fix( curation_concern: fixed, msg_handler: msg_handler )
+          expect( msg_handler.msg_queue ).to eq [ "#{prefix}Compacting ordered_members for work #{fixed.id}." ]
         end
 
         it 'is not fixed' do
-          fixer.fix( curation_concern: not_fixed, messages: messages )
-          expect( messages ).to eq []
+          fixer.fix( curation_concern: not_fixed, msg_handler: msg_handler )
+          expect( msg_handler.msg_queue ).to eq []
         end
 
       end
