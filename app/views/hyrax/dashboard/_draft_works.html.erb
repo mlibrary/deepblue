@@ -28,13 +28,19 @@
               <% draft_works.each do |work| %>
                 <tr>
                   <td>
-                    <%= link_to work.title.first,
-                        edit_polymorphic_path([main_app, work]),
-                        { title: t('.edit_title', file_set: work) } %></td>
+                    <% if !Flipflop.disable_desposits_and_edits? %>
+                      <%= link_to work.title.first,
+                          edit_polymorphic_path([main_app, work]),
+                          { title: t('.edit_title', file_set: work) } %>
+                      <% else %>
+                        <%= work.title.first %>
+                      <% end %>
+                  </td>
                   <td><%= work.date_uploaded.strftime('%Y-%m-%d')%></td>
                   <td><%= work.date_modified.strftime('%Y-%m-%d') %></td>
                   <td>
-                    <%= link_to [main_app, work],
+                    <% if !Flipflop.disable_desposits_and_edits? %>
+                      <%= link_to [main_app, work],
                                 method: :delete,
                           data: {
                           confirm: t("hyrax.dashboard.my.action.work_confirmation",
@@ -42,6 +48,9 @@
                             <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
                             <span> <%= t("hyrax.dashboard.my.action.delete_work") %> </span>
                           <% end %>
+                      <% else %>
+                        -
+                      <% end %>
                   </td>
                 </tr>
               <% end %>
