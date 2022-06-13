@@ -12,10 +12,13 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
   attr_accessor :hostnames
   attr_accessor :is_quiet
   attr_accessor :job_delay
+  attr_accessor :msg_handler
   attr_accessor :options
   attr_accessor :subscription_service_id
   attr_accessor :task
   attr_accessor :verbose
+
+
 
   def debug_verbose
     @debug_verbose ||= abstract_rake_task_job_debug_verbose
@@ -45,7 +48,7 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "args=#{args}",
-                                           "" ] if abstract_rake_task_job_debug_verbose
+                                           "" ] if debug_verbose
     @timestamp_begin = DateTime.now
     @options = {}
     args.each { |key,value| @options[key.to_s] = value }
@@ -53,7 +56,7 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
                                            ::Deepblue::LoggingHelper.called_from,
                                            "timestamp_begin=#{timestamp_begin}",
                                            "options=#{options}",
-                                           "" ] if abstract_rake_task_job_debug_verbose
+                                           "" ] if debug_verbose
     @task            = init_from_arg( arg: 'task', default_var: task, default_value: false, task: false, verbose: false )
     @verbose         = init_from_arg( arg: 'verbose', default_var: verbose, default_value: false, verbose: false )
     ::Deepblue::LoggingHelper.debug "verbose=#{verbose}" if verbose
@@ -75,6 +78,13 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
     super( arg: arg, default_var: default_var, default_value: default_value, task: task, verbose: verbose )
   end
 
+  def msg_handler
+    @msg_handler ||= ::Deepblue::MessageHandler.new( debug_verbose: debug_verbose,
+                                                     msg_queue: job_msg_queue,
+                                                     to_console: task,
+                                                     verbose: verbose )
+  end
+
   def options_value( key:, default_value: nil, verbose: self.verbose, task: self.task )
     job_options_value( options, key: key, default_value: default_value, verbose: verbose, task: task )
   end
@@ -86,7 +96,7 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
       msg = "sleeping #{job_delay} seconds"
       Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            msg,
-                                           "" ] if abstract_rake_task_job_debug_verbose
+                                           "" ] if debug_verbose
       job_msg_queue << msg
     end
     sleep job_delay

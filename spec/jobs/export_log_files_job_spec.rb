@@ -11,7 +11,7 @@ RSpec.describe ExportLogFilesJob do
   RSpec.shared_examples 'it performs the job' do |debug_verbose_count|
     let(:dbg_verbose) { debug_verbose_count > 0 }
     let(:args)        { {} }
-    let(:job)         { described_class.send( :job_or_instantiate, *args ) }
+    let(:job)         { described_class.send(:job_or_instantiate, *args) }
 
     before do
       expect(job).to receive(:perform_now).with(no_args).and_call_original
@@ -30,7 +30,7 @@ RSpec.describe ExportLogFilesJob do
       expect(::Deepblue::ExportFilesHelper).to receive(:export_log_files) do |args|
         expect(args[:msg_handler].is_a? ::Deepblue::MessageHandler).to eq true
         expect(args[:msg_handler].msg_queue).to eq []
-        expect(args[:msg_handler].task).to eq false
+        expect(args[:msg_handler].to_console).to eq false
         expect(args[:msg_handler].verbose).to eq false
         expect(args[:task]).to eq false
         # expect(args[:debug_verbose]).to eq debug_verbose

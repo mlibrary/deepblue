@@ -4,12 +4,20 @@ module Deepblue
 
   class MessageHandler
 
-    attr_accessor :msg_prefix, :msg_queue, :task, :verbose
+    attr_accessor :debug_verbose, :msg_prefix, :msg_queue, :to_console, :verbose
 
-    def initialize( msg_prefix: '', msg_queue: [], task: false, verbose: false )
+    def initialize( debug_verbose: false,
+                    msg_prefix: '',
+                    msg_queue: [],
+                    # task: false,
+                    to_console: false,
+                    verbose: false )
+
+      @debug_verbose = debug_verbose
       @msg_prefix = msg_prefix
+      @msg_prefix ||= ''
       @msg_queue = msg_queue
-      @task = task
+      @to_console = to_console
       @verbose = verbose
     end
 
@@ -19,14 +27,32 @@ module Deepblue
       return @msg_queue.join sep
     end
 
-    def msg( msg )
-      msg = "#{@msg_prefix}msg" if @msg_prefix.present?
+    def line( msg )
+      Rails.logger.debug if debug_verbose
       @msg_queue << msg unless @msg_queue.nil?
-      puts msg if task
+      puts msg if @to_console
     end
 
-    def msg_verbose( msg )
-      msg msg if @verbose
+    def msg( msg, prefix: '' )
+      if msg.is_a? Array
+        msg.each do |msg_line|
+          line "#{@msg_prefix}#{prefix}#{msg_line}"
+        end
+      else
+        line "#{@msg_prefix}#{prefix}#{msg}"
+      end
+    end
+
+    def msg_error( msg )
+      msg msg, prefix: 'ERROR: '
+    end
+
+    def msg_verbose( msg, prefix: '' )
+      msg( msg, prefix: prefix ) if @verbose
+    end
+
+    def msg_warn( msg )
+      msg msg, prefix: 'WARNING: '
     end
 
   end

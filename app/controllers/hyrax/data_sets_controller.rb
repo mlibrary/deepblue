@@ -40,6 +40,7 @@ module Hyrax
     protect_from_forgery with: :null_session,    only: [:create_anonymous_link]
     protect_from_forgery with: :null_session,    only: [:create_single_use_link]
     protect_from_forgery with: :null_session,    only: [:display_provenance_log]
+    protect_from_forgery with: :null_session,    only: [:ensure_doi_minted]
     protect_from_forgery with: :null_session,    only: [:globus_add_email]
     protect_from_forgery with: :null_session,    only: [:globus_download]
     protect_from_forgery with: :null_session,    only: [:globus_download_add_email]
@@ -48,6 +49,7 @@ module Hyrax
     protect_from_forgery with: :null_session,    only: [:ingest_append_generate_script]
     protect_from_forgery with: :null_session,    only: [:ingest_append_prep]
     protect_from_forgery with: :null_session,    only: [:ingest_append_run_job]
+    protect_from_forgery with: :null_session,    only: [:work_find_and_fix]
     protect_from_forgery with: :null_session,    only: [:zip_download]
 
     attr_accessor :user_email_one, :user_email_two
@@ -112,6 +114,24 @@ module Hyrax
     def analytics_unsubscribe
       ::AnalyticsHelper.monthly_events_report_unsubscribe_data_set( user: current_user, cc_id: params[:id] )
       redirect_to current_show_path( append: "#analytics" )
+    end
+
+    def ensure_doi_minted
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if data_sets_controller_debug_verbose
+      ::EnsureDoiMintedJob.perform_later( params[:id], email_results_to: current_user.email )
+      flash[:notice] = "Ensure DOI minted job started. You will be emailed the results."
+      redirect_to [main_app, curation_concern]
+    end
+
+    def work_find_and_fix
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if data_sets_controller_debug_verbose
+      ::WorkFindAndFixJob.perform_later( params[:id], email_results_to: current_user.email )
+      flash[:notice] = "Work find and fix job started. You will be emailed the results."
+      redirect_to [main_app, curation_concern]
     end
 
     ## box integration

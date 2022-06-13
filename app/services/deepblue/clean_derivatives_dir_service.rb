@@ -10,17 +10,22 @@ module Deepblue
 
     mattr_accessor :clean_derivatives_dir_service_debug_verbose, default: false
 
-    attr_accessor :job_msg_queue, :days_old, :to_console, :verbose
+    attr_accessor :debug_verbose, :job_msg_queue, :days_old, :to_console, :verbose
 
-    def initialize( days_old: nil, job_msg_queue: [], to_console: false, verbose: false )
+    def initialize( days_old: nil,
+                    job_msg_queue: [],
+                    to_console: false,
+                    verbose: false,
+                    debug_verbose: clean_derivatives_dir_service_debug_verbose )
 
+      @debug_verbose = debug_verbose || clean_derivatives_dir_service_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "days_old=#{days_old}",
                                              "job_msg_queue=#{job_msg_queue}",
                                              "to_console=#{to_console}",
                                              "verbose=#{verbose}",
-                                             "" ] if clean_derivatives_dir_service_debug_verbose
+                                             "" ] if debug_verbose
       @days_old = days_old
       @job_msg_queue = job_msg_queue
       @to_console = to_console
@@ -43,7 +48,7 @@ module Deepblue
                                              "older_than_days=#{older_than_days}",
                                              "to_console=#{to_console}",
                                              "verbose=#{verbose}",
-                                             "" ] if clean_derivatives_dir_service_debug_verbose
+                                             "" ] if debug_verbose
 
       run_msg "Disk usage before: #{report_du}"
       delete_dirs_glob_regexp( glob: '?' * 9, filename_regexp: /^[0-9a-z]{9}$/ )

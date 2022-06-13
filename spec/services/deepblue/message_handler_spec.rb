@@ -15,8 +15,9 @@ RSpec.describe ::Deepblue::MessageHandler do
     describe 'no parameters' do
       let( :handler ) { described_class.new }
       it { expect( handler.msg_queue ).to eq [] }
-      it { expect( handler.task ).to eq false }
+      it { expect( handler.to_console ).to eq false }
       it { expect( handler.verbose ).to eq false }
+      it { expect( handler.debug_verbose ).to eq false }
     end
 
     describe 'with msg_queue' do
@@ -25,9 +26,9 @@ RSpec.describe ::Deepblue::MessageHandler do
       it { expect( described_class.new( msg_queue: ['msg'] ).msg_queue ).to eq ['msg'] }
     end
 
-    describe 'with task' do
-      it { expect( described_class.new( task: true ).task ).to eq true }
-      it { expect( described_class.new( task: false ).task ).to eq false }
+    describe 'with to_console' do
+      it { expect( described_class.new( to_console: true ).to_console ).to eq true }
+      it { expect( described_class.new( to_console: false ).to_console ).to eq false }
     end
 
     describe 'with verbose' do
@@ -35,10 +36,21 @@ RSpec.describe ::Deepblue::MessageHandler do
       it { expect( described_class.new( verbose: false ).verbose ).to eq false }
     end
 
+    describe 'with debug_verbose' do
+      it { expect( described_class.new( debug_verbose: true ).debug_verbose ).to eq true }
+      it { expect( described_class.new( debug_verbose: false ).debug_verbose ).to eq false }
+    end
+
   end
 
   context 'accessors work' do
     let( :handler ) { described_class.new }
+
+    it '#debug_verbose' do
+      expect( handler.debug_verbose ).to eq false
+      handler.debug_verbose = true;  expect( handler.debug_verbose ).to eq true
+      handler.debug_verbose = false; expect( handler.debug_verbose ).to eq false
+    end
 
     it '#msg_queue' do
       expect( handler.msg_queue ).to eq []
@@ -47,10 +59,10 @@ RSpec.describe ::Deepblue::MessageHandler do
       handler.msg_queue = ['1', '2']; expect( handler.msg_queue ).to eq ['1', '2']
     end
 
-    it '#task' do
-      expect( handler.task ).to eq false
-      handler.task = true;  expect( handler.task ).to eq true
-      handler.task = false; expect( handler.task ).to eq false
+    it '#to_console' do
+      expect( handler.to_console ).to eq false
+      handler.to_console = true;  expect( handler.to_console ).to eq true
+      handler.to_console = false; expect( handler.to_console ).to eq false
     end
 
     it '#verbose' do
@@ -80,6 +92,142 @@ RSpec.describe ::Deepblue::MessageHandler do
       expect( described_class.new( msg_queue: msg_queue0 ).join(sep) ).to eq msg_queue0.join(sep)
       expect( described_class.new( msg_queue: msg_queue1 ).join(sep) ).to eq msg_queue1.join(sep)
       expect( described_class.new( msg_queue: msg_queue2 ).join(sep) ).to eq msg_queue2.join(sep)
+    end
+
+  end
+
+  context '#line' do
+    let(:msg_arr) { [ 'I threw a boomerang.', 'Now I live constant dread of its return.' ] }
+
+    describe 'default initialization' do
+      let(:msg) { msg_arr[0] }
+      let(:handler) { described_class.new }
+      it 'add message to queue' do
+        expect( handler.msg_queue ).to eq []
+        expect do
+          handler.line msg
+        end.to_not output(msg).to_stdout
+        expect( handler.msg_queue ).to eq [msg]
+      end
+    end
+
+    describe 'with msg_queue initialized with non-empty array' do
+      let(:msg) { msg_arr[1] }
+      let(:msg_queue) { [msg_arr[0]] }
+      let(:handler) { described_class.new( msg_queue: msg_queue ) }
+      it 'add message to queue' do
+        expect( handler.msg_queue ).to eq msg_queue
+        expect do
+          handler.line msg
+        end.to_not output(msg).to_stdout
+        expect( handler.msg_queue ).to eq msg_arr
+      end
+    end
+
+    describe 'with to_console true and msg_queue' do
+      let(:msg) { msg_arr[0] }
+      let(:handler) { described_class.new( to_console: true ) }
+      it 'add message to queue' do
+        expect( handler.msg_queue ).to eq []
+        expect do
+          handler.line msg
+        end.to output(msg+"\n").to_stdout
+        expect( handler.msg_queue ).to eq [msg]
+      end
+    end
+
+    describe 'with to_console true and msg_queue nil' do
+      let(:msg) { msg_arr[0] }
+      let(:handler) { described_class.new( msg_queue: nil, to_console: true ) }
+      it 'add message to queue' do
+        expect( handler.msg_queue ).to eq nil
+        expect do
+          handler.line msg
+        end.to output(msg+"\n").to_stdout
+        expect( handler.msg_queue ).to eq nil
+      end
+    end
+
+  end
+
+  context '#msg' do
+    let(:msg_handler) { described_class.new }
+    let(:msg_arr) { [ 'I threw a boomerang.', 'Now I live constant dread of its return.' ] }
+    let(:prefix) { 'Quote: ' }
+
+    context 'with msg str' do
+      before do
+        expect(msg_handler).to receive(:line).once.with(msg_arr[0])
+      end
+      it { msg_handler.msg msg_arr[0] }
+    end
+
+    context 'with msg str and prefix' do
+      before do
+        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[0]}").once
+      end
+      it { msg_handler.msg msg_arr[0], prefix: prefix }
+    end
+
+    context 'with msg array' do
+      before do
+        expect(msg_handler).to receive(:line).once.with(msg_arr[0])
+        expect(msg_handler).to receive(:line).once.with(msg_arr[1])
+      end
+      it { msg_handler.msg msg_arr }
+    end
+
+    context 'with msg array and prefix' do
+      before do
+        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[0]}").once
+        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[1]}").once
+      end
+      it { msg_handler.msg msg_arr, prefix: prefix }
+    end
+
+  end
+
+  context '#msg_error' do
+    let(:msg_handler) { described_class.new }
+    let(:msg_arr) { [ 'I threw a boomerang.', 'Now I live constant dread of its return.' ] }
+    let(:prefix) { 'ERROR: ' }
+
+    context 'with msg' do
+      before do
+        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[0]}").once
+      end
+      it { msg_handler.msg_error msg_arr[0] }
+    end
+
+    context 'with msg array' do
+      before do
+        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[0]}").once
+        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[1]}").once
+      end
+      it { msg_handler.msg_error msg_arr }
+    end
+
+  end
+
+  context '#msg_warn' do
+    let(:msg_handler) { described_class.new }
+    let(:msg_arr) { [ 'I threw a boomerang.', 'Now I live constant dread of its return.' ] }
+    let(:prefix) { 'WARNING: ' }
+
+    context 'with msg' do
+      before do
+        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[0]}").once
+      end
+      it { msg_handler.msg_warn msg_arr[0] }
+    end
+
+
+    context 'with msg array' do
+      before do
+        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[0]}").once
+        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[1]}").once
+      end
+      it { msg_handler.msg_warn msg_arr }
     end
 
   end
@@ -130,8 +278,8 @@ RSpec.describe ::Deepblue::MessageHandler do
       end
     end
 
-    describe 'with task true and msg_queue' do
-      let( :handler ) { described_class.new( task: true ) }
+    describe 'with to_console true and msg_queue' do
+      let( :handler ) { described_class.new( to_console: true ) }
       it 'add message to queue and print' do
         expect do
           handler.msg 'line'
@@ -155,8 +303,8 @@ RSpec.describe ::Deepblue::MessageHandler do
       end
     end
 
-    describe 'with task true and msg_queue nil' do
-      let( :handler ) { described_class.new( task: true, msg_queue: nil ) }
+    describe 'with to_console true and msg_queue nil' do
+      let( :handler ) { described_class.new( to_console: true, msg_queue: nil ) }
       it 'add message to queue and print' do
         expect do
           handler.msg 'line'

@@ -58,7 +58,7 @@ module Deepblue
                                              "" ] if debug_verbose
       filter_date = nil
       messages = [] if messages.nil?
-      msg_handler = MessageHandler.new( msg_queue: messages, task: task, verbose: verbose )
+      msg_handler = MessageHandler.new( msg_queue: messages, to_console: task, verbose: verbose )
       if filter_date_begin.present? || filter_date_end.present?
         filter_date = FindAndFixCurationConcernFilterDate.new( begin_date: filter_date_begin,
                                                                end_date: filter_date_end,
@@ -87,7 +87,7 @@ module Deepblue
                                              "verbose=#{verbose}",
                                              "" ] if debug_verbose
 
-      msg_handler ||= MessageHandler.new( task: task, verbose: verbose )
+      msg_handler ||= MessageHandler.new( to_console: task, verbose: verbose )
       fixer = FindAndFix.new( id: id,
                               msg_handler: msg_handler,
                               verbose: verbose,

@@ -13,107 +13,198 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     it { expect( described_class.data_sets_controller_debug_verbose ).to eq debug_verbose }
   end
 
-  let(:user) { create(:user) }
+  let(:user)       { create(:user) }
   let(:user_other) { create(:user) }
+  let(:admin)      { create(:admin) }
 
   before { sign_in user }
 
-  describe 'integration test for suppressed documents', skip: false do
-    let(:work) do
-      create(:data_set_work, :public, state: Vocab::FedoraResourceStatus.inactive)
-    end
+  describe 'dbg_verbose true or false', skip: false do
 
-    before do
-      create(:sipity_entity, proxy_for_global_id: work.to_global_id.to_s)
-    end
+    RSpec.shared_examples 'data_sets_controller shared' do |dbg_verbose|
+      before do
+        described_class.data_sets_controller_debug_verbose = dbg_verbose
+        expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(:once) if dbg_verbose
+        expect(::Deepblue::LoggingHelper).to_not receive(:bold_debug) unless dbg_verbose
+      end
+      after do
+        described_class.data_sets_controller_debug_verbose = debug_verbose
+      end
 
-    it 'renders only the title because it is in workflow' do
-      get :show, params: { id: work }
-      expect(response.code).to eq '200'
-      # expect(response).to render_template(:unavailable)
-      expect(assigns[:presenter]).to be_instance_of Hyrax::DataSetPresenter
-      # expect(flash[:notice]).to eq 'The work is not currently available because it has not yet completed the approval process'
-    end
-  end
-
-  describe 'integration test for depositor of a suppressed documents without a workflow role', skip: false do
-    let(:work) do
-      create(:data_set_work, :public, state: Vocab::FedoraResourceStatus.inactive, user: user)
-    end
-
-    before do
-      create(:sipity_entity, proxy_for_global_id: work.to_global_id.to_s)
-    end
-
-    it 'renders without the unauthorized message' do
-      get :show, params: { id: work.id }
-      expect(response.code).to eq '200'
-      expect(response).to render_template(:show)
-      expect(assigns[:presenter]).to be_instance_of Hyrax::DataSetPresenter
-      expect(flash[:notice]).to be_nil
-    end
-  end
-
-  describe '#anonymous_link', skip: false do
-    let(:work) do
-      w = create(:data_set_with_one_file, user: user, depositor: user.email)
-      w.depositor = user.email
-      w
-    end
-    let(:anon_path)      { "/concern/data_sets/#{work.id}" }
-    let(:anonymous_link) { AnonymousLink.create( item_id: work.id, path: anon_path ) }
-    let(:anon_link_id)   { anonymous_link.download_key }
-
-    before do
-      create(:sipity_entity, proxy_for_global_id: work.to_global_id.to_s)
-    end
-
-    context 'while logged out' do
-      # let(:work) { create(:public_data_set, user: user, title: ['public thing']) }
-
-      before { sign_out user }
-
-      context "without a referer" do
-
-        before do
-          expect(anonymous_link.valid?).to eq true
-          expect(controller).to receive(:anonymous_link).and_call_original
-          expect(controller).to receive(:ensure_curation_concern_exists).at_least(:once).and_call_original
-          expect(controller).to receive(:anonymous_link_obj).with( link_id: anon_link_id ).at_least(:once).and_call_original
-          expect(::Hyrax::AnonymousLinkService).to receive(:anonymous_link_valid?).with( anonymous_link,
-                                                                      item_id: work.id,
-                                                                      path: "/concern/data_sets/#{work.id}?locale=en" ).and_call_original
-          expect(controller).to receive(:anonymous_link_destroy_because_invalid).with(anonymous_link).and_call_original
-          expect(controller).to receive(:anonymous_link_destroy_because_tombstoned).with(anonymous_link).and_call_original
-          expect(controller).to receive(:anonymous_link_destroy_because_published).with(anonymous_link).and_call_original
-          expect(::Hyrax::AnonymousLinkService).to_not receive(:anonymous_link_destroy!)
-          expect(controller).to receive(:presenter_init).and_call_original
+      describe 'integration test for suppressed documents', skip: false do
+        let(:work) do
+          create(:data_set_work, :public, state: Vocab::FedoraResourceStatus.inactive)
         end
 
-        it "shows the work" do
-          expect(anonymous_link.valid?).to eq true
-          get :anonymous_link, params: { id: work, anon_link_id: anon_link_id }
-          expect(response).to be_successful
+        before do
+          create(:sipity_entity, proxy_for_global_id: work.to_global_id.to_s)
+        end
+
+        it 'renders only the title because it is in workflow' do
+          get :show, params: { id: work }
+          expect(response.code).to eq '200'
+          # expect(response).to render_template(:unavailable)
+          expect(assigns[:presenter]).to be_instance_of Hyrax::DataSetPresenter
+          # expect(flash[:notice]).to eq 'The work is not currently available because it has not yet completed the approval process'
+        end
+      end
+
+      describe 'integration test for depositor of a suppressed documents without a workflow role', skip: false do
+        let(:work) do
+          create(:data_set_work, :public, state: Vocab::FedoraResourceStatus.inactive, user: user)
+        end
+
+        before do
+          create(:sipity_entity, proxy_for_global_id: work.to_global_id.to_s)
+        end
+
+        it 'renders without the unauthorized message' do
+          get :show, params: { id: work.id }
+          expect(response.code).to eq '200'
+          expect(response).to render_template(:show)
+          expect(assigns[:presenter]).to be_instance_of Hyrax::DataSetPresenter
+          expect(flash[:notice]).to be_nil
+        end
+      end
+
+      describe '#anonymous_link' do
+        let(:work) do
+          w = create(:data_set_with_one_file, user: user, depositor: user.email)
+          w.depositor = user.email
+          w
+        end
+        let(:anon_path)      { "/concern/data_sets/#{work.id}" }
+        let(:anonymous_link) { AnonymousLink.create( item_id: work.id, path: anon_path ) }
+        let(:anon_link_id)   { anonymous_link.download_key }
+
+        before do
+          create(:sipity_entity, proxy_for_global_id: work.to_global_id.to_s)
+        end
+
+        context 'while logged out' do
+          # let(:work) { create(:public_data_set, user: user, title: ['public thing']) }
+
+          before { sign_out user }
+
+          context "without a referer" do
+
+            before do
+              expect(anonymous_link.valid?).to eq true
+              expect(controller).to receive(:anonymous_link).and_call_original
+              expect(controller).to receive(:ensure_curation_concern_exists).at_least(:once).and_call_original
+              expect(controller).to receive(:anonymous_link_obj).with( link_id: anon_link_id ).at_least(:once).and_call_original
+              expect(::Hyrax::AnonymousLinkService).to receive(:anonymous_link_valid?).with( anonymous_link,
+                                                                          item_id: work.id,
+                                                                          path: "/concern/data_sets/#{work.id}?locale=en" ).and_call_original
+              expect(controller).to receive(:anonymous_link_destroy_because_invalid).with(anonymous_link).and_call_original
+              expect(controller).to receive(:anonymous_link_destroy_because_tombstoned).with(anonymous_link).and_call_original
+              expect(controller).to receive(:anonymous_link_destroy_because_published).with(anonymous_link).and_call_original
+              expect(::Hyrax::AnonymousLinkService).to_not receive(:anonymous_link_destroy!)
+              expect(controller).to receive(:presenter_init).and_call_original
+            end
+
+            it "shows the work" do
+              expect(anonymous_link.valid?).to eq true
+              get :anonymous_link, params: { id: work, anon_link_id: anon_link_id }
+              expect(response).to be_successful
+              ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
+            end
+
+          end
+
+          context "with a referer", skip: true do
+            before do
+              request.env['HTTP_REFERER'] = 'http://test.host/foo'
+            end
+
+            it "sets breadcrumbs to authorized pages" do
+              # TODO: expect(controller).to receive(:add_breadcrumb).with('Home', main_app.root_path(locale: 'en'))
+              expect(controller).not_to receive(:add_breadcrumb).with('Dashboard', hyrax.dashboard_path(locale: 'en'))
+              expect(controller).not_to receive(:add_breadcrumb).with('Your Works', hyrax.my_works_path(locale: 'en'))
+              # TODO: expect(controller).to receive(:add_breadcrumb).with('public thing', main_app.hyrax_data_set_path(work.id, locale: 'en'))
+              get :anonymous_link, params: { id: work, anon_link_id: anon_link_id }
+              expect(response).to be_successful
+              expect(response).to render_template("layouts/hyrax/1_column")
+            end
+          end
+        end
+      end
+
+      describe '#ensure_doi_minted' do
+        let(:work) do
+          create(:data_set_work, :public, user: user)
+        end
+
+        before do
+          create(:sipity_entity, proxy_for_global_id: work.to_global_id.to_s)
+        end
+
+        context 'as non-admin' do
+          it 'calls job and redirects back' do
+            allow(ActiveFedora::Base).to receive(:find).with(work.id).and_return(work)
+            expect(::EnsureDoiMintedJob).to_not receive(:perform_later).with(work.id, email_results_to: user.email)
+            get :ensure_doi_minted, params: { id: work }
+            expect(response).to redirect_to(root_path)
+            ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
+          end
+        end
+
+        context 'as admin' do
+          before do
+            sign_out user
+            sign_in admin
+          end
+
+          it 'calls job and redirects to main page' do
+            allow(ActiveFedora::Base).to receive(:find).with(work.id).and_return(work)
+            expect(::EnsureDoiMintedJob).to receive(:perform_later).with(work.id, email_results_to: admin.email)
+            get :ensure_doi_minted, params: { id: work }
+            expect(response).to redirect_to main_app.hyrax_data_set_path(work.id, locale: 'en')
+            expect(flash[:notice]).to eq "Ensure DOI minted job started. You will be emailed the results."
+          end
+        end
+     end
+
+      describe '#work_find_and_fix' do
+        let(:work) do
+          create(:data_set_work, :public, user: user)
+        end
+
+        before do
+          create(:sipity_entity, proxy_for_global_id: work.to_global_id.to_s)
+        end
+
+        context 'as non-admin' do
+          it 'calls job and redirects back' do
+            allow(ActiveFedora::Base).to receive(:find).with(work.id).and_return(work)
+            expect(::WorkFindAndFixJob).to_not receive(:perform_later).with(work.id, email_results_to: user.email)
+            get :work_find_and_fix, params: { id: work }
+            expect(response).to redirect_to(root_path)
+            ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
+          end
+        end
+
+        context 'as admin' do
+          before do
+            sign_out user
+            sign_in admin
+          end
+
+          it 'calls job and redirects back' do
+            allow(ActiveFedora::Base).to receive(:find).with(work.id).and_return(work)
+            expect(::WorkFindAndFixJob).to receive(:perform_later).with(work.id, email_results_to: admin.email)
+            get :work_find_and_fix, params: { id: work }
+            expect(response).to redirect_to main_app.hyrax_data_set_path(work.id, locale: 'en')
+            expect(flash[:notice]).to eq "Work find and fix job started. You will be emailed the results."
+          end
         end
 
       end
 
-      context "with a referer", skip: true do
-        before do
-          request.env['HTTP_REFERER'] = 'http://test.host/foo'
-        end
-
-        it "sets breadcrumbs to authorized pages" do
-          # TODO: expect(controller).to receive(:add_breadcrumb).with('Home', main_app.root_path(locale: 'en'))
-          expect(controller).not_to receive(:add_breadcrumb).with('Dashboard', hyrax.dashboard_path(locale: 'en'))
-          expect(controller).not_to receive(:add_breadcrumb).with('Your Works', hyrax.my_works_path(locale: 'en'))
-          # TODO: expect(controller).to receive(:add_breadcrumb).with('public thing', main_app.hyrax_data_set_path(work.id, locale: 'en'))
-          get :anonymous_link, params: { id: work, anon_link_id: anon_link_id }
-          expect(response).to be_successful
-          expect(response).to render_template("layouts/hyrax/1_column")
-        end
-      end
     end
+
+    it_behaves_like 'data_sets_controller shared', false
+    it_behaves_like 'data_sets_controller shared', true
 
   end
 
@@ -175,7 +266,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
       create(:sipity_entity, proxy_for_global_id: work.to_global_id.to_s)
     end
 
-    context 'work with any doi state' do
+    context 'work without doi' do
       let(:work) do
         w = create(:data_set_with_one_file, user: user, depositor: user.email, doi: nil)
         w.depositor = user.email

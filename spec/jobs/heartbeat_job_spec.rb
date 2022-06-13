@@ -22,15 +22,15 @@ RSpec.describe HeartbeatJob do
       context 'with valid arguments' do
         let(:event)   { 'heartbeat' }
         let(:args)    { {} }
-        let(:job)     { described_class.send( :job_or_instantiate, *args ) }
+        let(:job)     { described_class.send(:job_or_instantiate, *args) }
         let(:options) { {} }
         let(:time_before) { DateTime.now }
 
         before do
           expect(job).to receive(:perform_now).with(no_args).and_call_original
-          expect(job).to receive(:job_status_init).with(no_args).and_call_original
+          expect(job).to receive(:job_status_init).with(debug_verbose: dbg_verbose).and_call_original
           expect(job).to receive(:timestamp_begin).with(no_args).at_least(:once).and_call_original
-          expect(job).to receive(:initialize_options_from).with({:debug_verbose=>dbg_verbose}).and_call_original
+          expect(job).to receive(:initialize_options_from).with(debug_verbose: dbg_verbose).and_call_original
           expect(job).to receive(:log).with({event: event})
         end
 

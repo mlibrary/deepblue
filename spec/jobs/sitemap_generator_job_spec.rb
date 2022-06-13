@@ -29,12 +29,12 @@ RSpec.describe SitemapGeneratorJob, skip: false do
         expect(::Deepblue::LoggingHelper).to_not receive(:bold_debug) unless dbg_verbose
 
         expect( described_class.sitemap_generator_job_debug_verbose ).to eq dbg_verbose
-        expect( job ).to receive( :initialize_options_from ).with( any_args ).and_call_original
-        { task:                 false,
+        expect( job ).to receive(:initialize_options_from).with(any_args).and_call_original
+        { hostnames:            [],
+          task:                 false,
           verbose:              false,
           by_request_only:      false,
-          # from_dashboard:       '',
-          hostnames:            [],
+          email_results_to:     '',
           quiet:                false,
           user_email:           '' }.each_pair do |key,value|
 

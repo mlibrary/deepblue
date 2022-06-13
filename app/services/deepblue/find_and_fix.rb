@@ -33,7 +33,7 @@ module Deepblue
       @task = task
       @filter = filter
       @msg_handler = msg_handler
-      @msg_handler ||= MessageHandler.new( task: task, verbose: verbose )
+      @msg_handler ||= MessageHandler.new( to_console: task, verbose: verbose )
       @verbose = verbose
       @ids_fixed = {}
       init_find_and_fix_collections

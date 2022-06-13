@@ -32,6 +32,8 @@ END_OF_SCHEDULER_ENTRY
 
   queue_as :default
 
+  EVENT = "clean blacklight query cache"
+
   def perform( *args )
     debug_verbose = clean_blacklight_query_cache_job_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -52,28 +54,26 @@ END_OF_SCHEDULER_ENTRY
                                            "max_day_spans=#{max_day_spans}",
                                            "start_day_span=#{start_day_span}",
                                            "" ] if debug_verbose
-    event = "clean blacklight query cache"
-    log( event: event, hostname_allowed: hostname_allowed? )
+    log( event: EVENT, hostname_allowed: hostname_allowed? )
     return job_finished unless hostname_allowed?
-    msg_handler = ::Deepblue::MessageHandler.new( msg_queue: job_msg_queue, task: task, verbose: verbose )
     ::Deepblue::CleanUpHelper.clean_blacklight_query_cache( increment_day_span: increment_day_span,
                                                             start_day_span: start_day_span,
                                                             max_day_spans: max_day_spans,
                                                             msg_handler: msg_handler,
                                                             task: task,
                                                             verbose: verbose,
-                                                            debug_verbose: clean_blacklight_query_cache_job_debug_verbose )
-    email_all_targets( task_name: event,
-                       event: event ,
+                                                            debug_verbose: debug_verbose )
+    email_all_targets( task_name: EVENT,
+                       event: EVENT ,
                        body: msg_handler.join("\n"),
                        debug_verbose: clean_blacklight_query_cache_job_debug_verbose )
     job_finished
 
   rescue Exception => e # rubocop:disable Lint/RescueException
-    email_all_targets( task_name: event,
-                       event: event ,
+    email_all_targets( task_name: EVENT,
+                       event: EVENT ,
                        body: job_msg_queue.join("\n") + e.message + "\n" + e.backtrace.join("\n"),
-                       debug_verbose: clean_blacklight_query_cache_job_debug_verbose )
+                       debug_verbose: debug_verbose )
     job_status_register( exception: e, args: args )
     raise e
 

@@ -25,12 +25,19 @@ describe "about_to_expire_embargoes_task.rake" do
       expect( ::Deepblue::AboutToExpireEmbargoesTask ).to receive(:new)
                                                             .with( options: options ).at_least(:once).and_return invoked
       expect(invoked).to receive(:run).with(no_args).at_least(:once).and_call_original
-      expect(::Deepblue::AboutToExpireEmbargoesService).to receive(:new).with( email_owner: true,
-                                          expiration_lead_days: nil,
-                                          skip_file_sets: true,
-                                          test_mode: false,
-                                          to_console: true,
-                                          verbose: false ).at_least(:once).and_return service
+      expect(::Deepblue::AboutToExpireEmbargoesService).to receive(:new) do |args|
+        expect(args[:email_owner]).to eq true
+        expect(args[:expiration_lead_days]).to eq nil
+        expect(args[:skip_file_sets]).to eq true
+        expect(args[:test_mode]).to eq false
+        expect(args[:to_console]).to eq true
+        expect(args[:verbose]).to eq false
+        expect(args[:msg_handler].is_a? ::Deepblue::MessageHandler).to eq true
+        expect(args[:msg_handler].msg_queue).to eq nil
+        expect(args[:msg_handler].to_console).to eq true
+        expect(args[:msg_handler].verbose).to eq false
+        expect(args[:msg_handler].debug_verbose).to eq false
+      end.at_least(:once).and_return service
       expect(service).to receive(:run).at_least(:once)
     end
 

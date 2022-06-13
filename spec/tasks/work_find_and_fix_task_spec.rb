@@ -15,7 +15,7 @@ RSpec.describe ::Deepblue::WorkFindAndFixTask do
       expect(::Deepblue::FindAndFixService).to receive(:work_find_and_fix) do |args|
         expect(args[:id]).to eq id
         expect(args[:msg_handler].is_a? ::Deepblue::MessageHandler).to eq true
-        expect(args[:msg_handler].task).to eq true
+        expect(args[:msg_handler].to_console).to eq true
         expect(args[:task]).to eq true
         expect(args[:debug_verbose]).to eq false
       end

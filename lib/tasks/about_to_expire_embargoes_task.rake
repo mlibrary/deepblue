@@ -11,8 +11,7 @@ namespace :deepblue do
   desc 'About to expire embargoes.'
   task :about_to_expire_embargoes, %i[ options ] => :environment do |_task, args|
     args.with_defaults( options: '{}' )
-    options = args[:options]
-    task = ::Deepblue::AboutToExpireEmbargoesTask.new( options: options )
+    task = ::Deepblue::AboutToExpireEmbargoesTask.new( options: args[:options] )
     task.run
   end
 
