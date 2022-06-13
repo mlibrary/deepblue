@@ -39,16 +39,17 @@ END_OF_SCHEDULER_ENTRY
   queue_as :scheduler
 
   def perform( *args )
+    debug_verbose = debug_verbose || about_to_expire_embargoes_job_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "args=#{args}",
                                            ::Deepblue::LoggingHelper.obj_class( 'args', args ),
-                                           "" ] if about_to_expire_embargoes_job_debug_verbose
+                                           "" ] if debug_verbose
     initialized = initialize_from_args *args
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "initialized=#{initialized}",
-                                           "" ] if about_to_expire_embargoes_job_debug_verbose
+                                           "" ] if debug_verbose
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name,  event: event_name )
     return unless initialized
     email_owner          = options_value( key: 'email_owner',          default_value: default_args[:email_owner] )
@@ -57,16 +58,17 @@ END_OF_SCHEDULER_ENTRY
     test_mode            = options_value( key: 'test_mode',            default_value: default_args[:test_mode] )
     ::Deepblue::AboutToExpireEmbargoesService.new( email_owner: email_owner,
                                                    expiration_lead_days: expiration_lead_days,
-                                                   job_msg_queue: job_msg_queue,
+                                                   msg_handler: msg_handler,
                                                    skip_file_sets: skip_file_sets,
                                                    test_mode: test_mode,
-                                                   verbose: verbose ).run
+                                                   verbose: verbose,
+                                                   debug_verbose: debug_verbose ).run
     timestamp_end = DateTime.now
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "job_msg_queue=#{job_msg_queue}",
                                            "timestamp_end=#{timestamp_end}",
-                                           "" ] if about_to_expire_embargoes_job_debug_verbose
+                                           "" ] if debug_verbose
     email_results( task_name: task_name, event: event_name )
   rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"

@@ -8,9 +8,9 @@ RSpec.describe CleanBlacklightQueryCacheJob do
     it { expect( ::Deepblue::JobTaskHelper.clean_blacklight_query_cache_job_debug_verbose ).to eq debug_verbose }
   end
 
-  RSpec.shared_examples 'it performs the job' do |job_args, expected_args, debug_verbose_count|
+  RSpec.shared_examples 'clean_blacklight_query_cache performs the job' do |job_args, expected_args, debug_verbose_count|
     let(:dbg_verbose) { debug_verbose_count > 0 }
-    let(:job)         { described_class.send( :job_or_instantiate, *job_args ) }
+    let(:job)         { described_class.send(:job_or_instantiate, *job_args) }
 
     before do
       expect(job).to receive(:perform_now).with(no_args).and_call_original
@@ -32,7 +32,7 @@ RSpec.describe CleanBlacklightQueryCacheJob do
         expect(args[:max_day_spans]).to eq expected_args[:max_day_spans]
         expect(args[:msg_handler].is_a? ::Deepblue::MessageHandler).to eq true
         expect(args[:msg_handler].msg_queue).to eq []
-        expect(args[:msg_handler].task).to eq false
+        expect(args[:msg_handler].to_console).to eq false
         expect(args[:msg_handler].verbose).to eq expected_args[:verbose]
         expect(args[:task]).to eq false
         expect(args[:verbose]).to eq expected_args[:verbose]
@@ -50,15 +50,15 @@ RSpec.describe CleanBlacklightQueryCacheJob do
     expected_args = { start_day_span: 30, increment_day_span: 15, max_day_spans: 0, verbose: false }
     context 'normal and success' do
       debug_verbose_count = 0
-      it_behaves_like 'it performs the job', job_args, expected_args, debug_verbose_count
+      it_behaves_like 'clean_blacklight_query_cache performs the job', job_args, expected_args, debug_verbose_count
     end
     context 'normal and failure' do
       debug_verbose_count = 0
-      it_behaves_like 'it performs the job', job_args, expected_args, debug_verbose_count
+      it_behaves_like 'clean_blacklight_query_cache performs the job', job_args, expected_args, debug_verbose_count
     end
     context 'normal success with debug_verbose' do
       debug_verbose_count = 1
-      it_behaves_like 'it performs the job', job_args, expected_args, debug_verbose_count
+      it_behaves_like 'clean_blacklight_query_cache performs the job', job_args, expected_args, debug_verbose_count
     end
   end
 
@@ -67,15 +67,15 @@ RSpec.describe CleanBlacklightQueryCacheJob do
     expected_args = { start_day_span: 45, increment_day_span: 10, max_day_spans: 5, verbose: true }
     context 'normal and success' do
       debug_verbose_count = 0
-      it_behaves_like 'it performs the job', job_args, expected_args, debug_verbose_count
+      it_behaves_like 'clean_blacklight_query_cache performs the job', job_args, expected_args, debug_verbose_count
     end
     context 'normal and failure' do
       debug_verbose_count = 0
-      it_behaves_like 'it performs the job', job_args, expected_args, debug_verbose_count
+      it_behaves_like 'clean_blacklight_query_cache performs the job', job_args, expected_args, debug_verbose_count
     end
     context 'normal success with debug_verbose' do
       debug_verbose_count = 1
-      it_behaves_like 'it performs the job', job_args, expected_args, debug_verbose_count
+      it_behaves_like 'clean_blacklight_query_cache performs the job', job_args, expected_args, debug_verbose_count
     end
   end
 

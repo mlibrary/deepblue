@@ -17,12 +17,13 @@ RSpec.describe Hyrax::AnonymousLinksViewerController, skip: false do
   end
 
   describe 'retrieval links' do
-    let(:user) { build(:user) }
-    let(:file) do
-      create(:file_set, label: 'world.png', user: user)
-    end
 
     RSpec.shared_examples 'shared retrieval links' do |dbg_verbose|
+      let(:user) { build(:user) }
+      let(:file) do
+        create(:file_set, label: 'world.png', user: user)
+      end
+
       before do
         described_class.anonymous_links_viewer_controller_debug_verbose = dbg_verbose
         expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(:once) if dbg_verbose

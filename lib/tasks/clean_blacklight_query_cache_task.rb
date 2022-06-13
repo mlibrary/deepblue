@@ -2,7 +2,6 @@
 
 require_relative './abstract_task'
 require_relative '../../app/helpers/deepblue/clean_up_helper'
-require_relative '../../app/services/deepblue/message_handler'
 
 module Deepblue
 
@@ -38,7 +37,6 @@ module Deepblue
                                              "@max_day_spans=#{@max_day_spans}",
                                              "@start_day_span=#{@start_day_span}",
                                              "" ], bold_puts: true if clean_blacklight_query_cache_task_debug_verbose
-      msg_handler = MessageHandler.new( msg_queue: nil, task: true, verbose: verbose )
       CleanUpHelper.clean_blacklight_query_cache( msg_handler: msg_handler,
                                                   increment_day_span: @increment_day_span,
                                                   start_day_span: @start_day_span,

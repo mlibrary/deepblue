@@ -12,8 +12,8 @@ module Deepblue
 
     attr_accessor :report_format
 
-    def initialize( options: {} )
-      super( options: options )
+    def initialize( options: {}, msg_handler: nil, msg_queue: nil, debug_verbose: false )
+      super( options: options, msg_handler: msg_handler, msg_queue: msg_queue, debug_verbose: debug_verbose )
     end
 
     def initialize_input

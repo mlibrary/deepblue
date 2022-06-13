@@ -31,11 +31,11 @@ RSpec.describe AboutToExpireEmbargoesJob do
   describe 'shared' do
 
     RSpec.shared_examples 'AboutToExpireEmbargoesJob' do |run_the_job, debug_verbose_count|
-      let(:job)           { described_class.send( :job_or_instantiate, *args ) }
+      let(:job)           { described_class.send(:job_or_instantiate, *args) }
       let(:dbg_verbose)   { debug_verbose_count > 0 }
       let(:service)       { double('service') }
       let(:options)       { args }
-      let(:job_msg_queue) { [] }
+      # let(:msg_handler)   { ::Deepblue::MessageHandler.new(to_console: false, verbose: false) }
       let(:event_name)    { 'about to expire embargoes' }
       let(:time_before)   { DateTime.now }
       before do
@@ -94,12 +94,18 @@ RSpec.describe AboutToExpireEmbargoesJob do
         end
         expect(service).to receive(:run)
         if run_the_job
-          expect(::Deepblue::AboutToExpireEmbargoesService).to receive(:new).with(email_owner: email_owner,
-                                                    expiration_lead_days: expiration_lead_days,
-                                                    job_msg_queue: job_msg_queue,
-                                                    skip_file_sets: skip_file_sets,
-                                                    test_mode: test_mode,
-                                                    verbose: verbose ).and_return service
+          expect(::Deepblue::AboutToExpireEmbargoesService).to receive(:new) do |args|
+            expect(args[:email_owner]).to eq email_owner
+            expect(args[:expiration_lead_days]).to eq expiration_lead_days
+            expect(args[:skip_file_sets]).to eq skip_file_sets
+            expect(args[:test_mode]).to eq test_mode
+            expect(args[:verbose]).to eq verbose
+            expect(args[:msg_handler].is_a? ::Deepblue::MessageHandler).to eq true
+            expect(args[:msg_handler].msg_queue).to eq []
+            expect(args[:msg_handler].to_console).to eq false
+            expect(args[:msg_handler].verbose).to eq verbose
+            expect(args[:msg_handler].debug_verbose).to eq false
+          end.and_return service
           expect(job).to receive(:email_results).with(any_args)
         else
           expect(::Deepblue::AboutToExpireEmbargoesService).to_not receive(:new)

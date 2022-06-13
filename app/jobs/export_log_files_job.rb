@@ -40,7 +40,6 @@ END_OF_SCHEDULER_ENTRY
     initialize_options_from( *args, debug_verbose: debug_verbose )
     log( event: EVENT, hostname_allowed: hostname_allowed? )
     return job_finished unless hostname_allowed?
-    msg_handler = ::Deepblue::MessageHandler.new( msg_queue: job_msg_queue, task: task, verbose: verbose )
     ::Deepblue::ExportFilesHelper.export_log_files( msg_handler: msg_handler,
                                                     task: task,
                                                     verbose: job_msg_queue,

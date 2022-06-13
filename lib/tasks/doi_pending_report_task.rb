@@ -14,8 +14,8 @@ module Deepblue
     attr_accessor :options
     attr_accessor :prefix, :quiet, :report_dir, :report_file
 
-    def initialize( options: )
-      super( options: options )
+    def initialize( options:, msg_handler: nil, msg_queue: nil, debug_verbose: false )
+      super( options: options, msg_handler: msg_handler, msg_queue: msg_queue, debug_verbose: debug_verbose )
     end
 
     def run
@@ -23,12 +23,15 @@ module Deepblue
       # puts "options=#{options}"
       @quiet = task_options_value( key: 'quiet', default_value: DEFAULT_REPORT_QUIET )
       @verbose = false if quiet
-      reporter = DoiPendingReporter.new( quiet: quiet, debug_verbose: verbose, rake_task: true )
+      reporter = DoiPendingReporter.new( quiet: quiet,
+                                         debug_verbose: verbose,
+                                         rake_task: true,
+                                         msg_handler: msg_handler )
       reporter.run
       report = reporter.out
       return unless report.present?
       @report_dir = task_options_value( key: 'report_dir', default_value: DEFAULT_REPORT_DIR )
-      puts "Report dir: '#{@report_dir}' not found" unless @report_dir.present?
+      msg_handler.msg "Report dir: '#{@report_dir}' not found" unless @report_dir.present?
       return unless @report_dir.present?
       @prefix = task_options_value( key: 'report_file_prefix', default_value: DEFAULT_REPORT_FILE_PREFIX )
       @prefix = "#{Time.now.strftime('%Y%m%d')}_doi_pending_report" if @prefix.nil?
@@ -36,7 +39,7 @@ module Deepblue
       @report_dir = expand_path_partials( report_dir )
       @report_file = Pathname.new( report_dir ).join "#{prefix}.txt"
       File.open( report_file, 'w' ) { |f| f << report << "\n" }
-      puts "Report file: #{@report_file}"
+      msg_handler.msg "Report file: #{@report_file}"
     end
 
   end

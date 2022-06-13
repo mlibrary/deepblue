@@ -219,6 +219,7 @@ END_BODY
                              task: false,
                              verbose: false )
 
+      debug_verbose = debug_verbose && job_task_helper_debug_verbose
       job.from_dashboard = job.job_options_value( options,
                                                   key: 'from_dashboard',
                                                   default_value: '',
@@ -232,6 +233,7 @@ END_BODY
                                 task: false,
                                 verbose: false )
 
+      debug_verbose = debug_verbose && job_task_helper_debug_verbose
       subscription_service_id = job.job_options_value( options,
                                                        key: 'subscription_service_id',
                                                        default_value: nil,
@@ -246,6 +248,7 @@ END_BODY
     end
 
     def self.has_options( *args, job:, debug_verbose: job_task_helper_debug_verbose )
+      debug_verbose = debug_verbose && job_task_helper_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if debug_verbose
@@ -262,6 +265,12 @@ END_BODY
                                task: false,
                                verbose: false )
 
+      debug_verbose = debug_verbose && job_task_helper_debug_verbose
+      # ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                       "options=#{options}",
+      #                                        "" ] if debug_verbose
+      return true unless job.job_options_key?( options, key: 'hostnames', task: task, verbose: verbose )
       # ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
       #                                        ::Deepblue::LoggingHelper.called_from,
       #                                       "options=#{options}",
@@ -272,11 +281,12 @@ END_BODY
                                              task: task ,
                                              verbose: verbose )
       job.hostname = self.hostname
+      # puts "hostname=#{self.hostname}"
       job.hostnames.include? job.hostname
     end
 
     def self.initialize_options_from( *args, debug_verbose: job_task_helper_debug_verbose, task: false )
-      debug_verbose ||= job_task_helper_debug_verbose
+      debug_verbose = debug_verbose && job_task_helper_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "args=#{args}",
@@ -351,12 +361,13 @@ END_BODY
     end
 
     def self.normalize_args( *args, debug_verbose: job_task_helper_debug_verbose )
-      debug_verbose ||= job_task_helper_debug_verbose
+      debug_verbose = debug_verbose && job_task_helper_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "args=#{args}",
                                              "" ] if debug_verbose
       return args if args.is_a? Hash
+      return args if args.is_a? ActiveSupport::HashWithIndifferentAccess
       # Don't want to strip outermost array unless the its of the form [[[x,y]]], so it doesn't strip if [[x,y]]
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

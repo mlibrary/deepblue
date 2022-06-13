@@ -130,6 +130,7 @@ en:
         delete:                         "Delete Work"
         edit:                           "Edit Metadata"
         edit_work:                      "Edit Work/Add Files"
+        ensure_doi_minted:              "Ensure DOI Minted"
         feature:                        "Feature"
         globus:                         "Send to Globus to Download"
         globus_add_email:               "Add Email"
@@ -154,6 +155,7 @@ en:
         submit_help:                    "Select \"Submit for Review\" if your deposit is ready for review and publication. Select \"Save as Draft\" to keep working on your deposit and return to it later."
         tombstone:                      "Tombstone"
         unfeature:                      "Unfeature"
+        work_find_and_fix:              "Work Find and Fix"
         zip_download:                   "Download Zipped Dataset"
       ingest_append:
         labels:

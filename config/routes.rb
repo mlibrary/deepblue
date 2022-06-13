@@ -173,6 +173,8 @@ Rails.application.routes.draw do
         get    'display_provenance_log'
         get    'doi'
         post   'doi'
+        get    'ensure_doi_minted'
+        post   'ensure_doi_minted'
         post   'globus_download'
         post   'globus_add_email'
         get    'globus_add_email'
@@ -193,6 +195,8 @@ Rails.application.routes.draw do
         get    'single_use_link/:link_id', action: :single_use_link
         get    'single_use_link_zip_download/:link_id', action: :single_use_link_zip_download
         post   'tombstone'
+        get    'work_find_and_fix'
+        post   'work_find_and_fix'
         get    'zip_download'
         post   'zip_download'
         get    'csv_download', controller: 'stats', action: :csv_download

@@ -74,22 +74,28 @@ RSpec.describe ::Deepblue::DeepblueJob do
     let(:init2) { [[:x,'y'],[:a,'b']] }
 
     it 'it calls initialize options from with the right args 1' do
-      expect(::Deepblue::JobTaskHelper).to receive(:initialize_options_from).with(init, debug_verbose: debug_verbose).and_call_original
-      expect(::Deepblue::JobTaskHelper).to receive(:normalize_args).with(init, debug_verbose: debug_verbose).and_call_original
+      expect(::Deepblue::JobTaskHelper).to receive(:initialize_options_from)
+                                             .with(*init, debug_verbose: debug_verbose).and_call_original
+      expect(::Deepblue::JobTaskHelper).to receive(:normalize_args)
+                                             .with(*init, debug_verbose: debug_verbose).and_call_original
       MockDeepblueJob.perform_now(*args)
     end
 
     it 'it calls initialize options from with the right args 1' do
-      expect(::Deepblue::JobTaskHelper).to receive(:initialize_options_from).with(init2, debug_verbose: debug_verbose).and_call_original
-      expect(::Deepblue::JobTaskHelper).to receive(:normalize_args).with(init2, debug_verbose: debug_verbose).and_call_original
+      expect(::Deepblue::JobTaskHelper).to receive(:initialize_options_from)
+                                             .with(*init2, debug_verbose: debug_verbose).and_call_original
+      expect(::Deepblue::JobTaskHelper).to receive(:normalize_args)
+                                             .with(*init2, debug_verbose: debug_verbose).and_call_original
       MockDeepblueJob.perform_now(*args2)
     end
 
     context 'it sets options to the correct values 1' do
       let(:job) { MockDeepblueJob.send( :job_or_instantiate, *args ) }
       it 'does it' do
-        expect(::Deepblue::JobTaskHelper).to receive(:initialize_options_from).with(init, debug_verbose: debug_verbose).and_call_original
-        expect(::Deepblue::JobTaskHelper).to receive(:normalize_args).with(init, debug_verbose: debug_verbose).and_call_original
+        expect(::Deepblue::JobTaskHelper).to receive(:initialize_options_from).with(*init,
+                                                                                    debug_verbose: debug_verbose).and_call_original
+        expect(::Deepblue::JobTaskHelper).to receive(:normalize_args).with(*init,
+                                                                           debug_verbose: debug_verbose).and_call_original
         job.perform_now
         expect( job.options ).to eq( args.with_indifferent_access )
       end
@@ -98,8 +104,10 @@ RSpec.describe ::Deepblue::DeepblueJob do
     context 'it sets options to the correct values 2' do
       let(:job) { MockDeepblueJob.send( :job_or_instantiate, *args2 ) }
       it 'does it' do
-        expect(::Deepblue::JobTaskHelper).to receive(:initialize_options_from).with(init2, debug_verbose: debug_verbose).and_call_original
-        expect(::Deepblue::JobTaskHelper).to receive(:normalize_args).with(init2, debug_verbose: debug_verbose).and_call_original
+        expect(::Deepblue::JobTaskHelper).to receive(:initialize_options_from).with(*init2,
+                                                                                    debug_verbose: debug_verbose).and_call_original
+        expect(::Deepblue::JobTaskHelper).to receive(:normalize_args).with(*init2,
+                                                                           debug_verbose: debug_verbose).and_call_original
         job.perform_now
         expect( job.options ).to eq( args2.with_indifferent_access )
       end

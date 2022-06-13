@@ -37,16 +37,17 @@ END_OF_SCHEDULER_ENTRY
   queue_as :scheduler
 
   def perform( *args )
+    debug_verbose = clean_derivatives_dir_job_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "args=#{args}",
                                            ::Deepblue::LoggingHelper.obj_class( 'args', args ),
-                                           "" ] if clean_derivatives_dir_job_debug_verbose
+                                           "" ] if debug_verbose
     initialized = initialize_from_args *args
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "initialized=#{initialized}",
-                                           "" ] if clean_derivatives_dir_job_debug_verbose
+                                           "" ] if debug_verbose
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event: event_name )
     return unless initialized
     days_old = options_value( key: 'days_old', default_value: default_args[:days_old] )
@@ -59,7 +60,7 @@ END_OF_SCHEDULER_ENTRY
                                            ::Deepblue::LoggingHelper.called_from,
                                            "job_msg_queue=#{job_msg_queue}",
                                            "timestamp_end=#{timestamp_end}",
-                                           "" ] if clean_derivatives_dir_job_debug_verbose
+                                           "" ] if debug_verbose
     email_results( task_name: task_name, event: event_name )
   rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"

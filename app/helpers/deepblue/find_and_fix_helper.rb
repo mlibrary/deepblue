@@ -160,6 +160,7 @@ WHERE { }
 
     def self.valid_ordered_members?( id: nil,
                                      curation_concern: nil,
+                                     fixer: nil,
                                      task: false,
                                      verbose: false,
                                      debug_verbose: find_and_fix_helper_debug_verbose )
@@ -181,14 +182,7 @@ WHERE { }
       puts_msg( fixer: fixer, task: task, verbose: verbose, msg: "ordered_members.size = #{a.size}" )
       puts_msg( fixer: fixer, task: task, verbose: verbose, msg: "file_sets.size = #{w.file_sets.size}" )
       puts_msg( fixer: fixer, task: task, verbose: verbose, msg: "file_sets.size == a.size = #{w.file_sets.size == a.size}" )
-      return false if w.file_sets.size == a.size
-      selected = w.file_sets.select { |f| f.file_size.blank? }
-      puts_msg( fixer: fixer, task: task, verbose: verbose, msg: "selected.size = #{selected.size}" )
-      return true unless task && verbose
-      selected.each do |f|
-        puts_msg( fixer: fixer, task: task, verbose: verbose, msg: f.original_file.size )
-      end
-      return true
+      return w.file_sets.size == a.size
     end
 
     def self.puts_msg( msg:, fixer:, verbose:, task: )

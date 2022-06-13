@@ -34,12 +34,13 @@ RSpec.describe MonthlyEventsReportJob, skip: false do
 
         expect( described_class.monthly_events_report_job_debug_verbose ).to eq dbg_verbose
         expect( job ).to receive( :initialize_options_from ).with( any_args ).and_call_original
-        { task:                 false,
+        { hostnames:            [],
+          task:                 false,
           verbose:              false,
           by_request_only:      false,
-          # from_dashboard:       '',
+          email_results_to:     '',
           quiet:                false,
-          hostnames:            [],
+          # hostnames:            [],
           user_email:           '' }.each_pair do |key,value|
 
           expect(job).to receive(:job_options_value).with( options,

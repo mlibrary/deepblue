@@ -19,7 +19,7 @@ class WorkFindAndFixJob < ::Deepblue::DeepblueJob
     initialize_options_from( *args, debug_verbose: debug_verbose )
     log( event: EVENT, hostname_allowed: hostname_allowed? )
     return job_finished unless hostname_allowed?
-    msg_handler = ::Deepblue::MessageHandler.new( msg_queue: job_msg_queue, task: task, verbose: verbose )
+    msg_handler = ::Deepblue::MessageHandler.new( msg_queue: job_msg_queue, to_console: task, verbose: verbose )
     ::Deepblue::FindAndFixService.work_find_and_fix( id: id,
                                                      msg_handler: msg_handler,
                                                      task: task,
@@ -27,14 +27,14 @@ class WorkFindAndFixJob < ::Deepblue::DeepblueJob
     email_all_targets( task_name: EVENT,
                        event: EVENT,
                        body: job_msg_queue.join("\n"),
-                       debug_verbose: work_find_and_fix_job_debug_verbose )
+                       debug_verbose: debug_verbose )
     job_finished
 
   rescue Exception => e # rubocop:disable Lint/RescueException
     email_all_targets( task_name: EVENT,
                        event: EVENT,
                        body: job_msg_queue.join("\n") + e.message + "\n" + e.backtrace.join("\n"),
-                       debug_verbose: work_find_and_fix_job_debug_verbose )
+                       debug_verbose: debug_verbose )
     job_status_register( exception: e, args: [ id, args ] )
     raise e
 

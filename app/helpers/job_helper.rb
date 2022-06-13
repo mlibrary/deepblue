@@ -108,6 +108,11 @@ module JobHelper
     @job_options_keys_found ||= []
   end
 
+  def job_options_key?( options, key:, task: false, verbose: false )
+    return false if options.blank?
+    return options.key? key
+  end
+
   def job_options_value( options, key:, default_value: nil, task: false, verbose: false )
     # ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
     #                                        ::Deepblue::LoggingHelper.called_from,

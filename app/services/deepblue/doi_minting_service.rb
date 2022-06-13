@@ -59,7 +59,7 @@ module Deepblue
                                              "curation_concern.nil?=#{curation_concern.nil?}",
                                              "task=#{task}",
                                              "" ], bold_puts: task if debug_verbose
-      msg_handler ||= ::Deepblue::MessageHandler.new( task: task )
+      msg_handler ||= ::Deepblue::MessageHandler.new( to_console: task )
       id ||= curation_concern&.id
       w = curation_concern
       w ||= ::PersistHelper.find id

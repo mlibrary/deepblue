@@ -14,13 +14,24 @@ module Deepblue
     DEFAULT_VERBOSE = false unless const_defined? :DEFAULT_VERBOSE
 
     attr_accessor :msg_queue
-    attr_reader :options
+    attr_accessor :msg_handler
+    attr_reader   :options
     attr_accessor :verbose, :to_console, :logger
+    attr_accessor :debug_verbose
 
-    def initialize( options: {}, msg_queue: nil )
+    def initialize( options: {}, msg_handler: nil, msg_queue: nil, debug_verbose: false )
+      @debug_verbose = debug_verbose
+      @msg_handler = msg_handler
       @msg_queue = msg_queue
       @options = TaskHelper.task_options_parse options
       @options = @options.with_indifferent_access if @options.respond_to? :with_indifferent_access
+      @to_console = TaskHelper.task_options_value( @options, key: 'to_console', default_value: DEFAULT_TO_CONSOLE )
+      @verbose = TaskHelper.task_options_value( @options, key: 'verbose', default_value: DEFAULT_VERBOSE )
+      @msg_handler ||= MessageHandler.new( msg_queue: @msg_queue,
+                                           to_console: @to_console,
+                                           verbose: @verbose,
+                                           debug_verbose: @debug_verbose )
+      report_puts "@verbose=#{@verbose}" if @verbose
       if  @options.key?( :error )
         report_puts "WARNING: options error #{@options[:error]}"
         report_puts "options=#{options}"
@@ -28,9 +39,6 @@ module Deepblue
         report_puts "WARNING: options error #{@options['error']}"
         report_puts "options=#{options}"
       end
-      @to_console = TaskHelper.task_options_value( @options, key: 'to_console', default_value: DEFAULT_TO_CONSOLE )
-      @verbose = TaskHelper.task_options_value( @options, key: 'verbose', default_value: DEFAULT_VERBOSE )
-      report_puts "@verbose=#{@verbose}" if @verbose
     end
 
     def logger
@@ -43,11 +51,12 @@ module Deepblue
     end
 
     def report_puts( str = '' )
-      if msg_queue
-        msg_queue << str
-      else
-        puts str
-      end
+      msg_handler.msg str
+      # if msg_queue
+      #   msg_queue << str
+      # else
+      #   puts str
+      # end
     end
 
     def task_options_value( key:, default_value: nil, verbose: false )

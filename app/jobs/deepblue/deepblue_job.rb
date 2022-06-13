@@ -39,6 +39,11 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
                          content_type: nil,
                          debug_verbose: deepblue_job_debug_verbose )
 
+    debug_verbose = debug_verbose || deepblue_job_debug_verbose
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "email_targets=#{email_targets}",
+                                           "" ] if debug_verbose
     if from_dashboard.present? # just email user running the job from the dashboard
       ::Deepblue::JobTaskHelper.send_email( email_target: from_dashboard,
                                             task_name: task_name,
@@ -79,7 +84,7 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
     @hostname_allowed
   end
 
-  def hostname_allowed?
+  def hostname_allowed?( debug_verbose: deepblue_job_debug_verbose )
     @hostname_allowed ||= hostname_allowed( debug_verbose: debug_verbose )
   end
 
@@ -88,11 +93,11 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
   end
 
   def initialize_with( debug_verbose: deepblue_job_debug_verbose )
-    @debug_verbose = debug_verbose
+    debug_verbose = debug_verbose || deepblue_job_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "debug_verbose=#{debug_verbose}",
-                                           "" ] if deepblue_job_debug_verbose || debug_verbose
+                                           "" ] if debug_verbose
     @options = {}
     @task = false
     @verbose = false
@@ -100,41 +105,52 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
     timestamp_begin
   end
 
-  def initialize_email_targets
-    user_email = job_options_value( options, key: 'user_email', default_value: '', task: task, verbose: verbose )
-    return if user_email.blank?
+  def initialize_email_targets( keys: ['email_results_to', 'user_email'], debug_verbose: deepblue_job_debug_verbose )
+    debug_verbose = debug_verbose || deepblue_job_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "user_email=#{user_email}",
-                                           "" ] if deepblue_job_debug_verbose || debug_verbose
-    email_targets << user_email
+                                           "email_targets=#{email_targets}",
+                                           "" ] if debug_verbose
+     keys.each do |key|
+      email_target = job_options_value( options, key: key, default_value: '', task: task, verbose: verbose )
+      next if email_target.blank?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "email_target=#{email_target}",
+                                             "" ] if debug_verbose
+      email_targets << email_target
+    end
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "email_targets=#{email_targets}",
+                                           "" ] if debug_verbose
   end
 
   def initialize_options_from( *args, debug_verbose: deepblue_job_debug_verbose )
-    @debug_verbose = debug_verbose
+    debug_verbose = debug_verbose || deepblue_job_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "args=#{args}",
                                            "debug_verbose=#{debug_verbose}",
-                                           "" ] if deepblue_job_debug_verbose || debug_verbose
-    @options = ::Deepblue::JobTaskHelper.initialize_options_from( args, debug_verbose: debug_verbose )
+                                           "" ] if debug_verbose
+    @options = ::Deepblue::JobTaskHelper.initialize_options_from( *args, debug_verbose: debug_verbose )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "options=#{options}",
-                                           "" ] if deepblue_job_debug_verbose || debug_verbose
+                                           "" ] if debug_verbose
     @task = job_options_value( options, key: 'task', default_value: false, task: false, verbose: false )
     @verbose = job_options_value( options, key: 'verbose', default_value: false, task: @task, verbose: false )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "verbose=#{verbose}",
-                                           "" ] if deepblue_job_debug_verbose || debug_verbose
+                                           "" ] if debug_verbose
     @by_request_only = job_options_value( options,
                                           key: 'by_request_only',
                                           default_value: false,
                                           task: @task,
                                           verbose: @verbose )
-    job_status_init
-    initialize_email_targets
+    job_status_init debug_verbose: debug_verbose
+    initialize_email_targets debug_verbose: debug_verbose
     timestamp_begin
     return @options
   end
@@ -144,8 +160,8 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
     @options = {}
     @task = false
     @verbose = false
-    job_status_init
-    initialize_email_targets
+    job_status_init debug_verbose: debug_verbose
+    initialize_email_targets debug_verbose: debug_verbose
     timestamp_begin
     return @options
   end
@@ -159,22 +175,26 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
   alias :is_quiet? :is_quiet
 
   def job_finished
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "" ] if debug_verbose
     job_status.add_messages( job_msg_queue )
     job_status.finished!
     return @job_status
   end
 
   def job_status_init( restartable: false, debug_verbose: deepblue_job_debug_verbose )
+    debug_verbose = debug_verbose || deepblue_job_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "restartable=#{restartable}",
-                                           "" ] if debug_verbose || deepblue_job_debug_verbose
+                                           "" ] if debug_verbose
     @restartable = restartable
     @job_status = JobStatus.find_or_create_job_started( job: self )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "job_status=#{job_status}",
-                                           "" ] if debug_verbose || deepblue_job_debug_verbose
+                                           "" ] if debug_verbose
     @job_status
   end
 
@@ -206,6 +226,13 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
                                      timestamp: timestamp,
                                      echo_to_rails_logger: echo_to_rails_logger,
                                      **log_key_values )
+  end
+
+  def msg_handler
+    @msg_handler ||= ::Deepblue::MessageHandler.new( debug_verbose: debug_verbose,
+                                                     msg_queue: job_msg_queue,
+                                                     to_console: task,
+                                                     verbose: verbose )
   end
 
   alias :restartable? :restartable

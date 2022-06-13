@@ -14,7 +14,7 @@ RSpec.describe ::Deepblue::MessageHandlerNull do
     describe 'no parameters' do
       let( :handler ) { described_class.new }
       it { expect( handler.msg_queue ).to eq nil }
-      it { expect( handler.task ).to eq false }
+      it { expect( handler.to_console ).to eq false }
       it { expect( handler.verbose ).to eq false }
     end
 
@@ -24,9 +24,9 @@ RSpec.describe ::Deepblue::MessageHandlerNull do
       it { expect( described_class.new( msg_queue: ['msg'] ).msg_queue ).to eq nil }
     end
 
-    describe 'with task' do
-      it { expect( described_class.new( task: true ).task ).to eq false }
-      it { expect( described_class.new( task: false ).task ).to eq false }
+    describe 'with to_console' do
+      it { expect( described_class.new( to_console: true ).to_console ).to eq false }
+      it { expect( described_class.new( to_console: false ).to_console ).to eq false }
     end
 
     describe 'with verbose' do
@@ -46,10 +46,10 @@ RSpec.describe ::Deepblue::MessageHandlerNull do
       handler.msg_queue = ['1', '2']; expect( handler.msg_queue ).to eq nil
     end
 
-    it '#task' do
-      expect( handler.task ).to eq false
-      handler.task = true;  expect( handler.task ).to eq false
-      handler.task = false; expect( handler.task ).to eq false
+    it '#to_console' do
+      expect( handler.to_console ).to eq false
+      handler.to_console = true;  expect( handler.to_console ).to eq false
+      handler.to_console = false; expect( handler.to_console ).to eq false
     end
 
     it '#verbose' do
@@ -102,6 +102,20 @@ RSpec.describe ::Deepblue::MessageHandlerNull do
           expect do
             handler.msg_verbose 'line'
           end.to_not output("line\n").to_stdout
+          expect( handler.msg_queue ).to eq expected_msg_queue
+        end
+      end
+      it 'does not add message with prefix to queue' do
+        expect do
+          handler.msg 'line', prefix: 'prefix'
+        end.to_not output("prefixline\n").to_stdout
+        expect( handler.msg_queue ).to eq expected_msg_queue
+      end
+      context 'msg_verbose with prefix' do
+        it 'does not add message to queue' do
+          expect do
+            handler.msg_verbose 'line', prefix: 'prefix'
+          end.to_not output("prefixline\n").to_stdout
           expect( handler.msg_queue ).to eq expected_msg_queue
         end
       end

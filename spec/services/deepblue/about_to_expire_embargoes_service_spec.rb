@@ -16,6 +16,7 @@ RSpec.describe ::Deepblue::AboutToExpireEmbargoesService do
 
     RSpec.shared_examples 'AboutToExpireEmbargoesService' do |dbg_verbose|
       let(:time_before)   { DateTime.now }
+      let(:msg_handler)   { ::Deepblue::MessageHandler.new }
       before do
         described_class.about_to_expire_embargoes_service_debug_verbose = dbg_verbose
         expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(:once) if dbg_verbose
@@ -29,7 +30,7 @@ RSpec.describe ::Deepblue::AboutToExpireEmbargoesService do
         time_after = DateTime.now
         service = described_class.new(email_owner: email_owner,
                                       expiration_lead_days: expiration_lead_days,
-                                      job_msg_queue: job_msg_queue,
+                                      msg_handler: msg_handler,
                                       skip_file_sets: skip_file_sets,
                                       test_mode: test_mode,
                                       to_console: to_console,
