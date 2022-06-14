@@ -109,18 +109,20 @@ module Deepblue
     def find_and_fix_over( curation_concern:, fixers:, prefix: )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ], bold_puts: task if debug_verbose
+                                             "" ] if debug_verbose
       fixers.each do |fixer|
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "fixer.class.name=#{fixer.class.name}",
                                                "#{prefix} id=#{curation_concern.id}",
-                                               "" ], bold_puts: task if debug_verbose
+                                               "" ] if debug_verbose
+        msg_handler.msg_verbose [ "fixer.class.name=#{fixer.class.name}",
+                                  "#{prefix} id=#{curation_concern.id}" ]
         begin
           next unless fixer.fix_include?( curation_concern: curation_concern, msg_handler: msg_handler )
           fixer.fix( curation_concern: curation_concern, msg_handler: msg_handler )
         rescue Exception => e # rubocop:disable Lint/RescueException
-          msg_handler.msg "Error while processing #{fixer.class.name} - #{prefix} #{curation_concern.id}: #{e.message} at #{e.backtrace[0]}"
+          msg_handler.msg_error "Error while processing #{fixer.class.name} - #{prefix} #{curation_concern.id}: #{e.message} at #{e.backtrace[0]}"
         end
       end
     end
@@ -167,7 +169,8 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "find_and_fix_works_fixers.present?=#{find_and_fix_works_fixers.present?}",
-                                             "" ], bold_puts: task if debug_verbose
+                                             "" ] if debug_verbose
+      msg_handler.msg_verbose "find_and_fix_works_fixers.present?=#{find_and_fix_works_fixers.present?}"
       return unless find_and_fix_works_fixers.present?
       prefix = 'DataSet'
       find_and_fix_over( curation_concern: work,
@@ -179,7 +182,8 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "find_and_fix_works_fixers.present?=#{find_and_fix_works_fixers.present?}",
-                                             "" ], bold_puts: task if debug_verbose
+                                             "" ] if debug_verbose
+      msg_handler.msg_verbose "find_and_fix_works_fixers.present?=#{find_and_fix_works_fixers.present?}"
       return unless find_and_fix_works_fixers.present?
       prefix = 'DataSet'
       DataSet.all.each do |curation_concern|
@@ -196,7 +200,11 @@ module Deepblue
                                              "filter=#{filter}",
                                              "msg_handler=#{msg_handler}",
                                              "verbose=#{verbose}",
-                                             "" ], bold_puts: task if debug_verbose
+                                             "" ] if debug_verbose
+      msg_handler.msg_verbose ["id=#{id}",
+                               "filter=#{filter}",
+                               "msg_handler=#{msg_handler}",
+                               "verbose=#{verbose}"]
       msg_handler.msg "Started: #{DateTime.now}"
       if id.present?
         run_id
@@ -218,7 +226,8 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
-                                             "" ], bold_puts: task if debug_verbose
+                                             "" ] if debug_verbose
+      msg_handler.msg "Find and fix work #{id}"
       work = ::PersistHelper.find id
       if work.blank?
         msg_handler.msg "Failed to find work with id '#{id}'"
