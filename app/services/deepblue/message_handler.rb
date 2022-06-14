@@ -48,7 +48,7 @@ module Deepblue
     end
 
     def msg_verbose( msg, prefix: '' )
-      msg( msg, prefix: prefix ) if @verbose
+      msg( msg, prefix: prefix ) if @verbose || @debug_verbose
     end
 
     def msg_warn( msg )
