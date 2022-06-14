@@ -41,12 +41,13 @@ module Deepblue
                                              "curation_concern.id=#{curation_concern.id}",
                                              "" ], bold_puts: task if works_total_file_size_fixer_debug_verbose
       @msg_handler ||= msg_handler
+      msg_handler.msg_verbose "fix work #{curation_concern.id} total file size"
       if FindAndFixHelper.valid_file_sizes?( curation_concern: curation_concern,
                                              fixer: self,
                                              task: false,
                                              debug_verbose: works_total_file_size_fixer_debug_verbose )
 
-        add_msg "Update total file size for #{curation_concern.id}." # if verbose
+        add_msg "Update total file size for work #{curation_concern.id}." # if verbose
         FindAndFixHelper.fix_file_sizes( curation_concern: curation_concern,
                                          fixer: self,
                                          task: false,

@@ -23,6 +23,7 @@ module Deepblue
                                              "verbose=#{verbose}",
                                              "" ], bold_puts: task if debug_verbose
       w = resolve_curation_concern( id: id, curation_concern: curation_concern )
+      msg_handler.msg_verbose "fix file sizes for work #{curation_concern&.id}" if msg_handler
       puts_msg( fixer: fixer, task: task, verbose: verbose, msg: "w.present? #{w.present?}" )
       selected = w.file_sets.select { |f| f.file_size.blank? }
       puts_msg( fixer: fixer, task: task, verbose: verbose, msg: "selected.size = #{selected.size}" )
