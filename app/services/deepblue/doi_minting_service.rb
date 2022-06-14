@@ -5,6 +5,7 @@ module Deepblue
   class DoiMintingService
 
     mattr_accessor :doi_minting_service_debug_verbose,          default: false
+    mattr_accessor :doi_ensure_doi_minted_debug_verbose,        default: false
     mattr_accessor :doi_minting_2021_service_debug_verbose,     default: false
 
     mattr_accessor :doi_behavior_debug_verbose,                 default: false
@@ -46,58 +47,89 @@ module Deepblue
       @@_setup_ran = true
     end
 
+    def self.datacite_registrar( debug_verbose: false, task: false )
+      datacite = ::Deepblue::DataCiteRegistrar.new
+      datacite.debug_verbose = true if debug_verbose
+      datacite.debug_verbose_puts = true if task && debug_verbose
+      return datacite
+    end
+
     def self.ensure_doi_minted( id: nil,
                                 curation_concern: nil,
-                                debug_verbose: doi_minting_service_debug_verbose,
+                                debug_verbose: doi_minting_service_debug_verbose || doi_ensure_doi_minted_debug_verbose,
                                 task: false,
                                 msg_handler: nil )
 
-      debug_verbose = debug_verbose || ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose
+      debug_verbose = debug_verbose || doi_minting_service_debug_verbose || doi_ensure_doi_minted_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
                                              "curation_concern.nil?=#{curation_concern.nil?}",
                                              "task=#{task}",
-                                             "" ], bold_puts: task if debug_verbose
-      msg_handler ||= ::Deepblue::MessageHandler.new( to_console: task )
+                                             "msg_handler=#{msg_handler}",
+                                             "" ] if debug_verbose
+      if msg_handler.blank?
+        msg_queue = task ? nil : []
+        msg_handler = ::Deepblue::MessageHandler.new( msg_queue: msg_queue,
+                                                      to_console: task,
+                                                      debug_verbose: debug_verbose )
+      end
       id ||= curation_concern&.id
       w = curation_concern
       w ||= ::PersistHelper.find id
+      msg_handler.msg_verbose "id=#{id}"
+      msg_handler.msg_verbose "work found=#{w.present?}"
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
                                              "work found=#{w.present?}",
-                                             "" ], bold_puts: task if debug_verbose
-      return false unless w.present?
+                                             "" ] if debug_verbose
+      if w.present?
+        msg_handler.msg "Ensure DOI minted for work #{id} ..."
+      else
+        msg_handler.msg "#{id} work not found. Can't mint DOI."
+        return false
+      end
+      datacite = datacite_registrar( debug_verbose: debug_verbose, task: task )
+      url = datacite.work_url(w)
+      doi = w.doi
+      doi_minted = w.doi_minted?
+      msg_handler.msg_verbose "work url=#{url}"
+      msg_handler.msg_verbose "doi #{doi}"
+      msg_handler.msg_verbose "work doi_minted?=#{doi_minted}"
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "work doi_minted?=#{w.doi_minted?}",
-                                             "" ], bold_puts: task if debug_verbose
-      unless w.doi_minted?
+                                             "work_url=#{url}",
+                                             "doi=#{doi}",
+                                             "work doi_minted?=#{doi_minted}",
+                                             "" ] if debug_verbose
+      unless doi_minted
+        msg_handler.msg "Calling registrar mint doi."
         registrar_mint_doi( curation_concern: w,
                             current_user: nil,
+                            msg_handler: msg_handler,
                             debug_verbose: debug_verbose,
+                            datacite: datacite,
                             registrar: nil,
                             registrar_opts: {} )
-        findable = datacite.doi_findable? w
+        findable = datacite_registrar.doi_findable? w
+        msg_handler.msg "Work #{url} is findable? #{findable}"
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "work doi findable=#{findable}",
-                                               "" ], bold_puts: task if debug_verbose
+                                               "" ] if debug_verbose
         return findable
       end
 
-      datacite = ::Deepblue::DataCiteRegistrar.new
-      datacite.debug_verbose = true if debug_verbose
-      datacite.debug_verbose_puts = true if task && debug_verbose
       findable = datacite.doi_findable? w
+      msg_handler.msg_verbose "work doi findable? #{findable}"
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "work doi findable=#{findable}",
-                                             "" ], bold_puts: task if debug_verbose
+                                             "work doi findable?=#{findable}",
+                                             "" ] if debug_verbose
       return true if findable
 
-      # m = datacite.client.get_metadata(w.doi)
+      msg_handler.msg_verbose datacite.client.get_metadata(w.doi) if debug_vergose
       # raw = datacite.client.get_metadata_raw(w.doi)
       # xraw = Nokogiri::XML(raw)
 
@@ -107,19 +139,14 @@ module Deepblue
       # client.get_url(w.doi)
       # ==> error
       #
-      url = datacite.work_url(w)
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "work url=#{url}",
-                                             "" ], bold_puts: task if debug_verbose
-      doi = w.doi
       doi = doi.sub( /^doi:/, '' )
       client.register_url(doi, url)
       findable = datacite.doi_findable? w
+      msg_handler.msg "Work #{url} is findable? #{findable}"
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "work doi findable=#{findable}",
-                                             "" ], bold_puts: task if debug_verbose
+                                             "" ] if debug_verbose
       return findable
     end
 
@@ -171,6 +198,7 @@ module Deepblue
                            current_user: nil,
                            event_note: 'DoiMintingService',
                            job_delay: 0,
+                           msg_handler: nil,
                            debug_verbose: ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose )
 
       debug_verbose ||= ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose
@@ -217,6 +245,7 @@ module Deepblue
                                  file_set_ids_found:,
                                  msg_queue: nil,
                                  rake_task: false,
+                                 msg_handler: nil,
                                  debug_verbose: ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose )
       debug_verbose ||= ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -242,7 +271,9 @@ module Deepblue
 
     def self.registrar_mint_doi( curation_concern:,
                                  current_user: nil,
+                                 msg_handler: nil,
                                  debug_verbose: ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose,
+                                 datacite: nil,
                                  registrar: nil,
                                  registrar_opts: {})
 
@@ -257,11 +288,14 @@ module Deepblue
                                              "registrar=#{registrar}",
                                              "registrar_opts=#{registrar_opts}",
                                              "" ] if debug_verbose
+      msg_handler ||= ::Deepblue::MessageHandler.new( to_console: false, debug_verbose: debug_verbose )
       current_user = curation_concern.depositor if current_user.blank?
       user = User.find_by_user_key( current_user )
       if doi_minting_2021_service_direct
-        datacite = ::Deepblue::DataCiteRegistrar.new
-        datacite.debug_verbose = debug_verbose
+        if datacite.blank?
+          datacite = ::Deepblue::DataCiteRegistrar.new
+          datacite.debug_verbose = debug_verbose
+        end
         datacite.mint_doi( work: curation_concern )
       else
         registrar ||= ::Deepblue::DataCiteRegistrar
@@ -302,6 +336,7 @@ module Deepblue
     def initialize( curation_concern:,
                     current_user:,
                     target_url:,
+                    msg_handler: nil,
                     debug_verbose: ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose )
 
       debug_verbose ||= ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose

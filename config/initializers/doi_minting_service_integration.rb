@@ -6,6 +6,7 @@ Deepblue::DoiMintingService.setup do |config|
   ## configure doi minting service
 
   config.doi_minting_service_debug_verbose          = false
+  config.doi_ensure_doi_minted_debug_verbose        = false
   config.doi_minting_2021_service_debug_verbose     = false
 
   config.doi_behavior_debug_verbose                 = false
