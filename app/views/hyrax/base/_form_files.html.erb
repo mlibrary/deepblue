@@ -12,22 +12,26 @@
         <% else %>
           <%= t('hyrax.base.form_files.local_upload_no_dir_html') %>
         <% end %>
+
+        <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
+        <div class="fileupload-buttonbar">
+          <div class="row">
+            <div class="col-xs-12">
+                <!-- The fileinput-button span is used to style the file input field as button -->
+<div>
+  <label for="formFile" class="form-label">Choose Files to Add</label>
+  <input class="form-control" type="file" name="files[]" id="formFileMultiple" multiple>
+</div>
+        <div class="dropzone dropzone-more">
+          <%= t('hyrax.base.form_files.dropzone') %>
+        </div>
+
         <% if Hyrax.config.browse_everything? %>
           <%= t('hyrax.base.form_files.local_upload_browse_everything_html',
                 contact_path: hyrax.contact_path )
               # contact_href: link_to(t("hyrax.upload.alert.contact_href_text"), hyrax.contact_form_index_path))
           %>
         <% end %>
-        <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
-        <div class="fileupload-buttonbar">
-          <div class="row">
-            <div class="col-xs-12">
-                <!-- The fileinput-button span is used to style the file input field as button -->
-
-<div class="mb-3">
-  <label for="formFileMultiple" class="form-label">Chose File From Hard Drive</label>
-  <input class="form-control" type="file" name="files[]" id="formFileMultiple" multiple>
-</div><br/>
 
                 <!-- The fileinput-button span is used to style the file input field as button -->
                 <% if Flipflop.dir_upload? %>
@@ -69,9 +73,6 @@
               </div>
             </div>
           </div>
-        </div>
-        <div class="dropzone">
-          <%= t('hyrax.base.form_files.dropzone') %>
         </div>
      </div>
 

@@ -831,5 +831,48 @@ footer.page-footer p a :hover {
 .badge-block {
         display: inline-block;
 }
+/* Add file formatting */
 
+input[type="file"]::file-selector-button {
+  background-color: #387f38;
+  border-color: #306d30;
+  border-radius: 4px !important;
+  border-style: none none solid !important;
+  font-size: 1em !important;
+  padding: 0.55rem 1rem !important;
+  text-decoration: none !important;
+  font-weight: 400;
+  color: #fff;
+  line-height: 1.428571429;
+}
 
+input[type="file"]::file-selector-button:hover {
+  color: #fff;
+  background-color: #285c28;
+  border-color: #1d431d;
+  transition: 500ms;
+}
+
+input[type="file"] {
+  cursor: pointer;
+  align-items: baseline;
+  text-overflow: ellipsis;
+  white-space: pre;
+  text-align: start !important;
+}
+
+.form-control[type="file"] {
+  width: 25%;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  height: 100%;
+  color: #212529;
+  background-color: #fff;
+  border: none;
+  padding: 0;
+  color: rgba(0, 0, 0, 0);
+  display: block;
+}
+
+/* End add file formatting. */
