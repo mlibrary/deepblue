@@ -2,7 +2,7 @@
 
 module Deepblue
 
-  class FileSetsLostAndFoundFixer < ::Deepblue::AbstractFixer
+  class FileSetsLostAndFoundFixer < AbstractFixer
 
     mattr_accessor :file_sets_lost_and_found_fixer_debug_verbose,
                    default: FindAndFixService.file_sets_lost_and_found_fixer_debug_verbose
@@ -11,28 +11,30 @@ module Deepblue
 
     def initialize( debug_verbose: file_sets_lost_and_found_fixer_debug_verbose,
                     filter: FindAndFixService.find_and_fix_default_filter,
-                    task: false,
+                    msg_handler:,
                     verbose: FindAndFixService.find_and_fix_default_verbose )
 
-      super( debug_verbose: debug_verbose, filter: filter, prefix: PREFIX, task: task, verbose: verbose )
+      super( msg_handler: msg_handler,
+             debug_verbose: debug_verbose || file_sets_lost_and_found_fixer_debug_verbose,
+             filter: filter,
+             prefix: PREFIX,
+             verbose: verbose )
     end
 
-    def fix_include?( curation_concern:, msg_handler: )
-      @msg_handler ||= msg_handler
+    def fix_include?( curation_concern: )
       return false unless curation_concern.parent.blank?
-      return super( curation_concern: curation_concern, msg_handler: msg_handler )
+      return super( curation_concern: curation_concern )
     end
 
-    def fix( curation_concern:, msg_handler: )
-      @msg_handler ||= msg_handler
+    def fix( curation_concern: )
       work = lost_and_found_work
       if work.is_a? DataSet
-        add_msg "FileSet #{curation_concern.id} added to lost and found work #{work.id}" if verbose
+        msg_verbose "FileSet #{curation_concern.id} added to lost and found work #{work.id}"
         work.ordered_members << curation_concern
         work.save!( validate: false )
         work.reload
       else
-        add_msg "FileSet #{curation_concern.id} has no parent. Create DataSet with title #{lost_and_found_work_title}" if verbose
+        msg_verbose "FileSet #{curation_concern.id} has no parent. Create DataSet with title #{lost_and_found_work_title}"
       end
     end
 
@@ -50,27 +52,27 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "lost_and_found_work_title=#{lost_and_found_work_title}",
                                              "solr_query=#{solr_query}",
-                                             "" ], bold_puts: task if file_sets_lost_and_found_fixer_debug_verbose
+                                             "" ], bold_puts: msg_handler.to_console if file_sets_lost_and_found_fixer_debug_verbose
       results = ::Hyrax::SolrService.query( solr_query, rows: 10 )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "results.class.name=#{results.class.name}",
                                              "results=#{results}",
                                              "results&.size=#{results&.size}",
-                                             "" ], bold_puts: task if file_sets_lost_and_found_fixer_debug_verbose
+                                             "" ], bold_puts: msg_handler.to_console if file_sets_lost_and_found_fixer_debug_verbose
       return 'not found' unless results.present?
       # results are an array of solr documents, extract the id from the first one and look it up
       id = results[0].id
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
-                                             "" ], bold_puts: task if file_sets_lost_and_found_fixer_debug_verbose
+                                             "" ], bold_puts: msg_handler.to_console if file_sets_lost_and_found_fixer_debug_verbose
       result = results[0]
       work = PersistHelper.find(id)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "work=#{work}",
-                                             "" ], bold_puts: task if file_sets_lost_and_found_fixer_debug_verbose
+                                             "" ], bold_puts: msg_handler.to_console if file_sets_lost_and_found_fixer_debug_verbose
       return work
     end
 

@@ -5,7 +5,8 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
   mattr_accessor :abstract_rake_task_job_debug_verbose,
                  default: ::Deepblue::JobTaskHelper.abstract_rake_task_job_debug_verbose
 
-  include JobHelper # see JobHelper for :by_request_only, :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
+  include JobHelper
+  # see JobHelper for :by_request_only, :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
 
   attr_accessor :debug_verbose
   attr_accessor :from_dashboard
@@ -17,8 +18,6 @@ class AbstractRakeTaskJob < ::Hyrax::ApplicationJob
   attr_accessor :subscription_service_id
   attr_accessor :task
   attr_accessor :verbose
-
-
 
   def debug_verbose
     @debug_verbose ||= abstract_rake_task_job_debug_verbose

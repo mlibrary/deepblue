@@ -50,14 +50,17 @@ END_OF_SCHEDULER_ENTRY
     test = job_options_value( options, key: 'test', default_value: true, verbose: verbose )
     if quiet
       echo_to_stdout = false
+      to_console = false
       options['to_console'] = false
     else
       echo_to_stdout = job_options_value( options, key: 'echo_to_stdout', default_value: false, verbose: verbose )
       logging = job_options_value( options, key: 'logging', default_value: false, verbose: verbose )
       to_console = job_options_value( options, key: 'to_console', verbose: verbose )
-      options['to_console'] = echo_to_stdout if echo_to_stdout.present? && to_console.blank?
+      to_console = echo_to_stdout if echo_to_stdout.present? && to_console.blank?
+      options['to_console'] = to_console
     end
-    reporter = ::Deepblue::WorksReporter.new( options: options )
+    msg_handler = ::Deepblue::MessageHandler.new( msg_queue: job_msg_queue, to_console: to_console )
+    reporter = ::Deepblue::WorksReporter.new( msg_handler: msg_handler, options: options )
     reporter.run
   rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"

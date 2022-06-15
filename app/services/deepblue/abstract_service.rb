@@ -13,9 +13,19 @@ module Deepblue
 
     attr_reader :options
 
-    attr_accessor :logger, :options_error, :quiet, :rake_task, :subscription_service_id, :to_console, :verbose
+    attr_accessor :logger,
+                  :msg_handler,
+                  :options_error,
+                  :quiet,
+                  :rake_task,
+                  :subscription_service_id,
+                  :to_console,
+                  :verbose
 
-    def initialize( rake_task: false, options: {} )
+    def initialize( msg_handler: nil, rake_task: false, options: {} )
+      @msg_handler = msg_handler
+      skip_msg_handler_update = @msg_handler.present?
+      @msg_handler ||= MessageHandler.msg_handler_for( task: rake_task )
       @rake_task = rake_task
       @options = task_options_parse options
       @options_error = @options[ :error ] if @options.key?( :error )
@@ -34,6 +44,10 @@ module Deepblue
         @verbose = task_options_value( key: 'verbose', default_value: DEFAULT_VERBOSE )
         @to_console = task_options_value( key: 'to_console', default_value: DEFAULT_TO_CONSOLE, verbose: verbose )
       end
+      unless skip_msg_handler_update
+        @msg_handler.verbose = @verbose
+        @msg_handler.to_console = @to_console
+      end
       @subscription_service_id = task_options_value( key: 'subscription_service_id', verbose: verbose )
       console_puts "@verbose=#{@verbose}" if @verbose
     end
@@ -50,11 +64,8 @@ module Deepblue
 
     def console_puts( msg = "" )
       return if @quiet
-      if rake_task
-        puts msg
-      else
-        logger.info msg
-      end
+      @msg_handler.msg msg
+      logger.info msg unless rake_task
     end
 
     def logger
@@ -63,8 +74,8 @@ module Deepblue
 
     def task_msg( msg )
       return if @quiet
+      @msg_handler.msg msg
       logger.debug msg
-      console_puts msg if @to_console
     end
 
     def task_options_value( key:, default_value: nil, verbose: false )

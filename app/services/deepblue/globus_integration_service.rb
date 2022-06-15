@@ -130,10 +130,10 @@ module Deepblue
                                                  prep_dir_ids: prep_dir_ids,
                                                  prep_dir_tmp_ids: prep_dir_tmp_ids,
                                                  ready_ids: nil,
-                                                 quiet: quiet,
                                                  debug_verbose: debug_verbose,
                                                  as_html: true,
-                                                 rake_task: rake_task )
+                                                 rake_task: rake_task,
+                                                 options: { 'quiet' => quiet })
       reporter.run
       puts reporter.out if rake_task
       return reporter
@@ -226,10 +226,10 @@ module Deepblue
                                                  prep_dir_ids: prep_dir_ids,
                                                  prep_dir_tmp_ids: prep_dir_tmp_ids,
                                                  ready_ids: ready_ids,
-                                                 quiet: quiet,
                                                  debug_verbose: debug_verbose,
                                                  as_html: true,
-                                                 rake_task: rake_task )
+                                                 rake_task: rake_task,
+                                                 options: { 'quiet' => quiet } )
       reporter.run
       puts reporter.out if rake_task
       return reporter

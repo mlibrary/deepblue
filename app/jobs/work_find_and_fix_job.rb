@@ -25,7 +25,6 @@ class WorkFindAndFixJob < ::Deepblue::DeepblueJob
                                                   debug_verbose: debug_verbose )
     ::Deepblue::FindAndFixService.work_find_and_fix( id: id,
                                                      msg_handler: msg_handler,
-                                                     task: task,
                                                      debug_verbose: debug_verbose )
     email_all_targets( task_name: EVENT,
                        event: EVENT,

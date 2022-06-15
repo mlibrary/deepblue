@@ -75,26 +75,26 @@ END_OF_SCHEDULER_ENTRY
     if @filter_date_begin.present? || @filter_date_end
       @filter_date = ::Deepblue::FindAndFixCurationConcernFilterDate.new( begin_date: filter_date_begin,
                                                                           end_date: filter_date_end )
-      job_msg_queue << "Filter dates between #{filter_date.begin_date} and #{filter_date.end_date}."
+      msg_handler.msg "Filter dates between #{filter_date.begin_date} and #{filter_date.end_date}."
     end
     find_and_fix_empty_file_size = job_options_value( options,
                                                       key: 'find_and_fix_empty_file_size',
                                                       default_value: true,
                                                       verbose: verbose,
                                                       task: task )
-    job_msg_queue << "find_and_fix_empty_file_size=#{find_and_fix_empty_file_size}"
+    msg_handler.msg "find_and_fix_empty_file_size=#{find_and_fix_empty_file_size}"
     find_and_fix_over_file_sets = job_options_value( options,
                                                       key: 'find_and_fix_over_file_sets',
                                                       default_value: true,
                                                       verbose: verbose,
                                                      task: task )
-    job_msg_queue << "find_and_fix_over_file_sets=#{find_and_fix_over_file_sets}"
+    msg_handler.msg "find_and_fix_over_file_sets=#{find_and_fix_over_file_sets}"
     find_and_fix_all_ordered_members_containing_nils = job_options_value( options,
                                                       key: 'find_and_fix_all_ordered_members_containing_nils',
                                                       default_value: true,
                                                       verbose: verbose,
                                                                           task: task )
-    job_msg_queue << "find_and_fix_all_ordered_members_containing_nils=#{find_and_fix_all_ordered_members_containing_nils}"
+    msg_handler.msg "find_and_fix_all_ordered_members_containing_nils=#{find_and_fix_all_ordered_members_containing_nils}"
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "options=#{options}",
@@ -124,7 +124,7 @@ END_OF_SCHEDULER_ENTRY
     if find_and_fix_over_file_sets
       file_set_ids_fixed = []
       find_and_fix_over_file_sets( filter: @filter_date,
-                                   messages: job_msg_queue,
+                                   msg_handler: msg_handler,
                                    ids_fixed: file_set_ids_fixed,
                                    verbose: verbose )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
