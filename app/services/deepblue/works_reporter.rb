@@ -17,8 +17,8 @@ module Deepblue
     # * Names of depositors
     #
 
-    def initialize( rake_task: false, options: {} )
-      super( rake_task: rake_task, options: options )
+    def initialize( msg_handler: nil, rake_task: false, options: {} )
+      super( msg_handler: msg_handler, rake_task: rake_task, options: options )
     end
 
     def run

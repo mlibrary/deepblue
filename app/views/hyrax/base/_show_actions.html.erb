@@ -203,11 +203,6 @@
                       class: 'btn btn-subtle',
                       data: { confirm: "Ensure #{@presenter.human_readable_type}'s DOI is minted?" },
                       method: :ensure_doi_minted %>
-          <%= link_to t('simple_form.actions.data_set.work_find_and_fix'),
-                      "/data/concern/data_sets/#{@presenter.id}/work_find_and_fix",
-                      class: 'btn btn-subtle',
-                      data: { confirm: "Run find and fix for this #{@presenter.human_readable_type}?\nNOTE: should not be run while files are being attached." },
-                      method: :work_find_and_fix %>
           <% if @presenter.work_featurable? %>
             <%= link_to t('simple_form.actions.data_set.feature'), hyrax.featured_work_path(@presenter, format: :json),
                         data: { behavior: 'feature' },
@@ -221,6 +216,11 @@
               <%= t('simple_form.actions.data_set.tombstone') %>
             </button>
           <% end %>
+          <%= link_to t('simple_form.actions.data_set.work_find_and_fix'),
+                      "/data/concern/data_sets/#{@presenter.id}/work_find_and_fix",
+                      class: 'btn btn-subtle',
+                      data: { confirm: "Run find and fix for this #{@presenter.human_readable_type}?\nNOTE: should not be run while files are being attached." },
+                      method: :work_find_and_fix %>
         </div>
       </div> <!-- End Admin panel -->
     <% end %>

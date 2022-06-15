@@ -32,10 +32,10 @@ describe "globus errors report rake" do
                                                                 prep_dir_ids: {},
                                                                 prep_dir_tmp_ids: {},
                                                                 ready_ids: {},
-                                                                quiet: true,
                                                                 as_html: true,
                                                                 debug_verbose: false,
-                                                                rake_task: true ).at_least(:once).and_return reporter
+                                                                rake_task: true,
+                                                                options: { 'quiet' => true } ).at_least(:once).and_return reporter
       expect(reporter).to receive(:run).at_least(:once)
     end
 

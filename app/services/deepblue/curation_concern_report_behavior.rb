@@ -18,6 +18,7 @@ module Deepblue
     attr_accessor :file_ext_re
     attr_accessor :collections_file, :works_file, :file_sets_file
     attr_accessor :collection_size, :work_size
+    attr_accessor :msg_handler
     attr_accessor :out_report
     attr_accessor :out_collections, :out_works, :out_file_sets, :prefix
     attr_accessor :report_dir

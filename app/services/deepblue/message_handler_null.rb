@@ -31,11 +31,6 @@ module Deepblue
     end
     def msg_queue=(_x); end
 
-    # def task
-    #   false
-    # end
-    # def task=(_x); end
-
     def to_console
       false
     end

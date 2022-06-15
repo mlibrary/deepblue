@@ -274,6 +274,7 @@ module Deepblue
         end
         work.save!
         work.reload
+        valid_or_fix_file_sizes( curation_concern: work )
         return work
       end
 
@@ -304,8 +305,21 @@ module Deepblue
         end
         work.save!
         work.reload
+        valid_or_fix_file_sizes( curation_concern: work )
         return work
       end
+
+    def msg_handler_null
+      @msg_handler ||= ::Deepblue::MessageHandlerNull.new
+    end
+
+    def valid_or_fix_file_sizes( curation_concern: )
+      return unless curation_concern.is_a? DataSet
+      return if ::Deepblue::FindAndFixHelper.valid_file_sizes?( curation_concern: curation_concern,
+                                                                msg_handler: msg_handler_null )
+      ::Deepblue::FindAndFixHelper.fix_file_sizes( curation_concern: curation_concern,
+                                                   msg_handler: msg_handler_null  )
+    end
 
       def add_measurement( measurement )
         measurements << measurement
@@ -1676,6 +1690,8 @@ module Deepblue
             #   apply_visibility_and_workflow( work: work, work_hash: work_hash, admin_set: admin_set )
             # end
             work.save!
+            work.reload
+            valid_or_fix_file_sizes( curation_concern: work )
             log_object work
             @ingest_urls << work.data_set_url if work.present?
           end

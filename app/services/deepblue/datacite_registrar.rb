@@ -167,6 +167,7 @@ module Deepblue
                                              "work.doi=#{work.doi}",
                                              "" ] if debug_verbose
       return false if work.blank?
+      return false if work.doi.blank?
       return false if work.doi == ::Deepblue::DoiBehavior.doi_pending
       url = client.get_url(work.doi, raise_error: false)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -193,7 +194,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "username=#{self.username}",
-                                             "password=#{self.password}",
+                                             #"password=#{self.password}",
                                              "prefix=#{self.prefix}",
                                              "publisher=#{self.publisher}",
                                              "mode=#{mode}",

@@ -41,6 +41,7 @@ RSpec.describe FindAndFixOldJob, skip: false do
         expect(::Deepblue::LoggingHelper).to_not receive(:bold_debug) unless dbg_verbose
 
         expect( described_class.find_and_fix_old_job_debug_verbose ).to eq dbg_verbose
+        expect(job).to_not receive(:email_failure).with(any_args)
         expect(job).to receive( :initialize_from_args ).with( any_args ).and_call_original
         { task:                 false,
           verbose:              false,

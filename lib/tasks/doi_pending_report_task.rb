@@ -11,10 +11,9 @@ module Deepblue
     DEFAULT_REPORT_FILE_PREFIX = nil unless const_defined? :DEFAULT_REPORT_FILE_PREFIX
     DEFAULT_REPORT_QUIET = true unless const_defined? :DEFAULT_REPORT_QUIET
 
-    attr_accessor :options
     attr_accessor :prefix, :quiet, :report_dir, :report_file
 
-    def initialize( options:, msg_handler: nil, msg_queue: nil, debug_verbose: false )
+    def initialize( options: {}, msg_handler: nil, msg_queue: nil, debug_verbose: false )
       super( options: options, msg_handler: msg_handler, msg_queue: msg_queue, debug_verbose: debug_verbose )
     end
 
@@ -23,8 +22,7 @@ module Deepblue
       # puts "options=#{options}"
       @quiet = task_options_value( key: 'quiet', default_value: DEFAULT_REPORT_QUIET )
       @verbose = false if quiet
-      reporter = DoiPendingReporter.new( quiet: quiet,
-                                         debug_verbose: verbose,
+      reporter = DoiPendingReporter.new( debug_verbose: verbose,
                                          rake_task: true,
                                          msg_handler: msg_handler )
       reporter.run

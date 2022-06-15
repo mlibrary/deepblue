@@ -26,7 +26,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "username=#{username}",
-                                             "password=#{password}",
+                                             #"password=#{password}",
                                              "prefix=#{prefix}",
                                              "mode=#{mode}",
                                              "debug_verbose=#{debug_verbose}",

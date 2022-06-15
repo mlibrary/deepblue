@@ -16,20 +16,20 @@ RSpec.describe ::Deepblue::FileSetsLostAndFoundFixer do
 
   let(:default_debug_verbose) { false }
   let(:default_filter)        { Deepblue::FindAndFixService.find_and_fix_default_filter }
-  let(:default_task)          { false }
   let(:default_verbose)       { Deepblue::FindAndFixService.find_and_fix_default_verbose }
   let(:lost_and_found_title)  { Deepblue::FindAndFixService.find_and_fix_file_sets_lost_and_found_work_title }
+  let(:msg_handler)           { ::Deepblue::MessageHandler.new }
 
   describe ".initialize" do
 
     context 'empty initializer' do
       let(:fixer) { described_class.allocate }
       it 'has default values' do
-        fixer.send(:initialize)
+        fixer.send(:initialize, msg_handler: msg_handler)
         expect(fixer.debug_verbose).to  eq default_debug_verbose
         expect(fixer.filter).to         eq default_filter
         expect(fixer.prefix).to         eq described_class::PREFIX
-        expect(fixer.task).to           eq default_task
+        expect(fixer.msg_handler).to    eq msg_handler
         expect(fixer.verbose).to        eq default_verbose
 
         expect(fixer.ids_fixed).to      eq []
@@ -40,20 +40,19 @@ RSpec.describe ::Deepblue::FileSetsLostAndFoundFixer do
       let(:fixer) { described_class.allocate }
       let(:debug_verbose) { false }
       let(:filter)        { "filter" }
-      let(:task)          { !default_task }
       let(:verbose)       { !default_verbose }
 
       it 'has initialize values' do
         fixer.send(:initialize,
                    debug_verbose: debug_verbose,
                    filter: filter,
-                   task: task,
+                   msg_handler: msg_handler,
                    verbose: verbose )
 
         expect(fixer.debug_verbose).to  eq debug_verbose
         expect(fixer.filter).to         eq filter
         expect(fixer.prefix).to         eq described_class::PREFIX
-        expect(fixer.task).to           eq task
+        expect(fixer.msg_handler).to    eq msg_handler
         expect(fixer.verbose).to        eq verbose
 
         expect(fixer.ids_fixed).to      eq []
@@ -87,8 +86,7 @@ RSpec.describe ::Deepblue::FileSetsLostAndFoundFixer do
     # end
     let(:fix_included) { create(:file_set) }
     let(:fix_excluded) { create(:file_set) }
-    let(:msg_handler) { ::Deepblue::MessageHandler.new }
-    let(:fixer) { described_class.new( verbose: true )}
+    let(:fixer) { described_class.new( msg_handler: msg_handler, verbose: true )}
 
     before do # another file_set is added
       parent_work.ordered_members << fix_excluded
@@ -100,12 +98,12 @@ RSpec.describe ::Deepblue::FileSetsLostAndFoundFixer do
     context '.fix_include?' do
 
       it 'included' do
-        expect( fixer.fix_include?( curation_concern: fix_included, msg_handler: msg_handler ) ).to eq true
+        expect( fixer.fix_include?( curation_concern: fix_included ) ).to eq true
         expect( msg_handler.msg_queue ).to eq []
       end
 
       it 'excluded' do
-        expect( fixer.fix_include?( curation_concern: fix_excluded, msg_handler: msg_handler ) ).to eq false
+        expect( fixer.fix_include?( curation_concern: fix_excluded ) ).to eq false
         expect( msg_handler.msg_queue ).to eq []
       end
 
@@ -121,7 +119,7 @@ RSpec.describe ::Deepblue::FileSetsLostAndFoundFixer do
         end
 
         it 'reports that it would add to lost and found if it could find it' do
-          fixer.fix( curation_concern: fix_included, msg_handler: msg_handler )
+          fixer.fix( curation_concern: fix_included )
           expect( msg_handler.msg_queue ).to eq [ "#{prefix}FileSet #{fix_included.id} has no parent. Create DataSet with title #{lost_and_found_title}" ]
         end
 
@@ -132,7 +130,7 @@ RSpec.describe ::Deepblue::FileSetsLostAndFoundFixer do
         it 'adds the file set to lost and found works' do
           expect( Array( lost_and_found_work.ordered_members ).empty? ).to eq true
           expect( lost_and_found_work.file_sets.empty? ).to eq true
-          fixer.fix( curation_concern: fix_included, msg_handler: msg_handler )
+          fixer.fix( curation_concern: fix_included )
           expect( msg_handler.msg_queue ).to eq [ "#{prefix}FileSet #{fix_included.id} added to lost and found work #{lost_and_found_work.id}" ]
           expect( Array( lost_and_found_work.ordered_members ) ).to eq [ fix_included ]
           expect( lost_and_found_work.file_sets ).to eq [ fix_included ]

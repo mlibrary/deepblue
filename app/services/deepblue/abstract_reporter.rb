@@ -11,22 +11,18 @@ module Deepblue
     attr_accessor :quiet
     attr_accessor :debug_verbose
     attr_accessor :out
-    attr_accessor :msg_handler
 
-    def initialize( quiet: true,
-                    debug_verbose: false,
+    def initialize( debug_verbose: false,
                     as_html: false, # TODO
                     rake_task: false,
                     msg_handler: nil,
                     options: {} )
 
       # TODO: ?? merge the keys from various hashes
-      super( rake_task: rake_task, options: options )
-      @quiet = quiet
+      super( msg_handler: msg_handler, rake_task: rake_task, options: options )
       @as_html = as_html
       @debug_verbose = debug_verbose
-      @msg_handler = msg_handler
-      @msg_handler ||= MessageHandler.new
+      msg_handler.debug_verbose = @debug_verbose
     end
 
     def initialize_report_values

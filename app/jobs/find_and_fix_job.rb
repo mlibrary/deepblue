@@ -43,12 +43,12 @@ END_OF_SCHEDULER_ENTRY
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "args=#{args}",
-                                           "" ] if find_and_fix_job_debug_verbose
+                                           "" ] if FindAndFixJob.find_and_fix_job_debug_verbose
     initialized = initialize_from_args *args
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "initialized=#{initialized}",
-                                           "" ], bold_puts: task if find_and_fix_job_debug_verbose
+                                           "" ], bold_puts: task if FindAndFixJob.find_and_fix_job_debug_verbose
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name )
     return unless initialized
     filter_date_begin = job_options_value( options,
@@ -64,17 +64,16 @@ END_OF_SCHEDULER_ENTRY
     run_job_delay
     ::Deepblue::FindAndFixService.find_and_fix( filter_date_begin: filter_date_begin,
                                                 filter_date_end: filter_date_end,
-                                                messages: job_msg_queue,
+                                                msg_handler: msg_handler,
                                                 verbose: verbose,
-                                                debug_verbose: find_and_fix_job_debug_verbose,
-                                                task: task )
+                                                debug_verbose: FindAndFixJob.find_and_fix_job_debug_verbose )
     timestamp_end = DateTime.now
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "job_msg_queue=#{job_msg_queue}",
                                            "timestamp_end=#{timestamp_end}",
-                                           "" ], bold_puts: task if find_and_fix_job_debug_verbose
-    job_msg_queue.each { |msg| puts msg } if task
+                                           "" ], bold_puts: task if FindAndFixJob.find_and_fix_job_debug_verbose
+    # job_msg_queue.each { |msg| puts msg } if task
     email_results( task_name: "Find and Fixer", event: 'find and fixer job' )
   rescue Exception => e # rubocop:disable Lint/RescueException
     Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
