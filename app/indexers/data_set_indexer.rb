@@ -37,7 +37,7 @@ class DataSetIndexer < Hyrax::WorkIndexer
       # So that title sort can be done ...
       solr_doc['title_sort_ssi'] = Array(object.title).first.downcase unless object.title.blank?
 
-      solr_doc[:tombstone_tesim] = object.tombstone
+      solr_doc[:tombstone_ssim] = object.tombstone
       # solr_doc[Solrizer.solr_name('total_file_size', Hyrax::FileSetIndexer::STORED_LONG)] = object.total_file_size
       solr_doc[:total_file_size_lts] = object.size_of_work
 

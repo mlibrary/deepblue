@@ -546,7 +546,14 @@ class DataSet < ActiveFedora::Base
     depositor_at_tombstone = depositor
     visibility_at_tombstone = visibility
     self.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
-    self.state = Vocab::FedoraResourceStatus.inactive
+
+    # The state indicates if an object is Published or not.
+    # Tombstone objects are Published first and then Tombstoned.
+    # If you set the state to inactive, you will not be able to Filter for Restricted, Published works,
+    # in the works dashboard and find the Tombstoned works.
+    # To find them, you would have to search for Restricted, Under Review works, which 
+    # does not reflect the works true status/state.
+    #self.state = Vocab::FedoraResourceStatus.inactive
     self.depositor = depositor
     self.tombstone = [epitaph]
 
