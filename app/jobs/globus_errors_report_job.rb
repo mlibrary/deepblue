@@ -32,7 +32,9 @@ END_OF_SCHEDULER_ENTRY
     is_quiet?
     return job_finished unless by_request_only? && from_dashboard.present?
     return job_finished unless hostname_allowed?
-    report = ::Deepblue::GlobusIntegrationService.globus_errors_report( quiet: is_quiet?, debug_verbose: debug_verbose )
+    report = ::Deepblue::GlobusIntegrationService.globus_errors_report( quiet: is_quiet?,
+                                                                        msg_handler: msg_handler,
+                                                                        debug_verbose: debug_verbose )
     if report.out.present? && !suppress_if_quiet
       event = "globus errors report job"
       email_all_targets( task_name: "globus errors report",

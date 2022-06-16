@@ -14,12 +14,11 @@ module Deepblue
 
     def initialize( debug_verbose: false,
                     as_html: false, # TODO
-                    rake_task: false,
-                    msg_handler: nil,
+                    msg_handler:,
                     options: {} )
 
       # TODO: ?? merge the keys from various hashes
-      super( msg_handler: msg_handler, rake_task: rake_task, options: options )
+      super( msg_handler: msg_handler, options: options )
       @as_html = as_html
       @debug_verbose = debug_verbose
       msg_handler.debug_verbose = @debug_verbose
@@ -81,16 +80,16 @@ module Deepblue
 
     def r_puts( line = "" )
       out << line
-      c_puts line if to_console
+      msg_handler.msg line
     end
 
-    def c_print( msg = "" )
-      console_print msg
-    end
+    # def c_print( msg = "" )
+    #   console_print msg
+    # end
 
-    def c_puts( msg = "" )
-      console_puts msg
-    end
+    # def c_puts( msg = "" )
+    #   msg_handler.msg msg
+    # end
 
   end
 

@@ -17,8 +17,8 @@ module Deepblue
     # * Names of depositors
     #
 
-    def initialize( msg_handler: nil, rake_task: false, options: {} )
-      super( msg_handler: msg_handler, rake_task: rake_task, options: options )
+    def initialize( msg_handler:, options: {} )
+      super( msg_handler: msg_handler, options: options )
     end
 
     def run
@@ -47,15 +47,15 @@ module Deepblue
 
         process_works
 
-        console_puts
-        console_puts works_file
-        console_puts file_sets_file
+        msg_handler.msg ''
+        msg_handler.msg works_file.to_s
+        msg_handler.msg file_sets_file.to_s
 
-        # console_puts
-        # console_puts JSON.pretty_generate( @totals )
-        # console_puts
-        # console_puts JSON.pretty_generate( @tagged_totals )
-        # console_puts
+        # msg_handler.msg ''
+        # msg_handler.msg JSON.pretty_generate( @totals )
+        # msg_handler.msg ''
+        # msg_handler.msg JSON.pretty_generate( @tagged_totals )
+        # msg_handler.msg ''
 
         report_finished
       ensure

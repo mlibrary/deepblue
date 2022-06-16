@@ -2,8 +2,8 @@ require 'rails_helper'
 
 class MockService < ::Deepblue::AbstractService
 
-  def initialize( rake_task: false, options: {} )
-    super( rake_task: rake_task, options: options )
+  def initialize( msg_handler:, options: {} )
+    super( msg_handler: msg_handler, options: options )
   end
 
 end
@@ -20,23 +20,30 @@ RSpec.describe ::Deepblue::AbstractService do
     let( :default_logger )        { Rails.logger }
     let( :default_options_error ) { nil }
     let( :default_quiet )         { ::Deepblue::AbstractService::DEFAULT_QUIET }
-    let( :default_rake_task )     { false }
     let( :default_subscription_service_id ) { nil }
     let( :default_to_console )    { ::Deepblue::AbstractService::DEFAULT_TO_CONSOLE }
     let( :default_verbose )       { ::Deepblue::AbstractService::DEFAULT_VERBOSE }
     let( :error )                 { "an error" }
     let( :service )               { MockService.allocate }
-    let( :subscription_service_id ) { "subscriptionServiceID" }
+    let(:subscription_service_id) { "subscriptionServiceID" }
 
     context 'empty initializer' do
+      let( :msg_handler ) { ::Deepblue::MessageHandler.new }
+      before do
+        expect(msg_handler).to_not receive(:buffer)
+        expect(msg_handler).to_not receive(:msg)
+        expect(msg_handler).to_not receive(:msg_debug)
+        expect(msg_handler).to_not receive(:msg_error)
+        # expect(msg_handler).to_not receive(:msg_verbose)
+        expect(msg_handler).to receive(:msg_verbose).with("@verbose=false")
+        expect(msg_handler).to_not receive(:msg_warn)
+      end
       it 'has default values' do
-        allow(service).to receive(:console_puts)
-        service.send(:initialize)
-        expect(service).to_not have_received(:console_puts)
+        # allow(msg_handler).to receive(:msg)
+        service.send(:initialize, msg_handler: msg_handler)
         expect(service.logger).to        eq default_logger
         expect(service.options_error).to eq default_options_error
         expect(service.quiet).to         eq default_quiet
-        expect(service.rake_task).to     eq default_rake_task
         expect(service.subscription_service_id).to eq default_subscription_service_id
         expect(service.to_console).to    eq default_to_console
         expect(service.verbose).to       eq default_verbose
@@ -44,15 +51,22 @@ RSpec.describe ::Deepblue::AbstractService do
     end
 
     context 'rake task, empty options' do
+      let( :msg_handler ) { ::Deepblue::MessageHandler.msg_handler_for( task: true ) }
       let(:service) { MockService.allocate }
+      before do
+        expect(msg_handler).to_not receive(:buffer)
+        expect(msg_handler).to_not receive(:msg)
+        expect(msg_handler).to_not receive(:msg_debug)
+        expect(msg_handler).to_not receive(:msg_error)
+        # expect(msg_handler).to_not receive(:msg_verbose)
+        expect(msg_handler).to receive(:msg_verbose).with("@verbose=false")
+        expect(msg_handler).to_not receive(:msg_warn)
+      end
       it 'has default values' do
-        allow(service).to receive(:console_puts)
-        service.send(:initialize, rake_task: true )
-        expect(service).to_not have_received(:console_puts)
+        service.send(:initialize, msg_handler: msg_handler )
         expect(service.logger).to        eq default_logger
         expect(service.options_error).to eq default_options_error
         expect(service.quiet).to         eq default_quiet
-        expect(service.rake_task).to     eq true
         expect(service.subscription_service_id).to eq default_subscription_service_id
         expect(service.to_console).to    eq default_to_console
         expect(service.verbose).to       eq default_verbose
@@ -60,15 +74,23 @@ RSpec.describe ::Deepblue::AbstractService do
     end
 
     context 'with options :error' do
-      let( :error_msg ) { "WARNING: options error #{error}" }
+      let( :msg_handler )           { ::Deepblue::MessageHandler.new }
+      # let( :error_msg ) { "WARNING: options error #{error}" }
+      before do
+        expect(msg_handler).to_not receive(:buffer)
+        expect(msg_handler).to_not receive(:msg)
+        expect(msg_handler).to_not receive(:msg_debug)
+        expect(msg_handler).to_not receive(:msg_error)
+        # expect(msg_handler).to_not receive(:msg_verbose)
+        expect(msg_handler).to receive(:msg_verbose).with("@verbose=false")
+        # expect(msg_handler).to_not receive(:msg_warn)
+        expect(msg_handler).to receive(:msg_warn).with ("options error an error")
+      end
       it 'has default values' do
-        allow(service).to receive(:console_puts)
-        service.send(:initialize, options: { error: error } )
-        expect(service).to have_received(:console_puts).with( error_msg )
+        service.send(:initialize, msg_handler: msg_handler, options: { error: error } )
         expect(service.logger).to        eq default_logger
         expect(service.options_error).to eq error
         expect(service.quiet).to         eq default_quiet
-        expect(service.rake_task).to     eq default_rake_task
         expect(service.subscription_service_id).to eq default_subscription_service_id
         expect(service.to_console).to    eq default_to_console
         expect(service.verbose).to       eq default_verbose
@@ -76,15 +98,23 @@ RSpec.describe ::Deepblue::AbstractService do
     end
 
     context 'with options "error"' do
-      let( :error_msg ) { "WARNING: options error #{error}" }
+      let( :msg_handler )           { ::Deepblue::MessageHandler.new }
+      # let( :error_msg ) { "WARNING: options error #{error}" }
+      before do
+        expect(msg_handler).to_not receive(:buffer)
+        expect(msg_handler).to_not receive(:msg)
+        expect(msg_handler).to_not receive(:msg_debug)
+        expect(msg_handler).to_not receive(:msg_error)
+        # expect(msg_handler).to_not receive(:msg_verbose)
+        expect(msg_handler).to receive(:msg_verbose).with("@verbose=false")
+        # expect(msg_handler).to_not receive(:msg_warn)
+        expect(msg_handler).to receive(:msg_warn).with("options error an error")
+      end
       it 'has default values' do
-        allow(service).to receive(:console_puts)
-        service.send(:initialize, options: { "error" => error } )
-        expect(service).to have_received(:console_puts).with( error_msg )
+        service.send(:initialize, msg_handler: msg_handler, options: { "error" => error } )
         expect(service.logger).to        eq default_logger
         expect(service.options_error).to eq error
         expect(service.quiet).to         eq default_quiet
-        expect(service.rake_task).to     eq default_rake_task
         expect(service.subscription_service_id).to eq default_subscription_service_id
         expect(service.to_console).to    eq default_to_console
         expect(service.verbose).to       eq default_verbose
@@ -92,33 +122,43 @@ RSpec.describe ::Deepblue::AbstractService do
     end
 
     context 'with options unparsable string' do
-      # let( :error_msg ) { "WARNING: options error 859: unexpected token at 'garbage'" }
+      let( :msg_handler )           { ::Deepblue::MessageHandler.new }
+      before do
+        expect(msg_handler).to_not receive(:buffer)
+        expect(msg_handler).to_not receive(:msg_debug)
+        expect(msg_handler).to_not receive(:msg_error)
+        # expect(msg_handler).to_not receive(:msg_verbose)
+        expect(msg_handler).to receive(:msg_verbose).with("@verbose=false")
+        # expect(msg_handler).to_not receive(:msg_warn)
+        expect(msg_handler).to receive(:msg_warn).with("options error 859: unexpected token at 'garbage'")
+      end
       it 'has default values' do
-        allow(service).to receive(:console_puts)
-        service.send(:initialize, options: "garbage" )
-        # expect(service).to have_received(:console_puts).with( error_msg )
-        expect(service).to have_received(:console_puts)  do |args|
-          expect( args ).to match /WARNING: options error 8\d\d: unexpected token at 'garbage'/
-        end
+        service.send(:initialize, msg_handler: msg_handler, options: "garbage" )
         expect(service.logger).to        eq default_logger
         expect(service.options_error.message).to match /8\d\d: unexpected token at 'garbage'/
         expect(service.quiet).to         eq default_quiet
-        expect(service.rake_task).to     eq default_rake_task
-        expect(service.subscription_service_id).to eq default_subscription_service_id
         expect(service.to_console).to    eq default_to_console
         expect(service.verbose).to       eq default_verbose
       end
     end
 
     context 'with options quiet' do
+      let( :msg_handler )           { ::Deepblue::MessageHandler.new }
+      before do
+        expect(msg_handler).to_not receive(:buffer)
+        expect(msg_handler).to_not receive(:msg)
+        expect(msg_handler).to_not receive(:msg_debug)
+        expect(msg_handler).to_not receive(:msg_error)
+        # expect(msg_handler).to_not receive(:msg_verbose)
+        expect(msg_handler).to receive(:msg_verbose).with("set key quiet to true")
+        expect(msg_handler).to receive(:msg_verbose).with("@verbose=false")
+        expect(msg_handler).to_not receive(:msg_warn)
+      end
       it 'has default values' do
-        allow(service).to receive(:console_puts)
-        service.send(:initialize, options: { "quiet" => true } )
-        expect(service).to_not have_received(:console_puts)
+        service.send(:initialize, msg_handler: msg_handler, options: { "quiet" => true } )
         expect(service.logger).to        eq default_logger
         expect(service.options_error).to eq default_options_error
         expect(service.quiet).to         eq true
-        expect(service.rake_task).to     eq default_rake_task
         expect(service.subscription_service_id).to eq default_subscription_service_id
         expect(service.to_console).to    eq false
         expect(service.verbose).to       eq false
@@ -126,14 +166,23 @@ RSpec.describe ::Deepblue::AbstractService do
     end
 
     context 'with options quiet as string' do
+      let( :msg_handler )           { ::Deepblue::MessageHandler.new }
+      before do
+        expect(msg_handler).to_not receive(:buffer)
+        expect(msg_handler).to_not receive(:msg)
+        expect(msg_handler).to_not receive(:msg_debug)
+        expect(msg_handler).to_not receive(:msg_error)
+        expect(msg_handler).to receive(:msg_verbose).with("set key quiet to true")
+        expect(msg_handler).to receive(:msg_verbose).with("@verbose=false")
+        expect(msg_handler).to_not receive(:msg_warn)
+      end
       it 'has default values' do
-        allow(service).to receive(:console_puts)
-        service.send(:initialize, options: ActiveSupport::JSON.encode( { "quiet" => true } ) )
-        expect(service).to_not have_received(:console_puts)
+        service.send(:initialize,
+                     msg_handler: msg_handler,
+                     options: ActiveSupport::JSON.encode( { "quiet" => true } ) )
         expect(service.logger).to        eq default_logger
         expect(service.options_error).to eq default_options_error
         expect(service.quiet).to         eq true
-        expect(service.rake_task).to     eq default_rake_task
         expect(service.subscription_service_id).to eq default_subscription_service_id
         expect(service.to_console).to    eq false
         expect(service.verbose).to       eq false
@@ -141,14 +190,22 @@ RSpec.describe ::Deepblue::AbstractService do
     end
 
     context 'with options quiet and verbose true' do
+      let( :msg_handler ) { ::Deepblue::MessageHandler.new }
+      before do
+        expect(msg_handler).to_not receive(:buffer)
+        expect(msg_handler).to_not receive(:msg)
+        expect(msg_handler).to_not receive(:msg_debug)
+        expect(msg_handler).to_not receive(:msg_error)
+        # expect(msg_handler).to_not receive(:msg_verbose)
+        expect(msg_handler).to receive(:msg_verbose).with("set key quiet to true")
+        expect(msg_handler).to receive(:msg_verbose).with("@verbose=false")
+        expect(msg_handler).to_not receive(:msg_warn)
+      end
       it 'has default values' do
-        allow(service).to receive(:console_puts)
-        service.send(:initialize, options: { "quiet" => true, "verbose" => true } )
-        expect(service).to_not have_received(:console_puts)
+        service.send(:initialize, msg_handler: msg_handler, options: { "quiet" => true, "verbose" => true } )
         expect(service.logger).to        eq default_logger
         expect(service.options_error).to eq default_options_error
         expect(service.quiet).to         eq true
-        expect(service.rake_task).to     eq default_rake_task
         expect(service.subscription_service_id).to eq default_subscription_service_id
         expect(service.to_console).to    eq false
         expect(service.verbose).to       eq false
@@ -156,14 +213,22 @@ RSpec.describe ::Deepblue::AbstractService do
     end
 
     context 'with verbose true' do
+      let( :msg_handler ) { ::Deepblue::MessageHandler.new( verbose: true ) }
+      before do
+        expect(msg_handler).to_not receive(:buffer)
+        expect(msg_handler).to_not receive(:msg)
+        expect(msg_handler).to_not receive(:msg_debug)
+        expect(msg_handler).to_not receive(:msg_error)
+        # expect(msg_handler).to_not receive(:msg_verbose)
+        expect(msg_handler).to receive(:msg_verbose).with("set key verbose to true")
+        expect(msg_handler).to receive(:msg_verbose).with("@verbose=true")
+        expect(msg_handler).to_not receive(:msg_warn)
+      end
       it 'has default values' do
-        allow(service).to receive(:console_puts)
-        service.send(:initialize, options: { "verbose" => true } )
-        expect(service).to have_received(:console_puts).with("@verbose=true")
+        service.send(:initialize, msg_handler: msg_handler, options: { "verbose" => true } )
         expect(service.logger).to        eq default_logger
         expect(service.options_error).to eq default_options_error
         expect(service.quiet).to         eq false
-        expect(service.rake_task).to     eq default_rake_task
         expect(service.subscription_service_id).to eq default_subscription_service_id
         expect(service.to_console).to    eq false
         expect(service.verbose).to       eq true
@@ -171,15 +236,26 @@ RSpec.describe ::Deepblue::AbstractService do
     end
 
     context 'with the rest of known options' do
+      let( :msg_handler ) { ::Deepblue::MessageHandler.new }
+      before do
+        # expect(msg_handler).to receive(:msg).with("set key subscription_service_id to #{subscription_service_id}")
+        expect(msg_handler).to_not receive(:buffer)
+        expect(msg_handler).to_not receive(:msg)
+        expect(msg_handler).to_not receive(:msg_debug)
+        expect(msg_handler).to_not receive(:msg_error)
+        # expect(msg_handler).to_not receive(:msg_verbose)
+        expect(msg_handler).to receive(:msg_verbose).with("set key verbose to true")
+        expect(msg_handler).to receive(:msg_verbose).with("set key subscription_service_id to subscriptionServiceID")
+        expect(msg_handler).to receive(:msg_verbose).with("@verbose=true")
+        expect(msg_handler).to_not receive(:msg_warn)
+      end
       it 'has default values' do
-        allow(service).to receive(:console_puts)
-        service.send(:initialize, options: { "verbose" => true, "subscription_service_id" => subscription_service_id } )
-        expect(service).to have_received(:console_puts).with("set key subscription_service_id to #{subscription_service_id}")
-        expect(service).to have_received(:console_puts).with("@verbose=true")
+        service.send(:initialize,
+                     msg_handler: msg_handler,
+                     options: { "verbose" => true, "subscription_service_id" => subscription_service_id } )
         expect(service.logger).to        eq default_logger
         expect(service.options_error).to eq default_options_error
         expect(service.quiet).to         eq false
-        expect(service.rake_task).to     eq default_rake_task
         expect(service.subscription_service_id).to eq subscription_service_id
         expect(service.to_console).to    eq false
         expect(service.verbose).to       eq true

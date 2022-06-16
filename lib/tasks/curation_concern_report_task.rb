@@ -19,14 +19,14 @@ module Deepblue
 
     protected
 
-      def c_print( msg = "" )
-        print msg
-        STDOUT.flush
-      end
+      # def c_print( msg = "" )
+      #   print msg
+      #   STDOUT.flush
+      # end
 
-      def c_puts( msg = "" )
-        puts msg
-      end
+      # def c_puts( msg = "" )
+      #   puts msg
+      # end
 
   end
 

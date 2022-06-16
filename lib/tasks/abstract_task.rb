@@ -45,10 +45,11 @@ module Deepblue
       @logger ||= logger_initialize
     end
 
-    def task_msg( msg )
-      logger.debug msg
-      report_puts msg if @to_console
-    end
+    # def task_msg( msg )
+    #   # logger.debug msg
+    #   # report_puts msg if @to_console
+    #   @msg_handler.msg_debug msg
+    # end
 
     def report_puts( str = '' )
       msg_handler.msg str

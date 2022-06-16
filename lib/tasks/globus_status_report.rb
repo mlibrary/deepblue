@@ -14,8 +14,8 @@ module Deepblue
     attr_accessor :options
     attr_accessor :prefix, :quiet, :report_dir, :report_file
 
-    def initialize( options: )
-      super( options: options )
+    def initialize( msg_handler:, options: )
+      super( msg_handler: msg_handler, options: options )
     end
 
     def run
@@ -23,7 +23,10 @@ module Deepblue
       # puts "options=#{options}"
       @quiet = task_options_value( key: 'quiet', default_value: DEFAULT_REPORT_QUIET )
       @verbose = false if quiet
-      reporter = GlobusIntegrationService.globus_status_report( quiet: quiet, debug_verbose: verbose, rake_task: true )
+      reporter = GlobusIntegrationService.globus_status_report( msg_handler: msg_handler,
+                                                                quiet: quiet,
+                                                                debug_verbose: verbose,
+                                                                rake_task: true )
       report = reporter.out
       return unless report.present?
       @report_dir = task_options_value( key: 'report_dir', default_value: DEFAULT_REPORT_DIR )

@@ -157,30 +157,30 @@ RSpec.describe ::Deepblue::MessageHandler do
 
     context 'with msg str' do
       before do
-        expect(msg_handler).to receive(:line).once.with(msg_arr[0])
+        expect(msg_handler).to receive(:line).once.with(msg_arr[0], log: nil)
       end
       it { msg_handler.msg msg_arr[0] }
     end
 
     context 'with msg str and prefix' do
       before do
-        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[0]}").once
+        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[0]}", log: nil).once
       end
       it { msg_handler.msg msg_arr[0], prefix: prefix }
     end
 
     context 'with msg array' do
       before do
-        expect(msg_handler).to receive(:line).once.with(msg_arr[0])
-        expect(msg_handler).to receive(:line).once.with(msg_arr[1])
+        expect(msg_handler).to receive(:line).once.with(msg_arr[0], log: nil)
+        expect(msg_handler).to receive(:line).once.with(msg_arr[1], log: nil)
       end
       it { msg_handler.msg msg_arr }
     end
 
     context 'with msg array and prefix' do
       before do
-        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[0]}").once
-        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[1]}").once
+        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[0]}", log: nil).once
+        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[1]}", log: nil).once
       end
       it { msg_handler.msg msg_arr, prefix: prefix }
     end
@@ -194,15 +194,15 @@ RSpec.describe ::Deepblue::MessageHandler do
 
     context 'with msg' do
       before do
-        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[0]}").once
+        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[0]}", log: nil).once
       end
       it { msg_handler.msg_error msg_arr[0] }
     end
 
     context 'with msg array' do
       before do
-        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[0]}").once
-        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[1]}").once
+        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[0]}", log: nil).once
+        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[1]}", log: nil).once
       end
       it { msg_handler.msg_error msg_arr }
     end
@@ -216,7 +216,7 @@ RSpec.describe ::Deepblue::MessageHandler do
 
     context 'with msg' do
       before do
-        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[0]}").once
+        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[0]}", log: nil).once
       end
       it { msg_handler.msg_warn msg_arr[0] }
     end
@@ -224,8 +224,8 @@ RSpec.describe ::Deepblue::MessageHandler do
 
     context 'with msg array' do
       before do
-        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[0]}").once
-        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[1]}").once
+        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[0]}", log: nil).once
+        expect(msg_handler).to receive(:line).with("#{prefix}#{msg_arr[1]}", log: nil).once
       end
       it { msg_handler.msg_warn msg_arr }
     end

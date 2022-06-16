@@ -243,17 +243,16 @@ module Deepblue
 
     def self.doi_pending_finder( data_set_ids_found:,
                                  file_set_ids_found:,
-                                 msg_queue: nil,
-                                 rake_task: false,
-                                 msg_handler: nil,
+                                 msg_handler:,
                                  debug_verbose: ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose )
+
       debug_verbose ||= ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "data_set_ids_found.is_a? Array=#{data_set_ids_found.is_a? Array}",
-                                             "file_set_ids_found.is_a? Array=#{file_set_ids_found.is_a? Array}",
-                                             "msg_queue=#{msg_queue}",
-                                             "" ], bold_puts: rake_task if debug_verbose
+      msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
+                               ::Deepblue::LoggingHelper.called_from,
+                               "data_set_ids_found.is_a? Array=#{data_set_ids_found.is_a? Array}",
+                               "file_set_ids_found.is_a? Array=#{file_set_ids_found.is_a? Array}",
+                               "msg_queue=#{msg_queue}",
+                               "" ] if debug_verbose
 
       if data_set_ids_found.is_a? Array
         DataSet.all.each do |work|
