@@ -18,14 +18,11 @@ module Deepblue
     end
 
     def run
-      # puts "ARGV=#{ARGV}"
-      # puts "options=#{options}"
       #
       # send the target file name in the reporter
       #
-      #
       @quiet = task_options_value( key: 'quiet', default_value: DEFAULT_REPORT_QUIET )
-      @verbose = false if quiet
+      set_quiet( quiet: @quiet )
       reporter = WorkImpactReporter.new( msg_handler: msg_handler, options: options )
       reporter.run
       # report = reporter.out

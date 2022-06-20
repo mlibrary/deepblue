@@ -32,16 +32,16 @@ module Hyrax
       @assets_with_deactivated_embargoes ||= EmbargoService.assets_with_deactivated_embargoes
     end
 
-    def about_to_expire_embargo_email( asset:, expiration_days:, email_owner: true, test_mode: false, verbose: false )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             ::Deepblue::LoggingHelper.obj_class( "asset", asset ),
-                                             "asset=#{asset}",
-                                             "expiration_days=#{expiration_days}",
-                                             "email_owner=#{email_owner}",
-                                             "test_mode=#{test_mode}",
-                                             "verbose=#{verbose}",
-                                             "" ] if embargo_helper_debug_verbose
+    def about_to_expire_embargo_email( asset:, expiration_days:, email_owner: true, msg_handler:, test_mode: false )
+      msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
+                               ::Deepblue::LoggingHelper.called_from,
+                               ::Deepblue::LoggingHelper.obj_class( "asset", asset ),
+                               "asset=#{asset}",
+                               "expiration_days=#{expiration_days}",
+                               "email_owner=#{email_owner}",
+                               "test_mode=#{test_mode}",
+                               # "verbose=#{verbose}",
+                               "" ]
       embargo_release_date = asset.embargo_release_date
       curation_concern = ::PersistHelper.find asset.id
       id = curation_concern.id
@@ -50,7 +50,9 @@ module Hyrax
       visibility = visibility_on_embargo_deactivation( curation_concern: curation_concern )
       url = ::Deepblue::EmailHelper.curation_concern_url( curation_concern: curation_concern )
       email = curation_concern.authoremail
-      ::Deepblue::LoggingHelper.debug "about_to_expire_embargo_email: curation concern id: #{id} email: #{email} exipration_days: #{expiration_days}" if verbose
+      msg = "about_to_expire_embargo_email: curation concern id: #{id} email: #{email} exipration_days: #{expiration_days}"
+      msg_handler.msg_verbose
+      msg_handler.bold_debug msg
       body = []
       body << ::Deepblue::EmailHelper.t( "hyrax.email.about_to_expire_embargo.for_html",
                                          expiration_days: expiration_days,

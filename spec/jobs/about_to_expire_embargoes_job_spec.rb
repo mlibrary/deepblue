@@ -35,7 +35,6 @@ RSpec.describe AboutToExpireEmbargoesJob do
       let(:dbg_verbose)   { debug_verbose_count > 0 }
       let(:service)       { double('service') }
       let(:options)       { args }
-      # let(:msg_handler)   { ::Deepblue::MessageHandler.new(to_console: false, verbose: false) }
       let(:event_name)    { 'about to expire embargoes' }
       let(:time_before)   { DateTime.now }
       before do
@@ -99,7 +98,7 @@ RSpec.describe AboutToExpireEmbargoesJob do
             expect(args[:expiration_lead_days]).to eq expiration_lead_days
             expect(args[:skip_file_sets]).to eq skip_file_sets
             expect(args[:test_mode]).to eq test_mode
-            expect(args[:verbose]).to eq verbose
+            # expect(args[:verbose]).to eq verbose
             expect(args[:msg_handler].is_a? ::Deepblue::MessageHandler).to eq true
             expect(args[:msg_handler].msg_queue).to eq []
             expect(args[:msg_handler].to_console).to eq false

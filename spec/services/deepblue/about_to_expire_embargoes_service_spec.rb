@@ -32,9 +32,9 @@ RSpec.describe ::Deepblue::AboutToExpireEmbargoesService do
                                       expiration_lead_days: expiration_lead_days,
                                       msg_handler: msg_handler,
                                       skip_file_sets: skip_file_sets,
-                                      test_mode: test_mode,
-                                      to_console: to_console,
-                                      verbose: verbose)
+                                      test_mode: test_mode)
+                                      # to_console: to_console,
+                                      # verbose: verbose)
         expect(service).to receive(:assets_under_embargo).and_return []
         service.run
         # expect(job.timestamp_begin.between?(time_before,time_after)).to eq true

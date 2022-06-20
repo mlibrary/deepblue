@@ -69,15 +69,15 @@ module Deepblue
     # Provide the same functionality as the LoggingHelper.bold_debug, but override bold_puts parameter
     # with the MessageHandler's to_console flag, and use the MessageHandler's logger, which defaults
     # to Rails.logger
-    def self.bold_debug( msg = nil,
-                         bold_puts: @to_console,
-                         label: nil,
-                         key_value_lines: true,
-                         add_stack_trace: false,
-                         add_stack_trace_depth: 3,
-                         lines: 1,
-                         logger: nil, # defaults to the MessageHandler's logger
-                         &block )
+    def bold_debug( msg = nil,
+                   bold_puts: @to_console,
+                   label: nil,
+                   key_value_lines: true,
+                   add_stack_trace: false,
+                   add_stack_trace_depth: 3,
+                   lines: 1,
+                   logger: nil, # defaults to the MessageHandler's logger
+                   &block )
 
       logger ||= self.logger
       LoggingHelper.bold_debug( msg,
@@ -88,7 +88,7 @@ module Deepblue
                                 add_stack_trace_depth: add_stack_trace_depth,
                                 lines: lines,
                                 logger: logger,
-                                &block )
+                                &block ) if debug_verbose
     end
 
     # buffer up input messages then pre-pend the next msg with the buffer,
