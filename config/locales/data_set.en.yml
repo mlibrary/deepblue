@@ -66,7 +66,7 @@ en:
           or <a href="/data/Deep_Blue_Data_Example_Readme.txt">this Example readme</a> for more information.</p>
           <p>'Add folder...' will upload individual files within the selected folder.</p>
         local_upload_browse_everything_html: >
-          <p>You may also add one or more files to associate with this work from a cloud provider.</p>
+          <p>To select files from Drop Box.</p>
           <p>Note that if you use a cloud provider to upload a large number of
           files within a short period of time, the provider may not be able to
           accommodate your request. If you experience errors uploading from the
@@ -79,6 +79,8 @@ en:
           <a href="/data/depositor-guide#prepare-documentation" target="_blank">
           Guide to Creating Documentation for Your Dataset</a>
           or <a href="/data/Deep_Blue_Data_Example_Readme.txt">this Example readme</a> for more information.</p>
+        local_help_your_computer_html: >
+          <p>Select "Choose Files" to select files from your computer..</p>        
       form_progress:
         cancel:             "Cancel"
   provenance_log:
