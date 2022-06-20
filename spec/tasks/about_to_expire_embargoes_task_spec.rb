@@ -25,8 +25,8 @@ RSpec.describe ::Deepblue::AboutToExpireEmbargoesTask do
           expect(args[:expiration_lead_days]).to eq expected[:expiration_lead_days]
           expect(args[:skip_file_sets]).to eq expected[:skip_file_sets]
           expect(args[:test_mode]).to eq expected[:test_mode]
-          expect(args[:to_console]).to eq expected[:to_console]
-          expect(args[:verbose]).to eq expected[:verbose]
+          # expect(args[:to_console]).to eq expected[:to_console]
+          # expect(args[:verbose]).to eq expected[:verbose]
           expect(args[:msg_handler].is_a? ::Deepblue::MessageHandler).to eq true
           expect(args[:msg_handler].msg_queue).to eq nil
           expect(args[:msg_handler].to_console).to eq expected[:to_console]
@@ -59,8 +59,8 @@ RSpec.describe ::Deepblue::AboutToExpireEmbargoesTask do
           expect(args[:expiration_lead_days]).to eq expected[:expiration_lead_days]
           expect(args[:skip_file_sets]).to eq expected[:skip_file_sets]
           expect(args[:test_mode]).to eq expected[:test_mode]
-          expect(args[:to_console]).to eq true
-          expect(args[:verbose]).to eq expected[:verbose]
+          # expect(args[:to_console]).to eq true
+          # expect(args[:verbose]).to eq expected[:verbose]
           expect(args[:msg_handler].is_a? ::Deepblue::MessageHandler).to eq true
           expect(args[:msg_handler].msg_queue).to eq nil
           expect(args[:msg_handler].to_console).to eq false

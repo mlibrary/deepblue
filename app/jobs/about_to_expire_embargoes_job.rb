@@ -56,12 +56,13 @@ END_OF_SCHEDULER_ENTRY
     expiration_lead_days = options_value( key: 'expiration_lead_days', default_value: default_args[:expiration_lead_days] )
     skip_file_sets       = options_value( key: 'skip_file_sets',       default_value: default_args[:skip_file_sets] )
     test_mode            = options_value( key: 'test_mode',            default_value: default_args[:test_mode] )
+    msg_handler.verbose = verbose
     ::Deepblue::AboutToExpireEmbargoesService.new( email_owner: email_owner,
                                                    expiration_lead_days: expiration_lead_days,
                                                    msg_handler: msg_handler,
                                                    skip_file_sets: skip_file_sets,
                                                    test_mode: test_mode,
-                                                   verbose: verbose,
+                                                   # verbose: verbose,
                                                    debug_verbose: debug_verbose ).run
     timestamp_end = DateTime.now
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

@@ -26,8 +26,8 @@ module Deepblue
                                          expiration_lead_days: expiration_lead_days,
                                          skip_file_sets: skip_file_sets,
                                          test_mode: test_mode,
-                                         to_console: true,
-                                         verbose: verbose,
+                                         # to_console: true,
+                                         # verbose: verbose,
                                          msg_handler: msg_handler )
       service.run
     end

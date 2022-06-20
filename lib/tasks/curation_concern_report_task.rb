@@ -17,17 +17,6 @@ module Deepblue
       @file_ext_re = DEFAULT_FILE_EXT_RE
     end
 
-    protected
-
-      # def c_print( msg = "" )
-      #   print msg
-      #   STDOUT.flush
-      # end
-
-      # def c_puts( msg = "" )
-      #   puts msg
-      # end
-
   end
 
 end

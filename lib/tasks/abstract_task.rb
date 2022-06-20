@@ -13,11 +13,19 @@ module Deepblue
     DEFAULT_TO_CONSOLE = true unless const_defined? :DEFAULT_TO_CONSOLE
     DEFAULT_VERBOSE = false unless const_defined? :DEFAULT_VERBOSE
 
+    attr_accessor :logger
     attr_accessor :msg_queue
     attr_accessor :msg_handler
     attr_reader   :options
-    attr_accessor :verbose, :to_console, :logger
+
     attr_accessor :debug_verbose
+    alias :debug_verbose? :debug_verbose
+
+    attr_accessor :to_console
+    alias :to_console? :to_console
+
+    attr_accessor :verbose
+    alias :verbose? :verbose
 
     def initialize( options: {}, msg_handler: nil, msg_queue: nil, debug_verbose: false )
       @debug_verbose = debug_verbose
@@ -58,6 +66,14 @@ module Deepblue
       # else
       #   puts str
       # end
+    end
+
+    def set_quiet( quiet: )
+      if quiet
+        verbose = true
+      else
+        verbose = false
+      end
     end
 
     def task_options_value( key:, default_value: nil, verbose: false )
