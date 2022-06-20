@@ -42,12 +42,13 @@ module Deepblue
       collection_work_ids.each do |id|
         w = ::PersistHelper.find id
         next unless w.respond_to? :file_sets
-        # c_print 'w'
+        # msg_handler.buffer 'w'
         w.file_sets do |fs|
-          # c_print 'f'
+          # msg_handler.buffer 'f'
           file_set_count += 1
           total_size += size_of fs
         end
+        # msg_handler.msg ''
       end
       return file_set_count, total_size
     end
@@ -352,15 +353,15 @@ module Deepblue
       @collection_files = 0
       work_ids = collection_work_ids( collection: collection )
       # file_set_count, _total_size = collection_file_set_count_and_size( collection_work_ids: work_ids )
-      # c_print "#{report_line_prefix}[#{collection.id}] has #{works( work_ids.count )} and #{files( file_set_count )}..."
-      c_print "#{report_line_prefix}[#{collection.id}] has #{works(work_ids.count )} ..."
+      # msg_handler.msg "#{report_line_prefix}[#{collection.id}] has #{works( work_ids.count )} and #{files( file_set_count )}..."
+      msg_handler.msg "#{report_line_prefix}[#{collection.id}] has #{works(work_ids.count )} ..."
       work_ids.each do |wid|
         put 'n' if wid.nil?
         next if wid.nil?
-        c_print "\n[#{collection.id}] #{wid} ..."
+        msg_handler.buffer "[#{collection.id}] #{wid} ..."
         @work_size = 0
         if work_ids_reported.key?( wid )
-          c_print " already reported as"
+          msg_handler.buffer " already reported as"
           @work_size = work_size_cache[wid]
           @work_file_count = work_file_count_cache[wid]
         else
@@ -378,15 +379,16 @@ module Deepblue
         @collection_files += @work_file_count
         @collection_size += @work_size
         inc_collections_size( collection, @work_size )
-        c_print " #{human_readable( @work_size )} in #{files( @work_file_count )}"
+        msg_handler.msg " #{human_readable( @work_size )} in #{files( @work_file_count )}"
       end
-      c_print "\n[#{collection.id}] has total size of #{human_readable( @collection_size )} in #{files( @collection_files )}\n"
+      msg_handler.msg "[#{collection.id}] has total size of #{human_readable( @collection_size )} in #{files( @collection_files )}"
+      msg_handler.msg ''
       print_collection_line( out_collections, collection: collection )
     end
 
     def process_collections
       collections = Collection.all
-      c_puts "#{collections.size} collections to process..."
+      msg_handler.msg "#{collections.size} collections to process..."
       count = 0
       collections.each do |collection|
         count += 1
@@ -417,7 +419,7 @@ module Deepblue
 
     def process_works
       works = TaskHelper.all_works
-      c_puts "#{works.size} works to process..."
+      msg_handler.msg "#{works.size} works to process..."
       count = 0
       works.each do |work|
         count += 1
@@ -430,9 +432,9 @@ module Deepblue
       return if work.nil?
       return unless TaskHelper.work? work
       @work_size = 0
-      c_print "#{report_line_prefix}#{work.id} has #{files(work.file_set_ids.size)}..."
+      msg_handler.buffer "#{report_line_prefix}#{work.id} has #{files(work.file_set_ids.size)}..."
       if work_ids_reported.key?( work.id )
-        c_print " already reported ..."
+        msg_handler.buffer " already reported ..."
         @work_size = work_size_cache[work.id]
         @work_file_count = work_file_count_cache[work.id]
       else
@@ -444,7 +446,7 @@ module Deepblue
         work_size_cache[work.id] = @work_size
         work_file_count_cache[work.id] = work.file_sets.count
       end
-      c_print " #{human_readable( @work_size )}\n"
+      msg_handler.msg " #{human_readable( @work_size )}"
       print_work_line( out_works, work: work, work_size: @work_size )
     end
 
@@ -547,10 +549,10 @@ module Deepblue
 
       @out_report_file = Pathname.new( report_dir ).join "#{prefix}.txt"
       File.open( @out_report_file, 'w' ) { |out| out << out_report.string }
-      c_print "\n"
-      c_print "\n"
-      c_print out_report.string
-      c_print "\n"
+      msg_handler.msg ''
+      msg_handler.msg ''
+      msg_handler.msg out_report.string
+      msg_handler.msg ''
       report_email_results
     end
 

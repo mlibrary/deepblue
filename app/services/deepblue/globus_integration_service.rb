@@ -45,6 +45,7 @@ module Deepblue
 
     def self.globus_errors_report( quiet: true,
                                    debug_verbose: globus_integration_service_debug_verbose,
+                                   msg_handler:,
                                    rake_task: false )
 
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -132,7 +133,7 @@ module Deepblue
                                                  ready_ids: nil,
                                                  debug_verbose: debug_verbose,
                                                  as_html: true,
-                                                 rake_task: rake_task,
+                                                 msg_handler: msg_handler,
                                                  options: { 'quiet' => quiet })
       reporter.run
       puts reporter.out if rake_task
@@ -140,8 +141,9 @@ module Deepblue
     end
 
     def self.globus_status_report( quiet: true,
-                                  debug_verbose: globus_integration_service_debug_verbose,
-                                  rake_task: false )
+                                   debug_verbose: globus_integration_service_debug_verbose,
+                                   msg_handler:,
+                                   rake_task: false )
 
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -228,7 +230,7 @@ module Deepblue
                                                  ready_ids: ready_ids,
                                                  debug_verbose: debug_verbose,
                                                  as_html: true,
-                                                 rake_task: rake_task,
+                                                 msg_handler: msg_handler,
                                                  options: { 'quiet' => quiet } )
       reporter.run
       puts reporter.out if rake_task

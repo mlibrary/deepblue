@@ -14,7 +14,8 @@ namespace :deepblue do
     args.with_defaults( options: '{}' )
     options = args[:options]
     # task = Deepblue::WorksReport.new( options: options )
-    task = Deepblue::WorksReporter.new( rake_task: true, options: options )
+    msg_handler = ::Deepblue::MessageHandler.message_handler_for( task: true )
+    task = Deepblue::WorksReporter.new( msg_handler: msg_handler, options: options )
     task.run
   end
 

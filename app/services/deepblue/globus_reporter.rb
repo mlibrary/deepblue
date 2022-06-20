@@ -17,13 +17,13 @@ module Deepblue
                     prep_dir_ids: {},
                     prep_dir_tmp_ids: {},
                     ready_ids: {},
+                    msg_handler:,
                     debug_verbose: false,
                     as_html: false, # TODO
-                    rake_task: false,
                     options: {} )
 
       # TODO: ?? merge the keys from various hashes
-      super( as_html: as_html, debug_verbose: debug_verbose, rake_task: rake_task, options: options )
+      super( msg_handler: msg_handler, as_html: as_html, debug_verbose: debug_verbose, options: options )
       @error_ids = error_ids
       @locked_ids = locked_ids
       @prep_dir_ids = prep_dir_ids

@@ -22,9 +22,7 @@ module Deepblue
       # puts "options=#{options}"
       @quiet = task_options_value( key: 'quiet', default_value: DEFAULT_REPORT_QUIET )
       @verbose = false if quiet
-      reporter = DoiPendingReporter.new( debug_verbose: verbose,
-                                         rake_task: true,
-                                         msg_handler: msg_handler )
+      reporter = DoiPendingReporter.new( debug_verbose: verbose, msg_handler: msg_handler )
       reporter.run
       report = reporter.out
       return unless report.present?

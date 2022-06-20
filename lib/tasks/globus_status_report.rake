@@ -15,7 +15,8 @@ namespace :deepblue do
   desc 'Report on Globus status'
   task :globus_status_report, %i[ options ] => :environment do |_task, args|
     args.with_defaults( options: '{}' )
-    task = Deepblue::GlobusStatusReport.new( options: args[:options] )
+    msg_handler = ::Deepblue::MessageHandler.msg_handler_for( task: true )
+    task = Deepblue::GlobusStatusReport.new( msg_handler: msg_handler, options: args[:options] )
     task.run
   end
 

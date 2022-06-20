@@ -26,14 +26,16 @@ describe "doi pending report rake" do
                                                                to_console: true,
                                                                verbose: false).and_return msg_handler
       allow(msg_handler).to receive(:msg).with(any_args)
+      allow(msg_handler).to receive(:msg_verbose).with(any_args)
       allow(msg_handler).to receive(:debug_verbose).with(any_args).and_return false
       allow(msg_handler).to receive(:debug_verbose=).with(any_args)
+      allow(msg_handler).to receive(:quiet=).with(any_args)
       expect(::Deepblue::DoiPendingReportTask).to receive(:new).with(options: options).at_least(:once).and_return invoked
       expect(invoked).to receive(:run).with(no_args).at_least(:once).and_call_original
       expect(::Deepblue::DoiMintingService).to receive(:doi_pending_finder).with( data_set_ids_found: [],
                                                                                   file_set_ids_found: [],
                                                                                   debug_verbose: false,
-                                                                                  rake_task: true).at_least(:once).and_call_original
+                                                                                  msg_handler: msg_handler ).at_least(:once).and_call_original
     end
 
     after do

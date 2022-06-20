@@ -11,19 +11,13 @@ module Deepblue
 
     def initialize( data_set_ids: [],
                     file_set_ids: [],
-                    msg_handler: nil,
+                    msg_handler:,
                     debug_verbose: false,
                     as_html: false, # TODO
-                    rake_task: false,
                     options: {} )
 
       # TODO: ?? merge the keys from various hashes
-      super( as_html: as_html,
-             debug_verbose: debug_verbose,
-             rake_task: rake_task,
-             msg_handler: msg_handler,
-             options: options )
-
+      super( as_html: as_html, debug_verbose: debug_verbose, msg_handler: msg_handler, options: options )
       @data_set_ids = data_set_ids
       @file_set_ids = file_set_ids
     end
@@ -32,7 +26,7 @@ module Deepblue
       super
       DoiMintingService.doi_pending_finder( data_set_ids_found: data_set_ids,
                                             file_set_ids_found: file_set_ids,
-                                            rake_task: rake_task,
+                                            msg_handler: msg_handler,
                                             debug_verbose: debug_verbose )
     end
 
