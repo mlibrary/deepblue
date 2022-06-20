@@ -22,16 +22,12 @@
   <label for="formFile" class="form-label">Choose Files to Add</label>
   <input class="form-control" type="file" name="files[]" id="formFileMultiple" multiple>
 </div>
+<%= t('hyrax.base.form_files.local_help_your_computer_html') %>
         <div class="dropzone dropzone-more">
           <%= t('hyrax.base.form_files.dropzone') %>
         </div>
 
-        <% if Hyrax.config.browse_everything? %>
-          <%= t('hyrax.base.form_files.local_upload_browse_everything_html',
-                contact_path: hyrax.contact_path )
-              # contact_href: link_to(t("hyrax.upload.alert.contact_href_text"), hyrax.contact_form_index_path))
-          %>
-        <% end %>
+
 
                 <!-- The fileinput-button span is used to style the file input field as button -->
                 <% if Flipflop.dir_upload? %>
@@ -52,6 +48,16 @@
                     <%= t('hyrax.upload.browse_everything.browse_files_button') %>
                   <% end %>
                 <% end %>
+
+        <% if Hyrax.config.browse_everything? %>
+          <%= t('hyrax.base.form_files.local_upload_browse_everything_html',
+                contact_path: hyrax.contact_path )
+              # contact_href: link_to(t("hyrax.upload.alert.contact_href_text"), hyrax.contact_form_index_path))
+          %>
+        <% end %>
+
+
+
                 <button type="reset" id="file-upload-cancel-btn" class="btn btn-warning cancel hidden">
                     <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
                     <span><%= t('.cancel_upload') %></span>

@@ -833,6 +833,10 @@ footer.page-footer p a :hover {
 }
 /* Add file formatting */
 
+.dropzone-more {
+  margin: 2em 0;
+}
+
 input[type="file"]::file-selector-button {
   background-color: #387f38;
   border-color: #306d30;
