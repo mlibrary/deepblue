@@ -866,7 +866,7 @@ input[type="file"] {
 }
 
 .form-control[type="file"] {
-  width: 25%;
+  box-shadow: none !important;
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
@@ -879,4 +879,4 @@ input[type="file"] {
   display: block;
 }
 
-/* End add file formatting. */
+/* End Add file formatting. */

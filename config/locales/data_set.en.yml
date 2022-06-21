@@ -80,7 +80,7 @@ en:
           Guide to Creating Documentation for Your Dataset</a>
           or <a href="/data/Deep_Blue_Data_Example_Readme.txt">this Example readme</a> for more information.</p>
         local_help_your_computer_html: >
-          <p>Select "Choose Files" to select files from your computer..</p>        
+          <p>Select "Choose Files" to upload files from your computer.</p>
       form_progress:
         cancel:             "Cancel"
   provenance_log:
