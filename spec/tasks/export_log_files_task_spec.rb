@@ -15,7 +15,7 @@ RSpec.describe ::Deepblue::ExportLogFilesTask do
       expect(::Deepblue::ExportFilesHelper).to receive(:export_log_files) do |args|
         expect(args[:msg_handler].is_a? ::Deepblue::MessageHandler).to eq true
         expect(args[:msg_handler].to_console).to eq true
-        expect(args[:task]).to eq true
+        # expect(args[:task]).to eq true
         expect(args[:debug_verbose]).to eq false
       end
       task.run

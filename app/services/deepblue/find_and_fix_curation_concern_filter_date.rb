@@ -5,6 +5,7 @@ class Deepblue::FindAndFixCurationConcernFilterDate
   attr_reader :begin_date, :end_date, :debug_verbose
 
   def to_datetime( date, format: nil )
+    # TODO: see ReportHelper.to_datetime
     return nil if date.blank?
     date = date.strip
     date = date.downcase

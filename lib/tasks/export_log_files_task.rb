@@ -12,10 +12,7 @@ module Deepblue
     end
 
     def run
-      ExportFilesHelper.export_log_files( msg_handler: msg_handler,
-                                          task: true,
-                                          verbose: verbose,
-                                          debug_verbose: false )
+      ExportFilesHelper.export_log_files( msg_handler: msg_handler, debug_verbose: false )
     end
 
   end

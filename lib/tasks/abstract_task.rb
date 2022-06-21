@@ -53,19 +53,8 @@ module Deepblue
       @logger ||= logger_initialize
     end
 
-    # def task_msg( msg )
-    #   # logger.debug msg
-    #   # report_puts msg if @to_console
-    #   @msg_handler.msg_debug msg
-    # end
-
     def report_puts( str = '' )
       msg_handler.msg str
-      # if msg_queue
-      #   msg_queue << str
-      # else
-      #   puts str
-      # end
     end
 
     def set_quiet( quiet: )
@@ -76,8 +65,8 @@ module Deepblue
       end
     end
 
-    def task_options_value( key:, default_value: nil, verbose: false )
-      TaskHelper.task_options_value( @options, key: key, default_value: default_value, verbose: verbose )
+    def task_options_value( key:, default_value: nil )
+      TaskHelper.task_options_value( @options, key: key, default_value: default_value, msg_handler: msg_handler )
     end
 
     protected

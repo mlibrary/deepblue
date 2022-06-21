@@ -18,8 +18,8 @@ module Deepblue
       puts "Fedora accessible: #{accessible}"
     end
 
-    def task_options_value( key:, default_value: nil, verbose: false )
-      TaskHelper.task_options_value( @options, key: key, default_value: default_value, verbose: verbose )
+    def task_options_value( key:, default_value: nil )
+      TaskHelper.task_options_value( @options, key: key, default_value: default_value )
     end
 
   end

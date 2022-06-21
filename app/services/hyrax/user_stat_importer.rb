@@ -11,18 +11,18 @@ module Deepblue
     attr_accessor :delay_secs, :echo_to_stdout, :logging, :number_of_retries, :test
     # attr_accessor :hostname, :hostnames
 
-        def initialize( options: {} )
+    def initialize( options: {} )
       super( options: options )
       # @verbose = task_options_value( key: 'verbose', default_value: false )
       # ::Deepblue::LoggingHelper.debug "verbose=#{verbose}" if verbose
-      # @hostnames = task_options_value( key: 'hostnames', default_value: [], verbose: verbose )
+      # @hostnames = task_options_value( key: 'hostnames', default_value: [] )
       # @hostname = Rails.configuration.hostname
       # return unless @hostnames.include? @hostname
-      @test = task_options_value( key: 'test', default_value: true, verbose: verbose )
-      @echo_to_stdout = task_options_value( key: 'echo_to_stdout', default_value: false, verbose: verbose )
-      @logging = task_options_value( key: 'logging', default_value: false, verbose: verbose )
-      @number_of_retries = task_options_value( key: 'number_of_retries', default_value: nil, verbose: verbose )
-      @delay_secs = task_options_value( key: 'delay_secs', default_value: nil, verbose: verbose )
+      @test = task_options_value( key: 'test', default_value: true )
+      @echo_to_stdout = task_options_value( key: 'echo_to_stdout', default_value: false )
+      @logging = task_options_value( key: 'logging', default_value: false )
+      @number_of_retries = task_options_value( key: 'number_of_retries', default_value: nil )
+      @delay_secs = task_options_value( key: 'delay_secs', default_value: nil )
     end
 
     def run

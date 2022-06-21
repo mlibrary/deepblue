@@ -45,7 +45,7 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(service.options_error).to eq default_options_error
         expect(service.quiet).to         eq default_quiet
         expect(service.subscription_service_id).to eq default_subscription_service_id
-        expect(service.to_console).to    eq default_to_console
+        # expect(service.to_console).to    eq default_to_console
         expect(service.verbose).to       eq default_verbose
       end
     end
@@ -68,7 +68,7 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(service.options_error).to eq default_options_error
         expect(service.quiet).to         eq default_quiet
         expect(service.subscription_service_id).to eq default_subscription_service_id
-        expect(service.to_console).to    eq default_to_console
+        # expect(service.to_console).to    eq default_to_console
         expect(service.verbose).to       eq default_verbose
       end
     end
@@ -92,7 +92,7 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(service.options_error).to eq error
         expect(service.quiet).to         eq default_quiet
         expect(service.subscription_service_id).to eq default_subscription_service_id
-        expect(service.to_console).to    eq default_to_console
+        # expect(service.to_console).to    eq default_to_console
         expect(service.verbose).to       eq default_verbose
       end
     end
@@ -116,7 +116,7 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(service.options_error).to eq error
         expect(service.quiet).to         eq default_quiet
         expect(service.subscription_service_id).to eq default_subscription_service_id
-        expect(service.to_console).to    eq default_to_console
+        # expect(service.to_console).to    eq default_to_console
         expect(service.verbose).to       eq default_verbose
       end
     end
@@ -137,7 +137,7 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(service.logger).to        eq default_logger
         expect(service.options_error.message).to match /8\d\d: unexpected token at 'garbage'/
         expect(service.quiet).to         eq default_quiet
-        expect(service.to_console).to    eq default_to_console
+        # expect(service.to_console).to    eq default_to_console
         expect(service.verbose).to       eq default_verbose
       end
     end
@@ -160,7 +160,7 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(service.options_error).to eq default_options_error
         expect(service.quiet).to         eq true
         expect(service.subscription_service_id).to eq default_subscription_service_id
-        expect(service.to_console).to    eq false
+        # expect(service.to_console).to    eq false
         expect(service.verbose).to       eq false
       end
     end
@@ -184,7 +184,7 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(service.options_error).to eq default_options_error
         expect(service.quiet).to         eq true
         expect(service.subscription_service_id).to eq default_subscription_service_id
-        expect(service.to_console).to    eq false
+        # expect(service.to_console).to    eq false
         expect(service.verbose).to       eq false
       end
     end
@@ -207,7 +207,7 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(service.options_error).to eq default_options_error
         expect(service.quiet).to         eq true
         expect(service.subscription_service_id).to eq default_subscription_service_id
-        expect(service.to_console).to    eq false
+        # expect(service.to_console).to    eq false
         expect(service.verbose).to       eq false
       end
     end
@@ -230,7 +230,7 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(service.options_error).to eq default_options_error
         expect(service.quiet).to         eq false
         expect(service.subscription_service_id).to eq default_subscription_service_id
-        expect(service.to_console).to    eq false
+        # expect(service.to_console).to    eq false
         expect(service.verbose).to       eq true
       end
     end
@@ -257,7 +257,7 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(service.options_error).to eq default_options_error
         expect(service.quiet).to         eq false
         expect(service.subscription_service_id).to eq subscription_service_id
-        expect(service.to_console).to    eq false
+        # expect(service.to_console).to    eq false
         expect(service.verbose).to       eq true
       end
     end
