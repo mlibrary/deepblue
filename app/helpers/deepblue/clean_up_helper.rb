@@ -9,7 +9,7 @@ module Deepblue
     def self.clean_blacklight_query_cache( increment_day_span: 15,
                                            max_day_spans: 10,
                                            start_day_span: 30,
-                                           msg_handler: nil,
+                                           msg_handler:,
                                            task: false,
                                            verbose: false,
                                            debug_verbose: clean_up_helper_debug_verbose )

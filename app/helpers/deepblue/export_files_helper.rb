@@ -83,8 +83,6 @@ module Deepblue
 
     def self.export_log_files( msg_handler: nil,
                                target_path: nil,
-                               task: false,
-                               verbose: false,
                                debug_verbose: export_files_helper_debug_verbose )
 
       debug_verbose = debug_verbose || export_files_helper_debug_verbose

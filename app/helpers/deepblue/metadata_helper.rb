@@ -178,6 +178,15 @@ module Deepblue
       return file
     end
 
+    def self.file_set_file_size( file_set )
+      file_size = if file_set.file_size.blank?
+                    file_set.original_file.nil? ? 0 : file_set.original_file.size
+                  else
+                    file_set.file_size[0]
+                  end
+      return file_size
+    end
+
     def self.human_readable_size( value )
       value = value.to_i
       return ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( value, precision: 3 )
@@ -500,11 +509,7 @@ module Deepblue
         yaml_item( out, indent, ":checksum_algorithm:", file_set.checksum_algorithm, escape: true )
         yaml_item( out, indent, ":checksum_value:", file_set.checksum_value, escape: true )
         yaml_item( out, indent, ":edit_users:", file_set.edit_users, escape: true )
-        file_size = if file_set.file_size.blank?
-                      file_set.original_file.nil? ? 0 : file_set.original_file.size
-                    else
-                      file_set.file_size[0]
-                    end
+        file_size = file_set_file_size file_set
         yaml_item( out, indent, ":file_size:", file_size )
         yaml_item( out, indent, ":file_size_human_readable:", human_readable_size( file_size ), escape: true )
         yaml_item( out, indent, ":mime_type:", file_set.mime_type, escape: true )

@@ -6,6 +6,7 @@ module Deepblue
 
     DEFAULT_DEBUG_VERBOSE = false
     DEFAULT_MSG_PREFIX = ''.freeze
+    DEFAULT_QUIET = false
     DEFAULT_TO_CONSOLE = false
     DEFAULT_VERBOSE = false
 
@@ -43,8 +44,52 @@ module Deepblue
       end
     end
 
+    def self.msg_handler_for_job( msg_queue: [], options: {} )
+      options = OptionsHelper.parse options
+      debug_verbose = OptionsHelper.value( options, key: 'debug_verbose', default_value: DEFAULT_DEBUG_VERBOSE )
+      verbose       = OptionsHelper.value( options, key: 'verbose',       default_value: DEFAULT_VERBOSE )
+      msg_prefix    = OptionsHelper.value( options, key: 'msg_prefix',    default_value: DEFAULT_MSG_PREFIX )
+      to_console    = OptionsHelper.value( options, key: 'to_console',    default_value: false )
+      rv = MessageHandler.new( debug_verbose: debug_verbose,
+                               msg_prefix: msg_prefix,
+                               msg_queue: msg_queue,
+                               to_console: to_console,
+                               verbose: verbose )
+      if OptionsHelper.error? options
+        rv.msg_warn "options error #{@options[:error]}"
+      end
+      rv.quiet = OptionsHelper.value( options, key: 'quiet', default_value: DEFAULT_QUIET )
+      return rv
+    end
+
+    def self.msg_handler_for_task( msg_queue: nil, options: {} )
+      options = OptionsHelper.parse options
+      debug_verbose = OptionsHelper.value( options, key: 'debug_verbose', default_value: DEFAULT_DEBUG_VERBOSE )
+      verbose       = OptionsHelper.value( options, key: 'verbose',       default_value: DEFAULT_VERBOSE )
+      msg_prefix    = OptionsHelper.value( options, key: 'msg_prefix',    default_value: DEFAULT_MSG_PREFIX )
+      to_console    = OptionsHelper.value( options, key: 'to_console',    default_value: true )
+      rv = MessageHandler.new( debug_verbose: debug_verbose,
+                               msg_prefix: msg_prefix,
+                               msg_queue: msg_queue,
+                               to_console: to_console,
+                               verbose: verbose )
+      if OptionsHelper.error? options
+        rv.msg_warn "options error #{@options[:error]}"
+      end
+      rv.quiet = OptionsHelper.value( options, key: 'quiet', default_value: DEFAULT_QUIET )
+      return rv
+    end
+
+    def self.option_value( options, key:, default_value: nil, verbose: false )
+      options = @options
+      return default_value if options.blank?
+      return default_value unless options.key? key
+      return options[key]
+    end
+
     # if set to quiet, then all messages except warnings and errors will be ignored
     attr_accessor :quiet
+    alias :quiet? :quiet
 
     attr_accessor :debug_verbose, :msg_prefix, :msg_queue, :to_console, :verbose
     attr_writer :logger

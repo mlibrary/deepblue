@@ -7,10 +7,6 @@ module Deepblue
 
   class WorkImpactReportTask < AbstractReportTask
 
-    # DEFAULT_REPORT_DIR = nil unless const_defined? :DEFAULT_REPORT_DIR
-    # DEFAULT_REPORT_FILE_PREFIX = nil unless const_defined? :DEFAULT_REPORT_FILE_PREFIX
-    # DEFAULT_REPORT_QUIET = true unless const_defined? :DEFAULT_REPORT_QUIET
-
     attr_accessor :prefix, :quiet, :report_dir, :report_file
 
     def initialize( options: {}, msg_handler: nil, msg_queue: nil, debug_verbose: false )
@@ -18,25 +14,9 @@ module Deepblue
     end
 
     def run
-      #
-      # send the target file name in the reporter
-      #
       @quiet = task_options_value( key: 'quiet', default_value: DEFAULT_REPORT_QUIET )
       set_quiet( quiet: @quiet )
       reporter = WorkImpactReporter.new( msg_handler: msg_handler, options: options )
-      reporter.run
-      # report = reporter.out
-      # return unless report.present?
-      # @report_dir = task_options_value( key: 'report_dir', default_value: DEFAULT_REPORT_DIR )
-      # msg_handler.msg "Report dir: '#{@report_dir}' not found" unless @report_dir.present?
-      # return unless @report_dir.present?
-      # @prefix = task_options_value( key: 'report_file_prefix', default_value: DEFAULT_REPORT_FILE_PREFIX )
-      # @prefix = "#{Time.now.strftime('%Y%m%d')}_work_impact_report" if @prefix.nil?
-      # @prefix = expand_path_partials( prefix )
-      # @report_dir = expand_path_partials( report_dir )
-      # @report_file = Pathname.new( report_dir ).join "#{prefix}.txt"
-      # File.open( report_file, 'w' ) { |f| f << report << "\n" }
-      # msg_handler.msg "Report file: #{@report_file}"
     end
 
   end

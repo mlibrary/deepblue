@@ -34,6 +34,7 @@ module Deepblue
     attr_reader :attribute, :begin_date, :end_date
 
     def to_datetime( date, format, entry: )
+      # TODO: see ReportHelper.to_datetime
       return nil if date.blank?
       if format.present?
         begin

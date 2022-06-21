@@ -41,8 +41,6 @@ END_OF_SCHEDULER_ENTRY
     log( event: EVENT, hostname_allowed: hostname_allowed? )
     return job_finished unless hostname_allowed?
     ::Deepblue::ExportFilesHelper.export_log_files( msg_handler: msg_handler,
-                                                    task: task,
-                                                    verbose: job_msg_queue,
                                                     debug_verbose: export_log_files_job_debug_verbose )
     email_all_targets( task_name: EVENT,
                        event: EVENT,

@@ -102,31 +102,35 @@ module Deepblue
     end
 
     def self.task_options_error?( options )
-      task_options_error( options, key: 'error', default_value: false )
+      OptionsHelper.error? options
+      # task_options_value( options, key: 'error', default_value: false )
     end
 
     def self.task_options_from_args( *args )
-      options = {}
-      args.each { |key,value| options[key.to_s] = value }
-      options
+      OptionsHelper.from_args( *args )
+      # options = {}
+      # args.each { |key,value| options[key.to_s] = value }
+      # options
     end
 
     def self.task_options_parse( options_str )
-      return options_str if options_str.is_a? Hash
-      return {} if options_str.blank?
-      ActiveSupport::JSON.decode options_str
-    rescue ActiveSupport::JSON.parse_error => e
-      return { 'error': e, 'options_str': options_str }
+      OptionsHelper.parse options_str
+      #   return options_str if options_str.is_a? Hash
+      #   return {} if options_str.blank?
+      #   ActiveSupport::JSON.decode options_str
+      # rescue ActiveSupport::JSON.parse_error => e
+      #   return { 'error': e, 'options_str': options_str }
     end
 
-    def self.task_options_value( options, key:, default_value: nil, verbose: false, msg_queue: nil )
-      return default_value if options.blank?
-      return default_value unless options.key? key
-      # if [true, false].include? default_value
-      #   return options[key].to_bool
-      # end
-      task_puts "set key #{key} to #{options[key]}", msg_queue if verbose
-      return options[key]
+    def self.task_options_value( options, key:, default_value: nil, verbose: false, msg_handler: nil )
+      OptionsHelper.value( options, key: key, default_value: default_value, msg_handler: msg_handler )
+      # return default_value if options.blank?
+      # return default_value unless options.key? key
+      # # if [true, false].include? default_value
+      # #   return options[key].to_bool
+      # # end
+      # task_puts "set key #{key} to #{options[key]}", msg_queue if verbose
+      # return options[key]
     end
 
     def self.work?( obj )
