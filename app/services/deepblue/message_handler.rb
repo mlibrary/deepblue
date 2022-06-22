@@ -218,6 +218,41 @@ module Deepblue
       msg_raw( msg, log: (log ? LOG_WARN : LOG_NONE), prefix: PREFIX_WARN, &block )
     end
 
+    def msg_exception( exception, include_backtrace: true, log: false )
+      msg_error("#{exception.class} #{exception.message} at #{exception.backtrace[0]}", log: log )
+      msg_error( exception.backtrace, log: log ) if include_backtrace
+    end
+
+    def msg_with_rv( rv, msg:, log: LOG_NONE, prefix: PREFIX_NONE )
+      msg( msg, log: log, prefix: prefix )
+      return rv
+    end
+
+    def msg_if?( rv, msg:, log: LOG_NONE, prefix: PREFIX_NONE )
+      msg( msg, log: log, prefix: prefix ) if rv
+      return rv
+    end
+
+    def msg_unless?( rv, msg:, log: LOG_NONE, prefix: PREFIX_NONE )
+      msg( msg, log: log, prefix: prefix ) unless rv
+      return rv
+    end
+
+    def msg_error_with_rv( rv, msg:, log: LOG_NONE )
+      msg_error( msg, log: log )
+      return rv
+    end
+
+    def msg_error_if?( rv, msg:, log: LOG_NONE )
+      msg_error( msg, log: log ) if rv
+      return rv
+    end
+
+    def msg_error_unless?( rv, msg:, log: LOG_NONE )
+      msg_error( msg, log: log ) unless rv
+      return rv
+    end
+
     private
 
     def msg_raw( msg = nil, log: LOG_NONE, prefix: PREFIX_NONE )

@@ -4,6 +4,22 @@ module Hyrax
 
   class AnonymousLinkService
 
+    @@_setup_ran = false
+    @@_setup_failed = false
+
+    def self.setup
+      yield self unless @@_setup_ran
+      @@_setup_ran = true
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      @@_setup_failed = true
+      msg = "#{e.class}: #{e.message} at #{e.backtrace.join("\n")}"
+      # rubocop:disable Rails/Output
+      puts msg
+      # rubocop:enable Rails/Output
+      Rails.logger.error msg
+      raise e
+    end
+
     INVALID_ANONYMOUS_LINK = ''.freeze unless const_defined? :INVALID_ANONYMOUS_LINK
 
     mattr_accessor :enable_anonymous_links, default: true
@@ -16,13 +32,6 @@ module Hyrax
     mattr_accessor :anonymous_link_show_delete_button, default: false
     mattr_accessor :anonymous_link_destroy_if_published, default: true
     mattr_accessor :anonymous_link_destroy_if_tombstoned, default: true
-
-    @@_setup_ran = false
-
-    def self.setup
-      yield self if @@_setup_ran == false
-      @@_setup_ran = true
-    end
     # NOTE: only destroy anonymous links to published, tombstoned, deleted works
     def self.anonymous_link_destroy!( anon_link )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

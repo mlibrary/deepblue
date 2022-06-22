@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class MultipleIngestScriptsJob < ::Hyrax::ApplicationJob
+class MultipleIngestScriptsJob < ::Deepblue::DeepblueJob
 
   mattr_accessor :multiple_ingest_scripts_job_debug_verbose,
                  default: ::Deepblue::IngestIntegrationService.multiple_ingest_scripts_job_debug_verbose
@@ -15,17 +15,22 @@ class MultipleIngestScriptsJob < ::Hyrax::ApplicationJob
 
   attr_accessor :ingest_mode, :ingester, :paths_to_scripts
 
-  def perform( ingest_mode:, ingester:, paths_to_scripts:, **options )
-    timestamp_begin
+  def perform( ingest_mode:,
+               ingester:,
+               paths_to_scripts:,
+               debug_verbose: multiple_ingest_scripts_job_debug_verbose,
+               **options )
+
+    msg_handler.debug_verbose = debug_verbose || multiple_ingest_scripts_job_debug_verbose
+    initialize_with( debug_verbose: debug_verbose, options: options )
     email_targets << ingester if ingester.present?
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           ::Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                           "ingest_mode=#{ingest_mode}",
-                                           "ingester=#{ingester}",
-                                           "paths_to_scripts=#{paths_to_scripts}",
-                                           "options=#{options}",
-                                           "" ] if multiple_ingest_scripts_job_debug_verbose
+    msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                 ::Deepblue::LoggingHelper.called_from,
+                                 "ingest_mode=#{ingest_mode}",
+                                 "ingester=#{ingester}",
+                                 "paths_to_scripts=#{paths_to_scripts}",
+                                 "options=#{options}",
+                                 "" ] if msg_handler.debug_verbose
     self.ingest_mode = ingest_mode
     self.ingester = ingester
     init_paths_to_scripts paths_to_scripts
@@ -34,13 +39,11 @@ class MultipleIngestScriptsJob < ::Hyrax::ApplicationJob
     self.paths_to_scripts.each do |script_path|
       ingest_script_run( path_to_script: script_path )
     end
-    email_results
+    email_results( msg_handler: msg_handler, debug_verbose: debug_verbose )
+    job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
-    # Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
-    # Rails.logger.error e.backtrace.join("\n")
-    # raise e
-    queue_exception_msgs e
-    email_failure( exception: e, targets: [ingester] )
+    msg_handler.msg_exception e
+    email_failure( exception: e, targets: [ingester], msg_handler: msg_handler, debug_verbose: debug_verbose )
     raise e
   end
 
@@ -49,20 +52,20 @@ class MultipleIngestScriptsJob < ::Hyrax::ApplicationJob
   end
 
   def ingest_script_run( path_to_script: )
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                          ::Deepblue::LoggingHelper.called_from,
-                                           "path_to_script=#{path_to_script}",
-                                           "" ] if multiple_ingest_scripts_job_debug_verbose
+    msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                  ::Deepblue::LoggingHelper.called_from,
+                                  "path_to_script=#{path_to_script}",
+                                  "" ] if msg_handler.debug_verbose
     return true unless ::Deepblue::IngestIntegrationService.ingest_append_ui_allow_scripts_to_run
     return false if path_to_script.blank?
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "IngestAppendScriptJob.perform_now( path_to_script: #{path_to_script}, ingester: #{ingester} )",
-                                           "" ] if multiple_ingest_scripts_job_debug_verbose
+    msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                  ::Deepblue::LoggingHelper.called_from,
+                                  "IngestAppendScriptJob.perform_now( path_to_script: #{path_to_script}, ingester: #{ingester} )",
+                                  "" ] if msg_handler.debug_verbose
     IngestScriptJob.perform_now( ingest_mode: ingest_mode,
                                  ingester: ingester,
                                  path_to_script: path_to_script )
-    job_msg_queue << "Finished processing #{path_to_script} at #{DateTime.now}"
+    msg_handler.msg "Finished processing #{path_to_script} at #{DateTime.now}"
     true
   end
 
@@ -82,12 +85,12 @@ class MultipleIngestScriptsJob < ::Hyrax::ApplicationJob
 
   def validate_path_to_script( path )
     file = path
-    return false unless queue_msg_unless?( file.present?, "ERROR: file path empty." )
-    return false unless queue_msg_unless?( File.exist?( file ), "ERROR: file '#{file}' not found." )
+    return false unless msg_handler.msg_error_unless?( file.present?, msg: "file path empty." )
+    return false unless msg_handler.msg_error_unless?( File.exist?(file), msg: "file '#{file}' not found." )
     ext = File.extname file
-    return false unless queue_msg_unless?( scripts_allowed_path_extensions.include?( ext ),
-                                           "ERROR: expected file '#{file}' to have one of these extensions:",
-                                           more_msgs: scripts_allowed_path_extensions )
+    return false unless msg_handler.msg_error_unless?( scripts_allowed_path_extensions.include?( ext ),
+                                                       msg: ["expected file '#{file}' to have one of these extensions:"] +
+                                                         scripts_allowed_path_extensions )
     allowed = false
     scripts_allowed_path_prefixes.each do |prefix|
       if file.start_with? prefix
@@ -95,9 +98,9 @@ class MultipleIngestScriptsJob < ::Hyrax::ApplicationJob
         break
       end
     end
-    return false unless queue_msg_unless?( allowed,
-                                           "ERROR: expected file '#{file}' path to start with:",
-                                           more_msgs: scripts_allowed_path_prefixes )
+    return false unless msg_handler.msg_error_unless?( allowed,
+                                                       msg: ["expected file '#{file}' path to start with:"] +
+                                                         scripts_allowed_path_prefixes )
     return true
   end
 

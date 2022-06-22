@@ -105,5 +105,4 @@ Deepblue::JiraHelper.setup do |config|
            }]
   }.freeze
 
-
 end

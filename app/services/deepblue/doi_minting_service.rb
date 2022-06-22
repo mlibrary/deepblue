@@ -4,6 +4,22 @@ module Deepblue
 
   class DoiMintingService
 
+    @@_setup_ran = false
+    @@_setup_failed = false
+
+    def self.setup
+      yield self unless @@_setup_ran
+      @@_setup_ran = true
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      @@_setup_failed = true
+      msg = "#{e.class}: #{e.message} at #{e.backtrace.join("\n")}"
+      # rubocop:disable Rails/Output
+      puts msg
+      # rubocop:enable Rails/Output
+      Rails.logger.error msg
+      raise e
+    end
+
     mattr_accessor :doi_minting_service_debug_verbose,          default: false
     mattr_accessor :doi_ensure_doi_minted_debug_verbose,        default: false
     mattr_accessor :doi_minting_2021_service_debug_verbose,     default: false
@@ -38,14 +54,6 @@ module Deepblue
     mattr_accessor :test_mds_base_url,       default: "https://mds.test.datacite.org/"
     mattr_accessor :production_base_url,     default: "https://api.datacite.org/"
     mattr_accessor :production_mds_base_url, default: "https://mds.datacite.org/"
-
-
-    @@_setup_ran = false
-
-    def self.setup
-      yield self if @@_setup_ran == false
-      @@_setup_ran = true
-    end
 
     def self.datacite_registrar( debug_verbose: false, task: false )
       datacite = ::Deepblue::DataCiteRegistrar.new

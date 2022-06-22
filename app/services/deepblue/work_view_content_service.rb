@@ -9,6 +9,20 @@ module Deepblue
     include ::Deepblue::InitializationConstants
 
     @@_setup_ran = false
+    @@_setup_failed = false
+
+    def self.setup
+      yield self unless @@_setup_ran
+      @@_setup_ran = true
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      @@_setup_failed = true
+      msg = "#{e.class}: #{e.message} at #{e.backtrace.join("\n")}"
+      # rubocop:disable Rails/Output
+      puts msg
+      # rubocop:enable Rails/Output
+      Rails.logger.error msg
+      raise e
+    end
 
     mattr_accessor :interpolation_helper_debug_verbose, default: false
     mattr_accessor :static_content_controller_behavior_verbose, default: false
@@ -32,11 +46,6 @@ module Deepblue
     mattr_accessor :static_controller_redirect_to_work_view_content, default: false
 
     mattr_accessor :static_content_documentation_collection_id
-
-    def self.setup
-      yield self if @@_setup_ran == false
-      @@_setup_ran = true
-    end
 
     def self.content_documentation_collection_id
       @@static_content_documentation_collection_id ||= content_documentation_collection_id_init

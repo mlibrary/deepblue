@@ -54,23 +54,27 @@ module JobHelper
                      event: self.class.name,
                      event_note: '',
                      timestamp_begin: self.timestamp_begin,
-                     timestamp_end: self.timestamp_end )
+                     timestamp_end: self.timestamp_end,
+                     msg_handler: nil,
+                     debug_verbose: job_helper_debug_verbose )
 
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    debug_verbose = debug_verbose || job_helper_debug_verbose || (msg_handler.nil? ? false : msg_handler.debug_verbose)
+    to_console = (msg_handler.nil? ? false : msg_handler.to_console)
+   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "targets=#{targets}",
                                            "task_name=#{task_name}",
                                            "job_msg_queue=#{job_msg_queue}",
-                                           "" ] if job_helper_debug_verbose
-    targets = Array(targets)
-    dashboard = Array(from_dashboard)
-    targets = ::Deepblue::JobTaskHelper.job_failure_email_subscribers | targets | dashboard
+                                           "" ], bold_puts: to_console if debug_verbose
+    targets = email_failure_targets( from_dashboard: from_dashboard,
+                                     msg_handler: msg_handler,
+                                     targets: targets,
+                                     debug_verbose: debug_verbose )
     return unless targets.present?
-    return unless targets[0].present?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "targets=#{targets}",
-                                           "" ] if job_helper_debug_verbose
+                                           "" ] if debug_verbose
     ::Deepblue::JobTaskHelper.email_failure( targets: targets,
                                              task_name: task_name,
                                              exception: exception,
@@ -78,22 +82,44 @@ module JobHelper
                                              event_note: event_note,
                                              messages: job_msg_queue,
                                              timestamp_begin: timestamp_begin,
-                                             timestamp_end: timestamp_end )
+                                             timestamp_end: timestamp_end,
+                                             msg_handler: msg_handler,
+                                             debug_verbose: debug_verbose )
   end
 
-  def email_results( targets: email_targets,
+  def email_failure_targets( from_dashboard: [],
+                             msg_handler: nil,
+                             targets: [],
+                             debug_verbose: job_helper_debug_verbose )
+
+    debug_verbose = debug_verbose || job_helper_debug_verbose
+    targets = Array(targets) + email_targets
+    targets.uniq!
+    ::Deepblue::JobTaskHelper.email_failure_targets( from_dashboard: from_dashboard,
+                                                     msg_handler: msg_handler,
+                                                     targets: targets,
+                                                     debug_verbose: debug_verbose )
+  end
+
+  def email_results( targets: [],
                      task_name: self.class.name,
                      event: self.class.name, event_note: '',
                      timestamp_begin: self.timestamp_begin,
-                     timestamp_end: self.timestamp_end )
+                     timestamp_end: self.timestamp_end,
+                     msg_handler: nil,
+                     debug_verbose: job_helper_debug_verbose )
 
+    debug_verbose = debug_verbose || job_helper_debug_verbose || (msg_handler.nil? ? false : msg_handler.debug_verbose)
+    to_console = (msg_handler.nil? ? false : msg_handler.to_console)
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "targets=#{targets}",
                                            "email_targets=#{email_targets}",
                                            "task_name=#{task_name}",
                                            "job_msg_queue=#{job_msg_queue}",
-                                           "" ] if job_helper_debug_verbose
+                                           "" ], bold_puts: to_console if debug_verbose
+    targets = Array(targets) + email_targets
+    targets.uniq!
     return unless targets.present?
     ::Deepblue::JobTaskHelper.email_results( targets: targets,
                                              task_name: task_name,
@@ -101,7 +127,9 @@ module JobHelper
                                              event_note: event_note,
                                              messages: job_msg_queue,
                                              timestamp_begin: timestamp_begin,
-                                             timestamp_end: timestamp_end )
+                                             timestamp_end: timestamp_end,
+                                             msg_handler: msg_handler,
+                                             debug_verbose: debug_verbose )
   end
 
   def job_options_keys_found
@@ -138,50 +166,38 @@ module JobHelper
     job_options_value( options, key: arg, default_value: default_value, task: task, verbose: verbose )
   end
 
-  def queue_exception_msgs( exception, include_backtrace: true )
-    e = exception
-    job_msg_queue << "#{e.class} #{e.message} at #{e.backtrace[0]}"
-    return unless include_backtrace
-    e.backtrace.each { |line| job_msg_queue << line }
+  def queue_exception_msgs( exception, include_backtrace: true, msg_handler: nil )
+    if msg_handler.present?
+      msg_handler.msg_exception exception
+      return
+    end
+    job_msg_queue << "#{exception.class} #{exception.message} at #{exception.backtrace[0]}"
+    exception.backtrace.each { |line| job_msg_queue << line } if include_backtrace
   end
 
-  def queue_msg_more( test_result, msg:, more_msgs: )
-    jmq = job_msg_queue
-    jmq << msg
-    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                        ::Deepblue::LoggingHelper.called_from,
-    #                                        "test_result=#{test_result}",
-    #                                        "msg=#{msg}",
-    #                                        "more_msgs=#{more_msgs}",
-    #                                        "job_msg_queue=#{job_msg_queue}",
-    #                                        "" ] if job_helper_debug_verbose
-    return test_result if more_msgs.blank?
-    Array( more_msgs ).each { |line| jmq << line }
+  def queue_msg_more( test_result, msg:, more_msgs:, msg_handler: nil )
+    if msg_handler.present?
+      return msg_handler.msg_with_rv( test_result, msg: Array(msg) + Array(more_msgs) )
+    end
+    job_msg_queue << msg
+    Array( more_msgs ).each { |line| job_msg_queue << line } if more_msgs.present?
     return test_result
   end
 
-  def queue_msg_if?( test_result, msg, more_msgs: [] )
-    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                        ::Deepblue::LoggingHelper.called_from,
-    #                                        "test_result=#{test_result}",
-    #                                        "msg=#{msg}",
-    #                                        "more_msgs=#{more_msgs}",
-    #                                        "job_msg_queue=#{job_msg_queue}",
-    #                                        "" ] if job_helper_debug_verbose
-    return test_result unless test_result
-    return queue_msg_more( test_result, msg: msg, more_msgs: more_msgs )
+  def queue_msg_if?( test_result, msg, more_msgs: [], msg_handler: nil )
+    if msg_handler.present?
+      return msg_handler.msg_if?(  test_result, msg: Array(msg) + Array(more_msgs) )
+    end
+    queue_msg_more( test_result, msg: msg, more_msgs: more_msgs ) if test_result
+    return test_result
   end
 
-  def queue_msg_unless?( test_result, msg, more_msgs: [] )
-    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                        ::Deepblue::LoggingHelper.called_from,
-    #                                        "test_result=#{test_result}",
-    #                                        "msg=#{msg}",
-    #                                        "more_msgs=#{more_msgs}",
-    #                                        "job_msg_queue=#{job_msg_queue}",
-    #                                        "" ] if job_helper_debug_verbose
-    return test_result if test_result
-    return queue_msg_more( test_result, msg: msg, more_msgs: more_msgs )
+  def queue_msg_unless?( test_result, msg, more_msgs: [], msg_handler: nil )
+    if msg_handler.present?
+      return msg_handler.msg_unless?(  test_result, msg: Array(msg) + Array(more_msgs) )
+    end
+    queue_msg_more( test_result, msg: msg, more_msgs: more_msgs ) unless test_result
+    return test_result
   end
 
 end

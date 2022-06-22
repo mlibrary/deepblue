@@ -9,6 +9,7 @@ RSpec.describe ::Deepblue::MessageHandler do
   # describe 'debug verbose variables' do
   #   it { expect( described_class.message_handler_debug_verbose ).to eq debug_verbose }
   # end
+  let(:msg_arr) { [ 'I threw a boomerang.', 'Now I live in constant dread of its return.' ] }
 
   context 'initialize' do
 
@@ -97,7 +98,6 @@ RSpec.describe ::Deepblue::MessageHandler do
   end
 
   context '#line' do
-    let(:msg_arr) { [ 'I threw a boomerang.', 'Now I live constant dread of its return.' ] }
 
     describe 'default initialization' do
       let(:msg) { msg_arr[0] }
@@ -152,7 +152,6 @@ RSpec.describe ::Deepblue::MessageHandler do
 
   context '#msg' do
     let(:msg_handler) { described_class.new }
-    let(:msg_arr) { [ 'I threw a boomerang.', 'Now I live constant dread of its return.' ] }
     let(:prefix) { 'Quote: ' }
 
     context 'with msg str' do
@@ -187,9 +186,61 @@ RSpec.describe ::Deepblue::MessageHandler do
 
   end
 
+  context '#msg_with_rv' do
+    let(:msg_handler) { described_class.new }
+    let(:prefix) { 'ERROR: ' }
+
+    context 'with msg and rv' do
+      before do
+        expect(msg_handler).to receive(:msg).with(msg_arr, log: nil, prefix: '').once
+      end
+      it { expect(msg_handler.msg_with_rv(true, msg: msg_arr)).to eq true }
+    end
+
+  end
+
+  context '#msg_if?' do
+    let(:msg_handler) { described_class.new }
+    let(:prefix) { 'ERROR: ' }
+
+    context 'with msg and rv is true' do
+      before do
+        expect(msg_handler).to receive(:msg).with(msg_arr, log: nil, prefix: '').once
+      end
+      it { expect(msg_handler.msg_if?(true, msg: msg_arr)).to eq true }
+    end
+
+    context 'with msg and rv is false' do
+      before do
+        expect(msg_handler).to_not receive(:msg)
+      end
+      it { expect(msg_handler.msg_if?(false, msg: msg_arr)).to eq false }
+    end
+
+  end
+
+  context '#msg_unless?' do
+    let(:msg_handler) { described_class.new }
+    let(:prefix) { 'ERROR: ' }
+
+    context 'with msg and rv is true' do
+      before do
+        expect(msg_handler).to_not receive(:msg)
+      end
+      it { expect(msg_handler.msg_unless?(true, msg: msg_arr)).to eq true }
+    end
+
+    context 'with msg and rv is false' do
+      before do
+        expect(msg_handler).to receive(:msg).with(msg_arr, log: nil, prefix: '').once
+      end
+      it { expect(msg_handler.msg_unless?(false, msg: msg_arr)).to eq false }
+    end
+
+  end
+
   context '#msg_error' do
     let(:msg_handler) { described_class.new }
-    let(:msg_arr) { [ 'I threw a boomerang.', 'Now I live constant dread of its return.' ] }
     let(:prefix) { 'ERROR: ' }
 
     context 'with msg' do
@@ -209,9 +260,61 @@ RSpec.describe ::Deepblue::MessageHandler do
 
   end
 
+  context '#msg_error_with_rv' do
+    let(:msg_handler) { described_class.new }
+    let(:prefix) { 'ERROR: ' }
+
+    context 'with msg and rv' do
+      before do
+        expect(msg_handler).to receive(:msg_error).with(msg_arr, log: nil).once
+      end
+      it { expect(msg_handler.msg_error_with_rv(true, msg: msg_arr)).to eq true }
+    end
+
+  end
+
+  context '#msg_error_if?' do
+    let(:msg_handler) { described_class.new }
+    let(:prefix) { 'ERROR: ' }
+
+    context 'with msg and rv is true' do
+      before do
+        expect(msg_handler).to receive(:msg_error).with(msg_arr, log: nil).once
+      end
+      it { expect(msg_handler.msg_error_if?(true, msg: msg_arr)).to eq true }
+    end
+
+    context 'with msg and rv is false' do
+      before do
+        expect(msg_handler).to_not receive(:msg_error)
+      end
+      it { expect(msg_handler.msg_error_if?(false, msg: msg_arr)).to eq false }
+    end
+
+  end
+
+  context '#msg_error_unless?' do
+    let(:msg_handler) { described_class.new }
+    let(:prefix) { 'ERROR: ' }
+
+    context 'with msg and rv is true' do
+      before do
+        expect(msg_handler).to_not receive(:msg_error)
+      end
+      it { expect(msg_handler.msg_error_unless?(true, msg: msg_arr)).to eq true }
+    end
+
+    context 'with msg and rv is false' do
+      before do
+        expect(msg_handler).to receive(:msg_error).with(msg_arr, log: nil).once
+      end
+      it { expect(msg_handler.msg_error_unless?(false, msg: msg_arr)).to eq false }
+    end
+
+  end
+
   context '#msg_warn' do
     let(:msg_handler) { described_class.new }
-    let(:msg_arr) { [ 'I threw a boomerang.', 'Now I live constant dread of its return.' ] }
     let(:prefix) { 'WARNING: ' }
 
     context 'with msg' do
