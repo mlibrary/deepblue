@@ -32,15 +32,19 @@ RSpec.describe IngestScriptJob, skip: false do
                                                        path_to_script: path_to_script,
                                                        ingest_mode: ingest_mode,
                                                        ingester: ingester,
+                                                       # msg_handler: msg_handler,
                                                        **options ) }
           let(:hostname)  { Rails.configuration.hostname }
 
           before do
             expect( described_class.ingest_script_job_debug_verbose ).to eq dbg_verbose
-            expect( ::Deepblue::IngestContentService ).to receive( :call ).with( path_to_yaml_file: path_to_script,
-                                                                                 ingester: ingester,
-                                                                                 mode: ingest_mode,
-                                                                                 options: options )
+            expect(::Deepblue::IngestContentService).to receive( :call ) do |args|
+              expect(args[:path_to_yaml_file]).to eq path_to_script
+              expect(args[:ingester]).to eq ingester
+              expect(args[:mode]).to eq ingest_mode
+              expect(args[:msg_handler].nil?).to eq false
+              expect(args[:options]).to eq options
+            end
           end
 
           it 'calls ingest service' do
