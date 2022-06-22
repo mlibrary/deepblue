@@ -356,7 +356,8 @@ module Deepblue
                                              "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       IngestScriptJob.perform_later( ingest_mode: 'append',
                                      ingester: ingest_ingester,
-                                     path_to_script: path_to_script  )
+                                     path_to_script: path_to_script,
+                                     id: curation_concern.id )
       true
     end
 

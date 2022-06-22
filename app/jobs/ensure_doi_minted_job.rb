@@ -24,6 +24,7 @@ class EnsureDoiMintedJob < ::Deepblue::DeepblueJob
                                            "" ] if debug_verbose
     log( event: EVENT, hostname_allowed: hostname_allowed )
     return job_finished unless hostname_allowed
+    job_status.main_cc_id = id
     ::Deepblue::DoiMintingService.ensure_doi_minted( id: id,
                                                      msg_handler: msg_handler,
                                                      task: task,
