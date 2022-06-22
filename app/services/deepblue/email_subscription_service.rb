@@ -7,17 +7,20 @@ module Deepblue
     @@_setup_ran = false
     @@_setup_failed = false
 
-    mattr_accessor :email_subscription_service_debug_verbose, default: false
-
     def self.setup
-      return if @@_setup_ran == true
+      yield self unless @@_setup_ran
       @@_setup_ran = true
-      begin
-        yield self
-      rescue Exception => e # rubocop:disable Lint/RescueException
-        @@_setup_failed = true
-      end
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      @@_setup_failed = true
+      msg = "#{e.class}: #{e.message} at #{e.backtrace.join("\n")}"
+      # rubocop:disable Rails/Output
+      puts msg
+      # rubocop:enable Rails/Output
+      Rails.logger.error msg
+      raise e
     end
+
+    mattr_accessor :email_subscription_service_debug_verbose, default: false
 
     def self.merge_targets_and_subscribers( targets:, subscription_service_id: )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

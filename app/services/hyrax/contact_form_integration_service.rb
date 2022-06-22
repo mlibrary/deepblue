@@ -4,12 +4,25 @@ module Hyrax
 
   module ContactFormIntegrationService
 
-    mattr_accessor :contact_form_integration_service_debug_verbose, default: false
-
     include ::Deepblue::InitializationConstants
 
-    @@_setup_failed = false
     @@_setup_ran = false
+    @@_setup_failed = false
+
+    def self.setup
+      yield self unless @@_setup_ran
+      @@_setup_ran = true
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      @@_setup_failed = true
+      msg = "#{e.class}: #{e.message} at #{e.backtrace.join("\n")}"
+      # rubocop:disable Rails/Output
+      puts msg
+      # rubocop:enable Rails/Output
+      Rails.logger.error msg
+      raise e
+    end
+
+    mattr_accessor :contact_form_integration_service_debug_verbose, default: false
 
     mattr_accessor :contact_form_controller_debug_verbose, default: false
 
@@ -34,16 +47,6 @@ module Hyrax
 
     mattr_accessor :new_google_recaptcha_enabled,          default: false
     mattr_accessor :new_google_recaptcha_just_human_test,  default: false
-
-    def self.setup
-      return if @@_setup_ran == true
-      @@_setup_ran = true
-      begin
-        yield self
-      rescue Exception => e # rubocop:disable Lint/RescueException
-        @@_setup_failed = true
-      end
-    end
 
     def self.akismet_setup
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

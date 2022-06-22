@@ -92,13 +92,15 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
     super( arg: arg, default_var: default_var, default_value: default_value, task: task, verbose: verbose )
   end
 
-  def initialize_with( debug_verbose: deepblue_job_debug_verbose )
+  def initialize_with( debug_verbose: deepblue_job_debug_verbose, options: {} )
     debug_verbose = debug_verbose || deepblue_job_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "debug_verbose=#{debug_verbose}",
+                                           "options=#{options}",
                                            "" ] if debug_verbose
-    @options = {}
+    @options = options
+    @options = @options.with_indifferent_access if @options.is_a? Hash
     @task = false
     @verbose = false
     job_status_init
@@ -229,10 +231,21 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
   end
 
   def msg_handler
-    @msg_handler ||= ::Deepblue::MessageHandler.new( debug_verbose: debug_verbose,
-                                                     msg_queue: job_msg_queue,
-                                                     to_console: task,
-                                                     verbose: verbose )
+    @msg_handler ||= msg_handler_init
+  end
+
+  def msg_handler_init
+    ::Deepblue::MessageHandler.new( debug_verbose: debug_verbose,
+                                    msg_queue: job_msg_queue,
+                                    to_console: task,
+                                    verbose: verbose )
+  rescue Exception => e
+    msg = "#{e.class}: #{e.message} at #{e.backtrace.join("\n")}"
+    # rubocop:disable Rails/Output
+    puts msg
+    # rubocop:enable Rails/Output
+    Rails.logger.error msg
+    return ::Deepblue::MessageHandler.new
   end
 
   alias :restartable? :restartable

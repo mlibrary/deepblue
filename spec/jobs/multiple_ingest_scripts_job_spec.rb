@@ -52,7 +52,11 @@ RSpec.describe MultipleIngestScriptsJob, skip: false do
             expect( job ).to receive( :validate_paths_to_scripts ).with( no_args ).and_return true
             expect( job ).to receive( :ingest_script_run ).with( path_to_script: path1 ).and_call_original
             expect( job ).to receive( :ingest_script_run ).with( path_to_script: path2 ).and_call_original
-            expect( job ).to receive( :email_results ).with( no_args )
+            expect( job ).to receive( :email_results ) do |args|
+              expect( args[:debug_verbose]).to eq dbg_verbose
+              expect( args[:msg_handler].to_console ).to eq false
+              expect( args[:msg_handler].verbose ).to eq nil
+            end
             expect( job ).to_not receive( :email_failure ).with( any_args )
             expect( subject_job ).to receive(:perform_now ).with( ingest_mode: ingest_mode,
                                                                   ingester: ingester,

@@ -7,6 +7,22 @@ module Deepblue
   module JiraHelper
     extend ActionView::Helpers::TranslationHelper
 
+    @@_setup_ran = false
+    @@_setup_failed = false
+
+    def self.setup
+      yield self unless @@_setup_ran
+      @@_setup_ran = true
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      @@_setup_failed = true
+      msg = "#{e.class}: #{e.message} at #{e.backtrace.join("\n")}"
+      # rubocop:disable Rails/Output
+      puts msg
+      # rubocop:enable Rails/Output
+      Rails.logger.error msg
+      raise e
+    end
+
     FIELD_NAME_CONTACT_INFO = "customfield_11315".freeze unless const_defined? :FIELD_NAME_CONTACT_INFO
     FIELD_NAME_CREATOR = "customfield_11304".freeze unless const_defined? :FIELD_NAME_CREATOR
     FIELD_NAME_DEPOSIT_ID = "customfield_11303".freeze unless const_defined? :FIELD_NAME_DEPOSIT_ID
@@ -16,24 +32,6 @@ module Deepblue
     FIELD_NAME_REPORTER = "reporter".freeze unless const_defined? :FIELD_NAME_REPORTER
     FIELD_NAME_STATUS = "customfield_12000".freeze unless const_defined? :FIELD_NAME_STATUS
     FIELD_NAME_SUMMARY = "summary".freeze unless const_defined? :FIELD_NAME_SUMMARY
-
-    @@_setup_ran = false
-
-    # @@jira_allow_add_comment
-    # @@jira_allow_create_users
-    # @@jira_field_values_discipline_map
-    # @@jira_helper_debug_verbose
-    # @@jira_integration_hostnames
-    # @@jira_integration_hostnames_prod
-    # @@jira_integration_enabled
-    # @@jira_manager_project_key
-    # @@jira_manager_issue_type
-    # @@jira_rest_url
-    # @@jira_rest_api_url
-    # @@jira_rest_create_users_url
-    # @@jira_test_mode
-    # @@jira_url
-    # @@jira_use_authoremail_as_requester = false
 
     mattr_accessor :jira_allow_add_comment
     mattr_accessor :jira_allow_create_users
@@ -50,11 +48,6 @@ module Deepblue
     mattr_accessor :jira_test_mode
     mattr_accessor :jira_url
     mattr_accessor :jira_use_authoremail_as_requester, default: false
-
-    def self.setup
-      yield self if @@_setup_ran == false
-      @@_setup_ran = true
-    end
 
     def self.jira_add_comment( curation_concern:, event:, comment: )
       ::Deepblue::LoggingHelper.bold_debug( [ ::Deepblue::LoggingHelper.here,

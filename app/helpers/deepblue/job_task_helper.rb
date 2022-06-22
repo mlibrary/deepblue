@@ -5,10 +5,19 @@ module Deepblue
   module JobTaskHelper
 
     @@_setup_ran = false
+    @@_setup_failed = false
 
     def self.setup
-      yield self if @@_setup_ran == false
+      yield self unless @@_setup_ran
       @@_setup_ran = true
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      @@_setup_failed = true
+      msg = "#{e.class}: #{e.message} at #{e.backtrace.join("\n")}"
+      # rubocop:disable Rails/Output
+      puts msg
+      # rubocop:enable Rails/Output
+      Rails.logger.error msg
+      raise e
     end
 
     mattr_accessor :job_task_helper_debug_verbose,                  default: false
@@ -52,8 +61,14 @@ module Deepblue
                                  event_note: '',
                                  messages: [],
                                  timestamp_begin: nil,
-                                 timestamp_end: DateTime.now )
+                                 timestamp_end: DateTime.now,
+                                 msg_handler: nil,
+                                 debug_verbose: job_task_helper_debug_verbose )
 
+      debug_verbose = debug_verbose ||
+        job_task_helper_debug_verbose ||
+        (msg_handler.nil? ? false : msg_handler.debug_verbose)
+      to_console = (msg_handler.nil? ? false : msg_handler.to_console)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "targets=#{targets}",
@@ -64,9 +79,10 @@ module Deepblue
                                              "messages=#{messages}",
                                              "timestamp_begin=#{timestamp_begin}",
                                              "timestamp_end=#{timestamp_end}",
-                                             "" ] if job_task_helper_debug_verbose
+                                             "" ], bold_puts: to_console if debug_verbose
       targets = ::Deepblue::EmailSubscriptionService.merge_targets_and_subscribers( targets: targets,
                                                                                     subscription_service_id: subscription_service_id )
+      targets.delete_if { |x| x.blank? }
       return if targets.blank?
       timestamp_end = DateTime.now if timestamp_end.blank?
       body =<<-END_BODY
@@ -84,7 +100,7 @@ END_BODY
                                              ::Deepblue::LoggingHelper.called_from,
                                              "subject=#{subject}",
                                              "body=#{body}",
-                                             "" ] if job_task_helper_debug_verbose
+                                             "" ], bold_puts: to_console if debug_verbose
       targets = targets.uniq
       targets.each do |email|
         send_email( email_target: email,
@@ -111,10 +127,16 @@ END_BODY
                             exception:,
                             event:,
                             event_note: '',
-                            messages: [],
+                            messages: [], # TODO: msg_handler should supercede messages
                             timestamp_begin: nil,
-                            timestamp_end: DateTime.now )
+                            timestamp_end: DateTime.now,
+                            msg_handler: nil,
+                            debug_verbose: job_task_helper_debug_verbose )
 
+      debug_verbose = debug_verbose ||
+        job_task_helper_debug_verbose ||
+        (msg_handler.nil? ? false : msg_handler.debug_verbose)
+      to_console = (msg_handler.nil? ? false : msg_handler.to_console)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "targets=#{targets}",
@@ -125,8 +147,9 @@ END_BODY
                                              "messages=#{messages}",
                                              "timestamp_begin=#{timestamp_begin}",
                                              "timestamp_end=#{timestamp_end}",
-                                             "" ] if job_task_helper_debug_verbose
+                                             "" ], bold_puts: to_console if debug_verbose
       targets = email_merge_targets( subscription_service_id: subscription_service_id, targets: targets )
+      targets.delete_if { |x| x.blank? }
       return if targets.blank?
       timestamp_end = DateTime.now if timestamp_end.blank?
       body =<<-END_BODY
@@ -148,7 +171,7 @@ END_BODY
                                              ::Deepblue::LoggingHelper.called_from,
                                              "subject=#{subject}",
                                              "body=#{body}",
-                                             "" ] if job_task_helper_debug_verbose
+                                             "" ], bold_puts: to_console if debug_verbose
       targets = targets.uniq
       targets.each do |email|
         send_email( email_target: email,
@@ -163,15 +186,47 @@ END_BODY
       end
     end
 
+    def self.email_failure_targets( from_dashboard: [],
+                                    msg_handler: nil,
+                                    targets: [],
+                                    debug_verbose: job_task_helper_debug_verbose )
+
+      debug_verbose = debug_verbose ||
+                    job_task_helper_debug_verbose ||
+                    (msg_handler.nil? ? false : msg_handler.debug_verbose)
+      to_console = (msg_handler.nil? ? false : msg_handler.to_console)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "targets=#{targets}",
+                                             "from_dashboard=#{from_dashboard}",
+                                             "job_failure_email_subscribers=#{job_failure_email_subscribers}",
+                                             "" ], bold_puts: to_console if debug_verbose
+      targets = Array(targets)
+      from_dashboard = Array(from_dashboard)
+      rv = job_failure_email_subscribers | targets | from_dashboard
+      rv.delete_if { |x| x.blank? }
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "" ], bold_puts: to_console if debug_verbose
+      return rv
+    end
+
     def self.email_results( targets:,
                             subscription_service_id: nil,
                             task_name:,
                             event:,
                             event_note: '',
-                            messages: [],
+                            messages: [], # TODO: msg_handler should superceded messages
                             timestamp_begin: nil,
-                            timestamp_end: DateTime.now )
+                            timestamp_end: DateTime.now,
+                            msg_handler: nil,
+                            debug_verbose: job_task_helper_debug_verbose )
 
+      debug_verbose = debug_verbose ||
+        job_task_helper_debug_verbose ||
+        (msg_handler.nil? ? false : msg_handler.debug_verbose)
+      to_console = (msg_handler.nil? ? false : msg_handler.to_console)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "targets=#{targets}",
@@ -182,8 +237,9 @@ END_BODY
                                              "messages=#{messages}",
                                              "timestamp_begin=#{timestamp_begin}",
                                              "timestamp_end=#{timestamp_end}",
-                                             "" ] if job_task_helper_debug_verbose
+                                             "" ], bold_puts: to_console if debug_verbose
       targets = email_merge_targets( subscription_service_id: subscription_service_id, targets: targets )
+      targets.delete_if { |x| x.blank? }
       return if targets.blank?
       timestamp_end = DateTime.now if timestamp_end.blank?
       body =<<-END_BODY
@@ -198,7 +254,7 @@ END_BODY
                                              ::Deepblue::LoggingHelper.called_from,
                                              "subject=#{subject}",
                                              "body=#{body}",
-                                             "" ] if job_task_helper_debug_verbose
+                                             "" ], bold_puts: to_console if debug_verbose
       targets = targets.uniq
       targets.each do |email|
         send_email( email_target: email,

@@ -17,6 +17,7 @@ class SchedulerStartJob < ::Deepblue::DeepblueJob
                debug_verbose: scheduler_start_job_debug_verbose,
                **options )
 
+    debug_verbose = debug_verbose || scheduler_start_job_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "::Deepblue::SchedulerIntegrationService.scheduler_active=#{::Deepblue::SchedulerIntegrationService.scheduler_active}",

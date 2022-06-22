@@ -5,6 +5,19 @@ module Deepblue
     @@_setup_ran = false
     @@_setup_failed = false
 
+    def self.setup
+      yield self unless @@_setup_ran
+      @@_setup_ran = true
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      @@_setup_failed = true
+      msg = "#{e.class}: #{e.message} at #{e.backtrace.join("\n")}"
+      # rubocop:disable Rails/Output
+      puts msg
+      # rubocop:enable Rails/Output
+      Rails.logger.error msg
+      raise e
+    end
+
     mattr_accessor :suppress_active_support_logging, default: false
     mattr_accessor :suppress_active_support_logging_verbose, default: false
     mattr_accessor :suppress_blacklight_logging, default: false
@@ -20,16 +33,6 @@ module Deepblue
                                                               "transmit_subscription_rejection.action_cable" ]
 
     # @@suppressed_has_run = false
-
-    def self.setup
-      return if @@_setup_ran == true
-      @@_setup_ran = true
-      begin
-        yield self
-      rescue Exception => e # rubocop:disable Lint/RescueException
-        @@_setup_failed = true
-      end
-    end
 
     def self.initialize_logging(debug_verbose: false)
       @@debug_verbose = debug_verbose || suppress_active_support_logging_verbose

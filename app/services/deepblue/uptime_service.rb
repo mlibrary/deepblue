@@ -6,26 +6,24 @@ module Deepblue
 
     # include ::Deepblue::InitializationConstants
 
-    mattr_accessor :uptime_service_debug_verbose, default: false
-
     @@_setup_failed = false
     @@_setup_ran = false
     @@_setup_uptime_timestamp_file_written = false
 
-    @@program_arg1
-    @@uptime_dir = Rails.application.root.join( "data", "uptime" )
-
-    mattr_accessor :program_arg1,
-                   :uptime_dir
-
     def self.setup
       return if @@_setup_ran == true
-      @@_setup_ran = true
       puts "@@_setup_uptime_timestamp_file_written=#{@@_setup_uptime_timestamp_file_written}" if uptime_service_debug_verbose
       begin
         yield self
+        @@_setup_ran = true
       rescue Exception => e # rubocop:disable Lint/RescueException
         @@_setup_failed = true
+        msg = "#{e.class}: #{e.message} at #{e.backtrace.join("\n")}"
+        # rubocop:disable Rails/Output
+        puts msg
+        # rubocop:enable Rails/Output
+        Rails.logger.error msg
+        raise e
       end
       at_exit do
         begin
@@ -37,6 +35,14 @@ module Deepblue
         end
       end
     end
+
+    mattr_accessor :uptime_service_debug_verbose, default: false
+
+    @@program_arg1
+    @@uptime_dir = Rails.application.root.join( "data", "uptime" )
+
+    mattr_accessor :program_arg1,
+                   :uptime_dir
 
     def self.is_console?
       Rails.const_defined? 'Console'

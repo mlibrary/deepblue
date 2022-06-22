@@ -4,12 +4,25 @@ module Deepblue
 
   module SchedulerIntegrationService
 
-    mattr_accessor :scheduler_integration_service_debug_verbose, default: false
-
     include ::Deepblue::InitializationConstants
 
-    @@_setup_failed = false
     @@_setup_ran = false
+    @@_setup_failed = false
+
+    def self.setup
+      yield self unless @@_setup_ran
+      @@_setup_ran = true
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      @@_setup_failed = true
+      msg = "#{e.class}: #{e.message} at #{e.backtrace.join("\n")}"
+      # rubocop:disable Rails/Output
+      puts msg
+      # rubocop:enable Rails/Output
+      Rails.logger.error msg
+      raise e
+    end
+
+    mattr_accessor :scheduler_integration_service_debug_verbose, default: false
 
     mattr_accessor :scheduler_job_file_path
     mattr_accessor :scheduler_active
@@ -19,16 +32,6 @@ module Deepblue
     mattr_accessor :scheduler_log_echo_to_rails_logger, default: true
     mattr_accessor :scheduler_start_job_default_delay, default: 5.minutes
     mattr_accessor :scheduler_started_email, default: []
-
-    def self.setup
-      return if @@_setup_ran == true
-      @@_setup_ran = true
-      begin
-        yield self
-      rescue Exception => e # rubocop:disable Lint/RescueException
-        @@_setup_failed = true
-      end
-    end
 
     def self.scheduler_pid
       `pgrep -fu #{Process.uid} resque-scheduler`

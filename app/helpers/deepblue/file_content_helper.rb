@@ -5,10 +5,19 @@ module Deepblue
   module FileContentHelper
 
     @@_setup_ran = false
+    @@_setup_failed = false
 
     def self.setup
-      yield self if @@_setup_ran == false
+      yield self unless @@_setup_ran
       @@_setup_ran = true
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      @@_setup_failed = true
+      msg = "#{e.class}: #{e.message} at #{e.backtrace.join("\n")}"
+      # rubocop:disable Rails/Output
+      puts msg
+      # rubocop:enable Rails/Output
+      Rails.logger.error msg
+      raise e
     end
 
     mattr_accessor :file_content_helper_debug_verbose, default: false
@@ -19,15 +28,6 @@ module Deepblue
     mattr_accessor :read_me_file_set_view_mime_types, default: [ "text/plain", "text/markdown" ].freeze
     mattr_accessor :read_me_file_set_ext_as_html, default: [ ".md" ].freeze
     mattr_accessor :read_me_max_find_file_sets, default: 40
-
-    # mattr_accessor  :file_content_helper_debug_verbose,
-    #                 :read_me_file_set_enabled,
-    #                 :read_me_file_set_auto_read_me_attach,
-    #                 :read_me_file_set_file_name_regexp,
-    #                 :read_me_file_set_view_max_size,
-    #                 :read_me_file_set_view_mime_types,
-    #                 :read_me_file_set_ext_as_html,
-    #                 :read_me_max_find_file_sets
 
 
     def self.t( key, **options )

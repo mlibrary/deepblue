@@ -4,6 +4,22 @@ module Deepblue
 
   module FindAndFixService
 
+    @@_setup_ran = false
+    @@_setup_failed = false
+
+    def self.setup
+      yield self unless @@_setup_ran
+      @@_setup_ran = true
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      @@_setup_failed = true
+      msg = "#{e.class}: #{e.message} at #{e.backtrace.join("\n")}"
+      # rubocop:disable Rails/Output
+      puts msg
+      # rubocop:enable Rails/Output
+      Rails.logger.error msg
+      raise e
+    end
+
     mattr_accessor :find_and_fix_service_debug_verbose,             default: false
     mattr_accessor :abstract_fixer_debug_verbose,                   default: false
     mattr_accessor :file_sets_lost_and_found_fixer_debug_verbose,   default: false
@@ -27,19 +43,6 @@ module Deepblue
     mattr_accessor :find_and_fix_file_sets_lost_and_found_work_title, default: 'DBD_Find_and_Fix_FileSets_Lost_and_Found'
 
     mattr_accessor :find_and_fix_subscription_id, default: 'find_and_fix_subscription'
-
-    @@_setup_failed = false
-    @@_setup_ran = false
-
-    def self.setup
-      return if @@_setup_ran == true
-      @@_setup_ran = true
-      begin
-        yield self
-      rescue Exception => e # rubocop:disable Lint/RescueException
-        @@_setup_failed = true
-      end
-    end
 
     def self.find_and_fix( filter_date_begin: nil,
                            filter_date_end: nil,

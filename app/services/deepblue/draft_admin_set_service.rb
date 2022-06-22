@@ -4,10 +4,23 @@ module Deepblue
  
   module DraftAdminSetService
 
-    NOT_AN_ADMIN_SET_ID = 'NOT_AN_ADMIN_SET_ID' unless const_defined? :NOT_AN_ADMIN_SET_ID
-
     @@_setup_ran = false
     @@_setup_failed = false
+
+    def self.setup
+      yield self unless @@_setup_ran
+      @@_setup_ran = true
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      @@_setup_failed = true
+      msg = "#{e.class}: #{e.message} at #{e.backtrace.join("\n")}"
+      # rubocop:disable Rails/Output
+      puts msg
+      # rubocop:enable Rails/Output
+      Rails.logger.error msg
+      raise e
+    end
+
+    NOT_AN_ADMIN_SET_ID = 'NOT_AN_ADMIN_SET_ID' unless const_defined? :NOT_AN_ADMIN_SET_ID
 
     mattr_accessor :draft_admin_set_service_debug_verbose, default: false
 
@@ -149,16 +162,6 @@ module Deepblue
                                              "draft_admin_set_title=#{draft_admin_set_title}",
                                              "" ] if draft_admin_set_service_debug_verbose
       "{!df=admin_set_sim}NOT \"#{draft_admin_set_title}\""
-    end
-
-    def self.setup
-      return if @@_setup_ran == true
-      @@_setup_ran = true
-      begin
-        yield self
-      rescue Exception => e # rubocop:disable Lint/RescueException
-        @@_setup_failed = true
-      end
     end
 
   end
