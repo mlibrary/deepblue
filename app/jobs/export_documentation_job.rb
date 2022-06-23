@@ -33,6 +33,7 @@ export_log_files_job:
                export_path: ::Deepblue::WorkViewContentService.export_documentation_path,
                user_email: nil )
     initialize_with( debug_verbose: export_documentation_job_debug_verbose )
+    job_status.main_cc_id = id
     @from_dashboard = user_email
     # initialize_options_from( *args, debug_verbose: export_documentation_job_debug_verbose )
     # export_path = job_options_value( options, key: 'export_path', default_value: nil )
