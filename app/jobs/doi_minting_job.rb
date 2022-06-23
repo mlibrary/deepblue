@@ -20,6 +20,7 @@ class DoiMintingJob < ::Deepblue::DeepblueJob
                                          "" ] if debug_verbose
     initialize_no_args_hash( debug_verbose: debug_verbose )
     job_status.main_cc_id = id
+    job_status.save!
     if 0 < job_delay
       return unless ::PersistHelper.find( id ).doi_pending?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

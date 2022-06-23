@@ -14,6 +14,7 @@ class IngestScriptJob < ::Deepblue::DeepblueJob
     msg_handler.debug_verbose = ingest_script_job_debug_verbose
     initialize_with( debug_verbose: debug_verbose, options: options )
     job_status.main_cc_id = id if id.present?
+    job_status.save! if id.present?
     email_targets << ingester if ingester.present?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
