@@ -15,7 +15,7 @@ class JobStatusesController < ApplicationController
 
   class_attribute :presenter_class, default: JobStatusesPresenter
 
-  attr_accessor :begin_date, :end_date
+  attr_accessor :back_id, :begin_date, :end_date
 
   attr_reader :action_error
 
@@ -105,6 +105,7 @@ class JobStatusesController < ApplicationController
   end
 
   def init_begin_end_dates
+    @back_id = params[:back_id] # TODO: rename this method
     @begin_date = ViewHelper.to_date(params[:begin_date])
     @begin_date ||= Date.today - 1.week
     @end_date = ViewHelper.to_date(params[:end_date])
@@ -173,6 +174,7 @@ class JobStatusesController < ApplicationController
                                            ::Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
                                            "" ] if job_statuses_controller_debug_verbose
+    init_begin_end_dates
     @presenter = presenter_class.new( controller: self, current_ability: current_ability )
   end
 
