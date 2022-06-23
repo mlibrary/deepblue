@@ -20,6 +20,7 @@ class WorkFindAndFixJob < ::Deepblue::DeepblueJob
     log( event: EVENT, hostname_allowed: hostname_allowed? )
     return job_finished unless hostname_allowed?
     job_status.main_cc_id = id
+    job_status.save!
     msg_handler = ::Deepblue::MessageHandler.new( msg_queue: job_msg_queue,
                                                   to_console: task,
                                                   verbose: verbose,
