@@ -129,7 +129,7 @@ module Deepblue
                                   "#{prefix} id=#{curation_concern.id}" ]
         begin
           next unless fixer.fix_include?( curation_concern: curation_concern ) #, msg_handler: msg_handler )
-          fixer.fix( curation_concern: curation_concern, msg_handler: msg_handler )
+          fixer.fix( curation_concern: curation_concern ) #, msg_handler: msg_handler )
         rescue Exception => e # rubocop:disable Lint/RescueException
           msg_handler.msg_error "Error while processing #{fixer.class.name} - #{prefix} #{curation_concern.id}: #{e.message} at #{e.backtrace[0]}"
         end
