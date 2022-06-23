@@ -19,7 +19,11 @@
     <tr><td>Updated At:</td><td><%= @job_status.updated_at %></td>
   </table>
   <br/><br/>
-  <%= link_to 'Back to Job Statuses', main_app.job_statuses_url( begin_date: @presenter.begin_date_parm,
-                                                 end_date: @presenter.end_date_parm ) %>
+  <% if @presenter.back_id.present? %>
+    <%= link_to 'Back to Work', Rails.application.routes.url_helpers.hyrax_data_set_path(@presenter.back_id) %>
+  <% else %>
+    <%= link_to 'Back to Job Statuses', main_app.job_statuses_url( begin_date: @presenter.begin_date_parm,
+                                                                   end_date: @presenter.end_date_parm ) %>
+  <% end %>
   <br/><br/>
 </div>

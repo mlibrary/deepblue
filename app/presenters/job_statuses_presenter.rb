@@ -6,7 +6,7 @@ class JobStatusesPresenter
 
   attr_accessor :controller, :current_ability
 
-  delegate :begin_date, :end_date, to: :controller
+  delegate :back_id, :begin_date, :end_date, to: :controller
 
   # delegate  :log_entries, :log_parse_entry, :log_key_values_to_table, to: :controller
 

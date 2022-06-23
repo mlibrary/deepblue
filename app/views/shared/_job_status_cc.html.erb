@@ -17,6 +17,7 @@
         <td><%= t('hyrax.base.job_statuses.label.job_class') %></td>
         <td><%= t('hyrax.base.job_statuses.label.status') %></td>
         <td><%= t('hyrax.base.job_statuses.label.error_snipped') %></td>
+        <td>&nbsp;</td>
       </tr>
       </thead>
 
@@ -28,6 +29,9 @@
           <td><%= job_status.job_class %></td>
           <td><%= job_status.status %></td>
           <td><%= job_status.error_snipped %></td>
+          <td>
+            <%= link_to 'Show', main_app.job_status_url( id: job_status.id ) %>
+          </td>
         </tr>
       <% end %>
       </tbody>
