@@ -8,9 +8,6 @@ module Deepblue
 
     def self.fix_file_sizes( id: nil,
                              curation_concern: nil,
-                             # task: false,
-                             # verbose: false,
-                             # fixer: nil,
                              msg_handler:,
                              debug_verbose: find_and_fix_helper_debug_verbose )
 
@@ -19,17 +16,13 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
                                              "curation_concern.present?=#{curation_concern.present?}",
-                                             # "task=#{task}",
-                                             # "verbose=#{verbose}",
                                              "" ], bold_puts: msg_handler.to_console if debug_verbose
       w = resolve_curation_concern( id: id, curation_concern: curation_concern )
       msg_handler.msg_verbose "fix file sizes for work #{curation_concern&.id}"
       msg_handler.msg_verbose "w.present? #{w.present?}"
-      # puts_msg( fixer: fixer, task: task, verbose: verbose, msg: "w.present? #{w.present?}" )
       selected = w.file_sets.select { |f| f.file_size.blank? }
       msg_handler.msg_verbose "selected.size = #{selected.size}"
-      # puts_msg( fixer: fixer, task: task, verbose: verbose, msg: "selected.size = #{selected.size}" )
-      selected.each { |f| puts f.original_file.size } if task && verbose
+      selected.each { |f| msg_handler.msg_verbose f.original_file.size } if msg_handler.to_console
       selected.each { |f| f.file_size = Array(f.original_file.size); f.save }
       selected.each { |f| f.reload };true
       selected.each { |f| msg_handler.msg_verbose Array(f.file_size) }
@@ -38,27 +31,16 @@ module Deepblue
       if sizes.include? []
         selected.each do |f|
           force_update_to_file_size( file_set: f,
-                                     # task: task,
-                                     # fixer: fixer,
-                                     # verbose: verbose,
                                      msg_handler: msg_handler,
                                      debug_verbose: debug_verbose ) if f.file_size.blank?
         end
       end
       w.reload
       msg_handler.msg_verbose "file_sets.map { |f| f.file_size } = #{sizes}"
-      # puts_msg( fixer: fixer, task: task, verbose: verbose, msg: "file_sets.map { |f| f.file_size } = #{sizes}" )
-      solr_reindex_work_with_total_size_update( id: w.id,
-                                                # fixer: fixer,
-                                                # task: task,
-                                                # verbose: verbose,
-                                                msg_handler: msg_handler )
+      solr_reindex_work_with_total_size_update( id: w.id, msg_handler: msg_handler )
     end
 
     def self.force_update_to_file_size( file_set:,
-                                        # task: false,
-                                        # verbose: false,
-                                        # fixer: nil,
                                         msg_handler:,
                                         debug_verbose: find_and_fix_helper_debug_verbose )
 
@@ -67,11 +49,8 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
                                              "curation_concern.present?=#{curation_concern.present?}",
-                                             # "task=#{task}",
-                                             # "verbose=#{verbose}",
                                              "" ], bold_puts: msg_handler.to_console if debug_verbose
       msg_handler.msg_verbose "forcing file size update to file set: #{file_set.id}"
-      # puts_msg( fixer: fixer, task: task, verbose: verbose, msg: "forcing file size update to file set: #{file_set.id}" )
       sparql_update_template=<<-END_OF_BODY
 PREFIX ebucore: <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#>
 INSERT {
@@ -91,13 +70,11 @@ WHERE { }
       uri = found.uri.value
       uri_metadata = "#{uri}/fcr:metadata"
       msg_handler.msg_verbose "#{uri_metadata}"
-      # puts_msg( fixer: fixer, task: task, verbose: verbose, msg: "#{uri_metadata}" )
       sparql_update = sparql_update_template.sub( 'NEW_METADATA', file_set.original_file.size.to_s )
       rv = ActiveFedora.fedora.connection.patch( uri_metadata,
                                                  sparql_update,
                                                  "Content-Type" => "application/sparql-update" )
       msg_handler.msg_verbose "Updated file size returned status #{rv.status}"
-      # puts_msg( fixer: fixer, task: task, verbose: verbose, msg: "Updated file size returned status #{rv.status}" )
       file_set.date_modified = DateTime.now
       file_set.save!( validate: false )
       # file_set.parent.update_total_file_size!
@@ -106,9 +83,6 @@ WHERE { }
 
     def self.solr_reindex_work_with_total_size_update( id: nil,
                                                        curation_concern: nil,
-                                                       # fixer: nil,
-                                                       # task: false,
-                                                       # verbose: false,
                                                        msg_handler:,
                                                        debug_verbose: find_and_fix_helper_debug_verbose )
 
@@ -117,12 +91,9 @@ WHERE { }
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
                                              "curation_concern.present?=#{curation_concern.present?}",
-                                             # "task=#{task}",
-                                             # "verbose=#{verbose}",
-                                             "" ], bold_puts: task if debug_verbose
+                                             "" ], bold_puts: msg_handler.to_console if debug_verbose
       w = resolve_curation_concern( id: id, curation_concern: curation_concern )
       msg_handler.msg_verbose "w.present? #{w.present?}"
-      # puts_msg( fixer: fixer, task: task, verbose: verbose, msg: "w.present? #{w.present?}" )
       file_sets = w.file_sets
       batch = []
       file_sets.each { |f| batch << f.to_solr }
@@ -148,10 +119,7 @@ WHERE { }
     # add solr check
     def self.valid_file_sizes?( id: nil,
                                 curation_concern: nil,
-                                # fixer: nil,
                                 check_solr: true,
-                                # task: false,
-                                # verbose: false,
                                 msg_handler:,
                                 debug_verbose: find_and_fix_helper_debug_verbose )
 
@@ -160,28 +128,20 @@ WHERE { }
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
                                              "curation_concern.present?=#{curation_concern.present?}",
-                                             # "task=#{task}",
-                                             # "verbose=#{verbose}",
-                                             "" ], bold_puts: task if debug_verbose
+                                             "" ], bold_puts: msg_handler.to_console if debug_verbose
       w = resolve_curation_concern( id: id, curation_concern: curation_concern )
       msg_handler.msg_verbose "w.present? #{w.present?}"
-      # puts_msg( fixer: fixer, task: task, verbose: verbose, msg: "w.present? #{w.present?}" )
       sizes = w.file_sets.map { |f| f.file_size }
       msg_handler.msg_verbose "file_sets.map { |f| f.file_size } = #{sizes}"
-      # puts_msg( fixer: fixer, task: task, verbose: verbose, msg: "file_sets.map { |f| f.file_size } = #{sizes}" )
       return false if sizes.include? []
       return true unless check_solr
       sizes = w.file_sets.map { |f| doc = ::SolrDocument.find f.id; doc['file_size_lts'] }
       msg_handler.msg_verbose "file_sets.map of solr docs = #{sizes}"
-      # puts_msg( fixer: fixer, task: task, verbose: verbose, msg: "file_sets.map of solr docs = #{sizes}" )
       return true
     end
 
     def self.valid_ordered_members?( id: nil,
                                      curation_concern: nil,
-                                     fixer: nil,
-                                     task: false,
-                                     verbose: false,
                                      msg_handler:,
                                      debug_verbose: find_and_fix_helper_debug_verbose )
 
@@ -190,31 +150,18 @@ WHERE { }
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
                                              "curation_concern.present?=#{curation_concern.present?}",
-                                             # "task=#{task}",
-                                             # "verbose=#{verbose}",
-                                             "" ], bold_puts: task if debug_verbose
+                                             "" ], bold_puts: msg_handler.to_console if debug_verbose
       w = resolve_curation_concern( id: id, curation_concern: curation_concern )
       msg_handler.msg_verbose "w.present? #{w.present?}"
-      # puts_msg( fixer: fixer, task: task, verbose: verbose, msg: "w.present? #{w.present?}" )
       return false unless w.present?
       a = Array(w.ordered_members)
       msg_handler.msg_verbose "w.present? #{w.present?}"
-      # puts_msg( fixer: fixer, task: task, verbose: verbose, msg: "w.present? #{w.present?}" )
       return false if a.include? nil
       msg_handler.msg_verbose "ordered_members.size = #{a.size}"
-      # puts_msg( fixer: fixer, task: task, verbose: verbose, msg: "ordered_members.size = #{a.size}" )
       msg_handler.msg_verbose "file_sets.size = #{w.file_sets.size}"
-      # puts_msg( fixer: fixer, task: task, verbose: verbose, msg: "file_sets.size = #{w.file_sets.size}" )
       msg_handler.msg_verbose "file_sets.size == a.size = #{w.file_sets.size == a.size}"
-      # puts_msg( fixer: fixer, task: task, verbose: verbose, msg: "file_sets.size == a.size = #{w.file_sets.size == a.size}" )
       return w.file_sets.size == a.size
     end
-
-    # def self.puts_msg( msg:, fixer:, verbose:, task: )
-    #   return unless verbose
-    #   fixer.add_msg msg if fixer.present? && !task
-    #   puts msg if task
-    # end
 
   end
 
