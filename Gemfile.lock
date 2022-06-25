@@ -322,7 +322,7 @@ GEM
       actionmailer (>= 4.1.0)
       devise (>= 4.0.0)
     diff-lcs (1.5.0)
-    diffy (3.4.0)
+    diffy (3.4.1)
     disposable (0.6.2)
       declarative (>= 0.0.9, < 1.0.0)
       representable (>= 3.1.1, < 3.2.0)
