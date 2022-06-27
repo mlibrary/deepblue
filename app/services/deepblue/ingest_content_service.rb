@@ -21,10 +21,10 @@ module Deepblue
                                              "first_label=#{first_label}",
                                              "options=#{options}",
                                              "" ] if ingest_content_service_debug_verbose
-      msg_handler.msg_verbose "Path to script: #{path_to_script}"
+      msg_handler.msg_verbose "Path to script: #{path_to_yaml_file}"
       cfg_hash = ::Deepblue::NewContentService.load_yaml_file( path_to_yaml_file )
       return false if msg_handler.msg_error_if?( (cfg_hash.nil? || cfg_hash.empty?),
-                                                 msg: "failed ot load script '#{path_to_script}'" )
+                                                 msg: "failed ot load script '#{path_to_yaml_file}'" )
       # return false if cfg_hash.nil? || cfg_hash.empty?
       base_path = File.dirname( path_to_yaml_file )
       bcs = IngestContentService.new( options: options,
@@ -36,11 +36,13 @@ module Deepblue
                                       mode: mode,
                                       base_path: base_path )
       bcs.run
-      lines = email_after_msg_lines
+      lines = bcs.email_after_msg_lines
       return if lines.blank? || msg_handler.nil?
       msg_handler.msg( lines )
     rescue Exception => e
-      Rails.logger.error "IngestContentService.call(#{path_to_yaml_file}) #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
+      # Rails.logger.error "IngestContentService.call(#{path_to_yaml_file}) #{e.class}: #{e.message} at\n#{e.backtrace.join("\n")}"
+      msg_handler.msg_error "IngestContentService.call(#{path_to_yaml_file}) #{e.class}: #{e.message}"
+      raise e
     end
 
     def initialize( options:, msg_handler:, path_to_yaml_file:, cfg_hash:, base_path:, ingester:, mode:, first_label: )

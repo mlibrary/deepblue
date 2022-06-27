@@ -48,6 +48,13 @@ class IngestScriptJob < ::Deepblue::DeepblueJob
     job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
     msg_handler.msg_exception( e ) if msg_handler.present?
+    job_status_register( exception: e,
+                         args: { ingest_mode: ingest_mode,
+                                 ingester: ingester,
+                                 path_to_script: path_to_script,
+                                 id: id,
+                                 options: options } )
+    email_failure( task_name: self.class.name, exception: e, event: self.class.name )
     Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
     Rails.logger.error e.backtrace.join("\n")
     raise e
