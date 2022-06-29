@@ -34,9 +34,8 @@ END_OF_SCHEDULER_ENTRY
   def perform( *args )
     initialize_options_from( *args, debug_verbose: monthly_analytics_report_job_debug_verbose )
     log( event: "monthly analytics report job", hostname_allowed: hostname_allowed? )
-    is_quiet?
     return job_finished unless hostname_allowed?
-    this_month = job_options_value( options, key: 'this_month', default_value: debug_verbose )
+    this_month = job_options_value( key: 'this_month', default_value: debug_verbose )
     if this_month
       date_range = ::AnalyticsHelper.date_range_for_month_of( time: Time.now )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

@@ -41,10 +41,11 @@ RSpec.describe ::Deepblue::DeepblueJob do
   end
 
   describe '.hostname_allowed' do
-    let(:job) { described_class.new }
+    let(:args) { {} }
+    let(:job) { MockDeepblueJob.send( :job_or_instantiate, *args ) }
 
     it "calls job task helper" do
-      expect(::Deepblue::JobTaskHelper).to receive(:hostname_allowed).with(any_args).and_return true
+      expect( job.initialize_no_args_hash( debug_verbose: false ) ).to eq( {} )
       expect(job.hostname_allowed).to eq true
     end
   end
@@ -55,7 +56,7 @@ RSpec.describe ::Deepblue::DeepblueJob do
     let(:job) { MockDeepblueJob.send( :job_or_instantiate, *args ) }
     it 'does it' do
       expect( job ).to receive(:job_status_init).and_call_original
-      expect( job ).to receive(:initialize_email_targets).and_call_original
+      expect( job ).to receive(:email_targets_init).and_call_original
       expect( job ).to receive(:timestamp_begin).and_call_original
       expect( job.initialize_no_args_hash( debug_verbose: false ) ).to eq( {} )
       expect( job.debug_verbose ).to eq false

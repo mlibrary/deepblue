@@ -41,32 +41,25 @@ RSpec.describe CleanDerivativesDirJob do
         days_old = described_class.default_args[:days_old] if days_old.blank?
         expect( described_class.clean_derivatives_dir_job_debug_verbose ).to eq false
         expect(job).to receive(:initialize_from_args).with( any_args ).and_call_original
-        { verbose:              described_class.default_args[:verbose],
-          task:                 described_class.default_args[:task] }.each_pair do |key,value|
-
-          expect(job).to receive(:job_options_value).with( options,
-                                                           key: key.to_s,
+        { quiet:                false,
+          task:                 false,
+          verbose:              false
+        }.each_pair do |key,value|
+          expect(job).to receive(:job_options_value).with( key: key.to_s,
                                                            default_value: value,
-                                                           verbose: false,
-                                                           task: false ).at_least(:once).and_call_original
+                                                           no_msg_handler: true ).at_least(:once).and_call_original
         end
         { by_request_only:      described_class.default_args[:by_request_only],
           from_dashboard:       described_class.default_args[:from_dashboard],
-          is_quiet:             described_class.default_args[:is_quiet],
           job_delay:            0,
           email_results_to:     [],
           subscription_service_id: nil,
           hostnames:            [],
-          days_old:             described_class.default_args[:days_old] }.each_pair do |key,value|
-
-          expect(job).to receive(:job_options_value).with( options,
-                                                           key: key.to_s,
-                                                           default_value: value,
-                                                           verbose: verbose,
-                                                           task: false ).at_least(:once).and_call_original
-        end
-        { days_old: described_class.default_args[:days_old] }.each_pair do |key,value|
-          expect(job).to receive(:options_value).with( key: key.to_s, default_value: value ).and_call_original
+          days_old:             described_class.default_args[:days_old],
+          user_email:           []
+        }.each_pair do |key,value|
+          expect(job).to receive(:job_options_value).with( key: key.to_s,
+                                                           default_value: value ).at_least(:once).and_call_original
         end
         expect(sched_helper).to receive(:log).with(class_name: described_class.name, event: event_name )
         if 0 < debug_verbose_count
@@ -76,10 +69,12 @@ RSpec.describe CleanDerivativesDirJob do
         end
         expect(service).to receive(:run)
         if run_the_job
-          expect(::Deepblue::CleanDerivativesDirService).to receive(:new).with(days_old: days_old,
-                                                                               job_msg_queue: job_msg_queue,
-                                                                               to_console: to_console,
-                                                                               verbose: verbose).and_return service
+          expect(::Deepblue::CleanDerivativesDirService).to receive(:new) do |args|
+            expect(args[:days_old]).to eq days_old
+            # expect(args[:job_msg_queue]).to eq job_msg_queue
+            expect(args[:to_console]).to eq to_console
+            expect(args[:verbose]).to eq verbose
+          end.and_return service
         else
           expect(::Deepblue::CleanDerivativesDirService).to_not receive(:new)
         end

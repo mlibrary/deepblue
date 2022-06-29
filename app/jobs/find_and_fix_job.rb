@@ -35,50 +35,44 @@ find_and_fix_job:
 
 END_OF_SCHEDULER_ENTRY
 
+  EVENT = "find and fix"
+
   def self.perform( *args )
     RakeTaskJob.perform_now( *args )
   end
 
   def perform( *args )
+    # msg_handler.debug_verbose = find_and_fix_job_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "args=#{args}",
-                                           "" ] if FindAndFixJob.find_and_fix_job_debug_verbose
-    initialized = initialize_from_args *args
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "initialized=#{initialized}",
-                                           "" ], bold_puts: task if FindAndFixJob.find_and_fix_job_debug_verbose
+                                           "" ] if find_and_fix_job_debug_verbose
+    initialized = initialize_from_args( *args, debug_verbose: debug_verbose )
+    msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
+                             ::Deepblue::LoggingHelper.called_from,
+                             "initialized=#{initialized}",
+                             "" ] if find_and_fix_job_debug_verbose
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name )
     return unless initialized
-    filter_date_begin = job_options_value( options,
-                                           key: 'filter_date_begin',
-                                           default_value: nil,
-                                           verbose: verbose,
-                                           task: task )
-    filter_date_end = job_options_value( options,
-                                         key: 'filter_date_end',
-                                         default_value: nil,
-                                         verbose: verbose,
-                                         task: task )
+    filter_date_begin = job_options_value( key: 'filter_date_begin', default_value: nil )
+    filter_date_end = job_options_value( key: 'filter_date_end', default_value: nil, )
     run_job_delay
     ::Deepblue::FindAndFixService.find_and_fix( filter_date_begin: filter_date_begin,
                                                 filter_date_end: filter_date_end,
                                                 msg_handler: msg_handler,
                                                 verbose: verbose,
-                                                debug_verbose: FindAndFixJob.find_and_fix_job_debug_verbose )
+                                                debug_verbose: find_and_fix_job_debug_verbose )
     timestamp_end = DateTime.now
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "job_msg_queue=#{job_msg_queue}",
+                                           "msg_handler.msg_queue=#{msg_handler.msg_queue}",
                                            "timestamp_end=#{timestamp_end}",
-                                           "" ], bold_puts: task if FindAndFixJob.find_and_fix_job_debug_verbose
-    # job_msg_queue.each { |msg| puts msg } if task
-    email_results( task_name: "Find and Fixer", event: 'find and fixer job' )
+                                           "" ] if find_and_fix_job_debug_verbose
+    email_results( task_name: EVENT, event: EVENT )
+    job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
-    Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
-    Rails.logger.error e.backtrace[0..20].join("\n")
-    email_failure( task_name: "find and fix job", exception: e, event: 'find and fix' )
+    job_status_register( exception: e, args: args )
+    email_failure( task_name: EVENT, exception: e, event: EVENT )
     raise e
   end
 

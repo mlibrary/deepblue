@@ -32,30 +32,17 @@ END_OF_SCHEDULER_ENTRY
   queue_as :default
 
   def perform( *args )
-    debug_verbose = export_log_files_job_debug_verbose
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "args=#{args}",
-                                           "" ] if debug_verbose
-    initialize_options_from( *args, debug_verbose: debug_verbose )
+    initialize_options_from( *args, debug_verbose: export_log_files_job_debug_verbose )
     log( event: EVENT, hostname_allowed: hostname_allowed? )
     return job_finished unless hostname_allowed?
     ::Deepblue::ExportFilesHelper.export_log_files( msg_handler: msg_handler,
-                                                    debug_verbose: export_log_files_job_debug_verbose )
-    email_all_targets( task_name: EVENT,
-                       event: EVENT,
-                       body: msg_handler.join("\n"),
-                       debug_verbose: export_log_files_job_debug_verbose )
+                                                    debug_verbose: msg_handler.debug_verbose )
+    email_all_targets( task_name: EVENT, event: EVENT )
     job_finished
-
   rescue Exception => e # rubocop:disable Lint/RescueException
-    email_all_targets( task_name: EVENT,
-                       event: EVENT,
-                       body: job_msg_queue.join("\n") + e.message + "\n" + e.backtrace.join("\n"),
-                       debug_verbose: export_log_files_job_debug_verbose )
     job_status_register( exception: e, args: args )
+    email_failure( task_name: EVENT, exception: e, event: EVENT )
     raise e
-
   end
 
 end

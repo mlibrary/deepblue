@@ -159,7 +159,7 @@ module Deepblue
       @buffer = ''
     end
 
-    def join( sep = nil )
+    def join( sep = "\n" )
       return '' if @msg_queue.blank?
       return @msg_queue.join if sep.nil?
       return @msg_queue.join sep
@@ -218,9 +218,22 @@ module Deepblue
       msg_raw( msg, log: (log ? LOG_WARN : LOG_NONE), prefix: PREFIX_WARN, &block )
     end
 
-    def msg_exception( exception, include_backtrace: true, log: false )
+    def msg_exception( exception, include_backtrace: true, log: false, backtrace: 20, force_to_console: false )
+      save_to_console = to_console if force_to_console
+      @to_console = true if force_to_console
       msg_error("#{exception.class} #{exception.message} at #{exception.backtrace[0]}", log: log )
-      msg_error( exception.backtrace, log: log ) if include_backtrace
+      if include_backtrace
+        backtrace ||= 20
+        unless backtrace.is_a? Integer
+          backtrace = backtrace.to_s.to_i
+        end
+        if backtrace > 1
+          msg_error( exception.backtrace[0..backtrace], log: log )
+        else
+          msg_error( exception.backtrace, log: log )
+        end
+      end
+      @to_console = save_to_console if force_to_console
     end
 
     def msg_with_rv( rv, msg:, log: LOG_NONE, prefix: PREFIX_NONE )

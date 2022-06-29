@@ -27,9 +27,8 @@ END_OF_SCHEDULER_ENTRY
   queue_as :scheduler
 
   def perform( *args )
-    initialize_options_from( *args, debug_verbose: ::Deepblue::JobTaskHelper.globus_errors_report_job_debug_verbose )
+    initialize_options_from( *args, debug_verbose: ::Deepblue::JobTaskHelper.doi_pending_report_job_debug_verbose )
     log( event: "globus errors report job", hostname_allowed: hostname_allowed? )
-    is_quiet?
     return job_finished unless by_request_only? && from_dashboard.present?
     return job_finished unless hostname_allowed?
     reporter = ::Deepblue::DoiPendingReporter.new( msg_handler: msg_handler,
@@ -46,8 +45,8 @@ END_OF_SCHEDULER_ENTRY
     job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
     job_status_register( exception: e, args: args )
-    email_failure( task_name: self.class.name, exception: e, event: self.class.name )
-    raise
+    email_failure( task_name: EVENT, exception: e, event: EVENT )
+    raise e
   end
 
   def suppress_if_quiet

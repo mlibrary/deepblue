@@ -34,8 +34,6 @@ RSpec.describe EnsureDoiMintedJob do
         expect(args[:msg_handler].msg_queue).to eq []
         expect(args[:msg_handler].to_console).to eq false
         expect(args[:msg_handler].verbose).to eq false
-        expect(args[:task]).to eq false
-        # expect(args[:debug_verbose]).to eq debug_verbose
       end
       ActiveJob::Base.queue_adapter = :test
       job.perform_now # arguments set in the describe_class.send :job_or_instatiate above

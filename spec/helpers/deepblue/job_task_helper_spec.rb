@@ -62,40 +62,34 @@ RSpec.describe Deepblue::JobTaskHelper, type: :helper do
     it { expect( subject ).to eq( Rails.configuration.hostname ) }
   end
 
-  describe '.hostname_allowed' do
-    let(:task) { false }
-
-    context 'when hostname not allowed' do
-      let(:hostnames) { [] }
-      let(:options)   { { 'hostnames' => hostnames, 'quiet' => true } }
-      subject { described_class.hostname_allowed( job: job, options: options ) }
-      before do
-        #expect( job ).to receive( :options ).and_return options
-        expect( job ).to receive( :job_options_value ).with( options,
-                                                             key: 'hostnames',
-                                                             default_value: [],
-                                                             verbose: false,
-                                                             task: task ).and_call_original
-      end
-      it { expect( subject ).to eq( false ) }
-    end
-
-    context 'when hostname allowed' do
-      let(:hostnames) { [Rails.configuration.hostname] }
-      let(:options)   { { 'hostnames' => hostnames, 'quiet' => true } }
-      subject { described_class.hostname_allowed( job: job, options: options ) }
-      before do
-        #expect( job ).to receive( :options ).and_return options
-        expect( job ).to receive( :job_options_value ).with( options,
-                                                             key: 'hostnames',
-                                                             default_value: [],
-                                                             verbose: false,
-                                                             task: task ).and_call_original
-      end
-      it { expect( subject ).to eq( true ) }
-    end
-
-  end
+  # describe '.hostname_allowed' do
+  #   let(:task) { false }
+  #
+  #   context 'when hostname not allowed' do
+  #     let(:hostnames) { [] }
+  #     let(:options)   { { 'hostnames' => hostnames, 'quiet' => true } }
+  #     subject { described_class.hostname_allowed( job: job, options: options ) }
+  #     before do
+  #       #expect( job ).to receive( :options ).and_return options
+  #       expect( job ).to receive( :job_options_value ).with( key: 'hostnames',
+  #                                                            default_value: [] ).and_call_original
+  #     end
+  #     it { expect( subject ).to eq( false ) }
+  #   end
+  #
+  #   context 'when hostname allowed' do
+  #     let(:hostnames) { [Rails.configuration.hostname] }
+  #     let(:options)   { { 'hostnames' => hostnames, 'quiet' => true } }
+  #     subject { described_class.hostname_allowed( job: job, options: options ) }
+  #     before do
+  #       #expect( job ).to receive( :options ).and_return options
+  #       expect( job ).to receive( :job_options_value ).with( key: 'hostnames',
+  #                                                            default_value: [] ).and_call_original
+  #     end
+  #     it { expect( subject ).to eq( true ) }
+  #   end
+  #
+  # end
 
   describe '.normalize_args' do
 

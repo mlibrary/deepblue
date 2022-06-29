@@ -7,16 +7,15 @@ module Deepblue
 
   class EnsureDoiMintedTask < AbstractTask
 
+    attr_accessor :id
+
     def initialize( id:, options: {} )
       @id = id
       super( options: options )
     end
 
     def run
-      DoiMintingService.ensure_doi_minted( id: @id,
-                                           msg_handler: msg_handler,
-                                           task: true,
-                                           debug_verbose: false )
+      DoiMintingService.ensure_doi_minted( id: @id, msg_handler: msg_handler )
     end
 
   end

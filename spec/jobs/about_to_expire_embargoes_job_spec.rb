@@ -51,18 +51,17 @@ RSpec.describe AboutToExpireEmbargoesJob do
         test_mode = described_class.default_args[:test_mode] if test_mode.blank?
         expect( described_class.about_to_expire_embargoes_job_debug_verbose ).to eq false
         expect(job).to receive(:initialize_from_args).with( any_args ).and_call_original
-        { verbose:              described_class.default_args[:verbose],
-          task:                 described_class.default_args[:task] }.each_pair do |key,value|
-
-          expect(job).to receive(:job_options_value).with( options,
-                                                           key: key.to_s,
+        { quiet:                false,
+          task:                 false,
+          verbose:              false
+        }.each_pair do |key,value|
+          expect(job).to receive(:job_options_value).with( key: key.to_s,
                                                            default_value: value,
-                                                           verbose: false,
-                                                           task: false ).at_least(:once).and_call_original
+                                                           no_msg_handler: true ).at_least(:once).and_call_original
         end
         { by_request_only:      described_class.default_args[:by_request_only],
           from_dashboard:       described_class.default_args[:from_dashboard],
-          is_quiet:             described_class.default_args[:is_quiet],
+          # is_quiet:             described_class.default_args[:is_quiet],
           job_delay:            0,
           email_results_to:     [],
           subscription_service_id: nil,
@@ -70,20 +69,11 @@ RSpec.describe AboutToExpireEmbargoesJob do
           email_owner:          described_class.default_args[:email_owner],
           expiration_lead_days: described_class.default_args[:expiration_lead_days],
           skip_file_sets:       described_class.default_args[:skip_file_sets],
-          test_mode:            described_class.default_args[:test_mode] }.each_pair do |key,value|
-
-          expect(job).to receive(:job_options_value).with( options,
-                                                           key: key.to_s,
-                                                           default_value: value,
-                                                           verbose: verbose,
-                                                           task: false ).at_least(:once).and_call_original
-        end
-        { email_owner:          described_class.default_args[:email_owner],
-          expiration_lead_days: described_class.default_args[:expiration_lead_days],
-          skip_file_sets:       described_class.default_args[:skip_file_sets],
-          test_mode:            described_class.default_args[:test_mode] }.each_pair do |key,value|
-
-          expect(job).to receive(:options_value).with( key: key.to_s, default_value: value ).and_call_original
+          test_mode:            described_class.default_args[:test_mode],
+          user_email:           []
+        }.each_pair do |key,value|
+          expect(job).to receive(:job_options_value).with( key: key.to_s,
+                                                           default_value: value ).at_least(:once).and_call_original
         end
         expect(sched_helper).to receive(:log).with(class_name: described_class.name, event: event_name )
         if 0 < debug_verbose_count
@@ -100,10 +90,10 @@ RSpec.describe AboutToExpireEmbargoesJob do
             expect(args[:test_mode]).to eq test_mode
             # expect(args[:verbose]).to eq verbose
             expect(args[:msg_handler].is_a? ::Deepblue::MessageHandler).to eq true
-            expect(args[:msg_handler].msg_queue).to eq []
+            # expect(args[:msg_handler].msg_queue).to eq []
             expect(args[:msg_handler].to_console).to eq false
             expect(args[:msg_handler].verbose).to eq verbose
-            expect(args[:msg_handler].debug_verbose).to eq false
+            expect(args[:msg_handler].debug_verbose).to eq dbg_verbose
           end.and_return service
           expect(job).to receive(:email_results).with(any_args)
         else

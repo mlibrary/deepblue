@@ -31,12 +31,11 @@ RSpec.describe CleanBlacklightQueryCacheJob do
         expect(args[:start_day_span]).to eq expected_args[:start_day_span]
         expect(args[:max_day_spans]).to eq expected_args[:max_day_spans]
         expect(args[:msg_handler].is_a? ::Deepblue::MessageHandler).to eq true
-        expect(args[:msg_handler].msg_queue).to eq []
+        # expect(args[:msg_handler].msg_queue).to eq []
         expect(args[:msg_handler].to_console).to eq false
         expect(args[:msg_handler].verbose).to eq expected_args[:verbose]
         expect(args[:task]).to eq false
         expect(args[:verbose]).to eq expected_args[:verbose]
-        # expect(args[:debug_verbose]).to eq false
       end
       ActiveJob::Base.queue_adapter = :test
       job.perform_now # arguments set in the describe_class.send :job_or_instatiate above

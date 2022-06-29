@@ -31,7 +31,6 @@ RSpec.describe ExportDocumentationJob do
         expect(args[:id]).to eq ::Deepblue::WorkViewContentService.content_documentation_collection_id
         expect(args[:options]).to eq expected_args[:options]
         expect(args[:msg_queue]).to eq []
-        # expect(args[:debug_verbose]).to eq false
       end.and_return service
       expect(service).to receive(:run).with(no_args)
       ActiveJob::Base.queue_adapter = :test

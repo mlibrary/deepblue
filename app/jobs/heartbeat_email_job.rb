@@ -34,11 +34,8 @@ END_OF_SCHEDULER_ENTRY
 
   def perform( *args )
     event = "heartbeat email job"
-    # puts "args=#{args}"
     initialize_options_from( *args, debug_verbose: heartbeat_email_job_debug_verbose )
-    # puts "options=#{options}"
-    allowed = hostname_allowed?(debug_verbose: heartbeat_email_job_debug_verbose)
-    # puts "hostname_allowed?=#{allowed}"
+    allowed = hostname_allowed?
     log( event: event, hostname_allowed: allowed )
     return job_finished unless allowed
     from_config = ::Deepblue::SchedulerIntegrationService.scheduler_heartbeat_email_targets.dup

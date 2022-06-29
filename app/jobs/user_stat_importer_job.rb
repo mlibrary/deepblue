@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
-class UserStatImporterJob < ::Hyrax::ApplicationJob
+class UserStatImporterJob < ::Deepblue::DeepblueJob
 
-  USER_STAT_IMPORTER_JOB_DEBUG_VERBOSE = ::Deepblue::JobTaskHelper.user_stat_importer_job_debug_verbose
+  mattr_accessor :user_stat_importer_job_debug_verbose,
+                 default: ::Deepblue::JobTaskHelper.user_stat_importer_job_debug_verbose
 
 SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 
@@ -23,27 +24,19 @@ user_stat_importer_job:
 END_OF_SCHEDULER_ENTRY
 
 
-  include JobHelper # see JobHelper for :by_request_only, :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as :scheduler
 
-  attr_accessor :hostnames, :options, :verbose
+  EVENT = "user stat importer"
 
   def perform( *args )
-    timestamp_begin
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "" ] if USER_STAT_IMPORTER_JOB_DEBUG_VERBOSE
-    ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event: "user stat importer" )
-    ::Deepblue::JobTaskHelper.has_options( *args, job: self, debug_verbose: USER_STAT_IMPORTER_JOB_DEBUG_VERBOSE )
-    ::Deepblue::JobTaskHelper.is_verbose( job: self, debug_verbose: USER_STAT_IMPORTER_JOB_DEBUG_VERBOSE )
-    return unless ::Deepblue::JobTaskHelper.hostname_allowed( job: self,
-                                                              options: options,
-                                                              debug_verbose: USER_STAT_IMPORTER_JOB_DEBUG_VERBOSE )
-    test = job_options_value( options, key: 'test', default_value: true, verbose: verbose )
-    echo_to_stdout = job_options_value( options, key: 'echo_to_stdout', default_value: false, verbose: verbose )
-    logging = job_options_value( options, key: 'logging', default_value: false, verbose: verbose )
-    number_of_retries = job_options_value( options, key: 'number_of_retries', default_value: nil, verbose: verbose )
-    delay_secs = job_options_value( options, key: 'delay_secs', default_value: nil, verbose: verbose )
+    initialize_options_from( *args, id: id, debug_verbose: user_stat_importer_job_debug_verbose )
+    ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event: EVENT, hostname_allowed: hostname_allowed? )
+    return job_finished unless hostname_allowed?
+    test = job_options_value( key: 'test', default_value: true )
+    echo_to_stdout = job_options_value( key: 'echo_to_stdout', default_value: false )
+    logging = job_options_value( key: 'logging', default_value: false )
+    number_of_retries = job_options_value( key: 'number_of_retries', default_value: nil )
+    delay_secs = job_options_value( key: 'delay_secs', default_value: nil )
     importer = Hyrax::UserStatImporter.new( echo_to_stdout: echo_to_stdout,
                                             verbose: verbose,
                                             delay_secs: delay_secs,
@@ -52,8 +45,8 @@ END_OF_SCHEDULER_ENTRY
                                             test: test )
     importer.import
   rescue Exception => e # rubocop:disable Lint/RescueException
-    Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
-    Rails.logger.error e.backtrace.join("\n")
+    job_status_register( exception: e, args: args )
+    email_failure( task_name: EVENT, exception: e, event: EVENT )
     raise e
   end
 

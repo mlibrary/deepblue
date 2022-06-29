@@ -102,7 +102,7 @@ module Deepblue
 
     def ensure_doi_minted
       ::Deepblue::DoiMintingService.ensure_doi_minted( curation_concern: self,
-                                                       task: false,
+                                                       msg_handler: ::Deepblue::MessageHandler.new,
                                                        debug_verbose: doi_behavior_debug_verbose )
     end
 

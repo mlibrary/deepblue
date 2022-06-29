@@ -80,12 +80,13 @@ RSpec.describe ::Deepblue::MessageHandler do
     let( :msg_queue1 ) { ['line 1'] }
     let( :msg_queue2 ) { ['line 1', 'line 2'] }
     let( :sep ) { '-' }
+    let( :default_sep ) { "\n" }
 
     it 'correctly joins with no separator' do
       expect( described_class.new( msg_queue: msg_queue_nil ).join ).to eq ''
-      expect( described_class.new( msg_queue: msg_queue0 ).join ).to eq msg_queue0.join
-      expect( described_class.new( msg_queue: msg_queue1 ).join ).to eq msg_queue1.join
-      expect( described_class.new( msg_queue: msg_queue2 ).join ).to eq msg_queue2.join
+      expect( described_class.new( msg_queue: msg_queue0 ).join ).to eq msg_queue0.join(default_sep)
+      expect( described_class.new( msg_queue: msg_queue1 ).join ).to eq msg_queue1.join(default_sep)
+      expect( described_class.new( msg_queue: msg_queue2 ).join ).to eq msg_queue2.join(default_sep)
     end
 
     it 'correctly joins with separator' do

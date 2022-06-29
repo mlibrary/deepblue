@@ -41,7 +41,7 @@ class ReportTaskJob < ::Hyrax::ApplicationJob
     run_report
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "job_msg_queue=#{job_msg_queue}",
+                                           "msg_handler.msg_queue=#{msg_handler.msg_queue}",
                                            "" ] if report_task_job_debug_verbose
     email_results
   rescue Exception => e # rubocop:disable Lint/RescueException
@@ -67,7 +67,7 @@ class ReportTaskJob < ::Hyrax::ApplicationJob
                                        reporter: reporter,
                                        allowed_path_extensions: report_task_allowed_path_extensions,
                                        allowed_path_prefixes: report_task_allowed_path_prefixes,
-                                       msg_queue: job_msg_queue,
+                                       msg_queue: msg_handler.msg_queue,
                                        verbose: false,
                                        options: options )
     task.run

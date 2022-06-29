@@ -10,7 +10,6 @@ class MultipleIngestScriptsJob < ::Deepblue::DeepblueJob
   mattr_accessor :scripts_allowed_path_prefixes,
                  default: [ '/deepbluedata-prep/', './data/reports/', '/deepbluedata-globus/upload/' ]
 
-  include JobHelper # see JobHelper for :by_request_only, :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as Hyrax.config.ingest_queue_name
 
   attr_accessor :ingest_mode, :ingester, :paths_to_scripts
@@ -25,12 +24,12 @@ class MultipleIngestScriptsJob < ::Deepblue::DeepblueJob
     initialize_with( debug_verbose: debug_verbose, options: options )
     email_targets << ingester if ingester.present?
     msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                 ::Deepblue::LoggingHelper.called_from,
-                                 "ingest_mode=#{ingest_mode}",
-                                 "ingester=#{ingester}",
-                                 "paths_to_scripts=#{paths_to_scripts}",
-                                 "options=#{options}",
-                                 "" ] if msg_handler.debug_verbose
+                             ::Deepblue::LoggingHelper.called_from,
+                             "ingest_mode=#{ingest_mode}",
+                             "ingester=#{ingester}",
+                             "paths_to_scripts=#{paths_to_scripts}",
+                             "options=#{options}",
+                             "" ] if debug_verbose
     self.ingest_mode = ingest_mode
     self.ingester = ingester
     init_paths_to_scripts paths_to_scripts
@@ -39,11 +38,16 @@ class MultipleIngestScriptsJob < ::Deepblue::DeepblueJob
     self.paths_to_scripts.each do |script_path|
       ingest_script_run( path_to_script: script_path )
     end
-    email_results( msg_handler: msg_handler, debug_verbose: debug_verbose )
+    email_results
     job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
-    msg_handler.msg_exception e
-    email_failure( exception: e, targets: [ingester], msg_handler: msg_handler, debug_verbose: debug_verbose )
+    # msg_handler.msg_exception( e, force_to_console: true )
+    job_status_register( exception: e, rails_log: true, args: { ingest_mode: ingest_mode,
+                                                                ingester: ingester,
+                                                                paths_to_scripts: paths_to_scripts,
+                                                                debug_verbose: debug_verbose,
+                                                                options: options } )
+    email_failure( exception: e, targets: [ingester] )
     raise e
   end
 
@@ -53,15 +57,15 @@ class MultipleIngestScriptsJob < ::Deepblue::DeepblueJob
 
   def ingest_script_run( path_to_script: )
     msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                  ::Deepblue::LoggingHelper.called_from,
-                                  "path_to_script=#{path_to_script}",
-                                  "" ] if msg_handler.debug_verbose
+                             ::Deepblue::LoggingHelper.called_from,
+                             "path_to_script=#{path_to_script}",
+                             "" ] if msg_handler.debug_verbose
     return true unless ::Deepblue::IngestIntegrationService.ingest_append_ui_allow_scripts_to_run
     return false if path_to_script.blank?
     msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                  ::Deepblue::LoggingHelper.called_from,
-                                  "IngestAppendScriptJob.perform_now( path_to_script: #{path_to_script}, ingester: #{ingester} )",
-                                  "" ] if msg_handler.debug_verbose
+                             ::Deepblue::LoggingHelper.called_from,
+                             "IngestAppendScriptJob.perform_now( path_to_script: #{path_to_script}, ingester: #{ingester} )",
+                              "" ] if msg_handler.debug_verbose
     IngestScriptJob.perform_now( ingest_mode: ingest_mode,
                                  ingester: ingester,
                                  path_to_script: path_to_script )
