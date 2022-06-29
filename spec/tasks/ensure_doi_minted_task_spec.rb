@@ -15,8 +15,8 @@ RSpec.describe ::Deepblue::EnsureDoiMintedTask do
         expect(args[:id]).to eq id
         expect(args[:msg_handler].is_a? ::Deepblue::MessageHandler).to eq true
         expect(args[:msg_handler].to_console).to eq true
-        expect(args[:task]).to eq true
-        expect(args[:debug_verbose]).to eq false
+        # expect(args[:task]).to eq true
+        expect(args[:debug_verbose]).to eq nil
       end
       task.run
     end

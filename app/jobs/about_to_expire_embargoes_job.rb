@@ -35,45 +35,36 @@ about_to_deactivate_embargoes_job:
 
 END_OF_SCHEDULER_ENTRY
 
-  include JobHelper # see JobHelper for :by_request_only, :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as :scheduler
 
   def perform( *args )
-    debug_verbose = debug_verbose || about_to_expire_embargoes_job_debug_verbose
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "args=#{args}",
-                                           ::Deepblue::LoggingHelper.obj_class( 'args', args ),
-                                           "" ] if debug_verbose
-    initialized = initialize_from_args *args
+    initialized = initialize_from_args( *args, debug_verbose: about_to_expire_embargoes_job_debug_verbose )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "initialized=#{initialized}",
-                                           "" ] if debug_verbose
+                                           "" ] if msg_handler.debug_verbose
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name,  event: event_name )
     return unless initialized
-    email_owner          = options_value( key: 'email_owner',          default_value: default_args[:email_owner] )
-    expiration_lead_days = options_value( key: 'expiration_lead_days', default_value: default_args[:expiration_lead_days] )
-    skip_file_sets       = options_value( key: 'skip_file_sets',       default_value: default_args[:skip_file_sets] )
-    test_mode            = options_value( key: 'test_mode',            default_value: default_args[:test_mode] )
-    msg_handler.verbose = verbose
+    email_owner          = job_options_value( key: 'email_owner',          default_value: default_args[:email_owner] )
+    expiration_lead_days = job_options_value( key: 'expiration_lead_days', default_value: default_args[:expiration_lead_days] )
+    skip_file_sets       = job_options_value( key: 'skip_file_sets',       default_value: default_args[:skip_file_sets] )
+    test_mode            = job_options_value( key: 'test_mode',            default_value: default_args[:test_mode] )
     ::Deepblue::AboutToExpireEmbargoesService.new( email_owner: email_owner,
                                                    expiration_lead_days: expiration_lead_days,
                                                    msg_handler: msg_handler,
                                                    skip_file_sets: skip_file_sets,
                                                    test_mode: test_mode,
-                                                   # verbose: verbose,
-                                                   debug_verbose: debug_verbose ).run
+                                                   debug_verbose: msg_handler.debug_verbose ).run
     timestamp_end = DateTime.now
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "job_msg_queue=#{job_msg_queue}",
+                                           "msg_handler.msg_queue=#{msg_handler.msg_queue}",
                                            "timestamp_end=#{timestamp_end}",
-                                           "" ] if debug_verbose
+                                           "" ] if msg_handler.debug_verbose
     email_results( task_name: task_name, event: event_name )
+    job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
-    Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
-    Rails.logger.error e.backtrace[0..20].join("\n")
+    job_status_register( exception: e, args: args, rails_log: true )
     email_failure( task_name: task_name, exception: e, event: event_name )
     raise e
   end

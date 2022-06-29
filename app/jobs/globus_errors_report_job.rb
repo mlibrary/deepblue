@@ -29,10 +29,9 @@ END_OF_SCHEDULER_ENTRY
   def perform( *args )
     initialize_options_from( *args, debug_verbose: ::Deepblue::JobTaskHelper.globus_errors_report_job_debug_verbose )
     log( event: "globus errors report job", hostname_allowed: hostname_allowed? )
-    is_quiet?
     return job_finished unless by_request_only? && from_dashboard.present?
     return job_finished unless hostname_allowed?
-    report = ::Deepblue::GlobusIntegrationService.globus_errors_report( quiet: is_quiet?,
+    report = ::Deepblue::GlobusIntegrationService.globus_errors_report( quiet: msg_handler.quiet,
                                                                         msg_handler: msg_handler,
                                                                         debug_verbose: debug_verbose )
     if report.out.present? && !suppress_if_quiet

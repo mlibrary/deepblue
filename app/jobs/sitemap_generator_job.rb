@@ -26,19 +26,13 @@ END_OF_SCHEDULER_ENTRY
 
   queue_as :default
 
+  EVENT = 'sitemap generator'
+
   def perform( *args )
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "args=#{args}",
-                                           "" ] if sitemap_generator_job_debug_verbose
-    debug_verbose = sitemap_generator_job_debug_verbose
     initialize_options_from( *args, debug_verbose: sitemap_generator_job_debug_verbose )
     log( event: "sitemap generator job", hostname_allowed: hostname_allowed? )
-    is_quiet?
     return job_finished unless hostname_allowed?
-
     Deepblue::SitemapGeneratorService.generate_sitemap
-
     job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
     job_status_register( exception: e, args: args )

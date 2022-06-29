@@ -29,24 +29,19 @@ END_OF_SCHEDULER_ENTRY
   queue_as :scheduler
 
   def perform( *args )
-    job_msg_queue << "Start processing at #{DateTime.now}"    
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "args=#{args}",
-                                           "" ] if reset_condensed_events_job_debug_verbose
     initialize_options_from( *args, debug_verbose: reset_condensed_events_job_debug_verbose )
     return job_finished unless hostname_allowed?
+    msg_handler.msg "Start processing at #{DateTime.now}"
     log( event: "reset condensed events job", hostname_allowed: hostname_allowed? )
-    is_quiet?
-    job_msg_queue << "Start dropping condensed events at #{DateTime.now}"
+    msg_handler.msg "Start dropping condensed events at #{DateTime.now}"
     ::AnalyticsHelper.drop_condensed_event_downloads
-    job_msg_queue << "Done dropping condensed events at #{DateTime.now}"
-    job_msg_queue << "Start initializing condensed events at #{DateTime.now}"
+    msg_handler.msg "Done dropping condensed events at #{DateTime.now}"
+    msg_handler.msg "Start initializing condensed events at #{DateTime.now}"
     ::AnalyticsHelper.initialize_condensed_event_downloads
-    job_msg_queue << "Done initializing condensed events at #{DateTime.now}"
+    msg_handler.msg "Done initializing condensed events at #{DateTime.now}"
 
     job_finished
-    job_msg_queue << "Finished processing at #{DateTime.now}"
+    msg_handler.msg "Finished processing at #{DateTime.now}"
     email_results
   rescue Exception => e # rubocop:disable Lint/RescueException
     job_status_register( exception: e, args: args )

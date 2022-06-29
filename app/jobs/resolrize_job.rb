@@ -35,13 +35,12 @@ END_OF_SCHEDULER_ENTRY
                                            "" ] if resolrize_job_debug_verbose
     initialize_options_from( *args, debug_verbose: resolrize_job_debug_verbose )
     return job_finished unless hostname_allowed?
-    job_msg_queue << "Start processing at #{DateTime.now}"
+    msg_handler.msg "Start processing at #{DateTime.now}"
     log( event: "resolrize job", hostname_allowed: hostname_allowed? )
-    is_quiet?
     ActiveFedora::Base.reindex_everything2( logger: Rails.logger,
-                                            job_msg_queue: job_msg_queue,
+                                            job_msg_queue: msg_handler.msg_queue,
                                             debug_verbose: resolrize_job_debug_verbose )
-    job_msg_queue << "Finished processing at #{DateTime.now}"
+    msg_handler.msg "Finished processing at #{DateTime.now}"
     job_finished
     email_results
   rescue Exception => e # rubocop:disable Lint/RescueException

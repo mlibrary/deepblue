@@ -33,32 +33,32 @@ RSpec.describe FindAndFixJob, skip: false do
         expect( described_class.find_and_fix_job_debug_verbose ).to eq dbg_verbose
         expect(job).to_not receive(:email_failure).with(any_args)
         expect(job).to receive( :initialize_from_args ).with( any_args ).and_call_original
-        { task:                 false,
-          verbose:              false,
-          by_request_only:      false,
-          from_dashboard:       '',
-          is_quiet:             false,
-          job_delay:            0,
-          email_results_to:     [],
-          subscription_service_id: nil,
-          hostnames:            [] }.each_pair do |key,value|
-
-          expect(job).to receive(:job_options_value).with( options,
-                                                           key: key.to_s,
+        { quiet:                false,
+          task:                 false,
+          verbose:              false
+        }.each_pair do |key,value|
+          expect(job).to receive(:job_options_value).with( key: key.to_s,
                                                            default_value: value,
-                                                           verbose: false,
-                                                           task: false ).and_call_original
+                                                           no_msg_handler: true ).at_least(:once).and_call_original
+        end
+        { by_request_only:         false,
+          from_dashboard:          '',
+          email_results_to:        [],
+          hostnames:               [],
+          job_delay:            0,
+          subscription_service_id: nil,
+          user_email:              []
+        }.each_pair do |key,value|
+          expect(job).to receive(:job_options_value).with( key: key.to_s,
+                                                           default_value: value ).at_least(:once).and_call_original
         end
         expect(sched_helper).to receive(:log).with( class_name: described_class.name )
         if run_on_server
           { filter_date_begin:    nil,
             filter_date_end:      nil }.each_pair do |key,value|
 
-            expect(job).to receive(:job_options_value).with( options,
-                                                             key: key.to_s,
-                                                             default_value: value,
-                                                             verbose: false,
-                                                             task: false ).and_call_original
+            expect(job).to receive(:job_options_value).with( key: key.to_s,
+                                                             default_value: value ).and_call_original
           end
           expect(job).to receive(:run_job_delay).with(no_args) #.and_call_original
           expect(job).to receive(:email_results).with(any_args)

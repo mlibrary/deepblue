@@ -64,24 +64,16 @@ module Deepblue
 
     def self.ensure_doi_minted( id: nil,
                                 curation_concern: nil,
-                                debug_verbose: doi_minting_service_debug_verbose || doi_ensure_doi_minted_debug_verbose,
-                                task: false,
-                                msg_handler: nil )
+                                msg_handler:,
+                                debug_verbose: doi_minting_service_debug_verbose || doi_ensure_doi_minted_debug_verbose )
 
       debug_verbose = debug_verbose || doi_minting_service_debug_verbose || doi_ensure_doi_minted_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
                                              "curation_concern.nil?=#{curation_concern.nil?}",
-                                             "task=#{task}",
                                              "msg_handler=#{msg_handler}",
                                              "" ] if debug_verbose
-      if msg_handler.blank?
-        msg_queue = task ? nil : []
-        msg_handler = ::Deepblue::MessageHandler.new( msg_queue: msg_queue,
-                                                      to_console: task,
-                                                      debug_verbose: debug_verbose )
-      end
       id ||= curation_concern&.id
       w = curation_concern
       w ||= ::PersistHelper.find id
@@ -98,7 +90,7 @@ module Deepblue
         msg_handler.msg "#{id} work not found. Can't mint DOI."
         return false
       end
-      datacite = datacite_registrar( debug_verbose: debug_verbose, task: task )
+      datacite = datacite_registrar( debug_verbose: debug_verbose, task: msg_handler.to_console )
       url = datacite.work_url(w)
       doi = w.doi
       doi_minted = w.doi_minted?

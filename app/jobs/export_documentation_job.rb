@@ -29,16 +29,17 @@ export_log_files_job:
 
   END_OF_SCHEDULER_ENTRY
 
+  EVENT = "export documentation"
+
   def perform( id: ::Deepblue::WorkViewContentService.content_documentation_collection_id,
                export_path: ::Deepblue::WorkViewContentService.export_documentation_path,
                user_email: nil )
-    initialize_with( debug_verbose: export_documentation_job_debug_verbose )
-    job_status.main_cc_id = id
-    job_status.save!
+    initialize_with( id: id, debug_verbose: export_documentation_job_debug_verbose )
     @from_dashboard = user_email
-    # initialize_options_from( *args, debug_verbose: export_documentation_job_debug_verbose )
-    # export_path = job_options_value( options, key: 'export_path', default_value: nil )
-    # id = options[:id]
+    allowed = hostname_allowed?
+    log( event: EVENT, hostname_allowed: allowed )
+    return job_finished unless allowed
+    # export_path = job_options_value( key: 'export_path', default_value: nil )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "id=#{id}",
@@ -49,19 +50,13 @@ export_log_files_job:
                      "export_files" => true,
                      "mode" => "build" }
     log( event: "export documentation job", **task_options )
-    task = ::Deepblue::YamlPopulateFromCollection.new( id: id, options: task_options, msg_queue: job_msg_queue )
+    task = ::Deepblue::YamlPopulateFromCollection.new( id: id, options: task_options, msg_queue: msg_handler.msg_queue )
     task.run
-    email_all_targets( task_name: "export documentation",
-                       event: "export documentation" ,
-                       body: job_msg_queue.join("\n"),
-                       debug_verbose: export_documentation_job_debug_verbose )
+    email_all_targets( task_name: EVENT, event: EVENT )
     job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
-    email_all_targets( task_name: "export documentation",
-                       event: "export documentation" ,
-                       body: job_msg_queue.join("\n") + e.message + "\n" + e.backtrace.join("\n"),
-                       debug_verbose: export_documentation_job_debug_verbose )
     job_status_register( exception: e, args: { id: id, export_path: export_path, user_email: user_email } )
+    email_failure( task_name: EVENT, exception: e, event: EVENT )
     raise e
   end
 

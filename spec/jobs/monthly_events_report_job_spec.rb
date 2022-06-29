@@ -34,20 +34,23 @@ RSpec.describe MonthlyEventsReportJob, skip: false do
 
         expect( described_class.monthly_events_report_job_debug_verbose ).to eq dbg_verbose
         expect( job ).to receive( :initialize_options_from ).with( any_args ).and_call_original
-        { hostnames:            [],
+        { # quiet:                false,
           task:                 false,
-          verbose:              false,
-          by_request_only:      false,
-          email_results_to:     '',
-          quiet:                false,
-          # hostnames:            [],
-          user_email:           '' }.each_pair do |key,value|
-
-          expect(job).to receive(:job_options_value).with( options,
-                                                           key: key.to_s,
+          verbose:              false
+        }.each_pair do |key,value|
+          expect(job).to receive(:job_options_value).with( key: key.to_s,
                                                            default_value: value,
-                                                           task: false,
-                                                           verbose: false ).at_least(:once).and_call_original
+                                                           no_msg_handler: true ).at_least(:once).and_call_original
+        end
+        { by_request_only:         false,
+          # from_dashboard:          '',
+          email_results_to:        [],
+          hostnames:               [],
+          subscription_service_id: nil,
+          user_email:              []
+        }.each_pair do |key,value|
+          expect(job).to receive(:job_options_value).with( key: key.to_s,
+                                                           default_value: value ).at_least(:once).and_call_original
         end
         expect(sched_helper).to receive(:log) do |args|
           expect( args[:class_name]).to eq described_class.name
@@ -56,11 +59,8 @@ RSpec.describe MonthlyEventsReportJob, skip: false do
         expect(sched_helper).to receive(:scheduler_log_echo_to_rails_logger).with(any_args).and_return false
         expect( job ).to receive(:quiet).with(any_args)
         if run_on_server
-          expect( job ).to receive( :job_options_value ).with( options,
-                                                               key: 'this_month',
-                                                               default_value: false,
-                                                               task: false,
-                                                               verbose: false ).and_call_original
+          expect(job).to receive(:job_options_value).with( key: 'this_month',
+                                                           default_value: false ).and_call_original
           expect(::AnalyticsHelper).to receive(:monthly_events_report).with(no_args)
         else
           expect(::AnalyticsHelper).to_not receive(:monthly_events_report).with(any_args)

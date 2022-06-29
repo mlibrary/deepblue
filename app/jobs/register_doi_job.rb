@@ -15,8 +15,7 @@ class RegisterDoiJob < ::Deepblue::DeepblueJob
               registrar: nil,
               registrar_opts: {})
 
-    initialize_no_args_hash( debug_verbose: debug_verbose )
-    id = model&.id
+    initialize_no_args_hash( id: model&.id, debug_verbose: debug_verbose )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "model.class.name=#{model.class.name}",
@@ -33,8 +32,15 @@ class RegisterDoiJob < ::Deepblue::DeepblueJob
                                                       registrar_opts: registrar_opts )
     job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
-    Rails.logger.error "RegisterDoiJob.perform(#{model&.id}, #{e.class}: #{e.message} at #{e.backtrace[0]}"
-    raise
+    job_status_register( exception: e,
+                         rails_log: true,
+                         args: { model: model,
+                                 current_user: current_user,
+                                 registrar: registrar,
+                                 registrar_opts: registrar_opts,
+                                 debug_verbose: debug_verbose } )
+    email_failure( task_name: task_name, exception: e, event: event_name )
+    raise e
   end
 
 end

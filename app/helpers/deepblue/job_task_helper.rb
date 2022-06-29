@@ -27,6 +27,7 @@ module Deepblue
     mattr_accessor :clean_blacklight_query_cache_job_debug_verbose, default: false
     mattr_accessor :deactivate_expired_embargoes_job_debug_verbose, default: false
     mattr_accessor :deepblue_job_debug_verbose,                     default: false
+    mattr_accessor :doi_pending_report_job_debug_verbose,           default: false
     mattr_accessor :ensure_doi_minted_job_debug_verbose,            default: false
     mattr_accessor :export_documentation_job_debug_verbose,         default: false
     mattr_accessor :export_log_files_job_debug_verbose,             default: false
@@ -110,6 +111,7 @@ END_BODY
                     body: body,
                     event: event,
                     event_note: event_note,
+                    msg_handler: msg_handler,
                     timestamp_begin: timestamp_begin,
                     timestamp_end: timestamp_end )
       end
@@ -127,7 +129,7 @@ END_BODY
                             exception:,
                             event:,
                             event_note: '',
-                            messages: [], # TODO: msg_handler should supercede messages
+                            messages: [],
                             timestamp_begin: nil,
                             timestamp_end: DateTime.now,
                             msg_handler: nil,
@@ -137,6 +139,7 @@ END_BODY
         job_task_helper_debug_verbose ||
         (msg_handler.nil? ? false : msg_handler.debug_verbose)
       to_console = (msg_handler.nil? ? false : msg_handler.to_console)
+      messages = msg_handler.msg_queue if messages.blank? && msg_handler.present?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "targets=#{targets}",
@@ -181,6 +184,7 @@ END_BODY
                     body: body,
                     event: event,
                     event_note: event_note,
+                    msg_handler: msg_handler,
                     timestamp_begin: timestamp_begin,
                     timestamp_end: timestamp_end )
       end
@@ -264,91 +268,79 @@ END_BODY
                     body: body,
                     event: event,
                     event_note: event_note,
+                    msg_handler: msg_handler,
                     timestamp_begin: timestamp_begin,
                     timestamp_end: timestamp_end )
       end
     end
 
-    def self.from_dashboard( job:,
-                             options: job.options,
-                             debug_verbose: job_task_helper_debug_verbose,
-                             task: false,
-                             verbose: false )
+    # def self.has_email_targets( job:,
+    #                             options: job.options,
+    #                             msg_handler: nil,
+    #                             debug_verbose: job_task_helper_debug_verbose )
+    #
+    #   debug_verbose = debug_verbose && job_task_helper_debug_verbose
+    #   subscription_service_id = job.job_options_value( options,
+    #                                                    key: 'subscription_service_id',
+    #                                                    default_value: nil )
+    #   job.subscription_service_id = subscription_service_id if job.respond_to? :subscription_service_id=
+    #   return if subscription_service_id.blank?
+    #   targets = job.email_targets
+    #   targets = ::Deepblue::EmailSubscriptionService.merge_targets_and_subscribers( targets: targets,
+    #                                                             subscription_service_id: subscription_service_id )
+    #   job.email_targets = targets
+    # end
 
-      debug_verbose = debug_verbose && job_task_helper_debug_verbose
-      job.from_dashboard = job.job_options_value( options,
-                                                  key: 'from_dashboard',
-                                                  default_value: '',
-                                                  verbose: verbose,
-                                                  task: task )
-    end
-
-    def self.has_email_targets( job:,
-                                options: job.options,
-                                debug_verbose: job_task_helper_debug_verbose,
-                                task: false,
-                                verbose: false )
-
-      debug_verbose = debug_verbose && job_task_helper_debug_verbose
-      subscription_service_id = job.job_options_value( options,
-                                                       key: 'subscription_service_id',
-                                                       default_value: nil,
-                                                       verbose: debug_verbose,
-                                                       task: task )
-      job.subscription_service_id = subscription_service_id if job.respond_to? :subscription_service_id=
-      return if subscription_service_id.blank?
-      targets = job.email_targets
-      targets = ::Deepblue::EmailSubscriptionService.merge_targets_and_subscribers( targets: targets,
-                                                                subscription_service_id: subscription_service_id )
-      job.email_targets = targets
-    end
-
-    def self.has_options( *args, job:, debug_verbose: job_task_helper_debug_verbose )
-      debug_verbose = debug_verbose && job_task_helper_debug_verbose
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if debug_verbose
-      job.options = initialize_options_from( *args, debug_verbose: debug_verbose )
-    end
+    # def self.has_options( *args, job:, msg_handler: nil, debug_verbose: job_task_helper_debug_verbose )
+    #   debug_verbose = debug_verbose && job_task_helper_debug_verbose
+    #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                          ::Deepblue::LoggingHelper.called_from,
+    #                                          "" ] if debug_verbose
+    #   job.options = initialize_options_from( *args, debug_verbose: debug_verbose )
+    # end
 
     def self.hostname
       Rails.configuration.hostname
     end
 
-    def self.hostname_allowed( job:,
-                               options:,
-                               debug_verbose: job_task_helper_debug_verbose,
-                               task: false,
-                               verbose: false )
+    # def self.hostname_allowed( job:,
+    #                            msg_handler: nil,
+    #                            options:,
+    #                            debug_verbose: job_task_helper_debug_verbose,
+    #                            task: false,
+    #                            verbose: false )
+    #
+    #   debug_verbose = debug_verbose && job_task_helper_debug_verbose
+    #   # ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+    #   #                                        ::Deepblue::LoggingHelper.called_from,
+    #   #                                       "options=#{options}",
+    #   #                                        "" ] if debug_verbose
+    #   return true unless job.job_options_key?( options, key: 'hostnames' )
+    #   # ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+    #   #                                        ::Deepblue::LoggingHelper.called_from,
+    #   #                                       "options=#{options}",
+    #   #                                        "" ] if debug_verbose
+    #   job.hostnames = job.job_options_value( key: 'hostnames', default_value: [] )
+    #   job.hostname = self.hostname
+    #   # puts "hostname=#{self.hostname}"
+    #   job.hostnames.include? job.hostname
+    # end
 
-      debug_verbose = debug_verbose && job_task_helper_debug_verbose
-      # ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
-      #                                        ::Deepblue::LoggingHelper.called_from,
-      #                                       "options=#{options}",
-      #                                        "" ] if debug_verbose
-      return true unless job.job_options_key?( options, key: 'hostnames', task: task, verbose: verbose )
-      # ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
-      #                                        ::Deepblue::LoggingHelper.called_from,
-      #                                       "options=#{options}",
-      #                                        "" ] if debug_verbose
-      job.hostnames = job.job_options_value( options,
-                                             key: 'hostnames',
-                                             default_value: [],
-                                             task: task ,
-                                             verbose: verbose )
-      job.hostname = self.hostname
-      # puts "hostname=#{self.hostname}"
-      job.hostnames.include? job.hostname
-    end
-
-    def self.initialize_options_from( *args, debug_verbose: job_task_helper_debug_verbose, task: false )
+    def self.initialize_options_from( *args, debug_verbose: job_task_helper_debug_verbose )
       debug_verbose = debug_verbose && job_task_helper_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "args=#{args}",
                                              "" ] if debug_verbose
       options = {}
-      return options.with_indifferent_access unless args.present?
+      unless args.present?
+        options = options.with_indifferent_access
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "options=#{options}",
+                                               "" ] if debug_verbose
+        return options.with_indifferent_access
+      end
       args = normalize_args( *args, debug_verbose: debug_verbose )
       args.each do |key,value|
         options[key.to_s] = value
@@ -359,44 +351,6 @@ END_BODY
                                              "options=#{options}",
                                              "" ] if debug_verbose
       return options
-    end
-
-    def self.is_quiet( job:,
-                       options: job.options,
-                       task: false,
-                       verbose: false,
-                       debug_verbose: job_task_helper_debug_verbose )
-
-      job.quiet = job.job_options_value( options,
-                                         key: 'quiet',
-                                         default_value: false,
-                                         task: task,
-                                         verbose: verbose )
-      if job.quiet
-        job.verbose = false
-      else
-        job.verbose = job.job_options_value( options,
-                                             key: 'verbose',
-                                             default_value: false,
-                                             task: task,
-                                             verbose: verbose )
-        ::Deepblue::LoggingHelper.debug "verbose=#{job.verbose}" if debug_verbose
-      end
-    end
-
-    def self.is_verbose( job:,
-                         options: job.options,
-                         default_value: false,
-                         task: false,
-                         verbose: false,
-                         debug_verbose: job_task_helper_debug_verbose )
-
-      job.verbose = job.job_options_value( options,
-                                           key: 'verbose',
-                                           default_value: default_value,
-                                           task: task,
-                                           verbose: verbose )
-      ::Deepblue::LoggingHelper.debug "verbose=#{verbose}" if debug_verbose
     end
 
     def self.jobs_running
@@ -513,6 +467,7 @@ END_BODY
                          event:,
                          event_note: '',
                          id: 'NA',
+                         msg_handler: nil,
                          timestamp_begin: nil,
                          timestamp_end: DateTime.now  )
 
@@ -579,6 +534,13 @@ END_BODY
         false
       end
     end
+
+    # def self.to_console_init( job:, options: job.options, debug_verbose: job_task_helper_debug_verbose )
+    #   debug_verbose = debug_verbose || job_task_helper_debug_verbose
+    #   rv = job.job_options_value( options, key: 'to_console', default_value: false, verbose: false )
+    #   ::Deepblue::LoggingHelper.debug "to_console=#{rv}" if debug_verbose
+    #   return rv
+    # end
 
   end
 

@@ -10,6 +10,7 @@ class DoiMintingJob < ::Deepblue::DeepblueJob
                target_url:,
                debug_verbose: ::Deepblue::DoiMintingService.doi_minting_job_debug_verbose )
 
+    debug_verbose = debug_verbose || ::Deepblue::DoiMintingService.doi_minting_job_debug_verbose
     warn "[DEPRECATION] `DoiMintingJob` is deprecated.  Please use `RegisterDoiJob` instead."
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                          ::Deepblue::LoggingHelper.called_from,
@@ -18,9 +19,7 @@ class DoiMintingJob < ::Deepblue::DeepblueJob
                                          "job_delay=#{job_delay}",
                                          "target_url=#{target_url}",
                                          "" ] if debug_verbose
-    initialize_no_args_hash( debug_verbose: debug_verbose )
-    job_status.main_cc_id = id
-    job_status.save!
+    initialize_no_args_hash( id: id, debug_verbose: debug_verbose )
     if 0 < job_delay
       return unless ::PersistHelper.find( id ).doi_pending?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -68,8 +67,16 @@ class DoiMintingJob < ::Deepblue::DeepblueJob
       end
     end
   rescue Exception => e # rubocop:disable Lint/RescueException
-    Rails.logger.error "DoiMintingJob.perform(#{id},#{job_delay}) #{e.class}: #{e.message} at #{e.backtrace[0]}"
-    raise
+    # Rails.logger.error "DoiMintingJob.perform(#{id},#{job_delay}) #{e.class}: #{e.message} at #{e.backtrace[0]}"
+    job_status_register( exception: e,
+                         rails_log: true,
+                         args: { id: id,
+                                 current_user: current_user,
+                                 job_delay: job_delay,
+                                 target_url: target_url,
+                                 debug_verbose: debug_verbose } )
+    email_failure( task_name: task_name, exception: e, event: event_name )
+    raise e
   end
 
 end

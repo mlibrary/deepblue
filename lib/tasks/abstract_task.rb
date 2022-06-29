@@ -29,12 +29,12 @@ module Deepblue
 
     def initialize( options: {}, msg_handler: nil, msg_queue: nil, debug_verbose: false )
       @debug_verbose = debug_verbose
-      @msg_handler = msg_handler
       @msg_queue = msg_queue
       @options = TaskHelper.task_options_parse options
       @options = @options.with_indifferent_access if @options.respond_to? :with_indifferent_access
       @to_console = TaskHelper.task_options_value( @options, key: 'to_console', default_value: DEFAULT_TO_CONSOLE )
       @verbose = TaskHelper.task_options_value( @options, key: 'verbose', default_value: DEFAULT_VERBOSE )
+      @msg_handler = msg_handler
       @msg_handler ||= MessageHandler.new( msg_queue: @msg_queue,
                                            to_console: @to_console,
                                            verbose: @verbose,

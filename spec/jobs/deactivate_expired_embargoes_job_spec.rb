@@ -38,8 +38,6 @@ RSpec.describe DeactivateExpiredEmbargoesJob do
       let(:event_name)    { 'deactivate expired embargoes' }
       let(:time_before)   { DateTime.now }
       before do
-        # task = args["task"]
-        # task = described_class.default_args[:task] if task.blank?
         verbose = args["verbose"]
         verbose = described_class.default_args[:verbose] if verbose.blank?
         email_owner = args["email_owner"]
@@ -50,37 +48,27 @@ RSpec.describe DeactivateExpiredEmbargoesJob do
         test_mode = described_class.default_args[:test_mode] if test_mode.blank?
         expect( described_class.deactivate_expired_embargoes_job_debug_verbose ).to eq false
         expect(job).to receive(:initialize_from_args).with( any_args ).and_call_original
-        { verbose:              described_class.default_args[:verbose],
-          task:                 described_class.default_args[:task] }.each_pair do |key,value|
-
-          expect(job).to receive(:job_options_value).with( options,
-                                                           key: key.to_s,
+        { quiet:                false,
+          task:                 false,
+          verbose:              false
+        }.each_pair do |key,value|
+          expect(job).to receive(:job_options_value).with( key: key.to_s,
                                                            default_value: value,
-                                                           verbose: false,
-                                                           task: false ).at_least(:once).and_call_original
+                                                           no_msg_handler: true ).at_least(:once).and_call_original
         end
         { by_request_only:      described_class.default_args[:by_request_only],
           from_dashboard:       described_class.default_args[:from_dashboard],
-          is_quiet:             described_class.default_args[:is_quiet],
           job_delay:            0,
           email_results_to:     [],
+          user_email:           [],
           subscription_service_id: nil,
           hostnames:            [],
           email_owner:          described_class.default_args[:email_owner],
           skip_file_sets:       described_class.default_args[:skip_file_sets],
-          test_mode:            described_class.default_args[:test_mode] }.each_pair do |key,value|
-
-          expect(job).to receive(:job_options_value).with( options,
-                                                           key: key.to_s,
-                                                           default_value: value,
-                                                           verbose: verbose,
-                                                           task: false ).at_least(:once).and_call_original
-        end
-        { email_owner:          described_class.default_args[:email_owner],
-          skip_file_sets:       described_class.default_args[:skip_file_sets],
-          test_mode:            described_class.default_args[:test_mode] }.each_pair do |key,value|
-
-          expect(job).to receive(:options_value).with( key: key.to_s, default_value: value ).and_call_original
+          test_mode:            described_class.default_args[:test_mode]
+        }.each_pair do |key,value|
+          expect(job).to receive(:job_options_value).with( key: key.to_s,
+                                                           default_value: value ).at_least(:once).and_call_original
         end
         expect(sched_helper).to receive(:log).with(class_name: described_class.name, event: event_name )
         if 0 < debug_verbose_count
@@ -90,11 +78,13 @@ RSpec.describe DeactivateExpiredEmbargoesJob do
         end
         expect(service).to receive(:run)
         if run_the_job
-          expect(::Deepblue::DeactivateExpiredEmbargoesService).to receive(:new).with(email_owner: email_owner,
-                                                    job_msg_queue: job_msg_queue,
-                                                    skip_file_sets: skip_file_sets,
-                                                    test_mode: test_mode,
-                                                    verbose: verbose ).and_return service
+          expect(::Deepblue::DeactivateExpiredEmbargoesService).to receive(:new) do |args|
+            expect(args[:email_owner]).to eq email_owner
+            # expect(args[:job_msg_queue]).to eq job_msg_queue
+            expect(args[:skip_file_sets]).to eq skip_file_sets
+            expect(args[:test_mode]).to eq test_mode
+            expect(args[:verbose]).to eq verbose
+          end.and_return service
           expect(job).to receive(:email_results).with(any_args)
         else
           expect(::Deepblue::DeactivateExpiredEmbargoesService).to_not receive(:new)

@@ -26,13 +26,13 @@ END_OF_SCHEDULER_ENTRY
   queue_as :scheduler
 
   def perform( *args )
+    msg_handler.debug_verbose = ::Deepblue::JobTaskHelper.globus_status_report_job_debug_verbose
     initialize_options_from( *args, debug_verbose: ::Deepblue::JobTaskHelper.globus_status_report_job_debug_verbose )
     log( event: "globus status report job", hostname_allowed: hostname_allowed? )
-    is_quiet?
     return job_finished unless by_request_only? && from_dashboard.present?
     return job_finished unless hostname_allowed?
     report = ::Deepblue::GlobusIntegrationService.globus_status_report( msg_handler: msg_handler,
-                                                                        quiet: is_quiet?,
+                                                                        quiet: msg_handler.quiet,
                                                                         debug_verbose: debug_verbose )
     if report.out.present?
       event = "globus status report job"

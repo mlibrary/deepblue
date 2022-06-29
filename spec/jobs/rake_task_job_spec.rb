@@ -32,22 +32,26 @@ RSpec.describe RakeTaskJob, skip: false do
       before do
         expect( described_class.rake_task_job_debug_verbose ).to eq false
         expect(job).to receive(:initialize_from_args).with( any_args ).and_call_original
-        { task:                 false,
-          verbose:              false,
-          by_request_only:      false,
+        { quiet:                false,
+          task:                 false,
+          verbose:              false
+        }.each_pair do |key,value|
+          expect(job).to receive(:job_options_value).with( key: key.to_s,
+                                                           default_value: value,
+                                                           no_msg_handler: true ).at_least(:once).and_call_original
+        end
+        { by_request_only:      false,
           from_dashboard:       '',
           is_quiet:             false,
           job_delay:            0,
           email_results_to:     [],
           subscription_service_id: nil,
           hostnames:            [],
-          rake_task:            '' }.each_pair do |key,value|
-
-          expect(job).to receive(:job_options_value).with( options,
-                                                           key: key.to_s,
-                                                           default_value: value,
-                                                           task: false,
-                                                           verbose: false ).at_least(:once).and_call_original
+          rake_task:            '',
+          user_email:           []
+        }.each_pair do |key,value|
+          expect(job).to receive(:job_options_value).with( key: key.to_s,
+                                                           default_value: value ).at_least(:once).and_call_original
         end
         if run_the_job
           expect(sched_helper).to receive(:log).with( class_name: described_class.name, event_note: rake_task )
@@ -115,7 +119,7 @@ RSpec.describe RakeTaskJob, skip: false do
   end
 
  describe '.allowed_job_task?', skip: false do
-    let(:hostnames) { [] } # needed for creation of job
+    let(:hostnames) { build(:hostnames_allowed) }
     let(:task)      { false }
     let(:verbose)   { false }
 

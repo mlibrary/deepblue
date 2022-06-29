@@ -35,19 +35,10 @@ END_OF_SCHEDULER_ENTRY
   EVENT = "clean blacklight query cache"
 
   def perform( *args )
-    debug_verbose = clean_blacklight_query_cache_job_debug_verbose
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "args=#{args}",
-                                           "" ] if debug_verbose
-    initialize_options_from( *args, debug_verbose: debug_verbose )
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "options=#{options}",
-                                           "" ] if debug_verbose
-    increment_day_span = job_options_value( options, key: 'increment_day_span', default_value: 15, verbose: verbose )
-    max_day_spans = job_options_value( options, key: 'max_day_spans', default_value: 0, verbose: verbose )
-    start_day_span = job_options_value( options, key: 'start_day_span', default_value: 30, verbose: verbose )
+    initialize_options_from( *args, debug_verbose: clean_blacklight_query_cache_job_debug_verbose )
+    increment_day_span = job_options_value( key: 'increment_day_span', default_value: 15 )
+    max_day_spans = job_options_value( key: 'max_day_spans', default_value: 0 )
+    start_day_span = job_options_value( key: 'start_day_span', default_value: 30 )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "increment_day_span=#{increment_day_span}",
@@ -63,20 +54,12 @@ END_OF_SCHEDULER_ENTRY
                                                             task: task,
                                                             verbose: verbose,
                                                             debug_verbose: debug_verbose )
-    email_all_targets( task_name: EVENT,
-                       event: EVENT ,
-                       body: msg_handler.join("\n"),
-                       debug_verbose: clean_blacklight_query_cache_job_debug_verbose )
+    email_all_targets( task_name: EVENT, event: EVENT )
     job_finished
-
   rescue Exception => e # rubocop:disable Lint/RescueException
-    email_all_targets( task_name: EVENT,
-                       event: EVENT ,
-                       body: job_msg_queue.join("\n") + e.message + "\n" + e.backtrace.join("\n"),
-                       debug_verbose: debug_verbose )
     job_status_register( exception: e, args: args )
+    email_failure( task_name: EVENT, exception: e, event: EVENT )
     raise e
-
   end
 
 end
