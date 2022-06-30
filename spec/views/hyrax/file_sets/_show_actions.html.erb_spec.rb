@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe 'hyrax/file_sets/_show_actions.html.erb', type: :view do
@@ -25,17 +27,19 @@ RSpec.describe 'hyrax/file_sets/_show_actions.html.erb', type: :view do
   end
   let(:parent_solr_doc) { SolrDocument.new (parent_doc ) }
   let(:parent_presenter) { Hyrax::DataSetPresenter.new(parent_solr_doc, ability) }
+  let(:decorated_solr_document) { Hyrax::SolrDocument::OrderedMembers.decorate(solr_document) }
   let(:ability) { Ability.new(user) }
   let(:presenter) do
     Hyrax::DsFileSetPresenter.new(solr_document, ability)
   end
   let(:page) { Capybara::Node::Simple.new(rendered) }
+  before { allow(controller).to receive(:current_ability).and_return(ability) }
 
   describe 'citations' do
     before do
       allow( presenter ).to receive(:fetch_parent_presenter).and_return(parent_presenter)
       Hyrax.config.citations = citations
-      allow( ability ).to receive(:can?).with(:edit, solr_document).and_return(false)
+      allow(ability).to receive(:can?).with(:edit, anything).and_return(false)
       assign( :presenter, presenter )
       allow( presenter ).to receive( :parent_data_set ).and_return parent_solr_doc
       allow( view ).to receive(:current_user).and_return true
@@ -62,6 +66,7 @@ RSpec.describe 'hyrax/file_sets/_show_actions.html.erb', type: :view do
 
   describe 'editor' do
     before do
+      allow(ability).to receive(:can?).with(:edit, anything).and_return(true)
       allow( presenter ).to receive(:fetch_parent_presenter).and_return(parent_presenter)
       allow( presenter ).to receive( :editor? ).and_return(true)
       assign( :presenter, presenter )
