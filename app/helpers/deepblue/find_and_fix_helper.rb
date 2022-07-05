@@ -23,8 +23,8 @@ module Deepblue
       selected = w.file_sets.select { |f| f.file_size.blank? }
       msg_handler.msg_verbose "selected.size = #{selected.size}"
       selected.each { |f| msg_handler.msg_verbose f.original_file.size } if msg_handler.to_console
-      selected.each { |f| f.file_size = Array(f.original_file.size); f.save }
-      selected.each { |f| f.reload };true
+      selected.each { |f| f.file_size = Array(f.original_file.size); f.save(validate: false) }
+      selected.each { |f| f.reload }
       selected.each { |f| msg_handler.msg_verbose Array(f.file_size) }
       w.reload
       sizes = w.file_sets.map { |f| f.file_size }
