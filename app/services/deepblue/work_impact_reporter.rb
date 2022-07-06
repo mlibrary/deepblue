@@ -4,7 +4,7 @@ module Deepblue
 
   require_relative './abstract_reporter'
 
-  class WorkImpactReporter < AbstractReporter
+  class WorkImpactReporter < AbstractReporter # TODO: one of the headers is mixed up (create date and ??)
 
     mattr_accessor :work_impact_reporter_debug_verbose, default: false
 

@@ -7,11 +7,10 @@ module Deepblue
   class MessageHandlerNull
 
     def initialize( debug_verbose: false,
-                    msg_prefix: '',
-                    msg_queue: [],
-                    # task: false,
+                    msg_prefix: false,
+                    msg_queue: nil,
                     to_console: false,
-                    verbose: false )
+                    verbose: false  )
 
       # ignore inputs
     end
@@ -41,33 +40,94 @@ module Deepblue
     end
     def verbose=(_x); end
 
+    def bold_debug( _msg = nil,
+                    bold_puts: false,
+                    label: nil,
+                    key_value_lines: true,
+                    add_stack_trace: false,
+                    add_stack_trace_depth: 3,
+                    lines: 1,
+                    logger: nil,
+                    &block )
 
-    def join( _sep = '' )
+      # ignore
+    end
+
+    def buffer( _msg, flush: true )
+      # ignore
+    end
+    alias :buf :buffer
+
+    def buffer_reset
+      @buffer = ''
+    end
+
+    def join( _sep = nil )
       return ''
     end
 
-    def line( _msg )
+    def line( _msg, log: nil )
       # ignore
     end
 
-    def msg( _msg, prefix: '' )
+    def logger
+      nil
+    end
+
+    def msg( _msg = nil, log: nil, prefix: nil, &block )
       # ignore
     end
 
-    def msg_debug( _msg )
+    def msg_debug( _msg, log: false, &block )
       # ignore
     end
 
-    def msg_error( _msg )
+    def msg_error( _msg, log: false, &block )
       # ignore
     end
 
-    def msg_verbose( _msg, prefix: '' )
+    def msg_info( _msg, log: false, &block )
       # ignore
     end
 
-    def msg_warn( _msg )
+    def msg_verbose( _msg, log: false, prefix: nil, &block )
       # ignore
+    end
+
+    def msg_warn( _msg, log: false, &block )
+      # ignore
+    end
+
+    def msg_exception( exception, include_backtrace: true, log: false, backtrace: 20, force_to_console: false )
+      # ignore
+    end
+
+    def msg_with_rv( rv, msg:, log: nil, prefix: nil )
+      return rv
+    end
+
+    def msg_if?( rv, msg:, log: nil, prefix: nil )
+      return rv
+    end
+
+    def msg_unless?( rv, msg:, log: nil, prefix: nil )
+      return rv
+    end
+
+    def msg_error_with_rv( rv, msg:, log: nil )
+      return rv
+    end
+
+    def msg_error_if?( rv, msg:, log: nil )
+      return rv
+    end
+
+    def msg_error_unless?( rv, msg:, log: nil )
+      return rv
+    end
+
+    def null_msg_handler?
+      true
     end
 
   end

@@ -37,8 +37,8 @@
      <td class='text-center'><span class="label label-danger">Tombstone</span></td>
 
      <% if presenter.current_ability.admin? %>
-        <th class="text-center"><%= ::AnalyticsHelper.download_monthly_cnt( work_id: presenter.id, date_range: ::AnalyticsHelper.date_range_for_month_previous ) %></th>
-        <th class="text-center"><%= ::AnalyticsHelper.download_todate_cnt( work_id: presenter.id, date_range: ::AnalyticsHelper.date_range_all ) %></th>
+        <th class="text-center"><%= ::AnalyticsHelper.download_work_monthly_cnt( id: presenter.id, date_range: ::AnalyticsHelper.date_range_for_month_previous ) %></th>
+        <th class="text-center"><%= ::AnalyticsHelper.download_todate_cnt( id: presenter.id, date_range: ::AnalyticsHelper.date_range_all ) %></th>
      <% end %>
 
      <% if presenter.current_ability.admin? %>
@@ -51,8 +51,8 @@
       <td class='text-center'><%= render_visibility_link document %></td>
 
       <% if presenter.current_ability.admin? %>
-        <th class="text-center"><%= ::AnalyticsHelper.download_monthly_cnt( work_id: presenter.id, date_range: ::AnalyticsHelper.date_range_for_month_previous ) %></th>
-        <th class="text-center"><%= ::AnalyticsHelper.download_todate_cnt( work_id: presenter.id, date_range: ::AnalyticsHelper.date_range_all ) %></th>
+        <th class="text-center"><%= ::AnalyticsHelper.download_work_monthly_cnt( id: presenter.id, date_range: ::AnalyticsHelper.date_range_for_month_previous ) %></th>
+        <th class="text-center"><%= ::AnalyticsHelper.download_todate_cnt( id: presenter.id, date_range: ::AnalyticsHelper.date_range_all ) %></th>
       <% end %>
 
       <td class='text-center'><%= render 'work_action_menu', presenter: presenter, document: document %></td>
@@ -60,8 +60,8 @@
       <td class='text-center'><%= render_visibility_link document %></td>
 
       <% if presenter.current_ability.admin? %>
-        <th class="text-center"><%= ::AnalyticsHelper.download_monthly_cnt( work_id: presenter.id, date_range: ::AnalyticsHelper.date_range_for_month_previous ) %></th>
-        <th class="text-center"><%= ::AnalyticsHelper.download_todate_cnt( work_id: presenter.id, date_range: ::AnalyticsHelper.date_range_all ) %></th>
+        <th class="text-center"><%= ::AnalyticsHelper.download_work_monthly_cnt( id: presenter.id, date_range: ::AnalyticsHelper.date_range_for_month_previous ) %></th>
+        <th class="text-center"><%= ::AnalyticsHelper.download_todate_cnt( id: presenter.id, date_range: ::AnalyticsHelper.date_range_all ) %></th>
       <% end %>
 
       <td class='text-center'>-</td> 
