@@ -51,7 +51,7 @@ module Hyrax
       url = ::Deepblue::EmailHelper.curation_concern_url( curation_concern: curation_concern )
       email = curation_concern.authoremail
       msg = "about_to_expire_embargo_email: curation concern id: #{id} email: #{email} exipration_days: #{expiration_days}"
-      msg_handler.msg_verbose
+      msg_handler.msg_verbose msg
       msg_handler.bold_debug msg
       body = []
       body << ::Deepblue::EmailHelper.t( "hyrax.email.about_to_expire_embargo.for_html",
