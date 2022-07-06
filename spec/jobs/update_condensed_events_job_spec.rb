@@ -46,15 +46,15 @@ RSpec.describe UpdateCondensedEventsJob, skip: false do
             allow(sched_helper).to receive(:scheduler_log_echo_to_rails_logger).and_return false
             if run_on_server
               expect( analytics_helper ).to receive(:update_current_month_condensed_events)
-              expect( analytics_helper ).to receive(:updated_condensed_event_downloads).with( any_args )
+              expect( analytics_helper ).to receive(:updated_condensed_event_work_downloads).with( any_args )
             else
               expect( analytics_helper ).to_not receive(:update_current_month_condensed_events)
-              expect( analytics_helper ).to_not receive(:updated_condensed_event_downloads).with( any_args )
+              expect( analytics_helper ).to_not receive(:updated_condensed_event_work_downloads).with( any_args )
             end
             allow( job ).to receive(:job_options_value).with( any_args ).and_call_original
           end
 
-          it 'calls update_current_month_condensed_events and updated_condensed_event_downloads' do
+          it 'calls update_current_month_condensed_events and updated_condensed_event_work_downloads' do
             ActiveJob::Base.queue_adapter = :test
             job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
           end
@@ -77,7 +77,7 @@ RSpec.describe UpdateCondensedEventsJob, skip: false do
         #     allow( job ).to receive(:job_options_value).with( any_args ).and_call_original
         #   end
         #
-        #   it 'does not call update_current_month_condensed_events and updated_condensed_event_downloads' do
+        #   it 'does not call update_current_month_condensed_events and updated_condensed_event_work_downloads' do
         #     ActiveJob::Base.queue_adapter = :test
         #     job.perform_now # arguments set in the describe_class.send :job_or_instatiate above
         #   end

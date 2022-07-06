@@ -36,8 +36,8 @@
     <span class="fa <%= current_user.trophies.where(work_id: document.id).exists? ? 'fa-star highlighted-work' : 'fa-star-o trophy-off' %>" aria-hidden="true"></span></td>
   <td class="text-center"><%= render_visibility_link document %></td>
 
-  <th class="text-center"><%= ::AnalyticsHelper.download_monthly_cnt( work_id: presenter.id, date_range: ::AnalyticsHelper.date_range_for_month_previous ) %></th>
-  <th class="text-center"><%= ::AnalyticsHelper.download_todate_cnt( work_id: presenter.id, date_range: ::AnalyticsHelper.date_range_all ) %></th>
+  <th class="text-center"><%= ::AnalyticsHelper.download_work_monthly_cnt( id: presenter.id, date_range: ::AnalyticsHelper.date_range_for_month_previous ) %></th>
+  <th class="text-center"><%= ::AnalyticsHelper.download_todate_cnt( id: presenter.id, date_range: ::AnalyticsHelper.date_range_all ) %></th>
 
   <td class="text-center"> 
     <% if presenter.can_edit_work? && !Flipflop.disable_desposits_and_edits? %>

@@ -1,12 +1,35 @@
 # frozen_string_literal: true
 
-module AnalyticsHelper
+module AnalyticsHelper # TODO: add flag to write zero records, and lots of TODO
 
   mattr_accessor :analytics_helper_debug_verbose,
                  default: ::Deepblue::AnalyticsIntegrationService.analytics_helper_debug_verbose
 
   mattr_accessor :max_visit_filter_count,
                  default: ::Deepblue::AnalyticsIntegrationService.max_visit_filter_count
+
+  mattr_accessor :skip_admin_events, # default: false
+                 default: ::Deepblue::AnalyticsIntegrationService.skip_admin_events
+
+  BEGINNING_OF_TIME = Time.new(1972,1,1).freeze
+  END_OF_TIME       = (BEGINNING_OF_TIME + 1000.year).freeze
+
+  FILE_SET_DWNLDS_PER_MONTH    = "FileSetDownloadsPerMonth".freeze
+  FILE_SET_DWNLDS_TO_DATE      = "FileSetDownloadsToDate".freeze
+  WORK_CONDENSED               = "WorkCondensed".freeze # TODO: initialize guard record for works, then check them when initializing to skip to most recent work that needs initialization
+  WORK_FILE_DWNLDS_PER_MONTH   = "WorkFileDownloadsPerMonth".freeze
+  WORK_FILE_DWNLDS_TO_DATE     = "WorkFileDownloadsToDate".freeze
+  WORK_GLOBUS_DWNLDS_PER_MONTH = "WorkGlobusDownloadsPerMonth".freeze
+  WORK_GLOBUS_DWNLDS_TO_DATE   = "WorkGlobusDownloadsToDate".freeze
+  WORK_ZIP_DWNLDS_PER_MONTH    = "WorkZipDownloadsPerMonth".freeze
+  WORK_ZIP_DWNLDS_TO_DATE      = "WorkZipDownloadsToDate".freeze
+
+  DOWNLOAD_EVENT          = "Hyrax::DownloadsController#show".freeze
+  WORK_GLOBUS_EVENT       = "Hyrax::DataSetsController#globus_download_redirect".freeze
+  WORK_SHOW_EVENT         = "Hyrax::DataSetsController#show".freeze
+  WORK_ZIP_DOWNLOAD_EVENT = "Hyrax::DataSetsController#zip_download".freeze
+
+  MSG_HANDLER_DEBUG_ONLY = ::Deepblue::MessageHandlerDebugOnly.new( debug_verbose: ->() { analytics_helper_debug_verbose } ).freeze
 
   # TODO: move this to email templates
   MONTHLY_ANALYTICS_REPORT_EMAIL_TEMPLATE = <<-END_OF_MONTHLY_ANALYTICS_REPORT_EMAIL_TEMPLATE
@@ -16,14 +39,14 @@ Your analytics report for the month of %{month}:
 
 END_OF_MONTHLY_ANALYTICS_REPORT_EMAIL_TEMPLATE
 
-  MONTHLY_ANAYLYTICS_REPORT_EVENT_NAMES = [ "Hyrax::DataSetsController#show",
-                                            "Hyrax::DataSetsController#zip_download",
-                                            "Hyrax::DataSetsController#globus_download_redirect" ].freeze
+  MONTHLY_ANAYLYTICS_REPORT_EVENT_NAMES = [ WORK_SHOW_EVENT,
+                                            WORK_ZIP_DOWNLOAD_EVENT,
+                                            WORK_GLOBUS_EVENT ].freeze
 
   # TODO: move this config
-  MONTHLY_EVENTS_REPORT_EVENT_NAME_TO_LABEL_MAP = { "Hyrax::DataSetsController#show" => "Visits",
-                                                    "Hyrax::DataSetsController#zip_download" => "Zip Downloads",
-                                                    "Hyrax::DataSetsController#globus_download_redirect" => "Globus Downloads" }.freeze
+  MONTHLY_EVENTS_REPORT_EVENT_NAME_TO_LABEL_MAP = { WORK_SHOW_EVENT => "Visits",
+                                                    WORK_ZIP_DOWNLOAD_EVENT => "Zip Downloads",
+                                                    WORK_GLOBUS_EVENT => "Globus Downloads" }.freeze
 
   # TODO: move this to email templates
   MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE = <<-END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
@@ -33,12 +56,58 @@ Your events report for the month of %{month}:
 
 END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
 
- BEGINNING_OF_TIME = Time.new(1972,1,1)
- END_OF_TIME = BEGINNING_OF_TIME + 1000.year
+  def self.analytics_reports_admins_can_subscribe?
+    ::Deepblue::AnalyticsIntegrationService.analytics_reports_admins_can_subscribe
+  end
 
   def self.chartkick?
     return false unless enable_local_analytics_ui?
     ::Deepblue::AnalyticsIntegrationService.enable_chartkick
+  end
+
+  def self.compute_ip_count_for_object( name:, cc_id:, visit_id:, date_range_filter:, msg_handler: nil )
+    msg_handler = MSG_HANDLER_DEBUG_ONLY if msg_handler.nil?
+    # debug_verbose = msg_handler.debug_verbose || analytics_helper_debug_verbose
+    debug_verbose = analytics_helper_debug_verbose
+    msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
+                             ::Deepblue::LoggingHelper.called_from,
+                             "name=#{name}",
+                             "cc_id=#{cc_id}",
+                             "visit_id=#{visit_id}",
+                             "date_range_filter=#{date_range_readable(date_range_filter)}",
+                             "" ] if debug_verbose
+    # Get all the events for this time period and this id
+    events = Ahoy::Event.where( name: name,  cc_id: cc_id, time: date_range_filter )
+    msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
+                             ::Deepblue::LoggingHelper.called_from,
+                             "events&.size=#{events&.size}",
+                             "" ] if debug_verbose
+    return 0 if events.blank?
+
+    # Get the visit information for this specific event
+    visit_to_test = Ahoy::Visit.where( id: visit_id )
+    msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
+                             ::Deepblue::LoggingHelper.called_from,
+                             "visit_to_test&.size=#{visit_to_test&.size}",
+                             "" ] if debug_verbose
+    return 0 if visit_to_test.blank?
+    visit_to_test_first_ip = visit_to_test.first.ip
+    msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
+                             ::Deepblue::LoggingHelper.called_from,
+                             "visit_to_test_first_ip=#{visit_to_test_first_ip}",
+                             "" ] if debug_verbose
+    count = 0
+    events.each do |e|
+      v = Ahoy::Visit.where( id: e.visit_id )
+      next if v.blank?
+      count += 1 if v.first.ip.eql? visit_to_test_first_ip
+      break if count > max_visit_filter_count
+    end
+    count
+  end
+
+  def self.date_range_all
+    date_range = BEGINNING_OF_TIME..END_OF_TIME
   end
 
   def self.date_range_for_month_of( time: )
@@ -52,6 +121,17 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     date_range_for_month_of( time: Time.now.beginning_of_month - 1.day )
   end
 
+  def self.date_range_readable( date_range )
+    return 'EMPTY' if date_range.blank?
+    first = date_range.first
+    last = date_range.last
+    first ||= 'EMPTY'
+    last ||= 'EMPTY'
+    first = first.strftime('%Y/%m/%d') if first.respond_to? :strftime
+    last = last.strftime('%Y/%m/%d') if last.respond_to? :strftime
+    return "#{first}-#{last}"
+  end
+
   def self.date_range_since_start
     previous_month = Time.now.beginning_of_month - 1.day 
     end_of_previous_month = previous_month.end_of_month.end_of_day
@@ -62,24 +142,40 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     #date_range = BEGINNING_OF_TIME..END_OF_TIME
   end
 
-  def self.date_range_all
-    date_range = BEGINNING_OF_TIME..END_OF_TIME
+  def self.download_file_set_monthly_cnt( id:, date_range: nil )
+    date_range = truncate_date(date_range.first)..truncate_date(date_range.last) unless date_range.nil?
+
+    file_download_cnt = monthly_hits_by_date_and_name( id: id, name: FILE_SET_DWNLDS_PER_MONTH, date_range: date_range )
+
+    return file_download_cnt
   end
 
-  def self.enable_local_analytics_ui?
-    Flipflop.enable_local_analytics_ui?
+  def self.download_todate_cnt( id:, date_range: nil )
+    zip_download_cnt = monthly_hits_by_date_and_name( id: id, name: WORK_ZIP_DWNLDS_TO_DATE, date_range: date_range )
+    globus_download_cnt = monthly_hits_by_date_and_name( id: id, name: WORK_GLOBUS_DWNLDS_TO_DATE, date_range: date_range )
+    file_download_cnt = monthly_hits_by_date_and_name( id: id, name: WORK_FILE_DWNLDS_TO_DATE, date_range: date_range )
+
+    return zip_download_cnt + globus_download_cnt + file_download_cnt
   end
 
-  def self.open_analytics_report_subscriptions?
-    Flipflop.open_analytics_report_subscriptions?
+  def self.download_work_monthly_cnt( id:, date_range: nil )
+    date_range = truncate_date(date_range.first)..truncate_date(date_range.last) unless date_range.nil?
+
+    zip_download_cnt = monthly_hits_by_date_and_name( id: id, name: WORK_ZIP_DWNLDS_PER_MONTH, date_range: date_range )
+    globus_download_cnt = monthly_hits_by_date_and_name( id: id, name: WORK_GLOBUS_DWNLDS_PER_MONTH, date_range: date_range )
+    file_download_cnt = monthly_hits_by_date_and_name( id: id, name: WORK_FILE_DWNLDS_PER_MONTH, date_range: date_range )
+
+    return zip_download_cnt + globus_download_cnt + file_download_cnt
   end
 
-  def self.analytics_reports_admins_can_subscribe?
-    ::Deepblue::AnalyticsIntegrationService.analytics_reports_admins_can_subscribe
-  end
-
-  def self.enable_analytics_works_reports_can_subscribe?
-    ::Deepblue::AnalyticsIntegrationService.enable_analytics_works_reports_can_subscribe
+  # This is just needed at the time the stats are setup from rails console
+  def self.drop_condensed_event_downloads # TODO: version of this with only WORK_CONDENSED records
+    Ahoy::CondensedEvent.where( name: WORK_FILE_DWNLDS_PER_MONTH ).destroy_all
+    Ahoy::CondensedEvent.where( name: WORK_FILE_DWNLDS_TO_DATE ).destroy_all
+    Ahoy::CondensedEvent.where( name: WORK_ZIP_DWNLDS_PER_MONTH ).destroy_all
+    Ahoy::CondensedEvent.where( name: WORK_ZIP_DWNLDS_TO_DATE ).destroy_all
+    Ahoy::CondensedEvent.where( name: WORK_GLOBUS_DWNLDS_PER_MONTH ).destroy_all
+    Ahoy::CondensedEvent.where( name: WORK_GLOBUS_DWNLDS_TO_DATE ).destroy_all
   end
 
   def self.email_to_user( email )
@@ -95,156 +191,12 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     return user.id
   end
 
-  #This is called by the cronjob in UpdateCondensedEventsJob
-  def self.updated_condensed_event_downloads (force: false)
-    #Only do this at the 1st of the month
-    return if Date.today > Date.today.at_beginning_of_month && !force
-    date_range_month = AnalyticsHelper.date_range_for_month_previous
-    date_range_all = AnalyticsHelper.date_range_all
-    date_range_start = AnalyticsHelper.date_range_since_start
-    DataSet.all.each do | work |
-      update_condensed_events_for_work_files_in_date_range( name: "WorkFileDownloadsPerMonth", filter: "Hyrax::DownloadsController#show", work: work, date_range: date_range_month, force: true )
-      update_condensed_events_for_work_files_in_date_range( name: "WorkFileDownloadsToDate", filter: "Hyrax::DownloadsController#show", work: work, date_range: date_range_all, date_range_filter: date_range_start, force: true )
-
-      update_condensed_events_for_work_zip_globus_downloads_in_date_range( name: "WorkZipDownloadsPerMonth", filter: "Hyrax::DataSetsController#zip_download", work: work, date_range: date_range_month, force: true )
-      update_condensed_events_for_work_zip_globus_downloads_in_date_range( name: "WorkZipDownloadsToDate", filter: "Hyrax::DataSetsController#zip_download", work: work, date_range: date_range_all, date_range_filter: date_range_start, force: true )
-
-      update_condensed_events_for_work_zip_globus_downloads_in_date_range( name: "WorkGlobusDownloadsPerMonth", filter: "Hyrax::DataSetsController#globus_download_redirect", work: work, date_range: date_range_month, force: true )
-      update_condensed_events_for_work_zip_globus_downloads_in_date_range( name: "WorkGlobusDownloadsToDate", filter: "Hyrax::DataSetsController#globus_download_redirect", work: work, date_range: date_range_all, date_range_filter: date_range_start, force: true )
-    end
+  def self.enable_analytics_works_reports_can_subscribe?
+    ::Deepblue::AnalyticsIntegrationService.enable_analytics_works_reports_can_subscribe
   end
 
-  # This is just needed at the time the stats are setup from rails console
-  def self.drop_condensed_event_downloads
-     Ahoy::CondensedEvent.where( name: "WorkFileDownloadsPerMonth" ).destroy_all
-     Ahoy::CondensedEvent.where( name: "WorkFileDownloadsToDate" ).destroy_all
-     Ahoy::CondensedEvent.where( name: "WorkZipDownloadsPerMonth" ).destroy_all
-     Ahoy::CondensedEvent.where( name: "WorkZipDownloadsToDate" ).destroy_all
-     Ahoy::CondensedEvent.where( name: "WorkGlobusDownloadsPerMonth" ).destroy_all
-     Ahoy::CondensedEvent.where( name: "WorkGlobusDownloadsToDate" ).destroy_all
-  end
-
-  # This is just needed at the time the stats are setup from rails console
-  def self.initialize_condensed_event_downloads ( force: false )
-    date_range_all = AnalyticsHelper.date_range_all
-    date_range_start = AnalyticsHelper.date_range_since_start
-    DataSet.all.each do | work |
-      update_condensed_events_for_work_zip_globus_downloads_in_date_range( name: "WorkZipDownloadsToDate", filter: "Hyrax::DataSetsController#zip_download", work: work, date_range: date_range_all, date_range_filter: date_range_start, force: force )
-      records = Ahoy::Event.where( name: "Hyrax::DataSetsController#zip_download", cc_id: work.id, time: date_range_all )
-      records.each do |record|
-        date_range_month = AnalyticsHelper.date_range_for_month_of( time: record.time )
-        update_condensed_events_for_work_zip_globus_downloads_in_date_range( name: "WorkZipDownloadsPerMonth", filter: "Hyrax::DataSetsController#zip_download", work: work, date_range: date_range_month, force: force )
-      end
-
-      update_condensed_events_for_work_zip_globus_downloads_in_date_range( name: "WorkGlobusDownloadsToDate", filter: "Hyrax::DataSetsController#globus_download_redirect", work: work, date_range: date_range_all, date_range_filter: date_range_start, force: force )
-      records = Ahoy::Event.where( name: "Hyrax::DataSetsController#globus_download_redirect", cc_id: work.id, time: date_range_all )
-      records.each do |record|
-        date_range_month = AnalyticsHelper.date_range_for_month_of( time: record.time )
-        update_condensed_events_for_work_zip_globus_downloads_in_date_range( name: "WorkGlobusDownloadsPerMonth", filter: "Hyrax::DataSetsController#globus_download_redirect", work: work, date_range: date_range_month, force: force )
-      end
-
-      update_condensed_events_for_work_files_in_date_range( name: "WorkFileDownloadsToDate", filter: "Hyrax::DownloadsController#show", work: work, date_range: date_range_all, date_range_filter: date_range_start, force: force )
-      work.file_set_ids.each do |fid|
-        records = Ahoy::Event.where( name: "Hyrax::DownloadsController#show", cc_id: fid, time: date_range_all )
-        records.each do |record|
-          date_range_month = AnalyticsHelper.date_range_for_month_of( time: record.time )
-          update_condensed_events_for_work_files_in_date_range( name: "WorkFileDownloadsPerMonth", filter: "Hyrax::DownloadsController#show", work: work, date_range: date_range_month, force: force )
-        end
-      end
-    end
-  end
-
-  def self.compute_ip_count_for_object ( name:, cc_id:, visit_id:, time: )
-    # Get all the events for this time period and this id
-    events = Ahoy::Event.where( name: name,  cc_id: cc_id, time: time )
-
-    # Get the visit information for this specific event
-    visit_to_test = Ahoy::Visit.where( id: visit_id )
-
-    count = 0
-    events.each do |e|
-      v = Ahoy::Visit.where( id: e.visit_id )
-      count += 1 if v.first.ip.eql?(visit_to_test.first.ip)
-      break if count > max_visit_filter_count
-    end
-    count
-  end
-
-
-  # This one is called for zip and globus requests.
-  def self.update_condensed_events_for_work_zip_globus_downloads_in_date_range( name:, filter:, work:, date_range:, date_range_filter: nil, force: false )
-    #For monthly, the date_range_filter and the date_range should be the same.  date_range_filter is not passed in.
-    #For toDate, the date_range_filter is used to access teh Event Table, so this entry will be 1972..2022-12-31 ( something like that )
-    #For toDate, the date_range is used for the CondensedEvent Table, so this entry will be one entry 1972..2972
-    #find_by grabs one record.
-    #where clause can grab more than one record
-    return unless work.published?
-    date_range_filter = date_range if date_range_filter.blank?
-    begin_date = date_range.first
-    end_date = date_range.last
-    record = Ahoy::CondensedEvent.find_by( name: name, cc_id: work.id, date_begin: begin_date, date_end: end_date )
-    return if record.present? && !force
-    condensed_event = { "total_downloads" => 0 }
-
-    records = Ahoy::Event.where( name: filter, cc_id: work.id, time: date_range_filter )
-    records.each do |r|
-      visits = Ahoy::Event.where( name: filter, visit_id: r.visit_id, cc_id: r.cc_id, time: date_range_filter )
-      next if visits.count > max_visit_filter_count
-
-      ip_count = compute_ip_count_for_object( name: filter, cc_id: r.cc_id, visit_id: r.visit_id, time: date_range_filter )
-      next if ip_count > max_visit_filter_count
-
-      next if user_is_admin( user_id: r.user_id )
-
-      condensed_event["total_downloads"] = condensed_event["total_downloads"] + 1
-    end  
-
-    return if condensed_event["total_downloads"] == 0
-    # store results to condensed events table
-    record = Ahoy::CondensedEvent.new( name: name, cc_id: work.id, date_begin: begin_date, date_end: end_date ) if record.blank?
-    record.condensed_event = condensed_event
-    record.save
-  end
-
-  def self.user_is_admin( user_id: )
-    email = User.where( id: user_id )&.first&.email
-    admin_users = RoleMapper.map["admin"]
-
-    admin_users.include? email
-  end
-
-  def self.update_condensed_events_for_work_files_in_date_range( name:, filter:, work:, date_range:, date_range_filter: nil, force: false )
-    return unless work.published?
-
-    date_range_filter = date_range if date_range_filter.blank?
-    begin_date = date_range.first
-    end_date = date_range.last
-    record = Ahoy::CondensedEvent.find_by( name: name, cc_id: work.id, date_begin: begin_date, date_end: end_date )
-    return if record.present? && !force
-    condensed_event = { "total_downloads" => 0 }
-    work.file_set_ids.each do |fid|
-      records = Ahoy::Event.where( name: filter, cc_id: fid, time: date_range_filter )
-      records.each do |r|
-        next if r.properties["file"] == "thumbnail"
-
-        visits = Ahoy::Event.where( name: filter, visit_id: r.visit_id, cc_id: r.cc_id, time: date_range_filter )
-        next if visits.count > max_visit_filter_count
-
-        ip_count = compute_ip_count_for_object( name: filter, cc_id: r.cc_id, visit_id: r.visit_id, time: date_range_filter )
-        next if ip_count > max_visit_filter_count
-
-        next if user_is_admin( user_id: r.user_id )
-        
-        condensed_event["total_downloads"] = condensed_event["total_downloads"] + 1
-        condensed_event[fid] = 0 unless condensed_event[fid].present?
-        condensed_event[fid] = condensed_event[fid] + 1
-      end  
-    end
-    return if condensed_event["total_downloads"] == 0
-    # store results to condensed events table
-    record = Ahoy::CondensedEvent.new( name: name, cc_id: work.id, date_begin: begin_date, date_end: end_date ) if record.blank?
-    record.condensed_event = condensed_event
-    record.save
+  def self.enable_local_analytics_ui?
+    Flipflop.enable_local_analytics_ui?
   end
 
   def self.events_by_date( name:, cc_id: nil, data_name: nil, date_range: nil, group_by_day: true )
@@ -253,7 +205,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
                                            "name=#{name}",
                                            "cc_id=#{cc_id}",
                                            "data_name=#{data_name}",
-                                           "date_range=#{date_range}",
+                                           "date_range=#{date_range_readable(date_range)}",
                                            "" ] if analytics_helper_debug_verbose
 
     if date_range.blank? && ::Deepblue::AnalyticsIntegrationService.hit_graph_day_window > 0
@@ -302,7 +254,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
                                            "name=#{name}",
                                            "cc_id=#{cc_id}",
                                            "data_name=#{data_name}",
-                                           "date_range=#{date_range}",
+                                           "date_range=#{date_range_readable(date_range)}",
                                            "rv=#{rv}",
                                            "" ] if analytics_helper_debug_verbose
     return rv
@@ -313,10 +265,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
                              cc_id: cc_id,
                              data_name: "visits",
                              date_range: date_range )
-    downloads = events_by_date( name: "#{::Hyrax::DownloadsController.name}#show",
-                                cc_id: cc_id,
-                                data_name: "downloads",
-                                date_range: date_range )
+    downloads = events_by_date( name: DOWNLOAD_EVENT, cc_id: cc_id, data_name: "downloads", date_range: date_range )
     [ visits, downloads ]
   end
 
@@ -335,10 +284,124 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     2 < ::Deepblue::AnalyticsIntegrationService.hit_graph_view_level
   end
 
+  # This is just needed at the time the stats are setup from rails console
+  def self.initialize_condensed_event_downloads ( force: false, msg_handler: nil )
+    msg_handler = MSG_HANDLER_DEBUG_ONLY if msg_handler.nil?
+    date_range_all = AnalyticsHelper.date_range_all
+    date_range_start = AnalyticsHelper.date_range_since_start
+    DataSet.all.each do |work| # TODO: skip work if WORK_CONDENSED record exists
+      update_condensed_events_for_work_zip_globus_downloads_in_date_range( name: WORK_ZIP_DWNLDS_TO_DATE,
+                                                                           filter: WORK_ZIP_DOWNLOAD_EVENT,
+                                                                           work: work,
+                                                                           date_range: date_range_all,
+                                                                           date_range_filter: date_range_start,
+                                                                           force: force,
+                                                                           msg_handler: msg_handler )
+      records = Ahoy::Event.where( name: WORK_ZIP_DOWNLOAD_EVENT, cc_id: work.id, time: date_range_all )
+      records.each do |record|
+        date_range_month = AnalyticsHelper.date_range_for_month_of( time: record.time )
+        update_condensed_events_for_work_zip_globus_downloads_in_date_range( name: WORK_ZIP_DWNLDS_PER_MONTH,
+                                                                             filter: WORK_ZIP_DOWNLOAD_EVENT,
+                                                                             work: work,
+                                                                             date_range: date_range_month,
+                                                                             force: force,
+                                                                             msg_handler: msg_handler )
+      end
+
+      update_condensed_events_for_work_zip_globus_downloads_in_date_range( name: WORK_GLOBUS_DWNLDS_TO_DATE,
+                                                                           filter: WORK_GLOBUS_EVENT,
+                                                                           work: work,
+                                                                           date_range: date_range_all,
+                                                                           date_range_filter: date_range_start,
+                                                                           force: force,
+                                                                           msg_handler: msg_handler )
+      records = Ahoy::Event.where( name: WORK_GLOBUS_EVENT, cc_id: work.id, time: date_range_all )
+      records.each do |record|
+        date_range_month = AnalyticsHelper.date_range_for_month_of( time: record.time )
+        update_condensed_events_for_work_zip_globus_downloads_in_date_range( name: WORK_GLOBUS_DWNLDS_PER_MONTH,
+                                                                             filter: WORK_GLOBUS_EVENT,
+                                                                             work: work,
+                                                                             date_range: date_range_month,
+                                                                             force: force,
+                                                                             msg_handler: msg_handler )
+      end
+
+      update_condensed_events_for_work_files( name: WORK_FILE_DWNLDS_TO_DATE,
+                                              filter: DOWNLOAD_EVENT,
+                                              work: work,
+                                              date_range: date_range_all,
+                                              date_range_filter: date_range_start,
+                                              force: force,
+                                              msg_handler: msg_handler )
+      work.file_set_ids.each do |fid|
+        records = Ahoy::Event.where( name: DOWNLOAD_EVENT, cc_id: fid, time: date_range_all )
+        records.each do |record|
+          date_range_month = AnalyticsHelper.date_range_for_month_of( time: record.time )
+          update_condensed_events_for_work_files( name: WORK_FILE_DWNLDS_PER_MONTH,
+                                                  filter: DOWNLOAD_EVENT,
+                                                  work: work,
+                                                  date_range: date_range_month,
+                                                  force: force,
+                                                  msg_handler: msg_handler )
+        end
+      end
+    end # TODO: write WORK_CONDENSED event
+  end
+
+  def self.initialize_condensed_event_downloads_file_set( work:, date_range:, force: false, msg_handler: nil )
+    msg_handler = MSG_HANDLER_DEBUG_ONLY if msg_handler.nil?
+    debug_verbose = msg_handler.debug_verbose || analytics_helper_debug_verbose
+    msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "work.id=#{work.id}",
+                                           "date_range=#{date_range_readable(date_range)}",
+                                           "force=#{force}",
+                                           "" ] if debug_verbose
+    work.file_set_ids.each do |fid|
+      msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
+                               ::Deepblue::LoggingHelper.called_from,
+                               "Ahoy::Event.where( name: #{DOWNLOAD_EVENT}, cc_id: #{fid}, time: #{date_range_readable(date_range)} )",
+                               "" ] if debug_verbose
+      records = Ahoy::Event.where( name: DOWNLOAD_EVENT, cc_id: fid, time: date_range )
+      msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "work.id=#{work.id}",
+                                             "date_range=#{date_range_readable(date_range)}",
+                                             "records.size=#{records.size}",
+                                             "" ] if debug_verbose
+      records.each do |record|
+        date_range_month = AnalyticsHelper.date_range_for_month_of( time: record.time )
+        update_condensed_events_for_work_files( name: WORK_FILE_DWNLDS_PER_MONTH,
+                                                filter: DOWNLOAD_EVENT,
+                                                work: work,
+                                                date_range: date_range_month,
+                                                force: force,
+                                                msg_handler: msg_handler )
+      end
+    end
+  end
+
+  def self.initialize_condensed_event_downloads_file_sets( force: false, msg_handler: nil )
+    msg_handler = MSG_HANDLER_DEBUG_ONLY if msg_handler.nil?
+    debug_verbose = msg_handler.debug_verbose || analytics_helper_debug_verbose
+    msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "force=#{force}",
+                                           "" ] if debug_verbose
+    date_range_all = AnalyticsHelper.date_range_all
+    DataSet.all.each do |work|
+      initialize_condensed_event_downloads_file_set( work: work,
+                                                     date_range: date_range_all,
+                                                     force: force,
+                                                     msg_handler: msg_handler )
+    end
+  end
+
   def self.monthly_analytics_report( date_range: nil, debug_verbose: analytics_helper_debug_verbose )
+    debug_verbose = debug_verbose || analytics_helper_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "date_range=#{date_range}",
+                                           "date_range=#{date_range_readable(date_range)}",
                                            "" ] if debug_verbose
     subscribers = monthly_analytics_report_subscribers( debug_verbose: debug_verbose )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -349,7 +412,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     date_range = date_range_for_month_of( time: Time.now.beginning_of_month - 1.day ) if date_range.blank?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "date_range=#{date_range}",
+                                           "date_range=#{date_range_readable(date_range)}",
                                            "" ] if debug_verbose
     subscribers.each do |email|
       monthly_analytics_report_for( email: email, date_range: date_range, debug_verbose: debug_verbose )
@@ -357,10 +420,11 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
   end
 
   def self.monthly_analytics_report_for( email:, date_range:, debug_verbose: analytics_helper_debug_verbose )
+    debug_verbose = debug_verbose || analytics_helper_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "email=#{email}",
-                                           "date_range=#{date_range}",
+                                           "date_range=#{date_range_readable(date_range)}",
                                            "" ] if debug_verbose
     user = User.find_by_user_key email
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -399,6 +463,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
   end
 
   def self.monthly_analytics_report_line_for( name:, condensed_event:, debug_verbose: analytics_helper_debug_verbose )
+    debug_verbose = debug_verbose || analytics_helper_debug_verbose
     count = 0
     label = MONTHLY_EVENTS_REPORT_EVENT_NAME_TO_LABEL_MAP[name]
     if condensed_event.present?
@@ -422,9 +487,10 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
                                                 content_type: nil,
                                                 debug_verbose: analytics_helper_debug_verbose )
 
+    debug_verbose = debug_verbose || analytics_helper_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "date_range=#{date_range}",
+                                           "date_range=#{date_range_readable(date_range)}",
                                            "email=#{email}",
                                            "report_lines=#{report_lines}",
                                            "content_type=#{content_type}",
@@ -496,9 +562,10 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
   end
 
   def self.monthly_events_report( date_range: nil, debug_verbose: analytics_helper_debug_verbose )
+    debug_verbose = debug_verbose || analytics_helper_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "date_range=#{date_range}",
+                                           "date_range=#{date_range_readable(date_range)}",
                                            "" ] if debug_verbose
     subscribers = monthly_events_report_subscribers
     return if subscribers.blank?
@@ -512,11 +579,12 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
   end
 
   def self.monthly_events_report_for( email:, params:, date_range:, debug_verbose: analytics_helper_debug_verbose )
+    debug_verbose = debug_verbose || analytics_helper_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "email=#{email}",
                                            "params=#{params}",
-                                           "date_range=#{date_range}",
+                                           "date_range=#{date_range_readable(date_range)}",
                                            "" ] if debug_verbose
     # params is of the form: { id1 => [event_name1,event_name2 ...], id2 => [event_name1,event_name2 ...] ... }
     report_lines = []
@@ -565,9 +633,10 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
                                              content_type: nil,
                                              debug_verbose: analytics_helper_debug_verbose )
 
+    debug_verbose = debug_verbose || analytics_helper_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "date_range=#{date_range}",
+                                           "date_range=#{date_range_readable(date_range)}",
                                            "email=#{email}",
                                            "report_lines=#{report_lines}",
                                            "content_type=#{content_type}",
@@ -618,9 +687,9 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
   def self.monthly_events_report_subscribe_data_set( user:, cc_id: )
     monthly_events_report_subscribe( user: user,
                                      cc_id: cc_id,
-                                     event_names: [ "Hyrax::DataSetsController#show",
-                                                    "Hyrax::DataSetsController#zip_download",
-                                                    "Hyrax::DataSetsController#globus_download_redirect" ] )
+                                     event_names: [ WORK_SHOW_EVENT,
+                                                    WORK_ZIP_DOWNLOAD_EVENT,
+                                                    WORK_GLOBUS_EVENT ] )
   end
 
   # convenience method, TODO: move to DataSetsController
@@ -687,47 +756,33 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     record.save
   end
 
+  def self.monthly_hits_by_date_and_name( id:, name:, date_range: )
+    return 0 if id.blank?
+    return 0 if date_range.blank?
+    r = Ahoy::CondensedEvent.find_by( name: name, cc_id: id, date_begin: date_range.first, date_end: date_range.last )
+    return 0 if r.blank?
+    return r.condensed_event["total_downloads"]
+  end
+
+  def self.open_analytics_report_subscriptions?
+    Flipflop.open_analytics_report_subscriptions?
+  end
+
   def self.page_hits_by_date( controller_class:, cc_id: nil, date_range: nil )
     events_by_date( name: "#{controller_class.name}#show", cc_id: cc_id, date_range: date_range )
   end
-
-  def self.download_monthly_cnt ( work_id:, date_range: nil )
-    date_range = truncate_date(date_range.first)..truncate_date(date_range.last) unless date_range.nil?
-
-    zip_download_cnt = monthly_hits_by_date_and_name( work_id: work_id, name: "WorkZipDownloadsPerMonth", date_range: date_range )
-    globus_download_cnt = monthly_hits_by_date_and_name( work_id: work_id, name: "WorkGlobusDownloadsPerMonth", date_range: date_range )
-    file_download_cnt = monthly_hits_by_date_and_name( work_id: work_id, name: "WorkFileDownloadsPerMonth", date_range: date_range )
-
-    return zip_download_cnt + globus_download_cnt + file_download_cnt
-  end
-
-  def self.download_todate_cnt ( work_id:, date_range: nil )
-    zip_download_cnt = monthly_hits_by_date_and_name( work_id: work_id, name: "WorkZipDownloadsToDate", date_range: date_range )
-    globus_download_cnt = monthly_hits_by_date_and_name( work_id: work_id, name: "WorkGlobusDownloadsToDate", date_range: date_range )
-    file_download_cnt = monthly_hits_by_date_and_name( work_id: work_id, name: "WorkFileDownloadsToDate", date_range: date_range )
-
-    return zip_download_cnt + globus_download_cnt + file_download_cnt
-  end
-
-  def self.monthly_hits_by_date_and_name( work_id:, name:, date_range: )
-    return 0 if work_id.blank? 
-    return 0 if date_range.blank?     
-    r = Ahoy::CondensedEvent.find_by( name: name, cc_id: work_id, date_begin: date_range.first, date_end: date_range.last )
-    return 0 if r.blank?
-    return r.condensed_event["total_downloads"]
-  end 
 
   def self.show_hit_graph?( current_ability, presenter: nil )
     return false unless enable_local_analytics_ui?
     # 0 = none, 1 = admin, 2 = editor, 3 = everyone
     return false if presenter && presenter.respond_to?( :anonymous_show? ) && presenter.anonymous_show?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "::Deepblue::AnalyticsIntegrationService.hit_graph_view_level=#{::Deepblue::AnalyticsIntegrationService.hit_graph_view_level}",
-                                           "current_ability.admin?=#{current_ability.admin?}",
-                                           "presenter.respond_to? :can_subscribe_to_analytics_reports?=#{presenter.respond_to? :can_subscribe_to_analytics_reports?}",
-                                           "presenter.can_subscribe_to_analytics_reports?=#{presenter.respond_to?(:can_subscribe_to_analytics_reports?) ? presenter.can_subscribe_to_analytics_reports? : ''}",
-                                           "" ] if analytics_helper_debug_verbose
+           ::Deepblue::LoggingHelper.called_from,
+           "::Deepblue::AnalyticsIntegrationService.hit_graph_view_level=#{::Deepblue::AnalyticsIntegrationService.hit_graph_view_level}",
+           "current_ability.admin?=#{current_ability.admin?}",
+           "presenter.respond_to? :can_subscribe_to_analytics_reports?=#{presenter.respond_to? :can_subscribe_to_analytics_reports?}",
+           "presenter.can_subscribe_to_analytics_reports?=#{presenter.respond_to?(:can_subscribe_to_analytics_reports?) ? presenter.can_subscribe_to_analytics_reports? : ''}",
+           "" ] if analytics_helper_debug_verbose
     case ::Deepblue::AnalyticsIntegrationService.hit_graph_view_level
     when 0
       false
@@ -745,16 +800,71 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     end
   end
 
-  def self.update_current_month_condensed_events
-    # will there be an issue with daily savings time?
-    beginning_of_month = Time.now.beginning_of_month.beginning_of_day
-    end_of_month = beginning_of_month.end_of_month.end_of_day
-    date_range = beginning_of_month..end_of_month
-    update_condensed_events_for( date_range: date_range )
+  def self.store_total_downloads( name:,
+                                  id:,
+                                  condensed_event:,
+                                  date_range:,
+                                  force: false,
+                                  record: nil,
+                                  msg_handler: nil )
+    msg_handler = MSG_HANDLER_DEBUG_ONLY if msg_handler.nil?
+    # debug_verbose = msg_handler.debug_verbose || analytics_helper_debug_verbose
+    debug_verbose = analytics_helper_debug_verbose
+    msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
+                             ::Deepblue::LoggingHelper.called_from,
+                             "name=#{name}",
+                             "id=#{id}",
+                             "condensed_event=#{condensed_event}",
+                             "condensed_event[\"total_downloads\"]=#{condensed_event["total_downloads"]}",
+                             "date_range=#{date_range_readable(date_range)}",
+                             "record=#{record&.inspect}",
+                             "" ] if debug_verbose
+    return if condensed_event["total_downloads"] == 0 # TODO: add flag to force writing of zero records
+    if record.nil?
+      msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
+                               ::Deepblue::LoggingHelper.called_from,
+                               "find record",
+                               "Ahoy::CondensedEvent.find_by( name: #{name}, cc_id: #{id}, date_begin: #{date_range.first}, date_end: #{date_range.last} )",
+                               "" ] if debug_verbose
+      Ahoy::CondensedEvent.find_by( name: name, cc_id: id, date_begin: date_range.first, date_end: date_range.last )
+      record = Ahoy::CondensedEvent.find_by( name: name,
+                                             cc_id: id,
+                                             date_begin: date_range.first,
+                                             date_end: date_range.last )
+      msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
+                               ::Deepblue::LoggingHelper.called_from,
+                               "record found=#{record&.inspect}",
+                               "" ] if debug_verbose
+    end
+    if record.present? && !force
+      msg_handler.msg_debug "Skipping save because record present and not force update." if debug_verbose
+      return
+    end
+    if record.nil?
+      msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
+                               ::Deepblue::LoggingHelper.called_from,
+                               "create record",
+                               "" ] if debug_verbose
+      record = Ahoy::CondensedEvent.new( name: name,
+                                         cc_id: id,
+                                         date_begin: date_range.first,
+                                         date_end: date_range.last )
+    end
+    record.condensed_event = condensed_event
+    msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
+                             ::Deepblue::LoggingHelper.called_from,
+                             "save record=#{record.inspect}",
+                             "" ] if debug_verbose
+    record.save
+  end
+
+  def self.truncate_date( time )
+    time.getutc + time.gmt_offset.seconds
   end
 
   def self.update_condensed_events_for( date_range: )
-    name_cc_ids = Ahoy::Event.select( :name, :cc_id ).where( time: date_range ).distinct.pluck( :name, :cc_id )
+    name_cc_ids = Ahoy::Event.select( :name, :cc_id ).where( time: date_range ).distinct.pluck( :name,
+                                                                                                :cc_id )
     name_cc_ids.each do |name_cc_id|
       name = name_cc_id[0]
       cc_id = name_cc_id[1]
@@ -774,6 +884,249 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     end
   end
 
+  def self.update_condensed_events_for_work_file( name:,
+                                                  fs_name: nil,
+                                                  filter:,
+                                                  fid:,
+                                                  date_range:,
+                                                  date_range_filter: nil,
+                                                  condensed_event: nil,
+                                                  force: false,
+                                                  msg_handler: nil )
+
+    msg_handler = MSG_HANDLER_DEBUG_ONLY if msg_handler.nil?
+    debug_verbose = msg_handler.debug_verbose || analytics_helper_debug_verbose
+    msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
+                             ::Deepblue::LoggingHelper.called_from,
+                             "name=#{name}",
+                             "filter=#{filter}",
+                             "fid=#{fid}",
+                             "date_range=#{date_range_readable(date_range)}",
+                             "date_range_filter=#{date_range_readable(date_range_filter)}",
+                             "force=#{force}",
+                             "" ] if debug_verbose
+
+    date_range_filter = date_range if date_range_filter.blank?
+    condensed_event = { "total_downloads" => 0 } if condensed_event.blank?
+    records = Ahoy::Event.where( name: filter, cc_id: fid, time: date_range_filter )
+    msg_handler.msg_debug "Found #{records.size} records using Ahoy::Event.where( name: #{filter}, cc_id: #{fid}, time: #{date_range_filter} )"
+    records.each do |r|
+      next if r.properties["file"] == "thumbnail"
+      visits = Ahoy::Event.where( name: filter, visit_id: r.visit_id, cc_id: r.cc_id, time: date_range_filter )
+      msg_handler.msg_debug "Found #{records.size} visits using Ahoy::Event.where( name: #{filter}, visit_id: #{r.visit_id}, cc_id: #{r.cc_id}, time: #{date_range_filter} )"
+      if visits.count > max_visit_filter_count # why are we skipping, rather than counting 1?
+        msg_handler.msg_debug "Skipping count because visits.count #{visits.count} > #{max_visit_filter_count} (max_visit_filter_count)"
+        next
+      end
+      ip_count = compute_ip_count_for_object( name: filter,
+                                              cc_id: r.cc_id,
+                                              visit_id: r.visit_id,
+                                              date_range_filter: date_range_filter,
+                                              msg_handler: msg_handler )
+
+      if ip_count > max_visit_filter_count # why are we skipping, rather than counting 1?
+        msg_handler.msg_debug "Skipping count because ip_count #{ip_count} > #{max_visit_filter_count} (max_visit_filter_count)"
+        next
+      end
+      if skip_admin_events && user_is_admin( user_id: r.user_id )
+        msg_handler.msg_debug "Skipping because #{r.user_id} is an admin"
+        next
+      end
+      msg_handler.msg_debug "Incrementing total downloads"
+      condensed_event["total_downloads"] = condensed_event["total_downloads"] + 1
+      condensed_event[fid] = 0 unless condensed_event[fid].present?
+      condensed_event[fid] = condensed_event[fid] + 1
+    end
+    if fs_name.present?
+      store_total_downloads( name: fs_name,
+                             id: fid,
+                             condensed_event: condensed_event,
+                             date_range: date_range,
+                             force: force,
+                             msg_handler: msg_handler )
+    end
+    return condensed_event
+  end
+
+  def self.update_condensed_events_for_work_files( name:,
+                                                   fs_name: nil,
+                                                   filter:,
+                                                   work:,
+                                                   date_range:,
+                                                   date_range_filter: nil,
+                                                   force: false,
+                                                   msg_handler: nil )
+
+    msg_handler = MSG_HANDLER_DEBUG_ONLY if msg_handler.nil?
+    debug_verbose = msg_handler.debug_verbose || analytics_helper_debug_verbose
+    msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
+                             ::Deepblue::LoggingHelper.called_from,
+                             "name=#{name}",
+                             "fs_name=#{fs_name}",
+                             "filter=#{filter}",
+                             "work.id=#{work.id}",
+                             "date_range=#{date_range_readable(date_range)}",
+                             "date_range_filter=#{date_range_readable(date_range_filter)}",
+                             "force=#{force}",
+                             "" ] if debug_verbose
+    unless work.published?
+      msg_handler.msg_verbose "Skipping published work: #{work.id}"
+      return
+    end
+
+    msg_handler.msg_verbose "Setting nil date_range_filter to date_range" if date_range_filter.blank?
+    date_range_filter = date_range if date_range_filter.blank?
+    begin_date = date_range.first
+    end_date = date_range.last
+    record = Ahoy::CondensedEvent.find_by( name: name, cc_id: work.id, date_begin: begin_date, date_end: end_date )
+    msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
+                             ::Deepblue::LoggingHelper.called_from,
+                             "record=#{record&.inspect}",
+                             "" ] if debug_verbose
+    if record.present? && !force
+      msg_handler.msg_verbose "Skipping #{work.id} because record present and not force update"
+      return
+    end
+    condensed_event = { "total_downloads" => 0 }
+    work.file_set_ids.each do |fid|
+      update_condensed_events_for_work_file( name: name,
+                                             fs_name: fs_name,
+                                             filter: filter,
+                                             fid: fid,
+                                             date_range: date_range,
+                                             date_range_filter: date_range_filter,
+                                             condensed_event: condensed_event,
+                                             force: force,
+                                             msg_handler: msg_handler )
+    end
+    store_total_downloads( name: name,
+                           id: work.id,
+                           condensed_event: condensed_event,
+                           date_range: date_range,
+                           force: force,
+                           record: record,
+                           msg_handler: msg_handler )
+  end
+
+  # This one is called for zip and globus requests.
+  def self.update_condensed_events_for_work_zip_globus_downloads_in_date_range( name:,
+                                                                                filter:,
+                                                                                work:,
+                                                                                date_range:,
+                                                                                date_range_filter: nil,
+                                                                                force: false,
+                                                                                msg_handler: nil )
+
+    msg_handler = MSG_HANDLER_DEBUG_ONLY if msg_handler.nil?
+
+    #For monthly, the date_range_filter and the date_range should be the same.  date_range_filter is not passed in.
+    #For toDate, the date_range_filter is used to access teh Event Table, so this entry will be 1972..2022-12-31 ( something like that )
+    #For toDate, the date_range is used for the CondensedEvent Table, so this entry will be one entry 1972..2972
+    #find_by grabs one record.
+    #where clause can grab more than one record
+    return unless work.published?
+    date_range_filter = date_range if date_range_filter.blank?
+    begin_date = date_range.first
+    end_date = date_range.last
+    record = Ahoy::CondensedEvent.find_by( name: name, cc_id: work.id, date_begin: begin_date, date_end: end_date )
+    return if record.present? && !force
+    condensed_event = { "total_downloads" => 0 }
+
+    records = Ahoy::Event.where( name: filter, cc_id: work.id, time: date_range_filter )
+    records.each do |r|
+      visits = Ahoy::Event.where( name: filter, visit_id: r.visit_id, cc_id: r.cc_id, time: date_range_filter )
+      next if visits.count > max_visit_filter_count
+
+      ip_count = compute_ip_count_for_object( name: filter,
+                                              cc_id: r.cc_id,
+                                              visit_id: r.visit_id,
+                                              date_range_filter: date_range_filter,
+                                              msg_handler: msg_handler )
+      next if ip_count > max_visit_filter_count
+
+      next if skip_admin_events && user_is_admin( user_id: r.user_id )
+
+      condensed_event["total_downloads"] = condensed_event["total_downloads"] + 1
+    end
+
+    return if condensed_event["total_downloads"] == 0
+    # store results to condensed events table
+    record = Ahoy::CondensedEvent.new( name: name,
+                                       cc_id: work.id,
+                                       date_begin: begin_date,
+                                       date_end: end_date ) if record.blank?
+    record.condensed_event = condensed_event
+    record.save
+  end
+
+  def self.update_current_month_condensed_events
+    # will there be an issue with daily savings time?
+    beginning_of_month = Time.now.beginning_of_month.beginning_of_day
+    end_of_month = beginning_of_month.end_of_month.end_of_day
+    date_range = beginning_of_month..end_of_month
+    update_condensed_events_for( date_range: date_range )
+  end
+
+  #This is called by the cronjob in UpdateCondensedEventsJob
+  def self.updated_condensed_event_work_downloads( force: false, msg_handler: nil )
+    # Only do this at the 1st of the month
+    return if Date.today > Date.today.at_beginning_of_month && !force
+    msg_handler = MSG_HANDLER_DEBUG_ONLY if msg_handler.nil?
+    date_range_month = AnalyticsHelper.date_range_for_month_previous
+    date_range_all = AnalyticsHelper.date_range_all
+    date_range_start = AnalyticsHelper.date_range_since_start
+    DataSet.all.each do |work|
+      update_condensed_events_for_work_files( name: WORK_FILE_DWNLDS_PER_MONTH,
+                                              filter: DOWNLOAD_EVENT,
+                                              work: work,
+                                              date_range: date_range_month,
+                                              force: true,
+                                              msg_handler: msg_handler )
+      update_condensed_events_for_work_files( name: WORK_FILE_DWNLDS_TO_DATE,
+                                              filter: DOWNLOAD_EVENT,
+                                              work: work,
+                                              date_range: date_range_all,
+                                              date_range_filter: date_range_start,
+                                              force: true,
+                                              msg_handler: msg_handler )
+
+      update_condensed_events_for_work_zip_globus_downloads_in_date_range( name: WORK_ZIP_DWNLDS_PER_MONTH,
+                                                                           filter: WORK_ZIP_DOWNLOAD_EVENT,
+                                                                           work: work,
+                                                                           date_range: date_range_month,
+                                                                           force: true,
+                                                                           msg_handler: msg_handler )
+      update_condensed_events_for_work_zip_globus_downloads_in_date_range( name: WORK_ZIP_DWNLDS_TO_DATE,
+                                                                           filter: WORK_ZIP_DOWNLOAD_EVENT,
+                                                                           work: work,
+                                                                           date_range: date_range_all,
+                                                                           date_range_filter: date_range_start,
+                                                                           force: true,
+                                                                           msg_handler: msg_handler )
+
+      update_condensed_events_for_work_zip_globus_downloads_in_date_range( name: WORK_GLOBUS_DWNLDS_PER_MONTH,
+                                                                           filter: WORK_GLOBUS_EVENT,
+                                                                           work: work,
+                                                                           date_range: date_range_month,
+                                                                           force: true,
+                                                                           msg_handler: msg_handler )
+      update_condensed_events_for_work_zip_globus_downloads_in_date_range( name: WORK_GLOBUS_DWNLDS_TO_DATE,
+                                                                           filter: WORK_GLOBUS_EVENT,
+                                                                           work: work,
+                                                                           date_range: date_range_all,
+                                                                           date_range_filter: date_range_start,
+                                                                           force: true,
+                                                                           msg_handler: msg_handler )
+    end
+  end
+
+  def self.user_is_admin( user_id: )
+    email = User.where( id: user_id )&.first&.email
+    admin_users = RoleMapper.map["admin"]
+
+    admin_users.include? email
+  end
+
   def self.work_hits_by_date( controller_class:, cc_id: nil, date_range: nil )
     visits = events_by_date( name: "#{controller_class.name}#show",
                              cc_id: cc_id,
@@ -788,10 +1141,6 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
                              data_name: "globus",
                              date_range: date_range )
     [ visits, zip, globus ]
-  end
-
-  def self.truncate_date( time )
-    time.getutc + time.gmt_offset.seconds
   end
 
 end

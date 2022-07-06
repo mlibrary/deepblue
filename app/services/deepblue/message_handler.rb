@@ -80,6 +80,15 @@ module Deepblue
       return rv
     end
 
+    def self.msg_handler_null( debug_verbose: false,
+                               msg_prefix: false,
+                               msg_queue: nil,
+                               to_console: false,
+                               verbose: false  )
+
+      @@message_handler_null ||= MessageHandlerNull.new.freeze
+    end
+
     def self.option_value( options, key:, default_value: nil, verbose: false )
       options = @options
       return default_value if options.blank?
@@ -115,25 +124,36 @@ module Deepblue
     # with the MessageHandler's to_console flag, and use the MessageHandler's logger, which defaults
     # to Rails.logger
     def bold_debug( msg = nil,
-                   bold_puts: @to_console,
-                   label: nil,
-                   key_value_lines: true,
-                   add_stack_trace: false,
-                   add_stack_trace_depth: 3,
-                   lines: 1,
-                   logger: nil, # defaults to the MessageHandler's logger
-                   &block )
+                    bold_puts: @to_console,
+                    label: nil,
+                    key_value_lines: true,
+                    add_stack_trace: false,
+                    add_stack_trace_depth: 3,
+                    lines: 1,
+                    logger: nil, # defaults to the MessageHandler's logger
+                    &block )
 
-      logger ||= self.logger
-      LoggingHelper.bold_debug( msg,
-                                bold_puts: bold_puts,
-                                label: label,
-                                key_value_lines: key_value_lines,
-                                add_stack_trace: add_stack_trace,
-                                add_stack_trace_depth: add_stack_trace_depth,
-                                lines: lines,
-                                logger: logger,
-                                &block ) if debug_verbose
+      return unless debug_verbose
+      if to_console
+        LoggingHelper.bold_puts( msg,
+                                 label: label,
+                                 key_value_lines: key_value_lines,
+                                 add_stack_trace: add_stack_trace,
+                                 add_stack_trace_depth: add_stack_trace_depth,
+                                 lines: lines,
+                                 &block )
+      else
+        logger ||= self.logger
+        LoggingHelper.bold_debug( msg,
+                                  bold_puts: bold_puts,
+                                  label: label,
+                                  key_value_lines: key_value_lines,
+                                  add_stack_trace: add_stack_trace,
+                                  add_stack_trace_depth: add_stack_trace_depth,
+                                  lines: lines,
+                                  logger: logger,
+                                  &block )
+      end
     end
 
     # buffer up input messages then pre-pend the next msg with the buffer,
@@ -188,9 +208,9 @@ module Deepblue
       @logger ||= Rails.logger
     end
 
-    def msg( msg = nil, log: LOG_NONE, prefix: PREFIX_NONE )
+    def msg( msg = nil, log: LOG_NONE, prefix: PREFIX_NONE, &block )
       return buffer_reset if quiet
-      msg_raw( msg, log: log, prefix: prefix )
+      msg_raw( msg, log: (log ? LOG_INFO : LOG_NONE), prefix: prefix, &block )
     end
 
     def msg_debug( msg, log: false, &block )
@@ -264,6 +284,10 @@ module Deepblue
     def msg_error_unless?( rv, msg:, log: LOG_NONE )
       msg_error( msg, log: log ) unless rv
       return rv
+    end
+
+    def null_msg_handler?
+      false
     end
 
     private

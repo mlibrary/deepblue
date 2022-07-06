@@ -19,12 +19,28 @@ RSpec.describe AnalyticsHelper, type: :helper do
   # let( :flipflop ) { class_double( "Flipflop" ) }
 
   describe 'constants' do
-    it "resolves them" do
-      expect( AnalyticsHelper::MONTHLY_EVENTS_REPORT_EVENT_NAME_TO_LABEL_MAP ).to eq(
+    it { expect( AnalyticsHelper::BEGINNING_OF_TIME ).to eq Time.new(1972,1,1) }
+    it { expect( AnalyticsHelper::END_OF_TIME  ).to eq AnalyticsHelper::BEGINNING_OF_TIME + 1000.year }
+
+    it { expect( AnalyticsHelper::FILE_SET_DWNLDS_PER_MONTH ).to eq "FileSetDownloadsPerMonth" }
+    it { expect( AnalyticsHelper::FILE_SET_DWNLDS_TO_DATE ).to eq "FileSetDownloadsToDate" }
+    #
+    it { expect( AnalyticsHelper::WORK_FILE_DWNLDS_PER_MONTH ).to eq "WorkFileDownloadsPerMonth" }
+    it { expect( AnalyticsHelper::WORK_FILE_DWNLDS_TO_DATE ).to eq "WorkFileDownloadsToDate" }
+    it { expect( AnalyticsHelper::WORK_GLOBUS_DWNLDS_PER_MONTH ).to eq "WorkGlobusDownloadsPerMonth" }
+    it { expect( AnalyticsHelper::WORK_GLOBUS_DWNLDS_TO_DATE ).to eq "WorkGlobusDownloadsToDate" }
+    it { expect( AnalyticsHelper::WORK_ZIP_DWNLDS_PER_MONTH ).to eq "WorkZipDownloadsPerMonth" }
+    it { expect( AnalyticsHelper::WORK_ZIP_DWNLDS_TO_DATE ).to eq "WorkZipDownloadsToDate" }
+    #
+    it { expect( AnalyticsHelper::DOWNLOAD_EVENT ).to eq "Hyrax::DownloadsController#show" }
+    it { expect( AnalyticsHelper::WORK_GLOBUS_EVENT ).to eq "Hyrax::DataSetsController#globus_download_redirect" }
+    it { expect( AnalyticsHelper::WORK_SHOW_EVENT ).to eq "Hyrax::DataSetsController#show" }
+    it { expect( AnalyticsHelper::WORK_ZIP_DOWNLOAD_EVENT ).to eq "Hyrax::DataSetsController#zip_download" }
+
+    it { expect( AnalyticsHelper::MONTHLY_EVENTS_REPORT_EVENT_NAME_TO_LABEL_MAP ).to eq(
                                       { "Hyrax::DataSetsController#show" => "Visits",
                                         "Hyrax::DataSetsController#zip_download" => "Zip Downloads",
-                                        "Hyrax::DataSetsController#globus_download_redirect" => "Globus Downloads" } )
-    end
+                                        "Hyrax::DataSetsController#globus_download_redirect" => "Globus Downloads" } ) }
   end
 
   describe '.chartkick?' do
