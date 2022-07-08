@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
-require_relative './works_report_task.rb'
+require_relative './initialize_condensed_events_downloads_task'
 
 namespace :deepblue do
-
-  require_relative '../../app/services/deepblue/work_impact_reporter'
 
   # bundle exec rake deepblue:initialize_condensed_events_downloads
   # bundle exec rake deepblue:initialize_condensed_events_downloads['{"verbose":true}']
@@ -12,7 +10,7 @@ namespace :deepblue do
   # bundle exec rake deepblue:initialize_condensed_events_downloads['{"verbose":true\,"only_published":true}']
   # bundle exec rake deepblue:initialize_condensed_events_downloads['{"verbose":true\,"clean_work_events":true}']
 
-  desc 'Write impact report for works'
+  desc 'Initialize condensed events downloads'
   task :initialize_condensed_events_downloads, %i[ options ] => :environment do |_task, args|
     args.with_defaults( options: '{}' )
     options = ::Deepblue::OptionsHelper.parse args[:options]
