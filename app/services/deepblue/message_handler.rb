@@ -108,7 +108,7 @@ module Deepblue
                     msg_prefix: DEFAULT_MSG_PREFIX,
                     msg_queue: [],
                     to_console: DEFAULT_TO_CONSOLE,
-                    verbose: DEFAULT_VERBOSE )
+                    verbose: DEFAULT_VERBOSE ) # TODO: add logger as parameter
 
       @debug_verbose = debug_verbose
       @msg_prefix = msg_prefix
@@ -186,22 +186,9 @@ module Deepblue
     end
 
     def line( msg, log: LOG_NONE )
-      case log
-      when LOG_NONE
-        # do nothing
-      when LOG_DEBUG
-        logger.debug msg
-      when LOG_ERROR
-        logger.error msg
-      when LOG_INFO
-        logger.info msg
-      when LOG_WARN
-        logger.warn msg
-      else
-        # do nothing
-      end
-      @msg_queue << msg unless @msg_queue.nil?
-      puts msg if @to_console
+      log_line( msg, log: log )
+      queue_msg msg
+      puts_to_console msg
     end
 
     def logger
@@ -290,13 +277,23 @@ module Deepblue
       false
     end
 
-    private
+    protected
 
-    def msg_raw( msg = nil, log: LOG_NONE, prefix: PREFIX_NONE )
-      msg_no_block( msg, log: log, prefix: prefix ) unless msg.nil?
-      return unless block_given?
-      msg = yield
-      msg_no_block( msg, log: log, prefix: prefix ) unless msg.nil?
+    def log_line( msg, log: )
+      case log
+      when LOG_NONE
+        # do nothing
+      when LOG_DEBUG
+        logger.debug msg
+      when LOG_ERROR
+        logger.error msg
+      when LOG_INFO
+        logger.info msg
+      when LOG_WARN
+        logger.warn msg
+      else
+        # do nothing
+      end
     end
 
     def msg_no_block( msg, log: LOG_NONE, prefix: PREFIX_NONE )
@@ -315,6 +312,24 @@ module Deepblue
       else
         line("#{@msg_prefix}#{prefix}#{msg}", log: log )
       end
+    end
+
+    def puts_to_console( msg )
+      return unless @to_console
+      puts msg
+    end
+
+    def queue_msg( msg )
+      return if @msg_queue.nil?
+      @msg_queue << msg
+    end
+
+    def msg_raw( msg = nil, log: LOG_NONE, prefix: PREFIX_NONE )
+      msg_no_block( msg, log: log, prefix: prefix ) unless msg.nil?
+      return unless block_given?
+      msg = yield
+      return if msg.nil?
+      msg_no_block( msg, log: log, prefix: prefix )
     end
 
   end

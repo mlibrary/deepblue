@@ -4,13 +4,14 @@ module Deepblue
 
   require_relative './abstract_reporter'
 
-  class WorkImpactReporter < AbstractReporter # TODO: one of the headers is mixed up (create date and ??)
+  class WorkImpactReporter < AbstractReporter
 
     mattr_accessor :work_impact_reporter_debug_verbose, default: false
 
     DEFAULT_REPORT_DIR = nil unless const_defined? :DEFAULT_REPORT_DIR
     DEFAULT_REPORT_FILE_PREFIX = nil unless const_defined? :DEFAULT_REPORT_FILE_PREFIX
     DEFAULT_REPORT_QUIET = true unless const_defined? :DEFAULT_REPORT_QUIET
+    DEFAULT_SKIP_ADMIN = true unless const_defined? :DEFAULT_SKIP_ADMIN
 
     class WorkDatum
 
@@ -55,12 +56,14 @@ module Deepblue
     attr_accessor :file_set_data
     attr_accessor :date_filter
     attr_reader :begin_date, :end_date
+    attr_accessor :skip_admin
 
     # do the date_filter as options
 
     def initialize( msg_handler:, options: {} )
       msg_handler.debug_verbose = msg_handler.debug_verbose || work_impact_reporter_debug_verbose
       super( msg_handler: msg_handler, options: options )
+      @skip_admin = task_options_value( key: 'skip_admin', default_value: DEFAULT_SKIP_ADMIN )
       @work_data = []
     end
 
@@ -110,23 +113,20 @@ module Deepblue
                                        d.file_set_ids.size,
                                        d.total_file_size] },
                    filename: report_filename )
-      work_monthly_report( csv_header: %w[original_order month_begin_date works_created file_set_count total_file_size],
-                           date_extractor: ->(datum) { datum.create_date },
+      work_monthly_report( date_extractor: ->(datum) { datum.create_date },
                            output_file: report_filename( postfix: "_monthly_created" ),
                            data_array: @work_data )
       data = select_published( @work_data )
-      work_monthly_report( csv_header: %w[original_order month_begin_date works_published file_set_count total_file_size],
-                           date_extractor: ->(datum) { datum.date_published },
+      work_monthly_report( date_extractor: ->(datum) { datum.date_published },
                            output_file: report_filename( postfix: "_monthly_published" ),
                            data_array: data )
       data = load_file_sets
       file_report( csv_header: %w[original_order id parent_id create_date date_modified date_published file_size],
                    data_array: data,
-                   extract: ->(d,i) { [i,d.id,d.create_date,d.parent_id,d.date_modified,d.date_published,d.file_size] },
+                   extract: ->(d,i) { [i,d.id,d.parent_id,d.create_date,d.date_modified,d.date_published,d.file_size] },
                    filename: report_filename( postfix: "_file_sets" ) )
       data = select_published( data )
-      file_set_monthly_report( csv_header: %w[original_order month_begin_date file_sets_created total_file_size],
-                               date_extractor: ->(datum) { datum.create_date },
+      file_set_monthly_report( date_extractor: ->(datum) { datum.create_date },
                                output_file: report_filename( postfix: "_monthly_created_file_sets" ),
                                data_array: data )
     end
@@ -135,7 +135,10 @@ module Deepblue
       Pathname.new( @report_dir ).join( "#{@prefix}#{postfix}#{ext}" )
     end
 
-    def file_report( csv_header:, data_array:, extract:, filename: )
+    def file_report( csv_header:,
+                     data_array:,
+                     extract:,
+                     filename: )
       msg_handler.msg "Report file: #{filename}"
       CSV.open( filename, "w", {:force_quotes=>true} ) do |csv|
         csv << csv_header
@@ -145,7 +148,10 @@ module Deepblue
       end
     end
 
-    def file_set_monthly_report( csv_header:, date_extractor:, output_file:, data_array: )
+    def file_set_monthly_report( csv_header: %w[original_order month_begin_date file_sets_created total_file_size],
+                                 date_extractor:,
+                                 output_file:,
+                                 data_array: )
       first_date = data_array[0].create_date
       msg_handler.msg_verbose "First date: #{first_date}"
       msg_handler.msg "Report file: #{output_file}"
@@ -254,7 +260,11 @@ module Deepblue
       return data
     end
 
-    def work_monthly_report( csv_header:, date_extractor:, output_file:, data_array: )
+    def work_monthly_report( csv_header: %w[original_order month_begin_date works_published file_set_count total_downloads total_file_size],
+                             date_extractor:,
+                             output_file:,
+                             data_array: )
+
       first_date = data_array[0].create_date
       msg_handler.msg_verbose "First date: #{first_date}"
       msg_handler.msg "Report file: #{output_file}"
@@ -265,18 +275,23 @@ module Deepblue
         msg_handler.msg_verbose "First date: #{first_date}"
         # starting with the first_date found, create a month bracket
         # step through each month creating a month summary of work counts
-        begin_on = first_date.beginning_of_month.beginning_of_day
-        end_on = begin_on.end_of_month.end_of_day
+        month_begin_date = first_date.beginning_of_month.beginning_of_day
+        month_end_date = month_begin_date.end_of_month.end_of_day
         month = 1
         index = 0
         datum = data_array[index]
         date = date_extractor.call(datum)
+        gt_count_for_month = 0
+        gt_total_downloads = 0
+        gt_total_file_sets = 0
+        gt_total_file_size = 0
         # step through month creating a month summary of total files created and total file sizes added
-        while begin_on <= last_date # && (index < data_array.size)
+        while month_begin_date <= last_date # && (index < data_array.size)
           count_for_month = 0
+          total_downloads = 0
           total_file_sets = 0
           total_file_size = 0
-          while (index < data_array.size) && (date <= end_on)
+          while (index < data_array.size) && (date <= month_end_date)
             count_for_month += 1
             total_file_sets += datum.file_set_ids.size
             total = datum.total_file_size
@@ -286,12 +301,20 @@ module Deepblue
             break if index >= data_array.size
             datum = data_array[index]
             date = date_extractor.call(datum)
+            total = ::AnalyticsHelper.work_file_total_downloads_for_month( id: datum.id, date_in_month: date )
+            total_downloads += total
           end
-          csv << [month,begin_on,count_for_month,total_file_sets,total_file_size]
-          begin_on = begin_on.next_month
-          end_on = begin_on.end_of_month.end_of_day
+          csv << [month, month_begin_date, count_for_month, total_file_sets, total_downloads, total_file_size]
+          gt_count_for_month += count_for_month
+          gt_total_downloads += total_downloads
+          gt_total_file_sets += total_file_sets
+          gt_total_file_size += total_file_size
+          month_begin_date = month_begin_date.next_month
+          month_end_date = month_begin_date.end_of_month.end_of_day
           month += 1
         end
+        # summary line
+        csv << ['Totals', '', gt_count_for_month, gt_total_file_sets, gt_total_downloads, gt_total_file_size]
       end
     end
 

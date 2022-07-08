@@ -9,13 +9,14 @@ module Deepblue
 
     mattr_accessor :report_helper_debug_verbose, default: false
 
-    def self.expand_path_partials( path )
+    def self.expand_path_partials( path, task: nil )
       return path unless path.present?
       now = Time.now
       path = path.gsub( /\%date\%/, "#{now.strftime('%Y%m%d')}" )
       path = path.gsub( /\%time\%/, "#{now.strftime('%H%M%S')}" )
       path = path.gsub( /\%timestamp\%/, "#{now.strftime('%Y%m%d%H%M%S')}" )
       path = path.gsub( /\%hostname\%/, "#{Rails.configuration.hostname}" )
+      path = path.gsub( /\%task\%/, task ) if task.present?
       return path
     end
 
