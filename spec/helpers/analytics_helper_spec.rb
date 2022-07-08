@@ -11,7 +11,9 @@ RSpec.describe AnalyticsHelper, type: :helper do
   end
 
   describe 'other module values' do
-    it { expect( described_class.max_visit_filter_count ).to eq 50  }
+    it { expect( described_class.max_visit_filter_count ).to eq 50 }
+    it { expect( described_class.skip_admin_events ).to eq true }
+    it { expect( described_class.store_zero_total_downloads ).to eq false }
   end
 
   let(:user) { build(:user) }
@@ -19,19 +21,19 @@ RSpec.describe AnalyticsHelper, type: :helper do
   # let( :flipflop ) { class_double( "Flipflop" ) }
 
   describe 'constants' do
-    it { expect( AnalyticsHelper::BEGINNING_OF_TIME ).to eq Time.new(1972,1,1) }
+    it { expect( AnalyticsHelper::BEGINNING_OF_TIME ).to eq Time.utc(1972,1,1) }
     it { expect( AnalyticsHelper::END_OF_TIME  ).to eq AnalyticsHelper::BEGINNING_OF_TIME + 1000.year }
 
     it { expect( AnalyticsHelper::FILE_SET_DWNLDS_PER_MONTH ).to eq "FileSetDownloadsPerMonth" }
     it { expect( AnalyticsHelper::FILE_SET_DWNLDS_TO_DATE ).to eq "FileSetDownloadsToDate" }
-    #
+
     it { expect( AnalyticsHelper::WORK_FILE_DWNLDS_PER_MONTH ).to eq "WorkFileDownloadsPerMonth" }
     it { expect( AnalyticsHelper::WORK_FILE_DWNLDS_TO_DATE ).to eq "WorkFileDownloadsToDate" }
     it { expect( AnalyticsHelper::WORK_GLOBUS_DWNLDS_PER_MONTH ).to eq "WorkGlobusDownloadsPerMonth" }
     it { expect( AnalyticsHelper::WORK_GLOBUS_DWNLDS_TO_DATE ).to eq "WorkGlobusDownloadsToDate" }
     it { expect( AnalyticsHelper::WORK_ZIP_DWNLDS_PER_MONTH ).to eq "WorkZipDownloadsPerMonth" }
     it { expect( AnalyticsHelper::WORK_ZIP_DWNLDS_TO_DATE ).to eq "WorkZipDownloadsToDate" }
-    #
+
     it { expect( AnalyticsHelper::DOWNLOAD_EVENT ).to eq "Hyrax::DownloadsController#show" }
     it { expect( AnalyticsHelper::WORK_GLOBUS_EVENT ).to eq "Hyrax::DataSetsController#globus_download_redirect" }
     it { expect( AnalyticsHelper::WORK_SHOW_EVENT ).to eq "Hyrax::DataSetsController#show" }
@@ -85,15 +87,15 @@ RSpec.describe AnalyticsHelper, type: :helper do
   # end
 
   describe '.date_range_for_month_of' do
-    let( :time ) { Time.new( 2019, 5, 6, 1, 2, 3 ) }
-    let( :month_begin ) { Time.new( 2019, 5, 1, 0, 0, 0 ).beginning_of_day }
-    let( :month_end ) { Time.new( 2019, 5, 31, 23, 59, 59 ).end_of_day }
+    let( :time ) { Time.utc( 2019, 5, 6, 1, 2, 3 ) }
+    let( :month_begin ) { Time.utc( 2019, 5, 1 ).beginning_of_day }
+    let( :month_end ) { Time.utc( 2019, 5, 31 ).end_of_day }
     subject { AnalyticsHelper.date_range_for_month_of( time: time ) }
     it { expect( subject ).to eq( month_begin..month_end ) }
   end
 
   describe '.date_range_for_month_previous' do
-    let( :time ) { Time.now - 1.month } # different time diff as starting point than #date_range_for_month_previous
+    let( :time ) { Time.now.getgm - 1.month } # different time diff as starting point than #date_range_for_month_previous
     let( :month_begin ) { time.beginning_of_month }
     let( :month_end ) { time.end_of_month.end_of_day }
     subject { AnalyticsHelper.date_range_for_month_previous }
@@ -114,8 +116,8 @@ RSpec.describe AnalyticsHelper, type: :helper do
     let( :name ) { "event_name" }
     let( :cc_id ) { "123456789" }
     let( :data_name ) { 'Data Name' }
-    let( :today_begin ) { Time.now.beginning_of_day }
-    let( :today_end ) { Time.now.end_of_day }
+    let( :today_begin ) { Time.now.getgm.beginning_of_day }
+    let( :today_end ) { Time.now.getgm.end_of_day }
     let( :date_range ) { today_begin..today_end }
 
     context "no data, no data_name" do
@@ -221,7 +223,7 @@ RSpec.describe AnalyticsHelper, type: :helper do
   end
 
   describe '.update_current_month_condensed_events' do
-    let( :month_begin ) { Time.now.beginning_of_month }
+    let( :month_begin ) { Time.now.getgm.beginning_of_month }
     let( :this_months_date_range ) { month_begin.beginning_of_day..month_begin.end_of_month.end_of_day }
     let( :return_value ) { []  }
 
