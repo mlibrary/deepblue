@@ -87,6 +87,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
         condensed_events_to_csv_row( csv, condensed_event, truncate_dates: truncate_dates )
       end
     end
+    return nil
   end
 
   def self.condensed_events_to_csv_header_row( csv )
@@ -967,6 +968,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
 
   def self.normalize_begin_end_dates_for( condensed_event:, msg_handler: nil )
     msg_handler = MSG_HANDLER_DEBUG_ONLY if msg_handler.nil?
+    # TODO: skip save if date_range already normalized
     per_month = ->(ce) { dr = date_range_for_month_of(time: ce.date_begin); ce.date_begin = dr.first; ce.date_end = dr.last }
     simple = ->(ce) { ce.date_begin = ce.date_begin.getgm; ce.date_end = ce.date_end.getgm; }
     to_date = ->(ce) { ce.date_begin = BEGINNING_OF_TIME; ce.date_end = END_OF_TIME }
