@@ -2,7 +2,7 @@
 
 module Deepblue
 
-  class FindAndFix
+  class FindAndFixJob
 
     mattr_accessor :find_and_fix_debug_verbose, default: FindAndFixService.find_and_fix_debug_verbose
 
