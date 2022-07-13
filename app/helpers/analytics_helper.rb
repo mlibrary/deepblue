@@ -28,6 +28,8 @@ module AnalyticsHelper
   FILE_SET_CONDENSED           = "FileSetCondensed".freeze
   FILE_SET_DWNLDS_PER_MONTH    = "FileSetDownloadsPerMonth".freeze
   FILE_SET_DWNLDS_TO_DATE      = "FileSetDownloadsToDate".freeze
+  FILE_SET_DWNLDS_ALL = [ FILE_SET_DWNLDS_PER_MONTH,
+                          FILE_SET_DWNLDS_TO_DATE ]
 
   WORK_CONDENSED               = "WorkCondensed".freeze
   WORK_FILE_DWNLDS_PER_MONTH   = "WorkFileDownloadsPerMonth".freeze
@@ -36,6 +38,12 @@ module AnalyticsHelper
   WORK_GLOBUS_DWNLDS_TO_DATE   = "WorkGlobusDownloadsToDate".freeze
   WORK_ZIP_DWNLDS_PER_MONTH    = "WorkZipDownloadsPerMonth".freeze
   WORK_ZIP_DWNLDS_TO_DATE      = "WorkZipDownloadsToDate".freeze
+  WORK_DWNLDS_ALL = [ WORK_FILE_DWNLDS_PER_MONTH,
+                      WORK_FILE_DWNLDS_TO_DATE,
+                      WORK_GLOBUS_DWNLDS_PER_MONTH,
+                      WORK_GLOBUS_DWNLDS_TO_DATE,
+                      WORK_ZIP_DWNLDS_PER_MONTH,
+                      WORK_ZIP_DWNLDS_TO_DATE ]
 
   DOWNLOAD_EVENT          = "Hyrax::DownloadsController#show".freeze
   WORK_GLOBUS_EVENT       = "Hyrax::DataSetsController#globus_download_redirect".freeze
@@ -188,6 +196,11 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     return date_range
   end
 
+  def self.date_range_expand( date_range_first, date_range_second )
+    date_range = date_range_first.first..date_range_second.last
+    return date_range
+  end
+
   def self.date_range_readable( date_range )
     return 'EMPTY' if date_range.blank?
     first = date_range.first
@@ -208,10 +221,34 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     return date_range
   end
 
-  def self.delete_condensed_event_monthly( name:, cc_id:, month: )
+  def self.delete_condensed_event_monthly( name:, cc_id:, month:, msg_handler: nil )
     record = Ahoy::CondensedEvent.find_by( name: name, cc_id: cc_id, date_begin: month.first, date_end: month.last )
     return if record.nil?
     record.delete
+  end
+
+  def self.delete_all_condensed_events_total_downloads_zero( msg_handler: nil )
+    FILE_SET_DWNLDS_ALL.each { |name| delete_condensed_events_total_downloads_zero( name: name, msg_handler: msg_handler ) }
+    WORK_DWNLDS_ALL.each { |name| delete_condensed_events_total_downloads_zero( name: name, msg_handler: msg_handler ) }
+  end
+
+  def self.delete_condensed_events_total_downloads_zero( name:, cc_id: nil, msg_handler: nil )
+    msg_handler = MSG_HANDLER_DEBUG_ONLY if msg_handler.nil?
+    if cc_id.blank?
+      records = Ahoy::CondensedEvent.where( name: name )
+    else
+      records = Ahoy::CondensedEvent.where( name: name, cc_id: cc_id )
+    end
+    records.each do |record|
+      if total_downloads_zero?( record )
+        # msg_handler.msg_verbose "delete record: #{record.inspect}"
+        record.delete
+      end
+    end
+  end
+
+  def self.ce_inspect( record )
+    "name: #{name}, cc_id: #{cc_id}, ..."
   end
 
   def self.download_event_skip_file?( event, msg_handler: nil )
@@ -663,6 +700,8 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
                                           cc_id: work.id,
                                           force: true,
                                           msg_handler: msg_handler )
+    delete_condensed_events_total_downloads_zero( name: per_month_event, cc_id: work.id, msg_handler: msg_handler )
+    delete_condensed_events_total_downloads_zero( name: to_date_event, cc_id: work.id, msg_handler: msg_handler )
   end
 
   def self.initialize_condensed_event_downloads_for_work_files( work:,
@@ -716,6 +755,8 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
                                             cc_id: fid,
                                             force: true,
                                             msg_handler: msg_handler )
+      delete_condensed_events_total_downloads_zero( name: FILE_SET_DWNLDS_PER_MONTH, cc_id: fid, msg_handler: msg_handler )
+      delete_condensed_events_total_downloads_zero( name: FILE_SET_DWNLDS_TO_DATE, cc_id: fid, msg_handler: msg_handler )
       file_set_condensed_events_guard( cc_id: fid )
     end
     store_sum_of_monthly_total_downloads( per_month_event: WORK_FILE_DWNLDS_PER_MONTH,
@@ -723,6 +764,8 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
                                           cc_id: work.id,
                                           force: true,
                                           msg_handler: msg_handler )
+    delete_condensed_events_total_downloads_zero( name: WORK_FILE_DWNLDS_PER_MONTH, cc_id: work.id, msg_handler: msg_handler )
+    delete_condensed_events_total_downloads_zero( name: WORK_FILE_DWNLDS_TO_DATE, cc_id: work.id, msg_handler: msg_handler )
   end
 
   def self.initialize_rather_than_update_work?( work:, msg_handler: nil )
@@ -1379,6 +1422,14 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     { 'total_downloads' => total_downloads }
   end
 
+  def self.total_downloads_zero?( record )
+    return false if record.blank?
+    return false if record.condensed_event.blank?
+    total_downloads = record.condensed_event['total_downloads']
+    return false if total_downloads.blank?
+    return 0 == total_downloads
+  end
+
   def self.truncate_date( time )
     time.getutc + time.gmt_offset.seconds
   end
@@ -1503,7 +1554,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
       # msg_handler.msg_verbose "Skipping unpublished work: #{work.id}"
       return
     end
-    date_range_two_months = date_range_month_previous.date_begin..date_range_month_current.date_end
+    date_range_two_months = date_range_expand( date_range_month_previous, date_range_month_current )
     month_per_month_record_map = event_records_for( event: download_event,
                                                     cc_id: work.id,
                                                     date_range: date_range_two_months,
@@ -1547,6 +1598,8 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
                                           cc_id: work.id,
                                           force: true,
                                           msg_handler: msg_handler )
+    delete_condensed_events_total_downloads_zero( name: per_month_event, cc_id: work.id, msg_handler: msg_handler )
+    delete_condensed_events_total_downloads_zero( name: to_date_event, cc_id: work.id, msg_handler: msg_handler )
   end
 
   def self.update_condensed_event_downloads_for_work_files( work:,
@@ -1573,7 +1626,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     delete_condensed_event_monthly( name: WORK_GLOBUS_DWNLDS_PER_MONTH, cc_id: work.id, month: date_range_month_previous )
     delete_condensed_event_monthly( name: WORK_GLOBUS_DWNLDS_PER_MONTH, cc_id: work.id, month: date_range_month_current )
     work.file_set_ids.each do |fid|
-      date_range_two_months = date_range_month_previous.date_begin..date_range_month_current.date_end
+      date_range_two_months = date_range_expand( date_range_month_previous, date_range_month_current )
       month_per_month_record_map = event_records_for( event: DOWNLOAD_EVENT,
                                                       cc_id: fid,
                                                       date_range: date_range_two_months,
@@ -1581,9 +1634,10 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
                                                       msg_handler: msg_handler )
       month_per_month_record_map.each_pair do |_date_begin,record|
         skip_predicate = ->(record, msg_handler) { download_event_skip_file?( record, msg_handler: msg_handler ) }
+        month = date_range_from( record )
         ip_event_count_map = initialize_visit_event_map( event: DOWNLOAD_EVENT,
                                                          cc_id: fid,
-                                                         month: date_range_from( record ),
+                                                         month: month,
                                                          skip_predicate: skip_predicate,
                                                          msg_handler: msg_handler )
         store_condensed_event_total_downloads( record: record,
@@ -1612,12 +1666,16 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
                                             cc_id: fid,
                                             force: true,
                                             msg_handler: msg_handler )
+      delete_condensed_events_total_downloads_zero( name: FILE_SET_DWNLDS_PER_MONTH, cc_id: fid, msg_handler: msg_handler )
+      delete_condensed_events_total_downloads_zero( name: FILE_SET_DWNLDS_TO_DATE, cc_id: fid, msg_handler: msg_handler )
     end
     store_sum_of_monthly_total_downloads( per_month_event: WORK_FILE_DWNLDS_PER_MONTH,
                                           to_date_event: WORK_FILE_DWNLDS_TO_DATE,
-                                          cc_id: work_id,
+                                          cc_id: work.id,
                                           force: true,
                                           msg_handler: msg_handler )
+    delete_condensed_events_total_downloads_zero( name: WORK_FILE_DWNLDS_PER_MONTH, cc_id: work.id, msg_handler: msg_handler )
+    delete_condensed_events_total_downloads_zero( name: WORK_FILE_DWNLDS_TO_DATE, cc_id: work.id, msg_handler: msg_handler )
   end
 
   def self.update_condensed_events_for( date_range: )

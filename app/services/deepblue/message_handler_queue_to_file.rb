@@ -4,14 +4,22 @@ module Deepblue
 
   class MessageHandlerQueueToFile < MessageHandler
 
-    def self.msg_handler_for( task:,
-                              msg_queue_file:,
+    def self.msg_handler_for( task: true,
+                              task_id: nil,
+                              msg_queue_file: nil,
                               append: false,
                               debug_verbose: DEFAULT_DEBUG_VERBOSE,
                               msg_prefix: MessageHandler::DEFAULT_MSG_PREFIX,
                               to_console: MessageHandler::DEFAULT_TO_CONSOLE,
                               verbose: MessageHandler::DEFAULT_VERBOSE )
 
+      if msg_queue_file.blank?
+        if task_id.blank?
+          msg_queue_file ||= "./log/%timestamp%.log"
+        else
+          msg_queue_file ||= "./log/%timestamp%.#{task_id}.log"
+        end
+      end
       if task
         MessageHandlerQueueToFile.new( msg_queue_file: msg_queue_file,
                                        append: append,
