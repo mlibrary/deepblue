@@ -93,22 +93,23 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     msg_handler = MSG_HANDLER_DEBUG_ONLY if msg_handler.nil?
     file_path = ::Deepblue::ReportHelper.expand_path_partials( file_path, task: 'condensed_events' )
     file_path = File.absolute_path file_path
-    return unless msg_handler.msg_error_unless?( Dir.exist?(File.dirname(file_path)),
+    return file_path unless msg_handler.msg_error_unless?( Dir.exist?(File.dirname(file_path)),
                                                  msg: "Parent directory not found: '#{file_path}'"  )
     CSV.open( file_path, 'w', {:force_quotes=>true} ) do |csv|
       condensed_events_to_csv_header_row( csv )
+      msg_handler.msg_verbose {"Writing #{::Ahoy::CondensedEvent.all.size} condensed events to #{file_path}"}
       ::Ahoy::CondensedEvent.all.each do |condensed_event|
-        condensed_events_to_csv_row( csv, condensed_event, truncate_dates: truncate_dates )
+        condensed_events_to_csv_row( csv, condensed_event, truncate_dates: truncate_dates, msg_handler: msg_handler )
       end
     end
-    return nil
+    return file_path
   end
 
   def self.condensed_events_to_csv_header_row( csv )
     csv << %w[name cc_id date_begin date_end condensed_event created_at updated_at]
   end
 
-  def self.condensed_events_to_csv_row( csv, condensed_event, truncate_dates: )
+  def self.condensed_events_to_csv_row( csv, condensed_event, truncate_dates:, msg_handler: nil )
     date_begin = condensed_event.date_begin
     date_end = condensed_event.date_end
     date_begin = date_begin.strftime('%Y/%m/%d') if truncate_dates
@@ -544,6 +545,15 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
   def self.hit_graph_everyone?
     # 0 = none, 1 = admin, 2 = editor, 3 = everyone
     2 < ::Deepblue::AnalyticsIntegrationService.hit_graph_view_level
+  end
+
+  def self.initialize_condensed_events_progress( msg_handler: nil )
+    msg_handler = MSG_HANDLER_DEBUG_ONLY if msg_handler.nil?
+    works = ::Ahoy::CondensedEvent.where( name: AnalyticsHelper::WORK_CONDENSED ).size
+    file_sets = ::Ahoy::CondensedEvent.where( name: AnalyticsHelper::FILE_SET_CONDENSED ).size
+    high_traffic_ips = ::Ahoy::CondensedEvent.where( name: AnalyticsHelper::HIGH_TRAFFIC_IP ).size
+    total = ::Ahoy::CondensedEvent.all.size
+    msg_handler.msg "Works condensed: #{works}; File sets condensed: #{file_sets}; High traffic ips found: #{high_traffic_ips}; Total condensed events: #{total};"
   end
 
   # This is just needed at the time the stats are setup from rails console
