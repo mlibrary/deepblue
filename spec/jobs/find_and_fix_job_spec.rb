@@ -4,7 +4,7 @@ require 'rails_helper'
 
 require_relative '../../app/jobs/find_and_fix_job'
 
-RSpec.describe ::Deepblue::FindAndFixJob, skip: false do
+RSpec.describe FindAndFixJob, skip: false do
 
   let(:debug_verbose) { false }
 
