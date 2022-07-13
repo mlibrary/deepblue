@@ -7,7 +7,7 @@ RSpec.describe ::Deepblue::FindAndFix do
   let(:debug_verbose) { false }
 
   describe 'module debug verbose variables' do
-    it { expect( described_class.find_and_fix_debug_verbose ).to eq debug_verbose }
+    it { expect( described_class.find_and_fix_job_debug_verbose ).to eq debug_verbose }
   end
 
   describe 'module variables have the expected values' do

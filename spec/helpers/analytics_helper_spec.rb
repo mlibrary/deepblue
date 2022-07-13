@@ -12,6 +12,7 @@ RSpec.describe AnalyticsHelper, type: :helper do
 
   describe 'other module values' do
     it { expect( described_class.max_visit_filter_count ).to eq 50 }
+    it { expect( described_class.max_visits_per_month_filter ).to eq 100 }
     it { expect( described_class.skip_admin_events ).to eq true }
     it { expect( described_class.store_zero_total_downloads ).to eq false }
   end

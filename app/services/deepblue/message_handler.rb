@@ -200,28 +200,28 @@ module Deepblue
       msg_raw( msg, log: (log ? LOG_INFO : LOG_NONE), prefix: prefix, &block )
     end
 
-    def msg_debug( msg, log: false, &block )
+    def msg_debug( msg = nil, log: false, &block )
       return buffer_reset if quiet
       return buffer_reset unless debug_verbose
       msg_raw( msg, log: (log ? LOG_DEBUG : LOG_NONE), prefix: PREFIX_DEBUG, &block )
     end
 
-    def msg_error( msg, log: false, &block )
+    def msg_error( msg = nil, log: false, &block )
       msg_raw( msg, log: (log ? LOG_ERROR : LOG_NONE), prefix: PREFIX_ERROR, &block )
     end
 
-    def msg_info( msg, log: false, &block )
+    def msg_info( msg = nil, log: false, &block )
       return buffer_reset if quiet
       msg_raw( msg, log: (log ? LOG_INFO : LOG_NONE), prefix: PREFIX_INFO, &block )
     end
 
-    def msg_verbose( msg, log: false, prefix: PREFIX_NONE, &block )
+    def msg_verbose( msg = nil, log: false, prefix: PREFIX_NONE, &block )
       return buffer_reset if quiet
       return buffer_reset unless verbose || debug_verbose
       msg_raw( msg, log: (log ? LOG_INFO : LOG_NONE), prefix: prefix, &block )
     end
 
-    def msg_warn( msg, log: false, &block )
+    def msg_warn( msg = nil, log: false, &block )
       msg_raw( msg, log: (log ? LOG_WARN : LOG_NONE), prefix: PREFIX_WARN, &block )
     end
 

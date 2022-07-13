@@ -24,7 +24,7 @@ module Deepblue
     mattr_accessor :abstract_fixer_debug_verbose,                   default: false
     mattr_accessor :file_sets_lost_and_found_fixer_debug_verbose,   default: false
     mattr_accessor :file_sets_visibility_fixer_debug_verbose,       default: false
-    mattr_accessor :find_and_fix_debug_verbose,                     default: false
+    mattr_accessor :find_and_fix_job_debug_verbose,                     default: false
     mattr_accessor :find_and_fix_empty_file_sizes_debug_verbose,    default: false
     mattr_accessor :find_and_fix_job_debug_verbose,                 default: false
     mattr_accessor :works_ordered_members_file_sets_size_fixer_debug_verbose, default: false
