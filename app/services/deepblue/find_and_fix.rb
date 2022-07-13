@@ -4,7 +4,7 @@ module Deepblue
 
   class FindAndFix
 
-    mattr_accessor :find_and_fix_debug_verbose, default: FindAndFixService.find_and_fix_debug_verbose
+    mattr_accessor :find_and_fix_job_debug_verbose, default: FindAndFixService.find_and_fix_job_debug_verbose
 
     attr_accessor :find_and_fix_collections_fixers
     attr_accessor :find_and_fix_file_sets_fixers
@@ -18,7 +18,7 @@ module Deepblue
     # attr_accessor :task
     attr_accessor :verbose
 
-    def initialize( debug_verbose: find_and_fix_debug_verbose,
+    def initialize( debug_verbose: find_and_fix_job_debug_verbose,
                     id: nil,
                     filter: nil,
                     msg_handler:,

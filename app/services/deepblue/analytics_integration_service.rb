@@ -35,6 +35,7 @@ module Deepblue
     mattr_accessor :hit_graph_day_window, default: 30 # set to < 1 for no limit
     mattr_accessor :hit_graph_view_level, default: 0 # 0 = none, 1 = admin, 2 = editor, 3 = everyone
     mattr_accessor :max_visit_filter_count, default: 50
+    mattr_accessor :max_visits_per_month_filter, default: 100
     mattr_accessor :skip_admin_events, default: true
     mattr_accessor :store_zero_total_downloads, default: true
     mattr_accessor :monthly_analytics_report_subscription_id, default: 'MonthlyAnalyticsReport'

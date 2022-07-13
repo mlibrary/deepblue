@@ -9,15 +9,27 @@ module Deepblue
 
     mattr_accessor :report_helper_debug_verbose, default: false
 
+    HOSTNAME_SHORT_MAP = { 'deepblue.local' => 'local',
+                           'testing.deepblue.lib.umich.edu' => 'testing',
+                           'staging.deepblue.lib.umich.edu' => 'staging',
+                           'deepblue.lib.umich.edu' => 'production' }.freeze
+
     def self.expand_path_partials( path, task: nil )
       return path unless path.present?
       now = Time.now
       path = path.gsub( /\%date\%/, "#{now.strftime('%Y%m%d')}" )
       path = path.gsub( /\%time\%/, "#{now.strftime('%H%M%S')}" )
       path = path.gsub( /\%timestamp\%/, "#{now.strftime('%Y%m%d%H%M%S')}" )
-      path = path.gsub( /\%hostname\%/, "#{Rails.configuration.hostname}" )
+      path = path.gsub( /\%hostname\%/, "#{hostname_short}" )
+      path = path.gsub( /\%hostname_full\%/, "#{Rails.configuration.hostname}" )
       path = path.gsub( /\%task\%/, task ) if task.present?
       return path
+    end
+
+    def self.hostname_short( hostname: Rails.configuration.hostname )
+      rv = HOSTNAME_SHORT_MAP[hostname]
+      rv ||= hostname
+      return rv
     end
 
     def self.to_datetime( date:, format: nil, msg_handler:, raise_errors: true, msg_postfix: '' )
