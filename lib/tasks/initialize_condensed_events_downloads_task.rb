@@ -16,11 +16,17 @@ module Deepblue
     def run
 
       @force = task_options_value( key: 'force',
-                                   default_value: AnalyticsHelper::DEFAULT_FORCED )
+                                   default_value: true ) # AnalyticsHelper::DEFAULT_FORCED )
       @only_published = task_options_value( key: 'only_published',
                                             default_value: AnalyticsHelper::DEFAULT_ONLY_PUBLISHED )
       @clean_work_events = task_options_value( key: 'clean_work_events',
                                                default_value: AnalyticsHelper::DEFAULT_CLEAN_WORK_EVENTS )
+
+      @task_id = task_options_value( key: 'task_id', default_value: nil )
+      if @task_id.present?
+        @msg_handler = MsgHelper.msg_handler_queue_to_file( task_id: @task_id, verbose: verbose )
+      end
+
       set_quiet( quiet: @quiet )
       AnalyticsHelper.initialize_condensed_event_downloads( force: force,
                                                             only_published: only_published,
