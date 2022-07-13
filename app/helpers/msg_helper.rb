@@ -23,6 +23,63 @@ module MsgHelper
     ::GlobusJob.external_url curation_concern.id
   end
 
+  def self.msg_handler_for( task:,
+                            debug_verbose: ::Deepblue::MessageHandler::DEFAULT_DEBUG_VERBOSE,
+                            msg_prefix: ::Deepblue::MessageHandler::DEFAULT_MSG_PREFIX,
+                            msg_queue: [],
+                            to_console: ::Deepblue::MessageHandler::DEFAULT_TO_CONSOLE,
+                            verbose: ::Deepblue::MessageHandler::DEFAULT_VERBOSE )
+
+    ::Deepblue::MessageHandler.msg_handler_for( task: task,
+                                                debug_verbose: debug_verbose,
+                                                msg_prefix: msg_prefix,
+                                                msg_queue: msg_queue,
+                                                to_console: to_console,
+                                                verbose: verbose )
+  end
+
+  def self.msg_handler_for_job( msg_queue: [], options: {} )
+    ::Deepblue::MessageHandler.msg_handler_for_job( msg_queue: msg_queue, options: options )
+  end
+
+  def self.msg_handler_for_task( msg_queue: nil, options: {} )
+    ::Deepblue::MessageHandler.msg_handler_for_task( msg_queue: msg_queue, options: options )
+  end
+
+  def self.msg_handler_null( debug_verbose: false,
+                             msg_prefix: false,
+                             msg_queue: nil,
+                             to_console: false,
+                             verbose: false  )
+
+    ::Deepblue::MessageHandler.msg_handler_null( debug_verbose: debug_verbose,
+                                                 msg_prefix: msg_prefix,
+                                                 msg_queue: msg_queue,
+                                                 to_console: to_console,
+                                                 verbose: verbose )
+  end
+
+  # def file_msg_handler(task);  ::Deepblue::MessageHandlerQueueToFile.msg_handler_for( task: true, verbose: true, debug_verbose: false, msg_queue_file: "./log/%timestamp%.#{task}.log" ); end
+
+  def self.msg_handler_queue_to_file( task: true,
+                                      task_id: nil,
+                                      msg_queue_file: nil,
+                                      append: false,
+                                      debug_verbose: ::Deepblue::MessageHandler::DEFAULT_DEBUG_VERBOSE,
+                                      msg_prefix: ::Deepblue::MessageHandler::DEFAULT_MSG_PREFIX,
+                                      to_console: ::Deepblue::MessageHandler::DEFAULT_TO_CONSOLE,
+                                      verbose: ::Deepblue::MessageHandler::DEFAULT_VERBOSE )
+
+    ::Deepblue::MessageHandlerQueueToFile.msg_handler_for( task: task,
+                                                           task_id: task_id,
+                                                           msg_queue_file: msg_queue_file,
+                                                           append: append,
+                                                           debug_verbose: debug_verbose,
+                                                           msg_prefix: msg_prefix,
+                                                           to_console: to_console,
+                                                           verbose: verbose )
+  end
+
   def self.publisher( curation_concern, field_sep: FIELD_SEP )
     curation_concern.publisher.join( field_sep )
   end
