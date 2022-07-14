@@ -105,6 +105,10 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
+  # fix for serialization error
+  # see: https://github.com/projectblacklight/blacklight/issues/2768
+  config.active_record.yaml_column_permitted_classes = [Symbol, Date, Time, Hash, HashWithIndifferentAccess]
+
   # This is to solve issue 362 : logo and banner files not shoing up on public dir
   # But did show up on testing and local
   # https://stackoverflow.com/questions/5914848/ruby-on-rails-error-accessing-to-public-directory

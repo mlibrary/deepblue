@@ -55,7 +55,7 @@ abort( exit_log_lines.join("\n" ) ) if gemfile_abort_to_report && !exit_log_line
 
 # https://github.com/samvera/hyrax/releases
 # gem 'hyrax', '2.9.5'
-gem 'hyrax', '3.1.0' # hyrax v3.1 update
+gem 'hyrax', '3.0.2' # hyrax v3 update
 gem 'solrizer', '>= 4.1.0' # because solrizer is no longer included in Hyrax 3
 gem 'linkeddata', '<= 3.1.1'
 gem 'rdf-rdfa', '< 3.1.1'
@@ -137,6 +137,7 @@ gem 'samvera-persona', '< 0.3.0' # This adds the use of 'class.module_parent_nam
 
 # Begin security vulnerability mitigation
 # bundle update --source gem-name
+gem 'activerecord', '>= 5.2.8.1'
 gem 'addressable', '>= 2.8.0'
 gem 'bootstrap-sass', '~> 3.4.1'
 gem 'carrierwave', '~> 1.3.2'

@@ -23,6 +23,19 @@ module MsgHelper
     ::GlobusJob.external_url curation_concern.id
   end
 
+  def self.msg_handler( debug_verbose: ::Deepblue::MessageHandler::DEFAULT_DEBUG_VERBOSE,
+                        msg_prefix: ::Deepblue::MessageHandler::DEFAULT_MSG_PREFIX,
+                        msg_queue: [],
+                        to_console: ::Deepblue::MessageHandler::DEFAULT_TO_CONSOLE,
+                        verbose: ::Deepblue::MessageHandler::DEFAULT_VERBOSE )
+
+    ::Deepblue::MessageHandler.new( debug_verbose: debug_verbose,
+                                    msg_prefix: msg_prefix,
+                                    msg_queue: msg_queue,
+                                    to_console: to_console,
+                                    verbose: verbose )
+  end
+
   def self.msg_handler_for( task:,
                             debug_verbose: ::Deepblue::MessageHandler::DEFAULT_DEBUG_VERBOSE,
                             msg_prefix: ::Deepblue::MessageHandler::DEFAULT_MSG_PREFIX,

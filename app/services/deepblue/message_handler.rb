@@ -176,7 +176,7 @@ module Deepblue
     alias :buf :buffer
 
     def buffer_reset
-      @buffer = ''
+      @line_buffer = ''
     end
 
     def join( sep = "\n" )
@@ -277,6 +277,26 @@ module Deepblue
       false
     end
 
+    def reset
+      @user_pacifier_chars = 0
+      @msg_queue.clear unless @msg_queue.blank?
+      @line_buffer = ''
+    end
+    alias :clear :reset
+
+    def user_pacifier( x = '.' )
+      return unless to_console
+      return if x.blank?
+      x = x.to_s.split
+      @user_pacifier_chars ||= 0
+      @user_pacifier_chars += x.size
+      x.each { |c| STDOUT.putc c };STDOUT.flush
+      return if @user_pacifier_chars < 80
+      STDOUT.puts '';STDOUT.flush
+      @user_pacifier_chars = 0
+    end
+    alias :pacify :user_pacifier
+
     protected
 
     def log_line( msg, log: )
@@ -299,15 +319,15 @@ module Deepblue
     def msg_no_block( msg, log: LOG_NONE, prefix: PREFIX_NONE )
       if msg.respond_to? :each
         msg.each do |msg_line|
-          if @buffer.present?
-            line("#{@msg_prefix}#{prefix}#{@buffer}#{msg}", log: log )
+          if @line_buffer.present?
+            line("#{@msg_prefix}#{prefix}#{@line_buffer}#{msg}", log: log )
             buffer_reset
           else
             line( "#{@msg_prefix}#{prefix}#{msg_line}", log: log )
           end
         end
-      elsif @buffer.present?
-        line("#{@msg_prefix}#{prefix}#{@buffer}#{msg}", log: log )
+      elsif @line_buffer.present?
+        line("#{@msg_prefix}#{prefix}#{@line_buffer}#{msg}", log: log )
         buffer_reset
       else
         line("#{@msg_prefix}#{prefix}#{msg}", log: log )

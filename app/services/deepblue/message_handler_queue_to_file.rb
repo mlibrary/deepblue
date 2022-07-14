@@ -64,6 +64,11 @@ module Deepblue
       File.open( msg_queue_file, 'w' ) { |out| out << ''; out.flush }
     end
 
+    def reset
+      msg_queue_file_truncate
+      super
+    end
+
     protected
 
     def msg_no_block( msg, log: LOG_NONE, prefix: PREFIX_NONE )
