@@ -55,6 +55,10 @@ Rails.application.configure do
   # Raise an error on page load if there are pending migrations.
   config.active_record.migration_error = :page_load
 
+  # fix for serialization error
+  # see: https://github.com/projectblacklight/blacklight/issues/2768
+  config.active_record.yaml_column_permitted_classes = [Symbol, Date, Time, Hash, HashWithIndifferentAccess]
+
   config.assets.quiet = true # Suppress logger output for asset requests.
   assets_compile_mode = false
   if assets_compile_mode

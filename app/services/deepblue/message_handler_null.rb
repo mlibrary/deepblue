@@ -59,7 +59,7 @@ module Deepblue
     alias :buf :buffer
 
     def buffer_reset
-      @buffer = ''
+      # ignore
     end
 
     def join( _sep = nil )
@@ -67,6 +67,14 @@ module Deepblue
     end
 
     def line( _msg, log: nil )
+      # ignore
+    end
+
+    def line_buffer
+      return nil
+    end
+
+    def line_buffer=
       # ignore
     end
 
@@ -129,6 +137,17 @@ module Deepblue
     def null_msg_handler?
       true
     end
+
+    def reset
+      # ignore
+      re
+    end
+    alias :clear :reset
+
+    def user_pacifier( x = nil )
+      # ignore
+    end
+    alias :pacify :user_pacifier
 
   end
 

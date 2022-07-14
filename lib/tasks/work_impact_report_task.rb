@@ -17,6 +17,7 @@ module Deepblue
       @quiet = task_options_value( key: 'quiet', default_value: DEFAULT_REPORT_QUIET )
       set_quiet( quiet: @quiet )
       reporter = WorkImpactReporter.new( msg_handler: msg_handler, options: options )
+      reporter.run
     end
 
   end
