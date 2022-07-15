@@ -188,7 +188,7 @@ gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 gem 'cronex' # https://github.com/alpinweis/cronex
 gem 'devise'
 gem 'devise-guests', '~> 0.6'
-gem 'diffy' # https://github.com/samg/diffy
+gem 'diffy', '>= 3.4.1' # https://github.com/samg/diffy
 gem 'jira-ruby', '~> 1.1'
 gem 'okcomputer', '~> 1.17'
 gem 'omniauth'
