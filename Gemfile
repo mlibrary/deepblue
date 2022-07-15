@@ -70,7 +70,7 @@ gem 'config'
 gem 'edtf'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '>= 5.2'
+gem 'rails', '>= 5.2.8.1'
 gem 'redis-rails'
 gem 'json', '>= 2.1.0'
 # gem 'bolognese', '~> 1.8', '>= 1.8.6'
