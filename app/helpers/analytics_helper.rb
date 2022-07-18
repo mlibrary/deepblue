@@ -267,25 +267,6 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     user_is_admin( user_id: record.user_id )
   end
 
-  # def self.download_event_skip_with_high_traffic_ip?( event, date_range: nil, msg_handler: nil )
-  #   msg_handler = MSG_HANDLER_DEBUG_ONLY if msg_handler.nil?
-  #   return true if event.properties['file'] == 'thumbnail'
-  #   if skip_admin_events && user_is_admin( user_id: event.user_id )
-  #     msg_handler.msg_verbose "Skipping because #{event.user_id} is an admin"
-  #     return true
-  #   end
-  #   if high_traffic_ip?( event: DOWNLOAD_EVENT,
-  #                        cc_id: event.cc_id,
-  #                        visit_id: event.visit_id,
-  #                        month: date_range,
-  #                        msg_handler: msg_handler )
-  #
-  #     msg_handler.msg_verbose "Skipping count of high_traffic ip."
-  #     return true
-  #   end
-  #   return false
-  # end
-
   def self.download_file_set_monthly_cnt( id:, date_range: nil )
     date_range = truncate_date(date_range.first)..truncate_date(date_range.last) unless date_range.nil?
 
@@ -300,6 +281,10 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     file_download_cnt = monthly_hits_by_date_and_name( id: id, name: WORK_FILE_DWNLDS_TO_DATE, date_range: date_range )
 
     return zip_download_cnt + globus_download_cnt + file_download_cnt
+  end
+
+  def self.download_monthly_cnt ( work_id:, date_range: nil )
+    download_work_monthly_cnt( id: work_id, date_range: date_range )
   end
 
   def self.download_work_monthly_cnt( id:, date_range: nil )
@@ -368,9 +353,10 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
 
   def self.drop_condensed_events_by_id( cc_id:, event:, msg_handler: nil )
     msg_handler = MSG_HANDLER_DEBUG_ONLY if msg_handler.nil?
+    verbose = false
     events = Ahoy::CondensedEvent.where( name: event, cc_id: cc_id )
     event_count = events.size
-    msg_handler.msg_verbose "Drop #{event_count} records for cc_id: #{cc_id} with name: #{event}."
+    msg_handler.msg_verbose {"Drop #{event_count} records for cc_id: #{cc_id} with name: #{event}."} if verbose
     events.delete_all # as vs. destroy_all
     return event_count
   end
@@ -523,15 +509,6 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     Time.now.getgm
   end
 
-  # def self.high_traffic_ip?( event:, cc_id:, visit_id:, month:, msg_handler: nil )
-  #   count = compute_ip_count_for_object( event: event,
-  #                                        cc_id: cc_id,
-  #                                        visit_id: visit_id,
-  #                                        date_range_filter: month,
-  #                                        msg_handler: msg_handler )
-  #   return count > max_visits_per_month_filter
-  # end
-
   def self.hit_graph_admin?
     # 0 = none, 1 = admin, 2 = editor, 3 = everyone
     0 < ::Deepblue::AnalyticsIntegrationService.hit_graph_view_level
@@ -682,28 +659,6 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
                                              ip_event_count_map: ip_event_count_map,
                                              msg_handler: msg_handler )
 
-      # month = date_range_for_month_of( time: record.date_begin )
-      # condensed_event = total_downloads( 0 )
-      # r2 = ::Ahoy::Event.where( name: download_event, cc_id: work.id, time: month )
-      # r2.each do |r|
-      #   next if skip_admin_events && user_is_admin( user_id: r.user_id )
-      #   # this is a non-file download event, so can check number of events in this visit
-      #   visits = Ahoy::Event.where( name: download_event, visit_id: r.visit_id, cc_id: r.cc_id, time: month )
-      #   next if visits.count > max_visits_per_month_filter
-      #   next if high_traffic_ip?( event: download_event,
-      #                        cc_id: work.id,
-      #                        visit_id: r.visit_id,
-      #                        month: month,
-      #                        msg_handler: msg_handler )
-      #   condensed_event['total_downloads'] = condensed_event['total_downloads'] + 1
-      # end
-      # store_total_downloads( event: per_month_event,
-      #                        id: work.id,
-      #                        condensed_event: condensed_event,
-      #                        date_range: month,
-      #                        force: force,
-      #                        record: record,
-      #                        msg_handler: msg_handler )
     end
     store_sum_of_monthly_total_downloads( per_month_event: per_month_event,
                                           to_date_event: to_date_event,
@@ -1402,22 +1357,32 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
 
   def self.sum_total_downloads( event:, cc_id:, date_filter: nil, condensed_event: nil, msg_handler: nil )
     msg_handler = MSG_HANDLER_DEBUG_ONLY if msg_handler.nil?
+    verbose = false
     condensed_event = total_downloads( 0 ) unless condensed_event
     records = ::Ahoy::CondensedEvent.where( name: event, cc_id: cc_id )
+    msg_handler.msg_verbose {"#{records.size} found for event #{event} and cc_id #{cc_id}"} if verbose
     return condensed_event unless records.present?
     records.each do |record|
       if date_filter.present?
         date = record.date_begin
-        next unless date >= date_filter.first && date <= date_filter.last
-      end
-      record.condensed_event.keys do |key|
-        if condensed_event.has_key? key
-          condensed_event[key] = condensed_event[key] + record[key]
-        else
-          condensed_event[key] = record[key]
+        unless date >= date_filter.first && date <= date_filter.last
+          msg_handler.msg_verbose {"Filter out #{record.inspect}"} if verbose
+          next
         end
       end
+      msg_handler.msg_verbose {"Adding #{record.condensed_event}"} if verbose
+      msg_handler.msg_verbose {"keys #{record.condensed_event.keys}"} if verbose
+      record.condensed_event.keys.each do |key|
+        msg_handler.msg_verbose {"Processing record key #{key} value #{record.condensed_event[key]}"} if verbose
+        if condensed_event.has_key? key
+          condensed_event[key] = condensed_event[key] + record.condensed_event[key]
+        else
+          condensed_event[key] = record.condensed_event[key]
+        end
+        msg_handler.msg_verbose {"Processing condensed_event key #{key} value #{condensed_event[key]}"} if verbose
+      end
     end
+    msg_handler.msg_verbose {"returning condensed_event=#{condensed_event}"} if verbose
     return condensed_event
   end
 
@@ -1580,28 +1545,6 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
       store_condensed_event_total_downloads( record: record,
                                              ip_event_count_map: ip_event_count_map,
                                              msg_handler: msg_handler )
-      # month = date_range_for_month_of( time: record.date_begin )
-      # condensed_event = total_downloads( 0 )
-      # r2 = ::Ahoy::Event.where( name: download_event, cc_id: work.id, time: month )
-      # r2.each do |r|
-      #   next if skip_admin_events && user_is_admin( user_id: r.user_id )
-      #   # this is a non-file download event, so can check number of events in this visit
-      #   visits = Ahoy::Event.where( name: download_event, visit_id: r.visit_id, cc_id: r.cc_id, time: month )
-      #   next if visits.count > max_visits_per_month_filter
-      #   next if high_traffic_ip?( event: download_event,
-      #                        cc_id: work.id,
-      #                        visit_id: r.visit_id,
-      #                        month: month,
-      #                        msg_handler: msg_handler )
-      #   condensed_event['total_downloads'] = condensed_event['total_downloads'] + 1
-      # end
-      # store_total_downloads( event: per_month_event,
-      #                        id: work.id,
-      #                        condensed_event: condensed_event,
-      #                        date_range: month,
-      #                        force: force,
-      #                        record: record,
-      #                        msg_handler: msg_handler )
     end
     store_sum_of_monthly_total_downloads( per_month_event: per_month_event,
                                           to_date_event: to_date_event,
@@ -1658,18 +1601,6 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
                                          condensed_event: record.condensed_event,
                                          month: month,
                                          msg_handler: msg_handler )
-
-        # month = date_range_for_month_of( time: record.date_begin )
-        # r2 = Ahoy::Event.where( name: DOWNLOAD_EVENT, cc_id: fid, time: month )
-        # msg_handler.msg_verbose "#{records.size} #{DOWNLOAD_EVENT} found for #{work.id}/#{fid} in #{date_range_readable month}"
-        # condensed_event = total_downloads( 0 )
-        # r2.each do |r|
-        #   next if download_event_skip_with_high_traffic_ip?( r, date_range: month, msg_handler: msg_handler )
-        #   msg_handler.msg_verbose "Incrementing total downloads"
-        #   condensed_event['total_downloads'] = condensed_event['total_downloads'] + 1
-        # end
-        # record.condensed_event = condensed_event
-        # record.save!
       end
       store_sum_of_monthly_total_downloads( per_month_event: FILE_SET_DWNLDS_PER_MONTH,
                                             to_date_event: FILE_SET_DWNLDS_TO_DATE,
@@ -1710,204 +1641,6 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     end
   end
 
-  # def self.update_condensed_events_for_work_file( name:,
-  #                                                 fs_name: nil,
-  #                                                 filter:,
-  #                                                 fid:,
-  #                                                 date_range:,
-  #                                                 date_range_filter: DEFAULT_DATE_RANGE_FILTER,
-  #                                                 condensed_event: nil,
-  #                                                 force: DEFAULT_FORCED,
-  #                                                 msg_handler: nil )
-  #
-  #   msg_handler = MSG_HANDLER_DEBUG_ONLY if msg_handler.nil?
-  #   debug_verbose = msg_handler.debug_verbose || analytics_helper_debug_verbose
-  #   msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
-  #                            ::Deepblue::LoggingHelper.called_from,
-  #                            "name=#{name}",
-  #                            "filter=#{filter}",
-  #                            "fid=#{fid}",
-  #                            "date_range=#{date_range_readable(date_range)}",
-  #                            "date_range_filter=#{date_range_readable(date_range_filter)}",
-  #                            "force=#{force}",
-  #                            "" ] if debug_verbose
-  #
-  #   msg_handler.msg_debug "Setting nil date_range_filter to date_range" if date_range_filter.blank?
-  #   date_range_filter ||= date_range
-  #   condensed_event = total_downloads( 0 ) if condensed_event.blank?
-  #   records = Ahoy::Event.where( name: filter, cc_id: fid, time: date_range_filter )
-  #   msg_handler.msg_verbose "Found #{records.size} records using Ahoy::Event.where( name: #{filter}, cc_id: #{fid}, time: #{date_range_filter} )"
-  #   records.each do |r|
-  #     next if r.properties["file"] == "thumbnail"
-  #     visits = Ahoy::Event.where( name: filter, visit_id: r.visit_id, cc_id: r.cc_id, time: date_range_filter )
-  #     msg_handler.msg_verbose "Found #{records.size} visits using Ahoy::Event.where( name: #{filter}, visit_id: #{r.visit_id}, cc_id: #{r.cc_id}, time: #{date_range_filter} )"
-  #     if visits.count > max_visits_per_month_filter
-  #       msg_handler.msg_verbose "Skipping count because visits.count #{visits.count} > #{max_visits_per_month_filter} (max_visits_per_month_filter)"
-  #       next
-  #     end
-  #     ip_count = compute_ip_count_for_object( event: filter,
-  #                                             cc_id: r.cc_id,
-  #                                             visit_id: r.visit_id,
-  #                                             date_range_filter: date_range_filter,
-  #                                             msg_handler: msg_handler )
-  #
-  #     if ip_count > max_visits_per_month_filter # why are we skipping, rather than counting 1?
-  #       msg_handler.msg_verbose "Skipping count because ip_count #{ip_count} > #{max_visits_per_month_filter} (max_visits_per_month_filter)"
-  #       next
-  #     end
-  #     if skip_admin_events && user_is_admin( user_id: r.user_id )
-  #       msg_handler.msg_verbose "Skipping because #{r.user_id} is an admin"
-  #       next
-  #     end
-  #     msg_handler.msg_verbose "Incrementing total downloads"
-  #     condensed_event['total_downloads'] = condensed_event['total_downloads'] + 1
-  #     condensed_event[fid] = 0 unless condensed_event[fid].present?
-  #     condensed_event[fid] = condensed_event[fid] + 1
-  #   end
-  #   if fs_name.present?
-  #     condensed_event = store_total_downloads( event: fs_name,
-  #                                              id: fid,
-  #                                              condensed_event: condensed_event,
-  #                                              date_range: date_range,
-  #                                              force: force,
-  #                                              record: record,
-  #                                              msg_handler: msg_handler )
-  #     return condensed_event
-  #   end
-  #   return condensed_event
-  # end
-
-  # def self.update_condensed_events_for_work_files( name: WORK_FILE_DWNLDS_PER_MONTH,
-  #                                                  fs_name: FILE_SET_DWNLDS_PER_MONTH,
-  #                                                  filter: DOWNLOAD_EVENT,
-  #                                                  work:,
-  #                                                  date_range:,
-  #                                                  date_range_filter: DEFAULT_DATE_RANGE_FILTER,
-  #                                                  force: DEFAULT_FORCED,
-  #                                                  only_published: DEFAULT_ONLY_PUBLISHED,
-  #                                                  msg_handler: nil )
-  #
-  #   msg_handler = MSG_HANDLER_DEBUG_ONLY if msg_handler.nil?
-  #   debug_verbose = msg_handler.debug_verbose || analytics_helper_debug_verbose
-  #   msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
-  #                            ::Deepblue::LoggingHelper.called_from,
-  #                            "name=#{name}",
-  #                            "fs_name=#{fs_name}",
-  #                            "filter=#{filter}",
-  #                            "work.id=#{work.id}",
-  #                            "date_range=#{date_range_readable(date_range)}",
-  #                            "date_range_filter=#{date_range_readable(date_range_filter)}",
-  #                            "force=#{force}",
-  #                            "only_published=#{only_published}",
-  #                            "" ] if debug_verbose
-  #   if only_published && !work.published?
-  #     msg_handler.msg_verbose "Skipping unpublished work: #{work.id}"
-  #     return
-  #   end
-  #
-  #   msg_handler.msg_debug "Setting nil date_range_filter to date_range" if date_range_filter.blank?
-  #   date_range_filter ||= date_range
-  #
-  #   # always going to create or update the WORK_FILE_DWNLDS_PER_MONTH for a given work.id
-  #   record = Ahoy::CondensedEvent.find_by( name: name,
-  #                                          cc_id: work.id,
-  #                                          date_begin: date_range.first,
-  #                                          date_end: date_range.last )
-  #   msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
-  #                            ::Deepblue::LoggingHelper.called_from,
-  #                            "record=#{record&.inspect}",
-  #                            "" ] if debug_verbose
-  #   record.condensed_event ||= total_downloads( 0 )
-  #   work.file_set_ids.each do |fid|
-  #     update_condensed_events_for_work_file( name: name,
-  #                                            fs_name: fs_name,
-  #                                            filter: filter,
-  #                                            fid: fid,
-  #                                            date_range: date_range,
-  #                                            date_range_filter: date_range_filter,
-  #                                            condensed_event: condensed_event,
-  #                                            force: force,
-  #                                            msg_handler: msg_handler )
-  #   end
-  #   condensed_event = store_total_downloads( event: name,
-  #                                            id: work.id,
-  #                                            condensed_event: condensed_event,
-  #                                            date_range: date_range,
-  #                                            force: force,
-  #                                            record: record,
-  #                                            msg_handler: msg_handler )
-  #   return condensed_event
-  # end
-
-  # # This one is called for zip and globus requests.
-  # def self.update_condensed_events_for_work_downloads_in_date_range( name:,
-  #                                                                    filter:,
-  #                                                                    work:,
-  #                                                                    date_range:,
-  #                                                                    date_range_filter: DEFAULT_DATE_RANGE_FILTER,
-  #                                                                    force: DEFAULT_FORCED,
-  #                                                                    only_published: DEFAULT_ONLY_PUBLISHED,
-  #                                                                    msg_handler: nil )
-  #
-  #   msg_handler = MSG_HANDLER_DEBUG_ONLY if msg_handler.nil?
-  #   debug_verbose = msg_handler.debug_verbose || analytics_helper_debug_verbose
-  #   msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
-  #                            ::Deepblue::LoggingHelper.called_from,
-  #                            "name=#{name}",
-  #                            "filter=#{filter}",
-  #                            "work.id=#{work.id}",
-  #                            "date_range=#{date_range_readable(date_range)}",
-  #                            "date_range_filter=#{date_range_readable(date_range_filter)}",
-  #                            "force=#{force}",
-  #                            "only_published=#{only_published}",
-  #                            "" ] if debug_verbose
-  #   if only_published && !work.published?
-  #     # msg_handler.msg_verbose "Skipping unpublished work: #{work.id}"
-  #     return
-  #   end
-  #
-  #   # For monthly, the date_range_filter and the date_range should be the same.  date_range_filter is not passed in.
-  #   # For toDate, the date_range_filter is used to access teh Event Table, so this entry will be 1972..2022-12-31 ( something like that )
-  #   # For toDate, the date_range is used for the CondensedEvent Table, so this entry will be one entry 1972..2972
-  #   # find_by grabs one record.
-  #   # where clause can grab more than one record
-  #   msg_handler.msg_debug "Setting nil date_range_filter to date_range" if date_range_filter.blank?
-  #   date_range_filter ||= date_range
-  #   record = Ahoy::CondensedEvent.find_by( name: name,
-  #                                          cc_id: work.id,
-  #                                          date_begin: date_range.first,
-  #                                          date_end: date_range.last )
-  #   if record.present? && !force
-  #     return
-  #   end
-  #   condensed_event = total_downloads( 0 )
-  #
-  #   records = ::Ahoy::Event.where( name: filter, cc_id: work.id, time: date_range_filter )
-  #   records.each do |r|
-  #     visits = Ahoy::Event.where( name: filter, visit_id: r.visit_id, cc_id: r.cc_id, time: date_range_filter )
-  #     next if visits.count > max_visits_per_month_filter
-  #
-  #     ip_count = compute_ip_count_for_object( event: filter,
-  #                                             cc_id: r.cc_id,
-  #                                             visit_id: r.visit_id,
-  #                                             date_range_filter: date_range_filter,
-  #                                             msg_handler: msg_handler )
-  #     next if ip_count > max_visits_per_month_filter
-  #
-  #     next if skip_admin_events && user_is_admin( user_id: r.user_id )
-  #
-  #     condensed_event['total_downloads'] = condensed_event['total_downloads'] + 1
-  #   end
-  #   condensed_event = store_total_downloads( event: name,
-  #                                            id: work.id,
-  #                                            condensed_event: condensed_event,
-  #                                            date_range: date_range,
-  #                                            force: force,
-  #                                            record: record,
-  #                                            msg_handler: msg_handler )
-  #   return condensed_event
-  # end
-
   # TODO: review the use of this method and what it does
   def self.update_current_month_condensed_events
     # will there be an issue with daily savings time?
@@ -1927,81 +1660,6 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     # for now, just call the new version
     update_condensed_event_downloads( force: force, only_published: only_published, msg_handler: msg_handler )
 
-    # # Only do this at the 1st of the month
-    # return if Date.today > Date.today.at_beginning_of_month && !force # TODO: change to gmtnow
-    #
-    # msg_handler = MSG_HANDLER_DEBUG_ONLY if msg_handler.nil?
-    # date_range_month = AnalyticsHelper.date_range_for_month_previous
-    # date_range_start = AnalyticsHelper.date_range_since_start
-    # DataSet.all.each do |work|
-    #   update_condensed_events_for_work_files( name: WORK_FILE_DWNLDS_PER_MONTH,
-    #                                           fs_name: FILE_SET_DWNLDS_PER_MONTH,
-    #                                           filter: DOWNLOAD_EVENT,
-    #                                           work: work,
-    #                                           date_range: date_range_month,
-    #                                           force: true,
-    #                                           only_published: only_published,
-    #                                           msg_handler: msg_handler )
-    #   update_condensed_events_for_work_files( name: WORK_FILE_DWNLDS_TO_DATE,
-    #                                           fs_name: FILE_SET_DWNLDS_TO_DATE,
-    #                                           filter: DOWNLOAD_EVENT,
-    #                                           work: work,
-    #                                           date_range: date_range_all,
-    #                                           date_range_filter: date_range_start,
-    #                                           force: true,
-    #                                           only_published: only_published,
-    #                                           msg_handler: msg_handler )
-    #
-    #   work.file_set_ids.each do |fid|
-    #     records = Ahoy::Event.where( name: DOWNLOAD_EVENT, cc_id: fid, time: date_range_month )
-    #     msg_handler.msg_verbose "#{records.size} #{DOWNLOAD_EVENT} found for #{work.id}/#{fid} in #{date_range_readable date_range_all}"
-    #     records.each do |record|
-    #       date_range_month = AnalyticsHelper.date_range_for_month_of( time: record.time )
-    #       update_condensed_events_for_work_files( name: WORK_FILE_DWNLDS_PER_MONTH,
-    #                                               fs_name: FILE_SET_DWNLDS_PER_MONTH,
-    #                                               filter: DOWNLOAD_EVENT,
-    #                                               work: work,
-    #                                               date_range: date_range_month,
-    #                                               force: force,
-    #                                               only_published: only_published,
-    #                                               msg_handler: msg_handler )
-    #     end
-    #   end
-    #
-    #   update_condensed_events_for_work_downloads_in_date_range( name: WORK_ZIP_DWNLDS_PER_MONTH,
-    #                                                            filter: WORK_ZIP_DOWNLOAD_EVENT,
-    #                                                            work: work,
-    #                                                            date_range: date_range_month,
-    #                                                            force: true,
-    #                                                            only_published: only_published,
-    #                                                            msg_handler: msg_handler )
-    #
-    #
-    #   update_condensed_events_for_work_downloads_in_date_range( name: WORK_ZIP_DWNLDS_TO_DATE,
-    #                                                             filter: WORK_ZIP_DOWNLOAD_EVENT,
-    #                                                             work: work,
-    #                                                             date_range: date_range_all,
-    #                                                             date_range_filter: date_range_start,
-    #                                                             force: true,
-    #                                                             only_published: only_published,
-    #                                                             msg_handler: msg_handler )
-    #
-    #   update_condensed_events_for_work_downloads_in_date_range( name: WORK_GLOBUS_DWNLDS_PER_MONTH,
-    #                                                             filter: WORK_GLOBUS_EVENT,
-    #                                                             work: work,
-    #                                                             date_range: date_range_month,
-    #                                                             force: true,
-    #                                                             only_published: only_published,
-    #                                                             msg_handler: msg_handler )
-    #   update_condensed_events_for_work_downloads_in_date_range( name: WORK_GLOBUS_DWNLDS_TO_DATE,
-    #                                                             filter: WORK_GLOBUS_EVENT,
-    #                                                             work: work,
-    #                                                             date_range: date_range_all,
-    #                                                             date_range_filter: date_range_start,
-    #                                                             force: true,
-    #                                                             only_published: only_published,
-    #                                                             msg_handler: msg_handler )
-    # end
   end
 
   def self.user_is_admin( user_id: )
