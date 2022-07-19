@@ -54,13 +54,13 @@ end
 abort( exit_log_lines.join("\n" ) ) if gemfile_abort_to_report && !exit_log_lines.nil? && exit_log_lines.size > 0
 
 # https://github.com/samvera/hyrax/releases
-# gem 'hyrax', '2.9.5'
-gem 'hyrax', '3.0.2' # hyrax v3 update
-gem 'solrizer', '>= 4.1.0' # because solrizer is no longer included in Hyrax 3
-gem 'linkeddata', '<= 3.1.1'
-gem 'rdf-rdfa', '< 3.1.1'
-gem 'rdf-vocab', '<= 3.1.4'
+gem 'hyrax',       '3.0.2'     # hyrax v3 update
+gem 'solrizer',    '>= 4.1.0'  # because solrizer is no longer included in Hyrax 3
+gem 'linkeddata',  '<= 3.1.1'  # need to look into latest version of this
+gem 'rdf-rdfa',    '< 3.1.1'   # need to look into latest version of this
+gem 'rdf-vocab',   '<= 3.1.4'  # need to look into latest version of this
 gem 'libxml-ruby', '~> 3.1.0'
+gem 'browse-everything', '<= 1.1.2' # version 1.2.0 breaks pull down menu javascript
 
 gem 'mysql2' unless current_path.include? "blancoj"
 
@@ -133,21 +133,22 @@ gem 'willow_sword', git: 'https://github.com/CottageLabs/willow_sword.git', bran
 
 # gem 'samvera-persona' #, '0.1.7'
 # gem 'samvera-persona', :github => 'samvera-labs/samvera-persona', :branch => 'remove-generator-config'
-gem 'samvera-persona', '< 0.3.0' # This adds the use of 'class.module_parent_name'
+#     'samvera-persona' adds the use of 'class.module_parent_name'
+gem 'samvera-persona', '< 0.3.0' # investigate lastest version of this
 
 # Begin security vulnerability mitigation
 # bundle update --source gem-name
-gem 'activerecord', '>= 5.2.8.1'
-gem 'addressable', '>= 2.8.0'
+gem 'activerecord',   '>= 5.2.8.1'
+gem 'addressable',    '>= 2.8.0'
 gem 'bootstrap-sass', '~> 3.4.1'
-gem 'carrierwave', '~> 1.3.2'
-gem 'loofah', '~> 2.3.1'
-gem 'nokogiri', '>= 1.13.5'
-gem 'rack', '>= 2.2.3.1'
-gem 'rubyzip', '~> 2.0.0'
-gem 'sassc', '>= 2.0.0'
-gem "sinatra", ">= 2.2.0"
-gem 'sprockets', '~> 3.7.2'
+gem 'carrierwave',    '~> 1.3.2'
+gem 'loofah',         '~> 2.3.1'
+gem 'nokogiri',       '>= 1.13.5'
+gem 'rack',           '>= 2.2.3.1'
+gem 'rubyzip',        '~> 2.0.0'
+gem 'sassc',          '>= 2.0.0'
+gem "sinatra",        '>= 2.2.0'
+gem 'sprockets',      '~> 3.7.2'
 gem 'websocket-extensions', '>= 0.1.5'
 # End security vulnerability mitigation
 
@@ -166,7 +167,7 @@ group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
   # gem 'rubocop'
-  gem 'rubocop', '~> 0.49.1'
+  gem 'rubocop',       '~> 0.49.1'
   gem 'rubocop-rspec', '~> 1.16.0'
 end
 
@@ -175,7 +176,7 @@ gem 'down', '~> 4.4'
 
 group :development do
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
-  gem 'listen', '~> 3.0.5'
+  gem 'listen',      '~> 3.0.5'
   gem 'web-console', '>= 3.3.0'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
@@ -188,13 +189,13 @@ gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 gem 'cronex' # https://github.com/alpinweis/cronex
 gem 'devise'
 gem 'devise-guests', '~> 0.6'
-gem 'diffy', '>= 3.4.1' # https://github.com/samg/diffy
-gem 'jira-ruby', '~> 1.1'
-gem 'okcomputer', '~> 1.17'
+gem 'diffy',         '>= 3.4.1' # https://github.com/samg/diffy
+gem 'jira-ruby',     '~> 1.1'
+gem 'okcomputer',    '~> 1.17'
 gem 'omniauth'
 gem 'omniauth-cas'
-gem 'riiif', '~> 1.1'
-gem 'rsolr', '>= 1.0'
+gem 'riiif',         '~> 1.1'
+gem 'rsolr',         '>= 1.0'
 
 # analytics support
 # https://github.com/ankane/ahoy
@@ -241,9 +242,9 @@ group :development, :test do
   gem 'rspec-its'
   gem 'rspec-rails'
   gem 'rspec-retry'
-  gem 'selenium-webdriver', '< 4.0.0' # something broke in 4.0 release
+  gem 'selenium-webdriver',        '< 4.0.0' # something broke in 4.0 release
   gem 'shoulda-callback-matchers', '~> 1.1.1'
-  gem 'shoulda-matchers', '~> 3.1'
-  gem 'solr_wrapper', '~> 2.1.0'
+  gem 'shoulda-matchers',          '~> 3.1'
+  gem 'solr_wrapper',              '~> 2.1.0'
   gem 'webmock'
 end
