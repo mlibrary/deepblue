@@ -1,7 +1,6 @@
-# config/scheduler_jobs_prod.yml
-#
-# last updated: 2021/12/08 - testing deployment
-#
+# data/scheduler_jobs.yml
+# server: testing
+# last updated: 2022/07/18
 
 about_to_deactivate_embargoes_job:
   # Run once a day, fifteen minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
@@ -13,6 +12,9 @@ about_to_deactivate_embargoes_job:
   description: About to deactivate embargoes job.
   args:
     email_owner: true
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
     test_mode: false
     verbose: true
 
@@ -25,11 +27,12 @@ about_to_deactivate_embargoes_at_2_days_job:
   queue: scheduler
   description: About to deactivate embargoes job.
   args:
+    x_by_request_only: true
     email_owner: true
     expiration_lead_days: 2
     test_mode: false
     hostnames:
-      - 'xtesting.deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
     verbose: true
 
 deactivate_expired_embargoes_job:
@@ -42,6 +45,9 @@ deactivate_expired_embargoes_job:
   description: Deactivate embargoes job.
   args:
     email_owner: true
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
     test_mode: false
     verbose: true
 
@@ -75,8 +81,6 @@ clean_search:
       - 'deepblue.lib.umich.edu'
       - 'staging.deepblue.lib.umich.edu'
       - 'testing.deepblue.lib.umich.edu'
-    email_results_to:
-      - 'fritx@umich.edu'
     job_delay: 0
     rake_task: 'blacklight:delete_old_searches[30]'
     subscription_service_id: clean_search
@@ -88,14 +92,12 @@ clean_tmp:
   cron: '6 4 * * 6'
   class: RakeTaskJob
   queue: scheduler
-  description: Run rake tmp:clean (Saturdays
+  description: Run rake tmp:clean (Saturdays)
   args:
     hostnames:
       - 'deepblue.lib.umich.edu'
       - 'staging.deepblue.lib.umich.edu'
       - 'testing.deepblue.lib.umich.edu'
-    email_results_to:
-      - 'fritx@umich.edu'
     job_delay: 0
     rake_task: 'tmp:clean'
     subscription_service_id: clean_tmp
@@ -109,13 +111,30 @@ clean_tmp2:
   queue: scheduler
   description: Run rake tmp:clean (daily on testing)
   args:
+    by_request_only: true
     hostnames:
-      - 'xtesting.deepblue.lib.umich.edu'
-    email_results_to:
-      - 'fritx@umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
     job_delay: 0
     rake_task: 'tmp:clean'
     verbose: true
+
+doi_pending_report_job:
+  # Run once on Saturdays at two am (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  #      M H D
+  cron: '0 6 * * 6'
+  class: DoiPendingReportJob
+  queue: scheduler
+  description: DOI pending report job.
+  args:
+    by_request_only: true
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'staging.deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
+    quiet: true
+    subscription_service_id: doi_pending_report_job
+    user_email:
+      - 'fritx@umich.edu'
 
 find_and_fix_job:
   # Run once a day, 15 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
@@ -123,10 +142,8 @@ find_and_fix_job:
   cron: '15 5 * * *'
   class: FindAndFixJob
   queue: scheduler
-  description: Find and fix problems over the last 7 days
+  description: Find and fix problems
   args:
-    email_results_to:
-      - 'fritx@umich.edu'
     filter_date_begin: now - 7 days
     filter_date_end: now
     hostnames:
@@ -134,112 +151,22 @@ find_and_fix_job:
       - 'staging.deepblue.lib.umich.edu'
       - 'testing.deepblue.lib.umich.edu'
     subscription_service_id: find_and_fix_job
-    verbose: true
+    verbose: false
 
-find_and_fix_job_all_days:
-  # Run once a day, 20 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
-  #       M H D
-  cron: '20 5 * * *'
-  class: FindAndFixJob
-  queue: scheduler
-  description: Find and fix problems over all days
-  args:
-    email_results_to:
-      - 'fritx@umich.edu'
-    hostnames:
-      - 'xdeepblue.lib.umich.edu'
-      - 'xstaging.deepblue.lib.umich.edu'
-      - 'xtesting.deepblue.lib.umich.edu'
-    subscription_service_id: find_and_fix_job_all_days
-    verbose: true
-
-find_and_fix_old_job:
-  # Run once a day, 25 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
-  #       M H D
-  cron: '25 5 * * *'
-  class: FindAndFixOldJob
-  queue: scheduler
-  description: Find and fix problems
-  args:
-    email_results_to:
-      - 'fritx@umich.edu'
-    filter_date_begin: now - 7 days
-    filter_date_end: now
-    find_and_fix_empty_file_size: true
-    find_and_fix_over_file_sets: true
-    find_and_fix_all_ordered_members_containing_nils: true
-    hostnames:
-      - 'xdeepblue.lib.umich.edu'
-      - 'xstaging.deepblue.lib.umich.edu'
-      - 'xtesting.deepblue.lib.umich.edu'
-    subscription_service_id: find_and_fix_old_job
-    verbose: true
-
-find_and_fix_empty_file_size:
+find_and_fix_job_all:
   # Run once a day, 15 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #       M H D
   cron: '15 4 * * *'
   class: FindAndFixJob
   queue: scheduler
-  description: Find and fix problems - empty file size
+  description: Find and fix problems
   args:
-    email_results_to:
-      - 'fritx@umich.edu'
-    filter_date_begin: now - 7 days
-    filter_date_end: now
-    find_and_fix_empty_file_size: true
-    find_and_fix_over_file_sets: false
-    find_and_fix_all_ordered_members_containing_nils: false
+    by_request_only: true
     hostnames:
-      - 'xdeepblue.lib.umich.edu'
-      - 'xstaging.deepblue.lib.umich.edu'
-      - 'xtesting.deepblue.lib.umich.edu'
-    subscription_service_id: find_and_fix_empty_file_size
-    verbose: true
-
-find_and_fix_over_file_sets:
-  # Run once a day, 15 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
-  #       M H D
-  cron: '15 6 * * *'
-  class: FindAndFixJob
-  queue: scheduler
-  description: Find and fix problems - over file sets
-  args:
-    email_results_to:
-      - 'fritx@umich.edu'
-    filter_date_begin: now - 7 days
-    filter_date_end: now
-    find_and_fix_empty_file_size: false
-    find_and_fix_over_file_sets: true
-    find_and_fix_all_ordered_members_containing_nils: false
-    hostnames:
-      - 'xdeepblue.lib.umich.edu'
-      - 'xstaging.deepblue.lib.umich.edu'
-      - 'xtesting.deepblue.lib.umich.edu'
-    subscription_service_id: find_and_fix_over_file_sets
-    verbose: true
-
-find_and_fix_all_ordered_members_containing_nils:
-  # Run once a day, 15 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
-  #       M H D
-  cron: '15 5 * * *'
-  class: FindAndFixJob
-  queue: scheduler
-  description: Find and fix problems - ordered members
-  args:
-    email_results_to:
-      - 'fritx@umich.edu'
-    filter_date_begin: now - 7 days
-    filter_date_end: now
-    find_and_fix_empty_file_size: false
-    find_and_fix_over_file_sets: false
-    find_and_fix_all_ordered_members_containing_nils: true
-    hostnames:
-      - 'xdeepblue.lib.umich.edu'
-      - 'xstaging.deepblue.lib.umich.edu'
-      - 'xtesting.deepblue.lib.umich.edu'
-    subscription_service_id: find_and_fix_all_ordered_members_containing_nils
-    verbose: true
+      - 'block.deepblue.lib.umich.edu'
+      - 'block.testing.deepblue.lib.umich.edu'
+    subscription_service_id: find_and_fix_job_all
+    verbose: false
 
 globus_errors_report_job:
   # Run once a day, 5 minutes after six pm (which is offset by 4 or [5 during daylight savings time], due to GMT)
@@ -255,8 +182,6 @@ globus_errors_report_job:
       - 'testing.deepblue.lib.umich.edu'
     quiet: true
     subscription_service_id: globus_errors_report_job
-    user_email:
-      - 'fritx@umich.edu'
 
 globus_status_report_job:
   # Run once a day, 5 minutes after six pm (which is offset by 4 or [5 during daylight savings time], due to GMT)
@@ -272,8 +197,6 @@ globus_status_report_job:
       - 'testing.deepblue.lib.umich.edu'
     quiet: true
     subscription_service_id: globus_status_report_job
-    user_email:
-      - 'fritx@umich.edu'
 
 heartbeat_email_job:
   # Run once a day, one minute after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
@@ -290,20 +213,6 @@ heartbeat_email_job:
       - 'testing.deepblue.lib.umich.edu'
     subscription_service_id: heartbeat_email_job
 
-heartbeat_email_job_hourly:
-  # Run once a day, one minute after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
-  #      M H
-  # cron: '*/5 * * * *'
-  cron: '0 * * * *'
-  # rails_env: production
-  class: HeartbeatEmailJob
-  queue: scheduler
-  description: Heartbeat email job hourly.
-  args:
-    hostnames:
-      - 'x.deepblue.lib.umich.edu'
-    subscription_service_id: heartbeat_email_job_hourly
-
 monthly_events_report_job:
   # Run once a month on the 1st, twenty-five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M H D
@@ -319,6 +228,56 @@ monthly_events_report_job:
       - 'testing.deepblue.lib.umich.edu'
     quiet: true
     this_month: false
+
+reset_condensed_events_job:
+  # Run on demand
+  #      M H D
+  # cron: '*/5 * * * *'
+  cron: '25 5 * * *'
+  class: ResetCondensedEventsJob
+  queue: scheduler
+  description: Reset the condensed events job.
+  args:
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'staging.deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
+    quiet: true
+    by_request_only: true
+    subscription_service_id: reset_condensed_events_job
+
+resolrize_job:
+  # Run on demand
+  #      M H D
+  # cron: '*/5 * * * *'
+  cron: '25 5 * * *'
+  class: ResolrizeJob
+  queue: scheduler
+  description: Reindex everything in solr.
+  args:
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'staging.deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
+    quiet: true
+    by_request_only: true
+    subscription_service_id: resolrize_job
+
+sitemap_generator_job:
+  # Run once a week at midnight
+  #      M H D
+  # cron: '*/5 * * * *'
+  cron: '0 5 * * 0'
+  # cron: '10 * * * *'
+  class: SitemapGeneratorJob
+  queue: default
+  description: Sitemap generator job.
+  args:
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'staging.deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
+    verbose: true
 
 update_condensed_events_job_daily:
   # Run once a day, twenty-five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
@@ -357,8 +316,9 @@ works_report_job_daily:
   queue: scheduler
   description: Daily Works report job.
   args:
+    by_request_only: true
     hostnames:
-      - 'xtesting.deepblue.lib.umich.edu'
+      - 'x.testing.deepblue.lib.umich.edu'
     quiet: true
     report_file_prefix: '%date%.%hostname%.works_report'
     report_dir: '/deepbluedata-prep/reports'
