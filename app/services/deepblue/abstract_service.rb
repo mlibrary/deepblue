@@ -57,7 +57,7 @@ module Deepblue
       ReportHelper.to_datetime( date: date,
                                 format: format,
                                 msg_handler: msg_handler,
-                                raise_errors: true,
+                                raise_errors: raise_errors,
                                 msg_postfix: msg_postfix )
     end
 

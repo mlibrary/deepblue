@@ -226,14 +226,16 @@ RSpec.describe AnalyticsHelper, type: :helper do
   describe '.update_current_month_condensed_events' do
     let( :month_begin ) { Time.now.getgm.beginning_of_month }
     let( :this_months_date_range ) { month_begin.beginning_of_day..month_begin.end_of_month.end_of_day }
+    let(:msg_handler) { described_class::MSG_HANDLER_DEBUG_ONLY }
     let( :return_value ) { []  }
 
     context 'it calls' do
       subject { described_class.update_current_month_condensed_events }
       before do
-        expect( described_class).to receive( :update_condensed_events_for ).with( date_range: this_months_date_range ).and_return return_value
+        expect(described_class).to receive(:update_condensed_events_for).with(date_range: this_months_date_range,
+                                                                              msg_handler: msg_handler).and_return return_value
       end
-      it { expect( subject ).to eq return_value }
+      it { expect(subject).to eq return_value }
     end
 
   end

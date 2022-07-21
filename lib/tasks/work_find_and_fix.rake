@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'tasks/report_task'
-require 'tasks/ensure_doi_minted_task'
+require_relative './work_find_and_fix_task'
 
 namespace :deepblue do
 

@@ -32,16 +32,13 @@ END_OF_SCHEDULER_ENTRY
     initialize_options_from( *args, debug_verbose: update_condensed_events_job_debug_verbose )
     return job_finished unless hostname_allowed?
     log( event: "update condensed events job", hostname_allowed: hostname_allowed? )
-    ::AnalyticsHelper.update_current_month_condensed_events
-    ::AnalyticsHelper.updated_condensed_event_work_downloads
+    ::AnalyticsHelper.update_current_month_condensed_events( msg_handler: msg_handler )
+    ::AnalyticsHelper.updated_condensed_event_work_downloads( msg_handler: msg_handler )
     job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
     job_status_register( exception: e, args: args )
     email_failure( task_name: EVENT, exception: e, event: EVENT )
     raise e
   end
-
-
-
 
 end
