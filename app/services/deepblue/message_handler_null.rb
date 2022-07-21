@@ -86,23 +86,23 @@ module Deepblue
       # ignore
     end
 
-    def msg_debug( _msg, log: false, &block )
+    def msg_debug( _msg = nil, log: false, &block )
       # ignore
     end
 
-    def msg_error( _msg, log: false, &block )
+    def msg_error( _msg = nil, log: false, &block )
       # ignore
     end
 
-    def msg_info( _msg, log: false, &block )
+    def msg_info( _msg = nil, log: false, &block )
       # ignore
     end
 
-    def msg_verbose( _msg, log: false, prefix: nil, &block )
+    def msg_verbose( _msg = nil, log: false, prefix: nil, &block )
       # ignore
     end
 
-    def msg_warn( _msg, log: false, &block )
+    def msg_warn( _msg = nil, log: false, &block )
       # ignore
     end
 

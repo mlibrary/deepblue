@@ -1619,12 +1619,15 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     delete_condensed_events_total_downloads_zero( name: WORK_FILE_DWNLDS_TO_DATE, cc_id: work.id, msg_handler: msg_handler )
   end
 
-  def self.update_condensed_events_for( date_range: )
+  def self.update_condensed_events_for( date_range:, msg_handler: nil )
+    msg_handler = MSG_HANDLER_DEBUG_ONLY if msg_handler.nil?
     name_cc_ids = Ahoy::Event.select( :name, :cc_id ).where( time: date_range ).distinct.pluck( :name,
                                                                                                 :cc_id )
+    msg_handler.msg_verbose {"#{name_cc_ids.size} name and cc_ids found."}
     name_cc_ids.each do |name_cc_id|
       name = name_cc_id[0]
       cc_id = name_cc_id[1]
+      msg_handler.msg_verbose {"Process event #{name}, #{cc_id}"}
       condensed_data = Ahoy::Event.where( name: name, cc_id: cc_id, time: date_range ).group_by_day( :time ).count
       condensed_event = Ahoy::CondensedEvent.find_by( name: name,
                                                       cc_id: cc_id,
@@ -1642,12 +1645,15 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
   end
 
   # TODO: review the use of this method and what it does
-  def self.update_current_month_condensed_events
-    # will there be an issue with daily savings time?
-    beginning_of_month = gmtnow.beginning_of_month.beginning_of_day
-    end_of_month = beginning_of_month.end_of_month.end_of_day
-    date_range = beginning_of_month..end_of_month
-    update_condensed_events_for( date_range: date_range )
+  def self.update_current_month_condensed_events( date_range: nil, msg_handler: nil )
+    msg_handler = MSG_HANDLER_DEBUG_ONLY if msg_handler.nil?
+    if date_range.blank?
+      # will there be an issue with daily savings time?
+      beginning_of_month = gmtnow.beginning_of_month.beginning_of_day
+      end_of_month = beginning_of_month.end_of_month.end_of_day
+      date_range = beginning_of_month..end_of_month
+    end
+    update_condensed_events_for( date_range: date_range, msg_handler: msg_handler )
   end
 
   #
