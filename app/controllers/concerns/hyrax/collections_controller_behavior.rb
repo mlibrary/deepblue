@@ -1,4 +1,5 @@
-
+# frozen_string_literal: true
+# diff to v3.1
 module Hyrax
 
   module CollectionsControllerBehavior

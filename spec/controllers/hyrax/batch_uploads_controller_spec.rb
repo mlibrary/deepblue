@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Hyrax::BatchUploadsController, skip: false do
@@ -56,7 +58,7 @@ RSpec.describe Hyrax::BatchUploadsController, skip: false do
       context 'when json is requested' do
         it 'returns an HTTP 403' do
           post :create, params: post_params.merge(format: :json)
-          expect(response).to have_http_status(403)
+          expect(response).to have_http_status(:forbidden)
           expect(response.body).to include('Feature disabled by administrator')
         end
       end

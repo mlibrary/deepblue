@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# monkey
 
 require File.join( Gem::Specification.find_by_name("hyrax").full_gem_path, "app/controllers/concerns/hyrax/works_controller_behavior.rb" )
 

@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+# diff to v3.1
 module Hyrax
 
   module EmbargoesControllerBehavior
@@ -38,6 +38,9 @@ module Hyrax
     end
 
     # Updates a batch of embargos
+    # rubocop:disable Metrics/AbcSize
+    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/PerceivedComplexity
     def update
       filter_docs_with_edit_access!
       copy_visibility = []
@@ -56,6 +59,9 @@ module Hyrax
       end
       redirect_to embargoes_path, notice: t('.embargo_deactivated')
     end
+    # rubocop:enable Metrics/AbcSize
+    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/PerceivedComplexity
 
     # This allows us to use the unauthorized template in curation_concerns/base
     def self.local_prefixes
