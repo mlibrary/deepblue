@@ -30,6 +30,7 @@
 //= require morris/morris.min
 
 //= require clipboard
+//= require tinymce
 
 // This is required for Jasmine tests, specifically to polyfill the Symbol() function
 //= require babel/polyfill
@@ -41,7 +42,6 @@
 
 //= require hyrax/monkey_patch_turbolinks
 //= require hyrax/fileupload
-//= require hyrax/vue
 // Provide AMD module support
 //= require almond
 //= require hyrax/notification
@@ -105,6 +105,7 @@
 //= require hyrax/tabbed_form
 //= require hyrax/turbolinks_events
 //= require hyrax/i18n_helper
+//= require hyrax/collapse
 //= require hyrax/skip_to_content
 
 // this needs to be after batch_select so that the form ids get setup correctly

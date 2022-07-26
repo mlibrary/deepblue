@@ -1,3 +1,4 @@
+# diff to v3.1
 module Hyrax
   module Breadcrumbs
     extend ActiveSupport::Concern

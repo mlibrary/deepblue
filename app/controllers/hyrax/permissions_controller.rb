@@ -7,6 +7,7 @@ module Hyrax
     mattr_accessor :permissions_controller_debug_verbose,
                    default: Rails.configuration.permissions_controller_debug_verbose
 
+    attr_reader :curation_concern
     helper_method :curation_concern
 
     def confirm

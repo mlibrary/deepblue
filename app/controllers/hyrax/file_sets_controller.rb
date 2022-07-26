@@ -371,7 +371,6 @@ module Hyrax
       render action: 'edit'
     end
 
-
     # GET /files/:id/stats
     def stats
       @stats = FileUsage.new(params[:id])

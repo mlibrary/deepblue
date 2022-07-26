@@ -99,72 +99,71 @@ module Hyrax
 
     private
 
-      # Override the Hydra::Controller::DownloadBehavior#content_options so that
-      # we have an attachement rather than 'inline'
-      def content_options
-        super.merge(disposition: 'attachment')
-      end
+    # Override the Hydra::Controller::DownloadBehavior#content_options so that
+    # we have an attachement rather than 'inline'
+    def content_options
+      super.merge(disposition: 'attachment')
+    end
 
-      # Override this method if you want to change the options sent when downloading
-      # a derivative file
-      def derivative_download_options
-        { type: mime_type_for(file), disposition: 'inline' }
-      end
+    # Override this method if you want to change the options sent when downloading
+    # a derivative file
+    def derivative_download_options
+      { type: mime_type_for(file), disposition: 'inline' }
+    end
 
-      # Customize the :read ability in your Ability class, or override this method.
-      # Hydra::Ability#download_permissions can't be used in this case because it assumes
-      # that files are in a LDP basic container, and thus, included in the asset's uri.
-      def authorize_download!
-        authorize! :download, params[asset_param_key]
-      rescue CanCan::AccessDenied
-        unauthorized_image = Rails.root.join("app", "assets", "images", "unauthorized.png")
-        send_file unauthorized_image, status: :unauthorized
-      end
+    # Customize the :read ability in your Ability class, or override this method.
+    # Hydra::Ability#download_permissions can't be used in this case because it assumes
+    # that files are in a LDP basic container, and thus, included in the asset's uri.
+    def authorize_download!
+      authorize! :download, params[asset_param_key]
+    rescue CanCan::AccessDenied
+      unauthorized_image = Rails.root.join("app", "assets", "images", "unauthorized.png")
+      send_file unauthorized_image, status: :unauthorized
+    end
 
-      def default_image
-        ActionController::Base.helpers.image_path 'default.png'
-      end
+    def default_image
+      ActionController::Base.helpers.image_path 'default.png'
+    end
 
-      # Overrides Hydra::Controller::DownloadBehavior#load_file, which is hard-coded to assume files are in BasicContainer.
-      # Override this method to change which file is shown.
-      # Loads the file specified by the HTTP parameter `:file`.
-      # If this object does not have a file by that name, return the default file
-      # as returned by {#default_file}
-      # @return [ActiveFedora::File, File, NilClass] Returns the file from the repository or a path to a file on the local file system, if it exists.
-      def load_file
-        # begin monkey
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "params=#{params}",
-                                               "" ] if downloads_controller_debug_verbose
-        # begin monkey
-        file_reference = params[:file]
-        return default_file unless file_reference
+    # Overrides Hydra::Controller::DownloadBehavior#load_file, which is hard-coded to assume files are in BasicContainer.
+    # Override this method to change which file is shown.
+    # Loads the file specified by the HTTP parameter `:file`.
+    # If this object does not have a file by that name, return the default file
+    # as returned by {#default_file}
+    # @return [ActiveFedora::File, File, NilClass] Returns the file from the repository or a path to a file on the local file system, if it exists.
+    def load_file
+      # begin monkey
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params=#{params}",
+                                             "" ] if downloads_controller_debug_verbose
+      # begin monkey
+      file_reference = params[:file]
+      return default_file unless file_reference
 
-        file_path = Hyrax::DerivativePath.derivative_path_for_reference(params[asset_param_key], file_reference)
-        File.exist?(file_path) ? file_path : nil
-      end
+      file_path = Hyrax::DerivativePath.derivative_path_for_reference(params[asset_param_key], file_reference)
+      File.exist?(file_path) ? file_path : nil
+    end
 
-      def default_file
-        default_file_reference = if asset.class.respond_to?(:default_file_path)
-                                   asset.class.default_file_path
-                                 else
-                                   DownloadsController.default_content_path
-                                 end
-        association = dereference_file(default_file_reference)
-        association&.reader
-      end
+    def default_file
+      default_file_reference = if asset.class.respond_to?(:default_file_path)
+                                 asset.class.default_file_path
+                               else
+                                 DownloadsController.default_content_path
+                               end
+      association = dereference_file(default_file_reference)
+      association&.reader
+    end
 
-      def mime_type_for(file)
-        MIME::Types.type_for(File.extname(file)).first.content_type
-      end
+    def mime_type_for(file)
+      MIME::Types.type_for(File.extname(file)).first.content_type
+    end
 
-      def dereference_file(file_reference)
-        return false if file_reference.nil?
-        association = asset.association(file_reference.to_sym)
-        association if association && association.is_a?(ActiveFedora::Associations::SingularAssociation)
-      end
-
+    def dereference_file(file_reference)
+      return false if file_reference.nil?
+      association = asset.association(file_reference.to_sym)
+      association if association && association.is_a?(ActiveFedora::Associations::SingularAssociation)
+    end
 
     def report_irus_analytics_request
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -201,40 +200,39 @@ module Hyrax
 
     public
 
-      # irus_analytics: item_identifier
-      def item_identifier_for_irus_analytics
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "" ] if ::IrusAnalytics::Configuration.verbose_debug || downloads_controller_debug_verbose
-        rv = @download_obj.parent.oai_identifier
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "item_identifier=#{rv}",
-                                               "" ] if ::IrusAnalytics::Configuration.verbose_debug || downloads_controller_debug_verbose
-        rv
-      end
+    # irus_analytics: item_identifier
+    def item_identifier_for_irus_analytics
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if ::IrusAnalytics::Configuration.verbose_debug || downloads_controller_debug_verbose
+      rv = @download_obj.parent.oai_identifier
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "item_identifier=#{rv}",
+                                             "" ] if ::IrusAnalytics::Configuration.verbose_debug || downloads_controller_debug_verbose
+      rv
+    end
 
-      def is_thumbnail_request?
-        params["file"] == "thumbnail"
-      end
+    def is_thumbnail_request?
+      params["file"] == "thumbnail"
+    end
 
     def skip_send_irus_analytics?(_usage_event_type)
       return false
     end
 
     def download_skip_send_irus_analytics?
-        return true if @download_obj.blank?
-        # puts "not blank"
-        return true unless @download_obj.respond_to? :parent
-        # puts "responds to parent, @download_obj.parent=#{@download_obj.parent}"
-        parent = @download_obj.parent
-        return true if parent.blank?
-        # puts "parent not blank, parent.respond_to?(:workflow_state)=#{parent.respond_to?(:workflow_state)}"
-        # puts "parent.workflow_state=#{parent.workflow_state}"
-        return false if parent.workflow_state == 'deposited'
-        return true
-      end
-
-
+      return true if @download_obj.blank?
+      # puts "not blank"
+      return true unless @download_obj.respond_to? :parent
+      # puts "responds to parent, @download_obj.parent=#{@download_obj.parent}"
+      parent = @download_obj.parent
+      return true if parent.blank?
+      # puts "parent not blank, parent.respond_to?(:workflow_state)=#{parent.respond_to?(:workflow_state)}"
+      # puts "parent.workflow_state=#{parent.workflow_state}"
+      return false if parent.workflow_state == 'deposited'
+      return true
+    end
+    
   end
 end

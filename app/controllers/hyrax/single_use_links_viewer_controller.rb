@@ -29,6 +29,10 @@ module Hyrax
       asset.parent.tombstone.present?
     end
 
+    configure_blacklight do |config|
+      config.search_builder_class = SingleUseLinkSearchBuilder
+    end
+
     def download
       path = single_use_link.path
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -105,6 +109,15 @@ module Hyrax
     end
 
     private
+
+    def curation_concern
+      response, _document_list = search_service.search_results
+      response.documents.first
+    end
+
+    def search_service
+      Hyrax::SearchService.new(config: blacklight_config, user_params: { id: single_use_link.item_id }, scope: self)
+    end
 
     def search_builder_class
       SingleUseLinkSearchBuilder

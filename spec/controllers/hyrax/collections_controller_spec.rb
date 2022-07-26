@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe Hyrax::CollectionsController, skip: false do
+RSpec.describe Hyrax::CollectionsController, clean_repo: true, skip: false do
 
   include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
@@ -16,8 +18,8 @@ RSpec.describe Hyrax::CollectionsController, skip: false do
 
   let(:collection) do
     create(:public_collection_lw, title: ["My collection"],
-                                  description: ["My incredibly detailed description of the collection"],
-                                  user: user)
+           description: ["My incredibly detailed description of the collection"],
+           user: user)
   end
 
   let(:asset1)         { create(:work, title: ["First of the Assets"], user: user) }
@@ -27,6 +29,22 @@ RSpec.describe Hyrax::CollectionsController, skip: false do
   let(:asset5)         { build(:collection_lw, title: ["Second subcollection"], user: user) }
   let(:unowned_asset)  { create(:work, user: other) }
 
+  # TODO: when we get valkyrie working
+  # let(:collection) do
+  #   FactoryBot.valkyrie_create(:hyrax_collection,
+  #                              :public,
+  #                              title: ["My collection"],
+  #                              description: ["My incredibly detailed description of the collection"],
+  #                              edit_users: [user.user_key], read_users: [user.user_key])
+  # end
+  #
+  # let(:asset1)        { FactoryBot.valkyrie_create(:work, title: ["First of the Assets"], edit_users: [user.user_key], read_users: [user.user_key]) }
+  # let(:asset2)        { FactoryBot.valkyrie_create(:work, title: ["Second of the Assets"], edit_users: [user.user_key], read_users: [user.user_key]) }
+  # let(:asset3)        { FactoryBot.valkyrie_create(:work, title: ["Third of the Assets"], edit_users: [user.user_key], read_users: [user.user_key]) }
+  # let(:asset4)        { FactoryBot.valkyrie_create(:hyrax_collection, title: ["First subcollection"], edit_users: [user.user_key], read_users: [user.user_key]) }
+  # let(:asset5)        { FactoryBot.valkyrie_create(:hyrax_collection, title: ["Second subcollection"], edit_users: [user.user_key], read_users: [user.user_key]) }
+  # let(:unowned_asset) { FactoryBot.valkyrie_create(:work, user: other) }
+
   let(:collection_attrs) do
     { title: ['My First Collection'], description: ["The Description\r\n\r\nand more"] }
   end
@@ -35,16 +53,25 @@ RSpec.describe Hyrax::CollectionsController, skip: false do
     context "when signed in" do
       before do
         sign_in user
-        [asset1, asset2, asset3, asset4, asset5].each do |asset|
-          asset.member_of_collections = [collection]
-          asset.save
+        if collection.is_a? Valkyrie::Resource
+          Hyrax::Collections::CollectionMemberService.add_members(collection_id: collection.id,
+                                                                  new_members: [asset1, asset2, asset3, asset4, asset5],
+                                                                  user: user)
+        else
+          [asset1, asset2, asset3, asset4, asset5].each do |asset|
+            asset.member_of_collections = [collection]
+            asset.save
+          end
         end
       end
 
-      it "returns the collection and its members", skip: true do # rubocop:disable RSpec/ExampleLength
+      # it "returns the collection and its members", skip: true do # rubocop:disable RSpec/ExampleLength
         # TODO: fix this
+      it "returns the collection and its members" do # rubocop:disable RSpec/ExampleLength
         expect(controller).to receive(:add_breadcrumb).with('Home', Hyrax::Engine.routes.url_helpers.root_path(locale: 'en'))
-        expect(controller).to receive(:add_breadcrumb).with(I18n.t('hyrax.dashboard.title'), Hyrax::Engine.routes.url_helpers.dashboard_path(locale: 'en'))
+        expect(controller).to receive(:add_breadcrumb).with('Dashboard', Hyrax::Engine.routes.url_helpers.dashboard_path(locale: 'en'))
+        expect(controller).to receive(:add_breadcrumb).with('Collections', Hyrax::Engine.routes.url_helpers.my_collections_path(locale: 'en'))
+        expect(controller).to receive(:add_breadcrumb).with('My collection', collection_path(collection.id, locale: 'en'), "aria-current" => "page")
         get :show, params: { id: collection }
         expect(response).to be_successful
         expect(response).to render_template("layouts/hyrax/1_column")
@@ -77,11 +104,14 @@ RSpec.describe Hyrax::CollectionsController, skip: false do
         end
       end
 
-      context "without a referer", skip: true do
+      # context "without a referer", skip: true do
         # TODO: fix this
+      context "without a referer" do
         it "sets breadcrumbs" do
           expect(controller).to receive(:add_breadcrumb).with('Home', Hyrax::Engine.routes.url_helpers.root_path(locale: 'en'))
-          expect(controller).to receive(:add_breadcrumb).with(I18n.t('hyrax.dashboard.title'), Hyrax::Engine.routes.url_helpers.dashboard_path(locale: 'en'))
+          expect(controller).to receive(:add_breadcrumb).with('Dashboard', Hyrax::Engine.routes.url_helpers.dashboard_path(locale: 'en'))
+          expect(controller).to receive(:add_breadcrumb).with('Collections', Hyrax::Engine.routes.url_helpers.my_collections_path(locale: 'en'))
+          expect(controller).to receive(:add_breadcrumb).with('My collection', collection_path(collection.id, locale: 'en'), "aria-current" => "page")
           get :show, params: { id: collection }
           expect(response).to be_successful
         end

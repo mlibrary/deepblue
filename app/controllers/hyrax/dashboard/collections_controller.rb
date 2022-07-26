@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+# monkey
 require File.join( Gem::Specification.find_by_name("hyrax").full_gem_path, "app/controllers/hyrax/dashboard/collections_controller.rb" )
 
 module Hyrax
