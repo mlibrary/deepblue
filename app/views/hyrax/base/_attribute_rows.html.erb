@@ -124,7 +124,7 @@
   <span class="hide"><%= presenter.rights_license[0] %></span>
 </span>
 
-<% if presenter.rights_license.first == "Other" %>
+<% if presenter.rights_license == "Other" %>
   <%= presenter.attribute_to_html(:rights_license_other, label: t('show.labels.rights_license') ) %>
 <% else %>
   <%= presenter.attribute_to_html(:rights_license, render_as: :rights_license, label: t('show.labels.rights_license'), work_type: "DataSet" ) %>
