@@ -11,6 +11,29 @@ module Hyrax
 
       mattr_accessor :attribute_renderer_debug_verbose, default: false
 
+      # Draw the table row for the attribute
+      def render
+        # begin monkey
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "field=#{field}",
+                                               "values=#{values}",
+                                               "options=#{options}",
+                                               "" ] if attribute_renderer_debug_verbose
+        # end monkey
+        return '' if values.blank? && !options[:include_empty]
+        markup = []
+        markup << %(<span itemprop="#{options[:itemprop]}">) if options[:itemprop].present?
+        markup << %(<tr><th>#{label}</th>\n<td><ul class='tabular'>)
+        attributes = microdata_object_attributes(field).merge(class: "attribute attribute-#{field}")
+        Array(values).each do |value|
+          markup << "<li#{html_attributes(attributes)}>#{attribute_value_to_html(value.to_s)}</li>"
+        end
+        markup << %(</ul></td></tr>)
+        markup << %(</span>) if options[:itemprop].present?
+        markup.join("\n").html_safe
+      end
+
       # Draw the dt row for the attribute
       def render_dt_row
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

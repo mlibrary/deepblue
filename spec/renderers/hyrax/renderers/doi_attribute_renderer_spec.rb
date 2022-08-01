@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Hyrax::Renderers::DoiAttributeRenderer do
@@ -31,7 +33,7 @@ RSpec.describe Hyrax::Renderers::DoiAttributeRenderer do
     end
 
     it 'renders anything else as nil' do
-      expect(described_class.new(field,values,options).attribute_value_to_html("random stuff")).to eq nil
+      expect(described_class.new(field,values,options).attribute_value_to_html("random stuff")).to eq "random stuff"
     end
 
   end

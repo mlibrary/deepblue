@@ -73,27 +73,30 @@ module Hyrax
       end
     end
 
-    # monkey
-    def present_authors
-      author = attribute_to_html(:creator, render_as: :faceted, label: I18n.t('show.labels.creator') )
-      author.gsub!('itemscope itemtype="http://schema.org/Person"', '')
-    end
-
-    # monkey
-    def present_authors_compact
-      authors = attribute_to_html(:creator, render_as: :faceted, label: I18n.t('show.labels.creator') )
-      authors.gsub!('itemscope itemtype="http://schema.org/Person"', '')
-             .gsub!('<td>', '')
-             .gsub!('</td>', '')
-             .gsub!('<tr>', '')
-             .gsub!('</tr>', '')
-             .gsub!(/<th.*?>(.+?)<\/th>/, '')
-             .gsub!(/<ul.*?>(.+?)<\/ul>/, '\1')
-             .gsub!(/<li.*?>(.+?)<\/li>/, '\1|  ')
-             .gsub!(/<span.*?>(.+?)<\/span>/, '\1')
-      authors = authors.reverse.sub('|', '').sub('|', ' dna ').reverse.gsub!('|', ';')
-      "<span class=\"moreauthor\">#{authors}</span>"
-    end
+    # # monkey
+    # def present_authors
+    #   author = attribute_to_html(:creator, render_as: :faceted, label: I18n.t('show.labels.creator') )
+    #   return author if author.blank?
+    #   author.gsub!('itemscope itemtype="http://schema.org/Person"', '')
+    # end
+    #
+    # # monkey
+    # def present_authors_compact
+    #   authors = attribute_to_html(:creator, {render_as: :faceted, label: I18n.t('show.labels.creator')} )
+    #   unless authors.blank?
+    #     authors&.gsub!('itemscope itemtype="http://schema.org/Person"', '')
+    #     authors&.gsub!('<td>', '')
+    #     authors&.gsub!('</td>', '')
+    #     authors&.gsub!('<tr>', '')
+    #     authors&.gsub!('</tr>', '')
+    #     authors&.gsub!(/<th.*?>(.+?)<\/th>/, '')
+    #     authors&.gsub!(/<ul.*?>(.+?)<\/ul>/, '\1')
+    #     authors&.gsub!(/<li.*?>(.+?)<\/li>/, '\1|  ')
+    #     authors&.gsub!(/<span.*?>(.+?)<\/span>/, '\1')
+    #     authors = authors.reverse.sub('|', '').sub('|', ' dna ').reverse.gsub!('|', ';')
+    #   end
+    #   "<span class=\"moreauthor\">#{authors}</span>"
+    # end
 
   end
 

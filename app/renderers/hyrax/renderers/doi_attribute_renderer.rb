@@ -1,7 +1,7 @@
 module Hyrax
   module Renderers
 
-    # This is used by PresentsAttributes to show licenses
+    # This is used by PresentsAttributes to show a doi
     #   e.g.: presenter.attribute_to_html(:doi, render_as: :doi)
     class DoiAttributeRenderer < AttributeRenderer
 
@@ -19,7 +19,7 @@ module Hyrax
              elsif value.start_with? 'http'
                value
              else
-               value.sub! 'doi:', 'https://doi.org/'
+               value.sub 'doi:', 'https://doi.org/'
              end
         return rv
       end
