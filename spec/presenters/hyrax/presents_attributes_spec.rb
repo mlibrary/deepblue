@@ -21,8 +21,16 @@ RSpec.describe Hyrax::PresentsAttributes do
     let(:mock) { MockPresentsAttributes.new }
     let(:test_attribute) { 'test_attribute' }
     let(:test_attribute_array) { ['Test 1', 'Test 2'] }
-    let(:expected_render) { "<tr><th>Test attribute</th>\n<td><ul class='tabular'><li class=\"attribute attribute-test_attribute\">test_attribute</li></ul></td></tr>" }
-    let(:expected_array_render) { "<tr><th>Test attribute</th>\n<td><ul class='tabular'><li class=\"attribute attribute-test_attribute\">test_attribute</li></ul></td></tr>" }
+    let(:expected_render) { [
+        %(<tr><th>Test attribute</th>),
+        %(<td><ul class='tabular'>),
+        %(<li class="attribute attribute-test_attribute">test_attribute</li>),
+        %(</ul></td></tr>) ].join("\n") }
+    let(:expected_array_render) { [
+        %(<tr><th>Test attribute</th>),
+        %(<td><ul class='tabular'>),
+        %(<li class="attribute attribute-test_attribute">test_attribute</li>),
+        %(</ul></td></tr>) ].join("\n") }
 
     before do
       mock.test_attribute = test_attribute

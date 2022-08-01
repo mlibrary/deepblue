@@ -1,6 +1,10 @@
 <%# See: for attribute_to_html parameter details, see Hyrax gem pp/presenters/hyrax/presents_attributes.rb %>
 <%# parameters: include_empty, label, render_as, search_field, work_type %>
 
+<span itemprop="url">
+  <span class="hide"><%= Rails.application.routes.url_helpers.hyrax_data_set_url( id: presenter.id ) %></span>
+</span>
+
 <tr>
   <th>Methodology</th>
   <td>
@@ -20,80 +24,34 @@
   </td>
 </tr>
 
-<tr><th>Description</th><td><ul class='tabular_list'>
-<% num_para = presenter.description.count %>
-<% presenter.description.each do |description| %>
-<li class="attribute attribute-description"><span itemprop="description">
-   <%= raw ("<span class=\"more\">" + iconify_auto_link(description) + "</span>") %>
-   </span>
-   <% if num_para > 1 %>
-     <p></p>
-     <% num_para = num_para - 1 %>
-   <% end %>
-</li>
-<% end %>
-</ul></td></tr>
+<tr><th>Description</th><td>
+  <ul class='tabular_list'>
+    <% num_para = presenter.description.count %>
+    <% presenter.description.each do |description| %>
+    <li class="attribute attribute-description"><span itemprop="description">
+      <%= raw ("<span class=\"more\">" + iconify_auto_link(description) + "</span>") %>
+    </span>
+    <% if num_para > 1 %>
+      <p></p>
+      <% num_para = num_para - 1 %>
+    <% end %>
+    </li>
+    <% end %>
+  </ul>
+</td></tr>
 
-<span itemprop="url">
-  <span class="hide"><%= Rails.application.routes.url_helpers.hyrax_data_set_url( id: presenter.id ) %></span>
-</span>
-
-
-<%# if there are more than 5 authors, the author list is diplayed in paragraph form %>
-<% if presenter.creator.count > 5 %>
-<tr>
-  <th>Creator</th>
-  <td>
-    <ul class='tabular_list'>
-      <li class="attribute attribute-creator"><span itemprop="creator"><%= raw presenter.present_authors_compact %></span></li>
-        <%# remove tags and reformat output %>
-        <%# authors = raw (presenter.attribute_to_html(:creator, render_as: :faceted, label: t('show.labels.creator') ).gsub!('itemscope itemtype="http://schema.org/Person"', '').gsub!('<td>', '').gsub!('</td>', '').gsub!('<tr>', '').gsub!('</tr>', '').gsub!(/<th.*?>(.+?)<\/th>/, '').gsub!(/<ul.*?>(.+?)<\/ul>/, '\1').gsub!(/<li.*?>(.+?)<\/li>/, '\1|  ').gsub!(/<span.*?>(.+?)<\/span>/, '\1')) %>
-        <%# authors = authors.reverse.sub('|', '').sub('|', ' dna ').reverse.gsub!('|', ';') %>
-        <%#= raw ("<span class=\"moreauthor\">") + authors + raw("</span>" ) %>
-    </ul>
-  </td>
-</tr>
-<% else %>
-  <%= raw presenter.present_authors %>
-  <%#= raw (presenter.attribute_to_html(:creator, render_as: :faceted, label: t('show.labels.creator') )).gsub!('itemscope itemtype="http://schema.org/Person"', '') %>
-<% end %>
-
-<% presenter.depositor.gsub!('@', 'at_sign_at') %>
-<% presenter.depositor.gsub!('TOMBSTONE-', '') %>
-<%= raw (presenter.attribute_to_html(:depositor)).gsub!('at_sign_at', '@') %>
-
+<%= presenter.attribute_to_html(:creator, render_as: :creator, label: I18n.t('show.labels.creator') ) %>
+<%= presenter.attribute_to_html(:depositor, render_as: :depositor) %>
 <%= presenter.attribute_to_html(:authoremail, label: t('show.labels.authoremail'), work_type: "DataSet" ) %>
 <%= presenter.attribute_to_html(:contributor, render_as: :faceted) %>
 <%= presenter.attribute_to_html(:subject_discipline, render_as: :faceted, label: t('show.labels.subject_discipline')) %>
 <%= presenter.attribute_to_html(:fundedby, label: t('show.labels.fundedby') ) %>
-
-<% unless ( presenter.fundedby_other.nil? || presenter.fundedby_other.empty? ) %>
-  <tr><th><%= t('show.labels.fundedby_other') %></th><td><ul class='tabular_list'>
-  <% num_para = presenter.fundedby_other.count %>
-  <% presenter.fundedby_other.each do |fundedby_other| %>
-  <li class="attribute attribute-fundedby_other"><span itemprop="fundedby_other">
-     <%= raw ("<span class=\"more\">" + iconify_auto_link(fundedby_other) + "</span>") %>
-     </span>
-     <% if num_para > 1 %>
-       <p></p>
-       <% num_para = num_para - 1 %>
-     <% end %>
-  </li>
-  <% end %>
-  </ul></td></tr>
-<% end %>
-
+<%= presenter.attribute_to_html(:fundedby_other, render_as: :fundedby_other, label: t('show.labels.fundedby_other') ) %><%# unless presenter.fundedby_other.nil? %>
 <%= presenter.attribute_to_html(:grantnumber, label: t('show.labels.grantnumber') ) %>
-
 <%= presenter.attribute_to_html(:keyword, render_as: :faceted) %>
-
-<span itemprop="temporalCoverage">
-  <%= presenter.attribute_to_html(:date_coverage, label: t('show.labels.date_coverage') ) %>
-</span>
-
+<%= presenter.attribute_to_html(:date_coverage, label: t('show.labels.date_coverage'), itemprop: "temporalCoverage" ) %>
 <%= presenter.attribute_to_html(:referenced_by, label: t('show.labels.referenced_by') ) %>
 <%= presenter.attribute_to_html(:access_deepblue, label: t('show.labels.access_deepblue') ) %>
-
 <%= presenter.attribute_to_html(:publisher, render_as: :faceted) %>
 <%= presenter.attribute_to_html(:resource_type, render_as: :faceted) %>
 
@@ -107,18 +65,14 @@
 <%= presenter.attribute_to_html(:date_published2, render_as: :date_attribute, label: t('show.labels.date_published') ) %>
 <%= presenter.attribute_to_html(:language, render_as: :faceted, label: t('show.labels.language') ) %>
 <%= presenter.attribute_to_html(:license, render_as: :license, html_dl: true) %> <%# added for hyrax v3 %>
-
 <%= presenter.attribute_to_html(:subject, render_as: :faceted, label: t('show.labels.subject')) %>
 <%= presenter.attribute_to_html(:identifier, render_as: :linked, search_field: 'identifier_tesim') %>
 <%= presenter.attribute_to_html(:date_created, render_as: :date_attribute, label: t('show.labels.date_created') ) %>
 <%= presenter.attribute_to_html(:based_near_label) %>
 <%= presenter.attribute_to_html(:related_url, render_as: :external_link) %>
-
 <%= presenter.attribute_to_html(:source) %>
 
-<span itemprop="identifier">
-  <%= presenter.attribute_to_html(:doi, label: t('show.labels.doi'), work_type: "DataSet", render_as: :doi ) %>
-</span>
+<%= presenter.attribute_to_html(:doi, label: t('show.labels.doi'), work_type: "DataSet", render_as: :doi, itemprop: "identifier" ) %>
 
 <span itemprop="license">
   <span class="hide"><%= presenter.rights_license[0] %></span>
@@ -159,6 +113,5 @@
 <%= presenter.attribute_to_html(:type_none) %>
 <%= presenter.attribute_to_html(:language_none) %>
 <%= presenter.attribute_to_html(:description_mapping) %>
-
 <%= presenter.attribute_to_html(:description_sponsorship) %>
 <%# This is actually included just below the title, but is not labeled #= presenter.attribute_to_html(:description) %>
