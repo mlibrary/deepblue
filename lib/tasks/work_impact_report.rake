@@ -17,7 +17,7 @@ namespace :deepblue do
   # bundle exec rake deepblue:work_impact_report['{"verbose":true\,"report_dir":"/deepbluedata-prep/reports"\,"report_file_prefix":"%date%.%time%.%hostname%.work_impact_report"}']
   # bundle exec rake deepblue:work_impact_report['{"verbose":true\,"report_dir":"/deepbluedata-prep/reports"\,"report_file_prefix":"%timestamp%.%hostname%.work_impact_report"}']
   # bundle exec rake deepblue:work_impact_report['{"verbose":true\,"skip_admin":false\,"report_dir":"/deepbluedata-prep/reports"\,"report_file_prefix":"%timestamp%.%hostname%.work_impact_report"}']
-  # bundle exec rake deepblue:work_impact_report['{"verbose":true\,"report_dir":"/deepbluedata-prep/reports"\,"report_file_prefix":"%timestamp%.%hostname%.work_impact_report"\,"subscription_service_id":"works_report_job_daily"}']
+  # bundle exec rake deepblue:work_impact_report['{"verbose":true\,"report_dir":"/deepbluedata-prep/reports"\,"report_file_prefix":"%timestamp%.%hostname%.work_impact_report"\,"subscription_service_id":"work_impact_report_monthly"}']
   desc 'Write impact report for works'
   task :work_impact_report, %i[ options ] => :environment do |_task, args|
     args.with_defaults( options: '{}' )
