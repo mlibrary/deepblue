@@ -48,6 +48,7 @@ module Deepblue
     mattr_accessor :update_condensed_events_job_debug_verbose,      default: false
     mattr_accessor :user_stat_importer_job_debug_verbose,           default: false
     mattr_accessor :work_find_and_fix_job_debug_verbose,            default: false
+    mattr_accessor :work_impact_report_job_debug_verbose,           default: false
     mattr_accessor :works_report_job_debug_verbose,                 default: false
 
     mattr_accessor :allowed_job_tasks,             default: [ "tmp:clean" ].freeze

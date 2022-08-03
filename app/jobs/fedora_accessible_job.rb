@@ -31,7 +31,7 @@ END_OF_SCHEDULER_ENTRY
   end
 
   def perform( *args )
-    initialize_options_from( args, debug_verbose: fedora_accessible_job_debug_verbose )
+    initialize_options_from( *args, debug_verbose: fedora_accessible_job_debug_verbose )
     return if ::Deepblue::FedoraAccessibleService.fedora_accessible?
     email_fedora_not_accessible( *args )
     job_finished
