@@ -1,4 +1,6 @@
+# frozen_string_literal: true
 require 'rails_helper'
+
 include Warden::Test::Helpers
 
 RSpec.describe Hyrax::Admin::WorkflowsController, skip: false do
@@ -7,9 +9,13 @@ RSpec.describe Hyrax::Admin::WorkflowsController, skip: false do
   routes { Hyrax::Engine.routes }
 
   describe "#index" do
+    let(:user) { FactoryBot.create(:admin) }
+
     before do
+      sign_in user
       expect(controller).to receive(:authorize!).with(:review, :submissions).and_return(true)
     end
+
     it "is successful" do
       expect(controller).to receive(:add_breadcrumb).with('Home', root_path)
       expect(controller).to receive(:add_breadcrumb).with('Dashboard', dashboard_path)
@@ -18,8 +24,8 @@ RSpec.describe Hyrax::Admin::WorkflowsController, skip: false do
 
       get :index
       expect(response).to be_successful
-      expect(assigns[:status_list]).to be_kind_of Hyrax::Workflow::StatusListService
-      expect(assigns[:published_list]).to be_kind_of Hyrax::Workflow::StatusListService
+      expect(assigns[:status_list]).to respond_to(:each)
+      expect(assigns[:published_list]).to respond_to(:each)
     end
   end
 

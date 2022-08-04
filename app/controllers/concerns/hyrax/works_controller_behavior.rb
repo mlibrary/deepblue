@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# monkey
 
 require File.join( Gem::Specification.find_by_name("hyrax").full_gem_path, "app/controllers/concerns/hyrax/works_controller_behavior.rb" )
 
@@ -26,28 +27,6 @@ module Hyrax
         search_params = params.deep_dup
         search_params.delete :page
         search_result_document(search_params)
-      end
-
-      def decide_layout
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "action_name=#{action_name}",
-                                               "params[:anon_link_id].present?=#{params[:anon_link_id].present?}",
-                                               "params[:link_id].present?=#{params[:link_id].present?}",
-                                               "" ] if hyrax_works_controller_behavior_debug_verbose
-        layout = if 'show' == action_name || params[:link_id].present? || params[:anon_link_id].present?
-                   '1_column'
-                 elsif 'single_use_link' == action_name
-                   '1_column'
-                 else
-                   'dashboard'
-                 end
-        rv = File.join(theme, layout)
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "rv=#{rv}",
-                                               "" ] if hyrax_works_controller_behavior_debug_verbose
-        return rv
       end
 
       ##
@@ -148,6 +127,28 @@ module Hyrax
         doc = ::SolrDocument.find(params[:id])
         raise WorkflowAuthorizationException if doc.suppressed? && current_ability.can?(:read, doc)
         raise CanCan::AccessDenied.new(nil, :show)
+      end
+
+      def decide_layout
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "action_name=#{action_name}",
+                                               "params[:anon_link_id].present?=#{params[:anon_link_id].present?}",
+                                               "params[:link_id].present?=#{params[:link_id].present?}",
+                                               "" ] if hyrax_works_controller_behavior_debug_verbose
+        layout = if 'show' == action_name || params[:link_id].present? || params[:anon_link_id].present?
+                   '1_column'
+                 elsif 'single_use_link' == action_name
+                   '1_column'
+                 else
+                   'dashboard'
+                 end
+        rv = File.join(theme, layout)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "rv=#{rv}",
+                                               "" ] if hyrax_works_controller_behavior_debug_verbose
+        return rv
       end
 
       def provenance_log_url

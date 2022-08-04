@@ -1,3 +1,4 @@
+/* diff to v3.1 */
 export class RequiredFields {
   // Monitors the form and runs the callback if any of the required fields change
   constructor(form, callback) {
