@@ -1,9 +1,7 @@
 <%# See: for attribute_to_html parameter details, see Hyrax gem pp/presenters/hyrax/presents_attributes.rb %>
 <%# parameters: include_empty, label, render_as, search_field, work_type %>
 
-<span itemprop="url">
-  <span class="hide"><%= Rails.application.routes.url_helpers.hyrax_data_set_url( id: presenter.id ) %></span>
-</span>
+<span itemprop="url" class="hide"><%= presenter.work_url %></span>
 
 <tr>
   <th>Methodology</th>
@@ -65,7 +63,7 @@
 <%= presenter.attribute_to_html(:date_published2, render_as: :date_attribute, label: t('show.labels.date_published') ) %>
 <%= presenter.attribute_to_html(:language, render_as: :faceted, label: t('show.labels.language') ) %>
 <%= presenter.attribute_to_html(:license, render_as: :license, html_dl: true) %> <%# added for hyrax v3 %>
-<%= presenter.attribute_to_html(:subject, render_as: :faceted, label: t('show.labels.subject')) %>
+<%#= presenter.attribute_to_html(:subject, render_as: :faceted, label: t('show.labels.subject')) %>
 <%= presenter.attribute_to_html(:identifier, render_as: :linked, search_field: 'identifier_tesim') %>
 <%= presenter.attribute_to_html(:date_created, render_as: :date_attribute, label: t('show.labels.date_created') ) %>
 <%= presenter.attribute_to_html(:based_near_label) %>
@@ -75,7 +73,7 @@
 <%= presenter.attribute_to_html(:doi, label: t('show.labels.doi'), work_type: "DataSet", render_as: :doi, itemprop: "identifier" ) %>
 
 <span itemprop="license">
-  <span class="hide"><%= presenter.rights_license[0] %></span>
+  <span class="hide"><%= presenter.rights_license[0] if presenter.rights_license.present? %></span>
 </span>
 
 <% if presenter.rights_license == "Other" %>
