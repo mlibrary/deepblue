@@ -41,6 +41,7 @@ RSpec.describe 'hyrax/base/_attributes.html.erb' do
     allow(presenter).to receive(:read_users).and_return []
     allow(presenter).to receive(:read_users).and_return []
     allow(presenter).to receive(:creator).and_return ["Bilbo"]
+    allow(presenter).to receive(:work_url).and_return "url:work"
 
     stub_template 'shared/_show_curation_notes.html.erb' => ''
     render 'hyrax/base/attributes', presenter: presenter
@@ -49,7 +50,7 @@ RSpec.describe 'hyrax/base/_attributes.html.erb' do
   it 'has links to search for other objects with the same metadata' do
     expect(rendered).to have_link(creator)
     expect(rendered).to have_link(contributor)
-    expect(rendered).to have_link(subject)
+    expect(rendered).to_not have_link(subject)
   end
 
 end

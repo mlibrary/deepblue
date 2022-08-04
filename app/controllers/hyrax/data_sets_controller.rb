@@ -569,6 +569,10 @@ module Hyrax
       @visibility_changed_to_private = false
     end
 
+    def work_url
+      curation_concern.data_set_url
+    end
+
     ## end visibility / publish
 
     protected

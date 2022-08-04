@@ -65,6 +65,7 @@ module Hyrax
                   :read_me_text_html,
                   :read_me_text_simple_format,
                   :tombstone_permissions_hack?,
+                  :work_url,
                   :zip_download_enabled?, to: :controller
 
     # def initialize( solr_document, current_ability, request = nil )
