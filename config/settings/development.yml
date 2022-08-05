@@ -18,6 +18,10 @@ jira:
   password: development_jirapassword.invalid
   site_url: https://tools.lib.umich.edu
 
+teamdynamix:
+  username: tdxusername.invalid
+  password: tdxupassword.invalid
+
 rails:
   database:
     database: db/development.sqlite3
