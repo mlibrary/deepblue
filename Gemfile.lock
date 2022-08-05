@@ -65,6 +65,15 @@ GIT
       oj_mimic_json (~> 1.0, >= 1.0.1)
 
 GIT
+  remote: https://github.com/mlibrary/tdx_api
+  revision: 9f0d8ad18d7a2b48fa546933f73d1cd52b200788
+  specs:
+    tdx_api (0.1.0)
+      dotenv (~> 2.2.1)
+      jwt (> 2.1.0)
+      rest-client (~> 2.0.2)
+
+GIT
   remote: https://github.com/ruby-rdf/rdf-spec.git
   revision: 829d16a711d85afb136cd48b23e542b533f3e6f1
   branch: develop
@@ -328,6 +337,9 @@ GEM
       representable (>= 3.1.1, < 4)
     docile (1.4.0)
     docopt (0.5.0)
+    domain_name (0.5.20190701)
+      unf (>= 0.0.5, < 1.0.0)
+    dotenv (2.2.2)
     down (4.8.1)
       addressable (~> 2.5)
     draper (4.0.2)
@@ -488,6 +500,8 @@ GEM
     hashie (3.6.0)
     hiredis (0.6.3)
     htmlentities (4.3.4)
+    http-cookie (1.0.5)
+      domain_name (~> 0.5)
     http_logger (0.7.0)
     httpclient (2.8.3)
     hydra-access-controls (11.0.7)
@@ -747,6 +761,7 @@ GEM
     net-http-persistent (4.0.1)
       connection_pool (~> 2.2)
     net-ldap (0.17.1)
+    netrc (0.11.0)
     new_google_recaptcha (1.4.0)
       rails (>= 4.2.0)
     nio4r (2.5.8)
@@ -989,6 +1004,10 @@ GEM
       resque
       sass-rails
       twitter-bootstrap-rails
+    rest-client (2.0.2)
+      http-cookie (>= 1.0.2, < 2.0)
+      mime-types (>= 1.16, < 4.0)
+      netrc (~> 0.8)
     retriable (3.1.2)
     reverse_markdown (2.1.1)
       nokogiri
@@ -1338,6 +1357,7 @@ DEPENDENCIES
   spring-watcher-listen (~> 2.0.0)
   sprockets (~> 3.7.2)
   sqlite3 (~> 1.3.6)
+  tdx_api!
   time_difference
   turbolinks (~> 5)
   tzinfo-data

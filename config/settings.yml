@@ -111,6 +111,10 @@ jira:
   password: jirapassword.invalid
   site_url: https://tools.lib.umich.edu
 
+teamdynamix:
+  username: tdxusername.invalid
+  password: tdxupassword.invalid
+
 # For M-community api
 mcommunity:
   url: url.invalid

@@ -197,6 +197,8 @@ gem 'omniauth'
 gem 'omniauth-cas'
 gem 'riiif',         '~> 1.1'
 gem 'rsolr',         '>= 1.0'
+# gem 'tdx_api', git: 'https://github.com/jacksonpotter/tdx_api'
+gem 'tdx_api', git: 'https://github.com/mlibrary/tdx_api'
 
 # analytics support
 # https://github.com/ankane/ahoy
