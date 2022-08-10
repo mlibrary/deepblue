@@ -18,8 +18,7 @@
         <% if current_user %>
           <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
 
-            <span class="sr-only" data-search-element="label"><%= t("hyrax.search.form.option.all.label_long", application_name: application_name) %></span>
-            <span aria-hidden="true"><%= t("hyrax.search.form.option.all.label_short") %></span>
+            <span  data-search-element="label"><%= t("hyrax.search.form.option.all.label_long", application_name: application_name) %></span>
             <span class="caret"></span>
           </button>
 
@@ -36,7 +35,7 @@
               <%= link_to t("hyrax.search.form.option.my_collections.label_long"), "#",
                   data: { "search-option" => hyrax.my_collections_path, "search-label" => t("hyrax.search.form.option.my_collections.label_short") } %>
             </li>
-          </ul>            
+          </ul>
         <% end %>
 
       </div><!-- /.input-group-btn -->
