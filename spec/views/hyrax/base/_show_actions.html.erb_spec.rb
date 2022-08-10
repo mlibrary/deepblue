@@ -81,10 +81,13 @@ RSpec.describe 'hyrax/base/_show_actions.html.erb', type: :view do
         allow(presenter).to receive(:member_presenters).and_return([member])
         render 'hyrax/base/show_actions.html.erb', presenter: presenter, curation_concern: curation_concern
       end
-      it "has a zip download / globus link" do
-        expect(rendered).to have_button I18n.t('simple_form.actions.data_set.zip_download')
-        expect(rendered).to have_button I18n.t('simple_form.actions.data_set.globus_download')
+
+      # Since it has no files, the buttons should be disabled.
+      xit "has a zip download / globus link" do
+        expect(rendered).not_to have_button I18n.t('simple_form.actions.data_set.zip_download')
+        expect(rendered).not_to have_button I18n.t('simple_form.actions.data_set.globus_download')
       end
+
       it "does not show file manager link" do
         expect(rendered).not_to have_button I18n.t("hyrax.file_manager.link_text")
       end

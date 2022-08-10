@@ -22,6 +22,14 @@ module Deepblue
       human_readable( total_file_size )
     end
 
+    def does_work_have_no_files
+      if self.file_set_presenters.present? && self.file_set_presenters.size > 0
+        return false
+      else
+        return true
+      end
+    end
+
   end
 
 end
