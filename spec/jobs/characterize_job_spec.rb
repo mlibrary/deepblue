@@ -30,6 +30,12 @@ RSpec.describe CharacterizeJob do
     it { expect( described_class.characterize_job_debug_verbose ).to eq false }
   end
 
+  describe 'fits exists' do
+    it { expect(Hyrax.config.fits_path.present?).to eq true }
+    it { expect(system("which", Hyrax.config.fits_path+'/xxx').blank?).to eq true }
+    it { expect(system("which", Hyrax.config.fits_path).present?).to eq true }
+  end
+
   # let(:user) { create(:user) }
   let(:user1) { create(:user) }
   let(:user2) { create(:user) }
