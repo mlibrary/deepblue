@@ -248,6 +248,7 @@ group :development, :test do
   gem 'selenium-webdriver',        '< 4.0.0' # something broke in 4.0 release
   gem 'shoulda-callback-matchers', '~> 1.1.1'
   gem 'shoulda-matchers',          '~> 3.1'
-  gem 'solr_wrapper',              '~> 2.1.0'
+  # gem 'solr_wrapper',              '~> 2.1.0'
+  gem 'solr_wrapper',              '>= 4.0.0'
   gem 'webmock'
 end

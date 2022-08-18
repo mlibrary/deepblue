@@ -4,7 +4,8 @@ module Hydra::Derivatives::Processors
 
   class Document < Processor
 
-    HYDRA_DERIVATIVES_PROCESSORS_DOCUMENT_DEBUG_VERBOSE = Rails.configuration.hydra_derivatives_processors_document_debug_verbose
+    mattr_accessor :hydra_derivatives_processors_document_debug_verbose,
+                   default: Rails.configuration.hydra_derivatives_processors_document_debug_verbose
 
     include ShellBasedProcessor
 
@@ -12,8 +13,8 @@ module Hydra::Derivatives::Processors
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "timeout=#{timeout}",
-                                             # "" ] + caller_locations(1,20) if HYDRA_DERIVATIVES_PROCESSORS_DOCUMENT_DEBUG_VERBOSE
-                                             "" ] if HYDRA_DERIVATIVES_PROCESSORS_DOCUMENT_DEBUG_VERBOSE
+                                             # "" ] + caller_locations(1,20) if hydra_derivatives_processors_document_debug_verbose
+                                             "" ] if hydra_derivatives_processors_document_debug_verbose
       execute "#{Hydra::Derivatives.libreoffice_path} --invisible --headless --convert-to #{format} --outdir #{outdir} #{Shellwords.escape(path)}"
     end
 
@@ -39,7 +40,7 @@ module Hydra::Derivatives::Processors
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "timeout=#{timeout}",
                                                  "processor.timeout=#{processor.timeout}",
-                                                 "" ] if HYDRA_DERIVATIVES_PROCESSORS_DOCUMENT_DEBUG_VERBOSE
+                                                 "" ] if hydra_derivatives_processors_document_debug_verbose
           processor.process
           # end monkey
         else
