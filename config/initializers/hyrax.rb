@@ -116,7 +116,8 @@ Hyrax.config do |config|
 
   # Path to the file characterization tool
   # config.fits_path = "fits.sh"
-  if system( "which", "fits.sh" )
+  # if system( "which", "fits.sh" ) # this echoes to out
+  if `which fits.sh`.present?
     config.fits_path = "fits.sh"
   else
     file_path = File.expand_path '~/fits/fits.sh'
