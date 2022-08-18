@@ -437,6 +437,9 @@ GEM
     fcrepo_wrapper (0.9.0)
       ruby-progressbar
     ffi (1.15.5)
+    ffi-compiler (1.0.1)
+      ffi (>= 1.0.0)
+      rake
     flipflop (2.7.0)
       activesupport (>= 4.0)
       terminal-table (>= 1.8)
@@ -500,8 +503,14 @@ GEM
     hashie (3.6.0)
     hiredis (0.6.3)
     htmlentities (4.3.4)
+    http (5.1.0)
+      addressable (~> 2.8)
+      http-cookie (~> 1.0)
+      http-form_data (~> 2.2)
+      llhttp-ffi (~> 0.4.0)
     http-cookie (1.0.5)
       domain_name (~> 0.5)
+    http-form_data (2.3.0)
     http_logger (0.7.0)
     httpclient (2.8.3)
     hydra-access-controls (11.0.7)
@@ -724,6 +733,9 @@ GEM
     listen (3.0.8)
       rb-fsevent (~> 0.9, >= 0.9.4)
       rb-inotify (~> 0.9, >= 0.9.7)
+    llhttp-ffi (0.4.0)
+      ffi-compiler (~> 1.0)
+      rake (~> 13.0)
     logger (1.5.1)
     loofah (2.3.1)
       crass (~> 1.0.2)
@@ -747,6 +759,7 @@ GEM
     mini_magick (4.11.0)
     mini_mime (1.1.2)
     mini_portile2 (2.8.0)
+    minitar (0.9)
     minitest (5.16.2)
     mono_logger (1.1.1)
     multi_json (1.15.0)
@@ -769,10 +782,10 @@ GEM
     noid-rails (3.0.3)
       actionpack (>= 5.0.0, < 7)
       noid (~> 0.9)
-    nokogiri (1.13.7)
+    nokogiri (1.13.8)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
-    nokogiri (1.13.7-x86_64-darwin)
+    nokogiri (1.13.8-x86_64-darwin)
       racc (~> 1.4)
     nokogumbo (2.0.5)
       nokogiri (~> 1.8, >= 1.8.4)
@@ -1129,11 +1142,11 @@ GEM
       rack-protection (= 2.2.0)
       tilt (~> 2.0)
     slop (4.9.2)
-    solr_wrapper (2.1.0)
-      faraday
+    solr_wrapper (4.0.2)
+      http
+      minitar
       retriable
       ruby-progressbar
-      rubyzip
     solrizer (4.1.0)
       activesupport
       nokogiri
@@ -1351,7 +1364,7 @@ DEPENDENCIES
   shoulda-callback-matchers (~> 1.1.1)
   shoulda-matchers (~> 3.1)
   sinatra (>= 2.2.0)
-  solr_wrapper (~> 2.1.0)
+  solr_wrapper (>= 4.0.0)
   solrizer (>= 4.1.0)
   spring
   spring-watcher-listen (~> 2.0.0)
