@@ -32,8 +32,14 @@ RSpec.describe CharacterizeJob do
 
   describe 'fits exists' do
     it { expect(Hyrax.config.fits_path.present?).to eq true }
-    it { expect(system("which", Hyrax.config.fits_path+'/xxx').blank?).to eq true }
-    it { expect(system("which", Hyrax.config.fits_path).present?).to eq true }
+    it { expect(`which #{Hyrax.config.fits_path}_does_not_exist`.blank?).to eq true }
+    it { expect(`which #{Hyrax.config.fits_path}`.present?).to eq true }
+  end
+
+  describe 'libreoffice exists' do
+    it { expect(Hyrax.config.libreoffice_path.present?).to eq true }
+    it { expect(`which #{Hyrax.config.libreoffice_path}_does_not_exist`.blank?).to eq true }
+    it { expect(`which #{Hyrax.config.libreoffice_path}`.present?).to eq true }
   end
 
   # let(:user) { create(:user) }
