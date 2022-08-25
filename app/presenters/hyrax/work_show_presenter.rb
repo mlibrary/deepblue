@@ -252,6 +252,8 @@ module Hyrax
       return false if doi_minted?
       return false if tombstoned?
       return true if current_ability.admin?
+      # can delete if in draft mode and the current user is the depositor.
+      return true if draft_mode? && (current_ability.current_user.email.present? && current_ability.current_user.email.to_s == depositor)
       return false if draft_mode?
       can_edit_work?
     end

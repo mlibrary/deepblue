@@ -1,4 +1,4 @@
-
+require 'rails_helper'
 require 'iiif_manifest'
 
 RSpec.describe Hyrax::DsFileSetPresenter do
@@ -206,6 +206,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
   describe "#can_edit_file?" do
     subject { presenter.can_edit_file? }
     let(:current_ability) { ability }
+    let( :current_user ) { double( "current_user" ) }
     let ( :workflow ) { double( "workflow" ) }
 
     context 'cannot when tombstone present' do
@@ -249,11 +250,9 @@ RSpec.describe Hyrax::DsFileSetPresenter do
     context 'cannot when editor and deposited' do
       before do
         allow( parent_presenter ).to receive( :tombstone ).and_return nil
+        allow( parent_presenter ).to receive( :doi ).and_return "dsf"
         allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return false
-        expect( presenter ).to receive( :editor? ).at_least(:once).and_return true
-        expect( workflow ).to receive( :state ).at_least(:once).and_return "deposited"
-        expect( parent_presenter ).to receive( :workflow ).at_least(:once).and_return workflow
       end
       it { is_expected.to be false }
     end
@@ -264,6 +263,8 @@ RSpec.describe Hyrax::DsFileSetPresenter do
         allow( current_ability ).to receive( :admin? ).and_return false
         allow( presenter ).to receive( :editor? ).and_return false
         allow( workflow ).to receive( :state ).and_return "pending_review"
+        allow( current_user ).to receive( :email ).and_return nil
+        allow( current_ability ).to receive( :current_user ).and_return current_user
         allow( parent_presenter ).to receive( :workflow ).and_return workflow
       end
       it { is_expected.to be false }
