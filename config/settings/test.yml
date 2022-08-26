@@ -25,6 +25,7 @@ jira:
 teamdynamix:
   username: tdxusername.invalid
   password: tdxupassword.invalid
+  site_url: tdx_site_url
 
 rails:
   database:

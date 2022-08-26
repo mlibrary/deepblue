@@ -2,7 +2,7 @@
 
 module Deepblue
 
-  # require 'tdx-ruby' # https://github.com/sumoheavy/tdx-ruby
+  require 'tdx_api' # https://github.com/mlibrary/tdx_api
 
   module TeamdynamixHelper
     extend ActionView::Helpers::TranslationHelper
@@ -109,9 +109,9 @@ module Deepblue
 
     def self.tdx_client_options
       return {
-        :username     => Settings.tdx.username,
-        :password     => Settings.tdx.password,
-        :site         => Settings.tdx.site_url,
+        :username     => Settings.teamdynamix.username,
+        :password     => Settings.teamdynamix.password,
+        :site         => Settings.teamdynamix.site_url,
         :context_path => '/tdx',
         :auth_type    => :basic
       }
