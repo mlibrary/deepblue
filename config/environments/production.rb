@@ -77,6 +77,9 @@ Rails.application.configure do
   config.active_job.queue_adapter     = :resque
   # config.active_job.queue_name_prefix = "deep_blue_docs_#{Rails.env}"
   config.action_mailer.perform_caching = false
+  # override use of :smtp to direct email
+  config.action_mailer.delivery_method = :sendmail
+  # TODO: restore config.action_mailer.delivery_method = :smtp
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
