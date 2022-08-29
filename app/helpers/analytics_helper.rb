@@ -946,6 +946,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
                                  to: email,
                                  subject: subject,
                                  body: body,
+                                 content_type: content_type,
                                  email_sent: email_sent )
   end
 
@@ -1091,6 +1092,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
                                  to: email,
                                  subject: subject,
                                  body: body,
+                                 content_type: content_type,
                                  email_sent: email_sent )
   end
 

@@ -92,10 +92,11 @@ class GlobusCopyJob < GlobusJob
       body = lines.join( "\n" )
       to = email
       subject = 'DBD: Globus Work Files Available'
+      content_type = ::Deepblue::EmailHelper::TEXT_HTML
       email_sent = ::Deepblue::EmailHelper.send_email( to: to,
                                                        subject: subject,
                                                        body: body,
-                                                       content_type: ::Deepblue::EmailHelper::TEXT_HTML )
+                                                       content_type: content_type )
       ::Deepblue::EmailHelper.log( class_name: 'GlobusCopyJob',
                                    current_user: nil,
                                    event: Deepblue::AbstractEventBehavior::EVENT_GLOBUS,
@@ -104,6 +105,7 @@ class GlobusCopyJob < GlobusJob
                                    to: to,
                                    subject: subject,
                                    body: lines,
+                                   content_type: content_type,
                                    email_sent: email_sent )
     end
 

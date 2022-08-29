@@ -127,6 +127,7 @@ module Deepblue
                                    from: email,
                                    subject: subject,
                                    body: body,
+                                   content_type: content_type,
                                    email_sent: email_sent )
     end
 

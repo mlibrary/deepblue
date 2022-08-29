@@ -149,10 +149,11 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       # Deepblue::LoggingHelper.debug "attach_files_to_work_job_complete_email_user: work id: #{work.id} email: #{email}"
       body = lines.join( "\n" )
       to = email
+      content_type = ::Deepblue::EmailHelper::TEXT_HTML
       email_sent = ::Deepblue::EmailHelper.send_email( to: to,
                                                        subject: subject,
                                                        body: body,
-                                                       content_type: ::Deepblue::EmailHelper::TEXT_HTML )
+                                                       content_type: content_type )
       ::Deepblue::EmailHelper.log( class_name: self.class.name,
                                    current_user: nil,
                                    event: Deepblue::AbstractEventBehavior::EVENT_UPLOAD,
@@ -161,6 +162,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                    to: to,
                                    subject: subject,
                                    body: lines,
+                                   content_type: content_type,
                                    email_sent: email_sent )
     end
 

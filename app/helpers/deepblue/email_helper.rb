@@ -152,6 +152,14 @@ module Deepblue
       end
     end
 
+    def self.detect_content_type( body )
+      body = Array( body )
+      body.each do |line|
+        return TEXT_HTML if line =~ /^.*<([^<>]+>[^<>]+<[^<>]+|[^<>]+\/)>.*$/
+      end
+      return nil
+    end
+
     def self.data_set_url( id: nil, data_set: nil )
       id = data_set.id if data_set.present?
       host = hostname
@@ -337,6 +345,7 @@ module Deepblue
                          body:,
                          log: false,
                          content_type: nil )
+
       subject = subject.join( '' ) if subject.is_a? Array
       body = body.join( "\n" ) if body.is_a? Array
       subject = EmailHelper.clean_str subject if EmailHelper.clean_str_needed? subject

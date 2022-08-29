@@ -490,6 +490,7 @@ END_BODY
                                    from: from,
                                    subject: subject,
                                    body: body,
+                                   content_type: content_type,
                                    email_sent: email_sent )
     end
 
