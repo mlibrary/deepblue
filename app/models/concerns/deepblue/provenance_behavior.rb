@@ -8,6 +8,8 @@ module Deepblue
 
     mattr_accessor :provenance_behavior_debug_verbose,
                    default: Rails.configuration.provenance_behavior_debug_verbose
+    mattr_accessor :provenance_log_update_after_debug_verbose, default: false
+    mattr_accessor :provenance_update_debug_verbose, default: false
 
     include AbstractEventBehavior
 
@@ -405,6 +407,50 @@ module Deepblue
                             prov_key_values: prov_key_values )
     end
 
+    def provenance_log_event_email_subscribers( debug_verbose: provenance_behavior_debug_verbose,
+                                                class_name:,
+                                                id:,
+                                                event:,
+                                                event_note:,
+                                                timestamp: LoggingHelper.timestamp_now,
+                                                time_zone: LoggingHelper.timestamp_zone,
+                                                **prov_key_values )
+
+      debug_verbose = debug_verbose || provenance_behavior_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "class_name=#{class_name}",
+                                             "id=#{id}",
+                                             "event=#{event}",
+                                             "event_note=#{event_note}",
+                                              "" ] if debug_verbose
+      subscription_service_id = provenance_log_event_subscription_id( event: event )
+      subscribers = ::Deepblue::EmailSubscriptionService.subscribers_for( subscription_service_id: subscription_service_id )
+      return if subscribers.blank?
+      content_type = 'text/html'
+      subject = "Provenance log event #{event}"
+      key_values = { event: event,
+                     event_note: event_note,
+                     timestamp: timestamp,
+                     time_zone: time_zone,
+                     class_name: class_name,
+                     id: id }
+      key_values.merge! prov_key_values
+      body = JsonHelper.key_values_to_table( key_values, parse: false )
+      subscribers.each do |subscriber|
+        ::Deepblue::EmailSubscriptionService.subscription_send_email( email_target: subscriber,
+                                                                      content_type: content_type,
+                                                                      subject: subject,
+                                                                      body: body,
+                                                                      event: event,
+                                                                      subscription_service_id: subscription_service_id )
+      end
+    end
+
+    def provenance_log_event_subscription_id( event: )
+      "provenance_log_event_#{event}"
+    end
+
     def provenance_fixity_check( current_user:,
                                  event_note: '',
                                  fixity_check_status:,
@@ -470,6 +516,10 @@ module Deepblue
                             event_note: event_note,
                             ignore_blank_key_values: ignore_blank_key_values,
                             prov_key_values: prov_key_values )
+    end
+
+    def provenance_log_event_subscribe( event:, user: )
+      subscription_service_id = provenance_log_event_subscription_id( event: event )
     end
 
     def provenance_migrate( current_user:, event_note: '', migrate_direction:, parent_id: nil, **added_prov_key_values )
@@ -604,10 +654,11 @@ module Deepblue
     end
 
     def provenance_update( current_user:, event_note: '', **added_prov_key_values )
-      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-      #                                        ::Deepblue::LoggingHelper.called_from,
-      #                                        "added_prov_key_values=#{added_prov_key_values}",
-      #                                        "" ] if provenance_behavior_debug_verbose
+      debug_verbose = provenance_behavior_debug_verbose || provenance_update_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "added_prov_key_values=#{added_prov_key_values}",
+                                             "" ] if debug_verbose
       attributes, ignore_blank_key_values = attributes_for_provenance_update
       event = EVENT_UPDATE
       prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes,
@@ -648,18 +699,22 @@ module Deepblue
     end
 
     def provenance_log_update_after( current_user:, event_note: '', update_attr_key_values: nil )
-      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-      #                                        ::Deepblue::LoggingHelper.called_from,
-      #                                        "update_attr_key_values=#{update_attr_key_values}",
-      #                                        "" ] if provenance_behavior_debug_verbose
+      debug_verbose = provenance_behavior_debug_verbose || provenance_log_update_after_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "update_attr_key_values=#{update_attr_key_values}",
+                                             "" ] if debug_verbose
       embargo_key_values = provenance_update_embargo_key_values( update_attr_key_values: update_attr_key_values )
       update_attr_key_values = ProvenanceHelper.update_attribute_key_values( curation_concern: for_provenance_object,
                                                                              **update_attr_key_values )
-      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-      #                                        ::Deepblue::LoggingHelper.called_from,
-      #                                        "update_attr_key_values=#{update_attr_key_values}",
-      #                                        "" ] if provenance_behavior_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "update_attr_key_values=#{update_attr_key_values}",
+                                             "" ] if debug_verbose
       if update_attr_key_values.present? || embargo_key_values.present?
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if debug_verbose
         if embargo_key_values.present?
           embargo_key_values.each_pair do |key, value|
             update_attr_key_values[key] = value if update_attribute_changed?( update_attr: value )
@@ -789,7 +844,23 @@ module Deepblue
         end
         class_name = for_provenance_class.name
         for_provenance_event_cache_write( event: event, id: id )
-        ProvenanceHelper.log( class_name: class_name, id: id, event: event, event_note: event_note, **prov_key_values )
+        timestamp = LoggingHelper.timestamp_now
+        time_zone = LoggingHelper.timestamp_zone
+        rv = ProvenanceHelper.log( class_name: class_name,
+                              id: id,
+                              event: event,
+                              event_note: event_note,
+                              timestamp: timestamp,
+                              time_zone: time_zone,
+                              **prov_key_values )
+        provenance_log_event_email_subscribers( class_name: class_name,
+                                                id: id,
+                                                event: event,
+                                                event_note: event_note,
+                                                timestamp: timestamp,
+                                                time_zone: time_zone,
+                                                **prov_key_values )
+        return rv
       end
 
   end

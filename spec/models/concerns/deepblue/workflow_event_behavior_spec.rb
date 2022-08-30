@@ -42,6 +42,8 @@ RSpec.describe ::Deepblue::WorkflowEventBehavior do
 
   describe 'module debug verbose variables' do
     it { expect( described_class.workflow_event_behavior_debug_verbose ).to eq debug_verbose }
+    it { expect( described_class.workflow_create_debug_verbose ).to eq false }
+    it { expect( described_class.workflow_update_after_debug_verbose ).to eq false }
   end
 
   describe 'event method' do
@@ -65,7 +67,9 @@ RSpec.describe ::Deepblue::WorkflowEventBehavior do
         context 'is not draft' do
           before do
             expect(::Deepblue::DraftAdminSetService).to receive(:has_draft_admin_set?).with(curation_concern).and_return false
-            expect(JiraNewTicketJob).to receive(:perform_later).with(work_id: id, current_user: user)
+            expect(JiraNewTicketJob).to receive(:perform_later).with(work_id: id,
+                                                                     debug_verbose: false,
+                                                                     current_user: user)
           end
           it { curation_concern.workflow_create(current_user: user, event_note: event_note ) }
         end
@@ -307,9 +311,13 @@ RSpec.describe ::Deepblue::WorkflowEventBehavior do
             expect(curation_concern).to receive(:email_event_create_user).with(current_user: user,
                                                                                event_note: event_note,
                                                                                was_draft: true)
-            expect(JiraNewTicketJob).to receive(:perform_later).with(work_id: id, current_user: user)
+            expect(JiraNewTicketJob).to receive(:perform_later).with(work_id: id,
+                                                                     debug_verbose: false,
+                                                                     current_user: user)
           end
-          it { curation_concern.workflow_update_after(current_user: user, event_note: event_note, submit_for_review: true ) }
+          it { curation_concern.workflow_update_after(current_user: user,
+                                                      event_note: event_note,
+                                                      submit_for_review: true ) }
         end
 
         context 'not submit for review' do
@@ -318,7 +326,9 @@ RSpec.describe ::Deepblue::WorkflowEventBehavior do
             expect(curation_concern).to_not receive(:email_event_create_user)
             expect(JiraNewTicketJob).to_not receive(:perform_later)
           end
-          it { curation_concern.workflow_update_after(current_user: user, event_note: event_note, submit_for_review: false ) }
+          it { curation_concern.workflow_update_after(current_user: user,
+                                                      event_note: event_note,
+                                                      submit_for_review: false ) }
         end
 
       end
