@@ -9,15 +9,18 @@ module Deepblue
 
     mattr_accessor :workflow_event_behavior_debug_verbose,
                    default: Rails.configuration.workflow_event_behavior_debug_verbose
+    mattr_accessor :workflow_create_debug_verbose, default: false
+    mattr_accessor :workflow_update_after_debug_verbose, default: false
 
     def workflow_create( current_user:, event_note: "" )
+      debug_verbose = workflow_event_behavior_debug_verbose || workflow_create_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "current_user=#{current_user}",
                                              "event_note=#{event_note}",
                                              "id=#{id}",
-                                             "" ] if workflow_event_behavior_debug_verbose
+                                             "" ] if debug_verbose
       return if id.blank?
       provenance_create( current_user: current_user, event_note: event_note )
       email_event_create_rds( current_user: current_user, event_note: event_note, was_draft: false )
@@ -32,9 +35,9 @@ module Deepblue
                                              "current_user=#{current_user}",
                                              "id=#{id}",
                                              "is_draft=#{is_draft}",
-                                             "" ] if workflow_event_behavior_debug_verbose
+                                             "" ] if debug_verbose
       return if is_draft
-      JiraNewTicketJob.perform_later( work_id: id, current_user: current_user )
+      JiraNewTicketJob.perform_later( work_id: id, current_user: current_user, debug_verbose: debug_verbose )
     end
 
     def workflow_destroy( current_user:, event_note: "" )
@@ -147,24 +150,25 @@ module Deepblue
     end
 
     def workflow_update_after( current_user:, event_note: "", submit_for_review: false )
+      debug_verbose = workflow_event_behavior_debug_verbose || workflow_update_after_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "current_user=#{current_user}",
                                              "event_note=#{event_note}",
                                              "submit_for_review=#{submit_for_review}",
-                                             "" ] if workflow_event_behavior_debug_verbose
+                                             "" ] if debug_verbose
       return if id.blank?
       return unless submit_for_review
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "About to email RDS, email user, and create jira ticket",
-                                             "" ] if workflow_event_behavior_debug_verbose
+                                             "" ] if debug_verbose
       email_event_create_rds( current_user: current_user, event_note: event_note, was_draft: true )
       email_event_create_user( current_user: current_user, event_note: event_note, was_draft: true )
       # Send this Jira message, if it used to be a draft work, and now it's a regular work
-      JiraNewTicketJob.perform_later( work_id: id, current_user: current_user )
+      JiraNewTicketJob.perform_later( work_id: id, current_user: current_user, debug_verbose: debug_verbose )
     end
 
   end

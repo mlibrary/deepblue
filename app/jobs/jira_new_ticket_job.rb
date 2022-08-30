@@ -33,7 +33,7 @@ class JiraNewTicketJob < ::Deepblue::DeepblueJob
     job_finished
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "job_status.status=#{job_status.job_status}",
+                                           "job_status.status=#{job_status.status}",
                                            "job_status.message=#{job_status.message}",
                                            "" ] if debug_verbose
   rescue Exception => e # rubocop:disable Lint/RescueException

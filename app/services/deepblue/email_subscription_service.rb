@@ -39,6 +39,25 @@ module Deepblue
       return targets
     end
 
+    def self.subscribe_to( subscription_service_id:,
+                           current_user:,
+                           debug_verbose: email_subscription_service_debug_verbose )
+
+      debug_verbose = debug_verbose || email_subscription_service_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "subscription_service_id=#{subscription_service_id}",
+                                             "current_user=#{current_user}",
+                                             "" ] if debug_verbose
+      record = EmailSubscription.find_or_create_by( subscription_name: subscription_service_id,
+                                                    user_id: current_user.id )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "record=#{record}",
+                                             "" ] if debug_verbose
+      return record
+    end
+
     def self.subscribers_for( subscription_service_id:,
                               include_parameters: false,
                               debug_verbose: email_subscription_service_debug_verbose )
@@ -109,6 +128,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "email_target=#{email_target}",
+                                             "subscription_service_id=#{subscription_service_id}",
                                              "" ] if email_subscription_service_debug_verbose
       hostname = Rails.configuration.hostname if hostname.nil?
       # TODO: integrate timestamps
@@ -129,6 +149,32 @@ module Deepblue
                                    body: body,
                                    content_type: content_type,
                                    email_sent: email_sent )
+    end
+
+    def self.unsubscribe_from( subscription_service_id:,
+                               current_user:,
+                               debug_verbose: email_subscription_service_debug_verbose )
+
+      debug_verbose = debug_verbose || email_subscription_service_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "subscription_service_id=#{subscription_service_id}",
+                                             "current_user=#{current_user}",
+                                             "" ] if debug_verbose
+      record = EmailSubscription.where( subscription_name: subscription_service_id,
+                                        user_id: current_user.id )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "record=#{record}",
+                                             "" ] if debug_verbose
+      record = record.first
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "record=#{record}",
+                                             "" ] if scheduler_dashboard_controller_debug_verbose
+      record.destroy if record.present?
+      return if record.blank?
+      record.destroy
     end
 
   end
