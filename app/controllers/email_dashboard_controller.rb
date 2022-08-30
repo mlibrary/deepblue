@@ -169,7 +169,8 @@ class EmailDashboardController < ApplicationController
         add_get_parm( hash: hash, key: 'timestamp', parms: parms )
         link = link_to( "Resend this email.",
                         "/data/email_dashboard_resend?#{parms.join('&')}",
-                        class: 'btn btn-default' )
+                        class: 'btn btn-default',
+                        data: {confirm: t('Confirm resend email?')} )
       rescue => e
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
