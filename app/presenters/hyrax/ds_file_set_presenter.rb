@@ -268,10 +268,13 @@ module Hyrax
                                              "true editor?=#{editor?}",
                                              "and pending_publication?=#{pending_publication?}",
                                              "" ] if ds_file_set_presenter_debug_verbose
+
       return false if anonymous_show?
       return false if parent.tombstone.present?
       return true if current_ability.admin?
+      return false if parent.doi.present?
       return true if editor? && pending_publication?
+      return true if current_ability.current_user.email.present? && current_ability.current_user.email.to_s == depositor
       false
     end
 
