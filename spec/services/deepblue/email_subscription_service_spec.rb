@@ -135,6 +135,7 @@ RSpec.describe ::Deepblue::EmailSubscriptionService, clean_repo: true do
                                                         from: user2.email,
                                                         subject: email_subject,
                                                         body: body,
+                                                        content_type: content_type,
                                                         email_sent: email_sent )
       end
 

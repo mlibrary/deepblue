@@ -238,6 +238,8 @@ Rails.application.routes.draw do
   get '/email_dashboard/' => 'email_dashboard#show'
   post '/email_dashboard/' => 'email_dashboard#show'
   get '/email_dashboard_action/' => 'email_dashboard#action'
+  get '/email_dashboard_resend/' => 'email_dashboard#resend'
+  post '/email_dashboard_resend/' => 'email_dashboard#resend'
   get '/email_dashboard_show/' => 'email_dashboard#show'
   post '/email_dashboard_show/' => 'email_dashboard#show'
   get '/google_analytics_dashboard/' => 'google_analytics_dashboard#show'

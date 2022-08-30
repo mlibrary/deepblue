@@ -44,8 +44,18 @@ module Deepblue
       return timestamp >= begin_date && timestamp <= end_date
     end
 
-    def self.log_key_values_to_table( key_values, parse: false )
-      JsonHelper.key_values_to_table( key_values, parse: parse )
+    def self.log_key_values_to_table( key_values,
+                                      on_key_values_to_table_body_callback: nil,
+                                      parse: false,
+                                      row_key_value_callback: nil,
+                                      debug_verbose: log_file_helper_debug_verbose )
+
+      debug_verbose ||= log_file_helper_debug_verbose
+      JsonHelper.key_values_to_table( key_values,
+                                      on_key_values_to_table_body_callback: on_key_values_to_table_body_callback,
+                                      parse: parse,
+                                      row_key_value_callback: row_key_value_callback,
+                                      debug_verbose: debug_verbose )
     end
 
     def self.log_parse_entry( entry, line_number: 0 )

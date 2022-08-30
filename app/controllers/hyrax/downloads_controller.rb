@@ -92,6 +92,7 @@ module Hyrax
                                                "params=#{params}",
                                                "params[:format]=#{params[:format]}",
                                                "file=#{file}",
+                                               "file.class.name=#{file.class.name}",
                                                "" ] + caller_locations(0,20) if downloads_controller_debug_verbose
         raise Hyrax::ObjectNotFoundError
       end
@@ -139,13 +140,28 @@ module Hyrax
                                              "" ] if downloads_controller_debug_verbose
       # begin monkey
       file_reference = params[:file]
-      return default_file unless file_reference
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "file_reference=#{file_reference}",
+                                             "" ] if downloads_controller_debug_verbose
+      unless file_reference
+        rv = default_file
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "rv=#{rv}",
+                                               "" ] if downloads_controller_debug_verbose
+        return rv
+      end
 
       file_path = Hyrax::DerivativePath.derivative_path_for_reference(params[asset_param_key], file_reference)
       File.exist?(file_path) ? file_path : nil
     end
 
     def default_file
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "asset=#{asset}",
+                                             "" ] if downloads_controller_debug_verbose
       default_file_reference = if asset.class.respond_to?(:default_file_path)
                                  asset.class.default_file_path
                                else
