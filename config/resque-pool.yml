@@ -10,4 +10,5 @@ sufia: 1
 doi_minting: 1
 scheduler: 5
 irus_analytics: 1
+globus_copy: 1
 "*": 3
