@@ -6,9 +6,9 @@ RSpec.describe ::Deepblue::LoggingIntializationService do
 
   # let(:debug_verbose) { false }
 
-  it { expect( described_class.suppress_active_support_logging ).to eq false }
-  it { expect( described_class.suppress_active_support_logging_verbose ).to eq false }
-  it { expect( described_class.suppress_blacklight_logging ).to eq false }
+  it { expect( described_class.suppress_active_support_logging ).to eq true }
+  it { expect( described_class.suppress_active_support_logging_verbose ).to eq true }
+  it { expect( described_class.suppress_blacklight_logging ).to eq true }
   it { expect( described_class.active_support_list_ids ).to eq false }
   it { expect( described_class.active_support_suppressed_ids ).to eq [ "ldp.active_fedora",
                                                                      "logger.active_fedora",
