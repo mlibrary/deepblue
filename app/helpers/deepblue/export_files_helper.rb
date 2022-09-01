@@ -82,48 +82,66 @@ module Deepblue
     end
 
     def self.export_log_files( msg_handler: nil,
-                               target_path: nil,
+                               src_dir: './log',
+                               target_root_dir: nil,
                                debug_verbose: export_files_helper_debug_verbose )
-
-      debug_verbose = debug_verbose || export_files_helper_debug_verbose
-      unless target_path.present?
-        server_part = case Rails.configuration.hostname
-                      when ::Deepblue::InitializationConstants::HOSTNAME_PROD
-                        ::Deepblue::InitializationConstants::PRODUCTION
-                      when ::Deepblue::InitializationConstants::HOSTNAME_TESTING
-                        ::Deepblue::InitializationConstants::TESTING
-                      when ::Deepblue::InitializationConstants::HOSTNAME_STAGING
-                        ::Deepblue::InitializationConstants::STAGING
-                      when ::Deepblue::InitializationConstants::HOSTNAME_TEST
-                        ::Deepblue::InitializationConstants::TEST
-                      when ::Deepblue::InitializationConstants::HOSTNAME_LOCAL
-                        ::Deepblue::InitializationConstants::LOCAL
-                      else
-                        ::Deepblue::InitializationConstants::UNKNOWN
-                      end
-        target_dir_name = Time.now.strftime('%Y%m%d')
-        target_path = "/deepbluedata-prep/logs/#{server_part}/#{target_dir_name}"
+      server_part = export_server_part
+      if target_root_dir.blank?
+        if ::Deepblue::InitializationConstants::HOSTNAME_LOCAL == server_part
+          target_root_dir = '/deepbluedata-prep/logs/'
+        else
+          target_root_dir = '/Volumes/ulib-dbd-prep/logs/'
+        end
       end
-      msg_handler.msg "Target dir is: #{target_path}" unless msg_handler.nil?
-      # `ls "/deepbluedata-prep/logs/#{server_part}/"`
-      # `ls "/deepbluedata-prep/logs/"`
-      FileUtils.mkdir_p target_path unless Dir.exist? target_path
-
-      log_path = File.realpath './log'
-
-      # `ls "#{log_path}"`
-      # `ls "#{log_path}/"*`
-      # `ls "#{target_path}"`
-
-      src_path = "#{log_path}/"
-      # `ls "#{src_path}"`
-      # `ls "#{src_path}"*`
-
-      cmd = "cp \"#{src_path}\"* \"#{target_path}\""
+      debug_verbose = debug_verbose || export_files_helper_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "src_dir=#{src_dir}",
+                                             "target_path=#{target_path}",
+                                             "" ] if debug_verbose
+      target_dir_path = Time.now.strftime( "%Y%m%d%H%M%S" )
+      target_dir_path = "#{target_root_dir}#{server_part}/#{target_dir_path}"
+      msg_handler.msg "Target dir is: #{target_dir_path}" unless msg_handler.nil?
+      FileUtils.mkdir_p target_dir_path unless Dir.exist? target_dir_path
+      log_path = File.realpath src_dir
+      cmd = "ls -l \"#{log_path}/\"*"
+      rv = `#{cmd}`
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "cmd=#{cmd}",
+                                             "" ] if debug_verbose
+      msg_handler.msg rv unless msg_handler.nil?
+      cmd = "cp \"#{log_path}/\"* \"#{target_dir_path}\""
+      msg_handler.msg cmd unless msg_handler.nil?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "cmd=#{cmd}",
+                                             "" ] if debug_verbose
+      # rv = `cp #{log_path}/* #{target_dir_path}`
       msg_handler.msg "Copy started at: #{Time.now}" unless msg_handler.nil?
       `#{cmd}`
       # `ls "#{target_path}"`
       msg_handler.msg "Copy finished at: #{Time.now}" unless msg_handler.nil?
+    end
+
+    def self.export_server_part
+      case Rails.configuration.hostname
+      when ::Deepblue::InitializationConstants::HOSTNAME_PROD
+        ::Deepblue::InitializationConstants::PRODUCTION
+      when ::Deepblue::InitializationConstants::HOSTNAME_TESTING
+        ::Deepblue::InitializationConstants::TESTING
+      when ::Deepblue::InitializationConstants::HOSTNAME_STAGING
+        ::Deepblue::InitializationConstants::STAGING
+      when ::Deepblue::InitializationConstants::HOSTNAME_TEST
+        ::Deepblue::InitializationConstants::TEST
+      when ::Deepblue::InitializationConstants::HOSTNAME_LOCAL
+        ::Deepblue::InitializationConstants::LOCAL
+      else
+        ::Deepblue::InitializationConstants::UNKNOWN
+      end
     end
 
   end

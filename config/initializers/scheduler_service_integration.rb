@@ -2,7 +2,7 @@
 SCHEDULER_INTEGRATION_SERVICE_DEBUG_VERBOSE = true
 
 Deepblue::SchedulerIntegrationService.setup do |config|
-
+  puts "Starting scheduler integration service configuration..." if SCHEDULER_INTEGRATION_SERVICE_DEBUG_VERBOSE
   config.scheduler_integration_service_debug_verbose = false
 
   # scheduler log config
@@ -11,21 +11,13 @@ Deepblue::SchedulerIntegrationService.setup do |config|
   config.scheduler_start_job_default_delay = 5.minutes.to_i
   config.scheduler_active = false
 
-  program_name = Rails.configuration.program_name
-  ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                         ::Deepblue::LoggingHelper.called_from,
-                                         "program_name=#{program_name}",
-                                         "" ] if SCHEDULER_INTEGRATION_SERVICE_DEBUG_VERBOSE
-
   config.scheduler_job_file_path = Rails.application.root.join( 'data', 'scheduler', 'scheduler_jobs.yml' )
+  puts "scheduler_job_file_path=#{config.scheduler_job_file_path}" if SCHEDULER_INTEGRATION_SERVICE_DEBUG_VERBOSE
 
-  # puts "program_name"
-
+  program_name = Rails.configuration.program_name
+  puts "program_name=#{program_name}" if SCHEDULER_INTEGRATION_SERVICE_DEBUG_VERBOSE
   if program_name == 'rails' || program_name == 'puma'
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "Rails.configuration.hostname=#{Rails.configuration.hostname}",
-                                           "" ] if SCHEDULER_INTEGRATION_SERVICE_DEBUG_VERBOSE
+    puts "Rails.configuration.hostname=#{Rails.configuration.hostname}" if SCHEDULER_INTEGRATION_SERVICE_DEBUG_VERBOSE
 
     case Rails.configuration.hostname
     when ::Deepblue::InitializationConstants::HOSTNAME_PROD
@@ -59,5 +51,5 @@ Deepblue::SchedulerIntegrationService.setup do |config|
 
   # config.scheduler_autostart_emails = [ 'fritx@umich.edu', 'blancoj@umich.edu' ].freeze
   config.scheduler_autostart_emails = [ 'fritx@umich.edu' ].freeze
-
+  puts "Finished scheduler integration service configuration." if SCHEDULER_INTEGRATION_SERVICE_DEBUG_VERBOSE
 end

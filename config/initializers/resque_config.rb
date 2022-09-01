@@ -1,5 +1,6 @@
 require 'resque'
 
+# see config/resque-pool.yml for queue workers
 
 # We make another client here with the same options as Redis.current, though
 # we may be able to use it directly.

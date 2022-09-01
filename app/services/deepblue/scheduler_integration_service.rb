@@ -24,7 +24,7 @@ module Deepblue
 
     mattr_accessor :scheduler_integration_service_debug_verbose, default: false
 
-    mattr_accessor :scheduler_job_file_path
+    mattr_accessor :scheduler_job_file_path, default: Rails.application.root.join( 'data', 'scheduler', 'scheduler_jobs.yml' )
     mattr_accessor :scheduler_active
     mattr_accessor :scheduler_autostart_servers, default: []
     mattr_accessor :scheduler_autostart_emails, default: [ 'fritx@umich.edu' ].freeze # leave empty to disable

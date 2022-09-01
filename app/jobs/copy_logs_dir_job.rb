@@ -22,7 +22,7 @@ copy_logs_job:
   # rails_env: production
   class: CopyLogsDirJob
   queue: scheduler
-  description: Clean the tmp/derivatives directory.
+  description: Copy the contents of the log directory to deepblue-prep logs.
   args:
     by_request_only: true
     email_results_to:
@@ -46,8 +46,8 @@ END_OF_SCHEDULER_ENTRY
     # days_old = job_options_value( key: 'days_old', default_value: default_args[:days_old] )
     # filter: nil, root_dir: "./log", target_root_dir: "/deepbluedata-prep/logs/", msg_handler:, verbose:
     ::ServerLogsCopyService.new( filter: nil,
-                                 src_dir: "./log",
-                                 target_root_dir: "/deepbluedata-prep/logs/",
+                                 # src_dir: "./log",
+                                 # target_root_dir: "/deepbluedata-prep/logs/",
                                  msg_handler: msg_handler,
                                  verbose: verbose ).run
     timestamp_end = DateTime.now
