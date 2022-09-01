@@ -61,6 +61,9 @@ class SchedulerDashboardController < ApplicationController
   end
 
   def edit_schedule_load
+    puts "\n\n"
+    puts "::Deepblue::SchedulerIntegrationService.scheduler_job_file_path='#{::Deepblue::SchedulerIntegrationService.scheduler_job_file_path}'"
+    puts "\n\n"
     return "" unless File.exists? ::Deepblue::SchedulerIntegrationService.scheduler_job_file_path
     rv = []
     File.open( ::Deepblue::SchedulerIntegrationService.scheduler_job_file_path, "r" ) { |f| rv = f.readlines }
