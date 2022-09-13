@@ -129,7 +129,7 @@ module Deepblue
                                              "" ] if debug_verbose
       return true if findable
 
-      msg_handler.msg_verbose datacite.client.get_metadata(w.doi) if debug_vergose
+      msg_handler.msg_verbose datacite.client.get_metadata(w.doi) if debug_verbose
       # raw = datacite.client.get_metadata_raw(w.doi)
       # xraw = Nokogiri::XML(raw)
 
