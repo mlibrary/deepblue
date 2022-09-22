@@ -313,6 +313,14 @@ module Deepblue
       Rails.configuration.notification_email_jira_to
     end
 
+    def self.notification_email_service_request_to
+      LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                 ::Deepblue::LoggingHelper.called_from,
+                                 "rv=#{Rails.configuration.notification_email_service_request_to}",
+                                 "" ] if Rails.configuration.email_debug_verbose
+      Rails.configuration.notification_email_service_request_to
+    end
+
     def self.notification_email_rds_to
       LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                   ::Deepblue::LoggingHelper.called_from,

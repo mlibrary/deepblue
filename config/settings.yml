@@ -28,6 +28,7 @@ notification_email_contact_us_to: deepblue-notifications_contact_us_to@default.i
 notification_email_deepblue_to: deepblue-notifications_deepblue_to@default.invalid
 notification_email_from: deepblue-notifications_from@default.invalid
 notification_email_jira_to: deepblue-notifications_jira_to@default.invalid
+notification_email_service_request_to: deepblue-notifications_service_request_to@default.invalid
 notification_email_rds_to: deepblue-notifications_rds_to@default.invalid
 notification_email_to: deepblue-notifications_to@default.invalid
 notification_email_workflow_to: deepblue-notifications_workflow_to@default.invalid

@@ -17,15 +17,23 @@ solr:
 ezid:
   timeout: 10
 
+datacite:
+  active: false
+  mode: test
+  user: datacite.invalid
+  password: datacitepassword.invalid
+  prefix: 10.5072/FK2
+
 jira:
-  username: jirausername.invalid
-  password: jirapassword.invalid
+  active: false
+  username: development_jirausername.invalid
+  password: development_jirapassword.invalid
   site_url: https://tools.lib.umich.edu
 
 teamdynamix:
-  username: tdxusername.invalid
-  password: tdxupassword.invalid
-  site_url: tdx_site_url
+  active: false
+  client_id: teamdynamix.client_id.invalid
+  client_secret: teamdynamix.client_secret.invalid
 
 rails:
   database:

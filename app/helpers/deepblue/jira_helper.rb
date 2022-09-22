@@ -35,6 +35,8 @@ module Deepblue
     FIELD_NAME_STATUS       = 'customfield_12000'.freeze unless const_defined? :FIELD_NAME_STATUS
     FIELD_NAME_SUMMARY      = 'summary'.freeze           unless const_defined? :FIELD_NAME_SUMMARY
 
+    mattr_accessor :active, default: Settings.jira.active
+
     mattr_accessor :jira_allow_add_comment
     mattr_accessor :jira_allow_create_users
     mattr_accessor :jira_field_values_discipline_map

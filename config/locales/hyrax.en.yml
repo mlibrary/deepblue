@@ -398,15 +398,16 @@ en:
         Deposited by: %{depositor}
         Globus link: <a href="%{globus_link}">%{globus_link}</a>
       labels:
-        notification_email:                  "Notification email:"
-        notification_email_contact_form_to:  "Notification email contact form to:"
-        notification_email_contact_us_to:    "Notification email contact us to:"
-        notification_email_deepblue_to:      "Notification email deepblue to:"
-        notification_email_from:             "Notification email from:"
-        notification_email_jira_to:          "Notification email jira to:"
-        notification_email_rds_to:           "Notification email rds to:"
-        notification_email_to:               "Notification email to:"
-        notification_email_workflow_to:      "Notification email workflow to:"
+        notification_email:                    "Notification email:"
+        notification_email_contact_form_to:    "Notification email contact form to:"
+        notification_email_contact_us_to:      "Notification email contact us to:"
+        notification_email_deepblue_to:        "Notification email deepblue to:"
+        notification_email_from:               "Notification email from:"
+        notification_email_jira_to:            "Notification email jira to:"
+        notification_email_service_request_to: "Notification email service request to:"
+        notification_email_rds_to:             "Notification email rds to:"
+        notification_email_to:                 "Notification email to:"
+        notification_email_workflow_to:        "Notification email workflow to:"
         use_email_notification_for_creation_events:  "Use email notification for creation events:"
       notify_user_collection_created_html: >
         Dear %{depositor},

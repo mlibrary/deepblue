@@ -40,6 +40,7 @@ module Deepblue
     mattr_accessor :job_helper_debug_verbose,                       default: false
     mattr_accessor :monthly_analytics_report_job_debug_verbose,     default: false
     mattr_accessor :monthly_events_report_job_debug_verbose,        default: false
+    mattr_accessor :new_service_request_ticket_job_debug_verbose,   default: false
     mattr_accessor :rake_task_job_debug_verbose,                    default: false
     mattr_accessor :reset_condensed_events_job_debug_verbose,       default: false
     mattr_accessor :resolrize_job_debug_verbose,                    default: false   

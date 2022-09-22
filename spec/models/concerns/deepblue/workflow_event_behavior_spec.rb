@@ -67,7 +67,7 @@ RSpec.describe ::Deepblue::WorkflowEventBehavior do
         context 'is not draft' do
           before do
             expect(::Deepblue::DraftAdminSetService).to receive(:has_draft_admin_set?).with(curation_concern).and_return false
-            expect(JiraNewTicketJob).to receive(:perform_later).with(work_id: id,
+            expect(NewServiceRequestTicketJob).to receive(:perform_later).with(work_id: id,
                                                                      debug_verbose: false,
                                                                      current_user: user)
           end
@@ -77,7 +77,7 @@ RSpec.describe ::Deepblue::WorkflowEventBehavior do
         context 'is draft' do
           before do
             expect(::Deepblue::DraftAdminSetService).to receive(:has_draft_admin_set?).with(curation_concern).and_return true
-            expect(JiraNewTicketJob).to_not receive(:perform_later)
+            expect(NewServiceRequestTicketJob).to_not receive(:perform_later)
           end
           it { curation_concern.workflow_create(current_user: user, event_note: event_note ) }
         end
@@ -92,7 +92,7 @@ RSpec.describe ::Deepblue::WorkflowEventBehavior do
           expect(curation_concern).to_not receive(:email_event_create_rds)
           expect(curation_concern).to_not receive(:email_event_create_user)
           expect(::Deepblue::DraftAdminSetService).to_not receive(:has_draft_admin_set?)
-          expect(JiraNewTicketJob).to_not receive(:perform_later)
+          expect(NewServiceRequestTicketJob).to_not receive(:perform_later)
         end
         it { curation_concern.workflow_create(current_user: user, event_note: event_note ) }
       end
@@ -208,7 +208,7 @@ RSpec.describe ::Deepblue::WorkflowEventBehavior do
           expect(curation_concern).to_not receive(:email_event_create_rds)
           expect(curation_concern).to_not receive(:email_event_create_user)
           expect(::Deepblue::DraftAdminSetService).to_not receive(:has_draft_admin_set?)
-          expect(JiraNewTicketJob).to_not receive(:perform_later)
+          expect(NewServiceRequestTicketJob).to_not receive(:perform_later)
         end
         it { curation_concern.workflow_publish(current_user: user, event_note: event_note, message: message ) }
       end
@@ -311,7 +311,7 @@ RSpec.describe ::Deepblue::WorkflowEventBehavior do
             expect(curation_concern).to receive(:email_event_create_user).with(current_user: user,
                                                                                event_note: event_note,
                                                                                was_draft: true)
-            expect(JiraNewTicketJob).to receive(:perform_later).with(work_id: id,
+            expect(NewServiceRequestTicketJob).to receive(:perform_later).with(work_id: id,
                                                                      debug_verbose: false,
                                                                      current_user: user)
           end
@@ -324,7 +324,7 @@ RSpec.describe ::Deepblue::WorkflowEventBehavior do
           before do
             expect(curation_concern).to_not receive(:email_event_create_rds)
             expect(curation_concern).to_not receive(:email_event_create_user)
-            expect(JiraNewTicketJob).to_not receive(:perform_later)
+            expect(NewServiceRequestTicketJob).to_not receive(:perform_later)
           end
           it { curation_concern.workflow_update_after(current_user: user,
                                                       event_note: event_note,
@@ -339,7 +339,7 @@ RSpec.describe ::Deepblue::WorkflowEventBehavior do
         before do
           expect(curation_concern).to_not receive(:email_event_create_rds)
           expect(curation_concern).to_not receive(:email_event_create_user)
-          expect(JiraNewTicketJob).to_not receive(:perform_later)
+          expect(NewServiceRequestTicketJob).to_not receive(:perform_later)
         end
         it { curation_concern.workflow_update_after(current_user: user, event_note: event_note ) }
       end

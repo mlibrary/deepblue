@@ -67,6 +67,7 @@ Rails.application.configure do
   config.notification_email_deepblue = 'fake_notification_email_deepblue@sample.com'
   config.notification_email_from = 'fake_notification_email_from@sample.com'
   config.notification_email_jira_to = 'fake_notification_email_jira_to@sample.com'
+  config.notification_email_service_request_to = 'fake_notification_email_service_request_to@sample.com'
   config.notification_email_rds_to = 'fake_notification_email_rds_to@sample.com'
   config.notification_email_to = 'fake_notification_email_to@sample.com'
   config.notification_email_workflow_to = 'fake_notification_email_workflow_to@sample.com'
