@@ -236,6 +236,7 @@ module DeepBlueDocs
     config.notification_email_deepblue_to = Settings.notification_email_deepblue_to
     config.notification_email_from = Settings.notification_email_from
     config.notification_email_jira_to = Settings.notification_email_jira_to
+    config.notification_email_service_request_to = Settings.notification_email_service_request_to
     config.notification_email_rds_to = Settings.notification_email_rds_to
     config.notification_email_to = Settings.notification_email_to
     config.notification_email_workflow_to = Settings.notification_email_workflow_to
@@ -252,6 +253,7 @@ module DeepBlueDocs
       puts "config.notification_email_deepblue_to=#{config.notification_email_deepblue_to}"
       puts "config.notification_email_from=#{config.notification_email_from}"
       puts "config.notification_email_jira_to=#{config.notification_email_jira_to}"
+      puts "config.notification_email_service_request_to=#{config.notification_email_service_request_to}"
       puts "config.notification_email_rds_to=#{config.notification_email_rds_to}"
       puts "config.notification_email_to=#{config.notification_email_to}"
       puts "config.notification_email_workflow_to=#{config.notification_email_workflow_to}"

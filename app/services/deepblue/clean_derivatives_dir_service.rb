@@ -58,7 +58,9 @@ module Deepblue
       delete_files_glob_regexp( glob: "RackMultipart20#{'?'*6}-*", filename_regexp: /^RackMultipart20[0-9]{6}\-.*$/ )
       delete_files_glob_regexp( glob: "mini_magick20*" )
       delete_files_glob_regexp( glob: "apache-tika-*.tmp" )
+      # byteseek1311965235160555757.tmp
       delete_files_glob_regexp( glob: "*.pdf" )
+      # *.jpg
       run_msg "Disk usage after: #{report_du}"
     end
 

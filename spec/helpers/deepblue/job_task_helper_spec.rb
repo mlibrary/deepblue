@@ -43,6 +43,7 @@ RSpec.describe Deepblue::JobTaskHelper, type: :helper do
     it { expect( described_class.job_helper_debug_verbose                       ).to eq false }
     it { expect( described_class.monthly_analytics_report_job_debug_verbose     ).to eq false }
     it { expect( described_class.monthly_events_report_job_debug_verbose        ).to eq false }
+    it { expect( described_class.new_service_request_ticket_job_debug_verbose   ).to eq false }
     it { expect( described_class.rake_task_job_debug_verbose                    ).to eq false }
     it { expect( described_class.run_job_task_debug_verbose                     ).to eq false }
     it { expect( described_class.scheduler_start_job_debug_verbose              ).to eq false }

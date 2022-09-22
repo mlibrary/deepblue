@@ -64,7 +64,9 @@ module Deepblue
                                              "event_note=#{event_note}",
                                              "enforce_minimum_file_count=#{enforce_minimum_file_count}",
                                              "job_delay=#{job_delay}",
+                                             "Settings.datacite.active=#{Settings.datacite.active}",
                                              "" ] if doi_behavior_debug_verbose
+      return false unless Settings.datacite.active
       return false if doi_pending?
       # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
       #                                      ::Deepblue::LoggingHelper.called_from,
