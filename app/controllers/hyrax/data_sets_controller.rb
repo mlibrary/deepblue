@@ -38,6 +38,7 @@ module Hyrax
     protect_from_forgery with: :null_session,    only: [:analytics_subscribe]
     protect_from_forgery with: :null_session,    only: [:analytics_unsubscribe]
     protect_from_forgery with: :null_session,    only: [:create_anonymous_link]
+    protect_from_forgery with: :null_session,    only: [:create_service_request]
     protect_from_forgery with: :null_session,    only: [:create_single_use_link]
     protect_from_forgery with: :null_session,    only: [:display_provenance_log]
     protect_from_forgery with: :null_session,    only: [:ensure_doi_minted]
@@ -114,6 +115,15 @@ module Hyrax
     def analytics_unsubscribe
       ::AnalyticsHelper.monthly_events_report_unsubscribe_data_set( user: current_user, cc_id: params[:id] )
       redirect_to current_show_path( append: "#analytics" )
+    end
+
+    def create_service_request
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if data_sets_controller_debug_verbose
+      ::NewServiceRequestTicketJob.perform_later( work_id: params[:id], current_user: current_user )
+      flash[:notice] = "Create service request job started."
+      redirect_to [main_app, curation_concern]
     end
 
     def ensure_doi_minted

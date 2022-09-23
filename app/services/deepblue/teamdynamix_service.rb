@@ -11,6 +11,8 @@ module Deepblue
 
     mattr_accessor :active, default: TeamdynamixIntegrationService.teamdynamix_service_active
 
+    mattr_accessor :admin_note_ticket_prefix, default: TeamdynamixIntegrationService.admin_note_ticket_prefix
+
     mattr_accessor :check_admin_notes_for_existing_ticket,
                    default: TeamdynamixIntegrationService.check_admin_notes_for_existing_ticket
 
@@ -51,9 +53,14 @@ module Deepblue
     attr_accessor :tdx_url
     attr_accessor :ulib_app_id
 
-    attr_accessor :admin_note_ticket_prefix
-
     attr_accessor :msg_handler
+
+    def self.has_service_request?( curation_concern: )
+      return false unless curation_concern.present?
+      return false unless curation_concern.respond_to? :curation_notes_admin_include?
+      rv = curation_concern.curation_notes_admin_include? admin_note_ticket_prefix
+      return rv
+    end
 
     def self.to_console( responses: [], verbose: true, debug_verbose: teamdynamix_service_debug_verbose )
       msg_handler = ::Deepblue::MessageHandler.msg_handler_for_task( options: { verbose: verbose,
@@ -85,8 +92,6 @@ module Deepblue
       @tdx_url        = TeamdynamixIntegrationService.tdx_url
       @ulib_app_id    = TeamdynamixIntegrationService.ulib_app_id
 
-      @admin_note_ticket_prefix = 'TeamDynamix ticket: '
-
       # TODO configure these
       @form_id = 2220
       @service_id = 2643
@@ -117,7 +122,8 @@ module Deepblue
       if curation_concern.respond_to? :add_curation_note_admin
         curation_concern.add_curation_note_admin( note: note )
       else
-        msg_handler.warning << "curation concern #{curation_concern.id} does not respond to :add_curation_note_admin"
+        msg_handler.warning "curation concern #{curation_concern.id} does not respond to :add_curation_note_admin"
+        msg_handler.warning "skipping add of curation note: #{note}"
       end
     end
 
@@ -379,16 +385,8 @@ module Deepblue
     end
 
     def curation_notes_admin_includes_for( curation_concern:, search_value: )
-      # TODO: move to work behavior
-      return false unless curation_concern.respond_to? :curation_notes_admin
-      note_str = curation_concern.curation_notes_admin.join(" ")
-      if search_value.is_a? String
-        return note_str.include? search_value
-      elsif search_value.is_a? Regexp
-        rv = note_str =~ search_value
-        return !rv.nil?
-      end
-      return false
+      return false unless curation_concern.respond_to? :curation_notes_admin_include?
+      curation_concern.curation_notes_admin_include? search_value
     end
 
     def description_for( curation_concern: )

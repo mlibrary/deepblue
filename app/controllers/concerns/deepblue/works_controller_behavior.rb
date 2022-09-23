@@ -638,6 +638,11 @@ module Deepblue
       curation_concern&.edit_users
     end
 
+    def has_service_request?
+      rv = NewServiceRequestTicketJob.has_service_request? self
+      return rv
+    end
+
     def read_groups
       curation_concern
       curation_concern&.read_groups

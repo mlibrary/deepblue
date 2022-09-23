@@ -239,6 +239,23 @@ module Hyrax
       cc_anonymous_link.present?
     end
 
+    def can_create_service_request?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "false if tombstoned?=#{tombstoned?}",
+                                             "false if anonymous_show?=#{anonymous_show?}",
+                                             "return false if curation_notes_admin_include? ::Deepblue::TeamdynamixService.admin_note_ticket_prefix=#{curation_notes_admin_include? ::Deepblue::TeamdynamixService.admin_note_ticket_prefix}",
+                                             "true if current_ability.admin?=#{current_ability.admin?}",
+                                             "current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
+                                             "" ] if work_show_presenter_debug_verbose
+      return false if tombstoned?
+      return false if anonymous_show?
+      return false if draft_mode?
+      return false if curation_notes_admin_include? ::Deepblue::TeamdynamixService.admin_note_ticket_prefix
+      return true if current_ability.admin?
+      current_ability.can?( :edit, id )
+    end
+
     def can_delete_work?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -440,6 +457,32 @@ module Hyrax
       return true if current_ability.can?( :edit, id )
       return true if current_ability.current_user.present? && current_ability.current_user.user_approver?( current_ability.current_user )
       current_user_can_read?
+    end
+
+    def curation_notes_include?( notes:, search_value: )
+      if search_value.is_a? String
+        notes.each do |note|
+          return true if note.include? search_value
+        end
+      elsif search_value.is_a? Regexp
+        notes.each do |note|
+          rv = note =~ search_value
+          return true unless rv.nil?
+        end
+      end
+      return false
+    end
+
+    def curation_notes_admin_include?( search_value )
+      notes = Array( self.curation_notes_admin )
+      rv = curation_notes_include?( notes: notes, search_value: search_value )
+      return rv
+    end
+
+    def curation_notes_user_include?( search_value )
+      notes = Array( self.curation_notes_user )
+      rv = curation_notes_include?( notes: notes, search_value: search_value )
+      return rv
     end
 
     def current_show_path( main_app:, curation_concern:, append: nil )

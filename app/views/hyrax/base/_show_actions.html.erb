@@ -204,6 +204,13 @@
                       class: 'btn btn-subtle',
                       data: { confirm: "Ensure #{@presenter.human_readable_type}'s DOI is minted?" },
                       method: :ensure_doi_minted %>
+          <% if @presenter.can_create_service_request? %>
+            <%= link_to t('simple_form.actions.data_set.create_service_request'),
+                        "/data/concern/data_sets/#{@presenter.id}/create_service_request",
+                        class: 'btn btn-subtle',
+                        data: { confirm: "Create service request for #{@presenter.human_readable_type}" },
+                        method: :create_service_request %>
+          <% end %>
           <% if @presenter.work_featurable? %>
             <%= link_to t('simple_form.actions.data_set.feature'), hyrax.featured_work_path(@presenter, format: :json),
                         data: { behavior: 'feature' },
