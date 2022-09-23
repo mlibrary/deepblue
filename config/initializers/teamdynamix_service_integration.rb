@@ -15,25 +15,23 @@ Deepblue::TeamdynamixIntegrationService.setup do |config|
 
     program_name = Rails.configuration.program_name
     puts "program_name=#{program_name}" if verbose_init
-    if program_name == 'rails' || program_name == 'puma'
-      puts "Rails.configuration.hostname=#{Rails.configuration.hostname}" if verbose_init
-
-      case Rails.configuration.hostname
-      when ::Deepblue::InitializationConstants::HOSTNAME_PROD
-        config.tdx_rest_url = TDX_REST_URL_TEST
-      when ::Deepblue::InitializationConstants::HOSTNAME_TESTING
-        config.tdx_rest_url = TDX_REST_URL_TEST
-      when ::Deepblue::InitializationConstants::HOSTNAME_STAGING
-        config.tdx_rest_url = TDX_REST_URL_TEST
-      when ::Deepblue::InitializationConstants::HOSTNAME_TEST
-        config.tdx_rest_url = nil
-      when ::Deepblue::InitializationConstants::HOSTNAME_LOCAL
-        config.tdx_rest_url = TDX_REST_URL_TEST
-      else
-        config.tdx_rest_url = nil
-      end
+    puts "Rails.configuration.hostname=#{Rails.configuration.hostname}" if verbose_init
+    case Rails.configuration.hostname
+    when ::Deepblue::InitializationConstants::HOSTNAME_PROD
+      config.tdx_rest_url = TDX_REST_URL_TEST
+    when ::Deepblue::InitializationConstants::HOSTNAME_TESTING
+      config.tdx_rest_url = TDX_REST_URL_TEST
+    when ::Deepblue::InitializationConstants::HOSTNAME_STAGING
+      config.tdx_rest_url = TDX_REST_URL_TEST
+    when ::Deepblue::InitializationConstants::HOSTNAME_TEST
+      config.tdx_rest_url = nil
+    when ::Deepblue::InitializationConstants::HOSTNAME_LOCAL
+      config.tdx_rest_url = TDX_REST_URL_TEST
+    else
+      config.tdx_rest_url = nil
     end
     puts "config.tdx_rest_url=#{config.tdx_rest_url}" if verbose_init
+
     if config.tdx_rest_url == TDX_REST_URL_TEST
       config.its_app_id            = 31
       config.tdx_url               = 'https://teamdynamix.umich.edu/SBTDNext/Apps/'

@@ -204,7 +204,7 @@ module Deepblue
       description << "Requestor Email: #{requestor_email}<br/>"
       description << "Description:"
       curation_concern.description.each do |line|
-        line = line.split( /[\n\r]+/ ).join("<br/>\n")
+        line = line.split( /[\n\r]+/ ).join(" ")
         description << "<p>#{line}</p>"
       end
       return description.join("\n")
