@@ -26,8 +26,7 @@ module Deepblue
                                              "note=#{note}",
                                              "" ] if metadata_behavior_debug_verbose
       self.date_modified = DateTime.now # touch it so it will save updated attributes
-      notes = self.curation_notes_admin
-      notes = [] if notes.nil?
+      notes = Array( self.curation_notes_admin )
       self.curation_notes_admin = notes << note
       save!
     end
@@ -39,10 +38,35 @@ module Deepblue
                                              "note=#{note}",
                                              "" ] if metadata_behavior_debug_verbose
       self.date_modified = DateTime.now # touch it so it will save updated attributes
-      notes = self.curation_notes_user
-      notes = [] if notes.nil?
+      notes = Array( self.curation_notes_user )
       self.curation_notes_user = notes << note
       save!
+    end
+
+    def curation_notes_include?( notes:, search_value: )
+      if search_value.is_a? String
+        notes.each do |note|
+          return true if note.include? search_value
+        end
+      elsif search_value.is_a? Regexp
+        notes.each do |note|
+          rv = note =~ search_value
+          return true unless rv.nil?
+        end
+      end
+      return false
+    end
+
+    def curation_notes_admin_include?( search_value )
+      notes = Array( self.curation_notes_admin )
+      rv = curation_notes_include?( notes: notes, search_value: search_value )
+      return rv
+    end
+
+    def curation_notes_user_include?( search_value )
+      notes = Array( self.curation_notes_user )
+      rv = curation_notes_include?( notes: notes, search_value: search_value )
+      return rv
     end
 
     def for_metadata_id

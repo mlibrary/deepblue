@@ -499,18 +499,6 @@ module Deepblue
       return nil
     end
 
-    def self.jira_ticket_curation_notes_admin_contains( curation_concern:, search_value: )
-      return false unless curation_concern.respond_to? :curation_notes_admin
-      note_str = curation_concern.curation_notes_admin.join(" ")
-      if search_value.is_a? String
-        return note_str.include? search_value
-      elsif search_value.is_a? Regexp
-        rv = note_str =~ search_value
-        return !rv.nil?
-      end
-      return false
-    end
-
     def self.jira_ticket_for_create( client: nil,
                                      curation_concern:,
                                      check_admin_notes_for_existing_jira_ticket: true,
@@ -526,9 +514,8 @@ module Deepblue
                                              "" ] if jira_helper_debug_verbose
 
       curation_admin_note_jira_ticket_prefix = "Jira ticket: "
-      if check_admin_notes_for_existing_jira_ticket
-        if jira_ticket_curation_notes_admin_contains( curation_concern: curation_concern,
-                                                        search_value: curation_admin_note_jira_ticket_prefix )
+      if check_admin_notes_for_existing_jira_ticket && curation_concern.respond_to?( :curation_notes_admin_include? )
+        if curation_concern.curation_notes_admin_include? curation_admin_note_jira_ticket_prefix
           msg_queue << "curation concern admin notes already contains jira ticket" unless msg_queue.nil?
           return
         end

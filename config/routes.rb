@@ -169,6 +169,8 @@ Rails.application.routes.draw do
         post   'analytics_unsubscribe'
         # post   'confirm'
         post   'create_anonymous_link'
+        get    'create_service_request'
+        post   'create_service_request'
         post   'create_single_use_link'
         get    'display_provenance_log'
         get    'doi'

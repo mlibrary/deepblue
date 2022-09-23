@@ -5,6 +5,12 @@ class NewServiceRequestTicketJob < ::Deepblue::DeepblueJob
   mattr_accessor :new_service_request_ticket_job_debug_verbose,
                  default: ::Deepblue::JobTaskHelper.new_service_request_ticket_job_debug_verbose
 
+  def self.has_service_request?( curation_concern: )
+    return false unless ::Deepblue::TeamdynamixService.active
+    rv = ::Deepblue::TeamdynamixService.has_service_request? curation_concern: curation_concern
+    return rv
+  end
+
   def perform( work_id:, current_user: nil, job_delay: 0, debug_verbose: new_service_request_ticket_job_debug_verbose )
     debug_verbose = debug_verbose || new_service_request_ticket_job_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
