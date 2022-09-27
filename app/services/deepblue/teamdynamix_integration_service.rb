@@ -32,10 +32,14 @@ module Deepblue
     mattr_accessor :check_admin_notes_for_existing_ticket, default: true
     mattr_accessor :client_id,     default: Settings.teamdynamix.client_id
     mattr_accessor :client_secret, default: Settings.teamdynamix.client_secret
-    mattr_accessor :tdx_rest_url,  default: ''
+    mattr_accessor :tdx_rest_url,  default: Settings.teamdynamix.tdx_rest_url
     mattr_accessor :its_app_id,    default: ''
     mattr_accessor :tdx_url,       default: ''
     mattr_accessor :ulib_app_id,   default: ''
+
+    mattr_accessor :form_id,       default: 2220
+    mattr_accessor :service_id,    default: 2643
+    mattr_accessor :type_id,       default: 769
 
     # custom attributes
     mattr_accessor :attr_depositor_status # db-DepositorStatus, id: 10215

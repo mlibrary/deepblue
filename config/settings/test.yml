@@ -34,6 +34,7 @@ teamdynamix:
   active: false
   client_id: teamdynamix.client_id.invalid
   client_secret: teamdynamix.client_secret.invalid
+  tdx_rest_url: teamdynamix.tdx_rest_url.invalid
 
 rails:
   database:

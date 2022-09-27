@@ -31,6 +31,14 @@ module Deepblue
     FIELD_DESCRIPTION = 'Description'
     FIELD_ID          = 'ID'
 
+    KEY_STATUS_ID            = 'StatusID'
+    KEY_PRIORITY_ID          = 'PriorityID'
+    KEY_SOURCE_ID            = 'SourceID'
+    KEY_RESPONSIBLE_GROUP_ID = 'ResponsibleGroupID'
+    KEY_TITLE                = 'Title'
+    KEY_REQUESTOR_EMAIL      = 'RequestorEmail'
+    KEY_REQUESTOR_NAME       = 'RequestorName'
+
     RESPONSE_ID      = 'ID'
     RESPONSE_MESSAGE = 'Message'
 
@@ -91,16 +99,14 @@ module Deepblue
       @tdx_ticket_url = nil
       @tdx_url        = TeamdynamixIntegrationService.tdx_url
       @ulib_app_id    = TeamdynamixIntegrationService.ulib_app_id
+      @form_id        = TeamdynamixIntegrationService.form_id
+      @service_id     = TeamdynamixIntegrationService.service_id
+      @type_id        = TeamdynamixIntegrationService.type_id
 
-      # TODO configure these
-      @form_id = 2220
-      @service_id = 2643
-      @type_id = 769
-
-      # data["StatusID"] = 1012 # TODO: config
-      # data["PriorityID"] = 20 # TODO: config
-      # data["SourceID"] = 8 # TODO: config
-      # data["ResponsibleGroupID"] = 1227 # TODO: config
+      # data[KEY_STATUS_ID] = 1012 # TODO: config
+      # data[KEY_PRIORITY_ID] = 20 # TODO: config
+      # data[KEY_SOURCE_ID] = 8 # TODO: config
+      # data[KEY_RESPONSIBLE_GROUP_ID] = 1227 # TODO: config
 
     end
 
@@ -334,13 +340,13 @@ module Deepblue
                              content_type: APPLICATION_JSON,
                              debug_verbose: debug_verbose )
       data=build_tdx_data
-      data["StatusID"] = 1012 # TODO: config
-      data["PriorityID"] = 20 # TODO: config
-      data["SourceID"] = 8 # TODO: config
-      data["ResponsibleGroupID"] = 1227 # TODO: config
-      # data["RequestorName"] = "???" # skip
-      data["Title"] = title
-      data["RequestorEmail"] = requestor_email
+      data[KEY_STATUS_ID] = 1012 # TODO: config
+      data[KEY_PRIORITY_ID] = 20 # TODO: config
+      data[KEY_SOURCE_ID] = 8 # TODO: config
+      data[KEY_RESPONSIBLE_GROUP_ID] = 1227 # TODO: config
+      # data[KEY_REQUESTOR_NAME] = "???" # skip
+      data[KEY_TITLE] = title
+      data[KEY_REQUESTOR_EMAIL] = requestor_email
       data.merge! fields
       status, body = post( connection: build_connection( uri: tdx_rest_url, headers: headers ),
                            parms: parms,
