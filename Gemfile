@@ -117,7 +117,7 @@ gem 'turbolinks', '~> 5'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.5'
 # Use Redis adapter to run Action Cable in production
-# gem 'redis', '~> 3.0'
+gem 'redis', '< 5.0'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
@@ -193,12 +193,10 @@ gem 'devise-guests', '~> 0.6'
 gem 'diffy',         '>= 3.4.1' # https://github.com/samg/diffy
 gem 'jira-ruby',     '~> 1.1'
 gem 'okcomputer',    '~> 1.17'
-gem 'omniauth'
+gem 'omniauth',      '>= 1.9.2'
 gem 'omniauth-cas'
 gem 'riiif',         '~> 1.1'
 gem 'rsolr',         '>= 1.0'
-# gem 'tdx_api', git: 'https://github.com/jacksonpotter/tdx_api'
-gem 'tdx_api', git: 'https://github.com/mlibrary/tdx_api'
 
 # analytics support
 # https://github.com/ankane/ahoy
