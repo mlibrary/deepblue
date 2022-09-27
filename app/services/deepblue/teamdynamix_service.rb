@@ -31,6 +31,8 @@ module Deepblue
     FIELD_DESCRIPTION = 'Description'
     FIELD_ID          = 'ID'
 
+    KEY_ACCOUNT_ID           = 'AccountID'
+
     KEY_STATUS_ID            = 'StatusID'
     KEY_PRIORITY_ID          = 'PriorityID'
     KEY_SOURCE_ID            = 'SourceID'
@@ -99,6 +101,7 @@ module Deepblue
       @tdx_ticket_url = nil
       @tdx_url        = TeamdynamixIntegrationService.tdx_url
       @ulib_app_id    = TeamdynamixIntegrationService.ulib_app_id
+      @account_id     = TeamdynamixIntegrationService.account_id
       @form_id        = TeamdynamixIntegrationService.form_id
       @service_id     = TeamdynamixIntegrationService.service_id
       @type_id        = TeamdynamixIntegrationService.type_id
@@ -302,8 +305,13 @@ module Deepblue
       return custom_attributes
     end
 
-    def build_tdx_data( data: {}, form_id: @form_id, service_id: @service_id, type_id: @type_id )
+    def build_tdx_data( data: {},
+                        account_id: @account_id,
+                        form_id: @form_id,
+                        service_id: @service_id,
+                        type_id: @type_id )
       data ||= {}
+      data[KEY_ACCOUNT_ID] = account_id if account_id.present?
       data["TypeID"] = type_id if type_id.present?
       data["ServiceID"] = service_id if service_id.present?
       data["FormID"] = form_id if form_id.present?

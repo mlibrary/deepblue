@@ -19,6 +19,7 @@ Deepblue::TeamdynamixIntegrationService.setup do |config|
       config.its_app_id            = 31
       config.tdx_url               = 'https://teamdynamix.umich.edu/SBTDNext/Apps/'
       config.ulib_app_id           = 87
+      config.account_id            = nil
       config.form_id               = 2220
       config.service_id            = 2643 # ULIB-DBRRDS
       config.type_id               = 773 # is this correct (was 769)
@@ -34,6 +35,7 @@ Deepblue::TeamdynamixIntegrationService.setup do |config|
       config.its_app_id            = 31
       config.tdx_url               = 'https://teamdynamix.umich.edu/TDNext/Apps/'
       config.ulib_app_id           = 87
+      config.account_id            = 3111 # MI Publishing-DBlue&RData
       config.form_id               = 2277
       config.service_id            = 2667 # ULIB-Deep Blue - Data Deposit
       config.type_id               = 780

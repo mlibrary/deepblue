@@ -37,6 +37,7 @@ module Deepblue
     mattr_accessor :tdx_url,       default: ''
     mattr_accessor :ulib_app_id,   default: ''
 
+    mattr_accessor :account_id,    default: nil
     mattr_accessor :form_id,       default: 2220
     mattr_accessor :service_id,    default: 2643
     mattr_accessor :type_id,       default: 769
