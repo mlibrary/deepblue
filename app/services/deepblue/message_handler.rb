@@ -120,6 +120,14 @@ module Deepblue
       @line_buffer = ''
     end
 
+    def block_called_from(offset=2, prefix: 'block called from: ')
+      "#{prefix}#{caller_locations(1, offset+1)[offset]}"
+    end
+
+    def self.block_called_from(offset=2, prefix: 'block called from: ')
+      "#{prefix}#{caller_locations(1, offset+1)[offset]}"
+    end
+
     # Provide the same functionality as the LoggingHelper.bold_debug, but override bold_puts parameter
     # with the MessageHandler's to_console flag, and use the MessageHandler's logger, which defaults
     # to Rails.logger
@@ -179,6 +187,22 @@ module Deepblue
       @line_buffer = ''
     end
 
+    def called_from(offset=1, prefix: 'called from: ')
+      "#{prefix}#{caller_locations(1, offset+1)[offset]}"
+    end
+
+    def self.called_from(offset=1, prefix: 'called from: ')
+      "#{prefix}#{caller_locations(1, offset+1)[offset]}"
+    end
+
+    def here(offset=0, prefix: '')
+      "#{prefix}#{caller_locations(1, offset+1)[offset]}"
+    end
+
+    def self.here(offset=0, prefix: '')
+      "#{prefix}#{caller_locations(1, offset+1)[offset]}"
+    end
+
     def join( sep = "\n" )
       return '' if @msg_queue.blank?
       return @msg_queue.join if sep.nil?
@@ -204,6 +228,12 @@ module Deepblue
       return buffer_reset if quiet
       return buffer_reset unless debug_verbose
       msg_raw( msg, log: (log ? LOG_DEBUG : LOG_NONE), prefix: PREFIX_DEBUG, &block )
+    end
+
+    def msg_debug_bold( msg = nil, log: false, &block )
+      return buffer_reset if quiet
+      return buffer_reset unless debug_verbose
+      bold_debug( msg, logger: (log ? LOG_DEBUG : LOG_NONE), &block )
     end
 
     def msg_error( msg = nil, log: false, &block )

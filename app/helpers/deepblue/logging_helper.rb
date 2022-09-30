@@ -6,6 +6,14 @@ module Deepblue
 
     mattr_accessor :echo_to_puts, default: false
 
+    def block_called_from(offset=2, prefix: 'block called from: ')
+      "#{prefix}#{caller_locations(1, offset+1)[offset]}"
+    end
+
+    def self.block_called_from(offset=2, prefix: 'block called from: ')
+      "#{prefix}#{caller_locations(1, offset+1)[offset]}"
+    end
+
     def bold_error( msg = nil,
                     bold_puts: echo_to_puts,
                     label: nil,
@@ -175,20 +183,20 @@ module Deepblue
       lines.times { puts ">>>>>>>>>>" }
     end
 
-    def called_from
-      "called from: #{caller_locations(1, 2)[1]}"
+    def called_from(offset=1, prefix: 'called from: ')
+      "#{prefix}#{caller_locations(1, offset+1)[offset]}"
     end
 
-    def self.called_from
-      "called from: #{caller_locations(1, 2)[1]}"
+    def self.called_from(offset=1, prefix: 'called from: ')
+      "#{prefix}#{caller_locations(1, offset+1)[offset]}"
     end
 
-    def caller
-      "#{caller_locations(1, 2)[1]}"
+    def caller(offset=1, prefix: '')
+      "#{prefix}#{caller_locations(1, offset+1)[offset]}"
     end
 
-    def self.caller
-      "#{caller_locations(1, 2)[1]}"
+    def self.caller(offset=1, prefix: '')
+      "#{prefix}#{caller_locations(1, offset+1)[offset]}"
     end
 
     def self.debug( msg = nil, label: nil, key_value_lines: true, lines: 0, &block )
@@ -210,12 +218,12 @@ module Deepblue
       lines.times { Rails.logger.debug ">>>>>>>>>>" }
     end
 
-    def here
-      "#{caller_locations(1, 1)[0]}"
+    def here(offset=0, prefix: '')
+      "#{prefix}#{caller_locations(1, offset+1)[offset]}"
     end
 
-    def self.here
-      "#{caller_locations(1, 1)[0]}"
+    def self.here(offset=0, prefix: '')
+      "#{prefix}#{caller_locations(1, offset+1)[offset]}"
     end
 
     def self.initialize_key_values( user_email:, event_note:, **added_key_values )

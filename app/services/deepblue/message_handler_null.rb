@@ -40,6 +40,14 @@ module Deepblue
     end
     def verbose=(_x); end
 
+    def block_called_from(offset=2, prefix: 'block called from: ')
+      return ''
+    end
+
+    def self.block_called_from(offset=2, prefix: 'block called from: ')
+      return ''
+    end
+
     def bold_debug( _msg = nil,
                     bold_puts: false,
                     label: nil,
@@ -60,6 +68,22 @@ module Deepblue
 
     def buffer_reset
       # ignore
+    end
+
+    def called_from(offset=1, prefix: 'called from: ')
+      return ''
+    end
+
+    def self.called_from(offset=1, prefix: 'called from: ')
+      return ''
+    end
+
+    def here(offset=0, prefix: '')
+      return ''
+    end
+
+    def self.here(offset=0, prefix: '')
+      return ''
     end
 
     def join( _sep = nil )
@@ -86,7 +110,11 @@ module Deepblue
       # ignore
     end
 
-    def msg_debug( _msg = nil, log: false, &block )
+    def msg_debug( msg = nil, log: false, &block )
+      # ignore
+    end
+
+    def msg_debug_bold( msg = nil, log: false, &block )
       # ignore
     end
 

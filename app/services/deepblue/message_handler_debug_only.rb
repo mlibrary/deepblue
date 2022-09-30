@@ -18,6 +18,14 @@ module Deepblue
       @logger = logger
     end
 
+    def block_called_from(offset=2, prefix: 'block called from: ')
+      "#{prefix}#{caller_locations(1, offset+1)[offset]}"
+    end
+
+    def self.block_called_from(offset=2, prefix: 'block called from: ')
+      "#{prefix}#{caller_locations(1, offset+1)[offset]}"
+    end
+
     def bold_debug( msg = nil,
                     bold_puts: false,
                     label: nil,
@@ -45,8 +53,32 @@ module Deepblue
       @debug_verbose.call
     end
 
+    def called_from(offset=1, prefix: 'called from: ')
+      "#{prefix}#{caller_locations(1, offset+1)[offset]}"
+    end
+
+    def self.called_from(offset=1, prefix: 'called from: ')
+      "#{prefix}#{caller_locations(1, offset+1)[offset]}"
+    end
+
+    def here(offset=0, prefix: '')
+      "#{prefix}#{caller_locations(1, offset+1)[offset]}"
+    end
+
+    def self.here(offset=0, prefix: '')
+      "#{prefix}#{caller_locations(1, offset+1)[offset]}"
+    end
+
     def logger
       @logger ||= Rails.logger
+    end
+
+    def msg_debug( msg = nil, log: false, &block )
+      bold_debug( msg, &block )
+    end
+
+    def msg_debug_bold( msg = nil, log: false, &block )
+      bold_debug( msg, &block )
     end
 
   end

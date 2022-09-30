@@ -12,17 +12,18 @@ Deepblue::TeamdynamixIntegrationService.setup do |config|
 
     config.teamdynamix_integration_service_debug_verbose = false
     config.teamdynamix_service_debug_verbose = false
-    # config.teamdynamix_service_active = true # override setting
+    # config.teamdynamix_service_active = true # override value in local settings
 
     puts "config.tdx_rest_url=#{config.tdx_rest_url}" if verbose_init
     if config.tdx_rest_url == TDX_REST_URL_TEST
       config.its_app_id            = 31
       config.tdx_url               = 'https://teamdynamix.umich.edu/SBTDNext/Apps/'
       config.ulib_app_id           = 87
-      config.account_id            = nil
+      config.account_id            = 3111 # verify for sandbox
       config.form_id               = 2220
       config.service_id            = 2643 # ULIB-DBRRDS
       config.type_id               = 773 # is this correct (was 769)
+      config.responsible_group_id  = 1240
       # custom attributes
       config.attr_depositor_status = 10215 # db-DepositorStatus, id: 10215
       config.attr_discipline       = 10218 # db-Discipline, id: 10218
@@ -39,6 +40,7 @@ Deepblue::TeamdynamixIntegrationService.setup do |config|
       config.form_id               = 2277
       config.service_id            = 2667 # ULIB-Deep Blue - Data Deposit
       config.type_id               = 780
+      config.responsible_group_id  = 1233
       # TODO: custom attributes
       config.attr_depositor_status = 10413 # db-DepositorStatus, id: 10413
       config.attr_discipline       = 10422 # db-Discipline, id: 10422
