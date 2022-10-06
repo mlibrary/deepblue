@@ -19,6 +19,7 @@ module JobHelper
   # attr_writer   :quiet # use msg_handler.quiet = true
   attr_accessor :restartable
   attr_writer   :subscription_service_id
+  attr_writer   :task_name
   attr_writer   :timestamp_begin
   attr_writer   :timestamp_end
   # attr_writer   :task # use msg_handler.to_console = true
@@ -440,6 +441,10 @@ module JobHelper
 
   def task_init
     job_options_value( key: 'task', default_value: false, no_msg_handler: true )
+  end
+
+  def task_name
+    @task_name ||= self.class.name.titlecase
   end
 
   def verbose
