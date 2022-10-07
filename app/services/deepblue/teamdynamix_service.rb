@@ -7,7 +7,13 @@ module Deepblue
     mattr_accessor :teamdynamix_service_debug_verbose,
                    default: TeamdynamixIntegrationService.teamdynamix_service_debug_verbose
 
-    mattr_accessor :teamdynamix_service_access_token_debug_verbose, default: false
+    mattr_accessor :authentication_debug_verbose,  default: false
+    mattr_accessor :build_data_debug_verbose,      default: false
+    mattr_accessor :build_headers_debug_verbose,   default: false
+    mattr_accessor :get_ticket_body_debug_verbose, default: false
+    mattr_accessor :response_debug_verbose,        default: false
+
+    mattr_accessor :include_attributes_in_update, default: false
 
     mattr_accessor :active, default: TeamdynamixIntegrationService.teamdynamix_service_active
 
@@ -161,6 +167,7 @@ module Deepblue
     end
 
     def build_access_token
+      debug_verbose = authentication_debug_verbose && msg_handler.debug_verbose
       build_bearer_basic
       headers = build_headers( auth: bearer_basic, content_type: 'application/x-www-form-urlencoded' )
       parms = '/um/it/oauth2/token?scope=tdxticket&grant_type=client_credentials'
@@ -169,37 +176,39 @@ module Deepblue
       msg_handler.msg_debug_bold [ msg_handler.here,
                                 msg_handler.called_from,
                                 "status=#{status}",
-                                "body=#{body.pretty_inspect}" ] if msg_handler.debug_verbose
+                                "body=#{response_inspect_body body}" ] if debug_verbose
       rv=body['access_token']
       msg_handler.msg_debug_bold [ msg_handler.here,
                                 msg_handler.called_from,
                                 "access_token=#{rv}",
-                                "" ] if msg_handler.debug_verbose
+                                "" ] if debug_verbose
       rv
     end
 
     def build_authentication
       rv = "#{client_id}:#{client_secret}"
-      msg_handler.msg_verbose "authentication=#{rv}"
+      # msg_handler.msg_verbose "authentication=#{rv}"
       rv
     end
 
     def build_bearer
+      debug_verbose = authentication_debug_verbose && msg_handler.debug_verbose
       rv = "Bearer #{access_token}"
       msg_handler.msg_debug_bold [ msg_handler.here,
                                msg_handler.called_from,
                                "bearer=#{rv}",
-                               "" ] if msg_handler.debug_verbose
+                               "" ] if debug_verbose
       # msg_handler.msg_verbose "bearer=#{rv}"
       rv
     end
 
     def build_bearer_basic
+      debug_verbose = authentication_debug_verbose && msg_handler.debug_verbose
       rv = "Bearer Basic #{Base64.strict_encode64(authentication)}"
       msg_handler.msg_debug_bold [ msg_handler.here,
                                 msg_handler.called_from,
                                 "bearer_basic=#{rv}",
-                                "" ] if msg_handler.debug_verbose
+                                "" ] if debug_verbose
       # msg_handler.msg_verbose "bearer_basic=#{rv}"
       rv
     end
@@ -240,20 +249,25 @@ module Deepblue
     end
 
     def build_data( data: )
+      debug_verbose = build_data_debug_verbose && msg_handler.debug_verbose
       return nil if data.nil?
-      rv = JSON.dump(data)
-      msg_handler.msg_debug_bold [ "data=#{rv.pretty_inspect}" ] if msg_handler.debug_verbose
+      rv = data
+      rv = JSON.dump(data) unless data.is_a? String
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "data=#{rv.pretty_inspect}" ] if debug_verbose
       return rv
     end
 
     def build_headers( accept: APPLICATION_JSON, auth:, content_type: TEXT_PLAIN, charset: nil )
+      debug_verbose = build_headers_debug_verbose && msg_handler.debug_verbose
       msg_handler.msg_debug_bold [ msg_handler.here,
                                 msg_handler.called_from,
                                 "accept=#{accept}",
                                 "auth=#{auth}",
                                 "content_type=#{content_type}",
                                 "charset=#{charset}",
-                                "" ] if msg_handler.debug_verbose
+                                "" ] if debug_verbose
       # msg_handler.msg_verbose "auth=#{auth}"
       rv = {}
       rv['Content-Type'] = content_type if content_type.present?
@@ -263,7 +277,7 @@ module Deepblue
       rv['charset'] = charset if charset.present?
       msg_handler.msg_debug_bold [ msg_handler.here,
                                 msg_handler.called_from,
-                                "headers=#{rv.pretty_inspect}" ]  if msg_handler.debug_verbose
+                                "headers=#{rv.pretty_inspect}" ]  if debug_verbose
       return rv
     end
 
@@ -303,7 +317,29 @@ module Deepblue
       fields[KEY_DESCRIPTION] = build_description_from( curation_concern: curation_concern )
       fields[KEY_IS_RICH_HTML] = true
       fields[KEY_ATTRIBUTES] = build_tdx_custom_attributes( curation_concern: curation_concern )
-      msg_handler.msg_debug_bold [ "build_tdx_create_ticket_fields_with rv=#{fields.pretty_inspect}",
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "rv=#{fields.pretty_inspect}",
+                                   "" ] if msg_handler.debug_verbose
+      return fields
+    end
+
+    def build_tdx_patch_ticket_fields_with( curation_concern:, fields: {} )
+      fields ||= {}
+      fields[KEY_ATTRIBUTES] = build_tdx_custom_attributes( curation_concern: curation_concern )
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "rv=#{fields.pretty_inspect}",
+                                   "" ] if msg_handler.debug_verbose
+      return fields
+    end
+
+    def build_tdx_update_ticket_fields_with( curation_concern:, fields: {} )
+      fields ||= {}
+      fields[KEY_ATTRIBUTES] = build_tdx_custom_attributes( curation_concern: curation_concern )
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "rv=#{fields.pretty_inspect}",
                                    "" ] if msg_handler.debug_verbose
       return fields
     end
@@ -337,13 +373,17 @@ module Deepblue
                         form_id: @form_id,
                         service_id: @service_id,
                         type_id: @type_id )
+
+      debug_verbose = build_data_debug_verbose && msg_handler.debug_verbose
       data ||= {}
       data[KEY_ACCOUNT_ID] = account_id if account_id.present?
       data["TypeID"] = type_id if type_id.present?
       data["ServiceID"] = service_id if service_id.present?
       data["FormID"] = form_id if form_id.present?
       rv = data
-      msg_handler.msg_debug_bold [ "build_tdx_data rv=#{ rv.pretty_inspect }" ] if msg_handler.debug_verbose
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "build_tdx_data rv=#{ rv.pretty_inspect }" ] if debug_verbose
       return rv
     end
 
@@ -372,10 +412,8 @@ module Deepblue
       build_access_token
       build_bearer
       parms="/um/it/#{ulib_app_id}/tickets"
-      headers=build_headers( auth: bearer,
-                             accept: APPLICATION_JSON,
-                             content_type: APPLICATION_JSON )
-      data=build_tdx_data
+      headers=build_headers( auth: bearer, accept: APPLICATION_JSON, content_type: APPLICATION_JSON )
+      data = build_tdx_data
       data[KEY_STATUS_ID] = 1012 # TODO: config
       data[KEY_PRIORITY_ID] = 20 # TODO: config
       data[KEY_SOURCE_ID] = 8 # TODO: config
@@ -397,7 +435,7 @@ module Deepblue
       msg_handler.msg_debug_bold [ msg_handler.here,
                                msg_handler.called_from,
                                "status=#{status}",
-                               "body=#{body.pretty_inspect}",
+                               "body=#{response_inspect_body body}",
                                "" ] if msg_handler.debug_verbose
       return status, body
     end
@@ -422,7 +460,7 @@ module Deepblue
       msg_handler.msg_debug_bold [ msg_handler.here,
                                    msg_handler.called_from,
                                    "status=#{status}",
-                                   "body=#{body.pretty_inspect}",
+                                   "body=#{response_inspect_body body}",
                                    "" ] if msg_handler.debug_verbose
        if status == 200
         # body is parsed into a hash
@@ -430,11 +468,12 @@ module Deepblue
         rv = build_tdx_ticket_url( ticket_id: @tdx_ticket_id )
         add_tdx_ticket_link_to( curation_concern: curation_concern, tdx_ticket_url: rv )
         @tdx_ticket_url = rv
-        status2, body2 = update_ticket_if_needed( ticket_id: @tdx_ticket_id )
+        # fix-up incomplete ticket
+        status2, body2 = patch_ticket_for( curation_concern: curation_concern, ticket_id: @tdx_ticket_id )
         msg_handler.msg_debug_bold [ msg_handler.here,
                                      msg_handler.called_from,
                                      "status2=#{status2}",
-                                     "body2=#{body2.pretty_inspect}",
+                                     "body2=#{response_inspect_body body2}",
                                      "" ] if msg_handler.debug_verbose
       else
         rv = response_msg( responses )
@@ -442,9 +481,14 @@ module Deepblue
       return rv
     end
 
-    def curation_notes_admin_includes_for( curation_concern:, search_value: )
+    def self.curation_notes_admin_includes_for( curation_concern:, search_value: )
       return false unless curation_concern.respond_to? :curation_notes_admin_include?
       curation_concern.curation_notes_admin_include? search_value
+    end
+
+    def curation_notes_admin_includes_for( curation_concern:, search_value: )
+      TeamdynamixService.curation_notes_admin_includes_for( curation_concern: curation_concern,
+                                                            search_value: search_value )
     end
 
     def description_for( curation_concern: )
@@ -466,10 +510,6 @@ module Deepblue
                                              "" ] if msg_handler.debug_verbose
       build_access_token
       build_bearer
-#       curl --location --request GET 'https://apigw-tst.it.umich.edu/um/it/31/tickets/425' \
-# --header 'Accept: application/json' \
-# --header 'Authorization: Bearer <access_token>' \
-# --header 'x-ibm-client-id: application_client_id'
       parms="/um/it/#{ulib_app_id}/tickets/#{ticket_id}"
       headers=build_headers( auth: bearer, accept: APPLICATION_JSON )
       msg_handler.msg_debug_bold [ msg_handler.here,
@@ -482,23 +522,24 @@ module Deepblue
       msg_handler.msg_debug_bold [ msg_handler.here,
                                              msg_handler.called_from,
                                              "status=#{status}",
-                                             "body=#{body.pretty_inspect}",
+                                             "body=#{response_inspect_body body}",
                                              "" ] if msg_handler.debug_verbose
       return status, body
     end
 
     def get_ticket_body( ticket_id: )
+      debug_verbose = get_ticket_body_debug_verbose && msg_handler.debug_verbose
       msg_handler.msg_debug_bold [ msg_handler.here,
                                              msg_handler.called_from,
                                              "ticket_id=#{ticket_id}",
-                                             "" ] if msg_handler.debug_verbose
+                                             "" ] if debug_verbose
       status, body = get_ticket( ticket_id: ticket_id )
       msg_handler.msg_debug_bold [ msg_handler.here,
                                              msg_handler.called_from,
                                              "ticket_id=#{ticket_id}",
                                              "status=#{status}",
-                                             "body=#{body.pretty_inspect}",
-                                             "" ] if msg_handler.debug_verbose
+                                             "body=#{response_inspect_body body}",
+                                             "" ] if debug_verbose
       rv = {}
       rv = body if 200 == status
       return rv
@@ -516,23 +557,157 @@ module Deepblue
       return status, body
     end
 
-    def has_service_request_ticket_for( curation_concern: )
+    def self.has_service_request_ticket_for( curation_concern:, msg_handler: nil )
       return false unless check_admin_notes_for_existing_ticket
       if curation_notes_admin_includes_for( curation_concern: curation_concern,
                                             search_value: admin_note_ticket_prefix )
-       msg_handler.msg "curation concern admin notes already contains teamdynamix ticket"
-       return true
+        msg_handler.msg "curation concern admin notes already contains teamdynamix ticket" if msg_handler.present?
+        return true
       end
       return false
     end
 
-    def post( connection:, parms:, data: nil )
-      if data.present?
-        data = JSON.dump( data ) unless data.is_a? String
+    def has_service_request_ticket_for( curation_concern: )
+      TeamdynamixService.has_service_request_ticket_for( curation_concern: curation_concern,
+                                                         msg_handler: msg_handler )
+    end
+
+    def patch_ticket( ticket_id:,
+                      description: nil,
+                      description_replace: false,
+                      patch_all: false,
+                      fields: nil )
+
+      description ||= ''
+      fields ||= {}
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "ticket_id=#{ticket_id}",
+                                   "description=#{description}",
+                                   "description_replace=#{description_replace}",
+                                   "patch_all=#{patch_all}",
+                                   "fields=#{fields.pretty_inspect}",
+                                   "" ] if msg_handler.debug_verbose
+
+      priority_id = nil
+      requestor_uid = nil
+      status_id = nil
+      title = nil
+      ticket_body = get_ticket_body( ticket_id: ticket_id )
+      msg_handler.msg_error_if?( ticket_body.blank?, msg: "patch_ticket ticket_body is nil" )
+      return nil, {} if ticket_body.blank?
+      if patch_all
+        priority_id = ticket_body[KEY_PRIORITY_ID]
+        requestor_uid = ticket_body[KEY_REQUESTOR_UID]
+        status_id = ticket_body[KEY_STATUS_ID]
+        title = ticket_body[KEY_TITLE]
+      end
+      if description.present?
+        new_description = ''
+        new_description = ticket_body[KEY_DESCRIPTION] unless description_replace
+        new_description = "#{new_description}#{description}"
         msg_handler.msg_debug_bold [ msg_handler.here,
                                      msg_handler.called_from,
-                                    "data=#{data.pretty_inspect}",
+                                     "new_description=#{new_description}",
                                      "" ] if msg_handler.debug_verbose
+        fields[KEY_DESCRIPTION] = new_description
+        fields[KEY_IS_RICH_HTML] = true
+      end
+      status, body = patch_ticket_with( ticket_id: ticket_id,
+                                        account_id: account_id,
+                                        priority_id: priority_id,
+                                        requestor_uid: requestor_uid,
+                                        responsible_group_id: responsible_group_id,
+                                        status_id: status_id,
+                                        title: title,
+                                        fields: fields )
+      return status, body
+    end
+
+    def patch_ticket_for( curation_concern:, ticket_id: nil )
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "curation_concern.id=#{curation_concern.id}",
+                                   "ticket_id=#{ticket_id}",
+                                   "" ] if msg_handler.debug_verbose
+      ticket_id ||= ticket_id_from_curation_notes_admin( curation_concern: curation_concern )
+      fields = build_tdx_patch_ticket_fields_with( curation_concern: curation_concern )
+      patch_ticket( ticket_id: ticket_id, patch_all: false, fields: fields )
+    end
+
+    def patch_ticket_with( ticket_id:,
+                           account_id: nil,
+                           priority_id: nil,
+                           requestor_uid: nil,
+                           responsible_group_id: nil,
+                           status_id: nil,
+                           title: nil,
+                           fields: {} )
+
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "ticket_id=#{ticket_id}",
+                                   "account_id=#{account_id}",
+                                   "priority_id=#{priority_id}",
+                                   "requestor_uid=#{requestor_uid}",
+                                   "responsible_group_id=#{responsible_group_id}",
+                                   "status_id=#{status_id}",
+                                   "title=#{title}",
+                                   "fields=#{fields.pretty_inspect}",
+                                   "" ] if msg_handler.debug_verbose
+
+      build_access_token
+      build_bearer
+      parms="/um/it/#{ulib_app_id}/tickets/#{ticket_id}"
+      headers=build_headers( auth: bearer, accept: APPLICATION_JSON, content_type: TEXT_PLAIN )
+      data = []
+      data << { op: 'add', path: "/#{KEY_ACCOUNT_ID}", value: account_id } if account_id.present?
+      data << { op: 'add', path: "/#{KEY_PRIORITY_ID}", value: priority_id } if priority_id.present?
+      data << { op: 'add', path: "/#{KEY_REQUESTOR_UID}", value: requestor_uid } if requestor_uid.present?
+      data << { op: 'add', path: "/#{KEY_RESPONSIBLE_GROUP_ID}", value: responsible_group_id } if responsible_group_id.present?
+      data << { op: 'add', path: "/#{KEY_STATUS_ID}", value: status_id } if status_id.present?
+      data << { op: 'add', path: "/#{KEY_TITLE}", value: title } if title.present?
+      fields ||= {}
+      fields.each_pair do |key,value|
+        unless KEY_ATTRIBUTES == key
+          data << { op: 'add', path: "/#{key}", value: value }
+        else
+          value.each do |attr|
+            key = attr[ATTR_ID]
+            val = attr[ATTR_VALUE]
+            data << { op: 'add', path: "/attributes/#{key}", value: val }
+          end
+        end
+      end
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "uri=#{tdx_rest_url}",
+                                   "headers=#{headers.pretty_inspect}",
+                                   "parms=#{parms.pretty_inspect}",
+                                   "data=#{data.pretty_inspect}",
+                                   "" ] if msg_handler.debug_verbose
+      status, body = patch( connection: build_connection( uri: tdx_rest_url, headers: headers ),
+                            parms: parms,
+                            data: data )
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "status=#{status}",
+                                   "body=#{response_inspect_body body}",
+                                   # "body=#{body.pretty_inspect}",
+                                   "" ] if msg_handler.debug_verbose
+      return status, body
+    end
+
+    def patch( connection:, parms:, data: )
+      data = build_data( data: data )
+      responses << connection.patch( parms, data )
+      status, body = response_status_body
+      return status, body
+    end
+
+    def post( connection:, parms:, data: nil )
+      if data.present?
+        data = build_data( data: data )
         responses << connection.post( parms, data )
       else
         responses << connection.post( parms )
@@ -554,7 +729,8 @@ module Deepblue
       ticket_id = ticket_id_from_curation_notes_admin( curation_concern: curation_concern )
       return if ticket_id.blank?
       description = build_description_from( curation_concern: curation_concern )
-      update_ticket( ticket_id: ticket_id, description: description, description_replace: true )
+      fields = build_tdx_patch_ticket_fields_with( curation_concern: curation_concern )
+      patch_ticket( ticket_id: ticket_id, description: description, description_replace: true, fields: fields )
     end
 
     def response_is( index: nil, response: nil )
@@ -579,15 +755,27 @@ module Deepblue
       return rv
     end
 
+    def response_inspect_body( body, debug_verbose: response_debug_verbose )
+      debug_verbose ||= response_debug_verbose
+      debug_verbose = debug_verbose && msg_handler.debug_verbose
+      return body.pretty_inspect if debug_verbose
+      "body present? #{body.present?}"
+    end
+
     def response_parse_body( index: nil, response: nil )
+      debug_verbose = response_debug_verbose && msg_handler.debug_verbose
       response = response_is( index: index, response: response )
-      msg_handler.msg_debug_bold [ "response=#{response.pretty_inspect}",
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "response=#{response.pretty_inspect}",
                                    "response&.status=#{response&.status}",
                                    "response&.body=#{response&.body.pretty_inspect}",
-                                   "" ] if msg_handler.debug_verbose
+                                   "" ] if debug_verbose
       return '' unless response&.body.present?
       rv = JSON.parse( response.body )
-      msg_handler.msg_debug_bold [ "response_parse_body rv=#{rv.pretty_inspect}" ] if msg_handler.debug_verbose
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "response_parse_body rv=#{rv.pretty_inspect}" ] if debug_verbose
       return rv
     end
 
@@ -595,7 +783,7 @@ module Deepblue
       response = response_is( index: index, response: response )
       return nil if response.blank?
       rv = response&.status
-      msg_handler.msg_verbose "status=#{rv}"
+      # msg_handler.msg_verbose "status=#{rv}"
       return rv
     end
 
@@ -608,11 +796,14 @@ module Deepblue
     end
 
     def response_value( index: nil, key:, response: nil )
+      debug_verbose = response_debug_verbose && msg_handler.debug_verbose
       return nil if key.blank?
       body = response_body( index: index, response: response )
       return nil unless body.is_a? Hash
       rv = body[key]
-      msg_handler.msg_debug_bold [ "#{key}=#{rv.pretty_inspect}" ] if msg_handler.debug_verbose
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "#{key}=#{rv.pretty_inspect}" ] if debug_verbose
       return rv
     end
 
@@ -628,9 +819,9 @@ module Deepblue
 
     def ticket_body_for( curation_concern: )
       msg_handler.msg_debug_bold [ msg_handler.here,
-                                             msg_handler.called_from,
-                                             "curation_concern.id=#{curation_concern.id}",
-                                             "" ] if msg_handler.debug_verbose
+                                     msg_handler.called_from,
+                                     "curation_concern.id=#{curation_concern.id}",
+                                     "" ] if msg_handler.debug_verbose
       search_text = build_title_for( curation_concern: curation_concern )
       status, body = ticket_search( search_text: search_text )
       rv = {}
@@ -640,9 +831,9 @@ module Deepblue
 
     def ticket_body_from_ticket_id( ticket_id: )
       msg_handler.msg_debug_bold [ msg_handler.here,
-                                             msg_handler.called_from,
-                                             "ticket_id=#{ticket_id}",
-                                             "" ] if msg_handler.debug_verbose
+                                   msg_handler.called_from,
+                                   "ticket_id=#{ticket_id}",
+                                   "" ] if msg_handler.debug_verbose
       status, body = ticket_search( ticket_id: ticket_id, max_results: 1 )
       rv = {}
       rv = body[0] if 200 == status && body.is_a?( Array ) && body.size > 0
@@ -651,9 +842,9 @@ module Deepblue
 
     def ticket_id_from_curation_notes_admin( curation_concern: )
       msg_handler.msg_debug_bold [ msg_handler.here,
-                                             msg_handler.called_from,
-                                             "curation_concern.id=#{curation_concern.id}",
-                                             "" ] if msg_handler.debug_verbose
+                                     msg_handler.called_from,
+                                     "curation_concern.id=#{curation_concern.id}",
+                                     "" ] if msg_handler.debug_verbose
       return nil unless curation_concern.respond_to? :curation_notes_admin
       prefix = Regexp.escape admin_note_ticket_prefix
       url = Regexp.escape build_tdx_ticket_url( ticket_id: '' )
@@ -669,43 +860,43 @@ module Deepblue
 
     def ticket_search( ticket_id: nil, search_text: nil,  max_results: 10 )
       msg_handler.msg_debug_bold [ msg_handler.here,
-                                             msg_handler.called_from,
-                                             "ticket_id=#{ticket_id}",
-                                             "search_text=#{search_text}",
-                                             "max_results=#{max_results}",
-                                             "" ] if msg_handler.debug_verbose
+                                     msg_handler.called_from,
+                                     "ticket_id=#{ticket_id}",
+                                     "search_text=#{search_text}",
+                                     "max_results=#{max_results}",
+                                     "" ] if msg_handler.debug_verbose
       build_access_token
       build_bearer
       parms="/um/it/#{ulib_app_id}/ticketsearch"
       headers=build_headers( auth: bearer, content_type: APPLICATION_JSON )
-      data=build_tdx_data
+      data = build_tdx_data
       data['MaxResults'] = max_results
       data['TicketID'] = ticket_id if ticket_id.present?
       data['SearchText'] = search_text if search_text.present?
       msg_handler.msg_debug_bold [ msg_handler.here,
-                                             msg_handler.called_from,
-                                             "uri=#{tdx_rest_url}",
-                                             "headers=#{headers.pretty_inspect}",
-                                             "parms=#{parms.pretty_inspect}",
-                                             "data=#{data.pretty_inspect}",
-                                             "" ] if msg_handler.debug_verbose
+                                   msg_handler.called_from,
+                                   "uri=#{tdx_rest_url}",
+                                   "headers=#{headers.pretty_inspect}",
+                                   "parms=#{parms.pretty_inspect}",
+                                   "data=#{data.pretty_inspect}",
+                                   "" ] if msg_handler.debug_verbose
       status, body = post( connection: build_connection( uri: tdx_rest_url, headers: headers ),
                            parms: parms,
                            data: data )
       # body should be an array
       msg_handler.msg_debug_bold [ msg_handler.here,
-                                             msg_handler.called_from,
-                                             "status=#{status}",
-                                             "body=#{body.pretty_inspect}",
-                                             "" ] if msg_handler.debug_verbose
+                                   msg_handler.called_from,
+                                   "status=#{status}",
+                                   "body=#{response_inspect_body body}",
+                                   "" ] if msg_handler.debug_verbose
       return status, body
     end
 
     def ticket_search_by_cc_id( curation_concern: )
       msg_handler.msg_debug_bold [ msg_handler.here,
-                                             msg_handler.called_from,
-                                             "curation_concern.id=#{curation_concern.id}",
-                                             "" ] if msg_handler.debug_verbose
+                                   msg_handler.called_from,
+                                   "curation_concern.id=#{curation_concern.id}",
+                                   "" ] if msg_handler.debug_verbose
       search_text = curation_concern.id
       status, body = ticket_search( search_text: search_text )
       rv = {}
@@ -713,32 +904,7 @@ module Deepblue
       return rv
     end
 
-    def update_ticket_needed( ticket_id:, ticket_body: nil, description: nil, force_update: false )
-      msg_handler.msg_debug_bold [ msg_handler.here,
-                                             msg_handler.called_from,
-                                             "ticket_id=#{ticket_id}",
-                                             "ticket_body.present?=#{ticket_body.present?}",
-                                             "description=#{description}",
-                                             "force_update=#{force_update}",
-                                             "" ] if msg_handler.debug_verbose
-      return true if force_update || description.present?
-      ticket_body ||= ticket_body_from_ticket_id( ticket_id: ticket_id )
-      msg_handler.msg_debug_bold [ msg_handler.here,
-                           msg_handler.called_from,
-                           "account_id=#{account_id}",
-                           "ticket_body[KEY_ACCOUNT_ID] == account_id=#{ticket_body[KEY_ACCOUNT_ID] == account_id}",
-                           "" ] if msg_handler.debug_verbose
-      return true unless ticket_body[KEY_ACCOUNT_ID] == account_id
-      msg_handler.msg_debug_bold [ msg_handler.here,
-         msg_handler.called_from,
-         "responsible_group_id=#{responsible_group_id}",
-         "ticket_body[KEY_RESPONSIBLE_GROUP_ID] == responsible_group_id=#{ticket_body[KEY_RESPONSIBLE_GROUP_ID] == responsible_group_id}",
-         "" ] if msg_handler.debug_verbose
-      return true unless ticket_body[KEY_RESPONSIBLE_GROUP_ID] == responsible_group_id
-      return false
-    end
-
-    def update_ticket( ticket_id:, ticket_body: nil, description: '', description_replace: false )
+    def update_ticket( ticket_id:, ticket_body: nil, description: '', description_replace: false, fields: nil )
       description ||= ''
       msg_handler.msg_debug_bold [ msg_handler.here,
                                              msg_handler.called_from,
@@ -746,6 +912,7 @@ module Deepblue
                                              "ticket_body.present?=#{ticket_body.present?}",
                                              "description=#{description}",
                                              "description_replace=#{description_replace}",
+                                             "fields=#{fields.pretty_inspect}",
                                              "" ] if msg_handler.debug_verbose
       ticket_body ||= get_ticket_body( ticket_id: ticket_id )
       msg_handler.msg_error_if?( ticket_body.blank?, msg: "update_ticket_if_needed ticket_body is nil" )
@@ -761,7 +928,7 @@ module Deepblue
                                              msg_handler.called_from,
                                              "new_description=#{new_description}",
                                              "" ] if msg_handler.debug_verbose
-      fields = {}
+      fields ||= {}
       fields[KEY_DESCRIPTION] = new_description
       fields[KEY_IS_RICH_HTML] = true
       status, body = update_ticket_with( ticket_id: ticket_id,
@@ -775,13 +942,19 @@ module Deepblue
       return status, body
     end
 
-    def update_ticket_if_needed( ticket_id:, description: '', description_replace: false, force_update: false )
+    def update_ticket_if_needed( ticket_id:,
+                                 description: '',
+                                 description_replace: false,
+                                 fields: nil,
+                                 force_update: false )
+
       description ||= ''
       msg_handler.msg_debug_bold [ msg_handler.here,
                                    msg_handler.called_from,
                                    "ticket_id=#{ticket_id}",
                                    "description=#{description}",
                                    "description_replace=#{description_replace}",
+                                   "fields=#{fields.pretty_inspect}",
                                    "force_update=#{force_update}",
                                    "" ] if msg_handler.debug_verbose
       ticket_body = get_ticket_body( ticket_id: ticket_id )
@@ -793,7 +966,33 @@ module Deepblue
       return update_ticket( ticket_id: ticket_id,
                             ticket_body: ticket_body,
                             description: description,
-                            description_replace: description_replace )
+                            description_replace: description_replace,
+                            fields: fields )
+    end
+
+    def update_ticket_needed( ticket_id:, ticket_body: nil, description: nil, force_update: false )
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "ticket_id=#{ticket_id}",
+                                   "ticket_body.present?=#{ticket_body.present?}",
+                                   "description=#{description}",
+                                   "force_update=#{force_update}",
+                                   "" ] if msg_handler.debug_verbose
+      return true if force_update || description.present?
+      ticket_body ||= ticket_body_from_ticket_id( ticket_id: ticket_id )
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "account_id=#{account_id}",
+                                   "ticket_body[KEY_ACCOUNT_ID] == account_id=#{ticket_body[KEY_ACCOUNT_ID] == account_id}",
+                                   "" ] if msg_handler.debug_verbose
+      return true unless ticket_body[KEY_ACCOUNT_ID] == account_id
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "responsible_group_id=#{responsible_group_id}",
+                                   "ticket_body[KEY_RESPONSIBLE_GROUP_ID] == responsible_group_id=#{ticket_body[KEY_RESPONSIBLE_GROUP_ID] == responsible_group_id}",
+                                   "" ] if msg_handler.debug_verbose
+      return true unless ticket_body[KEY_RESPONSIBLE_GROUP_ID] == responsible_group_id
+      return false
     end
 
     def update_ticket_with( ticket_id:,
@@ -806,16 +1005,16 @@ module Deepblue
                             fields: {} )
 
       msg_handler.msg_debug_bold [ msg_handler.here,
-                                             msg_handler.called_from,
-                                             "ticket_id=#{ticket_id}",
-                                             "account_id=#{account_id}",
-                                             "priority_id=#{priority_id}",
-                                             "requestor_uid=#{requestor_uid}",
-                                             "responsible_group_id=#{responsible_group_id}",
-                                             "status_id=#{status_id}",
-                                             "title=#{title}",
-                                             "fields=#{fields.pretty_inspect}",
-                                             "" ] if msg_handler.debug_verbose
+                                     msg_handler.called_from,
+                                     "ticket_id=#{ticket_id}",
+                                     "account_id=#{account_id}",
+                                     "priority_id=#{priority_id}",
+                                     "requestor_uid=#{requestor_uid}",
+                                     "responsible_group_id=#{responsible_group_id}",
+                                     "status_id=#{status_id}",
+                                     "title=#{title}",
+                                     "fields=#{fields.pretty_inspect}",
+                                     "" ] if msg_handler.debug_verbose
       fields ||= {}
       build_access_token
       build_bearer
@@ -824,7 +1023,7 @@ module Deepblue
                              accept: APPLICATION_JSON,
                              content_type: APPLICATION_JSON,
                              charset: 'utf-8' )
-      data=build_tdx_data( account_id: account_id )
+      data = build_tdx_data( account_id: account_id )
       data[KEY_ACCOUNT_ID] = account_id
       data[KEY_PRIORITY_ID] = priority_id
       data[KEY_REQUESTOR_UID] = requestor_uid
@@ -833,20 +1032,20 @@ module Deepblue
       data[KEY_TITLE] = title
       data.merge! fields
       msg_handler.msg_debug_bold [ msg_handler.here,
-                                             msg_handler.called_from,
-                                             "uri=#{tdx_rest_url}",
-                                             "headers=#{headers.pretty_inspect}",
-                                             "parms=#{parms.pretty_inspect}",
-                                             "data=#{data.pretty_inspect}",
-                                             "" ] if msg_handler.debug_verbose
+                                     msg_handler.called_from,
+                                     "uri=#{tdx_rest_url}",
+                                     "headers=#{headers.pretty_inspect}",
+                                     "parms=#{parms.pretty_inspect}",
+                                     "data=#{data.pretty_inspect}",
+                                     "" ] if msg_handler.debug_verbose
       status, body = post( connection: build_connection( uri: tdx_rest_url, headers: headers ),
                            parms: parms,
                            data: data )
       msg_handler.msg_debug_bold [ msg_handler.here,
-                                             msg_handler.called_from,
-                                             "status=#{status}",
-                                             "body=#{body.pretty_inspect}",
-                                             "" ] if msg_handler.debug_verbose
+                                     msg_handler.called_from,
+                                     "status=#{status}",
+                                     "body=#{response_inspect_body body}",
+                                     "" ] if msg_handler.debug_verbose
       return status, body
     end
 
