@@ -55,7 +55,9 @@ class NewServiceRequestTicketJob < ::Deepblue::DeepblueJob
                                              "current_user=#{current_user}",
                                              "" ] if debug_verbose
       tdx = ::Deepblue::TeamdynamixService.new( msg_handler: msg_handler )
-      unless tdx.has_service_request_ticket_for( curation_concern: work )
+      if tdx.has_service_request_ticket_for( curation_concern: work )
+        msg_handler.msg "curation concern admin notes already contains teamdynamix ticket"
+      else
         tdx.create_ticket_for( curation_concern: work )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,

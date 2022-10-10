@@ -547,9 +547,7 @@ module Deepblue
 
     def group_search( name_like: DEFAULT_GROUP_SEARCH_NAME_LIKE )
       parms = '/um/it/groups/search'
-      headers = build_headers( auth: bearer,
-                               accept: APPLICATION_JSON,
-                               content_type: TEXT_PLAIN )
+      headers = build_headers( auth: bearer, accept: APPLICATION_JSON, content_type: TEXT_PLAIN )
       data = build_data( data: { "IsActive" => true, "NameLike" => name_like } )
       status, body = post( connection: build_connection( uri: tdx_rest_url, headers: headers ),
                            parms: parms,
@@ -557,18 +555,31 @@ module Deepblue
       return status, body
     end
 
-    def self.has_service_request_ticket_for( curation_concern:, msg_handler: nil )
-      return false unless check_admin_notes_for_existing_ticket
-      if curation_notes_admin_includes_for( curation_concern: curation_concern,
-                                            search_value: admin_note_ticket_prefix )
-        msg_handler.msg "curation concern admin notes already contains teamdynamix ticket" if msg_handler.present?
-        return true
-      end
-      return false
+    def self.has_service_request_ticket_prod_for( curation_concern:, msg_handler: nil )
+      search_re = regexp_service_request_link
+      has_service_request_ticket_for( curation_concern: curation_concern,
+                                      search_value: search_re,
+                                      msg_handler: msg_handler )
     end
 
-    def has_service_request_ticket_for( curation_concern: )
+    def self.has_service_request_ticket_test_for( curation_concern:, msg_handler: nil )
+      search_re = regexp_service_request_link( url: ::Deepblue::TeamdynamixIntegrationService::TDX_URL_TEST )
+      has_service_request_ticket_for( curation_concern: curation_concern,
+                                      search_value: search_re,
+                                      msg_handler: msg_handler )
+    end
+
+    def self.has_service_request_ticket_for( curation_concern:,
+                                             search_value: admin_note_ticket_prefix,
+                                             msg_handler: nil )
+      return false unless check_admin_notes_for_existing_ticket
+      rv = curation_notes_admin_includes_for( curation_concern: curation_concern, search_value: search_value )
+      return rv
+    end
+
+    def has_service_request_ticket_for( curation_concern:, search_value: admin_note_ticket_prefix )
       TeamdynamixService.has_service_request_ticket_for( curation_concern: curation_concern,
+                                                         search_value: search_value,
                                                          msg_handler: msg_handler )
     end
 
@@ -714,6 +725,13 @@ module Deepblue
       end
       status, body = response_status_body
       return status, body
+    end
+
+    def self.regexp_service_request_link( url: ::Deepblue::TeamdynamixIntegrationService::TDX_URL_PROD )
+      prefix = Regexp.escape admin_note_ticket_prefix
+      url = Regexp.escape url
+      rv = /^.*#{prefix}#{url}.*$/
+      return rv
     end
 
     def requestor_email_for( curation_concern: )
