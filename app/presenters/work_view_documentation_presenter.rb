@@ -33,6 +33,10 @@ class WorkViewDocumentationPresenter
     @current_work = work
   end
 
+  def draft_mode?
+    false
+  end
+
   def editor?
     current_ability.can?( :edit, solr_document )
   end
