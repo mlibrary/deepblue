@@ -230,7 +230,7 @@ gem 'new_google_recaptcha'
 
 group :development, :test do
   gem 'capybara'
-  gem 'chromedriver-helper'
+  # gem 'chromedriver-helper' # deprecated in favor of webdrivers
   gem 'coveralls', require: false
   gem 'factory_bot', require: false
   gem 'fcrepo_wrapper'
@@ -243,10 +243,12 @@ group :development, :test do
   gem 'rspec-its'
   gem 'rspec-rails'
   gem 'rspec-retry'
-  gem 'selenium-webdriver',        '< 4.0.0' # something broke in 4.0 release
+  # gem 'selenium-webdriver',        '< 4.0.0' # something broke in 4.0 release
+  gem 'selenium-webdriver'
   gem 'shoulda-callback-matchers', '~> 1.1.1'
   gem 'shoulda-matchers',          '~> 3.1'
   # gem 'solr_wrapper',              '~> 2.1.0'
   gem 'solr_wrapper',              '>= 4.0.0'
   gem 'webmock'
+  gem 'webdrivers',                '>= 5.2' # https://github.com/titusfortner/webdrivers
 end
