@@ -14,8 +14,10 @@ module Hyrax
     mattr_accessor :contact_form_log_spam, default: ContactFormIntegrationService.contact_form_log_spam
     mattr_accessor :antispam_timeout_in_seconds, default: ContactFormIntegrationService.antispam_timeout_in_seconds
 
-    mattr_accessor :contact_form_email_passthrough_re,     default: ContactFormIntegrationService.contact_form_email_passthrough_re
-    mattr_accessor :mattr_contact_form_email_passthrough_enabled, default: ContactFormIntegrationService.contact_form_email_passthrough_enabled
+    mattr_accessor :contact_form_email_passthrough_re,
+                   default: ContactFormIntegrationService.contact_form_email_passthrough_re
+    mattr_accessor :mattr_contact_form_email_passthrough_enabled,
+                   default: ContactFormIntegrationService.contact_form_email_passthrough_enabled
 
     mattr_accessor :mattr_akismet_enabled, default: ContactFormIntegrationService.akismet_enabled
     mattr_accessor :akismet_env_slice_keys, default: ContactFormIntegrationService.akismet_env_slice_keys
@@ -262,7 +264,7 @@ module Hyrax
                                                "contact_form_send_email=#{contact_form_send_email}",
                                                "@spam_status_unknown=#{@spam_status_unknown}",
                                                "" ] if contact_form_controller_debug_verbose
-        email_passthrough? if @spam_status_unknown && contact_form_email_passthrough_enabled
+        email_passthrough?
         akismet_is_spam? if @spam_status_unknown && akismet_enabled
         new_google_recaptcha if @spam_status_unknown && ngr_enabled
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -473,16 +475,24 @@ module Hyrax
     end
 
     def email_passthrough?
+      return false unless contact_form_email_passthrough_enabled
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "@spam_status_unknown=#{@spam_status_unknown}",
+                                             "@contact_form.email=#{@contact_form.email}",
+                                             "@email_passthrough=#{@email_passthrough}",
                                              "" ] if contact_form_controller_debug_verbose
-      return unless @spam_status_unknown
+      return false unless @spam_status_unknown
       begin
         email = @contact_form.email
-        if email =~ contact_form_email_passthrough_re
-          @spam_status_unknown = false
-          @email_passthrough = email
-        end
+        return false unless email =~ contact_form_email_passthrough_re
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "email #{email} matched #{contact_form_email_passthrough_re}",
+                                               "" ] if contact_form_controller_debug_verbose
+        @spam_status_unknown = false
+        @email_passthrough = email
+        return true
       end
     end
 
@@ -491,6 +501,7 @@ module Hyrax
     end
 
     def is_spam?
+      return false if @email_passthrough.present?
       if akismet_enabled
         unless @spam_status_unknown
           return @akismet_is_spam
