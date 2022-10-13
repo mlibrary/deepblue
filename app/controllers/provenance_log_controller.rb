@@ -41,6 +41,9 @@ class ProvenanceLogController < ApplicationController
   rescue Hyrax::ObjectNotFoundError => e2
     @id_msg = "invalid"
     @id_invalid = true
+  rescue ::ActiveFedora::ObjectNotFoundError => e3
+    @id_msg = "invalid"
+    @id_invalid = true
   end
 
   def id_valid?
