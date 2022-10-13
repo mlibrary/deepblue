@@ -20,6 +20,29 @@ module Hyrax
       include ::Hyrax::BrandingHelper
       include ::Deepblue::CollectionsControllerBehavior
 
+      rescue_from ::ActiveFedora::ObjectNotFoundError, with: :unknown_id_rescue
+      rescue_from ::Hyrax::ObjectNotFoundError, with: :unknown_id_rescue
+
+      def unknown_id_rescue(e)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               "current_ability.admin?=#{current_ability.admin?}",
+                                               "e=#{e.pretty_inspect}",
+                                               "" ] if dashboard_collections_controller_debug_verbose
+        url = if current_ability.admin?
+                # attempt to pull id out of e.message:
+                # ActiveFedora::ObjectNotFoundError: Couldn't find DataSet with 'id'=xyz
+                if e.message =~ /^.*\=(.+)$/
+                  id = Regexp.last_match(1)
+                  "/data/provenance_log/#{id}"
+                else
+                  "/data/provenance_log/"
+                end
+              else
+                main_app.root_path
+              end
+        redirect_to url, alert: "<br/>Unknown ID: #{e.message}<br/><br/>"
+      end
+
       # begin monkey
       mattr_accessor :dashboard_collections_controller_debug_verbose,
                      default: Rails.configuration.dashboard_collections_controller_debug_verbose
@@ -58,6 +81,11 @@ module Hyrax
       end
 
       def show
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                               "params[:id]=#{params[:id]}",
+                                               "params=#{params}" ] if dashboard_collections_controller_debug_verbose
         respond_to do |wants|
           wants.html do
             show_rest

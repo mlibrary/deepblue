@@ -49,6 +49,31 @@ module Deepblue
       end
     end
 
+    included do
+      rescue_from ::ActiveFedora::ObjectNotFoundError, with: :unknown_id_rescue
+      rescue_from ::Hyrax::ObjectNotFoundError, with: :unknown_id_rescue
+    end
+
+    def unknown_id_rescue(e)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             "current_ability.admin?=#{current_ability.admin?}",
+                                             "e=#{e.pretty_inspect}",
+                                             "" ] if deepblue_works_controller_behavior_debug_verbose
+      url = if current_ability.admin?
+              # attempt to pull id out of e.message:
+              # ActiveFedora::ObjectNotFoundError: Couldn't find DataSet with 'id'=xyz
+              if e.message =~ /^.*\=(.+)$/
+                id = Regexp.last_match(1)
+                "/data/provenance_log/#{id}"
+              else
+                "/data/provenance_log/"
+              end
+            else
+              main_app.root_path
+            end
+      redirect_to url, alert: "<br/>Unknown ID: #{e.message}<br/><br/>"
+    end
+
     # def track_action_update_parms!( properties: )
     #   super( properties: properties )
     #   properties.delete :link_id
@@ -56,7 +81,6 @@ module Deepblue
 
     attr_accessor :cc_anonymous_link
     attr_accessor :cc_single_use_link
-
 
     def controller_curation_concern
       @controller_curation_concern ||= find_curation_concern

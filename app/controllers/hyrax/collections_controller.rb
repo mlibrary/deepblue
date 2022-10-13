@@ -28,10 +28,33 @@ module Hyrax
     with_themed_layout :decide_layout
     load_and_authorize_resource except: %i[index show create], instance_name: :collection
 
+    rescue_from ::ActiveFedora::ObjectNotFoundError, with: :unknown_id_rescue
+    rescue_from ::Hyrax::ObjectNotFoundError, with: :unknown_id_rescue
+
     def deepblue_collections_controller_debug
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "params=#{params}" ] if hyrax_collection_controller_debug_verbose
+    end
+
+    def unknown_id_rescue(e)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             "current_ability.admin?=#{current_ability.admin?}",
+                                             "e=#{e.pretty_inspect}",
+                                             "" ] if hyrax_collections_controller_behavior_debug_verbose
+      url = if current_ability.admin?
+              # attempt to pull id out of e.message:
+              # ActiveFedora::ObjectNotFoundError: Couldn't find DataSet with 'id'=xyz
+              if e.message =~ /^.*\=(.+)$/
+                id = Regexp.last_match(1)
+                "/data/provenance_log/#{id}"
+              else
+                "/data/provenance_log/"
+              end
+            else
+              main_app.root_path
+            end
+      redirect_to url, alert: "<br/>Unknown ID: #{e.message}<br/><br/>"
     end
 
     # Renders a JSON response with a list of files in this collection

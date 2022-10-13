@@ -37,6 +37,9 @@ module Hyrax
     protect_from_forgery with: :null_session,    only: [:create_single_use_link]
     protect_from_forgery with: :null_session,    only: [:file_contents]
     protect_from_forgery with: :null_session,    only: [:display_provenance_log]
+
+    rescue_from ::ActiveFedora::ObjectNotFoundError, with: :unknown_id_rescue
+    rescue_from ::Hyrax::ObjectNotFoundError, with: :unknown_id_rescue
     # monkey end
 
     # provides the help_text view method
@@ -64,6 +67,26 @@ module Hyrax
 
     attr_accessor :cc_anonymous_link
     attr_accessor :cc_single_use_link
+
+    def unknown_id_rescue(e)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             "current_ability.admin?=#{current_ability.admin?}",
+                                             "e=#{e.pretty_inspect}",
+                                             "" ] if file_sets_controller_debug_verbose
+      url = if current_ability.admin?
+              # attempt to pull id out of e.message:
+              # ActiveFedora::ObjectNotFoundError: Couldn't find DataSet with 'id'=xyz
+              if e.message =~ /^.*\=(.+)$/
+                id = Regexp.last_match(1)
+                "/data/provenance_log/#{id}"
+              else
+                "/data/provenance_log/"
+              end
+            else
+              main_app.root_path
+            end
+      redirect_to url, alert: "<br/>Unknown ID: #{e.message}<br/><br/>"
+    end
 
     # GET file_sets/:id/anonymous_link/:anon_link_id
     def anonymous_link
