@@ -307,6 +307,8 @@ en:
           or formal languages, such as programming languages.
         methodology: >
           Explain the methods you used to collect and process <span class="text-bold">the data</span> included in this Work.
+        no_collection_mapping: >
+          This work is not a member of any user collections. 
         tombstone: >
           The reason the work was tombstoned.           
         on_behalf_of_html: >

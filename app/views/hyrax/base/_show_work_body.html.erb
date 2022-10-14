@@ -28,10 +28,8 @@
         <%= render 'citations', presenter: @presenter %>
       </div>
       <div class="col-sm-12">
-        <% if current_ability.admin? %>
-          <%= render 'relationships', presenter: @presenter %>
-          <%#= render '/shared/job_status_cc', locals: { presenter: @presenter } %>
-        <% end %>
+        <%= render 'relationships', presenter: @presenter %>
+        <%#= render '/shared/job_status_cc', locals: { presenter: @presenter } %>
         <% if @presenter.is_tabbed? %>
           <%= render 'show_work_body_tabbed', presenter: @presenter %>
         <% else %>
