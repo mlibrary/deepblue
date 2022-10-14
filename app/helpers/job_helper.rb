@@ -181,6 +181,10 @@ module JobHelper
                              "" ] if msg_handler.debug_verbose
   end
 
+  def event_name
+    self.class.name
+  end
+
   def find_all_email_targets( additional_email_targets: [] )
     # self.email_targets = self.email_targets | additional_email_targets # union of arrays and remove duplicates
     email_targets_add additional_email_targets
