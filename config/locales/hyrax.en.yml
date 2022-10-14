@@ -67,6 +67,7 @@ en:
         manage_contact_form: "Manage Contact Form"
         manage_email:       "Manage Email"
         manage_embargoes:   "Manage Embargoes"
+        manage_globus:      "Manage Globus"
         manage_ingest:      "Manage Ingest"
         manage_reports:     "Manage Reports"
         manage_roles:       "Manage Roles"

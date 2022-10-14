@@ -47,6 +47,11 @@
       <span class="sidebar-action-text"><%= t('hyrax.embargoes.index.manage_embargoes') %></span>
     <% end %>
 
+    <%= menu.nav_link(main_app.globus_dashboard_path) do %>
+      <span class="fa fa-flag" aria-hidden="true"></span>
+      <span class="sidebar-action-text"><%= t('hyrax.admin.sidebar.manage_globus') %></span>
+    <% end %>
+
     <%= menu.nav_link(main_app.ingest_dashboard_path) do %>
       <span class="fa fa-flag" aria-hidden="true"></span>
       <span class="sidebar-action-text"><%= t('hyrax.admin.sidebar.manage_ingest') %></span>
