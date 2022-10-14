@@ -1,5 +1,7 @@
 <%# Render presenters which aren't specified in the 'presenter_types' %>
+<% found = 0 %>
 <% presenter.grouped_presenters(except: presenter.presenter_types).each_pair do |model_name, items| %>
+  <% found = 1 %>
   <%= render 'relationships_parent_row', type: model_name, items: items, presenter: presenter %>
 <% end %>
 
@@ -7,7 +9,13 @@
 <% presenter.presenter_types.each do |type| %>
   <% presenter.grouped_presenters(filtered_by: type).each_pair do |_, items| %>
     <%= render 'relationships_parent_row', type: type, items: items, presenter: presenter %>
+    <% found = 1 %>
   <% end %>
+<% end %>
+
+<% unless found == 1 %>
+   <dt></dt>
+   <dt><%= t('simple_form.hints.data_set.no_collection_mapping') %></dt>
 <% end %>
 
 <% if current_ability.admin? %>

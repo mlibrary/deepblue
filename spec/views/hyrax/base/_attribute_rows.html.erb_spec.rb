@@ -132,6 +132,51 @@ RSpec.describe 'hyrax/base/_attribute_rows.html.erb', type: :view do
 
     end
 
+    context "when work is a member of a collection" do
+      let(:collection_title) { 'A good title' }
+      let(:collection) { build(:collection_lw, user: user, title: [collection_title], with_permission_template: true) }
+      let(:work) do
+        DataSet.new( title:            [title],
+                     authoremail:      authoremail,
+                     creator:          [creator],
+                     curation_notes_admin: [curation_notes_admin],
+                     curation_notes_user: [curation_notes_user],
+                     date_created:     date_created,
+                     depositor:        depositor,
+                     description:      [description],
+                     fundedby:         [fundedby],
+                     methodology:      [methodology],
+                     prior_identifier: [prior_identifier],
+                     rights_license:   rights_license,
+                     subject_discipline: [subject_discipline],
+                     visibility:       visibility_public )
+      end
+
+      let(:solr_document) { SolrDocument.new(work.to_solr) }
+      let(:data_set_controller) { Hyrax::DataSetsController.new }
+      let(:presenter) do
+        Hyrax::DataSetPresenter.new(solr_document, ability).tap do |p|
+          p.controller = data_set_controller
+        end
+      end
+      let(:rendered)      { render 'hyrax/base/relationships', presenter: presenter }
+      let(:page)          { Capybara::Node::Simple.new(rendered) }
+
+      before do
+        allow(data_set_controller).to receive(:curation_concern).and_return work
+        allow(view).to receive(:current_ability).and_return(ability)
+        allow(ability).to receive(:admin?).and_return false
+        allow(ability).to receive(:user_groups).and_return []
+        allow(ability).to receive(:current_user).and_return nil
+        work.member_of_collections = [collection]
+        work.save!
+        assign( :presenter, presenter )
+      end
+
+      it { expect(page).to have_content 'In Collection:' }
+      it { expect(page).to have_content collection_title }
+    end
+
     context 'display various fields multiple', skip: false do
       let(:work) do
         DataSet.new( title:          [title],
