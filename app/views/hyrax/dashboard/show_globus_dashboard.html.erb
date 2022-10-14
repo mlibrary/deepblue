@@ -1,0 +1,12 @@
+<% provide :page_header do %>
+  <h1><%= t("hyrax.dashboard.globus.title") %></h1>
+<% end %>
+
+<h2 class="title-header"><%= t('hyrax.globus.list_works') %></h2>
+<%= form_tag(main_app.globus_dashboard_run_action_path, method: 'post') do %>
+  <div class="documentation-div">
+    <% @view_presenter.globus_status.out.each do |line| %>
+      <%= raw line %>
+    <% end %>
+  </div>
+<% end %>
