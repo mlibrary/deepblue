@@ -296,9 +296,9 @@ module Deepblue
     end
 
     def original_size( fs )
-      fs.original_file.size
+      fs.original_file_size
     rescue Exception => e # rubocop:disable Lint/RescueException
-      report_error( "fs.original_file.size", e )
+      report_error( "fs.original_file_size", e )
     end
 
     def pacify( x )

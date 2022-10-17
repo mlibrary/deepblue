@@ -320,6 +320,10 @@ class FileSet < ActiveFedora::Base
     end
   end
 
+  def original_file_size
+    original_file.nil? ? 0 : original_file.size
+  end
+
   def original_name_value
     return '' if original_file.nil?
     return original_file.original_name if original_file.respond_to?( :original_name )

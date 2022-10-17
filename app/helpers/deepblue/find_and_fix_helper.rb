@@ -22,8 +22,8 @@ module Deepblue
       msg_handler.msg_verbose "w.present? #{w.present?}"
       selected = w.file_sets.select { |f| f.file_size.blank? }
       msg_handler.msg_verbose "selected.size = #{selected.size}"
-      selected.each { |f| msg_handler.msg_verbose f.original_file.size } if msg_handler.to_console
-      selected.each { |f| f.file_size = Array(f.original_file.size); f.save(validate: false) }
+      selected.each { |f| msg_handler.msg_verbose f.original_file_size } if msg_handler.to_console
+      selected.each { |f| f.file_size = Array(f.original_file_size); f.save(validate: false) }
       selected.each { |f| f.reload }
       selected.each { |f| msg_handler.msg_verbose Array(f.file_size) }
       w.reload
@@ -70,7 +70,7 @@ WHERE { }
       uri = found.uri.value
       uri_metadata = "#{uri}/fcr:metadata"
       msg_handler.msg_verbose "#{uri_metadata}"
-      sparql_update = sparql_update_template.sub( 'NEW_METADATA', file_set.original_file.size.to_s )
+      sparql_update = sparql_update_template.sub( 'NEW_METADATA', file_set.original_file_size.to_s )
       rv = ActiveFedora.fedora.connection.patch( uri_metadata,
                                                  sparql_update,
                                                  "Content-Type" => "application/sparql-update" )

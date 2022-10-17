@@ -83,11 +83,11 @@ module Deepblue
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
         #                                        ::Deepblue::LoggingHelper.called_from,
         #                                        "fs.mime_type=#{File.basename( fs.mime_type )}",
-        #                                        "fs.original_file.size=#{fs.original_file.size}",
+        #                                        "fs.original_file_size=#{fs.original_file_size}",
         #                                        "File.basename( fs.label )=#{File.basename( fs.label )}",
         #                                        "" ] if file_content_helper_debug_verbose
         if read_me_file_set_view_mime_types.include? fs.mime_type
-          if fs.original_file.size <= read_me_file_set_view_max_size
+          if fs.original_file_size <= read_me_file_set_view_max_size
             rv = File.basename( fs.label ) =~ regexp
             ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                    ::Deepblue::LoggingHelper.called_from,

@@ -409,14 +409,14 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "file_set.id=#{file_set.id}",
                                              "file_set.mime_type=#{file_set.mime_type}",
-                                             "file_set.original_file.size=#{file_set.original_file.size}",
+                                             "file_set.original_file_size=#{file_set.original_file_size}",
                                              "" ] if file_sets_controller_debug_verbose
       allowed = can_display_file_contents?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "file_set.id=#{file_set.id}",
                                            "file_set.mime_type=#{file_set.mime_type}",
-                                           "file_set.original_file.size=#{file_set.original_file.size}",
+                                           "file_set.original_file_size=#{file_set.original_file_size}",
                                            "allowed=#{allowed}",
                                            "" ] if file_sets_controller_debug_verbose
       return redirect_to [main_app, curation_concern] unless allowed
@@ -506,13 +506,13 @@ module Hyrax
                                            Deepblue::LoggingHelper.called_from,
                                            "file_set.id=#{file_set.id}",
                                            "file_set.mime_type=#{file_set.mime_type}",
-                                           "file_set.original_file.size=#{file_set.original_file.size}",
+                                           "file_set.original_file_size=#{file_set.original_file_size}",
                                            "" ] if file_sets_controller_debug_verbose
       return false unless Rails.configuration.file_sets_contents_view_allow
       return false unless ( current_ability.admin? ) # || current_ability.can?(:read, id) )
       return false unless Rails.configuration.file_sets_contents_view_mime_types.include?( file_set.mime_type )
-      return false if file_set.original_file.size.blank?
-      return false if file_set.original_file.size > Rails.configuration.file_sets_contents_view_max_size
+      return false if file_set.original_file_size.blank?
+      return false if file_set.original_file_size > Rails.configuration.file_sets_contents_view_max_size
       return true
     end
 
