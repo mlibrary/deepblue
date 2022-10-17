@@ -17,8 +17,8 @@ module Deepblue
     # * Names of depositors
     #
 
-    def initialize( options: {} )
-      super( options: options )
+    def initialize( msg_handler: nil, options: {} )
+      super( msg_handler: msg_handler, options: options )
     end
 
     def run

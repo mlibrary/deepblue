@@ -33,8 +33,8 @@ module Deepblue
     # * Discipline of dataset
     # * Names of depositors
 
-    def initialize( options: {} )
-      super( options: options )
+    def initialize( msg_handler: nil, options: {} )
+      super( msg_handler: msg_handler, options: options )
       @ids_string = TaskHelper.task_options_value( @options, key: 'ids', default_value: DEFAULT_IDS )
       @ids = if @ids_string.blank?
                []

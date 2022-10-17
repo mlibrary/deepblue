@@ -9,8 +9,8 @@ module Deepblue
 
     include ::Deepblue::CurationConcernReportBehavior
 
-    def initialize( options: {} )
-      super( options: options )
+    def initialize( msg_handler: nil, options: {} )
+      super( msg_handler: msg_handler, options: options )
       # TODO: @file_ext_re = TaskHelper.task_options_value( @options, key: 'file_ext_re', default_value: DEFAULT_FILE_EXT_RE )
       @prefix = task_options_value( key: 'report_file_prefix', default_value: DEFAULT_REPORT_FILE_PREFIX )
       @report_dir = task_options_value( key: 'report_dir', default_value: DEFAULT_REPORT_DIR )
