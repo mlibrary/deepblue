@@ -80,11 +80,16 @@ module Deepblue
           'pending_review'
         end
       else
-        e = PowerConverter.convert( curation_concern, to: :sipity_entity )
-        if e.present? && 'deposited' == e.workflow_state_name
-          'published'
-        else
-          'pending_review'
+        begin
+          e = PowerConverter.convert( curation_concern, to: :sipity_entity )
+          if e.present? && 'deposited' == e.workflow_state_name
+            'published'
+          else
+            'pending_review'
+          end
+        rescue Sipity::ConversionError => e
+          @msg_handler.msg_error "Conversion to sippity entity failed for curation concern #{curation_concern.id}" if @msg_handler.present?
+          'unknown'
         end
       end
     end
@@ -616,7 +621,11 @@ module Deepblue
       file = nil
       begin
         file = file_set.original_file
+        if file.nil?
+          @msg_handler.msg_error "Original file nil for file set #{file_set.id}" if @msg_handler.present?
+        end
       rescue Exception => e # rubocop:disable Lint/RescueException, Lint/UselessAssignment
+        @msg_handler.msg_error "Accessing original file exception for file set #{file_set.id}" if @msg_handler.present?
         return 0
       end
       return 0 if file.nil?
