@@ -9,6 +9,7 @@ Deepblue::TeamdynamixIntegrationService.setup do |config|
     config.teamdynamix_integration_service_debug_verbose = false
     config.teamdynamix_service_debug_verbose = false
     # config.teamdynamix_service_active = true # override value in local settings
+    config.enforce_dbd_account_id = false
 
     puts "config.tdx_rest_url=#{config.tdx_rest_url}" if verbose_init
     if config.tdx_rest_url == ::Deepblue::TeamdynamixIntegrationService::TDX_REST_URL_TEST

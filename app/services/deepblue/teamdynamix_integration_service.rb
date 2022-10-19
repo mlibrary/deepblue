@@ -30,13 +30,14 @@ module Deepblue
     end
 
     mattr_accessor :teamdynamix_integration_service_debug_verbose, default: false
-
     mattr_accessor :teamdynamix_service_debug_verbose, default: false
 
     mattr_accessor :teamdynamix_service_active, default: Settings.teamdynamix.active
 
-    mattr_accessor :admin_note_ticket_prefix, default: 'TeamDynamix ticket: '
     mattr_accessor :check_admin_notes_for_existing_ticket, default: true
+    mattr_accessor :enforce_dbd_account_id,     default: false
+
+    mattr_accessor :admin_note_ticket_prefix, default: 'TeamDynamix ticket: '
     mattr_accessor :client_id,      default: Settings.teamdynamix.client_id
     mattr_accessor :client_secret,  default: Settings.teamdynamix.client_secret
     mattr_accessor :tdx_rest_url,   default: Settings.teamdynamix.tdx_rest_url
