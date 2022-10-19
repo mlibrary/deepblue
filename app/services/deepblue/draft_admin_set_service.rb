@@ -146,7 +146,15 @@ module Deepblue
                                              "curation_concern.to_sipity_entity&.workflow_state_name=#{curation_concern.to_sipity_entity&.workflow_state_name}",
                                              "draft_workflow_state_name=#{draft_workflow_state_name}",
                                              "" ] if debug_verbose || draft_admin_set_service_debug_verbose
-      return true if curation_concern.to_sipity_entity&.workflow_state_name&.eql? draft_workflow_state_name
+      # return true if curation_concern.to_sipity_entity&.workflow_state_name&.eql? draft_workflow_state_name
+      if curation_concern.respond_to? :workflow_state
+        workflow_state = curation_concern.workflow_state
+        return true if workflow_state == draft_workflow_state_name
+      else
+        wgid = to_global_id.to_s
+        entity = Sipity::Entity.where( proxy_for_global_id: wgid )&.first
+        return true if entity&.workflow_state_name&.eql? draft_workflow_state_name
+      end
       rv = has_draft_admin_set?( curation_concern, debug_verbose: debug_verbose )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

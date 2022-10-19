@@ -22,6 +22,7 @@ module Deepblue
 
     mattr_accessor :find_and_fix_service_debug_verbose,             default: false
     mattr_accessor :abstract_fixer_debug_verbose,                   default: false
+    mattr_accessor :file_sets_embargo_fixer_debug_verbose,          default: false
     mattr_accessor :file_sets_lost_and_found_fixer_debug_verbose,   default: false
     mattr_accessor :file_sets_visibility_fixer_debug_verbose,       default: false
     mattr_accessor :find_and_fix_job_debug_verbose,                     default: false
@@ -34,7 +35,8 @@ module Deepblue
     mattr_accessor :find_and_fix_default_filter,   default: nil
     mattr_accessor :find_and_fix_default_verbose,  default: true
     mattr_accessor :find_and_fix_over_collections, default: []
-    mattr_accessor :find_and_fix_over_file_sets,   default: [ 'Deepblue::FileSetsLostAndFoundFixer',
+    mattr_accessor :find_and_fix_over_file_sets,   default: [ 'Deepblue::FileSetsEmbargoFixer',
+                                                              'Deepblue::FileSetsLostAndFoundFixer',
                                                               'Deepblue::FileSetsVisibilityFixer' ]
     mattr_accessor :find_and_fix_over_works,       default: [ 'Deepblue::WorksOrderedMembersNilsFixer',
                                                               'Deepblue::WorksOrderedMembersFileSetsSizeFixer',
@@ -44,54 +46,32 @@ module Deepblue
 
     mattr_accessor :find_and_fix_subscription_id, default: 'find_and_fix_subscription'
 
-    def self.find_and_fix( filter_date_begin: nil,
-                           filter_date_end: nil,
-                           msg_handler:,
-                           verbose: find_and_fix_default_verbose,
-                           debug_verbose: find_and_fix_service_debug_verbose )
-
-      debug_verbose = debug_verbose && find_and_fix_service_debug_verbose
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "filter_date_begin=#{filter_date_begin}",
-                                             "filter_date_end=#{filter_date_end}",
-                                             "msg_handler=#{msg_handler}",
-                                             "verbose=#{verbose}",
-                                             "" ] if debug_verbose
+    def self.find_and_fix( filter_date_begin: nil, filter_date_end: nil, msg_handler: )
+      debug_verbose = msg_handler.debug_verbose && find_and_fix_service_debug_verbose
+      msg_handler.bold_debug [ msg_handler.here,
+                               msg_handler.called_from,
+                               "filter_date_begin=#{filter_date_begin}",
+                               "filter_date_end=#{filter_date_end}",
+                               "msg_handler=#{msg_handler}",
+                               "" ] if debug_verbose
       filter_date = nil
-      # messages = [] if messages.nil?
-      # msg_handler = MessageHandler.new( msg_queue: messages, to_console: task, verbose: verbose )
       if filter_date_begin.present? || filter_date_end.present?
         filter_date = FindAndFixCurationConcernFilterDate.new( begin_date: filter_date_begin,
-                                                               end_date: filter_date_end,
-                                                               debug_verbose: debug_verbose )
+                                                               end_date: filter_date_end )
         msg_handler.msg "Filter dates between #{filter_date.begin_date} and #{filter_date.end_date}."
       end
-      fixer = FindAndFix.new( filter: filter_date,
-                              msg_handler: msg_handler,
-                              verbose: verbose,
-                              debug_verbose: debug_verbose )
+      fixer = FindAndFix.new( filter: filter_date, msg_handler: msg_handler )
       fixer.run
     end
 
-    def self.work_find_and_fix( id:,
-                                msg_handler:,
-                                verbose: find_and_fix_default_verbose,
-                                debug_verbose: find_and_fix_service_debug_verbose )
-
-      debug_verbose = debug_verbose && find_and_fix_service_debug_verbose
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "id=#{id}",
-                                             "msg_handler=#{msg_handler}",
-                                             "verbose=#{verbose}",
-                                             "" ] if debug_verbose
-
-      # msg_handler ||= MessageHandler.new( to_console: task, verbose: verbose )
-      fixer = FindAndFix.new( id: id,
-                              msg_handler: msg_handler,
-                              verbose: verbose,
-                              debug_verbose: debug_verbose )
+    def self.work_find_and_fix( id:, msg_handler: )
+      debug_verbose = msg_handler.debug_verbose && find_and_fix_service_debug_verbose
+      msg_handler.bold_debug [ msg_handler.here,
+                               msg_handler.called_from,
+                               "id=#{id}",
+                               "msg_handler=#{msg_handler}",
+                               "" ] if debug_verbose
+      fixer = FindAndFix.new( id: id, msg_handler: msg_handler )
       fixer.run
     end
 

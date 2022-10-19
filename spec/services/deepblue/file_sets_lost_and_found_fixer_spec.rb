@@ -16,7 +16,6 @@ RSpec.describe ::Deepblue::FileSetsLostAndFoundFixer do
 
   let(:default_debug_verbose) { false }
   let(:default_filter)        { Deepblue::FindAndFixService.find_and_fix_default_filter }
-  let(:default_verbose)       { Deepblue::FindAndFixService.find_and_fix_default_verbose }
   let(:lost_and_found_title)  { Deepblue::FindAndFixService.find_and_fix_file_sets_lost_and_found_work_title }
   let(:msg_handler)           { ::Deepblue::MessageHandler.new }
 
@@ -30,7 +29,6 @@ RSpec.describe ::Deepblue::FileSetsLostAndFoundFixer do
         expect(fixer.filter).to         eq default_filter
         expect(fixer.prefix).to         eq described_class::PREFIX
         expect(fixer.msg_handler).to    eq msg_handler
-        expect(fixer.verbose).to        eq default_verbose
 
         expect(fixer.ids_fixed).to      eq []
       end
@@ -40,20 +38,16 @@ RSpec.describe ::Deepblue::FileSetsLostAndFoundFixer do
       let(:fixer) { described_class.allocate }
       let(:debug_verbose) { false }
       let(:filter)        { "filter" }
-      let(:verbose)       { !default_verbose }
 
       it 'has initialize values' do
         fixer.send(:initialize,
-                   debug_verbose: debug_verbose,
                    filter: filter,
-                   msg_handler: msg_handler,
-                   verbose: verbose )
+                   msg_handler: msg_handler )
 
         expect(fixer.debug_verbose).to  eq debug_verbose
         expect(fixer.filter).to         eq filter
         expect(fixer.prefix).to         eq described_class::PREFIX
         expect(fixer.msg_handler).to    eq msg_handler
-        expect(fixer.verbose).to        eq verbose
 
         expect(fixer.ids_fixed).to      eq []
       end
@@ -86,7 +80,7 @@ RSpec.describe ::Deepblue::FileSetsLostAndFoundFixer do
     # end
     let(:fix_included) { create(:file_set) }
     let(:fix_excluded) { create(:file_set) }
-    let(:fixer) { described_class.new( msg_handler: msg_handler, verbose: true )}
+    let(:fixer) { described_class.new( msg_handler: msg_handler )}
 
     before do # another file_set is added
       parent_work.ordered_members << fix_excluded
@@ -111,6 +105,10 @@ RSpec.describe ::Deepblue::FileSetsLostAndFoundFixer do
 
     context '.fix' do
       let(:prefix) { described_class::PREFIX }
+
+      before do
+        msg_handler.verbose = true
+      end
 
       context 'no lost and found work' do
 
