@@ -9,16 +9,12 @@ module Deepblue
 
     PREFIX = 'WorksOrderedMembers vs FileSets: '
 
-    def initialize( debug_verbose: works_ordered_members_file_sets_size_fixer_debug_verbose,
-                    filter: FindAndFixService.find_and_fix_default_filter,
-                    msg_handler:,
-                    verbose: FindAndFixService.find_and_fix_default_verbose )
+    def initialize( filter: FindAndFixService.find_and_fix_default_filter, msg_handler: )
+      super( filter: filter, prefix: PREFIX, msg_handler: msg_handler )
+    end
 
-      super( debug_verbose: debug_verbose || works_ordered_members_file_sets_size_fixer_debug_verbose,
-             filter: filter,
-             prefix: PREFIX,
-             msg_handler: msg_handler,
-             verbose: verbose )
+    def debug_verbose
+      works_ordered_members_file_sets_size_fixer_debug_verbose && msg_handler.debug_verbose
     end
 
     def fix_include?( curation_concern: )

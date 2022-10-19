@@ -30,7 +30,6 @@ RSpec.describe ::Deepblue::WorksOrderedMembersNilsFixer do
         expect(fixer.filter).to         eq default_filter
         expect(fixer.prefix).to         eq described_class::PREFIX
         expect(fixer.msg_handler).to    eq msg_handler
-        expect(fixer.verbose).to        eq default_verbose
 
         expect(fixer.ids_fixed).to      eq []
       end
@@ -44,16 +43,13 @@ RSpec.describe ::Deepblue::WorksOrderedMembersNilsFixer do
 
       it 'has initialize values' do
         fixer.send(:initialize,
-                   debug_verbose: debug_verbose,
                    filter: filter,
-                   msg_handler: msg_handler,
-                   verbose: verbose )
+                   msg_handler: msg_handler )
 
         expect(fixer.debug_verbose).to  eq debug_verbose
         expect(fixer.filter).to         eq filter
         expect(fixer.prefix).to         eq described_class::PREFIX
         expect(fixer.msg_handler).to    eq msg_handler
-        expect(fixer.verbose).to        eq verbose
 
         expect(fixer.ids_fixed).to      eq []
       end
@@ -64,7 +60,7 @@ RSpec.describe ::Deepblue::WorksOrderedMembersNilsFixer do
   describe 'methods are correct' do
     let(:fixed) { create(:data_set) }
     let(:not_fixed) { create(:data_set) }
-    let(:fixer) { described_class.new( msg_handler: msg_handler, verbose: true )}
+    let(:fixer) { described_class.new( msg_handler: msg_handler )}
     let(:one_nil_array) { [ nil ] }
     let(:file_set1) { create(:file_set) }
 
@@ -94,6 +90,7 @@ RSpec.describe ::Deepblue::WorksOrderedMembersNilsFixer do
       context 'fix nils in ordered members' do
 
         before do # another file_set is added
+          msg_handler.verbose = true
           allow(fixed).to receive(:ordered_members).and_return(one_nil_array)
           allow(fixed).to receive(:ordered_members=)
           not_fixed.ordered_members << file_set1

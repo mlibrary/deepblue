@@ -6,17 +6,13 @@ module Deepblue
 
     mattr_accessor :find_and_fix_helper_debug_verbose, default: false
 
-    def self.fix_file_sizes( id: nil,
-                             curation_concern: nil,
-                             msg_handler:,
-                             debug_verbose: find_and_fix_helper_debug_verbose )
-
-      debug_verbose = debug_verbose || find_and_fix_helper_debug_verbose
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "id=#{id}",
-                                             "curation_concern.present?=#{curation_concern.present?}",
-                                             "" ], bold_puts: msg_handler.to_console if debug_verbose
+    def self.fix_file_sizes( id: nil, curation_concern: nil, msg_handler: )
+      debug_verbose = msg_handler.debug_verbose || find_and_fix_helper_debug_verbose
+      msg_handler.bold_debug [ msg_handler.here,
+                               msg_handler.called_from,
+                               "id=#{id}",
+                               "curation_concern.present?=#{curation_concern.present?}",
+                               "" ] if debug_verbose
       w = resolve_curation_concern( id: id, curation_concern: curation_concern )
       msg_handler.msg_verbose "fix file sizes for work #{curation_concern&.id}"
       msg_handler.msg_verbose "w.present? #{w.present?}"
@@ -30,9 +26,7 @@ module Deepblue
       sizes = w.file_sets.map { |f| f.file_size }
       if sizes.include? []
         selected.each do |f|
-          force_update_to_file_size( file_set: f,
-                                     msg_handler: msg_handler,
-                                     debug_verbose: debug_verbose ) if f.file_size.blank?
+          force_update_to_file_size( file_set: f, msg_handler: msg_handler ) if f.file_size.blank?
         end
       end
       w.reload
@@ -40,16 +34,13 @@ module Deepblue
       solr_reindex_work_with_total_size_update( id: w.id, msg_handler: msg_handler )
     end
 
-    def self.force_update_to_file_size( file_set:,
-                                        msg_handler:,
-                                        debug_verbose: find_and_fix_helper_debug_verbose )
-
-      debug_verbose = debug_verbose || find_and_fix_helper_debug_verbose
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "id=#{id}",
-                                             "curation_concern.present?=#{curation_concern.present?}",
-                                             "" ], bold_puts: msg_handler.to_console if debug_verbose
+    def self.force_update_to_file_size( file_set:, msg_handler: )
+      debug_verbose = msg_handler.debug_verbose || find_and_fix_helper_debug_verbose
+      msg_handler.bold_debug [ msg_handler.here,
+                               msg_handler.called_from,
+                               "id=#{id}",
+                               "curation_concern.present?=#{curation_concern.present?}",
+                               "" ] if debug_verbose
       msg_handler.msg_verbose "forcing file size update to file set: #{file_set.id}"
       sparql_update_template=<<-END_OF_BODY
 PREFIX ebucore: <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#>
@@ -81,17 +72,13 @@ WHERE { }
       true
     end
 
-    def self.solr_reindex_work_with_total_size_update( id: nil,
-                                                       curation_concern: nil,
-                                                       msg_handler:,
-                                                       debug_verbose: find_and_fix_helper_debug_verbose )
-
-      debug_verbose = debug_verbose || find_and_fix_helper_debug_verbose
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "id=#{id}",
-                                             "curation_concern.present?=#{curation_concern.present?}",
-                                             "" ], bold_puts: msg_handler.to_console if debug_verbose
+    def self.solr_reindex_work_with_total_size_update( id: nil, curation_concern: nil, msg_handler: )
+      debug_verbose = msg_handler.debug_verbose || find_and_fix_helper_debug_verbose
+      msg_handler.bold_debug [ msg_handler.here,
+                               msg_handler.called_from,
+                               "id=#{id}",
+                               "curation_concern.present?=#{curation_concern.present?}",
+                               "" ] if debug_verbose
       w = resolve_curation_concern( id: id, curation_concern: curation_concern )
       msg_handler.msg_verbose "w.present? #{w.present?}"
       file_sets = w.file_sets
@@ -117,18 +104,13 @@ WHERE { }
     end
 
     # add solr check
-    def self.valid_file_sizes?( id: nil,
-                                curation_concern: nil,
-                                check_solr: true,
-                                msg_handler:,
-                                debug_verbose: find_and_fix_helper_debug_verbose )
-
-      debug_verbose = debug_verbose || find_and_fix_helper_debug_verbose
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "id=#{id}",
-                                             "curation_concern.present?=#{curation_concern.present?}",
-                                             "" ], bold_puts: msg_handler.to_console if debug_verbose
+    def self.valid_file_sizes?( id: nil, curation_concern: nil, check_solr: true, msg_handler: )
+      debug_verbose = msg_handler.debug_verbose || find_and_fix_helper_debug_verbose
+      msg_handler.bold_debug [ msg_handler.here,
+                               msg_handler.called_from,
+                               "id=#{id}",
+                               "curation_concern.present?=#{curation_concern.present?}",
+                               "" ] if debug_verbose
       w = resolve_curation_concern( id: id, curation_concern: curation_concern )
       msg_handler.msg_verbose "w.present? #{w.present?}"
       sizes = w.file_sets.map { |f| f.file_size }
@@ -140,17 +122,13 @@ WHERE { }
       return true
     end
 
-    def self.valid_ordered_members?( id: nil,
-                                     curation_concern: nil,
-                                     msg_handler:,
-                                     debug_verbose: find_and_fix_helper_debug_verbose )
-
-      debug_verbose = debug_verbose || find_and_fix_helper_debug_verbose
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "id=#{id}",
-                                             "curation_concern.present?=#{curation_concern.present?}",
-                                             "" ], bold_puts: msg_handler.to_console if debug_verbose
+    def self.valid_ordered_members?( id: nil, curation_concern: nil, msg_handler: )
+      debug_verbose = msg_handler.debug_verbose || find_and_fix_helper_debug_verbose
+      msg_handler.bold_debug [ msg_handler.here,
+                               msg_handler.called_from,
+                               "id=#{id}",
+                               "curation_concern.present?=#{curation_concern.present?}",
+                               "" ] if debug_verbose
       w = resolve_curation_concern( id: id, curation_concern: curation_concern )
       msg_handler.msg_verbose "w.present? #{w.present?}"
       return false unless w.present?

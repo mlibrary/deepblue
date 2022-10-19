@@ -20,6 +20,7 @@ RSpec.describe ::Deepblue::FindAndFix do
   describe 'module related variables have the expected values' do
     it { expect( ::Deepblue::FindAndFixService.find_and_fix_over_collections ).to eq [] }
     it { expect( ::Deepblue::FindAndFixService.find_and_fix_over_file_sets ).to eq [
+                                             'Deepblue::FileSetsEmbargoFixer',
                                              'Deepblue::FileSetsLostAndFoundFixer',
                                              'Deepblue::FileSetsVisibilityFixer' ] }
     it { expect( ::Deepblue::FindAndFixService.find_and_fix_over_works ).to eq [
@@ -30,7 +31,7 @@ RSpec.describe ::Deepblue::FindAndFix do
 
   def expected_fixers_after_initialization(find_and_fix)
     expect(find_and_fix.find_and_fix_collections_fixers).to eq []
-    expect(find_and_fix.find_and_fix_file_sets_fixers.size).to eq 2
+    expect(find_and_fix.find_and_fix_file_sets_fixers.size).to eq 3
     expect(find_and_fix.find_and_fix_file_sets_fixers.select { |f| f.is_a? ::Deepblue::FileSetsLostAndFoundFixer }.size ).to eq 1
     expect(find_and_fix.find_and_fix_file_sets_fixers.select { |f| f.is_a? ::Deepblue::FileSetsVisibilityFixer }.size ).to eq 1
     expect(find_and_fix.find_and_fix_works_fixers.size).to eq 3
@@ -56,7 +57,6 @@ RSpec.describe ::Deepblue::FindAndFix do
         expect(find_and_fix.filter).to         eq default_filter
         expect(find_and_fix.msg_handler).to    eq msg_handler
         expect(find_and_fix.msg_handler.msg_queue).to eq default_messages
-        expect(find_and_fix.verbose).to        eq default_verbose
 
         expect(find_and_fix.ids_fixed).to      eq( {} )
         expected_fixers_after_initialization(find_and_fix)
@@ -71,14 +71,11 @@ RSpec.describe ::Deepblue::FindAndFix do
 
       it 'has initialize values' do
         find_and_fix.send(:initialize,
-                          debug_verbose: default_debug_verbose,
                           filter: filter,
-                          msg_handler: msg_handler,
-                          verbose: verbose )
+                          msg_handler: msg_handler )
         expect(find_and_fix.debug_verbose).to  eq default_debug_verbose
         expect(find_and_fix.filter).to         eq filter
         expect(find_and_fix.msg_handler).to    eq msg_handler
-        expect(find_and_fix.verbose).to        eq verbose
 
         expect(find_and_fix.ids_fixed).to      eq( {} )
         expected_fixers_after_initialization(find_and_fix)

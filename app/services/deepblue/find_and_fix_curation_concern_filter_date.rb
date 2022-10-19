@@ -2,7 +2,7 @@
 
 class Deepblue::FindAndFixCurationConcernFilterDate
 
-  attr_reader :begin_date, :end_date, :debug_verbose
+  attr_reader :begin_date, :end_date
 
   def to_datetime( date, format: nil )
     # TODO: see ReportHelper.to_datetime
@@ -75,8 +75,7 @@ class Deepblue::FindAndFixCurationConcernFilterDate
     return rv
   end
 
-  def initialize( begin_date:, end_date:, debug_verbose: false )
-    @debug_verbose = debug_verbose
+  def initialize( begin_date:, end_date: )
     @begin_date = to_datetime( begin_date )
     @end_date = to_datetime( end_date )
   end

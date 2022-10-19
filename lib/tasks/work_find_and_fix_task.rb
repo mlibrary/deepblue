@@ -13,7 +13,7 @@ module Deepblue
     end
 
     def run
-      FindAndFixService.work_find_and_fix( id: @id, msg_handler: msg_handler, debug_verbose: false )
+      FindAndFixService.work_find_and_fix( id: @id, msg_handler: msg_handler )
     end
 
   end

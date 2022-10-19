@@ -26,11 +26,9 @@ RSpec.describe ::Deepblue::WorksOrderedMembersFileSetsSizeFixer do
       let(:fixer) { described_class.allocate }
       it 'has default values' do
         fixer.send(:initialize, msg_handler: msg_handler)
-        expect(fixer.debug_verbose).to  eq default_debug_verbose
         expect(fixer.filter).to         eq default_filter
         expect(fixer.prefix).to         eq described_class::PREFIX
         expect(fixer.msg_handler).to    eq msg_handler
-        expect(fixer.verbose).to        eq default_verbose
 
         expect(fixer.ids_fixed).to      eq []
       end
@@ -44,16 +42,12 @@ RSpec.describe ::Deepblue::WorksOrderedMembersFileSetsSizeFixer do
 
       it 'has initialize values' do
         fixer.send(:initialize,
-                   debug_verbose: debug_verbose,
                    filter: filter,
-                   msg_handler: msg_handler,
-                   verbose: verbose )
+                   msg_handler: msg_handler )
 
-        expect(fixer.debug_verbose).to  eq debug_verbose
         expect(fixer.filter).to         eq filter
         expect(fixer.prefix).to         eq described_class::PREFIX
         expect(fixer.msg_handler).to    eq msg_handler
-        expect(fixer.verbose).to        eq verbose
 
         expect(fixer.ids_fixed).to      eq []
       end
@@ -64,7 +58,7 @@ RSpec.describe ::Deepblue::WorksOrderedMembersFileSetsSizeFixer do
   describe 'methods are correct' do
     let(:fixed) { create(:data_set) }
     let(:not_fixed) { create(:data_set) }
-    let(:fixer) { described_class.new( msg_handler: msg_handler, verbose: true )}
+    let(:fixer) { described_class.new( msg_handler: msg_handler )}
     let(:file_set1) { create(:file_set) }
     let(:empty_array) { [] }
     let(:one_fs_array)  { [ file_set1 ] }

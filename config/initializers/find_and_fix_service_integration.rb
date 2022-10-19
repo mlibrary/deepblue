@@ -3,6 +3,7 @@ Deepblue::FindAndFixService.setup do |config|
 
   config.find_and_fix_service_debug_verbose             = false
   config.abstract_fixer_debug_verbose                   = false
+  config.file_sets_embargo_fixer_debug_verbose          = false
   config.file_sets_lost_and_found_fixer_debug_verbose   = false
   config.file_sets_visibility_fixer_debug_verbose       = false
   config.find_and_fix_job_debug_verbose                 = false
@@ -10,11 +11,13 @@ Deepblue::FindAndFixService.setup do |config|
   config.find_and_fix_job_debug_verbose                 = false
   config.works_ordered_members_file_sets_size_fixer_debug_verbose = false
   config.works_ordered_members_nils_fixer_debug_verbose = false
+  config.works_total_file_size_fixer_debug_verbose      = false
 
   config.find_and_fix_default_filter   = nil
   config.find_and_fix_default_verbose  = true
   config.find_and_fix_over_collections = []
-  config.find_and_fix_over_file_sets   = [ 'Deepblue::FileSetsLostAndFoundFixer',
+  config.find_and_fix_over_file_sets   = [ 'Deepblue::FileSetsEmbargoFixer',
+                                           'Deepblue::FileSetsLostAndFoundFixer',
                                            'Deepblue::FileSetsVisibilityFixer' ]
   config.find_and_fix_over_works       = [ 'Deepblue::WorksOrderedMembersNilsFixer',
                                            'Deepblue::WorksOrderedMembersFileSetsSizeFixer',

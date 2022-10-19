@@ -10,55 +10,40 @@ module Deepblue
     attr_accessor :find_and_fix_file_sets_fixers
     attr_accessor :find_and_fix_works_fixers
 
-    attr_accessor :debug_verbose
     attr_accessor :filter
     attr_accessor :id
     attr_accessor :ids_fixed
     attr_accessor :msg_handler
-    # attr_accessor :task
-    attr_accessor :verbose
 
-    def initialize( debug_verbose: find_and_fix_job_debug_verbose,
-                    id: nil,
-                    filter: nil,
-                    msg_handler:,
-                    # task: false,
-                    verbose: false )
-
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "id=#{id}",
-                                             "filter=#{filter}",
-                                             "msg_handler=#{msg_handler}",
-                                             # "task=#{task}",
-                                             "verbose=#{verbose}",
-                                             "" ], bold_puts: msg_handler.to_console if debug_verbose
-
-      @debug_verbose = debug_verbose
-      @id = id
-      # @task = task
-      @filter = filter
+    def initialize( id: nil, filter: nil, msg_handler: )
       @msg_handler = msg_handler
-      # @msg_handler ||= MessageHandler.new( to_console: task, verbose: verbose )
-      @verbose = verbose
+      msg_handler.bold_debug [ msg_handler.here,
+                               msg_handler.called_from,
+                               "id=#{id}",
+                               "filter=#{filter}",
+                               "msg_handler=#{msg_handler}",
+                               "" ] if find_and_fix_job_debug_verbose && msg_handler.debug_verbose
+      @id = id
+      @filter = filter
       @ids_fixed = {}
       init_find_and_fix_collections
       init_find_and_fix_works
       init_find_and_fix_file_sets
     end
 
+    def debug_verbose
+      find_and_fix_job_debug_verbose && msg_handler.debug_verbose
+    end
+
     def init_fixer( fixer_class_name )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "fixer_class_name=#{fixer_class_name}",
-                                             "" ], bold_puts: msg_handler.to_console if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here,
+                               msg_handler.called_from,
+                               "fixer_class_name=#{fixer_class_name}",
+                               "" ] if debug_verbose
       fixer = nil
       begin
         fixer_class = fixer_class_name.constantize
-        fixer = fixer_class.new( filter: filter,
-                                 msg_handler: msg_handler,
-                                 verbose: verbose,
-                                 debug_verbose: debug_verbose )
+        fixer = fixer_class.new( filter: filter, msg_handler: msg_handler )
         unless fixer.respond_to? :fix
           msg_handler.msg_error "Expected #{fixer_class_name} to respond to 'fix'"
           return nil
@@ -116,15 +101,15 @@ module Deepblue
     end
 
     def find_and_fix_over( curation_concern:, fixers:, prefix: )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "" ], bold_puts: msg_handler.to_console if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here,
+                               msg_handler.called_from,
+                               "" ] if debug_verbose
       fixers.each do |fixer|
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "fixer.class.name=#{fixer.class.name}",
-                                               "#{prefix} id=#{curation_concern.id}",
-                                               "" ], bold_puts: msg_handler.to_console if debug_verbose
+        msg_handler.bold_debug [ msg_handler.here,
+                                 msg_handler.called_from,
+                                 "fixer.class.name=#{fixer.class.name}",
+                                 "#{prefix} id=#{curation_concern.id}",
+                                 "" ] if debug_verbose
         msg_handler.msg_verbose [ "fixer.class.name=#{fixer.class.name}",
                                   "#{prefix} id=#{curation_concern.id}" ]
         begin
@@ -137,9 +122,9 @@ module Deepblue
     end
 
     def find_and_fix_over_collections
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "" ], bold_puts: msg_handler.to_console if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here,
+                                             msg_handler.called_from,
+                                             "" ] if debug_verbose
       return unless find_and_fix_collections_fixers.present?
       Collection.all.each do |curation_concern|
         find_and_fix_over( curation_concern: curation_concern,
@@ -149,9 +134,9 @@ module Deepblue
     end
 
     def find_and_fix_over_file_sets
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "" ], bold_puts: msg_handler.to_console if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here,
+                                             msg_handler.called_from,
+                                             "" ] if debug_verbose
       return unless find_and_fix_file_sets_fixers.present?
       prefix = 'FileSet'
       FileSet.all.each do |curation_concern|
@@ -162,9 +147,9 @@ module Deepblue
     end
 
     def find_and_fix_over_work_file_sets( work )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "" ], bold_puts: msg_handler.to_console if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here,
+                                             msg_handler.called_from,
+                                             "" ] if debug_verbose
       return unless find_and_fix_file_sets_fixers.present?
       prefix = 'FileSet'
       work.file_sets.each do |curation_concern|
@@ -175,10 +160,10 @@ module Deepblue
     end
 
     def find_and_fix_over_work( work )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "find_and_fix_works_fixers.present?=#{find_and_fix_works_fixers.present?}",
-                                             "" ] if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here,
+                               msg_handler.called_from,
+                               "find_and_fix_works_fixers.present?=#{find_and_fix_works_fixers.present?}",
+                               "" ] if debug_verbose
       msg_handler.msg_verbose "find_and_fix_works_fixers.present?=#{find_and_fix_works_fixers.present?}"
       return unless find_and_fix_works_fixers.present?
       prefix = 'DataSet'
@@ -188,10 +173,10 @@ module Deepblue
     end
 
     def find_and_fix_over_works
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "find_and_fix_works_fixers.present?=#{find_and_fix_works_fixers.present?}",
-                                             "" ] if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here,
+                               msg_handler.called_from,
+                               "find_and_fix_works_fixers.present?=#{find_and_fix_works_fixers.present?}",
+                               "" ] if debug_verbose
       msg_handler.msg_verbose "find_and_fix_works_fixers.present?=#{find_and_fix_works_fixers.present?}"
       return unless find_and_fix_works_fixers.present?
       prefix = 'DataSet'
@@ -203,17 +188,15 @@ module Deepblue
     end
 
     def run
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "id=#{id}",
-                                             "filter=#{filter}",
-                                             "msg_handler=#{msg_handler}",
-                                             "verbose=#{verbose}",
-                                             "" ] if debug_verbose
-      msg_handler.msg_verbose ["id=#{id}",
+      msg_handler.bold_debug [ msg_handler.here,
+                               msg_handler.called_from,
+                               "id=#{id}",
                                "filter=#{filter}",
                                "msg_handler=#{msg_handler}",
-                               "verbose=#{verbose}"]
+                               "" ] if debug_verbose
+      msg_handler.msg_verbose ["id=#{id}",
+                               "filter=#{filter}",
+                               "msg_handler=#{msg_handler}" ]
       msg_handler.msg "Started: #{DateTime.now}"
       if id.present?
         run_id
@@ -222,7 +205,7 @@ module Deepblue
       end
       find_and_fix_collect_results
       msg_handler.msg "Finished: #{DateTime.now}"
-      return unless verbose && msg_handler.to_console
+      return unless msg_handler.verbose && msg_handler.to_console
       msg_handler.msg_queue.each do |msg|
         puts msg
       end
@@ -232,10 +215,10 @@ module Deepblue
     end
 
     def run_id
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "id=#{id}",
-                                             "" ] if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here,
+                               msg_handler.called_from,
+                               "id=#{id}",
+                               "" ] if debug_verbose
       msg_handler.msg "Find and fix work #{id}"
       work = ::PersistHelper.find id
       if work.blank?
@@ -247,10 +230,10 @@ module Deepblue
     end
 
     def run_all
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "filter=#{filter}",
-                                             "" ], bold_puts: msg_handler.to_console if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here,
+                               msg_handler.called_from,
+                               "filter=#{filter}",
+                               "" ] if debug_verbose
       find_and_fix_over_file_sets
       find_and_fix_over_works
     end

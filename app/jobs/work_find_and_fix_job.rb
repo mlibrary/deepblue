@@ -13,9 +13,7 @@ class WorkFindAndFixJob < ::Deepblue::DeepblueJob
     initialize_options_from( *args, id: id, debug_verbose: work_find_and_fix_job_debug_verbose )
     log( event: EVENT, hostname_allowed: hostname_allowed? )
     return job_finished unless hostname_allowed?
-    ::Deepblue::FindAndFixService.work_find_and_fix( id: id,
-                                                     msg_handler: msg_handler,
-                                                     debug_verbose: msg_handler.debug_verbose )
+    ::Deepblue::FindAndFixService.work_find_and_fix( id: id, msg_handler: msg_handler )
     email_all_targets( task_name: EVENT, event: EVENT )
     job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException

@@ -2,17 +2,11 @@ require 'rails_helper'
 
 class MockAbstractFixer < ::Deepblue::AbstractFixer
 
-  def initialize( debug_verbose: false,
-                  filter: Deepblue::FindAndFixService.find_and_fix_default_filter,
+  def initialize( filter: Deepblue::FindAndFixService.find_and_fix_default_filter,
                   prefix: 'AbstractPrefix: ',
-                  msg_handler:,
-                  verbose: Deepblue::FindAndFixService.find_and_fix_default_verbose )
+                  msg_handler: )
 
-    super( debug_verbose: debug_verbose,
-           filter: filter,
-           prefix: prefix,
-           msg_handler: msg_handler,
-           verbose: verbose )
+    super( filter: filter, prefix: prefix, msg_handler: msg_handler )
   end
 
   def fix( curation_concern: )
@@ -23,17 +17,11 @@ end
 
 class MockBrokenAbstractFixer < ::Deepblue::AbstractFixer
 
-  def initialize( debug_verbose: false,
-                  filter: nil,
+  def initialize( filter: nil,
                   prefix: 'AbstractPrefix: ',
-                  msg_handler:,
-                  verbose: false )
+                  msg_handler: )
 
-    super( debug_verbose: debug_verbose,
-           filter: filter,
-           prefix: prefix,
-           msg_handler: msg_handler,
-           verbose: verbose )
+    super( filter: filter, prefix: prefix, msg_handler: msg_handler )
   end
 
 end
@@ -46,11 +34,9 @@ RSpec.describe ::Deepblue::AbstractFixer do
     it { expect( described_class.abstract_fixer_debug_verbose ).to eq( debug_verbose ) }
   end
 
-  let(:default_debug_verbose) { false }
   let(:default_filter)        { Deepblue::FindAndFixService.find_and_fix_default_filter }
   let(:default_prefix)        { 'AbstractPrefix: ' }
   let(:default_task)          { false }
-  let(:default_verbose)       { Deepblue::FindAndFixService.find_and_fix_default_verbose }
   let(:msg_handler)           { ::Deepblue::MessageHandler.new }
 
   describe ".initialize" do
@@ -59,34 +45,26 @@ RSpec.describe ::Deepblue::AbstractFixer do
     context 'empty initializer' do
       it 'has default values' do
         abstract_fixer.send(:initialize, msg_handler: msg_handler)
-        expect(abstract_fixer.debug_verbose).to  eq default_debug_verbose
         expect(abstract_fixer.filter).to         eq default_filter
         expect(abstract_fixer.prefix).to         eq default_prefix
         expect(abstract_fixer.msg_handler).to    eq msg_handler
-        expect(abstract_fixer.verbose).to        eq default_verbose
 
         expect(abstract_fixer.ids_fixed).to      eq []
       end
     end
 
     context 'all values' do
-      let(:debug_verbose) { default_debug_verbose }
       let(:filter)        { "filter" }
       let(:prefix)        { 'New ' + default_prefix }
-      let(:verbose)       { !default_verbose }
 
       it 'has initialize values' do
         abstract_fixer.send(:initialize,
-                            debug_verbose: debug_verbose,
                             filter: filter,
                             prefix: prefix,
-                            msg_handler: msg_handler,
-                            verbose: verbose )
-        expect(abstract_fixer.debug_verbose).to  eq default_debug_verbose
+                            msg_handler: msg_handler )
         expect(abstract_fixer.filter).to         eq filter
         expect(abstract_fixer.prefix).to         eq prefix
         expect(abstract_fixer.msg_handler).to    eq msg_handler
-        expect(abstract_fixer.verbose).to        eq verbose
 
         expect(abstract_fixer.ids_fixed).to      eq []
       end
@@ -100,7 +78,7 @@ RSpec.describe ::Deepblue::AbstractFixer do
     let(:msg)            { 'That was interesting.' }
     let(:msg2)           { 'Even more interesting.' }
     it 'adds the message to msg_handler' do
-      abstract_fixer.send(:initialize, msg_handler: msg_handler, debug_verbose: false, prefix: prefix )
+      abstract_fixer.send(:initialize, msg_handler: msg_handler, prefix: prefix )
       abstract_fixer.msg( msg )
       expect( msg_handler.msg_queue ).to eq [ "#{prefix}#{msg}" ]
       abstract_fixer.msg(  msg2 )

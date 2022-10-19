@@ -59,9 +59,7 @@ find_and_fix_job:
     run_job_delay
     ::Deepblue::FindAndFixService.find_and_fix( filter_date_begin: filter_date_begin,
                                                 filter_date_end: filter_date_end,
-                                                msg_handler: msg_handler,
-                                                verbose: verbose,
-                                                debug_verbose: find_and_fix_job_debug_verbose )
+                                                msg_handler: msg_handler )
     timestamp_end = DateTime.now
     msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
                              ::Deepblue::LoggingHelper.called_from,
