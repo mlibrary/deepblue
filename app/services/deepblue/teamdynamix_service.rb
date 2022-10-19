@@ -22,6 +22,8 @@ module Deepblue
     mattr_accessor :check_admin_notes_for_existing_ticket,
                    default: TeamdynamixIntegrationService.check_admin_notes_for_existing_ticket
 
+    mattr_accessor :enforce_dbd_account_id, default: TeamdynamixIntegrationService.enforce_dbd_account_id
+
     MSG_HANDLER_DEBUG_ONLY = ::Deepblue::MessageHandlerDebugOnly.new( debug_verbose: ->() {
       teamdynamix_service_debug_verbose } ).freeze
     MSG_HANDLER_TO_CONSOLE = ::Deepblue::MessageHandler.msg_handler_for_task( options: {
@@ -413,7 +415,7 @@ module Deepblue
       build_bearer
       parms="/um/it/#{ulib_app_id}/tickets"
       headers=build_headers( auth: bearer, accept: APPLICATION_JSON, content_type: APPLICATION_JSON )
-      data = build_tdx_data
+      data = build_tdx_data( account_id: account_id )
       data[KEY_STATUS_ID] = 1012 # TODO: config
       data[KEY_PRIORITY_ID] = 20 # TODO: config
       data[KEY_SOURCE_ID] = 8 # TODO: config
@@ -607,6 +609,8 @@ module Deepblue
       ticket_body = get_ticket_body( ticket_id: ticket_id )
       msg_handler.msg_error_if?( ticket_body.blank?, msg: "patch_ticket ticket_body is nil" )
       return nil, {} if ticket_body.blank?
+      patch_account_id = self.account_id if enforce_dbd_account_id
+      patch_account_id = nil unless enforce_dbd_account_id
       if patch_all
         priority_id = ticket_body[KEY_PRIORITY_ID]
         requestor_uid = ticket_body[KEY_REQUESTOR_UID]
@@ -625,7 +629,7 @@ module Deepblue
         fields[KEY_IS_RICH_HTML] = true
       end
       status, body = patch_ticket_with( ticket_id: ticket_id,
-                                        account_id: account_id,
+                                        account_id: patch_account_id,
                                         priority_id: priority_id,
                                         requestor_uid: requestor_uid,
                                         responsible_group_id: responsible_group_id,
@@ -887,7 +891,7 @@ module Deepblue
       build_bearer
       parms="/um/it/#{ulib_app_id}/ticketsearch"
       headers=build_headers( auth: bearer, content_type: APPLICATION_JSON )
-      data = build_tdx_data
+      data = build_tdx_data( account_id: nil )
       data['MaxResults'] = max_results
       data['TicketID'] = ticket_id if ticket_id.present?
       data['SearchText'] = search_text if search_text.present?
