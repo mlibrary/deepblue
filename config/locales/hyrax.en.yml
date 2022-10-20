@@ -281,6 +281,18 @@ en:
           actions:          "Actions"
           log:              "Email Log"
         title:              "View Email Log"
+      globus:
+        heading:
+          actions:          "Actions"
+          log:              "Log"
+          errors:           "Globus Works with Error Files"
+          locked:           "Globus Works with Lock Files"
+          prep_dirs:        "Globus Works with Prep Dirs"
+          prep_tmp_dirs:    "Globus Works with Prep Tmp Dirs"
+          ready:            "Globus Works Ready"
+          status:           "Globus Status"
+        none:               "None."
+        title:              "Manage Globus"
       ingest:
         title:              "Manage Ingests"
       google_analytics:
@@ -294,7 +306,11 @@ en:
           email_templates_last_loaded:  "Email templates last loaded:"
           email_templates_status:       "Email Templates Status"
           email_values:                 "Email Values"
-        title:              "Manage Email"
+        title:                          "Manage Email"
+      manage_globus:
+        heading:
+          actions:          "Manage Globus Actions"
+        title:              "Manage Globus"
       my_active_embargoes:  "Active Embargoes"
       my_active_drafts:     "Works in Draft Mode"
       my:

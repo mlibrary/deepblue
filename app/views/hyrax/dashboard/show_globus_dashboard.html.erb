@@ -2,11 +2,67 @@
   <h1><%= t("hyrax.dashboard.globus.title") %></h1>
 <% end %>
 
-<h2 class="title-header"><%= t('hyrax.globus.list_works') %></h2>
+<h2 class="title-header"><%= t('hyrax.dashboard.globus.heading.status') %></h2>
 <%= form_tag(main_app.globus_dashboard_run_action_path, method: 'post') do %>
   <div class="documentation-div">
-    <% @view_presenter.globus_status.out.each do |line| %>
+    <% @view_presenter.globus_status.reporter.out.each do |line| %>
       <%= raw line %>
     <% end %>
   </div>
+
+  <h3 class="title-header"><%= t('hyrax.dashboard.globus.heading.errors') %></h3>
+  <% if @view_presenter.globus_status.error_ids.blank? %>
+    <%= t('hyrax.dashboard.globus.none') %>
+  <% else %>
+    <ul>
+      <% @view_presenter.globus_status.error_ids do |id| %>
+        <li><%= raw id %></li>
+      <% end %>
+  </ul>
+  <% end %>
+
+  <h3 class="title-header"><%= t('hyrax.dashboard.globus.heading.locked') %></h3>
+  <% if @view_presenter.globus_status.locked_ids.blank? %>
+    <%= t('hyrax.dashboard.globus.none') %>
+  <% else %>
+    <ul>
+      <% @view_presenter.globus_status.locked_ids do |id| %>
+        <li><%= raw id %></li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <h3 class="title-header"><%= t('hyrax.dashboard.globus.heading.prep_dirs') %></h3>
+  <% if @view_presenter.globus_status.prep_dir_ids.blank? %>
+    <%= t('hyrax.dashboard.globus.none') %>
+  <% else %>
+    <ul>
+      <% @view_presenter.globus_status.prep_dir_ids do |id| %>
+        <li><%= raw id %></li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <h3 class="title-header"><%= t('hyrax.dashboard.globus.heading.prep_tmp_dirs') %></h3>
+  <% if @view_presenter.globus_status.prep_dir_tmp_ids.blank? %>
+    <%= t('hyrax.dashboard.globus.none') %>
+  <% else %>
+    <ul>
+      <% @view_presenter.globus_status.prep_dir_tmp_ids do |id| %>
+        <li><%= raw id %></li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <h3 class="title-header"><%= t('hyrax.dashboard.globus.heading.ready') %></h3>
+  <% if @view_presenter.globus_status.ready_ids.blank? %>
+    <%= t('hyrax.dashboard.globus.none') %>
+  <% else %>
+    <ul>
+      <% @view_presenter.globus_status.ready_ids do |id| %>
+        <li><%= raw id %></li>
+      <% end %>
+    </ul>
+  <% end %>
+
 <% end %>
