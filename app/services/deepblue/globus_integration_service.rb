@@ -138,92 +138,19 @@ module Deepblue
       return reporter
     end
 
-
     def self.globus_status( msg_handler: )
-      msg_handler.bold_debug [ msg_handler.here,
-                               msg_handler.called_from,
-                               "" ]  if msg_handler.debug_verbose
-      base_name = GlobusJob.target_base_name ''
-      lock_file_prefix = GlobusJob.target_file_name_env(nil, 'lock', base_name ).to_s
-      lock_file_re = Regexp.compile( '^' + lock_file_prefix + '([0-9a-z-]+)' + '$' )
-      error_file_prefix = GlobusJob.target_file_name_env(nil, 'error', base_name ).to_s
-      error_file_re = Regexp.compile( '^' + error_file_prefix + '([0-9a-z-]+)' + '$' )
-      prep_dir_prefix = GlobusJob.target_file_name( nil, "#{GlobusJob.server_prefix(str: '_')}#{base_name}" ).to_s
-      prep_dir_re = Regexp.compile( '^' + prep_dir_prefix + '([0-9a-z-]+)' + '$' )
-      prep_tmp_dir_re = Regexp.compile( '^' + prep_dir_prefix + '([0-9a-z-]+)_tmp' + '$' )
-      ready_file_prefix = GlobusJob.target_file_name_env(nil, 'ready', base_name ).to_s
-      ready_file_re = Regexp.compile( '^' + ready_file_prefix + '([0-9a-z-]+)' + '$' )
-      starts_with_path = "#{::Deepblue::GlobusIntegrationService.globus_prep_dir}#{File::SEPARATOR}"
-      msg_handler.bold_debug [ msg_handler.here,
-                               msg_handler.called_from,
-                               "lock_file_prefix=#{lock_file_prefix}",
-                               "lock_file_re=#{lock_file_re}",
-                               "error_file_prefix=#{error_file_prefix}",
-                               "error_file_re=#{error_file_re}",
-                               "prep_dir_prefix=#{prep_dir_prefix}",
-                               "prep_dir_re=#{prep_dir_re}",
-                               "prep_tmp_dir_re=#{prep_tmp_dir_re}",
-                               "ready_file_prefix=#{prep_dir_re}",
-                               "ready_file_re=#{prep_tmp_dir_re}",
-                               "starts_with_path=#{starts_with_path}",
-                               "" ] if msg_handler.debug_verbose
-      files = Dir.glob( "#{starts_with_path}*", File::FNM_DOTMATCH )
-      msg_handler.bold_debug [ msg_handler.here,
-                               msg_handler.called_from,
-                               "files.size=#{files.size}",
-                               "" ]  if msg_handler.debug_verbose
-      locked_ids = {}
-      error_ids = {}
-      prep_dir_ids = {}
-      prep_dir_tmp_ids = {}
-      ready_ids = {}
-      files.each do |f|
-        f1 = f
-        f = f.slice( (starts_with_path.length)..(f.length) ) if f.starts_with? starts_with_path
-        msg_handler.bold_debug [ msg_handler.here,
-                                 msg_handler.called_from,
-                                 "processing '#{f1}'",
-                                 "strip leading path '#{f}'",
-                                 "" ]  if msg_handler.debug_verbose
-        globus_add_status( matcher: lock_file_re,
-                           path: f,
-                           hash: locked_ids,
-                           type: 'locked',
-                           msg_handler: msg_handler )
-        globus_add_status( matcher: error_file_re,
-                           path: f,
-                           hash: error_ids,
-                           type: 'error',
-                           msg_handler: msg_handler )
-        globus_add_status( matcher: prep_dir_re,
-                           path: f,
-                           hash: prep_dir_ids,
-                           type: 'prep',
-                           msg_handler: msg_handler )
-        globus_add_status( matcher: prep_tmp_dir_re,
-                           path: f,
-                           hash: prep_dir_tmp_ids,
-                           type: 'prep tmp',
-                           msg_handler: msg_handler )
-        globus_add_status( matcher: ready_file_re,
-                           path: f,
-                           hash: ready_ids,
-                           type: 'ready',
-                           msg_handler: msg_handler )
-      end
-      reporter = ::Deepblue::GlobusReporter.new( error_ids: error_ids,
-                                                 locked_ids: locked_ids,
-                                                 prep_dir_ids: prep_dir_ids,
-                                                 prep_dir_tmp_ids: prep_dir_tmp_ids,
-                                                 ready_ids: ready_ids,
-                                                 debug_verbose: msg_handler.debug_verbose,
-                                                 as_html: true,
-                                                 msg_handler: msg_handler,
-                                                 options: { 'quiet' => msg_handler.quiet } )
-      reporter.run
-      return reporter
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ]  if msg_handler.debug_verbose
+      rv = GlobusStatus.new( msg_handler: msg_handler )
+      rv.populate
+      return rv
     end
 
+    def self.globus_status_report_new( msg_handler:, errors_report: false )
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ]  if msg_handler.debug_verbose
+      rv = GlobusStatus.new( msg_handler: msg_handler, skip_ready: errors_report )
+      rv.populate
+      return rv.reporter
+    end
 
     def self.globus_status_report( quiet: true,
                                    debug_verbose: globus_integration_service_debug_verbose,

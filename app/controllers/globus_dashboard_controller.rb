@@ -26,8 +26,8 @@ class GlobusDashboardController < ApplicationController
 
   def globus_status
     msg_handler = ::Deepblue::MessageHandler.new( debug_verbose: globus_dashboard_controller_debug_verbose )
-    report = ::Deepblue::GlobusIntegrationService.globus_status( msg_handler: msg_handler )
-    return report
+    status = ::Deepblue::GlobusIntegrationService.globus_status( msg_handler: msg_handler )
+    return status
   end
 
   def run_action
