@@ -58,14 +58,22 @@ RSpec.describe ::Deepblue::ReportTask, skip: false do
         expect( filter.end_date ).to eq DateTime.strptime( date2, format )
       end
 
-      it "does not parse with bad format" do
-        expect( report_task ).to receive(:msg_puts).with("Failed to format the date string '2021-04-01' using format 'YYYY-MM-DD-is_bad' for entry 'begin_date'")
-        expect { ::Deepblue::CurationConcernFilterDate.new( report_task: report_task,
-                                                            attribute: attribute,
-                                                            parms: { begin: date1,
-                                                                     end: date2,
-                                                                     format: "YYYY-MM-DD-is_bad" } )
-        }.to raise_error ArgumentError, "invalid date"
+      context "does not parse with bad format" do
+        let(:msg_handler) { instance_double(::Deepblue::MessageHandler) }
+
+        before do
+          allow(report_task).to receive(:msg_handler).and_return msg_handler
+        end
+
+        it "and raises error" do
+          expect(msg_handler).to receive(:msg_error).with("Failed to format the date string '2021-04-01' using format 'YYYY-MM-DD-is_bad' for entry 'begin_date'")
+          expect { ::Deepblue::CurationConcernFilterDate.new( report_task: report_task,
+                                                              attribute: attribute,
+                                                              parms: { begin: date1,
+                                                                       end: date2,
+                                                                       format: "YYYY-MM-DD-is_bad" } )
+          }.to raise_error ArgumentError, "invalid date"
+        end
       end
 
     end
@@ -114,12 +122,20 @@ RSpec.describe ::Deepblue::ReportTask, skip: false do
                                                    parms: { begin: 'now - 2 weeks', end: 'now + 2 weeks' } )
       end
 
-      it "does not parse now - 1 foobar" do
-        expect( report_task ).to receive(:msg_puts).with("Failed parse relative ('now') date string 'now - 1 foobar' (ignoring format '') for entry 'begin_date'")
-        expect { ::Deepblue::CurationConcernFilterDate.new( report_task: report_task,
-                                                   attribute: attribute,
-                                                   parms: { begin: 'now - 1 foobar', end: 'now + 1 foobar' } )
-               }.to raise_error ArgumentError, "invalid date"
+      context "does not parse now - 1 foobar" do
+        let(:msg_handler) { instance_double(::Deepblue::MessageHandler) }
+
+        before do
+          allow(report_task).to receive(:msg_handler).and_return msg_handler
+        end
+
+        it "and raises error" do
+          expect(msg_handler).to receive(:msg_error).with("Failed parse relative ('now') date string 'now - 1 foobar' (ignoring format '') for entry 'begin_date'")
+          expect { ::Deepblue::CurationConcernFilterDate.new( report_task: report_task,
+                                                     attribute: attribute,
+                                                     parms: { begin: 'now - 1 foobar', end: 'now + 1 foobar' } )
+                 }.to raise_error ArgumentError, "invalid date"
+        end
       end
 
     end

@@ -10,36 +10,29 @@ module Deepblue
   # rubocop:disable Rails/Output
   class AbstractTask
 
-    DEFAULT_TO_CONSOLE = true unless const_defined? :DEFAULT_TO_CONSOLE
-    DEFAULT_VERBOSE = false unless const_defined? :DEFAULT_VERBOSE
+    # DEFAULT_TO_CONSOLE = true unless const_defined? :DEFAULT_TO_CONSOLE
+    # DEFAULT_VERBOSE = false unless const_defined? :DEFAULT_VERBOSE
 
     attr_accessor :logger
-    attr_accessor :msg_queue
     attr_accessor :msg_handler
     attr_reader   :options
 
-    attr_accessor :debug_verbose
+    delegate :debug_verbose, :debug_verbose=, to: :msg_handler
     alias :debug_verbose? :debug_verbose
-
-    attr_accessor :to_console
+    delegate :msg_queue, :msg_queue=, to: :msg_handler
+    delegate :quiet, :quiet=, to: :msg_handler
+    alias :quiet? :quiet
+    delegate :to_console, :to_console=, to: :msg_handler
     alias :to_console? :to_console
-
-    attr_accessor :verbose
+    delegate :verbose, :verbose=, to: :msg_handler
     alias :verbose? :verbose
 
-    def initialize( options: {}, msg_handler: nil, msg_queue: nil, debug_verbose: false )
-      @debug_verbose = debug_verbose
-      @msg_queue = msg_queue
+    def initialize( msg_handler: nil, options: {} )
       @options = TaskHelper.task_options_parse options
       @options = @options.with_indifferent_access if @options.respond_to? :with_indifferent_access
-      @to_console = TaskHelper.task_options_value( @options, key: 'to_console', default_value: DEFAULT_TO_CONSOLE )
-      @verbose = TaskHelper.task_options_value( @options, key: 'verbose', default_value: DEFAULT_VERBOSE )
       @msg_handler = msg_handler
-      @msg_handler ||= MessageHandler.new( msg_queue: @msg_queue,
-                                           to_console: @to_console,
-                                           verbose: @verbose,
-                                           debug_verbose: @debug_verbose )
-      report_puts "@verbose=#{@verbose}" if @verbose
+      @msg_handler ||= MessageHandler.msg_handler_for_task( options: @options )
+      report_puts "verbose=#{@msg_handler.verbose}" if @msg_handler.verbose
       if  @options.key?( :error )
         report_puts "WARNING: options error #{@options[:error]}"
         report_puts "options=#{options}"

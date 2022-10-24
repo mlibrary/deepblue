@@ -7,7 +7,6 @@ require 'rails_helper'
 Rails.application.load_tasks
 
 require_relative '../../lib/tasks/globus_errors_report'
-#require_relative '../../lib/tasks/globus_errors_report.rake'
 require_relative '../../app/services/deepblue/globus_integration_service'
 
 describe "globus errors report rake" do
@@ -16,7 +15,7 @@ describe "globus errors report rake" do
 
   context "task is run" do
 
-    let(:options)  { {} }
+    let(:options)  { { verbose: false } }
     let(:quiet)    { false }
     let(:reporter) { ::Deepblue::GlobusReporter.allocate }
     let(:msg_handler) { ::Deepblue::MessageHandler.msg_handler_for( task: true ) }
@@ -27,20 +26,8 @@ describe "globus errors report rake" do
       expect(::Deepblue::GlobusErrorsReport).to receive(:new).with( msg_handler: msg_handler,
                                                                     options: options ).at_least(:once).and_return invoked
       expect(invoked).to receive(:run).with(no_args).at_least(:once).and_call_original
-      expect(::Deepblue::GlobusIntegrationService).to receive(:globus_errors_report).with(quiet: true,
-                                                                                          debug_verbose: false,
-                                                                                          msg_handler: msg_handler,
-                                                                                          rake_task: true).at_least(:once).and_call_original
-      expect(::Deepblue::GlobusReporter).to receive(:new).with( error_ids: {},
-                                                                locked_ids: {},
-                                                                prep_dir_ids: {},
-                                                                prep_dir_tmp_ids: {},
-                                                                ready_ids: nil,
-                                                                as_html: true,
-                                                                debug_verbose: false,
-                                                                msg_handler: msg_handler,
-                                                                options: { 'quiet' => true } ).at_least(:once).and_return reporter
-      expect(reporter).to receive(:run).at_least(:once)
+      expect(::Deepblue::GlobusIntegrationService).to receive(:globus_status_report).with(msg_handler: msg_handler,
+                                                              errors_report: true).at_least(:once).and_call_original
     end
 
     after do

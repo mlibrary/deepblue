@@ -28,7 +28,6 @@ RSpec.describe ::Deepblue::AboutToExpireEmbargoesTask do
           # expect(args[:to_console]).to eq expected[:to_console]
           # expect(args[:verbose]).to eq expected[:verbose]
           expect(args[:msg_handler].is_a? ::Deepblue::MessageHandler).to eq true
-          expect(args[:msg_handler].msg_queue).to eq nil
           expect(args[:msg_handler].to_console).to eq expected[:to_console]
           expect(args[:msg_handler].verbose).to eq expected[:verbose]
           expect(args[:msg_handler].debug_verbose).to eq false
@@ -62,7 +61,6 @@ RSpec.describe ::Deepblue::AboutToExpireEmbargoesTask do
           # expect(args[:to_console]).to eq true
           # expect(args[:verbose]).to eq expected[:verbose]
           expect(args[:msg_handler].is_a? ::Deepblue::MessageHandler).to eq true
-          expect(args[:msg_handler].msg_queue).to eq nil
           expect(args[:msg_handler].to_console).to eq false
           expect(args[:msg_handler].verbose).to eq expected[:verbose]
           expect(args[:msg_handler].debug_verbose).to eq false

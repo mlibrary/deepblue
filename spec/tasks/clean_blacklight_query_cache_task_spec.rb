@@ -18,7 +18,6 @@ RSpec.describe ::Deepblue::CleanBlacklightQueryCacheTask do
           expect(args[:start_day_span]).to eq 30
           expect(args[:max_day_spans]).to eq 0
           expect(args[:msg_handler].is_a? ::Deepblue::MessageHandler).to eq true
-          expect(args[:msg_handler].msg_queue).to eq nil
           expect(args[:msg_handler].to_console).to eq true
           expect(args[:msg_handler].verbose).to eq false
           expect(args[:task]).to eq true
@@ -38,7 +37,6 @@ RSpec.describe ::Deepblue::CleanBlacklightQueryCacheTask do
           expect(args[:start_day_span]).to eq 45
           expect(args[:max_day_spans]).to eq 5
           expect(args[:msg_handler].is_a? ::Deepblue::MessageHandler).to eq true
-          expect(args[:msg_handler].msg_queue).to eq nil
           expect(args[:msg_handler].to_console).to eq true
           expect(args[:msg_handler].verbose).to eq true
           expect(args[:task]).to eq true

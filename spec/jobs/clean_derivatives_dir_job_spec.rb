@@ -72,8 +72,8 @@ RSpec.describe CleanDerivativesDirJob do
           expect(::Deepblue::CleanDerivativesDirService).to receive(:new) do |args|
             expect(args[:days_old]).to eq days_old
             # expect(args[:job_msg_queue]).to eq job_msg_queue
-            expect(args[:to_console]).to eq to_console
-            expect(args[:verbose]).to eq verbose
+            expect(args[:msg_handler].to_console).to eq to_console
+            expect(args[:msg_handler].verbose).to eq verbose
           end.and_return service
         else
           expect(::Deepblue::CleanDerivativesDirService).to_not receive(:new)

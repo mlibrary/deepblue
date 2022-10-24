@@ -251,7 +251,7 @@ module Deepblue
                                ::Deepblue::LoggingHelper.called_from,
                                "data_set_ids_found.is_a? Array=#{data_set_ids_found.is_a? Array}",
                                "file_set_ids_found.is_a? Array=#{file_set_ids_found.is_a? Array}",
-                               "msg_queue=#{msg_queue}",
+                               "msg_handler=#{msg_handler}",
                                "" ] if debug_verbose
 
       if data_set_ids_found.is_a? Array

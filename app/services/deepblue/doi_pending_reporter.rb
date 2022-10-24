@@ -12,12 +12,10 @@ module Deepblue
     def initialize( data_set_ids: [],
                     file_set_ids: [],
                     msg_handler:,
-                    debug_verbose: false,
-                    as_html: false, # TODO
+                    as_html: false,
                     options: {} )
 
-      # TODO: ?? merge the keys from various hashes
-      super( as_html: as_html, debug_verbose: debug_verbose, msg_handler: msg_handler, options: options )
+      super( as_html: as_html, msg_handler: msg_handler, options: options )
       @data_set_ids = data_set_ids
       @file_set_ids = file_set_ids
     end

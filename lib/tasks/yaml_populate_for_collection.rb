@@ -14,8 +14,8 @@ module Deepblue
 
     attr_accessor :ids
 
-    def initialize( options:, msg_queue: nil  )
-      super( populate_type: 'collection', options: options, msg_queue: msg_queue )
+    def initialize( msg_handler: nil, options: )
+      super( msg_handler: msg_handler, populate_type: 'collection', options: options )
       @export_files = task_options_value( key: 'export_files', default_value: false )
       @ids = []
     end
@@ -31,8 +31,8 @@ module Deepblue
 
   class YamlPopulateFromCollection < Deepblue::YamlPopulate
 
-    def initialize( id:, options:, msg_queue: nil )
-      super( populate_type: 'collection', options: options, msg_queue: msg_queue )
+    def initialize( id:, msg_handler: nil, options: )
+      super( msg_handler: msg_handler, populate_type: 'collection', options: options )
       @id = id
     end
 
@@ -46,8 +46,8 @@ module Deepblue
 
   class YamlPopulateFromMultipleCollections < Deepblue::YamlPopulate
 
-    def initialize( ids:, options:, msg_queue: nil )
-      super( populate_type: 'collection', options: options, msg_queue: msg_queue )
+    def initialize( ids:, msg_handler: nil, options: )
+      super( msg_handler: msg_handler, populate_type: 'collection', options: options )
       @ids = ids.split( ' ' )
     end
 

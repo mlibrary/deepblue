@@ -5,6 +5,23 @@
 <h2 class="title-header"><%= t('hyrax.dashboard.globus.heading.status') %></h2>
 <%= form_tag(main_app.globus_dashboard_run_action_path, method: 'post') do %>
   <div class="documentation-div">
+    <ul>
+      <li>Globus enabled: <%= ::Deepblue::GlobusIntegrationService.globus_enabled %></li>
+      <li>Globus dir: <code><%= ::Deepblue::GlobusIntegrationService.globus_dir %></code></li>
+      <li>Globus dowload dir: <code><%= ::Deepblue::GlobusIntegrationService.globus_download_dir %></code></li>
+      <li>Globus prep dir: <code><%= ::Deepblue::GlobusIntegrationService.globus_prep_dir %></code></li>
+      <li>Globus base file name: <code><%= ::Deepblue::GlobusIntegrationService.globus_base_file_name %></code></li>
+      <li>Globus base url: <code><%= ::Deepblue::GlobusIntegrationService.globus_base_url %></code></li>
+      <li>Globus best used gt size: <%= ::Deepblue::GlobusIntegrationService.globus_best_used_gt_size_str %></li>
+      <li>Globus bounce external link: <%= ::Deepblue::GlobusIntegrationService.globus_bounce_external_link_off_server %></li>
+    </ul>
+    <% if @view_presenter.globus_status.msg_handler.verbose %>
+    <pre>
+      <% @view_presenter.globus_status.msg_handler.msg_queue.each do |line| %>
+        <%= line %>
+      <% end %>
+    </pre>
+    <% end %>
     <% @view_presenter.globus_status.reporter.out.each do |line| %>
       <%= raw line %>
     <% end %>
@@ -15,10 +32,10 @@
     <%= t('hyrax.dashboard.globus.none') %>
   <% else %>
     <ul>
-      <% @view_presenter.globus_status.error_ids do |id| %>
+      <% @view_presenter.globus_status.error_ids.each_key do |id| %>
         <li><%= raw id %></li>
       <% end %>
-  </ul>
+    </ul>
   <% end %>
 
   <h3 class="title-header"><%= t('hyrax.dashboard.globus.heading.locked') %></h3>
@@ -26,7 +43,7 @@
     <%= t('hyrax.dashboard.globus.none') %>
   <% else %>
     <ul>
-      <% @view_presenter.globus_status.locked_ids do |id| %>
+      <% @view_presenter.globus_status.locked_ids.each_key do |id| %>
         <li><%= raw id %></li>
       <% end %>
     </ul>
@@ -37,7 +54,7 @@
     <%= t('hyrax.dashboard.globus.none') %>
   <% else %>
     <ul>
-      <% @view_presenter.globus_status.prep_dir_ids do |id| %>
+      <% @view_presenter.globus_status.prep_dir_ids.each_key do |id| %>
         <li><%= raw id %></li>
       <% end %>
     </ul>
@@ -48,7 +65,7 @@
     <%= t('hyrax.dashboard.globus.none') %>
   <% else %>
     <ul>
-      <% @view_presenter.globus_status.prep_dir_tmp_ids do |id| %>
+      <% @view_presenter.globus_status.prep_dir_tmp_ids.each_key do |id| %>
         <li><%= raw id %></li>
       <% end %>
     </ul>
@@ -59,10 +76,11 @@
     <%= t('hyrax.dashboard.globus.none') %>
   <% else %>
     <ul>
-      <% @view_presenter.globus_status.ready_ids do |id| %>
+      <% @view_presenter.globus_status.ready_ids.each_key do |id| %>
         <li><%= raw id %></li>
       <% end %>
     </ul>
   <% end %>
 
 <% end %>
+<br/><br/>

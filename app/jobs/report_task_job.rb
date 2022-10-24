@@ -67,8 +67,7 @@ class ReportTaskJob < ::Hyrax::ApplicationJob
                                        reporter: reporter,
                                        allowed_path_extensions: report_task_allowed_path_extensions,
                                        allowed_path_prefixes: report_task_allowed_path_prefixes,
-                                       msg_queue: msg_handler.msg_queue,
-                                       verbose: false,
+                                       msg_handler: msg_handler,
                                        options: options )
     task.run
     true
