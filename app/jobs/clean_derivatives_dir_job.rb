@@ -45,10 +45,7 @@ END_OF_SCHEDULER_ENTRY
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event: event_name )
     return unless initialized
     days_old = job_options_value( key: 'days_old', default_value: default_args[:days_old] )
-    ::Deepblue::CleanDerivativesDirService.new( days_old: days_old,
-                                                job_msg_queue: msg_handler.msg_queue,
-                                                to_console: false,
-                                                verbose: verbose ).run
+    ::Deepblue::CleanDerivativesDirService.new( days_old: days_old, msg_handler: msg_handler ).run
     timestamp_end = DateTime.now
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,

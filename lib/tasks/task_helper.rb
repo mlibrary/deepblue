@@ -18,26 +18,18 @@ module Deepblue
       end
     end
 
-    def self.task_puts( str = '', msg_queue )
-      if msg_queue
-        msg_queue << str
-      else
-        puts str
-      end
-    end
-
-    def self.benchmark_report( label:, first_id:, measurements:, total: nil, msg_queue: nil )
+    def self.benchmark_report( label:, first_id:, measurements:, total: nil, msg_handler: )
       label += ' ' * (first_id.size - label.size)
-      task_puts "#{label} #{Benchmark::CAPTION}", msg_queue
+      msg_handler.msg "#{label} #{Benchmark::CAPTION}"
       format = Benchmark::FORMAT.chop
       measurements.each do |measurement|
         label = measurement.label
-        task_puts measurement.format( "#{label} #{format} is #{seconds_to_readable(measurement.real)}\n" ), msg_queue
+        msg_handler.msg measurement.format( "#{label} #{format} is #{seconds_to_readable(measurement.real)}\n" )
       end
       return if total.blank?
       label = 'total'
       label += ' ' * (first_id.size - label.size)
-      task_puts total.format( "#{label} #{format} is #{seconds_to_readable(total.real)}\n" ), msg_queue
+      msg_handler.msg total.format( "#{label} #{format} is #{seconds_to_readable(total.real)}\n" )
     end
 
     def self.dbd_version_1?
@@ -124,13 +116,6 @@ module Deepblue
 
     def self.task_options_value( options, key:, default_value: nil, verbose: false, msg_handler: nil )
       OptionsHelper.value( options, key: key, default_value: default_value, msg_handler: msg_handler )
-      # return default_value if options.blank?
-      # return default_value unless options.key? key
-      # # if [true, false].include? default_value
-      # #   return options[key].to_bool
-      # # end
-      # task_puts "set key #{key} to #{options[key]}", msg_queue if verbose
-      # return options[key]
     end
 
     def self.work?( obj )

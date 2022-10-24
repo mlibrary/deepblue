@@ -23,8 +23,8 @@ module Deepblue
     attr_accessor :populate_type
     attr_accessor :populate_stats
 
-    def initialize( populate_type:, options:, msg_queue: nil )
-      super( options: options, msg_queue: msg_queue )
+    def initialize( msg_handler: nil, populate_type:, options: )
+      super( msg_handler: msg_handler, options: options )
       @populate_type = populate_type
       @target_dir = task_options_value( key: 'target_dir', default_value: DEFAULT_TARGET_DIR )
       @export_files = task_options_value( key: 'export_files', default_value: DEFAULT_EXPORT_FILES )
@@ -42,7 +42,7 @@ module Deepblue
                                    first_id: first_id,
                                    measurements: measurements,
                                    total: total,
-                                   msg_queue: msg_queue )
+                                   msg_handler: msg_handler )
     end
 
     def report_users( first_id:, measurements:, total: nil )
@@ -50,7 +50,7 @@ module Deepblue
                                    first_id: first_id,
                                    measurements: measurements,
                                    total: total,
-                                   msg_queue: msg_queue )
+                                   msg_handler: msg_handler )
     end
 
     def report_stats
@@ -90,7 +90,7 @@ module Deepblue
                                    first_id: first_id,
                                    measurements: measurements,
                                    total: total,
-                                   msg_queue: msg_queue )
+                                   msg_handler: msg_handler )
     end
 
     def run_all

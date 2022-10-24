@@ -31,9 +31,7 @@ END_OF_SCHEDULER_ENTRY
     log( event: "globus status report job", hostname_allowed: hostname_allowed? )
     return job_finished unless by_request_only? && from_dashboard.present?
     return job_finished unless hostname_allowed?
-    report = ::Deepblue::GlobusIntegrationService.globus_status_report( msg_handler: msg_handler,
-                                                                        quiet: msg_handler.quiet,
-                                                                        debug_verbose: debug_verbose )
+    report = ::Deepblue::GlobusIntegrationService.globus_status_report( msg_handler: msg_handler )
     if report.out.present?
       event = "globus status report job"
       email_all_targets( task_name: "globus status report",

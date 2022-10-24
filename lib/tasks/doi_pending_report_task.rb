@@ -13,8 +13,8 @@ module Deepblue
 
     attr_accessor :prefix, :quiet, :report_dir, :report_file
 
-    def initialize( options: {}, msg_handler: nil, msg_queue: nil, debug_verbose: false )
-      super( options: options, msg_handler: msg_handler, msg_queue: msg_queue, debug_verbose: debug_verbose )
+    def initialize( options: {}, msg_handler: nil )
+      super( options: options, msg_handler: msg_handler )
     end
 
     def run
@@ -22,7 +22,7 @@ module Deepblue
       # puts "options=#{options}"
       @quiet = task_options_value( key: 'quiet', default_value: DEFAULT_REPORT_QUIET )
       @verbose = false if quiet
-      reporter = DoiPendingReporter.new( debug_verbose: verbose, msg_handler: msg_handler )
+      reporter = DoiPendingReporter.new( msg_handler: msg_handler )
       reporter.run
       report = reporter.out
       return unless report.present?

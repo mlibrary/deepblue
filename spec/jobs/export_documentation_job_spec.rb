@@ -30,7 +30,7 @@ RSpec.describe ExportDocumentationJob do
       expect(::Deepblue::YamlPopulateFromCollection).to receive(:new) do |args|
         expect(args[:id]).to eq ::Deepblue::WorkViewContentService.content_documentation_collection_id
         expect(args[:options]).to eq expected_args[:options]
-        expect(args[:msg_queue]).to eq []
+        expect(args[:msg_handler]).to_not eq nil
       end.and_return service
       expect(service).to receive(:run).with(no_args)
       ActiveJob::Base.queue_adapter = :test

@@ -30,9 +30,8 @@ RSpec.describe ::Deepblue::AbstractReportTask, skip: false do
 
       it "has the correct options" do
         expect( task.options ).to eq options.with_indifferent_access
-        expect( task.msg_queue ).to eq nil
-        expect( task.to_console ).to eq described_class::DEFAULT_TO_CONSOLE
-        expect( task.verbose ).to eq described_class::DEFAULT_VERBOSE
+        expect( task.to_console ).to eq true
+        expect( task.verbose ).to eq false
         expect( task.logger ).to eq logger
       end
 
@@ -48,9 +47,8 @@ RSpec.describe ::Deepblue::AbstractReportTask, skip: false do
 
       it "has the correct options" do
         expect( task.options ).to eq options_expected
-        expect( task.msg_queue ).to eq nil
-        expect( task.to_console ).to eq described_class::DEFAULT_TO_CONSOLE
-        expect( task.verbose ).to eq described_class::DEFAULT_VERBOSE
+        expect( task.to_console ).to eq true
+        expect( task.verbose ).to eq false
         expect( task.logger ).to eq logger
       end
 

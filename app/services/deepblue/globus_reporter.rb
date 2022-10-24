@@ -6,37 +6,19 @@ module Deepblue
 
   class GlobusReporter < AbstractReporter
 
-    attr_accessor :error_ids
-    attr_accessor :locked_ids
-    attr_accessor :prep_dir_ids
-    attr_accessor :prep_dir_tmp_ids
-    attr_accessor :ready_ids
+    attr_accessor :globus_status
 
-    def initialize( error_ids: {},
-                    locked_ids: {},
-                    prep_dir_ids: {},
-                    prep_dir_tmp_ids: {},
-                    ready_ids: {},
-                    msg_handler:,
-                    debug_verbose: false,
-                    as_html: false, # TODO
-                    options: {} )
-
-      # TODO: ?? merge the keys from various hashes
-      super( msg_handler: msg_handler, as_html: as_html, debug_verbose: debug_verbose, options: options )
-      @error_ids = error_ids
-      @locked_ids = locked_ids
-      @prep_dir_ids = prep_dir_ids
-      @prep_dir_tmp_ids = prep_dir_tmp_ids
-      @ready_ids = ready_ids
+    def initialize( globus_status:, msg_handler:, as_html: false, options: {} )
+      super( msg_handler: msg_handler, as_html: as_html, options: options )
+      @globus_status = globus_status
     end
 
     def report
-      report_section( header: "Globus Works with Error Files:", hash: error_ids )
-      report_section( header: "Globus Works with Lock Files:", hash: locked_ids )
-      report_section( header: "Globus Works with Prep Dirs:", hash: prep_dir_ids )
-      report_section( header: "Globus Works with Prep Tmp Dirs:", hash: prep_dir_tmp_ids )
-      report_section( header: "Globus Works Ready:", hash: ready_ids )
+      report_section( header: "Globus Works with Error Files:", hash: @globus_status.error_ids )
+      report_section( header: "Globus Works with Lock Files:", hash: @globus_status.locked_ids )
+      report_section( header: "Globus Works with Prep Dirs:", hash: @globus_status.prep_dir_ids )
+      report_section( header: "Globus Works with Prep Tmp Dirs:", hash: @globus_status.prep_dir_tmp_ids )
+      report_section( header: "Globus Works Ready:", hash: @globus_status.ready_ids ) unless @globus_status.skip_ready
     end
 
     def report_section( header:, hash: )
@@ -47,8 +29,10 @@ module Deepblue
         r_line "None."
       else
         r_list_begin( 'ul' )
-        hash.each_key do |id|
+        hash.each_pair do |id, path|
           r_list_item( ::Deepblue::EmailHelper.data_set_url( id: id ), as_link: true )
+          r_list_item( path ) if globus_status.include_disk_usage
+          r_list_item( globus_status.disk_usage[path] ) if globus_status.include_disk_usage
         end
         r_list_end( 'ul' )
       end

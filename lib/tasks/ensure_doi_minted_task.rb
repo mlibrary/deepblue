@@ -9,9 +9,9 @@ module Deepblue
 
     attr_accessor :id
 
-    def initialize( id:, options: {} )
+    def initialize( id:, msg_handler: nil, options: {} )
       @id = id
-      super( options: options )
+      super( msg_handler: msg_handler, options: options )
     end
 
     def run

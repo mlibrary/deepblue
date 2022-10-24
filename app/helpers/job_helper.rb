@@ -12,18 +12,14 @@ module JobHelper
   attr_writer   :hostname_allowed
   attr_writer   :hostnames
   attr_writer   :job_delay
-  # attr_writer   :job_msg_queue
   attr_accessor :job_status
   attr_writer   :msg_handler
   attr_accessor :options
-  # attr_writer   :quiet # use msg_handler.quiet = true
   attr_accessor :restartable
   attr_writer   :subscription_service_id
   attr_writer   :task_name
   attr_writer   :timestamp_begin
   attr_writer   :timestamp_end
-  # attr_writer   :task # use msg_handler.to_console = true
-  # attr_writer   :verbose # use msg_handler.verbose = true
 
   def by_request_only
     @by_request_only ||= job_options_value( key: 'by_request_only', default_value: false )

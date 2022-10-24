@@ -364,14 +364,6 @@ END_BODY
       end
     end
 
-    def self.job_task_puts( str = '', msg_queue = nil )
-      if msg_queue
-        msg_queue << str
-      else
-        puts str
-      end
-    end
-
     def self.normalize_args( *args, debug_verbose: job_task_helper_debug_verbose )
       debug_verbose = debug_verbose && job_task_helper_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -452,10 +444,10 @@ END_BODY
       return { 'error': e, 'options_str': options_str }
     end
 
-    def self.options_value( options, key:, default_value: nil, verbose: false, msg_queue: nil )
+    def self.options_value( options, key:, default_value: nil, verbose: false, msg_handler: nil )
       return default_value if options.blank?
       return default_value unless options.key? key
-      job_task_puts "set key #{key} to #{options[key]}", msg_queue if verbose
+      msg_handler.msg_verbose "set key #{key} to #{options[key]}" if verbose
       return options[key]
     end
 

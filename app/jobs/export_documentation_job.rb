@@ -50,7 +50,7 @@ export_log_files_job:
                      "export_files" => true,
                      "mode" => "build" }
     log( event: "export documentation job", **task_options )
-    task = ::Deepblue::YamlPopulateFromCollection.new( id: id, options: task_options, msg_queue: msg_handler.msg_queue )
+    task = ::Deepblue::YamlPopulateFromCollection.new( id: id, options: task_options, msg_handler: msg_handler )
     task.run
     email_all_targets( task_name: EVENT, event: EVENT )
     job_finished

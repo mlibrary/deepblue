@@ -11,18 +11,18 @@ end
 RSpec.describe ::Deepblue::AbstractService do
 
   describe 'constants' do
-    it { expect( ::Deepblue::AbstractService::DEFAULT_QUIET ).to eq false }
-    it { expect( ::Deepblue::AbstractService::DEFAULT_TO_CONSOLE ).to eq false }
-    it { expect( ::Deepblue::AbstractService::DEFAULT_VERBOSE ).to eq false }
+    # it { expect( ::Deepblue::AbstractService::DEFAULT_QUIET ).to eq false }
+    # it { expect( ::Deepblue::AbstractService::DEFAULT_TO_CONSOLE ).to eq false }
+    # it { expect( ::Deepblue::AbstractService::DEFAULT_VERBOSE ).to eq false }
   end
 
   describe 'new' do
     let( :default_logger )        { Rails.logger }
     let( :default_options_error ) { nil }
-    let( :default_quiet )         { ::Deepblue::AbstractService::DEFAULT_QUIET }
+    let( :default_quiet )         { ::Deepblue::MessageHandler::DEFAULT_QUIET }
     let( :default_subscription_service_id ) { nil }
-    let( :default_to_console )    { ::Deepblue::AbstractService::DEFAULT_TO_CONSOLE }
-    let( :default_verbose )       { ::Deepblue::AbstractService::DEFAULT_VERBOSE }
+    let( :default_to_console )    { false }
+    let( :default_verbose )       { ::Deepblue::MessageHandler::DEFAULT_VERBOSE }
     let( :error )                 { "an error" }
     let( :service )               { MockService.allocate }
     let(:subscription_service_id) { "subscriptionServiceID" }
@@ -34,8 +34,7 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(msg_handler).to_not receive(:msg)
         expect(msg_handler).to_not receive(:msg_debug)
         expect(msg_handler).to_not receive(:msg_error)
-        # expect(msg_handler).to_not receive(:msg_verbose)
-        expect(msg_handler).to receive(:msg_verbose).with("@verbose=false")
+        expect(msg_handler).to_not receive(:msg_verbose)
         expect(msg_handler).to_not receive(:msg_warn)
       end
       it 'has default values' do
@@ -45,7 +44,6 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(service.options_error).to eq default_options_error
         expect(service.quiet).to         eq default_quiet
         expect(service.subscription_service_id).to eq default_subscription_service_id
-        # expect(service.to_console).to    eq default_to_console
         expect(service.verbose).to       eq default_verbose
       end
     end
@@ -58,8 +56,7 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(msg_handler).to_not receive(:msg)
         expect(msg_handler).to_not receive(:msg_debug)
         expect(msg_handler).to_not receive(:msg_error)
-        # expect(msg_handler).to_not receive(:msg_verbose)
-        expect(msg_handler).to receive(:msg_verbose).with("@verbose=false")
+        expect(msg_handler).to_not receive(:msg_verbose)
         expect(msg_handler).to_not receive(:msg_warn)
       end
       it 'has default values' do
@@ -68,7 +65,6 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(service.options_error).to eq default_options_error
         expect(service.quiet).to         eq default_quiet
         expect(service.subscription_service_id).to eq default_subscription_service_id
-        # expect(service.to_console).to    eq default_to_console
         expect(service.verbose).to       eq default_verbose
       end
     end
@@ -81,8 +77,7 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(msg_handler).to_not receive(:msg)
         expect(msg_handler).to_not receive(:msg_debug)
         expect(msg_handler).to_not receive(:msg_error)
-        # expect(msg_handler).to_not receive(:msg_verbose)
-        expect(msg_handler).to receive(:msg_verbose).with("@verbose=false")
+        expect(msg_handler).to_not receive(:msg_verbose)
         # expect(msg_handler).to_not receive(:msg_warn)
         expect(msg_handler).to receive(:msg_warn).with ("options error an error")
       end
@@ -92,7 +87,6 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(service.options_error).to eq error
         expect(service.quiet).to         eq default_quiet
         expect(service.subscription_service_id).to eq default_subscription_service_id
-        # expect(service.to_console).to    eq default_to_console
         expect(service.verbose).to       eq default_verbose
       end
     end
@@ -105,9 +99,7 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(msg_handler).to_not receive(:msg)
         expect(msg_handler).to_not receive(:msg_debug)
         expect(msg_handler).to_not receive(:msg_error)
-        # expect(msg_handler).to_not receive(:msg_verbose)
-        expect(msg_handler).to receive(:msg_verbose).with("@verbose=false")
-        # expect(msg_handler).to_not receive(:msg_warn)
+        expect(msg_handler).to_not receive(:msg_verbose)
         expect(msg_handler).to receive(:msg_warn).with("options error an error")
       end
       it 'has default values' do
@@ -116,7 +108,6 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(service.options_error).to eq error
         expect(service.quiet).to         eq default_quiet
         expect(service.subscription_service_id).to eq default_subscription_service_id
-        # expect(service.to_console).to    eq default_to_console
         expect(service.verbose).to       eq default_verbose
       end
     end
@@ -127,9 +118,7 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(msg_handler).to_not receive(:buffer)
         expect(msg_handler).to_not receive(:msg_debug)
         expect(msg_handler).to_not receive(:msg_error)
-        # expect(msg_handler).to_not receive(:msg_verbose)
-        expect(msg_handler).to receive(:msg_verbose).with("@verbose=false")
-        # expect(msg_handler).to_not receive(:msg_warn)
+        expect(msg_handler).to_not receive(:msg_verbose)
         expect(msg_handler).to receive(:msg_warn).with("options error 859: unexpected token at 'garbage'")
       end
       it 'has default values' do
@@ -137,7 +126,6 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(service.logger).to        eq default_logger
         expect(service.options_error.message).to match /8\d\d: unexpected token at 'garbage'/
         expect(service.quiet).to         eq default_quiet
-        # expect(service.to_console).to    eq default_to_console
         expect(service.verbose).to       eq default_verbose
       end
     end
@@ -149,9 +137,7 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(msg_handler).to_not receive(:msg)
         expect(msg_handler).to_not receive(:msg_debug)
         expect(msg_handler).to_not receive(:msg_error)
-        # expect(msg_handler).to_not receive(:msg_verbose)
         expect(msg_handler).to receive(:msg_verbose).with("set key quiet to true")
-        expect(msg_handler).to receive(:msg_verbose).with("@verbose=false")
         expect(msg_handler).to_not receive(:msg_warn)
       end
       it 'has default values' do
@@ -160,7 +146,6 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(service.options_error).to eq default_options_error
         expect(service.quiet).to         eq true
         expect(service.subscription_service_id).to eq default_subscription_service_id
-        # expect(service.to_console).to    eq false
         expect(service.verbose).to       eq false
       end
     end
@@ -173,7 +158,6 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(msg_handler).to_not receive(:msg_debug)
         expect(msg_handler).to_not receive(:msg_error)
         expect(msg_handler).to receive(:msg_verbose).with("set key quiet to true")
-        expect(msg_handler).to receive(:msg_verbose).with("@verbose=false")
         expect(msg_handler).to_not receive(:msg_warn)
       end
       it 'has default values' do
@@ -184,7 +168,6 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(service.options_error).to eq default_options_error
         expect(service.quiet).to         eq true
         expect(service.subscription_service_id).to eq default_subscription_service_id
-        # expect(service.to_console).to    eq false
         expect(service.verbose).to       eq false
       end
     end
@@ -196,9 +179,8 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(msg_handler).to_not receive(:msg)
         expect(msg_handler).to_not receive(:msg_debug)
         expect(msg_handler).to_not receive(:msg_error)
-        # expect(msg_handler).to_not receive(:msg_verbose)
         expect(msg_handler).to receive(:msg_verbose).with("set key quiet to true")
-        expect(msg_handler).to receive(:msg_verbose).with("@verbose=false")
+        expect(msg_handler).to receive(:msg_verbose).with("set key verbose to true")
         expect(msg_handler).to_not receive(:msg_warn)
       end
       it 'has default values' do
@@ -207,7 +189,6 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(service.options_error).to eq default_options_error
         expect(service.quiet).to         eq true
         expect(service.subscription_service_id).to eq default_subscription_service_id
-        # expect(service.to_console).to    eq false
         expect(service.verbose).to       eq false
       end
     end
@@ -219,9 +200,7 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(msg_handler).to_not receive(:msg)
         expect(msg_handler).to_not receive(:msg_debug)
         expect(msg_handler).to_not receive(:msg_error)
-        # expect(msg_handler).to_not receive(:msg_verbose)
         expect(msg_handler).to receive(:msg_verbose).with("set key verbose to true")
-        expect(msg_handler).to receive(:msg_verbose).with("@verbose=true")
         expect(msg_handler).to_not receive(:msg_warn)
       end
       it 'has default values' do
@@ -230,7 +209,6 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(service.options_error).to eq default_options_error
         expect(service.quiet).to         eq false
         expect(service.subscription_service_id).to eq default_subscription_service_id
-        # expect(service.to_console).to    eq false
         expect(service.verbose).to       eq true
       end
     end
@@ -246,7 +224,6 @@ RSpec.describe ::Deepblue::AbstractService do
         # expect(msg_handler).to_not receive(:msg_verbose)
         expect(msg_handler).to receive(:msg_verbose).with("set key verbose to true")
         expect(msg_handler).to receive(:msg_verbose).with("set key subscription_service_id to subscriptionServiceID")
-        expect(msg_handler).to receive(:msg_verbose).with("@verbose=true")
         expect(msg_handler).to_not receive(:msg_warn)
       end
       it 'has default values' do
@@ -257,7 +234,6 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(service.options_error).to eq default_options_error
         expect(service.quiet).to         eq false
         expect(service.subscription_service_id).to eq subscription_service_id
-        # expect(service.to_console).to    eq false
         expect(service.verbose).to       eq true
       end
     end

@@ -17,7 +17,7 @@ RSpec.describe ::Deepblue::CleanDerivativesDirService do
     RSpec.shared_examples 'CleanDerivativesDirService' do |debug_verbose_count|
       let(:dbg_verbose)   { debug_verbose_count > 0 }
       let(:time_before)   { DateTime.now }
-      let(:base_dir)      {Pathname.new ::Deepblue::DiskUtilitiesHelper.tmp_derivatives_path}
+      let(:base_dir)      { Pathname.new ::Deepblue::DiskUtilitiesHelper.tmp_derivatives_path }
       let(:first_msg)     { "Disk usage before: disk usage" }
       let(:recursive)     { false }
 
@@ -99,7 +99,7 @@ RSpec.describe ::Deepblue::CleanDerivativesDirService do
           expect(args[:verbose]).to eq verbose
         end
         service = described_class.new( days_old: days_old,
-                                       job_msg_queue: job_msg_queue,
+                                       msg_handler: msg_handler,
                                        to_console: false,
                                        verbose: verbose )
         allow(service).to receive(:report_du).and_return "disk usage"
@@ -114,7 +114,7 @@ RSpec.describe ::Deepblue::CleanDerivativesDirService do
 
   describe 'calls the service' do
     let(:days_old)      { 7 }
-    let(:job_msg_queue) { [] }
+    let(:msg_handler)   { nil }
     let(:to_console)    { false }
     let(:verbose)       { true }
     debug_verbose_count = 0

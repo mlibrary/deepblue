@@ -7,21 +7,12 @@ module Deepblue
 
   class AbstractReporter < AbstractService
 
-    attr_accessor :as_html
-    attr_accessor :quiet
-    attr_accessor :debug_verbose
+    attr_accessor :as_html # TODO
     attr_accessor :out
 
-    def initialize( debug_verbose: false,
-                    as_html: false, # TODO
-                    msg_handler:,
-                    options: {} )
-
-      # TODO: ?? merge the keys from various hashes
+    def initialize( as_html: false, msg_handler:, options: {} )
       super( msg_handler: msg_handler, options: options )
-      @as_html = as_html
-      @debug_verbose = debug_verbose
-      msg_handler.debug_verbose = @debug_verbose
+      @as_html = as_html # TODO
     end
 
     def initialize_report_values

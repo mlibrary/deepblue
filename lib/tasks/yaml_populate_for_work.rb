@@ -41,8 +41,8 @@ module Deepblue
 
   class YamlPopulateFromAllWorks < Deepblue::YamlPopulate
 
-    def initialize( options:, msg_queue: nil  )
-      super( populate_type: 'work', options: options, msg_queue: msg_queue )
+    def initialize( options:  )
+      super( populate_type: 'work', options: options )
       @export_files = task_options_value( key: 'export_files', default_value: false )
       @ids = []
     end
@@ -59,8 +59,8 @@ module Deepblue
 
   class YamlPopulateFromWork < Deepblue::YamlPopulate
 
-    def initialize( id:, options:, msg_queue: nil  )
-      super( populate_type: 'work', options: options, msg_queue: msg_queue )
+    def initialize( id:, options:  )
+      super( populate_type: 'work', options: options )
       @id = id
     end
 
@@ -74,8 +74,8 @@ module Deepblue
 
   class YamlPopulateFromMultipleWorks < Deepblue::YamlPopulate
 
-    def initialize( ids:, options:, msg_queue: nil  )
-      super( populate_type: 'work', options: options, msg_queue: msg_queue )
+    def initialize( ids:, options: )
+      super( populate_type: 'work', options: options )
       @ids = ids.split( ' ' )
     end
 

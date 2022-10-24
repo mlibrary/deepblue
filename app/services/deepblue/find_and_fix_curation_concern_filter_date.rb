@@ -69,7 +69,7 @@ class Deepblue::FindAndFixCurationConcernFilterDate
     begin
       rv = DateTime.strptime( date, format )
     rescue ArgumentError => e
-      msg_puts "ERROR: ArgumentError in FindAndFixCurationConcernFilterDate.to_datetime( #{date}, #{format} )"
+      msg_handler.msg_error "ArgumentError in FindAndFixCurationConcernFilterDate.to_datetime( #{date}, #{format} )"
       raise e
     end
     return rv

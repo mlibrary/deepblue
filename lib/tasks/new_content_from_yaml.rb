@@ -53,7 +53,11 @@ module Deepblue
     end
 
     def report_work( first_id:, measurements:, total: nil )
-      TaskHelper.benchmark_report( label: first_id, first_id: first_id, measurements: measurements, total: total )
+      TaskHelper.benchmark_report( label: first_id,
+                                   first_id: first_id,
+                                   measurements: measurements,
+                                   total: total,
+                                   msg_handler: msg_handler )
     end
 
     def run

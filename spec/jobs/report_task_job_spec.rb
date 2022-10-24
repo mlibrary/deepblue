@@ -36,6 +36,9 @@ RSpec.describe ReportTaskJob, skip: false do
         let(:report_task) { class_double(::Deepblue::ReportTask ).as_stubbed_const(:transfer_nested_constants => true) }
         let(:task)        { instance_double(::Deepblue::ReportTask ) }
         let(:reporter)    { "reporter@umich.edu" }
+        let(:msg_handler) { ::Deepblue::MessageHandler.new( debug_verbose: dbg_verbose,
+                                                            to_console: false,
+                                                            verbose: false ) }
         let(:options)     { {} }
         let(:allowed_path_extensions) { [ '.yml', '.yaml' ] }
         let(:allowed_path_prefixes)   { [ '/deepbluedata-prep/',
@@ -56,12 +59,12 @@ RSpec.describe ReportTaskJob, skip: false do
             expect( job ).to receive( :validate_report_file_path ).with( no_args ).and_return true
             expect( job ).to receive( :email_results ).with( no_args )
             expect( job ).to_not receive( :email_failure ).with( any_args )
+            allow( job ).to receive(:msg_handler).and_return msg_handler
             expect( report_task ).to receive(:new ).with( allowed_path_extensions: allowed_path_extensions,
                                                           allowed_path_prefixes: allowed_path_prefixes,
-                                                          msg_queue: [],
                                                           reporter: reporter,
                                                           report_definitions_file: path1,
-                                                          verbose: false,
+                                                          msg_handler: msg_handler,
                                                           options: options ).and_return task
             expect( task ).to receive(:run ).with( no_args )
           end
