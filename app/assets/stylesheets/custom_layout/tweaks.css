@@ -882,4 +882,9 @@ input[type="file"] {
 .list-file-header {
   font-weight: 600;
 }
+
+h2 {
+  font-weight: 600;
+}
+
 /* End Add file formatting. */
