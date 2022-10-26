@@ -5,7 +5,15 @@ class GlobusDashboardPresenter
   include ::Deepblue::DeepbluePresenterBehavior
 
   delegate :globus_status, to: :controller
-  # delegate :report_file_path, to: :controller
+
+  delegate :globus_download_enabled?, to: :controller
+  delegate :globus_enabled?, to: :controller
+  delegate :globus_error_file_exists?, to: :controller
+  delegate :globus_external_url, to: :controller
+  delegate :globus_files_available?, to: :controller
+  delegate :globus_files_prepping?, to: :controller
+  delegate :globus_last_error_msg, to: :controller
+  delegate :globus_locked?, to: :controller
 
   attr_accessor :controller, :current_ability
 

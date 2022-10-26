@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../../helpers/config_helper'
+
 module Deepblue
 
   module GlobusIntegrationService
@@ -27,20 +29,24 @@ module Deepblue
     mattr_accessor :globus_after_copy_job_ui_delay_seconds,       default: 3
     mattr_accessor :globus_base_file_name,                        default: "DeepBlueData_"
     mattr_accessor :globus_base_url,                              default: 'https://app.globus.org/file-manager?origin_id=99d8c648-a9ff-11e7-aedd-22000a92523b&origin_path=%2Fdownload%2F'
-    mattr_accessor :globus_best_used_gt_size
-    mattr_accessor :globus_best_used_gt_size_str
+    mattr_accessor :globus_best_used_gt_size,                     default: 3.gigabytes
+    mattr_accessor :globus_best_used_gt_size_str,                 default: ::ConfigHelper.human_readable_size(globus_best_used_gt_size)
     mattr_accessor :globus_bounce_external_link_off_server,       default: true
-    mattr_accessor :globus_copy_file_group
-    mattr_accessor :globus_copy_file_permissions
+    mattr_accessor :globus_copy_file_group,                       default: nil
+    mattr_accessor :globus_copy_file_permissions,                 default: "u=rw,g=rw,o=r"
+    mattr_accessor :globus_dashboard_display_all_works,           default: false
+    mattr_accessor :globus_dashboard_display_report,              default: false
     mattr_accessor :globus_debug_delay_per_file_copy_job_seconds, default: 0
-    mattr_accessor :globus_dir
-    mattr_accessor :globus_dir_modifier
-    mattr_accessor :globus_download_dir
+    mattr_accessor :globus_dir,                                   default: '/tmp/deepbluedata-globus'
+    mattr_accessor :globus_dir_modifier,                          default: ''
+    mattr_accessor :globus_download_dir,                          default: File.join( globus_dir,
+                                                                        ::Deepblue::InitializationConstants::DOWNLOAD )
     mattr_accessor :globus_enabled,                               default: false
     mattr_accessor :globus_era_timestamp
     mattr_accessor :globus_era_token
-    mattr_accessor :globus_prep_dir
-    mattr_accessor :globus_restart_all_copy_jobs_quiet
+    mattr_accessor :globus_prep_dir,                             default: File.join( globus_dir,
+                                                                         ::Deepblue::InitializationConstants::PREP )
+    mattr_accessor :globus_restart_all_copy_jobs_quiet,          default: true
 
     def self.globus_int_srv()
       puts "globus_int_srv"
