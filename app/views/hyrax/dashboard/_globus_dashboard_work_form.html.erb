@@ -1,0 +1,39 @@
+<% if header %>
+  <tr>
+    <td>Work ID</td>
+    <td>Prepping?</td>
+    <td>Files Available?</td>
+    <td>Error File Present?</td>
+    <td>Locked?</td>
+    <td>Ready?</td>
+    <td>&nbsp;</td>
+  </tr>
+<% else %>
+  <%= form_tag(main_app.globus_dashboard_run_action_path, method: 'post') do %>
+    <%= hidden_field_tag('work_id', work_id) %>
+    <% if false %>
+    <h3><%= link_to work_id, main_app.hyrax_data_set_path(work_id), target: '_blank' %></h3>
+    Prepping: <%= @view_presenter.globus_files_prepping?( work_id ) %><br/>
+    Files Available: <%= @view_presenter.globus_files_available?( work_id ) %><br/>
+    Error File Present: <%= @view_presenter.globus_error_file_exists?( work_id ) %><br/>
+    Error Message: <%= @view_presenter.globus_last_error_msg( work_id ) %><br/>
+    Locked: <%= @view_presenter.globus_locked?( work_id ) %><br/>
+    <%= submit_tag( t('hyrax.globus.submit.clean'), class: 'btn btn-primary', id: "clean_#{work_id}" ) %>&nbsp;
+    <%= submit_tag( t('hyrax.globus.submit.copy'), class: 'btn btn-primary', id: "copy_#{work_id}" ) %>
+    <br/><br/>
+    <% else %>
+    <tr>
+      <td><%= link_to work_id, main_app.hyrax_data_set_path(work_id), target: '_blank' %></td>
+      <td><%= @view_presenter.globus_files_prepping?( work_id ) %></td>
+      <td><%= @view_presenter.globus_files_available?( work_id ) %></td>
+      <td><%= @view_presenter.globus_error_file_exists?( work_id ) %></td>
+      <td><%= @view_presenter.globus_last_error_msg( work_id ) %></td>
+      <td><%= @view_presenter.globus_locked?( work_id ) %></td>
+      <td>
+        <%= submit_tag( t('hyrax.globus.submit.clean'), class: 'btn btn-primary', id: "clean_#{work_id}" ) %>&nbsp;
+        <%= submit_tag( t('hyrax.globus.submit.copy'), class: 'btn btn-primary', id: "copy_#{work_id}" ) %>
+      </td>
+    </tr>
+    <% end %>
+  <% end %>
+<% end %>

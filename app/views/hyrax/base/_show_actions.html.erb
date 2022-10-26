@@ -79,7 +79,8 @@
                 </p>
               <% elsif !@presenter.globus_files_prepping? %>
                 <br/>
-                <%= submit_tag(t('simple_form.actions.data_set.globus_download'), class: 'btn btn-primary', disabled: @presenter.does_work_have_no_files) %>
+                <%= submit_tag(t('simple_form.actions.data_set.globus_download'),
+                               class: 'btn btn-primary', disabled: @presenter.does_work_have_no_files) %>
                 <br/>
                 <%= t('simple_form.hints.data_set.globus_is_for_large_datasets', larger_than: ::Deepblue::GlobusIntegrationService.globus_best_used_gt_size_str ) %> &nbsp;
                 <a href="<%= main_app.static_path( doc: 'globus-help' ) %>" target="_blank">

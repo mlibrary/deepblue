@@ -79,7 +79,10 @@
           <td><%= job_name %></td>
           <td><%= raw @presenter.cron_entry job_parameters %></td>
           <td><%= job_parameters['description'] %></td>
-          <td><%= submit_tag( t('hyrax.scheduler.submit.run'), class: 'btn btn-primary', id: "submit_#{job_name}", data: { confirm: "Confirm run job?" } ) %></td>
+          <td><%= submit_tag( t('hyrax.scheduler.submit.run'),
+                              class: 'btn btn-primary',
+                              id: "submit_#{job_name}",
+                              data: { confirm: "Confirm run job?" } ) %></td>
           <% if args.present? && args['subscription_service_id'].present? %>
             <% ssid = args['subscription_service_id'] %>
             <% if @presenter.scheduler_subscribe_jobs_hash[ssid] %>

@@ -81,8 +81,11 @@ Deepblue::GlobusIntegrationService.setup do |config|
   end
   config.globus_copy_file_permissions = "u=rw,g=rw,o=r"
   config.globus_best_used_gt_size = 3.gigabytes
-  config.globus_best_used_gt_size_str = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert(config.globus_best_used_gt_size, {})
+  config.globus_best_used_gt_size_str = ::ConfigHelper.human_readable_size(config.globus_best_used_gt_size)
 
   config.globus_bounce_external_link_off_server = true
+
+  config.globus_dashboard_display_all_works = true
+  config.globus_dashboard_display_report = true
 
 end

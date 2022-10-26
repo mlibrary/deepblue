@@ -284,6 +284,7 @@ en:
       globus:
         heading:
           actions:          "Actions"
+          all:              "All Works"
           log:              "Log"
           errors:           "Globus Works with Error Files"
           locked:           "Globus Works with Lock Files"
@@ -678,6 +679,11 @@ en:
     footer:
       copyright_html: "<strong>Copyright &copy; 2017 Samvera</strong> Licensed under the Apache License, Version 2.0"
       service_html: A service of <a href="http://samvera.org/" class="navbar-link" target="_blank" rel="noopener noreferrer">Samvera</a>.
+    globus:
+      submit:
+        clean:              "Clean"
+        copy:               "Copy"
+        rerun:              "Rerun"
     i18n:
       templates:
         keys_loaded:        "N/A"
