@@ -7,6 +7,7 @@ class GlobusDashboardPresenter
   delegate :globus_status, to: :controller
 
   delegate :globus_download_enabled?, to: :controller
+  delegate :globus_du_for, to: :controller
   delegate :globus_enabled?, to: :controller
   delegate :globus_error_file_exists?, to: :controller
   delegate :globus_external_url, to: :controller

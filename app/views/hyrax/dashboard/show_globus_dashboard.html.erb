@@ -2,6 +2,17 @@
   <h1><%= t("hyrax.dashboard.globus.title") %></h1>
 <% end %>
 
+<div>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title text-center"><%= "Globus Disk Usage" %></h3>
+    </div>
+    <div class="panel-body text-center">
+      <div class="h4 info-div"><%= raw ::Deepblue::SystemMonitorHelper.space_globus %></div>
+    </div>
+  </div>
+</div>
+<br/><br/>
 <div class="documentation-div">
 <h2 class="title-header"><%= t('hyrax.dashboard.globus.heading.status') %></h2>
   <ul>
@@ -32,9 +43,9 @@
     <%= t('hyrax.dashboard.globus.none') %>
   <% else %>
     <table>
-      <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: true } %>
+      <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: true, du: false } %>
       <% @view_presenter.globus_status.error_ids.each_key do |id| %>
-        <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: false, work_id: id } %>
+        <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: false, du: false, work_id: id } %>
       <% end %>
     </table>
   <% end %>
@@ -44,9 +55,9 @@
     <%= t('hyrax.dashboard.globus.none') %>
   <% else %>
     <table>
-      <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: true } %>
+      <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: true, du: false } %>
       <% @view_presenter.globus_status.locked_ids.each_key do |id| %>
-        <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: false, work_id: id } %>
+        <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: false, du: false, work_id: id } %>
       <% end %>
     </table>
   <% end %>
@@ -56,9 +67,9 @@
     <%= t('hyrax.dashboard.globus.none') %>
   <% else %>
     <table>
-      <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: true } %>
+      <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: true, du: true } %>
       <% @view_presenter.globus_status.prep_dir_ids.each_key do |id| %>
-        <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: false, work_id: id } %>
+        <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: false, du: true, work_id: id } %>
       <% end %>
     </table>
   <% end %>
@@ -68,9 +79,9 @@
     <%= t('hyrax.dashboard.globus.none') %>
   <% else %>
     <table>
-      <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: true } %>
+      <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: true, du: false } %>
       <% @view_presenter.globus_status.prep_dir_tmp_ids.each_key do |id| %>
-        <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: false, work_id: id } %>
+        <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: false, du: false, work_id: id } %>
       <% end %>
     </table>
   <% end %>
@@ -80,9 +91,9 @@
     <%= t('hyrax.dashboard.globus.none') %>
   <% else %>
     <table>
-    <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: true } %>
+    <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: true, du: true } %>
     <% @view_presenter.globus_status.ready_ids.each_key do |id| %>
-      <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: false, work_id: id } %>
+      <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: false, du: true, work_id: id } %>
     <% end %>
     </table>
   <% end %>
@@ -90,9 +101,9 @@
   <h2 class="title-header"><%= t('hyrax.dashboard.globus.heading.all') %></h2>
   <% if ::Deepblue::GlobusIntegrationService.globus_dashboard_display_all_works %>
     <table>
-      <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: true } %>
+      <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: true, du: true } %>
       <% DataSet.all.each do |work| %>
-        <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: false, work_id: work.id } %>
+        <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: false, du: true, work_id: work.id } %>
       <% end %>
     </table>
   <% end %>

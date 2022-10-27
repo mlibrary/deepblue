@@ -31,7 +31,8 @@ class GlobusDashboardController < ApplicationController
   def globus_status_init
     msg_handler = ::Deepblue::MessageHandler.new( verbose: false,
                                                   debug_verbose: globus_dashboard_controller_debug_verbose )
-    rv = ::Deepblue::GlobusIntegrationService.globus_status( msg_handler: msg_handler )
+    rv = ::Deepblue::GlobusIntegrationService.globus_status( include_disk_usage: true, msg_handler: msg_handler )
+    rv.yaml_save # TODO: revisit
     return rv
   end
 
@@ -115,6 +116,11 @@ class GlobusDashboardController < ApplicationController
 
   def globus_download_enabled?
     ::Deepblue::GlobusIntegrationService.globus_enabled
+  end
+
+  def globus_du_for( concern_id:, ready: )
+    return 'N/A' if globus_status.nil?
+    globus_status.du_for( concern_id: concern_id, ready: ready )
   end
 
   def globus_enabled?
