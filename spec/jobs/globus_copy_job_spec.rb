@@ -14,7 +14,7 @@ end
 
 describe GlobusCopyJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do # rubocop:disable RSpec/DescribeMethod
 
-  let( :globus_dir ) { Pathname "/tmp/deepbluedata-globus" }
+  let( :globus_dir ) { Pathname "./data/globus" }
   let( :globus_download_dir ) { globus_dir.join( 'download' ).join( 'test' ) }
   let( :globus_prep_dir ) { globus_dir.join( 'prep' ).join( 'test' ) }
   let( :target_name ) { "DeepBlueData_id321" }
@@ -79,7 +79,7 @@ describe GlobusCopyJob, "GlobusJob globus_enabled: :true", globus_enabled: :true
         File.open( file2.path, 'w' ) { |f| f << "File02" << "\n" }
         described_class.perform_now( "id321", user_email: user_email )
         # expect( Rails.logger ).to have_received( :debug ).with( 'bogus so we can look at the logger output' )
-        file = '/tmp/deepbluedata-globus/prep/.test.error.DeepBlueData_id321'
+        file = './data/globus/prep/.test.error.DeepBlueData_id321'
         if File.exist? file
           puts ">>>>>>>>>>>>>>>>>>"
           puts "Error file exists:"

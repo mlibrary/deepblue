@@ -37,7 +37,7 @@ module Deepblue
     mattr_accessor :globus_dashboard_display_all_works,           default: false
     mattr_accessor :globus_dashboard_display_report,              default: false
     mattr_accessor :globus_debug_delay_per_file_copy_job_seconds, default: 0
-    mattr_accessor :globus_dir,                                   default: '/tmp/deepbluedata-globus'
+    mattr_accessor :globus_dir,                                   default: './data/globus'
     mattr_accessor :globus_dir_modifier,                          default: ''
     mattr_accessor :globus_download_dir,                          default: File.join( globus_dir,
                                                                         ::Deepblue::InitializationConstants::DOWNLOAD )
@@ -52,16 +52,16 @@ module Deepblue
       puts "globus_int_srv"
     end
 
-    def self.globus_status( msg_handler: )
+    def self.globus_status( include_disk_usage: true, msg_handler: )
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ]  if msg_handler.debug_verbose
-      rv = GlobusStatus.new( msg_handler: msg_handler )
+      rv = GlobusStatus.new( include_disk_usage: include_disk_usage, msg_handler: msg_handler )
       rv.populate
       return rv
     end
 
     def self.globus_status_report( msg_handler:, errors_report: false )
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ]  if msg_handler.debug_verbose
-      rv = GlobusStatus.new( msg_handler: msg_handler, skip_ready: errors_report )
+      rv = GlobusStatus.new( msg_handler: msg_handler, skip_ready: errors_report, auto_populate: false )
       rv.populate
       return rv.reporter
     end

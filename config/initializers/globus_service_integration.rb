@@ -12,11 +12,11 @@ Deepblue::GlobusIntegrationService.setup do |config|
   config.globus_era_timestamp = Time.now.freeze
   config.globus_era_token = config.globus_era_timestamp.to_s.freeze
   if Rails.env.development?
-    # TODO
-    config.globus_dir = '/tmp/deepbluedata-globus'
+    config.globus_dir = './data/globus'
     FileUtils.mkdir_p config.globus_dir unless Dir.exist? config.globus_dir
   elsif Rails.env.test?
-    config.globus_dir = '/tmp/deepbluedata-globus'
+    # config.globus_dir = '/tmp/deepbluedata-globus'
+    config.globus_dir = './data/globus'
     FileUtils.mkdir_p config.globus_dir unless Dir.exist? config.globus_dir
   else
     config.globus_dir = '/deepbluedata-globus'
@@ -47,10 +47,8 @@ Deepblue::GlobusIntegrationService.setup do |config|
                                                      ::Deepblue::InitializationConstants::TEST )
   when ::Deepblue::InitializationConstants::HOSTNAME_LOCAL
     config.globus_dir_modifier = ::Deepblue::InitializationConstants::LOCAL
-    config.globus_download_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::DOWNLOAD,
-                                                         ::Deepblue::InitializationConstants::LOCAL )
-    config.globus_prep_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::PREP,
-                                                     ::Deepblue::InitializationConstants::LOCAL )
+    config.globus_download_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::DOWNLOAD )
+    config.globus_prep_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::PREP )
   else
     config.globus_dir_modifier = ::Deepblue::InitializationConstants::UNKNOWN
     config.globus_download_dir = config.globus_download_dir.join ::Deepblue::InitializationConstants::UNKNOWN

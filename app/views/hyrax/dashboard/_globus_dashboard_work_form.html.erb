@@ -4,8 +4,12 @@
     <td>Prepping?</td>
     <td>Files Available?</td>
     <td>Error File Present?</td>
+    <td>Last Error</td>
     <td>Locked?</td>
-    <td>Ready?</td>
+    <% if du %>
+      <td>Prep DU</td>
+      <td>Ready DU</td>
+    <% end %>
     <td>&nbsp;</td>
   </tr>
 <% else %>
@@ -29,6 +33,10 @@
       <td><%= @view_presenter.globus_error_file_exists?( work_id ) %></td>
       <td><%= @view_presenter.globus_last_error_msg( work_id ) %></td>
       <td><%= @view_presenter.globus_locked?( work_id ) %></td>
+      <% if du %>
+        <td><%= @view_presenter.globus_du_for( concern_id: work_id, ready: false ) %></td>
+        <td><%= @view_presenter.globus_du_for( concern_id: work_id, ready: true ) %></td>
+      <% end %>
       <td>
         <%= submit_tag( t('hyrax.globus.submit.clean'), class: 'btn btn-primary', id: "clean_#{work_id}" ) %>&nbsp;
         <%= submit_tag( t('hyrax.globus.submit.copy'), class: 'btn btn-primary', id: "copy_#{work_id}" ) %>

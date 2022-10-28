@@ -16,12 +16,14 @@ module Deepblue
     def report
       report_section( header: "Globus Works with Error Files:", hash: @globus_status.error_ids )
       report_section( header: "Globus Works with Lock Files:", hash: @globus_status.locked_ids )
-      report_section( header: "Globus Works with Prep Dirs:", hash: @globus_status.prep_dir_ids )
+      report_section( header: "Globus Works with Prep Dirs:", hash: @globus_status.prep_dir_ids, prep: true )
       report_section( header: "Globus Works with Prep Tmp Dirs:", hash: @globus_status.prep_dir_tmp_ids )
-      report_section( header: "Globus Works Ready:", hash: @globus_status.ready_ids ) unless @globus_status.skip_ready
+      report_section( header: "Globus Works Ready:",
+                      hash: @globus_status.ready_ids,
+                      ready: true ) unless @globus_status.skip_ready
     end
 
-    def report_section( header:, hash: )
+    def report_section( header:, hash:, ready: false, prep: false )
       return if hash.nil?
       return if quiet && !hash.present?
       r_header( header )
@@ -31,8 +33,10 @@ module Deepblue
         r_list_begin( 'ul' )
         hash.each_pair do |id, path|
           r_list_item( ::Deepblue::EmailHelper.data_set_url( id: id ), as_link: true )
-          r_list_item( path ) if globus_status.include_disk_usage
-          r_list_item( globus_status.disk_usage[path] ) if globus_status.include_disk_usage
+          if  @globus_status.include_disk_usage
+            r_list_item( @globus_status.du_for( concern_id: id, ready: false ) ) if prep
+            r_list_item( @globus_status.du_for( concern_id: id, ready: true ) ) if ready
+          end
         end
         r_list_end( 'ul' )
       end

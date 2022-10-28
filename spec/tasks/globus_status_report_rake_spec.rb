@@ -18,8 +18,10 @@ describe "globus errors report rake" do
     let(:options)  { {} }
     let(:quiet)    { false }
     let(:reporter) { ::Deepblue::GlobusReporter.allocate }
-    let(:msg_handler) { ::Deepblue::MessageHandler.msg_handler_for( task: true ) }
+    let(:msg_handler) { ::Deepblue::MessageHandler.msg_handler_for( task: true, to_console: false ) }
     let(:invoked)  { ::Deepblue::GlobusStatusReport.new( msg_handler: msg_handler, options: options ) }
+    let(:globus_status) { double(::Deepblue::GlobusStatus) }
+    let(:globus_reporter) { double(::Deepblue::GlobusReporter) }
 
     before do
       allow(::Deepblue::MessageHandler).to receive(:msg_handler_for).with(task: true).and_return msg_handler
@@ -27,7 +29,8 @@ describe "globus errors report rake" do
                                                                    options: options ).at_least(:once).and_return invoked
       expect(invoked).to receive(:run).with(no_args).at_least(:once).and_call_original
       expect(::Deepblue::GlobusIntegrationService).to receive(:globus_status_report).with(
-        msg_handler: msg_handler).at_least(:once).and_call_original
+                                                  msg_handler: msg_handler).at_least(:once).and_return globus_status
+      allow(globus_status).to receive(:out).and_return globus_reporter
     end
 
     after do
