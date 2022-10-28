@@ -83,7 +83,11 @@ Deepblue::GlobusIntegrationService.setup do |config|
 
   config.globus_bounce_external_link_off_server = true
 
-  config.globus_dashboard_display_all_works = true
-  config.globus_dashboard_display_report = true
+  if Rails.env.development?
+    config.globus_dashboard_display_all_works = true
+  else
+    config.globus_dashboard_display_all_works = false
+  end
+  config.globus_dashboard_display_report = false
 
 end

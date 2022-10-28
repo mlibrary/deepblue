@@ -4,8 +4,6 @@ module Deepblue
 
   class GlobusStatus
 
-    # mattr_accessor :globus_status_debug_verbose, default: true
-
     attr_reader :begin_date
     attr_reader :end_date
 
@@ -23,6 +21,14 @@ module Deepblue
 
     attr_reader   :starts_with_prep_dir
     attr_reader   :starts_with_download_dir
+
+    def self.status_compact( concern_id: )
+      avail = ::GlobusJob.files_available?( concern_id ) ? 'R' : '-'
+      error = ::GlobusJob.error_file_exists?( concern_id ) ? 'E' : '-'
+      lock = ::GlobusJob.locked?( concern_id ) ? 'L' : '-'
+      prep = ::GlobusJob.files_prepping?( concern_id ) ? 'P' : '-'
+      "[#{avail}#{lock}#{prep}#{error}]"
+    end
 
     def initialize( include_disk_usage: true, msg_handler:, skip_ready: false, auto_populate: true )
       @msg_handler = msg_handler
@@ -220,20 +226,40 @@ module Deepblue
       return reporter
     end
 
-    def yaml_file_name( dir_path: nil, file_name: nil, no_timestamp: false )
+    def yaml_file_name( no_timestamp: false )
       if no_timestamp
-        file_name ||= "%hostname%.globus_status.yaml"
+        file_name = "%hostname%.globus_status.yaml"
       else
-        file_name ||= "%timestamp%.%hostname%.globus_status.yaml"
+        file_name = "%timestamp%.%hostname%.globus_status.yaml"
       end
+      rv = ::Deepblue::ReportHelper.expand_path_partials( file_name )
+      return rv
+    end
+
+    def yaml_path( dir_path: nil, file_name: nil, no_timestamp: false )
+      file_name ||= yaml_file_name( no_timestamp: no_timestamp )
       dir_path ||= ::Deepblue::GlobusIntegrationService.globus_dir
       file_path = File.join dir_path, file_name
       path = ::Deepblue::ReportHelper.expand_path_partials( file_path )
       return path
     end
 
+    def yaml_link_most_recent( path: )
+      # TODO: verify that path is what I think it should be
+      # resolve and delete the old file if it exists
+      file_name_no_timestamp = yaml_file_name( no_timestamp: true )
+      dir_path = File.join ::Deepblue::GlobusIntegrationService.globus_dir, "*.#{file_name_no_timestamp}"
+      files = Dir.glob( dir_path, File::FNM_DOTMATCH )
+      files.each do |file|
+        File.unlink( file ) if File.file?( file ) && path.to_s != file
+      end
+      path_no_timestamp = yaml_path( no_timestamp: true )
+      File.unlink( path_no_timestamp ) if File.exist?( path_no_timestamp ) || File.symlink?( path_no_timestamp )
+      File.symlink( path, path_no_timestamp )
+    end
+
     def yaml_load( path: nil, load_most_recent: false )
-      path ||= yaml_file_name( no_timestamp: load_most_recent )
+      path ||= yaml_path( no_timestamp: load_most_recent )
       file_contents = File.open( path.to_s, "r" ) { |io| io.read }
       hash = YAML.load( file_contents )
       @begin_date = hash[:begin_date]
@@ -281,15 +307,10 @@ module Deepblue
       hash[:skip_ready] = @skip_ready
       hash[:starts_with_prep_dir] = @starts_with_prep_dir
       hash[:starts_with_download_dir] = @starts_with_prep_dir
-
       file_contents = hash.to_yaml
-      path ||= yaml_file_name
+      path ||= yaml_path
       File.open( path.to_s, "w" ) { |out| out.puts file_contents }
-      return unless link_most_recent
-      # TODO: resolve and delete the old file if it exists
-      path_no_timestamp = yaml_file_name( no_timestamp: true )
-      File.unlink( path_no_timestamp )
-      File.symlink( path, path_no_timestamp )
+      yaml_link_most_recent( path: path ) if link_most_recent
     end
 
   end
