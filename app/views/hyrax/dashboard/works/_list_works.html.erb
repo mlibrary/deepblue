@@ -3,7 +3,8 @@
     <td> - </td>
   <% else %>
     <td>
-      <label for="batch_document_<%= document.id %>" class="sr-only"><%= t("hyrax.dashboard.my.sr.batch_checkbox") %></label>
+      <label for="batch_document_<%= document.id %>" class="sr-only"><%= t("hyrax.dashboard.my.sr.batch_checkbox") %>
+      </label>
       <%= render 'hyrax/batch_select/add_button', document: document %>&nbsp;
     </td>
   <% end %>
@@ -35,36 +36,36 @@
 
   <% if presenter.tombstoned? %>
      <td class='text-center'><span class="label label-danger">Tombstone</span></td>
-
      <% if presenter.current_ability.admin? %>
-        <th class="text-center"><%= ::AnalyticsHelper.download_work_monthly_cnt( id: presenter.id, date_range: ::AnalyticsHelper.date_range_for_month_previous ) %></th>
-        <th class="text-center"><%= ::AnalyticsHelper.download_todate_cnt( id: presenter.id, date_range: ::AnalyticsHelper.date_range_all ) %></th>
+       <td class="text-center"><%= ::Deepblue::GlobusStatus.status_compact( concern_id: presenter.id ) %></td>
+       <td class="text-center"><%= ::AnalyticsHelper.download_work_monthly_cnt( id: presenter.id,
+                                                  date_range: ::AnalyticsHelper.date_range_for_month_previous ) %></td>
+       <td class="text-center"><%= ::AnalyticsHelper.download_todate_cnt( id: presenter.id,
+                                                  date_range: ::AnalyticsHelper.date_range_all ) %></td>
      <% end %>
-
      <% if presenter.current_ability.admin? %>
         <td class='text-center'><%= render 'work_action_menu', presenter: presenter, document: document %></td>
      <% else %>
        <td class="text-center">Tombstoned</td>
      <% end %>
   <% else %>
+    <td class='text-center'><%= render_visibility_link document %></td>
+    <% total_size = document.total_file_size %>
+    <% total_size ||= 0 %>
+    <td class="text-center">
+      <%= ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( total_size, precision: 3 ) %>
+    </td>
+    <% if presenter.current_ability.admin? %>
+      <td class="text-center"><%= ::Deepblue::GlobusStatus.status_compact( concern_id: presenter.id ) %></td>
+      <td class="text-center"><%= ::AnalyticsHelper.download_work_monthly_cnt( id: presenter.id,
+                                                                               date_range: ::AnalyticsHelper.date_range_for_month_previous ) %></td>
+      <td class="text-center"><%= ::AnalyticsHelper.download_todate_cnt( id: presenter.id,
+                                                                         date_range: ::AnalyticsHelper.date_range_all ) %></td>
+    <% end %>
     <% if presenter.can_edit_work? && !Flipflop. disable_desposits_and_edits? %>
-      <td class='text-center'><%= render_visibility_link document %></td>
-
-      <% if presenter.current_ability.admin? %>
-        <th class="text-center"><%= ::AnalyticsHelper.download_work_monthly_cnt( id: presenter.id, date_range: ::AnalyticsHelper.date_range_for_month_previous ) %></th>
-        <th class="text-center"><%= ::AnalyticsHelper.download_todate_cnt( id: presenter.id, date_range: ::AnalyticsHelper.date_range_all ) %></th>
-      <% end %>
-
       <td class='text-center'><%= render 'work_action_menu', presenter: presenter, document: document %></td>
     <% else %>
-      <td class='text-center'><%= render_visibility_link document %></td>
-
-      <% if presenter.current_ability.admin? %>
-        <th class="text-center"><%= ::AnalyticsHelper.download_work_monthly_cnt( id: presenter.id, date_range: ::AnalyticsHelper.date_range_for_month_previous ) %></th>
-        <th class="text-center"><%= ::AnalyticsHelper.download_todate_cnt( id: presenter.id, date_range: ::AnalyticsHelper.date_range_all ) %></th>
-      <% end %>
-
-      <td class='text-center'>-</td> 
+      <td class='text-center'>-</td>
     <% end %>
   <% end %>
 </tr>

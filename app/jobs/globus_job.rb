@@ -132,15 +132,24 @@ class GlobusJob < ::Hyrax::ApplicationJob
 
   def self.target_file_name( dir, filename, ext = '' )
     return Pathname.new( filename + ext ) if dir.nil?
-    dir.join( filename + ext )
+    if dir.is_a? String
+      rv = File.join dir, filename + ext
+    else
+      rv = dir.join( filename + ext )
+    end
+    return rv
   end
 
   def self.target_download_dir( concern_id )
-    target_dir_name( ::Deepblue::GlobusIntegrationService.globus_download_dir, target_base_name(concern_id ) )
+    target_dir_name( ::Deepblue::GlobusIntegrationService.globus_download_dir, target_base_name(concern_id) )
   end
 
   def self.target_dir_name( dir, subdir, mkdir: false )
-    target_dir = dir.join subdir
+    if dir.is_a? String
+      target_dir = File.join dir, subdir
+    else
+      target_dir = dir.join subdir
+    end
     if mkdir
       Dir.mkdir(target_dir ) unless Dir.exist? target_dir
     end

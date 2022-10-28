@@ -14,6 +14,18 @@ module PersistHelper
     end
   end
 
+  def self.find_solr( id, fail_if_not_found: true )
+    if fail_if_not_found
+      return ::SolrDocument.find( id )
+    else
+      begin
+        return ::SolrDocument.find( id )
+      rescue ::Blacklight::Exceptions::RecordNotFound => _ignore_and_fall_through
+      end
+    end
+    return nil
+  end
+
   def self.find_many( ids, use_valkyrie: false )
     if use_valkyrie
       ::Hyrax.custom_queries.find_many_by_alternate_ids(alternate_ids: ids, use_valkyrie: use_valkyrie)

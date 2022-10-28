@@ -21,10 +21,26 @@ class GlobusDashboardPresenter
   def initialize( controller:, current_ability: )
     @controller = controller
     @current_ability = current_ability
+    @id_to_total_file_size_map = {}
   end
 
   def run_button
     I18n.t('simple_form.actions.report.run_report_job')
+  end
+
+  def total_size( total_size )
+    return 0 if total_size.blank?
+    ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( total_size, precision: 3 )
+  end
+
+  def work_total_size( work: nil, id: nil )
+    return nil if work.blank? && id.blank?
+    return @id_to_total_file_size_map[id] if id.present? && @id_to_total_file_size_map.has_key?( id )
+    work ||= PersistHelper.find_solr( id, fail_if_not_found: false )
+    total_size = work.total_file_size
+    total_size ||= 0
+    @id_to_total_file_size_map[id] = total_size
+    total_size
   end
 
 end

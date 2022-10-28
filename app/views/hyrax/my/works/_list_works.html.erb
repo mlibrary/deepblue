@@ -4,7 +4,8 @@
     <td> - </td>
   <% else %>
     <td>
-      <label for="batch_document_<%= document.id %>" class="sr-only"><%= t("hyrax.dashboard.my.sr.batch_checkbox") %></label>
+      <label for="batch_document_<%= document.id %>" class="sr-only"><%= t("hyrax.dashboard.my.sr.batch_checkbox") %>
+      </label>
         <%= render 'hyrax/batch_select/add_button', document: document %>&nbsp;
     </td>
   <% end %>
@@ -33,11 +34,23 @@
   <td class="date text-center"><%= document.date_modified %></td>
 
   <td class="text-center">
-    <span class="fa <%= current_user.trophies.where(work_id: document.id).exists? ? 'fa-star highlighted-work' : 'fa-star-o trophy-off' %>" aria-hidden="true"></span></td>
+    <span class="fa <%= current_user.trophies.where(work_id: document.id).exists? ?
+                          'fa-star highlighted-work' : 'fa-star-o trophy-off' %>" aria-hidden="true">
+    </span>
+  </td>
   <td class="text-center"><%= render_visibility_link document %></td>
-
-  <th class="text-center"><%= ::AnalyticsHelper.download_work_monthly_cnt( id: presenter.id, date_range: ::AnalyticsHelper.date_range_for_month_previous ) %></th>
-  <th class="text-center"><%= ::AnalyticsHelper.download_todate_cnt( id: presenter.id, date_range: ::AnalyticsHelper.date_range_all ) %></th>
+  <% total_size = document.total_file_size %>
+  <% total_size ||= 0 %>
+  <td class="text-center">
+    <%= ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( total_size, precision: 3 ) %>
+  </td>
+  <% if current_ability.admin? %>
+    <td class="text-center"><%= ::Deepblue::GlobusStatus.status_compact( concern_id: presenter.id ) %></td>
+  <% end %>
+  <td class="text-center"><%= ::AnalyticsHelper.download_work_monthly_cnt( id: presenter.id,
+                                                 date_range: ::AnalyticsHelper.date_range_for_month_previous ) %></td>
+  <td class="text-center"><%= ::AnalyticsHelper.download_todate_cnt( id: presenter.id,
+                                                 date_range: ::AnalyticsHelper.date_range_all ) %></td>
 
   <td class="text-center"> 
     <% if presenter.can_edit_work? && !Flipflop.disable_desposits_and_edits? %>

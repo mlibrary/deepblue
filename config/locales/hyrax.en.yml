@@ -318,15 +318,28 @@ en:
         action:
           add_work_to_collection_note: 'Check one or more works to add them to a collection.'
         heading:
-          userinfo:         "M-Community User Information"
+          action:           "Action"
           affiliations:     "Affiliations"
-          orcid:            "ORCID"
-          name:             "Name"
-          date_created:     "Date Created"
-          date_uploaded:    "Date Created"
           cnt_prev_month:   "Downloads Last Month"
           cnt_since_start:  "Downloads Since Deposited"
+          cnt_prev_month_html: "Downloads Last<br/>Month"
+          cnt_since_start_html: "Downloads Since<br/>Deposited"
+          date_created:     "Date Created"
+          date_created_html: "Date<br/>Created"
+          date_modified:    "Date Modified"
+          date_modified_html: "Date<br/>Modified"
+          date_uploaded:    "Date Created"
+          date_uploaded_html: "Date<br/>Created"
           download_note:    "Counts presently are not filtering out bots and crawlers."
+          globus:           "Globus"
+          highlighted:      "Highlighted"
+          name:             "Name"
+          orcid:            "ORCID"
+          title:            "Title"
+          total_size:       "Size"
+          total_size_html:  "Total<br/>Size"
+          userinfo:         "M-Community User Information"
+          visibility:       "Visibility"
       report:
         title:              "Manage Reports"
       review_submissions:
