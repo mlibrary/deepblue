@@ -10,7 +10,6 @@
   <% end %>
   <td>
     <div class='media'>
-
       <div class='media-body'>
         <div class='media-heading'>
 
@@ -20,10 +19,8 @@
             </span>
             <%= document.title_or_label %>
           <% end %>
-
           <br />
           <%= render_collection_links(document) %>
-
         </div>
       </div>
     </div>
@@ -35,19 +32,24 @@
   <td class='workflow-state text-center'><%= presenter.workflow.state_label %></td>
 
   <% if presenter.tombstoned? %>
-     <td class='text-center'><span class="label label-danger">Tombstone</span></td>
-     <% if presenter.current_ability.admin? %>
-       <td class="text-center"><%= ::Deepblue::GlobusStatus.status_compact( concern_id: presenter.id ) %></td>
-       <td class="text-center"><%= ::AnalyticsHelper.download_work_monthly_cnt( id: presenter.id,
+    <td class='text-center'><span class="label label-danger">Tombstone</span></td>
+    <% total_size = document.total_file_size %>
+    <% total_size ||= 0 %>
+    <td class="text-center">
+      <%= ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( total_size, precision: 3 ) %>
+    </td>
+    <% if presenter.current_ability.admin? %>
+      <td class="text-center"><%= ::Deepblue::GlobusStatus.status_compact( concern_id: presenter.id ) %></td>
+      <td class="text-center"><%= ::AnalyticsHelper.download_work_monthly_cnt( id: presenter.id,
                                                   date_range: ::AnalyticsHelper.date_range_for_month_previous ) %></td>
-       <td class="text-center"><%= ::AnalyticsHelper.download_todate_cnt( id: presenter.id,
+      <td class="text-center"><%= ::AnalyticsHelper.download_todate_cnt( id: presenter.id,
                                                   date_range: ::AnalyticsHelper.date_range_all ) %></td>
-     <% end %>
-     <% if presenter.current_ability.admin? %>
-        <td class='text-center'><%= render 'work_action_menu', presenter: presenter, document: document %></td>
-     <% else %>
-       <td class="text-center">Tombstoned</td>
-     <% end %>
+    <% end %>
+    <% if presenter.current_ability.admin? %>
+      <td class='text-center'><%= render 'work_action_menu', presenter: presenter, document: document %></td>
+    <% else %>
+      <td class="text-center">Tombstoned</td>
+    <% end %>
   <% else %>
     <td class='text-center'><%= render_visibility_link document %></td>
     <% total_size = document.total_file_size %>
@@ -58,9 +60,9 @@
     <% if presenter.current_ability.admin? %>
       <td class="text-center"><%= ::Deepblue::GlobusStatus.status_compact( concern_id: presenter.id ) %></td>
       <td class="text-center"><%= ::AnalyticsHelper.download_work_monthly_cnt( id: presenter.id,
-                                                                               date_range: ::AnalyticsHelper.date_range_for_month_previous ) %></td>
+                                                 date_range: ::AnalyticsHelper.date_range_for_month_previous ) %></td>
       <td class="text-center"><%= ::AnalyticsHelper.download_todate_cnt( id: presenter.id,
-                                                                         date_range: ::AnalyticsHelper.date_range_all ) %></td>
+                                                 date_range: ::AnalyticsHelper.date_range_all ) %></td>
     <% end %>
     <% if presenter.can_edit_work? && !Flipflop. disable_desposits_and_edits? %>
       <td class='text-center'><%= render 'work_action_menu', presenter: presenter, document: document %></td>
