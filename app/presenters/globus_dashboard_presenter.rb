@@ -21,26 +21,34 @@ class GlobusDashboardPresenter
   def initialize( controller:, current_ability: )
     @controller = controller
     @current_ability = current_ability
-    @id_to_total_file_size_map = {}
+    @id_to_work_map = {}
   end
 
   def run_button
     I18n.t('simple_form.actions.report.run_report_job')
   end
 
-  def total_size( total_size )
+  def work_title( work )
+    return work.title_or_label if work.respond_to? :title_or_label
+    rv = Array( work.title ).join(', ')
+    return rv
+  end
+
+  def total_size( work )
+    return 0 unless work.present?
+    total_size = work.total_file_size
     return 0 if total_size.blank?
     ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( total_size, precision: 3 )
   end
 
-  def work_total_size( work: nil, id: nil )
-    return nil if work.blank? && id.blank?
-    return @id_to_total_file_size_map[id] if id.present? && @id_to_total_file_size_map.has_key?( id )
-    work ||= PersistHelper.find_solr( id, fail_if_not_found: false )
-    total_size = work.total_file_size
-    total_size ||= 0
-    @id_to_total_file_size_map[id] = total_size
-    total_size
+  def work( id: nil, work: nil )
+    return work if work.present?
+    return nil if id.blank?
+    work = @id_to_work_map[id]
+    return work if work.present?
+    work = PersistHelper.find_solr( id, fail_if_not_found: false )
+    @id_to_work_map[id] = work if work.present?
+    return work
   end
 
 end

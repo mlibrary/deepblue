@@ -31,7 +31,7 @@ class GlobusDashboardController < ApplicationController
   def globus_status_init
     msg_handler = ::Deepblue::MessageHandler.new( verbose: false,
                                                   debug_verbose: globus_dashboard_controller_debug_verbose )
-    rv = ::Deepblue::GlobusIntegrationService.globus_status( include_disk_usage: true, msg_handler: msg_handler )
+    rv = ::Deepblue::GlobusIntegrationService.globus_status( include_disk_usage: false, msg_handler: msg_handler )
     rv.yaml_save # TODO: revisit
     return rv
   end
