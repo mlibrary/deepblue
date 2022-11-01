@@ -327,8 +327,8 @@ module Hyrax
       globus_ui_delay
       dirs = []
       dirs << ::GlobusJob.target_download_dir( curation_concern.id )
-      dirs << ::GlobusJob.target_prep_dir( curation_concern.id, prefix: nil )
-      dirs << ::GlobusJob.target_prep_tmp_dir( curation_concern.id, prefix: nil )
+      dirs << ::GlobusJob.target_prep_dir( curation_concern.id )
+      dirs << ::GlobusJob.target_prep_tmp_dir( curation_concern.id )
       flash_and_redirect_to_main_cc globus_clean_msg( dirs )
     end
 

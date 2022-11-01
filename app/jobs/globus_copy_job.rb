@@ -13,8 +13,8 @@ class GlobusCopyJob < GlobusJob
       ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} begin copy" unless @globus_job_quiet
       GlobusJob.error_file_delete @globus_concern_id
       @target_download_dir = target_download_dir2 @globus_concern_id
-      @target_prep_dir     = target_prep_dir2( @globus_concern_id, prefix: nil, mkdir: true )
-      @target_prep_dir_tmp = target_prep_tmp_dir2( @globus_concern_id, prefix: nil, mkdir: true )
+      @target_prep_dir     = target_prep_dir2( @globus_concern_id, mkdir: true )
+      @target_prep_dir_tmp = target_prep_tmp_dir2( @globus_concern_id, mkdir: true )
       curation_concern = ::PersistHelper.find @globus_concern_id
       globus_email_rds( curation_concern: curation_concern, description: "copy job started for work #{curation_concern.id}" )
       metadata_file = curation_concern.metadata_report( dir: @target_prep_dir_tmp, filename_pre: 'w_' )

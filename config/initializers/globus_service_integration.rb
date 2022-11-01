@@ -4,6 +4,8 @@ Deepblue::GlobusIntegrationService.setup do |config|
   verbose_initialization = false && Rails.configuration.program_name != 'resque-pool'
 
   config.globus_integration_service_debug_verbose = false
+  config.globus_dashboard_controller_debug_verbose = false
+  config.globus_dashboard_presenter_debug_verbose = false
 
   # TODO: some of these are dependent and can be made readonly
 
@@ -85,9 +87,12 @@ Deepblue::GlobusIntegrationService.setup do |config|
 
   if Rails.env.development?
     config.globus_dashboard_display_all_works = true
+    config.globus_dashboard_display_report = false
+    # config.globus_debug_delay_per_file_copy_job_seconds = 30
+    config.globus_dashboard_controller_debug_verbose = false
   else
     config.globus_dashboard_display_all_works = false
+    config.globus_dashboard_display_report = false
   end
-  config.globus_dashboard_display_report = false
 
 end

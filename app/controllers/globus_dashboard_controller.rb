@@ -2,7 +2,8 @@
 
 class GlobusDashboardController < ApplicationController
 
-  mattr_accessor :globus_dashboard_controller_debug_verbose, default: false
+  mattr_accessor :globus_dashboard_controller_debug_verbose,
+                 default: ::Deepblue::GlobusIntegrationService.globus_dashboard_controller_debug_verbose
 
   include ActiveSupport::Concern
   include Blacklight::Base
@@ -97,8 +98,8 @@ class GlobusDashboardController < ApplicationController
     ::GlobusCleanJob.perform_later( concern_id, clean_download: true )
     dirs = []
     dirs << ::GlobusJob.target_download_dir( concern_id )
-    dirs << ::GlobusJob.target_prep_dir( concern_id, prefix: nil )
-    dirs << ::GlobusJob.target_prep_tmp_dir( concern_id, prefix: nil )
+    dirs << ::GlobusJob.target_prep_dir( concern_id )
+    dirs << ::GlobusJob.target_prep_tmp_dir( concern_id )
     globus_ui_delay
     return dirs
   end

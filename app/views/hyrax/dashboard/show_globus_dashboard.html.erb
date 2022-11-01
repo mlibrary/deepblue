@@ -24,6 +24,7 @@
     <li>Globus base url: <code><%= ::Deepblue::GlobusIntegrationService.globus_base_url %></code></li>
     <li>Globus best used gt size: <%= ::Deepblue::GlobusIntegrationService.globus_best_used_gt_size_str %></li>
     <li>Globus bounce external link: <%= ::Deepblue::GlobusIntegrationService.globus_bounce_external_link_off_server %></li>
+    <li>Globus debug job delay per file copy job: <%= ::Deepblue::GlobusIntegrationService.globus_debug_delay_per_file_copy_job_seconds %></li>
   </ul>
   <% if ::Deepblue::GlobusIntegrationService.globus_dashboard_display_report %>
     <% if @view_presenter.globus_status.msg_handler.verbose %>
@@ -38,10 +39,8 @@
     <% end %>
   <% end %>
 
-  <h3 class="title-header"><%= t('hyrax.dashboard.globus.heading.errors') %></h3>
-  <% if @view_presenter.globus_status.error_ids.blank? %>
-    <%= t('hyrax.dashboard.globus.none') %>
-  <% else %>
+  <% if @view_presenter.globus_status.error_ids.present? %>
+    <h3 class="title-header"><%= t('hyrax.dashboard.globus.heading.errors') %></h3>
     <table>
       <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: true } %>
       <% @view_presenter.globus_status.error_ids.each_key do |id| %>
@@ -51,10 +50,8 @@
     </table>
   <% end %>
 
-  <h3 class="title-header"><%= t('hyrax.dashboard.globus.heading.locked') %></h3>
-  <% if @view_presenter.globus_status.locked_ids.blank? %>
-    <%= t('hyrax.dashboard.globus.none') %>
-  <% else %>
+  <% if @view_presenter.globus_status.locked_ids.present? %>
+    <h3 class="title-header"><%= t('hyrax.dashboard.globus.heading.locked') %></h3>
     <table>
       <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: true } %>
       <% @view_presenter.globus_status.locked_ids.each_key do |id| %>
@@ -64,10 +61,8 @@
     </table>
   <% end %>
 
-  <h3 class="title-header"><%= t('hyrax.dashboard.globus.heading.prep_dirs') %></h3>
-  <% if @view_presenter.globus_status.prep_dir_ids.blank? %>
-    <%= t('hyrax.dashboard.globus.none') %>
-  <% else %>
+  <% if @view_presenter.globus_status.prep_dir_ids.present? %>
+    <h3 class="title-header"><%= t('hyrax.dashboard.globus.heading.prep_dirs') %></h3>
     <table>
       <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: true } %>
       <% @view_presenter.globus_status.prep_dir_ids.each_key do |id| %>
@@ -77,10 +72,8 @@
     </table>
   <% end %>
 
-  <h3 class="title-header"><%= t('hyrax.dashboard.globus.heading.prep_tmp_dirs') %></h3>
-  <% if @view_presenter.globus_status.prep_dir_tmp_ids.blank? %>
-    <%= t('hyrax.dashboard.globus.none') %>
-  <% else %>
+  <% if @view_presenter.globus_status.prep_dir_tmp_ids.present? %>
+    <h3 class="title-header"><%= t('hyrax.dashboard.globus.heading.prep_tmp_dirs') %></h3>
     <table>
       <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: true } %>
       <% @view_presenter.globus_status.prep_dir_tmp_ids.each_key do |id| %>
@@ -90,10 +83,8 @@
     </table>
   <% end %>
 
-  <h3 class="title-header"><%= t('hyrax.dashboard.globus.heading.ready') %></h3>
-  <% if @view_presenter.globus_status.ready_ids.blank? %>
-    <%= t('hyrax.dashboard.globus.none') %>
-  <% else %>
+  <% if @view_presenter.globus_status.ready_ids.present? %>
+    <h3 class="title-header"><%= t('hyrax.dashboard.globus.heading.ready') %></h3>
     <table>
     <%= render partial: 'hyrax/dashboard/globus_dashboard_work_form', locals: { header: true } %>
     <% @view_presenter.globus_status.ready_ids.each_key do |id| %>

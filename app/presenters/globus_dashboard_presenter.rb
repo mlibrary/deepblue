@@ -4,6 +4,9 @@ class GlobusDashboardPresenter
 
   include ::Deepblue::DeepbluePresenterBehavior
 
+  mattr_accessor :globus_dashboard_presenter_debug_verbose,
+                 default: ::Deepblue::GlobusIntegrationService.globus_dashboard_presenter_debug_verbose
+
   delegate :globus_status, to: :controller
 
   delegate :globus_download_enabled?, to: :controller

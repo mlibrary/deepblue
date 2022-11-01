@@ -24,7 +24,9 @@ module Deepblue
       raise e
     end
 
-    mattr_accessor :globus_integration_service_debug_verbose, default: false
+    mattr_accessor :globus_integration_service_debug_verbose,  default: false
+    mattr_accessor :globus_dashboard_controller_debug_verbose, default: false
+    mattr_accessor :globus_dashboard_presenter_debug_verbose,  default: false
 
     mattr_accessor :globus_after_copy_job_ui_delay_seconds,       default: 3
     mattr_accessor :globus_base_file_name,                        default: "DeepBlueData_"
