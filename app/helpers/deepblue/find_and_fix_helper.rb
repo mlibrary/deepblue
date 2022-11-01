@@ -61,7 +61,7 @@ WHERE { }
       uri = found.uri.value
       uri_metadata = "#{uri}/fcr:metadata"
       msg_handler.msg_verbose "#{uri_metadata}"
-      sparql_update = sparql_update_template.sub( 'NEW_METADATA', file_set.original_file_size.to_s )
+      sparql_update = sparql_update_template.sub( 'NEW_METADATA', file_set.original_file.size.to_s )
       rv = ActiveFedora.fedora.connection.patch( uri_metadata,
                                                  sparql_update,
                                                  "Content-Type" => "application/sparql-update" )
