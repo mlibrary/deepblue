@@ -104,11 +104,11 @@ module Deepblue
       files.each do |f|
         f1 = f
         f = f.slice( (path.length)..(f.length) ) if f.starts_with? path
-        # msg_handler.msg_verbose [ msg_handler.here,
-        #                          msg_handler.called_from,
-        #                          "processing '#{f1}'",
-        #                          "strip leading path '#{f}'",
-        #                          "" ]  if msg_handler.verbose
+        msg_handler.msg_verbose [ msg_handler.here,
+                                 msg_handler.called_from,
+                                 "processing '#{f1}'",
+                                 "strip leading path '#{f}'",
+                                 "" ]  if msg_handler.verbose
         msg_handler.bold_debug [ msg_handler.here,
                                  msg_handler.called_from,
                                  "processing '#{f1}'",
@@ -131,22 +131,70 @@ module Deepblue
     end
 
     def add_prep_dir_id( path: )
-      add_status( matcher: @prep_dir_re, path: path, hash: @prep_dir_ids, type: 'prep' )
+      concern_id = path_to_id( matcher: @prep_dir_re, path: path )
+      return false if concern_id.blank?
+      msg_handler.msg_verbose [ msg_handler.here,
+                               msg_handler.called_from,
+                               "prep_dir=#{GlobusJob.target_prep_dir( concern_id )}",
+                               "" ] if msg_handler.verbose
+      msg_handler.bold_debug [ msg_handler.here,
+                               msg_handler.called_from,
+                               "prep_dir=#{GlobusJob.target_prep_dir( concern_id )}",
+                               "" ] if msg_handler.debug_verbose
+      return add_status_for( concern_id: concern_id, path: path, hash: @prep_dir_ids, type: 'prep' )
     end
 
     def add_prep_dir_tmp_id( path: )
-      add_status( matcher: @prep_tmp_dir_re, path: path, hash:@prep_dir_tmp_ids, type: 'prep tmp' )
+      concern_id = path_to_id( matcher: @prep_tmp_dir_re, path: path )
+      return false if concern_id.blank?
+      msg_handler.msg_verbose [ msg_handler.here,
+                               msg_handler.called_from,
+                               "prep_tmp_dir=#{GlobusJob.target_prep_tmp_dir( concern_id )}",
+                               "" ] if msg_handler.verbose
+      msg_handler.bold_debug [ msg_handler.here,
+                               msg_handler.called_from,
+                               "prep_tmp_dir=#{GlobusJob.target_prep_tmp_dir( concern_id )}",
+                               "" ] if msg_handler.debug_verbose
+      return add_status_for( concern_id: concern_id, path: path, hash: @prep_dir_tmp_ids, type: 'prep tmp' )
     end
 
     def add_ready_id( path: )
       return if skip_ready
-      add_status( matcher: @ready_file_re, path: path, hash: @ready_ids, type: 'ready' )
+      concern_id = path_to_id( matcher: @ready_file_re, path: path )
+      return false if concern_id.blank?
+      msg_handler.msg_verbose [ msg_handler.here,
+                                msg_handler.called_from,
+                                "prep_dir=#{GlobusJob.target_prep_dir( concern_id )}",
+                                "prep_tmp_dir=#{GlobusJob.target_prep_tmp_dir( concern_id )}",
+                                "ready_dir=#{GlobusJob.target_download_dir( concern_id )}",
+                                "" ] if msg_handler.verbose
+      msg_handler.bold_debug [ msg_handler.here,
+                               msg_handler.called_from,
+                               "prep_dir=#{GlobusJob.target_prep_dir( concern_id )}",
+                               "prep_tmp_dir=#{GlobusJob.target_prep_tmp_dir( concern_id )}",
+                               "ready_dir=#{GlobusJob.target_download_dir( concern_id )}",
+                               "" ] if msg_handler.debug_verbose
+      return add_status_for( concern_id: concern_id, path: path, hash: @ready_ids, type: 'ready' )
+    end
+
+    def path_to_id( matcher:, path: )
+      match = matcher.match( path )
+      return nil unless match
+      concern_id = match[1]
+      return concern_id
     end
 
     def add_status( matcher:, path:, hash:, type: )
-      match = matcher.match( path )
-      return false unless match
-      concern_id = match[1]
+      concern_id = path_to_id( matcher: matcher, path: path )
+      return add_status_for( concern_id: concern_id, path: path, hash: hash, type: type )
+    end
+
+    def add_status_for( concern_id:, path:, hash:, type: )
+      return false if concern_id.blank?
+      msg_handler.msg_verbose [ msg_handler.here,
+                                msg_handler.called_from,
+                                "#{type} id #{concern_id}",
+                                "" ] if msg_handler.verbose
       msg_handler.bold_debug [ msg_handler.here,
                                msg_handler.called_from,
                                "#{type} id #{concern_id}",
