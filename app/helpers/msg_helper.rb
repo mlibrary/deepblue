@@ -20,7 +20,7 @@ module MsgHelper
   end
 
   def self.globus_link( curation_concern )
-    ::GlobusJob.external_url curation_concern.id
+    ::Deepblue::GlobusService.globus_external_url curation_concern.id
   end
 
   def self.msg_handler( debug_verbose: ::Deepblue::MessageHandler::DEFAULT_DEBUG_VERBOSE,

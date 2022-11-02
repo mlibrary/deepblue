@@ -23,7 +23,7 @@ module Deepblue
       # puts "options=#{options}"
       @quiet = task_options_value( key: 'quiet', default_value: DEFAULT_REPORT_QUIET )
       @verbose = false if quiet
-      reporter = GlobusIntegrationService.globus_status_report( msg_handler: msg_handler, errors_report: true )
+      reporter = GlobusService.globus_status_report( msg_handler: msg_handler, errors_report: true )
       report = reporter.out
       return unless report.present?
       @report_dir = task_options_value( key: 'report_dir', default_value: DEFAULT_REPORT_DIR )

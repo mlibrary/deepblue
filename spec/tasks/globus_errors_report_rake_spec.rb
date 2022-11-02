@@ -26,7 +26,7 @@ describe "globus errors report rake" do
       expect(::Deepblue::GlobusErrorsReport).to receive(:new).with( msg_handler: msg_handler,
                                                                     options: options ).at_least(:once).and_return invoked
       expect(invoked).to receive(:run).with(no_args).at_least(:once).and_call_original
-      expect(::Deepblue::GlobusIntegrationService).to receive(:globus_status_report).with(msg_handler: msg_handler,
+      expect(::Deepblue::GlobusService).to receive(:globus_status_report).with(msg_handler: msg_handler,
                                                               errors_report: true).at_least(:once).and_call_original
     end
 

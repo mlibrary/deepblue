@@ -9,11 +9,11 @@ module Umrdr
     extend ActiveSupport::Concern
 
     def globus_complete?
-      ::GlobusJob.copy_complete? id
+      ::Deepblue::GlobusService.globus_copy_complete? id
     end
 
     def globus_prepping?
-      ::GlobusJob.files_prepping? id
+      ::Deepblue::GlobusService.globus_files_prepping? id
     end
 
     def globus_clean_download( start_globus_copy_after_clean: false )

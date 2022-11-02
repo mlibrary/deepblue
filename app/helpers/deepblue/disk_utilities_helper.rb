@@ -366,6 +366,10 @@ module Deepblue
       return files
     end
 
+    def self.mkdir( target_dir )
+      Dir.mkdir( target_dir ) unless Dir.exist? target_dir
+    end
+
     def self.tmp_derivatives_path
       Hydra::Derivatives.temp_file_base
     end

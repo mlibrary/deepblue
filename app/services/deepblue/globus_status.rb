@@ -22,14 +22,6 @@ module Deepblue
     attr_reader   :starts_with_prep_dir
     attr_reader   :starts_with_download_dir
 
-    def self.status_compact( concern_id: )
-      avail = ::GlobusJob.files_available?( concern_id ) ? 'R' : '-'
-      error = ::GlobusJob.error_file_exists?( concern_id ) ? 'E' : '-'
-      lock = ::GlobusJob.locked?( concern_id ) ? 'L' : '-'
-      prep = ::GlobusJob.files_prepping?( concern_id ) ? 'P' : '-'
-      "[#{avail}#{lock}#{prep}#{error}]"
-    end
-
     def initialize( include_disk_usage: true, msg_handler:, skip_ready: false, auto_populate: true )
       @msg_handler = msg_handler
       msg_handler.bold_debug [ msg_handler.here,
@@ -47,15 +39,15 @@ module Deepblue
       @ready_ids = {}
       @disk_usage = {}
 
-      @base_name = GlobusJob.target_base_name ''
-      @lock_file_prefix = GlobusJob.target_file_name_env(nil, 'lock', @base_name ).to_s
+      @base_name = GlobusService.globus_target_base_name ''
+      @lock_file_prefix = GlobusService.globus_target_file_name_env(nil, 'lock', @base_name ).to_s
       @lock_file_re = Regexp.compile( '^' + @lock_file_prefix + '([0-9a-z-]+)' + '$' )
-      @error_file_prefix = GlobusJob.target_file_name_env(nil, 'error', @base_name ).to_s
+      @error_file_prefix = GlobusService.globus_target_file_name_env(nil, 'error', @base_name ).to_s
       @error_file_re = Regexp.compile( '^' + @error_file_prefix + '([0-9a-z-]+)' + '$' )
-      @prep_dir_prefix = GlobusJob.target_file_name( nil, "#{GlobusJob.server_prefix(str: '_')}#{@base_name}" ).to_s
+      @prep_dir_prefix = GlobusService.globus_target_file_name( nil, "#{GlobusService.server_prefix(str: '_')}#{@base_name}" ).to_s
       @prep_dir_re = Regexp.compile( '^' + @prep_dir_prefix + '([0-9a-z-]+)' + '$' )
       @prep_tmp_dir_re = Regexp.compile( '^' + @prep_dir_prefix + '([0-9a-z-]+)_tmp' + '$' )
-      @ready_file_prefix = GlobusJob.target_file_name_env(nil, 'ready', @base_name ).to_s
+      @ready_file_prefix = GlobusService.globus_target_file_name_env(nil, 'ready', @base_name ).to_s
       @ready_file_re = Regexp.compile( '^' + @ready_file_prefix + '([0-9a-z-]+)' + '$' )
       @starts_with_prep_dir = "#{::Deepblue::GlobusIntegrationService.globus_prep_dir}#{File::SEPARATOR}"
       @starts_with_download_dir = "#{::Deepblue::GlobusIntegrationService.globus_download_dir}#{File::SEPARATOR}"
@@ -135,11 +127,11 @@ module Deepblue
       return false if concern_id.blank?
       msg_handler.msg_verbose [ msg_handler.here,
                                msg_handler.called_from,
-                               "prep_dir=#{GlobusJob.target_prep_dir( concern_id )}",
+                               "prep_dir=#{GlobusService.globus_target_prep_dir( concern_id )}",
                                "" ] if msg_handler.verbose
       msg_handler.bold_debug [ msg_handler.here,
                                msg_handler.called_from,
-                               "prep_dir=#{GlobusJob.target_prep_dir( concern_id )}",
+                               "prep_dir=#{GlobusService.globus_target_prep_dir( concern_id )}",
                                "" ] if msg_handler.debug_verbose
       return add_status_for( concern_id: concern_id, path: path, hash: @prep_dir_ids, type: 'prep' )
     end
@@ -149,11 +141,11 @@ module Deepblue
       return false if concern_id.blank?
       msg_handler.msg_verbose [ msg_handler.here,
                                msg_handler.called_from,
-                               "prep_tmp_dir=#{GlobusJob.target_prep_tmp_dir( concern_id )}",
+                               "prep_tmp_dir=#{GlobusService.globus_target_prep_tmp_dir( concern_id )}",
                                "" ] if msg_handler.verbose
       msg_handler.bold_debug [ msg_handler.here,
                                msg_handler.called_from,
-                               "prep_tmp_dir=#{GlobusJob.target_prep_tmp_dir( concern_id )}",
+                               "prep_tmp_dir=#{GlobusService.globus_target_prep_tmp_dir( concern_id )}",
                                "" ] if msg_handler.debug_verbose
       return add_status_for( concern_id: concern_id, path: path, hash: @prep_dir_tmp_ids, type: 'prep tmp' )
     end
@@ -164,15 +156,15 @@ module Deepblue
       return false if concern_id.blank?
       msg_handler.msg_verbose [ msg_handler.here,
                                 msg_handler.called_from,
-                                "prep_dir=#{GlobusJob.target_prep_dir( concern_id )}",
-                                "prep_tmp_dir=#{GlobusJob.target_prep_tmp_dir( concern_id )}",
-                                "ready_dir=#{GlobusJob.target_download_dir( concern_id )}",
+                                "prep_dir=#{GlobusService.globus_target_prep_dir( concern_id )}",
+                                "prep_tmp_dir=#{GlobusService.globus_target_prep_tmp_dir( concern_id )}",
+                                "ready_dir=#{GlobusService.globus_target_download_dir( concern_id )}",
                                 "" ] if msg_handler.verbose
       msg_handler.bold_debug [ msg_handler.here,
                                msg_handler.called_from,
-                               "prep_dir=#{GlobusJob.target_prep_dir( concern_id )}",
-                               "prep_tmp_dir=#{GlobusJob.target_prep_tmp_dir( concern_id )}",
-                               "ready_dir=#{GlobusJob.target_download_dir( concern_id )}",
+                               "prep_dir=#{GlobusService.globus_target_prep_dir( concern_id )}",
+                               "prep_tmp_dir=#{GlobusService.globus_target_prep_tmp_dir( concern_id )}",
+                               "ready_dir=#{GlobusService.globus_target_download_dir( concern_id )}",
                                "" ] if msg_handler.debug_verbose
       return add_status_for( concern_id: concern_id, path: path, hash: @ready_ids, type: 'ready' )
     end
@@ -209,14 +201,14 @@ module Deepblue
                                msg_handler.called_from,
                                "concern_id=#{concern_id}",
                                "" ]  if msg_handler.debug_verbose
-      path = GlobusJob.target_download_dir( concern_id ).to_s
+      path = GlobusService.globus_target_download_dir( concern_id ).to_s
       if @disk_usage[path].blank?
         du = report_du( path: path )
         du = du[0].dup
         du.strip! if du.present?
         disk_usage[path] = du
       end
-      path = GlobusJob.target_prep_dir( concern_id ).to_s
+      path = GlobusService.globus_target_prep_dir( concern_id ).to_s
       if @disk_usage[path].blank?
         du = report_du( path: path )
         du = du[0].dup
@@ -226,27 +218,20 @@ module Deepblue
     end
 
     def report_du( path: )
-      msg_handler.bold_debug [ msg_handler.here,
-                               msg_handler.called_from,
-                               "path=#{path}",
-                               "" ]  if msg_handler.debug_verbose
-      return ['N/A',path] unless File.exist? path
-      cmd = "du -sh #{path}"
-      rv = `#{cmd}`
-      rv.chomp.split( "\t" )
+      GlobusService.get_du( path: path )
     end
 
-    def du_for( concern_id:, ready: true )
-      return 'N/A' if @disk_usage.blank?
-      if ready
-        path = GlobusJob.target_download_dir( concern_id ).to_s
-      else
-        path = GlobusJob.target_prep_dir( concern_id ).to_s
-      end
-      du = disk_usage[path]
-      return 'N/A' if du.blank?
-      return du
-    end
+    # def du_for( concern_id:, ready: true )
+    #   return 'N/A' if @disk_usage.blank?
+    #   if ready
+    #     path = GlobusService.globus_target_download_dir( concern_id ).to_s
+    #   else
+    #     path = GlobusService.globus_target_prep_dir( concern_id ).to_s
+    #   end
+    #   du = disk_usage[path]
+    #   return 'N/A' if du.blank?
+    #   return du
+    # end
 
     def files( starts_with: )
       msg_handler.bold_debug [ msg_handler.here,

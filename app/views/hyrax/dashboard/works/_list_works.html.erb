@@ -39,7 +39,7 @@
       <%= ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( total_size, precision: 3 ) %>
     </td>
     <% if presenter.current_ability.admin? %>
-      <td class="text-center"><%= ::Deepblue::GlobusStatus.status_compact( concern_id: presenter.id ) %></td>
+      <td class="text-center"><%= ::Deepblue::GlobusService.globus_status_compact( concern_id: presenter.id ) %></td>
       <td class="text-center"><%= ::AnalyticsHelper.download_work_monthly_cnt( id: presenter.id,
                                                   date_range: ::AnalyticsHelper.date_range_for_month_previous ) %></td>
       <td class="text-center"><%= ::AnalyticsHelper.download_todate_cnt( id: presenter.id,
@@ -58,7 +58,7 @@
       <%= ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( total_size, precision: 3 ) %>
     </td>
     <% if presenter.current_ability.admin? %>
-      <td class="text-center"><%= ::Deepblue::GlobusStatus.status_compact( concern_id: presenter.id ) %></td>
+      <td class="text-center"><%= ::Deepblue::GlobusService.globus_status_compact( concern_id: presenter.id ) %></td>
       <td class="text-center"><%= ::AnalyticsHelper.download_work_monthly_cnt( id: presenter.id,
                                                  date_range: ::AnalyticsHelper.date_range_for_month_previous ) %></td>
       <td class="text-center"><%= ::AnalyticsHelper.download_todate_cnt( id: presenter.id,
