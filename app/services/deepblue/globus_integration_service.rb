@@ -54,51 +54,6 @@ module Deepblue
       puts "globus_int_srv"
     end
 
-    def self.globus_status( include_disk_usage: true, msg_handler: )
-      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ]  if msg_handler.debug_verbose
-      rv = GlobusStatus.new( include_disk_usage: include_disk_usage, msg_handler: msg_handler )
-      rv.populate
-      return rv
-    end
-
-    def self.globus_status_report( msg_handler:, errors_report: false )
-      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ]  if msg_handler.debug_verbose
-      rv = GlobusStatus.new( msg_handler: msg_handler, skip_ready: errors_report, auto_populate: false )
-      rv.populate
-      return rv.reporter
-    end
-
-    def self.globus_job_complete_file( concern_id: )
-      GlobusJob.target_file_name_env( ::Deepblue::GlobusIntegrationService.globus_prep_dir,
-                                      'restarted',
-                                      GlobusJob.target_base_name( concern_id ) )
-    end
-
-    def self.globus_job_complete?( concern_id:, debug_verbose: globus_integration_service_debug_verbose )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "concern_id=#{concern_id}",
-                                             "" ] if debug_verbose
-      file = globus_job_complete_file( concern_id: concern_id )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "file=#{file}",
-                                             "" ] if debug_verbose
-      return false unless File.exist? file
-      last_complete_time = last_complete_time file
-      token_time = ::GlobusJob.era_token_time
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "token_time.class.name=#{token_time.class.name}",
-                                             "token_time=#{token_time} <= last_complete_time=#{last_complete_time}",
-                                             "" ] if debug_verbose
-      token_time <= last_complete_time
-    end
-
-    def self.last_complete_time( file )
-      File.birthtime file
-    end
-
   end
 
 end

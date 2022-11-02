@@ -36,7 +36,7 @@ describe GlobusJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do 
       before do
         allow( Dir ).to receive( :exist? ).with( globus_target_download_dir ).and_return( false )
         allow( File ).to receive( :exist? ).with( error_file ).and_return( false )
-        allow( GlobusJob ).to receive( :locked? ).with( "id321" ).and_return( true )
+        allow( ::Deepblue::GlobusService ).to receive( :globus_locked? ).with( "id321" ).and_return( true )
       end
       it "returns true." do expect( GlobusJob.files_prepping?( "id321" ) ).to eq( true ); end
     end
@@ -166,7 +166,7 @@ describe GlobusJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do 
       let( :error_msg ) { "An error message." }
       before do
         allow( job2 ).to receive( :globus_error_file ).and_return( error_file_tmp.path )
-        allow( GlobusJob ).to receive( :error_file ).and_return( error_file_tmp.path )
+        allow( ::Deepblue::GlobusService ).to receive( :globus_error_file ).and_return( error_file_tmp.path )
         File.open( error_file_tmp.path, 'w' ) { |f| f << error_msg << "\n" }
         allow( Rails.logger ).to receive( :debug ).with( "Globus:  error file contains: #{error_msg}" )
       end
@@ -364,10 +364,10 @@ describe GlobusJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do 
     context "If lock file does not exist" do
       let( :job ) { j = described_class.new; j.perform( "id321" ); j } # rubocop:disable Style/Semicolon
       before do
-        allow( GlobusJob ).to receive( :error_file_exists? ).and_return( false )
+        allow( ::Deepblue::GlobusService ).to receive( :globus_error_file_exists? ).and_return( false )
         allow( File ).to receive( :exist? ).with( lock_file ).and_return( false )
       end
-      it "then return false." do
+      it "then returns false." do
         expect( job.send( :globus_locked? ) ).to eq( false )
       end
     end
@@ -377,8 +377,8 @@ describe GlobusJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do 
       let( :current_token ) { GlobusJob.era_token }
       let( :lock_token ) { "theToken" }
       before do
-        allow( GlobusJob ).to receive( :error_file_exists? ).and_return( false )
-        allow( GlobusJob ).to receive( :lock_file ).and_return( lock_file_tmp.path )
+        allow( ::Deepblue::GlobusService ).to receive( :globus_error_file_exists? ).and_return( false )
+        allow( ::Deepblue::GlobusService ).to receive( :globus_lock_file ).and_return( lock_file_tmp.path )
         File.open( lock_file_tmp.path, 'w' ) { |f| f << lock_token << "\n" }
         log_msg = "Globus:  testing token from #{lock_file_tmp.path}: current_token: #{current_token} == lock_token: #{lock_token}: false"
         allow( Rails.logger ).to receive( :debug ).with( log_msg )
@@ -396,8 +396,8 @@ describe GlobusJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do 
       let( :current_token ) { GlobusJob.era_token }
       let( :lock_token ) { GlobusJob.era_token }
       before do
-        allow( GlobusJob ).to receive( :error_file_exists? ).and_return( false )
-        allow( GlobusJob ).to receive( :lock_file ).and_return(lock_file_tmp.path )
+        allow( ::Deepblue::GlobusService ).to receive( :globus_error_file_exists? ).and_return( false )
+        allow( ::Deepblue::GlobusService ).to receive( :globus_lock_file ).and_return( lock_file_tmp.path )
         File.open( lock_file_tmp.path, 'w' ) { |f| f << lock_token << "\n" }
         log_msg = "Globus:  testing token from #{lock_file_tmp.path}: current_token: #{current_token} == lock_token: #{lock_token}: true"
         allow( Rails.logger ).to receive( :debug ).with( log_msg )

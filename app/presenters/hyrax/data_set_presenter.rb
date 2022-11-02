@@ -165,27 +165,27 @@ module Hyrax
 
     def globus_external_url
       concern_id = @solr_document.id
-      ::GlobusJob.external_url concern_id
+      ::Deepblue::GlobusService.globus_external_url concern_id
     end
 
     def globus_files_available?
       concern_id = @solr_document.id
-      ::GlobusJob.files_available? concern_id
+      ::Deepblue::GlobusService.globus_files_available? concern_id
     end
 
     def globus_files_prepping?
       concern_id = @solr_document.id
-      ::GlobusJob.files_prepping? concern_id
+      ::Deepblue::GlobusService.globus_files_prepping? concern_id
     end
 
     def globus_last_error_msg
       concern_id = @solr_document.id
-      ::GlobusJob.error_file_contents concern_id
+      ::Deepblue::GlobusService.globus_error_file_contents concern_id
     end
 
     def globus_error_file_exists?
       concern_id = @solr_document.id
-      ::GlobusJob.error_file_exists? concern_id
+      ::Deepblue::GlobusService.globus_error_file_exists? concern_id
     end
 
     # end globus

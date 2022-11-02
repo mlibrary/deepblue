@@ -15,16 +15,8 @@ class GlobusJob < ::Hyrax::ApplicationJob
   # @@globus_copy_file_group = ::Deepblue::GlobusIntegrationService.globus_copy_file_group.freeze
   # @@globus_copy_file_permissions = ::Deepblue::GlobusIntegrationService.globus_copy_file_permissions.freeze
 
-  def self.files_available?( concern_id )
-    return false unless ::Deepblue::GlobusIntegrationService.globus_enabled
-    copy_complete? concern_id
-  end
-
   def self.copy_complete?( id )
-    return false unless ::Deepblue::GlobusIntegrationService.globus_enabled
-    dir = ::Deepblue::GlobusIntegrationService.globus_download_dir
-    dir = dir.join files_target_file_name( id )
-    Dir.exist? dir
+    ::Deepblue::GlobusService.globus_copy_complete?( id )
   end
 
   def self.clean_dir( dir_path, delete_dir: false )
@@ -42,15 +34,11 @@ class GlobusJob < ::Hyrax::ApplicationJob
   end
 
   def self.error_file( id )
-    target_file_name_env( ::Deepblue::GlobusIntegrationService.globus_prep_dir, 'error', target_base_name( id ) )
+    ::Deepblue::GlobusService.globus_error_file( id )
   end
 
   def self.error_file_contents( id )
-    contents = nil
-    return contents unless error_file_exists? id
-    file = error_file id
-    File.open( file, 'r' ) { |f| contents = f.readlines }
-    return contents
+    ::Deepblue::GlobusService.globus_error_file_contents( id )
   end
 
   def self.error_file_delete( id )
@@ -59,33 +47,26 @@ class GlobusJob < ::Hyrax::ApplicationJob
   end
 
   def self.error_file_exists?( id, write_error_to_log: false, log_prefix: '', quiet: true )
-    error_file = error_file( id )
-    error_file_exists = false
-    if File.exist? error_file
-      if write_error_to_log
-        msg = nil
-        File.open( error_file, 'r' ) { |f| msg = f.read; msg.chomp! } # rubocop:disable Style/Semicolon
-        ::Deepblue::LoggingHelper.debug "#{log_prefix} error file contains: #{msg}" unless quiet
-      end
-      error_file_exists = true
-    end
-    error_file_exists
+    ::Deepblue::GlobusService.globus_error_file_exists?( id,
+                                                         write_error_to_log: write_error_to_log,
+                                                         log_prefix: log_prefix,
+                                                         quiet: quiet )
   end
 
   def self.external_url( id )
-    globus_base_url = ::Deepblue::GlobusIntegrationService.globus_base_url
-    globus_dir_modifier = ::Deepblue::GlobusIntegrationService.globus_dir_modifier
-    return "#{globus_base_url}#{globus_dir_modifier}%2F#{files_target_file_name(id)}%2F" if globus_dir_modifier.present?
-    "#{globus_base_url}#{files_target_file_name(id)}%2F"
+    ::Deepblue::GlobusService.globus_external_url( id )
   end
 
-  def self.files_target_file_name( id = '' )
-    "#{::Deepblue::GlobusIntegrationService.globus_base_file_name}#{id}"
+  def self.files_available?( concern_id )
+    ::Deepblue::GlobusService.globus_files_available?( concern_id )
   end
 
   def self.files_prepping?( id )
-    rv = !copy_complete?( id ) && locked?( id )
-    rv
+    ::Deepblue::GlobusService.globus_files_prepping?( id )
+  end
+
+  def self.files_target_file_name( id = '' )
+    ::Deepblue::GlobusService.globus_files_target_file_name( id )
   end
 
   def self.lock( concern_id, log_prefix, quiet: )
@@ -97,83 +78,50 @@ class GlobusJob < ::Hyrax::ApplicationJob
   end
 
   def self.lock_file( id = '' )
-    target_file_name_env( ::Deepblue::GlobusIntegrationService.globus_prep_dir, 'lock', target_base_name( id ) )
+    ::Deepblue::GlobusService.globus_lock_file( id )
   end
 
   def self.locked?( concern_id, log_prefix: '', quiet: true )
-    return false if error_file_exists?( concern_id, write_error_to_log: true, log_prefix: log_prefix, quiet: quiet )
-    lock_file = lock_file concern_id
-    return false unless File.exist? lock_file
-    current_token = era_token
-    lock_token = read_token lock_file
-    rv = ( current_token == lock_token )
-    ::Deepblue::LoggingHelper.debug "#{log_prefix} testing token from #{lock_file}: current_token: #{current_token} == lock_token: #{lock_token}: #{rv}" unless @quiet
-    rv
+    ::Deepblue::GlobusService.globus_locked?( concern_id, log_prefix: log_prefix, quiet: true )
   end
 
   def self.read_token( token_file )
-    token = nil
-    File.open( token_file, 'r' ) { |f| token = f.read.chomp! }
-    return token
+    ::Deepblue::GlobusService.globus_read_token( token_file )
   end
 
   def self.server_prefix( str: '' )
-    "#{Rails.env}#{str}"
+    ::Deepblue::GlobusService.server_prefix( str: str )
   end
 
   def self.target_base_name( id = '', prefix: '', postfix: '' )
-    prefix = server_prefix( str: '_' ) if prefix.nil?
-    "#{prefix}#{::Deepblue::GlobusIntegrationService.globus_base_file_name}#{id}#{postfix}"
+    ::Deepblue::GlobusService.globus_target_base_name( id, prefix: prefix, postfix: postfix )
   end
 
   def self.target_file_name_env( dir, file_type, base_name )
-    target_file_name( dir, ".#{server_prefix}.#{file_type}.#{base_name}" )
+    ::Deepblue::GlobusService.globus_target_file_name_env( dir, file_type, base_name )
   end
 
   def self.target_file_name( dir, filename, ext = '' )
-    return Pathname.new( filename + ext ) if dir.nil?
-    if dir.is_a? String
-      rv = File.join dir, filename + ext
-    else
-      rv = dir.join( filename + ext )
-    end
-    return rv
+    ::Deepblue::GlobusService.globus_target_file_name( dir, filename, ext )
   end
 
   def self.target_download_dir( concern_id )
-    target_dir_name( ::Deepblue::GlobusIntegrationService.globus_download_dir, target_base_name(concern_id) )
+    ::Deepblue::GlobusService.globus_target_download_dir( concern_id )
   end
 
   def self.target_dir_name( dir, subdir, mkdir: false )
-    if dir.is_a? String
-      target_dir = File.join dir, subdir
-    else
-      target_dir = dir.join subdir
-    end
-    if mkdir
-      Dir.mkdir(target_dir ) unless Dir.exist? target_dir
-    end
-    target_dir
+    ::Deepblue::GlobusService.globus_target_dir_name( dir, subdir, mkdir: mkdir )
   end
 
   def self.target_prep_dir( concern_id, prefix: '', postfix: '', mkdir: false )
-    prefix = server_prefix( str: '_' ) if prefix.nil?
-    subdir = target_base_name( concern_id, prefix: prefix, postfix: postfix )
-    target_dir_name( ::Deepblue::GlobusIntegrationService.globus_prep_dir, subdir, mkdir: mkdir )
+    ::Deepblue::GlobusService.globus_target_prep_dir( concern_id, prefix: prefix, postfix: postfix, mkdir: mkdir )
   end
 
   def self.target_prep_tmp_dir( concern_id, prefix: '', postfix: '', mkdir: false )
-    prefix = server_prefix( str: '_' ) if prefix.nil?
-    dir = target_prep_dir( concern_id, prefix: prefix, postfix: "#{postfix}_tmp" )
-    if mkdir
-      Dir.mkdir(dir ) unless Dir.exist? dir
-    end
-    dir
+    ::Deepblue::GlobusService.globus_target_prep_tmp_dir( concern_id, prefix: prefix, postfix: postfix, mkdir: mkdir )
   end
 
   def self.era_token
-    # read_token @@globus_era_file
-    # read_token @@globus_era.era_file
     @@globus_era_token
   end
 

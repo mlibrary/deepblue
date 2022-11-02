@@ -32,7 +32,7 @@ class GlobusDashboardController < ApplicationController
   def globus_status_init
     msg_handler = ::Deepblue::MessageHandler.new( verbose: false,
                                                   debug_verbose: globus_dashboard_controller_debug_verbose )
-    rv = ::Deepblue::GlobusIntegrationService.globus_status( include_disk_usage: false, msg_handler: msg_handler )
+    rv = ::Deepblue::GlobusService.globus_status( include_disk_usage: false, msg_handler: msg_handler )
     rv.yaml_save # TODO: revisit
     return rv
   end
@@ -87,6 +87,10 @@ class GlobusDashboardController < ApplicationController
     ::Deepblue::GlobusIntegrationService.globus_bounce_external_link_off_server
   end
 
+  def globus_copy_complete?( concern_id )
+    ::Deepblue::GlobusService.globus_copy_complete?( concern_id )
+  end
+
   def globus_copy_job( concern_id, user_email: nil )
     ::GlobusCopyJob.perform_later( concern_id,
          user_email: user_email,
@@ -97,9 +101,9 @@ class GlobusDashboardController < ApplicationController
   def globus_clean_download( concern_id )
     ::GlobusCleanJob.perform_later( concern_id, clean_download: true )
     dirs = []
-    dirs << ::GlobusJob.target_download_dir( concern_id )
-    dirs << ::GlobusJob.target_prep_dir( concern_id )
-    dirs << ::GlobusJob.target_prep_tmp_dir( concern_id )
+    dirs << ::Deepblue::GlobusService.globus_target_download_dir( concern_id )
+    dirs << ::Deepblue::GlobusService.globus_target_prep_dir( concern_id )
+    dirs << ::Deepblue::GlobusService.globus_target_prep_tmp_dir( concern_id )
     globus_ui_delay
     return dirs
   end
@@ -119,9 +123,16 @@ class GlobusDashboardController < ApplicationController
     ::Deepblue::GlobusIntegrationService.globus_enabled
   end
 
-  def globus_du_for( concern_id:, ready: )
-    return 'N/A' if globus_status.nil?
-    globus_status.du_for( concern_id: concern_id, ready: ready )
+  def globus_download_dir_du( concern_id: )
+    ::Deepblue::GlobusService.globus_download_dir_du( concern_id: concern_id )
+  end
+
+  def globus_prep_dir_du( concern_id: )
+    ::Deepblue::GlobusService.globus_prep_dir_du( concern_id: concern_id )
+  end
+
+  def globus_prep_tmp_dir_du( concern_id: )
+    ::Deepblue::GlobusService.globus_prep_tmp_dir_du( concern_id: concern_id )
   end
 
   def globus_enabled?
@@ -129,27 +140,27 @@ class GlobusDashboardController < ApplicationController
   end
 
   def globus_error_file_exists?( concern_id )
-    ::GlobusJob.error_file_exists? concern_id
+    ::Deepblue::GlobusService.globus_error_file_exists? concern_id
   end
 
   def globus_external_url( concern_id )
-    ::GlobusJob.external_url concern_id
+    ::Deepblue::GlobusService.globus_external_url concern_id
   end
 
   def globus_files_available?( concern_id )
-    ::GlobusJob.files_available? concern_id
+    ::Deepblue::GlobusService.globus_files_available? concern_id
   end
 
   def globus_files_prepping?( concern_id )
-    ::GlobusJob.files_prepping? concern_id
+    ::Deepblue::GlobusService.globus_files_prepping? concern_id
   end
 
   def globus_last_error_msg( concern_id )
-    ::GlobusJob.error_file_contents concern_id
+    ::Deepblue::GlobusService.globus_error_file_contents concern_id
   end
 
   def globus_locked?( concern_id )
-    ::GlobusJob.locked?( concern_id )
+    ::Deepblue::GlobusService.globus_locked?( concern_id )
   end
 
   def globus_ui_delay( delay_seconds: ::Deepblue::GlobusIntegrationService.globus_after_copy_job_ui_delay_seconds )

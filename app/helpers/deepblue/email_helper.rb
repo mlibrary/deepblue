@@ -88,9 +88,9 @@ module Deepblue
 
     def self.cc_globus_link( curation_concern: )
       if curation_concern.is_a?( DataSet )
-        ::GlobusJob.external_url curation_concern.id
+        ::Deepblue::GlobusService.globus_external_url curation_concern.id
       elsif curation_concern.is_a?( FileSet )
-        ::GlobusJob.external_url curation_concern.parent.id
+        ::Deepblue::GlobusService.globus_external_url curation_concern.parent.id
       elsif curation_concern.is_a?( Collection )
         ""
       else

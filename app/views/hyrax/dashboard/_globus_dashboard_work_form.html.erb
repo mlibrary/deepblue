@@ -2,13 +2,14 @@
   <tr>
     <td>Work</td>
     <td>Total<br/>Size</td>
+    <td>Ready?</td>
+    <td>Error?</td>
     <td>Prepping?</td>
-    <td>Files<br/>Available?</td>
-    <td>Error File<br/>Present?</td>
-    <td>Last Error</td>
     <td>Locked?</td>
-    <td>Prep DU</td>
-    <td>Ready DU</td>
+    <td>Ready<br/>DU</td>
+    <td>Prep<br/>DU</td>
+    <td>Prep tmp<br/>DU</td>
+    <td>Last<br/>Error</td>
     <td>&nbsp;</td>
   </tr>
 <% else %>
@@ -20,13 +21,14 @@
                       main_app.hyrax_data_set_path(work.id),
                       target: '_blank' %></td>
       <td><%= @view_presenter.total_size( work ) %></td>
-      <td><%= @view_presenter.globus_files_prepping?( work.id ) %></td>
-      <td><%= @view_presenter.globus_files_available?( work.id ) %></td>
+      <td><%= @view_presenter.globus_copy_complete?( work.id ) %></td>
       <td><%= @view_presenter.globus_error_file_exists?( work.id ) %></td>
-      <td><%= @view_presenter.globus_last_error_msg( work.id ) %></td>
+      <td><%= @view_presenter.globus_files_prepping?( work.id ) %></td>
       <td><%= @view_presenter.globus_locked?( work.id ) %></td>
-      <td><%= @view_presenter.globus_du_for( concern_id: work.id, ready: false ) %></td>
-      <td><%= @view_presenter.globus_du_for( concern_id: work.id, ready: true ) %></td>
+      <td><%= @view_presenter.globus_download_dir_du( concern_id: work.id ) %></td>
+      <td><%= @view_presenter.globus_prep_dir_du( concern_id: work.id ) %></td>
+      <td><%= @view_presenter.globus_prep_tmp_dir_du( concern_id: work.id ) %></td>
+      <td><%= @view_presenter.globus_last_error_msg( work.id ) %></td>
       <td>
         <%= submit_tag( t('hyrax.globus.submit.clean'), class: 'btn btn-primary', id: "clean_#{work.id}" ) %>&nbsp;
         <%= submit_tag( t('hyrax.globus.submit.copy'), class: 'btn btn-primary', id: "copy_#{work.id}" ) %>

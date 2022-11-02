@@ -326,9 +326,9 @@ module Hyrax
       ::GlobusCleanJob.perform_later( curation_concern.id, clean_download: true )
       globus_ui_delay
       dirs = []
-      dirs << ::GlobusJob.target_download_dir( curation_concern.id )
-      dirs << ::GlobusJob.target_prep_dir( curation_concern.id )
-      dirs << ::GlobusJob.target_prep_tmp_dir( curation_concern.id )
+      dirs << ::Deepblue::GlobusService.globus_target_download_dir( curation_concern.id )
+      dirs << ::Deepblue::GlobusService.globus_target_prep_dir( curation_concern.id )
+      dirs << ::Deepblue::GlobusService.globus_target_prep_tmp_dir( curation_concern.id )
       flash_and_redirect_to_main_cc globus_clean_msg( dirs )
     end
 
@@ -338,7 +338,7 @@ module Hyrax
     end
 
     def globus_complete?
-      ::GlobusJob.copy_complete? curation_concern.id
+      ::Deepblue::GlobusService.globus_copy_complete? curation_concern.id
     end
 
     def globus_copy_job( user_email: nil,
@@ -383,7 +383,7 @@ module Hyrax
     end
 
     def globus_download_redirect
-      redirect_to ::GlobusJob.external_url( params[:id] )
+      redirect_to ::Deepblue::GlobusService.globus_external_url( params[:id] )
     end
 
     def globus_download_notify_me
@@ -414,11 +414,11 @@ module Hyrax
     end
 
     def globus_last_error_msg
-      ::GlobusJob.error_file_contents curation_concern.id
+      ::Deepblue::GlobusService.globus_error_file_contents curation_concern.id
     end
 
     def globus_prepping?
-      ::GlobusJob.files_prepping? curation_concern.id
+      ::Deepblue::GlobusService.globus_files_prepping? curation_concern.id
     end
 
     def globus_ui_delay( delay_seconds: ::Deepblue::GlobusIntegrationService.globus_after_copy_job_ui_delay_seconds )
@@ -426,7 +426,7 @@ module Hyrax
     end
 
     def globus_url
-      ::GlobusJob.external_url curation_concern.id
+      ::Deepblue::GlobusService.globus_external_url curation_concern.id
     end
 
     ## end Globus
