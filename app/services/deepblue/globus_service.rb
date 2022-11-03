@@ -10,7 +10,7 @@ module Deepblue
       cmd = "du -sh #{path}"
       rv = `#{cmd}`
       rv = Array( rv.chomp.split( "\t" ) )
-      rv << 'N/A' if rv.size < 2
+      rv.unshift( 'N/A' ) if rv.size < 2 # prepend
       rv
     end
 
@@ -133,18 +133,20 @@ module Deepblue
 
     def self.globus_prep_dir_du( concern_id: )
       dir = globus_target_prep_dir( concern_id )
-      return get_du( path: dir ) if File.exist? dir
+      return get_du( path: dir ).first if File.exist? dir
       dir = globus_target_prep_dir( concern_id, prefix: nil )
-      get_du( path: dir ).first
+      rv = get_du( path: dir ).first
       # get_du2( paths: [globus_target_prep_dir( concern_id ), globus_target_prep_dir( concern_id, prefix: nil )] )
+      rv
     end
 
     def self.globus_prep_tmp_dir_du( concern_id: )
       dir = globus_target_prep_tmp_dir( concern_id )
-      return get_du( path: dir ) if File.exist? dir
+      return get_du( path: dir ).first if File.exist? dir
       dir = globus_target_prep_tmp_dir( concern_id, prefix: nil )
-      get_du( path: dir ).first
+      rv = get_du( path: dir ).first
       # get_du2( paths: [globus_target_prep_tmp_dir( concern_id ), globus_target_prep_tmp_dir( concern_id, prefix: nil )] )
+      rv
     end
 
     def self.globus_read_token( token_file )

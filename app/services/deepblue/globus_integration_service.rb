@@ -50,6 +50,9 @@ module Deepblue
                                                                          ::Deepblue::InitializationConstants::PREP )
     mattr_accessor :globus_restart_all_copy_jobs_quiet,          default: true
 
+    mattr_accessor :globus_default_generate_error_on_copy,       default: false
+    mattr_accessor :globus_default_delay_per_file_seconds_on_copy, default: 0
+
     def self.globus_int_srv()
       puts "globus_int_srv"
     end
