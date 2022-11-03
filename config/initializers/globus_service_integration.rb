@@ -90,6 +90,9 @@ Deepblue::GlobusIntegrationService.setup do |config|
     config.globus_dashboard_display_report = false
     # config.globus_debug_delay_per_file_copy_job_seconds = 30
     config.globus_dashboard_controller_debug_verbose = false
+
+    config.globus_default_generate_error_on_copy = false
+    config.globus_default_delay_per_file_seconds_on_copy = 0
   else
     config.globus_dashboard_display_all_works = false
     config.globus_dashboard_display_report = false

@@ -8,7 +8,12 @@ class GlobusCopyJob < GlobusJob
   # @param [boolean, false] generate_error
   # @param [integer, 0 ] delay_per_file_seconds
   # @param [String, nil ] user_email
-  def perform( concern_id, log_prefix: "Globus: ", generate_error: false, delay_per_file_seconds: 0, user_email: nil )
+  def perform( concern_id,
+               log_prefix: "Globus: ",
+               generate_error: ::Deepblue::GlobusIntegrationService.globus_default_generate_error_on_copy,
+               delay_per_file_seconds: ::Deepblue::GlobusIntegrationService.globus_default_delay_per_file_seconds_on_copy,
+               user_email: nil )
+
     globus_job_perform( concern_id: concern_id, email: user_email, log_prefix: "#{log_prefix}globus_copy_job" ) do
       ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} begin copy" unless @globus_job_quiet
       GlobusJob.error_file_delete @globus_concern_id
