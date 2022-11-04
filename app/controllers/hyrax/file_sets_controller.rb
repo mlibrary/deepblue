@@ -342,6 +342,11 @@ module Hyrax
       curation_concern.doi.present?
     end
 
+    def parent_doi?
+      return false unless curation_concern.parent.respond_to? :doi
+      curation_concern.parent.doi.present?
+    end
+
     # TODO: move to file_set_permissions_behavior
     def parent_tombstoned?
       return false unless curation_concern.parent.respond_to? :tombstone

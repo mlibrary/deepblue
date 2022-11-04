@@ -272,8 +272,9 @@ module Hyrax
       return false if anonymous_show?
       return false if parent.tombstone.present?
       return true if current_ability.admin?
-      return false if parent.doi.present?
+      # return false if parent.doi.present? # this will allow the user to delete the file
       return true if editor? && pending_publication?
+      return false unless pending_publication?
       return true if current_ability.current_user.email.present? && current_ability.current_user.email.to_s == depositor
       false
     end

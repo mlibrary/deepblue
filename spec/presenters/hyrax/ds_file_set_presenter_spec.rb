@@ -247,12 +247,27 @@ RSpec.describe Hyrax::DsFileSetPresenter do
       end
       it { is_expected.to be true }
     end
-    context 'cannot when editor and deposited' do
+    context 'can when editor and doi present and not deposited' do
       before do
         allow( parent_presenter ).to receive( :tombstone ).and_return nil
         allow( parent_presenter ).to receive( :doi ).and_return "dsf"
         allow( presenter ).to receive( :anonymous_show? ).and_return false
         allow( current_ability ).to receive( :admin? ).and_return false
+        expect( presenter ).to receive( :editor? ).at_least(:once).and_return true
+        expect( workflow ).to receive( :state ).at_least(:once).and_return "pending_review"
+        expect( parent_presenter ).to receive( :workflow ).at_least(:once).and_return workflow
+      end
+      it { is_expected.to be true }
+    end
+    context 'cannot when editor and doi present and deposited' do
+      before do
+        allow( parent_presenter ).to receive( :tombstone ).and_return nil
+        allow( parent_presenter ).to receive( :doi ).and_return "dsf"
+        allow( presenter ).to receive( :anonymous_show? ).and_return false
+        allow( current_ability ).to receive( :admin? ).and_return false
+        expect( presenter ).to receive( :editor? ).at_least(:once).and_return false
+        expect( workflow ).to receive( :state ).at_least(:once).and_return "deposited"
+        expect( parent_presenter ).to receive( :workflow ).at_least(:once).and_return workflow
       end
       it { is_expected.to be false }
     end
