@@ -14,25 +14,27 @@
   </tr>
 <% else %>
   <% work = @view_presenter.work( work: work, id: work_id ) %>
-  <%= form_tag(main_app.globus_dashboard_run_action_path, method: 'post') do %>
-    <%= hidden_field_tag('work_id', work.id) %>
-    <tr>
-      <td><%= link_to @view_presenter.work_title( work ),
-                      main_app.hyrax_data_set_path(work.id),
-                      target: '_blank' %></td>
-      <td><%= @view_presenter.total_size( work ) %></td>
-      <td><%= @view_presenter.globus_copy_complete?( work.id ) %></td>
-      <td><%= @view_presenter.globus_error_file_exists?( work.id ) %></td>
-      <td><%= @view_presenter.globus_files_prepping?( work.id ) %></td>
-      <td><%= @view_presenter.globus_locked?( work.id ) %></td>
-      <td><%= @view_presenter.globus_download_dir_du( concern_id: work.id ) %></td>
-      <td><%= @view_presenter.globus_prep_dir_du( concern_id: work.id ) %></td>
-      <td><%= @view_presenter.globus_prep_tmp_dir_du( concern_id: work.id ) %></td>
-      <td><%= @view_presenter.globus_last_error_msg( work.id ) %></td>
-      <td>
-        <%= submit_tag( t('hyrax.globus.submit.clean'), class: 'btn btn-primary', id: "clean_#{work.id}" ) %>&nbsp;
-        <%= submit_tag( t('hyrax.globus.submit.copy'), class: 'btn btn-primary', id: "copy_#{work.id}" ) %>
-      </td>
-    </tr>
+  <% if work.present? %>
+    <%= form_tag(main_app.globus_dashboard_run_action_path, method: 'post') do %>
+      <%= hidden_field_tag('work_id', work.id) %>
+      <tr>
+        <td><%= link_to @view_presenter.work_title( work ),
+                        main_app.hyrax_data_set_path(work.id),
+                        target: '_blank' %></td>
+        <td><%= @view_presenter.total_size( work ) %></td>
+        <td><%= @view_presenter.globus_copy_complete?( work.id ) %></td>
+        <td><%= @view_presenter.globus_error_file_exists?( work.id ) %></td>
+        <td><%= @view_presenter.globus_files_prepping?( work.id ) %></td>
+        <td><%= @view_presenter.globus_locked?( work.id ) %></td>
+        <td><%= @view_presenter.globus_download_dir_du( concern_id: work.id ) %></td>
+        <td><%= @view_presenter.globus_prep_dir_du( concern_id: work.id ) %></td>
+        <td><%= @view_presenter.globus_prep_tmp_dir_du( concern_id: work.id ) %></td>
+        <td><%= @view_presenter.globus_last_error_msg( work.id ) %></td>
+        <td>
+          <%= submit_tag( t('hyrax.globus.submit.clean'), class: 'btn btn-primary', id: "clean_#{work.id}" ) %>&nbsp;
+          <%= submit_tag( t('hyrax.globus.submit.copy'), class: 'btn btn-primary', id: "copy_#{work.id}" ) %>
+        </td>
+      </tr>
+    <% end %>
   <% end %>
 <% end %>
