@@ -18,12 +18,12 @@ module Deepblue
     def debug_verbose
       false
     end
-    def debug_verbose(_x); end
+    def debug_verbose=(_x); end
 
     def msg_prefix
       ''
     end
-    def msg_prefix(_x); end
+    def msg_prefix=(_x); end
 
     def msg_queue
       nil
