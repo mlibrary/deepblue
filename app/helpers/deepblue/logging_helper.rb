@@ -254,6 +254,17 @@ module Deepblue
       Rails.logger.info msg if echo_to_rails_logger
     end
 
+    def self.mask( arg, always: false, keys: [], dupe: true )
+      return arg if !always && Rails.env.development?
+      return 'x' * arg.to_s.size unless keys.present? && arg.respond_to?(:keys)
+      arg = arg.dup if dupe
+      arg.stringify_keys!
+      keys.each do |key|
+        arg[key] = mask( arg[key], always: always, keys: keys, dupe: false ) if arg.has_key? key.to_s
+      end
+      return arg
+    end
+
     def self.msg_to_log( class_name:,
                          event:,
                          event_note:,

@@ -334,8 +334,8 @@ GEM
       activesupport (>= 5.0)
       request_store (>= 1.0)
       ruby2_keywords
-    dropbox_api (0.1.21)
-      faraday (< 3.0)
+    dropbox_api (0.1.18)
+      faraday (<= 1.0)
       oauth2 (~> 1.1)
     dry-configurable (0.15.0)
       concurrent-ruby (~> 1.0)
@@ -411,7 +411,7 @@ GEM
       nokogiri
     factory_bot (6.2.1)
       activesupport (>= 5.0.0)
-    faraday (0.17.5)
+    faraday (0.17.6)
       multipart-post (>= 1.2, < 3)
     faraday-encoding (0.0.5)
       faraday
@@ -1295,6 +1295,7 @@ DEPENDENCIES
   devise-guests (~> 0.6)
   diffy (>= 3.4.1)
   down (~> 4.4)
+  dropbox_api (= 0.1.18)
   edtf
   ezid-client
   factory_bot

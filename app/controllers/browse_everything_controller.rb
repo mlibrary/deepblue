@@ -145,7 +145,12 @@ class BrowseEverythingController < ApplicationController
                                            "session=#{sess}",
                                            "provider_name=#{prov_name}",
                                            "" ] if browse_everything_controller2_debug_verbose
-    BrowseEverythingSession::ProviderSession.new(session: sess, name: prov_name)
+    rv = BrowseEverythingSession::ProviderSession.new(session: sess, name: prov_name)
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "session=#{rv}",
+                                            "" ] if browse_everything_controller2_debug_verbose
+    return rv
   end
 
   # Clears all authentication tokens, codes, and other data from the Rails session
@@ -170,7 +175,7 @@ class BrowseEverythingController < ApplicationController
     rv = { protocol: request.protocol, host: request.host, port: request.port }
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "rv = #{rv}",
+                                           "connector_response_url_options rv=#{rv}",
                                            "" ] if browse_everything_controller2_debug_verbose
     rv
   end
@@ -212,7 +217,7 @@ class BrowseEverythingController < ApplicationController
     rv = params[:path] || ''
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "rv = #{rv}",
+                                           "browse_path rv=#{rv}",
                                            "" ] if browse_everything_controller2_debug_verbose
     rv
   end
@@ -226,7 +231,7 @@ class BrowseEverythingController < ApplicationController
     rv = params[:state].to_s.split(/\|/).last
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "rv = #{rv}",
+                                           "provider name_from_stat rv=#{rv}",
                                            "" ] if browse_everything_controller2_debug_verbose
     rv
   end
@@ -240,7 +245,7 @@ class BrowseEverythingController < ApplicationController
     rv = params[:provider] || provider_name_from_state || browser.providers.each_key.to_a.first
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "rv = #{rv}",
+                                           "provider_name rv=#{rv}",
                                            "" ] if browse_everything_controller2_debug_verbose
     rv
   end
@@ -257,7 +262,7 @@ class BrowseEverythingController < ApplicationController
     # browser.providers[provider_name.to_sym] || browser.first_provider
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "rv = #{rv}",
+                                           "provider=#{rv}",
                                            "" ] if browse_everything_controller2_debug_verbose
     rv
   end

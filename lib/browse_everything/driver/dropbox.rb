@@ -77,7 +77,9 @@ module BrowseEverything
       def initialize(config_values)
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "config_values=#{config_values}",
+                                               # "config_values=#{config_values}",
+                                               "config_values=#{::Deepblue::LoggingHelper.mask(config_values,
+                                                                             keys: ['client_secret'] )}",
                                                "" ] if browse_everything_driver_dropbox2_debug_verbose
         self.class.authentication_klass ||= self.class.default_authentication_klass
         @downloaded_files = {}
@@ -90,9 +92,11 @@ module BrowseEverything
 
       def validate_config
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "@valid_config=#{@valid_config}",
-                                               "" ] if browse_everything_driver_dropbox2_debug_verbose
+                               ::Deepblue::LoggingHelper.called_from,
+                               "@valid_config=#{@valid_config}",
+                               "@config[:client_id]=#{::Deepblue::LoggingHelper.mask @config[:client_id]}",
+                               "@config[:client_secret]=#{::Deepblue::LoggingHelper.mask @config[:client_secret]}",
+                               "" ] if browse_everything_driver_dropbox2_debug_verbose
         return true if @valid_config
         @valid_config ||= validate_config_init
         raise InitializationError, 'Dropbox driver requires a :client_id argument' unless @config[:client_id]
@@ -101,10 +105,10 @@ module BrowseEverything
 
       def validate_config_init
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "config[:client_id].present?=#{@config[:client_id].present?}",
-                                               "config[:client_secret].present?=#{@config[:client_secret].present?}",
-                                               "" ] if browse_everything_driver_dropbox2_debug_verbose
+                               ::Deepblue::LoggingHelper.called_from,
+                               "@config[:client_id]=#{::Deepblue::LoggingHelper.mask @config[:client_id]}",
+                               "@config[:client_secret]=#{::Deepblue::LoggingHelper.mask @config[:client_secret]}",
+                               "" ] if browse_everything_driver_dropbox2_debug_verbose
         @config[:client_id].present? && @config[:client_secret].present?
       end
 
@@ -159,7 +163,7 @@ module BrowseEverything
         rv = authenticator.authorize_url redirect_uri: redirect_uri(url_options)
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "rv=#{rv}",
+                                               "auth_link rv=#{rv}",
                                                "" ] if browse_everything_driver_dropbox_debug_verbose
         rv
       end
@@ -191,9 +195,10 @@ module BrowseEverything
 
       def session
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "config[:client_id]=#{config[:client_id]}",
-                                               "" ] if browse_everything_driver_dropbox_debug_verbose
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "config[:client_id]=#{config[:client_id]}",
+                                             "config[:client_secret]=#{::Deepblue::LoggingHelper.mask config[:client_secret]}",
+                                             "" ] if browse_everything_driver_dropbox_debug_verbose
         AuthenticationFactory.new(
           self.class.authentication_klass,
           config[:client_id],
@@ -209,7 +214,7 @@ module BrowseEverything
         rv = session.authenticate
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "rv=#{rv}",
+                                               "authenticate rv=#{rv}",
                                                "" ] if browse_everything_driver_dropbox_debug_verbose
         rv
       end

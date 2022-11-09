@@ -106,6 +106,10 @@ module Deepblue
       nil
     end
 
+    def mask( arg, always: false, keys: [], dupe: true )
+      return ''
+    end
+
     def msg( _msg = nil, log: nil, prefix: nil, &block )
       # ignore
     end

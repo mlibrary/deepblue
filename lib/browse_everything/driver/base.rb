@@ -47,7 +47,8 @@ module BrowseEverything
       def initialize(config_values)
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "config_values=#{config_values}",
+                                               "config_values=#{::Deepblue::LoggingHelper.mask(config_values,
+                                                                             keys: ['client_secret'] )}",
                                                "" ] if browse_everything_driver_base2_debug_verbose
         @config = config_values
         # @config = ActiveSupport::HashWithIndifferentAccess.new(@config) if @config.is_a? Hash
@@ -138,13 +139,13 @@ module BrowseEverything
         rv = connector_response_url(**url_options)
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "rv=#{rv}",
+                                               "callback response rv=#{rv}",
                                                "" ] if browse_everything_driver_base_debug_verbose
         # Unfortunately, the connector_response_url does not return with /data as part of its path
         rv = rv.gsub( '/browse', '/data/browse' )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "rv=#{rv}",
+                                               "callback response rv=#{rv}",
                                                "" ] if browse_everything_driver_base_debug_verbose
         return rv
       end
