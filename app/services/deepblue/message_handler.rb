@@ -222,6 +222,17 @@ module Deepblue
       @logger ||= Rails.logger
     end
 
+    def mask( arg, always: false, keys: [], dupe: true )
+      return arg if !always && Rails.env.development?
+      return 'x' * arg.to_s.size unless keys.present? && arg.respond_to?(:keys)
+      arg = arg.dup if dupe
+      arg.stringify_keys!
+      keys.each do |key|
+        arg[key] = mask( arg[key], always: always, keys: keys, dupe: false ) if arg.has_key? key.to_s
+      end
+      return arg
+    end
+
     def msg( msg = nil, log: LOG_NONE, prefix: PREFIX_NONE, &block )
       return buffer_reset if quiet
       msg_raw( msg, log: (log ? LOG_INFO : LOG_NONE), prefix: prefix, &block )
