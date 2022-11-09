@@ -24,7 +24,7 @@ module Deepblue
 
     def fix( curation_concern: )
       parent = curation_concern.parent
-      if curation_concern.embargo.present && parent.embargo.blank?
+      if curation_concern.embargo.present? && parent.embargo.blank?
         curation_concern.embargo = nil
         curation_concern.date_modified = DateTime.now
         curation_concern.save!( validate: false )
