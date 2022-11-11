@@ -19,16 +19,22 @@ module Deepblue
     mattr_accessor :metadata_report_default_filename_ext,
                    default: ::Deepblue::MetadataBehaviorIntegrationService.metadata_report_default_filename_ext
 
-    def add_curation_note_admin( note: )
+    def add_curation_note_admin( note:, persist: true, msg_handler: nil )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "self.curation_notes_admin=#{self.curation_notes_admin}",
                                              "note=#{note}",
-                                             "" ] if metadata_behavior_debug_verbose
-      self.date_modified = DateTime.now # touch it so it will save updated attributes
+                                             "" ] if msg_handler.blank? && metadata_behavior_debug_verbose
+      msg_handler.bold_debug [ msg_handler.here,
+                               msg_handler.called_from,
+                               "self.curation_notes_admin=#{self.curation_notes_admin}",
+                               "note=#{note}",
+                               "" ] if msg_handler.present? && msg_handler.debug_verbose
       notes = Array( self.curation_notes_admin )
-      self.curation_notes_admin = notes << note
-      save!
+      notes << note
+      self.curation_notes_admin = notes
+      self.date_modified = DateTime.now if persist # touch it so it will save updated attributes
+      save! if persist
     end
 
     def add_curation_note_user( note: )

@@ -55,6 +55,7 @@ RSpec.describe DataSet do
       rights_license_other
       state
       subject_discipline
+      ticket
       title
       tombstone
       total_file_count
@@ -94,6 +95,7 @@ RSpec.describe DataSet do
       rights_license_other
       subject_discipline
       state
+      ticket
       title
       total_file_count
       total_file_size_human_readable
@@ -357,7 +359,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_mint_doi( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 42,
+                                     size: 43,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -406,7 +408,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_publish( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 43,
+                                     size: 44,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -456,7 +458,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_unpublish( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 42,
+                                     size: 43,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -545,7 +547,7 @@ RSpec.describe DataSet do
       expect( subject.entomb!( epitaph, current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 45,
+                                     size: 46,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -701,6 +703,7 @@ RSpec.describe DataSet do
                                      exp_rights_license_other: '',
                                      exp_state: '',
                                      exp_subject_discipline: [],
+                                     exp_ticket: '',
                                      exp_title: [],
                                      exp_tombstone: [],
                                      exp_total_file_count: 0,
@@ -760,6 +763,7 @@ RSpec.describe DataSet do
     validate_expected( rv_key_values, :rights_license_other, exp_rights_license_other )
     validate_expected( rv_key_values, :state, exp_state )
     validate_expected( rv_key_values, :subject_discipline, exp_subject_discipline )
+    validate_expected( rv_key_values, :ticket, exp_ticket )
     validate_expected( rv_key_values, :title, exp_title )
     validate_expected( rv_key_values, :tombstone, exp_tombstone )
     validate_expected( rv_key_values, :total_file_count, exp_total_file_count )

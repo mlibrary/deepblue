@@ -499,6 +499,10 @@ module Deepblue
       return nil
     end
 
+    def self.admin_note_ticket_prefix
+      "Jira ticket: ".freeze
+    end
+
     def self.jira_ticket_for_create( client: nil,
                                      curation_concern:,
                                      check_admin_notes_for_existing_jira_ticket: true,
@@ -513,7 +517,7 @@ module Deepblue
                                              "msg_queue=#{msg_queue}",
                                              "" ] if jira_helper_debug_verbose
 
-      curation_admin_note_jira_ticket_prefix = "Jira ticket: "
+      curation_admin_note_jira_ticket_prefix = admin_note_ticket_prefix
       if check_admin_notes_for_existing_jira_ticket && curation_concern.respond_to?( :curation_notes_admin_include? )
         if curation_concern.curation_notes_admin_include? curation_admin_note_jira_ticket_prefix
           msg_queue << "curation concern admin notes already contains jira ticket" unless msg_queue.nil?

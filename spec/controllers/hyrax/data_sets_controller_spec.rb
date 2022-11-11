@@ -17,7 +17,14 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
   let(:user_other) { create(:user) }
   let(:admin)      { create(:admin) }
 
-  before { sign_in user }
+  before do
+    sign_in user
+    # TODO: This is a big hammer, fix the references of these more appropriately
+    # The problem when these aren't defined, is (I suspect) that the TicketHelper code is attempting to find
+    # and load the DataSet using PersistHelper.find
+    allow(::Deepblue::TicketHelper).to receive(:new_ticket)
+    allow(::Deepblue::TicketHelper).to receive(:new_ticket_if_necessary)
+  end
 
   describe 'dbg_verbose true or false', skip: false do
 
@@ -26,6 +33,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
         described_class.data_sets_controller_debug_verbose = dbg_verbose
         expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(:once) if dbg_verbose
         expect(::Deepblue::LoggingHelper).to_not receive(:bold_debug) unless dbg_verbose
+
       end
       after do
         described_class.data_sets_controller_debug_verbose = debug_verbose

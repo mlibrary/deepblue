@@ -286,6 +286,7 @@ class SolrDocument
   #   'subject_discipline',
   #   'subject_other',
   #   'tableofcontents',
+  #   'ticket',
   #   'time_required',
   #   'type_none',
   #   'typical_age_range',

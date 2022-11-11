@@ -118,6 +118,7 @@ en:
       tab_provenance_log:   "Provenence Log"
       tab_read_me:          "Readme"
       tab_user_activity_log: "User Activity Log"
+      ticket:               "Ticket"
       total_file_size:      "Total file size"
       total_file_size_human_readable: "Total file size"
       your_draft_works:       "Your Draft Works"

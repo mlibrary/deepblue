@@ -33,6 +33,7 @@ class DataSet < ActiveFedora::Base
   include ::Deepblue::ProvenanceBehavior
   include ::Deepblue::DoiBehavior
   include ::Deepblue::WorkflowEventBehavior
+  include ::Deepblue::TicketBehavior
 
   after_initialize :set_defaults
 
@@ -93,6 +94,7 @@ class DataSet < ActiveFedora::Base
       rights_license_other
       state
       subject_discipline
+      ticket
       title
       tombstone
       total_file_count
@@ -134,6 +136,7 @@ class DataSet < ActiveFedora::Base
       rights_license_other
       state
       subject_discipline
+      ticket
       title
       tombstone
       total_file_count
@@ -166,6 +169,7 @@ class DataSet < ActiveFedora::Base
       rights_license
       rights_license_other
       subject_discipline
+      ticket
       title
       total_file_count
       total_file_size
@@ -236,6 +240,7 @@ class DataSet < ActiveFedora::Base
       rights_license_other
       state
       subject_discipline
+      ticket
       title
       tombstone
       total_file_count
@@ -269,6 +274,7 @@ class DataSet < ActiveFedora::Base
       rights_license_other
       subject_discipline
       state
+      ticket
       title
       total_file_count
       total_file_size_human_readable
@@ -316,6 +322,10 @@ class DataSet < ActiveFedora::Base
 
   def attributes_update_for_provenance
     metadata_keys_update
+  end
+
+  def embargoed?
+    visibility == 'embargo'
   end
 
   def for_email_route

@@ -141,16 +141,16 @@ module Deepblue
       end
     end
 
-    def add_tdx_ticket_link_to( curation_concern:, tdx_ticket_url: )
-      note = build_curation_notes_admin_link( tdx_ticket_url: tdx_ticket_url )
-      return unless note.present?
-      if curation_concern.respond_to? :add_curation_note_admin
-        curation_concern.add_curation_note_admin( note: note )
-      else
-        msg_handler.warning "curation concern #{curation_concern.id} does not respond to :add_curation_note_admin"
-        msg_handler.warning "skipping add of curation note: #{note}"
-      end
-    end
+    # def add_tdx_ticket_link_to( curation_concern:, tdx_ticket_url: )
+    #   note = build_curation_notes_admin_link( tdx_ticket_url: tdx_ticket_url )
+    #   return unless note.present?
+    #   if curation_concern.respond_to? :add_curation_note_admin
+    #     curation_concern.add_curation_note_admin( note: note )
+    #   else
+    #     msg_handler.warning "curation concern #{curation_concern.id} does not respond to :add_curation_note_admin"
+    #     msg_handler.warning "skipping add of curation note: #{note}"
+    #   end
+    # end
 
     def authentication
       @authentication ||= build_authentication
@@ -220,10 +220,10 @@ module Deepblue
       return Faraday.new(uri)
     end
 
-    def build_curation_notes_admin_link( tdx_ticket_url: )
-       return '' if tdx_ticket_url.blank?
-      "#{admin_note_ticket_prefix}#{tdx_ticket_url}"
-    end
+    # def build_curation_notes_admin_link( tdx_ticket_url: )
+    #    return '' if tdx_ticket_url.blank?
+    #   "#{admin_note_ticket_prefix}#{tdx_ticket_url}"
+    # end
 
     def build_description_from( curation_concern: )
       cc_title = title_for(curation_concern: curation_concern)
@@ -468,7 +468,10 @@ module Deepblue
         # body is parsed into a hash
         @tdx_ticket_id = body[KEY_ID]
         rv = build_tdx_ticket_url( ticket_id: @tdx_ticket_id )
-        add_tdx_ticket_link_to( curation_concern: curation_concern, tdx_ticket_url: rv )
+        ::Deepblue::TicketHelper.update_curation_concern_with_ticket_url( curation_concern: curation_concern,
+                                                                          msg_handler: msg_handler,
+                                                                          prefix: admin_note_ticket_prefix,
+                                                                          ticket_url: rv )
         @tdx_ticket_url = rv
         # fix-up incomplete ticket
         status2, body2 = patch_ticket_for( curation_concern: curation_concern, ticket_id: @tdx_ticket_id )

@@ -20,6 +20,7 @@ module Hyrax
 
     before_action :assign_date_coverage,         only: %i[create update]
     before_action :assign_admin_set,             only: %i[create update]
+    # before_action :assign_ticket_status,         only: %i[create update]
     before_action :prepare_tombstone_permissions,only: [:show]
     before_action :provenance_log_update_before, only: [:update]
     before_action :single_use_link_debug,        only: [:single_use_link]
@@ -31,6 +32,9 @@ module Hyrax
     after_action :visibility_changed_update,     only: [:update]
     after_action :workflow_create,               only: [:create]
     after_action :workflow_update_after,         only: [:update]
+
+    before_action :ensure_ticket,                only: %i[show update]
+    # after_action :ensure_ticket,                 only: [:create]
 
     after_action :report_irus_analytics_request, only: %i[globus_download_redirect zip_download]
     after_action :report_irus_analytics_investigation, only: %i[show]
@@ -121,7 +125,10 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if data_sets_controller_debug_verbose
-      ::NewServiceRequestTicketJob.perform_later( work_id: params[:id], current_user: current_user )
+      ::Deepblue::TicketHelper.new_ticket( curation_concern: curation_concern,
+                                           current_user: current_user,
+                                           # test_mode: true,
+                                           debug_verbose: data_sets_controller_debug_verbose )
       flash[:notice] = "Create service request job started."
       redirect_to [main_app, curation_concern]
     end
@@ -164,6 +171,21 @@ module Hyrax
     end
 
     ## end box integration
+
+    ## ticketing
+
+    def ensure_ticket
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if data_sets_controller_debug_verbose
+      ::Deepblue::TicketHelper.new_ticket_if_necessary( cc_id: params[:id],
+                                                        current_user: current_user,
+                                                        send_emails: true,
+                                                        # test_mode: true,
+                                                        debug_verbose: data_sets_controller_debug_verbose )
+    end
+
+    ## end ticketing
 
     ## date_coverage
 

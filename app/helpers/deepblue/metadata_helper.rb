@@ -55,6 +55,7 @@ module Deepblue
                                             rights_license_other
                                             source
                                             subject_discipline
+                                            ticket
                                             title
                                             title_ordered
                                             tombstone

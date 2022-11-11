@@ -37,7 +37,11 @@ module Deepblue
                                              "is_draft=#{is_draft}",
                                              "" ] if debug_verbose
       return if is_draft
-      NewServiceRequestTicketJob.perform_later( work_id: id, current_user: current_user, debug_verbose: debug_verbose )
+      # NewServiceRequestTicketJob.perform_later( work_id: id, current_user: current_user, debug_verbose: debug_verbose )
+      ::Deepblue::TicketHelper.new_ticket( cc_id: id,
+                                           current_user: current_user,
+                                           # test_mode: true,
+                                           debug_verbose: debug_verbose )
     end
 
     def workflow_destroy( current_user:, event_note: "" )
@@ -168,7 +172,11 @@ module Deepblue
       email_event_create_rds( current_user: current_user, event_note: event_note, was_draft: true )
       email_event_create_user( current_user: current_user, event_note: event_note, was_draft: true )
       # Send this Jira message, if it used to be a draft work, and now it's a regular work
-      NewServiceRequestTicketJob.perform_later( work_id: id, current_user: current_user, debug_verbose: debug_verbose )
+      # NewServiceRequestTicketJob.perform_later( work_id: id, current_user: current_user, debug_verbose: debug_verbose )
+      ::Deepblue::TicketHelper.new_ticket( cc_id: id,
+                                           current_user: current_user,
+                                           # test_mode: true,
+                                           debug_verbose: debug_verbose )
     end
 
   end
