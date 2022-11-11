@@ -12,6 +12,14 @@
   display: none;
 }
 
+thead {
+  font-size: 16px;
+}
+
+tbody {
+  font-size: 16px;
+}
+
 /** 
 Design System alert announcements for Warning(orange), Informational(blue), Error(red) 
 **/
@@ -379,6 +387,10 @@ form.copy-url > .input-group {
 .panel {
   background-color: #f2f2f2;
   box-shadow: none;
+}
+
+.panel-body {
+  font-size: 16px;
 }
 
 div.panel-body {
