@@ -150,8 +150,8 @@ module Deepblue
       if curation_concern.respond_to? :workflow_state
         workflow_state = curation_concern.workflow_state
         return true if workflow_state == draft_workflow_state_name
-      else
-        wgid = to_global_id.to_s
+      elsif curation_concern.respond_to? :to_global_id
+        wgid = curation_concern.to_global_id.to_s
         entity = Sipity::Entity.where( proxy_for_global_id: wgid )&.first
         return true if entity&.workflow_state_name&.eql? draft_workflow_state_name
       end

@@ -24,6 +24,7 @@ module Hyrax
               :referenced_by,
               :rights_license,
               :rights_license_other,
+              :ticket,
               :subject_discipline,
               :total_file_size,
               :access_deepblue,

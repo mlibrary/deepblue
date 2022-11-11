@@ -67,6 +67,7 @@ module Hyrax
               :rights_license,
               :rights_license_other,
               :subject_discipline,
+              :ticket,
               :total_file_size,
               :access_deepblue,
               to: :solr_document

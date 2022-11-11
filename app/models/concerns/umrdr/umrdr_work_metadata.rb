@@ -128,6 +128,11 @@ module Umrdr
         index.as :stored_searchable, :facetable
       end
 
+      property :ticket, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#ticket'), multiple: false do |index|
+        index.type :text
+        index.as :stored_searchable
+      end
+
       property :title_ordered, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#title_ordered'), multiple: false do |index|
         index.type :text
         index.as :stored_searchable

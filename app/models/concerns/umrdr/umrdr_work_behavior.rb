@@ -30,6 +30,10 @@ module Umrdr
       read_me_file_set_id.present?
     end
 
+    def ticket?
+      ticket.present?
+    end
+
     # def read_me_text
     #   return nil
     # end

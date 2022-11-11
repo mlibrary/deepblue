@@ -72,6 +72,10 @@
 
 <%= presenter.attribute_to_html(:doi, label: t('show.labels.doi'), work_type: "DataSet", render_as: :doi, itemprop: "identifier" ) %>
 
+<% if presenter.current_ability.admin? %>
+  <%= presenter.attribute_to_html(:ticket, include_empty: true, label: t('show.labels.ticket') ) %>
+<% end %>
+
 <span itemprop="license">
   <span class="hide"><%= presenter.rights_license[0] if presenter.rights_license.present? %></span>
 </span>
