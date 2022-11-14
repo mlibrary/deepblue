@@ -1,6 +1,6 @@
 <%= form_tag( polymorphic_path([main_app, :create_anonymous_link, @presenter]), method: 'post') do %>
   <%= render partial: 'anonymous_link/create_fields' %>
-  <% if @presenter.can_download_zip? &&
+  <% if @presenter.can_download_zip? && !@presenter.zip_download_total_file_size_warn? && 
     @presenter.anonymous_link_need_create_download_button?( main_app: main_app ) %>
     <%= submit_tag(t('simple_form.actions.anonymous_link.create_download'), class: 'btn btn-primary') %>
   <% end %>
