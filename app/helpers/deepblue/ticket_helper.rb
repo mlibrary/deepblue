@@ -119,8 +119,8 @@ module Deepblue
                                                ::Deepblue::LoggingHelper.called_from,
                                                "About to email RDS, email user, and create service request ticket",
                                                "" ] if debug_verbose
-        curation_concern.email_event_create_rds( current_user: current_user, event_note: '', was_draft: true )
-        curation_concern.email_event_create_user( current_user: current_user, event_note: '', was_draft: true )
+        curation_concern.email_event_create_rds( current_user: current_user, was_draft: true )
+        curation_concern.email_event_create_user( current_user: curation_concern.depositor, was_draft: true )
       end
       new_ticket( curation_concern: curation_concern,
                   current_user: current_user,

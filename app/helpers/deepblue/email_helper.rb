@@ -458,6 +458,7 @@ module Deepblue
     end
 
     def self.user_email_from( current_user, user_signed_in: true )
+      return current_user if current_user.is_a? String # assume that it's the actual email in this case
       return nil unless user_signed_in
       user_email = nil
       unless current_user.nil?
