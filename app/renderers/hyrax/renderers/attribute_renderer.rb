@@ -27,7 +27,10 @@ module Hyrax
         markup << %(<tr><th>#{label}</th>\n<td><ul class='tabular'>)
         attributes = microdata_object_attributes(field).merge(class: "attribute attribute-#{field}")
         Array(values).each do |value|
-          markup << "<li#{html_attributes(attributes)}>#{attribute_value_to_html(value.to_s)}</li>"
+          # begin monkey
+          value_str = ::Deepblue::MetadataHelper.str_normalize_encoding value.to_s
+          markup << "<li#{html_attributes(attributes)}>#{attribute_value_to_html(value_str)}</li>"
+          # end monkey
         end
         markup << %(</ul></td></tr>)
         markup << %(</span>) if options[:itemprop].present?
