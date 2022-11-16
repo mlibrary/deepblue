@@ -4,6 +4,8 @@ module Deepblue
 
   module MetadataHelper
 
+    mattr_accessor :metadata_helper_debug_verbose, default: false
+
     SOURCE_DBDv1 = 'DBDv1' unless const_defined? :SOURCE_DBDv1 # rubocop:disable Style/ConstantName
     SOURCE_DBDv2 = 'DBDv2' unless const_defined? :SOURCE_DBDv2 # rubocop:disable Style/ConstantName
     DEFAULT_BASE_DIR = "/deepbluedata-prep/" unless const_defined? :DEFAULT_BASE_DIR
@@ -411,6 +413,39 @@ module Deepblue
 
     def self.report_title( curation_concern, field_sep: FIELD_SEP )
       curation_concern.title.join( field_sep )
+    end
+
+    def self.str_normalize_encoding( str )
+      return str if str.nil?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "str.encoding=#{str.encoding}",
+                                             "" ] if metadata_helper_debug_verbose
+      case str.encoding.name
+      when 'UTF-8'
+        # do nothing
+      when 'ASCII-8BIT'
+        # str = str.encode( 'UTF-8', 'ASCII-8BIT' )
+        str = str.force_encoding('ISO-8859-1').encode( 'UTF-8' )
+      when Encoding::US_ASCII.name
+        str = str.encode( 'UTF-8', Encoding::US_ASCII.name )
+      when 'ISO-8859-1'
+        str = str.encode( 'UTF-8', 'ISO-8859-1' )
+      when 'Windows-1252'
+        str = str.encode( 'UTF-8', 'Windows-1252' )
+      else
+        # TODO: check to see encoding to UTF-8 is possible/supported
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "Unspecified encoding '#{str.encoding}' trying generic conversion to UTF-8",
+                                               "" ] if metadata_helper_debug_verbose
+        str = str.encode( 'UTF-8', invalid: :replace, undef: :replace )
+      end
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "str.encoding=#{str.encoding}",
+                                             "" ] if metadata_helper_debug_verbose
+      return str
     end
 
     def self.yaml_body_collections( out, indent:, curation_concern:, source: )

@@ -129,34 +129,35 @@ module Deepblue
                                                "source_uri=#{source_uri}",
                                                "" ] if file_content_helper_debug_verbose
         str = URI.open( source_uri, "r" ) { |io| io.read }
-        # str = URI.open( source_uri, "r" ) { |io| io.read.encode( "UTF-8",
-        #                                                      invalid: :replace,
-        #                                                      undef: :replace,
-        #                                                      replace: '?' ) }
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "str.encoding=#{str.encoding}",
-                                               "" ] if file_content_helper_debug_verbose
-        case str.encoding.name
-        when 'UTF-8'
-          # do nothing
-        when 'ASCII-8BIT'
-          # str = str.encode( 'UTF-8', 'ASCII-8BIT' )
-          str = str.force_encoding('ISO-8859-1').encode( 'UTF-8' )
-        when Encoding::US_ASCII.name
-          str = str.encode( 'UTF-8', Encoding::US_ASCII.name )
-        when 'ISO-8859-1'
-          str = str.encode( 'UTF-8', 'ISO-8859-1' )
-        when 'Windows-1252'
-          str = str.encode( 'UTF-8', 'Windows-1252' )
-        else
-          # TODO: check to see encoding to UTF-8 is possible/supported
-          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                                 ::Deepblue::LoggingHelper.called_from,
-                                                 "Unspecified encoding '#{str.encoding}' trying generic conversion to UTF-8",
-                                                 "" ] if file_content_helper_debug_verbose
-          str = str.encode( 'UTF-8', invalid: :replace, undef: :replace )
-        end
+        str = ::Deepblue::MetadataHelper.str_normalize_encoding str
+        # # str = URI.open( source_uri, "r" ) { |io| io.read.encode( "UTF-8",
+        # #                                                      invalid: :replace,
+        # #                                                      undef: :replace,
+        # #                                                      replace: '?' ) }
+        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+        #                                        ::Deepblue::LoggingHelper.called_from,
+        #                                        "str.encoding=#{str.encoding}",
+        #                                        "" ] if file_content_helper_debug_verbose
+        # case str.encoding.name
+        # when 'UTF-8'
+        #   # do nothing
+        # when 'ASCII-8BIT'
+        #   # str = str.encode( 'UTF-8', 'ASCII-8BIT' )
+        #   str = str.force_encoding('ISO-8859-1').encode( 'UTF-8' )
+        # when Encoding::US_ASCII.name
+        #   str = str.encode( 'UTF-8', Encoding::US_ASCII.name )
+        # when 'ISO-8859-1'
+        #   str = str.encode( 'UTF-8', 'ISO-8859-1' )
+        # when 'Windows-1252'
+        #   str = str.encode( 'UTF-8', 'Windows-1252' )
+        # else
+        #   # TODO: check to see encoding to UTF-8 is possible/supported
+        #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+        #                                          ::Deepblue::LoggingHelper.called_from,
+        #                                          "Unspecified encoding '#{str.encoding}' trying generic conversion to UTF-8",
+        #                                          "" ] if file_content_helper_debug_verbose
+        #   str = str.encode( 'UTF-8', invalid: :replace, undef: :replace )
+        # end
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "str.encoding=#{str.encoding}",
