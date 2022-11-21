@@ -118,17 +118,15 @@ Hyrax.config do |config|
   # config.fits_path = "fits.sh"
   # if system( "which", "fits.sh" ) # this echoes to out
   if `which fits.sh`.present?
-    config.fits_path = "fits.sh"
+    config.fits_path = 'fits.sh'
+  elsif File.exist?( File.expand_path '~/fits/fits.sh' )
+    config.fits_path = File.expand_path '~/fits/fits.sh'
+  elsif File.exist?( '/l/local/fits/fits.sh' )
+    config.fits_path = '/l/local/fits/fits.sh'
   else
-    file_path = File.expand_path '~/fits/fits.sh'
-    if File.exist? file_path
-      config.fits_path = file_path
-    else
-      # config.fits_path = "/l/local/fits/fits.sh"
-      config.fits_path = file_path
-    end
+    puts "error, no fits.sh"
+    config.fits_path = 'fits.sh'
   end
-  # config.fits_path = system("which", "fits.sh") ? "fits.sh" : "/l/local/fits/fits.sh"
 
   # Path to the file derivatives creation tool
   # config.libreoffice_path = "soffice"
