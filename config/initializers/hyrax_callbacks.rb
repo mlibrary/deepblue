@@ -21,7 +21,7 @@ Hyrax.config.callback.set(:after_create_fileset) do |file_set, user|
                                          "Callback: after_create_concern",
                                          "file_set.id=#{file_set.id}",
                                          "user=#{user}",
-                                         "" ] if HYRAX_CALLBACKS_DEBUG_VERBOSE
+                                         "" ], bold_puts: true if HYRAX_CALLBACKS_DEBUG_VERBOSE
   Hyrax::FileSetAttachedEventJob.perform_later(file_set, user)
   ::Deepblue::EventHelper.after_create_fileset_callback( file_set: file_set, user: user )
 end

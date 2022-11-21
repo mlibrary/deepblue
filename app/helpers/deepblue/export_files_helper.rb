@@ -8,7 +8,34 @@ module Deepblue
 
     require 'down'
 
-    def self.export_file_uri( source_uri:, target_file: )
+    def self.export_file( file:, target_file:, debug_verbose: export_files_helper_debug_verbose )
+      debug_verbose = debug_verbose || export_files_helper_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "file=#{file}",
+                                             "file.class.name=#{file.class.name}",
+                                             "target_file=#{target_file}",
+                                             "target_file.class.name=#{target_file.class.name}",
+                                             "" ] if debug_verbose
+      if file.respond_to?(:new_record?) && file.new_record?
+        target_file.write(file.content.read) # is this efficient?
+        file.content.rewind
+        bytes_copied = file.size
+      else
+        source_uri = file.uri.value
+        bytes_copied = export_file_uri( source_uri: source_uri, target_file: target_file, debug_verbose: debug_verbose )
+      end
+      return bytes_copied
+    end
+
+    def self.export_file_uri( source_uri:, target_file:, debug_verbose: export_files_helper_debug_verbose )
+      debug_verbose = debug_verbose || export_files_helper_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "source_uri=#{source_uri}",
+                                             "target_file=#{target_file}",
+                                             "target_file.class.name=#{target_file.class.name}",
+                                             "" ] if debug_verbose
       if source_uri.starts_with?( "http:" ) || source_uri.starts_with?( "https:" )
         begin
           # see: https://github.com/janko-m/down
@@ -143,6 +170,19 @@ module Deepblue
         ::Deepblue::InitializationConstants::UNKNOWN
       end
     end
+
+    def self.export_to_temp_file( file:, temp_file:, debug_verbose: export_files_helper_debug_verbose )
+      debug_verbose = debug_verbose || export_files_helper_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "file=#{file}",
+                                             "file.class.name=#{file.class.name}",
+                                             "temp_file=#{temp_file}",
+                                             "temp_file.class.name=#{temp_file.class.name}",
+                                             "" ] if debug_verbose
+      export_file( file: file, target_file: temp_file, debug_verbose: debug_verbose )
+    end
+
 
   end
 

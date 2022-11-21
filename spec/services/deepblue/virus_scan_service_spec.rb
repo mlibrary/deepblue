@@ -11,7 +11,12 @@ RSpec.describe ::Deepblue::VirusScanService do
   let(:debug_verbose) { false }
 
   describe 'module debug verbose variables' do
-    it { expect( described_class.virus_scan_service_debug_verbose ).to eq debug_verbose }
+    it { expect( described_class.virus_scan_service_debug_verbose          ).to eq debug_verbose }
+    it { expect( described_class.abstract_virus_scanner_debug_verbose      ).to eq debug_verbose }
+    it { expect( described_class.hyrax_virus_checker_service_debug_verbose ).to eq debug_verbose }
+    it { expect( described_class.file_set_virus_scan_debug_verbose         ).to eq debug_verbose }
+    it { expect( described_class.null_virus_scanner_debug_verbose          ).to eq debug_verbose }
+    it { expect( described_class.umich_clamav_daemon_scanner_debug_verbose ).to eq debug_verbose }
   end
 
   it { expect( described_class::VIRUS_SCAN_ERROR ).to eq 'scan error' }

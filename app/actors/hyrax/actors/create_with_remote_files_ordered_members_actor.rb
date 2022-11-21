@@ -86,11 +86,6 @@ module Hyrax
                                                "uri#{uri}",
                                                "file_name=#{file_name}",
                                                "" ] if create_with_remove_files_ordered_members_actor_debug_verbose
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "uri=#{uri}",
-                                               "uri.s=#{uri.s}",
-                                               "" ] if create_with_remove_files_ordered_members_actor_debug_verbose
         ::FileSet.new(import_url: uri.to_s, label: file_name) do |fs|
           actor = file_set_actor_class.new(fs, env.user)
           actor.create_metadata(visibility: env.curation_concern.visibility)

@@ -138,6 +138,7 @@ module Hyrax
                                             prior_create_date: prior_create_date,
                                             prior_revision_id: prior_revision_id,
                                             revision_id: '' )
+        file_set.virus_scan_status_reset( current_user: user, save: false )
         file_set.date_modified = TimeService.time_in_utc
         file_set.save
         file_set.reload
