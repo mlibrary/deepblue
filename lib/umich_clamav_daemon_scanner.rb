@@ -9,7 +9,8 @@ require 'clamav/client'
 
 class UMichClamAVDaemonScanner < AbstractVirusScanner
 
-  mattr_accessor :umich_clamav_daemon_scanner_debug_verbose, default: false
+  mattr_accessor :umich_clamav_daemon_scanner_debug_verbose,
+                 default: ::Deepblue::VirusScanService.umich_clamav_daemon_scanner_debug_verbose
 
   # standard umich clamav configuration (from /etc/clamav/clamav.conf)
 
@@ -27,9 +28,23 @@ class UMichClamAVDaemonScanner < AbstractVirusScanner
   end
 
   attr_accessor :client
+  attr_accessor :total_scanned_bytes
+
+  def self.infected?(path)
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "path=#{path}",
+                                           "" ] if umich_clamav_daemon_scanner_debug_verbose
+    new(path).infected?
+  end
 
   def initialize( filename )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "filename=#{filename}",
+                                           "" ] if umich_clamav_daemon_scanner_debug_verbose
     super
+    @total_scanned_bytes = 0
     @client = begin
       connection = ClamAV::Connection.new( socket:  ::TCPSocket.new('127.0.0.1', 3310),
                                            wrapper: ::ClamAV::Wrappers::NewLineWrapper.new )
@@ -53,9 +68,15 @@ class UMichClamAVDaemonScanner < AbstractVirusScanner
   def infected?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "UMichClamAVDaemonScanner.infected? File '#{file}' exists? #{File.exist? file}",
+                                           "file=#{file}",
+                                           "file exists?=#{File.exist? file}",
                                            "" ] if umich_clamav_daemon_scanner_debug_verbose
     unless alive?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "file=#{file}",
+                                             "file exists?=#{File.exist? file}",
+                                             "" ] + caller_locations(0..20), bold_puts: true if umich_clamav_daemon_scanner_debug_verbose
       warning "Cannot connect to virus scanner. Skipping file #{file}" unless Rails.env.test?
       return ::Deepblue::VirusScanService::VIRUS_SCAN_SKIPPED_SERVICE_UNAVAILABLE
     end
@@ -85,8 +106,8 @@ class UMichClamAVDaemonScanner < AbstractVirusScanner
       error msg
       raise msg
     end
-
-    scan( file_io )
+    rv = scan( file_io ) { |cmd| @total_scanned_bytes += cmd.total_bytes_scanned }
+    return rv
   end
 
   # Do the scan by streaming to the daemon
@@ -94,7 +115,9 @@ class UMichClamAVDaemonScanner < AbstractVirusScanner
   # @return A ClamAV::*Response object
   def scan(io)
     cmd = UMInstreamScanner.new(io, CHUNKSIZE)
-    client.execute(cmd)
+    rv = client.execute(cmd)
+    yield cmd if block_given?
+    return rv
   end
 
 
@@ -121,15 +144,23 @@ class UMichClamAVDaemonScanner < AbstractVirusScanner
 end
 
 
-# Stream a file to the AV scanner in chucks to avoid
+# Stream a file to the AV scanner in chunks to avoid
 # reading it all into memory. Internal to how
 # ClamAV::Client works
 class UMInstreamScanner < ClamAV::Commands::InstreamCommand
+
+  attr_accessor :total_bytes_scanned
+
+  def initialize(io, max_chunk_size = nil)
+    super
+    @total_bytes_scanned = 0
+  end
 
   def call(conn)
     conn.write_request("INSTREAM")
     while (packet = @io.read(@max_chunk_size))
       scan_packet(conn, packet)
+      @total_bytes_scanned += packet.size
     end
     send_end_of_file(conn)
     av_return_status(conn)

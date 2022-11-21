@@ -4,7 +4,7 @@ module Deepblue
 
   module TicketBehavior
 
-    mattr_accessor :ticket_behavior_debug_verbose, default: true
+    mattr_accessor :ticket_behavior_debug_verbose, default: false
 
   end
 

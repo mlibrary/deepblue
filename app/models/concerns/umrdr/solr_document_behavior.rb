@@ -144,7 +144,7 @@ module Umrdr
       # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
       #                                        ::Deepblue::LoggingHelper.called_from,
       #                                        "ticket rv = #{rv}",
-      #                                        "" ] if true || solr_document_behavior_debug_verbose
+      #                                        "" ] if solr_document_behavior_debug_verbose
       rv = Array( rv ).first
       # rv = ::Deepblue::TicketHelper.ticket_status( curation_concern: self, raw_ticket: rv ) if rv.blank?
       return rv

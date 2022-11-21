@@ -114,9 +114,10 @@ module Deepblue
     # virus scanning
 
     def virus_scan
+      debug_verbose = ::Deepblue::VirusScanService.virus_scan_service_debug_verbose || file_set_behavior_debug_verbose
       LoggingHelper.bold_debug [ LoggingHelper.here,
                                  LoggingHelper.called_from, "original_file = #{original_file}",
-                                 "" ] if file_set_behavior_debug_verbose
+                                 "" ] if debug_verbose
       # check file size here to avoid making a temp copy of the file in VirusCheckerService
       needed = virus_scan_needed?
       if needed && virus_scan_file_too_big?
@@ -124,7 +125,8 @@ module Deepblue
         return false
       elsif needed
         # TODO: figure out how to retry the virus scan as this only works for ( original_file && original_file.new_record? )
-        scan_result = Hydra::Works::VirusCheckerService.file_has_virus? original_file
+        # scan_result = Hydra::Works::VirusCheckerService.file_has_virus? original_file
+        scan_result = ::Hyrax::VirusCheckerService.file_has_virus? original_file
         virus_scan_status_update( scan_result: scan_result, previous_scan_result: virus_scan_status )
         return scan_result == ::Deepblue::VirusScanService::VIRUS_SCAN_VIRUS
       else
@@ -156,30 +158,39 @@ module Deepblue
     end
 
     def virus_scan_needed?
+      debug_verbose = ::Deepblue::VirusScanService.virus_scan_service_debug_verbose || file_set_behavior_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if debug_verbose
       return false if original_file.nil?
-      # otherwise, really, it's always needed.
-      true
-      # LoggingHelper.bold_debug [ LoggingHelper.here, LoggingHelper.called_from,
-      #                                  "" ] if file_set_behavior_debug_verbose ]
-      # return true if original_file && original_file.new_record?
-      # return false unless Rails.configuration.virus_scan_retry
-      # scan_status = virus_scan_status
-      # return true if scan_status.blank?
-      # case scan_status
-      # when VIRUS_SCAN_NOT_VIRUS
-      #   false
-      # when VIRUS_SCAN_VIRUS
-      #   false
-      # when VIRUS_SCAN_SKIPPED_TOO_BIG
-      #   false
-      # when VIRUS_SCAN_SKIPPED_SERVICE_UNAVAILABLE
-      #   Rails.configuration.virus_scan_retry_on_service_unavailable
-      # when VIRUS_SCAN_ERROR
-      #   Rails.configuration.virus_scan_retry_on_error
-      # when VIRUS_SCAN_UNKNOWN
-      #   Rails.configuration.virus_scan_retry_on_unknown
+      return true if original_file && original_file.new_record?
+      return false if virus_scan_status.present?
+      return true
+      # if true # set this to false to skip virus scanning if its already been done
+      #   # otherwise, really, it's always needed.
+      #   return false if VIRUS_SCAN_ERROR == virus_scan_status
+      #   return true
       # else
-      #   true
+      #   return true if original_file && original_file.new_record?
+      #   # return false unless Rails.configuration.virus_scan_retry
+      #   scan_status = virus_scan_status
+      #   return true if scan_status.blank?
+      #   rv =  case scan_status
+      #         when VIRUS_SCAN_NOT_VIRUS
+      #           false
+      #         when VIRUS_SCAN_VIRUS
+      #           false
+      #         when VIRUS_SCAN_SKIPPED_TOO_BIG
+      #           false
+      #         when VIRUS_SCAN_SKIPPED_SERVICE_UNAVAILABLE
+      #           false && Rails.configuration.virus_scan_retry_on_service_unavailable
+      #         when VIRUS_SCAN_ERROR
+      #           false && Rails.configuration.virus_scan_retry_on_error
+      #         when VIRUS_SCAN_UNKNOWN
+      #           false && Rails.configuration.virus_scan_retry_on_unknown
+      #         else
+      #           true
+      #         end
       # end
     end
 
@@ -187,18 +198,39 @@ module Deepblue
       return !( original_file && original_file.new_record? )
     end
 
-    def virus_scan_status_update( scan_result:, previous_scan_result: nil )
+    def virus_scan_status_reset( current_user: nil, save: true )
+      debug_verbose = ::Deepblue::VirusScanService.virus_scan_service_debug_verbose || file_set_behavior_debug_verbose
       LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                  ::Deepblue::LoggingHelper.called_from,
-                               "scan_result=#{scan_result}",
-                               "previous_scan_result=#{previous_scan_result}",
-                                 "" ] if file_set_behavior_debug_verbose
+                                  "" ] if debug_verbose
+      added_prov_key_values = { 'prior_virus_scan_service' => self['virus_scan_service'],
+                                'prior_virus_scan_status' => self['virus_scan_status'],
+                                'prior_virus_scan_status_date' => self['virus_scan_status_date'] }
+      self['virus_scan_service'] = nil
+      self['virus_scan_status'] = nil
+      self['virus_scan_status_date'] = nil
+      save!( validate: false ) if save # validating will send it back to be virus checked, which leads to a stack overflow
+      provenance_virus_scan( current_user: current_user,
+                             scan_result: nil,
+                             event_note: 'reset',
+                             **added_prov_key_values )
+    end
+
+    def virus_scan_status_update( scan_result:, previous_scan_result: nil )
+      debug_verbose = ::Deepblue::VirusScanService.virus_scan_service_debug_verbose || file_set_behavior_debug_verbose
+      LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                 ::Deepblue::LoggingHelper.called_from,
+                                 "scan_result=#{scan_result}",
+                                 "previous_scan_result=#{previous_scan_result}",
+                                 "" ] if debug_verbose
       # Oops. Really don't want to consider previous result as we want the new timestamp
       # return scan_result if previous_scan_result.present? && scan_result == previous_scan_result
+      #
       # for some reason, this does not save the attributes
       # virus_scan_service = virus_scan_service_name
       # virus_scan_status = scan_result
       # virus_scan_status_date = virus_scan_timestamp_now
+      #
       # but this does save the attributes
       self['virus_scan_service'] = virus_scan_service_name
       self['virus_scan_status'] = scan_result

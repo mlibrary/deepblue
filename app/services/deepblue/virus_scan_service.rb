@@ -4,7 +4,12 @@ module Deepblue
 
   module VirusScanService
 
-    mattr_accessor :virus_scan_service_debug_verbose, default: false
+    mattr_accessor :virus_scan_service_debug_verbose,          default: false
+    mattr_accessor :abstract_virus_scanner_debug_verbose,      default: false
+    mattr_accessor :file_set_virus_scan_debug_verbose,         default: false
+    mattr_accessor :hyrax_virus_checker_service_debug_verbose, default: false
+    mattr_accessor :null_virus_scanner_debug_verbose,          default: false
+    mattr_accessor :umich_clamav_daemon_scanner_debug_verbose, default: false
 
     VIRUS_SCAN_ERROR = 'scan error'.freeze unless const_defined? :VIRUS_SCAN_ERROR
     VIRUS_SCAN_NOT_VIRUS = 'not virus'.freeze unless const_defined? :VIRUS_SCAN_NOT_VIRUS
@@ -15,14 +20,26 @@ module Deepblue
     VIRUS_SCAN_VIRUS = 'virus'.freeze unless const_defined? :VIRUS_SCAN_VIRUS
 
     def virus_scan_detected_virus?( scan_result: )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "scan_result=#{scan_result}",
+                                             "" ] if virus_scan_service_debug_verbose
       VIRUS_SCAN_VIRUS == scan_result
     end
 
     def virus_scan_service_name
-      Hydra::Works.default_system_virus_scanner.name
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if virus_scan_service_debug_verbose
+      # Hydra::Works.default_system_virus_scanner.name
+      Hyrax::VirusCheckerService.default_system_virus_scanner.name
     end
 
     def virus_scan_skipped?( scan_result: )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "scan_result=#{scan_result}",
+                                             "" ] if virus_scan_service_debug_verbose
       return false if scan_result.blank?
       scan_result.start_with? 'scan skipped'
     end

@@ -534,6 +534,11 @@ module Deepblue
     end
 
     def self.virus_scan( file_set:, job_status: )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "file_set=#{file_set}",
+                                             "job_status=#{job_status}",
+                                             "" ], bold_puts: ingest_helper_debug_verbose_puts if ingest_helper_debug_verbose
       # this is called by a method that is never called
       return if job_status.did_virus_scan?
       ::Deepblue::LoggingHelper.bold_debug "IngestHelper.virus_scan #{file_set}", bold_puts: ingest_helper_debug_verbose_puts if ingest_helper_debug_verbose

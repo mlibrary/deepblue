@@ -6,12 +6,17 @@ module Hyrax
       # monkey
 
       mattr_accessor :ordered_members_actor_debug_verbose, default: false
-      #               default: Rails.configuration.file_set_actor_debug_verbose
+      #               default: Rails.configuration.ordered_members_actor_debug_verbose
 
       include Lockable
       attr_reader :ordered_members, :user
 
       def initialize(ordered_members, user)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "ordered_members&.size=#{ordered_members&.size}",
+                                               "user=#{user}",
+                                               "" ], bold_puts: true if ordered_members_actor_debug_verbose
         @ordered_members = ordered_members
         @user = user
       end
@@ -20,6 +25,10 @@ module Hyrax
       # Locks to ensure that only one process is operating on the list at a time.
       # @param [ActiveFedora::Base] work the parent work
       def attach_ordered_members_to_work(work)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "work.id=#{work.id}",
+                                               "" ], bold_puts: true if ordered_members_actor_debug_verbose
         acquire_lock_for(work.id) do
           work.ordered_members = ordered_members
           work.save
