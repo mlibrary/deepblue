@@ -13,6 +13,11 @@
             </button>
           </p>
         <% end %>
+
+        <button class="btn btn-primary" data-target="#moveFileId" data-toggle="modal">
+          <%= t('simple_form.actions.data_set.move_file') %>
+        </button>
+
         <% if @presenter.can_display_file_contents? %>
           <p>
             <%= link_to t('simple_form.actions.file_set.contents'),
@@ -25,3 +30,4 @@
 
 </div>
 <%= render 'modal_mint_doi', id: @presenter.id %>
+<%= render 'modal_move_file_from_work', id: @presenter.id %>

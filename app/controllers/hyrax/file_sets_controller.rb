@@ -342,6 +342,30 @@ module Hyrax
       curation_concern.doi.present?
     end
 
+    def move_file
+      target_work_id = params[:work_destination]
+      target_work  = PersistHelper.find_or_nil ( target_work_id )
+      if target_work.nil?
+        after_show_failure_response
+        return
+      end
+
+      source_file_id = params[:id]
+      f = ::FileSet.find source_file_id
+      source_work_id = f.parent.id
+      source_work = DataSet.find source_work_id
+
+      target_a = Array(target_work.ordered_members)
+      source_a = Array(source_work.ordered_members)
+      source_a.delete f
+      target_a << f
+      target_work.ordered_members = target_a
+      target_work.save(validate: false)
+      source_work.ordered_members = source_a
+      source_work.save(validate: false)
+      after_update_response
+    end
+
     def parent_doi?
       return false unless curation_concern.parent.respond_to? :doi
       curation_concern.parent.doi.present?
@@ -804,6 +828,21 @@ module Hyrax
         wants.json { render_json_response(response_type: :unprocessable_entity, options: { errors: curation_concern.errors }) }
       end
     end
+
+    def after_show_failure_response
+      respond_to do |wants|
+        wants.html do
+          link_to_file = view_context.link_to(curation_concern, [main_app, curation_concern])
+          redirect_to [main_app, curation_concern], notice: 'There was a problem processing your request.'
+        end
+        wants.json do
+          @presenter = show_presenter.new(curation_concern, current_ability)
+          flash[:error] = "There was a problem processing your request."
+          render :show, status: :unprocessable_entity, location: polymorphic_path([main_app, curation_concern])
+        end
+      end
+    end
+
 
     def add_breadcrumb_for_controller
       add_breadcrumb I18n.t('hyrax.dashboard.my.works'), hyrax.my_works_path
