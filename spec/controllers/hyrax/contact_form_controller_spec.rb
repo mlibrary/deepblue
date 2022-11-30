@@ -113,15 +113,20 @@ RSpec.describe Hyrax::ContactFormController, skip: false do
   end
 
   context "when encountering a RuntimeError" do
-    let(:logger) { double(info?: true) }
+    let(:msg_handler) { double("message handler") }
 
     before do
-      allow(controller).to receive(:logger).and_return(logger)
-      allow(Hyrax::ContactMailer).to receive(:contact).and_raise(RuntimeError)
+      allow(controller).to receive(:msg_handler).and_return msg_handler
+      allow(msg_handler).to receive(:msg)
+      expect(controller).to receive(:create).and_call_original
+      allow(controller).to receive(:is_spam?).and_return false
+      expect(controller).to receive(:contact_form_send_email).at_least(:once).and_return true
+      expect(controller).to receive(:handle_create_exception).and_call_original
+      expect(Hyrax::ContactMailer).to receive(:contact).and_raise(RuntimeError)
+      expect(controller).to_not receive(:after_deliver)
     end
     it "is logged via Rails" do
-      # expect(logger).to receive(:error).with("Contact form failed to send: #<RuntimeError: RuntimeError>")
-      expect(::Deepblue::LoggingHelper ).to receive(:bold_error).with("Contact form failed to send: #<RuntimeError: RuntimeError>")
+      expect(msg_handler).to receive(:bold_error).with("Contact form failed to send: #<RuntimeError: RuntimeError>")
       post :create, params: { contact_form: required_params }
     end
   end
