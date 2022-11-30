@@ -338,7 +338,7 @@ module Hyrax
                                  "is_spam?=#{is_spam?}",
                                  "" ] if contact_form_controller_debug_verbose
         if contact_form_send_email
-          ContactMailer.contact(@contact_form).deliver_now unless is_spam?
+          ::Hyrax::ContactMailer.contact(@contact_form).deliver_now unless is_spam?
         end
         msg = 'Thank you for your message!' # TODO: localize
         msg_handler.msg msg
