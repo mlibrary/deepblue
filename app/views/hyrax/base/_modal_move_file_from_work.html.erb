@@ -1,0 +1,27 @@
+<div class="modal fade disable-unless-selected" id="moveFileId" tabindex="-1" role="dialog" aria-labelledby="file-work-label">
+  <div class="modal-dialog" role="document" style="text-align: left; display: inline-block">
+    <div class="modal-content">
+      <form action="<%= id %>/move_file" method="POST">
+      
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="file-move-close"><span aria-hidden="true">&times;</span></button>
+          <h3 class="modal-title"><%= t( 'hyrax.move_file.move_file_modal.header' ) %></h3>
+        </div>
+
+        <div class="modal-body" >
+          <label for="fname"><%= t('hyrax.move_file.move_file_modal.label') %></label><br>
+          <input type="text" id="work_destination" name="work_destination"><br>
+          <%= t( "hyrax.move_file.move_file_modal.confirm" ) %>
+        </div>
+
+        <div class="modal-footer">
+          <div style="text-align: right; display: inline-block">
+            <button type="button" class="btn btn-default" data-dismiss="modal"><%= t('helpers.action.cancel') %></button>
+            <input type="submit" class="btn btn-primary" value="<%= t('simple_form.actions.data_set.move_file') %>" />
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

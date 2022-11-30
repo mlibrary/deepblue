@@ -41,6 +41,8 @@ module PersistHelper
     nil
   rescue ::Hyrax::ObjectNotFoundError
     nil
+  rescue ::ActiveFedora::ObjectNotFoundError
+    nil
   end
 
   # Allows the user to find out if an id has been used in the system and then been deleted

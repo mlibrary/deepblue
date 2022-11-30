@@ -153,6 +153,8 @@ Rails.application.routes.draw do
         get    'display_provenance_log'
         get    'doi'
         post   'doi'
+        get    'move_file'
+        post   'move_file'
         get    'file_contents'
         get    'anonymous_link/:anon_link_id', action: :anonymous_link
         get    'single_use_link/:link_id', action: :single_use_link

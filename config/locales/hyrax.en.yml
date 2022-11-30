@@ -359,6 +359,12 @@ en:
         confirm: >
             Are you sure you want to mint a DOI? This action will produce a permanent unique identifier for
             the %{curation_concern}.
+    move_file:
+      move_file_modal:
+        header:             "Move file from this work"
+        label:              "ID of work where file should go to:"
+        confirm: >
+            Are you sure you want to move the file?
     masthead_banner:
       standard_html: >
           We've recently updated Deep Blue Data--for more about our upgrade to Hyrax 2.0, please see
