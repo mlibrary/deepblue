@@ -150,7 +150,7 @@ gem 'nokogiri',       '>= 1.13.9'
 gem 'rack',           '>= 2.2.3.1'
 gem 'rubyzip',        '~> 2.0.0'
 gem 'sassc',          '>= 2.0.0'
-gem "sinatra",        '>= 2.2.0'
+gem "sinatra",        '>= 3.0.4'
 gem 'sprockets',      '~> 3.7.2'
 gem 'websocket-extensions', '>= 0.1.5'
 # End security vulnerability mitigation
