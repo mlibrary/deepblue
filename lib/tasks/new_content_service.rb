@@ -229,6 +229,16 @@ module Deepblue
         work.representative = file_set if work.representative_id.blank?
         work.thumbnail = file_set if work.thumbnail_id.blank?
         work.save!
+      rescue Exception => e # rubocop:disable Lint/RescueException
+        # Rails.logger.error "#{e.class} work.id=#{work.id} -- #{file_set&.id} -- #{e.message} at #{e.backtrace[0]}"
+        ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "new_content_service_error",
+                                               "work.id=#{work.id}",
+                                               "file_set.id=#{file_set&.id}",
+                                               "e=#{e.class.name}",
+                                               "e.message=#{e.message}",
+                                               "e.backtrace:" ] + e.backtrace[0..25]
       end
 
       def add_file_sets_to_work( work_hash:, work: )
@@ -269,6 +279,7 @@ module Deepblue
                                                file_set_count: count,
                                                file_size: file_size,
                                                build_mode: mode )
+          next if file_set.blank?
           add_file_set_to_work( work: work, file_set: file_set )
           # TODO: move ingest step here, this will probably fix file_sets that turn up with missing file sizes
         end
@@ -300,6 +311,7 @@ module Deepblue
                                file_set_of: i,
                                file_set_count: count,
                                file_size: file_size )
+          next if fs.blank?
           add_file_set_to_work( work: work, file_set: fs )
           # TODO: move ingest step here, this will probably fix file_sets that turn up with missing file sizes
         end
@@ -587,31 +599,54 @@ module Deepblue
         return doi
       end
 
-      def build_file_set( id:, path:, work:, filename: nil, file_ids: nil, file_set_of:, file_set_count:, file_size: '' )
-        # puts "id=#{id} path=#{path} filename=#{filename} file_ids=#{file_ids}"
-        log_msg( "#{mode}: building file #{file_set_of} of #{file_set_count}#{file_size}" ) if @verbose
-        fname = filename || File.basename( path )
-        file_set = build_file_set_new( id: id,
-                                       depositor: work.depositor,
-                                       path: path,
-                                       original_name: fname,
-                                       build_mode: mode,
-                                       current_user: user_key )
-        file_set.title = Array( fname )
-        file_set.label = fname
-        now = DateTime.now.new_offset( 0 )
-        file_set.date_uploaded = now
-        file_set.visibility = work.visibility
-        # file_set.owner = work.owner
-        file_set.depositor = work.depositor
-        file_set.prior_identifier = file_ids if file_ids.present?
-        file_set.save!
-        # TODO: move ingest step to after attach to work, this will probably fix file_sets that turn up with missing file sizes
-        return build_file_set_ingest( file_set: file_set,
+      def build_file_set( id:,
+                          path:,
+                          work:,
+                          filename: nil,
+                          file_ids: nil,
+                          file_set_of:,
+                          file_set_count:,
+                          file_size: '' )
+
+        file_set = nil
+        begin
+          # puts "id=#{id} path=#{path} filename=#{filename} file_ids=#{file_ids}"
+          log_msg( "#{mode}: building file #{file_set_of} of #{file_set_count}#{file_size}" ) if @verbose
+          fname = filename || File.basename( path )
+          file_set = build_file_set_new( id: id,
+                                         depositor: work.depositor,
+                                         path: path,
+                                         original_name: fname,
+                                         build_mode: mode,
+                                         current_user: user_key )
+          file_set.title = Array( fname )
+          file_set.label = fname
+          now = DateTime.now.new_offset( 0 )
+          file_set.date_uploaded = now
+          file_set.visibility = work.visibility
+          # file_set.owner = work.owner
+          file_set.depositor = work.depositor
+          file_set.prior_identifier = file_ids if file_ids.present?
+          file_set.save!
+          # TODO: move ingest step to after attach to work, this will probably fix file_sets that turn up with missing file sizes
+          rv = build_file_set_ingest( file_set: file_set,
                                       path: path,
                                       checksum_algorithm: nil,
                                       checksum_value: nil,
                                       build_mode: mode )
+          return file_set
+        rescue Exception => e # rubocop:disable Lint/RescueException
+          # Rails.logger.error "#{e.class} work.id=#{work.id} -- #{file_set&.id} -- #{e.message} at #{e.backtrace[0]}"
+          ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "new_content_service_error",
+                                                 "work.id=#{work.id}",
+                                                 "file_set.id=#{file_set&.id}",
+                                                 "e=#{e.class.name}",
+                                                 "e.message=#{e.message}",
+                                                 "e.backtrace:" ] + e.backtrace[0..25]
+          return file_set
+        end
       end
 
       def build_file_set_from_hash( id:,
@@ -633,54 +668,71 @@ module Deepblue
           return file_set if file_set.present?
         end
         log_msg( "#{build_mode}: building file #{file_set_of} of #{file_set_count}#{file_size}" ) if @verbose
-        # puts "id=#{id} path=#{path} filename=#{filename} file_ids=#{file_ids}"
-        depositor = build_depositor( hash: file_set_hash )
-        path = file_set_hash[:file_path]
-        original_name = file_set_hash[:original_name]
-        file_set = build_file_set_new( id: id,
-                                       depositor: depositor,
-                                       path: path,
-                                       original_name: original_name,
-                                       build_mode: build_mode,
-                                       current_user: user_key )
+        file_set = nil
+        begin
+          # puts "id=#{id} path=#{path} filename=#{filename} file_ids=#{file_ids}"
+          depositor = build_depositor( hash: file_set_hash )
+          path = file_set_hash[:file_path]
+          original_name = file_set_hash[:original_name]
+          file_set = build_file_set_new( id: id,
+                                         depositor: depositor,
+                                         path: path,
+                                         original_name: original_name,
+                                         build_mode: build_mode,
+                                         current_user: user_key )
 
-        curation_notes_admin = Array( file_set_hash[:curation_notes_admin] )
-        curation_notes_user = Array( file_set_hash[:curation_notes_user] )
-        checksum_algorithm = file_set_hash[:checksum_algorithm]
-        checksum_value = file_set_hash[:checksum_value]
-        date_created = Array( build_date( hash: file_set_hash, key: :date_created ) )
-        date_modified = build_date( hash: file_set_hash, key: :date_modified )
-        date_uploaded = build_date( hash: file_set_hash, key: :date_uploaded )
-        description_file_set = file_set_hash[:description_file_set]
-        edit_users = Array( file_set_hash[:edit_users] )
-        read_users = Array( file_set_hash[:read_users] )
-        label = file_set_hash[:label]
-        prior_identifier = build_prior_identifier( hash: file_set_hash, id: id )
-        title = Array( file_set_hash[:title] )
-        visibility = visibility_from_hash( hash: file_set_hash )
+          curation_notes_admin = Array( file_set_hash[:curation_notes_admin] )
+          curation_notes_user = Array( file_set_hash[:curation_notes_user] )
+          checksum_algorithm = file_set_hash[:checksum_algorithm]
+          checksum_value = file_set_hash[:checksum_value]
+          date_created = Array( build_date( hash: file_set_hash, key: :date_created ) )
+          date_modified = build_date( hash: file_set_hash, key: :date_modified )
+          date_uploaded = build_date( hash: file_set_hash, key: :date_uploaded )
+          description_file_set = file_set_hash[:description_file_set]
+          edit_users = Array( file_set_hash[:edit_users] )
+          read_users = Array( file_set_hash[:read_users] )
+          label = file_set_hash[:label]
+          prior_identifier = build_prior_identifier( hash: file_set_hash, id: id )
+          title = Array( file_set_hash[:title] )
+          visibility = visibility_from_hash( hash: file_set_hash )
 
-        update_cc_attribute( curation_concern: file_set, attribute: :title, value: title )
-        update_cc_attribute( curation_concern: file_set, attribute: :curation_notes_admin, value: curation_notes_admin )
-        update_cc_attribute( curation_concern: file_set, attribute: :curation_notes_user, value: curation_notes_user )
-        file_set.label = label
-        file_set.date_uploaded = date_uploaded
-        file_set.date_modified = date_modified
-        file_set.date_created = date_created
-        update_cc_attribute( curation_concern: file_set, attribute: :description_file_set, value: description_file_set )
-        update_cc_edit_users(curation_concern: file_set, edit_users: edit_users )
-        update_cc_read_users(curation_concern: file_set, read_users: read_users )
-        update_cc_attribute( curation_concern: file_set, attribute: :prior_identifier, value: prior_identifier )
-        update_visibility( curation_concern: file_set, visibility: visibility )
-        file_set.date_modified = file_set.date_uploaded if file_set.date_modified.blank?
-        file_set.date_modified = DateTime.now if file_set.date_modified.blank?
-        file_set.save!
-
-        # TODO: move ingest step to after attach to work, this will probably fix file_sets that turn up with missing file sizes
-        return build_file_set_ingest( file_set: file_set,
-                                      path: path,
-                                      checksum_algorithm: checksum_algorithm,
-                                      checksum_value: checksum_value,
-                                      build_mode: build_mode )
+          update_cc_attribute( curation_concern: file_set, attribute: :title, value: title )
+          update_cc_attribute( curation_concern: file_set,
+                               attribute: :curation_notes_admin,
+                               value: curation_notes_admin )
+          update_cc_attribute( curation_concern: file_set,
+                               attribute: :curation_notes_user,
+                               value: curation_notes_user )
+          file_set.label = label
+          file_set.date_uploaded = date_uploaded
+          file_set.date_modified = date_modified
+          file_set.date_created = date_created
+          update_cc_attribute( curation_concern: file_set, attribute: :description_file_set, value: description_file_set )
+          update_cc_edit_users(curation_concern: file_set, edit_users: edit_users )
+          update_cc_read_users(curation_concern: file_set, read_users: read_users )
+          update_cc_attribute( curation_concern: file_set, attribute: :prior_identifier, value: prior_identifier )
+          update_visibility( curation_concern: file_set, visibility: visibility )
+          file_set.date_modified = file_set.date_uploaded if file_set.date_modified.blank?
+          file_set.date_modified = DateTime.now if file_set.date_modified.blank?
+          file_set.save!
+          # TODO: move ingest step to after attach to work, this will probably fix file_sets that turn up with missing file sizes
+          return build_file_set_ingest( file_set: file_set,
+                                        path: path,
+                                        checksum_algorithm: checksum_algorithm,
+                                        checksum_value: checksum_value,
+                                        build_mode: build_mode )
+        rescue Exception => e # rubocop:disable Lint/RescueException
+          # Rails.logger.error "#{e.class} work.id=#{work.id} -- #{file_set&.id} -- #{e.message} at #{e.backtrace[0]}"
+          ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "new_content_service_error",
+                                                 "parent.id=#{parent.id}",
+                                                 "file_set.id=#{file_set&.id}",
+                                                 "e=#{e.class.name}",
+                                                 "e.message=#{e.message}",
+                                                 "e.backtrace:" ] + e.backtrace[0..25]
+          return file_set
+        end
       end
 
       def build_file_set_ingest( file_set:, path:, checksum_algorithm:, checksum_value:, build_mode: )
@@ -1491,14 +1543,13 @@ module Deepblue
                                    job_delay: 60 )
       rescue Exception => e # rubocop:disable Lint/RescueException
         # updates << "#{attr_prefix cc_or_fs}: #{attr_name} -- Exception: #{e.class}: #{e.message} at #{e.backtrace[0]}"
-        Rails.logger.error "#{e.class} work.id=#{work.id} -- #{e.message} at #{e.backtrace[0]}"
-        Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             "ERROR",
-                                             "e=#{e.class.name}",
-                                             "e.message=#{e.message}",
-                                             "e.backtrace:" ] +
-                                               e.backtrace if new_content_service_debug_verbose
+        # Rails.logger.error "#{e.class} work.id=#{work.id} -- #{e.message} at #{e.backtrace[0]}"
+        ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "new_content_service_error",
+                                               "e=#{e.class.name}",
+                                               "e.message=#{e.message}",
+                                               "e.backtrace:" ] + e.backtrace[0..25]
       end
 
       def emails_add_from_hash( emails:, hash: )
@@ -2382,7 +2433,10 @@ module Deepblue
           file_set_key = "f_#{file_set_id}"
           if work_file_sets.key? file_set_id
             file_set_hash = work_hash[file_set_key.to_sym]
-            update_file_set( updates: updates, file_set: work_file_sets[file_set_id], file_set_hash: file_set_hash, parent: work )
+            update_file_set( updates: updates,
+                             file_set: work_file_sets[file_set_id],
+                             file_set_hash: file_set_hash,
+                             parent: work )
             work_file_sets.delete file_set_id
           else
             updates << "#{attr_prefix work}: is missing file #{file_set_id}"
@@ -2397,6 +2451,7 @@ module Deepblue
                                                  file_set_count: 1,
                                                  file_size: file_size,
                                                  build_mode: update_build_mode )
+            next if file_set.blank?
             add_file_set_to_work( work: work, file_set: file_set )
             # TODO: move ingest step here, this will probably fix file_sets that turn up with missing file sizes
             updates << "#{attr_prefix work}: file added #{file_set_id}"

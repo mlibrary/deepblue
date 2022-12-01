@@ -103,22 +103,43 @@ WHERE { }
       SolrDocument.find id
     end
 
-    # add solr check
     def self.valid_file_sizes?( id: nil, curation_concern: nil, check_solr: true, msg_handler: )
       debug_verbose = msg_handler.debug_verbose || find_and_fix_helper_debug_verbose
       msg_handler.bold_debug [ msg_handler.here,
                                msg_handler.called_from,
                                "id=#{id}",
+                               "check_solr=#{check_solr}",
                                "curation_concern.present?=#{curation_concern.present?}",
                                "" ] if debug_verbose
       w = resolve_curation_concern( id: id, curation_concern: curation_concern )
       msg_handler.msg_verbose "w.present? #{w.present?}"
-      sizes = w.file_sets.map { |f| f.file_size }
-      msg_handler.msg_verbose "file_sets.map { |f| f.file_size } = #{sizes}"
-      return false if sizes.include? []
+      return false unless valid_file_set_model_sizes?( work: w, msg_handler: msg_handler )
       return true unless check_solr
-      sizes = w.file_sets.map { |f| doc = ::SolrDocument.find f.id; doc['file_size_lts'] }
-      msg_handler.msg_verbose "file_sets.map of solr docs = #{sizes}"
+      return valid_file_set_solr_sizes?( work: w, msg_handler: msg_handler )
+    end
+
+    def self.valid_file_set_model_sizes?( work:, msg_handler: )
+      work.file_sets.each do |f|
+        a = Array(f.file_size)
+        if a.empty?
+          return false
+        else
+          size = a.first.to_i
+          return false if 0 == size
+        end
+      end
+      return true
+    end
+
+    def self.valid_file_set_solr_sizes?( work:, msg_handler: )
+      work.file_sets.map each do |f|
+        doc = PersistHelper.find_solr( id, fail_if_not_found: false )
+        if doc.present?
+          doc['file_size_lts']
+        else
+          return false if 0 == doc['file_size_lts']
+        end
+      end
       return true
     end
 
