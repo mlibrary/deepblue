@@ -157,7 +157,7 @@ Hyrax.config do |config|
   # Should work creation require file upload, or can a work be created first
   # and a file added at a later time?
   # The default is true.
-  config.work_requires_files = false
+  config.work_requires_files = true
 
   # Enable IIIF image service. This is required to use the
   # UniversalViewer-ified show page
