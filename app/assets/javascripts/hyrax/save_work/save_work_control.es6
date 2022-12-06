@@ -40,7 +40,10 @@ export default class SaveWorkControl {
    */
   preventSubmitUnlessValid() {
     this.form.on('submit', (evt) => {
-      if (!this.isValid())
+      //By the time you get here the form should be valid.
+      //This check is not needed.
+      //if (!this.isValid())
+      if (false)
         evt.preventDefault();
     })
   }
@@ -51,8 +54,11 @@ export default class SaveWorkControl {
    */
   preventSubmitIfAlreadyInProgress() {
     this.form.on('submit', (evt) => {
-      if (this.isValid())
+      //The form should be valid here.  No need to check.
+      //if (this.isValid())
+      if (true)
          this.saveButton.prop("disabled", false); 
+         this.saveButtonDraft.prop("disabled", false); 
     })
   }
 
@@ -84,7 +90,8 @@ export default class SaveWorkControl {
     }
     this.requiredFields = new RequiredFields(this.form, () => this.formStateChanged())
     this.uploads = new UploadedFiles(this.form, () => this.formStateChanged())
-    this.saveButton = this.element.find(':submit')
+    this.saveButton = this.element.find('#with_files_submit')
+    this.saveButtonDraft = this.element.find('#save_as_draft')
     this.depositAgreement = new DepositAgreement(this.form, () => this.formStateChanged())
     this.requiredMetadata = new ChecklistItem(this.element.find('#required-metadata'))
     this.requiredFiles = new ChecklistItem(this.element.find('#required-files'))
@@ -143,6 +150,7 @@ export default class SaveWorkControl {
   // Called when a file has been uploaded, the deposit agreement is clicked or a form field has had text entered.
   formStateChanged() {
     this.saveButton.prop("disabled", !this.isSaveButtonEnabled);
+    this.saveButtonDraft.prop("disabled", !this.isSaveButtonDraftEnabled);
   }
 
   // called when a new field has been added to the form.
@@ -201,12 +209,23 @@ export default class SaveWorkControl {
     return this.isValid() && !this.uploads.inProgress;
   }
 
+  get isSaveButtonDraftEnabled() {
+    return this.isValidForDraft() && !this.uploads.inProgress;
+  }
+
   isValid() {
     // avoid short circuit evaluation. The checkboxes should be independent.
     let metadataValid = this.validateMetadata()
     let filesValid = this.validateFiles()
     let agreementValid = this.validateAgreement(filesValid)
     return metadataValid && filesValid && agreementValid
+  }
+
+  isValidForDraft() {
+    // avoid short circuit evaluation. The checkboxes should be independent.
+    let metadataValid = this.validateMetadata()
+    let agreementValid = this.validateAgreement(true)
+    return metadataValid && agreementValid
   }
 
   // sets the metadata indicator to complete/incomplete
@@ -219,15 +238,22 @@ export default class SaveWorkControl {
     return false
   }
 
+
   // sets the files indicator to complete/incomplete
   validateFiles() {
-    if (!this.uploads.hasFileRequirement) {
+  // this is the key here.
+    if (this.uploads.hasFiles) {
+          this.requiredFiles.check()
+
       return true
     }
-    if (!this.isNew || this.uploads.hasFiles) {
+
+    var files = document.querySelector("tr.file_set");
+    if (files != null){
       this.requiredFiles.check()
       return true
     }
+
     this.requiredFiles.uncheck()
     return false
   }
