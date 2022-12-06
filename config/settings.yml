@@ -75,6 +75,9 @@ redis:
   port: 6379
   thread_safe: true
 
+analytics:
+  google_id: default.google_id.invalid
+
 browse_everything:
   # disable file_system before going to production
 #  file_system:

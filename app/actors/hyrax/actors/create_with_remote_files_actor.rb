@@ -46,14 +46,95 @@ module Hyrax
 
       def registered_ingest_dirs
         Hyrax.config.registered_ingest_dirs
+      end
+
+      # @param uri [URI] the uri fo the resource to import
+      def validate_remote_url(uri)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "uri=#{uri}",
+                                               "" ] if create_with_remove_files_actor_debug_verbose
+        if uri.scheme == 'file'
+          path = File.absolute_path(CGI.unescape(uri.path))
+          registered_ingest_dirs.any? do |dir|
+            path.start_with?(dir) && path.length > dir.length
+          end
+        else
+          Rails.logger.debug "Assuming #{uri.scheme} uri is valid without a serious attempt to validate: #{uri}"
+          # TODO: It might be a good idea to validate other URLs as well.
+          #       The server can probably access URLs the user can't.
+          true
+        end
+      end
+
+      # @param [HashWithIndifferentAccess] remote_files
+      # @return [TrueClass]
+      def attach_files(env, remote_files)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "env=#{env}",
+                                               "remote_files=#{remote_files}",
+                                               "" ] if create_with_remove_files_actor_debug_verbose
+        return true unless remote_files
+        remote_files.each do |file_info|
+          next if file_info.blank? || file_info[:url].blank?
+          # Escape any space characters, so that this is a legal URI
+          uri = URI.parse(Addressable::URI.escape(file_info[:url]))
+          unless validate_remote_url(uri)
+            Rails.logger.error "User #{env.user.user_key} attempted to ingest file from url #{file_info[:url]}, which doesn't pass validation"
+            return false
+          end
+          auth_header = file_info.fetch(:auth_header, {})
+          create_file_from_url(env, uri, file_info[:file_name], auth_header)
+        end
+        true
+      end
+
+      class IngestRemoteFilesService
+        ##
+        # @parm user [User]
+        # @parm curation_concern [Hyrax::Work]
+        # @param remote_files [HashWithIndifferentAccess]
+        # @param file_set_actor_class
+        # @param ordered_members [Array]
+        # @param ordered [Boolean]
+        # rubocop:disable Metrics/ParameterLists
+        def initialize(user:, curation_concern:, remote_files:, file_set_actor_class:, ordered_members: [], ordered: false)
+          @remote_files = remote_files
+          @user = user
+          @curation_concern = curation_concern
+          @file_set_actor_class = file_set_actor_class
+          @ordered_members = ordered_members
+          @ordered = ordered
+        end
+        # rubocop:enable Metrics/ParameterLists
+        attr_reader :remote_files, :user, :curation_concern, :ordered_members, :ordered, :file_set_actor_class
+
+        ##
+        # @return true
+        def attach!
+          return true unless remote_files
+          remote_files.each do |file_info|
+            next if file_info.blank? || file_info[:url].blank?
+            # Escape any space characters, so that this is a legal URI
+            uri = URI.parse(Addressable::URI.escape(file_info[:url]))
+            unless self.class.validate_remote_url(uri)
+              Rails.logger.error "User #{user.user_key} attempted to ingest file from url #{file_info[:url]}, which doesn't pass validation"
+              return false
+            end
+            auth_header = file_info.fetch(:auth_header, {})
+            create_file_from_url(uri, file_info[:file_name], auth_header)
+          end
+          add_ordered_members! if ordered
+          true
+        end
+
+        def self.registered_ingest_dirs
+          Hyrax.config.registered_ingest_dirs
         end
 
         # @param uri [URI] the uri fo the resource to import
-        def validate_remote_url(uri)
-          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                                 ::Deepblue::LoggingHelper.called_from,
-                                                 "uri=#{uri}",
-                                                 "" ] if create_with_remove_files_actor_debug_verbose
+        def self.validate_remote_url(uri)
           if uri.scheme == 'file'
             path = File.absolute_path(CGI.unescape(uri.path))
             registered_ingest_dirs.any? do |dir|
@@ -61,94 +142,84 @@ module Hyrax
             end
           else
             Rails.logger.debug "Assuming #{uri.scheme} uri is valid without a serious attempt to validate: #{uri}"
-            # TODO: It might be a good idea to validate other URLs as well.
-            #       The server can probably access URLs the user can't.
             true
           end
         end
 
-        # @param [HashWithIndifferentAccess] remote_files
-        # @return [TrueClass]
-        def attach_files(env, remote_files)
-          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                                 ::Deepblue::LoggingHelper.called_from,
-                                                 "env=#{env}",
-                                                 "remote_files=#{remote_files}",
-                                                 "" ] if create_with_remove_files_actor_debug_verbose
-          return true unless remote_files
-          remote_files.each do |file_info|
-            next if file_info.blank? || file_info[:url].blank?
-            # Escape any space characters, so that this is a legal URI
-            uri = URI.parse(Addressable::URI.escape(file_info[:url]))
-            unless validate_remote_url(uri)
-              Rails.logger.error "User #{env.user.user_key} attempted to ingest file from url #{file_info[:url]}, which doesn't pass validation"
-              return false
-            end
-            auth_header = file_info.fetch(:auth_header, {})
-            create_file_from_url(env, uri, file_info[:file_name], auth_header)
-          end
-          true
-        end
+        private
 
-        def create_file_from_url(env, uri, file_name, auth_header)
-          case env.curation_concern
+        def create_file_from_url(uri, file_name, auth_header)
+          import_url = URI.decode_www_form_component(uri.to_s)
+          use_valkyrie = false
+          case curation_concern
           when Valkyrie::Resource
-            create_file_from_url_through_valkyrie(env, uri, file_name, auth_header)
+            file_set = Hyrax.persister.save(resource: Hyrax::FileSet.new(import_url: import_url, label: file_name))
+            use_valkyrie = true
           else
-            create_file_from_url_through_active_fedora(env, uri, file_name, auth_header)
+            file_set = ::FileSet.new(import_url: import_url, label: file_name)
+          end
+          __create_file_from_url(file_set: file_set, uri: uri, auth_header: auth_header, use_valkyrie: use_valkyrie)
+        end
+
+        def __create_file_from_url(file_set:, uri:, auth_header:, use_valkyrie: Hyrax.config.use_valkyrie?)
+          actor = file_set_actor_class.new(file_set, user, use_valkyrie: use_valkyrie)
+          actor.create_metadata(visibility: curation_concern.visibility)
+          actor.attach_to_work(curation_concern)
+          file_set.save! if file_set.respond_to?(:save!)
+          # We'll remember the order, but if it's not `@ordered` we won't do anything.
+          ordered_members << file_set
+          if uri.scheme == 'file'
+            # Turn any %20 into spaces.
+            file_path = CGI.unescape(uri.path)
+            IngestLocalFileJob.perform_later(file_set, file_path, user)
+          else
+            ImportUrlJob.perform_later(file_set, operation_for(user: user), auth_header)
           end
         end
 
-        # Generic utility for creating FileSet from a URL
-        # Used in to import files using URLs from a file picker like browse_everything
-        def create_file_from_url_through_active_fedora(env, uri, file_name, auth_header)
-          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                                 ::Deepblue::LoggingHelper.called_from,
-                                                 "env=#{env}",
-                                                 "uri=#{uri}",
-                                                 "file_name=#{file_name}",
-                                                 "" ] if create_with_remove_files_actor_debug_verbose
-          import_url = URI.decode_www_form_component(uri.to_s)
-          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                                 ::Deepblue::LoggingHelper.called_from,
-                                                 "uri=#{uri}",
-                                                 "import_url=#{import_url}",
-                                                 "" ] if create_with_remove_files_actor_debug_verbose
-          ::FileSet.new(import_url: import_url, label: file_name) do |fs|
-            # actor = Hyrax::Actors::FileSetActor.new(fs, env.user)
-            actor = file_set_actor_class.new(fs, env.user)
-            actor.create_metadata(visibility: env.curation_concern.visibility)
-            actor.attach_to_work(env.curation_concern)
-            fs.save!
-            if uri.scheme == 'file'
-              # Turn any %20 into spaces.
-              file_path = CGI.unescape(uri.path)
-              IngestLocalFileJob.perform_later(fs, file_path, env.user)
-            else
-              ImportUrlJob.perform_later(fs, operation_for(user: actor.user), auth_header)
-            end
-          end
+        def operation_for(user:)
+          Hyrax::Operation.create!(user: user,
+                                   operation_type: "Attach Remote File")
         end
 
-        # Generic utility for creating Hyrax::FileSet from a URL
-        # Used in to import files using URLs from a file picker like browse_everything
-        def create_file_from_url_through_valkyrie(env, uri, file_name, auth_header)
-          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                                 ::Deepblue::LoggingHelper.called_from,
-                                                 "env=#{env}",
-                                                 "uri=#{uri}",
-                                                 "file_name=#{file_name}",
-                                                 "" ] if create_with_remove_files_actor_debug_verbose
-          import_url = URI.decode_www_form_component(uri.to_s)
-          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                                 ::Deepblue::LoggingHelper.called_from,
-                                                 "uri=#{uri}",
-                                                 "import_url=#{import_url}",
-                                                 "" ] if create_with_remove_files_actor_debug_verbose
-          fs = Hyrax.persister.save(resource: Hyrax::FileSet.new(import_url: import_url, label: file_name))
-          actor = Hyrax::Actors::FileSetActor.new(fs, env.user, use_valkyrie: true)
+        def add_ordered_members!
+          actor = Hyrax::Actors::OrderedMembersActor.new(ordered_members, user)
+          actor.attach_ordered_members_to_work(curation_concern)
+        end
+      end
+      class_attribute :file_set_actor_class, default: ::Hyrax::Actors::FileSetActor
+      class_attribute :ingest_remote_files_service_class, default: ::Hyrax::Actors::CreateWithRemoteFilesActor::IngestRemoteFilesService
+
+      def create_file_from_url(env, uri, file_name, auth_header)
+        case env.curation_concern
+        when Valkyrie::Resource
+          create_file_from_url_through_valkyrie(env, uri, file_name, auth_header)
+        else
+          create_file_from_url_through_active_fedora(env, uri, file_name, auth_header)
+        end
+      end
+
+      # Generic utility for creating FileSet from a URL
+      # Used in to import files using URLs from a file picker like browse_everything
+      def create_file_from_url_through_active_fedora(env, uri, file_name, auth_header)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "env=#{env}",
+                                               "uri=#{uri}",
+                                               "file_name=#{file_name}",
+                                               "" ] if create_with_remove_files_actor_debug_verbose
+        import_url = URI.decode_www_form_component(uri.to_s)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "uri=#{uri}",
+                                               "import_url=#{import_url}",
+                                               "" ] if create_with_remove_files_actor_debug_verbose
+        ::FileSet.new(import_url: import_url, label: file_name) do |fs|
+          # actor = Hyrax::Actors::FileSetActor.new(fs, env.user)
+          actor = file_set_actor_class.new(fs, env.user)
           actor.create_metadata(visibility: env.curation_concern.visibility)
           actor.attach_to_work(env.curation_concern)
+          fs.save!
           if uri.scheme == 'file'
             # Turn any %20 into spaces.
             file_path = CGI.unescape(uri.path)
@@ -157,11 +228,40 @@ module Hyrax
             ImportUrlJob.perform_later(fs, operation_for(user: actor.user), auth_header)
           end
         end
+      end
 
-        def operation_for(user:)
-          Hyrax::Operation.create!(user: user,
-                                   operation_type: "Attach Remote File")
+      # Generic utility for creating Hyrax::FileSet from a URL
+      # Used in to import files using URLs from a file picker like browse_everything
+      def create_file_from_url_through_valkyrie(env, uri, file_name, auth_header)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "env=#{env}",
+                                               "uri=#{uri}",
+                                               "file_name=#{file_name}",
+                                               "" ] if create_with_remove_files_actor_debug_verbose
+        import_url = URI.decode_www_form_component(uri.to_s)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "uri=#{uri}",
+                                               "import_url=#{import_url}",
+                                               "" ] if create_with_remove_files_actor_debug_verbose
+        fs = Hyrax.persister.save(resource: Hyrax::FileSet.new(import_url: import_url, label: file_name))
+        actor = Hyrax::Actors::FileSetActor.new(fs, env.user, use_valkyrie: true)
+        actor.create_metadata(visibility: env.curation_concern.visibility)
+        actor.attach_to_work(env.curation_concern)
+        if uri.scheme == 'file'
+          # Turn any %20 into spaces.
+          file_path = CGI.unescape(uri.path)
+          IngestLocalFileJob.perform_later(fs, file_path, env.user)
+        else
+          ImportUrlJob.perform_later(fs, operation_for(user: actor.user), auth_header)
         end
+      end
+
+      def operation_for(user:)
+        Hyrax::Operation.create!(user: user,
+                                 operation_type: "Attach Remote File")
+      end
     end
   end
 end

@@ -7,28 +7,56 @@ RSpec.describe Hyrax::Admin::AdminSetsController, skip: false do
   include Devise::Test::ControllerHelpers
 
   routes { Hyrax::Engine.routes }
-  let(:user) { create(:user) }
+  let(:admin)   { FactoryBot.create(:admin, email: 'admin@example.com') }
+  let(:manager) { FactoryBot.create(:user, email: 'manager@example.com') }
+  let(:creator) { FactoryBot.create(:user, email: 'creator@example.com') }
+  let(:user)    { FactoryBot.create(:user, email: 'user@example.com') }
+  let(:ability) { ::Ability.new(manager) }
+  let(:ability) { ::Ability.new(creator) }
+  let(:ability) { ::Ability.new(user) }
 
-  context "a non admin" do
+  let!(:admin_set_type) do
+    FactoryBot.create(:admin_set_collection_type,
+                      manager_user: manager.user_key,
+                      creator_user: creator.user_key)
+  end
+
+  context "a guest" do
     describe "#index" do
-      it 'is unauthorized' do
+      it 'redirects to user login' do
         get :index
-        expect(response).to be_redirect
+        expect(response).to redirect_to main_app.new_user_session_path
+      end
+    end
+
+    describe "#new" do
+      it 'redirects to user login' do
+        get :new
+        expect(response).to redirect_to main_app.new_user_session_path
+      end
+    end
+  end
+
+  context "a general registered user" do
+    before { sign_in user }
+
+    describe "#index" do
+      it 'redirects to collection :index' do
+        get :index
+        expect(response).to redirect_to(my_collections_path)
       end
     end
 
     describe "#new" do
       it 'is unauthorized' do
         get :new
-        expect(response).to be_redirect
+        expect(response).to redirect_to root_path
+        expect(flash[:alert]).to eq "You are not authorized to access this page."
       end
     end
 
     describe "#show" do
-      before do
-        sign_in user
-        controller.instance_variable_set(:@admin_set, admin_set)
-      end
+      before { controller.instance_variable_set(:@admin_set, admin_set) }
 
       context "when user has access through public group" do
         # Even though the user can view this admin set, they should not be able to view
@@ -37,7 +65,8 @@ RSpec.describe Hyrax::Admin::AdminSetsController, skip: false do
 
         it 'is unauthorized' do
           get :show, params: { id: admin_set }
-          expect(response).to be_redirect
+          expect(response).to redirect_to root_path
+          expect(flash[:alert]).to eq "You are not authorized to access this page."
         end
       end
 
@@ -48,7 +77,8 @@ RSpec.describe Hyrax::Admin::AdminSetsController, skip: false do
 
         it 'is unauthorized' do
           get :show, params: { id: admin_set }
-          expect(response).to be_redirect
+          expect(response).to redirect_to root_path
+          expect(flash[:alert]).to eq "You are not authorized to access this page."
         end
       end
 

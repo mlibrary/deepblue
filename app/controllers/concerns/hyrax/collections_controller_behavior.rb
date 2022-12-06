@@ -19,15 +19,18 @@ module Hyrax
       class_attribute :presenter_class,
                       :form_class,
                       :single_item_search_builder_class,
-                      :membership_service_class
+                      :membership_service_class,
+                      :parent_collection_query_service
 
       self.presenter_class = Hyrax::CollectionPresenter
 
       # The search builder to find the collection
       self.single_item_search_builder_class = SingleCollectionSearchBuilder
       # The search builder to find the collections' members
-      self.membership_service_class = Collections::CollectionMemberService
-
+      self.membership_service_class = Collections::CollectionMemberSearchService
+      # A search service to use in finding parent collections
+      self.parent_collection_query_service = Collections::NestedCollectionQueryService
+  
       rescue_from ::ActiveFedora::ObjectNotFoundError, with: :unknown_id_rescue
       rescue_from ::Hyrax::ObjectNotFoundError, with: :unknown_id_rescue
     end
@@ -50,6 +53,44 @@ module Hyrax
               main_app.root_path
             end
       redirect_to url, alert: "<br/>Unknown ID: #{e.message}<br/><br/>"
+    end
+
+    def show
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "params[:id]=#{params[:id]}",
+                                             "params=#{params}" ] if hyrax_collections_controller_behavior_debug_verbose
+      respond_to do |wants|
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               Deepblue::LoggingHelper.obj_class( 'wants', wants ),
+                                               "wants.format=#{wants.format}",
+                                               "" ] if hyrax_collections_controller_behavior_debug_verbose
+        wants.html do
+          @curation_concern ||= ::PersistHelper.find( params[:id] )
+          if @curation_concern.present?
+            presenter
+            query_collection_members
+          end
+        end
+        wants.json do
+          unless Rails.configuration.rest_api_allow_read
+            return render_json_response( response_type: :bad_request, message: "Method not allowed." )
+          end
+          @curation_concern ||= ::PersistHelper.find( params[:id] )
+          if @curation_concern.present?
+            presenter
+            query_collection_members
+          end
+          if @curation_concern
+            # authorize! :show, @curation_concern
+            render :show, status: :ok
+          else
+            collections_render_json_response( response_type: :not_found, message: "ID #{params[:id]}" )
+          end
+        end
+      end
     end
 
     def create
@@ -109,44 +150,6 @@ module Hyrax
       end
     end
 
-    def show
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                            "params[:id]=#{params[:id]}",
-                                            "params=#{params}" ] if hyrax_collections_controller_behavior_debug_verbose
-      respond_to do |wants|
-        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
-                                               Deepblue::LoggingHelper.obj_class( 'wants', wants ),
-                                               "wants.format=#{wants.format}",
-                                               "" ] if hyrax_collections_controller_behavior_debug_verbose
-        wants.html do
-          @curation_concern ||= ::PersistHelper.find( params[:id] )
-          if @curation_concern.present?
-            presenter
-            query_collection_members
-          end
-        end
-        wants.json do
-          unless Rails.configuration.rest_api_allow_read
-            return render_json_response( response_type: :bad_request, message: "Method not allowed." )
-          end
-          @curation_concern ||= ::PersistHelper.find( params[:id] )
-          if @curation_concern.present?
-            presenter
-            query_collection_members
-          end
-          if @curation_concern
-            # authorize! :show, @curation_concern
-            render :show, status: :ok
-          else
-            collections_render_json_response( response_type: :not_found, message: "ID #{params[:id]}" )
-          end
-        end
-      end
-    end
-
     # render a json response for +response_type+
     def collections_render_json_response(response_type: :success, message: nil, options: {})
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
@@ -184,74 +187,83 @@ module Hyrax
 
     private
 
-      def presenter
-        @presenter ||= begin
-          # Query Solr for the collection.
-          # run the solr query to find the collection members
-          response = repository.search(single_item_search_builder.query)
-          curation_concern = response.documents.first
-          raise CanCan::AccessDenied unless curation_concern
-          presenter_class.new(curation_concern, current_ability)
-        end
+    def presenter
+      @presenter ||= begin
+        # Query Solr for the collection.
+        # run the solr query to find the collection members
+        response = repository.search(single_item_search_builder.query)
+        curation_concern = response.documents.first
+        raise CanCan::AccessDenied unless curation_concern
+        presenter_class.new(curation_concern, current_ability)
       end
+    end
 
-      # Instantiates the search builder that builds a query for a single item
-      # this is useful in the show view.
-      def single_item_search_builder
-        single_item_search_builder_class.new(self).with(params.except(:q, :page))
-      end
+    # Instantiates the search builder that builds a query for a single item
+    # this is useful in the show view.
+    def single_item_search_builder
+      single_item_search_builder_class.new(self).with(params.except(:q, :page))
+    end
 
-      def collection_params
-        form_class.model_attributes(params[:collection])
-      end
+    def collection_params
+      form_class.model_attributes(params[:collection])
+    end
 
-      # Include 'catalog' and 'hyrax/base' in the search path for views, while prefering
-      # our local paths. Thus we are unable to just override `self.local_prefixes`
-      def _prefixes
-        @_prefixes ||= super + ['catalog', 'hyrax/base']
-      end
+    # Include 'catalog' and 'hyrax/base' in the search path for views, while prefering
+    # our local paths. Thus we are unable to just override `self.local_prefixes`
+    def _prefixes
+      @_prefixes ||= super + ['catalog', 'hyrax/base']
+    end
 
-      def query_collection_members
-        member_works
-        member_subcollections if collection.collection_type.nestable?
-        parent_collections if collection.collection_type.nestable? && action_name == 'show'
-      end
+    def query_collection_members
+      load_member_works
+      load_member_subcollections if collection.collection_type.nestable?
+      load_parent_collections if collection.collection_type.nestable? && action_name == 'show'
+    end
 
-      # Instantiate the membership query service
-      def collection_member_service
-        @collection_member_service ||= membership_service_class.new(scope: self, collection: collection, params: params_for_query)
-      end
+    # Instantiate the membership query service
+    def collection_member_service
+      @collection_member_service ||= membership_service_class.new(scope: self, collection: collection, params: params_for_query)
+    end
 
-      def member_works
-        @response = collection_member_service.available_member_works
-        @member_docs = @response.documents
-        @members_count = @response.total
-      end
+    def member_works
+      @response = collection_member_service.available_member_works
+      @member_docs = @response.documents
+      @members_count = @response.total
+    end
+    alias load_member_works member_works
 
-      def parent_collections
-        page = params[:parent_collection_page].to_i
-        query = Hyrax::Collections::NestedCollectionQueryService
-        collection.parent_collections = query.parent_collections(child: collection_object, scope: self, page: page)
-      end
+    def parent_collections
+      page = params[:parent_collection_page].to_i
+      query = Hyrax::Collections::NestedCollectionQueryService
+      collection.parent_collections = query.parent_collections(child: collection_object, scope: self, page: page)
+    end
+    alias load_parent_collections parent_collections
 
-      def collection_object
-        action_name == 'show' ? Collection.find(collection.id) : collection
-      end
+    ##
+    # @note this is here because, though we want to load and authorize the real
+    #   collection for show views, for apparently historical reasons,
+    #   {#collection} is overridden to access `@presenter`. this should probably
+    #   be deprecated and callers encouraged to use `@collection` but the scope
+    #   and impact of that change needs more evaluation.
+    def collection_object
+      action_name == 'show' ? Collection.find(collection.id) : collection
+    end
 
-      def member_subcollections
-        results = collection_member_service.available_member_subcollections
-        @subcollection_solr_response = results
-        @subcollection_docs = results.documents
-        @subcollection_count = @presenter.subcollection_count = results.total
-      end
+    def member_subcollections
+      results = collection_member_service.available_member_subcollections
+      @subcollection_solr_response = results
+      @subcollection_docs = results.documents
+      @subcollection_count = @presenter.subcollection_count = results.total
+    end
+    alias load_member_subcollections member_subcollections
 
-      # You can override this method if you need to provide additional inputs to the search
-      # builder. For example:
-      #   search_field: 'all_fields'
-      # @return <Hash> the inputs required for the collection member query service
-      def params_for_query
-        params.merge(q: params[:cq])
-      end
+    # You can override this method if you need to provide additional inputs to the search
+    # builder. For example:
+    #   search_field: 'all_fields'
+    # @return <Hash> the inputs required for the collection member query service
+    def params_for_query
+      params.merge(q: params[:cq])
+    end
 
   end
 

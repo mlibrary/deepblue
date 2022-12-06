@@ -66,15 +66,15 @@ Hyrax.config do |config|
   # Requires a Google Analytics id and OAuth2 keyfile.  See README for more info
   config.analytics = true
 
-  # Google Analytics tracking ID to gather usage statistics
-  # config.google_analytics_id = Rails.application.secrets.analytics_id
-  path = "#{Rails.application.config.paths["config"].existent.first}/analytics_id.yml"
-  if File.exist? path
-    Settings.analytics_id ||= Rails.application.config_for(:analytics_id)
-    config.google_analytics_id = Settings.analytics_id['analytics_id']
-  else
-    config.google_analytics_id = nil
-  end
+  # # Google Analytics tracking ID to gather usage statistics
+  # # config.google_analytics_id = Rails.application.secrets.analytics_id
+  # path = "#{Rails.application.config.paths["config"].existent.first}/analytics_id.yml"
+  # if File.exist? path
+  #   Settings.analytics_id ||= Rails.application.config_for(:analytics_id)
+  #   config.google_analytics_id = Settings.analytics_id['analytics_id']
+  # else
+  #   config.google_analytics_id = nil
+  # end
 
   # Date you wish to start collecting Google Analytic statistics for
   # Leaving it blank will set the start date to when ever the file was uploaded by
