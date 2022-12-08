@@ -3,20 +3,28 @@ Deepblue::IngestIntegrationService.setup do |config|
 
   INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE = false
 
-  config.abstract_ingest_job_debug_verbose         = false
-  config.add_file_to_file_set_debug_verbose        = false
-  config.attach_files_to_work_job_debug_verbose    = false
-  config.characterize_job_debug_verbose            = false
-  config.characterization_service_debug_verbose    = false
-  config.ingest_content_service_debug_verbose      = false
-  config.create_derivatives_job_debug_verbose      = false
-  config.ingest_helper_debug_verbose               = false
-  config.ingest_job_debug_verbose                  = false
-  config.ingest_job_status_debug_verbose           = false
-  config.ingest_script_job_debug_verbose           = false
-  config.multiple_ingest_scripts_job_debug_verbose = false
-  config.new_content_service_debug_verbose         = false
-  config.report_task_job_debug_verbose             = false
+  config.abstract_ingest_job_debug_verbose           = false
+  config.add_file_to_file_set_debug_verbose          = false
+  config.attach_files_to_work_job_debug_verbose      = false
+  config.characterize_job_debug_verbose              = false
+  config.characterization_service_debug_verbose      = false
+  config.ingest_append_content_service_debug_verbose = false
+  config.ingest_content_service_debug_verbose        = false
+  config.create_derivatives_job_debug_verbose        = false
+  config.ingest_helper_debug_verbose                 = false
+  config.ingest_append_job_debug_verbose             = false
+  config.ingest_append_script_job_debug_verbose      = false
+  config.ingest_job_debug_verbose                    = false
+  config.ingest_job_status_debug_verbose             = false
+  config.ingest_script_debug_verbose                 = false
+  config.ingest_script_job_debug_verbose             = false
+  config.multiple_ingest_scripts_job_debug_verbose   = false
+  config.new_content_service_debug_verbose           = false
+  config.report_task_job_debug_verbose               = false
+
+  config.ingest_script_tracking_dir_base             = Rails.root.join('tmp', 'scripts')
+  config.ingest_script_tracking_dir_expand_id        = true
+
 
   config.characterize_excluded_ext_set = { '.csv' => 'text/plain' }.freeze # , '.nc' => 'text/plain' }.freeze
   config.characterize_enforced_mime_type = { '.csv' => 'text/csv' }.freeze # , '.nc' => 'text/plain' }.freeze
@@ -29,13 +37,13 @@ Deepblue::IngestIntegrationService.setup do |config|
   if Rails.env.development?
     allowed_dirs << File.join( Dir.home, 'Downloads' ).to_s
     allowed_dirs << Rails.application.root.join( 'data' ).to_s
+    config.ingest_script_dir = Rails.root.join('data', 'scripts')
+    FileUtils.mkdir_p config.ingest_script_dir unless Dir.exist? config.ingest_script_dir
     if Dir.exists? "/Volumes/ulib-dbd-prep"
       allowed_dirs << "/Volumes/ulib-dbd-prep"
-      config.ingest_script_dir = "/Volumes/ulib-dbd-prep/scripts"
       config.deepbluedata_prep = "/Volumes/ulib-dbd-prep"
     else
       allowed_dirs << "/tmp/deepbluedata-prep"
-      config.ingest_script_dir = "/tmp/deepbluedata-prep/scripts"
       config.deepbluedata_prep = "/tmp/deepbluedata-prep"
     end
   elsif Rails.env.test?

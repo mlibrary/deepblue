@@ -338,6 +338,14 @@ module Deepblue
       return dirs
     end
 
+    def self.expand_id_path( id, base_dir: nil )
+      arr = id.split('').each_slice(2).map(&:join)
+      rv = File.join arr
+      return rv unless base_dir.present?
+      rv = File.join base_dir, rv
+      return rv
+    end
+
     # returns array of files
     def self.files_in_dir( dir_path,
                            glob: '*',
@@ -368,6 +376,10 @@ module Deepblue
 
     def self.mkdir( target_dir )
       Dir.mkdir( target_dir ) unless Dir.exist? target_dir
+    end
+
+    def self.mkdirs( target_dir )
+      FileUtils.mkdir_p target_dir unless Dir.exist? target_dir
     end
 
     def self.tmp_derivatives_path

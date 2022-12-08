@@ -25,10 +25,15 @@ module Deepblue
     mattr_accessor :attach_files_to_work_job_debug_verbose,           default: false
     mattr_accessor :characterize_job_debug_verbose,                   default: false
     mattr_accessor :create_derivatives_job_debug_verbose,             default: false
+    mattr_accessor :ingest_append_content_service_debug_verbose,      default: false
     mattr_accessor :ingest_content_service_debug_verbose,             default: false
     mattr_accessor :ingest_helper_debug_verbose,                      default: false
+    mattr_accessor :ingest_append_job_debug_verbose,                  default: false
+    mattr_accessor :ingest_append_scripts_controller_behavior_debug_verbose, default: false
+    mattr_accessor :ingest_append_script_job_debug_verbose,           default: false
     mattr_accessor :ingest_job_debug_verbose,                         default: false
     mattr_accessor :ingest_job_status_debug_verbose,                  default: false
+    mattr_accessor :ingest_script_debug_verbose,                      default: false
     mattr_accessor :ingest_script_job_debug_verbose,                  default: false
     mattr_accessor :multiple_ingest_scripts_job_debug_verbose,        default: false
     mattr_accessor :new_content_service_debug_verbose,                default: false
@@ -39,6 +44,9 @@ module Deepblue
     mattr_accessor :ingest_allowed_path_prefixes,                     default: []
     mattr_accessor :ingest_append_ui_allowed_base_directories,        default: []
     mattr_accessor :ingest_append_ui_allow_scripts_to_run,            default: true
+
+    mattr_accessor :ingest_script_tracking_dir_base,                  default: Rails.root.join('tmp', 'scripts')
+    mattr_accessor :ingest_script_tracking_dir_expand_id,             default: true
 
     mattr_accessor :characterize_excluded_ext_set,                    default: {}
     mattr_accessor :characterize_enforced_mime_type,                  default: {}
