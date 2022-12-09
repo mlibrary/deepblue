@@ -105,7 +105,7 @@ module Deepblue
       files = work_hash[:files]
       return work if files.blank?
       return super unless work_hash.key? @ingest_script.script_section_key
-      file_count = @ingest_script.script_section[:file_count]
+      file_count = @ingest_script.file_set_count
       max = file_count-1
       for index in 0..max do
         next unless continue_new_content_service
@@ -135,6 +135,8 @@ module Deepblue
       work.save!
       work.reload
       valid_or_fix_file_sizes( curation_concern: work )
+      @ingest_script.script_section[:finished] = true
+      @ingest_script.save_yaml
       return work
     end
 
