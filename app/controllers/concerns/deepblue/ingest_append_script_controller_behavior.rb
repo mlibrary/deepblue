@@ -4,7 +4,11 @@ module Deepblue
 
   module IngestAppendScriptControllerBehavior
 
-    mattr_accessor :ingest_append_scripts_controller_behavior_debug_verbose, default: false
+    mattr_accessor :ingest_append_scripts_controller_behavior_debug_verbose,
+                   default: ::Deepblue::IngestIntegrationService.ingest_append_scripts_controller_behavior_debug_verbose
+
+    mattr_accessor :ingest_append_ui_allow_scripts_to_run,
+                   default: ::Deepblue::IngestIntegrationService.ingest_append_ui_allow_scripts_to_run
 
     attr_reader :ingest_script
 
@@ -348,16 +352,16 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "path_to_script=#{path_to_script}",
+                                             "ingest_append_ui_allow_scripts_to_run=#{ingest_append_ui_allow_scripts_to_run}",
                                              "" ] if ingest_append_scripts_controller_behavior_debug_verbose
-      return true unless ::Deepblue::IngestIntegrationService.ingest_append_ui_allow_scripts_to_run
+      return true unless ingest_append_ui_allow_scripts_to_run
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "IngestAppendScriptJob.perform_later( path_to_script: #{path_to_script}, ingester: #{ingest_ingester} )",
                                              "" ] if ingest_append_scripts_controller_behavior_debug_verbose
-      IngestScriptJob.perform_later( ingest_mode: 'append',
-                                     ingester: ingest_ingester,
-                                     path_to_script: path_to_script,
-                                     id: curation_concern.id )
+      IngestAppendScriptJob.perform_later( ingester: ingest_ingester,
+                                           path_to_script: path_to_script,
+                                           id: curation_concern.id )
       true
     end
 
@@ -366,13 +370,21 @@ module Deepblue
     end
 
     def ingest_script_write
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "::Deepblue::IngestIntegrationService.ingest_script_dir=#{::Deepblue::IngestIntegrationService.ingest_script_dir}",
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       base_script_path = ::Deepblue::IngestIntegrationService.ingest_script_dir
       yyyymmddmmss = Time.now.strftime( "%Y%m%d_%H%M%S" )
       script_file_name = "#{yyyymmddmmss}_#{curation_concern.id}_append.yml"
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "base_script_path=#{base_script_path}",
+                                             "script_file_name=#{script_file_name}",
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       path_to_script = File.join( base_script_path, script_file_name )
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "path_to_script=#{path_to_script}",
                                              "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       File.open( path_to_script, "w" ) do |out|
