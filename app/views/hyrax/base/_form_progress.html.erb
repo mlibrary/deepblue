@@ -97,7 +97,8 @@
                    name: "save_with_files" %>
     <% end %>
 
-    <%= link_to t('.cancel'), request.referrer, class: 'btn btn-default'%>
+    <%= link_to t('.cancel'), request.referrer, class: 'btn btn-default' %>
+    <%= link_to t('hyrax.menu.about.contact_us'), 'javascript:getContactUserParameters();', class: 'btn btn-default' %>
     <p><%= t('simple_form.actions.data_set.submit_help') %></p>
   </div>
 

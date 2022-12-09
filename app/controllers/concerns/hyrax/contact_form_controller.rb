@@ -479,7 +479,13 @@ module Hyrax
       Rails.logger.info msg
     end
 
-    def new; end
+    def new
+      url = params[:url]
+      @contact_form.message = t('data_set.contact_message_header') + "\n" +
+                              t('data_set.contact_message_title') + params[:title] + "\n"  +
+                              t('data_set.contact_message_creator') + params[:author] + "\n" +
+                              t('data_set.contact_message_url') + url + "\n" unless url.nil?
+    end
 
     def ngr_enabled
       ContactFormController.ngr_enabled

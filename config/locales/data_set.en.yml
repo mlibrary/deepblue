@@ -1,5 +1,13 @@
 en:
   data_set:
+    contact_message_header:
+      "This is some information about the work I was trying to create:"
+    contact_message_title:
+      "Title: "
+    contact_message_creator:
+      "First Creator Listed: "
+    contact_message_url:
+      "URL: "
     doi_already_exists:
       "A DOI already exists for this work."
     doi_is_being_minted:
