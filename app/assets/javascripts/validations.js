@@ -23,6 +23,17 @@ function movetofilestab()
   event.preventDefault();
 }
 
+function getContactUserParameters()
+{
+  var endtag = 0,i=0;
+  var title = document.getElementById("data_set_title").value;
+  var author = document.getElementById("data_set_creator").value;
+  var url =  window.location;
+
+  var url = window.location.origin + '/data/contact?title="' + title + '"&author="' + author + '"&url="' + url + '"';
+  window.open(url);
+}
+
 //function validateVersioningFiles(inputFile) {
 function validateVersioningFiles(inputFile,maxFileSize,maxFileSizeStr,expectedFileName) {
     var maxFileSizeErrorMessage = "This file exceeds the maximum allowed file size " + maxFileSizeStr;
