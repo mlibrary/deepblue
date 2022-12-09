@@ -7,5 +7,8 @@
 <%= form_tag(main_app.ingest_append_generate_script_hyrax_data_set_path(@curation_concern.id), method: 'post') do %>
   <%= render partial: 'data_set/ingest_append_prep_fields' %>
   <%= submit_tag(t('simple_form.actions.data_set.ingest_append_generate_script'), class: 'btn btn-primary') %>
-  <%= link_to t(:'helpers.action.cancel'), polymorphic_path([main_app, curation_concern]), class: 'btn btn-subtle cancel-btn' %>
+  <%= link_to t(:'helpers.action.cancel'),
+              polymorphic_path([main_app, curation_concern]),
+              class: 'btn btn-subtle cancel-btn' %>
+  <br/>
 <% end %>

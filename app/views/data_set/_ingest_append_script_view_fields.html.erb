@@ -1,0 +1,19 @@
+<%= hidden_field_tag('data_set[nop]') %>
+<%= hidden_field_tag('ingest_prep_tab_active', 'ingest_append_script_view_display') %>
+<div class="documentation-div">
+  <label class=""><%= t('simple_form.ingest_script_view.labels.ingest_append_script_files') %></label><br/>
+  <ul>
+    <% @presenter.ingest_append_script_files.each do |path_pair| %>
+      <%# create a link include ingest_prep_tab_active and ingest_append_script_path %>
+      <li><code><%= File.join path_pair %></code></li>
+    <% end %>
+  </ul>
+  <br/>
+  <label class=""><%= t('simple_form.ingest_script_view.labels.ingest_append_script') %></label><br/>
+  <code><%= @presenter.ingest_append_script_path %></code><br/>
+  <%= text_area_tag :ingest_append_script,
+                    @presenter.ingest_append_script,
+                    rows: 20,
+                    cols: 85,
+                    class: "monospace-textarea" %>
+</div>

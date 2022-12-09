@@ -16,6 +16,21 @@ class IngestScript
   attr_accessor :ingest_script_path
   attr_accessor :path_to_yaml_file
 
+  def self.ingest_append_script_files( id: )
+    paths = []
+    dirs = ingest_script_dirs( id: id )
+    dirs.each do |dir|
+      Dir.glob( "*#{id}_append.yml", base: dir ).sort.each { |p| paths << [dir,p] }
+    end
+    return paths
+  end
+
+  def self.ingest_script_dirs( id: nil )
+    path = ::Deepblue::IngestIntegrationService.ingest_script_tracking_dir_base
+    return [ path ] if id.blank?
+    return [ path, ::Deepblue::DiskUtilitiesHelper.expand_id_path( id, base_dir: path ) ]
+  end
+
   def initialize( curation_concern_id:,
                   ingest_mode:,
                   ingest_script: nil,
@@ -131,6 +146,10 @@ class IngestScript
     path = ::Deepblue::IngestIntegrationService.ingest_script_tracking_dir_base
     path = ::Deepblue::DiskUtilitiesHelper.expand_id_path( @curation_concern_id, base_dir: path ) if expand_id
     return path
+  end
+
+  def ingest_script_dirs
+    IngestScript.ingest_script_dirs( id: @curation_concern_id )
   end
 
   def ingest_script_present?
