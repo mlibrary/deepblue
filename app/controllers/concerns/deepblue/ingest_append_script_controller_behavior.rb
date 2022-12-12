@@ -164,6 +164,8 @@ module Deepblue
     end
 
     def ingest_append_script_path_init
+      path = params[:ingest_append_script_path]
+      return URI::DEFAULT_PARSER.unescape(path) if path.present?
       path_pairs = ingest_append_script_files
       return "" if path_pairs.blank?
       path = if path_pairs.size == 1

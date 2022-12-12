@@ -1,19 +1,32 @@
 <%= hidden_field_tag('data_set[nop]') %>
 <%= hidden_field_tag('ingest_prep_tab_active', 'ingest_append_script_view_display') %>
+<%= hidden_field_tag('ingest_append_script_path', @presenter.ingest_append_script_path ) %>
 <div class="documentation-div">
   <label class=""><%= t('simple_form.ingest_script_view.labels.ingest_append_script_files') %></label><br/>
   <ul>
     <% @presenter.ingest_append_script_files.each do |path_pair| %>
       <%# create a link include ingest_prep_tab_active and ingest_append_script_path %>
-      <li><code><%= File.join path_pair %></code></li>
+      <% path = File.join path_pair %>
+      <% unless @presenter.ingest_append_script_path == path %>
+        <%
+          url = main_app.ingest_append_prep_hyrax_data_set_path( id: @curation_concern.id,
+                                                        ingest_prep_tab_active: 'ingest_append_script_view_display',
+                                                        ingest_append_script_path: URI::DEFAULT_PARSER.escape(path) )
+        %>
+        <li><code>
+          <a href="<%= url %>" ><%= File.basename path %></a>
+        </code></li>
+      <% else %>
+        <li><code><%= File.basename path %></code></li>
+      <% end %>
     <% end %>
   </ul>
   <br/>
   <label class=""><%= t('simple_form.ingest_script_view.labels.ingest_append_script') %></label><br/>
-  <code><%= @presenter.ingest_append_script_path %></code><br/>
+  <code><%= File.basename @presenter.ingest_append_script_path %></code><br/>
   <%= text_area_tag :ingest_append_script,
                     @presenter.ingest_append_script,
-                    rows: 20,
-                    cols: 85,
+                    rows: 40,
+                    cols: 125,
                     class: "monospace-textarea" %>
 </div>
