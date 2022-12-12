@@ -192,6 +192,8 @@ Rails.application.routes.draw do
         post   'ingest_append_generate_script'
         get    'ingest_append_prep'
         post   'ingest_append_prep'
+        get    'ingest_append_view_script'
+        post   'ingest_append_view_script'
         post   'ingest_append_run_job'
         post   'identifiers'
         get    'anonymous_link/:anon_link_id', action: :anonymous_link

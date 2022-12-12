@@ -24,3 +24,8 @@ en:
         ingest_ingester:              "Ingester"
         ingest_script:                "Ingest append script"
         ingest_script_messages:       "Ingest append script messages"
+    ingest_script_view:
+      hint:
+      labels:
+        ingest_append_script_files:   "Append Script Files"
+        ingest_append_script:         "Append Script"

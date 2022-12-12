@@ -5,7 +5,7 @@ module Deepblue
   module IngestAppendScriptControllerBehavior
 
     mattr_accessor :ingest_append_scripts_controller_behavior_debug_verbose,
-                   default: ::Deepblue::IngestIntegrationService.ingest_append_scripts_controller_behavior_debug_verbose
+                   default: true || ::Deepblue::IngestIntegrationService.ingest_append_scripts_controller_behavior_debug_verbose
 
     mattr_accessor :ingest_append_ui_allow_scripts_to_run,
                    default: ::Deepblue::IngestIntegrationService.ingest_append_ui_allow_scripts_to_run
@@ -110,7 +110,7 @@ module Deepblue
                                              "params=#{params}",
                                              "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       presenter.controller = self
-      render 'ingest_append_prep_form'
+      render '_ingest_append'
     end
 
     def ingest_append_run_job
@@ -148,6 +148,62 @@ module Deepblue
       end
     end
 
+    def ingest_append_script
+      @ingest_append_script ||= ingest_append_script_init
+    end
+
+    def ingest_append_script_init
+      path = ingest_append_script_path
+      return "" if path.blank?
+      script = File.open( path, 'r' ) { |io| io.read }
+      return script
+    end
+
+    def ingest_append_script_path
+      @ingest_append_script_path ||= ingest_append_script_path_init
+    end
+
+    def ingest_append_script_path_init
+      path = params[:ingest_append_script_path]
+      return URI::DEFAULT_PARSER.unescape(path) if path.present?
+      path_pairs = ingest_append_script_files
+      return "" if path_pairs.blank?
+      path = if path_pairs.size == 1
+               File.join path_pairs[0]
+             elsif path_pairs[0][0] == ::Deepblue::IngestIntegrationService.ingest_script_tracking_dir_base
+               File.join path_pairs[0]
+             else
+               File.join path_pairs.last
+             end
+      return path
+    end
+
+    def ingest_append_script_view_title
+      "View Append Files Script for the work #{curation_concern.id} - #{curation_concern.title.first}"
+    end
+
+    def ingest_prep_tab_active
+      params[:ingest_prep_tab_active]
+    end
+
+    def ingest_append_view_script
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params=#{params}",
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
+      presenter.controller = self
+      render '_ingest_append'
+    end
+
+    def ingest_append_script_files
+      @ingest_append_script_files ||= ingest_append_script_files_init
+    end
+
+    def ingest_append_script_files_init
+      paths = IngestScript.ingest_append_script_files( id: params[:id] )
+      return paths
+    end
+
     def ingest_base_directory
       rv = params[:ingest_base_directory]
       return rv
@@ -164,8 +220,8 @@ module Deepblue
            else
              params[:ingest_email_after] == 'true'
            end
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv} rv class = #{rv.class.name}",
                                              "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       rv
@@ -178,8 +234,8 @@ module Deepblue
            else
              params[:ingest_email_before] == 'true'
            end
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv} rv class = #{rv.class.name}",
                                              "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       rv
@@ -366,7 +422,7 @@ module Deepblue
     end
 
     def ingest_script_title
-      "Append Files Script for the work #{curation_concern.id} - #{curation_concern.title.first}"
+      "Generate Append Files Script for the work #{curation_concern.id} - #{curation_concern.title.first}"
     end
 
     def ingest_script_write
