@@ -78,32 +78,32 @@ module Hyrax
         end
         # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
-          def sanitize_unrestricted_params
-            @attributes.except(:lease_expiration_date,
-                               :visibility_during_lease,
-                               :visibility_after_lease,
-                               :embargo_release_date,
-                               :visibility_during_embargo,
-                               :visibility_after_embargo)
-          end
+        def sanitize_unrestricted_params
+          @attributes.except(:lease_expiration_date,
+                             :visibility_during_lease,
+                             :visibility_after_lease,
+                             :embargo_release_date,
+                             :visibility_during_embargo,
+                             :visibility_after_embargo)
+        end
 
-          def sanitize_embargo_params
-            @attributes.except(:visibility,
-                               :lease_expiration_date,
-                               :visibility_during_lease,
-                               :visibility_after_lease)
-          end
+        def sanitize_embargo_params
+          @attributes.except(:visibility,
+                             :lease_expiration_date,
+                             :visibility_during_lease,
+                             :visibility_after_lease)
+        end
 
-          def sanitize_lease_params
-            @attributes.except(:visibility,
-                               :embargo_release_date,
-                               :visibility_during_embargo,
-                               :visibility_after_embargo)
-          end
+        def sanitize_lease_params
+          @attributes.except(:visibility,
+                             :embargo_release_date,
+                             :visibility_during_embargo,
+                             :visibility_after_embargo)
+        end
 
-          def visibility
-            @attributes[:visibility]
-          end
+        def visibility
+          @attributes[:visibility]
+        end
       end
 
       # @param [Hyrax::Actors::Environment] env

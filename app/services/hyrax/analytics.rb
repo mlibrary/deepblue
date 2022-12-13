@@ -93,7 +93,7 @@ module Hyrax
       # Rails.logger.info "Hyrax::Analytics.profile"
       return unless config.valid?
       rv = user.profiles.detect do |profile|
-        profile.web_property_id == Hyrax.config.google_analytics_id
+        profile.web_property_id == Settings.analytics.google_id
       end
       # Rails.logger.info "Hyrax::Analytics.profile rv = #{rv}"
       return rv

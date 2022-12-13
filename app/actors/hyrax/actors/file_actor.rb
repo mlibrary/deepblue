@@ -103,17 +103,17 @@ module Hyrax
 
       private
 
-        def log_error( msg )
-          job_status.reload if job_status.present?
-          Rails.logger.error msg
-          job_status.add_error! msg if job_status.present?
-        end
+      def log_error( msg )
+        job_status.reload if job_status.present?
+        Rails.logger.error msg
+        job_status.add_error! msg if job_status.present?
+      end
 
       ##
-        # @return [Hydra::PCDM::File] the file referenced by relation
-        def related_file
-          file_set.public_send(normalize_relation(relation)) || raise("No #{relation} returned for FileSet #{file_set.id}")
-        end
+      # @return [Hydra::PCDM::File] the file referenced by relation
+      def related_file
+        file_set.public_send(normalize_relation(relation)) || raise("No #{relation} returned for FileSet #{file_set.id}")
+      end
 
       def perform_ingest_file_through_active_fedora( io,
                                                      continue_job_chain: true,
@@ -233,37 +233,37 @@ module Hyrax
       end
 
       def normalize_relation(relation)
-          use_valkyrie ? normalize_relation_for_valkyrie(relation) : normalize_relation_for_active_fedora(relation)
+        use_valkyrie ? normalize_relation_for_valkyrie(relation) : normalize_relation_for_active_fedora(relation)
+      end
+
+      def normalize_relation_for_active_fedora(relation)
+        return relation.to_sym if relation.respond_to? :to_sym
+
+        case relation
+        when Hyrax::FileMetadata::Use::ORIGINAL_FILE
+          :original_file
+        when Hyrax::FileMetadata::Use::EXTRACTED_TEXT
+          :extracted_file
+        when Hyrax::FileMetadata::Use::THUMBNAIL
+          :thumbnail_file
+        else
+          :original_file
         end
+      end
 
-        def normalize_relation_for_active_fedora(relation)
-          return relation.to_sym if relation.respond_to? :to_sym
+      ##
+      # @return [RDF::URI]
+      def normalize_relation_for_valkyrie(relation)
+        return relation if relation.is_a?(RDF::URI)
 
-          case relation
-          when Hyrax::FileMetadata::Use::ORIGINAL_FILE
-            :original_file
-          when Hyrax::FileMetadata::Use::EXTRACTED_TEXT
-            :extracted_file
-          when Hyrax::FileMetadata::Use::THUMBNAIL
-            :thumbnail_file
-          else
-            :original_file
-          end
-        end
+        Hyrax::FileMetadata::Use.uri_for(use: relation.to_sym)
+      rescue ArgumentError
+        Hyrax::FileMetadata::Use::ORIGINAL_FILE
+      end
 
-        ##
-        # @return [RDF::URI]
-        def normalize_relation_for_valkyrie(relation)
-          return relation if relation.is_a?(RDF::URI)
-
-          Hyrax::FileMetadata::Use.uri_for(use: relation.to_sym)
-        rescue ArgumentError
-          Hyrax::FileMetadata::Use::ORIGINAL_FILE
-        end
-
-        def pathhint(io)
-          io.uploaded_file&.uploader&.path || io.path
-        end
+      def pathhint(io)
+        io.uploaded_file&.uploader&.path || io.path
+      end
 
     end
 

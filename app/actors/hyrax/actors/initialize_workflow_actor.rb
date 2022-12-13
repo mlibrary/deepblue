@@ -73,53 +73,53 @@ module Hyrax
 
       private
 
-        # @return [TrueClass]
-        def create_workflow(env)
-          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                                 ::Deepblue::LoggingHelper.called_from,
-                                                 "env=#{env}",
-                                                 "env.curation_concern.id=#{env.curation_concern.id}",
-                                                 "env.attributes=#{env.attributes}",
-                                                 "env.user=#{env.user}",
-                                                 "" ] if initialize_workflow_actor_debug_verbose
-          # if the entity exists, this is already initialized
-          Sipity::Entity(env.curation_concern)
-          true
-        rescue Sipity::ConversionError
-          workflow_factory.create(env.curation_concern, env.attributes, env.user)
-        end
+      # @return [TrueClass]
+      def create_workflow(env)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "env=#{env}",
+                                               "env.curation_concern.id=#{env.curation_concern.id}",
+                                               "env.attributes=#{env.attributes}",
+                                               "env.user=#{env.user}",
+                                               "" ] if initialize_workflow_actor_debug_verbose
+        # if the entity exists, this is already initialized
+        Sipity::Entity(env.curation_concern)
+        true
+      rescue Sipity::ConversionError
+        workflow_factory.create(env.curation_concern, env.attributes, env.user)
+      end
 
-        def send_notification(env, entity, action)
-          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                                 ::Deepblue::LoggingHelper.called_from,
-                                                 "env=#{env}",
-                                                 "env.curation_concern.id=#{env.curation_concern.id}",
-                                                 "env.attributes=#{env.attributes}",
-                                                 "env.user=#{env.user}",
-                                                 "entity=#{entity}",
-                                                 "action=#{action}",
-                                                 "" ] if initialize_workflow_actor_debug_verbose
-          #Send a notification letting it known that the work has transition from draft to mediated workflow
-          notifier = Hyrax::Workflow::NotificationService.new(entity: entity,
-                                                              action: action,
-                                                              comment: true,
-                                                              user: env.user)
+      def send_notification(env, entity, action)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "env=#{env}",
+                                               "env.curation_concern.id=#{env.curation_concern.id}",
+                                               "env.attributes=#{env.attributes}",
+                                               "env.user=#{env.user}",
+                                               "entity=#{entity}",
+                                               "action=#{action}",
+                                               "" ] if initialize_workflow_actor_debug_verbose
+        #Send a notification letting it known that the work has transition from draft to mediated workflow
+        notifier = Hyrax::Workflow::NotificationService.new(entity: entity,
+                                                            action: action,
+                                                            comment: true,
+                                                            user: env.user)
 
-          notification = Sipity::Notification.new
-          notification.id = 1
-          notification.name ="Hyrax::Workflow::PendingReviewNotification"
-          notification.notification_type ="email"
-          now = Time.now.strftime("%Y-%m-%d")
-          notification.created_at = now
-          notification.updated_at = now
+        notification = Sipity::Notification.new
+        notification.id = 1
+        notification.name ="Hyrax::Workflow::PendingReviewNotification"
+        notification.notification_type ="email"
+        now = Time.now.strftime("%Y-%m-%d")
+        notification.created_at = now
+        notification.updated_at = now
 
-          rv = notifier.send_notification(notification)
-          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                                 ::Deepblue::LoggingHelper.called_from,
-                                                 "send_notification rv=#{rv}",
-                                                 "" ] if initialize_workflow_actor_debug_verbose
-          return rv
-        end
+        rv = notifier.send_notification(notification)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "send_notification rv=#{rv}",
+                                               "" ] if initialize_workflow_actor_debug_verbose
+        return rv
+      end
 
     end
   end

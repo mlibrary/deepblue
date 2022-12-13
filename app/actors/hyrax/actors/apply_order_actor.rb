@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Hyrax
   module Actors
     class ApplyOrderActor < AbstractActor
@@ -19,71 +20,71 @@ module Hyrax
 
       private
 
-        def can_edit_both_works?(env, work)
-          rv = env.current_ability.can?(:edit, work) && env.current_ability.can?(:edit, env.curation_concern)
-          # ::Deepblue::LoggingHelper.bold_debug "ApplyOrderActor.update: can_edit_both_works? = #{rv}" if apply_order_actor_debug_verbose
-          rv
-        end
+      def can_edit_both_works?(env, work)
+        rv = env.current_ability.can?(:edit, work) && env.current_ability.can?(:edit, env.curation_concern)
+        # ::Deepblue::LoggingHelper.bold_debug "ApplyOrderActor.update: can_edit_both_works? = #{rv}" if apply_order_actor_debug_verbose
+        rv
+      end
 
-        def sync_members(env, ordered_member_ids)
-          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                                 ::Deepblue::LoggingHelper.called_from,
-                                                 "ordered_member_ids = #{ordered_member_ids}"
-                                               ] if apply_order_actor_debug_verbose
-          return true if ordered_member_ids.nil?
-          cleanup_ids_to_remove_from_curation_concern(env.curation_concern, ordered_member_ids)
-          add_new_work_ids_not_already_in_curation_concern(env, ordered_member_ids)
-          env.curation_concern.errors[:ordered_member_ids].empty?
-        end
+      def sync_members(env, ordered_member_ids)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "ordered_member_ids = #{ordered_member_ids}"
+                                             ] if apply_order_actor_debug_verbose
+        return true if ordered_member_ids.nil?
+        cleanup_ids_to_remove_from_curation_concern(env.curation_concern, ordered_member_ids)
+        add_new_work_ids_not_already_in_curation_concern(env, ordered_member_ids)
+        env.curation_concern.errors[:ordered_member_ids].empty?
+      end
 
-        # @todo Why is this not doing work.save?
-        # @see Hyrax::Actors::AddToWorkActor for duplication
-        def cleanup_ids_to_remove_from_curation_concern(curation_concern, ordered_member_ids)
-          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                                 ::Deepblue::LoggingHelper.called_from,
-                                                 "ordered_member_ids = #{ordered_member_ids}"
-                                               ] if apply_order_actor_debug_verbose
-          (curation_concern.ordered_member_ids - ordered_member_ids).each do |old_id|
-            work = ::PersistHelper.find(old_id)
-            curation_concern.ordered_members.delete(work)
-            curation_concern.members.delete(work)
+      # @todo Why is this not doing work.save?
+      # @see Hyrax::Actors::AddToWorkActor for duplication
+      def cleanup_ids_to_remove_from_curation_concern(curation_concern, ordered_member_ids)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "ordered_member_ids = #{ordered_member_ids}"
+                                             ] if apply_order_actor_debug_verbose
+        (curation_concern.ordered_member_ids - ordered_member_ids).each do |old_id|
+          work = ::PersistHelper.find(old_id)
+          curation_concern.ordered_members.delete(work)
+          curation_concern.members.delete(work)
+        end
+      end
+
+      def add_new_work_ids_not_already_in_curation_concern(env, ordered_member_ids)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "ordered_member_ids = #{ordered_member_ids}"
+                                             ] if apply_order_actor_debug_verbose
+        (ordered_member_ids - env.curation_concern.ordered_member_ids).each do |work_id|
+          work = ::PersistHelper.find(work_id)
+          if can_edit_both_works?(env, work)
+            env.curation_concern.ordered_members << work
+            env.curation_concern.save!
+          else
+            env.curation_concern.errors[:ordered_member_ids] <<
+              "Works can only be related to each other if user has ability to edit both."
           end
         end
+      end
 
-        def add_new_work_ids_not_already_in_curation_concern(env, ordered_member_ids)
-          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                                 ::Deepblue::LoggingHelper.called_from,
-                                                 "ordered_member_ids = #{ordered_member_ids}"
-                                               ] if apply_order_actor_debug_verbose
-          (ordered_member_ids - env.curation_concern.ordered_member_ids).each do |work_id|
-            work = ::PersistHelper.find(work_id)
-            if can_edit_both_works?(env, work)
-              env.curation_concern.ordered_members << work
-              env.curation_concern.save!
-            else
-              env.curation_concern.errors[:ordered_member_ids] <<
-                "Works can only be related to each other if user has ability to edit both."
-            end
+      def apply_order(curation_concern, new_order)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "new_order = #{new_order}"
+                                             ] if apply_order_actor_debug_verbose
+        return true unless new_order
+        curation_concern.ordered_member_proxies.each_with_index do |proxy, index|
+          unless new_order[index]
+            proxy.prev.next = curation_concern.ordered_member_proxies.last.next
+            break
           end
+          proxy.proxy_for = ::PersistHelper.id_to_uri(new_order[index])
+          proxy.target = nil
         end
-
-        def apply_order(curation_concern, new_order)
-          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                                 ::Deepblue::LoggingHelper.called_from,
-                                                 "new_order = #{new_order}"
-                                               ] if apply_order_actor_debug_verbose
-          return true unless new_order
-          curation_concern.ordered_member_proxies.each_with_index do |proxy, index|
-            unless new_order[index]
-              proxy.prev.next = curation_concern.ordered_member_proxies.last.next
-              break
-            end
-            proxy.proxy_for = ::PersistHelper.id_to_uri(new_order[index])
-            proxy.target = nil
-          end
-          curation_concern.list_source.order_will_change!
-          true
-        end
+        curation_concern.list_source.order_will_change!
+        true
+      end
     end
   end
 end
