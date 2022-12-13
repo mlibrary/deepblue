@@ -1,0 +1,15 @@
+<label class=""><%= t('simple_form.ingest_script_view.labels.ingest_append_script_files') %></label><br/>
+<ul>
+  <% active_script = @presenter.active_ingest_append_script %>
+  <% @presenter.ingest_append_script_files.each do |path_pair| %>
+    <% path = File.join path_pair %>
+    <% active = active_script == path ? ' (Active)' : '' %>
+    <% if !all_links && @presenter.ingest_append_script_path == path %>
+      <li><code><%= File.basename path %><%= active %></code></li>
+    <% else %>
+      <li><code>
+        <a href="<%= @presenter.ingest_append_prep_path( path: path ) %>" ><%= File.basename path %></a><%= active %>
+      </code></li>
+    <% end %>
+  <% end %>
+</ul>
