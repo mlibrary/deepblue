@@ -621,6 +621,16 @@ ul.tabular li.attribute-fundedby {
   }
 }
 
+.panel-ingest-append-scripts {
+  h2 {
+    font-size: 1.25em;
+  }
+
+  dl.job-status-show dt {
+    padding-left: 0.5em;
+  }
+}
+
 .panel-job-statuses {
   h2 {
     font-size: 1.25em;
@@ -1053,6 +1063,10 @@ div.facets h3 {
   .dropdown-menu > li > a, .twitter-typeahead .tt-menu > li > a {
     color: #fff !important;
   }
+}
+
+.ingest-append-script-files {
+  background-color: #f8f8f8;
 }
 
 .job-statuses-actions {

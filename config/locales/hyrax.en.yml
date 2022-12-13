@@ -165,6 +165,10 @@ en:
           Click "edit" to add more files.
         file_size:          "File Size"
         visibility:         "Access"
+      ingest_append_scripts:
+        actions:
+          header:           "Ingest Append Scripts"
+        empty:              "There are no ingest append scripts associated with this work."
       job_statuses:
         actions:
           header:           "Job Statuses"

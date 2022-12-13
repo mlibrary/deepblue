@@ -355,15 +355,6 @@ END_BODY
       return options
     end
 
-    def self.jobs_running
-      if Rails.env == 'development'
-        return MsgHelper.t( 'hyrax.jobs.do_not_run_in_dev' )
-      else
-        jobs = Resque::Worker.all.map(&:job).select { |j| !j.empty? }
-        return MsgHelper.t( 'hyrax.jobs.running', job_count: jobs.size, now: MsgHelper.display_now  )
-      end
-    end
-
     def self.normalize_args( *args, debug_verbose: job_task_helper_debug_verbose )
       debug_verbose = debug_verbose && job_task_helper_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

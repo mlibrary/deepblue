@@ -5,16 +5,26 @@ module Deepblue
   module IngestAppendScriptControllerBehavior
 
     mattr_accessor :ingest_append_scripts_controller_behavior_debug_verbose,
-                   default: true || ::Deepblue::IngestIntegrationService.ingest_append_scripts_controller_behavior_debug_verbose
+                   default: ::Deepblue::IngestIntegrationService.ingest_append_scripts_controller_behavior_debug_verbose
 
     mattr_accessor :ingest_append_ui_allow_scripts_to_run,
                    default: ::Deepblue::IngestIntegrationService.ingest_append_ui_allow_scripts_to_run
 
     attr_reader :ingest_script
 
+    def active_ingest_append_script
+      @active_ingest_append_script = active_ingest_append_script_init
+    end
+
+    def active_ingest_append_script_init
+      paths = IngestScript.ingest_append_script_files( id: params[:id], active_only: true )
+      return File.join paths[0] if paths.present?
+      return ''
+    end
+
     def generate_depth( depth: )
-      return "" if depth < 1
-      return "  " * (2 * depth)
+      return '' if depth < 1
+      return '  ' * (2 * depth)
     end
 
     def generate_ingest_append_script
@@ -113,6 +123,12 @@ module Deepblue
       render '_ingest_append'
     end
 
+    def ingest_append_prep_path( path: )
+      main_app.ingest_append_prep_hyrax_data_set_path( id: params[:id],
+                                                       ingest_prep_tab_active: 'ingest_append_script_view_display',
+                                                       ingest_append_script_path: URI::DEFAULT_PARSER.escape(path) )
+    end
+
     def ingest_append_run_job
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
@@ -180,10 +196,6 @@ module Deepblue
 
     def ingest_append_script_view_title
       "View Append Files Script for the work #{curation_concern.id} - #{curation_concern.title.first}"
-    end
-
-    def ingest_prep_tab_active
-      params[:ingest_prep_tab_active]
     end
 
     def ingest_append_view_script
@@ -391,6 +403,13 @@ module Deepblue
                                              "rv=#{rv}",
                                              "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       rv
+    end
+
+    def ingest_prep_tab_active
+      rv = params[:ingest_prep_tab_active]
+      return rv unless rv.blank?
+      rv = 'ingest_append_script_view_display' if active_ingest_append_script.present?
+      return rv
     end
 
     def ingest_script_messages

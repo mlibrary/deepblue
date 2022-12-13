@@ -33,6 +33,7 @@ module Hyrax
     attr_accessor :controller
 
     delegate :analytics_subscribed?,
+             :active_ingest_append_script,
              :can_display_provenance_log?,
              :can_display_read_me?,
              :can_subscribe_to_analytics_reports?,
@@ -42,6 +43,7 @@ module Hyrax
              :edit_groups,
              :edit_users,
              :enable_analytics_works_reports_can_subscribe?,
+             :ingest_append_prep_path,
              :ingest_append_script,
              :ingest_append_script_path,
              :ingest_append_script_files,
