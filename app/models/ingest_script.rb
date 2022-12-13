@@ -35,9 +35,9 @@ class IngestScript
     "#{script_id}_append.yml"
   end
 
-  def self.ingest_script_path_is( expand_id: false )
+  def self.ingest_script_path_is( expand_id: false, id: nil )
     path = ::Deepblue::IngestIntegrationService.ingest_script_tracking_dir_base
-    path = ::Deepblue::DiskUtilitiesHelper.expand_id_path( @curation_concern_id, base_dir: path ) if expand_id
+    path = ::Deepblue::DiskUtilitiesHelper.expand_id_path( id, base_dir: path ) if expand_id
     return path
   end
 
@@ -148,12 +148,19 @@ class IngestScript
     hash[key]
   end
 
+  def ingest_script_path_full( expand_id: false )
+    path = ingest_script_path_is( expand_id: expand_id )
+    ::Deepblue::DiskUtilitiesHelper.mkdirs path
+    script_file_name = ingest_script_file_name
+    File.join( path, script_file_name )
+  end
+
   def ingest_script_file_name
     "#{@ingest_script_id}_append.yml"
   end
 
   def ingest_script_path_is( expand_id: false )
-    self.ingest_script_path_is( expand_id: expand_id )
+    IngestScript::ingest_script_path_is( expand_id: expand_id, id: @curation_concern_id )
   end
 
   def ingest_script_dirs

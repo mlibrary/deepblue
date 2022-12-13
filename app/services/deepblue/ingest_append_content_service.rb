@@ -56,14 +56,14 @@ module Deepblue
                                                "" ] if ingest_append_content_service_debug_verbose
         ingest_script.save_log msg_handler.msg_queue
         if true == ingest_script.script_section[:finished]
-          finished_script_path = ingest_script.ingest_script_path_is( expand_id: true )
+          finished_script_path = ingest_script.ingest_script_path_full( expand_id: true )
           ingest_script.move( finished_script_path ).save_yaml
         end
         lines = bcs.email_after_msg_lines
         return if lines.blank? || msg_handler.nil?
         msg_handler.msg( lines )
       rescue Exception => e
-        ingest_script.log_save msg_handler.msg_queue
+        ingest_script.save_log msg_handler.msg_queue
         msg_handler.msg_error "IngestAppendContentService.call(#{path_to_yaml_file}) #{e.class}: #{e.message}"
         raise e
       end
