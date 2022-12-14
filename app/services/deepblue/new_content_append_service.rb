@@ -45,7 +45,7 @@ module Deepblue
       @ingest_urls = []
       @ingester = ingester if ingester.present?
       @mode = mode if mode.present?
-      @path_to_yaml_file = ingest_script.path_to_yaml_file
+      @path_to_yaml_file = ingest_script.ingest_script_path
       @update_add_files = NewContentService::DEFAULT_UPDATE_ADD_FILES
       @update_attrs_skip = [] + NewContentService::DEFAULT_UPDATE_ATTRS_SKIP
       @update_attrs_skip_if_blank = [] + NewContentService::DEFAULT_UPDATE_ATTRS_SKIP_IF_BLANK
@@ -127,7 +127,7 @@ module Deepblue
                              file_size: file_size )
         next if fs.blank?
         file_section[:id] = fs.id if file_section[:id].blank?
-        @ingest_script.save_yaml
+        @ingest_script.touch
         add_file_set_to_work( work: work, file_set: fs )
         file_section[:added_to_work] = true # TODO: validate this with work
         # TODO: move ingest step here, this will probably fix file_sets that turn up with missing file sizes
@@ -135,8 +135,8 @@ module Deepblue
       work.save!
       work.reload
       valid_or_fix_file_sizes( curation_concern: work )
-      @ingest_script.script_section[:finished] = true
-      @ingest_script.save_yaml
+      @ingest_script.finished = true
+      @ingest_script.touch
       return work
     end
 

@@ -34,6 +34,7 @@ class ServerAfterInitializeService
     puts "Begin server_after_initialize_callback..." if debug_verbose
 
     ::Hyrax::BrandingHelper.ensure_public_branding_dir_is_linked(debug_verbose: debug_verbose)
+    ::Deepblue::IngestAppendContentService.ensure_tmp_script_dir_is_linked(debug_verbose: debug_verbose)
 
     ::Deepblue::LoggingIntializationService.initialize_logging(debug_verbose: debug_verbose)
 
@@ -60,6 +61,8 @@ class ServerAfterInitializeService
     puts "Before scheduler_autostart" if debug_verbose
     ::Deepblue::SchedulerIntegrationService.scheduler_autostart( debug_verbose: debug_verbose )
     puts "After scheduler_autostart" if debug_verbose
+
+    puts "::Deepblue::IngestIntegrationService.ingest_append_ui_allowed_base_directories=" + ::Deepblue::IngestIntegrationService.ingest_append_ui_allowed_base_directories.pretty_inspect
 
     @@server_after_initialize_ran = true
     puts "Finished server_after_initialize_callback." if debug_verbose

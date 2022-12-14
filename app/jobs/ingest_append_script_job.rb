@@ -33,6 +33,7 @@ class IngestAppendScriptJob < ::Deepblue::DeepblueJob
                                                  path_to_yaml_file: path_to_script,
                                                  ingester: ingester,
                                                  mode: ingest_mode,
+                                                 job_json: self.as_json,
                                                  options: options )
 
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

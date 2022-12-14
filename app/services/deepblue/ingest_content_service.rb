@@ -24,7 +24,7 @@ module Deepblue
       msg_handler.msg_verbose "Path to script: #{path_to_yaml_file}"
       cfg_hash = ::Deepblue::NewContentService.load_yaml_file( path_to_yaml_file )
       return false if msg_handler.msg_error_if?( (cfg_hash.nil? || cfg_hash.empty?),
-                                                 msg: "failed ot load script '#{path_to_yaml_file}'" )
+                                                 msg: "failed at load script '#{path_to_yaml_file}'" )
       # return false if cfg_hash.nil? || cfg_hash.empty?
       base_path = File.dirname( path_to_yaml_file )
       bcs = IngestContentService.new( options: options,
