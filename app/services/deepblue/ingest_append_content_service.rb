@@ -45,6 +45,8 @@ module Deepblue
                                                "" ] if ingest_append_content_service_debug_verbose
         ingest_script.job_begin_timestamp = begin_timestamp.to_formatted_s(:db)
         ingest_script.job_end_timestamp = ''
+        ingest_script.job_run_count = 1
+        ingest_script.job_file_sets_processed_count = 0
         ingest_script.job_json = job_json if ingest_append_content_service_debug_verbose
         ingest_script.job_id = job_json['job_id']
         ingest_script.log_save( msg_handler.msg_queue )
