@@ -42,7 +42,7 @@ module Deepblue
     mattr_accessor :attach_files_to_work_upload_files_asynchronously, default: false
     mattr_accessor :characterization_service_debug_verbose,           default: false
     mattr_accessor :ingest_allowed_path_prefixes,                     default: []
-    mattr_accessor :ingest_append_ui_allowed_base_directories,        default: []
+    # mattr_accessor :ingest_append_ui_allowed_base_directories,        default: []
     mattr_accessor :ingest_append_ui_allow_scripts_to_run,            default: true
 
     mattr_accessor :ingest_script_tracking_dir_base,                  default: Rails.root.join('tmp', 'scripts')
@@ -58,6 +58,18 @@ module Deepblue
 
     mattr_accessor :ingest_script_dir
     mattr_accessor :deepbluedata_prep
+
+    def self.ingest_append_ui_allowed_base_directories
+      @@ingest_append_ui_allowed_base_directories ||= []
+    end
+
+    def self.ingest_append_ui_allowed_base_directories=(value)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "value=#{value}",
+                                             "" ], bold_puts: true if true
+      @@ingest_append_ui_allowed_base_directories = value
+    end
 
   end
 

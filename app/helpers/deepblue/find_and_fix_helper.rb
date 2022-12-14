@@ -132,7 +132,7 @@ WHERE { }
     end
 
     def self.valid_file_set_solr_sizes?( work:, msg_handler: )
-      work.file_sets.map each do |f|
+      work.file_sets.map.each do |f|
         doc = PersistHelper.find_solr( id, fail_if_not_found: false )
         if doc.present?
           doc['file_size_lts']

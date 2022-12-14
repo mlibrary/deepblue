@@ -99,7 +99,7 @@ module Deepblue
     end
 
     def ingest_allowed_base_directories
-      ::Deepblue::IngestIntegrationService.ingest_append_ui_allowed_base_directories
+      @ingest_allowed_base_directories ||= ::Deepblue::IngestIntegrationService.ingest_append_ui_allowed_base_directories
     end
 
     def ingest_append_generate_script
@@ -180,8 +180,8 @@ module Deepblue
     end
 
     def ingest_append_script_path_init
-      path = params[:ingest_append_script_path]
-      return URI::DEFAULT_PARSER.unescape(path) if path.present?
+      path = ingest_append_script_path_resolve( params[:ingest_append_script_path] )
+      return path if path.present?
       path_pairs = ingest_append_script_files
       return "" if path_pairs.blank?
       path = if path_pairs.size == 1
@@ -191,6 +191,14 @@ module Deepblue
              else
                File.join path_pairs.last
              end
+      return path
+    end
+
+    def ingest_append_script_path_resolve( path )
+      return nil if path.blank?
+      path = URI::DEFAULT_PARSER.unescape(path)
+      # TODO: look in id-based directory.
+      return nil unless File.exist? path
       return path
     end
 
@@ -301,20 +309,27 @@ module Deepblue
     end
 
     def ingest_file_path_list
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "params=#{params}",
-                                             "params[:ingest_file_path_list]=#{params[:ingest_file_path_list]}",
+                                             "params[:ingest_file_path_list]='#{params[:ingest_file_path_list]}'",
+                                             "@ingest_file_path_list='#{@ingest_file_path_list}'",
+                                             "@ingest_file_path_list.blank?=#{@ingest_file_path_list.blank?}",
                                              "" ] if ingest_append_scripts_controller_behavior_debug_verbose
-      @ingest_file_bath_list = params[:ingest_file_path_list] if params[:ingest_file_path_list].present?
-      @ingest_file_bath_list ||= ingest_file_path_list_from_base_directory
+      @ingest_file_path_list = params[:ingest_file_path_list]
+      return @ingest_file_path_list unless @ingest_file_path_list.blank?
+      # @ingest_file_path_list ||= ingest_file_path_list_from_base_directory
+      @ingest_file_path_list = ingest_file_path_list_from_base_directory
     end
 
     def ingest_file_path_list_from_base_directory
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       ingest_script_messages # make sure it is initialized
 
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "ingest_base_directory=#{ingest_base_directory}",
                                              "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       base_dir = ingest_base_directory&.strip
@@ -326,7 +341,13 @@ module Deepblue
       starts_with_path = base_dir
       starts_with_path = starts_with_path + File::SEPARATOR unless starts_with_path.ends_with? File::SEPARATOR
       @ingest_script_messages << "Read files from '#{starts_with_path}'"
-      return "" unless ingest_file_path_valid( starts_with_path )
+      valid_path = ingest_file_path_valid( starts_with_path )
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "starts_with_path=#{starts_with_path}",
+                                             "valid_path=#{valid_path}",
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
+      return "" unless valid_path
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "starts_with_path=#{starts_with_path}",
@@ -381,11 +402,18 @@ module Deepblue
     end
 
     def ingest_file_path_valid( path )
-      # TODO - dev mode
-      # TODO - add local data directory
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "path=#{path}",
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       return false if path.blank?
       return false if path.include? ".."
-      ::Deepblue::IngestIntegrationService.ingest_append_ui_allowed_base_directories.each do |base_dir|
+      # return true if Rails.env.development? # TODO - dev mode --> make a config parameter
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                 "ingest_allowed_base_directories=#{ingest_allowed_base_directories.pretty_inspect}",
+                                 "" ] if ingest_append_scripts_controller_behavior_debug_verbose
+      ingest_allowed_base_directories.each do |base_dir|
         return true if path.to_s.start_with? base_dir
       end
       false
@@ -398,8 +426,8 @@ module Deepblue
            else
              params[:ingest_ingester]
            end
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
                                              "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       rv
