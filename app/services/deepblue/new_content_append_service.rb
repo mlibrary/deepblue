@@ -130,6 +130,7 @@ module Deepblue
         @ingest_script.touch
         add_file_set_to_work( work: work, file_set: fs )
         file_section[:added_to_work] = true # TODO: validate this with work
+        @ingest_script.job_file_sets_processed_count_add 1
         # TODO: move ingest step here, this will probably fix file_sets that turn up with missing file sizes
       end
       work.save!

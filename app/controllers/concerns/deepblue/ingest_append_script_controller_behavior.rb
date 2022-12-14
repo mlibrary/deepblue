@@ -123,6 +123,17 @@ module Deepblue
       render '_ingest_append'
     end
 
+    def ingest_append_script_show_modifiers( path )
+      rv = []
+      ingest_script = IngestScript.load( ingest_script_path: path )
+      rv << 'active' if ingest_script.active?
+      rv << 'job running' if ingest_script.job_running?
+      rv << 'finished' if ingest_script.finished?
+      rv << 'failed' if ingest_script.failed?
+      return '' if rv.empty?
+      return " (#{rv.join(', ')})"
+    end
+
     def ingest_append_prep_path( path: )
       main_app.ingest_append_prep_hyrax_data_set_path( id: params[:id],
                                                        ingest_prep_tab_active: 'ingest_append_script_view_display',

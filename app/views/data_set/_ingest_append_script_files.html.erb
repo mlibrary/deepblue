@@ -3,13 +3,13 @@
   <% active_script = @presenter.active_ingest_append_script %>
   <% @presenter.ingest_append_script_files.each do |path_pair| %>
     <% path = File.join path_pair %>
-    <% active = active_script == path ? ' (Active)' : '' %>
+    <% mod = @presenter.ingest_append_script_show_modifiers( path ) %>
+    <li><span class="monospace-code">
     <% if !all_links && @presenter.ingest_append_script_path == path %>
-      <li><code><%= File.basename path %><%= active %></code></li>
+      <%= File.basename path %>
     <% else %>
-      <li><code>
-        <a href="<%= @presenter.ingest_append_prep_path( path: path ) %>" ><%= File.basename path %></a><%= active %>
-      </code></li>
+      <a href="<%= @presenter.ingest_append_prep_path( path: path ) %>" ><%= File.basename path %></a>
     <% end %>
+    <%= mod %></span></li>
   <% end %>
 </ul>

@@ -20,6 +20,10 @@ class IngestScript
   attr_accessor :initial_yaml_dir
   attr_accessor :initial_yaml_file_path
 
+  class IngestScriptLoadError < RuntimeError
+
+  end
+
   def self.ingest_append_script_files( id:, active_only: false )
     paths = []
     dirs = ingest_script_dirs( id: id, active_only: active_only )
@@ -53,46 +57,81 @@ class IngestScript
                      initial_yaml_file_path: initial_yaml_file_path )
   end
 
-  def initialize( curation_concern_id:,
-                  ingest_mode:,
+  def self.load( ingest_script_path: )
+    IngestScript.new( ingest_script_path: ingest_script_path, load: true )
+  end
+
+  def initialize( curation_concern_id: nil,
+                  ingest_mode: nil,
                   ingest_script: nil,
                   ingest_script_path: nil,
-                  initial_yaml_file_path: )
+                  initial_yaml_file_path: nil,
+                  load: false )
 
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "curation_concern_id=#{curation_concern_id}",
                                            "ingest_mode=#{ingest_mode}",
                                            "ingest_script=#{ingest_script}",
+                                           "ingest_script_path=#{ingest_script_path}",
                                            "initial_yaml_file_path=#{initial_yaml_file_path}",
+                                           "load=#{load}",
                                            "" ] if ingest_script_debug_verbose
-    @curation_concern_id = curation_concern_id
-    @initial_yaml_file_path = initial_yaml_file_path
-    @initial_yaml_dir = File.dirname( @initial_yaml_file_path )
-    @ingest_base_dir = ::Deepblue::IngestIntegrationService.ingest_script_tracking_dir_base
-    @ingest_id_dir = ::Deepblue::DiskUtilitiesHelper.expand_id_path( @curation_concern_id, base_dir: @ingest_base_dir )
-    # TODO: check @initial_yaml_dir versus @ingest_base_dir and @ingest_id_dir
-    @ingest_mode = ingest_mode
-    @ingest_script = init_ingest_script( ingest_script: ingest_script )
-    @ingest_script_id = init_ingest_script_id
-    @ingest_script_path = ingest_script_path
-    @ingest_script_path ||= init_ingest_script_path
+    @load = load
+    self.ingest_script_path = ingest_script_path
+    @ingest_script = ingest_script
+    if load
+      raise IngestScriptLoadError "Expected ingest_script_path '#{@ingest_script_path}' to exist." unless File.exist? @ingest_script_path
+      @ingest_script ||= init_ingest_script
+      @curation_concern_id = works_section[:id]
+      @initial_yaml_file_path = script_section[:initial_yaml_file_path]
+    else
+      @curation_concern_id = curation_concern_id
+      @initial_yaml_file_path = initial_yaml_file_path
+    end
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "@initial_yaml_file_path=#{@initial_yaml_file_path}",
-                                           "@ingest_script_id=#{@ingest_script_id}",
-                                           "@ingest_script_path=#{@ingest_script_path}",
+                                           "@load=#{@load}",
                                            "" ] if ingest_script_debug_verbose
-    hash_value_init( :initial_yaml_file_path, hash: script_section, value: @initial_yaml_file_path )
-    hash_value_init( :ingest_script_id, hash: script_section, value: @ingest_script_id )
-    hash_value_init( :ingest_script_path, hash: script_section, value: @ingest_script_path )
-    hash_value_init( :data_set_url, hash: script_section ) do
-      ::Deepblue::EmailHelper.data_set_url( id: curation_concern_id )
+    @initial_yaml_dir = File.dirname( @initial_yaml_file_path )
+    @ingest_base_dir = ::Deepblue::IngestIntegrationService.ingest_script_tracking_dir_base
+    @ingest_id_dir = ::Deepblue::DiskUtilitiesHelper.expand_id_path( @curation_concern_id, base_dir: @ingest_base_dir )
+    if load
+      @ingest_mode = user_section[:mode]
+      @ingest_script_id = script_section[:ingest_script_id]
+    else
+      @ingest_mode = ingest_mode
+      @ingest_script_id = init_ingest_script_id
+      @ingest_script ||= init_ingest_script
+      self.ingest_script_path = init_ingest_script_path if @ingest_script_path.blank?
     end
-    @file_set_count = works_section[:filenames].size
-    hash_value_init( :file_set_count, hash: script_section, value: @file_set_count )
-    add_file_sections
-    touch
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "@curation_concern_id=#{@curation_concern_id}",
+                                           "@ingest_mode=#{@ingest_mode}",
+                                           "@ingest_script=#{@ingest_script}",
+                                           "@ingest_script_path=#{@ingest_script_path}",
+                                           "@initial_yaml_file_path=#{@initial_yaml_file_path}",
+                                           "@load=#{@load}",
+                                           "" ] if ingest_script_debug_verbose
+    unless load
+      hash_value_init( :initial_yaml_file_path, hash: script_section, value: @initial_yaml_file_path )
+      hash_value_init( :ingest_script_id, hash: script_section, value: @ingest_script_id )
+      hash_value_init( :ingest_script_path, hash: script_section, value: @ingest_script_path )
+      hash_value_init( :ingest_script_dir, hash: script_section, value: @ingest_script_dir )
+      hash_value_init( :data_set_url, hash: script_section ) do
+        ::Deepblue::EmailHelper.data_set_url( id: curation_concern_id )
+      end
+      @file_set_count = works_section[:filenames].size
+      hash_value_init( :file_set_count, hash: script_section, value: @file_set_count )
+      add_file_sections
+      touch
+    end
+  end
+
+  def active?
+    @ingest_base_dir == @ingest_script_dir
   end
 
   def add_file_sections
@@ -126,6 +165,10 @@ class IngestScript
                                            ::Deepblue::LoggingHelper.called_from,
                                            "" ] + e.backtrace[0..20]
     raise
+  end
+
+  def failed?
+    !active? && !finished?
   end
 
   def file_key( index )
@@ -171,6 +214,11 @@ class IngestScript
     hash[key]
   end
 
+  def ingest_script_path=( path )
+    @ingest_script_path = path
+    @ingest_script_dir = File.dirname( path ) unless path.blank?
+  end
+
   def ingest_script_path_full( expand_id: false )
     path = ingest_script_path_is( expand_id: expand_id )
     ::Deepblue::DiskUtilitiesHelper.mkdirs path
@@ -196,14 +244,16 @@ class IngestScript
     return true
   end
 
-  def init_ingest_script( ingest_script: )
+  def init_ingest_script
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "@ingest_script=#{ingest_script}",
+                                           "@ingest_script=#{@ingest_script}",
+                                           "@initial_yaml_file_path=#{@initial_yaml_file_path}",
                                            "" ] if ingest_script_debug_verbose
-    return ingest_script unless ingest_script.nil?
-    return nil unless File.exist? @initial_yaml_file_path
-    rv = YAML.load_file @initial_yaml_file_path
+    return @ingest_script unless @ingest_script.blank?
+    path = @load ? @ingest_script_path : @initial_yaml_file_path
+    return nil unless File.exist? path
+    rv = YAML.load_file path
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "ingest_script=#{rv.pretty_inspect}",
@@ -213,7 +263,7 @@ class IngestScript
 
   def init_ingest_script_id
     # TODO: check @initial_yaml_dir versus @ingest_base_dir and @ingest_id_dir
-    "#{Time.now.strftime( "%Y%m%d%H%M%S" )}_#{curation_concern_id}"
+    "#{Time.now.strftime( "%Y%m%d%H%M%S" )}_#{@curation_concern_id}"
   end
 
   def init_ingest_script_path
@@ -239,8 +289,22 @@ class IngestScript
     script_section[:job_end_timestamp] = job_end_timestamp
   end
 
+  def job_file_sets_processed_count
+    script_section[:job_file_sets_processed_count]
+  end
+
+  def job_file_sets_processed_count=( job_file_sets_processed_count )
+    script_section[:job_file_sets_processed_count] = job_file_sets_processed_count
+  end
+
+  def job_file_sets_processed_count_add( add = 1 )
+    count = job_file_sets_processed_count
+    count ||= 0
+    self.job_file_sets_processed_count = (count + add)
+  end
+
   def job_id
-    script_section[:job_id] = job_id
+    script_section[:job_id]
   end
 
   def job_id=( job_id )
@@ -254,6 +318,20 @@ class IngestScript
 
   def job_json=( job_json )
     script_section[:job_json] = job_json
+  end
+
+  def job_run_count
+    script_section[:job_run_count]
+  end
+
+  def job_run_count=( job_run_count )
+    script_section[:job_run_count] = job_run_count
+  end
+
+  def job_run_count_add( add = 1 )
+    count = job_run_count
+    count ||= 0
+    self.job_run_count = (count + add)
   end
 
   def key?( key )
@@ -287,8 +365,9 @@ class IngestScript
     FileUtils.mkdir_p( parent ) unless Dir.exist? parent
     FileUtils.mv( @ingest_script_path, new_path )
     script_section[:prior_ingest_script_path] = @ingest_script_path
-    @ingest_script_path = new_path
+    ingest_script_path = new_path
     script_section[:ingest_script_path] = @ingest_script_path
+    script_section[:ingest_script_dir] = @ingest_script_dir
     return touch if save
     return self
   end
@@ -296,6 +375,17 @@ class IngestScript
   def move_to_finished( save: true )
     finished_script_path = File.join @ingest_id_dir, ingest_script_file_name
     move( finished_script_path, save: save )
+  end
+
+  def job_running?
+    return false if ::Deepblue::JobsHelper.job_queue_available?
+    jid = job_id
+    return false if jid.blank?
+    return ::Deepblue::JobsHelper.job_running? jid
+  end
+
+  def running?
+    !finished? && @ingest_base_dir == @ingest_script_dir
   end
 
   def script_section
