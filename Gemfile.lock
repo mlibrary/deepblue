@@ -720,7 +720,7 @@ GEM
       ffi-compiler (~> 1.0)
       rake (~> 13.0)
     logger (1.5.1)
-    loofah (2.3.1)
+    loofah (2.19.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     mail (2.7.1)
@@ -764,10 +764,10 @@ GEM
     noid-rails (3.0.3)
       actionpack (>= 5.0.0, < 7)
       noid (~> 0.9)
-    nokogiri (1.13.9)
+    nokogiri (1.13.10)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
-    nokogiri (1.13.9-x86_64-darwin)
+    nokogiri (1.13.10-x86_64-darwin)
       racc (~> 1.4)
     nokogumbo (2.0.5)
       nokogiri (~> 1.8, >= 1.8.4)
@@ -839,7 +839,7 @@ GEM
       rails (>= 5.0, < 6.2)
       rdf
     raabro (1.4.0)
-    racc (1.6.0)
+    racc (1.6.1)
     rack (2.2.4)
     rack-protection (3.0.4)
       rack
@@ -1312,12 +1312,12 @@ DEPENDENCIES
   libxml-ruby (~> 3.1.0)
   linkeddata (<= 3.1.1)
   listen (~> 3.0.5)
-  loofah (~> 2.3.1)
+  loofah (~> 2.19.1)
   maremma!
   mysql2
   net-ldap
   new_google_recaptcha
-  nokogiri (>= 1.13.9)
+  nokogiri (>= 1.13.10)
   okcomputer (~> 1.17)
   omniauth (>= 1.9.2)
   omniauth-cas
