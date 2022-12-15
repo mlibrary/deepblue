@@ -98,10 +98,6 @@ class SchedulerStartJob < ::Deepblue::DeepblueJob
     raise e
   end
 
-  def delay_job( job_delay )
-    sleep job_delay if job_delay > 0
-  end
-
   def hostname
     Rails.configuration.hostname
   end

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../../helpers/deepblue/jobs_helper'
+
 class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
 
   # A common base class for all Hyrax jobs.

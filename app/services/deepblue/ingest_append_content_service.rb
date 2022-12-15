@@ -100,7 +100,7 @@ module Deepblue
         return if link_exists
         real_dir = File.dirname current_dir
         real_dir = File.join real_dir, 'tmp', 'scripts'
-        FileUtils.mkdir_p real_dir unless Dir.exist? read_dir
+        FileUtils.mkdir_p real_dir unless Dir.exist? real_dir
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "real_dir=#{real_dir}",

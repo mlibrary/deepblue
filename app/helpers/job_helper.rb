@@ -69,6 +69,10 @@ module JobHelper
     end
   end
 
+  def delay_job( job_delay )
+    sleep job_delay if job_delay > 0
+  end
+
   def email_failure( targets: email_targets,
                      task_name: self.class.name,
                      exception:,
@@ -232,9 +236,7 @@ module JobHelper
                                            "" ] if debug_verbose
     initialize_defaults( debug_verbose: debug_verbose )
     by_request_only
-    job_status_init( id: id )
-    email_targets_init
-    timestamp_begin
+    job_start( id: id, restartable: restartable )
     return @options
   end
 
@@ -247,8 +249,7 @@ module JobHelper
                                            "" ] if debug_verbose
     @options = options
     initialize_defaults( debug_verbose: debug_verbose )
-    job_status_init( id: id )
-    timestamp_begin
+    job_start( id: id, email_init: false )
   end
 
   def init_from_arg( arg:, default_var: nil, default_value: nil )
@@ -274,9 +275,7 @@ module JobHelper
   def initialize_no_args_hash( id: nil, debug_verbose: job_helper_debug_verbose )
     debug_verbose = debug_verbose || job_helper_debug_verbose
     initialize_defaults( debug_verbose: debug_verbose )
-    job_status_init( id: id )
-    email_targets_init
-    timestamp_begin
+    job_start( id: id )
     return @options
   end
 
@@ -339,6 +338,12 @@ module JobHelper
                              "job_status=#{job_status}",
                              "" ] if msg_handler.debug_verbose
     @job_status
+  end
+
+  def job_start( id: nil, restartable: false, email_init: true )
+    job_status_init( id: nil, restartable: restartable )
+    email_targets_init if email_init
+    timestamp_begin
   end
 
   def job_status_register( exception:,
