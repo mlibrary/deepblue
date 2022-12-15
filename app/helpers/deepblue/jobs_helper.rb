@@ -6,17 +6,66 @@ module Deepblue
 
     mattr_accessor :jobs_helper_debug_verbose, default: false
 
-    # def self.job_queue_available?
-    #   !Rails.env == 'development'
-    # end
+    def self.job_by_job_id( job_id )
+      jobs = jobs_running_by_id( job_id: job_id )
+      return nil unless jobs.present?
+      return jobs[0]
+    end
+
+    def self.job_running?( job_id )
+      jobs = jobs_running_by_id( job_id: job_id )
+      rv = jobs.present?
+      return rv
+    end
+
+    def self.job_value_by_keys( job:, keys: )
+      max = keys.size - 1
+      hash = job
+      for index in 0..max do
+        hash = hash[0] if hash.is_a? Array
+        key = keys[index]
+        return nil unless hash.key? key
+        hash = hash[key]
+      end
+      return hash
+    end
 
     def self.jobs_running
-      jobs = Resque::Worker.all.map(&:job).select { |j| !j.empty? }
+      rv = Resque::Worker.all.map(&:job).select { |j| !j.empty? }
+      return rv
+    end
+
+    def self.jobs_running?
+      jobs = jobs_running
+      return jobs.present?
+    end
+
+    def self.jobs_running_msg
+      jobs = jobs_running
       return MsgHelper.t( 'hyrax.jobs.running', job_count: jobs.size, now: MsgHelper.display_now  )
     end
 
     def self.jobs_running_by( key:, value: )
       rv = Resque::Worker.all.map(&:job).select { |j| j[key].present? && value == j[key] }
+      return rv
+    end
+
+    def self.jobs_running_by_keys( keys: )
+      keys = Array(keys)
+      jobs = jobs_running_if( key: keys[0] )
+      max = keys.size - 1
+      for index in 0..max do
+        rv = rv.map do |e|
+          e = e[0] if e.is_a? Array
+          e[keys[index]]
+        end
+      end
+      return rv
+    end
+
+    def self.jobs_running_by_keys_value( keys:, value: )
+      jobs = Resque::Worker.all.map(&:job)
+      rv = jobs.select { |job| value == job_value_by_keys( job: job, keys: keys ) }
       return rv
     end
 
@@ -26,26 +75,20 @@ module Deepblue
     end
 
     def self.jobs_running_by_class( klass: )
-      jobs_running_by( key: 'job_class', value: klass.name )
+      jobs_running_by_keys_value( keys: ['payload', 'args', 'job_class' ], value: klass.name )
     end
 
     def self.jobs_running_by_id( job_id: )
-      Resque::Worker.all.each { |j| job = j.job; return job if job['job_id'] == job_id }
-      return nil
+      jobs_running_by_keys_value( keys: ['payload', 'args', 'job_id' ], value: job_id )
     end
 
-    def self.job_by_job_id( job_id )
-      rv = Resque::Worker.find(job_id)
-      return rv
-    end
-
-    def self.job_running?( job_id )
-      rv = job_by_job_id( job_id ).present?
-      return rv
-    end
+    # def self.job_by_job_id( job_id )
+    #   rv = Resque::Worker.find(job_id)
+    #   return rv
+    # end
 
     def self.jobs_running_by_queue( queue: )
-      jobs_running_by( key: 'queue_name', value: queue )
+      jobs_running_by( key: 'queue', value: queue )
     end
 
     def self.jobs_select_job_class( job_rv: true )

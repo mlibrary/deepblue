@@ -7,41 +7,36 @@ class IngestAppendScriptJob < ::Deepblue::DeepblueJob
 
   queue_as ::Deepblue::IngestIntegrationService.ingest_append_queue_name
 
-  attr_accessor :ingest_mode, :ingester, :path_to_script
+  attr_accessor :ingest_mode, :ingester, :ingest_script_path
 
-  EVENT = 'ingest script'
+  EVENT = 'ingest append script'
 
-  def perform( ingest_mode: 'append', ingester:, path_to_script:, id: nil, **options )
+  def perform( ingest_script_path:, ingester:, restart_count: 0, **options )
     msg_handler.debug_verbose = ingest_append_script_job_debug_verbose
-    initialize_with( id: id, debug_verbose: debug_verbose, options: options )
-    email_targets << ingester if ingester.present?
+    initialize_with( id: id, debug_verbose: msg_handler.debug_verbose, options: options )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "id=#{id}",
-                                           "ingest_mode=#{ingest_mode}",
+                                           "ingest_script_path=#{ingest_script_path}",
                                            "ingester=#{ingester}",
-                                           "path_to_script=#{path_to_script}",
+                                           "restart_count=#{restart_count}",
                                            "options=#{options}",
                                            ::Deepblue::LoggingHelper.obj_class( 'options', options ),
                                            "" ] if ingest_append_script_job_debug_verbose
 
-    @ingest_mode = ingest_mode
     @ingester = ingester
-    @path_to_script = path_to_script
-    ::Deepblue::IngestAppendContentService.call( curation_concern_id: id,
-                                                 msg_handler: msg_handler,
-                                                 path_to_yaml_file: path_to_script,
-                                                 ingester: ingester,
-                                                 mode: ingest_mode,
-                                                 job_json: self.as_json,
-                                                 options: options )
+    @ingest_script_path = ingest_script_path
+    ::Deepblue::IngestAppendContentService.call_append( msg_handler: msg_handler,
+                                                        ingest_script_path: ingest_script_path,
+                                                        ingester: ingester,
+                                                        job_json: self.as_json,
+                                                        restart_count: restart_count,
+                                                        options: options )
 
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            ::Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                           "ingest_mode=#{ingest_mode}",
+                                           "ingest_script_path=#{ingest_script_path}",
                                            "ingester=#{ingester}",
-                                           "path_to_script=#{path_to_script}",
                                            "options=#{options}",
                                            ::Deepblue::LoggingHelper.obj_class( 'options', options ),
                                            "" ] if ingest_append_script_job_debug_verbose
@@ -49,10 +44,9 @@ class IngestAppendScriptJob < ::Deepblue::DeepblueJob
     job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
     job_status_register( exception: e,
-                         args: { ingest_mode: ingest_mode,
+                         args: { ingest_script_path: ingest_script_path,
                                  ingester: ingester,
-                                 path_to_script: path_to_script,
-                                 id: id,
+                                 restart_count: restart_count,
                                  options: options } )
     email_failure( task_name: self.class.name, exception: e, event: self.class.name )
     raise e

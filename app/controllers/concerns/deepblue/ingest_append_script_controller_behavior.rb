@@ -463,19 +463,19 @@ module Deepblue
     end
 
     def ingest_script_run( path_to_script: )
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "path_to_script=#{path_to_script}",
                                              "ingest_append_ui_allow_scripts_to_run=#{ingest_append_ui_allow_scripts_to_run}",
                                              "" ] if ingest_append_scripts_controller_behavior_debug_verbose
       return true unless ingest_append_ui_allow_scripts_to_run
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             "IngestAppendScriptJob.perform_later( path_to_script: #{path_to_script}, ingester: #{ingest_ingester} )",
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "IngestAppendScriptMonitorJob.perform_later( path_to_script: #{path_to_script}, ingester: #{ingest_ingester} )",
                                              "" ] if ingest_append_scripts_controller_behavior_debug_verbose
-      IngestAppendScriptJob.perform_later( ingester: ingest_ingester,
-                                           path_to_script: path_to_script,
-                                           id: curation_concern.id )
+      IngestAppendScriptMonitorJob.perform_later( ingester: ingest_ingester,
+                                                  path_to_script: path_to_script,
+                                                  id: curation_concern.id )
       true
     end
 

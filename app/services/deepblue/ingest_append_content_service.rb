@@ -76,6 +76,69 @@ module Deepblue
       end
     end
 
+    def self.call_append( first_label: 'work_id',
+                          ingest_script_path:,
+                          ingester: nil,
+                          job_json: nil,
+                          msg_handler:,
+                          restart_count:,
+                          options: )
+
+      begin_timestamp = DateTime.now
+      begin
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "first_label=#{first_label}",
+                                               "ingest_script_path=#{ingest_script_path}",
+                                               "ingester=#{ingester}",
+                                               "job_json=#{job_json}",
+                                               "restart_count=#{restart_count}",
+                                               "options=#{options}",
+                                               "" ] if ingest_append_content_service_debug_verbose
+        msg_handler.msg_verbose "Ingest script path: #{ingest_script_path}"
+        ingest_script = IngestScript.append_load( ingest_script_path: ingest_script_path )
+      rescue Exception => e
+        msg_handler.msg_error "IngestAppendContentService.call(#{ingest_script_path}) #{e.class}: #{e.message}"
+        raise e
+      end
+      begin
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "ingest_script=#{ingest_script}",
+                                               "" ] if ingest_append_content_service_debug_verbose
+        ingest_script.job_begin_timestamp = begin_timestamp.to_formatted_s(:db)
+        ingest_script.job_end_timestamp = ''
+        ingest_script.job_run_count = 1
+        ingest_script.job_file_sets_processed_count = 0
+        ingest_script.job_json = job_json if ingest_append_content_service_debug_verbose
+        ingest_script.job_id = job_json['job_id']
+        ingest_script.log_save( msg_handler.msg_queue )
+        return false if msg_handler.msg_error_if?( !ingest_script.ingest_script_present?,
+                                                   msg: "failed to load script '#{path_to_yaml_file}'" )
+        bcs = IngestAppendContentService.new( ingest_script: ingest_script,
+                                              msg_handler: msg_handler,
+                                              options: options,
+                                              ingester: ingester,
+                                              first_label: first_label,
+                                              mode: mode )
+        bcs.run
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "ingest_script=#{ingest_script}",
+                                               "" ] if ingest_append_content_service_debug_verbose
+        ingest_script.job_end_timestamp = DateTime.now.to_formatted_s(:db)
+        ingest_script.log_save( msg_handler.msg_queue )
+        ingest_script.move_to_finished if ingest_script.finished?
+        lines = bcs.email_after_msg_lines
+        return if lines.blank? || msg_handler.nil?
+        msg_handler.msg( lines )
+      rescue Exception => e
+        ingest_script.log_save( msg_handler.msg_queue ) if ingest_script.present?
+        msg_handler.msg_error "IngestAppendContentService.call(#{path_to_yaml_file}) #{e.class}: #{e.message}"
+        raise e
+      end
+    end
+
     def self.ensure_tmp_script_dir_is_linked(debug_verbose: ingest_append_content_service_debug_verbose)
       debug_verbose = debug_verbose || ingest_append_content_service_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

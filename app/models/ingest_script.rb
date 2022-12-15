@@ -19,6 +19,7 @@ class IngestScript
   attr_accessor :ingest_script_path
   attr_accessor :initial_yaml_dir
   attr_accessor :initial_yaml_file_path
+  attr_accessor :run_count
 
   class IngestScriptLoadError < RuntimeError
 
@@ -57,8 +58,18 @@ class IngestScript
                      initial_yaml_file_path: initial_yaml_file_path )
   end
 
+  def self.append_load( ingest_script_path:, run_count: )
+    IngestScript.new( ingest_script_path: ingest_script_path, load: true, run_count: run_count )
+  end
+
   def self.load( ingest_script_path: )
     IngestScript.new( ingest_script_path: ingest_script_path, load: true )
+  end
+
+  def self.reload( ingest_script:, run_count: 0 )
+    rv = IngestScript.new( ingest_script_path: ingest_script.ingest_script_path, load: true, run_count: run_count )
+    rv.log_backup( run_count: run_count ) if run_count > 0
+    return rv
   end
 
   def initialize( curation_concern_id: nil,
@@ -66,7 +77,8 @@ class IngestScript
                   ingest_script: nil,
                   ingest_script_path: nil,
                   initial_yaml_file_path: nil,
-                  load: false )
+                  load: false,
+                  run_count: 0 )
 
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
@@ -76,6 +88,7 @@ class IngestScript
                                            "ingest_script_path=#{ingest_script_path}",
                                            "initial_yaml_file_path=#{initial_yaml_file_path}",
                                            "load=#{load}",
+                                           "run_count=#{run_count}",
                                            "" ] if ingest_script_debug_verbose
     @load = load
     self.ingest_script_path = ingest_script_path
@@ -84,8 +97,14 @@ class IngestScript
       raise IngestScriptLoadError "Expected ingest_script_path '#{@ingest_script_path}' to exist." unless File.exist? @ingest_script_path
       @ingest_script ||= init_ingest_script
       @curation_concern_id = works_section[:id]
+      @run_count = script_section[:run_count]
+      if @run_count.blank? || run_count > @run_count
+        @run_count = run_count
+        script_section[:run_count] = run_count
+      end
       @initial_yaml_file_path = script_section[:initial_yaml_file_path]
     else
+      @run_count = run_count
       @curation_concern_id = curation_concern_id
       @initial_yaml_file_path = initial_yaml_file_path
     end
@@ -116,6 +135,7 @@ class IngestScript
                                            "@load=#{@load}",
                                            "" ] if ingest_script_debug_verbose
     unless load
+      hash_value_init( :run_count, hash: script_section, value: @run_count )
       hash_value_init( :initial_yaml_file_path, hash: script_section, value: @initial_yaml_file_path )
       hash_value_init( :ingest_script_id, hash: script_section, value: @ingest_script_id )
       hash_value_init( :ingest_script_path, hash: script_section, value: @ingest_script_path )
@@ -342,6 +362,14 @@ class IngestScript
     script_section[:log] = log
   end
 
+  def log_backup( run_count: )
+    log_id = "log_#{run_count - 1}".to_sym
+    script_section[log_id] = script_section[:log]
+    self.log = []
+    touch
+    return self
+  end
+
   def log_save( log )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
@@ -378,7 +406,6 @@ class IngestScript
   end
 
   def job_running?
-    return false if ::Deepblue::JobsHelper.job_queue_available?
     jid = job_id
     return false if jid.blank?
     return ::Deepblue::JobsHelper.job_running? jid
