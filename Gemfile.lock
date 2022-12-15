@@ -865,8 +865,8 @@ GEM
     rails-dom-testing (2.0.3)
       activesupport (>= 4.2.0)
       nokogiri (>= 1.6)
-    rails-html-sanitizer (1.4.3)
-      loofah (~> 2.3)
+    rails-html-sanitizer (1.4.4)
+      loofah (~> 2.19, >= 2.19.1)
     rails_autolink (1.1.6)
       rails (> 3.1)
     railties (5.2.8.1)
@@ -1328,6 +1328,7 @@ DEPENDENCIES
   rack (>= 2.2.3.1)
   rails (>= 5.2.8.1)
   rails-controller-testing
+  rails-html-sanitizer (>= 1.4.4)
   rdf-rdfa (< 3.1.1)
   rdf-spec!
   rdf-vocab (<= 3.1.4)
