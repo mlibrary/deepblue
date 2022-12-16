@@ -68,7 +68,7 @@ class IngestScript
 
   def self.reload( ingest_script:, run_count: 0 )
     rv = IngestScript.new( ingest_script_path: ingest_script.ingest_script_path, load: true, run_count: run_count )
-    rv.log_backup( run_count: run_count ) if run_count > 0
+    #rv.log_backup( run_count: run_count ) if run_count > 0
     return rv
   end
 
@@ -206,6 +206,10 @@ class IngestScript
 
   def file_section_last
     file_section( @file_set_count - 1 )
+  end
+
+  def file_set_count
+    @file_set_count ||= script_section[:file_set_count]
   end
 
   def files_section
@@ -354,8 +358,18 @@ class IngestScript
     self.job_run_count = (count + add)
   end
 
+  def job_running?
+    jid = job_id
+    return false if jid.blank?
+    return ::Deepblue::JobsHelper.job_running? jid
+  end
+
   def key?( key )
     @ingest_script.key? key
+  end
+
+  def log
+    script_section[:log]
   end
 
   def log=( log )
@@ -363,9 +377,31 @@ class IngestScript
   end
 
   def log_backup( run_count: )
-    log_id = "log_#{run_count - 1}".to_sym
-    script_section[log_id] = script_section[:log]
+    log_id = log_key(run_count - 1)
+    script_section[log_id] = self.log
     self.log = []
+    touch
+    return self
+  end
+
+  def log_key( index )
+    "log_#{index}".to_sym
+  end
+
+  def log_indexed( index )
+    key = log_key( index )
+    script_section[key]
+  end
+
+  def log_indexed_save( log_array, index: @run_count )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "index=#{index}",
+                                           "log_array=#{log_array.pretty_inspect}",
+                                           "@ingest_script_path=#{@ingest_script_path}",
+                                           "" ] if ingest_script_debug_verbose
+    key = log_key( index )
+    script_section[key] = log_array
     touch
     return self
   end
@@ -388,7 +424,7 @@ class IngestScript
                                            "new_path=#{new_path}",
                                            "save=#{save}",
                                            "@ingest_script_path=#{@ingest_script_path}",
-                                           "" ] if ingest_script_debug_verbose
+                                           "" ] if true || ingest_script_debug_verbose
     parent = File.dirname new_path
     FileUtils.mkdir_p( parent ) unless Dir.exist? parent
     FileUtils.mv( @ingest_script_path, new_path )
@@ -401,14 +437,12 @@ class IngestScript
   end
 
   def move_to_finished( save: true )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "save=#{save}",
+                                           "" ] if true || ingest_script_debug_verbose
     finished_script_path = File.join @ingest_id_dir, ingest_script_file_name
     move( finished_script_path, save: save )
-  end
-
-  def job_running?
-    jid = job_id
-    return false if jid.blank?
-    return ::Deepblue::JobsHelper.job_running? jid
   end
 
   def running?

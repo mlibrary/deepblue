@@ -6,6 +6,8 @@ module Deepblue
 
   class NewContentAppendService < NewContentService
 
+    mattr_accessor :new_content_append_service_debug_verbose, default: false
+
     attr_accessor :ingest_script
     attr_accessor :msg_handler
 
@@ -40,7 +42,6 @@ module Deepblue
       @emails_after = {}
       @emails_before = {}
       @emails_rest = {}
-      # @ingest_id = File.basename path_to_yaml_file
       @ingest_timestamp = DateTime.now
       @ingest_urls = []
       @ingester = ingester if ingester.present?
@@ -79,7 +80,7 @@ module Deepblue
                                              "@email_ingester=#{@email_ingester}",
                                              "@email_owner=#{@email_owner}",
                                              "@email_rest=#{@email_rest}",
-                                             "" ] if new_content_service_debug_verbose
+                                             "" ] if new_content_append_service_debug_verbose
       initialize_emails_rest
       @user_create = user_create
       @stop_new_content_service = false
@@ -105,40 +106,67 @@ module Deepblue
       files = work_hash[:files]
       return work if files.blank?
       return super unless work_hash.key? @ingest_script.script_section_key
+      debug_verbose = true || new_content_append_service_debug_verbose
+      verbose = true || msg_handler.verbose
+      if  @ingest_script.finished?
+        msg_handler.msg "Skipping add_file_sets_to_work_from_files because ingest script finished." if verbose
+        return work
+      end
       file_count = @ingest_script.file_set_count
-      max = file_count-1
+      touched_work = false
+      max = file_count - 1
       for index in 0..max do
         next unless continue_new_content_service
+        msg_handler.msg "Processing file #{index} of #{max + 1}" if verbose
         file_section = @ingest_script.file_section(index)
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "index=#{index}",
                                                "file_section=#{file_section.pretty_inspect}",
-                                               "" ] if new_content_service_debug_verbose
-        path = file_section[:path]
-        file_size = add_file_sets_file_size( file_set_hash: nil, path: path )
-        fs = build_file_set( id: nil,
-                             path: path,
-                             work: work,
-                             filename: file_section[:filename],
-                             file_ids: file_section[:id],
-                             file_set_of: index,
-                             file_set_count: file_count,
-                             file_size: file_size )
-        next if fs.blank?
-        file_section[:id] = fs.id if file_section[:id].blank?
-        @ingest_script.touch
-        add_file_set_to_work( work: work, file_set: fs )
-        file_section[:added_to_work] = true # TODO: validate this with work
-        @ingest_script.job_file_sets_processed_count_add 1
-        # TODO: move ingest step here, this will probably fix file_sets that turn up with missing file sizes
+                                               "" ] if debug_verbose
+        fid = file_section[:id]
+        if fid.present?
+          msg_handler.msg "File #{index} has #{fid}, skipping build." if verbose
+          fs = nil
+        else
+          path = file_section[:path]
+          file_size = add_file_sets_file_size( file_set_hash: nil, path: path )
+          msg_handler.msg "Building file #{index}." if verbose
+          fs = build_file_set( id: nil,
+                               path: path,
+                               work: work,
+                               filename: file_section[:filename],
+                               file_ids: file_section[:id],
+                               file_set_of: index,
+                               file_set_count: file_count,
+                               file_size: file_size )
+          next if fs.blank?
+          file_section[:id] = fs.id
+        end
+        added_to_work = file_section[:added_to_work]
+        if added_to_work
+          msg_handler.msg "File #{index} with #{fid} already added to work." if verbose
+        else
+          fs = PersistHelper.find_or_nil( fid ) if fid.present? && fs.blank?
+          next if fs.blank?
+          msg_handler.msg "Adding file #{index} with #{fs.id} to work." if verbose
+          add_file_set_to_work( work: work, file_set: fs )
+          # TODO: move ingest step here, this will probably fix file_sets that turn up with missing file sizes
+          file_section[:added_to_work] = true # TODO: validate that the file set was added to work
+          @ingest_script.job_file_sets_processed_count_add 1
+          touch_ingest_script
+        end
       end
-      work.save!
-      work.reload
-      valid_or_fix_file_sizes( curation_concern: work )
+      if touched_work
+        msg_handler.msg "Saving work." if verbose
+        work.save!
+        work.reload
+        valid_or_fix_file_sizes( curation_concern: work )
+      end
       @ingest_script.finished = true
-      @ingest_script.touch
       return work
+    ensure
+      touch_ingest_script
     end
 
     def cfg_hash
@@ -184,6 +212,12 @@ module Deepblue
       msg_handler.msg_error e.message.to_s
     rescue Exception => e # rubocop:disable Lint/RescueException
       msg_handler.msg_error "#{e.class}: #{e.message} at #{e.backtrace[0]}"
+    ensure
+      touch_ingest_script
+    end
+
+    def touch_ingest_script
+      @ingest_script.log_indexed_save( msg_handler.msg_queue ) if msg_handler.present? && @ingest_script.present?
     end
 
     def users_from_hash( hash: )
@@ -201,7 +235,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "@ingest_script=#{@ingest_script.pretty_inspect}",
                                              "@ingest_script.key? :user=#{@ingest_script.key? :user}",
-                                             "" ] if new_content_service_debug_verbose
+                                             "" ] if new_content_append_service_debug_verbose
       raise ConfigError, "Top level keys needs to contain 'user'" unless @ingest_script.key? :user
     end
 

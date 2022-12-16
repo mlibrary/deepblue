@@ -81,6 +81,7 @@ module JobHelper
                      timestamp_begin: self.timestamp_begin,
                      timestamp_end: self.timestamp_end )
 
+    initialize_defaults if @options.nil?
     msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
                              ::Deepblue::LoggingHelper.called_from,
                              "targets=#{targets}",
@@ -248,6 +249,7 @@ module JobHelper
                                            "options=#{options}",
                                            "" ] if debug_verbose
     @options = options
+    @options ||= {}
     initialize_defaults( debug_verbose: debug_verbose )
     job_start( id: id, email_init: false )
   end

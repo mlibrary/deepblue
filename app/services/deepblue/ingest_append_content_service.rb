@@ -6,85 +6,25 @@ module Deepblue
   class IngestAppendContentService < NewContentAppendService
 
     mattr_accessor :ingest_append_content_service_debug_verbose,
-                   default: ::Deepblue::IngestIntegrationService.ingest_append_content_service_debug_verbose
+                   default: true || ::Deepblue::IngestIntegrationService.ingest_append_content_service_debug_verbose
 
-    attr_accessor :first_label, :msg_handler, :mode
+    mattr_accessor :add_job_json_to_ingest_script, default: false
 
-    def self.call( curation_concern_id:,
-                   mode: 'append',
-                   msg_handler:,
-                   path_to_yaml_file:,
-                   ingester: nil,
-                   first_label: 'work_id',
-                   job_json: nil,
-                   options: )
-
-      begin_timestamp = DateTime.now
-      begin
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "curation_concern_id=#{curation_concern_id}",
-                                             "path_to_yaml_file=#{path_to_yaml_file}",
-                                             "ingester=#{ingester}",
-                                             "mode=#{mode}",
-                                             "first_label=#{first_label}",
-                                             "job_json=#{job_json}",
-                                             "options=#{options}",
-                                             "" ] if ingest_append_content_service_debug_verbose
-      msg_handler.msg_verbose "Path to script: #{path_to_yaml_file}"
-      ingest_script = IngestScript.append( curation_concern_id: curation_concern_id,
-                                           initial_yaml_file_path: path_to_yaml_file )
-      rescue Exception => e
-        msg_handler.msg_error "IngestAppendContentService.call(#{path_to_yaml_file}) #{e.class}: #{e.message}"
-        raise e
-      end
-      begin
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "ingest_script=#{ingest_script}",
-                                               "" ] if ingest_append_content_service_debug_verbose
-        ingest_script.job_begin_timestamp = begin_timestamp.to_formatted_s(:db)
-        ingest_script.job_end_timestamp = ''
-        ingest_script.job_run_count = 1
-        ingest_script.job_file_sets_processed_count = 0
-        ingest_script.job_json = job_json if ingest_append_content_service_debug_verbose
-        ingest_script.job_id = job_json['job_id']
-        ingest_script.log_save( msg_handler.msg_queue )
-        return false if msg_handler.msg_error_if?( !ingest_script.ingest_script_present?,
-                                                   msg: "failed to load script '#{path_to_yaml_file}'" )
-        bcs = IngestAppendContentService.new( ingest_script: ingest_script,
-                                              msg_handler: msg_handler,
-                                              options: options,
-                                              ingester: ingester,
-                                              first_label: first_label,
-                                              mode: mode )
-        bcs.run
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "ingest_script=#{ingest_script}",
-                                               "" ] if ingest_append_content_service_debug_verbose
-        ingest_script.job_end_timestamp = DateTime.now.to_formatted_s(:db)
-        ingest_script.log_save( msg_handler.msg_queue )
-        ingest_script.move_to_finished if ingest_script.finished?
-        lines = bcs.email_after_msg_lines
-        return if lines.blank? || msg_handler.nil?
-        msg_handler.msg( lines )
-      rescue Exception => e
-        ingest_script.log_save( msg_handler.msg_queue ) if ingest_script.present?
-        msg_handler.msg_error "IngestAppendContentService.call(#{path_to_yaml_file}) #{e.class}: #{e.message}"
-        raise e
-      end
-    end
+    attr_accessor :first_label
+    attr_accessor :mode
+    attr_accessor :msg_handler
 
     def self.call_append( first_label: 'work_id',
                           ingest_script_path:,
                           ingester: nil,
                           job_json: nil,
                           msg_handler:,
-                          restart_count:,
+                          run_count:,
                           options: )
 
       begin_timestamp = DateTime.now
+      mode = 'append'
+      ingest_script = nil
       begin
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
@@ -92,13 +32,13 @@ module Deepblue
                                                "ingest_script_path=#{ingest_script_path}",
                                                "ingester=#{ingester}",
                                                "job_json=#{job_json}",
-                                               "restart_count=#{restart_count}",
+                                               "run_count=#{run_count}",
                                                "options=#{options}",
                                                "" ] if ingest_append_content_service_debug_verbose
         msg_handler.msg_verbose "Ingest script path: #{ingest_script_path}"
-        ingest_script = IngestScript.append_load( ingest_script_path: ingest_script_path )
+        ingest_script = IngestScript.append_load( ingest_script_path: ingest_script_path, run_count: run_count )
       rescue Exception => e
-        msg_handler.msg_error "IngestAppendContentService.call(#{ingest_script_path}) #{e.class}: #{e.message}"
+        msg_handler.msg_error "IngestAppendContentService.call_append(#{ingest_script_path}) #{e.class}: #{e.message}"
         raise e
       end
       begin
@@ -110,11 +50,10 @@ module Deepblue
         ingest_script.job_end_timestamp = ''
         ingest_script.job_run_count = 1
         ingest_script.job_file_sets_processed_count = 0
-        ingest_script.job_json = job_json if ingest_append_content_service_debug_verbose
+        ingest_script.job_json = job_json if add_job_json_to_ingest_script
         ingest_script.job_id = job_json['job_id']
-        ingest_script.log_save( msg_handler.msg_queue )
         return false if msg_handler.msg_error_if?( !ingest_script.ingest_script_present?,
-                                                   msg: "failed to load script '#{path_to_yaml_file}'" )
+                                                   msg: "failed to load script '#{ingest_script_path}'" )
         bcs = IngestAppendContentService.new( ingest_script: ingest_script,
                                               msg_handler: msg_handler,
                                               options: options,
@@ -122,21 +61,22 @@ module Deepblue
                                               first_label: first_label,
                                               mode: mode )
         bcs.run
+        ingest_script.job_end_timestamp = DateTime.now.to_formatted_s(:db)
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "ingest_script=#{ingest_script}",
+                                               "ingest_script.finished?=#{ingest_script.finished?}",
                                                "" ] if ingest_append_content_service_debug_verbose
-        ingest_script.job_end_timestamp = DateTime.now.to_formatted_s(:db)
-        ingest_script.log_save( msg_handler.msg_queue )
-        ingest_script.move_to_finished if ingest_script.finished?
-        lines = bcs.email_after_msg_lines
-        return if lines.blank? || msg_handler.nil?
-        msg_handler.msg( lines )
+        ingest_script.script_section[:email_after_msg_lines] = bcs.email_after_msg_lines
       rescue Exception => e
-        ingest_script.log_save( msg_handler.msg_queue ) if ingest_script.present?
-        msg_handler.msg_error "IngestAppendContentService.call(#{path_to_yaml_file}) #{e.class}: #{e.message}"
+        msg_handler.msg_error "IngestAppendContentService.call_append(#{ingest_script_path}) #{e.class}: #{e.message}"
         raise e
       end
+    ensure
+      ingest_script.log_indexed_save( msg_handler.msg_queue ) if ingest_script.present?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "ingest_script=#{ingest_script}",
+                                             "" ] if ingest_append_content_service_debug_verbose
     end
 
     def self.ensure_tmp_script_dir_is_linked(debug_verbose: ingest_append_content_service_debug_verbose)

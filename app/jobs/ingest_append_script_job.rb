@@ -11,14 +11,14 @@ class IngestAppendScriptJob < ::Deepblue::DeepblueJob
 
   EVENT = 'ingest append script'
 
-  def perform( ingest_script_path:, ingester:, restart_count: 0, **options )
+  def perform( ingest_script_path:, ingester:, run_count: 0, **options )
     msg_handler.debug_verbose = ingest_append_script_job_debug_verbose
-    initialize_with( id: id, debug_verbose: msg_handler.debug_verbose, options: options )
+    initialize_with( debug_verbose: msg_handler.debug_verbose, options: options )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "ingest_script_path=#{ingest_script_path}",
                                            "ingester=#{ingester}",
-                                           "restart_count=#{restart_count}",
+                                           "run_count=#{run_count}",
                                            "options=#{options}",
                                            ::Deepblue::LoggingHelper.obj_class( 'options', options ),
                                            "" ] if ingest_append_script_job_debug_verbose
@@ -29,7 +29,7 @@ class IngestAppendScriptJob < ::Deepblue::DeepblueJob
                                                         ingest_script_path: ingest_script_path,
                                                         ingester: ingester,
                                                         job_json: self.as_json,
-                                                        restart_count: restart_count,
+                                                        run_count: run_count,
                                                         options: options )
 
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -40,15 +40,14 @@ class IngestAppendScriptJob < ::Deepblue::DeepblueJob
                                            "options=#{options}",
                                            ::Deepblue::LoggingHelper.obj_class( 'options', options ),
                                            "" ] if ingest_append_script_job_debug_verbose
-    email_results( task_name: EVENT, event: EVENT )
     job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
     job_status_register( exception: e,
                          args: { ingest_script_path: ingest_script_path,
                                  ingester: ingester,
-                                 restart_count: restart_count,
+                                 run_count: run_count,
                                  options: options } )
-    email_failure( task_name: self.class.name, exception: e, event: self.class.name )
+    # email_failure( task_name: self.class.name, exception: e, event: self.class.name )
     raise e
   end
 
