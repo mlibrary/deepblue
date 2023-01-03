@@ -64,7 +64,7 @@ class MultipleIngestScriptsJob < ::Deepblue::DeepblueJob
     return false if path_to_script.blank?
     msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
                              ::Deepblue::LoggingHelper.called_from,
-                             "IngestAppendScriptJob.perform_now( path_to_script: #{path_to_script}, ingester: #{ingester} )",
+                             "IngestScriptJob.perform_now( path_to_script: #{path_to_script}, ingester: #{ingester} )",
                               "" ] if msg_handler.debug_verbose
     IngestScriptJob.perform_now( ingest_mode: ingest_mode,
                                  ingester: ingester,
