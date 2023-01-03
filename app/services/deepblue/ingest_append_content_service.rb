@@ -6,7 +6,7 @@ module Deepblue
   class IngestAppendContentService < NewContentAppendService
 
     mattr_accessor :ingest_append_content_service_debug_verbose,
-                   default: true || ::Deepblue::IngestIntegrationService.ingest_append_content_service_debug_verbose
+                   default: ::Deepblue::IngestIntegrationService.ingest_append_content_service_debug_verbose
 
     mattr_accessor :add_job_json_to_ingest_script, default: false
 
