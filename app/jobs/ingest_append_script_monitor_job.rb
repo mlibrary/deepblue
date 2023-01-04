@@ -50,7 +50,7 @@ class IngestAppendScriptMonitorJob < ::Deepblue::DeepblueJob
     if Rails.env.development?
       run { |reload_script| new_job( reload_script: reload_script ).perform_now }
     else
-      run { |reload_script| new_job( reload_script: reload_script ).perform_later }
+      run { |reload_script| new_job( reload_script: reload_script ).enqueue }
     end
     update_messages_from_ingest_script_log
     @ingest_script.move_to_finished( save: true ) if @ingest_script.finished?
