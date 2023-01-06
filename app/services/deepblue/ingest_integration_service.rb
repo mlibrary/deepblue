@@ -31,6 +31,7 @@ module Deepblue
     mattr_accessor :ingest_append_job_debug_verbose,                  default: false
     mattr_accessor :ingest_append_scripts_controller_behavior_debug_verbose, default: false
     mattr_accessor :ingest_append_script_job_debug_verbose,           default: false
+    mattr_accessor :ingest_append_script_monitor_job_debug_verbose,   default: false
     mattr_accessor :ingest_job_debug_verbose,                         default: false
     mattr_accessor :ingest_job_status_debug_verbose,                  default: false
     mattr_accessor :ingest_script_debug_verbose,                      default: false
@@ -59,6 +60,13 @@ module Deepblue
     mattr_accessor :ingest_script_dir
     mattr_accessor :deepbluedata_prep
 
+    mattr_accessor :add_job_json_to_ingest_script,                    default: false
+    mattr_accessor :ingest_append_script_monitor_job_verbose,         default: false
+    mattr_accessor :ingest_append_script_job_verbose,                 default: false
+    mattr_accessor :ingest_append_script_max_appends,                 default: 20
+    mattr_accessor :ingest_append_script_max_restarts_base,           default: 4
+    mattr_accessor :ingest_append_script_monitor_wait_duration,       default: 2
+
     def self.ingest_append_ui_allowed_base_directories
       @@ingest_append_ui_allowed_base_directories ||= []
     end
@@ -67,7 +75,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "value=#{value}",
-                                             "" ], bold_puts: true if true
+                                             "" ], bold_puts: true if false
       @@ingest_append_ui_allowed_base_directories = value
     end
 

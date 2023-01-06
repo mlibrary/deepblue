@@ -30,7 +30,7 @@ module Deepblue
         end
       end
       w.reload
-      msg_handler.msg_verbose "file_sets.map { |f| f.file_size } = #{sizes}"
+      # msg_handler.msg_verbose "file_sets.map { |f| f.file_size } = #{sizes}"
       solr_reindex_work_with_total_size_update( id: w.id, msg_handler: msg_handler )
     end
 

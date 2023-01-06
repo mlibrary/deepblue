@@ -10,8 +10,8 @@ RSpec.describe IngestAppendScriptJob do
     it { expect( described_class.ingest_append_script_job_debug_verbose ).to eq debug_verbose }
   end
 
-  it "is TODO" do
-    skip "the test code goes here"
+  describe 'module variables' do
+    it { expect( described_class.ingest_append_script_job_verbose ).to eq false }
   end
 
 end

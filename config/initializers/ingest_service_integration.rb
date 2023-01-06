@@ -3,6 +3,8 @@ Deepblue::IngestIntegrationService.setup do |config|
 
   INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE = false
 
+  puts "Ingest integration service setup starting..." if INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE
+
   config.abstract_ingest_job_debug_verbose           = false
   config.add_file_to_file_set_debug_verbose          = false
   config.attach_files_to_work_job_debug_verbose      = false
@@ -14,6 +16,8 @@ Deepblue::IngestIntegrationService.setup do |config|
   config.ingest_helper_debug_verbose                 = false
   config.ingest_append_job_debug_verbose             = false
   config.ingest_append_script_job_debug_verbose      = false
+  config.ingest_append_script_monitor_job_debug_verbose = false
+  config.ingest_append_scripts_controller_behavior_debug_verbose = false
   config.ingest_job_debug_verbose                    = false
   config.ingest_job_status_debug_verbose             = false
   config.ingest_script_debug_verbose                 = false
@@ -54,18 +58,18 @@ Deepblue::IngestIntegrationService.setup do |config|
     config.ingest_script_dir = '/deepbluedata-prep/scripts'
     config.deepbluedata_prep = '/deepbluedata-prep'
   end
-  ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                         Deepblue::LoggingHelper.called_from,
+  ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                         ::Deepblue::LoggingHelper.called_from,
                                          "allowed_dirs=#{allowed_dirs.pretty_inspect}",
                                          "" ], bold_puts: true if INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE
   config.ingest_append_ui_allowed_base_directories = allowed_dirs
-  ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                         Deepblue::LoggingHelper.called_from,
-                                         "config.ingest_append_ui_allowed_base_directories=#{config.ingest_append_ui_allowed_base_directories.pretty_inspect}",
-                                         "" ], bold_puts: true if INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE
+  ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+       ::Deepblue::LoggingHelper.called_from,
+       "config.ingest_append_ui_allowed_base_directories=#{config.ingest_append_ui_allowed_base_directories.pretty_inspect}",
+       "" ], bold_puts: true if INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE
   config.ingest_allowed_path_prefixes = allowed_dirs
-  ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                         Deepblue::LoggingHelper.called_from,
+  ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                         ::Deepblue::LoggingHelper.called_from,
                                          "Rails.configuration.hostname = #{Rails.configuration.hostname}",
                                          "" ], bold_puts: true if INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE
 
@@ -83,12 +87,12 @@ Deepblue::IngestIntegrationService.setup do |config|
   else
     config.ingest_script_dir = File.join config.ingest_script_dir, ::Deepblue::InitializationConstants::UNKNOWN
   end
-  ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                         Deepblue::LoggingHelper.called_from,
+  ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                         ::Deepblue::LoggingHelper.called_from,
                                          "config.ingest_script_dir = #{config.ingest_script_dir}",
                                          "" ], bold_puts: true if INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE
-  ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                         Deepblue::LoggingHelper.called_from,
+  ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                         ::Deepblue::LoggingHelper.called_from,
                                          "Dir.exist? #{config.ingest_script_dir} #{Dir.exist? config.ingest_script_dir}",
                                          "" ], bold_puts: true if INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE
 
@@ -98,19 +102,35 @@ Deepblue::IngestIntegrationService.setup do |config|
     # this will fail during moku build, so catch and ignore
   end
 
-  ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                         Deepblue::LoggingHelper.called_from,
-                                         "Dir.exist? #{config.ingest_script_dir} #{Dir.exist? config.ingest_script_dir}",
-                                         "" ], bold_puts: true if INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE
+  ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                       ::Deepblue::LoggingHelper.called_from,
+                                       "Dir.exist? #{config.ingest_script_dir} #{Dir.exist? config.ingest_script_dir}",
+                                       "" ], bold_puts: true if INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE
 
   config.ingest_append_ui_allow_scripts_to_run = Dir.exist? config.ingest_script_dir
 
-  ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                         Deepblue::LoggingHelper.called_from,
-                                         "config.ingest_append_ui_allow_scripts_to_run=#{config.ingest_append_ui_allow_scripts_to_run}",
-                                         "" ], bold_puts: true if INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE
+  ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                         ::Deepblue::LoggingHelper.called_from,
+                         "config.ingest_append_ui_allow_scripts_to_run=#{config.ingest_append_ui_allow_scripts_to_run}",
+                         "" ], bold_puts: true if INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE
 
-  # puts config.ingest_append_ui_allowed_base_directories.pretty_inspect
+  config.ingest_append_script_job_verbose = false
+  config.ingest_append_script_monitor_job_verbose = false
+  config.add_job_json_to_ingest_script = false
+  config.ingest_append_script_max_appends = 20
+  config.ingest_append_script_max_restarts_base = 4
+  config.ingest_append_script_monitor_wait_duration = 2
+
+  ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+             ::Deepblue::LoggingHelper.called_from,
+             "config.ingest_append_script_monitor_job_verbose=#{config.ingest_append_script_monitor_job_verbose}",
+             "config.add_job_json_to_ingest_script=#{config.add_job_json_to_ingest_script}",
+             "config.ingest_append_script_max_appends=#{config.ingest_append_script_max_appends}",
+             "config.ingest_append_script_max_restarts_base=#{config.ingest_append_script_max_restarts_base}",
+             "config.ingest_append_script_monitor_wait_duration=#{config.ingest_append_script_monitor_wait_duration}",
+             "" ], bold_puts: true if INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE
+
+  puts config.ingest_append_ui_allowed_base_directories.pretty_inspect if INGEST_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE
   # puts ::Deepblue::IngestIntegrationService.ingest_append_ui_allowed_base_directories.pretty_inspect
   puts "Finished ingest integration service configuration."
 end
