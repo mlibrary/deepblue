@@ -5,40 +5,49 @@ class IngestAppendScriptJob < ::Deepblue::DeepblueJob
   mattr_accessor :ingest_append_script_job_debug_verbose,
                  default: ::Deepblue::IngestIntegrationService.ingest_append_script_job_debug_verbose
 
+  mattr_accessor :ingest_append_script_job_verbose,
+                 default: ::Deepblue::IngestIntegrationService.ingest_append_script_job_verbose
+
   queue_as ::Deepblue::IngestIntegrationService.ingest_append_queue_name
 
-  attr_accessor :ingest_mode, :ingester, :ingest_script_path
+  attr_accessor :ingest_mode
+  attr_accessor :ingester
+  attr_accessor :ingest_script_path
+  attr_accessor :run_count
 
   EVENT = 'ingest append script'
 
-  def perform( ingest_script_path:, ingester:, run_count: 0, **options )
-    msg_handler.debug_verbose = ingest_append_script_job_debug_verbose
+  def perform( ingest_script_path:, ingester:, max_appends:, run_count:, **options )
+    msg_handler.debug_verbose = msg_handler.debug_verbose || ingest_append_script_job_debug_verbose
+    msg_handler.verbose = msg_handler.verbose || ingest_append_script_job_verbose
+    msg_handler.msg_verbose msg_handler.here
+    msg_handler.msg_verbose "ingest_script_path=#{ingest_script_path}"
+    msg_handler.msg_verbose "ingester=#{ingester}"
+    msg_handler.msg_verbose "max_appends=#{max_appends}"
+    msg_handler.msg_verbose "run_count=#{run_count}"
     initialize_with( debug_verbose: msg_handler.debug_verbose, options: options )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "ingest_script_path=#{ingest_script_path}",
                                            "ingester=#{ingester}",
+                                           "max_appends=#{max_appends}",
                                            "run_count=#{run_count}",
                                            "options=#{options}",
                                            ::Deepblue::LoggingHelper.obj_class( 'options', options ),
                                            "" ] if ingest_append_script_job_debug_verbose
-
+    @run_count = run_count
     @ingester = ingester
     @ingest_script_path = ingest_script_path
     ::Deepblue::IngestAppendContentService.call_append( msg_handler: msg_handler,
                                                         ingest_script_path: ingest_script_path,
                                                         ingester: ingester,
                                                         job_json: self.as_json,
+                                                        max_appends: max_appends,
                                                         run_count: run_count,
                                                         options: options )
-
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                            "ingest_script_path=#{ingest_script_path}",
-                                           "ingester=#{ingester}",
-                                           "options=#{options}",
-                                           ::Deepblue::LoggingHelper.obj_class( 'options', options ),
                                            "" ] if ingest_append_script_job_debug_verbose
     job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException

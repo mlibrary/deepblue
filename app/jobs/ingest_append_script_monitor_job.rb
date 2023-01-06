@@ -1,9 +1,18 @@
 # frozen_string_literal: true
 
-# bundle exec rake deepblue:run_job['{"job_class":"HeartBeat"\,"verbose":true}']
 class IngestAppendScriptMonitorJob < ::Deepblue::DeepblueJob
 
-  mattr_accessor :ingest_append_script_monitor_job_debug_verbose, default: true
+  mattr_accessor :ingest_append_script_monitor_job_debug_verbose,
+                 default: ::Deepblue::IngestIntegrationService.ingest_append_script_monitor_job_debug_verbose
+
+  mattr_accessor :ingest_append_script_monitor_job_verbose,
+                 default: ::Deepblue::IngestIntegrationService.ingest_append_script_monitor_job_verbose
+
+  mattr_accessor :ingest_append_script_max_restarts_base,
+                 default: ::Deepblue::IngestIntegrationService.ingest_append_script_max_restarts_base
+  mattr_accessor :ingest_append_script_monitor_wait_duration,
+                 default: ::Deepblue::IngestIntegrationService.ingest_append_script_monitor_wait_duration
+
   @@bold_puts = false
 
   EVENT = 'ingest append script monitor'
@@ -11,17 +20,20 @@ class IngestAppendScriptMonitorJob < ::Deepblue::DeepblueJob
   attr_accessor :ingest_script
   attr_accessor :ingester
   attr_accessor :job_id
+  attr_accessor :max_appends
   attr_accessor :max_restarts
+  attr_accessor :max_restarts_base
   attr_accessor :options
   attr_accessor :run_count
-  attr_accessor :wait_duration
+  attr_accessor :monitor_wait_duration
 
   def perform( id: nil,
                ingest_mode: 'append',
                ingester:,
-               max_restarts: 5,
+               max_appends:,
+               max_restarts_base: ingest_append_script_max_restarts_base,
                path_to_script:,
-               wait_duration: 1,
+               monitor_wait_duration: ingest_append_script_monitor_wait_duration,
                **options )
 
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -29,24 +41,45 @@ class IngestAppendScriptMonitorJob < ::Deepblue::DeepblueJob
                                            "id=#{id}",
                                            "ingest_mode=#{ingest_mode}",
                                            "ingester=#{ingester}",
-                                           "max_restarts=#{max_restarts}",
+                                           "max_appends=#{max_appends}",
+                                           "max_restarts_base=#{max_restarts_base}",
                                            "path_to_script=#{path_to_script}",
-                                           "wait_duration=#{wait_duration}",
+                                           "monitor_wait_duration=#{monitor_wait_duration}",
                                            "options=#{options}",
                                            "" ], bold_puts: @@bold_puts if ingest_append_script_monitor_job_debug_verbose
 
     msg_handler.debug_verbose = ingest_append_script_monitor_job_debug_verbose
+    msg_handler.verbose = ingest_append_script_monitor_job_verbose || msg_handler.verbose
     initialize_with( id: id, debug_verbose: msg_handler.debug_verbose, options: options )
     email_targets << ingester if ingester.present?
-    max_restarts ||= 5
-    @max_restarts = max_restarts
-    wait_duration ||= 1
-    @wait_duration = wait_duration
+    @run_count = 0
+    @max_appends = max_appends
+    msg_handler.msg_verbose "max_appends=#{@max_appends}"
+    @max_restarts_base = max_restarts_base
+    msg_handler.msg_verbose "max_restarts_base=#{@max_restarts_base}"
+    @monitor_wait_duration = monitor_wait_duration
+    msg_handler.msg_verbose "monitor_wait_duration=#{@monitor_wait_duration}"
     @ingester = ingester
     @options = options
     @options ||= {}
     @ingest_script = ingest_script_with( id: id, initial_yaml_file_path: path_to_script )
-    @run_count = 0
+    @file_set_count = @ingest_script.file_set_count
+    msg_handler.msg_verbose "file_set_count=#{@file_set_count}"
+    @max_restarts = @max_restarts_base
+    if max_appends > 0
+      @max_restarts += ( @file_set_count / max_appends ).to_i
+    end
+    @ingest_script.script_section[:max_restarts] = @max_restarts
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "@max_appends=#{@max_appends}",
+                                           "@ingest_script.max_appends=#{@ingest_script.max_appends}",
+                                           "@max_restarts=#{@max_restarts}",
+                                           "@ingest_script.script_section[:max_restarts]=#{@ingest_script.script_section[:max_restarts]}",
+                                           "@ingest_script=#{@ingest_script}",
+                                           "@ingest_script.ingest_script_path=#{@ingest_script&.ingest_script_path}",
+                                           "" ], bold_puts: @@bold_puts if ingest_append_script_monitor_job_debug_verbose
+    @ingest_script.touch # save the script
     if Rails.env.development?
       run { |reload_script| new_job( reload_script: reload_script ).perform_now }
     else
@@ -65,9 +98,10 @@ class IngestAppendScriptMonitorJob < ::Deepblue::DeepblueJob
                          args: { id: id,
                                  ingest_mode: ingest_mode,
                                  ingester: ingester,
-                                 max_restarts: max_restarts,
+                                 max_appends: max_appends,
+                                 max_restarts_base: max_restarts_base,
                                  path_to_script: path_to_script,
-                                 wait_duration: wait_duration,
+                                 monitor_wait_duration: monitor_wait_duration,
                                  options: options } )
     email_failure( task_name: self.class.name, exception: e, event: EVENT )
     raise e
@@ -79,7 +113,10 @@ class IngestAppendScriptMonitorJob < ::Deepblue::DeepblueJob
                                            "id=#{id}",
                                            "initial_yaml_file_path=#{initial_yaml_file_path}",
                                            "" ] if ingest_append_script_monitor_job_debug_verbose
-    @ingest_script = IngestScript.append( curation_concern_id: id, initial_yaml_file_path: initial_yaml_file_path )
+    @ingest_script = IngestScript.append( curation_concern_id: id,
+                                          initial_yaml_file_path: initial_yaml_file_path,
+                                          max_appends: max_appends,
+                                          run_count: run_count )
   rescue Exception => e
     msg_handler.msg_error "IngestAppendScriptMonitorJob.ingest_script_with(#{initial_yaml_file_path}) #{e.class}: #{e.message}"
     raise e
@@ -112,14 +149,27 @@ class IngestAppendScriptMonitorJob < ::Deepblue::DeepblueJob
     return true
   end
 
+  def log_save
+    msg_handler.msg_verbose msg_handler.here
+    @ingest_script.log_save( msg_handler.msg_queue )
+  end
+
   def new_job( reload_script: false )
+    msg_handler.msg_verbose msg_handler.here
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "reload_script=#{reload_script}",
+                                           "ingest_script_path=#{@ingest_script.ingest_script_path}",
+                                           "max_appends=#{@max_appends}",
+                                           "ingester=#{ingester}",
+                                           "run_count=#{@run_count}",
+                                           "options=#{options}",
                                            "" ], bold_puts: @@bold_puts if ingest_append_script_monitor_job_debug_verbose
     job = IngestAppendScriptJob.send( :job_or_instantiate,
                                       ingest_script_path: @ingest_script.ingest_script_path,
                                       ingester: ingester,
+                                      max_appends: @max_appends,
+                                      run_count: @run_count,
                                       **options )
     @job_id = job.job_id
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -141,21 +191,28 @@ class IngestAppendScriptMonitorJob < ::Deepblue::DeepblueJob
     puts e.backtrace[0..30].pretty_inspect if puts_backtrace
   end
 
-  def reload_ingest_script
+  def reload_ingest_script( save_log: false )
+    msg_handler.msg_verbose msg_handler.here
+    msg_handler.msg_verbose msg_handler.called_from
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
+                                           "save_log=#{save_log}",
+                                           "@ingest_script.ingest_script_path=#{@ingest_script&.ingest_script_path}",
                                            "@run_count=#{@run_count}",
                                            "" ], bold_puts: @@bold_puts if ingest_append_script_monitor_job_debug_verbose
-    @ingest_script = IngestScript.reload( ingest_script: @ingest_script, run_count: @run_count )
-    @ingest_script.log_save( msg_handler.msg_queue )
+    @ingest_script = IngestScript.reload( ingest_script: @ingest_script,
+                                          max_appends: @max_appends,
+                                          run_count: @run_count )
+    log_save if save_log
     return @ingest_script
   end
 
   def retries_exhausted?
-    @run_count > @max_restarts
+    @run_count > @max_restarts_base
   end
 
   def run( &block )
+    msg_handler.msg_verbose msg_handler.here
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "@run_count=#{@run_count}",
@@ -195,6 +252,7 @@ class IngestAppendScriptMonitorJob < ::Deepblue::DeepblueJob
   end
 
   def run_retry( retry_flag:, &block )
+    msg_handler.msg_verbose msg_handler.here
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "retry_flag=#{retry_flag}",
@@ -232,14 +290,16 @@ class IngestAppendScriptMonitorJob < ::Deepblue::DeepblueJob
     return if Rails.env.development?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "sleep wait_duration=#{wait_duration}",
+                                           "sleep monitor_wait_duration=#{monitor_wait_duration}",
                                            "" ], bold_puts: @@bold_puts if ingest_append_script_monitor_job_debug_verbose
-    sleep wait_duration
+    sleep monitor_wait_duration
   end
 
   def update_messages_from_ingest_script_log
+    msg_handler.msg_verbose msg_handler.here
+    reload_ingest_script( save_log: true )
     return if msg_handler.msg_queue.nil?
-    @ingest_script = IngestScript.reload( ingest_script: @ingest_script )
+    # @ingest_script = IngestScript.reload( ingest_script: @ingest_script )
     log = []
     run_count = @ingest_script.run_count
     for index in 1..run_count do

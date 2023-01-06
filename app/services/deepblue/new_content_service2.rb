@@ -18,7 +18,7 @@ module Deepblue
   include Benchmark
 
   # rubocop:disable Rails/Output
-  class NewContentService
+  class NewContentService2
 
     mattr_accessor :new_content_service_debug_verbose,
                    default: ::Deepblue::IngestIntegrationService.new_content_service_debug_verbose
@@ -1539,7 +1539,7 @@ module Deepblue
         curation_concern.save!
         curation_concern.reload
         curation_concern.doi_mint( current_user: user,
-                                   event_note: 'NewContentService',
+                                   event_note: 'NewContentService2',
                                    job_delay: 60 )
       rescue Exception => e # rubocop:disable Lint/RescueException
         # updates << "#{attr_prefix cc_or_fs}: #{attr_name} -- Exception: #{e.class}: #{e.message} at #{e.backtrace[0]}"

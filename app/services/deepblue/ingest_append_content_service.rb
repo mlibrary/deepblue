@@ -8,7 +8,10 @@ module Deepblue
     mattr_accessor :ingest_append_content_service_debug_verbose,
                    default: ::Deepblue::IngestIntegrationService.ingest_append_content_service_debug_verbose
 
-    mattr_accessor :add_job_json_to_ingest_script, default: false
+    mattr_accessor :add_job_json_to_ingest_script,
+                   default: ::Deepblue::IngestIntegrationService.add_job_json_to_ingest_script
+
+    @@bold_puts = false
 
     attr_accessor :first_label
     attr_accessor :mode
@@ -18,25 +21,43 @@ module Deepblue
                           ingest_script_path:,
                           ingester: nil,
                           job_json: nil,
+                          max_appends:,
                           msg_handler:,
                           run_count:,
                           options: )
 
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+             ::Deepblue::LoggingHelper.called_from,
+             "ingest_append_content_service_debug_verbose=#{ingest_append_content_service_debug_verbose}",
+             "::Deepblue::IngestIntegrationService.ingest_append_script_monitor_job_verbose=#{::Deepblue::IngestIntegrationService.ingest_append_script_monitor_job_verbose}",
+             "::Deepblue::IngestIntegrationService.add_job_json_to_ingest_script=#{::Deepblue::IngestIntegrationService.add_job_json_to_ingest_script}",
+             "::Deepblue::IngestIntegrationService.ingest_append_script_max_appends=#{::Deepblue::IngestIntegrationService.ingest_append_script_max_appends}",
+             "::Deepblue::IngestIntegrationService.ingest_append_script_max_restarts_base=#{::Deepblue::IngestIntegrationService.ingest_append_script_max_restarts_base}",
+             "::Deepblue::IngestIntegrationService.ingest_append_script_monitor_wait_duration=#{::Deepblue::IngestIntegrationService.ingest_append_script_monitor_wait_duration}",
+             "" ] if ingest_append_content_service_debug_verbose
       begin_timestamp = DateTime.now
       mode = 'append'
       ingest_script = nil
       begin
+        msg_handler.msg_verbose msg_handler.here
+        msg_handler.msg_verbose "ingest_script_path=#{ingest_script_path}"
+        msg_handler.msg_verbose "ingester=#{ingester}"
+        msg_handler.msg_verbose "max_appends=#{max_appends}"
+        msg_handler.msg_verbose "run_count=#{run_count}"
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "first_label=#{first_label}",
                                                "ingest_script_path=#{ingest_script_path}",
                                                "ingester=#{ingester}",
-                                               "job_json=#{job_json}",
+                                               "job_json=#{job_json.pretty_inspect}",
+                                               "max_appends=#{max_appends}",
                                                "run_count=#{run_count}",
                                                "options=#{options}",
                                                "" ] if ingest_append_content_service_debug_verbose
-        msg_handler.msg_verbose "Ingest script path: #{ingest_script_path}"
-        ingest_script = IngestScript.append_load( ingest_script_path: ingest_script_path, run_count: run_count )
+        ingest_script = IngestScript.append_load( ingest_script_path: ingest_script_path,
+                                                  max_appends: max_appends,
+                                                  run_count: run_count )
+        ingest_script.log_indexed_save( msg_handler.msg_queue )
       rescue Exception => e
         msg_handler.msg_error "IngestAppendContentService.call_append(#{ingest_script_path}) #{e.class}: #{e.message}"
         raise e
@@ -45,10 +66,13 @@ module Deepblue
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "ingest_script=#{ingest_script}",
+                                               "ingest_script.ingest_script_path=#{ingest_script&.ingest_script_path}",
                                                "" ] if ingest_append_content_service_debug_verbose
         ingest_script.job_begin_timestamp = begin_timestamp.to_formatted_s(:db)
+        msg_handler.msg_verbose "job_begin_timestamp=#{ingest_script.job_begin_timestamp}"
         ingest_script.job_end_timestamp = ''
-        ingest_script.job_run_count = 1
+        ingest_script.job_max_appends = max_appends
+        ingest_script.job_run_count = run_count
         ingest_script.job_file_sets_processed_count = 0
         ingest_script.job_json = job_json if add_job_json_to_ingest_script
         ingest_script.job_id = job_json['job_id']
@@ -62,6 +86,7 @@ module Deepblue
                                               mode: mode )
         bcs.run
         ingest_script.job_end_timestamp = DateTime.now.to_formatted_s(:db)
+        msg_handler.msg_verbose "job_end_timestamp=#{ingest_script.job_end_timestamp}"
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "ingest_script.finished?=#{ingest_script.finished?}",
@@ -72,10 +97,15 @@ module Deepblue
         raise e
       end
     ensure
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "about to save log to ingest script at run_count=#{run_count}",
+                                             "" ] if ingest_append_content_service_debug_verbose
       ingest_script.log_indexed_save( msg_handler.msg_queue ) if ingest_script.present?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "ingest_script=#{ingest_script}",
+                                             "ingest_script.ingest_script_path=#{ingest_script&.ingest_script_path}",
                                              "" ] if ingest_append_content_service_debug_verbose
     end
 
@@ -83,7 +113,7 @@ module Deepblue
       debug_verbose = debug_verbose || ingest_append_content_service_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ], bold_puts: true if debug_verbose
+                                             "" ], bold_puts: @@bold_puts if debug_verbose
       return if Rails.env.development?
       # There may be an issue when running from circleci
       begin
@@ -94,12 +124,12 @@ module Deepblue
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "tmp_scripts_dir=#{tmp_scripts_dir}",
-                                               "" ], bold_puts: true if debug_verbose
+                                               "" ], bold_puts: @@bold_puts if debug_verbose
         link_exists = File.symlink? tmp_scripts_dir
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "link_exists=#{link_exists}",
-                                               "" ], bold_puts: true if debug_verbose
+                                               "" ], bold_puts: @@bold_puts if debug_verbose
         return if link_exists
         real_dir = File.dirname current_dir
         real_dir = File.join real_dir, 'tmp', 'scripts'
@@ -108,22 +138,22 @@ module Deepblue
                                                ::Deepblue::LoggingHelper.called_from,
                                                "real_dir=#{real_dir}",
                                                "real_dir exists?=#{File.exists? real_dir}",
-                                               "" ], bold_puts: true if debug_verbose
+                                               "" ], bold_puts: @@bold_puts if debug_verbose
         cmd = "ln -s \"#{real_dir}/\" \"#{tmp_scripts_dir}\""
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "cmd=#{cmd}",
-                                               "" ], bold_puts: true if debug_verbose
+                                               "" ], bold_puts: @@bold_puts if debug_verbose
         rv = `#{cmd}`
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "cmd rv=#{rv}",
-                                               "" ], bold_puts: true if debug_verbose
+                                               "" ], bold_puts: @@bold_puts if debug_verbose
         link_exists = File.symlink? tmp_scripts_dir
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "link_exists=#{link_exists}",
-                                               "" ], bold_puts: true if debug_verbose
+                                               "" ], bold_puts: @@bold_puts if debug_verbose
         return
       rescue Exception => e
         puts "Exception: #{e.to_s}"

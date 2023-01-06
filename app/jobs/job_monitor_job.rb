@@ -3,8 +3,8 @@
 # bundle exec rake deepblue:run_job['{"job_class":"HeartBeat"\,"verbose":true}']
 class JobMonitorJob < ::Deepblue::DeepblueJob
 
-  mattr_accessor :job_monitor_job_debug_verbose, default: true
-  @@bold_puts = true
+  mattr_accessor :job_monitor_job_debug_verbose, default: false
+  @@bold_puts = false
 
   def perform( job_class_name:, job_args:, wait_duration: 1 )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

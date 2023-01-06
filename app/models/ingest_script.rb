@@ -7,6 +7,10 @@ class IngestScript
   mattr_accessor :ingest_script_debug_verbose,
                  default: ::Deepblue::IngestIntegrationService.ingest_script_debug_verbose
 
+  mattr_accessor :ingest_script_log_debug_verbose, default: false
+  mattr_accessor :ingest_script_move_debug_verbose, default: false
+  mattr_accessor :ingest_script_touch_debug_verbose, default: false
+
   attr_accessor :base_path
   attr_accessor :curation_concern_id
   attr_accessor :file_set_count
@@ -19,6 +23,7 @@ class IngestScript
   attr_accessor :ingest_script_path
   attr_accessor :initial_yaml_dir
   attr_accessor :initial_yaml_file_path
+  attr_accessor :max_appends
   attr_accessor :run_count
 
   class IngestScriptLoadError < RuntimeError
@@ -50,25 +55,45 @@ class IngestScript
     return path
   end
 
-  def self.append( curation_concern_id:, ingest_script: nil, ingest_script_path: nil, initial_yaml_file_path: )
+  def self.append( curation_concern_id:,
+                   ingest_script: nil,
+                   ingest_script_path: nil,
+                   initial_yaml_file_path:,
+                   max_appends: -1,
+                   run_count: 0 )
+
     IngestScript.new( curation_concern_id: curation_concern_id,
-                     ingest_mode: 'append',
-                     ingest_script: ingest_script,
-                     ingest_script_path: ingest_script_path,
-                     initial_yaml_file_path: initial_yaml_file_path )
+                      ingest_mode: 'append',
+                      ingest_script: ingest_script,
+                      ingest_script_path: ingest_script_path,
+                      initial_yaml_file_path: initial_yaml_file_path,
+                      max_appends: max_appends,
+                      run_count: run_count )
   end
 
-  def self.append_load( ingest_script_path:, run_count: )
-    IngestScript.new( ingest_script_path: ingest_script_path, load: true, run_count: run_count )
+  def self.append_load( ingest_script_path:, max_appends: -1, run_count: )
+    IngestScript.new( ingest_script_path: ingest_script_path,
+                      load: true,
+                      max_appends: max_appends,
+                      run_count: run_count )
   end
 
   def self.load( ingest_script_path: )
     IngestScript.new( ingest_script_path: ingest_script_path, load: true )
   end
 
-  def self.reload( ingest_script:, run_count: 0 )
-    rv = IngestScript.new( ingest_script_path: ingest_script.ingest_script_path, load: true, run_count: run_count )
-    #rv.log_backup( run_count: run_count ) if run_count > 0
+  def self.reload( ingest_script:, max_appends: -1, run_count: 0)
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "ingest_script=#{ingest_script}",
+                                           "ingest_script.ingest_script_path=#{ingest_script&.ingest_script_path}",
+                                           "max_appends=#{max_appends}",
+                                           "run_count=#{run_count}",
+                                           "" ] if ingest_script_debug_verbose
+    rv = IngestScript.new( ingest_script_path: ingest_script.ingest_script_path,
+                           load: true,
+                           max_appends: max_appends,
+                           run_count: run_count )
     return rv
   end
 
@@ -78,6 +103,7 @@ class IngestScript
                   ingest_script_path: nil,
                   initial_yaml_file_path: nil,
                   load: false,
+                  max_appends: -1,
                   run_count: 0 )
 
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -88,15 +114,22 @@ class IngestScript
                                            "ingest_script_path=#{ingest_script_path}",
                                            "initial_yaml_file_path=#{initial_yaml_file_path}",
                                            "load=#{load}",
+                                           "max_appends=#{max_appends}",
                                            "run_count=#{run_count}",
                                            "" ] if ingest_script_debug_verbose
     @load = load
     self.ingest_script_path = ingest_script_path
     @ingest_script = ingest_script
     if load
-      raise IngestScriptLoadError "Expected ingest_script_path '#{@ingest_script_path}' to exist." unless File.exist? @ingest_script_path
+      raise IngestScriptLoadError "Expected ingest_script_path '#{@ingest_script_path}' to exist." unless
+                                                                                    File.exist? @ingest_script_path
       @ingest_script ||= init_ingest_script
       @curation_concern_id = works_section[:id]
+      @max_appends = script_section[:max_appends]
+      if @max_appends.blank?
+        @max_appends = max_appends
+        script_section[:max_appends] = max_appends
+      end
       @run_count = script_section[:run_count]
       if @run_count.blank? || run_count > @run_count
         @run_count = run_count
@@ -104,6 +137,7 @@ class IngestScript
       end
       @initial_yaml_file_path = script_section[:initial_yaml_file_path]
     else
+      @max_appends = max_appends
       @run_count = run_count
       @curation_concern_id = curation_concern_id
       @initial_yaml_file_path = initial_yaml_file_path
@@ -135,6 +169,7 @@ class IngestScript
                                            "@load=#{@load}",
                                            "" ] if ingest_script_debug_verbose
     unless load
+      hash_value_init( :max_appends, hash: script_section, value: @max_appends )
       hash_value_init( :run_count, hash: script_section, value: @run_count )
       hash_value_init( :initial_yaml_file_path, hash: script_section, value: @initial_yaml_file_path )
       hash_value_init( :ingest_script_id, hash: script_section, value: @ingest_script_id )
@@ -344,6 +379,14 @@ class IngestScript
     script_section[:job_json] = job_json
   end
 
+  def job_max_appends
+    script_section[:job_max_appends]
+  end
+
+  def job_max_appends=( job_max_appends )
+    script_section[:job_max_appends] = job_max_appends
+  end
+
   def job_run_count
     script_section[:job_run_count]
   end
@@ -377,6 +420,12 @@ class IngestScript
   end
 
   def log_backup( run_count: )
+    debug_verbose = ingest_script_log_debug_verbose || ingest_script_debug_verbose
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "run_count=#{run_count}",
+                                           "@ingest_script_path=#{@ingest_script_path}",
+                                           "" ] if debug_verbose
     log_id = log_key(run_count - 1)
     script_section[log_id] = self.log
     self.log = []
@@ -394,12 +443,14 @@ class IngestScript
   end
 
   def log_indexed_save( log_array, index: @run_count )
+    debug_verbose = ingest_script_log_debug_verbose || ingest_script_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "index=#{index}",
                                            "log_array=#{log_array.pretty_inspect}",
+                                           "key=#{log_key(index)}",
                                            "@ingest_script_path=#{@ingest_script_path}",
-                                           "" ] if ingest_script_debug_verbose
+                                           "" ] if debug_verbose
     key = log_key( index )
     script_section[key] = log_array
     touch
@@ -407,11 +458,12 @@ class IngestScript
   end
 
   def log_save( log )
+    debug_verbose = ingest_script_log_debug_verbose || ingest_script_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "log=#{log.pretty_inspect}",
                                            "@ingest_script_path=#{@ingest_script_path}",
-                                           "" ] if ingest_script_debug_verbose
+                                           "" ] if debug_verbose
     # TODO: add append flag / add log_append
     self.log = log
     touch
@@ -419,12 +471,13 @@ class IngestScript
   end
 
   def move( new_path, save: false )
+    debug_verbose = ingest_script_move_debug_verbose || ingest_script_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "new_path=#{new_path}",
                                            "save=#{save}",
                                            "@ingest_script_path=#{@ingest_script_path}",
-                                           "" ] if true || ingest_script_debug_verbose
+                                           "" ] if debug_verbose
     parent = File.dirname new_path
     FileUtils.mkdir_p( parent ) unless Dir.exist? parent
     FileUtils.mv( @ingest_script_path, new_path )
@@ -437,10 +490,11 @@ class IngestScript
   end
 
   def move_to_finished( save: true )
+    debug_verbose = ingest_script_move_debug_verbose || ingest_script_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "save=#{save}",
-                                           "" ] if true || ingest_script_debug_verbose
+                                           "" ] if debug_verbose
     finished_script_path = File.join @ingest_id_dir, ingest_script_file_name
     move( finished_script_path, save: save )
   end
@@ -458,10 +512,11 @@ class IngestScript
   end
 
   def touch
+    debug_verbose = ingest_script_touch_debug_verbose || ingest_script_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "@ingest_script_path=#{@ingest_script_path}",
-                                           "" ] if ingest_script_debug_verbose
+                                           "" ] if debug_verbose
     File.open( @ingest_script_path, "w" ) do |out|
       out.puts @ingest_script.to_yaml
     end

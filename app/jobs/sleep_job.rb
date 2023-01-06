@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
-# bundle exec rake deepblue:run_job['{"job_class":"HeartBeat"\,"verbose":true}']
 class SleepJob < ::Deepblue::DeepblueJob
 
-  mattr_accessor :sleep_job_debug_verbose, default: true
-  @@bold_puts = true
+  mattr_accessor :sleep_job_debug_verbose, default: false
+  @@bold_puts = false
 
   def perform( job_delay_in_seconds: )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
