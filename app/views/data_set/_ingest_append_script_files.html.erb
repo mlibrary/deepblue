@@ -4,12 +4,21 @@
   <% @presenter.ingest_append_script_files.each do |path_pair| %>
     <% path = File.join path_pair %>
     <% mod = @presenter.ingest_append_script_show_modifiers( path ) %>
-    <li><span class="monospace-code">
-    <% if !all_links && @presenter.ingest_append_script_path == path %>
-      <%= File.basename path %>
-    <% else %>
-      <a href="<%= @presenter.ingest_append_prep_path( path: path ) %>" ><%= File.basename path %></a>
-    <% end %>
-    <%= mod %></span></li>
+    <li>
+      <span class="monospace-code">
+        <% if !all_links && @presenter.ingest_append_script_path == path %>
+          <%= File.basename path %>
+        <% else %>
+          <a href="<%= @presenter.ingest_append_prep_path( path: path ) %>" ><%= File.basename path %></a>
+        <% end %>
+        <%= mod %>
+        <% if @presenter.ingest_append_script_finished?( path ) %>
+          &nbsp;--&nbsp;
+          <%= link_to t(:'helpers.action.delete'),
+                      @presenter.ingest_append_delete_script_path( path: path ),
+                      data: { confirm: "Delete this append script '#{path}'?" } %>
+        <% end %>
+      </span>
+    </li>
   <% end %>
 </ul>
