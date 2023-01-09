@@ -2,12 +2,16 @@ require 'rails_helper'
 
 RSpec.describe '/_user_util_links.html.erb', type: :view do
   let(:join_date) { 5.days.ago }
+  let(:ability) { double "Ability" }
 
   context "standard depositor" do
 
     before do
+      allow(ability).to receive(:admin?).and_return true
+      allow(view).to receive(:current_ability).and_return(ability)
       allow(view).to receive(:user_signed_in?).and_return true
       allow(view).to receive(:current_user).and_return stub_model(User, user_key: 'userX')
+      allow(view).to receive(:current_ability).with(:admin?).and_return true
       allow(view).to receive(:can?).with(:create, DataSet).and_return true
       allow(view).to receive(:can?).with(:manage, User).and_return false
       allow(view).to receive(:can?).with(:review, :submissions).and_return false
@@ -76,6 +80,8 @@ RSpec.describe '/_user_util_links.html.erb', type: :view do
   context "admin" do
 
     before do
+      allow(ability).to receive(:admin?).and_return true
+      allow(view).to receive(:current_ability).and_return(ability)
       allow(view).to receive(:user_signed_in?).and_return true
       allow(view).to receive(:current_user).and_return stub_model(User, user_key: 'userX')
       allow(view).to receive(:can?).with(:create, DataSet).and_return true

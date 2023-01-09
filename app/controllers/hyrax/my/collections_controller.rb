@@ -187,7 +187,8 @@ module Hyrax
       def index
         add_breadcrumb t(:'hyrax.controls.home'), root_path
         add_breadcrumb t(:'hyrax.dashboard.breadcrumbs.admin'), hyrax.dashboard_path
-        add_breadcrumb t(:'hyrax.admin.sidebar.collections'), hyrax.my_collections_path
+        add_breadcrumb t(:'hyrax.admin.sidebar.collections'), hyrax.my_collections_path if current_ability.admin?
+        add_breadcrumb t(:'hyrax.admin.sidebar.collections'), hyrax.dashboard_collections_path unless current_ability.admin? 
         collection_type_list_presenter
         managed_collections_count
         super

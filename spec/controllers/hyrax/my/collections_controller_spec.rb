@@ -10,7 +10,8 @@ RSpec.describe Hyrax::My::CollectionsController, type: :controller, skip: false 
 
   describe "logged in user" do
     describe "#index" do
-      let(:user) { create(:user) }
+      let(:user) { create(:admin) }
+      let(:ability) { Ability.new(user) }
       let(:response) { instance_double(Blacklight::Solr::Response, response: { 'numFound' => 3 }) }
       let(:doc_list) { [double(id: 123), double(id: 456)] }
 

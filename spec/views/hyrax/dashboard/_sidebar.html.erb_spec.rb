@@ -2,6 +2,7 @@ require 'rails_helper'
 
 RSpec.describe 'hyrax/dashboard/_sidebar.html.erb', type: :view do
   let(:user) { stub_model(User, user_key: 'mjg', name: 'Foobar') }
+  let(:ability) { double "Ability" }
   let(:read_admin_dashboard) { false }
   let(:manage_any_admin_set) { false }
   let(:review_submissions) { false }
@@ -12,6 +13,8 @@ RSpec.describe 'hyrax/dashboard/_sidebar.html.erb', type: :view do
   let(:manage_collection_types) { false }
 
   before do
+    allow(ability).to receive(:admin?).and_return false
+    allow(view).to receive(:current_ability).and_return(ability)
     allow(view).to receive(:signed_in?).and_return(true)
     allow(view).to receive(:current_user).and_return(user)
     assign(:user, user)
