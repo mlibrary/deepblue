@@ -188,6 +188,8 @@ Rails.application.routes.draw do
         post   'globus_download_notify_me'
         get    'globus_download_notify_me'
         get    'globus_download_redirect'
+        get    'ingest_append_delete_script'
+        post   'ingest_append_delete_script'
         get    'ingest_append_generate_script'
         post   'ingest_append_generate_script'
         get    'ingest_append_prep'

@@ -11,5 +11,13 @@
   <%= link_to t(:'helpers.action.cancel'),
               polymorphic_path([main_app, curation_concern]),
               class: 'btn btn-subtle cancel-btn' %>
+  <% path = @presenter.ingest_append_script_path %>
+  <% if @presenter.ingest_append_script_finished?( path ) %>
+      &nbsp;&nbsp;&nbsp;
+      <%= link_to t('simple_form.actions.data_set.ingest_append_delete_script'),
+                  @presenter.ingest_append_delete_script_path( path: path ),
+                  class: 'btn btn-primary',
+                  data: { confirm: "Delete this append script '#{path}'?" } %>
+    <% end %>
   <br/>
 <% end %>

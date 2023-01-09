@@ -103,12 +103,24 @@ module Deepblue
       #                                        "ingest_script_messages=#{ingest_script_messages}",
       #                                        "script=#{script.join( "\n" )}",
       #                                        "" ] if ingest_append_scripts_controller_behavior_debug_verbose
-
       return script.join( "\n" )
     end
 
     def ingest_allowed_base_directories
       @ingest_allowed_base_directories ||= ::Deepblue::IngestIntegrationService.ingest_append_ui_allowed_base_directories
+    end
+
+    def ingest_append_delete_script
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "params=#{params}",
+                                             "params[:ingest_append_script_path]=#{params[:ingest_append_script_path]}",
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
+      presenter.controller = self
+      path = params[:ingest_append_script_path]
+      File.delete path if File.exist? path
+      render '_ingest_append'
     end
 
     def ingest_append_generate_script
@@ -132,15 +144,46 @@ module Deepblue
       render '_ingest_append'
     end
 
+    @ingest_append_script_show_modifiers
+
     def ingest_append_script_show_modifiers( path )
+      @ingest_append_script_show_modifiers ||= {}
+      rv = @ingest_append_script_show_modifiers[path]
+      if rv.nil?
+        rv = ingest_append_script_show_modifiers_init( path );
+        @ingest_append_script_show_modifiers[path] = rv
+      end
+      return '' if rv.empty?
+      return " (#{rv.join(', ')})"
+    end
+
+    def ingest_append_script_finished?( path )
+      ingest_append_script_modifier?( path,'finished' )
+    end
+
+    def ingest_append_script_modifier?( path, modifier )
+      rv = @ingest_append_script_show_modifiers[path]
+      if rv.nil?
+        rv = ingest_append_script_show_modifiers_init( path );
+        @ingest_append_script_show_modifiers[path] = rv
+      end
+      rv.include?( modifier )
+    end
+
+    def ingest_append_script_show_modifiers_init( path )
       rv = []
       ingest_script = IngestScript.load( ingest_script_path: path )
       rv << 'active' if ingest_script.active?
       rv << 'job running' if ingest_script.job_running?
       rv << 'finished' if ingest_script.finished?
       rv << 'failed' if ingest_script.failed?
-      return '' if rv.empty?
-      return " (#{rv.join(', ')})"
+      return rv;
+    end
+
+    def ingest_append_delete_script_path( path: )
+      main_app.ingest_append_delete_script_hyrax_data_set_path( id: params[:id],
+                                                       ingest_prep_tab_active: 'ingest_append_script_view_display',
+                                                       ingest_append_script_path: URI::DEFAULT_PARSER.escape(path) )
     end
 
     def ingest_append_prep_path( path: )
