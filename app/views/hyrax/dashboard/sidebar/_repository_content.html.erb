@@ -1,9 +1,16 @@
   <li class="h5"><%= t('hyrax.admin.sidebar.repository_objects') %></li>
 
+<% if current_ability.admin? %> 
   <%= menu.nav_link(hyrax.my_collections_path,
                     also_active_for: hyrax.dashboard_collections_path) do %>
     <span class="fa fa-folder-open" aria-hidden="true"></span> <span class="sidebar-action-text"><%= t('hyrax.admin.sidebar.collections') %></span>
   <% end %>
+<% else %>
+  <%= menu.nav_link(hyrax.dashboard_collections_path,
+                    also_active_for: hyrax.dashboard_collections_path) do %>
+    <span class="fa fa-folder-open" aria-hidden="true"></span> <span class="sidebar-action-text"><%= t('hyrax.admin.sidebar.collections') %></span>
+  <% end %>
+<% end %>
 
   <%= menu.nav_link(hyrax.my_works_path,
                     also_active_for: hyrax.dashboard_works_path) do %>
