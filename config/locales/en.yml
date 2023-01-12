@@ -78,7 +78,7 @@ en:
         reloaded_view_templates:        "Reloaded view Templates."
     confirm:
       data_set:
-        ingest_append_run_job:          "Are you sure you want to run the append script job?"
+        ingest_append_script_run_job:          "Are you sure you want to run the append script job?"
       ingest:
         run_append_ingests_job:         "Are you sure you want to run append ingests job?"
         run_populate_ingests_job:       "Are you sure you want to run populate ingests job?"

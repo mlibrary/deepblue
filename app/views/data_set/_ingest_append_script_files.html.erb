@@ -9,13 +9,13 @@
         <% if !all_links && @presenter.ingest_append_script_path == path %>
           <%= File.basename path %>
         <% else %>
-          <a href="<%= @presenter.ingest_append_prep_path( path: path ) %>" ><%= File.basename path %></a>
+          <a href="<%= @presenter.ingest_append_script_prep_path( path: path ) %>" ><%= File.basename path %></a>
         <% end %>
         <%= mod %>
-        <% if @presenter.ingest_append_script_finished?( path ) %>
+        <% if @presenter.ingest_append_script_deletable?( path ) %>
           &nbsp;--&nbsp;
           <%= link_to t(:'helpers.action.delete'),
-                      @presenter.ingest_append_delete_script_path( path: path ),
+                      @presenter.ingest_append_script_delete_path( path: path ),
                       data: { confirm: "Delete this append script '#{path}'?" } %>
         <% end %>
       </span>

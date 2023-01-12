@@ -4,13 +4,13 @@ module JobHelper
 
   mattr_accessor :job_helper_debug_verbose, default: ::Deepblue::JobTaskHelper.job_helper_debug_verbose
 
-
   attr_writer   :debug_verbose
   attr_writer   :email_targets
   attr_writer   :from_dashboard
   attr_writer   :hostname
   attr_writer   :hostname_allowed
   attr_writer   :hostnames
+  attr_accessor :id
   attr_writer   :job_delay
   attr_accessor :job_status
   attr_writer   :msg_handler
@@ -246,8 +246,10 @@ module JobHelper
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "debug_verbose=#{debug_verbose}",
+                                           "id=#{id}",
                                            "options=#{options}",
                                            "" ] if debug_verbose
+    @id = id
     @options = options
     @options ||= {}
     initialize_defaults( debug_verbose: debug_verbose )
@@ -343,7 +345,7 @@ module JobHelper
   end
 
   def job_start( id: nil, restartable: false, email_init: true )
-    job_status_init( id: nil, restartable: restartable )
+    job_status_init( id: id, restartable: restartable )
     email_targets_init if email_init
     timestamp_begin
   end

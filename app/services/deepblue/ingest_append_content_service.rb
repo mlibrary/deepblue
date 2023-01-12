@@ -23,6 +23,7 @@ module Deepblue
                           job_json: nil,
                           max_appends:,
                           msg_handler:,
+                          restart:,
                           run_count:,
                           options: )
 
@@ -51,13 +52,16 @@ module Deepblue
                                                "ingester=#{ingester}",
                                                "job_json=#{job_json.pretty_inspect}",
                                                "max_appends=#{max_appends}",
+                                               "restart=#{restart}",
                                                "run_count=#{run_count}",
                                                "options=#{options}",
                                                "" ] if ingest_append_content_service_debug_verbose
         ingest_script = IngestScript.append_load( ingest_script_path: ingest_script_path,
                                                   max_appends: max_appends,
-                                                  run_count: run_count )
-        ingest_script.log_indexed_save( msg_handler.msg_queue )
+                                                  run_count: run_count,
+                                                  restart: restart,
+                                                  source: "IngestAppendContentService.call_append" )
+        ingest_script.log_indexed_save( msg_handler.msg_queue, source: self.class.name )
       rescue Exception => e
         msg_handler.msg_error "IngestAppendContentService.call_append(#{ingest_script_path}) #{e.class}: #{e.message}"
         raise e
@@ -101,7 +105,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "about to save log to ingest script at run_count=#{run_count}",
                                              "" ] if ingest_append_content_service_debug_verbose
-      ingest_script.log_indexed_save( msg_handler.msg_queue ) if ingest_script.present?
+      ingest_script.log_indexed_save( msg_handler.msg_queue, source: self.class.name ) if ingest_script.present?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "ingest_script=#{ingest_script}",

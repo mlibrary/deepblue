@@ -13,16 +13,16 @@
     end
   %>
   <ul class="nav nav-tabs" role="tablist">
-    <li id='ingest_append_prep_display_link' class="<%=prep_link_class%>">
-      <a href="#ingest_append_prep_display" data-toggle="tab"> <%= t('show.labels.ingest_append_prep') %></a>
+    <li id='ingest_append_script_prep_display_link' class="<%=prep_link_class%>">
+      <a href="#ingest_append_script_prep_display" data-toggle="tab"> <%= t('show.labels.ingest_append_script_prep') %></a>
     </li>
     <li id='ingest_append_script_view_display_link' class="<%=view_link_class%>">
       <a href="#ingest_append_script_view_display" data-toggle="tab"> <%= t('show.labels.ingest_append_script_view') %></a>
     </li>
   </ul>
   <div class="tab-content">
-    <div id='ingest_append_prep_display' class="<%=prep_tab_class%>">
-      <%= render 'ingest_append_prep_form', presenter: @presenter %>
+    <div id='ingest_append_script_prep_display' class="<%=prep_tab_class%>">
+      <%= render 'ingest_append_script_prep_form', presenter: @presenter %>
     </div>
     <div id='ingest_append_script_view_display' class="<%=view_tab_class%>">
       <%= render 'ingest_append_script_view', presenter: @presenter %>
