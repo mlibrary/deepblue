@@ -51,9 +51,9 @@ module Hyrax
     protect_from_forgery with: :null_session,    only: [:globus_download_add_email]
     protect_from_forgery with: :null_session,    only: [:globus_download_notify_me]
     protect_from_forgery with: :null_session,    only: [:globus_download_redirect]
-    protect_from_forgery with: :null_session,    only: [:ingest_append_generate_script]
-    protect_from_forgery with: :null_session,    only: [:ingest_append_prep]
-    protect_from_forgery with: :null_session,    only: [:ingest_append_run_job]
+    protect_from_forgery with: :null_session,    only: [:ingest_append_script_generate]
+    protect_from_forgery with: :null_session,    only: [:ingest_append_script_prep]
+    protect_from_forgery with: :null_session,    only: [:ingest_append_script_run_job]
     protect_from_forgery with: :null_session,    only: [:work_find_and_fix]
     protect_from_forgery with: :null_session,    only: [:zip_download]
 

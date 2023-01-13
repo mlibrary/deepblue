@@ -1,5 +1,5 @@
 <%= hidden_field_tag('data_set[nop]') %>
-<table class="ingest_append_prep table">
+<table class="ingest_append_script_prep table">
   <tbody>
     <% if @presenter.ingest_script_messages.present? %>
       <td>
@@ -21,7 +21,3 @@
     </tr>
   </tbody>
 </table>
-<ul>
-  <li>Submit button for running re-running script (if not finished).</li>
-  <li>Submit button for running deleting script.</li>
-</ul>

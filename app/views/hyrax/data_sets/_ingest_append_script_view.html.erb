@@ -4,20 +4,27 @@
                                          ""] %>
 <h2><%= @presenter.ingest_append_script_view_title %></h2>
 <p/>
-<%= form_tag(main_app.ingest_append_view_script_hyrax_data_set_path(@curation_concern.id), method: 'post') do %>
+<%= form_tag(main_app.ingest_append_script_view_hyrax_data_set_path(@curation_concern.id), method: 'post') do %>
   <%= render partial: 'data_set/ingest_append_script_view_fields' %>
   <br/>
-  <%= submit_tag(t('simple_form.actions.data_set.ingest_append_refresh_script'), class: 'btn btn-primary') %>
+  <%= submit_tag(t('simple_form.actions.data_set.ingest_append_script_refresh'), class: 'btn btn-primary') %>
   <%= link_to t(:'helpers.action.cancel'),
               polymorphic_path([main_app, curation_concern]),
               class: 'btn btn-subtle cancel-btn' %>
   <% path = @presenter.ingest_append_script_path %>
-  <% if @presenter.ingest_append_script_finished?( path ) %>
+  <% if @presenter.ingest_append_script_deletable?( path ) %>
       &nbsp;&nbsp;&nbsp;
-      <%= link_to t('simple_form.actions.data_set.ingest_append_delete_script'),
-                  @presenter.ingest_append_delete_script_path( path: path ),
+      <%= link_to t('simple_form.actions.data_set.ingest_append_script_delete'),
+                  @presenter.ingest_append_script_delete_path( path: path ),
                   class: 'btn btn-primary',
                   data: { confirm: "Delete this append script '#{path}'?" } %>
+  <% end %>
+  <% if @presenter.ingest_append_script_finished?( path ) || @presenter.ingest_append_script_failed?( path ) %>
+    &nbsp;
+    <%= link_to t(:'helpers.action.restart'),
+                @presenter.ingest_append_script_restart_path( path: path ),
+                class: 'btn btn-primary',
+                data: { confirm: "Restart this append script '#{path}'?" } %>
     <% end %>
   <br/>
 <% end %>

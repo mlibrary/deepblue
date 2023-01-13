@@ -24,9 +24,9 @@ class Ability
     alias_action :globus_download_add_email, to: :read
     alias_action :globus_download_notify_me, to: :read
     alias_action :globus_download_redirect,  to: :read
-    alias_action :ingest_append_generate_script, to: :read
-    alias_action :ingest_append_prep,        to: :read
-    alias_action :ingest_append_run_job,     to: :update
+    alias_action :ingest_append_script_generate, to: :read
+    alias_action :ingest_append_script_prep,        to: :read
+    alias_action :ingest_append_script_run_job,     to: :update
     alias_action :tombstone,                 to: :delete
     alias_action :zip_download,              to: :read
 

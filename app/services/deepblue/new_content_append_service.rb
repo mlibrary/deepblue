@@ -258,7 +258,8 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if debug_verbose
-      @ingest_script.log_indexed_save( msg_handler.msg_queue ) if msg_handler.present? && @ingest_script.present?
+      @ingest_script.log_indexed_save( msg_handler.msg_queue,
+                                       source: self.class.name ) if msg_handler.present? && @ingest_script.present?
     end
 
     def users_from_hash( hash: )
