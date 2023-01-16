@@ -109,6 +109,8 @@ Deepblue::IngestIntegrationService.setup do |config|
 
   config.ingest_append_ui_allow_scripts_to_run = Dir.exist? config.ingest_script_dir
 
+  config.ingest_append_script_allow_delete_any_script = true
+
   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                          ::Deepblue::LoggingHelper.called_from,
                          "config.ingest_append_ui_allow_scripts_to_run=#{config.ingest_append_ui_allow_scripts_to_run}",

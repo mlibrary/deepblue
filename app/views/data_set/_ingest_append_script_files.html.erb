@@ -12,7 +12,7 @@
           <a href="<%= @presenter.ingest_append_script_prep_path( path: path ) %>" ><%= File.basename path %></a>
         <% end %>
         <%= mod %>
-        <% if @presenter.ingest_append_script_deletable?( path ) %>
+        <% if @presenter.ingest_append_script_can_delete_script?( path ) %>
           &nbsp;--&nbsp;
           <%= link_to t(:'helpers.action.delete'),
                       @presenter.ingest_append_script_delete_path( path: path ),

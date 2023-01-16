@@ -10,7 +10,9 @@ module Deepblue
     mattr_accessor :ingest_content_service_debug_verbose,
                    default: ::Deepblue::IngestIntegrationService.ingest_content_service_debug_verbose
 
-    attr_accessor :first_label, :msg_handler, :mode
+    attr_accessor :first_label
+    attr_accessor :msg_handler
+    attr_accessor :mode
 
     def self.call( msg_handler:, path_to_yaml_file:, ingester: nil, mode: nil, first_label: 'work_id', options: )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

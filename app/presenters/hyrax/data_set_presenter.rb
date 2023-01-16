@@ -45,6 +45,8 @@ module Hyrax
              :ingest_allowed_base_directories,
              :enable_analytics_works_reports_can_subscribe?,
              :ingest_append_script,
+             :ingest_append_script_can_delete_script?,
+             :ingest_append_script_can_restart_script?,
              :ingest_append_script_deletable?,
              :ingest_append_script_delete_path,
              :ingest_append_script_failed?,

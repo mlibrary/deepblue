@@ -12,6 +12,9 @@ module Deepblue
     mattr_accessor :ingest_append_ui_allow_scripts_to_run,
                    default: ::Deepblue::IngestIntegrationService.ingest_append_ui_allow_scripts_to_run
 
+    mattr_accessor :ingest_append_script_allow_delete_any_script,
+                   default: ::Deepblue::IngestIntegrationService.ingest_append_ui_allow_scripts_to_run
+
     mattr_accessor :ingest_append_script_max_appends,
                    default: ::Deepblue::IngestIntegrationService.ingest_append_script_max_appends
     mattr_accessor :ingest_append_script_max_restarts_base,
@@ -112,6 +115,20 @@ module Deepblue
 
     def ingest_append_script
       @ingest_append_script ||= ingest_append_script_init
+    end
+
+    def ingest_append_script_can_delete_script?( path_to_script )
+      return false unless current_ability.admin?
+      return true if IngestAppendScriptControllerBehavior.ingest_append_script_allow_delete_any_script
+      return true if ingest_append_script_deletable?( path_to_script )
+      return false
+    end
+
+    def ingest_append_script_can_restart_script?( path_to_script )
+      return false unless current_ability.admin?
+      return true if ingest_append_script_finished?( path_to_script )
+      return true if ingest_append_script_failed?( path_to_script )
+      return false
     end
 
     def ingest_append_script_init
