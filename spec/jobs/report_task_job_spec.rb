@@ -17,7 +17,8 @@ RSpec.describe ReportTaskJob, skip: false do
     it { expect( described_class.report_task_allowed_path_prefixes ).to eq [ '/deepbluedata-prep/',
                                                                              './lib/reports/',
                                                                              './data/reports/',
-                                                                             '/deepbluedata-globus/uploads/' ] }
+                                                                             '/deepbluedata-globus/upload/',
+                                                                             '/deepbluedata-dataden/upload/' ] }
   end
 
   describe 'all', skip: false do
@@ -44,7 +45,8 @@ RSpec.describe ReportTaskJob, skip: false do
         let(:allowed_path_prefixes)   { [ '/deepbluedata-prep/',
                                           './lib/reports/',
                                           './data/reports/',
-                                          '/deepbluedata-globus/uploads/' ] }
+                                          '/deepbluedata-globus/upload/',
+                                          '/deepbluedata-dataden/upload/' ] }
 
         context 'with valid arguments and two paths' do
           let(:path1) { '/some/path/to/report1' }

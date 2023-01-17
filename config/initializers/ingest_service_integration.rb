@@ -37,7 +37,7 @@ Deepblue::IngestIntegrationService.setup do |config|
   config.characterize_mime_type_ext_mismatch_fix = { ".html" => 'text/html' }.freeze
 
   config.ingest_append_queue_name = :default
-  allowed_dirs = [ "/deepbluedata-prep", "/deepbluedata-globus", "./data/" ]
+  allowed_dirs = [ '/deepbluedata-prep', '/deepbluedata-globus', '/deepbluedata-dataden/upload', './data/' ]
   if Rails.env.development?
     allowed_dirs << File.join( Dir.home, 'Documents' ).to_s
     allowed_dirs << File.join( Dir.home, 'Downloads' ).to_s

@@ -15,8 +15,9 @@ RSpec.describe MultipleIngestScriptsJob, skip: false do
   describe 'module variables' do
     it { expect( described_class.scripts_allowed_path_extensions ).to eq [ '.yml', '.yaml' ] }
     it { expect( described_class.scripts_allowed_path_prefixes ).to eq [ '/deepbluedata-prep/',
-                                                                      './data/reports/',
-                                                                      '/deepbluedata-globus/upload/' ] }
+                                                                         './data/reports/',
+                                                                         '/deepbluedata-globus/upload/',
+                                                                         '/deepbluedata-dataden/upload/'] }
   end
 
   describe 'all', skip: false do
