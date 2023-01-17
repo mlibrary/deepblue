@@ -1,13 +1,13 @@
 <div class="documentation-div">
 <% host_url = "http://#{Rails.configuration.hostname}" %>
-<h2 id="rest-api">REST API</h2>
+<h1 id="rest-api">REST API</h1>
   <ul>
     <li><a href="#rest-api">REST API</a></li>
     <li><a href="#rest-api-detailed">REST API - Detailed</a></li>
     <li><a href="#rest-api-examples">REST API - Examples</a></li>
   </ul>
 
-  <h3>Catalog</h3>
+  <h2>Catalog</h2>
 
   <ul>
     <li><code>/data/catalog.json</code></li>
@@ -15,22 +15,22 @@
     <li><code>/data/catalog.json?f[<var>:facet_name</var>][]=<var>:search_criteria</var></code></li>
   </ul>
 
-  <h3>Collections</h3>
+  <h2>Collections</h2>
   <ul>
     <li><code>/data/concern/collections/<var>:collection_id</var>.json</code></li>
   </ul>
 
-  <h3>Data Sets</h3>
+  <h2>Data Sets</h2>
   <ul>
     <li><code>/data/concern/data_sets/<var>:data_set_id</var>.json</code></li>
   </ul>
 
-  <h3>File sets</h3>
+  <h2>File sets</h2>
   <ul>
     <li><code>/data/concern/file_sets/<var>:file_set_id</var>.json</code></li>
   </ul>
 
-<h2 id="rest-api-detailed">REST API -- Detailed</h2>
+<h1 id="rest-api-detailed">REST API -- Detailed</h1>
 
   <ul>
     <li><a href="#rest-api">REST API</a></li>
@@ -46,7 +46,7 @@
   </ul>
 
 
-<h3 id="rest-api-detailed-catalog">Catalog</h3>
+<h2 id="rest-api-detailed-catalog">Catalog</h2>
 
 <table class="rest-api-table">
   <tr>
@@ -167,7 +167,7 @@
   </tr>
 </table>
 
-<h3 id="rest-api-detailed-collections">Collections</h3>
+<h2 id="rest-api-detailed-collections">Collections</h2>
 <table class="rest-api-table">
   <tr><th colspan="4">Request</th><th colspan="3">Response</th></tr>
   <tr>
@@ -222,7 +222,7 @@
   </tr>
 </table>
 
-<h3 id="rest-api-detailed-data-sets">Data Sets</h3>
+<h2 id="rest-api-detailed-data-sets">Data Sets</h2>
 <table class="rest-api-table">
   <tr>
     <th colspan="4">Request</th>
@@ -331,7 +331,7 @@
   </tr>
 </table>
 
-<h3 id="rest-api-detailed-file-sets">File Sets</h3>
+<h2 id="rest-api-detailed-file-sets">File Sets</h2>
 <table class="rest-api-table">
   <tr>
     <th colspan="4">Request</th>
@@ -404,7 +404,7 @@
   </tr>
 </table>
 
-<h2 id="rest-api-examples">REST API -- Examples</h2>
+<h1 id="rest-api-examples">REST API -- Examples</h1>
 
   <% example_collection_id = "c1234567" %>
   <% example_data_set_id = "d1234567" %>
@@ -414,7 +414,7 @@
     <li><a href="#rest-api-detailed">REST API - Detailed</a></li>
     <li><a href="#rest-api-examples">REST API - Examples</a></li>
   </ul>
-  <h3>Catalog</h3>
+  <h2>Catalog</h2>
 
   <ul>
     <li><code>curl '<%=host_url%>/data/catalog.json'</code></li>
@@ -449,7 +449,7 @@ puts JSON.pretty_generate( json )
     </li>
   </ul>
 
-  <h3>Collections</h3>
+  <h2>Collections</h2>
   <ul>
     <li><code>curl '<%=host_url%>/data/concern/collections/<%=example_collection_id%>.json'</code></li>
     <li>
@@ -463,7 +463,7 @@ puts JSON.pretty_generate( json )
     </li>
   </ul>
 
-  <h3>Data Sets</h3>
+  <h2>Data Sets</h2>
   <ul>
     <li><code>curl '<%=host_url%>/data/concern/data_sets/<%=example_data_set_id%>.json'</code></li>
     <li>
@@ -477,7 +477,7 @@ puts JSON.pretty_generate( json )
     </li>
   </ul>
 
-  <h3>File sets</h3>
+  <h2>File sets</h2>
   <ul>
     <li><code>curl '<%=host_url%>/data/concern/file_sets/<%=example_file_set_id%>.json'</code></li>
     <li>
