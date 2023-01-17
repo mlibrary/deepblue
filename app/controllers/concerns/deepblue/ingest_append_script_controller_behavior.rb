@@ -110,7 +110,15 @@ module Deepblue
     end
 
     def ingest_allowed_base_directories
-      @ingest_allowed_base_directories ||= ::Deepblue::IngestIntegrationService.ingest_append_ui_allowed_base_directories
+      @ingest_allowed_base_directories ||= ingest_allowed_base_directories_init
+    end
+
+    def ingest_allowed_base_directories_init
+      dirs = ::Deepblue::IngestIntegrationService.ingest_append_ui_allowed_base_directories
+      rv = dirs.select do |dir|
+        Dir.exists? dir
+      end
+      return rv
     end
 
     def ingest_append_script
@@ -126,16 +134,17 @@ module Deepblue
 
     def ingest_append_script_can_restart_script?( path_to_script )
       return false unless current_ability.admin?
+      # TODO: test for ingest append sript running
       return true if ingest_append_script_finished?( path_to_script )
       return true if ingest_append_script_failed?( path_to_script )
       return false
     end
 
-    def ingest_append_script_init
-      path = ingest_append_script_path
-      return "" if path.blank?
-      script = File.open( path, 'r' ) { |io| io.read }
-      return script
+    def ingest_append_script_deletable?( path )
+      return false if ingest_append_script_modifier?( path,'active' )
+      return true if ingest_append_script_modifier?( path,'finished' )
+      return true if ingest_append_script_modifier?( path,'failed' )
+      return false
     end
 
     def ingest_append_script_delete
@@ -151,8 +160,22 @@ module Deepblue
       render '_ingest_append'
     end
 
+    def ingest_append_script_delete_path( path: )
+      main_app.ingest_append_script_delete_hyrax_data_set_path( id: params[:id],
+                                                                ingest_prep_tab_active: 'ingest_append_script_view_display',
+                                                                ingest_append_script_path: URI::DEFAULT_PARSER.escape(path) )
+    end
+
+    def ingest_append_script_failed?( path )
+      ingest_append_script_modifier?( path,'failed' )
+    end
+
     def ingest_append_script_files
       @ingest_append_script_files ||= ingest_append_script_files_init
+    end
+
+    def ingest_append_script_finished?( path )
+      ingest_append_script_modifier?( path,'finished' )
     end
 
     def ingest_append_script_files_init
@@ -171,35 +194,11 @@ module Deepblue
       render 'ingest_append_script_form'
     end
 
-    def ingest_append_script_prep
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                             "params=#{params}",
-                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
-      presenter.controller = self
-      render '_ingest_append'
-    end
-
-    def ingest_append_script_delete_path( path: )
-      main_app.ingest_append_script_delete_hyrax_data_set_path( id: params[:id],
-                                                      ingest_prep_tab_active: 'ingest_append_script_view_display',
-                                                      ingest_append_script_path: URI::DEFAULT_PARSER.escape(path) )
-    end
-
-    def ingest_append_script_deletable?( path )
-      return false if ingest_append_script_modifier?( path,'active' )
-      return true if ingest_append_script_modifier?( path,'finished' )
-      return true if ingest_append_script_modifier?( path,'failed' )
-      return false
-    end
-
-    def ingest_append_script_failed?( path )
-      ingest_append_script_modifier?( path,'failed' )
-    end
-
-    def ingest_append_script_finished?( path )
-      ingest_append_script_modifier?( path,'finished' )
+    def ingest_append_script_init
+      path = ingest_append_script_path
+      return "" if path.blank?
+      script = File.open( path, 'r' ) { |io| io.read }
+      return script
     end
 
     def ingest_append_script_modifier?( path, modifier )
@@ -210,17 +209,6 @@ module Deepblue
         @ingest_append_script_show_modifiers[path] = rv
       end
       rv.include?( modifier )
-    end
-
-    def ingest_append_script_show_modifiers_init( path )
-      rv = []
-      ingest_script = IngestScript.load( ingest_script_path: path,
-                                         source: "#{self.class.name}.ingest_append_script_show_modifiers_init" )
-      rv << 'active' if ingest_script.active?
-      rv << 'job running' if ingest_script.job_running?
-      rv << 'finished' if ingest_script.finished?
-      rv << 'failed' if ingest_script.failed?
-      return rv;
     end
 
     def ingest_append_script_path
@@ -250,11 +238,14 @@ module Deepblue
       return path
     end
 
-    def ingest_append_script_restartable?( path )
-      return false if ingest_append_script_modifier?( path,'active' )
-      return true if ingest_append_script_modifier?( path,'finished' )
-      return true if ingest_append_script_modifier?( path,'failed' )
-      return false
+    def ingest_append_script_prep
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "params=#{params}",
+                                             "" ] if ingest_append_scripts_controller_behavior_debug_verbose
+      presenter.controller = self
+      render '_ingest_append'
     end
 
     def ingest_append_script_prep_path( path: )
@@ -298,6 +289,13 @@ module Deepblue
       main_app.ingest_append_script_restart_hyrax_data_set_path( id: params[:id],
                                                                  ingest_prep_tab_active: 'ingest_append_script_view_display',
                                                                  ingest_append_script_path: URI::DEFAULT_PARSER.escape(path) )
+    end
+
+    def ingest_append_script_restartable?( path )
+      return false if ingest_append_script_modifier?( path,'active' )
+      return true if ingest_append_script_modifier?( path,'finished' )
+      return true if ingest_append_script_modifier?( path,'failed' )
+      return false
     end
 
     def ingest_append_script_run_job
@@ -346,6 +344,17 @@ module Deepblue
       end
       return '' if rv.empty?
       return " (#{rv.join(', ')})"
+    end
+
+    def ingest_append_script_show_modifiers_init( path )
+      rv = []
+      ingest_script = IngestScript.load( ingest_script_path: path,
+                                         source: "#{self.class.name}.ingest_append_script_show_modifiers_init" )
+      rv << 'active' if ingest_script.active?
+      rv << 'job running' if ingest_script.job_running?
+      rv << 'finished' if ingest_script.finished?
+      rv << 'failed' if ingest_script.failed?
+      return rv;
     end
 
     def ingest_append_script_view

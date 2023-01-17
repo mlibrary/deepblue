@@ -15,7 +15,8 @@ class ReportTaskJob < ::Hyrax::ApplicationJob
   mattr_accessor :report_task_allowed_path_prefixes, default: [ '/deepbluedata-prep/',
                                                                 './lib/reports/',
                                                                 './data/reports/',
-                                                                '/deepbluedata-globus/uploads/' ]
+                                                                '/deepbluedata-globus/upload/',
+                                                                '/deepbluedata-dataden/upload/' ]
 
   include JobHelper # see JobHelper for :by_request_only, :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as :default
