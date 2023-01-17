@@ -12,14 +12,14 @@
               polymorphic_path([main_app, curation_concern]),
               class: 'btn btn-subtle cancel-btn' %>
   <% path = @presenter.ingest_append_script_path %>
-  <% if @presenter.ingest_append_script_deletable?( path ) %>
+  <% if @presenter.ingest_append_script_can_delete_script?( path ) %>
       &nbsp;&nbsp;&nbsp;
       <%= link_to t('simple_form.actions.data_set.ingest_append_script_delete'),
                   @presenter.ingest_append_script_delete_path( path: path ),
                   class: 'btn btn-primary',
                   data: { confirm: "Delete this append script '#{path}'?" } %>
   <% end %>
-  <% if @presenter.ingest_append_script_finished?( path ) || @presenter.ingest_append_script_failed?( path ) %>
+  <% if @presenter.ingest_append_script_can_restart_script?( path ) %>
     &nbsp;
     <%= link_to t(:'helpers.action.restart'),
                 @presenter.ingest_append_script_restart_path( path: path ),

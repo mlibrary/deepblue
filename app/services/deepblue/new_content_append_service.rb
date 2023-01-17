@@ -196,6 +196,7 @@ module Deepblue
         msg_handler.msg_debug "Setting finished to true." if debug_verbose
         msg_handler.msg_verbose "Setting finished to true." if verbose
         @ingest_script.finished = true
+        @ingest_script.active = false
       else
         msg_handler.msg_debug "Setting finished to false." if debug_verbose
         msg_handler.msg_verbose "Setting finished to false." if verbose

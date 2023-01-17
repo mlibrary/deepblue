@@ -45,6 +45,7 @@ module Deepblue
     mattr_accessor :ingest_allowed_path_prefixes,                     default: []
     # mattr_accessor :ingest_append_ui_allowed_base_directories,        default: []
     mattr_accessor :ingest_append_ui_allow_scripts_to_run,            default: true
+    mattr_accessor :ingest_append_script_allow_delete_any_script,     default: true
 
     mattr_accessor :ingest_script_tracking_dir_base,                  default: Rails.root.join('tmp', 'scripts')
     mattr_accessor :ingest_script_tracking_dir_expand_id,             default: true

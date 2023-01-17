@@ -12,13 +12,14 @@ class IngestScript
   mattr_accessor :ingest_script_save_debug_verbose, default: false
   mattr_accessor :ingest_script_touch_debug_verbose, default: false
 
-  mattr_accessor :ingest_script_write_copy_of_log_sections, default: false
+  mattr_accessor :ingest_script_write_copy_logs_visible, default: true # TODO: set false
+
+  mattr_accessor :ingest_script_write_copy_of_log_sections, default: true # TODO: set false
   mattr_accessor :ingest_script_write_add_source, default: true
   mattr_accessor :ingest_script_write_add_source_backtrace, default: false
 
   attr_accessor :base_path
   attr_accessor :curation_concern_id
-  attr_accessor :file_set_count
   attr_accessor :ingest_base_dir
   attr_accessor :ingest_mode
   attr_accessor :ingest_id_dir
@@ -39,9 +40,13 @@ class IngestScript
     paths = []
     dirs = ingest_script_dirs( id: id, active_only: active_only )
     dirs.each do |dir|
-      Dir.glob( "*#{id}_append.yml", base: dir ).sort.each { |p| paths << [dir,p] }
+      Dir.glob( "*#{id}_append.yml", base: dir ).each { |p| paths << [dir,p] }
+      if ingest_script_write_copy_logs_visible
+        Dir.glob( "*#{id}_append_log*.yml", base: dir ).each { |p| paths << [dir,p] }
+      end
     end
-    return paths
+    paths.sort! { |a, b| a[1] <=> b[1] }
+    return paths.reverse!
   end
 
   def self.ingest_script_dirs( id: nil, active_only: false )
@@ -197,10 +202,9 @@ class IngestScript
       hash_value_init( :saved_last,   hash: script_section, value: '' )
       hash_value_init( :saved_source, hash: script_section, value: '' )
     end
+    hash_value_init( :file_set_count, hash: script_section, value: works_section[:filenames].size )
     if load
-      @file_set_count = hash_value_init( :file_set_count,
-                                         hash: script_section,
-                                         value: works_section[:filenames].size )
+      # hash_value_init( :file_set_count, hash: script_section, value: works_section[:filenames].size )
     else
       hash_value_init( :max_appends,            hash: script_section, value: @max_appends )
       hash_value_init( :run_count,              hash: script_section, value: @run_count )
@@ -212,13 +216,11 @@ class IngestScript
       hash_value_init( :data_set_url,           hash: script_section ) do
         ::Deepblue::EmailHelper.data_set_url( id: curation_concern_id )
       end
-      @file_set_count = works_section[:filenames].size
-      hash_value_init( :file_set_count, hash: script_section, value: @file_set_count )
       add_file_sections
       source = 'initialize' if source == 'unknown'
     end
     hash_value_init( :log, hash: script_section, value: [] )
-    max = @file_set_count - 1
+    max = file_set_count - 1
     for index in 1..@max_appends do
       key = log_key( index )
       hash_value_init( key, hash: script_section, value: [] )
@@ -245,7 +247,7 @@ class IngestScript
                                            ::Deepblue::LoggingHelper.called_from,
                                            "@ingest_script=#{@ingest_script.pretty_inspect}",
                                            "" ] if ingest_script_debug_verbose
-    max = @file_set_count - 1
+    max = file_set_count - 1
     for index in 0..max do
       key = file_key index
       hash_value_init( key, hash: files_section ) { { filename: works_section[:filenames][index] } }
@@ -291,12 +293,16 @@ class IngestScript
   end
 
   def file_section_last
-    file_section( @file_set_count - 1 )
+    file_section( file_set_count - 1 )
   end
 
   def file_set_count
-    @file_set_count ||= script_section[:file_set_count]
+    script_section[:file_set_count]
   end
+
+  # def file_set_count=( file_set_count )
+  #   script_section[:file_set_count] = file_set_count
+  # end
 
   def files_section
     @files_section ||= hash_value_init( :files, hash: script_section, value: {} )
@@ -310,10 +316,10 @@ class IngestScript
     true == script_section[:finished]
   end
 
-  def hash_value( key, hash: @ingest_script, default_value: nil )
-    return hash[key] if hash.has_key? key
-    default_value
-  end
+  # def hash_value( key, hash: @ingest_script, default_value: nil )
+  #   return hash[key] if hash.has_key? key
+  #   default_value
+  # end
 
   def hash_value_init( key, hash: @ingest_script, value: nil )
     if block_given?
@@ -606,11 +612,11 @@ class IngestScript
     parent = File.dirname path
     filename = File.basename( path, '.*' )
     ext = File.extname( path )
-    filname = "#{filename}#{postfix}#{ext}"
+    filename = "#{filename}_#{postfix}#{ext}"
     path = File.join( parent, filename )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "filname=#{filname}",
+                                           "filename=#{filename}",
                                            "path=#{path}",
                                            "" ] if debug_verbose
     save_to( path: path, source: filename )
