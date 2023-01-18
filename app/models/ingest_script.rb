@@ -185,8 +185,11 @@ class IngestScript
       @ingest_script        ||= init_ingest_script
       self.ingest_script_path = init_ingest_script_path if @ingest_script_path.blank?
     end
-    hash_value_init( :active,   hash: script_section, value: nil )
-    hash_value_init( :finished, hash: script_section, value: false )
+    hash_value_init( :monitor_job_id,              hash: script_section, value: nil )
+    hash_value_init( :monitor_job_begin_timestamp, hash: script_section, value: nil )
+    hash_value_init( :monitor_job_end_timestamp,   hash: script_section, value: nil )
+    hash_value_init( :active,                      hash: script_section, value: nil )
+    hash_value_init( :finished,                    hash: script_section, value: false )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "@curation_concern_id=#{@curation_concern_id}",
@@ -197,33 +200,40 @@ class IngestScript
                                            "@load=#{@load}",
                                            "" ] if ingest_script_debug_verbose
     if ingest_script_write_add_source
-      hash_value_init( :moved_last,   hash: script_section, value: '' )
-      hash_value_init( :moved_source, hash: script_section, value: '' )
-      hash_value_init( :saved_last,   hash: script_section, value: '' )
-      hash_value_init( :saved_source, hash: script_section, value: '' )
+      hash_value_init( :moved_last,                hash: script_section, value: '' )
+      hash_value_init( :moved_source,              hash: script_section, value: '' )
+      hash_value_init( :saved_last,                hash: script_section, value: '' )
+      hash_value_init( :saved_source,              hash: script_section, value: '' )
     end
-    hash_value_init( :file_set_count, hash: script_section, value: works_section[:filenames].size )
+    hash_value_init( :file_set_count,              hash: script_section, value: works_section[:filenames].size )
     if load
       # hash_value_init( :file_set_count, hash: script_section, value: works_section[:filenames].size )
     else
-      hash_value_init( :max_appends,            hash: script_section, value: @max_appends )
-      hash_value_init( :run_count,              hash: script_section, value: @run_count )
-      hash_value_init( :restart,                hash: script_section, value: @restart )
-      hash_value_init( :initial_yaml_file_path, hash: script_section, value: @initial_yaml_file_path )
-      hash_value_init( :ingest_script_id,       hash: script_section, value: @ingest_script_id )
-      hash_value_init( :ingest_script_path,     hash: script_section, value: @ingest_script_path )
-      hash_value_init( :ingest_script_dir,      hash: script_section, value: @ingest_script_dir )
-      hash_value_init( :data_set_url,           hash: script_section ) do
+      hash_value_init( :max_appends,               hash: script_section, value: @max_appends )
+      hash_value_init( :max_restarts,              hash: script_section, value: nil )
+      hash_value_init( :run_count,                 hash: script_section, value: @run_count )
+      hash_value_init( :restart,                   hash: script_section, value: @restart )
+      hash_value_init( :initial_yaml_file_path,    hash: script_section, value: @initial_yaml_file_path )
+      hash_value_init( :ingest_script_id,          hash: script_section, value: @ingest_script_id )
+      hash_value_init( :ingest_script_path,        hash: script_section, value: @ingest_script_path )
+      hash_value_init( :ingest_script_dir,         hash: script_section, value: @ingest_script_dir )
+      hash_value_init( :data_set_url,              hash: script_section ) do
         ::Deepblue::EmailHelper.data_set_url( id: curation_concern_id )
       end
+      hash_value_init( :job_id,                    hash: script_section, value: nil )
+      hash_value_init( :job_begin_timestamp,       hash: script_section, value: nil )
+      hash_value_init( :job_end_timestamp,         hash: script_section, value: nil )
+      hash_value_init( :job_max_appends,           hash: script_section, value: nil )
+      hash_value_init( :job_run_count,             hash: script_section, value: nil )
+      hash_value_init( :job_file_sets_processed_count, hash: script_section, value: nil )
       add_file_sections
       source = 'initialize' if source == 'unknown'
     end
-    hash_value_init( :log, hash: script_section, value: [] )
+    hash_value_init( :log,                         hash: script_section, value: [] )
     max = file_set_count - 1
     for index in 1..@max_appends do
       key = log_key( index )
-      hash_value_init( key, hash: script_section, value: [] )
+      hash_value_init( key,                            hash: script_section, value: [] )
     end
     unless load
       touch( source: source )
@@ -424,7 +434,6 @@ class IngestScript
   end
 
   def job_id=( job_id )
-    # TODO: if this value already exists, push current value to new section
     script_section[:job_id] = job_id
   end
 
@@ -537,6 +546,36 @@ class IngestScript
 
   def max_restarts=( max_restarts )
     script_section[:max_restarts] = max_restarts
+  end
+
+  def monitor_job_id
+    script_section[:monitor_job_id]
+  end
+
+  def monitor_job_id=( monitor_job_id )
+    script_section[:monitor_job_id] = monitor_job_id
+  end
+
+  def monitor_job_running?
+    jid = monitor_job_id
+    return false if jid.blank?
+    return ::Deepblue::JobsHelper.job_running? jid
+  end
+
+  def monitor_job_begin_timestamp
+    script_section[:monitor_job_begin_timestamp]
+  end
+
+  def monitor_job_begin_timestamp=( job_begin_timestamp )
+    script_section[:monitor_job_begin_timestamp] = job_begin_timestamp
+  end
+
+  def monitor_job_end_timestamp
+    script_section[:monitor_job_end_timestamp]
+  end
+
+  def monitor_job_end_timestamp=( job_end_timestamp )
+    script_section[:monitor_job_end_timestamp] = job_end_timestamp
   end
 
   def move( new_path, save: false, source: 'unknown' )

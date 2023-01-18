@@ -65,7 +65,7 @@ gem 'browse-everything', '<= 1.1.2' # version 1.2.0 breaks pull down menu javasc
 
 gem 'dropbox_api', '0.1.18' # pin this as it breaks on later versions causing browse everything with dropbox to fail
 
-gem 'mysql2' unless current_path.include? "blancoj"
+gem 'mysql2' # unless current_path.include? "blancoj"
 
 gem 'config'
 
@@ -81,7 +81,8 @@ gem 'maremma', git: 'https://github.com/mlibrary/maremma'
 gem 'bolognese', git: 'https://github.com/mlibrary/bolognese'
 
 # Use sqlite3 as the database for Active Record
-gem 'sqlite3', '~> 1.3.6'
+# gem 'sqlite3', '~> 1.3.6'
+gem 'sqlite3', '~> 1.5.0'
 # Use Puma as the app server
 gem 'puma', '~> 4.3.12'
 # Use SCSS for stylesheets
