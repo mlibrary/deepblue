@@ -5,6 +5,9 @@
 <h2><%= @presenter.ingest_append_script_view_title %></h2>
 <p/>
 <%= form_tag(main_app.ingest_append_script_view_hyrax_data_set_path(@curation_concern.id), method: 'post') do %>
+  <% if @presenter.ingest_append_script_is_running? %>
+    <h3>There is an ingest append script currently running.</h3>
+  <% end %>
   <%= render partial: 'data_set/ingest_append_script_view_fields' %>
   <br/>
   <%= submit_tag(t('simple_form.actions.data_set.ingest_append_script_refresh'), class: 'btn btn-primary') %>

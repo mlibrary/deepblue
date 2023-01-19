@@ -132,9 +132,14 @@ module Deepblue
       return false
     end
 
+    def ingest_append_script_can_run_a_new_script?
+      rv = !ingest_append_script_is_running?
+      return rv
+    end
+
     def ingest_append_script_can_restart_script?( path_to_script )
       return false unless current_ability.admin?
-      # TODO: test for ingest append sript running
+      return false if ingest_append_script_is_running?
       return true if ingest_append_script_finished?( path_to_script )
       return true if ingest_append_script_failed?( path_to_script )
       return false
@@ -201,14 +206,29 @@ module Deepblue
       return script
     end
 
+    def ingest_append_script_is_running?
+      @ingest_append_script_is_running ||= ingest_append_script_is_running_init
+    end
+
+    def ingest_append_script_is_running_init
+      # return true
+      ingest_append_script_files.each do |path_pair|
+        path = File.join path_pair
+        return true if ingest_append_script_modifier?( path,'monitor job running' )
+        return true if ingest_append_script_modifier?( path,'job running' )
+      end
+      return false
+    end
+
     def ingest_append_script_modifier?( path, modifier )
       return false if @ingest_append_script_show_modifiers.blank?
-      rv = @ingest_append_script_show_modifiers[path]
-      if rv.nil?
-        rv = ingest_append_script_show_modifiers_init( path );
-        @ingest_append_script_show_modifiers[path] = rv
+      modifiers = @ingest_append_script_show_modifiers[path]
+      if modifiers.nil?
+        modifiers = ingest_append_script_show_modifiers_init( path )
+        @ingest_append_script_show_modifiers[path] = modifiers
       end
-      rv.include?( modifier )
+      rv = modifiers.include?( modifier )
+      return rv
     end
 
     def ingest_append_script_path
@@ -352,6 +372,7 @@ module Deepblue
                                          source: "#{self.class.name}.ingest_append_script_show_modifiers_init" )
       rv << 'active' if ingest_script.active?
       rv << 'job running' if ingest_script.job_running?
+      rv << 'monitor job running' if ingest_script.monitor_job_running?
       rv << 'finished' if ingest_script.finished?
       rv << 'failed' if ingest_script.failed?
       return rv;

@@ -5,9 +5,11 @@
 <h2><%= @presenter.ingest_script_title %></h2>
 <%= form_tag( main_app.ingest_append_script_run_job_hyrax_data_set_path(@curation_concern.id), method: 'post' ) do %>
   <%= render partial: 'data_set/ingest_append_script_fields' %>
-  <%= submit_tag(t('simple_form.actions.data_set.ingest_append_script_run_job'),
-                 class: 'btn btn-primary',
-                 data: {confirm: t('simple_form.confirm.data_set.ingest_append_script_run_job')} ) %>
+  <% disabled = !@presenter.ingest_append_script_can_run_a_new_script? %>
+  <%= submit_tag( t('simple_form.actions.data_set.ingest_append_script_run_job'),
+                  class: 'btn btn-primary',
+                  disabled: disabled,
+                  data: { confirm: t('simple_form.confirm.data_set.ingest_append_script_run_job') } ) %>
   <br/><br/>
   <%= submit_tag(t('simple_form.actions.data_set.ingest_append_script_write'), class: 'btn btn-primary') %>
 <% end %>
@@ -18,4 +20,3 @@
 <% end %>
 <br/>
 <%= link_to t(:'helpers.action.cancel'), polymorphic_path([main_app, curation_concern]), class: 'btn btn-subtle cancel-btn' %>
-
