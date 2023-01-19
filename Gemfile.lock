@@ -441,7 +441,7 @@ GEM
     gender_detector (0.1.2)
       unicode_utils (>= 1.3.0)
     geocoder (1.8.1)
-    globalid (1.0.0)
+    globalid (1.0.1)
       activesupport (>= 5.0)
     google-api-client (0.53.0)
       google-apis-core (~> 0.1)
@@ -743,7 +743,7 @@ GEM
     mini_mime (1.1.2)
     mini_portile2 (2.8.0)
     minitar (0.9)
-    minitest (5.16.3)
+    minitest (5.17.0)
     mono_logger (1.1.1)
     multi_json (1.15.0)
     multi_xml (0.6.0)
@@ -1303,6 +1303,7 @@ DEPENDENCIES
   factory_bot
   fcrepo_wrapper
   font-awesome-sass (>= 6.0)
+  globalid (>= 1.0.1)
   groupdate
   hydra-role-management
   hyrax (= 3.1)
