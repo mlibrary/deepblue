@@ -18,7 +18,6 @@ module McommunityHelper
     request["Accept"] = "application/json"
     request["Authorization"] = "Bearer " + token
     request["x-ibm-client-id"] = Settings.mcommunity.client_id
-    request["Cookie"] = Settings.mcommunity.cookie
 
     response = https.request(request)
 
@@ -26,8 +25,8 @@ module McommunityHelper
     return JSON.parse(value)
   end
 
-	def self.get_token
-    url = URI("#{Settings.mcommunity.url}inst/oauth2/token?grant_type=client_credentials&scope=mcommunity")
+  def self.get_token
+    url = URI("#{Settings.mcommunity.url}oauth2/token?grant_type=client_credentials&scope=mcommunity")
 
     https = Net::HTTP.new(url.host, url.port)
     https.use_ssl = true
@@ -36,13 +35,12 @@ module McommunityHelper
     request["Accept"] = "application/json"
     request["Authorization"] = "Basic " + Settings.mcommunity.authorization
     request["x-ibm-client-id"] = Settings.mcommunity.client_id
-    request["Cookie"] = Settings.mcommunity.cookie
 
     response = https.request(request)
     value = response.read_body
     obj = JSON.parse(value)
     return obj['access_token']
-	end
+  end
 
   def self.get_orchid( email )
     unique_id = email.split('@')[0].strip
