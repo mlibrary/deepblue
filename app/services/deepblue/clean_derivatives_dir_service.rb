@@ -8,11 +8,11 @@ module Deepblue
 
     CLEAN_DERIVATIVES_DAYS_OLD_DEFAULT = 7
 
-    mattr_accessor :clean_uploads_dir_service_debug_verbose, default: false
+    mattr_accessor :clean_derivatives_dir_service_debug_verbose, default: false
 
-    def initialize( days_old: nil, msg_handler:, debug_verbose: clean_uploads_dir_service_debug_verbose )
+    def initialize( days_old: nil, msg_handler:, debug_verbose: clean_derivatives_dir_service_debug_verbose )
       super
-      debug_verbose = debug_verbose || clean_uploads_dir_service_debug_verbose
+      debug_verbose = debug_verbose || clean_derivatives_dir_service_debug_verbose
       @msg_handler.debug_verbose = @msg_handler.debug_verbose || debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

@@ -11,7 +11,7 @@ module Deepblue
     attr_accessor :msg_handler
     attr_accessor :days_old
 
-    def initialize( days_old: nil, msg_handler: nil, debug_verbose: clean_hyrax_tmp_dir_service_debug_verbose )
+    def initialize( days_old: nil, msg_handler:, debug_verbose: clean_hyrax_tmp_dir_service_debug_verbose )
       debug_verbose = debug_verbose || clean_hyrax_tmp_dir_service_debug_verbose
       @msg_handler = msg_handler
       @msg_handler.debug_verbose = @msg_handler.debug_verbose || debug_verbose
