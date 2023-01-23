@@ -17,7 +17,7 @@ class CleanHyraxTmpDirJob < AbstractRakeTaskJob
 
   SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 
-clean_derivatives_dir_job:
+clean_hyrax_tmp_dir_job:
   # Run once a week on Sundays at 4:05 PM (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M  H     DoW
   cron: '5 21 * * 0'
