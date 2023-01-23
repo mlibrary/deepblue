@@ -30,7 +30,7 @@ clean_hyrax_tmp_dir_job:
     days_old_uploads: 180
     email_results_to:
       - 'fritx@umich.edu'
-    subscription_service_id: clean_derivatives_dir_job
+    subscription_service_id: clean_hyrax_tmp_dir_job
     verbose: true
 
 END_OF_SCHEDULER_ENTRY
