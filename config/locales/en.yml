@@ -31,6 +31,8 @@ en:
       enable_local_analytics_ui:        "Enable local analytics access through the UI."
   simple_form:
     actions:
+      collection:
+        mint_doi:                       "Mint DOI"
       contact_form:
         akismet_enabled:                  "Enable Akismet"
         akismet_disabled:                 "Disable Akismet"

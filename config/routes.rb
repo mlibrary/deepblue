@@ -144,6 +144,9 @@ Rails.application.routes.draw do
     end
   end
 
+  get  'dashboard/collections/:id/doi', controller: 'hyrax/dashboard/collections', action: :doi
+  post 'dashboard/collections/:id/doi', controller: 'hyrax/dashboard/collections', action: :doi
+
   namespace :hyrax, path: :concern do
     resources :file_sets do
       member do

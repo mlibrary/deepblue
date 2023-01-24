@@ -39,6 +39,7 @@ RSpec.describe Hyrax::CollectionPresenter, skip: false do
                          :keyword,
                          :license,
                          :publisher,
+                         :doi,
                          :date_created,
                          :subject,
                          :language,
