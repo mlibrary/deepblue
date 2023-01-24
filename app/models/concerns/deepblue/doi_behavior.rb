@@ -66,6 +66,15 @@ module Deepblue
                                              "job_delay=#{job_delay}",
                                              "Settings.datacite.active=#{Settings.datacite.active}",
                                              "" ] if doi_behavior_debug_verbose
+
+      ::Deepblue::LoggingHelper.bold_debug [ "","","", ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "exiting",
+                                             "" ]
+
+
+
+      # return false # TODO: disabled
       return false unless Settings.datacite.active
       return false if doi_pending?
       # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

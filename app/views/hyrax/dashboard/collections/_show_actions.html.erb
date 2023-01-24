@@ -18,6 +18,12 @@
                 <% end %>
 <% end %>
 
+<% if presenter.can_mint_doi_collection? %>
+  <button class="btn btn-primary" data-target="#mintDoiId" data-toggle="modal">
+    <%= t('simple_form.collection.actions.mint_doi') %>
+  </button>
+<% end %>
+
 <% if can? :destroy, presenter.solr_document %>
     <%= link_to t('hyrax.collection.actions.delete.label'),
                 hyrax.dashboard_collection_path(presenter),
@@ -31,3 +37,4 @@
   <%= link_to t('simple_form.actions.provenance_log.display_or_update'),
               main_app.display_provenance_log_hyrax_collection_path(@presenter.id), class: 'btn btn-default' %>
 <% end %>
+<%= render 'modal_mint_doi', id: presenter.id %>

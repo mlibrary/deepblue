@@ -18,6 +18,7 @@ class Collection < ActiveFedora::Base
   include ::Deepblue::MetadataBehavior
   include ::Deepblue::EmailBehavior
   include ::Deepblue::ProvenanceBehavior
+  include ::Deepblue::DoiBehavior
 
   after_initialize :set_defaults
 
@@ -49,6 +50,7 @@ class Collection < ActiveFedora::Base
       date_modified
       date_updated
       description
+      doi
       keyword
       language
       prior_identifier
@@ -74,6 +76,7 @@ class Collection < ActiveFedora::Base
       date_modified
       date_updated
       description
+      doi
       keyword
       language
       prior_identifier
@@ -93,6 +96,7 @@ class Collection < ActiveFedora::Base
     @@metadata_keys_browse ||= %i[
       creator
       description
+      doi
       subject_discipline
       title
     ].freeze
@@ -113,6 +117,7 @@ class Collection < ActiveFedora::Base
       create_date
       modified_date
       description
+      doi
       keyword
       modified_date
       subject
@@ -129,6 +134,7 @@ class Collection < ActiveFedora::Base
       creator
       curation_notes_user
       description
+      doi
       keyword
       language
       referenced_by

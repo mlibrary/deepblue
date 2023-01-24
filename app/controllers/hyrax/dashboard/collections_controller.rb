@@ -20,6 +20,15 @@ module Hyrax
       include ::Hyrax::BrandingHelper
       include ::Deepblue::CollectionsControllerBehavior
 
+      # begin monkey
+      include ::Deepblue::DoiControllerBehavior
+      # end monkey
+
+      # begin monkey
+      mattr_accessor :dashboard_collections_controller_debug_verbose,
+                     default: Rails.configuration.dashboard_collections_controller_debug_verbose
+      # end monkey
+
       rescue_from ::ActiveFedora::ObjectNotFoundError, with: :unknown_id_rescue
       rescue_from ::Hyrax::ObjectNotFoundError, with: :unknown_id_rescue
 
@@ -42,11 +51,6 @@ module Hyrax
               end
         redirect_to url, alert: "<br/>Unknown ID: #{e.message}<br/><br/>"
       end
-
-      # begin monkey
-      mattr_accessor :dashboard_collections_controller_debug_verbose,
-                     default: Rails.configuration.dashboard_collections_controller_debug_verbose
-      # end monkey
 
       EVENT_NOTE = 'Hyrax::Dashboard::CollectionsController' unless const_defined? :EVENT_NOTE
       PARAMS_KEY = 'collection' unless const_defined? :PARAMS_KEY
@@ -78,6 +82,15 @@ module Hyrax
       def destroy_rest
         workflow_destroy
         monkey_destroy
+      end
+
+      def doi_redirect_after( msg )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "override doi_redirect_after",
+                                               "" ] if doi_controller_behavior_debug_verbose
+        # redirect_to [main_app, curation_concern], notice: msg
+        redirect_to url_for(action: 'show'), notice: msg
       end
 
       def show

@@ -11,6 +11,9 @@ module Hyrax
     include ::Hyrax::BrandingHelper
     include ActionView::Helpers::TagHelper
 
+    mattr_accessor :collection_presenter_debug_verbose,
+                   default: Rails.configuration.collection_presenter_debug_verbose
+
     attr_accessor :show_actions_debug_verbose
     def show_actions_debug_verbose
       @show_actions_debug_verbose ||= false
@@ -24,9 +27,6 @@ module Hyrax
     attr_reader :subcollection_count
     attr_accessor :parent_collections # This is expected to be a Blacklight::Solr::Response with all of the parent collections
     attr_writer :collection_type
-
-    mattr_accessor :collection_presenter_debug_verbose,
-                   default: Rails.configuration.collection_presenter_debug_verbose
 
     class_attribute :create_work_presenter_class
     self.create_work_presenter_class = ::Deepblue::SelectTypeListPresenter
@@ -46,7 +46,13 @@ module Hyrax
     end
 
     # CurationConcern methods
-    delegate :stringify_keys, :human_readable_type, :collection?, :representative_id,
+    delegate :doi_minted?,
+             :doi_minting_enabled?,
+             :doi_pending?,
+             :stringify_keys,
+             :human_readable_type,
+             :collection?,
+             :representative_id,
              :to_s, to: :solr_document
 
     delegate(*Hyrax::CollectionType.collection_type_settings_methods, to: :collection_type, prefix: :collection_type_is)
@@ -104,6 +110,7 @@ module Hyrax
        :keyword,
        :license,
        :publisher,
+       :doi,
        :date_created,
        :subject,
        :language,
@@ -145,6 +152,20 @@ module Hyrax
 
     def can_download_using_globus_maybe?
       false
+    end
+    def can_mint_doi_collection?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "false unless doi_minting_enabled?=#{doi_minting_enabled?}",
+                                             "true if doi_pending?=#{doi_pending?}",
+                                             "true if doi_minted?=#{doi_minted?}",
+                                             "true if current_ability.admin?=#{current_ability.admin?}",
+                                             "current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
+                                             "" ] if collection_presenter_debug_verbose
+      return false unless doi_minting_enabled?
+      return false if doi_pending? || doi_minted?
+      return true if current_ability.admin?
+      current_ability.can?( :edit, id )
     end
 
     def controller_class

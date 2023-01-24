@@ -12,6 +12,7 @@ module Hyrax
     include ::Hyrax::CollectionsControllerBehavior
     include ::Deepblue::ControllerWorkflowEventBehavior
     include BreadcrumbsForCollections
+    include ::Deepblue::DoiControllerBehavior
 
     before_action :deepblue_collections_controller_debug
 

@@ -282,6 +282,7 @@ module Deepblue
         report_item( out, "Language: ", collection.language )
         report_item( out, "Citation to related material: ", collection.referenced_by )
         report_item( out, "Visibility: ", collection.visibility )
+        report_item( out, "DOI: ", collection.doi, optional: true )
         if collection.member_objects.count.positive?
           collection.member_objects.each do |work|
             out.puts
@@ -316,6 +317,7 @@ module Deepblue
       report_item( out, "Checksum: ", file_set.checksum_value )
       report_item( out, "Checksum algorithm: ", file_set.checksum_algorithm )
       report_item( out, "Mimetype: ", file_set.mime_type )
+      report_item( out, "DOI: ", file_set.doi, optional: true )
     end
 
     def self.report_work( work, dir: nil, out: nil, depth: '==' )
