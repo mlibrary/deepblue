@@ -46,13 +46,14 @@ module Hyrax
     end
 
     # CurationConcern methods
-    delegate :doi_minted?,
+    delegate :collection?,
+             :doi,
+             :doi_minted?,
              :doi_minting_enabled?,
              :doi_pending?,
-             :stringify_keys,
              :human_readable_type,
-             :collection?,
              :representative_id,
+             :stringify_keys,
              :to_s, to: :solr_document
 
     delegate(*Hyrax::CollectionType.collection_type_settings_methods, to: :collection_type, prefix: :collection_type_is)
@@ -144,6 +145,16 @@ module Hyrax
       else
         solr_document.send key
       end
+    end
+
+    def creator_for_json
+      authors = ""
+      creator.each do |author|
+        authors +=  "{ \"@type\": \"Person\",
+                      \"name\": \"#{author}\"},"
+      end
+      # remove last comma
+      authors[0...-1]
     end
 
     def json_metadata_properties

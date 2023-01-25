@@ -26,7 +26,7 @@ module Deepblue
     # @param object [#id]
     #
     # @return [#identifier]
-    def register!(object: work)
+    def register!(object:)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "object=#{object}",
@@ -58,7 +58,7 @@ module Deepblue
                                                "" ], bold_puts: debug_verbose_puts if debug_verbose
       end
       # Submit metadata, register url, and ensure proper status
-      submit_to_datacite(work:object, doi: doi)
+      submit_to_datacite(curation_concern:object, doi: doi)
       doi = "doi:#{doi}" unless doi.start_with?( "doi:" )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -68,19 +68,19 @@ module Deepblue
       Struct.new(:identifier).new(doi)
     end
 
-    def mint_doi(work:)
+    def mint_doi(curation_concern:)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "work.id=#{work.id}",
+                                             "curation_concern.id=#{curation_concern.id}",
                                              "" ] if debug_verbose
-      doi = work.doi
+      doi = curation_concern.doi
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "doi=#{doi}",
                                              "" ] if debug_verbose
 
       # Return the existing DOI or nil if nothing needs to be done
-      should_register = register?(work)
+      should_register = register?(curation_concern)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "should_register=#{should_register}",
@@ -95,25 +95,25 @@ module Deepblue
       if doi.blank? || doi == 'doi_pending'
         doi = mint_draft_doi
         doi = "doi:#{doi}" unless doi.start_with?( "doi:" )
-        work.doi = doi
-        work.save
-        work.reload
+        curation_concern.doi = doi
+        curation_concern.save
+        curation_concern.reload
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "doi=#{doi}",
                                                "" ], bold_puts: debug_verbose_puts if debug_verbose
       end
       # Submit metadata, register url, and ensure proper status
-      submit_to_datacite(work: work, doi: doi, put_metadata: true)
+      submit_to_datacite(curation_concern: curation_concern, doi: doi, put_metadata: true)
       doi = "doi:#{doi}" unless doi.start_with?( "doi:" )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "doi=#{doi}",
-                                             "doi_findable?(work.id)=#{doi_findable?( work )}",
+                                             "doi_findable?(curation_concern.id)=#{doi_findable?( curation_concern )}",
                                              "" ], bold_puts: debug_verbose_puts if debug_verbose
-      work.doi = doi
-      work.save
-      work.reload
+      curation_concern.doi = doi
+      curation_concern.save
+      curation_concern.reload
     end
 
     def mint_draft_doi
@@ -125,22 +125,22 @@ module Deepblue
 
     # private # lets not bother with private stuff until this is actually working
 
-    # Should the work be submitted for registration (or updating)?
+    # Should the curation_concern be submitted for registration (or updating)?
     # @return [boolean]
-    def register?(work)
+    def register?(curation_concern)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "work=#{work.id}",
-                                             "doi_enabled_work_type?(work)=#{doi_enabled_work_type?(work)}",
+                                             "curation_concern=#{curation_concern.id}",
+                                             "doi_enabled_cc_type?(curation_concern)=#{doi_enabled_cc_type?(curation_concern)}",
                                              "doi_minting_enabled?=#{doi_minting_enabled?}",
-                                             # "work.doi_has_status?=#{work.doi_has_status?}",
+                                             # "curation_concern.doi_has_status?=#{curation_concern.doi_has_status?}",
                                              "" ], bold_puts: debug_verbose_puts if debug_verbose
-      #rv = doi_enabled_work_type?(work) && doi_minting_enabled? && work.doi_has_status?
-      return false unless doi_enabled_work_type?(work) && doi_minting_enabled?
-      doi_findable = doi_findable?( work )
+      #rv = doi_enabled_cc_type?(curation_concern) && doi_minting_enabled? && curation_concern.doi_has_status?
+      return false unless doi_enabled_cc_type?(curation_concern) && doi_minting_enabled?
+      doi_findable = doi_findable?( curation_concern )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "work=#{work.id}",
+                                             "curation_concern=#{curation_concern.id}",
                                              "doi_findable=#{doi_findable}",
                                              "" ], bold_puts: debug_verbose_puts if debug_verbose
       rv = !doi_findable
@@ -153,23 +153,23 @@ module Deepblue
       return rv
     end
 
-    # Check if work is DOI enabled
-    def doi_enabled_work_type?(work)
-      work.class.ancestors.include?(::Deepblue::DoiBehavior)
-      # && work.class.ancestors.include?(::Deepblue::DataCiteDoiBehavior)
+    # Check if curation_concern is DOI enabled
+    def doi_enabled_cc_type?(curation_concern)
+      curation_concern.class.ancestors.include?(::Deepblue::DoiBehavior)
+      # && curation_concern.class.ancestors.include?(::Deepblue::DataCiteDoiBehavior)
     end
 
-    def doi_findable?(work)
+    def doi_findable?(curation_concern)
       debug_verbose ||= data_cite_registrar_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "work.id=#{work.id}",
-                                             "work.doi=#{work.doi}",
+                                             "curation_concern.id=#{curation_concern.id}",
+                                             "curation_concern.doi=#{curation_concern.doi}",
                                              "" ] if debug_verbose
-      return false if work.blank?
-      return false if work.doi.blank?
-      return false if work.doi == ::Deepblue::DoiBehavior.doi_pending
-      url = client.get_url(work.doi, raise_error: false)
+      return false if curation_concern.blank?
+      return false if curation_concern.doi.blank?
+      return false if curation_concern.doi == ::Deepblue::DoiBehavior.doi_pending
+      url = client.get_url(curation_concern.doi, raise_error: false)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "url=#{url}",
@@ -178,12 +178,12 @@ module Deepblue
     end
 
     def doi_minting_enabled?
-      # TODO: Check feature flipper (needs to be per work type? per tenant for Hyku?)
+      # TODO: Check feature flipper (needs to be per curation_concern type? per tenant for Hyku?)
       true
     end
 
-    def public?(work)
-      work.visibility == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
+    def public?(curation_concern)
+      curation_concern.visibility == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
     end
 
     def client
@@ -211,44 +211,45 @@ module Deepblue
     end
 
     # Do the heavy lifting of submitting the metadata, registering the url, and ensuring the correct status
-    def submit_to_datacite(work:, doi: nil, put_metadata: true)
-      doi ||= work.doi
+    def submit_to_datacite(curation_concern:, doi: nil, put_metadata: true)
+      doi ||= curation_concern.doi
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "work=#{work.id}",
+                                             "curation_concern=#{curation_concern.id}",
                                              "doi=#{doi}",
                                              "put_metadata=#{put_metadata}",
                                              "1st, put metadata",
                                              "" ] if debug_verbose
       # 1. Add metadata to the DOI (or update it)
       # TODO: check that required metadata is present if current DOI record is registered or findable OR handle error?
-      client.put_metadata(doi, work_to_datacite_xml(work)) if put_metadata
-      doi_findable = doi_findable?(work)
+      client.put_metadata(doi, cc_to_datacite_xml(curation_concern)) if put_metadata
+      doi_findable = doi_findable?(curation_concern)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "work=#{work.id}",
+                                             "curation_concern=#{curation_concern.id}",
                                              "doi=#{doi}",
                                              "doi_findable=#{doi_findable}",
-                                             "2nd, register the url of the work if work.doi_is_registered? #{work.doi_is_registered?}",
+                                             "2nd, register the url of the curation_concern if curation_concern.doi_is_registered? #{curation_concern.doi_is_registered?}",
                                              "" ] if debug_verbose
       # 2. Register a url with the DOI if it should be registered or findable
       # NOTE: this doi needs to be sans leading "doi:"
-      client.register_url(doi_for_register_url(doi), work_url(work)) if work.doi_is_registered? && !doi_findable
+      client.register_url(doi_for_register_url(doi),
+                          cc_url(curation_concern)) if curation_concern.doi_is_registered? && !doi_findable
 
-      doi_findable = doi_findable?(work)
+      doi_findable = doi_findable?(curation_concern)
 
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "work=#{work.id}",
+                                             "curation_concern=#{curation_concern.id}",
                                              "doi=#{doi}",
                                              "doi_findable=#{doi_findable}",
-                                             # "3rd, delete metadata unless work.doi_findable? && public?(work) #{work.doi_findable? && public?(work)}",
-                                             "3rd, delete metadata unless doi_findable?( work )",
+                                             # "3rd, delete metadata unless curation_concern.doi_findable? && public?(curation_concern) #{curation_concern.doi_findable? && public?(curation_concern)}",
+                                             "3rd, delete metadata unless doi_findable?( curation_concern )",
                                              "" ] if debug_verbose
       # 3. Always call delete metadata unless findable and public
       # Do this because it has no real effect on the metadata and
       # the put_metadata or register_url above may have made it findable.
-      # client.delete_metadata(doi) unless work.doi_findable? && public?(work)
+      # client.delete_metadata(doi) unless curation_concern.doi_findable? && public?(curation_concern)
       client.delete_metadata(doi) unless doi_findable
     end
 
@@ -266,17 +267,21 @@ module Deepblue
       return rv
     end
 
-    # NOTE: default_url_options[:host] must be set for this method to work
-    def work_url(work)
-      Rails.application.routes.url_helpers.polymorphic_url(work)
+    # NOTE: default_url_options[:host] must be set for this method to curation_concern
+    def cc_url(curation_concern)
+      if curation_concern.is_a? ::Collection
+        curation_concern.collection_url
+      else
+        Rails.application.routes.url_helpers.polymorphic_url(curation_concern)
+      end
     end
 
-    def work_to_datacite_xml(work)
+    def cc_to_datacite_xml(curation_concern)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "work=#{work}",
+                                             "curation_concern=#{curation_concern}",
                                              "" ], bold_puts: debug_verbose_puts if debug_verbose
-      Bolognese::Metadata.new(input: work.attributes.merge(has_model: work.has_model.first, publisher: self.publisher).to_json,
+      Bolognese::Metadata.new(input: curation_concern.attributes.merge(has_model: curation_concern.has_model.first, publisher: self.publisher).to_json,
                               from: 'hyrax_work').datacite
     end
 

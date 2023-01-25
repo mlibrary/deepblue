@@ -44,10 +44,12 @@ signed in %>
       ],
     <% end %>
     "citation": "<%= raw export_as_mla_citation(@presenter).gsub(/<\/?[^>]*>/, "") %>",
+    <% if @presenter.respond_to?(:rights_license) %>
     "license":
       {"@type": "CreativeWork",     
        "name": "<%= @presenter.create_cc_for_json %>",     
        "license": "<%= @presenter.rights_license[0] %>"},
+    <% end %>
     "publisher":
       {"@id": "https://deepblue.lib.umich.edu/data/",     
        "@type": "Organization",     

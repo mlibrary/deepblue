@@ -43,6 +43,7 @@ class Collection < ActiveFedora::Base
       child_work_ids
       child_work_count
       collection_type
+      collection_url
       creator
       curation_notes_admin
       curation_notes_user
@@ -69,6 +70,7 @@ class Collection < ActiveFedora::Base
       child_work_ids
       child_work_count
       collection_type
+      collection_url
       creator
       curation_notes_admin
       curation_notes_user
@@ -131,6 +133,7 @@ class Collection < ActiveFedora::Base
       child_collection_count
       child_work_count
       collection_type
+      collection_url
       creator
       curation_notes_user
       description
@@ -243,6 +246,12 @@ class Collection < ActiveFedora::Base
                 true
               when 'collection_type'
                 value = collection_type.machine_id
+                true
+              when 'collection_url'
+                value = collection_url
+                true
+              when 'location'
+                value = collection_url
                 true
               when 'total_file_size'
                 value = total_file_size
@@ -373,6 +382,13 @@ class Collection < ActiveFedora::Base
 
   def metadata_report_title_pre
     'Collection: '
+  end
+
+  def collection_url
+    Deepblue::EmailHelper.collection_url( collection: self )
+  rescue Exception => e # rubocop:disable Lint/RescueException
+    Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
+    return e.to_s
   end
 
   # begin metadata

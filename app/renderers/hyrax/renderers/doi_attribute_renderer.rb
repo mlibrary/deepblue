@@ -14,13 +14,7 @@ module Hyrax
                                                ::Deepblue::LoggingHelper.called_from,
                                                "value=#{value}",
                                                "" ] if doi_attribute_renderer_debug_verbose
-        rv = if value == ::Deepblue::DoiBehavior.doi_pending
-               value
-             elsif value.start_with? 'http'
-               value
-             else
-               value.sub 'doi:', 'https://doi.org/'
-             end
+        rv = ::Deepblue::DoiBehavior.doi_render value
         return rv
       end
 

@@ -71,6 +71,7 @@ class DataSet < ActiveFedora::Base
       creator
       curation_notes_admin
       curation_notes_user
+      data_set_url
       date_coverage
       date_created
       date_modified
@@ -113,6 +114,7 @@ class DataSet < ActiveFedora::Base
       creator
       curation_notes_admin
       curation_notes_user
+      data_set_url
       date_coverage
       date_created
       date_modified
@@ -257,6 +259,7 @@ class DataSet < ActiveFedora::Base
       authoremail
       creator
       curation_notes_user
+      data_set_url
       date_coverage
       date_published
       depositor

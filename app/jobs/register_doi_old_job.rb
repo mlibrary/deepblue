@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class RegisterDoiJob < ::Deepblue::DeepblueJob
+class RegisterDoiOldJob < ::Deepblue::DeepblueJob
 
   # queue_as Hyrax.config.ingest_queue_name
   queue_as :doi_minting
@@ -9,26 +9,21 @@ class RegisterDoiJob < ::Deepblue::DeepblueJob
   # @param model [ActiveFedora::Base]
   # @param registrar [String] Note this is a string and not a symbol because ActiveJob cannot serialize a symbol
   # @param registrar_opts [Hash]
-  def perform( id:,
-               current_user: nil,
-               debug_verbose: ::Deepblue::DoiMintingService.register_doi_job_debug_verbose,
-               registrar: nil,
-               registrar_opts: {} )
+  def perform(model,
+              current_user: nil,
+              debug_verbose: ::Deepblue::DoiMintingService.register_doi_job_debug_verbose,
+              registrar: nil,
+              registrar_opts: {})
 
-    initialize_no_args_hash( id: id, debug_verbose: debug_verbose )
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "id=#{id}",
-                                           "current_user=#{current_user}",
-                                           "registrar=#{registrar}",
-                                           "registrar_opts=#{registrar_opts}",
-                                           "" ] if debug_verbose
-    model = PersistHelper.find id
+    initialize_no_args_hash( id: model&.id, debug_verbose: debug_verbose )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "model.class.name=#{model.class.name}",
-                                           "id=#{id}",
+                                           "model&.id=#{model&.id}",
                                            "model&.doi=#{model&.doi}",
+                                           "current_user=#{current_user}",
+                                           "registrar=#{registrar}",
+                                           "registrar_opts=#{registrar_opts}",
                                            "" ] if debug_verbose
     ::Deepblue::DoiMintingService.registrar_mint_doi( curation_concern: model,
                                                       current_user: current_user,
