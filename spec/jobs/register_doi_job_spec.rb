@@ -78,7 +78,7 @@ RSpec.describe ::Deepblue::RegisterDoiJob, type: :job do
             #   .to change { work.doi }
             #         .to eq doi
             #expect(registrar_class).to have_received(:new).with(registrar_opts)
-            described_class.perform_now(work, registrar: nil, registrar_opts: registrar_opts)
+            described_class.perform_now( id: work.id, registrar: nil, registrar_opts: registrar_opts)
           end
         end
       end

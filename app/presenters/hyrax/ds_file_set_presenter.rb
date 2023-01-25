@@ -338,17 +338,22 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "parent.class.name=#{@parent.class.name}",
                                              "" ] if ds_file_set_presenter_debug_verbose
-      if parent.rights_license[0] == "http://creativecommons.org/publicdomain/zero/1.0/"
+      rights_license = create_rights_license
+      if rights_license == "http://creativecommons.org/publicdomain/zero/1.0/"
         "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication"
-      elsif parent.rights_license[0] == "http://creativecommons.org/licenses/by/4.0/"
+      elsif rights_license == "http://creativecommons.org/licenses/by/4.0/"
         "Attribution 4.0 International (CC BY 4.0)"
-      elsif parent.rights_license[0] == "http://creativecommons.org/licenses/by-nc/4.0/"
+      elsif rights_license == "http://creativecommons.org/licenses/by-nc/4.0/"
         "Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)"
       elsif parent.rights_license_other.blank?
         ''
       else
         parent.rights_license_other.first
       end
+    end
+
+    def create_rights_license
+      return parent.rights_license[0]
     end
 
     def curation_notes_admin

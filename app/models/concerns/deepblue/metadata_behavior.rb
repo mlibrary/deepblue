@@ -152,6 +152,12 @@ module Deepblue
         value = case key.to_s
                 when 'id'
                   for_metadata_id
+                when 'collection_url'
+                  for_metadata_route
+                when 'data_set_url'
+                  for_metadata_route
+                when 'file_set_url'
+                  for_metadata_route
                 when 'location'
                   for_metadata_route
                 when 'route'

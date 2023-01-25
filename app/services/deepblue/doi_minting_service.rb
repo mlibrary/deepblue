@@ -224,7 +224,7 @@ module Deepblue
                                              "" ] if debug_verbose
       raise IllegalOperation, "Attempting to mint doi before id is created." if target_url.blank?
       if DoiMintingService.doi_minting_2021_service_enabled
-        ::RegisterDoiJob.perform_later( curation_concern,
+        ::RegisterDoiJob.perform_later( id: curation_concern.id,
                                         current_user: current_user,
                                         debug_verbose: debug_verbose,
                                         registrar: curation_concern.doi_registrar.presence,
@@ -274,7 +274,7 @@ module Deepblue
                                  debug_verbose: ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose,
                                  datacite: nil,
                                  registrar: nil,
-                                 registrar_opts: {})
+                                 registrar_opts: {} )
 
       debug_verbose ||= ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -295,7 +295,7 @@ module Deepblue
           datacite = ::Deepblue::DataCiteRegistrar.new
           datacite.debug_verbose = debug_verbose
         end
-        datacite.mint_doi( work: curation_concern )
+        datacite.mint_doi( curation_concern: curation_concern )
       else
         registrar ||= ::Deepblue::DataCiteRegistrar
         Hyrax::Identifier::Dispatcher.for(registrar.to_sym,
@@ -405,6 +405,8 @@ module Deepblue
           md.datacite_publicationyear = Date.today.year.to_s
           md.datacite_resourcetype = DoiMintingService.doi_resource_type
           md.datacite_creator = if curation_concern.work?
+                                  curation_concern.creator.join(';')
+                                elsif curation_concern.is_a? Collection
                                   curation_concern.creator.join(';')
                                 else
                                   curation_concern.parent.creator.join(';')

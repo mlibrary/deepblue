@@ -45,7 +45,9 @@ module Hyrax
         return true # disable for now
         return true unless doi_enabled_work_type?(work) && Flipflop.enabled?(:doi_minting)
 
-        RegisterDoiJob.perform_later(work, registrar: work.doi_registrar.presence, registrar_opts: work.doi_registrar_opts)
+        RegisterDoiJob.perform_later( id: work.id,
+                                      registrar: work.doi_registrar.presence,
+                                      registrar_opts: work.doi_registrar_opts )
       end
 
       # Check if work is DOI enabled

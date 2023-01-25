@@ -254,17 +254,22 @@ module Hyrax
     end
 
     def create_cc_for_json
-      if rights_license[0] == "http://creativecommons.org/publicdomain/zero/1.0/"
+      rights_license = create_rights_license
+      if rights_license == "http://creativecommons.org/publicdomain/zero/1.0/"
         "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication"
-      elsif rights_license[0] == "http://creativecommons.org/licenses/by/4.0/"
+      elsif rights_license == "http://creativecommons.org/licenses/by/4.0/"
         "Attribution 4.0 International (CC BY 4.0)"
-      elsif rights_license[0] == "http://creativecommons.org/licenses/by-nc/4.0/"
+      elsif rights_license == "http://creativecommons.org/licenses/by-nc/4.0/"
         "Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)"
       elsif rights_license_other.blank?
         ''
       else
         rights_license_other.first
       end
+    end
+
+    def create_rights_license
+      return rights_license[0]
     end
 
   end
