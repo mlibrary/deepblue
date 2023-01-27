@@ -91,7 +91,7 @@ module Deepblue
         return false
       end
       datacite = datacite_registrar( debug_verbose: debug_verbose, task: msg_handler.to_console )
-      url = datacite.work_url(w)
+      url = datacite.cc_url(w)
       doi = w.doi
       doi_minted = w.doi_minted?
       msg_handler.msg_verbose "work url=#{url}"
@@ -99,7 +99,7 @@ module Deepblue
       msg_handler.msg_verbose "work doi_minted?=#{doi_minted}"
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "work_url=#{url}",
+                                             "cc_url=#{url}",
                                              "doi=#{doi}",
                                              "work doi_minted?=#{doi_minted}",
                                              "" ] if debug_verbose
