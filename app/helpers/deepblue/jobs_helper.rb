@@ -23,6 +23,7 @@ module Deepblue
       hash = job
       for index in 0..max do
         hash = hash[0] if hash.is_a? Array
+        return nil unless hash.respond_to? :key?
         key = keys[index]
         return nil unless hash.key? key
         hash = hash[key]
