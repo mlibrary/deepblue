@@ -132,7 +132,7 @@ RSpec.describe ::Deepblue::NewContentService, skip: false do
       expect( described_class::DEFAULT_USER_CREATE ).to eq true
       expect( described_class::DEFAULT_VERBOSE ).to eq true
       expect( described_class::DIFF_DATES ).to eq false
-      expect( described_class::DOI_MINT_NOW ).to eq 'mint_now'
+      expect( ::Deepblue::DoiMintingService::DOI_MINT_NOW ).to eq 'mint_now'
       expect( described_class::MODE_APPEND ).to eq 'append'
       expect( described_class::MODE_BUILD ).to eq 'build'
       expect( described_class::MODE_DIFF ).to eq 'diff'
