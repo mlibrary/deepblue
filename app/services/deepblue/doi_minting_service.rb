@@ -4,6 +4,8 @@ module Deepblue
 
   class DoiMintingService
 
+    DOI_MINT_NOW = 'mint_now' unless const_defined? :DOI_MINT_NOW
+
     @@_setup_ran = false
     @@_setup_failed = false
 
@@ -62,6 +64,19 @@ module Deepblue
       return datacite
     end
 
+    def self.doi_minted?( doi: )
+      return false if doi.blank?
+      return false if DOI_MINT_NOW == doi
+      return true
+    end
+
+    def self.doi_minting_started?( doi: )
+      return false if doi.blank?
+      return false if DOI_MINT_NOW == doi
+      # TODO: more conditions
+      return true
+    end
+
     def self.ensure_doi_minted( id: nil,
                                 curation_concern: nil,
                                 msg_handler:,
@@ -93,7 +108,7 @@ module Deepblue
       datacite = datacite_registrar( debug_verbose: debug_verbose, task: msg_handler.to_console )
       url = datacite.cc_url(w)
       doi = w.doi
-      doi_minted = w.doi_minted?
+      doi_minted = doi_minted?( doi: w.doi )
       msg_handler.msg_verbose "work url=#{url}"
       msg_handler.msg_verbose "doi #{doi}"
       msg_handler.msg_verbose "work doi_minted?=#{doi_minted}"
@@ -101,7 +116,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "cc_url=#{url}",
                                              "doi=#{doi}",
-                                             "work doi_minted?=#{doi_minted}",
+                                             "doi_minted?=#{doi_minted}",
                                              "" ] if debug_verbose
       unless doi_minted
         msg_handler.msg "Calling registrar mint doi."

@@ -88,7 +88,6 @@ module Deepblue
     DEFAULT_USER_CREATE = true unless const_defined? :DEFAULT_USER_CREATE
     DEFAULT_VERBOSE = true unless const_defined? :DEFAULT_VERBOSE
     DIFF_DATES = false unless const_defined? :DIFF_DATES
-    DOI_MINT_NOW = 'mint_now' unless const_defined? :DOI_MINT_NOW
     MODE_APPEND = 'append' unless const_defined? :MODE_APPEND
     MODE_BUILD = 'build' unless const_defined? :MODE_BUILD
     MODE_DIFF = 'diff' unless const_defined? :MODE_DIFF
@@ -364,6 +363,7 @@ module Deepblue
           begin
             next if work.member_of_collection_ids.include? collection_id
             collection = Collection.find( collection_id )
+            next unless collection.present? # TODO: report error
             work.member_of_collections << collection
             log_provenance_add_child( parent: collection, child: work )
             work.save!
@@ -518,7 +518,6 @@ module Deepblue
         collection.reload
         log_provenance_migrate( curation_concern: collection ) if MODE_MIGRATE == mode
         log_provenance_ingest( curation_concern: collection )
-        # doi_mint( curation_concern: collection ) if doi_mint_flag
         return collection
       end
 
@@ -591,11 +590,13 @@ module Deepblue
         return depositor
       end
 
-      def build_doi( hash:, allow_minting: true )
+      def build_doi( hash: )
         doi = hash[:doi]
-        # doi_mint_flag = ( DOI_MINT_NOW == doi ) && allow_minting
-        # doi = nil if doi_mint_flag
-        # return doi, doi_mint_flag
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "doi=#{doi}",
+                                               "" ] if new_content_service_debug_verbose
+        doi = nil if ::Deepblue::DoiMintingService::DOI_MINT_NOW == doi
         return doi
       end
 
@@ -689,6 +690,7 @@ module Deepblue
           date_modified = build_date( hash: file_set_hash, key: :date_modified )
           date_uploaded = build_date( hash: file_set_hash, key: :date_uploaded )
           description_file_set = file_set_hash[:description_file_set]
+          doi = build_doi( hash: file_set_hash )
           edit_users = Array( file_set_hash[:edit_users] )
           read_users = Array( file_set_hash[:read_users] )
           label = file_set_hash[:label]
@@ -708,6 +710,7 @@ module Deepblue
           file_set.date_modified = date_modified
           file_set.date_created = date_created
           update_cc_attribute( curation_concern: file_set, attribute: :description_file_set, value: description_file_set )
+          update_cc_attribute( curation_concern: file_set, attribute: :doi, value: doi )
           update_cc_edit_users(curation_concern: file_set, edit_users: edit_users )
           update_cc_read_users(curation_concern: file_set, read_users: read_users )
           update_cc_attribute( curation_concern: file_set, attribute: :prior_identifier, value: prior_identifier )
@@ -826,6 +829,7 @@ module Deepblue
         log_object collection if collection.present?
         add_works_to_collection( collection_hash: collection_hash, collection: collection )
         collection.save!
+        doi_mint( curation_concern: collection )
         return collection
       end
 
@@ -1033,7 +1037,6 @@ module Deepblue
         work.reload
         log_provenance_migrate( curation_concern: work ) if MODE_MIGRATE == mode
         log_provenance_ingest( curation_concern: work )
-        # doi_mint( curation_concern: work ) if doi_mint_flag
         return work
       end
 
@@ -1532,15 +1535,21 @@ module Deepblue
       end
 
       def doi_mint( curation_concern: )
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "curation_concern.id=#{curation_concern.id}",
+                                               "" ] if new_content_service_debug_verbose
         # return unless allow_mint_doi
         return unless curation_concern.respond_to? :doi_mint
-        return unless DOI_MINT_NOW == curation_concern.doi
+        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                               Deepblue::LoggingHelper.called_from,
+                                               "curation_concern.doi=#{curation_concern.doi}",
+                                               "" ] if new_content_service_debug_verbose
+        return unless ::Deepblue::DoiMintingService::DOI_MINT_NOW == curation_concern.doi
         curation_concern.doi = nil
         curation_concern.save!
         curation_concern.reload
-        curation_concern.doi_mint( current_user: user,
-                                   event_note: 'NewContentService',
-                                   job_delay: 60 )
+        curation_concern.doi_mint( current_user: user, event_note: 'NewContentService', job_delay: 60 )
       rescue Exception => e # rubocop:disable Lint/RescueException
         # updates << "#{attr_prefix cc_or_fs}: #{attr_name} -- Exception: #{e.class}: #{e.message} at #{e.backtrace[0]}"
         # Rails.logger.error "#{e.class} work.id=#{work.id} -- #{e.message} at #{e.backtrace[0]}"
@@ -2229,8 +2238,11 @@ module Deepblue
 
       def update_attr_doi( updates, cc_or_fs, cc_or_fs_hash, allow_minting: true )
         doi_from_hash = cc_or_fs_hash[:doi]
-        return update_attr( updates, cc_or_fs, cc_or_fs_hash, attr_name: :doi, multi: false ) unless ( DOI_MINT_NOW == doi_from_hash ) && allow_minting
-        doi_mint( curation_concern: cc_or_fs )
+        if ::Deepblue::DoiMintingService::DOI_MINT_NOW == doi_from_hash
+          doi_mint( curation_concern: cc_or_fs ) if allow_minting
+        else
+          update_attr( updates, cc_or_fs, cc_or_fs_hash, attr_name: :doi, multi: false )
+        end
         return updates
       rescue Exception => e # rubocop:disable Lint/RescueException
         updates << "#{attr_prefix cc_or_fs}: #{attr_name} -- Exception: #{e.class}: #{e.message} at #{e.backtrace[0]}"
@@ -2652,7 +2664,7 @@ module Deepblue
                 puts "#{updates.join("\n")}"
               end
               add_work_to_parent_ids( work_hash: work_hash, work: work )
-              doi_mint( curation_concern: work )
+              # doi_mint( curation_concern: work )
             end
           end
           next if work.blank?
