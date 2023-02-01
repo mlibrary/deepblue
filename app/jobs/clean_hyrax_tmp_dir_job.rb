@@ -20,7 +20,7 @@ class CleanHyraxTmpDirJob < AbstractRakeTaskJob
 clean_hyrax_tmp_dir_job:
   # Run once a week on Sundays at 4:05 PM (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M  H     DoW
-  cron: '5 21 * * 0'
+  cron: '5 21 * * *'
   # rails_env: production
   class: CleanHyraxTmpDirJob
   queue: scheduler
@@ -30,6 +30,9 @@ clean_hyrax_tmp_dir_job:
     days_old_uploads: 180
     email_results_to:
       - 'fritx@umich.edu'
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
     subscription_service_id: clean_hyrax_tmp_dir_job
     verbose: true
 
