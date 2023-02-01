@@ -6,9 +6,12 @@ module Deepblue
 
     include ::Deepblue::InitializationConstants
 
-    TDX_REST_URL_TEST    = 'https://apigw-tst.it.umich.edu'   unless const_defined? :TDX_REST_URL_TEST
-    TDX_REST_URL_PROD    = 'https://apigw.it.umich.edu'       unless const_defined? :TDX_REST_URL_PROD
+    TDX_REST_URL_TEST    = 'https://gw-test.api.it.umich.edu' unless const_defined? :TDX_REST_URL_TEST
+    TDX_REST_URL_PROD    = 'https://gw.api.it.umich.edu'      unless const_defined? :TDX_REST_URL_PROD
     TDX_REST_URL_INVALID = 'teamdynamix.tdx_rest_url.invalid' unless const_defined? :TDX_REST_URL_INVALID
+
+    TDX_REST_URL_TEST_OLD    = 'https://apigw-tst.it.umich.edu'   unless const_defined? :TDX_REST_URL_TEST
+    TDX_REST_URL_PROD_OLD    = 'https://apigw.it.umich.edu'       unless const_defined? :TDX_REST_URL_PROD
 
     TDX_URL_TEST = 'https://teamdynamix.umich.edu/SBTDNext/Apps/' unless const_defined? :TDX_URL_TEST
     TDX_URL_PROD = 'https://teamdynamix.umich.edu/TDNext/Apps/'   unless const_defined? :TDX_URL_PROD

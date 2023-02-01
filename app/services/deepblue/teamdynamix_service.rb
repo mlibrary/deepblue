@@ -14,6 +14,11 @@ module Deepblue
     mattr_accessor :response_debug_verbose,        default: false
 
     mattr_accessor :include_attributes_in_update, default: false
+    mattr_accessor :include_ibm_client_id, default: false
+
+    mattr_accessor :build_access_token_parms, default: '/um/oauth2/token?scope=tdxticket&grant_type=client_credentials'
+    mattr_accessor :build_access_token_parms_old,
+                   default: '/um/it/oauth2/token?scope=tdxticket&grant_type=client_credentials'
 
     mattr_accessor :active, default: TeamdynamixIntegrationService.teamdynamix_service_active
 
@@ -165,16 +170,17 @@ module Deepblue
     end
 
     def bearer_basic
-      @bearer_basic ||= build_bearer_basic
+      # @bearer_basic ||= build_bearer_basic
+      @bearer_basic ||= build_basic
     end
 
     def build_access_token
       debug_verbose = authentication_debug_verbose && msg_handler.debug_verbose
-      build_bearer_basic
+      # build_bearer_basic
+      build_basic
       headers = build_headers( auth: bearer_basic, content_type: 'application/x-www-form-urlencoded' )
-      parms = '/um/it/oauth2/token?scope=tdxticket&grant_type=client_credentials'
-      status, body = post( connection: build_connection( uri: tdx_rest_url, headers: headers ),
-                            parms: parms )
+      parms = build_access_token_parms
+      status, body = post( connection: build_connection( uri: tdx_rest_url, headers: headers ), parms: parms )
       msg_handler.msg_debug_bold [ msg_handler.here,
                                 msg_handler.called_from,
                                 "status=#{status}",
@@ -201,6 +207,17 @@ module Deepblue
                                "bearer=#{rv}",
                                "" ] if debug_verbose
       # msg_handler.msg_verbose "bearer=#{rv}"
+      rv
+    end
+
+    def build_basic
+      debug_verbose = authentication_debug_verbose && msg_handler.debug_verbose
+      rv = "Basic #{Base64.strict_encode64(authentication)}"
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "bearer_basic=#{rv}",
+                                   "" ] if debug_verbose
+      # msg_handler.msg_verbose "bearer_basic=#{rv}"
       rv
     end
 
@@ -273,7 +290,7 @@ module Deepblue
       # msg_handler.msg_verbose "auth=#{auth}"
       rv = {}
       rv['Content-Type'] = content_type if content_type.present?
-      rv['X-IBM-Client-Id'] = @client_id
+      rv['X-IBM-Client-Id'] = @client_id if include_ibm_client_id
       rv['Accept'] = accept if accept.present?
       rv['Authorization'] = auth if auth.present?
       rv['charset'] = charset if charset.present?
