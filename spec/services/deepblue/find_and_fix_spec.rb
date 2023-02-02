@@ -21,6 +21,7 @@ RSpec.describe ::Deepblue::FindAndFix do
     it { expect( ::Deepblue::FindAndFixService.find_and_fix_over_collections ).to eq [] }
     it { expect( ::Deepblue::FindAndFixService.find_and_fix_over_file_sets ).to eq [
                                              'Deepblue::FileSetsEmbargoFixer',
+                                             'Deepblue::FileSetsFileSizeFixer',
                                              'Deepblue::FileSetsLostAndFoundFixer',
                                              'Deepblue::FileSetsVisibilityFixer' ] }
     it { expect( ::Deepblue::FindAndFixService.find_and_fix_over_works ).to eq [
@@ -31,7 +32,7 @@ RSpec.describe ::Deepblue::FindAndFix do
 
   def expected_fixers_after_initialization(find_and_fix)
     expect(find_and_fix.find_and_fix_collections_fixers).to eq []
-    expect(find_and_fix.find_and_fix_file_sets_fixers.size).to eq 3
+    expect(find_and_fix.find_and_fix_file_sets_fixers.size).to eq 4
     expect(find_and_fix.find_and_fix_file_sets_fixers.select { |f| f.is_a? ::Deepblue::FileSetsLostAndFoundFixer }.size ).to eq 1
     expect(find_and_fix.find_and_fix_file_sets_fixers.select { |f| f.is_a? ::Deepblue::FileSetsVisibilityFixer }.size ).to eq 1
     expect(find_and_fix.find_and_fix_works_fixers.size).to eq 3
