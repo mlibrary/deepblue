@@ -17,6 +17,7 @@ Deepblue::FindAndFixService.setup do |config|
   config.find_and_fix_default_verbose  = true
   config.find_and_fix_over_collections = []
   config.find_and_fix_over_file_sets   = [ 'Deepblue::FileSetsEmbargoFixer',
+                                           'Deepblue::FileSetsFileSizeFixer',
                                            'Deepblue::FileSetsLostAndFoundFixer',
                                            'Deepblue::FileSetsVisibilityFixer' ]
   config.find_and_fix_over_works       = [ 'Deepblue::WorksOrderedMembersNilsFixer',

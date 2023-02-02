@@ -68,6 +68,10 @@ WHERE { }
       msg_handler.msg_verbose "Updated file size returned status #{rv.status}"
       file_set.date_modified = DateTime.now
       file_set.save!( validate: false )
+      buf = []
+      buf << file_set.to_solr
+      ActiveFedora::SolrService.add( buf, softCommit: true )
+      ActiveFedora::SolrService.commit
       # file_set.parent.update_total_file_size!
       true
     end
@@ -134,11 +138,8 @@ WHERE { }
     def self.valid_file_set_solr_sizes?( work:, msg_handler: )
       work.file_sets.map.each do |f|
         doc = PersistHelper.find_solr( f.id, fail_if_not_found: false )
-        if doc.present?
-          doc['file_size_lts']
-        else
-          return false if 0 == doc['file_size_lts']
-        end
+        return false if doc.blank?
+        return false if 0 == doc['file_size_lts']
       end
       return true
     end
