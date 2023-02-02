@@ -29,6 +29,7 @@ module Deepblue
         work.ordered_members << curation_concern
         work.save!( validate: false )
         work.reload
+        add_id_fixed curation_concern.id
       else
         msg_verbose "FileSet #{curation_concern.id} has no parent. Create DataSet with title #{lost_and_found_work_title}"
       end

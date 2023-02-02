@@ -38,9 +38,10 @@ module Deepblue
                                "curation_concern.id=#{curation_concern.id}",
                                "" ] if debug_verbose
       msg_handler.msg_verbose "fix work #{curation_concern.id} total file size"
-      unless FindAndFixHelper.valid_file_sizes?( curation_concern: curation_concern, msg_handler: msg_handler )
+      if !FindAndFixHelper.valid_file_sizes?( curation_concern: curation_concern, msg_handler: msg_handler ) || @solr_file_mismatch
         msg_verbose "Update total file size for work #{curation_concern.id}."
         FindAndFixHelper.fix_file_sizes( curation_concern: curation_concern, msg_handler: msg_handler )
+        add_id_fixed curation_concern.id
       end
     end
 

@@ -28,6 +28,7 @@ module Deepblue
       buf << curation_concern.to_solr
       ActiveFedora::SolrService.add( buf, softCommit: true )
       ActiveFedora::SolrService.commit
+      add_id_fixed curation_concern.id
     end
 
     def solr_file_size_mismatch?( file_set: )
