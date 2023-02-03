@@ -7,6 +7,8 @@ module Deepblue
     mattr_accessor :teamdynamix_service_debug_verbose,
                    default: TeamdynamixIntegrationService.teamdynamix_service_debug_verbose
 
+    mattr_accessor :use_new_api, default: TeamdynamixIntegrationService.teamdynamix_use_new_api
+
     mattr_accessor :authentication_debug_verbose,  default: false
     mattr_accessor :build_data_debug_verbose,      default: false
     mattr_accessor :build_headers_debug_verbose,   default: false
@@ -14,7 +16,6 @@ module Deepblue
     mattr_accessor :response_debug_verbose,        default: false
 
     mattr_accessor :include_attributes_in_update, default: false
-    mattr_accessor :include_ibm_client_id, default: false
 
     mattr_accessor :build_access_token_parms, default: '/um/oauth2/token?scope=tdxticket&grant_type=client_credentials'
     mattr_accessor :build_access_token_parms_old,
@@ -101,7 +102,11 @@ module Deepblue
     def initialize( responses: [], msg_handler: nil )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ], bold_puts: true if teamdynamix_service_debug_verbose
+                                             "responses=#{responses}",
+                                             "msg_handler=#{msg_handler}",
+                                             "active=#{active}",
+                                             "use_new_api=#{use_new_api}",
+                                             "" ] if teamdynamix_service_debug_verbose
       msg_handler ||= MSG_HANDLER_DEBUG_ONLY
       @msg_handler = msg_handler
       msg_handler.msg_debug_bold [ msg_handler.here, msg_handler.called_from ] if msg_handler.debug_verbose
@@ -132,7 +137,22 @@ module Deepblue
       # data[KEY_STATUS_ID] = 1012 # TODO: config
       # data[KEY_PRIORITY_ID] = 20 # TODO: config
       # data[KEY_SOURCE_ID] = 8 # TODO: config
-     end
+
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "@client_id=#{@client_id}",
+                                             "@client_secret=#{@client_secret}",
+                                             "@its_app_id=#{@its_app_id}",
+                                             "@tdx_rest_url=#{@tdx_rest_url}",
+                                             "@tdx_url=#{@tdx_url}",
+                                             "@ulib_app_id=#{@ulib_app_id}",
+                                             "@account_id=#{@account_id}",
+                                             "@form_id=#{@form_id}",
+                                             "@service_id=#{@service_id}",
+                                             "@type_id=#{@type_id}",
+                                             "" ] if teamdynamix_service_debug_verbose
+
+    end
 
     def verbose
       @msg_handler.verbose
@@ -179,7 +199,11 @@ module Deepblue
       # build_bearer_basic
       build_basic
       headers = build_headers( auth: bearer_basic, content_type: 'application/x-www-form-urlencoded' )
-      parms = build_access_token_parms
+      if use_new_api
+        parms = build_access_token_parms
+      else
+        parms = build_access_token_parms_old
+      end
       status, body = post( connection: build_connection( uri: tdx_rest_url, headers: headers ), parms: parms )
       msg_handler.msg_debug_bold [ msg_handler.here,
                                 msg_handler.called_from,
@@ -290,7 +314,7 @@ module Deepblue
       # msg_handler.msg_verbose "auth=#{auth}"
       rv = {}
       rv['Content-Type'] = content_type if content_type.present?
-      rv['X-IBM-Client-Id'] = @client_id if include_ibm_client_id
+      rv['X-IBM-Client-Id'] = @client_id unless use_new_api
       rv['Accept'] = accept if accept.present?
       rv['Authorization'] = auth if auth.present?
       rv['charset'] = charset if charset.present?
@@ -456,6 +480,13 @@ module Deepblue
                                "status=#{status}",
                                "body=#{response_inspect_body body}",
                                "" ] if msg_handler.debug_verbose
+      unless status == 200
+        ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "status=#{status}",
+                                               "body=#{body.pretty_inspect}",
+                                               "" ]
+      end
       return status, body
     end
 
@@ -481,7 +512,7 @@ module Deepblue
                                    "status=#{status}",
                                    "body=#{response_inspect_body body}",
                                    "" ] if msg_handler.debug_verbose
-       if status == 200
+      if status == 200
         # body is parsed into a hash
         @tdx_ticket_id = body[KEY_ID]
         rv = build_tdx_ticket_url( ticket_id: @tdx_ticket_id )
@@ -498,7 +529,23 @@ module Deepblue
                                      "body2=#{response_inspect_body body2}",
                                      "" ] if msg_handler.debug_verbose
       else
-        rv = response_msg( responses )
+        # # Faraday::Response
+        # ::Deepblue::LoggingHelper.bold_debug [ msg_handler.here,
+        #                              msg_handler.called_from,
+        #                              "responses=#{responses}",
+        #                              "" ] if true
+        # responses.each_with_index do |r,index|
+        #   ::Deepblue::LoggingHelper.bold_debug [ msg_handler.here,
+        #                                             msg_handler.called_from,
+        #                                             "r=#{r.pretty_inspect}",
+        #                                             "" ] if true
+        #   msg = response_msg( response: r )
+        #   ::Deepblue::LoggingHelper.bold_debug [ msg_handler.here,
+        #                                             msg_handler.called_from,
+        #                                             "msg=#{msg.pretty_inspect}",
+        #                                             "" ] if true
+        # end
+        rv = response_msg # gets the msg from the most recent response
       end
       return rv
     end
