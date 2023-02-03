@@ -1,6 +1,9 @@
 <div class="col-md-2">
   <div class="list-thumbnail">
     <%# this is for each work showm in the search result page %>
-    <%= raw (render_thumbnail_tag document).gsub!('data-context-href', 'data-reference').gsub!('<img ', '<img alt="work" ') %>
+    <% doc = render_thumbnail_tag document %>
+    <% if doc.present? %>
+    <%= raw doc.gsub!('data-context-href', 'data-reference').gsub!('<img ', '<img alt="work" ') %>
+    <% end %>
   </div>
 </div>
