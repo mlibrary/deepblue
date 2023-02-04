@@ -113,6 +113,9 @@ jira:
   site_url: https://tools.lib.umich.edu
 
 teamdynamix:
+  active: false
+  tdx_server: undefined
+  use_new_api: true
   username: tdxusername.invalid
   password: tdxupassword.invalid
   site_url: tdx_site_url

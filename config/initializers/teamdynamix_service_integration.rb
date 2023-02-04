@@ -11,8 +11,9 @@ Deepblue::TeamdynamixIntegrationService.setup do |config|
     # config.teamdynamix_service_active = true # override value in local settings
     config.enforce_dbd_account_id = false
 
-    puts "config.tdx_rest_url=#{config.tdx_rest_url}" if verbose_init
-    if config.tdx_rest_url == ::Deepblue::TeamdynamixIntegrationService::TDX_REST_URL_TEST
+    puts "config.tdx_server=#{config.tdx_server}" if verbose_init
+    if 'test' == config.tdx_server
+      puts "congigure test teamdynamix" if verbose_init
       config.its_app_id            = 31
       config.tdx_url               = 'https://teamdynamix.umich.edu/SBTDNext/Apps/'
       config.ulib_app_id           = 87
@@ -29,7 +30,8 @@ Deepblue::TeamdynamixIntegrationService.setup do |config|
       config.attr_summary          = 10228 # db-Summary, id: 10228
       config.attr_uid              = 10219 # db-UID, id: 10219
       config.attr_url_in_dbd       = 10217 # db-URLinDBdata, id: 10217
-    elsif config.tdx_rest_url == ::Deepblue::TeamdynamixIntegrationService::TDX_REST_URL_PROD
+    elsif 'prod' == config.tdx_server
+      puts "congigure production teamdynamix" if verbose_init
       config.its_app_id            = 31
       config.tdx_url               = 'https://teamdynamix.umich.edu/TDNext/Apps/'
       config.ulib_app_id           = 87
@@ -46,9 +48,8 @@ Deepblue::TeamdynamixIntegrationService.setup do |config|
       config.attr_summary          = 10425 # db-Summary, id: 10425
       config.attr_uid              = 10424 # db-UID, id: 10424
       config.attr_url_in_dbd       = 10409 # db-URLinDBdata, id: 10409
-    elsif config.tdx_rest_url == ::Deepblue::TeamdynamixIntegrationService::TDX_REST_URL_PROD
-      # don't set up
     else
+      puts "skip congigure teamdynamix" if verbose_init
       # ignore
     end
     puts "Deepblue::TeamdynamixIntegrationService.setup finished" if verbose_init
