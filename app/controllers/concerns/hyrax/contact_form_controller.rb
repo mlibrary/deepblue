@@ -18,6 +18,7 @@ module Hyrax
       attr_accessor :ngr_humanity_details
       attr_accessor :ngr_is_human
       attr_accessor :ngr_minimum_score
+      attr_accessor :ngr_humanity_details_is_human
       attr_accessor :ngr_used
       attr_accessor :referrer_ip
       attr_accessor :spam_status_unknown
@@ -36,6 +37,7 @@ module Hyrax
         @ngr_humanity_details = nil
         @ngr_is_human = nil # assume this is true and allow google recaptcha to set it to false as necessary
         @ngr_minimum_score = nil
+        @ngr_humanity_details_is_human = nil
         @ngr_used = false
         @referrer_ip = nil
         @spam_status_unknown = true
@@ -65,6 +67,7 @@ module Hyrax
                ngr_is_human: ngr_is_human,
                ngr_just_human_test: ::Hyrax::ContactFormController.ngr_just_human_test,
                ngr_minimum_score: ngr_minimum_score,
+               ngr_humanity_details_is_human: ngr_humanity_details_is_human,
                ngr_used: ngr_used,
                referrer_ip: referrer_ip,
                spam_status_unknown: spam_status_unknown,
