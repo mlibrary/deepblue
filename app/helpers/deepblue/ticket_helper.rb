@@ -191,15 +191,28 @@ module Deepblue
     end
 
     def self.start_new_ticket_job( curation_concern:, msg_handler: )
+      cc_ticket_equals_ticket_job_starting = TICKET_JOB_STARTING == curation_concern.ticket
       msg_handler.bold_debug [ msg_handler.here,
                                msg_handler.called_from,
                                "curation_concern.id=#{curation_concern.id}",
                                "curation_concern.ticket=#{curation_concern.ticket}",
-                               "TICKET_JOB_STARTING == curation_concern.ticket=#{TICKET_JOB_STARTING == curation_concern.ticket}",
+                               "(TICKET_JOB_STARTING == curation_concern.ticket)=#{cc_ticket_equals_ticket_job_starting}",
                                "" ] if msg_handler.debug_verbose
-      msg_handler.msg_verbose "Start new ticket job? false -- curation_concern.ticket=#{ticket}" unless TICKET_JOB_STARTING == curation_concern.ticket
-      return false unless TICKET_JOB_STARTING == curation_concern.ticket
-      msg_handler.msg_verbose 'Start new ticket job? true'
+      unless cc_ticket_equals_ticket_job_starting
+        msg = "Start new ticket job? false -- curation_concern.ticket=#{curation_concern.ticket}"
+        msg_handler.bold_debug [ msg_handler.here,
+                                 msg_handler.called_from,
+                                 "msg=#{msg}",
+                                 "" ] if msg_handler.debug_verbose
+        msg_handler.msg_verbose msg unless cc_ticket_equals_ticket_job_starting
+        return false
+      end
+      msg = 'Start new ticket job? true'
+      msg_handler.bold_debug [ msg_handler.here,
+                               msg_handler.called_from,
+                               "msg=#{msg}",
+                               "" ] if msg_handler.debug_verbose
+      msg_handler.msg_verbose msg
       update_curation_concern_ticket( curation_concern: curation_concern,
                                       update_ticket: TICKET_PENDING,
                                       msg_handler: msg_handler )
@@ -239,6 +252,16 @@ module Deepblue
       curation_concern.date_modified = DateTime.now
       curation_concern.ticket = update_ticket
       curation_concern.save!
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "curation_concern.id=#{curation_concern.id}",
+                                             "curation_concern.ticket=#{curation_concern.ticket}",
+                                             "" ] if msg_handler.blank? && ticket_helper_debug_verbose
+      msg_handler.bold_debug [ msg_handler.here,
+                               msg_handler.called_from,
+                               "curation_concern.id=#{curation_concern.id}",
+                               "curation_concern.ticket=#{curation_concern.ticket}",
+                               "" ] if msg_handler.present? && msg_handler.debug_verbose
     end
 
   end

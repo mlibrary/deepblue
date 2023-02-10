@@ -18,10 +18,10 @@ Deepblue::TeamdynamixIntegrationService.setup do |config|
       config.tdx_url               = 'https://teamdynamix.umich.edu/SBTDNext/Apps/'
       config.ulib_app_id           = 87
       config.account_id            = 3111 # verify for sandbox
-      config.form_id               = 2220
+      config.form_id               = 2277 # old value: 2200 - name: "Deep Blue - Data Deposit"
       config.service_id            = 2643 # ULIB-DBRRDS
       config.type_id               = 773 # is this correct (was 769)
-      config.responsible_group_id  = 1240
+      config.responsible_group_id  = 1233 # ULIB-MPub-DeepBlue
       # custom attributes
       config.attr_depositor_status = 10215 # db-DepositorStatus, id: 10215
       config.attr_discipline       = 10218 # db-Discipline, id: 10218
@@ -36,10 +36,10 @@ Deepblue::TeamdynamixIntegrationService.setup do |config|
       config.tdx_url               = 'https://teamdynamix.umich.edu/TDNext/Apps/'
       config.ulib_app_id           = 87
       config.account_id            = 3111 # MI Publishing-DBlue&RData
-      config.form_id               = 2277
+      config.form_id               = 2277 # name: "Deep Blue - Data Deposit"
       config.service_id            = 2667 # ULIB-Deep Blue - Data Deposit
       config.type_id               = 780
-      config.responsible_group_id  = 1233
+      config.responsible_group_id  = 1233 # ULIB-MPub-DeepBlue
       # TODO: custom attributes
       config.attr_depositor_status = 10413 # db-DepositorStatus, id: 10413
       config.attr_discipline       = 10422 # db-Discipline, id: 10422
@@ -57,5 +57,8 @@ Deepblue::TeamdynamixIntegrationService.setup do |config|
     puts "Deepblue::TeamdynamixIntegrationService.setup caught an exception"
     puts "Exception: #{e.to_s}"
   end
+
+  puts "Settings.teamdynamix.active=#{Settings.teamdynamix.active}" if verbose_init
+  puts "config.teamdynamix_service_active=#{config.teamdynamix_service_active}" if verbose_init
 
 end
