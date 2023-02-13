@@ -480,14 +480,29 @@ module Deepblue
                                "status=#{status}",
                                "body=#{response_inspect_body body}",
                                "" ] if msg_handler.debug_verbose
-      unless status == 200
-        ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "status=#{status}",
-                                               "body=#{body.pretty_inspect}",
-                                               "" ]
-      end
+      return status, body if create_valid_status? status
+      ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "status=#{status}",
+                                             "body=#{body.pretty_inspect}",
+                                             "",
+                                             "headers=#{headers.pretty_inspect}",
+                                             "uri=#{tdx_rest_url}",
+                                             "parms=#{parms.pretty_inspect}",
+                                             "data=#{data.pretty_inspect}",
+                                             "" ]
       return status, body
+    end
+
+    def create_valid_status?( status )
+      return true if 201 == status
+      return true if 200 == status
+      return false
+    end
+
+    def patch_valid_status?( status )
+      return true if 200 == status
+      return false
     end
 
     def create_ticket_for( curation_concern:,
@@ -495,6 +510,13 @@ module Deepblue
                            title: VALUE_UNKNOWN_TITLE,
                            user_email: nil )
 
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "curation_concern.id=#{curation_concern&.id}",
+                                   "description=#{description}",
+                                   "title=#{title}",
+                                   "user_email=#{user_email}",
+                                   "" ] if msg_handler.debug_verbose
       requestor_email = user_email
       if curation_concern.present?
         title = build_title_for( curation_concern: curation_concern )
@@ -509,10 +531,10 @@ module Deepblue
       status, body = create_ticket( title: title, fields: fields, requestor_email: requestor_email )
       msg_handler.msg_debug_bold [ msg_handler.here,
                                    msg_handler.called_from,
-                                   "status=#{status}",
-                                   "body=#{response_inspect_body body}",
+                                   "create status=#{status}",
+                                   "create body=#{response_inspect_body body}",
                                    "" ] if msg_handler.debug_verbose
-      if status == 200
+      if create_valid_status? status
         # body is parsed into a hash
         @tdx_ticket_id = body[KEY_ID]
         rv = build_tdx_ticket_url( ticket_id: @tdx_ticket_id )
@@ -522,13 +544,18 @@ module Deepblue
                                                                           ticket_url: rv )
         @tdx_ticket_url = rv
         # fix-up incomplete ticket
-        status2, body2 = patch_ticket_for( curation_concern: curation_concern, ticket_id: @tdx_ticket_id )
+        patch_status, patch_body = patch_ticket_for( curation_concern: curation_concern, ticket_id: @tdx_ticket_id )
         msg_handler.msg_debug_bold [ msg_handler.here,
                                      msg_handler.called_from,
-                                     "status2=#{status2}",
-                                     "body2=#{response_inspect_body body2}",
+                                     "patch_status=#{patch_status}",
+                                     "patch_body=#{response_inspect_body patch_body}",
                                      "" ] if msg_handler.debug_verbose
       else
+        ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "create status=#{status}",
+                                               "create body=#{body.pretty_inspect}",
+                                               "" ]
         # # Faraday::Response
         # ::Deepblue::LoggingHelper.bold_debug [ msg_handler.here,
         #                              msg_handler.called_from,
@@ -741,7 +768,7 @@ module Deepblue
       build_access_token
       build_bearer
       parms="/um/it/#{ulib_app_id}/tickets/#{ticket_id}"
-      headers=build_headers( auth: bearer, accept: APPLICATION_JSON, content_type: TEXT_PLAIN )
+      headers=build_headers( auth: bearer, accept: APPLICATION_JSON, content_type: APPLICATION_JSON )
       data = []
       data << { op: 'add', path: "/#{KEY_ACCOUNT_ID}", value: account_id } if account_id.present?
       data << { op: 'add', path: "/#{KEY_PRIORITY_ID}", value: priority_id } if priority_id.present?
@@ -777,6 +804,19 @@ module Deepblue
                                    "body=#{response_inspect_body body}",
                                    # "body=#{body.pretty_inspect}",
                                    "" ] if msg_handler.debug_verbose
+      unless patch_valid_status? status
+        ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "patch returned error status",
+                                               "status=#{status}",
+                                               "body=#{body.pretty_inspect}",
+                                               "",
+                                               "headers=#{headers.pretty_inspect}",
+                                               "uri=#{tdx_rest_url}",
+                                               "parms=#{parms.pretty_inspect}",
+                                               "data=#{data.pretty_inspect}",
+                                               "" ]
+      end
       return status, body
     end
 
