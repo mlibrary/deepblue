@@ -8,7 +8,7 @@ module Deepblue
 
     SOURCE_DBDv1 = 'DBDv1' unless const_defined? :SOURCE_DBDv1 # rubocop:disable Style/ConstantName
     SOURCE_DBDv2 = 'DBDv2' unless const_defined? :SOURCE_DBDv2 # rubocop:disable Style/ConstantName
-    DEFAULT_BASE_DIR = "/deepbluedata-prep/" unless const_defined? :DEFAULT_BASE_DIR
+    DEFAULT_BASE_DIR = "#{::Deepblue::GlobusIntegrationService.globus_prep_dir}" unless const_defined? :DEFAULT_BASE_DIR
     DEFAULT_SOURCE = SOURCE_DBDv2 unless const_defined? :DEFAULT_SOURCE
     DEFAULT_TASK = 'populate' unless const_defined? :DEFAULT_TASK
     FIELD_SEP = '; ' unless const_defined? :FIELD_SEP

@@ -2,7 +2,7 @@
 
 namespace :deepblue do
 
-  # bundle exec rake deepblue:yaml_update_for_works['f4752g72m f4752g72m','{"source_dir":"/deepbluedata-prep"\,"ingester":"ingester@umich.edu"}']
+  # bundle exec rake deepblue:yaml_update_for_works['f4752g72m f4752g72m','{"source_dir":"/deepbluedata-dataden/download-prep"\,"ingester":"ingester@umich.edu"}']
   desc 'Yaml update for works (ids separated by spaces)'
   task :yaml_update_for_works, %i[ ids options ] => :environment do |_task, args|
     args.with_defaults( options: '{}' )

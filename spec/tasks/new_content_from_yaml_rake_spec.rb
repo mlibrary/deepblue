@@ -18,7 +18,7 @@ describe "new_content_from_yaml task" do
 
     let(:base_file_names) { 'f4752g72m g4752g72m' }
     # NOTE: have to remove backslashes using .gsub(/\\,/,',')
-    let(:options) { '{"source_dir":"/deepbluedata-prep"\,"mode":"build"\,"prefix":""\,"postfix":"_populate"\,"ingester":"ingester@umich.edu"}'.gsub(/\\,/,',') }
+    let(:options) { '{"source_dir":"#{::Deepblue::GlobusIntegrationService.globus_prep_dir}"\,"mode":"build"\,"prefix":""\,"postfix":"_populate"\,"ingester":"ingester@umich.edu"}'.gsub(/\\,/,',') }
     let(:importer) { Deepblue::NewContentFromYaml.new(base_file_names: base_file_names, options: options) }
 
     before do

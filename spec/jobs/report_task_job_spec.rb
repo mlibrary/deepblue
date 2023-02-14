@@ -14,11 +14,10 @@ RSpec.describe ReportTaskJob, skip: false do
 
   describe 'module variables' do
     it { expect( described_class.report_task_allowed_path_extensions ).to eq [ '.yml', '.yaml' ] }
-    it { expect( described_class.report_task_allowed_path_prefixes ).to eq [ '/deepbluedata-prep/',
-                                                                             './lib/reports/',
-                                                                             './data/reports/',
-                                                                             '/deepbluedata-globus/upload/',
-                                                                             '/deepbluedata-dataden/upload/' ] }
+    it { expect( described_class.report_task_allowed_path_prefixes ).to eq [ "#{::Deepblue::GlobusIntegrationService.globus_prep_dir}",
+                                                             './lib/reports/',
+                                                             './data/reports/',
+                                                             "#{::Deepblue::GlobusIntegrationService.globus_upload_dir}" ] }
   end
 
   describe 'all', skip: false do
@@ -42,11 +41,10 @@ RSpec.describe ReportTaskJob, skip: false do
                                                             verbose: false ) }
         let(:options)     { {} }
         let(:allowed_path_extensions) { [ '.yml', '.yaml' ] }
-        let(:allowed_path_prefixes)   { [ '/deepbluedata-prep/',
+        let(:allowed_path_prefixes)   { [ "#{::Deepblue::GlobusIntegrationService.globus_prep_dir}",
                                           './lib/reports/',
                                           './data/reports/',
-                                          '/deepbluedata-globus/upload/',
-                                          '/deepbluedata-dataden/upload/' ] }
+                                          "#{::Deepblue::GlobusIntegrationService.globus_upload_dir}" ] }
 
         context 'with valid arguments and two paths' do
           let(:path1) { '/some/path/to/report1' }

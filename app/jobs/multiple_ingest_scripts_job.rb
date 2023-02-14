@@ -8,10 +8,9 @@ class MultipleIngestScriptsJob < ::Deepblue::DeepblueJob
   mattr_accessor :scripts_allowed_path_extensions, default: [ '.yml', '.yaml' ]
 
   mattr_accessor :scripts_allowed_path_prefixes,
-                 default: [ '/deepbluedata-prep/',
+                 default: [ "#{::Deepblue::GlobusIntegrationService.globus_prep_dir}",
                             './data/reports/',
-                            '/deepbluedata-globus/upload/',
-                            '/deepbluedata-dataden/upload/' ]
+                            "#{::Deepblue::GlobusIntegrationService.globus_upload_dir}" ]
 
   queue_as Hyrax.config.ingest_queue_name
 

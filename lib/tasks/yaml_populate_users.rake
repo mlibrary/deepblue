@@ -2,7 +2,7 @@
 
 namespace :deepblue do
 
-  # bundle exec rake deepblue:yaml_populate_users['{"target_dir":"/deepbluedata-prep","mode":"migrate"}']
+  # bundle exec rake deepblue:yaml_populate_users['{"target_dir":"/deepbluedata-dataden/download-prep","mode":"migrate"}']
   desc 'Yaml populate users'
   task :yaml_populate_users, %i[ options ] => :environment do |_task, args|
     args.with_defaults( options: '{}' )

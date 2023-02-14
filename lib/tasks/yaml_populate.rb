@@ -17,7 +17,7 @@ module Deepblue
     DEFAULT_EXPORT_FILES = true
     DEFAULT_MODE = 'build'
     DEFAULT_OVERWRITE_EXPORT_FILES = true
-    DEFAULT_TARGET_DIR = '/deepbluedata-prep'
+    DEFAULT_TARGET_DIR = "#{::Deepblue::GlobusIntegrationService.globus_upload_dir}"
 
     attr_accessor :populate_ids
     attr_accessor :populate_type

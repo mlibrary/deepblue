@@ -14,10 +14,9 @@ RSpec.describe MultipleIngestScriptsJob, skip: false do
 
   describe 'module variables' do
     it { expect( described_class.scripts_allowed_path_extensions ).to eq [ '.yml', '.yaml' ] }
-    it { expect( described_class.scripts_allowed_path_prefixes ).to eq [ '/deepbluedata-prep/',
-                                                                         './data/reports/',
-                                                                         '/deepbluedata-globus/upload/',
-                                                                         '/deepbluedata-dataden/upload/'] }
+    it { expect( described_class.scripts_allowed_path_prefixes ).to eq [ "#{::Deepblue::GlobusIntegrationService.globus_prep_dir}",
+                                                             './data/reports/',
+                                                             "#{::Deepblue::GlobusIntegrationService.globus_upload_dir}" ] }
   end
 
   describe 'all', skip: false do

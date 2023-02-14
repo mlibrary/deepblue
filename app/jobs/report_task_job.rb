@@ -12,11 +12,10 @@ class ReportTaskJob < ::Hyrax::ApplicationJob
 
   mattr_accessor :report_task_allowed_path_extensions, default: [ '.yml', '.yaml' ]
 
-  mattr_accessor :report_task_allowed_path_prefixes, default: [ '/deepbluedata-prep/',
+  mattr_accessor :report_task_allowed_path_prefixes, default: [ "#{::Deepblue::GlobusIntegrationService.globus_prep_dir}",
                                                                 './lib/reports/',
                                                                 './data/reports/',
-                                                                '/deepbluedata-globus/upload/',
-                                                                '/deepbluedata-dataden/upload/' ]
+                                                                "#{::Deepblue::GlobusIntegrationService.globus_upload_dir}" ]
 
   include JobHelper # see JobHelper for :by_request_only, :email_targets, :hostname, :job_msg_queue, :timestamp_begin, :timestamp_end
   queue_as :default

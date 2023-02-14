@@ -12,7 +12,7 @@ module Deepblue
 
   class YamlUpdate < AbstractTask
 
-    DEFAULT_SOURCE_DIR = '/deepbluedata-prep'
+    DEFAULT_SOURCE_DIR = "#{::Deepblue::GlobusIntegrationService.globus_prep_dir}"
     DEFAULT_INGESTER = nil
 
     def initialize( update_type:, options: )

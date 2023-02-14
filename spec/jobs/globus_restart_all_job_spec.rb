@@ -12,8 +12,8 @@ describe GlobusRestartAllJob, "GlobusJob globus_enabled: :true", globus_enabled:
   let( :globus_dir ) { Pathname "./data/globus" }
   let( :target_name ) { "DeepBlueData_Restart_All" }
   # let( :target_name_prep_dir ) { "#{GlobusJob.server_prefix(str:'_')}#{target_name}" }
-  let( :globus_download_dir ) { globus_dir.join( 'download' ).join( 'test' ) }
-  let( :globus_prep_dir ) { globus_dir.join( 'prep' ).join( 'test' ) }
+  let( :globus_download_dir ) { globus_dir.join( ::Deepblue::InitializationConstants::DOWNLOAD ).join( 'test' ) }
+  let( :globus_prep_dir ) { globus_dir.join( ::Deepblue::InitializationConstants::PREP ).join( 'test' ) }
   let( :job_complete_file ) { globus_prep_dir.join ".test.restarted.#{target_name}" }
   let( :error_file ) { globus_prep_dir.join ".test.error.#{target_name}" }
   let( :lock_file ) { globus_prep_dir.join ".test.lock.#{target_name}" }
