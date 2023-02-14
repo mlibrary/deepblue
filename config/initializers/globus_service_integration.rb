@@ -7,6 +7,8 @@ Deepblue::GlobusIntegrationService.setup do |config|
   config.globus_dashboard_controller_debug_verbose = false
   config.globus_dashboard_presenter_debug_verbose = false
 
+  new_globus_directories = true
+
   # TODO: some of these are dependent and can be made readonly
 
   ## configure for Globus
@@ -17,9 +19,10 @@ Deepblue::GlobusIntegrationService.setup do |config|
     config.globus_dir = './data/globus'
     FileUtils.mkdir_p config.globus_dir unless Dir.exist? config.globus_dir
   elsif Rails.env.test?
-    # config.globus_dir = '/tmp/deepbluedata-globus'
     config.globus_dir = './data/globus'
     FileUtils.mkdir_p config.globus_dir unless Dir.exist? config.globus_dir
+  elsif new_globus_directories
+    config.globus_dir = '/deepbluedata-dataden'
   else
     config.globus_dir = '/deepbluedata-globus'
   end
@@ -28,36 +31,45 @@ Deepblue::GlobusIntegrationService.setup do |config|
   config.globus_dir_modifier = ''
   config.globus_download_dir = config.globus_dir.join ::Deepblue::InitializationConstants::DOWNLOAD
   config.globus_prep_dir = config.globus_dir.join ::Deepblue::InitializationConstants::PREP
+  config.globus_upload_dir = config.globus_dir.join ::Deepblue::InitializationConstants::UPLOAD
   puts "globus init with hostname = #{Rails.configuration.hostname}" if verbose_initialization
   case Rails.configuration.hostname
   when ::Deepblue::InitializationConstants::HOSTNAME_PROD
     config.globus_download_dir = config.globus_dir.join ::Deepblue::InitializationConstants::DOWNLOAD
     config.globus_prep_dir = config.globus_dir.join ::Deepblue::InitializationConstants::PREP
+    config.globus_upload_dir = config.globus_dir.join ::Deepblue::InitializationConstants::UPLOAD
   when ::Deepblue::InitializationConstants::HOSTNAME_TESTING
     config.globus_dir_modifier = ::Deepblue::InitializationConstants::TESTING
     config.globus_download_dir = config.globus_download_dir.join ::Deepblue::InitializationConstants::TESTING
     config.globus_prep_dir = config.globus_prep_dir.join ::Deepblue::InitializationConstants::TESTING
+    config.globus_upload_dir = config.globus_dir.join ::Deepblue::InitializationConstants::UPLOAD
   when ::Deepblue::InitializationConstants::HOSTNAME_STAGING
     config.globus_dir_modifier = ::Deepblue::InitializationConstants::STAGING
     config.globus_download_dir = config.globus_download_dir.join ::Deepblue::InitializationConstants::STAGING
     config.globus_prep_dir = config.globus_prep_dir.join ::Deepblue::InitializationConstants::STAGING
+    config.globus_upload_dir = config.globus_dir.join ::Deepblue::InitializationConstants::UPLOAD
   when ::Deepblue::InitializationConstants::HOSTNAME_TEST
     config.globus_dir_modifier = ::Deepblue::InitializationConstants::TEST
     config.globus_download_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::DOWNLOAD,
                                                          ::Deepblue::InitializationConstants::TEST )
     config.globus_prep_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::PREP,
                                                      ::Deepblue::InitializationConstants::TEST )
+    config.globus_upload_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::UPLOAD,
+                                                     ::Deepblue::InitializationConstants::TEST )
   when ::Deepblue::InitializationConstants::HOSTNAME_LOCAL
     config.globus_dir_modifier = ::Deepblue::InitializationConstants::LOCAL
     config.globus_download_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::DOWNLOAD )
     config.globus_prep_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::PREP )
+    config.globus_upload_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::UPLOAD )
   else
     config.globus_dir_modifier = ::Deepblue::InitializationConstants::UNKNOWN
     config.globus_download_dir = config.globus_download_dir.join ::Deepblue::InitializationConstants::UNKNOWN
     config.globus_prep_dir = config.globus_prep_dir.join ::Deepblue::InitializationConstants::UNKNOWN
+    config.globus_upload_dir = config.globus_dir.join ::Deepblue::InitializationConstants::UNKNOWN
   end
   puts "globus_download_dir=#{config.globus_download_dir}" if verbose_initialization
   puts "globus_prep_dir=#{config.globus_prep_dir}" if verbose_initialization
+  puts "globus_upload_dir=#{config.globus_upload_dir}" if verbose_initialization
   #if Rails.env.development? || Rails.env.test?
   begin
     FileUtils.mkdir_p config.globus_download_dir unless Dir.exist? config.globus_download_dir
@@ -70,7 +82,8 @@ Deepblue::GlobusIntegrationService.setup do |config|
   puts "globus_enabled=#{config.globus_enabled}" if verbose_initialization
   config.globus_base_file_name = "DeepBlueData_"
   puts "globus_base_file_name=#{config.globus_base_file_name}" if verbose_initialization
-  config.globus_base_url = 'https://app.globus.org/file-manager?origin_id=99d8c648-a9ff-11e7-aedd-22000a92523b&origin_path=%2Fdownload%2F'
+  # config.globus_base_url = 'https://app.globus.org/file-manager?origin_id=99d8c648-a9ff-11e7-aedd-22000a92523b&origin_path=%2Fdownload%2F'
+  config.globus_base_url = 'https://app.globus.org/file-manager?origin_id=4db576d9-f052-4494-93eb-1d6c0008f358&origin_path=%2F'
   config.globus_restart_all_copy_jobs_quiet = true
   config.globus_debug_delay_per_file_copy_job_seconds = 0
   config.globus_after_copy_job_ui_delay_seconds = 3

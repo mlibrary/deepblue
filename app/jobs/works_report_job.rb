@@ -24,7 +24,7 @@ works_report_job_monthly:
       - 'testing.deepblue.lib.umich.edu'
     quiet: true
     report_file_prefix: '%date%.%hostname%.works_report'
-    report_dir: '/deepbluedata-prep/reports'
+    report_dir: '/deepbluedata-dataden/download-prep/reports'
     subscription_service_id: works_report_job_monthly
 
 END_OF_SCHEDULER_ENTRY

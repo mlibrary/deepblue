@@ -21,7 +21,7 @@ module Deepblue
       id = 'wp988j816'
       puts "id=#{id}"
       w = TaskHelper.work_find( id: id )
-      base = "/deepbluedata-prep"
+      base = "/deepbluedata-dataden/download-prep"
       tmp = "#{base}/fedora-extract/#{id}"
       puts "tmp=#{tmp}"
       ensure_dirs_exist( base, "#{base}/fedora-extract", tmp )

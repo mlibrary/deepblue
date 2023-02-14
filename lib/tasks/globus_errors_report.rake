@@ -9,9 +9,9 @@ namespace :deepblue do
   # bundle exec rake deepblue:globus_errors_report['{"quiet":true}']
   # bundle exec rake deepblue:globus_errors_report['{"quiet":false\,"report_dir":"."\,"report_file_prefix":"%timestamp%.%hostname%.globus_errors_report"}']
   # bundle exec rake deepblue:globus_errors_report['{"quiet":false}']
-  # bundle exec rake deepblue:globus_errors_report['{"quiet":false\,"report_dir":"/deepbluedata-prep/reports"}']
-  # bundle exec rake deepblue:globus_errors_report['{"quiet":false\,"report_dir":"/deepbluedata-prep/reports"\,"report_file_prefix":"%date%.%time%.%hostname%.globus_errors_report"}']
-  # bundle exec rake deepblue:globus_errors_report['{"quiet":false\,"report_dir":"/deepbluedata-prep/reports"\,"report_file_prefix":"%timestamp%.%hostname%.globus_errors_report"}']
+  # bundle exec rake deepblue:globus_errors_report['{"quiet":false\,"report_dir":"/deepbluedata-dataden/download-prep/reports"}']
+  # bundle exec rake deepblue:globus_errors_report['{"quiet":false\,"report_dir":"/deepbluedata-dataden/download-prep/reports"\,"report_file_prefix":"%date%.%time%.%hostname%.globus_errors_report"}']
+  # bundle exec rake deepblue:globus_errors_report['{"quiet":false\,"report_dir":"/deepbluedata-dataden/download-prep/reports"\,"report_file_prefix":"%timestamp%.%hostname%.globus_errors_report"}']
   desc 'Report on Globus errors'
   task :globus_errors_report, %i[ options ] => :environment do |_task, args|
     args.with_defaults( options: '{}' )

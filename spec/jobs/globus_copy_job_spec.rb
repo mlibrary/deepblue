@@ -15,8 +15,8 @@ end
 describe GlobusCopyJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do # rubocop:disable RSpec/DescribeMethod
 
   let( :globus_dir ) { Pathname "./data/globus" }
-  let( :globus_download_dir ) { globus_dir.join( 'download' ).join( 'test' ) }
-  let( :globus_prep_dir ) { globus_dir.join( 'prep' ).join( 'test' ) }
+  let( :globus_download_dir ) { globus_dir.join( ::Deepblue::InitializationConstants::DOWNLOAD ).join( 'test' ) }
+  let( :globus_prep_dir ) { globus_dir.join( ::Deepblue::InitializationConstants::PREP ).join( 'test' ) }
   let( :target_name ) { "DeepBlueData_id321" }
   # let( :target_name_prep_dir ) { "#{GlobusJob.server_prefix(str: '_')}#{target_name}" }
   let( :target_name_prep_dir ) { "#{target_name}" }

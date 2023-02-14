@@ -37,7 +37,10 @@ Deepblue::IngestIntegrationService.setup do |config|
   config.characterize_mime_type_ext_mismatch_fix = { ".html" => 'text/html' }.freeze
 
   config.ingest_append_queue_name = :default
-  allowed_dirs = [ '/deepbluedata-prep', '/deepbluedata-globus', '/deepbluedata-dataden/upload', './data/' ]
+  allowed_dirs = [ "#{::Deepblue::GlobusIntegrationService.globus_prep_dir}",
+                   "#{::Deepblue::GlobusIntegrationService.globus_dir}",
+                   "#{::Deepblue::GlobusIntegrationService.globus_upload_dir}",
+                   './data/' ]
   if Rails.env.development?
     allowed_dirs << File.join( Dir.home, 'Documents' ).to_s
     allowed_dirs << File.join( Dir.home, 'Downloads' ).to_s
@@ -48,15 +51,15 @@ Deepblue::IngestIntegrationService.setup do |config|
       allowed_dirs << "/Volumes/ulib-dbd-prep"
       config.deepbluedata_prep = "/Volumes/ulib-dbd-prep"
     else
-      allowed_dirs << "/tmp/deepbluedata-prep"
-      config.deepbluedata_prep = "/tmp/deepbluedata-prep"
+      allowed_dirs << "/tmp/deepbluedata-dataden/download-prep"
+      config.deepbluedata_prep = "/tmp/deepbluedata-dataden/download-prep"
     end
   elsif Rails.env.test?
-    config.ingest_script_dir = '/tmp/deepbluedata-prep/scripts'
-    config.deepbluedata_prep = '/tmp/deepbluedata-prep'
+    config.ingest_script_dir = '/tmp/deepbluedata-dataden/download-prep/scripts'
+    config.deepbluedata_prep = '/tmp/deepbluedata-dataden/download-prep'
   else
-    config.ingest_script_dir = '/deepbluedata-prep/scripts'
-    config.deepbluedata_prep = '/deepbluedata-prep'
+    config.ingest_script_dir = '/deepbluedata-dataden/download-prep/scripts'
+    config.deepbluedata_prep = '/deepbluedata-dataden/download-prep'
   end
   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                          ::Deepblue::LoggingHelper.called_from,

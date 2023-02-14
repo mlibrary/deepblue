@@ -7,8 +7,8 @@ end
 describe GlobusJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do # rubocop:disable RSpec/DescribeMethod
 
   let( :globus_dir ) { Pathname.new "./data/globus" }
-  let( :globus_download_dir ) { globus_dir.join( 'download' ).join( 'test' ) }
-  let( :globus_prep_dir ) { globus_dir.join( 'prep' ).join( 'test' ) }
+  let( :globus_download_dir ) { globus_dir.join( ::Deepblue::InitializationConstants::DOWNLOAD ).join( 'test' ) }
+  let( :globus_prep_dir ) { globus_dir.join( ::Deepblue::InitializationConstants::PREP ).join( 'test' ) }
   let( :globus_target_download_dir ) { globus_download_dir.join 'DeepBlueData_id321' }
   let( :globus_target_prep_dir ) { globus_prep_dir.join "#{GlobusJob.server_prefix(str: '_')}DeepBlueData_id321" }
   let( :globus_target_prep_tmp_dir ) { globus_prep_dir.join "#{GlobusJob.server_prefix(str: '_')}DeepBlueData_id321" }
@@ -27,7 +27,8 @@ describe GlobusJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do 
   describe "GlobusJob#external_url" do
     it "returns a globus external url." do
       url = GlobusJob.external_url "id321"
-      expect( url ).to eq( "https://app.globus.org/file-manager?origin_id=99d8c648-a9ff-11e7-aedd-22000a92523b&origin_path=%2Fdownload%2Ftest%2FDeepBlueData_id321%2F" )
+      #expect( url ).to eq( "https://app.globus.org/file-manager?origin_id=99d8c648-a9ff-11e7-aedd-22000a92523b&origin_path=%2Fdownload%2Ftest%2FDeepBlueData_id321%2F" )
+      expect( url ).to eq( "https://app.globus.org/file-manager?origin_id=4db576d9-f052-4494-93eb-1d6c0008f358&origin_path=%2Ftest%2FDeepBlueData_id321%2F" )
     end
   end
 

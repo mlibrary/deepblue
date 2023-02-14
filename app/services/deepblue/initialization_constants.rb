@@ -6,12 +6,13 @@ module Deepblue
 
     DOWNLOAD = 'download'.freeze unless const_defined? :DOWNLOAD
     LOCAL = 'local'.freeze unless const_defined? :LOCAL
-    PREP = 'prep'.freeze unless const_defined? :PREP
+    PREP = 'download-prep'.freeze unless const_defined? :PREP
     PRODUCTION = 'production'.freeze unless const_defined? :PRODUCTION
     STAGING = 'staging'.freeze unless const_defined? :STAGING
     TEST = 'test'.freeze unless const_defined? :TEST
     TESTING = 'testing'.freeze unless const_defined? :TESTING
     UNKNOWN = 'unknown'.freeze unless const_defined? :UNKNOWN
+    UPLOAD = 'upload'.freeze unless const_defined? :UPLOAD
 
     HOSTNAME_LOCAL = 'deepblue.local'.freeze unless const_defined? :HOSTNAME_LOCAL
     HOSTNAME_PROD = 'deepblue.lib.umich.edu'.freeze unless const_defined? :HOSTNAME_PROD
