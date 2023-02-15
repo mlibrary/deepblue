@@ -319,43 +319,6 @@ module Hyrax
       false
     end
 
-    def creator_for_json
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "parent.class.name=#{@parent.class.name}",
-                                             "" ] if ds_file_set_presenter_debug_verbose
-      authors = ""
-      parent.creator.each do |author|
-        authors +=  "{ \"@type\": \"Person\",
-                      \"name\": \"#{author}\"},"
-      end
-      # remove last comma
-      authors[0...-1]
-    end
-
-    def create_cc_for_json
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "parent.class.name=#{@parent.class.name}",
-                                             "" ] if ds_file_set_presenter_debug_verbose
-      rights_license = create_rights_license
-      if rights_license == "http://creativecommons.org/publicdomain/zero/1.0/"
-        "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication"
-      elsif rights_license == "http://creativecommons.org/licenses/by/4.0/"
-        "Attribution 4.0 International (CC BY 4.0)"
-      elsif rights_license == "http://creativecommons.org/licenses/by-nc/4.0/"
-        "Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)"
-      elsif parent.rights_license_other.blank?
-        ''
-      else
-        parent.rights_license_other.first
-      end
-    end
-
-    def create_rights_license
-      return parent.rights_license[0]
-    end
-
     def curation_notes_admin
       rv = @solr_document.curation_notes_admin
       return rv
@@ -517,6 +480,10 @@ module Hyrax
       else
         "http://schema.org/Dataset"
       end
+    end
+
+    def ld_json_url
+      "https://deepblue.lib.umich.edu/data/concern/file_sets/#{id}"
     end
 
     # To handle large files.

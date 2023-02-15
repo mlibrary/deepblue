@@ -27,15 +27,15 @@ signed in %>
   <script type="application/ld+json">
   {
     "@context": "http://schema.org/",
-    "@type": "Dataset",
-    "@id": "<%= @presenter.doi.first if @presenter.doi.present? %>",
-    "name": "<%= @presenter.title.first %>",  
-    "description": "<%= @presenter.description.first %>",
-    "url": "https://deepblue.lib.umich.edu/data/concern/data_sets/<%= @presenter.id %>",
-    "identifier": "<%= @presenter.doi.first if @presenter.doi.present? %>",
+    "@type": "<%= @presenter.ld_json_type %>",
+    "@id": "<%= @presenter.ld_json_identifier %>",
+    "name": "<%= @presenter.title.first %>",
+    "description": "<%= @presenter.ld_json_description %>",
+    "url": "<%= @presenter.ld_json_url %>",
+    "identifier": "<%= @presenter.ld_json_identifier %>",
     "isAccessibleForFree": true,
     "keywords": [<%= raw @presenter.keyword.map { |i| "\"" + i.to_s + "\"" }.join(",")  if @presenter.keyword.present? %>],
-    "creator": [<%= raw @presenter.creator_for_json %>],
+    "creator": [<%= raw @presenter.ld_json_creator %>],
     <% if @presenter.respond_to?(:date_coverage) && @presenter.date_coverage.present? %>
       <% tempCovDate = @presenter.date_coverage.split(" to ") %>
       "temporalCoverage": [
@@ -45,10 +45,7 @@ signed in %>
     <% end %>
     "citation": "<%= raw export_as_mla_citation(@presenter).gsub(/<\/?[^>]*>/, "") %>",
     <% if @presenter.respond_to?(:rights_license) %>
-    "license":
-      {"@type": "CreativeWork",     
-       "name": "<%= @presenter.create_cc_for_json %>",     
-       "license": "<%= @presenter.rights_license[0] %>"},
+    "license": "<%= raw @presenter.ld_json_license %>",
     <% end %>
     "publisher":
       {"@id": "https://deepblue.lib.umich.edu/data/",     

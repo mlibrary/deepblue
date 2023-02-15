@@ -4,7 +4,7 @@
 
 module Hyrax
 
-  class CollectionPresenter
+  class CollectionPresenter < DeepbluePresenter
     include ModelProxy
     include PresentsAttributes
     include ActionView::Helpers::NumberHelper
@@ -147,16 +147,6 @@ module Hyrax
       end
     end
 
-    def creator_for_json
-      authors = ""
-      creator.each do |author|
-        authors +=  "{ \"@type\": \"Person\",
-                      \"name\": \"#{author}\"},"
-      end
-      # remove last comma
-      authors[0...-1]
-    end
-
     def json_metadata_properties
       ::Collection.metadata_keys_json
     end
@@ -225,6 +215,14 @@ module Hyrax
 
     def sorted_methods
       methods.sort
+    end
+
+    def ld_json_url
+      "https://deepblue.lib.umich.edu/data/collections/#{id}"
+    end
+
+    def ld_json_license
+
     end
 
     def member_of_this_collection
