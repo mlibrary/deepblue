@@ -4,7 +4,7 @@
 
 module Hyrax
 
-  class CollectionPresenter < DeepbluePresenter
+  class CollectionPresenter
     include ModelProxy
     include PresentsAttributes
     include ActionView::Helpers::NumberHelper
