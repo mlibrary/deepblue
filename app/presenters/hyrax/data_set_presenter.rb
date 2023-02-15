@@ -230,6 +230,14 @@ module Hyrax
       "#{label} (#{total_file_size_human_readable} in #{count} #{files})"
     end
 
+    def ld_json_type
+      "Dataset"
+    end
+
+    def ld_json_url
+      "https://deepblue.lib.umich.edu/data/concern/data_sets/#{id}"
+    end
+
     # begin tombstone
 
     def tombstone
@@ -241,35 +249,6 @@ module Hyrax
 
     def tombstone_enabled?
       true
-    end
-
-    def creator_for_json
-      authors = ""
-      creator.each do |author|
-         authors +=  "{ \"@type\": \"Person\",
-                      \"name\": \"#{author}\"},"
-      end
-      # remove last comma
-      authors[0...-1]
-    end
-
-    def create_cc_for_json
-      rights_license = create_rights_license
-      if rights_license == "http://creativecommons.org/publicdomain/zero/1.0/"
-        "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication"
-      elsif rights_license == "http://creativecommons.org/licenses/by/4.0/"
-        "Attribution 4.0 International (CC BY 4.0)"
-      elsif rights_license == "http://creativecommons.org/licenses/by-nc/4.0/"
-        "Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)"
-      elsif rights_license_other.blank?
-        ''
-      else
-        rights_license_other.first
-      end
-    end
-
-    def create_rights_license
-      return rights_license[0]
     end
 
   end

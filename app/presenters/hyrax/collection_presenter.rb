@@ -147,16 +147,6 @@ module Hyrax
       end
     end
 
-    def creator_for_json
-      authors = ""
-      creator.each do |author|
-        authors +=  "{ \"@type\": \"Person\",
-                      \"name\": \"#{author}\"},"
-      end
-      # remove last comma
-      authors[0...-1]
-    end
-
     def json_metadata_properties
       ::Collection.metadata_keys_json
     end
@@ -225,6 +215,38 @@ module Hyrax
 
     def sorted_methods
       methods.sort
+    end
+
+    def ld_json_creator
+      ::DeepbluePresenterHelper.ld_json_creator( self )
+    end
+
+    def ld_json_description
+      ::DeepbluePresenterHelper.ld_json_description( self )
+    end
+
+    def ld_json_identifier
+      ::DeepbluePresenterHelper.ld_json_identifier( self )
+    end
+
+    def ld_json_license
+      ::DeepbluePresenterHelper.ld_json_license( self )
+    end
+
+    def ld_json_license_name
+      ::DeepbluePresenterHelper.ld_json_license_name( self )
+    end
+
+    def ld_json_license_url
+      ::DeepbluePresenterHelper.ld_json_license_url( self )
+    end
+
+    def ld_json_type
+      'Dataset' # TODO - this is dependent on the class
+    end
+
+    def ld_json_url
+      "https://deepblue.lib.umich.edu/data/collections/#{id}"
     end
 
     def member_of_this_collection
