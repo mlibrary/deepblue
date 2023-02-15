@@ -482,6 +482,10 @@ module Hyrax
       end
     end
 
+    def ld_json_type
+      'Dataset' # TODO - this is dependent on the class
+    end
+
     def ld_json_url
       "https://deepblue.lib.umich.edu/data/concern/file_sets/#{id}"
     end
