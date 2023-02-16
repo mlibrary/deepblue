@@ -679,6 +679,13 @@ table.datatable thead th.no-sort {
     font-style: italic;
 }
 
+.update-alert--std {
+    background-color : rgb(235, 255, 241);
+    border-bottom: 0px;
+    color: black;
+    text-align: center;
+}
+
 .update-alert--warning-std {
   background-color : #FFF1EB;
   border-bottom: 0px;
@@ -687,8 +694,8 @@ table.datatable thead th.no-sort {
 }
 
 .banner-content-std {
-  background-color: #FFF1EB;
-  border-bottom: 2px solid rgb(231, 117, 4);
+  background-color: rgb(235, 255, 241);
+  border-bottom: 2px solid rgb(235, 255, 241);
 }
 
 .update-alert--warning {
