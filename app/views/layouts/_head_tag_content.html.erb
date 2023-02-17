@@ -45,7 +45,7 @@ signed in %>
     <% end %>
     "citation": "<%= raw export_as_mla_citation(@presenter).gsub(/<\/?[^>]*>/, "") %>",
     <% if @presenter.respond_to?(:rights_license) %>
-    "license": "<%= raw @presenter.ld_json_license %>",
+    "license": <%= raw @presenter.ld_json_license %>,
     <% end %>
     "publisher":
       {"@id": "https://deepblue.lib.umich.edu/data/",     
