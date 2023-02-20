@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require_relative './doi_minting_2021_service'
-
 module Deepblue
+
 
   # TODO: shift most of functinality to DataSiteRegistrarBehavior module
   class DataCiteRegistrar < Hyrax::Identifier::Registrar
@@ -269,11 +269,12 @@ module Deepblue
 
     # NOTE: default_url_options[:host] must be set for this method to curation_concern
     def cc_url(curation_concern)
-      if curation_concern.is_a? ::Collection
-        curation_concern.collection_url
-      else
-        Rails.application.routes.url_helpers.polymorphic_url(curation_concern)
-      end
+      # if curation_concern.is_a? ::Collection
+      #   curation_concern.collection_url
+      # else
+      #   Rails.application.routes.url_helpers.polymorphic_url(curation_concern)
+      # end
+      ::Deepblue::EmailHelper.curation_concern_url( curation_concern: curation_concern )
     end
 
     def cc_to_datacite_xml(curation_concern)
