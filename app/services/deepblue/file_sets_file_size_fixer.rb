@@ -32,8 +32,8 @@ module Deepblue
     end
 
     def solr_file_size_mismatch?( file_set: )
-      # doc = SolrDocument.find curation_concern.id
-      doc = ::PersistHelper.find_solr( curation_concern.id, fail_if_not_found: false )
+      # doc = SolrDocument.find file_set.id
+      doc = ::PersistHelper.find_solr( file_set.id, fail_if_not_found: false )
       return true if doc.blank?
       solr_file_size = doc['file_size_lts']
       return true if solr_file_size.nil?
