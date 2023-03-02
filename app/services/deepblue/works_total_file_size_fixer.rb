@@ -45,32 +45,31 @@ module Deepblue
       end
     end
 
-  end
-
-  def solr_file_size_mismatch?( curation_concern: )
-    @solr_file_mismatch = false
-    # doc = SolrDocument.find curation_concern.id
-    doc = ::PersistHelper.find_solr( curation_concern.id, fail_if_not_found: false )
-    return (@solr_file_mismatch = true) if doc.blank?
-    solr_work_total_file_size = doc['total_file_size_lts']
-    work_total_file_size = work.total_file_size
-    return (@solr_file_mismatch = true) if work_total_file_size != solr_work_total_file_size
-    file_set_total_size = work_total_file_set_solr_sizes( work: curation_concern )
-    @solr_file_mismatch = solr_work_total_file_size != file_set_total_size
-    return @solr_file_mismatch
-  end
-
-  def work_total_file_set_solr_sizes( work: )
-    rv = 0
-    work.file_sets.map.each do |f|
-      doc = ::PersistHelper.find_solr( f.id, fail_if_not_found: false )
-      next if doc.blank?
-      file_size = doc['file_size_lts']
-      next if file_size.blank?
-      rv += file_size
+    def solr_file_size_mismatch?( curation_concern: )
+      @solr_file_mismatch = false
+      # doc = SolrDocument.find curation_concern.id
+      doc = ::PersistHelper.find_solr( curation_concern.id, fail_if_not_found: false )
+      return (@solr_file_mismatch = true) if doc.blank?
+      solr_work_total_file_size = doc['total_file_size_lts']
+      work_total_file_size = work.total_file_size
+      return (@solr_file_mismatch = true) if work_total_file_size != solr_work_total_file_size
+      file_set_total_size = work_total_file_set_solr_sizes( work: curation_concern )
+      @solr_file_mismatch = solr_work_total_file_size != file_set_total_size
+      return @solr_file_mismatch
     end
-    return rv
+
+    def work_total_file_set_solr_sizes( work: )
+      rv = 0
+      work.file_sets.map.each do |f|
+        doc = ::PersistHelper.find_solr( f.id, fail_if_not_found: false )
+        next if doc.blank?
+        file_size = doc['file_size_lts']
+        next if file_size.blank?
+        rv += file_size
+      end
+      return rv
+    end
+
   end
 
 end
-
