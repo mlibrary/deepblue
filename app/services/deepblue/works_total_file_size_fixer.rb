@@ -51,7 +51,7 @@ module Deepblue
       doc = ::PersistHelper.find_solr( curation_concern.id, fail_if_not_found: false )
       return (@solr_file_mismatch = true) if doc.blank?
       solr_work_total_file_size = doc['total_file_size_lts']
-      work_total_file_size = work.total_file_size
+      work_total_file_size = curation_concern.total_file_size
       return (@solr_file_mismatch = true) if work_total_file_size != solr_work_total_file_size
       file_set_total_size = work_total_file_set_solr_sizes( work: curation_concern )
       @solr_file_mismatch = solr_work_total_file_size != file_set_total_size
