@@ -17,6 +17,7 @@ module Deepblue
       msg_handler.msg_verbose "fix file sizes for work #{curation_concern&.id}"
       msg_handler.msg_verbose "w.present? #{w.present?}"
       selected = w.file_sets.select { |f| f.file_size.blank? }
+      selected ||= []
       msg_handler.msg_verbose "selected.size = #{selected.size}"
       selected.each { |f| msg_handler.msg_verbose f.original_file_size } if msg_handler.to_console
       selected.each { |f| f.file_size = Array(f.original_file_size); f.save(validate: false) }
@@ -24,6 +25,7 @@ module Deepblue
       selected.each { |f| msg_handler.msg_verbose Array(f.file_size) }
       w.reload
       sizes = w.file_sets.map { |f| f.file_size }
+      sizes ||= []
       if sizes.include? []
         selected.each do |f|
           force_update_to_file_size( file_set: f, msg_handler: msg_handler ) if f.file_size.blank?
