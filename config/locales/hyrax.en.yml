@@ -194,6 +194,9 @@ en:
           mla_with_year_html: "<span class='citation-author'>%{author}</span> (%{year}). %{title}[%{work_type}], University of Michigan - Deep Blue Data. "
           mla_partial:           "[%{work_type}]. University of Michigan - Deep Blue Data. "
           mla_partial_with_year: ", (%{year}). [%{work_type}] University of Michigan - Deep Blue Data. "
+    collection:
+      update:
+        header: "Edit Collection"
     contact_form:
       button_label: Send
       email_label: Your Email
