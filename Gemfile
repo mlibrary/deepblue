@@ -36,6 +36,7 @@ begin
     # line = "ls -l /usr/bin/xml2-config";(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
     # line = `ls -l /usr/bin/xml2-config`;(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
     # gemfile_bundle_config = 'bundle config --local build.libxml-ruby --with-xml2-config=/usr/local/opt/libxml2/bin/xml2-config'
+    gemfile_bundle_config = 'bundle config --local build.libxml-ruby --with-xml2-config=/usr/bin/xml2-config --with-cflags="-Wno-error=implicit-function-declaration'
   end
   if gemfile_verbose
     config_file = File.join( current_path, '.bundle', 'config')
