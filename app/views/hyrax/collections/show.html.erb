@@ -83,6 +83,23 @@
     </div>
   </div>
 
+<% if can? :edit, @presenter.solr_document %>
+<%# if @presenter.can_edit_collection? %>
+  <div class="panel panel-default panel-edit">
+    <div class="panel-heading">
+      <h2><%= t("hyrax.collection.update.header") %></h2>
+    </div>
+    <div class="panel-body">
+      <div class="button-set">
+        <%= link_to t('hyrax.collection.actions.edit.label'),
+                    hyrax.edit_dashboard_collection_path(@presenter),
+                    title: t('hyrax.collection.actions.edit.desc'),
+                    class: 'btn btn-primary' %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
   <!-- Subcollections -->
   <% if @presenter.collection_type_is_nestable? && @subcollection_count > 0 %>
   <div class="row">

@@ -6,6 +6,10 @@ module PersistHelper
     ::ActiveFedora::Base.all
   end
 
+  def self.delete_solr( id )
+    ActiveFedora::SolrService.delete(id) if ActiveFedora.enable_solr_updates? # TODO: hyrax v3 update
+  end
+
   def self.find( id, use_valkyrie: false )
     if use_valkyrie
       ::Hyrax.query_service.find_by_alternate_identifier(alternate_identifier: id, use_valkyrie: use_valkyrie)
