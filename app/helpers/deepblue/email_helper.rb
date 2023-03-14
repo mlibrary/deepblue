@@ -106,8 +106,14 @@ module Deepblue
       elsif curation_concern.is_a?( Collection )
         curation_concern.title.join( join_with )
       else
-        "Title"
+        rv = curation_concern&.title&.first
+        rv ||= "Title"
+        return rv
       end
+    end
+
+    def self.cc_url( curation_concern:, only_path: false )
+      curation_concern_url( curation_concern: curation_concern, only_path: only_path )
     end
 
     def self.contact_email
@@ -115,10 +121,10 @@ module Deepblue
       notification_email_contact_us_to
     end
 
-    def self.collection_url( id: nil, collection: nil )
+    def self.collection_url( id: nil, collection: nil, only_path: false )
       id = collection.id if collection.present?
       host = hostname
-      Rails.application.routes.url_helpers.hyrax_collection_url( id: id, host: host, only_path: false )
+      Rails.application.routes.url_helpers.hyrax_collection_url( id: id, host: host, only_path: only_path )
     rescue ActionController::UrlGenerationError => e
       Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
       return ''
@@ -140,15 +146,19 @@ module Deepblue
       end
     end
 
-    def self.curation_concern_url( curation_concern: )
+    def self.curation_concern_url( curation_concern:, only_path: false )
       if curation_concern.is_a?( DataSet )
-        data_set_url( id: curation_concern.id )
+        data_set_url( id: curation_concern.id, only_path: only_path )
       elsif curation_concern.is_a?( FileSet )
-        file_set_url( id: curation_concern.id )
+        file_set_url( id: curation_concern.id, only_path: only_path )
       elsif curation_concern.is_a?( Collection )
-        collection_url( id: curation_concern.id )
+        collection_url( id: curation_concern.id, only_path: only_path )
       else
-        ""
+        begin
+          return polymorphic_path(curation_concern)
+        rescue Exception => ignore
+          return ""
+        end
       end
     end
 
@@ -160,19 +170,19 @@ module Deepblue
       return nil
     end
 
-    def self.data_set_url( id: nil, data_set: nil )
+    def self.data_set_url( id: nil, data_set: nil, only_path: false )
       id = data_set.id if data_set.present?
       host = hostname
-      Rails.application.routes.url_helpers.hyrax_data_set_url( id: id, host: host, only_path: false )
+      Rails.application.routes.url_helpers.hyrax_data_set_url( id: id, host: host, only_path: only_path )
     rescue ActionController::UrlGenerationError => e
       Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
       return ''
     end
 
-    def self.file_set_url( id: nil, file_set: nil )
+    def self.file_set_url( id: nil, file_set: nil, only_path: false )
       id = file_set.id if file_set.present?
       host = hostname
-      Rails.application.routes.url_helpers.hyrax_file_set_url( id: id, host: host, only_path: false )
+      Rails.application.routes.url_helpers.hyrax_file_set_url( id: id, host: host, only_path: only_path )
     rescue ActionController::UrlGenerationError => e
       Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
       return ''
