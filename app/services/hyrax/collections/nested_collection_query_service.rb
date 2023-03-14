@@ -156,8 +156,28 @@ module Hyrax
       def self.valid_combined_nesting_depth?(parent:, child: nil, scope:)
         # We limit the total depth of collections to the size specified in the samvera-nesting_indexer configuration.
         child_depth = child_nesting_depth(child: child, scope: scope)
+        # begin monkey
+        child_depth ||= 0
+        debug_verbose = true
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "child_depth=#{child_depth}",
+                                               "" ] if debug_verbose
         parent_depth = parent_nesting_depth(parent: parent, scope: scope)
-        return false if parent_depth + child_depth > Samvera::NestingIndexer.configuration.maximum_nesting_depth
+        parent_depth ||= 0
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "parent_depth=#{parent_depth}",
+                                               "" ] if debug_verbose
+        begin
+          return false if parent_depth + child_depth > Samvera::NestingIndexer.configuration.maximum_nesting_depth
+        rescue Exception => ignore
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "exception ignore=#{ignore}",
+                                                 "" ] if debug_verbose
+        end
+        # end monkey
         true
       end
 
@@ -181,16 +201,40 @@ module Hyrax
         builder.query[:rows] = 1
         query = clean_lucene_error(builder: builder)
         response = scope.repository.search(query).documents.first
-
-        # Now we have the largest nesting depth for all paths containing this collection
-        descendant_depth = response[Samvera::NestingIndexer.configuration.solr_field_name_for_deepest_nested_depth]
+        # begin monkey
+        if response.present?
+          # Now we have the largest nesting depth for all paths containing this collection
+          descendant_depth = response[Samvera::NestingIndexer.configuration.solr_field_name_for_deepest_nested_depth]
+          descendent_depth ||= 0
+        else
+          descendent_depth = 0
+        end
+        debug_verbose = true
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "descendent_depth=#{descendent_depth}",
+                                               "" ] if debug_verbose
 
         # => 2) Then we get the stored depth of the child collection itself to eliminate the collections above this one from our count, and add 1 to add back in this collection itself
         child_depth = NestingAttributes.new(id: child.id, scope: scope).depth
-        nesting_depth = descendant_depth - child_depth + 1
+        child_depth ||= 0
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "child_depth=#{child_depth}",
+                                               "" ] if debug_verbose
 
-        # this should always be positive, but just being safe
-        nesting_depth.positive? ? nesting_depth : 1
+        begin
+          nesting_depth = descendant_depth - child_depth + 1
+          # this should always be positive, but just being safe
+          return nesting_depth.positive? ? nesting_depth : 1
+        rescue Exception => ignore
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "exception ignore=#{ignore}",
+                                                 "" ] if debug_verbose
+          return 1
+        end
+        # end monkey
       end
       private_class_method :child_nesting_depth
 
