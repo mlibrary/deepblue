@@ -97,6 +97,15 @@ module Deepblue
       response.body
     end
 
+    def get_metadata_as_json(doi, raise_error: true )
+      response = connection.get("dois/#{doi_url}")
+      if 200 != response.status
+        raise Error.new("Failed getting DOI '#{doi}' metadata", response) if raise_error
+        return nil
+      end
+      JSON.parse(response.body)
+    end
+
     # This will mint a new draft DOI if the passed doi parameter is blank
     # The passed datacite xml needs an identifier (just the prefix when minting new DOIs)
     # Beware: This will convert registered DOIs into findable!
@@ -154,8 +163,38 @@ module Deepblue
       payload = "doi=#{doi}\nurl=#{url}"
       response = mds_connection.put("doi/#{doi}", payload, { 'Content-Type': 'text/plain;charset=UTF-8' })
       raise Error.new("Failed registering url '#{url}' for DOI '#{doi}'", response) unless response.status == 201
-
       url
+    end
+
+    def doi_hide_payload()
+      {
+        "data": {
+          "attributes": {
+            "event": "hide",
+          }
+        }
+      }
+    end
+
+    def doi_hide(doi)
+      payload = doi_hide_payload
+      response = connection.put("dois/#{doi}", payload.to_json, { 'Content-Type': 'application/vnd.api+json' })
+      unless response.status == 200
+        raise Error.new("Failed hide doi using #{payload.to_json}", response)
+        #puts "Failed hide doi using #{payload.to_json}: #{response.pretty_inspect}"
+      end
+      JSON.parse(response.body)['data']['id']
+      #response
+    end
+
+    def doi_hide2(doi)
+      payload = doi_hide_payload
+      response = connection.put("dois/#{doi}", payload.to_json, { 'Content-Type': 'application/vnd.api+json' })
+      unless response.status == 200
+        raise Error.new("Failed hide doi using #{payload.to_json}", response)
+        #puts "Failed hide doi using #{payload.to_json}: #{response.pretty_inspect}"
+      end
+      JSON.parse(response.body)['data']['id']
     end
 
     class Error < RuntimeError
