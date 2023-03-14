@@ -159,6 +159,22 @@ module Deepblue
       # && curation_concern.class.ancestors.include?(::Deepblue::DataCiteDoiBehavior)
     end
 
+    def doi_active?( curation_concern )
+      debug_verbose ||= data_cite_registrar_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "curation_concern.id=#{curation_concern.id}",
+                                             "curation_concern.doi=#{curation_concern.doi}",
+                                             "" ] if debug_verbose
+      return false if curation_concern.blank?
+      return false if curation_concern.doi.blank?
+      return false if curation_concern.doi == ::Deepblue::DoiBehavior.doi_pending
+      doi_url = doi_for_register_url(curation_concern.doi)
+      json_metadata = client.get_metadata_as_json( doi_url )
+      return false if json_metadata.blank?
+      json_metadata['data']['attributes']['isActive']
+    end
+
     def doi_findable?(curation_concern)
       debug_verbose ||= data_cite_registrar_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -284,6 +300,15 @@ module Deepblue
                                              "" ], bold_puts: debug_verbose_puts if debug_verbose
       Bolognese::Metadata.new(input: curation_concern.attributes.merge(has_model: curation_concern.has_model.first, publisher: self.publisher).to_json,
                               from: 'hyrax_work').datacite
+    end
+
+    def doi_hide_cc( curation_concern: )
+      doi = doi_for_register_url(doi)
+      # set doi to point to home page
+      client.register_url( doi, "https://deepblue.lib.umich.edu/" ) # TODO: get this url from config
+      doi_url = "x"
+      # hide doi to move from "findable" to "registered"
+      doi_hide( doi_url )
     end
 
     ## Unused methods for now but may be brought in later when filling in TODOs
