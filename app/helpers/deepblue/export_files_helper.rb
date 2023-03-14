@@ -117,7 +117,7 @@ module Deepblue
         if ::Deepblue::InitializationConstants::HOSTNAME_LOCAL == server_part
           target_root_dir = '/Volumes/ulib-dbd-prep/logs/'
         else
-          target_root_dir = "#{File.join( ::Deepblue::GlobusIntegrationService.globus_prep_dir, logs )}"
+          target_root_dir = "#{File.join( ::Deepblue::GlobusIntegrationService.globus_prep_dir, 'logs' )}"
         end
       end
       debug_verbose = debug_verbose || export_files_helper_debug_verbose
