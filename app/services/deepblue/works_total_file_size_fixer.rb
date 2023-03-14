@@ -9,6 +9,12 @@ module Deepblue
 
     PREFIX = 'WorksTotalFileSizeFixer: '
 
+    def self.fix( curation_concern:, msg_handler: nil )
+      msg_handler ||= MessageHandler.msg_handler_for_task
+      fixer = WorksTotalFileSizeFixer.new( msg_handler: msg_handler )
+      fixer.fix( curation_concern: curation_concern ) if fixer.fix_include?( curation_concern: curation_concern )
+    end
+
     @solr_file_mismatch = false
 
     def initialize( filter: FindAndFixService.find_and_fix_default_filter, msg_handler: )
@@ -60,7 +66,7 @@ module Deepblue
 
     def work_total_file_set_solr_sizes( work: )
       rv = 0
-      work.file_sets.map.each do |f|
+      work.file_sets.each do |f|
         doc = ::PersistHelper.find_solr( f.id, fail_if_not_found: false )
         next if doc.blank?
         file_size = doc['file_size_lts']

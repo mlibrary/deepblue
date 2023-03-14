@@ -63,7 +63,12 @@ WHERE { }
       uri = found.uri.value
       uri_metadata = "#{uri}/fcr:metadata"
       msg_handler.msg_verbose "#{uri_metadata}"
-      sparql_update = sparql_update_template.sub( 'NEW_METADATA', file_set.original_file.size.to_s )
+      if file_set.orginal_file.nil?
+        msg_handler.msg_verbose "Can't update file set #{file_set&.id} because original_file is nil."
+        return false
+      end
+      size = file_set.original_file.size
+      sparql_update = sparql_update_template.sub( 'NEW_METADATA', size.to_s )
       rv = ActiveFedora.fedora.connection.patch( uri_metadata,
                                                  sparql_update,
                                                  "Content-Type" => "application/sparql-update" )

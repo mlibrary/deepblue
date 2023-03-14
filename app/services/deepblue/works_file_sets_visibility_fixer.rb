@@ -2,16 +2,16 @@
 
 module Deepblue
 
-  class WorksOrderedMembersNilsFixer < AbstractFixer
+  class WorksFileSetsVisibilityFixer < AbstractFixer
 
-    mattr_accessor :works_ordered_members_nils_fixer_debug_verbose,
-                   default: FindAndFixService.works_ordered_members_nils_fixer_debug_verbose
+    mattr_accessor :works_file_sets_visibility_fixer_debug_verbose,
+                   default: FindAndFixService.works_file_sets_visibility_fixer_debug_verbose
 
-    PREFIX = 'WorksOrderedMembers nils: '
+    PREFIX = 'WorksFileSetsVisibilityFixer: '
 
     def self.fix( curation_concern:, msg_handler: nil )
       msg_handler ||= MessageHandler.msg_handler_for_task
-      fixer = WorksOrderedMembersNilsFixer.new( msg_handler: msg_handler )
+      fixer = WorksFileSetsVisibilityFixer.new( msg_handler: msg_handler )
       fixer.fix( curation_concern: curation_concern ) if fixer.fix_include?( curation_concern: curation_concern )
     end
 
@@ -20,7 +20,7 @@ module Deepblue
     end
 
     def debug_verbose
-      works_ordered_members_nils_fixer_debug_verbose && msg_handler.debug_verbose
+      works_file_sets_visibility_fixer_debug_verbose && msg_handler.debug_verbose
     end
 
     def fix_include?( curation_concern: )
@@ -28,6 +28,7 @@ module Deepblue
       #                                        ::Deepblue::LoggingHelper.called_from,
       #                                        "curation_concern.id=#{curation_concern.id}",
       #                                        "" ] if debug_verbose
+      return false unless curation_concern.respond_to? :file_sets
       super( curation_concern: curation_concern )
     end
 
@@ -36,20 +37,16 @@ module Deepblue
       #                                        ::Deepblue::LoggingHelper.called_from,
       #                                        "curation_concern.id=#{curation_concern.id}",
       #                                        "" ] if debug_verbose
-      msg_handler ||= @msg_handler
-      ordered_members = Array( curation_concern.ordered_members )
-      if ordered_members.include? nil
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "curation_concern.id=#{curation_concern.id}",
-                                               "" ] if debug_verbose
-        msg_verbose "Compacting ordered_members for work #{curation_concern.id}."
-        ordered_members.compact
-        ordered_members = [] if ordered_members.nil?
-        curation_concern.ordered_members = ordered_members
-        curation_concern.save!( validate: false )
-        add_id_fixed curation_concern.id
+      # msg_handler ||= @msg_handler
+      fixed = false
+      curation_concern.file_sets.each do |fs|
+        if fs.visibility != curation_concern.visibility
+          fs.visibility = curation_concern.visibility
+          fs.save( validate: false )
+          fixed = true
+        end
       end
+      add_id_fixed curation_concern.id if fixed
     end
 
   end

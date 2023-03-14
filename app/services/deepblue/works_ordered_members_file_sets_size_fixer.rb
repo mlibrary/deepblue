@@ -9,6 +9,12 @@ module Deepblue
 
     PREFIX = 'WorksOrderedMembers vs FileSets: '
 
+    def self.fix( curation_concern:, msg_handler: nil )
+      msg_handler ||= MessageHandler.msg_handler_for_task
+      fixer = WorksOrderedMembersFileSetsSizeFixer.new( msg_handler: msg_handler )
+      fixer.fix( curation_concern: curation_concern ) if fixer.fix_include?( curation_concern: curation_concern )
+    end
+
     def initialize( filter: FindAndFixService.find_and_fix_default_filter, msg_handler: )
       super( filter: filter, prefix: PREFIX, msg_handler: msg_handler )
     end
