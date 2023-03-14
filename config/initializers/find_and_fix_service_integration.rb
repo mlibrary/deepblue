@@ -22,7 +22,9 @@ Deepblue::FindAndFixService.setup do |config|
                                            'Deepblue::FileSetsVisibilityFixer' ]
   config.find_and_fix_over_works       = [ 'Deepblue::WorksOrderedMembersNilsFixer',
                                            'Deepblue::WorksOrderedMembersFileSetsSizeFixer',
-                                           'Deepblue::WorksTotalFileSizeFixer' ]
+                                           'Deepblue::WorksTotalFileSizeFixer',
+                                           'Deepblue::WorksFileSetsNotLostFixer',
+                                           'Deepblue::WorksFileSetsVisibilityFixer' ]
 
   config.find_and_fix_file_sets_lost_and_found_work_title = 'DBD_Find_and_Fix_FileSets_Lost_and_Found'
 
