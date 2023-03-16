@@ -146,6 +146,7 @@ class EmailDashboardController < ApplicationController
                                on_key_values_to_table_body_callback: nil,
                                parse: false,
                                row_key_value_callback: nil,
+                               add_css: true,
                                debug_verbose: email_dashboard_controller_debug_verbose )
 
     debug_verbose ||= email_dashboard_controller_debug_verbose
@@ -159,7 +160,7 @@ class EmailDashboardController < ApplicationController
                                              "hash=#{hash}",
                                              "row_index=#{row_index}",
                                              "" ] if debug_verbose || email_dashboard_controller_debug_verbose
-      table = JsonHelper.key_values_to_table( hash[key], parse: false, debug_verbose: debug_verbose )
+      table = JsonHelper.key_values_to_table( hash[key], depth: depth + 1, parse: false, debug_verbose: debug_verbose )
       begin
         parms = []
         parms << "begin_date=#{begin_date_parm}"
@@ -178,14 +179,26 @@ class EmailDashboardController < ApplicationController
                                                "" ] + e.backtrace[0..20]
         link = "Resend this email."
       end
-
-      return "<tr><td>#{ERB::Util.html_escape( key )}</td><td>#{table}</td></tr>\n<tr><td>&nbsp;</td><td>#{link}</td></tr>\n"
+      css_tr = JsonHelper.css_tr( add: add_css, depth: depth )
+      css_td = JsonHelper.css_td_key( add: add_css, depth: depth )
+      css_td2 = JsonHelper.css_td( add: add_css, depth: depth )
+      row = <<-end_of_row
+<tr#{css_tr}>
+  <td#{css_td}>#{ERB::Util.html_escape( key )}</td>
+  <td#{css_td2}>#{table}</td>
+</tr>
+<tr#{css_tr}>
+  <td#{css_td}>&nbsp;</td>
+  <td#{css_td2}>#{link}</td>
+</tr>
+end_of_row
+      return row
     end
     ::Deepblue::LogFileHelper.log_key_values_to_table( key_values,
-                                                       on_key_values_to_table_body_callback: on_key_values_to_table_body_callback,
-                                                       parse: parse,
-                                                       row_key_value_callback: row_key_value_callback,
-                                                       debug_verbose: debug_verbose )
+                                             on_key_values_to_table_body_callback: on_key_values_to_table_body_callback,
+                                             parse: parse,
+                                             row_key_value_callback: row_key_value_callback,
+                                             debug_verbose: debug_verbose )
   end
 
   def resend

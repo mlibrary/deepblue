@@ -4,7 +4,31 @@ module JsonHelper
 
   require 'json'
 
+  CSS_LOG_KEY_NAME = 'log-key-name'.freeze unless const_defined? :CSS_LOG_KEY_NAME
+
   mattr_accessor :json_helper_debug_verbose, default: false
+
+  def self.css( add:, tag:, depth:, css: [] )
+    return "" unless add
+    return " class=\"log-#{tag}-#{depth}\"" if css.blank?
+    return " class=\"log-#{tag}-#{depth} #{css.join(' ')}\""
+  end
+
+  def self.css_table( add:, depth:, css: [] )
+    css( add: add, tag: 'table', depth: depth, css: css )
+  end
+
+  def self.css_td( add:, depth:, css: [] )
+    css( add: add, tag: 'td', depth: depth, css: css )
+  end
+
+  def self.css_td_key( add:, depth:, css: [CSS_LOG_KEY_NAME] )
+    css( add: add, tag: 'td', depth: depth, css: css )
+  end
+
+  def self.css_tr( add:, depth:, css: [] )
+    css( add: add, tag: 'tr', depth: depth, css: css )
+  end
 
   def self.find_hash_containing_key_value( key_values, depth: 0, key:, value:, debug_verbose: json_helper_debug_verbose )
     debug_verbose = debug_verbose || json_helper_debug_verbose
@@ -73,6 +97,7 @@ module JsonHelper
                                 on_key_values_to_table_body_callback: nil,
                                 parse: false,
                                 row_key_value_callback: nil,
+                                add_css: true,
                                 debug_verbose: json_helper_debug_verbose )
 
     debug_verbose = debug_verbose || json_helper_debug_verbose
@@ -83,19 +108,21 @@ module JsonHelper
                                            "depth=#{depth}",
                                            "parse=#{parse}",
                                            "on_key_values_to_table_body_callback.nil?=#{on_key_values_to_table_body_callback.nil?}",
+                                           "add_css=#{add_css}",
                                            "row_key_value_callback.nil?=#{row_key_value_callback.nil?}",
                                            "" ] if debug_verbose
     if key_values.is_a? String
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "String",
-                                           "" ] if debug_verbose
-        return key_values_to_table_string( key_values,
-                                           depth: depth, # depth+1?
-                                           on_key_values_to_table_body_callback: on_key_values_to_table_body_callback,
-                                           parse: parse,
-                                           row_key_value_callback: row_key_value_callback,
-                                           debug_verbose: debug_verbose )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                         ::Deepblue::LoggingHelper.called_from,
+                                         "String",
+                                         "" ] if debug_verbose
+      return key_values_to_table_string( key_values,
+                                         depth: depth, # depth+1?
+                                         on_key_values_to_table_body_callback: on_key_values_to_table_body_callback,
+                                         parse: parse,
+                                         row_key_value_callback: row_key_value_callback,
+                                         add_css: add_css,
+                                         debug_verbose: debug_verbose )
     elsif key_values.is_a? Array
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -109,20 +136,30 @@ module JsonHelper
                                      on_key_values_to_table_body_callback: on_key_values_to_table_body_callback,
                                      parse: false,
                                      row_key_value_callback: row_key_value_callback,
+                                     add_css: add_css,
                                      debug_verbose: debug_verbose )
         table_body = on_key_values_to_table_body_callback.call( depth, table ) if on_key_values_to_table_body_callback.present?
-        table_body ||= "<tr><td>#{table}</td></tr>\n"
-        return "<table>\n#{table_body}</table>\n"
+        if table_body.blank?
+          css_tr = css_tr( add: add_css, depth: depth )
+          css_td = css_td_key( add: add_css, depth: depth )
+          table_body = "<tr#{css_tr}><td#{css_td}>#{table}</td></tr>\n"
+        end
+        return "<table#{css_table( add: add_css, depth: depth )}>\n#{table_body}</table>\n"
       else
         arr = key_values.map { |x| key_values_to_table( x,
-                                                        depth: depth + 1,
-                                                        on_key_values_to_table_body_callback: on_key_values_to_table_body_callback,
-                                                        parse: false,
-                                                        row_key_value_callback: row_key_value_callback,
-                                                        debug_verbose: debug_verbose ) }
+                                          depth: depth + 1,
+                                          on_key_values_to_table_body_callback: on_key_values_to_table_body_callback,
+                                          parse: false,
+                                          row_key_value_callback: row_key_value_callback,
+                                          add_css: add_css,
+                                          debug_verbose: debug_verbose ) }
         table_body = on_key_values_to_table_body_callback.call( depth, arr ) if on_key_values_to_table_body_callback.present?
-        table_body ||= "<tr><td>#{arr.join("</td></tr>\n<tr><td>")}</td></tr>\n"
-        return "<table>\n#{table_body}</table>\n"
+        css_tr = css_tr( add: add_css, depth: depth )
+        css_td = css_td_key( add: add_css, depth: depth )
+        css_td2 = css_td( add: add_css, depth: depth )
+        arr_join = "</td></tr>\n<tr#{css_tr}><td#{css_td2}>"
+        table_body ||= "<tr#{css_tr}><td#{css_td}>#{arr.join(arr_join)}</td></tr>\n"
+        return "<table#{css_table( add: add_css, depth: depth )}>\n#{table_body}</table>\n"
       end
     elsif key_values.is_a? Hash
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -142,16 +179,20 @@ module JsonHelper
                                        on_key_values_to_table_body_callback: on_key_values_to_table_body_callback,
                                        parse: false,
                                        row_key_value_callback: row_key_value_callback,
+                                       add_css: add_css,
                                        debug_verbose: debug_verbose )
           table = on_key_values_to_table_body_callback.call( depth, table ) if on_key_values_to_table_body_callback.present?
-          tr = "<tr><td>#{ERB::Util.html_escape( key )}</td><td>#{table}</td></tr>\n"
+          css_tr = css_tr( add: add_css, depth: depth )
+          css_td = css_td_key( add: add_css, depth: depth )
+          css_td2 = css_td( add: add_css, depth: depth )
+          tr = "<tr#{css_tr}><td#{css_td}>#{ERB::Util.html_escape( key )}</td><td#{css_td2}>#{table}</td></tr>\n"
         end
         rv += tr
         row_index += 1
       end
       table_body = on_key_values_to_table_body_callback.call( depth, rv ) if on_key_values_to_table_body_callback.present?
       table_body ||= rv
-      return "<table>\n#{table_body}</table>\n"
+      return "<table#{css_table( add: add_css, depth: depth )}>\n#{table_body}</table>\n"
     elsif key_values.is_a? Numeric
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -184,6 +225,7 @@ module JsonHelper
                                      on_key_values_to_table_body_callback: nil,
                                      parse:,
                                      row_key_value_callback: nil,
+                                     add_css: true,
                                      debug_verbose: json_helper_debug_verbose )
     debug_verbose ||= json_helper_debug_verbose
     key_values_to_table( key_values,
@@ -191,6 +233,7 @@ module JsonHelper
                          on_key_values_to_table_body_callback: on_key_values_to_table_body_callback,
                          parse: parse,
                          row_key_value_callback: row_key_value_callback,
+                         add_css: add_css,
                          debug_verbose: debug_verbose )
   rescue Exception => e
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -206,6 +249,7 @@ module JsonHelper
                                        on_key_values_to_table_body_callback:,
                                        parse:,
                                        row_key_value_callback:,
+                                       add_css: true,
                                        debug_verbose: )
 
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -214,13 +258,15 @@ module JsonHelper
                                            "key_values=#{key_values}",
                                            "depth=#{depth}",
                                            "parse=#{parse}",
+                                           "add_css=#{add_css}",
                                            "" ] if debug_verbose
      return key_values_to_table( JSON.parse( key_values ),
-                                depth: depth,
-                                on_key_values_to_table_body_callback: on_key_values_to_table_body_callback,
-                                parse: false,
-                                row_key_value_callback: row_key_value_callback,
-                                debug_verbose: debug_verbose ) if parse
+                                 depth: depth,
+                                 on_key_values_to_table_body_callback: on_key_values_to_table_body_callback,
+                                 parse: false,
+                                 row_key_value_callback: row_key_value_callback,
+                                 add_css: add_css,
+                                 debug_verbose: debug_verbose ) if parse
     return "&nbsp;" if key_values.blank?
     arr = split_str_into_lines( key_values )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
