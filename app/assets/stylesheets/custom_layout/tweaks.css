@@ -906,4 +906,26 @@ h2 {
   font-weight: 600;
 }
 
+log-class-name {
+    text-align: left !important;
+}
+
+.log-event {
+  text-align: left !important;
+  width: 25em;
+}
+
+.log-event-note {
+    text-align: left !important;
+}
+
+.log-key-name {
+    width: 12% !important;
+}
+
+.log-timestamp {
+  text-align: left !important;
+  width: 10%;
+}
+
 /* End Add file formatting. */

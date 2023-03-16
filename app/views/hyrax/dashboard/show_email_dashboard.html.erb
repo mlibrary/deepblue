@@ -71,8 +71,8 @@
       <table class="table table-striped provenance-log-entries">
         <thead>
         <tr>
-          <th style="text-align: left;"><%= t('.timestamp') %></th>
-          <th style="text-align: left;"><%= t('.event') %></th>
+          <th class="log-timestamp"><%= t('.timestamp') %></th>
+          <th class="log-event"><%= t('.event') %></th>
         </tr>
         </thead>
         <tbody>
@@ -84,8 +84,8 @@
               <td>Parse Error</td>
               <td><%= p[:parse_error].message %></td>
             <% else %>
-              <td><%= p[:timestamp] %></td>
-              <td><%= p[:event] %></td>
+              <td class="log-timestamp"><%= p[:timestamp] %></td>
+              <td class="log-event"><%= p[:event] %></td>
             <% end %>
           </tr>
           <tr>

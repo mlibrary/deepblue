@@ -15,8 +15,8 @@
         <table class="table table-striped provenance-log-entries">
           <thead>
           <tr>
-            <th><%= t('.timestamp') %></th>
-            <th><%= t('.event') %></th>
+            <th class="log-timestamp"><%= t('.timestamp') %></th>
+            <th class="log-event"><%= t('.event') %></th>
             <th><%= t('.event_note') %></th>
             <th><%= t('.class_name') %></th>
           </tr>
@@ -32,10 +32,10 @@
               <td></td>
               <td></td>
             <% else %>
-              <td><%= p[:timestamp] %></td>
-              <td><%= p[:event] %></td>
-              <td><%= p[:event_note] %></td>
-              <td><%= p[:class_name] %></td>
+              <td class="log-timestamp"><%= p[:timestamp] %></td>
+              <td class="log-event"><%= p[:event] %></td>
+              <td class="log-event-note"><%= p[:event_note] %></td>
+              <td class="log-class-name"><%= p[:class_name] %></td>
             <% end %>
             </tr>
             <tr>
