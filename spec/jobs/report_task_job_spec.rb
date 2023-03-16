@@ -17,7 +17,8 @@ RSpec.describe ReportTaskJob, skip: false do
     it { expect( described_class.report_task_allowed_path_prefixes ).to eq [ "#{::Deepblue::GlobusIntegrationService.globus_prep_dir}",
                                                              './lib/reports/',
                                                              './data/reports/',
-                                                             "#{::Deepblue::GlobusIntegrationService.globus_upload_dir}" ] }
+                                                             "#{::Deepblue::GlobusIntegrationService.globus_upload_dir}" ] +
+                                                                             Rails.configuration.shared_drive_mounts }
   end
 
   describe 'all', skip: false do
@@ -44,7 +45,8 @@ RSpec.describe ReportTaskJob, skip: false do
         let(:allowed_path_prefixes)   { [ "#{::Deepblue::GlobusIntegrationService.globus_prep_dir}",
                                           './lib/reports/',
                                           './data/reports/',
-                                          "#{::Deepblue::GlobusIntegrationService.globus_upload_dir}" ] }
+                                          "#{::Deepblue::GlobusIntegrationService.globus_upload_dir}" ] +
+                                          Rails.configuration.shared_drive_mounts }
 
         context 'with valid arguments and two paths' do
           let(:path1) { '/some/path/to/report1' }

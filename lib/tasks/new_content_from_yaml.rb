@@ -14,7 +14,7 @@ module Deepblue
 
   class NewContentFromYaml < AbstractTask
 
-    DEFAULT_SOURCE_DIR = "#{::Deepblue::GlobusIntegrationService.globus_prep_dir}" unless const_defined? :DEFAULT_SOURCE_DIR
+    DEFAULT_SOURCE_DIR = "#{Rails.configuration.shared_drive_deepbluedata_prep}" unless const_defined? :DEFAULT_SOURCE_DIR
     DEFAULT_INGESTER = nil unless const_defined? :DEFAULT_INGESTER
     DEFAULT_MODE = "populate" unless const_defined? :DEFAULT_MODE
     DEFAULT_PREFIX = "" unless const_defined? :DEFAULT_PREFIX

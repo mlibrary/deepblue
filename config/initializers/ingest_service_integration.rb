@@ -40,7 +40,7 @@ Deepblue::IngestIntegrationService.setup do |config|
   allowed_dirs = [ "#{::Deepblue::GlobusIntegrationService.globus_prep_dir}",
                    "#{::Deepblue::GlobusIntegrationService.globus_dir}",
                    "#{::Deepblue::GlobusIntegrationService.globus_upload_dir}",
-                   './data/' ]
+                   './data/' ] + Rails.configuration.shared_drive_mounts
   if Rails.env.development?
     allowed_dirs << File.join( Dir.home, 'Documents' ).to_s
     allowed_dirs << File.join( Dir.home, 'Downloads' ).to_s

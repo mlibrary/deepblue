@@ -12,7 +12,7 @@ module Deepblue
 
   class YamlUpdate < AbstractTask
 
-    DEFAULT_SOURCE_DIR = "#{::Deepblue::GlobusIntegrationService.globus_prep_dir}"
+    DEFAULT_SOURCE_DIR = "#{Rails.configuration.shared_drive_deepbluedata_prep}"
     DEFAULT_INGESTER = nil
 
     def initialize( update_type:, options: )

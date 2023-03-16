@@ -115,9 +115,9 @@ module Deepblue
       server_part = export_server_part
       if target_root_dir.blank?
         if ::Deepblue::InitializationConstants::HOSTNAME_LOCAL == server_part
-          target_root_dir = '/Volumes/ulib-dbd-prep/logs/'
+          target_root_dir = "#{File.join( :Rails.configuration.shared_drive_volumes_ulib_dbd_prep, 'logs' )}"
         else
-          target_root_dir = "#{File.join( ::Deepblue::GlobusIntegrationService.globus_prep_dir, 'logs' )}"
+          target_root_dir = "#{File.join( :Rails.configuration.shared_drive_deepbluedata_prep, 'logs' )}"
         end
       end
       debug_verbose = debug_verbose || export_files_helper_debug_verbose
