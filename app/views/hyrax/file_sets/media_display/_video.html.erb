@@ -12,7 +12,7 @@
         Your browser does not support the video tag.
       </video>
       <%= link_to t('hyrax.file_set.show.downloadable_content.video_link'),
-                  presenter.download_path_link(file_set),
+                  presenter.download_path_link( main_app: main_app, curation_concern: file_set ),
                   data: { label: file_set.id },
                   target: :_blank,
                   id: "file_download" %>
