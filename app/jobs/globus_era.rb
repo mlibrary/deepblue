@@ -23,7 +23,6 @@ module Deepblue
           # log "hostname=#{Socket.gethostname}" if @@c_era_verbose
           if ::Deepblue::GlobusIntegrationService.globus_enabled
             log "GlobusEra initializing at #{@@c_era_begin_timestamp}" if @@c_era_verbose
-            # @era_file = Tempfile.new( 'globus_era_', ::Deepblue::GlobusIntegrationService.globus_prep_dir )
             @@c_era_file = ::Deepblue::GlobusIntegrationService.globus_prep_dir.join @@c_era_file_base
             log "GlobusEra era file: #{@@c_era_file} -- #{@@c_era_file.class}" if @@c_era_verbose
             read_previous_era_file

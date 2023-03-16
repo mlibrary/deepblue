@@ -45,11 +45,7 @@ END_OF_SCHEDULER_ENTRY
     return unless initialized
     # days_old = job_options_value( key: 'days_old', default_value: default_args[:days_old] )
     # filter: nil, root_dir: "./log", target_root_dir: "/deepbluedata-dataden/download-prep/logs/", msg_handler:, verbose:
-    ::ServerLogsCopyService.new( filter: nil,
-                                 # src_dir: "./log",
-                                 # target_root_dir: "/deepbluedata-dataden/download-prep/logs/",
-                                 msg_handler: msg_handler,
-                                 verbose: verbose ).run
+    ::ServerLogsCopyService.new( filter: nil, msg_handler: msg_handler, verbose: verbose ).run
     timestamp_end = DateTime.now
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,

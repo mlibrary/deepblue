@@ -313,20 +313,29 @@ module DeepBlueDocs
 
     config.json_logging_helper_debug_verbose = false
 
-    # provenance log config
+    # begin provenance log config
     config.provenance_log_name = "provenance_#{Rails.env}.log"
     config.provenance_log_path = Rails.root.join( 'log', config.provenance_log_name )
     config.provenance_log_echo_to_rails_logger = true
     config.provenance_log_redundant_events = true
+    # end provenance log config
+
+    # begin shared drive mounts
+    config.shared_drive_deepbluedata_prep = '/deepbluedata-prep/'
+    config.shared_drive_volumes_ulib_dbd_prep = '/Volumes/ulib-dbd-prep/'
+    config.shared_drive_mounts = []
+    config.shared_drive_mounts << config.shared_drive_deepbluedata_prep if File.exists? config.shared_drive_deepbluedata_prep
+    # end
 
     ## to configure work_view_content, see config/initalizers/work_view_content.rb
 
-    # virus scan config
+    # begin virus scan config
     config.virus_scan_max_file_size = 3_000_000_000
     config.virus_scan_retry = true
     config.virus_scan_retry_on_error = false
     config.virus_scan_retry_on_service_unavailable = true
     config.virus_scan_retry_on_unknown = false
+    # end virus scan config
 
     # begin rest_api config
     config.rest_api_allow_mutate = true
