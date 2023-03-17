@@ -27,7 +27,9 @@ RSpec.describe Deepblue::AbstractEventBehavior do
       expect( Deepblue::AbstractEventBehavior::EVENT_GLOBUS ).to eq 'globus'
       expect( Deepblue::AbstractEventBehavior::EVENT_INGEST ).to eq 'ingest'
       expect( Deepblue::AbstractEventBehavior::EVENT_MIGRATE ).to eq 'migrate'
+      expect( Deepblue::AbstractEventBehavior::EVENT_HIDE_DOI ).to eq 'hide_doi'
       expect( Deepblue::AbstractEventBehavior::EVENT_MINT_DOI ).to eq 'mint_doi'
+      expect( Deepblue::AbstractEventBehavior::EVENT_MOVE_DOI ).to eq 'move_doi'
       expect( Deepblue::AbstractEventBehavior::EVENT_PUBLISH ).to eq 'publish'
       expect( Deepblue::AbstractEventBehavior::EVENT_TRANSFER ).to eq 'transfer'
       expect( Deepblue::AbstractEventBehavior::EVENT_TOMBSTONE ).to eq 'tombstone'
@@ -53,7 +55,9 @@ RSpec.describe Deepblue::AbstractEventBehavior do
         Deepblue::AbstractEventBehavior::EVENT_GLOBUS,
         Deepblue::AbstractEventBehavior::EVENT_INGEST,
         Deepblue::AbstractEventBehavior::EVENT_MIGRATE,
+        Deepblue::AbstractEventBehavior::EVENT_HIDE_DOI,
         Deepblue::AbstractEventBehavior::EVENT_MINT_DOI,
+        Deepblue::AbstractEventBehavior::EVENT_MOVE_DOI,
         Deepblue::AbstractEventBehavior::EVENT_PUBLISH,
         Deepblue::AbstractEventBehavior::EVENT_TRANSFER,
         Deepblue::AbstractEventBehavior::EVENT_TOMBSTONE,

@@ -169,7 +169,7 @@ module Deepblue
       return false if curation_concern.blank?
       return false if curation_concern.doi.blank?
       return false if curation_concern.doi == ::Deepblue::DoiBehavior.doi_pending
-      doi_url = doi_for_register_url(curation_concern.doi)
+      doi_url = doi_for_register_url( curation_concern.doi )
       json_metadata = client.get_metadata_as_json( doi_url )
       return false if json_metadata.blank?
       json_metadata['data']['attributes']['isActive']
@@ -303,12 +303,47 @@ module Deepblue
     end
 
     def doi_hide_cc( curation_concern: )
-      doi = doi_for_register_url(doi)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "curation_concern.id=#{curation_concern.id}",
+                                             "" ] if debug_verbose
+      doi_url = doi_for_register_url( curation_concern.doi )
       # set doi to point to home page
-      client.register_url( doi, "https://deepblue.lib.umich.edu/" ) # TODO: get this url from config
-      doi_url = "x"
+      client.register_url( doi_url, "https://deepblue.lib.umich.edu/" ) # TODO: get this url from config
       # hide doi to move from "findable" to "registered"
       doi_hide( doi_url )
+    end
+
+    def doi_hide_cc_and_register_provenance( curation_concern )
+      doi_hide_cc( curation_concern )
+      #curation_concern.provenance_mint_doi( current_user: current_user, event_note: 'DoiMintingService' )
+      attributes, ignore_blank_key_values = curation_concern.attributes_all_for_provenance, USE_BLANK_KEY_VALUES
+      # provenance_log_event( attributes: attributes,
+      #                       current_user: current_user,
+      #                       event: EVENT_MINT_DOI,
+      #                       event_note: event_note,
+      #                       ignore_blank_key_values: ignore_blank_key_values )
+      # if prov_key_values.blank?
+      current_user = nil
+      event = 'hide_doi'
+      event_note = ''
+      prov_key_values = curation_concern.provenance_attribute_values_for_snapshot( attributes: attributes,
+                                                                    current_user: current_user,
+                                                                    event: event,
+                                                                    event_note: event_note,
+                                                                    ignore_blank_key_values: ignore_blank_key_values )
+      # end
+      class_name = curation_concern.class.name
+      curation_concern.for_provenance_event_cache_write( event: event, id: id )
+      timestamp = LoggingHelper.timestamp_now
+      time_zone = LoggingHelper.timestamp_zone
+      rv = ProvenanceHelper.log( class_name: class_name,
+                                 id: id,
+                                 event: event,
+                                 event_note: event_note,
+                                 timestamp: timestamp,
+                                 time_zone: time_zone,
+                                 **prov_key_values )
     end
 
     ## Unused methods for now but may be brought in later when filling in TODOs

@@ -29,6 +29,7 @@ module Deepblue
     mattr_accessor :doi_behavior_debug_verbose,                 default: false
     mattr_accessor :doi_controller_behavior_debug_verbose,      default: false
     mattr_accessor :doi_minting_job_debug_verbose,              default: false
+    mattr_accessor :hide_doi_job_debug_verbose,                 default: false
     mattr_accessor :register_doi_job_debug_verbose,             default: false
     mattr_accessor :bolognese_hyrax_work_readers_debug_verbose, default: false
     mattr_accessor :bolognese_hyrax_work_writers_debug_verbose, default: false
@@ -162,6 +163,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "work doi findable=#{findable}",
                                              "" ] if debug_verbose
+      curation_concern.provenance_mint_doi( current_user: current_user, event_note: 'DoiMintingService' )
       return findable
     end
 
@@ -281,6 +283,34 @@ module Deepblue
         end
       end
 
+    end
+
+    def self.registrar_hide_doi( curation_concern:,
+                                 current_user: nil,
+                                 msg_handler: nil,
+                                 debug_verbose: ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose,
+                                 datacite: nil,
+                                 registrar: nil,
+                                 registrar_opts: {} )
+
+      debug_verbose ||= ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "doi_minting_2021_service_direct=#{doi_minting_2021_service_direct}",
+                                             "curation_concern.class.name=#{curation_concern.class.name}",
+                                             "curation_concern&.id=#{curation_concern&.id}",
+                                             "curation_concern&.doi=#{curation_concern&.doi}",
+                                             "current_user=#{current_user}",
+                                             "registrar=#{registrar}",
+                                             "registrar_opts=#{registrar_opts}",
+                                             "" ] if debug_verbose
+
+      if datacite.blank?
+        datacite = ::Deepblue::DataCiteRegistrar.new
+        datacite.debug_verbose = debug_verbose
+      end
+      datacite.doi_hide_cc( curation_concern: curation_concern )
+      curation_concern.provenance_hide_doi( current_user: current_user, event_note: 'DoiMintingService' )
     end
 
     def self.registrar_mint_doi( curation_concern:,
