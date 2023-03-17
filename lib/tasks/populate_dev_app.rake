@@ -11,9 +11,9 @@ require_relative '../update_users_service'
 
 namespace :deepblue do
 
-  # bundle exec rake deepblue:append[/deepbluedata-dataden/download-prep/w_9019s2443_populate.yml]
-  # bundle exec rake deepblue:append[/deepbluedata-dataden/download-prep/w_9019s2443_populate.yml,'{"ingester":"ingester@umich.edu"}']
-  # bundle exec rake deepblue:append[/deepbluedata-dataden/download-prep/w_9019s2443_populate.yml,'{"verbose":true\,"ingester":"ingester@umich.edu"}']
+  # bundle exec rake deepblue:append[/deepbluedata-prep/w_9019s2443_populate.yml]
+  # bundle exec rake deepblue:append[/deepbluedata-prep/w_9019s2443_populate.yml,'{"ingester":"ingester@umich.edu"}']
+  # bundle exec rake deepblue:append[/deepbluedata-prep/w_9019s2443_populate.yml,'{"verbose":true\,"ingester":"ingester@umich.edu"}']
   desc "Append files to existing collection or works (takes options hash)."
   task :append, %i[ path_to_yaml_file options ] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"
@@ -22,9 +22,9 @@ namespace :deepblue do
     puts "Done."
   end
 
-  # bundle exec rake deepblue:build[/deepbluedata-dataden/download-prep/w_9019s2443_populate.yml]
-  # bundle exec rake deepblue:build[/deepbluedata-dataden/download-prep/w_9019s2443_populate.yml,'{"ingester":"ingester@umich.edu"}']
-  # bundle exec rake deepblue:build[/deepbluedata-dataden/download-prep/w_9019s2443_populate.yml,'{"verbose":true\,"ingester":"ingester@umich.edu"}']
+  # bundle exec rake deepblue:build[/deepbluedata-prep/w_9019s2443_populate.yml]
+  # bundle exec rake deepblue:build[/deepbluedata-prep/w_9019s2443_populate.yml,'{"ingester":"ingester@umich.edu"}']
+  # bundle exec rake deepblue:build[/deepbluedata-prep/w_9019s2443_populate.yml,'{"verbose":true\,"ingester":"ingester@umich.edu"}']
   desc "Create new collections, works, and files (takes options hash)."
   task :build, %i[ path_to_yaml_file ingester ] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"
@@ -33,9 +33,9 @@ namespace :deepblue do
     puts "Done."
   end
 
-  # bundle exec rake deepblue:populate[/deepbluedata-dataden/download-prep/w_9019s2443_populate.yml]
-  # bundle exec rake deepblue:populate[/deepbluedata-dataden/download-prep/w_9019s2443_populate.yml,'{"ingester":"ingester@umich.edu"}']
-  # bundle exec rake deepblue:populate[/deepbluedata-dataden/download-prep/w_9019s2443_populate.yml,'{"verbose":true\,"ingester":"ingester@umich.edu"}']
+  # bundle exec rake deepblue:populate[/deepbluedata-prep/w_9019s2443_populate.yml]
+  # bundle exec rake deepblue:populate[/deepbluedata-prep/w_9019s2443_populate.yml,'{"ingester":"ingester@umich.edu"}']
+  # bundle exec rake deepblue:populate[/deepbluedata-prep/w_9019s2443_populate.yml,'{"verbose":true\,"ingester":"ingester@umich.edu"}']
   desc "Create new collections, works, and files (takes options hash)."
   task :populate, %i[ path_to_yaml_file ingester ] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"
@@ -44,9 +44,9 @@ namespace :deepblue do
     puts "Done."
   end
 
-  # bundle exec rake deepblue:update[/deepbluedata-dataden/download-prep/w_9019s2443_populate.yml]
-  # bundle exec rake deepblue:update[/deepbluedata-dataden/download-prep/w_9019s2443_populate.yml,'{"ingester":"ingester@umich.edu"}']
-  # bundle exec rake deepblue:update[/deepbluedata-dataden/download-prep/w_9019s2443_populate.yml,'{"verbose":true\,"ingester":"ingester@umich.edu"}']
+  # bundle exec rake deepblue:update[/deepbluedata-prep/w_9019s2443_populate.yml]
+  # bundle exec rake deepblue:update[/deepbluedata-prep/w_9019s2443_populate.yml,'{"ingester":"ingester@umich.edu"}']
+  # bundle exec rake deepblue:update[/deepbluedata-prep/w_9019s2443_populate.yml,'{"verbose":true\,"ingester":"ingester@umich.edu"}']
   desc "Update existing collections, works, and files (takes options hash)."
   task :update, %i[ path_to_yaml_file options ] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"
@@ -62,8 +62,8 @@ namespace :umrdr do
   # See: Rake::TaskArguments for args class
   # See: https://stackoverflow.com/questions/825748/how-to-pass-command-line-arguments-to-a-rake-task
 
-  # bundle exec rake umrdr:append[/deepbluedata-dataden/download-prep/w_9019s2443_populate.yml]
-  # bundle exec rake umrdr:append[/deepbluedata-dataden/download-prep/w_9019s2443_populate.yml,ingester@umich.edu]
+  # bundle exec rake umrdr:append[/deepbluedata-prep/w_9019s2443_populate.yml]
+  # bundle exec rake umrdr:append[/deepbluedata-prep/w_9019s2443_populate.yml,ingester@umich.edu]
   desc "Append files to existing collections."
   task :append, %i[ path_to_yaml_file ingester ] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"
@@ -72,8 +72,8 @@ namespace :umrdr do
     puts "Done."
   end
 
-  # bundle exec rake umrdr:build[/deepbluedata-dataden/download-prep/w_9019s2443_populate.yml]
-  # bundle exec rake umrdr:build[/deepbluedata-dataden/download-prep/w_9019s2443_populate.yml,ingester@umich.edu]
+  # bundle exec rake umrdr:build[/deepbluedata-prep/w_9019s2443_populate.yml]
+  # bundle exec rake umrdr:build[/deepbluedata-prep/w_9019s2443_populate.yml,ingester@umich.edu]
   desc "Build app with collections, works, and files."
   task :build, %i[ path_to_yaml_file ingester ] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"
@@ -90,8 +90,8 @@ namespace :umrdr do
     puts "Done."
   end
 
-  # bundle exec rake umrdr:diff[/deepbluedata-dataden/download-prep/w_9019s2443_populate.yml]
-  # bundle exec rake umrdr:diff[/deepbluedata-dataden/download-prep/w_9019s2443_populate.yml,ingester@umich.edu]
+  # bundle exec rake umrdr:diff[/deepbluedata-prep/w_9019s2443_populate.yml]
+  # bundle exec rake umrdr:diff[/deepbluedata-prep/w_9019s2443_populate.yml,ingester@umich.edu]
   desc "Diff a collections or work."
   task :diff, %i[ path_to_yaml_file ingester ] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"
@@ -100,7 +100,7 @@ namespace :umrdr do
     puts "Done."
   end
 
-  # bundle exec rake umrdr:diff_users[/deepbluedata-dataden/download-prep/users_build.yml,'{"verbose":true}']
+  # bundle exec rake umrdr:diff_users[/deepbluedata-prep/users_build.yml,'{"verbose":true}']
   desc "Diff users."
   task :diff_users, %i[ path_to_yaml_file ingester options ] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"
@@ -111,8 +111,8 @@ namespace :umrdr do
     puts "Done."
   end
 
-  # bundle exec rake umrdr:migrate[/deepbluedata-dataden/download-prep/w_9019s2443_populate.yml]
-  # bundle exec rake umrdr:migrate[/deepbluedata-dataden/download-prep/w_9019s2443_populate.yml,ingester@umich.edu]
+  # bundle exec rake umrdr:migrate[/deepbluedata-prep/w_9019s2443_populate.yml]
+  # bundle exec rake umrdr:migrate[/deepbluedata-prep/w_9019s2443_populate.yml,ingester@umich.edu]
   desc "Migrate collections and works."
   task :migrate, %i[ path_to_yaml_file ingester ] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"
@@ -121,8 +121,8 @@ namespace :umrdr do
     puts "Done."
   end
 
-  # bundle exec rake umrdr:populate[/deepbluedata-dataden/download-prep/w_9019s2443_populate.yml]
-  # bundle exec rake umrdr:populate[/deepbluedata-dataden/download-prep/w_9019s2443_populate.yml,ingester@umich.edu]
+  # bundle exec rake umrdr:populate[/deepbluedata-prep/w_9019s2443_populate.yml]
+  # bundle exec rake umrdr:populate[/deepbluedata-prep/w_9019s2443_populate.yml,ingester@umich.edu]
   desc "Populate app with collections, works, and files."
   task :populate, %i[ path_to_yaml_file ingester ] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"
@@ -134,7 +134,7 @@ namespace :umrdr do
     puts "Done."
   end
 
-  # bundle exec rake umrdr:populate_users[/deepbluedata-dataden/download-prep/users_build.yml,'{"verbose":true}']
+  # bundle exec rake umrdr:populate_users[/deepbluedata-prep/users_build.yml,'{"verbose":true}']
   desc "Populate users."
   task :populate_users, %i[ path_to_yaml_file ingester options ] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"
@@ -145,8 +145,8 @@ namespace :umrdr do
     puts "Done."
   end
 
-  # bundle exec rake umrdr:update[/deepbluedata-dataden/download-prep/w_9019s2443_populate.yml]
-  # bundle exec rake umrdr:update[/deepbluedata-dataden/download-prep/w_9019s2443_populate.yml,ingester@umich.edu]
+  # bundle exec rake umrdr:update[/deepbluedata-prep/w_9019s2443_populate.yml]
+  # bundle exec rake umrdr:update[/deepbluedata-prep/w_9019s2443_populate.yml,ingester@umich.edu]
   desc "Update collections and works."
   task :update, %i[ path_to_yaml_file ingester ] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"
@@ -155,7 +155,7 @@ namespace :umrdr do
     puts "Done."
   end
 
-  # bundle exec rake umrdr:diff_users[/deepbluedata-dataden/download-prep/users_build.yml,'{"verbose":true}']
+  # bundle exec rake umrdr:diff_users[/deepbluedata-prep/users_build.yml,'{"verbose":true}']
   desc "Update users."
   task :update_users, %i[ path_to_yaml_file ingester options ] => :environment do |_t, args|
     ENV["RAILS_ENV"] ||= "development"

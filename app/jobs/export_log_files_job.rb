@@ -16,7 +16,7 @@ export_log_files_job:
   cron: '0 5 * * 0'
   class: ExportLogFilesJob
   queue: default
-  description: Export log files to /deepbluedata-dataden/download-prep job.
+  description: Export log files to /deepbluedata-prep job.
   args:
     by_request_only: true
     hostnames:

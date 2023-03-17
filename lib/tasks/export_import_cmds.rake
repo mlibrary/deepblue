@@ -3,7 +3,7 @@
 namespace :deepblue do
 
   # There are a lot of possible parameters to this task, see lib/tasks/export_import_cmd_generator.rb
-  # bundle exec rake deepblue:export_cmds['{"mode":"build"\,"input_csv_file":"/deepbluedata-dataden/download-prep/reports/20181015_works_report_works_sorted.csv"\,"target_dir":"/deepbluedata-tmp/DBDv1/"}']
+  # bundle exec rake deepblue:export_cmds['{"mode":"build"\,"input_csv_file":"/deepbluedata-prep/reports/20181015_works_report_works_sorted.csv"\,"target_dir":"/deepbluedata-tmp/DBDv1/"}']
   desc 'Generate export commands'
   task :export_cmds, %i[ options ] => :environment do |_task, args|
     args.with_defaults( options: '{}' )
@@ -13,7 +13,7 @@ namespace :deepblue do
   end
 
   # There are a lot of possible parameters to this task, see lib/tasks/export_import_cmd_generator.rb
-  # bundle exec rake deepblue:import_cmds['{"verbose":"true"\,"shell_task":"build"\,"import_options":"-w -verbose -d"\,"input_csv_file":"/deepbluedata-dataden/download-prep/reports/20181015_works_report_works_sorted.csv"\,"target_dir":"/deepbluedata-tmp/DBDv1/"}']
+  # bundle exec rake deepblue:import_cmds['{"verbose":"true"\,"shell_task":"build"\,"import_options":"-w -verbose -d"\,"input_csv_file":"/deepbluedata-prep/reports/20181015_works_report_works_sorted.csv"\,"target_dir":"/deepbluedata-tmp/DBDv1/"}']
   desc 'Generate import commands'
   task :import_cmds, %i[ options ] => :environment do |_task, args|
     args.with_defaults( options: '{}' )

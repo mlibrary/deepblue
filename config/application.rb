@@ -321,8 +321,9 @@ module DeepBlueDocs
     # end provenance log config
 
     # begin shared drive mounts
-    config.shared_drive_deepbluedata_prep = '/deepbluedata-prep/'
-    config.shared_drive_volumes_ulib_dbd_prep = '/Volumes/ulib-dbd-prep/'
+    config.shared_drive_deepbluedata_prep = '/deepbluedata-prep'
+    config.shared_drive_volumes_ulib_dbd_prep = '/Volumes/ulib-dbd-prep'
+    config.shared_drive_ulib_dbd_prep = 'ulib-dbd-prep'
     config.shared_drive_mounts = []
     config.shared_drive_mounts << config.shared_drive_deepbluedata_prep if File.exists? config.shared_drive_deepbluedata_prep
     # end

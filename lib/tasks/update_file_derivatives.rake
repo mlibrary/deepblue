@@ -45,7 +45,7 @@ module Deepblue
       puts "ENV['TMPDIR']=#{ENV['TMPDIR']}"
       # puts "Rails.configuration.tmpdir=#{Rails.configuration.tmpdir}"
       puts "ENV['_JAVA_OPTIONS']=#{ENV['_JAVA_OPTIONS']}"
-      @tmpdir = Pathname.new "/deepbluedata-dataden/download-prep/fedora-extract"
+      @tmpdir = Pathname.new "/deepbluedata-prep/fedora-extract"
       Dir.mkdir @tmpdir unless Dir.exist? @tmpdir
       @java_io_tmpdir = @tmpdir
       Dir.mkdir @java_io_tmpdir unless Dir.exist? @java_io_tmpdir
