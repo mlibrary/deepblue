@@ -68,7 +68,15 @@ module Deepblue
       return attributes_brief_for_provenance, IGNORE_BLANK_KEY_VALUES
     end
 
+    def attributes_for_provenance_hide_doi
+      return attributes_all_for_provenance, USE_BLANK_KEY_VALUES
+    end
+
     def attributes_for_provenance_mint_doi
+      return attributes_all_for_provenance, USE_BLANK_KEY_VALUES
+    end
+
+    def attributes_for_provenance_move_doi
       return attributes_all_for_provenance, USE_BLANK_KEY_VALUES
     end
 
@@ -545,11 +553,29 @@ module Deepblue
                             prov_key_values: prov_key_values )
     end
 
+    def provenance_hide_doi( current_user:, event_note: '' )
+      attributes, ignore_blank_key_values = attributes_for_provenance_hide_doi
+      provenance_log_event( attributes: attributes,
+                            current_user: current_user,
+                            event: EVENT_HIDE_DOI,
+                            event_note: event_note,
+                            ignore_blank_key_values: ignore_blank_key_values )
+    end
+
     def provenance_mint_doi( current_user:, event_note: '' )
       attributes, ignore_blank_key_values = attributes_for_provenance_mint_doi
       provenance_log_event( attributes: attributes,
                             current_user: current_user,
                             event: EVENT_MINT_DOI,
+                            event_note: event_note,
+                            ignore_blank_key_values: ignore_blank_key_values )
+    end
+
+    def provenance_move_doi( current_user:, event_note: '' )
+      attributes, ignore_blank_key_values = attributes_for_provenance_move_doi
+      provenance_log_event( attributes: attributes,
+                            current_user: current_user,
+                            event: EVENT_MOVE_DOI,
                             event_note: event_note,
                             ignore_blank_key_values: ignore_blank_key_values )
     end

@@ -19,7 +19,9 @@ module Deepblue
     EVENT_GLOBUS            = 'globus'.freeze            unless const_defined? :EVENT_GLOBUS
     EVENT_INGEST            = 'ingest'.freeze            unless const_defined? :EVENT_INGEST
     EVENT_MIGRATE           = 'migrate'.freeze           unless const_defined? :EVENT_MIGRATE
+    EVENT_HIDE_DOI          = 'hide_doi'.freeze          unless const_defined? :EVENT_HIDE_DOI
     EVENT_MINT_DOI          = 'mint_doi'.freeze          unless const_defined? :EVENT_MINT_DOI
+    EVENT_MOVE_DOI          = 'move_doi'.freeze          unless const_defined? :EVENT_MOVE_DOI
     EVENT_PUBLISH           = 'publish'.freeze           unless const_defined? :EVENT_PUBLISH
     EVENT_TRANSFER          = 'transfer'.freeze          unless const_defined? :EVENT_TRANSFER
     EVENT_TOMBSTONE         = 'tombstone'.freeze         unless const_defined? :EVENT_TOMBSTONE
@@ -46,7 +48,9 @@ module Deepblue
         EVENT_GLOBUS,
         EVENT_INGEST,
         EVENT_MIGRATE,
+        EVENT_HIDE_DOI,
         EVENT_MINT_DOI,
+        EVENT_MOVE_DOI,
         EVENT_PUBLISH,
         EVENT_TRANSFER,
         EVENT_TOMBSTONE,
