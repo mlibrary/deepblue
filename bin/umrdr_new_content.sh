@@ -1,16 +1,16 @@
 #!/bin/bash
 
 # input of the form:
-# ./bin/umrdr_new_content.sh -b /deepbluedata-dataden/download-prep/ c_00000021r w_12345678
-# ./bin/umrdr_new_content.sh -b /deepbluedata-dataden/download-prep/ -i fritx -v c_00000021r w_12345678 w_123
-# ./bin/umrdr_new_content.sh -b /deepbluedata-dataden/download-prep/DBDv1/ -v c_00000021r w_12345678 w_123
-# nohup ./bin/umrdr_new_content.sh -b /deepbluedata-dataden/download-prep/ c_00000021r w_12345678 2>&1 > ./log/20180811.umrdr_new_content.sh.out &
+# ./bin/umrdr_new_content.sh -b /deepbluedata-prep/ c_00000021r w_12345678
+# ./bin/umrdr_new_content.sh -b /deepbluedata-prep/ -i fritx -v c_00000021r w_12345678 w_123
+# ./bin/umrdr_new_content.sh -b /deepbluedata-prep/DBDv1/ -v c_00000021r w_12345678 w_123
+# nohup ./bin/umrdr_new_content.sh -b /deepbluedata-prep/ c_00000021r w_12345678 2>&1 > ./log/20180811.umrdr_new_content.sh.out &
 
 shell_name="umrdr_new_content.sh"
 original_args="$@"
 stop_file="$PWD/stop_umrdr_new_content"
 pid_stop_file="$PWD/$$_stop_umrdr_new_content"
-base_dir="/deepbluedata-dataden/download-prep/" # default value for -b / --base_dir
+base_dir="/deepbluedata-prep/" # default value for -b / --base_dir
 ingester="fritx@umich.edu"     # default value for -i / --ingester
 dry_run=false                  # default value for -d / --dry_run
 multi=false                    # default value for -m / --multi

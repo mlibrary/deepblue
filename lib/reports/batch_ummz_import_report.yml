@@ -1,5 +1,5 @@
 # batch_ummz_import_report.yml
-# bundle exec rake deepblue:run_report[/deepbluedata-dataden/download-prep/UMMZ/UMMZ-2021-01-28/batch_ummz_import_report.yml]
+# bundle exec rake deepblue:run_report[/deepbluedata-prep/UMMZ/UMMZ-2021-01-28/batch_ummz_import_report.yml]
 ---
 :report:
   :config:
@@ -10,7 +10,7 @@
       :id: true
   :output:
     :format: CSV
-    :file: /deepbluedata-dataden/download-prep/UMMZ/%Y%m%d%H%M%S-prod-batch_ummz_import_report
+    :file: /deepbluedata-prep/UMMZ/%Y%m%d%H%M%S-prod-batch_ummz_import_report
   :curation_concern: DataSet
   :fields:
     :id            : ID

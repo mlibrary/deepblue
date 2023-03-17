@@ -11,7 +11,7 @@ module Deepblue
     DEFAULT_CMD_MODE = 'export' unless const_defined? :DEFAULT_CMD_MODE
     DEFAULT_EXPORT_FILES = true unless const_defined? :DEFAULT_EXPORT_FILES
     DEFAULT_IMPORT_OPTIONS = "-w -d -v" unless const_defined? :DEFAULT_IMPORT_OPTIONS
-    DEFAULT_INPUT_DIR = "/deepbluedata-dataden/download-prep" unless const_defined? :DEFAULT_INPUT_DIR
+    DEFAULT_INPUT_DIR = "/deepbluedata-prep" unless const_defined? :DEFAULT_INPUT_DIR
     DEFAULT_INPUT_CSV_FILE = "#{DEFAULT_INPUT_DIR}/reports/works_report_works_sorted.csv" unless const_defined? :DEFAULT_INPUT_CSV_FILE
     DEFAULT_INPUT_CSV_FILE_HAS_HEADER = true unless const_defined? :DEFAULT_INPUT_CSV_FILE_HAS_HEADER
     DEFAULT_MAX_ID_COUNT = 20 unless const_defined? :DEFAULT_MAX_ID_COUNT
@@ -21,7 +21,7 @@ module Deepblue
     DEFAULT_NOHUP_ALLOWED = true unless const_defined? :DEFAULT_NOHUP_ALLOWED
     DEFAULT_NOHUP_FILE_COUNT = DEFAULT_MAX_FILE_COUNT / 2 unless const_defined? :DEFAULT_NOHUP_FILE_COUNT
     DEFAULT_NOHUP_FILE_SIZE = DEFAULT_MAX_FILE_SIZE / 2 unless const_defined? :DEFAULT_NOHUP_FILE_SIZE
-    DEFAULT_OUTPUT_DIR = "/deepbluedata-dataden/download-prep/tmp" unless const_defined? :DEFAULT_OUTPUT_DIR
+    DEFAULT_OUTPUT_DIR = "/deepbluedata-prep/tmp" unless const_defined? :DEFAULT_OUTPUT_DIR
     DEFAULT_RAKE_TASK = "yaml_populate_from_multiple_works" unless const_defined? :DEFAULT_RAKE_TASK
     DEFAULT_SHELL_TASK = "migrate" unless const_defined? :DEFAULT_SHELL_TASK
     DEFAULT_TARGET_SCRIPT_DIR = "#{DEFAULT_OUTPUT_DIR}/scripts/" unless const_defined? :DEFAULT_TARGET_SCRIPT_DIR

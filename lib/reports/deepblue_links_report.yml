@@ -9,7 +9,7 @@
       :id: true
   :output:
     :format: CSV
-    :file: /deepbluedata-dataden/download-prep/UMMZ/%Y%m%d%H%M%S-deepblue_links_report
+    :file: /deepbluedata-prep/UMMZ/%Y%m%d%H%M%S-deepblue_links_report
   :curation_concern: DataSet
   :fields:
     :id            : ID

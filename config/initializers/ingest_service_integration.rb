@@ -47,19 +47,19 @@ Deepblue::IngestIntegrationService.setup do |config|
     allowed_dirs << Rails.application.root.join( 'data' ).to_s
     config.ingest_script_dir = Rails.root.join('data', 'scripts')
     FileUtils.mkdir_p config.ingest_script_dir unless Dir.exist? config.ingest_script_dir
-    if Dir.exists? "/Volumes/ulib-dbd-prep"
-      allowed_dirs << "/Volumes/ulib-dbd-prep"
-      config.deepbluedata_prep = "/Volumes/ulib-dbd-prep"
+    if Dir.exists? Rails.configuration.shared_drive_volumes_ulib_dbd_prep
+      dir = Rails.configuration.shared_drive_volumes_ulib_dbd_prep
     else
-      allowed_dirs << "/tmp/deepbluedata-dataden/download-prep"
-      config.deepbluedata_prep = "/tmp/deepbluedata-dataden/download-prep"
+      dir = File.join( "/tmp", Rails.configuration.shared_drive_ulib_dbd_prep ).to_s
     end
+    allowed_dirs << dir
+    config.deepbluedata_prep = dir
   elsif Rails.env.test?
-    config.ingest_script_dir = '/tmp/deepbluedata-dataden/download-prep/scripts'
-    config.deepbluedata_prep = '/tmp/deepbluedata-dataden/download-prep'
+    config.ingest_script_dir = File.join( "/tmp", Rails.configuration.shared_drive_ulib_dbd_prep, 'scripts' ).to_s
+    config.deepbluedata_prep = File.join( "/tmp", Rails.configuration.shared_drive_ulib_dbd_prep ).to_s
   else
-    config.ingest_script_dir = '/deepbluedata-dataden/download-prep/scripts'
-    config.deepbluedata_prep = '/deepbluedata-dataden/download-prep'
+    config.ingest_script_dir = File.join( Rails.configuration.shared_drive_deepbluedata_prep, 'scripts' ).to_s
+    config.deepbluedata_prep = Rails.configuration.shared_drive_deepbluedata_prep
   end
   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                          ::Deepblue::LoggingHelper.called_from,

@@ -5,7 +5,7 @@
     :verbose: true
   :output:
     :format: CSV
-    :file: /deepbluedata-dataden/download-prep/reports/works_since_2019_report
+    :file: /deepbluedata-prep/reports/works_since_2019_report
   :curation_concern: DataSet
   :fields:
     # name of the depositor, their email, the title of the data set, the date it was deposited, the date it was published and the DOI

@@ -21,7 +21,7 @@ Deepblue::WorkViewContentService.setup do |config|
   elsif Rails.env.test?
     config.export_documentation_path = '/tmp/documentation_export'
   else # production
-    config.export_documentation_path = '/deepbluedata-dataden/download-prep/documentation_export/'
+    config.export_documentation_path = '/deepbluedata-prep/documentation_export/'
   end
   begin
     FileUtils.mkdir_p config.export_documentation_path unless Dir.exist? config.export_documentation_path

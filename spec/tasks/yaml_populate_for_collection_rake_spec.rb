@@ -27,7 +27,7 @@ describe "yaml_populate_from_collection.rake" do
       #                                                                create_zero_length_files: true,
       #                                                                overwrite_export_files: true ).and_return service
       # expect(service).to receive(:yaml_populate_collection).with({:collection=>"id123 id234",
-      #                                                             :dir=>"/deepbluedata-dataden/download-prep",
+      #                                                             :dir=>"/deepbluedata-prep",
       #                                                             :export_files=>true})
       # expect(service).to receive(:yaml_populate_stats).and_return 'stats'
       # expect(invoked).to receive(:report_stats).once
