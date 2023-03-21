@@ -2,11 +2,9 @@
 
 module Deepblue
 
-  class ProvenancePath
+  class ProvenancePath # TODO: < DerivativePath
 
     mattr_accessor :provenance_path_debug_verbose, default: false
-
-    attr_reader :id, :destination_name
 
     class << self
 

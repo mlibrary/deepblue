@@ -109,8 +109,8 @@
     <% text = I18n.t( key, **options ) %>
     <% text = text.split("\n") %>
     <% height = text.size > 5 ? text.size : 5 %>
-    <textarea class='monospace-textarea'  rows="<%=height%>" cols="85" readonly>
-      <%= text.join("\n") %>
-    </textarea>
+<textarea class='monospace-textarea'  rows="<%=height%>" cols="85" readonly>
+<%= text.join("\n") %>
+</textarea>
   <% end %>
 </div>
