@@ -107,6 +107,7 @@ RSpec.describe DataSet do
   }
   let( :metadata_keys_update ) {
     %i[
+      admin_set_id
       authoremail
       title
       visibility
