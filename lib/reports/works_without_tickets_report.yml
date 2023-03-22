@@ -1,0 +1,49 @@
+# works_without_tickets_report.yml
+# bundle exec rake deepblue:run_report[./lib/reports/works_without_tickets_report.yml]
+# bundle exec rake deepblue:run_report[/deepbluedata-prep/reports/definitions/works_without_tickets_report.yml]
+---
+:report:
+  :config:
+    :verbose: true
+  :output:
+    :format: html
+    :file: '%report_path%%date%.%hostname%.works_without_tickets_report'
+  :curation_concern: DataSet
+  :fields:
+    :id              : ID
+    :title           : Title
+    :depositor       : Depositor
+    #:ticket          : Ticket
+    :visibility      : Visibility
+    :workflow_state  : Workflow
+    :draft_mode?     : Draft?
+    :date_created    : Created
+    :date_published  : Published
+    :data_set_url    : URL
+  :field_accessors:
+    :data_set_url:
+      :method:
+    :draft_mode?:
+      :method:
+    :visibility:
+      :method:
+    :workflow_state:
+      :method:
+  :field_formats:
+    :creator:
+      :join: '; '
+    :date_created:
+      :date: "%Y-%m-%d %H:%M:%S"
+    :date_published:
+      :date: "%Y-%m-%d %H:%M:%S"
+    :data_set_url:
+      :tag: 'a'
+    :title:
+      :join: ' '
+  :filters:
+    :include:
+      :date_created:
+        :begin  : now - 1 month
+        :end    : now
+      :ticket:
+        :blank:

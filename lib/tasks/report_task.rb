@@ -235,7 +235,7 @@ module Deepblue
     attr_reader :filter_exclude, :filter_include
     attr_reader :include_children, :include_children_parent_columns_blank, :include_children_parent_columns
     attr_reader :report_definitions, :report_definitions_file
-    attr_reader :field_format_strings, :output_file
+    attr_reader :field_format_strings, :output_file, :output_format
     attr_reader :reporter
 
     def initialize( report_definitions_file: nil,
@@ -392,15 +392,26 @@ module Deepblue
       # msg_handler.msg "field_formats=#{field_formats}" if verbose
       formats = hash_value( hash: field_formats, key: attribute )
       # msg_handler.msg "formats=#{formats}" if verbose
-      if formats.has_key? :join && value.respond_to?( :join )
+      if formats.has_key?( :join ) && value.respond_to?( :join )
         format_str = formats[:join]
         field_format_strings[attribute] = format_str
         return value.join( format_str )
       end
-      if formats.has_key? :date && value.present?
+      if formats.has_key?( :date ) && value.present?
         format_str = formats[:date]
         field_format_strings[attribute] = format_str
         return date_to_local_timezone( value ).strftime( format_str )
+      end
+      if 'html' == @output_format && formats.has_key?( :tag ) && value.present?
+        tag = formats[:tag]
+        field_format_strings[attribute] = tag
+        return "<a href=\"#{value}\">#{value}</a>" if 'a' == tag
+        return "<#{tag}>#{value}</#{tag}>"
+      end
+      if formats.has_key?( :quote ) && value.present?
+        quote = formats[:quote]
+        field_format_strings[attribute] = quote
+        return "#{quote}#{value}#{quote}"
       end
       # msg_handler.msg "curation_concern_format: fell through, return value=#{value}" if verbose
       if value.respond_to?( :join )
@@ -421,6 +432,7 @@ module Deepblue
 
     def date_to_local_timezone( timestamp )
       return timestamp if timestamp.nil?
+      timestamp = timestamp.first if timestamp.respond_to? :first
       timestamp = timestamp.to_datetime if timestamp.is_a? Time
       timestamp = DateTime.parse timestamp if timestamp.is_a? String
       timestamp = timestamp.new_offset( DateTime.now.offset )
@@ -530,10 +542,27 @@ module Deepblue
       public_send( attribute.to_s, { curation_concern: curation_concern, attribute: attribute } )
     end
 
-    def update_output_file_name( regexp, date_int )
+    def update_output_file_name
+      @output_file = ::Deepblue::ReportHelper.expand_path_partials( @output_file )
+      now = DateTime.now
+      # legacy replacements
+      update_output_file_name_date_int( /%Y(YYY)?/, now.year )
+      update_output_file_name_date_int( /%mm?/, now.month )
+      update_output_file_name_date_int( /%dd?/, now.day )
+      update_output_file_name_date_int( /%HH?/, now.hour )
+      update_output_file_name_date_int( /%MM?/, now.minute )
+      update_output_file_name_date_int( /%SS?/, now.second )
+    end
+
+    def update_output_file_name_date_int( regexp, date_int )
       return unless @output_file =~ regexp
       replacement = date_int.to_s
       replacement = "0#{replacement}" if replacement.size < 2
+      @output_file.gsub!( regexp, replacement )
+    end
+
+    def update_output_file_name_regexp( regexp, replacement )
+      return unless @output_file =~ regexp
       @output_file.gsub!( regexp, replacement )
     end
 
@@ -544,23 +573,19 @@ module Deepblue
                                              "" ] if report_task_debug_verbose
       msg_handler.msg "curation_concern=#{curation_concern}" if verbose
       @output_file = hash_value( hash: output, key: :file )
-      now = DateTime.now
-      update_output_file_name( /%Y(YYY)?/, now.year )
-      update_output_file_name( /%mm?/, now.month )
-      update_output_file_name( /%dd?/, now.day )
-      update_output_file_name( /%HH?/, now.hour )
-      update_output_file_name( /%MM?/, now.minute )
-      update_output_file_name( /%SS?/, now.second )
+      update_output_file_name
       msg_handler.msg "output_file=#{output_file}" if verbose
-      output_format = hash_value( hash: output, key: :format )
-      msg_handler.msg "output_format=#{output_format}" if verbose
+      @output_format = hash_value( hash: output, key: :format )
+      msg_handler.msg "output_format=#{@output_format}" if verbose
       fields.each do |name,value|
         next if name.to_s.start_with? '.'
         msg_handler.msg "field: #{name}=#{value}" if verbose
       end
-      case output_format
-      when "CSV"
+      case @output_format
+      when 'CSV'
         write_report_csv
+      when 'html'
+        write_report_html
       end
       msg_handler.msg "report written to #{output_file}"
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -592,6 +617,43 @@ module Deepblue
           end
         end
       end
+    end
+
+    def write_report_html
+      @output_file = output_file + ".html"
+      open( output_file, "w" ) do |out|
+        out.puts "<table>"
+        row_puts( out, row_csv_header, cell_tag: 'th' )
+        curation_concerns.each do |curation_concern|
+          @current_child = nil
+          @current_child_index = 0
+          next if filter_out( curation_concern )
+          if include_children
+            file_sets = curation_concern.file_sets
+            if file_sets.present?
+              file_sets.each_with_index do |fs,index|
+                @current_child = fs
+                @current_child_index = index + 1
+                row_puts( out, row_csv_data( curation_concern ) )
+              end
+            else
+              row_puts( out, row_csv_data( curation_concern ) )
+            end
+          else
+            row_puts( out, row_csv_data( curation_concern ) )
+          end
+        end
+        out.puts "</table>"
+      end
+    end
+
+    def row_puts( out, row, cell_tag: 'td' )
+      out.puts "<tr>"
+      row.each do |e|
+        out.write "<#{cell_tag}>#{e}</#{cell_tag}>"
+      end
+      out.puts
+      out.puts "</tr>"
     end
 
     def row_csv_header

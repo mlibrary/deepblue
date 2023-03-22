@@ -17,12 +17,13 @@ module Deepblue
     def self.expand_path_partials( path, task: nil )
       return path unless path.present?
       now = Time.now
-      path = path.gsub( /\%date\%/, "#{now.strftime('%Y%m%d')}" )
-      path = path.gsub( /\%time\%/, "#{now.strftime('%H%M%S')}" )
-      path = path.gsub( /\%timestamp\%/, "#{now.strftime('%Y%m%d%H%M%S')}" )
-      path = path.gsub( /\%hostname\%/, "#{hostname_short}" )
+      path = path.gsub( /\%report_path\%/,   "#{report_path}" )
+      path = path.gsub( /\%date\%/,          "#{now.strftime('%Y%m%d')}" )
+      path = path.gsub( /\%time\%/,          "#{now.strftime('%H%M%S')}" )
+      path = path.gsub( /\%timestamp\%/,     "#{now.strftime('%Y%m%d%H%M%S')}" )
+      path = path.gsub( /\%hostname\%/,      "#{hostname_short}" )
       path = path.gsub( /\%hostname_full\%/, "#{Rails.configuration.hostname}" )
-      path = path.gsub( /\%task\%/, task ) if task.present?
+      path = path.gsub( /\%task\%/,          task ) if task.present?
       return path
     end
 
@@ -30,6 +31,12 @@ module Deepblue
       rv = HOSTNAME_SHORT_MAP[hostname]
       rv ||= hostname
       return rv
+    end
+
+    def self.report_path
+      hostname = hostname_short
+      return './data/reports/' if 'local' == hostname
+      return '/deepbluedata-prep/reports/'
     end
 
     def self.to_datetime( date:, format: nil, msg_handler:, raise_errors: true, msg_postfix: '' )
