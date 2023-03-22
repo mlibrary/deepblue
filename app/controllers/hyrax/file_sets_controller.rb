@@ -531,6 +531,10 @@ module Hyrax
     end
 
     def can_display_file_contents?
+      return can_display_file_contents_txt? || can_display_file_contents_zip?
+    end
+
+    def can_display_file_contents_txt?
       Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
                                            "file_set.id=#{file_set.id}",
@@ -542,6 +546,22 @@ module Hyrax
       return false unless Rails.configuration.file_sets_contents_view_mime_types.include?( file_set.mime_type )
       return false if file_set.original_file_size.blank?
       return false if file_set.original_file_size > Rails.configuration.file_sets_contents_view_max_size
+      return true
+    end
+
+    def can_display_file_contents_zip?
+      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                           Deepblue::LoggingHelper.called_from,
+                                           "file_set.id=#{id}",
+                                           "file_set.mime_type=#{mime_type}",
+                                           "file_set.original_file_size=#{file_size}",
+                                           "" ] if file_sets_controller_debug_verbose
+      return false unless Rails.configuration.file_sets_contents_view_allow
+      # return false if anonymous_show?
+      return false unless ( current_ability.admin? ) # || current_ability.can?(:read, id) )
+      return false unless ['application/zip'].include?( file_set.mime_type )
+      return false if file_set.original_file_size.blank?
+      return false if file_set.original_file_size > 500.megabytes
       return true
     end
 

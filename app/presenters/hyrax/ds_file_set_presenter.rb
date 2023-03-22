@@ -197,6 +197,14 @@ module Hyrax
     end
 
     def can_display_file_contents?
+      return can_display_file_contents_txt? || can_display_file_contents_zip?
+    end
+
+    def file_contents_txt?
+      Rails.configuration.file_sets_contents_view_mime_types.include?( mime_type )
+    end
+
+    def can_display_file_contents_txt?
       Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                            Deepblue::LoggingHelper.called_from,
                                            "id=#{id}",
@@ -206,9 +214,29 @@ module Hyrax
       return false unless Rails.configuration.file_sets_contents_view_allow
       return false if anonymous_show?
       return false unless ( current_ability.admin? ) # || current_ability.can?(:read, id) )
-      return false unless Rails.configuration.file_sets_contents_view_mime_types.include?( mime_type )
+      return false unless file_contents_txt?
       return false if file_size.blank?
       return false if file_size > Rails.configuration.file_sets_contents_view_max_size
+      return true
+    end
+
+    def file_contents_zip?
+      ['application/zip'].include?( mime_type )
+    end
+
+    def can_display_file_contents_zip?
+      Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                           Deepblue::LoggingHelper.called_from,
+                                           "id=#{id}",
+                                           "mime_type=#{mime_type}",
+                                           "file_size=#{file_size}",
+                                           "" ] if ds_file_set_presenter_debug_verbose
+      return false unless Rails.configuration.file_sets_contents_view_allow
+      return false if anonymous_show?
+      return false unless ( current_ability.admin? ) # || current_ability.can?(:read, id) )
+      return false unless file_contents_zip?
+      return false if file_size.blank?
+      return false if file_size > 500.megabytes
       return true
     end
 
@@ -439,7 +467,14 @@ module Hyrax
 
     def file_contents
       return "" unless file_set.present?
-      content = ::Deepblue::WorkViewContentService.content_read_file( file_set: file_set )
+      content = ""
+      if file_contents_txt?
+        content = ::Deepblue::WorkViewContentService.content_read_file( file_set: file_set )
+      elsif file_contents_zip?
+        # content = ::Deepblue::ZipContentsService.entries( file_set.id, refresh: true )
+        content = ::Deepblue::ZipContentsService.entries( file_set.id )
+        content = content.join( "\n" )
+      end
       return "" if content.nil?
       return content
     end

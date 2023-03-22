@@ -717,7 +717,13 @@ module Deepblue
           update_visibility( curation_concern: file_set, visibility: visibility )
           file_set.date_modified = file_set.date_uploaded if file_set.date_modified.blank?
           file_set.date_modified = DateTime.now if file_set.date_modified.blank?
-          file_set.save!
+          begin
+            file_set.save!
+          rescue Ldp::Gone => e
+            log_msg( "#{build_mode}: WARNING failed with a Ldp::Gone exception." )
+            log_error "#{e.class} work.id=#{work.id} -- #{file_set&.id} -- #{e.message} at #{e.backtrace[0]}"
+            return nil
+          end
           # TODO: move ingest step to after attach to work, this will probably fix file_sets that turn up with missing file sizes
           return build_file_set_ingest( file_set: file_set,
                                         path: path,
