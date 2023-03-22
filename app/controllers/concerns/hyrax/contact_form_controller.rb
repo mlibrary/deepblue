@@ -11,9 +11,11 @@ module Hyrax
       attr_accessor :akismet_is_spam
       attr_accessor :antispam_delta_in_seconds
       attr_accessor :antispam_timestamp
+      attr_accessor :contact_form_email
       attr_accessor :contact_form_valid
       attr_accessor :create_timestamp
       attr_accessor :email_passthrough
+      attr_accessor :email_passthrough_re
       attr_accessor :ngr_details
       attr_accessor :ngr_humanity_details
       attr_accessor :ngr_is_human
@@ -22,6 +24,7 @@ module Hyrax
       attr_accessor :ngr_used
       attr_accessor :referrer_ip
       attr_accessor :spam_status_unknown
+      attr_accessor :is_spam
 
       def initialize
         @akismet_is_spam = false
@@ -30,9 +33,11 @@ module Hyrax
         @akismet_used = false
         @antispam_delta_in_seconds = nil
         @antispam_timestamp = nil
+        @contact_form_email = nil
         @contact_form_valid = nil
         @create_timestamp = nil
         @email_passthrough = nil
+        @email_passthrough_re = nil
         @ngr_details = false
         @ngr_humanity_details = nil
         @ngr_is_human = nil # assume this is true and allow google recaptcha to set it to false as necessary
@@ -41,6 +46,7 @@ module Hyrax
         @ngr_used = false
         @referrer_ip = nil
         @spam_status_unknown = true
+        @is_spam = nil
       end
 
       def antispam_delta_in_seconds
@@ -57,11 +63,13 @@ module Hyrax
                akismet_used: akismet_used,
                antispam_delta_in_seconds: antispam_delta_in_seconds,
                antispam_timeout_in_seconds: ::Hyrax::ContactFormController.antispam_timeout_in_seconds,
+               contact_form_email: contact_form_email,
                contact_form_email_passthrough_enabled: ::Hyrax::ContactFormController.contact_form_email_passthrough_enabled,
                contact_form_send_email: ::Hyrax::ContactFormController.contact_form_send_email,
                contact_form_valid: contact_form_valid,
                create_timestamp: create_timestamp,
                email_passthrough: email_passthrough,
+               email_passthrough_re: email_passthrough_re,
                ngr_enabled: ::Hyrax::ContactFormController.ngr_enabled,
                ngr_humanity_details: ngr_humanity_details,
                ngr_is_human: ngr_is_human,
@@ -71,6 +79,7 @@ module Hyrax
                ngr_used: ngr_used,
                referrer_ip: referrer_ip,
                spam_status_unknown: spam_status_unknown,
+               is_spam: is_spam,
                messages: msgs }
         # TODO: append messages if they exist
         return rv
@@ -238,13 +247,14 @@ module Hyrax
     # when a email is successfully sent, such as sending a confirmation
     # response to the user.
     def after_deliver
+      debug_verbose = contact_form_controller_debug_verbose
       msg_handler.bold_debug [ msg_handler.here,
                                msg_handler.called_from,
                                "create_timestamp=#{status.create_timestamp}",
                                "antispam_timestamp=#{status.antispam_timestamp}",
                                "antispam_delta_in_seconds=#{status.antispam_delta_in_seconds}",
                                "is_spam?=#{is_spam?}",
-                               "" ] if contact_form_controller_debug_verbose
+                               "" ] if debug_verbose
       if is_spam?
         if is_antispam_delta_under_timeout?
           # TODO: move this to LoggingHelper
@@ -299,12 +309,13 @@ module Hyrax
     end
 
     def create
+      debug_verbose = contact_form_controller_debug_verbose
       status.create_timestamp = Time.now.to_i
       status.contact_form_valid = @contact_form.valid?
       msg_handler.bold_debug [ msg_handler.here,
                                msg_handler.called_from,
                                "@contact_form.valid?=#{@contact_form.valid?}",
-                               "" ] if contact_form_controller_debug_verbose
+                               "" ] if debug_verbose
       if @contact_form.valid?
         env = request.env
         status.referrer_ip = env['action_dispatch.remote_ip'].to_s
@@ -332,14 +343,20 @@ module Hyrax
                                  "akismet_enabled=#{akismet_enabled}",
                                  "ngr_enabled=#{ngr_enabled}",
                                  "spam_status_unknown=#{status.spam_status_unknown}",
-                                 "" ] if contact_form_controller_debug_verbose
-        email_passthrough?
-        akismet_is_spam? if status.spam_status_unknown && akismet_enabled
-        new_google_recaptcha if status.spam_status_unknown && ngr_enabled
+                                 "" ] if debug_verbose
+        loop do# just to use breaks
+          break if email_passthrough?
+          if status.spam_status_unknown && akismet_enabled
+            break if akismet_is_spam?
+          end
+          new_google_recaptcha if status.spam_status_unknown && ngr_enabled
+          break
+        end
+        status.is_spam = is_spam?
         msg_handler.bold_debug [ msg_handler.here,
                                  msg_handler.called_from,
                                  "is_spam?=#{is_spam?}",
-                                 "" ] if contact_form_controller_debug_verbose
+                                 "" ] if debug_verbose
         if contact_form_send_email
           ::Hyrax::ContactMailer.contact(@contact_form).deliver_now unless is_spam?
         end
@@ -499,10 +516,9 @@ module Hyrax
     end
 
     def akismet_is_spam?
-      msg_handler.bold_debug [ msg_handler.here,
-                                             msg_handler.called_from,
-                                             "" ] if contact_form_controller_debug_verbose
-      return unless status.spam_status_unknown
+      debug_verbose = contact_form_controller_debug_verbose
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ] if debug_verbose
+      return false unless status.spam_status_unknown
       ContactFormIntegrationService.akismet_setup
       #   name: @contact_form.name,
       #   email: @contact_form.email,
@@ -529,7 +545,7 @@ module Hyrax
                                msg_handler.called_from,
                                "akismet_params=",
                                akismet_params,
-                               "" ] if contact_form_controller_debug_verbose
+                               "" ] if debug_verbose
 
       begin
         # status.akismet_is_spam = Akismet.spam?(request.ip, request.user_agent, akismet_params)
@@ -543,6 +559,7 @@ module Hyrax
                            end
         status.akismet_used = true
         status.spam_status_unknown = false
+        return true
       rescue => e
         Rails.logger.error("Unable to connect to Akismet: #{e}, skipping check")
         status.akismet_is_spam = nil
@@ -550,9 +567,12 @@ module Hyrax
         status.akismet_check_rv_is_blatant = nil
         status.akismet_used = false
       end
+      return false
     end
 
     def email_passthrough?
+      debug_verbose = contact_form_controller_debug_verbose
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ] if debug_verbose
       return false unless contact_form_email_passthrough_enabled
       msg_handler.bold_debug [ msg_handler.here,
                                msg_handler.called_from,
@@ -561,17 +581,17 @@ module Hyrax
                                "email_passthrough=#{status.email_passthrough}",
                                "" ] if contact_form_controller_debug_verbose
       return false unless status.spam_status_unknown
-      begin
-        email = @contact_form.email
-        return false unless email =~ contact_form_email_passthrough_re
-        msg_handler.bold_debug [ msg_handler.here,
-                                 msg_handler.called_from,
-                                 "email #{email} matched #{contact_form_email_passthrough_re}",
-                                 "" ] if contact_form_controller_debug_verbose
-        status.spam_status_unknown = false
-        status.email_passthrough = email
-        return true
-      end
+      email = @contact_form.email
+      status.contact_form_email = "'#{email}'"
+      status.email_passthrough_re = contact_form_email_passthrough_re.to_s
+      return false unless email =~ contact_form_email_passthrough_re
+      msg_handler.bold_debug [ msg_handler.here,
+                               msg_handler.called_from,
+                               "email #{email} matched #{contact_form_email_passthrough_re}",
+                               "" ] if debug_verbose
+      status.spam_status_unknown = false
+      status.email_passthrough = email
+      return true
     end
 
     def is_antispam_delta_under_timeout?
