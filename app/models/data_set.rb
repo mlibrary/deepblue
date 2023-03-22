@@ -288,6 +288,7 @@ class DataSet < ActiveFedora::Base
 
   def metadata_keys_update
     %i[
+      admin_set_id
       authoremail
       title
       visibility
