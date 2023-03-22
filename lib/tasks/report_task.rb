@@ -234,7 +234,7 @@ module Deepblue
     attr_reader :curation_concern, :config, :fields, :field_formats, :filters, :output
     attr_reader :filter_exclude, :filter_include
     attr_reader :include_children, :include_children_parent_columns_blank, :include_children_parent_columns
-    attr_reader :report_definitions, :report_definitions_file
+    attr_reader :report_definitions, :report_definitions_file, :report_title
     attr_reader :field_format_strings, :output_file, :output_format
     attr_reader :reporter
 
@@ -262,6 +262,7 @@ module Deepblue
         @allowed_path_extensions = allowed_path_extensions
         @allowed_path_prefixes = allowed_path_prefixes
         load_report_definitions
+        @report_title = report_hash_value( key: :report_title, default_value: "Unknown report title" )
         @config = report_sub_hash( key: :config )
         verbose = hash_value( hash: config, key: :verbose, default_value: verbose )
         @include_children = hash_value( hash: config, key: :include_children, default_value: false )
@@ -280,7 +281,58 @@ module Deepblue
         @filters = report_sub_hash( key: :filters )
         build_filters
         @output = report_sub_hash( key: :output )
+        @email = report_hash_value( key: :email, default_value: [] )
       end
+    end
+
+    def email_body
+      @email_body ||= email_body_init
+    end
+
+    def email_body_init
+      lines = []
+      lines << "Path to report: #{@output_file}"
+      lines << "<br/>"
+      lines << "<pre>" unless 'html' == @output_format
+      File.open( @output_file, "r" ) do |fin|
+        until fin.eof?
+          begin
+            line = fin.readline
+            lines << line.chop
+          rescue EOFError
+            line = nil
+          end
+        end
+      end
+      lines << "<pre>" unless 'html' == @output_format
+      lines.join( "\n" )
+    end
+
+    def email_report
+      return unless @email.present?
+      @email.each { |email_target| email_report_to( email: email_target ) }
+    end
+
+    def email_report_to( email: )
+      return if email.blank?
+      to = email
+      subject = @report_title
+      body = email_body
+      content_type = ::Deepblue::EmailHelper::TEXT_HTML
+      email_sent = ::Deepblue::EmailHelper.send_email( to: to,
+                                                       subject: subject,
+                                                       body: body,
+                                                       content_type: content_type )
+      ::Deepblue::EmailHelper.log( class_name: 'ReportTask',
+                                   current_user: nil,
+                                   event: 'ReportTask',
+                                   event_note: @report_title,
+                                   id: '',
+                                   to: to,
+                                   subject: subject,
+                                   body: body,
+                                   content_type: content_type,
+                                   email_sent: email_sent )
     end
 
     def build_filters
@@ -543,7 +595,7 @@ module Deepblue
     end
 
     def update_output_file_name
-      @output_file = ::Deepblue::ReportHelper.expand_path_partials( @output_file )
+      @output_file = expand_path_partials( @output_file )
       now = DateTime.now
       # legacy replacements
       update_output_file_name_date_int( /%Y(YYY)?/, now.year )
@@ -621,7 +673,7 @@ module Deepblue
 
     def write_report_html
       @output_file = output_file + ".html"
-      open( output_file, "w" ) do |out|
+      File.open( output_file, "w" ) do |out|
         out.puts "<table>"
         row_puts( out, row_csv_header, cell_tag: 'th' )
         curation_concerns.each do |curation_concern|
