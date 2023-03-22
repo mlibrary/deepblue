@@ -3,11 +3,14 @@
 # bundle exec rake deepblue:run_report[/deepbluedata-prep/reports/definitions/works_without_tickets_report.yml]
 ---
 :report:
+  :report_title: Works without tickets
   :config:
     :verbose: true
   :output:
     :format: html
     :file: '%report_path%%date%.%hostname%.works_without_tickets_report'
+  :email:
+    - fritx@umich.edu
   :curation_concern: DataSet
   :fields:
     :id              : ID

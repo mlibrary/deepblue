@@ -20,19 +20,26 @@ module Deepblue
       task_options_value( key: 'report_format', default_value: DEFAULT_REPORT_FORMAT )
     end
 
+    # overwrite this with something interesting
+    def email_report
+
+    end
+
     def expand_path_partials( path )
       return path unless path.present?
-      now = Time.now
-      path = path.gsub( /\%date\%/, "#{now.strftime('%Y%m%d')}" )
-      path = path.gsub( /\%time\%/, "#{now.strftime('%H%M%S')}" )
-      path = path.gsub( /\%timestamp\%/, "#{now.strftime('%Y%m%d%H%M%S')}" )
-      path = path.gsub( /\%hostname\%/, "#{Rails.configuration.hostname}" )
+      path = ::Deepblue::ReportHelper.expand_path_partials( path )
+      # now = Time.now
+      # path = path.gsub( /\%date\%/, "#{now.strftime('%Y%m%d')}" )
+      # path = path.gsub( /\%time\%/, "#{now.strftime('%H%M%S')}" )
+      # path = path.gsub( /\%timestamp\%/, "#{now.strftime('%Y%m%d%H%M%S')}" )
+      # path = path.gsub( /\%hostname\%/, "#{Rails.configuration.hostname}" )
       return path
     end
 
     def run
       puts "Reading report format from #{report_format}" if verbose
       write_report
+      email_report
     end
 
     # overwrite this with something interesting
