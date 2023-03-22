@@ -328,6 +328,22 @@ class DataSet < ActiveFedora::Base
     metadata_keys_update
   end
 
+  def draft_mode?
+    @draft_mode ||= draft_mode_init
+  end
+
+  def draft_mode_init
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "" ] if data_set_debug_verbose
+    rv = ::Deepblue::DraftAdminSetService.has_draft_admin_set? self
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "rv=#{rv}",
+                                           "" ] if data_set_debug_verbose
+    return rv
+  end
+
   def embargoed?
     visibility == 'embargo'
   end
