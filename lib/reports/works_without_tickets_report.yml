@@ -7,7 +7,7 @@
   :config:
     :verbose: true
   :output:
-    :format: html
+    :format: CSV
     :file: '%report_path%%date%.%hostname%.works_without_tickets_report'
   :email:
     - fritx@umich.edu
@@ -39,8 +39,8 @@
       :date: "%Y-%m-%d %H:%M:%S"
     :date_published:
       :date: "%Y-%m-%d %H:%M:%S"
-    :data_set_url:
-      :tag: 'a'
+    #:data_set_url:
+    #  :tag: 'a'
     :title:
       :join: ' '
   :filters:

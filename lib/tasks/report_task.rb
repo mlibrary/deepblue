@@ -285,56 +285,6 @@ module Deepblue
       end
     end
 
-    def email_body
-      @email_body ||= email_body_init
-    end
-
-    def email_body_init
-      lines = []
-      lines << "Path to report: #{@output_file}"
-      lines << "<br/>"
-      lines << "<pre>" unless 'html' == @output_format
-      File.open( @output_file, "r" ) do |fin|
-        until fin.eof?
-          begin
-            line = fin.readline
-            lines << line.chop
-          rescue EOFError
-            line = nil
-          end
-        end
-      end
-      lines << "<pre>" unless 'html' == @output_format
-      lines.join( "\n" )
-    end
-
-    def email_report
-      return unless @email.present?
-      @email.each { |email_target| email_report_to( email: email_target ) }
-    end
-
-    def email_report_to( email: )
-      return if email.blank?
-      to = email
-      subject = @report_title
-      body = email_body
-      content_type = ::Deepblue::EmailHelper::TEXT_HTML
-      email_sent = ::Deepblue::EmailHelper.send_email( to: to,
-                                                       subject: subject,
-                                                       body: body,
-                                                       content_type: content_type )
-      ::Deepblue::EmailHelper.log( class_name: 'ReportTask',
-                                   current_user: nil,
-                                   event: 'ReportTask',
-                                   event_note: @report_title,
-                                   id: '',
-                                   to: to,
-                                   subject: subject,
-                                   body: body,
-                                   content_type: content_type,
-                                   email_sent: email_sent )
-    end
-
     def build_filters
       filter_exclude_hash = hash_value( hash: filters, key: :exclude )
       filter_include_hash = hash_value( hash: filters, key: :include )
@@ -380,6 +330,13 @@ module Deepblue
       end
     end
 
+    def cell_html( str )
+      # TODO: escape html?
+      return str unless str =~ /https?\:\/\//
+      rv = str.gsub( /(https?\:\/\/[^\s]+)/ ) { |match| "<a href=\"#{match}\">#{match}</a>" }
+      return rv
+    end
+
     def child_file_set_id( curation_concern:, attribute: )
       return "" unless include_children
       return "" unless current_child.present?
@@ -390,6 +347,22 @@ module Deepblue
       return "" unless include_children
       return "" unless current_child.present?
       current_child.label
+    end
+
+    def csv_rows_to_html_table( rows )
+      table = []
+      table << "<table>"
+      first_row = true
+      rows.each do |row|
+        if first_row
+          row_html( table, row, cell_tag: 'th' )
+          first_row = false
+        else
+          row_html( table, row )
+        end
+      end
+      table << "</table>"
+      return table
     end
 
     def curation_concern_attribute( curation_concern:, attribute: )
@@ -454,10 +427,10 @@ module Deepblue
         field_format_strings[attribute] = format_str
         return date_to_local_timezone( value ).strftime( format_str )
       end
-      if 'html' == @output_format && formats.has_key?( :tag ) && value.present?
+      if is_html_output? && formats.has_key?( :tag ) && value.present?
         tag = formats[:tag]
         field_format_strings[attribute] = tag
-        return "<a href=\"#{value}\">#{value}</a>" if 'a' == tag
+        # return "<a href=\"#{value}\">#{value}</a>" if 'a' == tag
         return "<#{tag}>#{value}</#{tag}>"
       end
       if formats.has_key?( :quote ) && value.present?
@@ -491,6 +464,71 @@ module Deepblue
       return timestamp
     end
 
+    def email_body
+      @email_body ||= email_body_init
+    end
+
+    def email_body_init
+      lines = []
+      lines << "Path to report: #{@output_file}"
+      lines << "<br/>"
+      #lines << "<pre>" unless is_html_output?
+      file_lines = email_body_read_file
+      file_lines.each { |fline| lines << fline }
+      #lines << "<pre>" unless is_html_output?
+      lines.join( "\n" )
+    end
+
+    def email_body_read_file
+      lines = []
+      if is_csv_output?
+        rows = []
+        CSV.foreach( @output_file ) do |row|
+          rows << row
+        end
+        lines = csv_rows_to_html_table( rows )
+      else
+        File.open( @output_file, "r" ) do |fin|
+          until fin.eof?
+            begin
+              line = fin.readline
+              lines << line.chop
+            rescue EOFError
+              line = nil
+            end
+          end
+        end
+      end
+      return lines
+    end
+
+    def email_report
+      return unless @email.present?
+      @email.each { |email_target| email_report_to( email: email_target ) }
+    end
+
+    def email_report_to( email: )
+      return if email.blank?
+      to = email
+      subject = @report_title
+      body = email_body
+      content_type = ::Deepblue::EmailHelper::TEXT_HTML
+      email_sent = ::Deepblue::EmailHelper.send_email( to: to,
+                                                       subject: subject,
+                                                       body: body,
+                                                       content_type: content_type )
+      ::Deepblue::EmailHelper.log( class_name: 'ReportTask',
+                                   current_user: nil,
+                                   event: 'ReportTask',
+                                   event_note: @report_title,
+                                   id: '',
+                                   to: to,
+                                   subject: subject,
+                                   body: body,
+                                   content_type: content_type,
+                                   email_sent: email_sent )
+    end
+
     def filter_out( curation_concern )
       filter_exclude.each do |filter|
         return true if filter.include?( curation_concern: curation_concern, task: self )
@@ -514,10 +552,18 @@ module Deepblue
       return rv
     end
 
+    def is_csv_output?
+      'CSV' == @output_format
+    end
+
     def is_date?( value )
       return true if value.is_a? Date
       return true if value.is_a? DateTime
       return false
+    end
+
+    def is_html_output?
+      'html' == @output_format
     end
 
     def load_report_definitions
@@ -592,6 +638,45 @@ module Deepblue
     def resolve_report_method( curation_concern:, attribute: )
       raise unless respond_to? attribute.to_s
       public_send( attribute.to_s, { curation_concern: curation_concern, attribute: attribute } )
+    end
+
+    def row_html( table, row, cell_tag: 'td' )
+      table << "<tr>"
+      row_out = []
+      row.each do |cell|
+        row_out << "<#{cell_tag}>#{cell_html(cell)}</#{cell_tag}>"
+      end
+      table << row_out.join('')
+      table << "</tr>"
+    end
+
+    def row_html_puts( out, row, cell_tag: 'td' )
+      out.puts "<tr>"
+      row.each do |cell|
+        out.write "<#{cell_tag}>#{cell_html(cell)}</#{cell_tag}>"
+      end
+      out.puts
+      out.puts "</tr>"
+    end
+
+    def row_csv_header
+      header = []
+      fields.each do |attribute,value|
+        next if attribute.to_s.start_with? '.'
+        header << value
+      end
+      return header
+    end
+
+    def row_csv_data( curation_concern )
+      row = []
+      fields.each do |attribute,_value|
+        next if attribute.to_s.start_with? '.'
+        value = curation_concern_attribute( curation_concern: curation_concern, attribute: attribute )
+        value = curation_concern_format( attribute: attribute, value: value )
+        row << value
+      end
+      return row
     end
 
     def update_output_file_name
@@ -675,7 +760,7 @@ module Deepblue
       @output_file = output_file + ".html"
       File.open( output_file, "w" ) do |out|
         out.puts "<table>"
-        row_puts( out, row_csv_header, cell_tag: 'th' )
+        row_html_puts( out, row_csv_header, cell_tag: 'th' )
         curation_concerns.each do |curation_concern|
           @current_child = nil
           @current_child_index = 0
@@ -686,46 +771,17 @@ module Deepblue
               file_sets.each_with_index do |fs,index|
                 @current_child = fs
                 @current_child_index = index + 1
-                row_puts( out, row_csv_data( curation_concern ) )
+                row_html_puts( out, row_csv_data( curation_concern ) )
               end
             else
-              row_puts( out, row_csv_data( curation_concern ) )
+              row_html_puts( out, row_csv_data( curation_concern ) )
             end
           else
-            row_puts( out, row_csv_data( curation_concern ) )
+            row_html_puts( out, row_csv_data( curation_concern ) )
           end
         end
         out.puts "</table>"
       end
-    end
-
-    def row_puts( out, row, cell_tag: 'td' )
-      out.puts "<tr>"
-      row.each do |e|
-        out.write "<#{cell_tag}>#{e}</#{cell_tag}>"
-      end
-      out.puts
-      out.puts "</tr>"
-    end
-
-    def row_csv_header
-      header = []
-      fields.each do |attribute,value|
-        next if attribute.to_s.start_with? '.'
-        header << value
-      end
-      return header
-    end
-
-    def row_csv_data( curation_concern )
-      row = []
-      fields.each do |attribute,_value|
-        next if attribute.to_s.start_with? '.'
-        value = curation_concern_attribute( curation_concern: curation_concern, attribute: attribute )
-        value = curation_concern_format( attribute: attribute, value: value )
-        row << value
-      end
-      return row
     end
 
   end
