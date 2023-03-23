@@ -15,7 +15,10 @@ module Hyrax
       attr_accessor :contact_form_valid
       attr_accessor :create_timestamp
       attr_accessor :email_passthrough
+      attr_accessor :email_passthrough_entered
       attr_accessor :email_passthrough_re
+      attr_accessor :email_passthrough_re_matched
+      attr_accessor :email_passthrough_test
       attr_accessor :ngr_details
       attr_accessor :ngr_humanity_details
       attr_accessor :ngr_is_human
@@ -37,7 +40,10 @@ module Hyrax
         @contact_form_valid = nil
         @create_timestamp = nil
         @email_passthrough = nil
+        @email_passthrough_entered = nil
         @email_passthrough_re = nil
+        @email_passthrough_re_matched = nil
+        @email_passthrough_test = nil
         @ngr_details = false
         @ngr_humanity_details = nil
         @ngr_is_human = nil # assume this is true and allow google recaptcha to set it to false as necessary
@@ -69,7 +75,10 @@ module Hyrax
                contact_form_valid: contact_form_valid,
                create_timestamp: create_timestamp,
                email_passthrough: email_passthrough,
+               email_passthrough_entered: email_passthrough_entered,
                email_passthrough_re: email_passthrough_re,
+               email_passthrough_re_matched: email_passthrough_re_matched,
+               email_passthrough_test: email_passthrough_test,
                ngr_enabled: ::Hyrax::ContactFormController.ngr_enabled,
                ngr_humanity_details: ngr_humanity_details,
                ngr_is_human: ngr_is_human,
@@ -573,6 +582,7 @@ module Hyrax
     def email_passthrough?
       debug_verbose = contact_form_controller_debug_verbose
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ] if debug_verbose
+      status.email_passthrough_entered = true
       return false unless contact_form_email_passthrough_enabled
       msg_handler.bold_debug [ msg_handler.here,
                                msg_handler.called_from,
@@ -583,8 +593,12 @@ module Hyrax
       return false unless status.spam_status_unknown
       email = @contact_form.email
       status.contact_form_email = "'#{email}'"
+      status.email_passthrough_test = "'#{email}'"
       status.email_passthrough_re = contact_form_email_passthrough_re.to_s
-      return false unless email =~ contact_form_email_passthrough_re
+      matched = email =~ contact_form_email_passthrough_re
+      status.email_passthrough_re_matched = matched
+      return false unless matched
+      # return false unless email =~ contact_form_email_passthrough_re
       msg_handler.bold_debug [ msg_handler.here,
                                msg_handler.called_from,
                                "email #{email} matched #{contact_form_email_passthrough_re}",
