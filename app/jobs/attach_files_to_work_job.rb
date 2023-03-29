@@ -416,6 +416,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                     work_file_set_count: work.file_set_ids.count,
                                     asynchronous: attach_files_to_work_upload_files_asynchronously)
       file_set = FileSet.create
+      file_set.ingest_begin( called_from: 'AttachFilesToWorkJob.upload_file' )
       actor = Hyrax::Actors::FileSetActor.new( file_set, user )
       actor.file_set.permissions_attributes = work_permissions
       perform_create_metadata( actor: actor, metadata: metadata )

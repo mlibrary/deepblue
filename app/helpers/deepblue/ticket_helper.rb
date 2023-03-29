@@ -249,9 +249,10 @@ module Deepblue
                                "" ] if msg_handler.present? && msg_handler.debug_verbose
       curation_concern = ensure_not_solr_document curation_concern
       return if test_mode
-      curation_concern.date_modified = DateTime.now
+      # curation_concern.date_modified = DateTime.now
       curation_concern.ticket = update_ticket
-      curation_concern.save!
+      # curation_concern.save!
+      curation_concern.metadata_touch( validate: true )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",

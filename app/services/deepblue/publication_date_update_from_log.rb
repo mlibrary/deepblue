@@ -38,13 +38,15 @@ module Deepblue
           if work.date_published.blank?
             puts "#{work.id}: setting date_published to #{date}" if verbose
             work.date_published = date
-            work.date_modified = DateTime.now
-            work.save!
+            # work.date_modified = DateTime.now
+            # work.save!
+            work.metadata_touch( auto_save: true )
           elsif work.date_published < date
             puts "#{work.id}: updating date_published from #{work.date_published} to #{date}" if verbose
             work.date_published = date
-            work.date_modified = DateTime.now
-            work.save!
+            # work.date_modified = DateTime.now
+            # work.save!
+            work.metadata_touch( auto_save: true )
           else
             puts "#{work.id}: skipping old date_published" if verbose
           end

@@ -87,11 +87,15 @@ module Hyrax
                                                "file_name=#{file_name}",
                                                "" ] if create_with_remove_files_ordered_members_actor_debug_verbose
         ::FileSet.new(import_url: uri.to_s, label: file_name) do |fs|
+          fs.save! # force the creation of the file set id
+          fs.ingest_begin( called_from: 'CreateWithRemoteFilesOrderedMembersActor.create_file_from_url' )
           actor = file_set_actor_class.new(fs, env.user)
           actor.create_metadata(visibility: env.curation_concern.visibility)
           actor.attach_to_work(env.curation_concern)
           fs.save!
           ordered_members << fs
+          fs.ingest_attach( called_from: 'CreateWithRemoteFilesOrderedMembersActor.create_file_from_url',
+                            parent_id: env.curation_concern.id )
           if uri.scheme == 'file'
             # Turn any %20 into spaces.
             file_path = CGI.unescape(uri.path)

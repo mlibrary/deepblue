@@ -33,6 +33,8 @@ module Hyrax
           work.ordered_members = ordered_members
           work.save
           ordered_members.each do |file_set|
+            file_set.ingest_attach( called_from: 'OrderedMembersActor.attach_ordered_members_to_work',
+                                    parent_id: work.id ) if file_set.respond_to? :ingest_attach
             Hyrax.config.callback.run(:after_create_fileset, file_set, user, warn: false)
           end
         end

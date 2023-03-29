@@ -115,6 +115,8 @@ module Hyrax
                                                  "import_url=#{import_url}",
                                                  "" ] if create_with_remove_files_actor_debug_verbose
           ::FileSet.new(import_url: import_url, label: file_name) do |fs|
+            fs.save! # force the creation of the file set id
+            fs.ingest_begin( called_from: 'CreateWithRemoteFilesActor.create_file_from_url_through_active_fedora' )
             # actor = Hyrax::Actors::FileSetActor.new(fs, env.user)
             actor = file_set_actor_class.new(fs, env.user)
             actor.create_metadata(visibility: env.curation_concern.visibility)
@@ -145,7 +147,13 @@ module Hyrax
                                                  "uri=#{uri}",
                                                  "import_url=#{import_url}",
                                                  "" ] if create_with_remove_files_actor_debug_verbose
-          fs = Hyrax.persister.save(resource: Hyrax::FileSet.new(import_url: import_url, label: file_name))
+          fs = Hyrax::FileSet.new(import_url: import_url, label: file_name) do |fs|
+            if fs.respond_to? :ingest_begin
+              fs.save! # force the creation of the file set id
+              fs.ingest_begin( called_from: 'CreateWithRemoteFilesActor.create_file_from_url_through_valkyrie' )
+            end
+          end
+          fs = Hyrax.persister.save( resource: fs )
           actor = Hyrax::Actors::FileSetActor.new(fs, env.user, use_valkyrie: true)
           actor.create_metadata(visibility: env.curation_concern.visibility)
           actor.attach_to_work(env.curation_concern)

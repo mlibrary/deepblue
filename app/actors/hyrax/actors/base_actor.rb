@@ -72,7 +72,7 @@ module Hyrax
         end
 
         def apply_deposit_date(env)
-          env.curation_concern.date_uploaded = TimeService.time_in_utc
+          env.curation_concern.date_uploaded = ::Hyrax::TimeService.time_in_utc
         end
 
         def save(env, use_valkyrie: false)
@@ -94,7 +94,7 @@ module Hyrax
 
         def apply_save_data_to_curation_concern(env)
           env.curation_concern.attributes = clean_attributes(env.attributes)
-          env.curation_concern.date_modified = TimeService.time_in_utc
+          env.curation_concern.date_modified = ::Hyrax::TimeService.time_in_utc
         end
 
         # Cast any singular values from the form to multiple values for persistence

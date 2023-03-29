@@ -73,13 +73,10 @@ module Deepblue
                                              "Settings.datacite.active=#{Settings.datacite.active}",
                                              "" ] if doi_behavior_debug_verbose
 
-      ::Deepblue::LoggingHelper.bold_debug [ "","","", ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "exiting",
-                                             "" ]
-
-
-
+      # ::Deepblue::LoggingHelper.bold_debug [ "","","", ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "exiting",
+      #                                        "" ] if true
       # return false # TODO: disabled
       return false unless Settings.datacite.active
       return false if doi_pending?

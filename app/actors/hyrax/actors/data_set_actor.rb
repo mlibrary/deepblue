@@ -47,7 +47,7 @@ module Hyrax
           return false unless valid_save_data( env )
         end
         env.curation_concern.attributes = clean_attrs
-        env.curation_concern.date_modified = TimeService.time_in_utc
+        env.curation_concern.date_modified = ::Hyrax::TimeService.time_in_utc
         return true
       end
 

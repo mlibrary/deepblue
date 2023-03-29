@@ -8,6 +8,7 @@ class FileSet < ActiveFedora::Base
   include ::Hyrax::FileSetBehavior
   # include ::Hyrax::Works::FileSetBehavior # hyrax v3 update
   include ::Deepblue::FileSetBehavior
+  include ::Deepblue::IngestBehavior
   include ::Deepblue::MetadataBehavior
   include ::Deepblue::ProvenanceBehavior
   include ::Deepblue::DoiBehavior

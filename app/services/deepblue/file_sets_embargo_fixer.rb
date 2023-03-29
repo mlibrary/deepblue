@@ -25,6 +25,7 @@ module Deepblue
 
     def fix_include?( curation_concern: )
       return false unless curation_concern.parent.present?
+      return false if curation_concern.ingesting?
       return super( curation_concern: curation_concern )
     end
 
@@ -32,8 +33,9 @@ module Deepblue
       parent = curation_concern.parent
       if curation_concern.embargo.present? && parent.embargo.blank?
         curation_concern.embargo = nil
-        curation_concern.date_modified = DateTime.now
-        curation_concern.save!( validate: false )
+        # curation_concern.date_modified = DateTime.now
+        # curation_concern.save!( validate: false )
+        curation_concern.metadata_touch
         add_id_fixed curation_concern.id
         msg_verbose "FileSet #{curation_concern.id} parent work #{parent.id} updating embargo."
       end

@@ -356,6 +356,9 @@ module Deepblue
     end
 
     def provenance_create( current_user:, event_note: '' )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if provenance_behavior_debug_verbose
       attributes, ignore_blank_key_values = attributes_for_provenance_create
       provenance_log_event( attributes: attributes,
                             current_user: current_user,
@@ -396,17 +399,26 @@ module Deepblue
     end
 
     def provenance_embargo( current_user:, event_note: '', **embargo_values )
-      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-      #                                        ::Deepblue::LoggingHelper.called_from,
-      #                                        "embargo_values=#{embargo_values}",
-      #                                        "" ] if provenance_behavior_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "embargo_values=#{embargo_values.pretty_inspect}",
+                                             "" ] if provenance_behavior_debug_verbose
       attributes, ignore_blank_key_values = attributes_for_provenance_embargo
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "ignore_blank_key_values=#{ignore_blank_key_values}",
+                                             "attributes=#{attributes.pretty_inspect}",
+                                             "" ] if provenance_behavior_debug_verbose
       prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes,
                                                                   current_user: current_user,
                                                                   event: EVENT_EMBARGO,
                                                                   event_note: event_note,
                                                                   ignore_blank_key_values: ignore_blank_key_values,
                                                                   **embargo_values )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "prov_key_values=#{prov_key_values.pretty_inspect}",
+                                             "" ] if provenance_behavior_debug_verbose
       provenance_log_event( attributes: attributes,
                             current_user: current_user,
                             event: EVENT_EMBARGO,
@@ -490,6 +502,10 @@ module Deepblue
                            ingester:,
                            ingest_timestamp:,
                            **added_prov_key_values )
+
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if provenance_behavior_debug_verbose
       event = EVENT_INGEST
       attributes, ignore_blank_key_values = attributes_for_provenance_ingest
       added_prov_key_values = { calling_class: calling_class,

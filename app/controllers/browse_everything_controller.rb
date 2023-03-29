@@ -17,9 +17,9 @@ class BrowseEverythingController < ApplicationController
   protect_from_forgery with: :exception
 
   before_action do
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "" ] if true
+    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                        ::Deepblue::LoggingHelper.called_from,
+    #                                        "" ] if true
   end
 
   after_action do

@@ -197,6 +197,7 @@ module Integrator
           @current_user = User.batch_user unless @current_user.present?
           actor = file_set_actor.new(file_set, @current_user)
           actor.file_set.permissions_attributes = @object.permissions.map(&:to_hash)
+          actor.file_set.ingest_begin( called_from: 'WorksBehavior.create_file_set_with_attributes' ) if actor.file_set.respond_to? :ingest_begin
           # Add file
           if file_attributes.fetch('uploaded_file', nil)
             actor.create_content(file_attributes['uploaded_file'])
@@ -223,7 +224,7 @@ module Integrator
             attributes.except(:id, 'id')
           end
         end
-
+      be
         def file_set_actor
           ::Hyrax::Actors::FileSetActor
         end

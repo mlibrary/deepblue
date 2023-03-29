@@ -25,6 +25,7 @@ module Deepblue
 
     def fix_include?( curation_concern: )
       return false unless curation_concern.parent.blank?
+      return false if curation_concern.ingesting?
       return false unless lost_and_found_work.present?
       return super( curation_concern: curation_concern )
     end

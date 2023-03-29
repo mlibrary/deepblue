@@ -104,6 +104,15 @@ commands:
           curl -H "Content-type:application/octet-stream" --data-binary @solr_config.zip "http://localhost:<< parameters.solr_port >>/solr/admin/configs?action=UPLOAD&name=solrconfig"
           curl -H 'Content-type: application/json' http://localhost:<< parameters.solr_port >>/api/collections/ -d '{create: {name: << parameters.core_name >>, config: solrconfig, numShards: 1}}'
         name: Load config into solr
+  migrate_database:
+    description: Migrate the database
+    steps:
+    - run:
+        command: |
+          bundle exec rake db:drop
+          bundle exec rake db:create RAILS_ENV=test
+          bundle exec rake db:migrate RAILS_ENV=test
+        name: Migrate database
   #  precompile_assets:
   #    description: Precompile the assets and create soft link public directory.
   #    steps:
@@ -252,6 +261,7 @@ jobs:
           bundler_version: << parameters.bundler_version >>
           cache_version: '{{ checksum "./.circleci/.force_rebuild" }}'
           project: deepblue
+      - migrate_database
       # - precompile_assets
       - parallel_rspec
 

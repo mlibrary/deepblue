@@ -33,8 +33,9 @@ module Deepblue
       notes = Array( self.curation_notes_admin )
       notes << note
       self.curation_notes_admin = notes
-      self.date_modified = DateTime.now if persist # touch it so it will save updated attributes
-      save! if persist
+      # self.date_modified = DateTime.now if persist # touch it so it will save updated attributes
+      # save! if persist
+      metadata_touch( auto_save: true, validate: true ) if persist
     end
 
     def add_curation_note_user( note: )
@@ -43,10 +44,11 @@ module Deepblue
                                              "self.curation_notes_user=#{self.curation_notes_user}",
                                              "note=#{note}",
                                              "" ] if metadata_behavior_debug_verbose
-      self.date_modified = DateTime.now # touch it so it will save updated attributes
+      # self.date_modified = DateTime.now # touch it so it will save updated attributes
+      self.metadata_touch( auto_save: false )
       notes = Array( self.curation_notes_user )
       self.curation_notes_user = notes << note
-      save!
+      metadata_touch
     end
 
     def curation_notes_include?( notes:, search_value: )
@@ -358,6 +360,17 @@ module Deepblue
       else
         visibility
       end
+    end
+
+    def metadata_touch( auto_save: true, validate: false )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "auto_save=#{auto_save}",
+                                             "validate=#{validate}",
+                                             "" ] if metadata_behavior_debug_verbose
+      self.date_modified = ::Hyrax::TimeService.time_in_utc
+      self.save!( validate: validate ) if auto_save
     end
 
   end

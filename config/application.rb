@@ -79,6 +79,8 @@ module DeepBlueDocs
     config.hydra_derivatives_processors_image_debug_verbose    = false
     # config.hydra_derivatives_runner_debug_verbose = false # using this causes an error in spec tests
     config.hydra_works_derivatives_debug_verbose               = false
+    config.ingest_behavior_debug_verbose                       = false
+    config.ingest_status_debug_verbose                         = false
     # config.ingest_content_service_debug_verbose              = false
     # config.ingest_integration_service_setup_debug_verbose    = false
     # config.interpolation_helper_debug_verbose = false -- see config/integration/work_view_content.rb
