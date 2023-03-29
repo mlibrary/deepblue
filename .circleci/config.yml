@@ -108,11 +108,11 @@ commands:
     description: Migrate the database
     steps:
     - run:
-      command: |
-        bundle exec rake db:drop
-        bundle exec rake db:create RAILS_ENV=test
-        bundle exec rake db:migrate RAILS_ENV=test
-      name: Migrate database
+        command: |
+          bundle exec rake db:drop
+          bundle exec rake db:create RAILS_ENV=test
+          bundle exec rake db:migrate RAILS_ENV=test
+        name: Migrate database
   #  precompile_assets:
   #    description: Precompile the assets and create soft link public directory.
   #    steps:
