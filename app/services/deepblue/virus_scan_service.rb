@@ -32,7 +32,8 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if virus_scan_service_debug_verbose
       # Hydra::Works.default_system_virus_scanner.name
-      Hyrax::VirusCheckerService.default_system_virus_scanner.name
+      return Hyrax::VirusCheckerService.default_system_virus_scanner.name if Hyrax::VirusCheckerService.default_system_virus_scanner.present?
+      return "NO_VIRUS_SERVICE"
     end
 
     def virus_scan_skipped?( scan_result: )

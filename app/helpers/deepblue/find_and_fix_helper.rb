@@ -73,8 +73,9 @@ WHERE { }
                                                  sparql_update,
                                                  "Content-Type" => "application/sparql-update" )
       msg_handler.msg_verbose "Updated file size returned status #{rv.status}"
-      file_set.date_modified = DateTime.now
-      file_set.save!( validate: false )
+      # file_set.date_modified = DateTime.now
+      # file_set.save!( validate: false )
+      file_set.metadata_touch( validate: false )
       buf = []
       buf << file_set.to_solr
       ActiveFedora::SolrService.add( buf, softCommit: true )

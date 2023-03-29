@@ -32,8 +32,9 @@ module FindAndFixOverFileSetsBehavior
       end
       if file_set.visibility != curation_concern.visibility
         file_set.visibility = curation_concern.visibility
-        file_set.date_modified = DateTime.now
-        file_set.save!( validate: false )
+        # file_set.date_modified = DateTime.now
+        # file_set.save!( validate: false )
+        file_set.metadata_touch( validate: false )
         ids_fixed << file_set.id
         msg_handler.msg_verbose "FileSet #{file_set.id} parent work #{curation_concern.id} updating visibility."
       end

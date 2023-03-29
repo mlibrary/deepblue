@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 class WorkflowEventBehaviorCCMock
+  include ::Deepblue::MetadataBehavior
   include ::Deepblue::WorkflowEventBehavior
 
   attr_accessor :date_modified, :id
@@ -23,7 +24,7 @@ class WorkflowEventBehaviorCCMock
   def provenance_publish( current_user:, event_note:, message: ); end
   def provenance_unembargo( current_user:, event_note: ); end
   def provenance_unpublish( current_user:, event_note: ); end
-  def save!; end
+  def save!( validate: false ); end
 
 end
 
@@ -172,8 +173,9 @@ RSpec.describe ::Deepblue::WorkflowEventBehavior do
                                                                                 event_note: event_note,
                                                                                 message: message)
             expect(curation_concern).to receive(:date_published=).with(any_args)
+            expect(curation_concern).to receive(:metadata_touch).with(any_args).and_call_original
             expect(curation_concern).to receive(:date_modified=).with(any_args)
-            expect(curation_concern).to receive(:save!).with(any_args)
+            expect(curation_concern).to receive(:save!).with(validate: true)
           end
           it { curation_concern.workflow_publish(current_user: user, event_note: event_note, message: message ) }
         end

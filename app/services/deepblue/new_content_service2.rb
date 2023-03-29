@@ -223,6 +223,7 @@ module Deepblue
         # TODO: probably should lock the work here.
         work.reload
         work.ordered_members << file_set
+        file_set.ingest_attach( called_from: 'NewContentService2.add_file_set_to_work', parent_id: work.id )
         log_provenance_add_child( parent: work, child: file_set )
         work.total_file_size_add_file_set file_set
         work.representative = file_set if work.representative_id.blank?
@@ -2146,9 +2147,9 @@ module Deepblue
 
       def new_file_set( id: )
         if id.present?
-          FileSet.new( id: id )
+          FileSet.new( id: id ) { |fs| fs.ingest_begin( called_from: 'NewContentService2.new_file_set' ) }
         else
-          FileSet.new
+          FileSet.new { |fs| fs.ingest_begin( called_from: 'NewContentService2.new_file_set' ) }
         end
       end
 
@@ -2425,6 +2426,7 @@ module Deepblue
         depositor = build_depositor( hash: file_set_hash )
         update_attr_value( updates, file_set, attr_name: :depositor, value: depositor )
         update_attr( updates, file_set, file_set_hash, attr_name: :description_file_set )
+        update_attr( updates, file_set, file_set_hash, attr_name: :ingest_script )
         update_edit_users( updates, file_set, file_set_hash )
         update_read_users( updates, file_set, file_set_hash )
         update_attr( updates, file_set, file_set_hash, attr_name: :label, multi: false )

@@ -26,6 +26,7 @@ module Deepblue
 
     def fix_include?( curation_concern: )
       return false unless solr_file_size_mismatch?( file_set: curation_concern )
+      return false if curation_concern.ingesting?
       return super( curation_concern: curation_concern )
     end
 

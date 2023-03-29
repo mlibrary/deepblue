@@ -34,6 +34,14 @@ module ActiveFedora
     # @option options [Boolean] :update_index (true) set false to skip indexing
     # @return [Boolean] true if save was successful, otherwise false
     def save(*options)
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "self.class.name=#{self.class.name}",
+      #                                        "" ] if false
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "self.class.name=#{self.class.name}",
+      #                                        "" ] + caller_locations[0..10] if true && 'FileSet' == self.class.name
       create_or_update(*options)
     rescue Exception => e
       puts "Exception: #{e}"
@@ -41,6 +49,14 @@ module ActiveFedora
     end
 
     def save!(*args)
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "self.class.name=#{self.class.name}",
+      #                                        "" ] if false
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "self.class.name=#{self.class.name}",
+      #                                        "" ] + caller_locations[0..10] if true && 'FileSet' == self.class.name
       create_or_update(*args)
     end
 

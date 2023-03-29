@@ -16,14 +16,13 @@ module Deepblue
       LoggingCallback.process_event_curation_concern( event_name: :after_create_concern,
                                                       curation_concern: curation_concern,
                                                       user: user )
-      return unless curation_concern.respond_to? :provenance_create
-      curation_concern.provenance_create( current_user: user, event_note: 'after_create_concern' )
+      curation_concern.provenance_create( current_user: user, event_note: 'after_create_concern' ) if curation_concern.respond_to? :provenance_create
     end
 
     def self.after_create_fileset_callback( file_set:, user: )
       LoggingCallback.process_event_file_set( event_name: :after_create_fileset, file_set: file_set, user: user )
-      return unless file_set.respond_to? :provenance_create
-      file_set.provenance_create( current_user: user, event_note: 'after_create_fileset' )
+      file_set.ingest_end( called_from: 'EventHelper.after_create_fileset_callback' ) if file_set.respond_to? :ingest_end
+      file_set.provenance_create( current_user: user, event_note: 'after_create_fileset' ) if file_set.respond_to? :provenance_create
     end
 
     def self.after_destroy_callback( id:, user: )

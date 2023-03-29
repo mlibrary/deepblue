@@ -45,7 +45,8 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ], bold_puts: bold_puts if debug_verbose
       path = original_file.is_a?(String) ? original_file : local_path_for_file(original_file)
-      system_virus_scanner.infected?(path)
+      return system_virus_scanner.infected?(path) if system_virus_scanner.respond_to? :infected?
+      return false
     end
 
     private

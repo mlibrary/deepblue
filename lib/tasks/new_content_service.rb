@@ -223,6 +223,7 @@ module Deepblue
         # TODO: probably should lock the work here.
         work.reload
         work.ordered_members << file_set
+        file_set.ingest_attach( called_from: 'NewContentService.add_file_set_to_work', parent_id: work.id )
         log_provenance_add_child( parent: work, child: file_set )
         work.total_file_size_add_file_set file_set
         work.representative = file_set if work.representative_id.blank?
@@ -2134,13 +2135,13 @@ module Deepblue
         end
       end
 
-      def new_file_set( id: )
-        if id.present?
-          FileSet.new( id: id )
-        else
-          FileSet.new
-        end
+    def new_file_set( id: )
+      if id.present?
+        FileSet.new( id: id ) { |fs| fs.ingest_begin( called_from: 'NewContentService.new_file_set' ) }
+      else
+        FileSet.new { |fs| fs.ingest_begin( called_from: 'NewContentService.new_file_set' ) }
       end
+    end
 
       def report( first_label:, first_id:, measurements:, total: nil )
         return if measurements.blank?

@@ -361,8 +361,16 @@ module Hyrax
       target_a << f
       target_work.ordered_members = target_a
       target_work.save(validate: false)
+      target_work.provenance_child_add( current_user: current_user.email,
+                                        child_id: f.id,
+                                        child_title: f.title,
+                                        event_note: 'FileSetsController' )
       source_work.ordered_members = source_a
       source_work.save(validate: false)
+      target_work.provenance_child_remove( current_user: current_user.email,
+                                           child_id: f.id,
+                                           child_title: f.title,
+                                           event_note: 'FileSetsController' )
       after_update_response
     end
 

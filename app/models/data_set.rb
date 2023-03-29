@@ -103,6 +103,12 @@ class DataSet < ActiveFedora::Base
       total_file_size_human_readable
       visibility
       workflow_state
+      embargo_release_date
+      visibility_during_embargo
+      visibility_after_embargo
+      lease_expiration_date
+      visibility_during_lease
+      visibility_after_lease
     ]
   end
 
@@ -146,6 +152,12 @@ class DataSet < ActiveFedora::Base
       total_file_size_human_readable
       visibility
       workflow_state
+      embargo_release_date
+      visibility_during_embargo
+      visibility_after_embargo
+      lease_expiration_date
+      visibility_during_lease
+      visibility_after_lease
     ].freeze
   end
 
@@ -283,6 +295,12 @@ class DataSet < ActiveFedora::Base
       total_file_size_human_readable
       visibility
       workflow_state
+      embargo_release_date
+      visibility_during_embargo
+      visibility_after_embargo
+      lease_expiration_date
+      visibility_during_lease
+      visibility_after_lease
     ]
   end
 
@@ -476,6 +494,9 @@ class DataSet < ActiveFedora::Base
                                            "" ] if data_set_debug_verbose
     value = nil
     handled = case attribute.to_s
+              when 'data_set_url'
+                value = data_set_url
+                true
               when 'file_set_ids'
                 value = file_set_ids
                 true
@@ -490,6 +511,27 @@ class DataSet < ActiveFedora::Base
                 true
               when 'visibility'
                 value = visibility
+                true
+              when 'workflow_state'
+                value = workflow_state
+                true
+              when 'embargo_release_date'
+                value = embargo_release_date
+                true
+              when 'visibility_during_embargo'
+                value = visibility_during_embargo
+                true
+              when 'visibility_after_embargo'
+                value = visibility_after_embargo
+                true
+              when 'lease_expiration_date'
+                value = lease_expiration_date
+                true
+              when 'visibility_during_lease'
+                value = visibility_during_lease
+                true
+              when 'visibility_after_lease'
+                value = visibility_after_lease
                 true
               else
                 false
@@ -521,9 +563,24 @@ class DataSet < ActiveFedora::Base
               when 'total_file_size_human_readable'
                 value = total_file_size_human_readable
                 true
-              # when 'visibility'
-              #   value = visibility
-              #   true
+              when 'embargo_release_date'
+                value = embargo_release_date
+                true
+              when 'visibility_during_embargo'
+                value = visibility_during_embargo
+                true
+              when 'visibility_after_embargo'
+                value = visibility_after_embargo
+                true
+              when 'lease_expiration_date'
+                value = lease_expiration_date
+                true
+              when 'visibility_during_lease'
+                value = visibility_during_lease
+                true
+              when 'visibility_after_lease'
+                value = visibility_after_lease
+                true
               else
                 false
               end

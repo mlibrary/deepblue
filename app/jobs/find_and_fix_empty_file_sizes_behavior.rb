@@ -117,8 +117,9 @@ WHERE { }
       fs = FileSet.find fs_id
       batch = []
       unless test_mode
-        fs.date_modified = DateTime.now
-        fs.save!( validate: false )
+        # fs.date_modified = DateTime.now
+        # fs.save!( validate: false )
+        fs.metadata_touch( validate: false )
         batch << fs.to_solr
         if batch.size >= 5
           Hyrax::SolrService.add(batch, softCommit: true)

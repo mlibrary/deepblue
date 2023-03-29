@@ -139,7 +139,7 @@ module Hyrax
                                             prior_revision_id: prior_revision_id,
                                             revision_id: '' )
         file_set.virus_scan_status_reset( current_user: user, save: false )
-        file_set.date_modified = TimeService.time_in_utc
+        file_set.date_modified = ::Hyrax::TimeService.time_in_utc
         file_set.save
         file_set.reload
         IngestJob.perform_later(wrapper!(file: file, relation: relation), notification: true)
@@ -170,7 +170,7 @@ module Hyrax
                                                "file_set_params=#{file_set_params}",
                                                "" ] if file_set_actor_debug_verbose
         file_set.depositor = depositor_id(user)
-        now = TimeService.time_in_utc
+        now = ::Hyrax::TimeService.time_in_utc
         file_set.date_uploaded = now
         file_set.date_modified = now
         file_set.creator = [user.user_key]
@@ -246,6 +246,7 @@ module Hyrax
         work.reload unless work.new_record?
         file_set.visibility = work.visibility unless assign_visibility?(file_set_params)
         work.ordered_members << file_set
+        file_set.ingest_attach( called_from: 'FileSetActor.attach_to_af_work', parent_id: work.id )
         work.representative = file_set if work.representative_id.blank?
         work.thumbnail = file_set if work.thumbnail_id.blank?
         # Save the work so the association between the work and the file_set is persisted (head_id)

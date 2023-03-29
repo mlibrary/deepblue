@@ -86,9 +86,10 @@ module Deepblue
         #                                        "self.date_modified=#{self.date_modified}",
         #                                        "self.date_published=#{self.date_published}",
         #                                        "" ] if workflow_event_behavior_debug_verbose
-        self.date_published = Hyrax::TimeService.time_in_utc
-        self.date_modified = DateTime.now
-        self.save!
+        self.date_published = ::Hyrax::TimeService.time_in_utc
+        # self.date_modified = DateTime.now
+        # self.save!
+        self.metadata_touch( validate: true ) if respond_to? :metadata_touch
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
         #                                        ::Deepblue::LoggingHelper.called_from,
         #                                        "self.date_modified=#{self.date_modified}",
