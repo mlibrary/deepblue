@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_03_28_134906) do
+ActiveRecord::Schema.define(version: 2023_03_30_125052) do
 
   create_table "ahoy_condensed_events", force: :cascade do |t|
     t.string "name"
@@ -231,9 +231,9 @@ ActiveRecord::Schema.define(version: 2023_03_28_134906) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["cc_id"], name: "index_ingest_statuses_on_cc_id"
+    t.index ["cc_type"], name: "index_ingest_statuses_on_cc_type"
     t.index ["status"], name: "index_ingest_statuses_on_status"
     t.index ["status_date"], name: "index_ingest_statuses_on_status_date"
-    t.index [nil], name: "index_ingest_statuses_on_cc_model"
   end
 
   create_table "job_io_wrappers", force: :cascade do |t|
