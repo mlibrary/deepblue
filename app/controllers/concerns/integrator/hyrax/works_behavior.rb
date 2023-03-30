@@ -224,7 +224,7 @@ module Integrator
             attributes.except(:id, 'id')
           end
         end
-      be
+
         def file_set_actor
           ::Hyrax::Actors::FileSetActor
         end
