@@ -10,7 +10,7 @@ class CreateIngestStatuses < ActiveRecord::Migration[5.2]
       t.timestamps null: false
     end
     add_index :ingest_statuses, :cc_id
-    add_index :ingest_statuses, :cc_model
+    add_index :ingest_statuses, :cc_type
     add_index :ingest_statuses, :status
     add_index :ingest_statuses, :status_date
   end
