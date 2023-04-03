@@ -311,7 +311,7 @@ module Deepblue
       # set doi to point to home page
       client.register_url( doi_url, "https://deepblue.lib.umich.edu/data/" ) # TODO: get this url from config
       # hide doi to move from "findable" to "registered"
-      doi_hide( doi_url )
+      client.doi_hide( doi_url )
     end
 
     def doi_hide_cc_and_register_provenance( curation_concern )
