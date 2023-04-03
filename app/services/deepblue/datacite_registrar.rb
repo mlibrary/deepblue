@@ -309,7 +309,7 @@ module Deepblue
                                              "" ] if debug_verbose
       doi_url = doi_for_register_url( curation_concern.doi )
       # set doi to point to home page
-      client.register_url( doi_url, "https://deepblue.lib.umich.edu/" ) # TODO: get this url from config
+      client.register_url( doi_url, "https://deepblue.lib.umich.edu/data/" ) # TODO: get this url from config
       # hide doi to move from "findable" to "registered"
       doi_hide( doi_url )
     end
