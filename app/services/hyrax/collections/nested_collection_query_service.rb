@@ -158,7 +158,7 @@ module Hyrax
         child_depth = child_nesting_depth(child: child, scope: scope)
         # begin monkey
         child_depth ||= 0
-        debug_verbose = true
+        debug_verbose = false
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "child_depth=#{child_depth}",
@@ -209,7 +209,7 @@ module Hyrax
         else
           descendent_depth = 0
         end
-        debug_verbose = true
+        debug_verbose = false
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "descendent_depth=#{descendent_depth}",

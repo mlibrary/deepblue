@@ -291,14 +291,14 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false if anonymous_show?=#{anonymous_show?}",
-                                             "false if parent.tombstone.present?=#{parent.tombstone.present?}",
+                                             "false if parent&.tombstone.present?=#{parent&.tombstone.present?}",
                                              "true current_ability.admin?=#{current_ability.admin?}",
                                              "true editor?=#{editor?}",
                                              "and pending_publication?=#{pending_publication?}",
                                              "" ] if ds_file_set_presenter_debug_verbose
 
       return false if anonymous_show?
-      return false if parent.tombstone.present?
+      return false if parent&.tombstone.present?
       return true if current_ability.admin?
       # return false if parent.doi.present? # this will allow the user to delete the file
       return true if editor? && pending_publication?
@@ -312,14 +312,14 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false unless doi_minting_enabled?=#{doi_minting_enabled?}",
                                              "false if anonymous_show?=#{anonymous_show?}",
-                                             "false if parent.tombstone.present?=#{parent.tombstone.present?}",
+                                             "false if parent&.tombstone.present?=#{parent&.tombstone.present?}",
                                              "true if doi_pending?=#{doi_pending?}",
                                              "true if doi_minted?=#{doi_minted?}",
                                              "current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
                                              "" ] if ds_file_set_presenter_debug_verbose
       return false unless doi_minting_enabled?
       return false if anonymous_show?
-      return false if parent.tombstone.present?
+      return false if parent&.tombstone.present?
       return false if doi_pending? || doi_minted?
       return true if current_ability.admin?
       current_ability.can?( :edit, id )
@@ -332,18 +332,18 @@ module Hyrax
     def can_view_file?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "false if parent.tombstone.present?=#{parent.tombstone.present?}",
+                                             "false if parent&.tombstone.present?=#{parent&.tombstone.present?}",
                                              "true if anonymous_show?=#{anonymous_show?}",
                                              "true if current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
                                              "true if published?=#{published?}",
-                                             "false if parent.embargoed?=#{parent.embargoed?}",
+                                             "false if parent&.embargoed?=#{parent&.embargoed?}",
                                              "else false",
                                              "" ] if ds_file_set_presenter_debug_verbose
-      return false if parent.tombstone.present?
+      return false if parent&.tombstone.present?
       return true if anonymous_show?
       return true if current_ability.can?( :edit, id )
       return true if published?
-      return false if parent.embargoed?
+      return false if parent&.embargoed?
       false
     end
 

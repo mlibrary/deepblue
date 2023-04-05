@@ -244,6 +244,10 @@ Rails.application.routes.draw do
     end
   end
 
+  get '/debug_log_dashboard/' => 'debug_log_dashboard#show'
+  post '/debug_log_dashboard/' => 'debug_log_dashboard#show'
+  get '/debug_log_dashboard_action/' => 'debug_log_dashboard#action'
+  post '/debug_log_dashboard_action/' => 'debug_log_dashboard#action'
   get '/contact_form_dashboard/' => 'contact_form_dashboard#show'
   post '/contact_form_dashboard/' => 'contact_form_dashboard#show'
   get '/contact_form_dashboard_action/' => 'contact_form_dashboard#action'

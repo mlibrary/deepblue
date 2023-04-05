@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "debug_logger"
 require "email_logger"
 require "provenance_logger"
 

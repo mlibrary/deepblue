@@ -112,12 +112,15 @@ module Deepblue
                                  "" ] if debug_verbose
         msg_handler.msg_verbose [ "fixer.class.name=#{fixer.class.name}",
                                   "#{prefix} id=#{curation_concern.id}" ]
-        begin
-          next unless fixer.fix_include?( curation_concern: curation_concern ) #, msg_handler: msg_handler )
-          fixer.fix( curation_concern: curation_concern ) #, msg_handler: msg_handler )
-        rescue Exception => e # rubocop:disable Lint/RescueException
-          msg_handler.msg_error "Error while processing #{fixer.class.name} - #{prefix} #{curation_concern.id}: #{e.message} at #{e.backtrace[0]}"
+        FindAndFixHelper.duration( label: "#{fixer.prefix}run duration is ", msg_handler: msg_handler ) do
+          begin
+            next unless fixer.fix_include?( curation_concern: curation_concern )
+            fixer.fix( curation_concern: curation_concern )
+          rescue Exception => e # rubocop:disable Lint/RescueException
+            msg_handler.msg_error "Error while processing #{fixer.class.name} - #{prefix} #{curation_concern.id}: #{e.message} at #{e.backtrace[0]}"
+          end
         end
+        msg_handler.msg "#{fixer.class.name} duration: #{dur.join(' ')}"
       end
     end
 

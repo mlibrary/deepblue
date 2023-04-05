@@ -1,0 +1,56 @@
+<% provide :page_header do %>
+  <h1><%= t("hyrax.dashboard.debug_log.title") %></h1>
+<% end %>
+
+<%= form_tag( main_app.debug_log_dashboard_path, method: 'post' ) do %>
+  <table style="width:40em;">
+    <tr>
+      <td><%= label_tag(:begin_date_label, 'Begin Date') %></td>
+      <td>
+        <%= date_field_tag( :begin_date, @presenter.begin_date.strftime("%Y-%m-%d"), class: 'datepicker form-control') %>
+      </td>
+      <td><%= label_tag(:end_date_label, 'End Date') %></td>
+      <td>
+        <%= date_field_tag( :end_date, @presenter.end_date.strftime("%Y-%m-%d"), class: 'datepicker form-control') %>
+      </td>
+      <td> <%= submit_tag( "Reload", class: 'btn btn-primary' ) %> </td>
+    </tr>
+  </table>
+<% end %>
+
+<h2 class="title-header"><%= t('hyrax.dashboard.debug_log.heading.log') %></h2>
+<div class='documentation-div'>
+  <% if @presenter.log_entries.present? %>
+    <div class="table-scroll--container provenance-log-container">
+      <table class="table table-striped provenance-log-entries">
+        <thead>
+        <tr>
+          <th class="log-timestamp"><%= t('.timestamp') %></th>
+          <th class="log-event"><%= t('.event') %></th>
+        </tr>
+        </thead>
+        <tbody>
+        <% @presenter.log_entries.each do |entry| %>
+          <% next if entry.blank? %>
+          <% p = @presenter.log_parse_entry( entry ) %>
+          <tr>
+            <% if p[:parse_error].present? %>
+              <td>Parse Error</td>
+              <td><%= p[:parse_error].message %></td>
+            <% else %>
+              <td class="log-timestamp"><%= p[:timestamp] %></td>
+              <td class="log-event"><%= p[:event] %></td>
+            <% end %>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td>
+              <%= raw @presenter.log_key_values_to_table( p[:raw_key_values], parse: true ) %>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>

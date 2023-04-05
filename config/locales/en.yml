@@ -48,6 +48,8 @@ en:
         send_email_disabled:                 "Disable Send Email"
       data_set:
         edit:                           "Edit"
+      debug_log:
+        akismet_enabled:                "Enable Akismet"
       email_management:
         reload_email_templates:         "Reload Email Templates"
       ingest:

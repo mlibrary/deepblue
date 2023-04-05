@@ -282,7 +282,12 @@ en:
         heading:
           actions:          "Actions"
           log:              "Log"
-        title:              "View Contact Form Log"
+        title:              "View Contact Form Log Dashboard"
+      debug_log:
+        heading:
+          actions:          "Actions"
+          log:              "Log"
+        title:              "Debug Log Dashboard"
       documentation:
         title:              "Manage Documentation"
       email:

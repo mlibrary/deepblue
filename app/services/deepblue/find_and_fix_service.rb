@@ -67,7 +67,7 @@ module Deepblue
         msg_handler.msg "Filter dates between #{filter_date.begin_date} and #{filter_date.end_date}."
       end
       fixer = FindAndFix.new( filter: filter_date, msg_handler: msg_handler )
-      fixer.run
+      FindAndFixHelper.duration( label: "Run duration: ", msg_handler: msg_handler ) { fixer.run }
     end
 
     def self.lost_and_found_work( msg_handler: nil )
@@ -110,7 +110,7 @@ module Deepblue
                                "msg_handler=#{msg_handler}",
                                "" ] if debug_verbose
       fixer = FindAndFix.new( id: id, msg_handler: msg_handler )
-      fixer.run
+      FindAndFixHelper.duration( label: "Run duration: ", msg_handler: msg_handler ) { fixer.run }
     end
 
   end

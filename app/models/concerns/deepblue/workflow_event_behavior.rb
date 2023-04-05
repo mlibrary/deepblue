@@ -2,15 +2,14 @@
 
 module Deepblue
 
-  # class WorkflowEventError < AbstractEventError
-  # end
-
   module WorkflowEventBehavior
 
     mattr_accessor :workflow_event_behavior_debug_verbose,
-                   default: Rails.configuration.workflow_event_behavior_debug_verbose
-    mattr_accessor :workflow_create_debug_verbose, default: false
-    mattr_accessor :workflow_update_after_debug_verbose, default: false
+                            default: Rails.configuration.workflow_event_behavior_debug_verbose
+    mattr_accessor :workflow_create_debug_verbose,
+                            default: Rails.configuration.workflow_create_debug_verbose
+    mattr_accessor :workflow_update_after_debug_verbose,
+                            default: Rails.configuration.workflow_update_after_debug_verbose
 
     def workflow_create( current_user:, event_note: "" )
       debug_verbose = workflow_event_behavior_debug_verbose || workflow_create_debug_verbose
@@ -155,6 +154,12 @@ module Deepblue
     end
 
     def workflow_update_after( current_user:, event_note: "", submit_for_review: false )
+      ::Deepblue::DebugLogHelper.log(class_name: self.class.name,
+                                     id: id,
+                                     event: :workflow_update_after,
+                                     event_note: event_note,
+                                     current_user: current_user,
+                                     submit_for_review: submit_for_review )
       debug_verbose = workflow_event_behavior_debug_verbose || workflow_update_after_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

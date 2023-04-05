@@ -6,6 +6,39 @@ module Deepblue
 
     mattr_accessor :find_and_fix_helper_debug_verbose, default: false
 
+    def self.duration( label: nil, msg_handler: nil, ignore_seconds: false, ignore_millis: true )
+      t0 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      yield
+      t1 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      dur = duration_millis_as_arr( (t1 - t0) * 1000, ignore_seconds: ignore_seconds, ignore_millis: ignore_millis )
+      if msg_handler.present?
+        label ||= 'Duration: '
+        msg_handler.msg "#{label}#{dur.join(' ')}"
+      else
+        return dur
+      end
+    end
+
+    def self.duration_millis_as_arr( millis, ignore_seconds: false, ignore_millis: false )
+      millis = millis.truncate
+      secs,  millis = millis.divmod(1000)
+      mins,  secs   = secs.divmod(60)
+      hours, mins   = mins.divmod(60)
+      days,  hours  = hours.divmod(24)
+      rv = []
+      loop do # just to use breaks
+        rv << "#{days} #{1 == days ? 'day' : 'days'}" if days > 0
+        rv << "#{hours} #{1 == hours ? 'hour' : 'hours'}" if hours > 0 || rv.present?
+        rv << "#{mins} #{1 == mins ? 'minute' : 'minutes'}" if mins > 0 || rv.present?
+        break if ignore_seconds
+        rv << "#{secs} #{1 == secs ? 'second' : 'seconds'}" if secs > 0 || rv.present?
+        break if ignore_millis
+        rv << "#{millis} #{1 == millis ? 'millisecond' : 'milliseconds'}" if millis > 0 || rv.present?
+        break # always break at the end
+      end
+      return rv
+    end
+
     def self.fix_file_sizes( id: nil, curation_concern: nil, msg_handler: )
       debug_verbose = msg_handler.debug_verbose || find_and_fix_helper_debug_verbose
       msg_handler.bold_debug [ msg_handler.here,
@@ -84,6 +117,16 @@ WHERE { }
       true
     end
 
+    def self.resolve_curation_concern( id: nil, curation_concern: nil )
+      return curation_concern if curation_concern.present?
+      ::PersistHelper.find id
+    end
+
+    def self.resolve_curation_concern_solr( id: nil, curation_concern: nil )
+      id = curation_concern.id if id.blank? && curation_concern.present?
+      SolrDocument.find id
+    end
+
     def self.solr_reindex_work_with_total_size_update( id: nil, curation_concern: nil, msg_handler: )
       debug_verbose = msg_handler.debug_verbose || find_and_fix_helper_debug_verbose
       msg_handler.bold_debug [ msg_handler.here,
@@ -103,16 +146,6 @@ WHERE { }
       batch << w.to_solr
       ActiveFedora::SolrService.add(batch, softCommit: true)
       ActiveFedora::SolrService.commit
-    end
-
-    def self.resolve_curation_concern( id: nil, curation_concern: nil )
-      return curation_concern if curation_concern.present?
-      ::PersistHelper.find id
-    end
-
-    def self.resolve_curation_concern_solr( id: nil, curation_concern: nil )
-      id = curation_concern.id if id.blank? && curation_concern.present?
-      SolrDocument.find id
     end
 
     def self.valid_file_sizes?( id: nil, curation_concern: nil, check_solr: true, msg_handler: )

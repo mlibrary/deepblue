@@ -447,6 +447,12 @@ module Deepblue
       # store the Save as Draft selection
       save_as_draft = params[:save_as_draft]
 
+      ::Deepblue::DebugLogHelper.log(class_name: self.class.name,
+                                     #id: id,
+                                     event: :create,
+                                     current_user: current_user,
+                                     save_as_draft: save_as_draft )
+
       # When you are using the save_as_draft option, you want to put the work in the Admin Set that is for
       # Drafts, otherwise want to put it in the DataSetAdmin Set. actor_enviroment will already have
       # the DataSetAdminSet set.
@@ -459,7 +465,15 @@ module Deepblue
                                              "draft_admin_set_id=#{draft_admin_set_id}",
                                              "env.attributes[:admin_set_id]='#{env.attributes[:admin_set_id]}'",
                                              "" ] if deepblue_works_controller_behavior_debug_verbose
-      env.attributes[:admin_set_id] = draft_admin_set_id if save_as_draft.eql? t('helpers.action.work.draft')
+      if save_as_draft.eql? t('helpers.action.work.draft')
+        env.attributes[:admin_set_id] = draft_admin_set_id
+        ::Deepblue::DebugLogHelper.log(class_name: self.class.name,
+                                       #id: id,
+                                       event: :create,
+                                       event_note: "setting admin set to draft",
+                                       current_user: current_user,
+                                       save_as_draft: save_as_draft )
+      end
       respond_to do |wants|
         wants.html do
           if actor.create( env )
@@ -979,6 +993,13 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              ::Deepblue::LoggingHelper.obj_class( 'actor.class', actor ),
                                              "" ] if deepblue_works_controller_behavior_debug_verbose
+
+      ::Deepblue::DebugLogHelper.log(class_name: self.class.name,
+                                     id: params[:id],
+                                     event: :update,
+                                     current_user: current_user,
+                                     save_as_draft: save_as_draft )
+
       return redirect_to my_works_path,
                          notice: I18n.t('hyrax.insufficent_privileges_for_action') unless can_edit_work?
       respond_to do |wants|

@@ -12,7 +12,7 @@ module Deepblue
     TICKET_JOB_STARTING = 'job starting' unless const_defined? :TICKET_JOB_STARTING
     TICKET_PENDING = 'pending' unless const_defined? :TICKET_PENDING
 
-    mattr_accessor :ticket_helper_debug_verbose, default: false
+    mattr_accessor :ticket_helper_debug_verbose, default: true
 
     def self.curation_notes_admin_link( prefix:, ticket_url: )
       return '' if ticket_url.blank?
@@ -42,6 +42,12 @@ module Deepblue
                                              "test_mode=#{test_mode}",
                                              "" ] if debug_verbose
       curation_concern ||= ::PersistHelper.find( cc_id )
+      ::Deepblue::DebugLogHelper.log(class_name: self.class.name,
+                                     id: curation_concern.id,
+                                     event: :new_ticket,
+                                     current_user: current_user,
+                                     force: force,
+                                     test_mode: test_mode )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
@@ -77,6 +83,11 @@ module Deepblue
                                               "" ] if debug_verbose
       return if cc_id.blank? && curation_concern.blank?
       curation_concern ||= ::PersistHelper.find( cc_id )
+      ::Deepblue::DebugLogHelper.log(class_name: self.class.name,
+                                     id: curation_concern.id,
+                                     event: :new_ticket_if_necessary,
+                                     current_user: current_user,
+                                     cc_ticket_present: curation_concern.ticket.present? )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
@@ -88,6 +99,11 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "ticket_from_curation_concern_notes_admin rv=#{rv}",
                                              "" ] if debug_verbose
+      ::Deepblue::DebugLogHelper.log(class_name: self.class.name,
+                                     id: curation_concern.id,
+                                     event: :new_ticket_if_necessary,
+                                     current_user: current_user,
+                                     cc_admin_notes_has_ticket: rv )
       if rv.present?
         update_curation_concern_ticket( curation_concern: curation_concern,
                                         test_mode: test_mode,
@@ -96,24 +112,45 @@ module Deepblue
       end
       curation_concern = ensure_not_solr_document curation_concern
       # tombstoned?
+      cc_published = curation_concern.published?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "curation_concern.published?=#{curation_concern.published?}",
+                                             "curation_concern.published?=#{cc_published}",
                                              "" ] if debug_verbose
-      return if curation_concern.published?
+      ::Deepblue::DebugLogHelper.log(class_name: self.class.name,
+                                     id: curation_concern.id,
+                                     event: :new_ticket_if_necessary,
+                                     current_user: current_user,
+                                     cc_published?: cc_published )
+      return if cc_published
       is_draft = ::Deepblue::DraftAdminSetService.has_draft_admin_set? curation_concern
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "is_draft=#{is_draft}",
                                              "" ] if debug_verbose
+      ::Deepblue::DebugLogHelper.log(class_name: self.class.name,
+                                     id: curation_concern.id,
+                                     event: :new_ticket_if_necessary,
+                                     current_user: current_user,
+                                     cc_is_draft: is_draft )
       return if is_draft
       embargoed_or_open = curation_concern.embargoed? || curation_concern.visibility == 'open'
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "embargoed_or_open=#{embargoed_or_open}",
                                              "" ] if debug_verbose
+      ::Deepblue::DebugLogHelper.log(class_name: self.class.name,
+                                     id: curation_concern.id,
+                                     event: :new_ticket_if_necessary,
+                                     current_user: current_user,
+                                     cc_embargoed_or_open: embargoed_or_open )
       return unless embargoed_or_open
       # Assume the email notification hasn't been sent, if it has, then set send_emails to false
+      ::Deepblue::DebugLogHelper.log(class_name: self.class.name,
+                                     id: curation_concern.id,
+                                     event: :new_ticket_if_necessary,
+                                     event_note: "new ticket is necessary",
+                                     current_user: current_user )
       if send_emails && !test_mode
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
@@ -233,6 +270,11 @@ module Deepblue
     end
 
     def self.update_curation_concern_ticket( curation_concern:, msg_handler: nil, test_mode: false, update_ticket: )
+      ::Deepblue::DebugLogHelper.log(class_name: self.class.name,
+                                     id: curation_concern.id,
+                                     event: :update_curation_concern_ticket,
+                                     test_mode: test_mode,
+                                     update_ticket: update_ticket )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
