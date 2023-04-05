@@ -4,7 +4,8 @@ module Hyrax
 
   module EmbargoesControllerBehavior
 
-    mattr_accessor :embargo_controller_behavior_debug_verbose, default: false
+    mattr_accessor :embargo_controller_behavior_debug_verbose,
+                          default: Rails.configuration.hyrax_embargo_controller_behavior_debug_verbose
 
     extend ActiveSupport::Concern
     include Hyrax::ManagesEmbargoes

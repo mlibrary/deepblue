@@ -14,6 +14,10 @@ module Deepblue
                                              "current_user=#{current_user}",
                                              "" ] if controller_workflow_event_behavior_debug_verbose
       cc = controller_curation_concern
+      ::Deepblue::DebugLogHelper.log(class_name: self.class.name,
+                                     id: cc.id,
+                                     event: :workflow_create,
+                                     current_user: current_user )
       cc.workflow_create( current_user: current_user,
                                         event_note: "#{self.class.name} - deposited by #{cc.depositor}" )
     end
@@ -36,6 +40,10 @@ module Deepblue
                                              "current_user=#{current_user}",
                                              "" ] if controller_workflow_event_behavior_debug_verbose
       cc = controller_curation_concern
+      ::Deepblue::DebugLogHelper.log(class_name: self.class.name,
+                                     id: cc.id,
+                                     event: :workflow_publish,
+                                     current_user: current_user )
       cc.workflow_publish( current_user: current_user, event_note: "#{self.class.name}" )
     end
 
@@ -63,20 +71,26 @@ module Deepblue
                                              "" ] if controller_workflow_event_behavior_debug_verbose
 
       # is_submit_for_review = params[:save_with_files].eql? t('helpers.action.work.review')
+      submit_for_review = is_submit_for_review?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "current_user=#{current_user}",
-                                             "is_submit_for_review=#{is_submit_for_review}",
+                                             "is_submit_for_review?=#{submit_for_review}",
                                              "" ] if controller_workflow_event_behavior_debug_verbose
 
       cc = controller_curation_concern
+      ::Deepblue::DebugLogHelper.log(class_name: self.class.name,
+                                     id: cc.id,
+                                     event: :workflow_update_after,
+                                     current_user: current_user,
+                                     submit_for_review: submit_for_review )
       cc.workflow_update_after( current_user: current_user,
                                 event_note: "#{self.class.name} - deposited by #{cc.depositor}",
-                                submit_for_review: is_submit_for_review )
+                                submit_for_review: submit_for_review )
     end
 
-    def is_submit_for_review
+    def is_submit_for_review?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:save_with_files]=#{params[:save_with_files]}",

@@ -24,8 +24,8 @@ module Deepblue
 
     mattr_accessor :draft_admin_set_service_debug_verbose, default: false
 
-    mattr_accessor :draft_admin_set_title, default: "Draft works Admin Set"
-    mattr_accessor :draft_workflow_state_name, default: "draft"
+    mattr_accessor :draft_admin_set_title,                 default: "Draft works Admin Set"
+    mattr_accessor :draft_workflow_state_name,             default: "draft"
 
     @@draft_admin_set_id = nil
 

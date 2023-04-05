@@ -9,6 +9,9 @@ module Deepblue
 
     mattr_accessor :json_logging_helper_debug_verbose, default: Rails.configuration.json_logging_helper_debug_verbose
 
+    mattr_accessor :json_logging_helper_load_debug_verbose, default: false
+    mattr_accessor :json_logging_helper_parse_debug_verbose, default: false
+
     TIMESTAMP_FORMAT = '\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d'.freeze
     RE_TIMESTAMP_FORMAT = Regexp.compile "^#{TIMESTAMP_FORMAT}$".freeze
     # Format: Date Timestamp Event/Event_detail_possibly_empty/ClassName/ID_possibly_empty Rest_in_form_of_JSON_hash
@@ -120,6 +123,98 @@ module Deepblue
         attr_key_values
       end
 
+      def log_entries( file_path:, begin_date: nil, end_date: nil, debug_verbose: json_logging_helper_debug_verbose )
+        debug_verbose ||= json_logging_helper_debug_verbose
+        debug_verbose = debug_verbose || json_logging_helper_debug_verbose
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "begin_date=#{begin_date}",
+                                               "end_date=#{end_date}",
+                                               "" ] if debug_verbose
+        rv = if File.exist?( file_path )
+               log_read_entries( file_path, begin_date: begin_date, end_date: end_date )
+             else
+               []
+             end
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "entry count=#{rv.size}",
+                                               "" ] if debug_verbose
+        return rv
+      end
+
+      def log_entry_filter_in( begin_date: nil,
+                               end_date: nil,
+                               line:,
+                               line_number:,
+                               raw_key_values: true,
+                               debug_verbose: json_logging_helper_debug_verbose )
+
+        debug_verbose ||= json_logging_helper_debug_verbose
+        return true if begin_date.blank? && end_date.blank?
+        timestamp, _event, _event_note, _class_name, _id, _key_values = parse_log_line( line,
+                                                                                        line_number: line_number,
+                                                                                        raw_key_values: raw_key_values )
+        timestamp = parse_timestamp( timestamp )
+        return timestamp <= end_date if begin_date.blank?
+        return timestamp >= begin_date if end_date.blank?
+        return timestamp >= begin_date && timestamp <= end_date
+      end
+
+      def log_entry_parse( entry, line_number: 0, raw_key_values: true  )
+        timestamp,
+        event,
+        event_note,
+        class_name,
+        id,
+        key_values = parse_log_line( entry, line_number: line_number, raw_key_values: true )
+        return { timestamp: timestamp,
+                 event: event,
+                 event_note: event_note,
+                 class_name: class_name,
+                 id: id,
+                 raw_key_values: key_values,
+                 line_number: line_number,
+                 parse_error: nil }
+      rescue LogParseError => e
+        return { entry: entry, line_number: line_number, parse_error: e }
+      end
+
+      def log_read_entries( log_file_path,
+                            begin_date: nil,
+                            end_date: nil,
+                            raw_key_values: true,
+                            debug_verbose: json_logging_helper_debug_verbose )
+
+        debug_verbose ||= json_logging_helper_debug_verbose
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "log_file_path=#{log_file_path}",
+                                               "begin_date=#{begin_date}",
+                                               "end_date=#{end_date}",
+                                               "raw_key_values=#{raw_key_values}",
+                                               "" ] if debug_verbose
+        entries = []
+        i = 0
+        File.open( log_file_path, "r" ) do |fin|
+          until fin.eof?
+            begin
+              line = fin.readline
+              line.chop!
+              entries << line if log_entry_filter_in( begin_date: begin_date,
+                                                      end_date: end_date,
+                                                      line: line,
+                                                      line_number: i,
+                                                      raw_key_values: raw_key_values )
+            rescue EOFError
+              line = nil
+            end
+            i += 1
+          end
+        end
+        return entries
+      end
+
       def logger_initialize_key_values( user_email:, event_note:, **added_key_values )
         key_values = { user_email: user_email }
         key_values.merge!( event_note: event_note ) if event_note.present?
@@ -150,9 +245,10 @@ module Deepblue
                       time_zone:,
                       json_encode: true,
                       **log_key_values )
+
         if event_note.blank?
           key_values = { event: event, timestamp: timestamp, time_zone: time_zone, class_name: class_name, id: id }
-          event += '/'
+          event = "#{event}/"
         else
           key_values = { event: event,
                          event_note: event_note,

@@ -106,6 +106,13 @@ module Deepblue
                                 send_it: true,
                                 was_draft: false )
 
+      ::Deepblue::DebugLogHelper.log(class_name: self.class.name,
+                                     id: id,
+                                     event: :email_event_create_rds,
+                                     event_note: event_note,
+                                     current_user: current_user,
+                                     send_it: send_it,
+                                     was_draft: was_draft )
       return unless Rails.configuration.use_email_notification_for_creation_events
       attributes, ignore_blank_key_values = attributes_for_email_event_create_rds
       email_key_values = {}
@@ -131,6 +138,12 @@ module Deepblue
     end
 
     def email_event_create_user( current_user:, event_note: '', was_draft: false )
+      ::Deepblue::DebugLogHelper.log(class_name: self.class.name,
+                                     id: id,
+                                     event: :email_event_create_create,
+                                     event_note: event_note,
+                                     current_user: current_user,
+                                     was_draft: was_draft )
       return unless Rails.configuration.use_email_notification_for_creation_events
       to, _to_note, from = email_address_user( current_user )
       cc_title = EmailHelper.cc_title curation_concern: self
@@ -262,6 +275,11 @@ module Deepblue
     end
 
     def email_event_publish_rds( current_user:, event_note: '', message: '' )
+      ::Deepblue::DebugLogHelper.log(class_name: self.class.name,
+                                     id: id,
+                                     event: :email_event_publish_rds,
+                                     event_note: event_note,
+                                     current_user: current_user )
       attributes, ignore_blank_key_values = attributes_for_email_event_publish_rds
       cc_type = EmailHelper.curation_concern_type( curation_concern: self )
       to, to_note, from = email_address_workflow
@@ -280,6 +298,11 @@ module Deepblue
     end
 
     def email_event_publish_user( current_user:, event_note: '', message: '' )
+      ::Deepblue::DebugLogHelper.log(class_name: self.class.name,
+                                     id: id,
+                                     event: :email_event_publish_user,
+                                     event_note: event_note,
+                                     current_user: current_user )
       # to_from = email_address_user( current_user )
       cc_title = EmailHelper.cc_title curation_concern: self
       cc_title = EmailHelper.escape_html( cc_title )
