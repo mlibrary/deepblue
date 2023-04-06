@@ -2,8 +2,10 @@
   <div class="row">
     <% if @presenter.can_view_work_details? && !Flipflop.disable_desposits_and_edits? %>
       <%= render 'workflow_actions_widget', presenter: @presenter %>
-      <%= render 'job_statuses_actions_widget', presenter: @presenter %>
-      <%= render 'data_set/ingest_append_script_files_widget', presenter: @presenter %>
+      <% if @presenter.current_ability.admin? %>
+        <%= render 'job_statuses_actions_widget', presenter: @presenter %>
+        <%= render 'data_set/ingest_append_script_files_widget', presenter: @presenter %>
+      <% end %>
       <% if @presenter.iiif_viewer? %>
         <div class="col-sm-12">
           <%= render 'representative_media', presenter: @presenter, viewer: true %>
