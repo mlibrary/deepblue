@@ -33,17 +33,6 @@ module Deepblue
       return rv
     end
 
-    # def self.log_entry_filter_in( begin_date: nil, end_date: nil, line:, line_number:, raw_key_values: true )
-    #   return true if begin_date.blank? && end_date.blank?
-    #   timestamp, _event, _event_note, _class_name, _id, _key_values = ::Deepblue::JsonLoggerHelper.parse_log_line( line,
-    #                                                                                   line_number: line_number,
-    #                                                                                   raw_key_values: raw_key_values )
-    #   timestamp = parse_timestamp( timestamp )
-    #   return timestamp <= end_date if begin_date.blank?
-    #   return timestamp >= begin_date if end_date.blank?
-    #   return timestamp >= begin_date && timestamp <= end_date
-    # end
-
     def self.log_key_values_to_table( key_values,
                                       on_key_values_to_table_body_callback: nil,
                                       parse: false,
@@ -61,28 +50,6 @@ module Deepblue
     def self.log_parse_entry( entry, line_number: 0 )
       return ::Deepblue::JsonLoggerHelper.log_entry_parse( entry, line_number: line_number )
     end
-
-    # def self.log_read_entries( log_file_path, begin_date: nil, end_date: nil, raw_key_values: true )
-    #   entries = []
-    #   i = 0
-    #   File.open( log_file_path, "r" ) do |fin|
-    #     until fin.eof?
-    #       begin
-    #         line = fin.readline
-    #         line.chop!
-    #         entries << line if ::Deepblue::JsonLoggerHelper.log_entry_filter_in( begin_date: begin_date,
-    #                                                 end_date: end_date,
-    #                                                 line: line,
-    #                                                 line_number: i,
-    #                                                 raw_key_values: raw_key_values )
-    #       rescue EOFError
-    #         line = nil
-    #       end
-    #       i += 1
-    #     end
-    #   end
-    #   return entries
-    # end
 
   end
 
