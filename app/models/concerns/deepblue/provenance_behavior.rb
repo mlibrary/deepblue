@@ -6,8 +6,8 @@ module Deepblue
 
   module ProvenanceBehavior
 
-    mattr_accessor :provenance_behavior_debug_verbose,
-                   default: Rails.configuration.provenance_behavior_debug_verbose
+    mattr_accessor :provenance_behavior_debug_verbose, default: Rails.configuration.provenance_behavior_debug_verbose
+    mattr_accessor :provenance_behavior_embargo_debug_verbose, default: false
     mattr_accessor :provenance_log_update_after_debug_verbose, default: false
     mattr_accessor :provenance_update_debug_verbose, default: false
 
@@ -182,13 +182,18 @@ module Deepblue
       EmailHelper.user_email_from( current_user )
     end
 
-    def map_provenance_attributes!( event:, attributes:, ignore_blank_key_values:, **prov_key_values )
+    def map_provenance_attributes!( event:,
+                                    attributes:,
+                                    debug_verbose: provenance_behavior_debug_verbose,
+                                    ignore_blank_key_values:, **prov_key_values )
+
       prov_object = for_provenance_object
       # prov_object_class = prov_object.class.name
       if attributes.present?
         attributes.each do |attribute|
           next if map_provenance_attributes_override!( event: event,
                                                        attribute: attribute,
+                                                       debug_verbose: debug_verbose,
                                                        ignore_blank_key_values: ignore_blank_key_values,
                                                        prov_key_values: prov_key_values )
           value = case attribute.to_s
@@ -251,11 +256,21 @@ module Deepblue
 
     # override this if there is anything extra to add
     # return true if handled
-    def map_provenance_attributes_override!( event:,                    # rubocop:disable Lint/UnusedMethodArgument
-                                             attribute:,                # rubocop:disable Lint/UnusedMethodArgument
-                                             ignore_blank_key_values:,  # rubocop:disable Lint/UnusedMethodArgument
-                                             prov_key_values: )         # rubocop:disable Lint/UnusedMethodArgument
+    def map_provenance_attributes_override!( event:,
+                                             attribute:,
+                                             ignore_blank_key_values:,
+                                             debug_verbose: provenance_behavior_debug_verbose,
+                                             prov_key_values: )
 
+      debug_verbose ||= provenance_behavior_debug_verbose
+      debug_verbose = debug_verbose || provenance_behavior_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "event=#{event}",
+                                             "attribute=#{attribute}",
+                                             "ignore_blank_key_values=#{ignore_blank_key_values}",
+                                             "prov_key_values=#{prov_key_values}",
+                                             "" ] if debug_verbose
       handled = false
       return handled
     end
@@ -264,14 +279,26 @@ module Deepblue
                                                   current_user:,
                                                   event:,
                                                   event_note:,
+                                                  debug_verbose: provenance_behavior_debug_verbose,
                                                   ignore_blank_key_values:,
                                                   **added_prov_key_values )
 
-      prov_key_values = ProvenanceHelper.logger_initialize_key_values(user_email: for_provenance_user(current_user ),
-                                                                      event_note: event_note,
-                                                                      **added_prov_key_values )
+      debug_verbose ||= provenance_behavior_debug_verbose
+      debug_verbose = debug_verbose || provenance_behavior_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "attributes=#{attributes}",
+                                             "current_user=#{current_user}",
+                                             "event=#{event}",
+                                             "event_note=#{event_note}",
+                                             "ignore_blank_key_values=#{ignore_blank_key_values}",
+                                             "" ] if debug_verbose
+      prov_key_values = ProvenanceHelper.logger_initialize_key_values( user_email: for_provenance_user(current_user ),
+                                                                       event_note: event_note,
+                                                                       **added_prov_key_values )
       prov_key_values = map_provenance_attributes!( event: event,
                                                     attributes: attributes,
+                                                    debug_verbose: debug_verbose,
                                                     ignore_blank_key_values: ignore_blank_key_values,
                                                     **prov_key_values )
       prov_key_values
@@ -399,16 +426,17 @@ module Deepblue
     end
 
     def provenance_embargo( current_user:, event_note: '', **embargo_values )
+      debug_verbose = provenance_behavior_embargo_debug_verbose || provenance_behavior_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "embargo_values=#{embargo_values.pretty_inspect}",
-                                             "" ] if provenance_behavior_debug_verbose
+                                             "" ] if debug_verbose
       attributes, ignore_blank_key_values = attributes_for_provenance_embargo
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "ignore_blank_key_values=#{ignore_blank_key_values}",
                                              "attributes=#{attributes.pretty_inspect}",
-                                             "" ] if provenance_behavior_debug_verbose
+                                             "" ] if debug_verbose
       prov_key_values = provenance_attribute_values_for_snapshot( attributes: attributes,
                                                                   current_user: current_user,
                                                                   event: EVENT_EMBARGO,
@@ -418,7 +446,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "prov_key_values=#{prov_key_values.pretty_inspect}",
-                                             "" ] if provenance_behavior_debug_verbose
+                                             "" ] if debug_verbose
       provenance_log_event( attributes: attributes,
                             current_user: current_user,
                             event: EVENT_EMBARGO,
@@ -718,19 +746,29 @@ module Deepblue
     end
 
     def provenance_update_embargo_key_values( update_attr_key_values: )
-      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-      #                                        ::Deepblue::LoggingHelper.called_from,
-      #                                        "update_attr_key_values=#{update_attr_key_values}",
-      #                                        "" ] if provenance_behavior_debug_verbose
+      debug_verbose = provenance_behavior_embargo_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "update_attr_key_values=#{update_attr_key_values}",
+                                             "" ] if debug_verbose
       return nil unless update_attr_key_values.present?
       return nil unless update_attr_key_values.key? :embargo
       embargo_key_values = update_attr_key_values[:embargo]
       update_attr_key_values.delete :embargo
-      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-      #                                        ::Deepblue::LoggingHelper.called_from,
-      #                                        "update_attr_key_values=#{update_attr_key_values}",
-      #                                        "embargo_key_values=#{embargo_key_values}",
-      #                                        "" ] if provenance_behavior_debug_verbose
+      embargo_release_date_old_value = embargo_key_values[:UpdateAttribute_embargo_release_date][:old_value]
+      if embargo_release_date_old_value.ends_with? 'T00:00:00.000+00:00'
+        len = 'T00:00:00.000+00:00'.size
+        updated_value = embargo_release_date_old_value
+        updated_value = embargo_release_date_old_value[0,updated_value.size-len]
+        embargo_key_values[:UpdateAttribute_embargo_release_date][:old_value] = updated_value
+      end
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "embargo_key_values=#{embargo_key_values}",
+                                             "embargo_key_values[:UpdateAttribute_embargo_release_date]=#{embargo_key_values[:UpdateAttribute_embargo_release_date]}",
+                                             "embargo_key_values[:UpdateAttribute_embargo_release_date][:old_value]=#{embargo_key_values[:UpdateAttribute_embargo_release_date][:old_value]}",
+                                             "embargo_key_values[:UpdateAttribute_embargo_release_date][:new_value]=#{embargo_key_values[:UpdateAttribute_embargo_release_date][:new_value]}",
+                                             "" ] if debug_verbose
       embargo_key_values
     end
 
@@ -744,7 +782,7 @@ module Deepblue
       debug_verbose = provenance_behavior_debug_verbose || provenance_log_update_after_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "update_attr_key_values=#{update_attr_key_values}",
+                                             "update_attr_key_values=#{update_attr_key_values.pretty_inspect}",
                                              "" ] if debug_verbose
       embargo_key_values = provenance_update_embargo_key_values( update_attr_key_values: update_attr_key_values )
       update_attr_key_values = ProvenanceHelper.update_attribute_key_values( curation_concern: for_provenance_object,
@@ -756,16 +794,34 @@ module Deepblue
       if update_attr_key_values.present? || embargo_key_values.present?
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "" ] if debug_verbose
+                                               "" ] if debug_verbose || provenance_behavior_embargo_debug_verbose
+        embargo_updated = false
         if embargo_key_values.present?
           embargo_key_values.each_pair do |key, value|
-            update_attr_key_values[key] = value if update_attribute_changed?( update_attr: value )
+            changed = update_attribute_changed?( update_attr: value )
+            ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                   ::Deepblue::LoggingHelper.called_from,
+                                                   "embargo key=#{key}",
+                                                   "embargo value=#{value}",
+                                                   "embargo value[:old_value]=#{value[:old_value]}",
+                                                   "embargo value[:new_value]=#{value[:new_value]}",
+                                                   "update_attribute_changed?=#{changed}",
+                                                   "" ] if debug_verbose || provenance_behavior_embargo_debug_verbose
+            if changed
+              update_attr_key_values[key] = value
+              embargo_updated = true
+            end
           end
         end
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "update_attr_key_values=#{update_attr_key_values.pretty_inspect}",
+                                               "embargo_updated=#{embargo_updated}",
+                                               "" ] if debug_verbose || provenance_behavior_embargo_debug_verbose
         provenance_update( current_user: current_user, event_note: event_note, **update_attr_key_values )
         provenance_embargo( current_user: current_user,
                             event_note: event_note,
-                            embargo_key_values: embargo_key_values ) if embargo_key_values.present?
+                            embargo_key_values: embargo_key_values ) if embargo_updated
       end
     end
 

@@ -11,7 +11,7 @@ module Deepblue
 
     # rubocop:disable Style/ClassVars
     def self.echo_to_rails_logger
-      @@echo_to_rails_logger ||= true
+      @@echo_to_rails_logger ||= false
     end
 
     def self.echo_to_rails_logger=( echo_to_rails_logger )

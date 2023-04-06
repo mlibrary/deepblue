@@ -254,14 +254,18 @@ class FileSet < ActiveFedora::Base
   def map_provenance_attributes_override!( event:, # rubocop:disable Lint/UnusedMethodArgument
                                            attribute:,
                                            ignore_blank_key_values:,
+                                           debug_verbose: file_set_debug_verbose,
                                            prov_key_values: )
+
+    debug_verbose ||= file_set_debug_verbose
+    debug_verbose = debug_verbose || file_set_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "event=#{event}",
                                            "attribute=#{attribute}",
                                            "ignore_blank_key_values=#{ignore_blank_key_values}",
                                            "prov_key_values=#{prov_key_values}",
-                                           "" ] if file_set_debug_verbose
+                                           "" ] if debug_verbose
     value = nil
     handled = case attribute.to_s
               when 'file_extension'
