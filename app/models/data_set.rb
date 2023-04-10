@@ -484,14 +484,18 @@ class DataSet < ActiveFedora::Base
   def map_provenance_attributes_override!( event:, # rubocop:disable Lint/UnusedMethodArgument
                                            attribute:,
                                            ignore_blank_key_values:,
+                                           debug_verbose: data_set_debug_verbose,
                                            prov_key_values: )
+
+    debug_verbose ||= data_set_debug_verbose
+    debug_verbose = debug_verbose || data_set_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "event=#{event}",
                                            "attribute=#{attribute}",
                                            "ignore_blank_key_values=#{ignore_blank_key_values}",
                                            "prov_key_values=#{prov_key_values}",
-                                           "" ] if data_set_debug_verbose
+                                           "" ] if debug_verbose
     value = nil
     handled = case attribute.to_s
               when 'data_set_url'
@@ -517,6 +521,12 @@ class DataSet < ActiveFedora::Base
                 true
               when 'embargo_release_date'
                 value = embargo_release_date
+                value = value.strftime('%Y-%m-%d') if value.present?
+                ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                       ::Deepblue::LoggingHelper.called_from,
+                                                       "embargo_release_date=#{value}",
+                                                       "embargo_release_date.class.name=#{value.class.name}",
+                                                       "" ] if debug_verbose
                 true
               when 'visibility_during_embargo'
                 value = visibility_during_embargo
@@ -526,6 +536,12 @@ class DataSet < ActiveFedora::Base
                 true
               when 'lease_expiration_date'
                 value = lease_expiration_date
+                value = value.strftime('%Y-%m-%d') if value.present?
+                ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                       ::Deepblue::LoggingHelper.called_from,
+                                                       "lease_expiration_date=#{value}",
+                                                       "lease_expiration_date.class.name=#{value.class.name}",
+                                                       "" ] if debug_verbose
                 true
               when 'visibility_during_lease'
                 value = visibility_during_lease

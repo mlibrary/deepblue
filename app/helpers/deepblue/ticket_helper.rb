@@ -12,7 +12,7 @@ module Deepblue
     TICKET_JOB_STARTING = 'job starting' unless const_defined? :TICKET_JOB_STARTING
     TICKET_PENDING = 'pending' unless const_defined? :TICKET_PENDING
 
-    mattr_accessor :ticket_helper_debug_verbose, default: true
+    mattr_accessor :ticket_helper_debug_verbose, default: false
 
     def self.curation_notes_admin_link( prefix:, ticket_url: )
       return '' if ticket_url.blank?
@@ -71,6 +71,7 @@ module Deepblue
                                       update_if_has_link: true,
                                       debug_verbose: ticket_helper_debug_verbose )
 
+      debug_verbose ||= ticket_helper_debug_verbose
       debug_verbose = debug_verbose || ticket_helper_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
