@@ -96,7 +96,7 @@ WHERE { }
       uri = found.uri.value
       uri_metadata = "#{uri}/fcr:metadata"
       msg_handler.msg_verbose "#{uri_metadata}"
-      if file_set.orginal_file.nil?
+      if file_set.original_file.nil?
         msg_handler.msg_verbose "Can't update file set #{file_set&.id} because original_file is nil."
         return false
       end
