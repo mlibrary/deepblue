@@ -513,7 +513,7 @@ module Deepblue
                                              # "wrapper.methods=#{wrapper.methods.sort}",
                                              "" ], bold_puts: ingest_helper_debug_verbose_puts if ingest_helper_debug_verbose
       # Rails.logger.info "begin IngestHelper.update_total_file_size"
-      # Rails.logger.debug "#{log_prefix} file_set.orginal_file.size=#{file_set.original_file_size}" unless log_prefix.nil?
+      # Rails.logger.debug "#{log_prefix} file_set.original_file.size=#{file_set.original_file_size}" unless log_prefix.nil?
       # Rails.logger.info "nothing to update, parent is nil" if file_set.parent.nil?
       return if file_set.parent.nil?
       total = file_set.parent.total_file_size
