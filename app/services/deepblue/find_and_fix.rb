@@ -120,7 +120,6 @@ module Deepblue
             msg_handler.msg_error "Error while processing #{fixer.class.name} - #{prefix} #{curation_concern.id}: #{e.message} at #{e.backtrace[0]}"
           end
         end
-        msg_handler.msg "#{fixer.class.name} duration: #{dur.join(' ')}"
       end
     end
 
