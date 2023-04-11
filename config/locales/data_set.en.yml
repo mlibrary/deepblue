@@ -125,7 +125,7 @@ en:
       subject_discipline:   "Discipline"
       tab_file_contents:    "File Contents"
       tab_item:             "Files"
-      tab_provenance_log:   "Provenence Log"
+      tab_provenance_log:   "Provenance Log"
       tab_read_me:          "Readme"
       tab_user_activity_log: "User Activity Log"
       ticket:               "Ticket"
