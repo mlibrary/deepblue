@@ -813,6 +813,8 @@ module Deepblue
         id_new = MODE_MIGRATE == build_mode ? id : nil
         file_set = new_file_set( id: id_new )
         file_set.apply_depositor_metadata( depositor )
+        file_set.save! # force the creation of the file set id
+        file_set.ingest_begin( called_from: 'NewContentService2.build_file_set_new' )
         upload_file_to_file_set( file_set, file )
         return file_set
       end
@@ -2147,9 +2149,9 @@ module Deepblue
 
       def new_file_set( id: )
         if id.present?
-          FileSet.new( id: id ) { |fs| fs.ingest_begin( called_from: 'NewContentService2.new_file_set' ) }
+          FileSet.new( id: id )
         else
-          FileSet.new { |fs| fs.ingest_begin( called_from: 'NewContentService2.new_file_set' ) }
+          FileSet.new
         end
       end
 

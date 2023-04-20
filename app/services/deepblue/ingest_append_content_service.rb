@@ -118,12 +118,31 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ], bold_puts: @@bold_puts if debug_verbose
-      return if Rails.env.development?
       # There may be an issue when running from circleci
       begin
+        if Rails.env.development? || Rails.env.test?
+          # just make sure directory ./tmp/scripts exists
+          target_dir = './tmp/scripts'
+          Dir.mkdir( target_dir ) unless Dir.exist?( target_dir )
+          return
+        end
+        # ln -s /hydra-dev/deepbluedata-testing/shared/tmp/scripts /hydra-dev/deepbluedata-testing/releases/20221213181102/tmp/scripts
         current_dir = `pwd`
         current_dir.chomp!
-        # ln -s /hydra-dev/deepbluedata-testing/tmp/scripts /hydra-dev/deepbluedata-testing/releases/20221213181102/tmp/scripts
+        # current_dir will be something like: /hydra-dev/deepbluedata-testing/releases/20221213181102/
+        #                                 or: /deepbluedata-prod/deepbluedata-production/20221213181102/
+        # want the target dir to be: /hydra-dev/deepbluedata-testing/shared/tmp/scripts
+        #                        or: /deepbluedata-prod/deepbluedata-production/shared/tmp/scripts
+        current_dir.chomp!
+        real_dir = File.dirname current_dir
+        real_dir = File.join( real_dir, 'shared', 'tmp', 'scripts')
+        FileUtils.mkdir_p( real_dir ) unless Dir.exist?( real_dir )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "real_dir=#{real_dir}",
+                                               "real_dir exists?=#{File.exists? real_dir}",
+                                               "" ], bold_puts: @@bold_puts if debug_verbose
+
         tmp_scripts_dir = File.join current_dir, 'tmp', 'scripts'
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
@@ -135,14 +154,6 @@ module Deepblue
                                                "link_exists=#{link_exists}",
                                                "" ], bold_puts: @@bold_puts if debug_verbose
         return if link_exists
-        real_dir = File.dirname current_dir
-        real_dir = File.join real_dir, 'tmp', 'scripts'
-        FileUtils.mkdir_p real_dir unless Dir.exist? real_dir
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "real_dir=#{real_dir}",
-                                               "real_dir exists?=#{File.exists? real_dir}",
-                                               "" ], bold_puts: @@bold_puts if debug_verbose
         cmd = "ln -s \"#{real_dir}/\" \"#{tmp_scripts_dir}\""
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
