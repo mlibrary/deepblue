@@ -1,0 +1,90 @@
+//# hyrax-orcid
+.list-group {
+  &:last-child {
+    padding-right: 0;
+  }
+}
+
+.btn {
+  &.btn-orcid {
+    border: 3px solid #d2e69c;
+    color: #333;
+    font-size: 15px;
+    letter-spacing: -0.02em;
+
+    &:hover, &:focus, &:active {
+      background-color: #d2e69c;
+    }
+  }
+}
+
+#orcid-options-panel {
+  label {
+    font-weight: normal;
+  }
+}
+
+.brand-logo {
+  position: relative;
+  top: -1px;
+}
+
+.select-work-admin-set {
+  margin: 20px;
+  select {
+    width: 100%;
+  }
+}
+
+.margin-top {
+  margin-top: 20px;
+}
+
+.btn {
+  &.float-right {
+    float: right;
+  }
+
+  &.margin-bottom {
+    margin-bottom: 10px;
+  }
+}
+
+#works-table {
+  border: 1px solid #ddd;
+}
+
+.badge-success {
+  background-color: #28a745;
+  color: #fff;
+}
+
+// Form elements
+.multi_value {
+  .clearfix {
+    height: 1px;
+    width: 100%;
+
+    &:after {
+      clear: both;
+      content: "";
+      display: table;
+    }
+  }
+
+  .json-fields-listing {
+    &.listing .input-group, .controlled_vocabulary .listing .input-group {
+      margin-bottom: 0;
+    }
+
+    li {
+      border-bottom: 1px solid #ebebeb;
+      margin: 0;
+      padding: 0 0 15px 0;
+
+      label {
+        margin: 10px 0 0px;
+      }
+    }
+  }
+}

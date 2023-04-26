@@ -15,6 +15,10 @@ module Hyrax
     include ::Deepblue::TotalFileSizePresenterBehavior
     include ::Deepblue::ZipDownloadPresenterBehavior
 
+    # hyrax-orcid begin
+    include Hyrax::Orcid::WorkShowPresenterBehavior
+    # hyrax-orcid end
+
     attr_accessor :show_actions_debug_verbose
     def show_actions_debug_verbose
       @show_actions_debug_verbose ||= false

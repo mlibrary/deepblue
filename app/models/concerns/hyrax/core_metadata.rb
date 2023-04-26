@@ -32,6 +32,12 @@ module Hyrax
         index.type :date
         index.as :stored_sortable
       end
+
+      # hyrax-orcid begin
+      property :creator, predicate: ::RDF::Vocab::DC11.creator
+      property :contributor, predicate: ::RDF::Vocab::DC11.contributor
+      # hyrax-orcid end
+
     end
   end
 end

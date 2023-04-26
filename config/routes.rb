@@ -10,7 +10,6 @@ end
 Rails.application.routes.draw do
   concern :oai_provider, BlacklightOaiProvider::Routes.new
 
-
   mount Blacklight::Engine => '/'
   mount BrowseEverything::Engine => '/browse'
 
@@ -27,7 +26,6 @@ Rails.application.routes.draw do
 
   get 'static/show/:layout/:doc/:file', to: 'hyrax/static#show_layout_doc'
   get 'static/show/:doc/:file', to: 'hyrax/static#show_doc'
-
 
   get ':doc', to: 'hyrax/static#show', constraints: { doc: %r{
                                                                       about|
@@ -217,6 +215,13 @@ Rails.application.routes.draw do
       end
     end
   end
+
+  # replacements for hyrax_orcid_routes. --> Rails.application.routes.url_helpers.
+  get 'orcid/identities/', controller: 'hyrax/orcid/dashboard/orcid_identities', action: :new, as: 'new_orcid_identity'
+  get 'orcid/users/:orcid_id', controller: 'hyrax/orcid/users', action: :orcid_identity, as: 'orcid_identity'
+  get 'orcid/users/profile/:orcid_id', controller: 'hyrax/orcid/users', action: :show, as: 'users_orcid_profile'
+  get 'orcid/works/publish/:work_id/:orcid_id', controller: 'hyrax/orcid/dashboard/works', action: :publish, as: 'orcid_works_publish'
+  get 'orcid/works/unpublish/:work_id/:orcid_id', controller: 'hyrax/orcid/dashboard/works', action: :unpublish, as: 'orcid_works_unpublish'
 
   mount WillowSword::Engine => '/sword'
 

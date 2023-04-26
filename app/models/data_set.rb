@@ -15,6 +15,10 @@ class DataSet < ActiveFedora::Base
   include Umrdr::UmrdrWorkMetadata
   include ::Deepblue::TotalFileSizeWorkBehavior
 
+  # hyrax-orcid begin
+  include ::Hyrax::Orcid::WorkBehavior
+  # hyrax-orcid end
+
   validates :authoremail, presence: { message: 'You must have author contact information.' }
   validates :creator, presence: { message: 'Your work must have a creator.' }
   validates :description, presence: { message: 'Your work must have a description.' }

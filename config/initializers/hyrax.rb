@@ -338,6 +338,19 @@ Hyrax.config do |config|
   Hyrax::CurationConcern.actor_factory.insert_after Hyrax::Actors::AddToWorkActor, Hyrax::Actors::BeforeAttachMembersActor
   Hyrax::CurationConcern.actor_factory.insert_after Hyrax::Actors::FeaturedWorkActor, Hyrax::Actors::BeforeModelActor
 
+  # hyrax-orcid begin
+  # Because the Hyrax::ModelActor does not call next_actor to continue the chain, for destroy requests, we require a new actor
+  # actors = [Hyrax::Actors::ModelActor, Hyrax::Actors::Orcid::UnpublishWorkActor]
+  # Hyrax::CurationConcern.actor_factory.insert_before(*actors)
+  Hyrax::CurationConcern.actor_factory.insert_before Hyrax::Actors::ModelActor, Hyrax::Actors::Orcid::UnpublishWorkActor
+  # Insert the publish actor at the end of the chain so we only publish a fully processed work
+  Hyrax::CurationConcern.actor_factory.use Hyrax::Actors::Orcid::PublishWorkActor
+  # Insert orcid JSON actor before the Model is saved
+  # actor = ::Hyrax::OrcidIntegrationService.hyrax_json_actor
+  # Hyrax::CurationConcern.actor_factory.insert_before Hyrax::Actors::ModelActor, actor.constantize if actor.present?
+  Hyrax::CurationConcern.actor_factory.insert_before Hyrax::Actors::ModelActor, Hyrax::Actors::Orcid::JSONFieldsActor
+  # hyrax-orcid end
+
   # turn this on to see verify the stack
   # actor = Hyrax::CurationConcern.actor
   # puts "Hyrax::CurationConcern.actor stack after inserts"

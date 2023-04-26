@@ -273,6 +273,12 @@ RSpec.configure do |config|
 
   config.include(ControllerLevelHelpers, type: :view)
 
+  # hyrax-orcid begin
+  config.expect_with :rspec do |expectations|
+    expectations.include_chain_clauses_in_custom_matcher_descriptions = true
+  end
+  # hyrax-orcid end
+
   config.before(:each, type: :view) do
     initialize_controller_helpers(view)
     # WebMock.disable_net_connect!(allow_localhost: false, allow: 'chromedriver.storage.googleapis.com')

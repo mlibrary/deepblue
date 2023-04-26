@@ -3,6 +3,9 @@ module HyraxHelper
   include Hyrax::BlacklightOverride
   include Hyrax::HyraxHelperBehavior
   include Hyrax::Doi::HelperBehavior
+  # hyrax-orcid begin
+  include Hyrax::Orcid::HelperBehavior # Helpers provided by hyrax-orcid plugin.
+  # hyrax-orcid end
 
 
   # @param [Hash] options from blacklight invocation of helper_method

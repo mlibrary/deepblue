@@ -1,0 +1,12 @@
+<%# hyrax-orcid %><
+% reader = Hyrax::Orcid::Record::ReaderService.new(orcid_identity) %>
+
+<% orcid_identity.selected_sync_preferences.each do |key| %>
+	<% method_name = "read_#{key}" %>
+
+	<% next unless reader.respond_to?(method_name) %>
+  <% next if (collection = reader.send(method_name)).blank? %>
+
+	<% presenter = "Hyrax::Orcid::Profile::#{key.classify}Presenter".constantize.new(collection) %>
+	<%= render "hyrax/orcid/users/partials/card", presenter: presenter %>
+<% end %>

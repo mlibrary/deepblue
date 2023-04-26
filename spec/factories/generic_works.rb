@@ -2,6 +2,18 @@
 
 FactoryBot.define do
   factory :generic_work, aliases: [:private_generic_work], class: GenericWork do
+    trait :public do
+      visibility { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC }
+    end
+
+    trait :private do
+      visibility { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE }
+    end
+
+    trait :authenticate do
+      visibility { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_AUTHENTICATED }
+    end
+
     transient do
       user { create(:user) }
       # Set to true (or a hash) if you want to create an admin set
