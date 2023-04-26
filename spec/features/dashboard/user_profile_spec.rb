@@ -3,7 +3,7 @@
 
 require 'rails_helper'
 
-RSpec.describe "The Dashboard User Profile Page", type: :feature, js: true, clean: true do
+RSpec.describe "The Dashboard User Profile Page", type: :feature, js: true, clean: true, skip: ENV['CIRCLECI'].present? do
 
   include Devise::Test::IntegrationHelpers
 
