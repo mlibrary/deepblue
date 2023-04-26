@@ -11,6 +11,18 @@ FactoryBot.define do
       groups { [] }
     end
 
+    trait :guest do
+      guest { true }
+    end
+
+    # hyrax-orcid begin
+    trait :with_orcid_identity do
+      after(:create) do |user|
+        user.create_orcid_identity build(:orcid_identity).attributes
+      end
+    end
+    # hyrax-orcid end
+
     # TODO: Register the groups for the given user key such that we can remove the following from other specs:
     #   `allow(::User.group_service).to receive(:byname).and_return(user.user_key => ['admin'])``
     after(:build) do |user, evaluator|
@@ -52,9 +64,6 @@ FactoryBot.define do
     end
   end
 
-  trait :guest do
-    guest { true }
-  end
 end
 
 class MockFile

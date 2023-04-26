@@ -1,0 +1,529 @@
+{
+  "orcid-identifier": {
+    "uri": "https://sandbox.orcid.org/0000-0003-0652-4625",
+    "path": "0000-0003-0652-4625",
+    "host": "sandbox.orcid.org"
+  },
+  "preferences": {
+    "locale": "EN"
+  },
+  "history": {
+    "creation-method": "DIRECT",
+    "completion-date": null,
+    "submission-date": {
+      "value": 1616074856513
+    },
+    "last-modified-date": {
+      "value": 1628673051998
+    },
+    "claimed": true,
+    "source": null,
+    "deactivation-date": null,
+    "verified-email": true,
+    "verified-primary-email": true
+  },
+  "person": {
+    "last-modified-date": null,
+    "name": {
+      "created-date": {
+        "value": 1616074856776
+      },
+      "last-modified-date": {
+        "value": 1616074856776
+      },
+      "given-names": {
+        "value": "Paul "
+      },
+      "family-name": {
+        "value": "Danelli"
+      },
+      "credit-name": null,
+      "source": null,
+      "visibility": "PUBLIC",
+      "path": "0000-0003-0652-4625"
+    },
+    "other-names": {
+      "last-modified-date": null,
+      "other-name": [],
+      "path": "/0000-0003-0652-4625/other-names"
+    },
+    "biography": null,
+    "researcher-urls": {
+      "last-modified-date": null,
+      "researcher-url": [],
+      "path": "/0000-0003-0652-4625/researcher-urls"
+    },
+    "emails": {
+      "last-modified-date": null,
+      "email": [],
+      "path": "/0000-0003-0652-4625/email"
+    },
+    "addresses": {
+      "last-modified-date": null,
+      "address": [],
+      "path": "/0000-0003-0652-4625/address"
+    },
+    "keywords": {
+      "last-modified-date": null,
+      "keyword": [],
+      "path": "/0000-0003-0652-4625/keywords"
+    },
+    "external-identifiers": {
+      "last-modified-date": null,
+      "external-identifier": [],
+      "path": "/0000-0003-0652-4625/external-identifiers"
+    },
+    "path": "/0000-0003-0652-4625/person"
+  },
+  "activities-summary": {
+    "last-modified-date": {
+      "value": 1628261004169
+    },
+    "educations": {
+      "last-modified-date": {
+        "value": 1628260675826
+      },
+      "education-summary": [
+        {
+          "created-date": {
+            "value": 1628260675826
+          },
+          "last-modified-date": {
+            "value": 1628260675826
+          },
+          "source": {
+            "source-orcid": null,
+            "source-client-id": {
+              "uri": "https://sandbox.orcid.org/client/APP-IK56X6QNRRL9VNOM",
+              "path": "APP-IK56X6QNRRL9VNOM",
+              "host": "sandbox.orcid.org"
+            },
+            "source-name": {
+              "value": "Hyku Addons"
+            }
+          },
+          "department-name": "Department",
+          "role-title": "Degree",
+          "start-date": {
+            "year": {
+              "value": "1997"
+            },
+            "month": {
+              "value": "08"
+            },
+            "day": {
+              "value": "20"
+            }
+          },
+          "end-date": {
+            "year": {
+              "value": "1999"
+            },
+            "month": {
+              "value": "05"
+            },
+            "day": {
+              "value": "01"
+            }
+          },
+          "organization": {
+            "name": "Massachusetts Institute of Technology",
+            "address": {
+              "city": "Cambridge",
+              "region": "MA",
+              "country": "US"
+            },
+            "disambiguated-organization": {
+              "disambiguated-organization-identifier": "2167",
+              "disambiguation-source": "RINGGOLD"
+            }
+          },
+          "visibility": "PUBLIC",
+          "put-code": 43109,
+          "path": "/0000-0003-0652-4625/education/43109"
+        }
+      ],
+      "path": "/0000-0003-0652-4625/educations"
+    },
+    "employments": {
+      "last-modified-date": {
+        "value": 1628260576863
+      },
+      "employment-summary": [
+        {
+          "created-date": {
+            "value": 1628260526514
+          },
+          "last-modified-date": {
+            "value": 1628260526514
+          },
+          "source": {
+            "source-orcid": null,
+            "source-client-id": {
+              "uri": "https://sandbox.orcid.org/client/APP-IK56X6QNRRL9VNOM",
+              "path": "APP-IK56X6QNRRL9VNOM",
+              "host": "sandbox.orcid.org"
+            },
+            "source-name": {
+              "value": "Hyku Addons"
+            }
+          },
+          "department-name": "Department",
+          "role-title": "Role",
+          "start-date": {
+            "year": {
+              "value": "2012"
+            },
+            "month": {
+              "value": "07"
+            },
+            "day": {
+              "value": "01"
+            }
+          },
+          "end-date": {
+            "year": {
+              "value": "2017"
+            },
+            "month": {
+              "value": "01"
+            },
+            "day": {
+              "value": "01"
+            }
+          },
+          "organization": {
+            "name": "ORCID",
+            "address": {
+              "city": "Bethesda",
+              "region": "MD",
+              "country": "US"
+            },
+            "disambiguated-organization": {
+              "disambiguated-organization-identifier": "385488",
+              "disambiguation-source": "RINGGOLD"
+            }
+          },
+          "visibility": "PUBLIC",
+          "put-code": 43106,
+          "path": "/0000-0003-0652-4625/employment/43106"
+        }
+      ],
+      "path": "/0000-0003-0652-4625/employments"
+    },
+    "fundings": {
+      "last-modified-date": {
+        "value": 1628260413985
+      },
+      "group": [
+        {
+          "last-modified-date": {
+            "value": 1628260334084
+          },
+          "external-ids": {
+            "external-id": [
+              {
+                "external-id-type": "grant_number",
+                "external-id-value": "1234",
+                "external-id-url": {
+                  "value": "http://tempuri.org/12345"
+                },
+                "external-id-relationship": "SELF"
+              }
+            ]
+          },
+          "funding-summary": [
+            {
+              "created-date": {
+                "value": 1628260334084
+              },
+              "last-modified-date": {
+                "value": 1628260334084
+              },
+              "source": {
+                "source-orcid": null,
+                "source-client-id": {
+                  "uri": "https://sandbox.orcid.org/client/APP-IK56X6QNRRL9VNOM",
+                  "path": "APP-IK56X6QNRRL9VNOM",
+                  "host": "sandbox.orcid.org"
+                },
+                "source-name": {
+                  "value": "Hyku Addons"
+                }
+              },
+              "title": {
+                "title": {
+                  "value": "Grant title"
+                },
+                "translated-title": {
+                  "value": "Translated title",
+                  "language-code": "en"
+                }
+              },
+              "external-ids": {
+                "external-id": [
+                  {
+                    "external-id-type": "grant_number",
+                    "external-id-value": "1234",
+                    "external-id-url": {
+                      "value": "http://tempuri.org/12345"
+                    },
+                    "external-id-relationship": "SELF"
+                  }
+                ]
+              },
+              "type": "GRANT",
+              "start-date": {
+                "year": {
+                  "value": "2000"
+                },
+                "month": {
+                  "value": "02"
+                },
+                "day": {
+                  "value": "02"
+                }
+              },
+              "end-date": {
+                "year": {
+                  "value": "2020"
+                },
+                "month": {
+                  "value": "02"
+                },
+                "day": {
+                  "value": "02"
+                }
+              },
+              "organization": {
+                "name": "Wellcome Trust",
+                "address": {
+                  "city": "London",
+                  "region": null,
+                  "country": "GB"
+                },
+                "disambiguated-organization": {
+                  "disambiguated-organization-identifier": "http://dx.doi.org/10.13039/100004440",
+                  "disambiguation-source": "FUNDREF"
+                }
+              },
+              "visibility": "PUBLIC",
+              "put-code": 12616,
+              "path": "/0000-0003-0652-4625/funding/12616",
+              "display-index": "0"
+            }
+          ]
+        }
+      ],
+      "path": "/0000-0003-0652-4625/fundings"
+    },
+    "peer-reviews": {
+      "last-modified-date": {
+        "value": 1628261004169
+      },
+      "group": [
+        {
+          "last-modified-date": {
+            "value": 1628261004169
+          },
+          "external-ids": {
+            "external-id": [
+              {
+                "external-id-type": "peer-review",
+                "external-id-value": "issn:1741-4857",
+                "external-id-url": null,
+                "external-id-relationship": null
+              }
+            ]
+          },
+          "peer-review-summary": [
+            {
+              "created-date": {
+                "value": 1628261004169
+              },
+              "last-modified-date": {
+                "value": 1628261004169
+              },
+              "source": {
+                "source-orcid": null,
+                "source-client-id": {
+                  "uri": "https://sandbox.orcid.org/client/APP-IK56X6QNRRL9VNOM",
+                  "path": "APP-IK56X6QNRRL9VNOM",
+                  "host": "sandbox.orcid.org"
+                },
+                "source-name": {
+                  "value": "Hyku Addons"
+                }
+              },
+              "external-ids": {
+                "external-id": [
+                  {
+                    "external-id-type": "source-work-id",
+                    "external-id-value": "098765",
+                    "external-id-url": {
+                      "value": "https://localsystem.org/1234"
+                    },
+                    "external-id-relationship": "SELF"
+                  }
+                ]
+              },
+              "completion-date": {
+                "year": {
+                  "value": "2018"
+                },
+                "month": {
+                  "value": "06"
+                },
+                "day": {
+                  "value": "01"
+                }
+              },
+              "review-group-id": "issn:1741-4857",
+              "convening-organization": {
+                "name": "ORCID",
+                "address": {
+                  "city": "Bethesda",
+                  "region": "MD",
+                  "country": "US"
+                },
+                "disambiguated-organization": {
+                  "disambiguated-organization-identifier": "385488",
+                  "disambiguation-source": "RINGGOLD"
+                }
+              },
+              "visibility": "PUBLIC",
+              "put-code": 14030,
+              "path": "/0000-0003-0652-4625/peer-review/14030",
+              "display-index": "0"
+            },
+            {
+              "created-date": {
+                "value": 1628260820306
+              },
+              "last-modified-date": {
+                "value": 1628260820306
+              },
+              "source": {
+                "source-orcid": null,
+                "source-client-id": {
+                  "uri": "https://sandbox.orcid.org/client/APP-IK56X6QNRRL9VNOM",
+                  "path": "APP-IK56X6QNRRL9VNOM",
+                  "host": "sandbox.orcid.org"
+                },
+                "source-name": {
+                  "value": "Hyku Addons"
+                }
+              },
+              "external-ids": {
+                "external-id": [
+                  {
+                    "external-id-type": "source-work-id",
+                    "external-id-value": "1234",
+                    "external-id-url": {
+                      "value": "https://localsystem.org/1234"
+                    },
+                    "external-id-relationship": "SELF"
+                  }
+                ]
+              },
+              "completion-date": {
+                "year": {
+                  "value": "2012"
+                },
+                "month": null,
+                "day": null
+              },
+              "review-group-id": "issn:1741-4857",
+              "convening-organization": {
+                "name": "ORCID",
+                "address": {
+                  "city": "Bethesda",
+                  "region": "MD",
+                  "country": "US"
+                },
+                "disambiguated-organization": {
+                  "disambiguated-organization-identifier": "385488",
+                  "disambiguation-source": "RINGGOLD"
+                }
+              },
+              "visibility": "PUBLIC",
+              "put-code": 14029,
+              "path": "/0000-0003-0652-4625/peer-review/14029",
+              "display-index": "0"
+            }
+          ]
+        }
+      ],
+      "path": "/0000-0003-0652-4625/peer-reviews"
+    },
+    "works": {
+      "last-modified-date": {
+        "value": 1628240652203
+      },
+      "group": [
+        {
+          "last-modified-date": {
+            "value": 1627575814265
+          },
+          "external-ids": {
+            "external-id": [
+              {
+                "external-id-type": "other-id",
+                "external-id-value": "dv13zt20x",
+                "external-id-url": null,
+                "external-id-relationship": "SELF"
+              }
+            ]
+          },
+          "work-summary": [
+            {
+              "put-code": 1296878,
+              "created-date": {
+                "value": 1627575814265
+              },
+              "last-modified-date": {
+                "value": 1627575814265
+              },
+              "source": {
+                "source-orcid": null,
+                "source-client-id": {
+                  "uri": "https://sandbox.orcid.org/client/APP-IK56X6QNRRL9VNOM",
+                  "path": "APP-IK56X6QNRRL9VNOM",
+                  "host": "sandbox.orcid.org"
+                },
+                "source-name": {
+                  "value": "Hyku Addons"
+                }
+              },
+              "title": {
+                "title": {
+                  "value": "Testing contributor with notify, work profile synced"
+                },
+                "subtitle": null,
+                "translated-title": null
+              },
+              "external-ids": {
+                "external-id": [
+                  {
+                    "external-id-type": "other-id",
+                    "external-id-value": "dv13zt20x",
+                    "external-id-url": null,
+                    "external-id-relationship": "SELF"
+                  }
+                ]
+              },
+              "type": "OTHER",
+              "publication-date": null,
+              "visibility": "PUBLIC",
+              "path": "/0000-0003-0652-4625/work/1296878",
+              "display-index": "0"
+            }
+          ]
+        }
+      ],
+      "path": "/0000-0003-0652-4625/works"
+    },
+    "path": "/0000-0003-0652-4625/activities"
+  },
+  "path": "/0000-0003-0652-4625"
+}

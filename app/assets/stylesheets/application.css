@@ -15,4 +15,7 @@
  *= require_self
  *= require custom_layout/umich-design-token
  *= require custom_layout/tweaks
+ * hyrax-orcid begin
+ *= require hyrax/orcid/application
+ * hyrax-orcid end
  */

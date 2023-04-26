@@ -44,3 +44,8 @@ mcommunity:
   authorization: authorization.invalid
   client_id: client_id.invalid
   cookie: cookie.invalid
+
+hyrax_orcid:
+  client_id: orcid_client_id.invalid
+  client_secret: orcid_client_secret.invalid
+  redirect_url: http://localhost/data/dashboard/orcid_identity/new

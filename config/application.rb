@@ -370,6 +370,10 @@ module DeepBlueDocs
                                                                      debug_verbose: after_initialize_debug_verbose,
                                                                      debug_verbose_work_view_conent_service: false )
 
+      # hyrax-orcid begin
+      ::Hyrax::OrcidIntegrationService.after_initialize_callback( debug_verbose: after_initialize_debug_verbose )
+      # hyrax-orcid end
+
       puts "Finished after initialize." if after_initialize_debug_verbose
     end
 

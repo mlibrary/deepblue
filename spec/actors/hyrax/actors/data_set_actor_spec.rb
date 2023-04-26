@@ -28,6 +28,14 @@ RSpec.describe Hyrax::Actors::DataSetActor do
 
   subject { Hyrax::CurationConcern.actor }
 
+  # hyrax-orcid begin
+  before do
+    allow(Flipflop).to receive(:enabled?).and_call_original
+    allow(Flipflop).to receive(:enabled?).with(:hyrax_orcid).and_return(true)
+    allow(Flipflop).to receive(:hyrax_orcid?).and_return true
+  end
+  # hyrax-orcid end
+
   # describe '#model_actor' do
   #   subject { described_class.new('Test').send(:model_actor, env) }
   #

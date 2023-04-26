@@ -1,0 +1,19 @@
+<%# hyrax-orcid %>
+<ul class="nav nav-tabs" id="myTab">
+	<li class="active"><a href="#contributions"><i class="glyphicon glyphicon-star"></i> <%= I18n.t('hyrax.user_profile.tab_highlighted') %></a></li>
+	<li><a href="#activity_log"><i class="glyphicon glyphicon-calendar"></i> <%= I18n.t('hyrax.user_profile.tab_activity') %></a></li>
+</ul>
+
+<div class="tab-content">
+	<%= render 'contributions', presenter: presenter %>
+	<%= render 'activity', presenter: presenter %>
+</div> <!-- /tab-content -->
+
+<% if Flipflop.hyrax_orcid? && presenter.user.orcid_identity? %>
+	<div
+		id="orcid-profile"
+		class="js-orcid-profile"
+		data-orcid-profile-path="<%= Rails.application.routes.url_helpers.users_orcid_profile_path(presenter.user.orcid_identity.orcid_id) %>"
+	>
+	</div>
+<% end %>

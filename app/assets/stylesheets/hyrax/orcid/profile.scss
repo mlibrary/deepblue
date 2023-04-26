@@ -1,0 +1,69 @@
+//# hyrax-orcid
+#orcid-profile {
+  margin-top: 20px;
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+
+  .orcid-progress {
+    text-align: center;
+    padding: 50px 0;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .list-group {
+    padding-right: 0px;
+
+    &:last-child {
+      padding-right: 0px;
+    }
+
+    .list-group-heading {
+      padding: 15px 15px 10px 15px;
+    }
+
+    h2 {
+      display: inline;
+      font-size: 17px;
+      font-weight: bold;
+      margin: 5px 5px 0;
+    }
+
+    .heading-suffix {
+      color: #949393;
+      font-style: italic;
+    }
+
+    .list-entry {
+      border-bottom: 1px solid #DDDDDD;
+      padding: 10px;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &:nth-child(odd) {
+        background-color: #F9F9F9;
+      }
+
+      h3 {
+        font-weight: normal;
+        margin-bottom: 5px;
+        margin-top: 7px;
+      }
+
+      ul {
+        padding: 0;
+        margin: 10px 0 3px 0;
+
+        li {
+          list-style: none;
+          font-size: 13px;
+          margin-bottom: 0px;
+        }
+      }
+    }
+  }
+}

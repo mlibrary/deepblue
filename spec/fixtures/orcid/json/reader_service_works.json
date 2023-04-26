@@ -1,0 +1,87 @@
+{
+  "bulk": [
+    {
+      "work": {
+        "created-date": {
+          "value": 1627575814265
+        },
+        "last-modified-date": {
+          "value": 1627575814265
+        },
+        "source": {
+          "source-orcid": null,
+          "source-client-id": {
+            "uri": "https://sandbox.orcid.org/client/APP-IK56X6QNRRL9VNOM",
+            "path": "APP-IK56X6QNRRL9VNOM",
+            "host": "sandbox.orcid.org"
+          },
+          "source-name": {
+            "value": "Hyku Addons"
+          }
+        },
+        "put-code": 1296878,
+        "path": null,
+        "title": {
+          "title": {
+            "value": "Testing contributor with notify, work profile synced"
+          },
+          "subtitle": null,
+          "translated-title": null
+        },
+        "journal-title": null,
+        "short-description": null,
+        "citation": null,
+        "type": "OTHER",
+        "publication-date": null,
+        "external-ids": {
+          "external-id": [
+            {
+              "external-id-type": "other-id",
+              "external-id-value": "dv13zt20x",
+              "external-id-url": null,
+              "external-id-relationship": "SELF"
+            }
+          ]
+        },
+        "url": null,
+        "contributors": {
+          "contributor": [
+            {
+              "contributor-orcid": {
+                "uri": "https://sandbox.orcid.org/0000-0001-6036-8278",
+                "path": "0000-0001-6036-8278",
+                "host": "orcid.org"
+              },
+              "credit-name": {
+                "value": "Paul  Whitehead"
+              },
+              "contributor-email": null,
+              "contributor-attributes": {
+                "contributor-sequence": "FIRST",
+                "contributor-role": "AUTHOR"
+              }
+            },
+            {
+              "contributor-orcid": {
+                "uri": "https://sandbox.orcid.org/0000-0003-0652-4625",
+                "path": "0000-0003-0652-4625",
+                "host": "orcid.org"
+              },
+              "credit-name": {
+                "value": "Paul  Danelli"
+              },
+              "contributor-email": null,
+              "contributor-attributes": {
+                "contributor-sequence": "ADDITIONAL",
+                "contributor-role": "SUPPORT_STAFF"
+              }
+            }
+          ]
+        },
+        "language-code": null,
+        "country": null,
+        "visibility": "PUBLIC"
+      }
+    }
+  ]
+}

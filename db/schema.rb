@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_03_30_125052) do
+ActiveRecord::Schema.define(version: 2023_04_20_164035) do
 
   create_table "ahoy_condensed_events", force: :cascade do |t|
     t.string "name"
@@ -332,6 +332,35 @@ ActiveRecord::Schema.define(version: 2023_03_30_125052) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["namespace"], name: "index_minter_states_on_namespace", unique: true
+  end
+
+  create_table "orcid_identities", force: :cascade do |t|
+    t.integer "user_id"
+    t.string "name"
+    t.string "orcid_id"
+    t.string "access_token"
+    t.string "token_type"
+    t.string "refresh_token"
+    t.integer "expires_in"
+    t.string "scope"
+    t.integer "work_sync_preference", default: 0
+    t.json "profile_sync_preference", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["access_token"], name: "index_orcid_identities_on_access_token"
+    t.index ["orcid_id"], name: "index_orcid_identities_on_orcid_id"
+    t.index ["user_id"], name: "index_orcid_identities_on_user_id"
+    t.index ["work_sync_preference"], name: "index_orcid_identities_on_work_sync_preference"
+  end
+
+  create_table "orcid_works", force: :cascade do |t|
+    t.integer "orcid_identity_id"
+    t.string "work_uuid"
+    t.integer "put_code"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["orcid_identity_id"], name: "index_orcid_works_on_orcid_identity_id"
+    t.index ["work_uuid"], name: "index_orcid_works_on_work_uuid"
   end
 
   create_table "permission_template_accesses", force: :cascade do |t|

@@ -24,6 +24,8 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     # and load the DataSet using PersistHelper.find
     allow(::Deepblue::TicketHelper).to receive(:new_ticket)
     allow(::Deepblue::TicketHelper).to receive(:new_ticket_if_necessary)
+    allow(Flipflop).to receive(:enabled?).with(:hyrax_orcid).and_return(true)
+    allow(Flipflop).to receive(:hyrax_orcid?).and_return true
   end
 
   describe 'dbg_verbose true or false', skip: false do
