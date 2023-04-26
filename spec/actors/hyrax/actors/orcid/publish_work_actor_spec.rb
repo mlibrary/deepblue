@@ -54,6 +54,7 @@ RSpec.describe Hyrax::Actors::Orcid::PublishWorkActor do
     context "when hyrax_orcid is disabled" do
       before do
         allow(Flipflop).to receive(:enabled?).with(:hyrax_orcid).and_return(false)
+        allow(Flipflop).to receive(:hyrax_orcid?).and_return false
       end
 
       it "does not enqueue a job" do
@@ -89,6 +90,7 @@ RSpec.describe Hyrax::Actors::Orcid::PublishWorkActor do
     context "when hyrax_orcid is disabled" do
       before do
         allow(Flipflop).to receive(:enabled?).with(:hyrax_orcid).and_return(false)
+        allow(Flipflop).to receive(:hyrax_orcid?).and_return false
       end
 
       it "does not enqueue a job" do

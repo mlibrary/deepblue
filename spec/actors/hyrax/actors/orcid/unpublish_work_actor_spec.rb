@@ -29,6 +29,7 @@ RSpec.describe Hyrax::Actors::Orcid::UnpublishWorkActor do
   before do
     allow(Flipflop).to receive(:enabled?).and_call_original
     allow(Flipflop).to receive(:enabled?).with(:hyrax_orcid).and_return(true)
+    allow(Flipflop).to receive(:hyrax_orcid?).and_return true
     allow(::Hyrax::OrcidIntegrationService).to receive(:active_job_type).and_return :perform_now
 
     ActiveJob::Base.queue_adapter = :test
@@ -51,6 +52,7 @@ RSpec.describe Hyrax::Actors::Orcid::UnpublishWorkActor do
     context "when hyrax_orcid is disabled" do
       before do
         allow(Flipflop).to receive(:enabled?).with(:hyrax_orcid).and_return(false)
+        allow(Flipflop).to receive(:hyrax_orcid?).and_return false
       end
 
       it "does not perform a job" do

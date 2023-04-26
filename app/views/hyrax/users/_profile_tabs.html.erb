@@ -9,11 +9,11 @@
 	<%= render 'activity', presenter: presenter %>
 </div> <!-- /tab-content -->
 
-<% if Flipflop.enabled?(:hyrax_orcid) && presenter.user.orcid_identity? %>
+<% if Flipflop.hyrax_orcid? && presenter.user.orcid_identity? %>
 	<div
 		id="orcid-profile"
 		class="js-orcid-profile"
-		data-orcid-profile-path="<%= hyrax_orcid_routes.users_orcid_profile_path(presenter.user.orcid_identity.orcid_id) %>"
+		data-orcid-profile-path="<%= Rails.application.routes.url_helpers.users_orcid_profile_path(presenter.user.orcid_identity.orcid_id) %>"
 	>
 	</div>
 <% end %>

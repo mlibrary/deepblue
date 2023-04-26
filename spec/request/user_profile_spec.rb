@@ -26,6 +26,7 @@ RSpec.describe "Links", type: :request do
   describe "when the feature is not disabled" do
     before do
       allow(Flipflop).to receive(:enabled?).with(:hyrax_orcid).and_return(true)
+      allow(Flipflop).to receive(:hyrax_orcid?).and_return true
     end
 
     it "raises an error" do
@@ -38,6 +39,7 @@ RSpec.describe "Links", type: :request do
   describe "when the feature is disabled" do
     before do
       allow(Flipflop).to receive(:enabled?).with(:hyrax_orcid).and_return(false)
+      allow(Flipflop).to receive(:hyrax_orcid?).and_return false
     end
 
     it "raises an error" do

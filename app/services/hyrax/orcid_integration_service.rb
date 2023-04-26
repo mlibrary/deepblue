@@ -29,11 +29,11 @@ module Hyrax
 
     mattr_accessor :active_job_type,           default: :perform_later
     mattr_accessor :auth,                                   default: {
-      client_id: "YOUR-APP-ID",
-      client_secret: "your-secret-token",
+      client_id: Settings.hyrax_orcid.client_id,
+      client_secret: Settings.hyrax_orcid.client_secret,
       # The authorisation return URL you entered when creating the Orcid Application.
       # Should be your repository URL and `/dashboard/orcid_identity/new`
-      redirect_url: "http://your-repo.com/dashboard/orcid_identity/new"
+      redirect_url: Settings.hyrax_orcid.redirect_url
     }
     mattr_accessor :blacklight_pipeline_actor, default: "Hyrax::Orcid::Blacklight::Rendering::PipelineJsonExtractor"
     mattr_accessor :bolognese,                               default: {

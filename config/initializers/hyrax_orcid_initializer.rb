@@ -17,19 +17,10 @@ Bolognese::Metadata.prepend Bolognese::Readers::Orcid::HyraxWorkReader
 
 ::Hyrax::OrcidIntegrationService.setup do |config|
 
-  # TODO: move some of these to Settings
-
   ORCID_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE = true
 
   # :sandbox or :production
   config.environment = :sandbox
-
-  config.auth = {
-    client_id: "YOUR-APP-ID",
-    client_secret: "your-secret-token",
-    # The authorisation return URL you entered when creating the Orcid Application. Should be your repository URL and `/dashboard/orcid_identity/new`
-    redirect_url: "http://your-repo.com/dashboard/orcid_identity/new"
-  }
 
   config.bolognese = {
     # The work reader method, excluding the _reader suffix

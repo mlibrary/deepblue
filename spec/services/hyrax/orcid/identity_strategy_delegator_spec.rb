@@ -30,6 +30,7 @@ RSpec.describe Hyrax::Orcid::IdentityStrategyDelegator do
   before do
     allow(Flipflop).to receive(:enabled?).and_call_original
     allow(Flipflop).to receive(:enabled?).with(:hyrax_orcid).and_return(true)
+    allow(Flipflop).to receive(:hyrax_orcid?).and_return true
   end
 
   describe ".new" do
@@ -77,6 +78,7 @@ RSpec.describe Hyrax::Orcid::IdentityStrategyDelegator do
     context "when the feature is disabled" do
       before do
         allow(Flipflop).to receive(:enabled?).with(:hyrax_orcid).and_return(false)
+        allow(Flipflop).to receive(:hyrax_orcid?).and_return false
       end
 
       it "returns nil" do
