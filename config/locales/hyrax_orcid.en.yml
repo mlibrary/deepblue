@@ -21,7 +21,7 @@ en:
           connect_intro: |
             Syncing your Hyku repository profile with ORCID allows you to display all the data in your ORCID profile to your repository profile and makes it easier for public works deposited in this repository to be synced to ORCID.
           connect_explaination: |
-            ORCID provides a persistent digital identifier that you own and control, and that distinguishes you from every other researcher. You can connect your iD with your professional information — affiliations, grants, publications, peer review, and more. You can use your iD to share your information with other systems, ensuring you get recognition for all your contributions, saving you time and hassle, and reducing the risk of errors.
+            ORCID provides a persistent digital identifier that you own and control, and that distinguishes you from every other researcher. You can connect your ID with your professional information — affiliations, grants, publications, peer review, and more. You can use your iD to share your information with other systems, ensuring you get recognition for all your contributions, saving you time and hassle, and reducing the risk of errors.
           connect_button_text: Connect to ORCID
         profile_sync:
           intro: |

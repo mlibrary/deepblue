@@ -24,7 +24,7 @@
 					<% type = doc.dig("has_model_ssim").first.underscore %>
 
 					<tr class="referenced-work">
-						<td><%= link_to doc["title_tesim"].first, routes.send("hyrax_#{type}_path", doc["id"]) %></td>
+						<td><%= link_to doc["title_tesim"].first, Rails.application.routes.url_helpers.send("hyrax_#{type}_path", doc["id"]) %></td>
 						<td><%= participant_to_string(:creator, doc["creator_tesim"]) %></td>
 						<td><%= participant_to_string(:contributor, doc["contributor_tesim"]) %></td>
 						<td><%= doc["human_readable_type_tesim"].first %></td>

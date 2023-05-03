@@ -4,7 +4,7 @@
 module Hyrax
   module Orcid
     class UsersController < ApplicationController
-      before_action :enabled?, :connected?
+      before_action :enabled? #, :connected?
 
       def show
         render "show", layout: false

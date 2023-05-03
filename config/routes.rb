@@ -218,6 +218,7 @@ Rails.application.routes.draw do
 
   # replacements for hyrax_orcid_routes. --> Rails.application.routes.url_helpers.
   get 'orcid/identities/', controller: 'hyrax/orcid/dashboard/orcid_identities', action: :new, as: 'new_orcid_identity'
+  get 'orcid/users/show/:orcid_id', controller: 'hyrax/orcid/users', action: :show #, as: 'orcid_identity'
   get 'orcid/users/:orcid_id', controller: 'hyrax/orcid/users', action: :orcid_identity, as: 'orcid_identity'
   get 'orcid/users/profile/:orcid_id', controller: 'hyrax/orcid/users', action: :show, as: 'users_orcid_profile'
   get 'orcid/works/publish/:work_id/:orcid_id', controller: 'hyrax/orcid/dashboard/works', action: :publish, as: 'orcid_works_publish'

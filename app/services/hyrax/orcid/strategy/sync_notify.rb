@@ -36,9 +36,9 @@ module Hyrax
             params = {
               depositor_profile: depositor.orcid_identity? ? orcid_profile_uri(depositor.orcid_identity.orcid_id) : nil,
               depositor_description: depositor_description,
-              profile_path: hyrax_routes.dashboard_profile_path(@identity.user),
+              profile_path: Hyrax::Engine.routes.url_helpers.dashboard_profile_path(@identity.user),
               work_title: @work.title.first,
-              work_path: routes.send("hyrax_#{@work.class.name.underscore}_path", @work.id),
+              work_path: Rails.application.routes.url_helpers.send("hyrax_#{@work.class.name.underscore}_path", @work.id),
               approval_path: Rails.application.routes.url_helpers.orcid_works_publish_path(work_id: @work.id, orcid_id: @identity.orcid_id)
             }
             I18n.t("hyrax.orcid.notify.notification.body", params)
