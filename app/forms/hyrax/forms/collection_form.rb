@@ -152,6 +152,10 @@ module Hyrax
       end
 
       def list_child_collections
+        verbose = true
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if verbose
         collection_member_service.available_member_subcollections.documents
       end
 

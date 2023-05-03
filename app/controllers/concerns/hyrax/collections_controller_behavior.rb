@@ -34,6 +34,7 @@ module Hyrax
 
     def unknown_id_rescue(e)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "current_ability.admin?=#{current_ability.admin?}",
                                              "e=#{e.pretty_inspect}",
                                              "" ] if hyrax_collections_controller_behavior_debug_verbose
@@ -53,9 +54,9 @@ module Hyrax
     end
 
     def create
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "params[:id]=#{params[:id]}",
                                              "params=#{params}" ] if hyrax_collections_controller_behavior_debug_verbose
       respond_to do |wants|
@@ -72,9 +73,9 @@ module Hyrax
     end
 
     def destroy
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "params[:id]=#{params[:id]}",
                                              "params=#{params}" ] if hyrax_collections_controller_behavior_debug_verbose
       respond_to do |wants|
@@ -91,9 +92,9 @@ module Hyrax
     end
 
     def edit
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "params[:id]=#{params[:id]}",
                                              "params=#{params}" ] if hyrax_collections_controller_behavior_debug_verbose
       respond_to do |wants|
@@ -110,15 +111,15 @@ module Hyrax
     end
 
     def show
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                             "params[:id]=#{params[:id]}",
                                             "params=#{params}" ] if hyrax_collections_controller_behavior_debug_verbose
       respond_to do |wants|
-        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
-                                               Deepblue::LoggingHelper.obj_class( 'wants', wants ),
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               ::Deepblue::LoggingHelper.obj_class( 'wants', wants ),
                                                "wants.format=#{wants.format}",
                                                "" ] if hyrax_collections_controller_behavior_debug_verbose
         wants.html do
@@ -149,8 +150,8 @@ module Hyrax
 
     # render a json response for +response_type+
     def collections_render_json_response(response_type: :success, message: nil, options: {})
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
                                              "response_type=#{response_type}",
                                              "message=#{message}",
                                              "options=#{options}",
@@ -160,9 +161,9 @@ module Hyrax
     end
 
     def update
-      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                             Deepblue::LoggingHelper.called_from,
-                                             Deepblue::LoggingHelper.obj_class( 'class', self ),
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "params[:id]=#{params[:id]}",
                                              "params=#{params}" ] if hyrax_collections_controller_behavior_debug_verbose
       respond_to do |wants|
@@ -239,10 +240,14 @@ module Hyrax
       end
 
       def member_subcollections
+        verbose = true || hyrax_collections_controller_behavior_debug_verbose
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if verbose
         results = collection_member_service.available_member_subcollections
         @subcollection_solr_response = results
-        @subcollection_docs = results.documents
-        @subcollection_count = @presenter.subcollection_count = results.total
+        @subcollection_docs = ::Hyrax::CollectionHelper2.member_subcollections_docs( results )
+        @subcollection_count = results.total
       end
 
       # You can override this method if you need to provide additional inputs to the search
