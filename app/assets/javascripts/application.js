@@ -31,6 +31,6 @@
 //= require hyrax/anonymous_links_manager
 
 //= require hyrax
-// hyrax-orcid begin
+//# hyrax-orcid begin
 //= require hyrax/orcid/application
-// hyrax-orcid end
+//# hyrax-orcid end

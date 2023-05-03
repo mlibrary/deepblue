@@ -7,7 +7,7 @@ module Hyrax
       include Hyrax::Orcid::UrlHelper
       include Hyrax::Orcid::OrcidHelper
       include Hyrax::Orcid::WorkHelper
-      include Hyrax::Orcid::RouteHelper
+      #include Hyrax::Orcid::RouteHelper
       include Hyrax::Orcid::JsonFieldHelper
     end
   end

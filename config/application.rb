@@ -166,6 +166,9 @@ module DeepBlueDocs
     config.version_presenter_debug_verbose                = false
     config.work_show_presenter_debug_verbose              = false
 
+    # collection config
+    config.collection_members_sort_by_title = true
+
     # config.middleware.insert_before Rack::Runtime, RackMultipartBufSizeSetter
 
     ## to configure for Box integration, see config/initalizers/box_integration.rb
