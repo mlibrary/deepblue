@@ -245,6 +245,19 @@ module Hyrax
 
       ## end monkey patch banner
 
+      ### begin monkey
+      def member_subcollections
+        verbose = true # || hyrax_collections_controller_behavior_debug_verbose
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if verbose
+        results = collection_member_service.available_member_subcollections
+        @subcollection_solr_response = results
+        @subcollection_docs = ::Hyrax::CollectionHelper2.member_subcollections_docs( results )
+        @subcollection_count = @presenter.nil? ? 0 : @subcollection_count = @presenter.subcollection_count = results.total
+      end
+      ### end monkey
+
     end
 
   end
