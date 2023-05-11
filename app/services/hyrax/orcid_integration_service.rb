@@ -25,7 +25,7 @@ module Hyrax
     end
 
     mattr_accessor :orcid_debug_verbose,                     default: false
-    mattr_accessor :orcid_integration_service_debug_verbose, default: true
+    mattr_accessor :orcid_integration_service_debug_verbose, default: false
 
     mattr_accessor :active_job_type,           default: :perform_later
     mattr_accessor :auth,                                   default: {
