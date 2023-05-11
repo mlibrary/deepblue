@@ -96,11 +96,17 @@ class ProxyDepositRequest < ActiveRecord::Base
   private
 
     def send_request_transfer_message_as_part_of_create
-      user_link = link_to(sending_user.name, Hyrax::Engine.routes.url_helpers.user_path(sending_user))
-      transfer_link = link_to(I18n.t('hyrax.notifications.proxy_deposit_request.transfer_on_create.transfer_link_label'), Hyrax::Engine.routes.url_helpers.transfers_path)
-      message = I18n.t('hyrax.notifications.proxy_deposit_request.transfer_on_create.message', user_link: user_link,
-                                                                                               transfer_link: transfer_link)
-      Hyrax::MessengerService.deliver(::User.batch_user, receiving_user, message,
+      user_path = ::Deepblue::RouteHelper.relative_url( Hyrax::Engine.routes.url_helpers.user_path(sending_user) )
+      user_link = link_to( sending_user.name, user_path )
+      transfers_path = ::Deepblue::RouteHelper.relative_url( Hyrax::Engine.routes.url_helpers.transfers_path )
+      transfer_link = link_to( I18n.t('hyrax.notifications.proxy_deposit_request.transfer_on_create.transfer_link_label'),
+                               transfers_path )
+      message = I18n.t('hyrax.notifications.proxy_deposit_request.transfer_on_create.message',
+                       user_link: user_link,
+                       transfer_link: transfer_link)
+      Hyrax::MessengerService.deliver(::User.batch_user,
+                                      receiving_user,
+                                      message,
                                       I18n.t('hyrax.notifications.proxy_deposit_request.transfer_on_create.subject'))
     end
 
@@ -110,7 +116,9 @@ class ProxyDepositRequest < ActiveRecord::Base
         message += " " + I18n.t('hyrax.notifications.proxy_deposit_request.transfer_on_update.comments',
                                 receiver_comment: receiver_comment)
       end
-      Hyrax::MessengerService.deliver(::User.batch_user, sending_user, message,
+      Hyrax::MessengerService.deliver(::User.batch_user,
+                                      sending_user,
+                                      message,
                                       I18n.t('hyrax.notifications.proxy_deposit_request.transfer_on_update.subject',
                                              status: status))
     end

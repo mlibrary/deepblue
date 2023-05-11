@@ -17,7 +17,7 @@ module Hyrax
             f.html do
               flash[:notice] = I18n.t("hyrax.orcid.notify.published")
               # I am not using redirect_back, as if the user gets stuck on the publish path it'll redirect to death
-              redirect_to Hyrax::Engine.routes.url_helpers.notifications_path
+              redirect_to hyrax.notifications_path
             end
             f.json do
               render json: { success: true }.to_json, status: 200
@@ -52,7 +52,7 @@ module Hyrax
           def ldp_gone_error
             flash[:error] = I18n.t("hyrax.orcid.notify.error")
 
-            redirect_to Hyrax::Engine.routes.url_helpers.notifications_path
+            redirect_to hyrax.notifications_path
           end
       end
     end

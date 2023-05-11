@@ -1,76 +1,112 @@
 <%# hyrax-orcid %>
 <% icon = image_tag 'orcid.png', alt: t('hyrax.user_profile.orcid.alt'), class: "profile brand-logo" %>
 
-<div id="orcid-options-panel" class="list-group col-lg-7 col-md-6 col-sm-12">
-	<% if current_user.orcid_identity? %>
-		<div class="list-group-item">
-			<b><%= t("hyrax.orcid.preferences.title") %></b>
-		</div>
+<% options_panel_debug_verbose = true %>
+<%
+  ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, "" ] if options_panel_debug_verbose
+%>
 
-		<div class="list-group-item">
+<div id="orcid-options-panel" class="list-group col-lg-7 col-md-6 col-sm-12">
+  <% if current_user.orcid_identity? %>
+    <div class="list-group-item">
+      <b><%= t("hyrax.orcid.preferences.title") %></b>
+    </div>
+
+    <div class="list-group-item">
 
       <% link = link_to orcid_profile_uri(current_user.orcid_identity.orcid_id) do %>
         <%== "#{current_user.orcid_identity.name} (#{icon} #{current_user.orcid_identity.orcid_id})" %>
       <% end %>
-			<%== t("hyrax.orcid.preferences.linked", link: link) %>
-		</div>
+      <%== t("hyrax.orcid.preferences.linked", link: link) %>
+    </div>
 
-		<% path = Rails.application.routes.url_helpers.orcid_identity_path(current_user.orcid_identity) %>
-		<%= form_for current_user.orcid_identity, url: path, method: :patch, html: { class: "form" } do |f| %>
-			<div class="list-group-item">
-				<p><%= t("hyrax.orcid.preferences.work_sync.intro") %></p>
+    <% path = Rails.application.routes.url_helpers.orcid_identity_path(current_user.orcid_identity) %>
+    <%
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             "path=#{path}",
+                                             "" ] if options_panel_debug_verbose
+    %>
+    <%= form_for current_user.orcid_identity, url: path, method: :patch, html: { class: "form" } do |f| %>
+      <div class="list-group-item">
+        <p><%= t("hyrax.orcid.preferences.work_sync.intro") %></p>
 
-				<% options = OrcidIdentity.work_sync_preferences.map { |ident| [ident[0], ident[0].titleize] } %>
-				<%= f.collection_radio_buttons :work_sync_preference, options, :first, :last do |b| %>
-					<div class="radio">
-						<%= b.label do %>
-							<%= b.radio_button class: "form-check-input" %>
-							<%= t("hyrax.orcid.preferences.work_sync.preferences.#{b.object[0]}") %>
-						<% end %>
-					</div>
-				<% end %>
-			</div>
+        <% options = OrcidIdentity.work_sync_preferences.map { |ident| [ident[0], ident[0].titleize] } %>
+        <%= f.collection_radio_buttons :work_sync_preference, options, :first, :last do |b| %>
+          <div class="radio">
+            <%= b.label do %>
+              <%= b.radio_button class: "form-check-input" %>
+              <%= t("hyrax.orcid.preferences.work_sync.preferences.#{b.object[0]}") %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
 
-			<div class="list-group-item">
-				<p><%= t("hyrax.orcid.preferences.profile_sync.intro") %></p>
+      <div class="list-group-item">
+        <p><%= t("hyrax.orcid.preferences.profile_sync.intro") %></p>
 
-				<div class="row">
-					<div class="col-md-6 col-sm-12">
-						<%= f.fields_for :profile_sync_preference do |sf| %>
-							<% OrcidIdentity.profile_sync_preference.sort.each_with_index do |(pref, value), i| %>
-								<div class="check">
-									<%= label_tag do %>
-										<% checked = current_user.orcid_identity.profile_sync_preference.dig(pref.to_s) == "1" %>
-										<%= sf.check_box pref, value: true, checked: checked, class: "form-check-input", id: "profile_sync_preference_#{pref}" %>
+        <div class="row">
+          <div class="col-md-6 col-sm-12">
+            <%= f.fields_for :profile_sync_preference do |sf| %>
+              <%
+                ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                       "sf=#{sf}",
+                                                       "OrcidIdentity.profile_sync_preference=#{OrcidIdentity.profile_sync_preference}",
+                                                       "" ] if options_panel_debug_verbose
+              %>
+              <% OrcidIdentity.profile_sync_preference.sort.each_with_index do |(pref, value), i| %>
+                <div class="check">
+                  <%= label_tag do %>
+                    <% sync_pref = current_user.orcid_identity.profile_sync_preference %>
+                    <%
+                      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                             "pref=#{pref}",
+                                                             "value=#{value}",
+                                                             "sync_pref.class.name=#{sync_pref.class.name}",
+                                                             "sync_pref=#{sync_pref}",
+                                                             "" ] if options_panel_debug_verbose
+                    %>
+                    <% checked = false %>
+                    <%  if sync_pref.is_a? String %>
+                      <% sync_pref = JSON.parse sync_pref %>
+                    <% end %>
+                    <%
+                      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                             "sync_pref.respond_to? :dig=#{sync_pref.respond_to? :dig}",
+                                                             "" ] if options_panel_debug_verbose
+                    %>
+                    <% if sync_pref.respond_to? :dig %>
+                      <% checked = sync_pref.dig(pref.to_s) == "1" %>
+                    <% end %>
+                    <%= sf.check_box pref, value: true, checked: checked, class: "form-check-input", id: "profile_sync_preference_#{pref}" %>
 
-										<%= t("hyrax.orcid.preferences.profile_sync.preferences.#{pref}") %>
-									<% end %>
-								</div>
-							<% end %>
-						<% end %>
-					</div>
-				</div>
-			</div>
+                    <%= t("hyrax.orcid.preferences.profile_sync.preferences.#{pref}") %>
+                  <% end %>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
 
-			<%= f.submit t("hyrax.orcid.preferences.button_text"), class: "btn btn-primary margin-top" %>
-			<% options = { method: :delete, class: "btn btn-danger margin-top float-right", data: { confirm: t("hyrax.orcid.preferences.destroy.confirm") } } %>
-			<%= link_to t("hyrax.orcid.preferences.destroy.button_text"), Rails.application.routes.url_helpers.orcid_identity_path(current_user.orcid_identity), options %>
-		<% end %>
+      <%= f.submit t("hyrax.orcid.preferences.button_text"), class: "btn btn-primary margin-top" %>
+      <% options = { method: :delete, class: "btn btn-danger margin-top float-right", data: { confirm: t("hyrax.orcid.preferences.destroy.confirm") } } %>
+      <%= link_to t("hyrax.orcid.preferences.destroy.button_text"), Rails.application.routes.url_helpers.orcid_identity_path(current_user.orcid_identity), options %>
+    <% end %>
 
-	<% else %>
-		<div class="list-group-item">
-			<b><%= t("hyrax.orcid.preferences.title") %></b>
-		</div>
+  <% else %>
+    <div class="list-group-item">
+      <b><%= t("hyrax.orcid.preferences.title") %></b>
+    </div>
 
-		<div class="list-group-item">
-			<p><%= t("hyrax.orcid.preferences.info.connect_intro") %></p>
-			<p><b><%= t("hyrax.orcid.preferences.info.connect_title") %></b></p>
-			<p><%= t("hyrax.orcid.preferences.info.connect_explaination") %></p>
+    <div class="list-group-item">
+      <p><%= t("hyrax.orcid.preferences.info.connect_intro") %></p>
+      <p><b><%= t("hyrax.orcid.preferences.info.connect_title") %></b></p>
+      <p><%= t("hyrax.orcid.preferences.info.connect_explaination") %></p>
 
-			<a href="<%= orcid_authorize_uri %>" title="Connect to ORCID" class="btn btn-orcid margin-bottom">
+      <a href="<%= orcid_authorize_uri %>" title="Connect to ORCID" class="btn btn-orcid margin-bottom">
         <%= icon %>
         <%= t("hyrax.orcid.preferences.info.connect_button_text") %>
-			</a>
-		</div>
-	<% end %>
+      </a>
+    </div>
+  <% end %>
 </div>

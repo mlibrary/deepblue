@@ -1,12 +1,26 @@
-<%# hyrax-orcid %><
-% reader = Hyrax::Orcid::Record::ReaderService.new(orcid_identity) %>
+<%# hyrax-orcid %>
+<% orcid_users_show_debug_verbose = true %>
+<%
+  ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, "" ] if orcid_users_show_debug_verbose
+%>
+<% reader = Hyrax::Orcid::Record::ReaderService.new(orcid_identity) %>
 
+<%
+  ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                         "orcid_identity=#{orcid_identity}",
+                                         "" ] if orcid_users_show_debug_verbose
+%>
+
+<% if orcid_identity.blank? %>
+  Failed to load orcid_identity.
+<% else %>
 <% orcid_identity.selected_sync_preferences.each do |key| %>
-	<% method_name = "read_#{key}" %>
+  <% method_name = "read_#{key}" %>
 
-	<% next unless reader.respond_to?(method_name) %>
+  <% next unless reader.respond_to?(method_name) %>
   <% next if (collection = reader.send(method_name)).blank? %>
 
-	<% presenter = "Hyrax::Orcid::Profile::#{key.classify}Presenter".constantize.new(collection) %>
-	<%= render "hyrax/orcid/users/partials/card", presenter: presenter %>
+  <% presenter = "Hyrax::Orcid::Profile::#{key.classify}Presenter".constantize.new(collection) %>
+  <%= render "hyrax/orcid/users/partials/card", presenter: presenter %>
+<% end %>
 <% end %>

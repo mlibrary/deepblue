@@ -1,39 +1,44 @@
 <%# hyrax-orcid %>
 <% provide :page_header do %>
-	<h1><span class="fa fa-id-card" aria-hidden="true"></span> <%= t("hyrax.admin.sidebar.profile") %></h1>
-	<% if can? :edit, current_user %>
-		<div class="pull-right">
-			<%= link_to hyrax.edit_dashboard_profile_path(@user), class: "btn btn-primary" do %>
-				<%= t("hyrax.edit_profile") %>
-			<% end %>
-		</div>
-	<% end %>
+  <h1><span class="fa fa-id-card" aria-hidden="true"></span> <%= t("hyrax.admin.sidebar.profile") %></h1>
+  <% if can? :edit, current_user %>
+    <div class="pull-right">
+      <%= link_to hyrax.edit_dashboard_profile_path(@user), class: "btn btn-primary" do %>
+        <%= t("hyrax.edit_profile") %>
+      <% end %>
+    </div>
+  <% end %>
 <% end %>
 
 <div class="panel panel-default">
-	<div class="panel-body">
-		<div class="list-group col-lg-5 col-md-6 col-sm-12">
-			<%= render "hyrax/users/vitals", user: @user %>
+  <div class="panel-body">
+    <div class="list-group col-lg-5 col-md-6 col-sm-12">
 
-			<div class="list-group-item">
-				<%= render 'hyrax/users/user_info', user: @user %>
-			</div>
+      <div class="list-group-item">
+        <%= link_to "Public profile", hyrax.user_path( @user ) %>
+      </div>
 
-			<% if @presenter.trophies.any? %>
-				<div class="list-group-item">
-					<%= render 'hyrax/users/contributions', presenter: @presenter %>
-				</div>
-			<% end %>
-		</div>
+      <%= render "hyrax/users/vitals", user: @user %>
 
-		<%= render "hyrax/dashboard/shared/orcid/options_panel" if Flipflop.hyrax_orcid? %>
-	</div>
+      <div class="list-group-item">
+        <%= render 'hyrax/users/user_info', user: @user %>
+      </div>
+
+      <% if @presenter.trophies.any? %>
+        <div class="list-group-item">
+          <%= render 'hyrax/users/contributions', presenter: @presenter %>
+        </div>
+      <% end %>
+    </div>
+
+    <%= render "hyrax/dashboard/shared/orcid/options_panel" if Flipflop.hyrax_orcid? %>
+  </div>
 </div>
 
 <% if Flipflop.hyrax_orcid? && current_user.orcid_identity? %>
-	<div class="panel panel-default">
-		<div class="panel-body">
-			<%= render "hyrax/dashboard/shared/orcid/works" %>
-		</div>
-	</div>
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <%= render "hyrax/dashboard/shared/orcid/works" %>
+    </div>
+  </div>
 <% end %>

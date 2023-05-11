@@ -2,6 +2,9 @@
 # hyrax-orcid
 
 class OrcidIdentity < ApplicationRecord
+
+  serialize :profile_sync_preference, JSON if Rails.env.production?
+
   enum work_sync_preference: { sync_all: 0, sync_notify: 1, manual: 2 }
 
   belongs_to :user
@@ -22,7 +25,13 @@ class OrcidIdentity < ApplicationRecord
   end
 
   def selected_sync_preferences
-    profile_sync_preference.select { |_k, v| v == "1" }.keys
+    psf = profile_sync_preference
+    if ( psf.blank? )
+      psf = {}
+    elsif ( psf.is_a? String )
+      psf = JSON.parse psf
+    end
+    psf.select { |_k, v| v == "1" }.keys
   end
 
   protected

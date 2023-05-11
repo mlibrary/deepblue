@@ -3,7 +3,7 @@
 # bundle exec rake deepblue:run_job['{"job_class":"HeartBeat"\,"verbose":true}']
 class ListArgumentsJob < ::Deepblue::DeepblueJob
 
-  mattr_accessor :list_arguments_job_debug_verbose, default: true
+  mattr_accessor :list_arguments_job_debug_verbose, default: false
 
   def perform( *args )
     job_start( email_init: false )
