@@ -7,7 +7,7 @@
 %>
 
 <div id="orcid-options-panel" class="list-group col-lg-7 col-md-6 col-sm-12">
-  <% if current_user.orcid_identity? %>
+  <% if current_user&.orcid_identity? %>
     <div class="list-group-item">
       <b><%= t("hyrax.orcid.preferences.title") %></b>
     </div>
