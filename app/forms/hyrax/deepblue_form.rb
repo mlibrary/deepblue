@@ -6,6 +6,10 @@ module Hyrax
 
     include Deepbluedocs::DefaultWorkFormBehavior
 
+    # hyrax-orcid begin
+    include ::Hyrax::Orcid::WorkFormBehavior
+    # hyrax-orcid end
+
     def data_set?
       false
     end

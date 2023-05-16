@@ -34,8 +34,8 @@ module Hyrax
       end
 
       # hyrax-orcid begin
-      property :creator, predicate: ::RDF::Vocab::DC11.creator
-      property :contributor, predicate: ::RDF::Vocab::DC11.contributor
+      #property :creator, predicate: ::RDF::Vocab::DC11.creator
+      #property :contributor, predicate: ::RDF::Vocab::DC11.contributor
       # hyrax-orcid end
 
     end

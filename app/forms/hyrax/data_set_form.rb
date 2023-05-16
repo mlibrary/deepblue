@@ -12,6 +12,7 @@ module Hyrax
     self.terms +=
       %i[
         authoremail
+        creator_orcid
         date_coverage
         description
         fundedby
@@ -34,6 +35,7 @@ module Hyrax
       %i[
         title
         creator
+        creator_orcid
         authoremail
         methodology
         tombstone

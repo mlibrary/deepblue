@@ -10,7 +10,7 @@ end
 
 # try these here -- copied from Hyrax::Orcid::Engine
 Hyrax::HyraxHelperBehavior.include Hyrax::Orcid::HelperBehavior  # Add any required helpers, for routes, api metadata etc
-Hyrax::WorkIndexer.include Hyrax::Orcid::WorkIndexerBehavior     # Allow the JSON fields to be indexed individually
+# Hyrax::WorkIndexer.include Hyrax::Orcid::WorkIndexerBehavior     # Allow the JSON fields to be indexed individually
 # Insert our custom reader and writer to process works ready before publishing
 Bolognese::Metadata.prepend Bolognese::Writers::Orcid::XmlWriter
 Bolognese::Metadata.prepend Bolognese::Readers::Orcid::HyraxWorkReader

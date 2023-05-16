@@ -25,6 +25,10 @@ module Umrdr
       Array(self['checksum_value_tesim']).first
     end
 
+    def creator_orcid
+      Array(self['creator_orcid_tesim']).first
+    end
+
     def curation_notes_admin
       fetch('curation_notes_admin_tesim', [])
     end

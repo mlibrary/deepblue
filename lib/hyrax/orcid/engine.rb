@@ -52,7 +52,7 @@ module Hyrax
         #  "Hyrax::#{work_type}Form".constantize.include Hyrax::Orcid::WorkFormBehavior
         #   work_type.constantize.include Hyrax::Orcid::WorkBehavior
         # end
-        # added to DataSet
+        # added to DeepblueForm
 
         # Insert our custom reader and writer to process works ready before publishing
         # moved to initializer/hyrax_orcid_initializer.rb # Bolognese::Metadata.prepend Bolognese::Writers::Orcid::XmlWriter

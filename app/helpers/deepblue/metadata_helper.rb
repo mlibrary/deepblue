@@ -26,6 +26,7 @@ module Deepblue
                                             authoremail
                                             creator
                                             creator_ordered
+                                            creator_orcid
                                             curation_notes_admin
                                             curation_notes_admin_ordered
                                             curation_notes_user

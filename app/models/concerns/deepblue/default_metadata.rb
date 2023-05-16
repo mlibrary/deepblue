@@ -242,6 +242,10 @@ module Deepblue
       #   index.as :stored_searchable, :facetable
       # end
 
+      property :creator_orcid, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#creator_orcid') do |index|
+        index.as :stored_searchable
+      end
+
       #  10  date
       property :date, predicate: ::RDF::URI.new("http://opaquenamespace.org/ns/date") do |index|
         index.as :stored_searchable
