@@ -53,6 +53,7 @@ module Hyrax
              :admin_set, to: :solr_document
 
     delegate  :authoremail,
+              :creator_orcid,
               :curation_notes_admin,
               :curation_notes_user,
               :date_coverage,

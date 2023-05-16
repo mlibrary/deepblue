@@ -7,6 +7,7 @@ en:
         checksum_algorithm:   "Checksum Alg."
         checksum_value:       "Checksum"
         creator:              "Creator"
+        creator_orcid:        "Creator ORCID"
         curation_notes_admin: "Curation Notes for Admins"
         curation_notes_admin_html: "Curation Notes<br/> for Admins"
         curation_notes_user:  "Curation Notes"

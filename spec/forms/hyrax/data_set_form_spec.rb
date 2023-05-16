@@ -22,6 +22,7 @@ RSpec.describe Hyrax::DataSetForm do
   let( :expected_primary_terms ) { %i[
     title
     creator
+    creator_orcid
     authoremail
     methodology
     tombstone

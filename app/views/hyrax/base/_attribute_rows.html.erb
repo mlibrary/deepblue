@@ -39,6 +39,7 @@
 </td></tr>
 
 <%= presenter.attribute_to_html(:creator, render_as: :creator, label: I18n.t('show.labels.creator') ) %>
+<%= presenter.attribute_to_html(:creator_orcid, label: I18n.t('show.labels.creator_orcid') ) %>
 <%= presenter.attribute_to_html(:depositor, render_as: :depositor) %>
 <%= presenter.attribute_to_html(:authoremail, label: t('show.labels.authoremail'), work_type: "DataSet" ) %>
 <%= presenter.attribute_to_html(:contributor, render_as: :faceted) %>

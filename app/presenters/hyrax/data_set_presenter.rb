@@ -7,6 +7,7 @@ module Hyrax
     mattr_accessor :data_set_presenter_debug_verbose, default: Rails.configuration.data_set_presenter_debug_verbose
 
     delegate  :authoremail,
+              :creator_orcid,
               :curation_notes_admin,
               :curation_notes_user,
               :date_coverage,

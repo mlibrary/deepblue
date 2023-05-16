@@ -172,6 +172,7 @@ class CatalogController < ApplicationController
     config.add_show_field solr_name("subject", :stored_searchable)
     config.add_show_field solr_name("subject_discipline", :stored_searchable)
     config.add_show_field solr_name("creator", :stored_searchable)
+    config.add_show_field solr_name("creator_orcid", :stored_searchable)
     config.add_show_field solr_name("contributor", :stored_searchable)
     config.add_show_field solr_name("publisher", :stored_searchable)
     config.add_show_field solr_name("based_near_label", :stored_searchable)
@@ -252,6 +253,14 @@ class CatalogController < ApplicationController
       field.solr_local_parameters = {
           qf: solr_name,
           pf: solr_name
+      }
+    end
+
+    config.add_search_field('creator_orcid') do |field|
+      solr_name = solr_name("creator_orcid", :stored_searchable)
+      field.solr_local_parameters = {
+        qf: solr_name,
+        pf: solr_name
       }
     end
 

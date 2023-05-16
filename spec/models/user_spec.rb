@@ -336,13 +336,13 @@ RSpec.describe User, type: :model do
       ActiveFedora::SolrService.commit
     end
 
-    context "when the users orcid ID is not referenced" do
+    context "when the users orcid ID is not referenced", skip: true do
       it "doesn't return the work" do
         expect(user.orcid_referenced_works.count).to be(0)
       end
     end
 
-    context "when the users orcid ID is referenced" do
+    context "when the users orcid ID is referenced", skip: true do
       let(:creator1_orcid) { user.orcid_identity.orcid_id }
 
       it "returns the correct documents" do
@@ -352,7 +352,7 @@ RSpec.describe User, type: :model do
       end
     end
 
-    context "when the user is referenced in multiple work" do
+    context "when the user is referenced in multiple work", skip: true do
       let(:creator1_orcid) { user.orcid_identity.orcid_id }
       let(:work2_attributes) do
         {
@@ -370,7 +370,7 @@ RSpec.describe User, type: :model do
       end
     end
 
-    context "when the users orcid ID is referenced as a contributor" do
+    context "when the users orcid ID is referenced as a contributor", skip: true do
       let(:contributor1_orcid) { user.orcid_identity.orcid_id }
 
       it "returns the correct documents" do

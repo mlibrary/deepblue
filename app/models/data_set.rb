@@ -5,6 +5,9 @@ class DataSet < ActiveFedora::Base
   mattr_accessor :data_set_debug_verbose, default: Rails.configuration.data_set_debug_verbose
 
   include ::Hyrax::WorkBehavior
+  # hyrax-orcid begin
+  include ::Hyrax::Orcid::WorkBehavior
+  # hyrax-orcid end
 
   self.indexer = DataSetIndexer
   # Change this to restrict which works can be added as a child.
@@ -14,10 +17,6 @@ class DataSet < ActiveFedora::Base
   include Umrdr::UmrdrWorkBehavior
   include Umrdr::UmrdrWorkMetadata
   include ::Deepblue::TotalFileSizeWorkBehavior
-
-  # hyrax-orcid begin
-  include ::Hyrax::Orcid::WorkBehavior
-  # hyrax-orcid end
 
   validates :authoremail, presence: { message: 'You must have author contact information.' }
   validates :creator, presence: { message: 'Your work must have a creator.' }
@@ -75,6 +74,7 @@ class DataSet < ActiveFedora::Base
       creator
       curation_notes_admin
       curation_notes_user
+      creator_orcid
       data_set_url
       date_coverage
       date_created
@@ -122,6 +122,7 @@ class DataSet < ActiveFedora::Base
       admin_set_id
       authoremail
       creator
+      creator_orcid
       curation_notes_admin
       curation_notes_user
       data_set_url
@@ -236,6 +237,7 @@ class DataSet < ActiveFedora::Base
       access_deepblue
       authoremail
       creator
+      creator_orcid
       curation_notes_user
       date_coverage
       date_created
@@ -274,6 +276,7 @@ class DataSet < ActiveFedora::Base
       access_deepblue
       authoremail
       creator
+      creator_orcid
       curation_notes_user
       data_set_url
       date_coverage
