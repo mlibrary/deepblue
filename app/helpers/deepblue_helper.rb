@@ -2,18 +2,18 @@
 
 module DeepblueHelper
 
-	def self.display_timestamp( timestamp )
-		timestamp = timestamp.to_datetime if timestamp.is_a? Time
-		timestamp = DateTime.parse timestamp if timestamp.is_a? String
-		if Rails.configuration.datetime_stamp_display_local_time_zone
-			timestamp = timestamp.new_offset( Rails.configuration.timezone_offset )
-			"#{timestamp.strftime("%Y-%m-%d %H:%M:%S")}"
-		else
-			"#{timestamp.strftime("%Y-%m-%d %H:%M:%S")} #{timestamp.formatted_offset(false, 'UTC')}"
-		end
-	end
+  def self.display_timestamp( timestamp )
+    timestamp = timestamp.to_datetime if timestamp.is_a? Time
+    timestamp = DateTime.parse timestamp if timestamp.is_a? String
+    if Rails.configuration.datetime_stamp_display_local_time_zone
+      timestamp = timestamp.new_offset( Rails.configuration.timezone_offset )
+      "#{timestamp.strftime("%Y-%m-%d %H:%M:%S")}"
+    else
+      "#{timestamp.strftime("%Y-%m-%d %H:%M:%S")} #{timestamp.formatted_offset(false, 'UTC')}"
+    end
+  end
 
-	def self.human_readable_size( value, precision: 3 )
+  def self.human_readable_size( value, precision: 3 )
     ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( value, precision: precision )
   end
 
@@ -22,12 +22,12 @@ module DeepblueHelper
     user_agent
   end
 
-	def users_browser()
-		user_agent = user_agent().downcase
-		@users_browser ||= begin
-		  if user_agent.index('msie') && !user_agent.index('opera') && !user_agent.index('webtv')
-		                # 'ie'+user_agent[user_agent.index('msie')+5].chr
-		                'msie'
+  def users_browser()
+    user_agent = user_agent().downcase
+    @users_browser ||= begin
+      if user_agent.index('msie') && !user_agent.index('opera') && !user_agent.index('webtv')
+                    # 'ie'+user_agent[user_agent.index('msie')+5].chr
+                    'msie'
       elsif user_agent.index('gecko/')
           'gecko'
       elsif user_agent.index('opera')
@@ -63,6 +63,6 @@ module DeepblueHelper
     end
 
     return @users_browser
-	end
+  end
 
 end

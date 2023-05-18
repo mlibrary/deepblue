@@ -9,8 +9,8 @@ module Hyrax
       included do
         has_one :orcid_identity, dependent: :destroy
 
-        mattr_accessor :orcid_user_behavior_debug_verbose,
-                       default: ::Hyrax::OrcidIntegrationService.orcid_user_behavior_debug_verbose
+        mattr_accessor :hyrax_orcid_user_behavior_debug_verbose,
+                       default: ::Hyrax::OrcidIntegrationService.hyrax_orcid_user_behavior_debug_verbose
 
         def orcid_identity_from_authorization(params)
           transformed = params.symbolize_keys
@@ -27,7 +27,7 @@ module Hyrax
         # but if we need to instantiate the Model objects, this can be done by returning just the ID
         # options = { fl: [:id], rows: 1_000_000 }
         def orcid_referenced_works
-          debug_verbose = orcid_user_behavior_debug_verbose
+          debug_verbose = ::Hyrax::OrcidIntegrationService.hyrax_orcid_user_behavior_debug_verbose
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "orcid_identity=#{orcid_identity}",

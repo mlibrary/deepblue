@@ -3,7 +3,7 @@
 module Hyrax
   # Generated form for GenericWork
   class GenericWorkForm < Hyrax::Forms::WorkForm
-  	include Deepbluedocs::GenericWorkFormBehavior
+    include Deepbluedocs::GenericWorkFormBehavior
 
     self.model_class = ::GenericWork
     self.terms += [:resource_type]

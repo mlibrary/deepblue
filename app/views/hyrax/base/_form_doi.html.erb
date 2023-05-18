@@ -15,7 +15,7 @@
                 remote: true,
                 method: :get,
                 data: {
-									disable_with: t("hyrax.works.form.mint.button.disable_with"),
+                  disable_with: t("hyrax.works.form.mint.button.disable_with"),
                   params: {
                     curation_concern: @curation_concern.class.name.underscore,
                     attribute: 'doi'
@@ -41,30 +41,30 @@
 
   <br/><br/><br/>
 
-	<% if Flipflop.enabled?(:doi_minting) %>
-		<fieldset class="set-doi-status-when-public">
-			<label class="control-label">DOI status when work is public</label>
+  <% if Flipflop.enabled?(:doi_minting) %>
+    <fieldset class="set-doi-status-when-public">
+      <label class="control-label">DOI status when work is public</label>
 
-			<div class="form-group" style="margin-left: 20px">
-				<label class="radio" style="font-weight: normal">
-					<%= f.radio_button :doi_status_when_public, '', disabled: disable_do_not_mint, style: 'margin-top: 0px;' %>
-					Do not mint
-				</label>
-				<label class="radio" style="font-weight: normal">
-					<%= f.radio_button :doi_status_when_public, 'draft', disabled: disable_draft, style: 'margin-top: 0px;' %>
-					Draft
-				</label>
-				<label class="radio" style="font-weight: normal">
-					<%= f.radio_button :doi_status_when_public, 'registered', style: 'margin-top: 0px;' %>
-					Registered
-				</label>
-				<label class="radio" style="font-weight: normal">
-					<%= f.radio_button :doi_status_when_public, 'findable', style: 'margin-top: 0px;' %>
-					Findable
-				</label>
-			</div>
-		</fieldset>
-	<% end %>
+      <div class="form-group" style="margin-left: 20px">
+        <label class="radio" style="font-weight: normal">
+          <%= f.radio_button :doi_status_when_public, '', disabled: disable_do_not_mint, style: 'margin-top: 0px;' %>
+          Do not mint
+        </label>
+        <label class="radio" style="font-weight: normal">
+          <%= f.radio_button :doi_status_when_public, 'draft', disabled: disable_draft, style: 'margin-top: 0px;' %>
+          Draft
+        </label>
+        <label class="radio" style="font-weight: normal">
+          <%= f.radio_button :doi_status_when_public, 'registered', style: 'margin-top: 0px;' %>
+          Registered
+        </label>
+        <label class="radio" style="font-weight: normal">
+          <%= f.radio_button :doi_status_when_public, 'findable', style: 'margin-top: 0px;' %>
+          Findable
+        </label>
+      </div>
+    </fieldset>
+  <% end %>
 </div>
 
 <script type="text/javascript">
@@ -80,8 +80,8 @@
     alert(xhr.responseText);
   });
 
-	// To override this action and add your own ajax error listener, you can use jQuery's `off` method,
-	// before registering your own listener. E.g. $("#doi-autofill-btn").off("ajax:error")
+  // To override this action and add your own ajax error listener, you can use jQuery's `off` method,
+  // before registering your own listener. E.g. $("#doi-autofill-btn").off("ajax:error")
   $("#doi-autofill-btn").on("ajax:error", function(e, xhr, status, error) {
     alert(xhr.responseText);
   });

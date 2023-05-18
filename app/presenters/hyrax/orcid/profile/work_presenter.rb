@@ -11,6 +11,11 @@ module Hyrax
 
         # rubocop:disable Metrics/MethodLength
         def collection
+          debug_verbose = ::Hyrax::OrcidIntegrationService.hyrax_orcid_presenter_debug_verbose
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "@collection=#{@collection}",
+                                                 "" ] if debug_verbose
           @collection.map do |col|
             entry = col["work"]
 

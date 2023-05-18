@@ -20,7 +20,7 @@ module Hyrax
                                                  "@work.id=#{@work.id}",
                                                  "@identity=#{@identity}",
                                                  "" ] if debug_verbose
-
+          return nil
         end
       end
     end
