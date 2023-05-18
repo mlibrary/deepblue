@@ -1,10 +1,11 @@
 <%# hyrax-orcid %>
-<% icon = image_tag 'orcid.png', alt: t('hyrax.user_profile.orcid.alt'), class: "profile brand-logo" %>
 
-<% options_panel_debug_verbose = true %>
+<% hyrax_orcid_options_panel_debug_verbose = false %>
 <%
-  ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, "" ] if options_panel_debug_verbose
+  ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, "" ] if hyrax_orcid_options_panel_debug_verbose
 %>
+
+<% icon = image_tag 'orcid.png', alt: t('hyrax.user_profile.orcid.alt'), class: "profile brand-logo" %>
 
 <div id="orcid-options-panel" class="list-group col-lg-7 col-md-6 col-sm-12">
   <% if current_user&.orcid_identity? %>
@@ -24,7 +25,7 @@
     <%
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              "path=#{path}",
-                                             "" ] if options_panel_debug_verbose
+                                             "" ] if hyrax_orcid_options_panel_debug_verbose
     %>
     <%= form_for current_user.orcid_identity, url: path, method: :patch, html: { class: "form" } do |f| %>
       <div class="list-group-item">
@@ -51,7 +52,7 @@
                 ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                        "sf=#{sf}",
                                                        "OrcidIdentity.profile_sync_preference=#{OrcidIdentity.profile_sync_preference}",
-                                                       "" ] if options_panel_debug_verbose
+                                                       "" ] if hyrax_orcid_options_panel_debug_verbose
               %>
               <% OrcidIdentity.profile_sync_preference.sort.each_with_index do |(pref, value), i| %>
                 <div class="check">
@@ -63,7 +64,7 @@
                                                              "value=#{value}",
                                                              "sync_pref.class.name=#{sync_pref.class.name}",
                                                              "sync_pref=#{sync_pref}",
-                                                             "" ] if options_panel_debug_verbose
+                                                             "" ] if hyrax_orcid_options_panel_debug_verbose
                     %>
                     <% checked = false %>
                     <%  if sync_pref.is_a? String %>
@@ -72,7 +73,7 @@
                     <%
                       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                              "sync_pref.respond_to? :dig=#{sync_pref.respond_to? :dig}",
-                                                             "" ] if options_panel_debug_verbose
+                                                             "" ] if hyrax_orcid_options_panel_debug_verbose
                     %>
                     <% if sync_pref.respond_to? :dig %>
                       <% checked = sync_pref.dig(pref.to_s) == "1" %>

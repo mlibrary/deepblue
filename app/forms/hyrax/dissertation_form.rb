@@ -3,7 +3,7 @@
 module Hyrax
   # Generated form for Dissertation
   class DissertationForm < DeepblueForm
-  	include Deepbluedocs::DissertationWorkFormBehavior
+    include Deepbluedocs::DissertationWorkFormBehavior
 
     self.model_class = ::Dissertation
     self.terms += [:resource_type]

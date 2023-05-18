@@ -22,8 +22,20 @@ module Hyrax
           # Format: {"year"=>{"value"=>"1997"}, "month"=>{"value"=>"08"}, "day"=>{"value"=>"20"}}
           def date_from_hash(hsh, format = "%Y-%m-%d")
             return if hsh.blank?
+            # debug_verbose = ::Hyrax::OrcidIntegrationService.hyrax_orcid_presenter_debug_verbose
+            # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+            #                                        ::Deepblue::LoggingHelper.called_from,
+            #                                        "hsh=#{hsh}",
+            #                                        "" ] if debug_verbose
 
-            Date.new(*hsh.map { |_k, v| v["value"].to_i }).strftime(format)
+            map = hsh.map do |_k, v|
+              if ( v.blank? )
+                1
+              else
+                v["value"].to_i
+              end
+            end
+            Date.new(*map).strftime(format)
           end
 
           # Format: {"city"=>"Cambridge", "region"=>"MA", "country"=>"US"}

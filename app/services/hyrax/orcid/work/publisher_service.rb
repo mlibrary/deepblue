@@ -8,12 +8,21 @@ module Hyrax
         include Hyrax::Orcid::UrlHelper
         include Hyrax::Orcid::WorkHelper
 
+        mattr_accessor :hyrax_orcid_publisher_service_debug_verbose,
+                       default: ::Hyrax::OrcidIntegrationService.hyrax_orcid_publisher_service_debug_verbose
+
         def initialize(work, identity)
           @work = work
           @identity = identity
         end
 
         def publish
+          debug_verbose = hyrax_orcid_publisher_service_debug_verbose
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "@work.id=#{@work.id}",
+                                                 "@identity=#{@identity}",
+                                                 "" ] if debug_verbose
           request_method = previously_published? ? :put : :post
 
           @response = Faraday.send(request_method, request_url, xml, headers)
@@ -26,6 +35,12 @@ module Hyrax
         end
 
         def unpublish
+          debug_verbose = hyrax_orcid_publisher_service_debug_verbose
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "@work.id=#{@work.id}",
+                                                 "@identity=#{@identity}",
+                                                 "" ] if debug_verbose
           @response = Faraday.send(:delete, request_url, nil, headers)
 
           return unless @response.success?

@@ -13,7 +13,15 @@ module Hyrax
           @identity = identity
         end
 
-        def perform; end
+        def perform
+          debug_verbose = ::Hyrax::OrcidIntegrationService.hyrax_orcid_strategy_debug_verbose
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "@work.id=#{@work.id}",
+                                                 "@identity=#{@identity}",
+                                                 "" ] if debug_verbose
+          return nil
+        end
       end
     end
   end

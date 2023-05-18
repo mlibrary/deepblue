@@ -8,12 +8,18 @@ module Hyrax
 
   module OrcidIntegrationService
 
+    HYRAX_INTEGRATION_SERVICE_SETUP_VERBOSE = false
+
     @@_setup_ran = false
     @@_setup_failed = false
 
     def self.setup
+      puts "Begin OrcidIntegrationService.setup..." if HYRAX_INTEGRATION_SERVICE_SETUP_VERBOSE
+      puts "OrcidIntegrationService.setup @@_setup_ran=#{@@_setup_ran}" if HYRAX_INTEGRATION_SERVICE_SETUP_VERBOSE
       yield self unless @@_setup_ran
       @@_setup_ran = true
+      puts "After OrcidIntegrationService.setup yield" if HYRAX_INTEGRATION_SERVICE_SETUP_VERBOSE
+      puts "OrcidIntegrationService.setup @@_setup_ran=#{@@_setup_ran}" if HYRAX_INTEGRATION_SERVICE_SETUP_VERBOSE
     rescue Exception => e # rubocop:disable Lint/RescueException
       @@_setup_failed = true
       msg = "#{e.class}: #{e.message} at #{e.backtrace.join("\n")}"
@@ -24,8 +30,15 @@ module Hyrax
       raise e
     end
 
-    mattr_accessor :orcid_debug_verbose,                     default: false
-    mattr_accessor :orcid_integration_service_debug_verbose, default: false
+    mattr_accessor :hyrax_orcid_debug_verbose,                     default: false
+    mattr_accessor :hyrax_orcid_actors_debug_verbose,              default: false
+    mattr_accessor :hyrax_orcid_integration_service_debug_verbose, default: false
+    mattr_accessor :hyrax_orcid_jobs_debug_verbose,                default: false
+    mattr_accessor :hyrax_orcid_presenter_debug_verbose,           default: false
+    mattr_accessor :hyrax_orcid_publisher_service_debug_verbose,   default: false
+    mattr_accessor :hyrax_orcid_strategy_debug_verbose,            default: false
+    mattr_accessor :hyrax_orcid_user_behavior_debug_verbose,       default: false
+    mattr_accessor :hyrax_orcid_views_debug_verbose,               default: false
 
     mattr_accessor :active_job_type,           default: :perform_later
     mattr_accessor :auth,                                   default: {
@@ -48,9 +61,9 @@ module Hyrax
     mattr_accessor :presenter_behavior,        default: "Hyrax::Orcid::WorkShowPresenterBehavior"
     mattr_accessor :work_types,                default: ["DataSet"]
 
-    def self.after_initialize_callback( debug_verbose: orcid_integration_service_debug_verbose )
+    def self.after_initialize_callback( debug_verbose: hyrax_orcid_integration_service_debug_verbose )
 
-      puts "Begin after_initialize_callback..." if debug_verbose
+      puts "Begin OrcidIntegrationService.after_initialize_callback..." if debug_verbose
 
       # operation = ::Hyrax::OrcidIntegrationService.blacklight_pipeline_actor
       # ::Blacklight::Rendering::Pipeline.operations.insert(1, operation.constantize) if operation.present?
@@ -64,7 +77,7 @@ module Hyrax
       # Append our locales so they have precedence
       #I18n.load_path += Dir[Hyrax::Orcid::Engine.root.join("config", "locales", "*.{rb,yml}")]
 
-      puts "End after_initialize_callback..." if debug_verbose
+      puts "End OrcidIntegrationService.after_initialize_callback..." if debug_verbose
 
     end
 

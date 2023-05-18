@@ -1,23 +1,40 @@
 <%# hyrax-orcid %>
 <div class="list-group col-lg-12">
-	<div class="list-group-item list-group-heading">
-		<h2><%= t("hyrax.orcid.profile.#{presenter.key}.title") %></h2>
-		<span class="heading-suffix"><%= t("hyrax.orcid.profile.heading_suffix") %></span>
-	</div>
+  <div class="list-group-item list-group-heading">
+    <h2><%= t("hyrax.orcid.profile.#{presenter.key}.title") %></h2>
+    <span class="heading-suffix"><%= t("hyrax.orcid.profile.heading_suffix") %></span>
+  </div>
 
-	<div class="list-group-item">
-		<% presenter.collection.each do |entry| %>
-			<% next if entry[:items].blank? %>
+  <div class="list-group-item">
+    <%
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             "presenter.class.name=#{presenter.class.name}",
+                                             "" ] if ::Hyrax::OrcidIntegrationService.hyrax_orcid_views_debug_verbose
+    %>
+    <%
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             "presenter.collection=#{presenter.collection}",
+                                             "" ] if ::Hyrax::OrcidIntegrationService.hyrax_orcid_views_debug_verbose
+    %>
+    <% if presenter.collection.present? %>
+    <% presenter.collection.each do |entry| %>
+      <%
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               "entry=#{entry}",
+                                               "" ] if ::Hyrax::OrcidIntegrationService.hyrax_orcid_views_debug_verbose
+      %>
+      <% next if entry.blank? || entry[:items].blank? %>
 
-			<div class="list-entry">
-				<h3><%= entry[:title] %></h3>
-				<ul>
-					<% entry[:items].each do |item| %>
-						<li><%== item %></li>
-					<% end %>
-				</ul>
-			</div>
-		<% end %>
-	</div>
+      <div class="list-entry">
+        <h3><%= entry[:title] %></h3>
+        <ul>
+          <% entry[:items].each do |item| %>
+            <li><%== item %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+    <% end %>
+  </div>
 </div>
 

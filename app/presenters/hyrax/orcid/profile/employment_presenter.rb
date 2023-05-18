@@ -10,7 +10,16 @@ module Hyrax
         end
 
         def collection
-          @collection.map do |entry|
+          debug_verbose = ::Hyrax::OrcidIntegrationService.hyrax_orcid_presenter_debug_verbose
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "@collection=#{@collection}",
+                                                 "" ] if debug_verbose
+          rv = @collection.map do |entry|
+            ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                   ::Deepblue::LoggingHelper.called_from,
+                                                   "entry=#{entry}",
+                                                   "" ] if debug_verbose
             {
               title: entry["role-title"],
               items: [
@@ -21,6 +30,11 @@ module Hyrax
               ].reject(&:blank?)
             }
           end
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "rv=#{rv}",
+                                                 "" ] if debug_verbose
+          return rv
         end
       end
     end

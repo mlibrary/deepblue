@@ -8,12 +8,20 @@ module Hyrax
         include Hyrax::Orcid::ActiveJobType
 
         def create(env)
+          debug_verbose = ::Hyrax::OrcidIntegrationService.hyrax_orcid_actors_debug_verbose
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "" ] if debug_verbose
           delegate_work_strategy(env)
 
           next_actor.create(env)
         end
 
         def update(env)
+          debug_verbose = ::Hyrax::OrcidIntegrationService.hyrax_orcid_actors_debug_verbose
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "" ] if debug_verbose
           delegate_work_strategy(env)
 
           next_actor.update(env)

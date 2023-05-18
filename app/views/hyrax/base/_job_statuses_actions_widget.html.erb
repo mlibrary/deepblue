@@ -1,6 +1,6 @@
 <div class="col-xs-12">
   <div class="job-statuses-actions">
-  	<% if @presenter.can_perform_job_statuses_actions?  %>
+    <% if @presenter.can_perform_job_statuses_actions?  %>
       <%= render 'job_statuses_actions', presenter: @presenter %>
     <% end %>
   </div>

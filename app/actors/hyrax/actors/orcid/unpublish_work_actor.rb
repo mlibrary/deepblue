@@ -8,6 +8,10 @@ module Hyrax
         include Hyrax::Orcid::ActiveJobType
 
         def destroy(env)
+          debug_verbose = ::Hyrax::OrcidIntegrationService.hyrax_orcid_actors_debug_verbose
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "" ] if debug_verbose
           unpublish_work(env)
 
           next_actor.destroy(env)

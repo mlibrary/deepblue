@@ -1,5 +1,5 @@
 <%# hyrax-orcid %>
-<% orcid_users_show_debug_verbose = true %>
+<% orcid_users_show_debug_verbose = ::Hyrax::OrcidIntegrationService.hyrax_orcid_views_debug_verbose %>
 <%
   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, "" ] if orcid_users_show_debug_verbose
 %>

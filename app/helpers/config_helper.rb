@@ -2,7 +2,7 @@
 
 module ConfigHelper
 
-	def self.human_readable_size( value, precision: 3 )
+  def self.human_readable_size( value, precision: 3 )
     ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( value, precision: precision )
   end
 

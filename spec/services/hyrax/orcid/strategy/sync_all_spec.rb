@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rails_helper'
+
 RSpec.describe Hyrax::Orcid::Strategy::SyncAll do
   let(:sync_preference) { "sync_all" }
   let(:strategy) { described_class.new(work, orcid_identity) }
