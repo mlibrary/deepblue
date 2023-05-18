@@ -11,7 +11,7 @@ Hyrax::ContactFormIntegrationService.setup do |config|
 
   config.contact_form_send_email               = false
 
-  config.contact_form_email_passthrough_re     = /^.*\@(med\.)?umich\.edu$/
+  config.contact_form_email_passthrough_re     = /^.*\@([A-Za-z]+\.)?umich\.edu$/
   config.contact_form_email_passthrough_enabled = true
 
   config.antispam_timeout_in_seconds           = 8
