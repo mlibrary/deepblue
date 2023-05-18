@@ -40,6 +40,7 @@ module Deepblue
       #                                        "" ] if debug_verbose
       # msg_handler ||= @msg_handler
 
+      return if lost_and_found_work == "not found"
       lost_and_found_ids = lost_and_found_work.file_set_ids
       fixed = false
       curation_concern.file_sets.each do |fs|
