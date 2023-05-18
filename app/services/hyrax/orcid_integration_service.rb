@@ -24,8 +24,13 @@ module Hyrax
       raise e
     end
 
-    mattr_accessor :orcid_debug_verbose,                     default: false
-    mattr_accessor :orcid_integration_service_debug_verbose, default: false
+    mattr_accessor :hyrax_orcid_debug_verbose,                     default: false
+    mattr_accessor :hyrax_orcid_actors_debug_verbose,              default: false
+    mattr_accessor :hyrax_orcid_integration_service_debug_verbose, default: false
+    mattr_accessor :hyrax_orcid_jobs_debug_verbose,                default: false
+    mattr_accessor :hyrax_orcid_publisher_service_debug_verbose,   default: false
+    mattr_accessor :hyrax_orcid_strategy_debug_verbose,            default: false
+    mattr_accessor :orcid_user_behavior_debug_verbose,             default: false
 
     mattr_accessor :active_job_type,           default: :perform_later
     mattr_accessor :auth,                                   default: {
@@ -48,7 +53,7 @@ module Hyrax
     mattr_accessor :presenter_behavior,        default: "Hyrax::Orcid::WorkShowPresenterBehavior"
     mattr_accessor :work_types,                default: ["DataSet"]
 
-    def self.after_initialize_callback( debug_verbose: orcid_integration_service_debug_verbose )
+    def self.after_initialize_callback( debug_verbose: hyrax_orcid_integration_service_debug_verbose )
 
       puts "Begin after_initialize_callback..." if debug_verbose
 

@@ -6,10 +6,18 @@ module Hyrax
     module Orcid
       class JSONFieldsActor < Hyrax::Actors::AbstractActor
         def create(env)
+          debug_verbose = ::Hyrax::OrcidIntegrationService.hyrax_orcid_actors_debug_verbose
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "" ] if debug_verbose
           jsonify_fields(env) && next_actor.create(env)
         end
 
         def update(env)
+          debug_verbose = ::Hyrax::OrcidIntegrationService.hyrax_orcid_actors_debug_verbose
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "" ] if debug_verbose
           jsonify_fields(env) && next_actor.update(env)
         end
 
