@@ -4,6 +4,12 @@ require 'rails_helper'
 
 RSpec.describe Hyrax::DataSetForm do
 
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it { expect(described_class.data_set_form_debug_verbose).to eq debug_verbose }
+  end
+
   subject { form }
   let(:work) { DataSet.new }
   let(:user) { create(:user) }

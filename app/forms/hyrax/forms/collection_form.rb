@@ -8,6 +8,9 @@ module Hyrax
       include HydraEditor::Form
       include HydraEditor::Form::Permissions
       include ::Hyrax::BrandingHelper
+
+      mattr_accessor :collection_form_debug_verbose, default: false
+
       # Used by the search builder
       attr_reader :scope
 
@@ -152,10 +155,10 @@ module Hyrax
       end
 
       def list_child_collections
-        verbose = true
+        debug_verbose = collection_form_debug_verbose
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "" ] if verbose
+                                               "" ] if debub_verbose
         collection_member_service.available_member_subcollections.documents
       end
 
