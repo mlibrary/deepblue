@@ -17,6 +17,7 @@ module Hyrax
           debug_verbose = ::Hyrax::OrcidIntegrationService.hyrax_orcid_actors_debug_verbose
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
+                                                 "env=#{env}",
                                                  "" ] if debug_verbose
           jsonify_fields(env) && next_actor.update(env)
         end
@@ -25,6 +26,8 @@ module Hyrax
 
           # rubocop:disable Metrics/AbcSize
           def jsonify_fields(env)
+            return true
+            # skip this for now
             env.curation_concern.class.json_fields.each do |field|
               if name_blank?(field, env.attributes[field]) || recursive_blank?(env.attributes[field])
                 #puts "jsonify_fields delete field #{field}"

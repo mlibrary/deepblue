@@ -4,7 +4,7 @@ module Hyrax
 
   class DataSetForm < DeepblueForm
 
-    mattr_accessor :data_set_forms_debug_verbose, default: false
+    mattr_accessor :data_set_form_debug_verbose, default: false
 
     self.model_class = ::DataSet
 
@@ -86,7 +86,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
                                              "form_params=#{form_params}",
-                                             "" ] if data_set_forms_debug_verbose
+                                             "" ] if data_set_form_debug_verbose
       rv = sanitize_params_json( form_params: form_params, curation_concern: curation_concern ).tap do |clean_params|
         terms.each do |key|
           if clean_params[key]
@@ -105,7 +105,7 @@ module Hyrax
                                              "rv.class.name=#{rv.class.name}",
                                              "rv=#{rv}",
                                              "rv.errors=#{rv.errors}",
-                                             "" ] if data_set_forms_debug_verbose
+                                             "" ] if data_set_form_debug_verbose
       return rv
     end
 
@@ -118,7 +118,7 @@ module Hyrax
                                              "form_params.errors=#{form_params.errors}",
                                              "permitted_params.class.name=#{pparms.class.name}",
                                              # "permitted_params=#{pparms}",
-                                             "" ] if data_set_forms_debug_verbose
+                                             "" ] if data_set_form_debug_verbose
       rv = form_params.permit(*pparms)
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
@@ -127,7 +127,7 @@ module Hyrax
                                              "rv.class.name=#{rv.class.name}",
                                              "rv=#{rv}",
                                              "rv.errors=#{rv.errors}",
-                                             "" ] if data_set_forms_debug_verbose
+                                             "" ] if data_set_form_debug_verbose
       return rv
     end
 
@@ -140,7 +140,7 @@ module Hyrax
                                              "params_without_permissions=#{params_without_permissions}",
                                              "form_params.errors=#{form_params.errors}",
                                              "form_params=#{form_params}",
-                                             "" ] if data_set_forms_debug_verbose
+                                             "" ] if data_set_form_debug_verbose
       rv = form_params.permit(*params_without_permissions)
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
                                              Deepblue::LoggingHelper.called_from,
@@ -148,7 +148,7 @@ module Hyrax
                                              "params_without_permissions=#{params_without_permissions}",
                                              "rv.class.name=#{rv.class.name}",
                                              "rv=#{rv}",
-                                             "" ] if data_set_forms_debug_verbose
+                                             "" ] if data_set_form_debug_verbose
       return rv
     end
 

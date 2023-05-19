@@ -4,6 +4,12 @@ require 'rails_helper'
 
 describe Hyrax::Forms::CollectionForm do
 
+  let(:debug_verbose) { false }
+
+  describe 'module debug verbose variables' do
+    it { expect(described_class.collection_form_debug_verbose).to eq debug_verbose }
+  end
+
   describe "#terms" do
     subject { described_class.terms }
 
