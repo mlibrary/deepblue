@@ -6,8 +6,20 @@ class ProvenanceLogPresenter
 
   attr_accessor :controller
 
-  delegate :id, :id_msg, :id_invalid, :id_deleted, :id_valid?,
-           :deleted_ids, :deleted_id_to_key_values_map, to: :controller
+  delegate :begin_date, :end_date, to: :controller
+  delegate :begin_date_value, :end_date_value, to: :controller
+  delegate :find_id, :find_user_id, to: :controller
+
+  delegate :log_entries, to: :controller
+
+  delegate :id,
+           :id_msg,
+           :id_invalid,
+           :id_deleted,
+           :id_valid?, to: :controller
+
+  delegate :deleted_ids, :deleted_id_to_key_values_map, to: :controller
+  delegate :works_by_user_id_ids, :works_by_user_id_to_key_values_map, to: :controller
 
   def initialize( controller: )
     @controller = controller
@@ -32,7 +44,7 @@ class ProvenanceLogPresenter
     Rails.application.routes.url_helpers.url_for( only_path: only_path, action: action, controller: 'provenance_log', id: id )
   end
 
-  def url_for_deleted( id:, only_path: true )
+  def url_for_id( id:, only_path: true )
     url_for( action: "show", id: id, only_path: only_path )
   end
 

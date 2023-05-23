@@ -39,7 +39,7 @@ RSpec.describe ProvenanceLogPresenter do
 
   it "returns path for show an id" do
     presenter = TestProvPresenter.new controller: dummy_class
-    dc = presenter.url_for_deleted id:2 , only_path: true 
+    dc = presenter.url_for_id id:2 , only_path: true
 
     expect(dc).to eq("/provenance_log/2")
   end

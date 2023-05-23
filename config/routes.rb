@@ -285,6 +285,8 @@ Rails.application.routes.draw do
   post '/provenance_log_zip_download/', to: 'provenance_log#log_zip_download'
   get '/provenance_log_deleted_works/', to: 'provenance_log#deleted_works'
   post '/provenance_log_deleted_works/', to: 'provenance_log#deleted_works'
+  get '/provenance_log_works_by_user_id/', to: 'provenance_log#works_by_user_id'
+  post '/provenance_log_works_by_user_id/', to: 'provenance_log#works_by_user_id'
   get '/report_dashboard/' => 'report_dashboard#show'
   get '/report_dashboard_run_action/' => 'report_dashboard#run_action'
   post '/report_dashboard_run_action/' => 'report_dashboard#run_action'

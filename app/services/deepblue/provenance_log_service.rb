@@ -17,23 +17,62 @@ module Deepblue
       Rails.configuration.provenance_log_path
     end
 
-    def self.entries( id, refresh: false )
-      ::Deepblue::LoggingHelper.bold_debug "ProvenanceLogService.entries( #{id}, #{refresh} )" if provenance_log_service_debug_verbose
-      file_path = Deepblue::ProvenancePath.path_for_reference( id )
+    def self.entries( id, refresh: false, debug_verbose: provenance_log_service_debug_verbose )
+      debug_verbose ||= provenance_log_service_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                              ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "refresh=#{refresh}",
+                                             "" ] if debug_verbose
+      file_path = ::Deepblue::ProvenancePath.path_for_reference( id )
       if !refresh && File.exist?( file_path )
         rv = read_entries( file_path )
       else
         rv = filter_entries( id )
         write_entries( file_path, rv )
       end
-      ::Deepblue::LoggingHelper.bold_debug "ProvenanceLogService.entries( #{id} ) read #{rv.size} entries" if provenance_log_service_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "rv&.size=#{rv&.size}",
+                                             "" ] if debug_verbose
+      return rv
+    end
+
+    def self.entries_filter_by_date_range( id:,
+                                           begin_date:,
+                                           end_date:,
+                                           refresh: false,
+                                           debug_verbose: provenance_log_service_debug_verbose )
+
+      debug_verbose ||= provenance_log_service_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "begin_date=#{begin_date}",
+                                             "end_date=#{end_date}",
+                                             "refresh=#{refresh}",
+                                             "" ] if debug_verbose
+
+      entries = entries( id, refresh: refresh, debug_verbose: debug_verbose )
+      entries ||= []
+      # now filter by date
+      entries.select do |entry|
+        timestamp = timestamp( entry: entry )
+        begin_date <= timestamp && end_date >= timestamp
+      end
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "rv&.size=#{rv&.size}",
+                                             "" ] if debug_verbose
       return rv
     end
 
     def self.filter_entries( id )
       input = Rails.root.join( 'log', "provenance_#{Rails.env}.log" )
-      filter = Deepblue::IdLogFilter.new( matching_ids: Array( id ) )
-      extractor = Deepblue::LogExtracter.new( filter: filter, input: input )
+      filter = ::Deepblue::IdLogFilter.new( matching_ids: Array( id ) )
+      extractor = ::Deepblue::LogExtracter.new( filter: filter, input: input )
       extractor.run
       rv = extractor.lines_extracted
       return rv
@@ -47,10 +86,20 @@ module Deepblue
       class_name = nil
       id = nil
       raw_key_values = nil
-      timestamp, event, event_note, class_name, id,
-          raw_key_values = ProvenanceHelper.parse_log_line( entry, line_number: line_number, raw_key_values: true )
-      return { timestamp: timestamp, event: event, event_note: event_note, class_name: class_name, id: id,
-               raw_key_values: raw_key_values, line_number: line_number, parse_error: nil }
+      timestamp,
+        event,
+        event_note,
+        class_name,
+        id,
+        raw_key_values = ProvenanceHelper.parse_log_line( entry, line_number: line_number, raw_key_values: true )
+      return { timestamp: timestamp,
+               event: event,
+               event_note: event_note,
+               class_name: class_name,
+               id: id,
+               raw_key_values: raw_key_values,
+               line_number: line_number,
+               parse_error: nil }
     rescue LogParseError => e
       return { entry: entry, line_number: line_number, parse_error: e }
     end
@@ -73,6 +122,28 @@ module Deepblue
         end
       end
       return entries
+    end
+
+    def self.timestamp( entry: )
+      # debug_verbose = true
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "entry.class.name=#{entry.class.name}",
+      #                                        "" ] if debug_verbose
+      return nil if entry.blank?
+      entry = entry.first if entry.is_a? Array
+      entry = parse_entry entry if entry.is_a? String
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "entry=#{entry.pretty_inspect}",
+      #                                        "" ] if debug_verbose
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "entry[:timestamp].class.name=#{entry[:timestamp].class.name}",
+      #                                        "" ] if debug_verbose
+      return nil if entry[:timestamp].blank?
+      timestamp_str = entry[:timestamp]
+      ::Deepblue::JsonLoggerHelper.parse_timestamp timestamp_str
     end
 
     def self.write_entries( file_path, entries )

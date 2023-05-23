@@ -188,6 +188,7 @@ en:
         display_or_update:              "Display or Update Provenance Log Entries"
         download:                       "Download Provenance Log"
         update:                         "Update Provenance Log Entries"
+        works_by_user_id:               "Works by User ID"
     confirm:
       data_set:
         delete_all_globus_download_files: >
@@ -242,6 +243,8 @@ en:
         find_id:              "Find ID"
         find_id_placeholder:  "Search ID"
         find_id_submit:       "Find"
+        find_user_id:              "Find User ID"
+        find_user_id_placeholder:  "User ID"
     hints:
       data_set:
         access_deepblue: >

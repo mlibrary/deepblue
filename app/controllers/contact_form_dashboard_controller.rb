@@ -39,6 +39,7 @@ class ContactFormDashboardController < ApplicationController
 
   include Hyrax::Breadcrumbs
   include AdminOnlyControllerBehavior
+  include BeginEndDateControllerBehavior
 
   with_themed_layout 'dashboard'
 
@@ -48,7 +49,7 @@ class ContactFormDashboardController < ApplicationController
 
   class_attribute :presenter_class, default: ContactFormDashboardPresenter
 
-  attr_accessor :begin_date, :end_date, :log_entries
+  attr_accessor :log_entries
 
   attr_reader :action_error
 
@@ -138,27 +139,18 @@ class ContactFormDashboardController < ApplicationController
   end
 
   def show
+    debug_verbose = contact_form_dashboard_controller_debug_verbose
     raise CanCan::AccessDenied unless current_ability.admin?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
-                                           "params[:begin_date]=#{params[:begin_date]}",
-                                           "params[:end_date]=#{params[:end_date]}",
                                            "::Hyrax::ContactFormController.akismet_enabled=#{::Hyrax::ContactFormController.akismet_enabled}",
                                            "::Hyrax::ContactFormController.ngr_enabled=#{::Hyrax::ContactFormController.ngr_enabled}",
                                            "::Hyrax::ContactFormController.contact_form_controller_debug_verbose=#{::Hyrax::ContactFormController.contact_form_controller_debug_verbose}",
                                            "contact_form_dashboard_controller_debug_verbose=#{contact_form_dashboard_controller_debug_verbose}",
                                            "::Hyrax::ContactFormController.contact_form_send_email=#{::Hyrax::ContactFormController.contact_form_send_email}",
-                                           "" ] if contact_form_dashboard_controller_debug_verbose
-    @begin_date = ViewHelper.to_date(params[:begin_date])
-    @begin_date ||= Date.today - 1.week
-    @end_date = ViewHelper.to_date(params[:end_date])
-    @end_date ||= Date.tomorrow
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "@begin_date=#{@begin_date}",
-                                           "@end_date=#{@end_date}",
-                                           "" ] if contact_form_dashboard_controller_debug_verbose
+                                           "" ] if debug_verbose
+    begin_end_date_init_from_parms
     @presenter = presenter_class.new( controller: self, current_ability: current_ability )
     render 'hyrax/dashboard/show_contact_form_dashboard'
   end

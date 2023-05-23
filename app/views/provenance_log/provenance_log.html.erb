@@ -10,29 +10,89 @@
       <% end %>
     <% end %>
     <%= form_tag(@presenter.url_for(action: 'find'), method: 'post') do %>
-      <label for="find_id" class=""><%= t('simple_form.labels.provenance_log.find_id') %>:&nbsp;</label>
-      <%= text_field_tag :find_id,
-                         params[:find_id],
-                         size: 10,
-                         placeholder: t('simple_form.labels.provenance_log.find_id_placeholder'),
-                         type: "search" %>&nbsp;
-      <%= submit_tag(t('simple_form.labels.provenance_log.find_id_submit'), class: 'btn btn-primary') %>
-    <% end %>
-    <br/><br/>
-    <%= form_tag(@presenter.url_for(action: 'deleted_works'), method: 'post') do %>
-      <%= submit_tag(t('simple_form.actions.provenance_log.deleted_works'), class: 'btn btn-primary') %>
+      <table style="width:40em;">
+        <tr>
+          <td><%= label_tag(:begin_date_label, 'Begin Date') %></td>
+          <td>
+            <%= date_field_tag( :begin_date, @presenter.begin_date_value, class: 'datepicker form-control') %>
+          </td>
+          <td><%= label_tag(:end_date_label, 'End Date') %></td>
+          <td>
+            <%= date_field_tag( :end_date, @presenter.end_date_value, class: 'datepicker form-control') %>
+          </td>
+        </tr>
+        <tr>
+          <td><label for="find_id" class=""><%= t('simple_form.labels.provenance_log.find_id') %>:&nbsp;</label></td>
+          <td>
+            <%= text_field_tag :find_id,
+                               params[:find_id],
+                               size: 10,
+                               placeholder: t('simple_form.labels.provenance_log.find_id_placeholder'),
+                               type: "search" %>
+          </td>
+          <td><%= submit_tag(t('simple_form.labels.provenance_log.find_id_submit'), class: 'btn btn-primary') %></td>
+        </tr>
+      </table>
     <% end %>
     <br/>
     <% if @presenter.id.present? %>
       <%= render '/provenance_log_entries2', presenter: @presenter %>
     <% end %>
+    <br/><br/>
+    <hr/>
+    <%= form_tag(@presenter.url_for(action: 'deleted_works'), method: 'post') do %>
+      <%= submit_tag(t('simple_form.actions.provenance_log.deleted_works'), class: 'btn btn-primary') %>
+    <% end %>
     <br/>
     <% if @presenter.deleted_ids.present? %>
       <%= render '/provenance_log_deleted', presenter: @presenter %>
     <% end %>
+    <br/><br/>
+    <hr/>
+    <%= form_tag(@presenter.url_for(action: 'works_by_user_id'), method: 'post') do %>
+      <%= form_tag(@presenter.url_for(action: 'find'), method: 'post') do %>
+        <table style="width:40em;">
+          <tr>
+            <%
+              if @presenter.works_by_user_id_ids.present?
+                begin_date_value = @presenter.begin_date_value
+                end_date_value = @presenter.end_date_value
+              else
+                begin_date_value = ""
+                end_date_value = ""
+              end
+            %>
+            <td><%= label_tag(:begin_date_label, 'Begin Date') %></td>
+            <td>
+              <%= date_field_tag( :begin_date, begin_date_value, class: 'datepicker form-control') %>
+            </td>
+            <td><%= label_tag(:end_date_label, 'End Date') %></td>
+            <td>
+              <%= date_field_tag( :end_date, end_date_value, class: 'datepicker form-control') %>
+            </td>
+          </tr>
+          <tr>
+            <td><%= label_tag(:user_id_label, 'User ID') %></td>
+            <td>
+              <%= text_field_tag :find_user_id,
+                                 @presenter.find_user_id,
+                                 size: 10,
+                                 placeholder: t('simple_form.labels.provenance_log.find_user_id_placeholder'),
+                                 type: "search" %>
+            </td>
+            <td><%= submit_tag(t('simple_form.actions.provenance_log.works_by_user_id'), class: 'btn btn-primary') %></td>
+          </tr>
+        </table>
+      <% end %>
+    <% end %>
     <br/>
+    <% if @presenter.works_by_user_id_ids.present? %>
+      <%= render '/provenance_log_works_by_user_id', presenter: @presenter %>
+    <% end %>
+    <br/><br/>
     <%= form_tag(@presenter.url_for(action: 'log_zip_download'), method: 'post') do %>
       <%= submit_tag(t('simple_form.actions.provenance_log.download'), class: 'btn btn-primary') %>
     <% end %>
+    <br/><br/>
   <% end %>
 </div>
