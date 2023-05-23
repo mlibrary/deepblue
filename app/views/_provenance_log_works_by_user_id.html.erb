@@ -1,8 +1,8 @@
-<% if current_ability.admin? && @presenter.present? && @presenter.deleted_ids.present? %>
+<% if current_ability.admin? && @presenter.present? && @presenter.works_by_user_id_ids.present? %>
   <div class="panel panel-default panel-items panel-provenance-log-entries">
-    <% if @presenter.deleted_ids.present? %>
+    <% if @presenter.works_by_user_id_ids.present? %>
       <div class="panel-heading">
-        <h3>Deleted Works (<%= @presenter.deleted_ids.size %>)</h3>
+        <h3>Works by User ID (<%= @presenter.works_by_user_id_ids.size %>)</h3>
       </div>
       <div class="table-scroll--container provenance-log-container">
         <table class="table table-striped provenance-log-entries">
@@ -16,8 +16,8 @@
           </tr>
           </thead>
           <tbody>
-          <% @presenter.deleted_ids.each do |id| %>
-            <% p = @presenter.deleted_id_to_key_values_map[id] %>
+          <% @presenter.works_by_user_id_ids.each do |id| %>
+            <% p = @presenter.works_by_user_id_to_key_values_map[id] %>
             <tr>
               <td><%= p["timestamp"] %></td>
               <td><a href="<%= @presenter.url_for_id( id: id ) %>"><%= id %></td>

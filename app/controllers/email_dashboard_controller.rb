@@ -9,6 +9,7 @@ class EmailDashboardController < ApplicationController
   include Blacklight::AccessControls::Catalog
   include Hyrax::Breadcrumbs
   include AdminOnlyControllerBehavior
+  include BeginEndDateControllerBehavior
   include ActionView::Helpers::UrlHelper # For link_to
 
   with_themed_layout 'dashboard'
@@ -20,7 +21,7 @@ class EmailDashboardController < ApplicationController
   class_attribute :presenter_class
   self.presenter_class = EmailDashboardPresenter
 
-  attr_accessor :begin_date, :end_date, :log_entries
+  attr_accessor :log_entries
 
   attr_reader :action_error
 
@@ -60,14 +61,6 @@ class EmailDashboardController < ApplicationController
   def action_reload_email_templates
     ::Deepblue::WorkViewContentService.load_email_templates
     "Reloaded email templates."
-  end
-
-  def begin_date_parm
-    begin_date.strftime("%Y-%m-%d")
-  end
-
-  def end_date_parm
-    end_date.strftime("%Y-%m-%d")
   end
 
   def find_resend_log_entry( debug_verbose: email_dashboard_controller_debug_verbose )
@@ -207,18 +200,8 @@ end_of_row
                                            ::Deepblue::LoggingHelper.called_from,
                                            ">>> resend <<<",
                                            "params=#{params}",
-                                           "params[:begin_date]=#{params[:begin_date]}",
-                                           "params[:end_date]=#{params[:end_date]}",
                                            "" ] if debug_verbose
-    @begin_date = ViewHelper.to_date(params[:begin_date])
-    @begin_date ||= Date.today - 1.week
-    @end_date = ViewHelper.to_date(params[:end_date])
-    @end_date ||= Date.tomorrow
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "@begin_date=#{@begin_date}",
-                                           "@end_date=#{@end_date}",
-                                           "" ] if debug_verbose
+    begin_end_date_init_from_parms
     parms = []
     parms << "begin_date=#{begin_date_parm}"
     parms << "end_date=#{end_date_parm}"
@@ -333,22 +316,13 @@ end_of_row
   end
 
   def show
+    debug_verbose = email_dashboard_controller_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            ">>> show <<<",
                                            "params=#{params}",
-                                           "params[:begin_date]=#{params[:begin_date]}",
-                                           "params[:end_date]=#{params[:end_date]}",
-                                           "" ] if email_dashboard_controller_debug_verbose
-    @begin_date = ViewHelper.to_date(params[:begin_date])
-    @begin_date ||= Date.today - 1.week
-    @end_date = ViewHelper.to_date(params[:end_date])
-    @end_date ||= Date.tomorrow
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "@begin_date=#{@begin_date}",
-                                           "@end_date=#{@end_date}",
-                                           "" ] if email_dashboard_controller_debug_verbose
+                                           "" ] if debug_verbose
+    begin_end_date_init_from_parms
     @presenter = presenter_class.new( controller: self, current_ability: current_ability )
     render 'hyrax/dashboard/show_email_dashboard'
   end

@@ -1,7 +1,8 @@
 <% if current_ability.admin? && @presenter.present? && @presenter.provenance_log_display_enabled? %>
   <div class="panel panel-default panel-items panel-provenance-log-entries">
     <% if @presenter.provenance_log_entries? %>
-      <% provenance_log_entries = Deepblue::ProvenanceLogService.entries( @presenter.id ) %>
+      <%# provenance_log_entries = Deepblue::ProvenanceLogService.entries( @presenter.id ) %>
+      <% provenance_log_entries = @presenter.log_entries %>
       <div class="panel-heading">
         <h2>Provenance Log (<%= provenance_log_entries.size %> entries)</h2>
       </div>

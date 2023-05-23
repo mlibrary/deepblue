@@ -8,6 +8,7 @@ class DebugLogDashboardController < ApplicationController
 
   include Hyrax::Breadcrumbs
   include AdminOnlyControllerBehavior
+  include BeginEndDateControllerBehavior
 
   with_themed_layout 'dashboard'
 
@@ -17,7 +18,7 @@ class DebugLogDashboardController < ApplicationController
 
   class_attribute :presenter_class, default: DebugLogDashboardPresenter
 
-  attr_accessor :begin_date, :end_date, :log_entries
+  attr_accessor :log_entries
 
   attr_reader :action_error
 
@@ -63,22 +64,13 @@ class DebugLogDashboardController < ApplicationController
   end
 
   def show
+    debug_verbose = debug_log_dashboard_controller_debug_verbose
     raise CanCan::AccessDenied unless current_ability.admin?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "params=#{params}",
-                                           "params[:begin_date]=#{params[:begin_date]}",
-                                           "params[:end_date]=#{params[:end_date]}",
-                                           "" ] if debug_log_dashboard_controller_debug_verbose
-    @begin_date = ViewHelper.to_date(params[:begin_date])
-    @begin_date ||= Date.today - 1.week
-    @end_date = ViewHelper.to_date(params[:end_date])
-    @end_date ||= Date.tomorrow
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "@begin_date=#{@begin_date}",
-                                           "@end_date=#{@end_date}",
-                                           "" ] if debug_log_dashboard_controller_debug_verbose
+                                           "" ] if debug_verbose
+    begin_end_date_init_from_parms
     @presenter = presenter_class.new( controller: self, current_ability: current_ability )
     render 'hyrax/dashboard/show_debug_log_dashboard'
   end

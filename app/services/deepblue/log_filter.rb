@@ -392,6 +392,30 @@ module Deepblue
 
   end
 
+  class UserEmailLogFilter < AbstractLogFilter
+
+    mattr_accessor :email_log_filter_debug_verbose, default: false
+
+    attr_reader :user_email
+
+    def initialize( user_email:, options: {} )
+      super( options: options )
+      @user_email = user_email
+    end
+
+    def filter_in( _reader, _timestamp, _event, _event_note, _class_name, id, raw_key_values )
+      key_values = parse_key_values raw_key_values
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "key_values=#{key_values.pretty_inspect}",
+                                             "@email=#{@user_email}",
+                                             "key_values['user_email']=#{key_values['user_email']}",
+                                             "" ] if email_log_filter_debug_verbose
+      @user_email == key_values['user_email']
+    end
+
+  end
+
   class IdLogFilter < AbstractLogFilter
 
     attr_reader :matching_ids
