@@ -246,9 +246,18 @@ class ProvenanceLogController < ApplicationController
                                            ::Deepblue::LoggingHelper.called_from,
                                            "email=#{email}",
                                            "" ] if debug_verbose
-    runner = ::Deepblue::WorksByUserIdWorksFromLog.new( email: email,
-                                                        input: ::Deepblue::ProvenanceLogService.provenance_log_path,
-                                                        options: { max_lines_extracted: -1 } )
+    # TODO: add a date range filter if begin end dates are set
+    if begin_date.present? && end_date.present?
+      filter = ::Deepblue::DateLogFilter.new( begin_timestamp: begin_date, end_timestamp: end_date )
+      runner = ::Deepblue::WorksByUserIdWorksFromLog.new( email: email,
+                                                          filter: filter,
+                                                          input: ::Deepblue::ProvenanceLogService.provenance_log_path,
+                                                          options: { max_lines_extracted: -1 } )
+    else
+      runner = ::Deepblue::WorksByUserIdWorksFromLog.new( email: email,
+                                                          input: ::Deepblue::ProvenanceLogService.provenance_log_path,
+                                                          options: { max_lines_extracted: -1 } )
+    end
     runner.run
     @works_by_user_id_ids = runner.works_by_user_id_ids
     @works_by_user_id_to_key_values_map = runner.works_by_user_id_to_key_values_map

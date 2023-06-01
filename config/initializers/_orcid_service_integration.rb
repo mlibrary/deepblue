@@ -8,12 +8,16 @@ Hyrax::OrcidIntegrationService.setup do |config|
 
   config.hyrax_orcid_debug_verbose                   = false
   config.hyrax_orcid_actors_debug_verbose            = true
+  config.hyrax_orcid_helper_debug_verbose            = true
   config.hyrax_orcid_jobs_debug_verbose              = true
   config.hyrax_orcid_presenter_debug_verbose         = true
   config.hyrax_orcid_publisher_service_debug_verbose = true
   config.hyrax_orcid_strategy_debug_verbose          = true
   config.hyrax_orcid_user_behavior_debug_verbose     = true
   config.hyrax_orcid_views_debug_verbose             = true
+  config.hyrax_orcid_extractor_debug_verbose         = true
+
+  config.enable_work_syncronization = true
 
   puts "config - ::Hyrax::OrcidIntegrationService.setup finished" if Hyrax::OrcidIntegrationService::HYRAX_INTEGRATION_SERVICE_SETUP_VERBOSE
 

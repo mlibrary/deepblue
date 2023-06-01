@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 # hyrax-orcid
 
+require 'rails_helper'
+
 RSpec.describe Hyrax::Orcid::WorkOrcidExtractor do
   let(:user) { create(:user) }
   let!(:orcid_identity) { create(:orcid_identity, work_sync_preference: sync_preference, user: user) }
@@ -10,12 +12,14 @@ RSpec.describe Hyrax::Orcid::WorkOrcidExtractor do
   let(:work_attributes) do
     {
       "title" => ["Moomin"],
-      "creator" => [
-        [{
-          "creator_name" => "John Smith",
-          "creator_orcid" => orcid_id
-        }].to_json
-      ]
+      # "creator" => [
+      #   [{
+      #     "creator_name" => "John Smith",
+      #     "creator_orcid" => orcid_id
+      #   }].to_json
+      # ]
+      "creator" => [ "John Smith" ],
+      "creator_orcid" => [ orcid_id ]
     }
   end
   let(:orcid_id) { user.orcid_identity.orcid_id }
@@ -34,15 +38,17 @@ RSpec.describe Hyrax::Orcid::WorkOrcidExtractor do
       let(:work_attributes) do
         {
           "title" => ["Moomin"],
-          "creator" => [
-            [{
-              "creator_name" => "John Smith",
-              "creator_orcid" => orcid_id
-            }, {
-              "creator_name" => "Johna Smithison",
-              "creator_orcid" => orcid_id2
-            }].to_json
-          ]
+          # "creator" => [
+          #   [{
+          #     "creator_name" => "John Smith",
+          #     "creator_orcid" => orcid_id
+          #   }, {
+          #     "creator_name" => "Johna Smithison",
+          #     "creator_orcid" => orcid_id2
+          #   }].to_json
+          # ]
+          "creator" => [ "John Smith", "Johna Smithison" ],
+          "creator_orcid" => [ orcid_id, orcid_id2 ]
         }
       end
 

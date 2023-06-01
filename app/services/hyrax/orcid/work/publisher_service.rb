@@ -24,13 +24,20 @@ module Hyrax
                                                  "@identity=#{@identity}",
                                                  "" ] if debug_verbose
           request_method = previously_published? ? :put : :post
+          url = request_url
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "::Hyrax::OrcidIntegrationService.enable_work_syncronization=#{::Hyrax::OrcidIntegrationService.enable_work_syncronization}",
+                                                 "request_url=#{url}",
+                                                 "" ] if debug_verbose
+          if ::Hyrax::OrcidIntegrationService.enable_work_syncronization
+            @response = Faraday.send(request_method, url, xml, headers)
 
-          @response = Faraday.send(request_method, request_url, xml, headers)
-
-          if @response.success?
-            update_identity
-          else
-            notify_contributor_error
+            if @response.success?
+              update_identity
+            else
+              notify_contributor_error
+            end
           end
         end
 
@@ -41,12 +48,21 @@ module Hyrax
                                                  "@work.id=#{@work.id}",
                                                  "@identity=#{@identity}",
                                                  "" ] if debug_verbose
-          @response = Faraday.send(:delete, request_url, nil, headers)
+          url = request_url
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "::Hyrax::OrcidIntegrationService.enable_work_syncronization=#{::Hyrax::OrcidIntegrationService.enable_work_syncronization}",
+                                                 "request_url=#{url}",
+                                                 "" ] if debug_verbose
 
-          return unless @response.success?
+          if ::Hyrax::OrcidIntegrationService.enable_work_syncronization
+            @response = Faraday.send(:delete, url, nil, headers)
 
-          notify_unpublished
-          orcid_work.destroy
+            return unless @response.success?
+
+            notify_unpublished
+            orcid_work.destroy
+          end
         end
 
         protected

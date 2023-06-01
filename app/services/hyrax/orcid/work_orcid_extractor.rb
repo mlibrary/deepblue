@@ -13,15 +13,42 @@ module Hyrax
       end
 
       def extract
+        debug_verbose = ::Hyrax::OrcidIntegrationService.hyrax_orcid_extractor_debug_verbose
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "@work.class.name=#{@work.class.name}",
+                                               "target_terms=#{target_terms}",
+                                               "" ] if debug_verbose
         target_terms.each do |term|
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "term=#{term}",
+                                                 "" ] if debug_verbose
           target = "#{term}_orcid"
-          json = json_for_term(term)
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "target=#{target}",
+                                                 "" ] if debug_verbose
+          values = value_for_term(target)
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "values=#{values}",
+                                                 "" ] if debug_verbose
+          next if values.blank?
 
-          next if json.blank?
+          # puts "values=#{values}"
 
-          json.then { |j| JSON.parse(j) }
-              .select { |person| person.dig(target).present? }
-              .each { |person| @orcids << validate_orcid(person.dig(target)) }
+          values.each { |orcid| @orcids << validate_orcid( orcid ) }
+          #@orcids << validate_orcid( values )
+
+          # rv = json.then { |j| JSON.parse(j) }
+          #     .select { |person| person.dig(target).present? }
+          #     .each { |person| @orcids << validate_orcid(person.dig(target)) }
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "@orcids=#{@orcids}",
+                                                 "" ] if debug_verbose
+          return @orcids
         end
 
         @orcids.compact.uniq
@@ -46,6 +73,11 @@ module Hyrax
         def meta_model
           @work.class.name
         end
+
+      def value_for_term(term)
+        Array( @work.send(term) )
+      end
+
     end
   end
 end

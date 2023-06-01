@@ -25,7 +25,7 @@
           <td><label for="find_id" class=""><%= t('simple_form.labels.provenance_log.find_id') %>:&nbsp;</label></td>
           <td>
             <%= text_field_tag :find_id,
-                               params[:find_id],
+                               @presenter.find_id_value,
                                size: 10,
                                placeholder: t('simple_form.labels.provenance_log.find_id_placeholder'),
                                type: "search" %>
@@ -75,7 +75,7 @@
             <td><%= label_tag(:user_id_label, 'User ID') %></td>
             <td>
               <%= text_field_tag :find_user_id,
-                                 @presenter.find_user_id,
+                                 @presenter.find_user_id_value,
                                  size: 10,
                                  placeholder: t('simple_form.labels.provenance_log.find_user_id_placeholder'),
                                  type: "search" %>

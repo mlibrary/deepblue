@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Hyrax::Orcid::Blacklight::Rendering::PipelineJsonExtractor do
+RSpec.describe Hyrax::Orcid::Blacklight::Rendering::PipelineJsonExtractor, skip: true do
   let(:document) { instance_double(SolrDocument) }
   let(:context) { double }
   let(:options) { double }

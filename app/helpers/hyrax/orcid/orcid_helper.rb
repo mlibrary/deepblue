@@ -25,22 +25,43 @@ module Hyrax
 
       # FIXME: OrcidHelper.json_fields should be a configuration option
       def self.json_fields
-        %i[creator contributor]
+        # %i[creator contributor]
+        %i[creator]
       end
 
-      def validate_orcid(orcid)
+      def self.validate_orcid(orcid)
+        debug_verbose = ::Hyrax::OrcidIntegrationService.hyrax_orcid_helper_debug_verbose
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "orcid=#{orcid}",
+                                               "" ] if debug_verbose
         return if orcid.blank?
 
         # [0] full match
         # [1] only the orcid ID - the one we want
         # [2] last 4 digits
         orcid = Array.wrap(orcid.match(ORCID_REGEX).to_a).second
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "orcid=#{orcid}",
+                                               "" ] if debug_verbose
 
         return if orcid.blank?
 
         # If we have a valid Orcid ID, remove anything that isn't a number or an X, group into 4's and hyphen delimit
-        orcid.gsub(/[^\dX]/, "").scan(/.{1,4}/).join("-")
+        rv = orcid.gsub(/[^\dX]/, "").scan(/.{1,4}/).join("-")
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "rv=#{rv}",
+                                               "" ] if debug_verbose
+
+        return rv
       end
+
+      def validate_orcid( orcid )
+        OrcidHelper::validate_orcid( orcid )
+      end
+
     end
   end
 end

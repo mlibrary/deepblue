@@ -25,6 +25,16 @@ class ProvenanceLogPresenter
     @controller = controller
   end
 
+  def find_id_value
+    # TODO - depends on how we arrived here
+    params[:find_id]
+  end
+
+  def find_user_id_value
+    # TODO - depends on how we arrived here
+    params[:find_user_id]
+  end
+
   def display_title( title )
     return "" if title.blank?
     return Array( title ).join(" ")

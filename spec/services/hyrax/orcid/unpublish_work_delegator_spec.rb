@@ -12,12 +12,14 @@ RSpec.describe Hyrax::Orcid::UnpublishWorkDelegator do
   let(:work_attributes) do
     {
       "title" => ["Moomin"],
-      "creator" => [
-        [{
-          "creator_name" => "John Smith",
-          "creator_orcid" => orcid_id
-        }].to_json
-      ]
+      # "creator" => [
+      #   [{
+      #     "creator_name" => "John Smith",
+      #     "creator_orcid" => orcid_id
+      #   }].to_json
+      # ]
+      "creator" => [ "John Smith" ],
+      "creator_orcid" => [ orcid_id ]
     }
   end
   let(:orcid_id) { user.orcid_identity.orcid_id }
