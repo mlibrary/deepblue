@@ -33,12 +33,16 @@ module Hyrax
     mattr_accessor :hyrax_orcid_debug_verbose,                     default: false
     mattr_accessor :hyrax_orcid_actors_debug_verbose,              default: false
     mattr_accessor :hyrax_orcid_integration_service_debug_verbose, default: false
+    mattr_accessor :hyrax_orcid_helper_debug_verbose,              default: false
     mattr_accessor :hyrax_orcid_jobs_debug_verbose,                default: false
     mattr_accessor :hyrax_orcid_presenter_debug_verbose,           default: false
     mattr_accessor :hyrax_orcid_publisher_service_debug_verbose,   default: false
     mattr_accessor :hyrax_orcid_strategy_debug_verbose,            default: false
     mattr_accessor :hyrax_orcid_user_behavior_debug_verbose,       default: false
     mattr_accessor :hyrax_orcid_views_debug_verbose,               default: false
+    mattr_accessor :hyrax_orcid_extractor_debug_verbose,           default: false
+
+    mattr_accessor :enable_work_syncronization,                    default: true
 
     mattr_accessor :active_job_type,           default: :perform_later
     mattr_accessor :auth,                                   default: {
@@ -67,7 +71,7 @@ module Hyrax
 
       # operation = ::Hyrax::OrcidIntegrationService.blacklight_pipeline_actor
       # ::Blacklight::Rendering::Pipeline.operations.insert(1, operation.constantize) if operation.present?
-      ::Blacklight::Rendering::Pipeline.operations.insert(1, Hyrax::Orcid::Blacklight::Rendering::PipelineJsonExtractor)
+      # ::Blacklight::Rendering::Pipeline.operations.insert(1, Hyrax::Orcid::Blacklight::Rendering::PipelineJsonExtractor)
 
       # is this necessary?
       # # Prepend our views so they have precedence

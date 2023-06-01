@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # hyrax-orcid
 
-# Methods which attemt to normalize writing (ouputting) data from the parsed Bolognese Meta readers, and allow them
+# Methods which attempt to normalize writing (ouputting) data from the parsed Bolognese Meta readers, and allow them
 # to be used in a number of different areas, all of which must extend or be prepended into Bolognese::Metadata
 
 # rubocop:disable Metrics/ModuleLength
@@ -152,16 +152,40 @@ module Bolognese
 
       protected
 
-        def write_participants(type)
+        def  write_participants(type)
+          debug_verbose = true
           key = type.to_s.singularize
+          ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+                                                ::Deepblue::LoggingHelper.called_from,
+                                                "meta=#{meta.pretty_inspect}",
+                                                "" ] #, bold_puts: @bold_puts if @debug_verbose
 
           meta.dig(type)&.map do |item|
+            ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+                                                  ::Deepblue::LoggingHelper.called_from,
+                                                  "item=#{item.pretty_inspect}",
+                                                  "" ] #, bold_puts: @bold_puts if @debug_verbose
             # transform but don't change original or each time method is run it prepends the key
             trans = item.transform_keys { |k| "#{key}_#{k.underscore}" }
 
             # Individual name identifiers will require specific tranformations as required
-            trans["#{key}_name_identifiers"]&.each_with_object(trans) do |hash, identifier|
-              identifier["#{key}_#{hash['nameIdentifierScheme'].downcase}"] = hash["nameIdentifier"]
+            name_id_key = "#{key}_name_identifiers"
+            ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+                                                  ::Deepblue::LoggingHelper.called_from,
+                                                  "name_id_key=#{item.name_id_key}",
+                                                  "" ] #, bold_puts: @bold_puts if @debug_verbose
+            trans[name_id_key]&.each_with_object(trans) do |hash, identifier|
+              ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+                                                    ::Deepblue::LoggingHelper.called_from,
+                                                    "hash=#{hash.pretty_inspect}",
+                                                    "identifier=#{identifier}",
+                                                    "" ] #, bold_puts: @bold_puts if @debug_verbose
+              id_key = "#{key}_#{hash['nameIdentifierScheme'].downcase}"
+              ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+                                                    ::Deepblue::LoggingHelper.called_from,
+                                                    "id_key=#{id_key}",
+                                                    "" ] #, bold_puts: @bold_puts if @debug_verbose
+              identifier[id_key] = hash["nameIdentifier"]
             end
 
             # We need to ensure that the field is named properly if we have an organisation if its not blank

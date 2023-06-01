@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 # hyrax-orcid
 
+require 'rails_helper'
+
 RSpec.describe Hyrax::Orcid::OrcidHelper do
   include Devise::Test::ControllerHelpers
 

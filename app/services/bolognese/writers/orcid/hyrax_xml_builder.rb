@@ -22,7 +22,15 @@ module Bolognese
         }.freeze
         DEFAULT_CONTRIBUTOR_ROLE = "support-staff"
 
+        @debug_verbose = false
+
         def initialize(xml:, metadata:, type:)
+          ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "xml=#{xml.pretty_inspect}",
+                                                 "metadata=#{metadata.pretty_inspect}",
+                                                 "type=#{type.pretty_inspect}",
+                                                 "" ] if @debug_verbose
           @xml = xml
           @metadata = metadata
           @type = type
@@ -31,11 +39,27 @@ module Bolognese
         # Fields guide:
         # https://github.com/ORCID/ORCID-Source/blob/master/orcid-api-web/tutorial/works.md#work-fields
         def build
+          ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "@xml=#{@xml.pretty_inspect}",
+                                                "@metadata=#{@metadata.pretty_inspect}",
+                                                "@metadata.class.name=#{@metadata.class.name}",
+                                                 "@type=#{@type.pretty_inspect}",
+                                                 "" ] if @debug_verbose
+
+          # ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+          #                                        ::Deepblue::LoggingHelper.called_from,
+          #                                        "@xml[:work]=#{@xml[:work].pretty_inspect}",
+          #                                        "" ] if @debug_verbose
           @xml[:work].title do
             @xml[:common].title @metadata.titles.first.dig("title")
           end
 
           xml_short_description
+          ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "@xml[:work]=#{@xml[:work].pretty_inspect}",
+                                                 "" ] if @debug_verbose
           xml_work_type
 
           # NOTE: A full list of external-id-type: https://pub.orcid.org/v2.1/identifiers
@@ -62,9 +86,19 @@ module Bolognese
 
           def xml_short_description
             description = @metadata.descriptions.first&.dig("description") || ""
+            ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+                                                   ::Deepblue::LoggingHelper.called_from,
+                                                   "description=#{description}",
+                                                   "" ] if @debug_verbose
 
             # The maximum length of this field is 5000 and truncate appends an ellipsis
-            @xml[:work].send("short-description", description.truncate(4997))
+            rv = @xml[:work].send("short-description", description.truncate(4997))
+            ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+                                                   ::Deepblue::LoggingHelper.called_from,
+                                                   "rv=#{rv.pretty_inspect}",
+                                                   "" ] if @debug_verbose
+
+            return rv
           end
 
           def xml_internal_identifier
@@ -101,7 +135,7 @@ module Bolognese
             end
           end
 
-          def xml_creators
+          def xml_creators_orig
             return if @metadata.creators.blank?
 
             @metadata.creators.each_with_index do |creator, i|
@@ -113,7 +147,33 @@ module Bolognese
             end
           end
 
+          def xml_creators
+            ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+                                                  ::Deepblue::LoggingHelper.called_from,
+                                                  "@metadata.creators=#{@metadata.creators.pretty_inspect}",
+                                                  "" ] if @debug_verbose
+            return if @metadata.creators.blank?
+
+            @metadata.creators.each_with_index do |creator, i|
+              ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+                                                    ::Deepblue::LoggingHelper.called_from,
+                                                    "creator=#{creator.pretty_inspect}",
+                                                    "" ] if @debug_verbose
+              @xml[:work].contributor do
+                orcid = find_valid_orcid(creator)
+                xml_contributor_orcid(orcid)
+                xml_contributor_name(creator.dig("name"))
+                #xml_contributor_name("creator name")
+                xml_contributor_role(i.zero?, "Author")
+              end
+            end
+          end
+
           def xml_contributors
+            ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+                                                  ::Deepblue::LoggingHelper.called_from,
+                                                  "@metadata.contributors=#{@metadata.contributors.pretty_inspect}",
+                                                  "" ] if @debug_verbose
             return if @metadata.contributors.blank?
 
             @metadata.contributors.each do |contributor|
@@ -126,6 +186,10 @@ module Bolognese
           end
 
           def xml_contributor_name(name)
+            ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+                                                  ::Deepblue::LoggingHelper.called_from,
+                                                  "name=#{name}",
+                                                  "" ] if @debug_verbose
             @xml[:work].send("credit-name", name)
           end
 
@@ -138,6 +202,10 @@ module Bolognese
           end
 
           def xml_contributor_orcid(orcid)
+            ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+                                                  ::Deepblue::LoggingHelper.called_from,
+                                                  "orcid=#{orcid}",
+                                                  "" ] if @debug_verbose
             return if orcid.blank?
 
             @xml[:common].send("contributor-orcid") do
@@ -148,7 +216,15 @@ module Bolognese
           end
 
           def find_valid_orcid(hsh)
+            ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+                                                   ::Deepblue::LoggingHelper.called_from,
+                                                   "hsh=#{hsh.pretty_inspect}",
+                                                   "" ] if @debug_verbose
             identifier = hsh["nameIdentifiers"]&.find { |id| id["nameIdentifierScheme"] == "orcid" }
+            ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+                                                  ::Deepblue::LoggingHelper.called_from,
+                                                  "identifier=#{identifier}",
+                                                  "" ] if @debug_verbose
 
             @metadata.validate_orcid(identifier&.dig("nameIdentifier"))
           end

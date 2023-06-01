@@ -15,6 +15,11 @@ module Hyrax
                                                "identity=#{identity}",
                                                "" ] if debug_verbose
         return unless Flipflop.hyrax_orcid?
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "Flipflop.hyrax_orcid?=#{Flipflop.hyrax_orcid?}",
+                                               "Hyrax::Orcid::Strategy::#{identity.work_sync_preference.classify}",
+                                               "" ] if debug_verbose
         "Hyrax::Orcid::Strategy::#{identity.work_sync_preference.classify}".constantize.new(work, identity).perform
       end
     end

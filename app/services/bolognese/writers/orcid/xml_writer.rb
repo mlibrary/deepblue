@@ -9,6 +9,9 @@ module Bolognese
   module Writers
     module Orcid
       module XmlWriter
+
+        @debug_verbose = false
+
         # NOTE: I really don't like having to have the put_code injected here, but
         # we need to pass it in from the orcid_work instance somehow and this is the
         # best solution I have right now
@@ -27,7 +30,13 @@ module Bolognese
               # Hack to enable root level namespaces `work:work`
               xml.parent.namespace = xml.parent.namespace_definitions.find { |ns| ns.prefix == "work" }
 
-              xml_builder.new(xml: xml, type: type, metadata: self).build
+              builder = xml_builder.new(xml: xml, type: type, metadata: self)
+              rv = builder.build
+              ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                    ::Deepblue::LoggingHelper.called_from,
+                                                    "rv=#{rv.pretty_inspect}",
+                                                    "" ] if @debug_verbose
+              rv
             end
           end
 
@@ -36,7 +45,8 @@ module Bolognese
 
         # Override this class if you wish to have more specific writers
         def xml_builder
-          ::Hyrax::OrcidIntegrationService.bolognese[:xml_builder_class_name].constantize
+          #::Hyrax::OrcidIntegrationService.bolognese[:xml_builder_class_name].constantize
+          ::Bolognese::Writers::Orcid::HyraxXmlBuilder
         end
       end
     end

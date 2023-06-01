@@ -16,9 +16,20 @@ module Hyrax
 
       # If the work includes our default processable terms
       def perform
+        debug_verbose = ::Hyrax::OrcidIntegrationService.hyrax_orcid_jobs_debug_verbose
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "Flipflop.hyrax_orcid?=#{Flipflop.hyrax_orcid?}",
+                                               "@work.id=#{@work.id}",
+                                               "" ] if debug_verbose
         return unless Flipflop.hyrax_orcid?
 
         orcids = Hyrax::Orcid::WorkOrcidExtractor.new(@work).extract
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "Flipflop.hyrax_orcid?=#{Flipflop.hyrax_orcid?}",
+                                               "orcids=#{orcids}",
+                                               "" ] if debug_verbose
 
         orcids.each { |orcid| perform_user_strategy(orcid) }
       end
@@ -27,7 +38,18 @@ module Hyrax
 
         # Find the identity and farm out the rest of the logic to a background worker
         def perform_user_strategy(orcid_id)
-          return if (identity = OrcidIdentity.find_by(orcid_id: orcid_id)).blank?
+          debug_verbose = ::Hyrax::OrcidIntegrationService.hyrax_orcid_jobs_debug_verbose
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "orcid_id=#{orcid_id}",
+                                                 "" ] if debug_verbose
+          identity = OrcidIdentity.find_by(orcid_id: orcid_id)
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "identity=#{identity}",
+                                                 "" ] if debug_verbose
+          return if identity.blank?
+          # return if (identity = OrcidIdentity.find_by(orcid_id: orcid_id)).blank?
 
           Hyrax::Orcid::PerformIdentityStrategyJob.send(active_job_type, @work, identity)
         end
