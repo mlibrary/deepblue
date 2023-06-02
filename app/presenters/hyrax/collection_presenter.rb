@@ -395,6 +395,13 @@ module Hyrax
       false
     end
 
+    def schema_presenter?
+      return false unless @presenter.respond_to? :title
+      return false unless @presenter.respond_to? :doi
+      return false if @presenter.respond_to? :checksum_value
+      return true
+    end
+
     def tombstone_permissions_hack?
       false
     end

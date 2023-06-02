@@ -802,6 +802,13 @@ module Hyrax
 
     # end display_provenance_log
 
+    def schema_presenter?
+      return false unless @presenter.respond_to? :title
+      return false unless @presenter.respond_to? :doi
+      return false if @presenter.respond_to? :checksum_value
+      return true
+    end
+
     def title_first( truncate: true )
       # sometimes files don't have titles, this can happen for lost and found files
       rv = title&.first

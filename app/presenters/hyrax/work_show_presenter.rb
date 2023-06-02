@@ -694,6 +694,13 @@ module Hyrax
     #     end
     # end
 
+    def schema_presenter?
+      return false unless self.respond_to? :title
+      return false unless self.respond_to? :doi
+      return false if self.respond_to? :checksum_value
+      return true
+    end
+
     def show_anonymous_link_section?
       debug_verbose = work_show_presenter_debug_verbose || ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

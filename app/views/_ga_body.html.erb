@@ -1,0 +1,13 @@
+<% if Rails.configuration.enable_google_analytics_4 %>
+<!-- New Google Analytics enabled -->
+<% if Rails.env.production? && Rails.configuration.google_tag_manager_id.present? %>
+<!-- Google Tag Manager (noscript) -->
+<noscript>
+  <iframe src="https://www.googletagmanager.com/ns.html?id=<%=Rails.configuration.google_tag_manager_id%>"
+                      height="0" width="0" style="display:none;visibility:hidden"></iframe>
+</noscript>
+<!-- End Google Tag Manager (noscript) -->
+<% else %>
+<!-- New Google Analytics Tag Manager (noscript) goes here -->
+<% end %>
+<% end %>

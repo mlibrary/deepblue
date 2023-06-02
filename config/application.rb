@@ -354,6 +354,12 @@ module DeepBlueDocs
     # upload log config
     config.upload_log_echo_to_rails_logger = true
 
+    # begin Google Analytics config
+    config.enable_google_analytics_3 = true
+    config.enable_google_analytics_4 = true
+    config.google_tag_manager_id = 'GTM-MRNG959'
+    # end Google Analytics config
+
     config.key_value_backend = I18n::Backend::KeyValue.new({})
     config.i18n.backend = I18n.backend
     config.after_initialize do

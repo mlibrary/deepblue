@@ -64,6 +64,14 @@ class ServerAfterInitializeService
 
     puts "::Deepblue::IngestIntegrationService.ingest_append_ui_allowed_base_directories=" + ::Deepblue::IngestIntegrationService.ingest_append_ui_allowed_base_directories.pretty_inspect
 
+    puts ">>>>> Begin Google Analytics config <<<<<"
+    puts "Rails.configuration.enable_google_analytics_3=#{Rails.configuration.enable_google_analytics_3}"
+    puts "Hyrax.config.google_analytics_id=#{Hyrax.config.google_analytics_id}"
+    puts "Hyrax.config.analytic_start_date=#{Hyrax.config.analytic_start_date}"
+    puts "Rails.configuration.enable_google_analytics_4=#{Rails.configuration.enable_google_analytics_4}"
+    puts "Rails.configuration.google_tag_manager_id=#{Rails.configuration.google_tag_manager_id}"
+    puts ">>>>> End Google Analytics config <<<<<"
+
     @@server_after_initialize_ran = true
     puts "Finished server_after_initialize_callback." if debug_verbose
   rescue Exception => e # rubocop:disable Lint/RescueException
