@@ -24,6 +24,12 @@ datacite:
   password: datacitepassword.invalid
   prefix: 10.5072/FK2
 
+google_analytics_3:
+  enabled: false
+
+google_analytics_4:
+  enabled: false
+
 jira:
   active: false
   username: development_jirausername.invalid
@@ -46,7 +52,6 @@ rails:
     database: db/test.sqlite3
     timeout: 10000
   secret_key_base: a8e4aa45a4953ee0263a0df4a33bd051b4db4503d96f93db838730ff93ed413d62dbb6f2feb82ec902d135799e7faf44b815726dc491f5cc3131db394fd2259d
-
 
 hyrax_orcid:
   client_id: orcid_client_id.invalid

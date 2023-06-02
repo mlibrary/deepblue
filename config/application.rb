@@ -355,8 +355,8 @@ module DeepBlueDocs
     config.upload_log_echo_to_rails_logger = true
 
     # begin Google Analytics config
-    config.enable_google_analytics_3 = true
-    config.enable_google_analytics_4 = true
+    config.enable_google_analytics_3 = Settings.google_analytics_3.enabled
+    config.enable_google_analytics_4 = Settings.google_analytics_4.enabled
     config.google_tag_manager_id = 'GTM-MRNG959'
     # end Google Analytics config
 
