@@ -20,6 +20,12 @@ datacite:
   password: datacitepassword.invalid
   prefix: 10.5072/FK2
 
+google_analytics_3:
+  enabled: false
+
+google_analytics_4:
+  enabled: false
+
 jira:
   active: false
   username: development_jirausername.invalid

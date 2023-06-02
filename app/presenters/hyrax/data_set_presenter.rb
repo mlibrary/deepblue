@@ -241,6 +241,13 @@ module Hyrax
 
     # begin tombstone
 
+    def schema_presenter?
+      return false unless self.respond_to? :title
+      return false unless self.respond_to? :doi
+      return false if self.respond_to? :checksum_value
+      return true
+    end
+
     def tombstone
       return nil if @solr_document.blank?
       solr_value = @solr_document['tombstone_ssim']

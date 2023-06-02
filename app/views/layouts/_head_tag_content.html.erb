@@ -18,7 +18,7 @@ signed in %>
 <%= yield :recaptcha_js %>
 
 <!-- Add Schema for Google Search for work view; the if check is here to make sure you are in work page -->
-<% if ( ( @presenter.respond_to?  :title ) && ( @presenter.respond_to?  :doi ) && !( @presenter.respond_to?  :checksum_value ) ) %>
+<% if @presenter.respond_to?( :schema_presenter? ) && @presenter.schema_presenter? %>
   <%  if @presenter.doi.present?  %>
   <meta name="dc.identifier" content="doi:<%= @presenter.doi.first.gsub("https://doi.org/", "") %>"/>
   <% end %>
@@ -56,7 +56,6 @@ signed in %>
   }
   </script>
 <% end %>
-
 
 <title><%= content_for?(:page_title) ? yield(:page_title) : default_page_title %></title>
 

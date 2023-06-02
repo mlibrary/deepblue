@@ -1,0 +1,39 @@
+<% if Rails.configuration.enable_google_analytics_3 %>
+<!-- Old Google Analytics enabled -->
+<%
+if Hyrax.config.google_analytics_id?
+tracking_id = Hyrax.config.google_analytics_id
+%>
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', '<%= tracking_id %>']);
+  <% if Rails.env.development? %>
+    // This allows us to look at GA data live from locahost
+    _gaq.push(['_setDomainName', 'none']);
+  <% end %>
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+<% end %>
+<% end %>
+<% if Rails.configuration.enable_google_analytics_4 %>
+<!-- New Google Analytics enabled -->
+<% if Rails.env.production? && Rails.configuration.google_tag_manager_id.present? %>
+<!-- Google Tag Manager -->
+<script>
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','<%=Rails.configuration.google_tag_manager_id%>');
+</script>
+<!-- End Google Tag Manager -->
+<% else %>
+<!-- New Google Analytics Tag Manager goes here -->
+<% end %>
+<% end %>
