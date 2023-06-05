@@ -25,6 +25,7 @@ module Deepblue
 
     DEFAULT_DATA_SET_ADMIN_SET_NAME = Rails.configuration.data_set_admin_set_title unless const_defined? :DEFAULT_DATA_SET_ADMIN_SET_NAME
     DEFAULT_DIFF_ATTRS_SKIP = [ :creator_ordered,
+                                :creator_orcid_ordered,
                                 :curation_notes_admin_ordered, :curation_notes_user_ordered,
                                 :date_created, :date_modified,
                                 :description_ordered,
@@ -33,6 +34,7 @@ module Deepblue
                                 :referenced_by_ordered, :title_ordered,
                                 :visibility ].freeze unless const_defined? :DEFAULT_DIFF_ATTRS_SKIP
     DEFAULT_DIFF_ATTRS_SKIP_IF_BLANK = [ :creator_ordered,
+                                         :creator_orcid_ordered,
                                          :curation_notes_admin, :curation_notes_admin_ordered,
                                          :curation_notes_user, :curation_notes_user_ordered,
                                          :checksum_algorithm, :checksum_value,
@@ -62,6 +64,7 @@ module Deepblue
     DEFAULT_SKIP_ADDING_PRIOR_IDENTIFIER = true unless const_defined? :DEFAULT_SKIP_ADDING_PRIOR_IDENTIFIER
     DEFAULT_UPDATE_ADD_FILES = true unless const_defined? :DEFAULT_UPDATE_ADD_FILES
     DEFAULT_UPDATE_ATTRS_SKIP = [ :creator_ordered,
+                                  :creator_orcid_ordered,
                                   :curation_notes_admin_ordered, :curation_notes_user_ordered,
                                   :date_created, :date_modified, :date_uploaded,
                                   :edit_users,
@@ -70,7 +73,9 @@ module Deepblue
                                   :original_name,
                                   :referenced_by_ordered, :title_ordered,
                                   :visibility ].freeze unless const_defined? :DEFAULT_UPDATE_ATTRS_SKIP
-    DEFAULT_UPDATE_ATTRS_SKIP_IF_BLANK = [ :creator_ordered, :curation_notes_admin, :curation_notes_admin_ordered,
+    DEFAULT_UPDATE_ATTRS_SKIP_IF_BLANK = [ :creator_ordered,
+                                           :creator_orcid_ordered,
+                                           :curation_notes_admin, :curation_notes_admin_ordered,
                                            :curation_notes_user, :curation_notes_user_ordered,
                                            :checksum_algorithm, :checksum_value,
                                            :description_ordered, :doi,
@@ -968,6 +973,7 @@ module Deepblue
         authoremail = work_hash[:authoremail]
         contributor = Array( work_hash[:contributor] )
         creator = Array( work_hash[:creator] )
+        creator_orcid = Array( work_hash[:creator_orcid] )
         curation_notes_admin = Array( work_hash[:curation_notes_admin] )
         curation_notes_user = Array( work_hash[:curation_notes_user] )
         date_coverage = build_date_coverage( hash: work_hash )
@@ -1001,6 +1007,7 @@ module Deepblue
         work = new_data_set( authoremail: authoremail,
                              contributor: contributor,
                              creator: creator,
+                             creator_orcid: creator_orcid,
                              curation_notes_admin: curation_notes_admin,
                              curation_notes_user: curation_notes_user,
                              date_coverage: date_coverage,
@@ -2056,6 +2063,7 @@ module Deepblue
       def new_data_set( authoremail:,
                         contributor:,
                         creator:,
+                        creator_orcid:,
                         curation_notes_admin:,
                         curation_notes_user:,
                         date_coverage:,
@@ -2083,6 +2091,7 @@ module Deepblue
           DataSet.new( authoremail: authoremail,
                        contributor: contributor,
                        creator: creator,
+                       creator_orcid: creator_orcid,
                        curation_notes_admin: curation_notes_admin,
                        curation_notes_user: curation_notes_user,
                        date_coverage: date_coverage,
@@ -2110,6 +2119,7 @@ module Deepblue
           DataSet.new( authoremail: authoremail,
                        contributor: contributor,
                        creator: creator,
+                       creator_orcid: creator_orcid,
                        curation_notes_admin: curation_notes_admin,
                        curation_notes_user: curation_notes_user,
                        date_coverage: date_coverage,
@@ -2598,6 +2608,7 @@ module Deepblue
         update_attr( updates, work, work_hash, attr_name: :contributor )
         update_attr( updates, work, work_hash, attr_name: :creator )
         update_attr( updates, work, work_hash, attr_name: :creator_ordered, multi: false )
+        update_attr( updates, work, work_hash, attr_name: :creator_orcid_ordered, multi: false )
         update_attr( updates, work, work_hash, attr_name: :curation_notes_admin )
         update_attr( updates, work, work_hash, attr_name: :curation_notes_admin_ordered, multi: false )
         update_attr( updates, work, work_hash, attr_name: :curation_notes_user )

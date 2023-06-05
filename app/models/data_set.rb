@@ -698,6 +698,18 @@ class DataSet < ActiveFedora::Base
     super values
   end
 
+  # the list of creators is ordered
+  def creator_orcid
+    values = super
+    values = Deepblue::MetadataHelper.ordered( ordered_values: creator_orcid_ordered, values: values )
+    return values
+  end
+
+  def creator_orcid=( values )
+    self.creator_orcid_ordered = Deepblue::MetadataHelper.ordered_values( ordered_values: creator_orcid_ordered, values: values )
+    super values
+  end
+
   # the list of curation_notes_admin is ordered
   def curation_notes_admin
     values = super
