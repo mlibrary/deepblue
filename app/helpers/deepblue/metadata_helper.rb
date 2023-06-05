@@ -27,6 +27,7 @@ module Deepblue
                                             creator
                                             creator_ordered
                                             creator_orcid
+                                            creator_orcid_ordered
                                             curation_notes_admin
                                             curation_notes_admin_ordered
                                             curation_notes_user
@@ -93,6 +94,7 @@ module Deepblue
                                  part_of tail
                                  thumbnail_id ].freeze unless const_defined? :ATTRIBUTE_NAMES_IGNORE
     ATTRIBUTE_NAMES_IGNORE_IMPORT = %w[ creator_ordered
+                                        creator_orcid_ordered
                                         curation_notes_admin_ordered
                                         curation_notes_user_ordered
                                         description_ordered
