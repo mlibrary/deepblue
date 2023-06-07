@@ -375,6 +375,18 @@ module Hyrax
       current_ability.can?( :edit, id )
     end
 
+    def doi_plain
+      rv = doi
+      rv = doi.first if rv.is_a? Array
+      return '' unless rv.starts_with? 'doi:'
+      rv = rv.sub('doi:', '')
+      rv
+    end
+
+    def doi_url
+      ::Deepblue::DoiBehavior.doi_render doi
+    end
+
     def draft_mode?
       @draft_mode ||= draft_mode_init
     end

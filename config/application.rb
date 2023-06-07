@@ -307,6 +307,12 @@ module DeepBlueDocs
     # google analytics
     config.google_analytics_embed_url = 'https://datastudio.google.com/embed/reporting/89e13288-f0f5-4cf7-95a1-4587d76208b7/page/6zXD'
 
+    # begin badges
+    config.badge_irus_enabled = false
+    config.badge_irus_registry_id = 223
+    config.badge_irus_requestor_id = 'missing'
+    # end badges
+
     # ordered list metadata config
     config.do_ordered_list_hack = true
     config.do_ordered_list_hack_save = true
