@@ -30,6 +30,11 @@ google_analytics_3:
 google_analytics_4:
   enabled: false
 
+irus:
+  badge_enabled: false
+  registry_id: 'irus.registry_id.unknown'
+  requestor_id: 'irus.requestor_id.unknown'
+
 jira:
   active: false
   username: development_jirausername.invalid

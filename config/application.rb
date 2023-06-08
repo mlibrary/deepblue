@@ -308,9 +308,9 @@ module DeepBlueDocs
     config.google_analytics_embed_url = 'https://datastudio.google.com/embed/reporting/89e13288-f0f5-4cf7-95a1-4587d76208b7/page/6zXD'
 
     # begin badges
-    config.badge_irus_enabled = false
-    config.badge_irus_registry_id = 223
-    config.badge_irus_requestor_id = 'missing'
+    config.badge_irus_enabled = Settings.irus.badge_enabled
+    config.badge_irus_registry_id = Settings.irus.registry_id
+    config.badge_irus_requestor_id = Settings.irus.requestor_id
     # end badges
 
     # ordered list metadata config

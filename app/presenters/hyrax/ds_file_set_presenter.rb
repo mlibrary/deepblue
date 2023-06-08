@@ -167,15 +167,15 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "parent.class.name=#{parent.class.name}",
-                                             "parent.id=#{parent.id}",
-                                             "Array( parent.read_me_file_set_id ).first=#{Array( parent.read_me_file_set_id ).first}",
+                                             "parent&.id=#{parent&.id}",
+                                             "Array( parent&.read_me_file_set_id ).first=#{Array( parent&.read_me_file_set_id ).first}",
                                              "id=#{id}",
-                                             "false if Array( parent.read_me_file_set_id ).first == id=#{Array( parent.read_me_file_set_id ).first == id}",
+                                             "false if Array( parent&.read_me_file_set_id ).first == id=#{Array( parent&.read_me_file_set_id ).first == id}",
                                              "false unless not right mime_type=#{::Deepblue::FileContentHelper.read_me_file_set_view_mime_types.include? mime_type}",
                                              "false if too big=#{file_size > ::Deepblue::FileContentHelper.read_me_file_set_view_max_size}",
                                              "" ] if ds_file_set_presenter_debug_verbose
       return false unless ::Deepblue::FileContentHelper.read_me_file_set_enabled
-      return false if Array( parent.read_me_file_set_id ).first == id
+      return false if Array( parent&.read_me_file_set_id ).first == id
       return false unless ::Deepblue::FileContentHelper.read_me_file_set_view_mime_types.include? mime_type
       return false if file_size > ::Deepblue::FileContentHelper.read_me_file_set_view_max_size
       return can_edit_file?
@@ -300,7 +300,7 @@ module Hyrax
       return false if anonymous_show?
       return false if parent&.tombstone.present?
       return true if current_ability.admin?
-      # return false if parent.doi.present? # this will allow the user to delete the file
+      # return false if parent&.doi.present? # this will allow the user to delete the file
       return true if editor? && pending_publication?
       return false unless pending_publication?
       return true if current_ability.current_user.email.present? && current_ability.current_user.email.to_s == depositor
@@ -510,7 +510,7 @@ module Hyrax
     end
 
     def itemscope_itemtype
-      if parent.itemtype == "http://schema.org/Dataset"
+      if parent&.itemtype == "http://schema.org/Dataset"
         "http://schema.org/CreativeWork"
       else
         "http://schema.org/Dataset"
@@ -578,7 +578,7 @@ module Hyrax
     end
 
     def parent_data_set
-      @parent_data_set ||= ::PersistHelper.find parent.id
+      @parent_data_set ||= ::PersistHelper.find parent&.id
     end
 
     def parent_doi_minted?
@@ -590,20 +590,20 @@ module Hyrax
     end
 
     def parent_workflow
-      parent.workflow
+      parent&.workflow
     end
 
     def pending_publication?
-      parent.workflow.state != 'deposited'
+      parent&.workflow.state != 'deposited'
     end
 
     def published?
       # ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
       #                                        ::Deepblue::LoggingHelper.called_from,
-      #                                        "parent.workflow.state=#{parent.workflow.state}",
+      #                                        "parent&.workflow.state=#{parent&.workflow.state}",
       #                                        "solr_document.visibility=#{solr_document.visibility}",
       #                                        "" ] ds_file_set_presenter_debug_verbose
-      parent.workflow.state == 'deposited' && solr_document.visibility == 'open'
+      parent&.workflow.state == 'deposited' && solr_document.visibility == 'open'
     end
 
     def relative_url_root

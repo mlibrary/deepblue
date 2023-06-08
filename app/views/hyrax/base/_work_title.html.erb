@@ -13,6 +13,7 @@
       </small>
     </h2>
     <% if presenter.doi.present? && presenter.doi.first.include?( 'doi:' ) %>
+    <!-- badges would go here -->
     <% doi_plain = presenter.doi_plain %>
     <div class="badge-block">
       <span class='altmetric-embed' data-badge-type='large_rectangle' data-hide-less-than="1" data-doi="<%=doi_plain%>"></span>
@@ -25,7 +26,9 @@
       <div id="irus_widget_container"></div>
       <% end %>
     </div>
-    <% end %>
+    <% else %>
+    <!-- badges would go here -->
+  <% end %>
     <% else %>
     <h2 class="title-header"><%= title %></h2>
     <% end %>
