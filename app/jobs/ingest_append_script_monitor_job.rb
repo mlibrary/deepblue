@@ -16,6 +16,9 @@ class IngestAppendScriptMonitorJob < ::Deepblue::DeepblueJob
   @@bold_puts = false
 
   EVENT = 'ingest append script monitor'
+  INITIAL_WAIT_DURATION = 30
+  INITIAL_WAIT_COUNT = 1
+  INITIAL_WAIT_DEBUG_VERBOSE = false
 
   attr_accessor :child_job_id
   attr_accessor :id
@@ -30,6 +33,7 @@ class IngestAppendScriptMonitorJob < ::Deepblue::DeepblueJob
   attr_accessor :restart
   attr_accessor :run_count
   attr_accessor :monitor_wait_duration
+  attr_accessor :monitor_wait_count
 
   def perform( id: nil,
                ingest_mode: 'append',
@@ -64,7 +68,11 @@ class IngestAppendScriptMonitorJob < ::Deepblue::DeepblueJob
     msg_handler.msg_verbose "max_appends=#{@max_appends}"
     @max_restarts_base = max_restarts_base
     msg_handler.msg_verbose "max_restarts_base=#{@max_restarts_base}"
+    @monitor_wait_count = 0
     @monitor_wait_duration = monitor_wait_duration
+    if 2 > @monitor_wait_duration
+      @monitor_wait_duration = 2
+    end
     msg_handler.msg_verbose "monitor_wait_duration=#{@monitor_wait_duration}"
     @path_to_script = path_to_script
     msg_handler.msg_verbose "path_to_script=#{@path_to_script}"
@@ -79,8 +87,13 @@ class IngestAppendScriptMonitorJob < ::Deepblue::DeepblueJob
     @ingest_script.active = false
     update_messages_from_ingest_script_log
     @ingest_script.monitor_job_end_timestamp = timestamp_end.to_formatted_s(:db)
+    @ingest_script.script_section[:monitor_job_run_timestamp] = ''
+    @ingest_script.script_section[:monitor_job_rerun_timestamp] = ''
+    @ingest_script.monitor_job_begin_timestamp = ''
+    @ingest_script.script_section[:monitor_child_job_begin_timestamp] = ''
+    @ingest_script.job_begin_timestamp = ''
     @ingest_script.touch
-    @ingest_script.move_to_finished( save: true, source: self.class.name ) if @ingest_script.finished?
+    @ingest_script.move_to_finished( save: true, source: self.class.name ) if child_job_finished?
     # TODO: email the results stored in ingest script to user
     # ingest_script.script_section[:email_after_msg_lines]
     # It looks like the move when finished is actually copying...
@@ -140,8 +153,69 @@ class IngestAppendScriptMonitorJob < ::Deepblue::DeepblueJob
 
   def child_job_running?
     return false if Rails.env.development?
+    return false unless child_job_started?
+    debug_verbose = INITIAL_WAIT_DEBUG_VERBOSE || ingest_append_script_monitor_job_debug_verbose
     rv = @child_job_id.present? && ::Deepblue::JobsHelper.job_running?( @child_job_id )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "@child_job_id=#{@child_job_id}",
+                                           "child_job_running? true if rv=#{rv}",
+                                           "" ], bold_puts: @@bold_puts if debug_verbose
+    return true if rv
+    jobs = ::Deepblue::JobsHelper.jobs_running_by_class( klass: IngestAppendScriptJob )
+    keys = ['payload', 'args', 'arguments', 'ingest_script_path' ]
+    value = @ingest_script&.ingest_script_path
+    jobs.select { |job| value == ::Deepblue::JobsHelper.job_value_by_keys( job: job, keys: keys ) }
+    rv = jobs.present?
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "@ingest_script&.ingest_script_path=#{@ingest_script&.ingest_script_path}",
+                                           "child_job_running?=#{rv}",
+                                           "" ], bold_puts: @@bold_puts if debug_verbose
     return rv
+  end
+
+  def child_job_ended?
+    rv = @ingest_script.job_end_timestamp.present?
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "@ingest_script.job_end_timestamp.present?=#{rv}",
+                                           "child_job_ended?=#{rv}",
+                                           "" ], bold_puts: @@bold_puts if debug_verbose
+    return rv
+  end
+
+  def child_job_finished?
+    rv = @ingest_script.finished?
+    # return !child_job_running?
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "@ingest_script.finished?=#{rv}",
+                                           "child_job_finished?=#{rv}",
+                                           "" ], bold_puts: @@bold_puts if debug_verbose
+    return rv
+  end
+
+  def child_job_started?
+    rv = @ingest_script.job_begin_timestamp.present?
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "@ingest_script.job_begin_timestamp.present?=#{rv}",
+                                           "child_job_started?=#{rv}",
+                                           "" ], bold_puts: @@bold_puts if debug_verbose
+    return rv
+  end
+
+  def child_job_waiting_to_started?
+    monitor_child_job_begin_timestamp = @ingest_script.script_section[:monitor_child_job_begin_timestamp]
+    job_begin_timestamp = @ingest_script.job_begin_timestamp
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "monitor_child_job_begin_timestamp=#{monitor_child_job_begin_timestamp}",
+                                           "job_begin_timestamp=#{job_begin_timestamp}",
+                                           "child_job_waiting_to_started?=#{monitor_child_job_begin_timestamp.present? && job_begin_timestamp.blank?}",
+                                           "" ], bold_puts: @@bold_puts if debug_verbose
+    monitor_child_job_begin_timestamp.present? && job_begin_timestamp.blank?
   end
 
   def ingest_script_with( id:, initial_yaml_file_path:, max_appends:, restart: )
@@ -163,30 +237,38 @@ class IngestAppendScriptMonitorJob < ::Deepblue::DeepblueJob
     raise e
   end
 
+  def ingest_status
+    status = IngestStatus.where( cc_id: id )
+    return "Not found" if status.nil?
+    # return "Ingest status: cc_id=#{status.cc_id}, cc_type=#{status.cc_type}, status=#{status}, status_date=#{status.status_date}"
+    return status
+  end
+
   def keep_running?
     verbose_debug = ingest_append_script_monitor_job_debug_verbose
+    return false unless File.exist? @path_to_script
     child_job_running = child_job_running?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "true if child_job_running=#{child_job_running}",
+                                           "keep_running? true if child_job_running=#{child_job_running}",
                                            "" ], bold_puts: @@bold_puts if verbose_debug
     return true if child_job_running
-    finished = @ingest_script.finished?
+    finished = child_job_finished?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "false if finished=#{finished}",
+                                           "keep_running? false if finished=#{finished}",
                                            "" ], bold_puts: @@bold_puts if verbose_debug
-    return false if finished
     retries_exhausted = retries_exhausted?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "false if retries_exhausted=#{retries_exhausted}",
+                                           "keep_running? false if retries_exhausted=#{retries_exhausted}",
                                            "" ], bold_puts: @@bold_puts if verbose_debug
     return false if retries_exhausted
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "true (fall through)",
+                                           "keep_running?=true (fall through)",
                                            "" ], bold_puts: @@bold_puts if verbose_debug
+    return false if finished
     return true
   end
 
@@ -207,6 +289,7 @@ class IngestAppendScriptMonitorJob < ::Deepblue::DeepblueJob
                                            "options=#{options}",
                                            "" ], bold_puts: @@bold_puts if ingest_append_script_monitor_job_debug_verbose
     child_job = IngestAppendScriptJob.send( :job_or_instantiate,
+                                            id: id,
                                             ingest_script_path: @ingest_script.ingest_script_path,
                                             ingester: ingester,
                                             max_appends: @max_appends,
@@ -219,6 +302,9 @@ class IngestAppendScriptMonitorJob < ::Deepblue::DeepblueJob
                                            "child_job=#{child_job}",
                                            "@child_job_id=#{@child_job_id}",
                                            "" ], bold_puts: @@bold_puts if ingest_append_script_monitor_job_debug_verbose
+    if Rails.env.production?
+      sleep INITIAL_WAIT_DURATION
+    end
     reload_ingest_script if reload_script
     return child_job
   rescue Exception => e
@@ -251,7 +337,12 @@ class IngestAppendScriptMonitorJob < ::Deepblue::DeepblueJob
   end
 
   def retries_exhausted?
-    @run_count > @max_restarts_base
+    rv = @run_count > @max_restarts_base
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "retries_exhausted? @run_count > @max_restarts_base=#{rv}",
+                                           "" ], bold_puts: @@bold_puts if debug_verbose
+    return rv
   end
 
   def run( &block )
@@ -260,21 +351,33 @@ class IngestAppendScriptMonitorJob < ::Deepblue::DeepblueJob
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "@run_count=#{@run_count}",
+                                           "ingest_status=#{ingest_status}",
                                            "" ], bold_puts: @@bold_puts if debug_verbose
-    finished = @ingest_script.finished?
+    @ingest_script.script_section[:monitor_job_run_timestamp] = timestamp_now
+    @ingest_script.script_section[:monitor_job_rerun_timestamp] = ''
+    @ingest_script.script_section[:monitor_child_job_begin_timestamp] = ''
+    @ingest_script.job_begin_timestamp = ''
+    @ingest_script.touch
+    stop_running = retries_exhausted? || child_job_finished?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "finished=#{finished}",
+                                           "stop_running=#{stop_running}",
                                            "" ], bold_puts: @@bold_puts if debug_verbose
     retry_flag = false
-    while !finished do
+    while !stop_running do
       begin
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "@run_count=#{@run_count}",
+                                               "ingest_status=#{ingest_status}",
                                                "" ], bold_puts: @@bold_puts if debug_verbose
         run_retry( retry_flag: retry_flag, &block )
-        finished = reload_ingest_script.finished? || retries_exhausted?
+        reload_ingest_script
+        stop_running = retries_exhausted? || child_job_finished?
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "stop_running=#{stop_running}",
+                                               "" ], bold_puts: @@bold_puts if debug_verbose
       rescue Exception => e # rubocop:disable Lint/RescueException
         report_error( e, "IngestAppendScriptMonitorJob.run" )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -284,8 +387,13 @@ class IngestAppendScriptMonitorJob < ::Deepblue::DeepblueJob
                                                "e.message=#{e.message}",
                                                "e.backtrace:" ] + e.backtrace,
                                              bold_puts: @@bold_puts if debug_verbose
-        finished = reload_ingest_script.finished? || retries_exhausted?
-        raise e if finished
+        reload_ingest_script
+        stop_running = retries_exhausted? || child_job_finished?
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "stop_running=#{stop_running}",
+                                               "" ], bold_puts: @@bold_puts if debug_verbose
+        raise e if stop_running
         retry_flag = true
       end
     end
@@ -296,47 +404,73 @@ class IngestAppendScriptMonitorJob < ::Deepblue::DeepblueJob
   end
 
   def run_retry( retry_flag:, &block )
+    debug_verbose = ingest_append_script_monitor_job_debug_verbose
     msg_handler.msg_verbose msg_handler.here
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "retry_flag=#{retry_flag}",
                                            "@run_count=#{@run_count}",
-                                           "" ], bold_puts: @@bold_puts if ingest_append_script_monitor_job_debug_verbose
+                                           "ingest_status=#{ingest_status}",
+                                           "" ], bold_puts: @@bold_puts if debug_verbose
+    if retry_flag
+      @ingest_script.script_section[:monitor_job_run_timestamp] = timestamp_now
+    else
+      @ingest_script.script_section[:monitor_job_rerun_timestamp] = timestamp_now
+    end
+    @ingest_script.script_section[:monitor_child_job_begin_timestamp] = timestamp_now
+    @ingest_script.touch
     @run_count = @run_count + 1
     yield( reload_script: retry_flag )
     reload_ingest_script
     keep_running = keep_running?
     while keep_running do
+      run_sleep
+      child_job_running = child_job_running?
+      child_job_waiting_to_started = child_job_waiting_to_started?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "child_job_running=#{child_job_running}",
+                                             "child_job_waiting_to_started=#{child_job_waiting_to_started}",
+                                             "@run_count=#{@run_count}",
+                                             "ingest_status=#{ingest_status}",
+                                             "" ], bold_puts: @@bold_puts if debug_verbose
+      if !child_job_running && !child_job_waiting_to_started?
+        @run_count = @run_count + 1
+        yield( reload_script: true )
+      end
+      reload_ingest_script
+      keep_running = keep_running?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "@run_count=#{@run_count}",
-                                             "" ], bold_puts: @@bold_puts if ingest_append_script_monitor_job_debug_verbose
-      run_sleep
-      @run_count = @run_count + 1
-      yield( reload_script: true )
-      reload_ingest_script
-      keep_running = keep_running?
-      if retries_exhausted?
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "@run_count=#{@run_count}",
-                                               "retries_exhausted",
-                                               "" ], bold_puts: @@bold_puts if ingest_append_script_monitor_job_debug_verbose
-      end
+                                             "keep_running=#{keep_running}",
+                                             "ingest_status=#{ingest_status}",
+                                             "" ], bold_puts: @@bold_puts if debug_verbose
     end
   end
 
   def run_sleep
+    debug_verbose = INITIAL_WAIT_DEBUG_VERBOSE || ingest_append_script_monitor_job_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "Rails.env.development?=#{Rails.env.development?}",
-                                           "" ], bold_puts: @@bold_puts if ingest_append_script_monitor_job_debug_verbose
+                                           "" ], bold_puts: @@bold_puts if debug_verbose
     return if Rails.env.development?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
+                                           "sleep monitor_wait_count=#{monitor_wait_count}",
                                            "sleep monitor_wait_duration=#{monitor_wait_duration}",
-                                           "" ], bold_puts: @@bold_puts if ingest_append_script_monitor_job_debug_verbose
-    sleep monitor_wait_duration
+                                           "" ], bold_puts: @@bold_puts if debug_verbose
+    wait_duration = monitor_wait_duration
+    if INITIAL_WAIT_COUNT < @monitor_wait_count && INITIAL_WAIT_DURATION > wait_duration
+      wait_duration = INITIAL_WAIT_DURATION
+    end
+    sleep wait_duration
+    @monitor_wait_count += 1
+  end
+
+  def timestamp_now
+    DateTime.now.to_formatted_s(:db)
   end
 
   def update_messages_from_ingest_script_log

@@ -64,9 +64,10 @@ module Deepblue
     mattr_accessor :add_job_json_to_ingest_script,                    default: false
     mattr_accessor :ingest_append_script_monitor_job_verbose,         default: false
     mattr_accessor :ingest_append_script_job_verbose,                 default: false
+    mattr_accessor :ingest_append_script_no_duplicate_files,          default: false
     mattr_accessor :ingest_append_script_max_appends,                 default: 20
     mattr_accessor :ingest_append_script_max_restarts_base,           default: 4
-    mattr_accessor :ingest_append_script_monitor_wait_duration,       default: 2
+    mattr_accessor :ingest_append_script_monitor_wait_duration,       default: 10
 
     def self.ingest_append_ui_allowed_base_directories
       @@ingest_append_ui_allowed_base_directories ||= []

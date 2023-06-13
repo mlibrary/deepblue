@@ -17,10 +17,11 @@ class IngestAppendScriptJob < ::Deepblue::DeepblueJob
 
   EVENT = 'ingest append script'
 
-  def perform( ingest_script_path:, ingester:, max_appends:, restart:, run_count:, **options )
+  def perform( id:, ingest_script_path:, ingester:, max_appends:, restart:, run_count:, **options )
     msg_handler.debug_verbose = msg_handler.debug_verbose || ingest_append_script_job_debug_verbose
     msg_handler.verbose = msg_handler.verbose || ingest_append_script_job_verbose
     msg_handler.msg_verbose msg_handler.here
+    msg_handler.msg_verbose "id=#{id}"
     msg_handler.msg_verbose "ingest_script_path=#{ingest_script_path}"
     msg_handler.msg_verbose "ingester=#{ingester}"
     msg_handler.msg_verbose "max_appends=#{max_appends}"
@@ -28,6 +29,7 @@ class IngestAppendScriptJob < ::Deepblue::DeepblueJob
     initialize_with( debug_verbose: msg_handler.debug_verbose, options: options )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
+                                           "id=#{id}",
                                            "ingest_script_path=#{ingest_script_path}",
                                            "ingester=#{ingester}",
                                            "max_appends=#{max_appends}",
