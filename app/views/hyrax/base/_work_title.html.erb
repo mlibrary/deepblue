@@ -1,26 +1,37 @@
 <% @presenter.title.each_with_index do |title, index| %>
-  <div class="row">
-    <div class="col-sm-12">
-      <% if index == 0 %>
-        <h2 class="title-header"><span class="bold">Title: </span><%= title %>
-          <% if @presenter.tombstone.present? %>
-            <small class="text-muted"><span class="label label-danger">Tombstone</span> <%= presenter.workflow.badge %></small>
-          <% else %>
-            <small class="text-muted"><%= @presenter.permission_badge %> <%= presenter.workflow.badge %></small>
-          <% end %>
-        </h2>
-        <% if presenter.doi.present? %>
-            <% if presenter.doi.first.include? "doi:" %>
-              <div class="badge-block">
-                <span class='altmetric-embed' data-badge-type='large_rectangle' data-hide-less-than="1" data-doi="<%= presenter.doi.first.sub('doi:', '') %>"></span><div class="badge-separator"></div>
-                <span class="__dimensions_badge_embed__" data-style="large_rectangle" data-hide-zero-citations="true" data-doi="<%= presenter.doi.first.sub('doi:', '') %>"></span><div class="badge-separator"></div>
-                <data-metrics-badge doi="<%= presenter.doi.first.sub('doi:', '') %>" display="small"></data-metrics-badge>
-              </div>
-            <% end %>
-        <% end %>
+<div class="row">
+  <div class="col-sm-12">
+    <% if index == 0 %>
+    <h2 class="title-header"><span class="bold">Title: </span><%= title %>
+      <small class="text-muted">
+      <% if @presenter.tombstone.present? %>
+        <span class="label label-danger">Tombstone</span>
       <% else %>
-        <h2 class="title-header"><%= title %></h2>
+        <%= @presenter.permission_badge %>
+      <% end %>
+      <%= presenter.workflow.badge %>
+      </small>
+    </h2>
+    <% if presenter.doi.present? && presenter.doi.first.include?( 'doi:' ) %>
+    <!-- badges would go here -->
+    <% doi_plain = presenter.doi_plain %>
+    <div class="badge-block">
+      <span class='altmetric-embed' data-badge-type='large_rectangle' data-hide-less-than="1" data-doi="<%=doi_plain%>"></span>
+      <div class="badge-separator"></div>
+      <span class="__dimensions_badge_embed__" data-style="large_rectangle" data-hide-zero-citations="true" data-doi="<%=doi_plain%>"></span>
+      <div class="badge-separator"></div>
+      <data-metrics-badge doi="<%=doi_plain%>" display="small"></data-metrics-badge>
+      <% if Rails.configuration.badge_irus_enabled %>
+      <script id="irus_ir_widget" src="https://irus.jisc.ac.uk/r5/js/irus_ir_widget.js?requestor_id=<%=Rails.configuration.badge_irus_requestor_id%>&platform=<%=Rails.configuration.badge_irus_registry_id%>&item_id=<%=@presenter.doi_url%>"></script>
+      <div id="irus_widget_container"></div>
       <% end %>
     </div>
+    <% else %>
+    <!-- badges would go here -->
+  <% end %>
+    <% else %>
+    <h2 class="title-header"><%= title %></h2>
+    <% end %>
   </div>
+</div>
 <% end %>

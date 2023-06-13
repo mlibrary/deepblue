@@ -16,6 +16,7 @@ module Deepblue
     mattr_accessor :doi_regex, default: /\A10\.\d{4,}(\.\d+)*\/[-._;():\/A-Za-z\d]+\z/.freeze
 
     def self.doi_render( value )
+      value = value.first if value.is_a? Array
       return value if value == doi_pending
       return value if value.start_with? 'http'
       return value.sub 'doi:', 'https://doi.org/'

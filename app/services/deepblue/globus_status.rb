@@ -318,6 +318,12 @@ module Deepblue
     end
 
     def yaml_save( link_most_recent: true, path: nil )
+      debug_verbose = true
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "link_most_recent=#{link_most_rcent}",
+                                             "path=#{path}",
+                                             "" ] if debug_verbose
       hash = {}
       hash[:begin_date] = @begin_date
       hash[:end_date] = @end_date
@@ -342,6 +348,10 @@ module Deepblue
       hash[:starts_with_download_dir] = @starts_with_prep_dir
       file_contents = hash.to_yaml
       path ||= yaml_path
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "path=#{path}",
+                                             "" ] if debug_verbose
       File.open( path.to_s, "w" ) { |out| out.puts file_contents }
       yaml_link_most_recent( path: path ) if link_most_recent
     end

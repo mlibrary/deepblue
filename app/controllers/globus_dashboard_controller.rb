@@ -33,7 +33,14 @@ class GlobusDashboardController < ApplicationController
     msg_handler = ::Deepblue::MessageHandler.new( verbose: false,
                                                   debug_verbose: globus_dashboard_controller_debug_verbose )
     rv = ::Deepblue::GlobusService.globus_status( include_disk_usage: false, msg_handler: msg_handler )
-    rv.yaml_save # TODO: revisit
+    begin
+      rv.yaml_save # TODO: revisit
+    rescue Exception => e
+      Rails.logger.error "#{e.class} -- #{e.message} at #{e.backtrace[0]}"
+      ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                             "globus_status_init #{e.class}: #{e.message} at #{e.backtrace[0]}",
+                                             "" ] + e.backtrace # error
+    end
     return rv
   end
 
