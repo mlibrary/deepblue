@@ -36,6 +36,7 @@ module Deepblue
              "::Deepblue::IngestIntegrationService.ingest_append_script_max_restarts_base=#{::Deepblue::IngestIntegrationService.ingest_append_script_max_restarts_base}",
              "::Deepblue::IngestIntegrationService.ingest_append_script_monitor_wait_duration=#{::Deepblue::IngestIntegrationService.ingest_append_script_monitor_wait_duration}",
              "" ] if ingest_append_content_service_debug_verbose
+      return unless File.exist? ingest_script_path
       begin_timestamp = DateTime.now
       mode = 'append'
       ingest_script = nil

@@ -24,6 +24,8 @@ module Deepblue
 
     attr_reader :ingest_script
 
+    @@bold_puts = false
+
     def active_ingest_append_script
       @active_ingest_append_script = active_ingest_append_script_init
     end
@@ -73,6 +75,7 @@ module Deepblue
       depth += 1
       script << "#{generate_depth( depth: depth )}:id: '#{curation_concern.id}'"
       script << "#{generate_depth( depth: depth )}:depositor: '#{ingest_depositor}'"
+      script << "#{generate_depth( depth: depth )}:no_duplicate_file_names: true"
       # :owner: 'fritx@umich.edu'
       script << "#{generate_depth( depth: depth )}:filenames:"
       files = ingest_file_path_list.split("\n")
@@ -288,10 +291,11 @@ module Deepblue
         begin
           path_to_script = ingest_script_write_for_restart( original_path: ingest_append_script_path )
           rv = ingest_script_run( path_to_script: path_to_script, restart: true )
-          if rv
+          if rv.blank?
             msg = "Ingest append script restart job started: '#{path_to_script}'"
           else
-            msg = "Ingest append script restart job failed to start: '#{path_to_script}'"
+            # msg = "Ingest append script restart job failed to start: '#{path_to_script}'"
+            msg = rv
           end
         rescue Exception => e # rubocop:disable Lint/RescueException
           Rails.logger.error "ingest_append_script_run_job #{e.class}: #{e.message} at #{e.backtrace[0]}"
@@ -331,10 +335,11 @@ module Deepblue
           path_to_script = ingest_script_write
           if I18n.t( 'simple_form.actions.data_set.ingest_append_script_run_job' ) == commit
             rv = ingest_script_run( path_to_script: path_to_script )
-            if rv
+            if rv.blank?
               msg = "Ingest append script job started: '#{path_to_script}'"
             else
-              msg = "Ingest append script job failed to start: '#{path_to_script}'"
+              # msg = "Ingest append script job failed to start: '#{path_to_script}'"
+              msg = rv
             end
           else
             msg = "Ingest append script written to '#{path_to_script}'"
@@ -625,7 +630,10 @@ module Deepblue
                                              "restart=#{restart}",
                                              "ingest_append_ui_allow_scripts_to_run=#{ingest_append_ui_allow_scripts_to_run}",
                                              "" ] if ingest_append_scripts_controller_behavior_debug_verbose
-      return false unless ingest_append_ui_allow_scripts_to_run
+      return "Ingest scripts are disabled." unless ingest_append_ui_allow_scripts_to_run
+
+      return "Ingest script is currently running for #{curation_concern.id}" if ingest_script_running_for_this_curation_concern?
+
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "IngestAppendScriptMonitorJob.perform_later:",
@@ -644,7 +652,25 @@ module Deepblue
                                                   path_to_script: path_to_script,
                                                   monitor_wait_duration: ingest_append_script_monitor_wait_duration,
                                                   restart: restart )
-      true
+      nil
+    end
+
+    def ingest_script_running_for_this_curation_concern?
+      return false if Rails.env.development?
+      debug_verbose = true || ingest_append_scripts_controller_behavior_debug_verbose
+      jobs = ::Deepblue::JobsHelper.jobs_running_by_class( klass: IngestAppendScriptMonitorJob )
+      keys = ['payload', 'args', 'arguments', 'id' ]
+      value = curation_concern.id
+      jobs.select { |job| value == ::Deepblue::JobsHelper.job_value_by_keys( job: job, keys: keys ) }
+      rv = jobs.present?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "curation_concern.id=#{curation_concern.id}",
+                                             "rv=#{rv}",
+                                             "" ], bold_puts: @@bold_puts if debug_verbose
+      return rv
+
+
     end
 
     def ingest_script_title

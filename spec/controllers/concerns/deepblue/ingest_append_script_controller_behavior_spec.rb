@@ -13,7 +13,7 @@ RSpec.describe Deepblue::IngestAppendScriptControllerBehavior do
     it { expect( described_class.ingest_append_script_allow_delete_any_script ).to eq true } # TODO: set false
     it { expect( described_class.ingest_append_script_max_appends ).to eq 20 }
     it { expect( described_class.ingest_append_script_max_restarts_base ).to eq 4 }
-    it { expect( described_class.ingest_append_script_monitor_wait_duration ).to eq 2 }
+    it { expect( described_class.ingest_append_script_monitor_wait_duration ).to eq 10 }
   end
 
 end

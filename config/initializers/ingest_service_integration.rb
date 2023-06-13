@@ -122,9 +122,10 @@ Deepblue::IngestIntegrationService.setup do |config|
   config.ingest_append_script_job_verbose = false
   config.ingest_append_script_monitor_job_verbose = false
   config.add_job_json_to_ingest_script = false
+  config.ingest_append_script_no_duplicate_files = false
   config.ingest_append_script_max_appends = 20
   config.ingest_append_script_max_restarts_base = 4
-  config.ingest_append_script_monitor_wait_duration = 2
+  config.ingest_append_script_monitor_wait_duration = 10
 
   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
              ::Deepblue::LoggingHelper.called_from,

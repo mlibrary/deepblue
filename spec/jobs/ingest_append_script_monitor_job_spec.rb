@@ -13,7 +13,7 @@ RSpec.describe IngestAppendScriptMonitorJob do
   describe 'module variables' do
     it { expect( described_class.ingest_append_script_monitor_job_verbose ).to eq false }
     it { expect( described_class.ingest_append_script_max_restarts_base ).to eq 4 }
-    it { expect( described_class.ingest_append_script_monitor_wait_duration ).to eq 2 }
+    it { expect( described_class.ingest_append_script_monitor_wait_duration ).to eq 10 }
   end
 
 end

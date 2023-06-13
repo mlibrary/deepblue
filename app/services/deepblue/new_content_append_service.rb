@@ -115,12 +115,17 @@ module Deepblue
         msg_handler.msg "Skipping add_file_sets_to_work_from_files because ingest script finished." if verbose
         return work
       end
+      @ingest_script.script_section[:stop_new_content_service_file] = @stop_new_content_service_file.to_s
+      touch_ingest_script
+      no_duplicate_file_names = work_hash[:no_duplicate_file_names]
+      no_duplicate_file_names ||= false
       max_appends = @ingest_script.script_section[:max_appends]
       msg_handler.msg_verbose "max_appends=#{max_appends}"
       run_count = @ingest_script.script_section[:run_count]
       msg_handler.msg_verbose "run_count=#{run_count}"
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "no_duplicate_file_names=#{no_duplicate_file_names}",
                                              "max_appends=#{max_appends}",
                                              "run_count=#{run_count}",
                                              "" ] if debug_verbose
@@ -140,6 +145,11 @@ module Deepblue
                                                "file_section=#{file_section.pretty_inspect}",
                                                "" ] if debug_verbose
         fid = file_section[:id]
+        if no_duplicate_file_names
+          # look up the first file set with a name that matches this file
+          # work.first_file_set_with_name( file_section[:filename] )
+          # set's name, then set fid based on found file set
+        end
         if fid.present?
           msg_handler.msg_debug "File index #{index} has #{fid}, skipping build." if debug_verbose
           msg_handler.msg_verbose "File index #{index} has #{fid}, skipping build." if verbose
