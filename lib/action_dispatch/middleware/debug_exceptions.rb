@@ -75,7 +75,14 @@ module ActionDispatch
         body.close if body.respond_to?(:close)
         raise ActionController::RoutingError, "No route matches [#{env['REQUEST_METHOD']}] #{env['PATH_INFO'].inspect}"
       end
-
+      # ::Deepblue::LoggingHelper.bold_debug [ "" ]
+      # ::Deepblue::LoggingHelper.bold_debug [ "" ]
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "headers=#{headers.pretty_inspect}",
+      #                                        "" ] + caller_locations(0,30)
+      # ::Deepblue::LoggingHelper.bold_debug [ "" ]
+      # ::Deepblue::LoggingHelper.bold_debug [ "" ]
       response
     rescue Exception => exception
       # # begin monkey
