@@ -83,7 +83,7 @@ module Hyrax
           response.headers['X-DBD-Content-Length-Readable'] = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( file_size, precision: 3 )
           response.headers['X-DBD-Checksum'] = file.checksum.value
           response.headers['X-DBD-Checksum-Algorithm'] = file.checksum.algorithm
-          response.headers['ETag'] = "W\"#{file.checksum.value}\"" unless reponse.headers['ETag'].present?
+          response.headers['ETag'] = "W\"#{file.checksum.value}\"" unless response.headers['ETag'].present?
           wants.html do
             if file_size > Rails.configuration.max_file_size_to_download
               raise ActiveFedora::IllegalOperation # TODO need better error than this
