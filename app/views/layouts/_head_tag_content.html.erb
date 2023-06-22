@@ -1,3 +1,14 @@
+<%#
+  ::Deepblue::LoggingHelper.bold_debug [ "" ]
+  ::Deepblue::LoggingHelper.bold_debug [ "" ]
+  ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                         ::Deepblue::LoggingHelper.called_from,
+                                         "headers=#{headers.pretty_inspect}",
+                                         "@presenter.class.name=#{@presenter.class.name}",
+                                         "" ] # + caller_locations(0,30)
+  ::Deepblue::LoggingHelper.bold_debug [ "" ]
+  ::Deepblue::LoggingHelper.bold_debug [ "" ]
+%>
 <%= csrf_meta_tag %>
 <meta charset="utf-8" />
 <%# Only display meta tag, which enables creation of the ActionCable
@@ -72,3 +83,13 @@ signed in %>
 
 <!-- for extras, e.g., a favicon -->
 <%= render partial: '/head_tag_extras', formats: [:html] %>
+<%#
+  ::Deepblue::LoggingHelper.bold_debug [ "" ]
+  ::Deepblue::LoggingHelper.bold_debug [ "" ]
+  ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                         ::Deepblue::LoggingHelper.called_from,
+                                         "headers=#{headers.pretty_inspect}",
+                                         "" ] # + caller_locations(0,30)
+  ::Deepblue::LoggingHelper.bold_debug [ "" ]
+  ::Deepblue::LoggingHelper.bold_debug [ "" ]
+%>

@@ -28,15 +28,23 @@ module Hyrax
     # Otherwise renders the file.
     def show
       # begin monkey
+      debug_verbose = downloads_controller_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params=#{params}",
                                              "params[:format]=#{params[:format]}",
-                                             "" ] if downloads_controller_debug_verbose
-      # begin monkey
+                                             # "" ] + caller_locations(0,30) if debug_verbose
+                                             "" ] if debug_verbose
+      # end monkey
       @show_html = false
       case file
       when ActiveFedora::File
+        # begin monkey
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "ActiveFedora::File file=#{file}",
+                                               "" ] if debug_verbose
+        # end monkey
         # begin monkey
         #
         # check if file is too big to download, this will happen when it is a json request
@@ -50,7 +58,7 @@ module Hyrax
         #                                        "file.metadata.attributes[::RDF::Vocab::EBUCore.fileSize]=#{file.metadata.attributes[::RDF::Vocab::EBUCore.fileSize]}",
         #                                        "file.metadata.attributes[::RDF::Vocab::EBUCore.fileSize.to_s]=#{file.metadata.attributes[::RDF::Vocab::EBUCore.fileSize.to_s]}",
         #                                        #"file.metadata.methods.sort=#{file.metadata.methods.sort}",
-        #                                        "" ] if downloads_controller_debug_verbose
+        #                                        "" ] if debug_verbose
 
         relation = file.metadata.attributes[::RDF::Vocab::EBUCore.fileSize.to_s]
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -58,11 +66,24 @@ module Hyrax
         #                                        "relation.methods.sort=#{relation.methods.sort}",
         #                                        "relation.first=#{relation.first}",
         #                                        "relation.first.to_i=#{relation.first.to_i}",
-        #                                        "" ] if downloads_controller_debug_verbose
+        #                                        "" ] if debug_verbose
 
         file_size = 0
         file_size = relation.first.to_i if relation.present?
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "file_size=#{file_size}",
+                                               "file_size human readable=#{ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( file_size, precision: 3 )}",
+                                               "Rails.configuration.max_file_size_to_download=#{Rails.configuration.max_file_size_to_download}",
+                                               "file.checksum=#{file.checksum}",
+                                               "file.checksum.value=#{file.checksum.value}",
+                                               "file.checksum.algorithm=#{file.checksum.algorithm}",
+                                               "" ] if debug_verbose
         respond_to do |wants|
+          response.headers['X-DBD-Content-Length-Readable'] = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( file_size, precision: 3 )
+          response.headers['X-DBD-Checksum'] = file.checksum.value
+          response.headers['X-DBD-Checksum-Algorithm'] = file.checksum.algorithm
+          response.headers['ETag'] = "W\"#{file.checksum.value}\"" unless response.headers['ETag'].present?
           wants.html do
             if file_size > Rails.configuration.max_file_size_to_download
               raise ActiveFedora::IllegalOperation # TODO need better error than this
@@ -84,16 +105,24 @@ module Hyrax
         end
         # end monkey
       when String
+        # begin monkey
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "String file=#{file}",
+                                               "" ] if debug_verbose
+        # end monkey
         # For derivatives stored on the local file system
         send_local_content
       else
+        # begin monkey
         ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "params=#{params}",
                                                "params[:format]=#{params[:format]}",
                                                "file=#{file}",
                                                "file.class.name=#{file.class.name}",
-                                               "" ] + caller_locations(0,20) if downloads_controller_debug_verbose
+                                               "" ] if debug_verbose
+        # end monkey
         raise Hyrax::ObjectNotFoundError
       end
     end
