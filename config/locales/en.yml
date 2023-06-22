@@ -82,7 +82,7 @@ en:
         reloaded_view_templates:        "Reloaded view Templates."
     confirm:
       data_set:
-        ingest_append_script_run_job:          "Are you sure you want to run the append script job?"
+        ingest_append_script_run_job:   "Are you sure you want to run the append script job?"
       ingest:
         run_append_ingests_job:         "Are you sure you want to run append ingests job?"
         run_populate_ingests_job:       "Are you sure you want to run populate ingests job?"
@@ -105,3 +105,14 @@ en:
     scheduler_dashboard:
       labels:
         edit_schedule_textarea:         "Edit Schedule"
+  verbage:
+    remediation_header: Remediation of Harmful Language
+    remediation_html: >
+      The University of Michigan Library aims to describe library materials in a way that respects the people
+      and communities who create, use, and are represented in our collections. Report harmful or offensive
+      language in catalog records, finding aids, or elsewhere in our collections anonymously through our
+      <a href='https://docs.google.com/forms/d/e/1FAIpQLSfSJ7y-zqmbNQ6ssAhSmwB7vF-NyZR9nVwBICFI8dY5aP1-TA/viewform'>
+      metadata feedback form</a>.
+      More information at
+      <a href='https://www.lib.umich.edu/about-us/policies/remediation-harmful-language-library-metadata'>
+      Remediation of Harmful Language</a>.

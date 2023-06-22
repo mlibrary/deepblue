@@ -12,7 +12,8 @@
         </div>
       <% end %>
     <% end %>
-    <% if @presenter.can_view_work_metadata? %>
+    <% can_view_work_metadata = @presenter.can_view_work_metadata? %>
+    <% if can_view_work_metadata %>
       <div class="col-sm-12">
         <table class="table table-striped data-set-table">
           <thead>
@@ -56,6 +57,9 @@
           <% end %>
         </div>
       <% end %>
+    <% end %>
+    <% if can_view_work_metadata %>
+      <%= render '/remediation_verbage', presenter: @presenter %>
     <% end %>
   </div>
 </div>
