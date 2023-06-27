@@ -113,6 +113,8 @@ module DeepBlueDocs
     config.hydra_role_management_user_roles_debug_verbose       = false
     config.hyrax_ability_debug_verbose                          = false
     config.permissions_controller_debug_verbose                 = false
+    config.provenance_log_controller_debug_verbose              = false
+    config.provenance_log_controller_behavior_debug_verbose     = false
 
     # all actor debug verbose variables
     config.actors_terminator_debug_verbose                = false
