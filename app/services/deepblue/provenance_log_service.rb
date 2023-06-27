@@ -57,7 +57,7 @@ module Deepblue
       entries = entries( id, refresh: refresh, debug_verbose: debug_verbose )
       entries ||= []
       # now filter by date
-      entries.select do |entry|
+      rv = entries.select do |entry|
         timestamp = timestamp( entry: entry )
         begin_date <= timestamp && end_date >= timestamp
       end

@@ -4,7 +4,8 @@ require_relative '../services/deepblue/deleted_works_from_log'
 
 class ProvenanceLogController < ApplicationController
 
-  mattr_accessor :provenance_log_controller_debug_verbose, default: false
+  mattr_accessor :provenance_log_controller_debug_verbose,
+                 default: Rails.configuration.provenance_log_controller_debug_verbose
 
   include Hyrax::Admin::UsersControllerBehavior
   include ProvenanceLogControllerBehavior
@@ -13,10 +14,10 @@ class ProvenanceLogController < ApplicationController
   class_attribute :presenter_class
   self.presenter_class = ProvenanceLogPresenter
 
-  attr_accessor :id, :id_msg, :id_invalid, :id_deleted
+  attr_accessor :deleted_ids, :deleted_id_to_key_values_map
   attr_accessor :find_id
   attr_accessor :find_user_id
-  attr_accessor :deleted_ids, :deleted_id_to_key_values_map
+  attr_accessor :id, :id_msg, :id_invalid, :id_deleted
   attr_accessor :works_by_user_id_ids, :works_by_user_id_to_key_values_map
 
   def begin_date_default
@@ -25,6 +26,10 @@ class ProvenanceLogController < ApplicationController
 
   def end_date_default
     nil
+  end
+
+  def presenter_debug_verbose
+    provenance_log_controller_debug_verbose
   end
 
   def show
@@ -36,7 +41,27 @@ class ProvenanceLogController < ApplicationController
                                            ">>> Show <<<",
                                            "params[:id]=#{params[:id]}",
                                            "params[:find_id]=#{params[:find_id]}",
+                                           "params[:find_user_id]=#{params[:find_user_id]}",
                                            "" ] if debug_verbose
+    if params[:find_user_id].present?
+      show_works_by_user_id
+    else
+      show_rest
+    end
+  end
+
+  def show_rest
+    debug_verbose = provenance_log_controller_debug_verbose
+    raise CanCan::AccessDenied unless current_ability.admin?
+    begin_end_date_init_from_parms( debug_verbose: debug_verbose )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           ">>> Show <<<",
+                                           "params[:id]=#{params[:id]}",
+                                           "params[:find_id]=#{params[:find_id]}",
+                                           "params[:find_user_id]=#{params[:find_user_id]}",
+                                           "" ] if debug_verbose
+
     @id = params[:id]
     @id_deleted = false
     @id_invalid = false
@@ -236,8 +261,14 @@ class ProvenanceLogController < ApplicationController
     raise CanCan::AccessDenied unless current_ability.admin?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
+                                           ">>> Works by User ID <<<",
                                            "params[:find_user_id]=#{params[:find_user_id]}",
                                            "" ] if debug_verbose
+    show_works_by_user_id
+  end
+
+  def show_works_by_user_id
+    debug_verbose = provenance_log_controller_debug_verbose
     begin_end_date_init_from_parms( debug_verbose: debug_verbose )
     email = params[:find_user_id]
     email ||= current_user.email.to_s

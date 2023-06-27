@@ -18,10 +18,11 @@
           <tbody>
           <% @presenter.deleted_ids.each do |id| %>
             <% p = @presenter.deleted_id_to_key_values_map[id] %>
+            <% user_id = p["user_email"] %>
             <tr>
               <td><%= p["timestamp"] %></td>
               <td><a href="<%= @presenter.url_for_id( id: id ) %>"><%= id %></td>
-              <td><%= p["user_email"] %></td>
+              <td><a href="<%= @presenter.url_for_user_id( user_id: user_id ) %>"><%= user_id %></td>
               <td><%= p["depositor"] %></td>
               <td><%= @presenter.display_title( p["title"] ) %></td>
             </tr>

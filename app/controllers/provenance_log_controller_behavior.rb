@@ -2,7 +2,8 @@
 
 module ProvenanceLogControllerBehavior
 
-  mattr_accessor :provenance_log_controller_behavior_debug_verbose, default: false
+  mattr_accessor :provenance_log_controller_behavior_debug_verbose,
+                 default: Rails.configuration.provenance_log_controller_behavior_debug_verbose
 
   include Deepblue::ControllerWorkflowEventBehavior
 
