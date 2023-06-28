@@ -261,13 +261,15 @@ module Deepblue
       before_begin = false
       before_begin = timestamp < @begin_timestamp if @begin_timestamp.present?
       after_end = false
-      after_end = timestamp > @after_timestamp if @after_timestamp.present?
+      after_end = timestamp > @end_timestamp if @end_timestamp.present?
+      rv = !before_begin && !after_end
       if verbose
-        puts "@begin_timestamp=#{@begin_timestamp} and @after_timestamp=#{@after_timestamp}"
+        puts "@begin_timestamp=#{@begin_timestamp} and @after_timestamp=#{@end_timestamp}"
         puts "#{::Deepblue::LoggingHelper.here} filter_in returning..."
         puts "#{timestamp} is before_begin? #{before_begin} and #{timestamp} is after_end? #{after_end}"
+        puts "filter_in rv=#{rv}"
       end
-      return !before_begin && !after_end
+      rv
     end
 
     def begin_timestamp_label

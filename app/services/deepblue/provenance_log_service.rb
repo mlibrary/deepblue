@@ -51,20 +51,36 @@ module Deepblue
                                              "id=#{id}",
                                              "begin_date=#{begin_date}",
                                              "end_date=#{end_date}",
+                                             "begin_date.class.name=#{begin_date.class.name}",
+                                             "end_date.class.name=#{end_date.class.name}",
                                              "refresh=#{refresh}",
                                              "" ] if debug_verbose
 
+      begin_date = begin_date.beginning_of_day
+      end_date = end_date.end_of_day
       entries = entries( id, refresh: refresh, debug_verbose: debug_verbose )
       entries ||= []
       # now filter by date
       rv = entries.select do |entry|
         timestamp = timestamp( entry: entry )
-        begin_date <= timestamp && end_date >= timestamp
+        rv = begin_date <= timestamp && end_date >= timestamp
+        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+        #                                        ::Deepblue::LoggingHelper.called_from,
+        #                                        "timestamp=#{timestamp}",
+        #                                        "timestamp.class.name=#{timestamp.class.name}",
+        #                                        "begin_date <= timestamp: #{begin_date} <= #{timestamp}",
+        #                                        "begin_date <= timestamp=#{begin_date <= timestamp}",
+        #                                        "end_date <= timestamp: #{end_date} >= #{timestamp}",
+        #                                        "end_date <= timestamp=#{end_date >= timestamp}",
+        #                                        "select rv=#{rv}",
+        #                                        "" ] if debug_verbose
+        rv
       end
+      rv ||= []
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
-                                             "rv&.size=#{rv&.size}",
+                                             "rv.size=#{rv.size}",
                                              "" ] if debug_verbose
       return rv
     end

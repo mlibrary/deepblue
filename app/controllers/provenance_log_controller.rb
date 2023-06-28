@@ -114,13 +114,16 @@ class ProvenanceLogController < ApplicationController
                                            ">>> Find <<<",
                                            "find_id=#{find_id}",
                                            "id=#{id}",
+                                           "begin_date=#{begin_date}",
+                                           "end_date=#{begin_date}",
                                            "" ] if debug_verbose
-    log_entries_refresh
+    log_entries_refresh( begin_date: begin_date, end_date: end_date )
     @presenter = presenter_class.new( controller: self )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            ">>> Find -- About to render <<<",
                                            "begin_date=#{begin_date}",
+                                           "end_date=#{end_date}",
                                            "" ] if debug_verbose
     render 'provenance_log/provenance_log'
   end
@@ -164,20 +167,29 @@ class ProvenanceLogController < ApplicationController
     return rv
   end
 
-  def log_entries_refresh
+  def log_entries_refresh( begin_date: nil, end_date: nil )
     debug_verbose = provenance_log_controller_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "id=#{id}",
+                                           "begin_date=#{begin_date}",
+                                           "end_date=#{end_date}",
                                            "" ] if debug_verbose
     return nil unless ( id_valid? || id_deleted )
+    begin_date ||= self.begin_date
+    end_date ||= self.end_date
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "begin_date=#{begin_date}",
+                                           "end_date=#{end_date}",
+                                           "" ] if debug_verbose
     rv = provenance_log_entries_refresh( id: id,
                                          begin_date: begin_date,
                                          end_date: end_date,
                                          debug_verbose: debug_verbose )
     return rv unless rv.present?
     @log_entries = rv
-    set_begin_end_dates_from_provenance_log_entries if params_begin_date.blank? || params_end_date.blank?
+    set_begin_end_dates_from_provenance_log_entries # if params_begin_date.blank? || params_end_date.blank?
     return rv
   end
 
@@ -273,18 +285,29 @@ class ProvenanceLogController < ApplicationController
     email = params[:find_user_id]
     email ||= current_user.email.to_s
     email = "#{email}@umich.edu" unless email.index( '@' ).present?
+    begin_date = self.begin_date
+    end_date = self.end_date
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "email=#{email}",
+                                           "begin_date=#{begin_date}",
+                                           "end_date=#{end_date}",
                                            "" ] if debug_verbose
-    # TODO: add a date range filter if begin end dates are set
     if begin_date.present? && end_date.present?
+      begin_date = begin_date.beginning_of_day
+      end_date = end_date.end_of_day
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if debug_verbose
       filter = ::Deepblue::DateLogFilter.new( begin_timestamp: begin_date, end_timestamp: end_date )
       runner = ::Deepblue::WorksByUserIdWorksFromLog.new( email: email,
                                                           filter: filter,
                                                           input: ::Deepblue::ProvenanceLogService.provenance_log_path,
                                                           options: { max_lines_extracted: -1 } )
     else
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if debug_verbose
       runner = ::Deepblue::WorksByUserIdWorksFromLog.new( email: email,
                                                           input: ::Deepblue::ProvenanceLogService.provenance_log_path,
                                                           options: { max_lines_extracted: -1 } )
