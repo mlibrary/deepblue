@@ -25,18 +25,27 @@ module Deepblue
 
     def run
       super
+      filter = self.filter
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "filter=#{filter}",
                                              "" ] if works_by_user_id_works_from_log
       @works_by_user_id_ids = []
       @works_by_user_id_to_key_values_map = {}
       lines = lines_extracted
       lines.each do |tuple|
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "tuple=#{tuple}",
-                                               "" ] if works_by_user_id_works_from_log
+        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+        #                                        ::Deepblue::LoggingHelper.called_from,
+        #                                        "tuple=#{tuple}",
+        #                                        "" ] if works_by_user_id_works_from_log
         _line, timestamp, event, event_note, class_name, id, raw_key_values = tuple
+        next if filter.present? && !filter.filter_in( self,
+                                                      timestamp,
+                                                      event,
+                                                      event_note,
+                                                      class_name,
+                                                      id,
+                                                      raw_key_values )
         # key_values = ProvenanceHelper.parse_log_line_key_values raw_key_values
         puts "#{timestamp}, #{event}, #{event_note}, #{class_name}, #{id}" if verbose
         unless @works_by_user_id_to_key_values_map.key? id
