@@ -22,3 +22,7 @@ Rails.application.config.active_record.belongs_to_required_by_default = true
 
 # Configure SSL options to enable HSTS with subdomains. Previous versions had false.
 Rails.application.config.ssl_options = { hsts: { subdomains: true } }
+
+# Rails.application.config.action_controller.etag_with_template_digest = :template_name
+
+

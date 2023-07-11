@@ -25,7 +25,8 @@ END_BODY
 
     def self.fedora_accessible?
       # this tests for fedora, as versus PersistHelper.all.first.id
-      ActiveFedora::Base.all.first.id
+      # ActiveFedora::Base.all.first.id
+      content_doc_collection_id_exists_in_fedora?
       # ::PersistHelper.where( id: Rails.configuration.default_admin_set_id )
       return true
     rescue RSolr::Error::ConnectionRefused
@@ -46,6 +47,16 @@ END_BODY
     rescue RSolr::Error::ConnectionRefused
       false
     rescue
+      false
+    end
+
+    # Queries Fedora to figure out if there are versions for the resource.
+    def content_doc_collection_id_exists_in_fedora?
+      id = ::Deepblue::WorkViewContentService.content_documentation_collection_id
+      uri = ActiveFedora::Base.id_to_uri(id)
+      rv = ActiveFedora.fedora.connection.head(uri)
+      rv.present?
+    rescue Ldp::NotFound
       false
     end
 
