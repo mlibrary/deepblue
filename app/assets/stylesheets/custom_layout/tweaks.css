@@ -698,6 +698,25 @@ table.datatable thead th.no-sort {
   border-bottom: 2px solid rgb(235, 255, 241);
 }
 
+.subheader-default {
+    background-color: rgb(235, 255, 200);
+    border-top: 2px solid rgb(235, 255, 241);
+}
+
+.subheader-inner {
+    background-color : rgb(255, 138, 10);
+    border-bottom: 0px;
+    color: black;
+    text-align: center;
+}
+
+.subheader-section-default {
+    background-color : rgb(235, 255, 241);
+    border-bottom: 0px;
+    color: black;
+    text-align: center;
+}
+
 .update-alert--warning {
   background-color : rgb(255, 138, 88);
   border-bottom: 0px;

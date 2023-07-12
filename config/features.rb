@@ -37,6 +37,10 @@ Flipflop.configure do
             default: false,
             description: "Disable all deposits and edits to the system."
 
+    feature :display_subheader,
+            default: true,
+            description: "Display a subheader below the standard header."
+
   end
 
   group :masthead_banner_announcements do
