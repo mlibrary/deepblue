@@ -39,7 +39,8 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if deep_blue_presenter_behavior_debug_verbose
-      { suppress_link: !member.can_download_file? }
+      suppress_link = !member.can_download_file?( no_link: true )
+      { suppress_link: suppress_link }
     end
 
     def member_thumbnail_post_process( main_app:, member:, tag: )
