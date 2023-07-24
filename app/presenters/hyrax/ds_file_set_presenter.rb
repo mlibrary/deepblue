@@ -246,14 +246,16 @@ module Hyrax
       current_ability.admin?
     end
 
-    def can_download_file?
+    def can_download_file?( no_link: false )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "no_link=#{no_link}",
                                              "false if file_size_too_large_to_download?=#{file_size_too_large_to_download?}",
                                              "true if anonymous_show?=#{anonymous_show?}",
                                              "true if current_ability.can?( :download, id )=#{current_ability.can?( :download, id )}",
                                              "" ] if ds_file_set_presenter_debug_verbose
 
+      return false if no_link
       return false if file_size_too_large_to_download?
       return true if anonymous_show?
       return true if current_ability.can?( :download, id )
@@ -540,7 +542,7 @@ module Hyrax
                                              "member.can_download_file?=#{member.can_download_file?}",
                                              "member.anonymous_show?=#{member.anonymous_show?}",
                                              "" ] if ds_file_set_presenter_debug_verbose
-      suppress_link = !member.can_download_file? || member.anonymous_show?
+      suppress_link = !member.can_download_file?( no_link: true ) || member.anonymous_show?
       { suppress_link: suppress_link }
     end
 
