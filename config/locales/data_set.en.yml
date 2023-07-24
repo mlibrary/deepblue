@@ -266,6 +266,9 @@ en:
         creator: >
           List the name(s) of the person(s) and/or organization(s) responsible for creating the Work; for names, use the
           following format: Last name, First name MI.
+        creator_orcid: >
+          List the ORCID(s) of the person(s) responsible for creating the Work; use the following format:
+          https://orcid.org/XXXX-XXXX-XXXX-XXXX
         date_coverage: >
           Select the dates that correspond to the span of time that the data were collected and processed.
         date_created: >
