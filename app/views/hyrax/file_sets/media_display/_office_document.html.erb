@@ -6,10 +6,12 @@
 <% if Hyrax.config.display_media_download_link? && presenter.can_download_file? %>
     <div>
       <h2 class="sr-only"><%= t('hyrax.file_set.show.downloadable_content.heading') %></h2>
+      <% if Rails.configuration.file_set_display_representative_media %>
       <%= image_tag thumbnail_url(file_set),
                     class: "representative-media",
                     alt: "",
                     role: "presentation" %>
+      <% end %>
       <%= link_to t('hyrax.file_set.show.downloadable_content.office_link'),
                   presenter.download_path_link(main_app: main_app, curation_concern: file_set),
                   target: :_blank,
@@ -18,9 +20,11 @@
     </div>
 <% else %>
     <div>
+      <% if Rails.configuration.file_set_display_representative_media %>
       <%= image_tag thumbnail_url(file_set),
                     class: "representative-media",
                     alt: "",
                     role: "presentation" %>
+      <% end %>
     </div>
 <% end %>
