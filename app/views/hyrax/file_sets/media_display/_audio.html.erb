@@ -6,11 +6,13 @@
 <% if Hyrax.config.display_media_download_link? && presenter.can_download_file? %>
     <div>
       <h2 class="sr-only"><%= t('hyrax.file_set.show.downloadable_content.heading') %></h2>
+      <% if Rails.configuration.file_set_display_representative_media %>
       <audio controls="controls" class="audiojs" style="width:100%" controlsList="nodownload" preload="auto">
         <source src="<%= hyrax.download_path(file_set, file: 'ogg') %>" type="audio/ogg" />
         <source src="<%= hyrax.download_path(file_set, file: 'mp3') %>" type="audio/mpeg" />
         Your browser does not support the audio tag.
       </audio>
+      <% end %>
       <%= link_to t('hyrax.file_set.show.downloadable_content.audio_link'),
                   presenter.download_path_link( main_app: main_app, curation_concern: file_set ),
                   data: { label: file_set.id },
@@ -19,10 +21,12 @@
     </div>
 <% else %>
     <div>
+      <% if Rails.configuration.file_set_display_representative_media %>
       <audio controls="controls" class="audiojs" style="width:100%" controlsList="nodownload" preload="auto">
         <source src="<%= hyrax.download_path(file_set, file: 'ogg') %>" type="audio/ogg" />
         <source src="<%= hyrax.download_path(file_set, file: 'mp3') %>" type="audio/mpeg" />
         Your browser does not support the audio tag.
       </audio>
+      <% end %>
     </div>
 <% end %>

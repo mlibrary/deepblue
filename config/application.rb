@@ -282,6 +282,8 @@ module DeepBlueDocs
 
     config.max_file_size_to_download = 10.gigabytes
 
+    config.file_set_display_representative_media = false
+
     ### file upload and ingest
     config.notify_user_file_upload_and_ingest_are_complete = true
     config.notify_managers_file_upload_and_ingest_are_complete = true
