@@ -29,7 +29,7 @@ module DeepbluePresenterHelper
     rv = curation_concern.description.join(";")
     len = rv.size
     # description should be between 50 and 5000 characters in length
-    rv = rv.substring( 0, 4999 ) if len > 4999
+    rv = rv[0..4999] if len > 5000
     rv = rv + " - This data set has been deposited in Deepblue Data." if len < 50
     return rv
   end
