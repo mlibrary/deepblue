@@ -759,7 +759,7 @@ GEM
     net-ldap (0.17.1)
     new_google_recaptcha (1.4.0)
       rails (>= 4.2.0)
-    nio4r (2.5.8)
+    nio4r (2.5.9)
     noid (0.9.0)
     noid-rails (3.0.3)
       actionpack (>= 5.0.0, < 7)
@@ -827,7 +827,7 @@ GEM
     pry-rails (0.3.9)
       pry (>= 0.10.4)
     public_suffix (2.0.5)
-    puma (4.3.12)
+    puma (5.6.7)
       nio4r (~> 2.0)
     qa (5.9.0)
       activerecord-import
@@ -1327,7 +1327,7 @@ DEPENDENCIES
   pry
   pry-byebug
   pry-rails
-  puma (~> 4.3.12)
+  puma (~> 5.6.7)
   rack (>= 2.2.6.2)
   rails (>= 5.2.8.1)
   rails-controller-testing

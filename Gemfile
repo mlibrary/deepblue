@@ -85,7 +85,7 @@ gem 'bolognese', git: 'https://github.com/mlibrary/bolognese'
 # gem 'sqlite3', '~> 1.3.6'
 gem 'sqlite3', '~> 1.5.0'
 # Use Puma as the app server
-gem 'puma', '~> 4.3.12'
+gem 'puma', '~> 5.6.7'
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'
 # Use Uglifier as compressor for JavaScript assets
