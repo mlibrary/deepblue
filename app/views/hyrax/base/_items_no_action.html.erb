@@ -1,19 +1,29 @@
 <!--<h2><%= t('.header') %></h2>-->
+<%#= form_tag( main_app.works_file_sets_run_test_path, method: 'post' ) do %>
 <%# here for list of files %>
 <% if @presenter.member_presenters.present? %>
 <div class="panel panel-default panel-items">
   <div class="panel-heading">
     <h2>Files (Count: <%= @presenter.total_file_count %>;  Size: <%= @presenter.total_file_size_human_readable %>)</h2>
+    <% if current_ability.admin? %>
+      <input type="hidden" name="bulk file sets delete" value="admin"/>
+    <button type="submit" class="btn btn-primary" id="works-file-sets-form">
+      <%#= t('hyrax.search.button.html') %>
+      <%= "Bulk Delete File Sets" %>
+    </button>
+    <% end %>
   </div>
     <div class="table-scroll--container" style="width: 100%">
       <table class="table table-striped related-files">
         <thead>
           <tr>
-            <th class="sr-only"><%= t('.thumbnail') %></th>
-            <th><%= t('.title') %></th>
-            <th><%= t('.date_uploaded') %></th>
-            <th><%= t('.date_modified') %></th>
-            <th><%= t('.file_size') %></th>
+            <th class="sr-only"><%= t('.thumbnail') %>dsfsdfsdf</th>
+            <th class="list-file-header"><%= t('.title') %></th>
+            <th class="list-file-header"><%= t('.date_uploaded') %></th>
+            <th class="list-file-header"><%= t('.date_modified') %></th>
+            <th class="list-file-header"><%= t('.file_size') %></th>
+            <th class="list-file-header"><%= t('.visibility') %></th>
+            <th class="list-file-header"><%= 'Delete' %></th>
           </tr>
         </thead>
         <tbody>
@@ -31,3 +41,4 @@
 <% elsif @presenter.can_edit_work? %>
     <div class="alert alert-warning" role="alert"><%= t('.empty', type: @presenter.human_readable_type) %></div>
 <% end %>
+<%# end %>

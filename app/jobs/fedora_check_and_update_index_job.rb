@@ -17,6 +17,9 @@ fedora_accessible_job:
   args:
     email_targets_when_not_accessible:
       - 'fritx@umich.edu'
+    ingest_mode: 'populate'
+    ingester: 'fritx@umich.edu'
+    path_to_script: '/deepbluedata-prep/scripts/rebuild_fedora_index/rebuild_fedora_index.yml'
     verbose: true
 
   END_OF_SCHEDULER_ENTRY
@@ -28,17 +31,40 @@ fedora_accessible_job:
 
   def perform( *args )
     initialize_options_from( *args, debug_verbose: fedora_check_and_update_index_job_debug_verbose )
-    return if ::Deepblue::FedoraAccessibleService.fedora_accessible?
-    email_fedora_not_accessible( *args )
+    return if fedora_accessible?
+    ingest_work_to_reindex_fedora
     job_finished
-  rescue
-    email_fedora_not_accessible( *args )
+  rescue Exception => e # rubocop:disable Lint/RescueException
+    job_status_register( exception: e, args: args )
+    raise e
   end
 
-  def email_fedora_not_accessible( *args )
+  def email_fedora_not_accessible
     @email_targets_when_not_accessible = job_options_value( key: 'email_targets_when_not_accessible',
                                                             default_value: [] )
-    ::Deepblue::FedoraAccessibleService.email_fedora_not_accessible( targets: @email_targets_when_not_accessible )
+    subject = "DBD: Fedora not accessible on #{Rails.configuration.hostname} - reindexing"
+    note =<<-END_NOTE
+Reindexing: #{::Deepblue::LoggingHelper.timestamp_now}<br/>
+path_to_script: #{@path_to_script}<br/>
+    END_NOTE
+    ::Deepblue::FedoraAccessibleService.email_fedora_not_accessible( targets: @email_targets_when_not_accessible,
+                                                                     subject: subject,
+                                                                     note: note  )
+  end
+
+  def fedora_accessible?
+    rv = ::Deepblue::FedoraAccessibleService.fedora_accessible?
+    return rv
+  end
+
+  def ingest_work_to_reindex_fedora
+    # run this script:
+    @path_to_script = job_options_value( key: 'path_to_script',
+                           default_value: '/deepbluedata-prep/scripts/rebuild_fedora_index/rebuild_fedora_index.yml' )
+    @ingester = job_options_value( key: 'ingester', default_value: 'fritx@umich.edu' )
+    @populate = job_options_value( key: 'ingest_mode', default_value: 'populate' )
+    email_fedora_not_accessible
+    IngestScriptJob.perform_now( ingest_mode: @ingest_mode, ingester: @ingester, path_to_script: @path_to_script )
   end
 
 end

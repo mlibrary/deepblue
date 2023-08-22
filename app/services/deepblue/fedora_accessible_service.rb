@@ -6,16 +6,19 @@ module Deepblue
 
     mattr_accessor :fedora_accessible_service_debug_verbose, default: false
 
-    def self.email_fedora_not_accessible( targets: )
-      subject = "DBD: Fedora not accessible on #{hostname}"
+    def self.email_fedora_not_accessible( targets:, subject: nil, note: nil )
+      subject ||= "DBD: Fedora not accessible on #{hostname}"
+      note ||= ""
       body =<<-END_BODY
 #{subject}<br/>
+#{note}
 END_BODY
+
       targets = targets.uniq
       targets.each do |email|
         ::Deepblue::JobTaskHelper.send_email( email_target: email,
                                               content_type: ::Deepblue::EmailHelper::TEXT_HTML,
-                                              task_name: 'FedoraAccessibleJob',
+                                              task_name: 'FedoraNotAccessible',
                                               subject: subject,
                                               body: body,
                                               event: 'Fedora Not Accessible',
