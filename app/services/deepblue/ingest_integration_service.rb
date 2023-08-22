@@ -25,6 +25,7 @@ module Deepblue
     mattr_accessor :attach_files_to_work_job_debug_verbose,           default: false
     mattr_accessor :characterize_job_debug_verbose,                   default: false
     mattr_accessor :create_derivatives_job_debug_verbose,             default: false
+    mattr_accessor :delete_file_sets_from_work_job_debug_verbose,     default: false
     mattr_accessor :ingest_append_content_service_debug_verbose,      default: false
     mattr_accessor :ingest_content_service_debug_verbose,             default: false
     mattr_accessor :ingest_helper_debug_verbose,                      default: false

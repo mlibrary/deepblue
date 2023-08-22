@@ -11,7 +11,7 @@ class DeleteFileSetsFromWorkJob < ::Deepblue::DeepblueJob
   EVENT = "DeleteFileSetsFromWorkJob"
 
   mattr_accessor :delete_files_from_work_job_debug_verbose,
-                 default: true || ::Deepblue::IngestIntegrationService.delete_file_sets_from_work_job_debug_verbose
+                 default: ::Deepblue::IngestIntegrationService.delete_file_sets_from_work_job_debug_verbose
 
   attr_accessor :file_set_ids,
                 :user_key,
