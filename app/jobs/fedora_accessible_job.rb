@@ -32,17 +32,23 @@ END_OF_SCHEDULER_ENTRY
 
   def perform( *args )
     initialize_options_from( *args, debug_verbose: fedora_accessible_job_debug_verbose )
-    return if ::Deepblue::FedoraAccessibleService.fedora_accessible?
-    email_fedora_not_accessible( *args )
+    return if fedora_accessible?
+    email_fedora_not_accessible
     job_finished
-  rescue
-    email_fedora_not_accessible( *args )
+  rescue Exception => e # rubocop:disable Lint/RescueException
+    job_status_register( exception: e, args: args )
+    raise e
   end
 
-  def email_fedora_not_accessible( *args )
+  def email_fedora_not_accessible
     @email_targets_when_not_accessible = job_options_value( key: 'email_targets_when_not_accessible',
                                                         default_value: [] )
     ::Deepblue::FedoraAccessibleService.email_fedora_not_accessible( targets: @email_targets_when_not_accessible )
+  end
+
+  def fedora_accessible?
+    rv = ::Deepblue::FedoraAccessibleService.fedora_accessible?
+    return rv
   end
 
 end

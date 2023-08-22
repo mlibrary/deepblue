@@ -200,12 +200,22 @@ module Deepblue
                                              "" ] if deepblue_works_controller_behavior_debug_verbose
     end
 
+    def file_sets_present?
+      return curation_concern.file_sets.present?
+    rescue Ldp::Gone => gone
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "#{e.class} -- curation_concern.id=#{curation_concern.id} -- #{e.message} at #{e.backtrace[0]}",
+                                             "" ] if true
+      return true
+    end
+
     def after_update_response
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "" ] if deepblue_works_controller_behavior_debug_verbose
-      if curation_concern.file_sets.present?
+      if file_sets_present?
         return redirect_to main_app.copy_access_hyrax_permission_path(curation_concern)  if permissions_changed?
         return redirect_to main_app.confirm_hyrax_permission_path(curation_concern) if curation_concern.visibility_changed?
       end
@@ -907,7 +917,8 @@ module Deepblue
     def single_use_link_request?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "params=#{params}",
+                                             "params=",
+                                             params,
                                              "" ] if deepblue_works_controller_behavior_debug_verbose
       rv = ( params[:action] == 'single_use_link' || params[:link_id].present? )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -983,6 +994,39 @@ module Deepblue
       return Rails.configuration.rest_api_allow_mutate
     end
 
+    def check_for_and_run_bulk_file_set_delete
+      debug_verbose = true || deepblue_works_controller_behavior_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if debug_verbose
+      prefix = 'delete:file_set:'
+      fs_ids = []
+      params.each_pair do |k,v|
+        next unless k.start_with? prefix
+        next unless v == 'true'
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "k=#{k}",
+                                               "" ] if debug_verbose
+        fs_id = k[prefix.length,k.length]
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "k=#{k}",
+                                               "fs_id=#{fs_id}",
+                                               "" ] if debug_verbose
+        fs_ids << fs_id
+      end
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "fs_ids=#{fs_ids}",
+                                             "" ] if debug_verbose
+      return if fs_ids.empty?
+      # start a delete job in the background
+      DeleteFileSetsFromWorkJob.perform_later( work: curation_concern,
+                                               file_set_ids: fs_ids,
+                                               user_key: current_user.email )
+    end
+
     def update
       #Stores the button selection
       save_as_draft = params[:save_as_draft]
@@ -992,6 +1036,9 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              ::Deepblue::LoggingHelper.obj_class( 'actor.class', actor ),
+                                             "current_ability.admin?=#{current_ability.admin?}",
+                                             "params=",
+                                             params,
                                              "" ] if deepblue_works_controller_behavior_debug_verbose
 
       ::Deepblue::DebugLogHelper.log(class_name: self.class.name,
@@ -1002,6 +1049,9 @@ module Deepblue
 
       return redirect_to my_works_path,
                          notice: I18n.t('hyrax.insufficent_privileges_for_action') unless can_edit_work?
+      if current_ability.admin?
+        check_for_and_run_bulk_file_set_delete
+      end
       respond_to do |wants|
         wants.html do
           had_error = update_rest save_as_draft

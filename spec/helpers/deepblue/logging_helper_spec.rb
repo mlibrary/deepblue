@@ -164,14 +164,18 @@ RSpec.describe Deepblue::LoggingHelper, type: :helper do
       let( :msg_value_1 ) { "value 1" }
       let( :msg_value_2 ) { "value 2" }
       let( :msg_hash ) { [ msg_key1 => msg_value_1, msg_key2 => msg_value_2 ] }
+      let( :msg_prefix ) { '' }
       before do
         allow( Rails.logger ).to receive( :debug ).with( any_args )
+        expect( Deepblue::LoggingHelper ).to receive( :log_key_value_lines ).with( logger: Rails.logger,
+                                                                        m: msg_hash.first,
+                                                                        prefix: msg_prefix ).and_call_original
       end
       it do
         Deepblue::LoggingHelper.bold_debug( msg_hash )
         expect( Rails.logger ).to have_received( :debug ).with( arrow_line ).exactly( 2 ).times
-        expect( Rails.logger ).to have_received( :debug ).with( "#{msg_key1}: #{msg_value_1}" )
-        expect( Rails.logger ).to have_received( :debug ).with( "#{msg_key2}: #{msg_value_2}" )
+        expect( Rails.logger ).to have_received( :debug ).with( "#{msg_prefix}:#{msg_key1}: #{msg_value_1}" )
+        expect( Rails.logger ).to have_received( :debug ).with( "#{msg_prefix}:#{msg_key2}: #{msg_value_2}" )
         expect( Rails.logger ).to have_received( :debug ).exactly( 4 ).times
       end
     end

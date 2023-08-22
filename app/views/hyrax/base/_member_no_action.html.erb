@@ -5,6 +5,8 @@
     <td class="attribute date_uploaded"><%= member_no_action.try(:date_uploaded) %></td>
     <td class="attribute date_modified"><%= member_no_action.try(:date_modified) %></td>
     <td class="attribute attribute-file_size"><%= member_no_action.file_size_human_readable %></td>
+    <td class="attribute permission"><span class="label label-danger">Tombstone</span></td>
+    <td class="attribute smalltext">No Details Available</td>
   </tr>
 <% else %>
   <tr class="<%= dom_class(member_no_action) %> attributes">
@@ -48,5 +50,12 @@
     <td class="attribute attribute-date_uploaded"><%= member_no_action.try(:date_uploaded) %></td>
     <td class="attribute attribute-date_modified"><%= member_no_action.try(:date_modified) %></td>
     <td class="attribute attribute-file_size"><%= member_no_action.file_size_human_readable %></td>
+    <td class="attribute attribute-permission"><%= member_no_action.permission_badge %></td>
+    <td>
+      <%= check_box_tag( "delete:file_set:#{member_no_action.id.to_s.parameterize}",
+                         "true",
+                         false,
+                         class: "ev-select-file" ) %>
+    </td>
   </tr>
 <% end %>

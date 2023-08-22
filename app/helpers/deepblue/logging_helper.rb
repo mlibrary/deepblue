@@ -95,6 +95,16 @@ module Deepblue
                                 &block )
     end
 
+    def self.log_key_value_lines( logger:, m:, prefix: '' )
+      m.each_pair do |k, v|
+        if v.respond_to?( :each_pair )
+          log_key_value_lines( logger: logger, m: v, prefix: "#{prefix}:#{k}" )
+        else
+          logger.debug "#{prefix}:#{k}: #{v}"
+        end
+      end
+    end
+
     def self.bold_debug( msg = nil,
                          bold_puts: echo_to_puts,
                          label: nil,
@@ -117,7 +127,8 @@ module Deepblue
       if msg.respond_to?( :each )
         msg.each do |m|
           if key_value_lines && m.respond_to?( :each_pair )
-            m.each_pair { |k, v| logger.debug "#{k}: #{v}" }
+            log_key_value_lines( logger: logger, m: m, prefix: '' )
+            #m.each_pair { |k, v| logger.debug "#{k}: #{v}" }
           else
             logger.debug m
           end
