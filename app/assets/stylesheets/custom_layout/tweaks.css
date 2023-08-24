@@ -947,4 +947,12 @@ log-class-name {
   width: 10%;
 }
 
+.nowrap-col {
+    white-space: nowrap;
+}
+
+.center-col {
+    text-align: center;
+}
+
 /* End Add file formatting. */

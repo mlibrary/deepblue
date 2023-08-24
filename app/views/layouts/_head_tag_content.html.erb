@@ -30,8 +30,8 @@ signed in %>
 
 <!-- Add Schema for Google Search for work view; the if check is here to make sure you are in work page -->
 <% if @presenter.respond_to?( :schema_presenter? ) && @presenter.schema_presenter? %>
-  <%  if @presenter.doi.present?  %>
-  <meta name="dc.identifier" content="doi:<%= @presenter.doi.first.gsub("https://doi.org/", "") %>"/>
+  <% if @presenter.doi_present?  %>
+  <meta name="dc.identifier" content="<%= @presenter.doi_metadata_entry %>"/>
   <% end %>
   <meta name="dc.title" content="<%= @presenter.title.first %>" />
 
