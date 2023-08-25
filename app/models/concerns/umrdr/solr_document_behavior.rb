@@ -26,7 +26,7 @@ module Umrdr
     end
 
     def creator_orcid
-      Array(self['creator_orcid_tesim']).first
+      fetch('creator_orcid_tesim', [])
     end
 
     def curation_notes_admin
