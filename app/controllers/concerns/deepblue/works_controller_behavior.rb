@@ -205,7 +205,7 @@ module Deepblue
     rescue Ldp::Gone => gone
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "#{e.class} -- curation_concern.id=#{curation_concern.id} -- #{e.message} at #{e.backtrace[0]}",
+                                             "#{gone.class} -- curation_concern.id=#{curation_concern.id} -- #{gone.message} at #{gone.backtrace[0]}",
                                              "" ] if true
       return true
     end

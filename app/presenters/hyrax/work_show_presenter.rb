@@ -375,12 +375,25 @@ module Hyrax
       current_ability.can?( :edit, id )
     end
 
+    def doi_metadata_entry
+      rv = doi
+      rv = doi.first if rv.is_a? Array
+      return '' if rv.blank?
+      return '' unless rv.starts_with? 'doi:'
+      rv
+    end
+
     def doi_plain
       rv = doi
       rv = doi.first if rv.is_a? Array
+      return '' if rv.blank?
       return '' unless rv.starts_with? 'doi:'
       rv = rv.sub('doi:', '')
       rv
+    end
+
+    def doi_present?
+      doi_plain.present?
     end
 
     def doi_url

@@ -335,6 +335,8 @@ module Hyrax
       end
 
       def destroy
+        # acquire_lock_for( work.id ) do
+        # TODO: lock work.id
         unlink_from_work
         file_set.destroy
         Hyrax.config.callback.run(:after_destroy, file_set.id, user, warn: false)

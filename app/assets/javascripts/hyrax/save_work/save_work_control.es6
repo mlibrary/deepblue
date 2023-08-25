@@ -33,6 +33,50 @@ export default class SaveWorkControl {
   }
 
   /**
+   * confirm bulk file set delete
+   */
+  bulkFileSetDeleteConfirm() {
+    this.form.on('submit', (evt) => {
+      var checkboxes = $("input[name^='delete:file_set:']");
+      var choices = [];
+      var msg = ''
+      var checkedCount = 0
+      for (var i=0;i<checkboxes.length;i++) {
+        if ( checkboxes[i].checked ) {
+          choices.push(checkboxes[i].value);
+          ++checkedCount;
+          //msg += "\n" + checkboxes[i].name + " is checked.";
+        } else {
+          //msg += "\n" + checkboxes[i].name + " is not checked.";
+        }
+      }
+      if ( 0 == checkedCount ) { return true; }
+      msg += "Confirm Delete of " + checkedCount + " of " + checkboxes.length + " file set(s)."
+      msg += "\n" + "Selecting 'cancel' will only cancel deletes, not any other updates to the work."
+      if (confirm(msg)) {
+        //alert('Confirmed.')
+      } else {
+        //alert('Denied.')
+        // this.formChangedAgain();
+        for (var i=0;i<checkboxes.length;i++) { checkboxes[i].checked = false; }
+      }
+      return true;
+    })
+  }
+
+  /**
+   * Select all file sets for bulk delete
+   */
+  bulkFileSetDeleteSelectAll() {
+    document.getElementById('selectAllFileSetsForDelete').addEventListener('click',
+        function(event) {
+          //alert('bulkFileSetDeleteSelectAll');
+          var checkboxes = $("input[name^='delete:file_set:']");
+          for (var i=0;i<checkboxes.length;i++) { checkboxes[i].checked = true; }
+        }, false);
+  }
+
+  /**
    * Keep the form from submitting (if the return key is pressed)
    * unless the form is valid.
    *
@@ -56,9 +100,10 @@ export default class SaveWorkControl {
     this.form.on('submit', (evt) => {
       //The form should be valid here.  No need to check.
       //if (this.isValid())
-      if (true)
-         this.saveButton.prop("disabled", false); 
-         this.saveButtonDraft.prop("disabled", false); 
+      if (true) {
+        this.saveButton.prop("disabled", false);
+        this.saveButtonDraft.prop("disabled", false);
+      }
     })
   }
 
@@ -97,6 +142,8 @@ export default class SaveWorkControl {
     this.requiredFiles = new ChecklistItem(this.element.find('#required-files'))
     this.requiredAgreement = new ChecklistItem(this.element.find('#required-agreement'))
     new VisibilityComponent(this.element.find('.visibility'), this.adminSetWidget)
+    this.bulkFileSetDeleteSelectAll()
+    this.bulkFileSetDeleteConfirm()
     this.preventSubmit()
     this.watchMultivaluedFields()
     this.watchFundedbyields()
@@ -129,7 +176,7 @@ export default class SaveWorkControl {
       $('.multi_value.form-group', this.form).bind('managed_field:remove', () => this.formChangedAgain())
   }
 
-  // If fudedby field changes, fire a formChanged event.
+  // If fundedby field changes, fire a formChanged event.
   watchFundedbyields() {
       $('.data_set_fundedby', this.form).bind('change', () => this.formChangedAgain())
 

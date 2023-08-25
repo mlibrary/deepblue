@@ -60,7 +60,9 @@ class DeleteFileSetsFromWorkJob < ::Deepblue::DeepblueJob
         begin
           fs = FileSet.find fsid
           msg_handler.msg( "Delete file set #{fsid} - #{fs.label} ..." )
-          provenance_log_destroy( fs )
+          provenance_log_destroy fs
+          unlink_from_work fs
+          # actor = Hyrax::Actors::FileSetActor.new( fs, current_user )
           fs.delete
           msg_handler.msg( "deleted." )
           # catch errors and LDP gone
@@ -78,6 +80,7 @@ class DeleteFileSetsFromWorkJob < ::Deepblue::DeepblueJob
           msg_handler.msg( "#{e.class} -- FileSet id #{fsid}, work_id=#{work.id} -- #{e.message} at #{e.backtrace[0]}" )
         end
       end
+      work.save!
     end
   end
 
@@ -107,6 +110,17 @@ class DeleteFileSetsFromWorkJob < ::Deepblue::DeepblueJob
                                     child_id: file_set.id,
                                     child_title: file_set.title,
                                     event_note: 'DeleteFileSetsFromWorkJob' )
+  end
+
+  def unlink_from_work( file_set )
+    work.total_file_size_subtract_file_set! file_set
+    work.read_me_delete( file_set: file_set )
+    return unless work && ( work.thumbnail_id == file_set.id ||
+                            work.representative_id == file_set.id ||
+                            work.rendering_ids.include?(file_set.id) )
+    work.thumbnail = nil if work.thumbnail_id == file_set.id
+    work.representative = nil if work.representative_id == file_set.id
+    work.rendering_ids -= [file_set.id]
   end
 
 end
