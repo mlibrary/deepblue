@@ -33,7 +33,7 @@ RSpec.describe Hyrax::Renderers::CreatorAttributeRenderer do
         %( and <a href="/catalog?f%5Bcreator_sim%5D%5B%5D=Savage%2C+Clarke&amp;locale=en">Savage, Clarke</a>),
         %(</span>) ].join("\n") }
 
-    it { expect(renderer.authors_compact).to eq expected }
+    it { expect(renderer.creators_compact).to eq expected }
   end
 
   describe '#render' do

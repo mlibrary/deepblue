@@ -6,6 +6,8 @@
 <%   end %>
 <% end %>
 
+<%# if you are looking for where metadata is rendered, see hyrax/base/_attribute_rows.html.erb %>
+
 <dl class="work-show  <%= dom_class(presenter) %>"> 
     <%= render 'attribute_rows', presenter: presenter %>
     <%= presenter.attribute_to_html(:embargo_release_date, render_as: :date, html_dl: true) %>
