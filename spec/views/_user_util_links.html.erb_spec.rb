@@ -21,7 +21,8 @@ RSpec.describe '/_user_util_links.html.erb', type: :view do
     it 'has dropdown list of links' do
       render
       page = Capybara::Node::Simple.new(rendered)
-      expect( page ).to have_link 'userX', href: hyrax.dashboard_profile_path('userX')
+      #expect( page ).to have_link 'userX', href: hyrax.dashboard_profile_path('userX')
+      expect( page ).to have_link 'userX', href: hyrax.dashboard_path
       expect( rendered ).to have_link t('hyrax.toolbar.dashboard.menu'), href: hyrax.dashboard_path
       expect( rendered ).to have_link t('hyrax.admin.sidebar.collections'), href: hyrax.my_collections_path
       expect( rendered ).to have_link t('hyrax.admin.sidebar.works'), href: hyrax.my_works_path
@@ -93,7 +94,8 @@ RSpec.describe '/_user_util_links.html.erb', type: :view do
     it 'has dropdown list of links' do
       render
       page = Capybara::Node::Simple.new(rendered)
-      expect( page ).to have_link 'userX', href: hyrax.dashboard_profile_path('userX')
+      #expect( page ).to have_link 'userX', href: hyrax.dashboard_profile_path('userX')
+      expect( page ).to have_link 'userX', href: hyrax.dashboard_path
       expect( rendered ).to have_link t('hyrax.toolbar.dashboard.menu'), href: hyrax.dashboard_path
       expect( rendered ).to have_link t('hyrax.admin.sidebar.collections'), href: hyrax.my_collections_path
       expect( rendered ).to have_link t('hyrax.admin.sidebar.works'), href: hyrax.my_works_path

@@ -1,5 +1,8 @@
+<!-- begin: <%= ::Deepblue::LoggingHelper.here %> -->
 <aside class="<%= sidebar_classes %> static-page-sidebar">
+  <% if @presenter.static_content_menu_header.present? %>
   <h2><%= @presenter.static_content_menu_header %></h2>
+  <% end %>
   <ul>
     <% menu_hash = @presenter.static_content_menu_links[:menu] %>
     <% ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
@@ -74,3 +77,4 @@
     <% end %>
   </ul>
 </aside>
+<!-- end: <%= ::Deepblue::LoggingHelper.here %> -->

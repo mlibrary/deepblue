@@ -68,11 +68,9 @@
   <!-- Search results label -->
   <% if @members_count > 0 || @presenter.subcollection_count > 0 %>
     <div class="hyc-blacklight hyc-bl-title">
-      <h2>
-        <% if has_collection_search_parameters? %>
-            <%= t('hyrax.dashboard.collections.show.search_results') %>
-        <% end %>
-      </h2>
+      <% if has_collection_search_parameters? %>
+      <h2><%= t('hyrax.dashboard.collections.show.search_results') %></h2>
+      <% end %>
     </div>
   <% end %>
 
