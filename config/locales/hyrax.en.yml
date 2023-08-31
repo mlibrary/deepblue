@@ -195,6 +195,10 @@ en:
           mla_partial:           "[%{work_type}]. University of Michigan - Deep Blue Data. "
           mla_partial_with_year: ", (%{year}). [%{work_type}] University of Michigan - Deep Blue Data. "
     collection:
+      actions:
+        edit:
+          desc: 'Edit this collection'
+          label: 'Edit collection'
       update:
         header: "Edit Collection"
     contact_form:
@@ -276,7 +280,10 @@ en:
           curation_notes_user:  "Curation Notes"
           description:          "Description"
           last_updated:         "Last Updated"
+          metadata_header:      "Collection Details"
+          parent_collection_header: "Parent Collections"
           referenced_by:        "Referenced By"
+          search_results:       "Search Results within this Collection"
           total_items:          "Total Items"
       contact_form:
         heading:

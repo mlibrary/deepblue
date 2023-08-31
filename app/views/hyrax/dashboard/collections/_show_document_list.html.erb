@@ -1,9 +1,9 @@
-<!-- begin: app/views/hyrax/dashboard/collections/_show_document_list.html.erb -->
+<!-- begin: <%= ::Deepblue::LoggingHelper.here %> -->
 <table class="table table-striped collections-list-table collection-works-table">
   <caption class="sr-only"><%= t('hyrax.dashboard.collections.show_document_list.list_items_in_collection') %></caption>
   <thead>
   <tr>
-    <th>&nbsp;</th>
+    <td>&nbsp;</td>
     <th class="title-column"><%= t('hyrax.dashboard.collections.show_document_list.title') %></th>
     <th><%= t('hyrax.dashboard.collections.show_document_list.date_added') %></th>
     <th><%= t('hyrax.dashboard.collections.show_document_list.owner') %></th>
@@ -17,4 +17,4 @@
     <%= render partial: 'show_document_list_row', collection: documents, as: :document %>
   </tbody>
 </table>
-<!-- end: app/views/hyrax/dashboard/collections/_show_document_list.html.erb -->
+<!-- end: <%= ::Deepblue::LoggingHelper.here %> -->
