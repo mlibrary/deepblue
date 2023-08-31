@@ -98,6 +98,7 @@ caption {
   text-decoration: none !important;
 }
 
+.btn-subtle:focus,
 .btn-subtle:hover {
   background: #B2BEC9;
 }
@@ -242,6 +243,7 @@ a#browse_link {
     #search-submit-header,
     .btn.btn-default.dropdown-toggle {
       padding: 0.65em 1em;
+      margin: 5px;
     }
   }
 
@@ -285,10 +287,8 @@ a#browse_link {
     font-size: 1.25em;
   }
 
-  .form-control:focus {
-    border: 3px solid $u-m-yellow;
-  }
 }
+
 .search-bar-container {
   max-width: 40rem;
   margin: 0 auto;
@@ -1072,4 +1072,17 @@ div.facets h3 {
 
 .job-statuses-actions {
   background-color: #f8f8f8;
+}
+
+.btn:focus,
+.btn:hover,
+.add-files-link button:focus,
+.add-files-link button:hover,
+.form-control:focus,
+.form-control:hover {
+  /* border: 3px solid $u-m-yellow !important; */
+  /* border: 5px solid hotpink !important; */
+  outline: 3px solid $u-m-yellow !important;
+  outline-offset: 0 !important;
+  z-index: 99999;
 }

@@ -2,6 +2,11 @@
    v2.0 | 20110126
    License: none (public domain)
 */
+/* see main.scss
+$u-m-blue: #00274c;
+$u-m-yellow: #ffcb05;
+$primary-link: #126DC1;
+ */
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
@@ -98,7 +103,8 @@ body {
 
 *:focus {
   outline: 3px solid #ffcb05;
-  outline-offset: 0; }
+  outline-offset: 0;
+}
 
 .container {
   max-width: 60rem;
@@ -261,28 +267,35 @@ input[type="submit"] {
   font-size: 1rem;
   border: 0;
   line-height: 1.2;
-  border-radius: 4px;
+  border-radius: 3px;
   border-bottom: #1060aa;
   border-bottom-width: 3px;
-  border-bottom-style: solid; }
-  .button:focus,
-  input[type="submit"]:focus {
-    background: #126DC1; }
-  .button:hover,
-  input[type="submit"]:hover {
-    cursor: pointer;
-    background: #1060aa;
-    border-color: #0e5392;
-    color: white; }
-  .button:visited,
-  input[type="submit"]:visited {
-    color: white; }
-  .button[disabled="disabled"],
-  input[type="submit"][disabled="disabled"] {
-    opacity: 0.5;
-    cursor: not-allowed;
-    background: #126DC1;
-    border-color: #0e5392; }
+  border-bottom-style: solid;
+}
+.button:focus,
+input[type="submit"]:focus {
+  background: #126DC1;
+  /*border: 5px solid hotpink;*/
+}
+.button:hover,
+input[type="submit"]:hover {
+  cursor: pointer;
+  background: #1060aa;
+  /*border-color: #0e5392;*/
+  /*border: 5px solid greenyellow;*/
+  color: white;
+}
+.button:visited,
+input[type="submit"]:visited {
+  color: white;
+}
+.button[disabled="disabled"],
+input[type="submit"][disabled="disabled"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #126DC1;
+  border-color: #0e5392;
+}
 
 .button--start {
   font-size: 1.2rem;
@@ -909,6 +922,22 @@ button.versioning-files-remove:hover {
     font-weight: normal;
     text-decoration: underline;
 }
+
+div.row-2-cells {
+  display: flex;
+}
+div.cell-narrow {
+  width: 200px;
+  /* background: lightblue; */
+}
+div.cell-wide {
+  flex: 1;
+  /* background: lightgreen; */
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+
 /*
 end -- Remove this block when file_sets.sccs is updated with same values
  */

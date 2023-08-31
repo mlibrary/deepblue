@@ -18,21 +18,32 @@
           <div class="row">
             <div class="col-xs-12">
                 <!-- The fileinput-button span is used to style the file input field as button -->
-                <div>
-                  <label id="labelFormFileMultiple" for="formFileMultiple" class="form-label">Choose Files to Add</label>
-                  <input class="form-control" type="file" name="files[]" id="formFileMultiple" multiple>
+                <label id="labelFormFileMultiple" for="formFileMultiple" class="form-label">Choose Files to Add</label>
+                <div class="row-2-cells">
+                  <div class="cell-narrow">
+                    <input class="form-control" type="file" name="files[]" id="formFileMultiple" multiple>
+                  </div>
+                  <div class="cell-wide">
+                    <%= t('hyrax.base.form_files.local_help_your_computer_html') %>
+                  </div>
                 </div>
-                <%= t('hyrax.base.form_files.local_help_your_computer_html') %>
                 <div class="dropzone dropzone-more">
                   <%= t('hyrax.base.form_files.dropzone') %>
                 </div>
-                <!-- The fileinput-button span is used to style the file input field as button -->
                 <% if Flipflop.dir_upload? %>
-                  <span id="addfolder" class="btn btn-success fileinput-button">
-                      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                      <span><%=  t(".add_folder") %></span>
-                      <input type="file" name="files[]" multiple directory webkitdirectory />
-                  </span>
+                  <!-- The fileinput-button span is used to style the file input field as button -->
+                  <div class="row-2-cells">
+                    <div class="cell-narrow">
+                      <span id="addfolder" class="btn btn-success fileinput-button">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                        <span><%=  t(".add_folder") %></span>
+                        <input type="file" name="files[]" multiple directory webkitdirectory />
+                      </span>
+                    </div>
+                    <div class="cell-narrow">
+                      &nbsp;
+                    </div>
+                  </div>
                 <% end %>
                 <% if Hyrax.config.browse_everything? %>
                   <%= button_tag(type: 'button',
