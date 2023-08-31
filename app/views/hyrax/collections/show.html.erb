@@ -45,7 +45,7 @@
       <% if @presenter.collection_type_is_nestable? && @presenter.total_parent_collections > 0 %>
           <div class="hyc-blacklight hyc-bl-title">
             <h2>
-              <%= t('.parent_collection_header') %> (<%= @presenter.total_parent_collections %>)
+              <%= t('hyrax.dashboard.collections.show.parent_collection_header') %> (<%= @presenter.total_parent_collections %>)
             </h2>
           </div>
           <div class="hyc-blacklight hyc-bl-results">
@@ -85,7 +85,7 @@
 <%# if @presenter.can_edit_collection? %>
   <div class="panel panel-default panel-edit">
     <div class="panel-heading">
-      <h2><%= t("hyrax.collection.update.header") %></h2>
+      <h2><%= t('hyrax.collection.update.header') %></h2>
     </div>
     <div class="panel-body">
       <div class="button-set">
