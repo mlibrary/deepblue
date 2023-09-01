@@ -6,11 +6,15 @@
 <% options = license.select_all_options.dup %>
 <% end %>
 
-
 <div class="form-group string required radio_buttons data_set_rights_license" id="data_set_rights_license">
     <%= f.label :rights_license %>
     <%= f.hint :rights_license %>
-    <%= f.collection_radio_buttons(:rights_license, options, :last, :first, item_wrapper_class: 'radio', input_html: { class: 'form-control' } ) do |b|
+    <%= f.collection_radio_buttons(:rights_license,
+                                   options,
+                                   :last,
+                                   :first,
+                                   item_wrapper_class: 'radio radio-button-span',
+                                   input_html: { class: 'form-control' } ) do |b|
         ( content_tag :p do
             b.label { b.radio_button(required: true) + b.text }
         end ) + 
