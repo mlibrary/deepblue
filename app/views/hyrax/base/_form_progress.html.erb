@@ -31,7 +31,7 @@
   <div class="panel-footer text-center">
     <% if ::Flipflop.show_deposit_agreement? %>
       <% if ::Flipflop.active_deposit_agreement_acceptance? %>
-        <label>
+        <label for="agreement">
           <%= check_box_tag 'agreement', 1, f.object.agreement_accepted, required: true %>
           <%= t('hyrax.active_consent_to_agreement') %><br />
           <%= link_to t('hyrax.pages.tabs.agreement_page'),

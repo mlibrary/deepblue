@@ -2,7 +2,7 @@
         <!-- Redirect browsers with JavaScript disabled to the origin page -->
         <noscript><input type="hidden" name="redirect" value="<%= main_app.root_path %>" /></noscript>
         <!-- The table listing the files available for upload/download -->
-        <table role="presentation" class="table table-striped"><tbody class="files"></tbody></table>
+        <table role="presentation" class="table table-striped" aria-live="polite"><tbody class="files"></tbody></table>
         <%= t('hyrax.base.form_files.local_upload_contact_html',
               contact_path: hyrax.contact_path,
               files_larger_than: Rails.configuration.upload_max_file_size_str,

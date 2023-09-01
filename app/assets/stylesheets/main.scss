@@ -1079,7 +1079,9 @@ div.facets h3 {
 .add-files-link button:focus,
 .add-files-link button:hover,
 .form-control:focus,
-.form-control:hover {
+.form-control:hover,
+.radio-button-span:focus,
+.radio-button-span:hover {
   /* border: 3px solid $u-m-yellow !important; */
   /* border: 5px solid hotpink !important; */
   outline: 3px solid $u-m-yellow !important;
