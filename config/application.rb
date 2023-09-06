@@ -88,6 +88,7 @@ module DeepBlueDocs
     config.job_io_wrapper_debug_verbose                        = false
     # config.metadata_behavior_debug_verbose                   = false # moved to app/services/deepblue/metadata_behavior_integration_service.rb
     # config.new_content_service_debug_verbose                 = false
+    config.provenance_debug_verbose                            = false
     config.provenance_behavior_debug_verbose                   = false
     config.shell_based_processor_debug_verbose                 = false
     config.solr_document_behavior_debug_verbose                = false
@@ -336,6 +337,8 @@ module DeepBlueDocs
     config.provenance_log_path = Rails.root.join( 'log', config.provenance_log_name )
     config.provenance_log_echo_to_rails_logger = true
     config.provenance_log_redundant_events = true
+    config.provenance_log_write_to_db = true
+    config.provenance_log_write_to_file = true
     # end provenance log config
 
     # begin shared drive mounts

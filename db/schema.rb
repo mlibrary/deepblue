@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_04_20_164035) do
+ActiveRecord::Schema.define(version: 2023_09_05_155609) do
 
   create_table "ahoy_condensed_events", force: :cascade do |t|
     t.string "name"
@@ -382,6 +382,22 @@ ActiveRecord::Schema.define(version: 2023_04_20_164035) do
     t.date "release_date"
     t.string "release_period"
     t.index ["source_id"], name: "index_permission_templates_on_source_id", unique: true
+  end
+
+  create_table "provenances", force: :cascade do |t|
+    t.datetime "timestamp", null: false
+    t.string "event", null: false
+    t.text "event_note"
+    t.string "class_name"
+    t.string "cc_id"
+    t.text "key_values"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cc_id"], name: "index_provenances_on_cc_id"
+    t.index ["class_name"], name: "index_provenances_on_class_name"
+    t.index ["event"], name: "index_provenances_on_event"
+    t.index ["event_note"], name: "index_provenances_on_event_note"
+    t.index ["timestamp"], name: "index_provenances_on_timestamp"
   end
 
   create_table "proxy_deposit_requests", force: :cascade do |t|
