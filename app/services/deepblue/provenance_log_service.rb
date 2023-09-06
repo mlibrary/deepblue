@@ -17,6 +17,39 @@ module Deepblue
       Rails.configuration.provenance_log_path
     end
 
+    def self.copy_entries_to_db( file_path: nil, skip_existing: true )
+      file_path ||= provenance_log_path
+      line_number = 0
+      File.open( file_path, "r" ) do |fin|
+        until fin.eof?
+          begin
+            line = fin.readline
+            line.chop!
+            ++line_number
+            entry = parse_entry( line, line_number: line_number, parse_key_values: true )
+            # write to db
+            if entry[:parse_error].present?
+              puts "ERROR: @#{line_number} - #{entry.parse_error}"
+              puts "line='#{line}'"
+            else
+              entries = Provenance.for_timestamp_event( timestamp: entry[:timestamp], event: entry[:event] )
+              if entries.blank?
+                Provenance.new( timestamp: entry[:timestamp],
+                                event: entry[:event],
+                                event_note: entry[:event_note],
+                                class_name: entry[:class_name],
+                                cc_id: entry[:id],
+                                key_values: entry[:raw_key_values]
+                ).save
+              end
+            end
+          rescue EOFError
+            line = nil
+          end
+        end
+      end
+    end
+
     def self.entries( id, refresh: false, debug_verbose: provenance_log_service_debug_verbose )
       debug_verbose ||= provenance_log_service_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -94,7 +127,7 @@ module Deepblue
       return rv
     end
 
-    def self.parse_entry( entry, line_number: 0 )
+    def self.parse_entry( entry, line_number: 0, parse_key_values: false )
       # line is of the form: "timestamp event/event_note/class_name/id key_values"
       timestamp = nil
       event = nil
@@ -107,7 +140,9 @@ module Deepblue
         event_note,
         class_name,
         id,
-        raw_key_values = ProvenanceHelper.parse_log_line( entry, line_number: line_number, raw_key_values: true )
+        raw_key_values = ProvenanceHelper.parse_log_line( entry,
+                                                          line_number: line_number,
+                                                          raw_key_values: !parse_key_values )
       return { timestamp: timestamp,
                event: event,
                event_note: event_note,

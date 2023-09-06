@@ -99,8 +99,10 @@ gem 'resque'
 gem 'resque-pool'
 gem 'resque-web', '~> 0.0.7', require: 'resque_web'
 
+# https://github.com/resque/resque-scheduler
 gem 'resque-scheduler'
 gem 'resque-scheduler-web'
+# https://github.com/JustinAiken/active_scheduler
 gem 'active_scheduler'
 gem 'time_difference'
 
