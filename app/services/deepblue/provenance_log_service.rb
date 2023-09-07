@@ -29,7 +29,7 @@ module Deepblue
             entry = parse_entry( line, line_number: line_number, parse_key_values: true )
             # write to db
             if entry[:parse_error].present?
-              puts "ERROR: @#{line_number} - #{entry.parse_error}"
+              puts "ERROR: @#{line_number} - #{entry[:parse_error]}"
               puts "line='#{line}'"
             else
               entries = Provenance.for_timestamp_event( timestamp: entry[:timestamp], event: entry[:event] )
