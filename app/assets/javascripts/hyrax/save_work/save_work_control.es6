@@ -100,10 +100,9 @@ export default class SaveWorkControl {
     this.form.on('submit', (evt) => {
       //The form should be valid here.  No need to check.
       //if (this.isValid())
-      if (true) {
-        this.saveButton.prop("disabled", false);
-        this.saveButtonDraft.prop("disabled", false);
-      }
+      if (true)
+         this.saveButton.prop("disabled", false);
+         this.saveButtonDraft.prop("disabled", false);
     })
   }
 
@@ -192,7 +191,7 @@ export default class SaveWorkControl {
       $('#data_set_rights_license_httpcreativecommonsorglicensesby-nd30us', this.form).bind('change', () => this.formChangedAgain())
       $('#data_set_rights_license_httpcreativecommonsorglicensesby-sa30us', this.form).bind('change', () => this.formChangedAgain())
 
-  }  
+  }
 
   // Called when a file has been uploaded, the deposit agreement is clicked or a form field has had text entered.
   formStateChanged() {
@@ -231,7 +230,7 @@ export default class SaveWorkControl {
       for(var i=0; i<other_funders.length; i++) {
         other_funders[i].value = '';
       }
-      $('.data_set_fundedby_other').hide(); 
+      $('.data_set_fundedby_other').hide();
     }
 
     var rbtn = document.getElementById('data_set_rights_license_other').checked
@@ -243,8 +242,8 @@ export default class SaveWorkControl {
     else
     {
       document.getElementsByName("data_set[rights_license_other]")[0].removeAttribute("required");
-      document.getElementsByName("data_set[rights_license_other]")[0].value = ''; 
-      $('.data_set_rights_license_other').hide(); 
+      document.getElementsByName("data_set[rights_license_other]")[0].value = '';
+      $('.data_set_rights_license_other').hide();
     }
 
     this.requiredFields.reload();
