@@ -152,7 +152,9 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
         context 'as non-admin' do
           it 'calls job and redirects back' do
             allow(ActiveFedora::Base).to receive(:find).with(work.id).and_return(work)
-            expect(::EnsureDoiMintedJob).to_not receive(:perform_later).with(work.id, email_results_to: user.email)
+            expect(::EnsureDoiMintedJob).to_not receive(:perform_later).with(work.id,
+                                                                             current_user: user.email,
+                                                                             email_results_to: user.email)
             get :ensure_doi_minted, params: { id: work }
             expect(response).to redirect_to(root_path)
             ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
@@ -167,7 +169,9 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
 
           it 'calls job and redirects to main page' do
             allow(ActiveFedora::Base).to receive(:find).with(work.id).and_return(work)
-            expect(::EnsureDoiMintedJob).to receive(:perform_later).with(work.id, email_results_to: admin.email)
+            expect(::EnsureDoiMintedJob).to receive(:perform_later).with(work.id,
+                                                                         current_user: admin.email,
+                                                                         email_results_to: admin.email)
             get :ensure_doi_minted, params: { id: work }
             expect(response).to redirect_to main_app.hyrax_data_set_path(work.id, locale: 'en')
             expect(flash[:notice]).to eq "Ensure DOI minted job started. You will be emailed the results."

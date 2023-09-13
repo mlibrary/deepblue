@@ -9,11 +9,12 @@ class EnsureDoiMintedJob < ::Deepblue::DeepblueJob
 
   EVENT = "ensure doi minted"
 
-  def perform( id, *args )
+  def perform( id, current_user, *args )
     debug_verbose = ensure_doi_minted_job_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "id=#{id}",
+                                           "current_user=#{current_user}",
                                            "args=#{args}",
                                            "" ] if debug_verbose
     initialize_options_from( *args, id: id, debug_verbose: debug_verbose )
@@ -24,7 +25,10 @@ class EnsureDoiMintedJob < ::Deepblue::DeepblueJob
                                            "" ] if debug_verbose
     log( event: EVENT, hostname_allowed: allowed )
     return job_finished unless allowed
-    ::Deepblue::DoiMintingService.ensure_doi_minted( id: id, msg_handler: msg_handler, debug_verbose: debug_verbose )
+    ::Deepblue::DoiMintingService.ensure_doi_minted( id: id,
+                                                     current_user: current_user,
+                                                     msg_handler: msg_handler,
+                                                     debug_verbose: debug_verbose )
     email_all_targets( task_name: EVENT, event: EVENT )
     job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException

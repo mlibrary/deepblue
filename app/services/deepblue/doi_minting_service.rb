@@ -81,12 +81,14 @@ module Deepblue
     def self.ensure_doi_minted( id: nil,
                                 curation_concern: nil,
                                 msg_handler:,
+                                current_user: nil,
                                 debug_verbose: doi_minting_service_debug_verbose || doi_ensure_doi_minted_debug_verbose )
 
       debug_verbose = debug_verbose || doi_minting_service_debug_verbose || doi_ensure_doi_minted_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
+                                             "current_user=#{current_user}",
                                              "curation_concern.nil?=#{curation_concern.nil?}",
                                              "msg_handler=#{msg_handler}",
                                              "" ] if debug_verbose
