@@ -54,6 +54,7 @@ module Deepblue
     end
 
     def self.log_to_db( class_name:, event:, event_note:, id:, timestamp:, **log_key_values )
+      log_key_values = ProvenanceLogService.encode_entry( entry: log_key_values )
       Provenance.new( timestamp: timestamp,
                       event: event,
                       event_note: event_note,
