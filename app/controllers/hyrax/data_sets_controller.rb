@@ -137,7 +137,9 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if data_sets_controller_debug_verbose
-      ::EnsureDoiMintedJob.perform_later( params[:id], email_results_to: current_user.email )
+      ::EnsureDoiMintedJob.perform_later( params[:id],
+                                          current_user: current_user.email,
+                                          email_results_to: current_user.email )
       flash[:notice] = "Ensure DOI minted job started. You will be emailed the results."
       redirect_to [main_app, curation_concern]
     end

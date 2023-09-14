@@ -115,8 +115,10 @@ module Deepblue
       Rails.logger.error "DoiBehavior.doi_mint for curation_concern.id #{id} -- #{e.class}: #{e.message} at #{e.backtrace[0]}"
     end
 
-    def ensure_doi_minted
+    def ensure_doi_minted( current_user: nil )
+      current_user ||= self.current_user if self.respond_to? :current_user
       ::Deepblue::DoiMintingService.ensure_doi_minted( curation_concern: self,
+                                                       current_user: current_user,
                                                        msg_handler: ::Deepblue::MessageHandler.new,
                                                        debug_verbose: doi_behavior_debug_verbose )
     end
