@@ -42,7 +42,8 @@ module Hyrax
                                                ::Deepblue::LoggingHelper.called_from,
                                                "value=#{value}",
                                                "" ] if creator_orcid_attribute_renderer_debug_verbose
-        value = "http://orcid.id/#{value}" unless ( value.start_with?('http:') || value.start_with?('https:') )
+        value = "https://orcid.id/#{value}" unless ( value.start_with?('http:') || value.start_with?('https:') )
+        value = value.sub( /http\:/, 'https:' ) if value.start_with?('http:')
         return %(<span itemprop="orcid">#{li_value(value)}</span>)
       end
 
