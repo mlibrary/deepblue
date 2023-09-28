@@ -12,10 +12,10 @@ module Deepblue
     mattr_accessor :json_logging_helper_load_debug_verbose, default: false
     mattr_accessor :json_logging_helper_parse_debug_verbose, default: false
 
-    TIMESTAMP_FORMAT = '\d\d\d\d\-\d\d\-\d\d \d\d:\d\d:\d\d'.freeze
+    TIMESTAMP_FORMAT = '\d\d\d\d\-\d\d\-\d\d \d\d\:\d\d\:\d\d'.freeze
     RE_TIMESTAMP_FORMAT = Regexp.compile "^#{TIMESTAMP_FORMAT}$".freeze
     # Format: Date Timestamp Event/Event_detail_possibly_empty/ClassName/ID_possibly_empty Rest_in_form_of_JSON_hash
-    RE_LOG_LINE = Regexp.compile "^(#{TIMESTAMP_FORMAT}) ([^/]+)/([^/]*)/([^/]+)/([^ ]*) (.*)$".freeze
+    RE_LOG_LINE = Regexp.compile "^\\s*(#{TIMESTAMP_FORMAT}) ([^/]+)/([^/]*)/([^/]+)/([^ ]*) (.*)\\s*$".freeze
     PREFIX_UPDATE_ATTRIBUTE = 'UpdateAttribute_'.freeze
 
     TIMESTAMP_PARSE_FORMAT = '%Y-%m-%d %H:%M:%S'

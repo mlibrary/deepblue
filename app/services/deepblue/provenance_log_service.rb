@@ -9,32 +9,134 @@ module Deepblue
 
     mattr_accessor :provenance_log_service_debug_verbose, default: false
 
+    def self.dissect_entry( line:, error_lines_file:, line_number: )
+      line = line.strip
+      lines = []
+      lines << 'dissect_entry:'
+      lines << line
+      count = 0
+      while line.present?
+        count += 1
+        if line =~ /^\s*\{(.*)$/
+          lines << 'rest:'
+          rest = "{#{Regexp.last_match(1)}"
+          lines << rest
+          begin
+            key_values = ProvenanceHelper.parse_log_line_key_values rest
+            entry = { timestamp: key_values['timestamp'],
+                      event: key_values['event'],
+                      raw_key_values: rest }
+            event_note = key_values['event_note']
+            entry['event_note'] = event_note if event_note.present?
+            class_name = key_values['class_name']
+            entry['class_name'] = class_name if class_name.present?
+            id = key_values['id']
+            entry['id'] = id if id.present?
+            entry.each_key { |k| lines << "#{k}=#{entry[k]}" }
+          rescue Exception => e # rubocop:disable Lint/RescueException
+            lines << "ERROR: @#{line_number} - #{e}"
+          end
+          line = ''
+        elsif line =~ /^([^\s]+)\s+(.*)$/
+          lines << "part #{count}:"
+          lines << "'#{Regexp.last_match(1)}'"
+          line = Regexp.last_match(2)
+        else
+          lines << 'last #{count}:'
+          lines << line
+          line = ''
+        end
+      end
+      lines << "\n"
+      File.write( error_lines_file, lines.join( "\n" ), File.size(error_lines_file), mode: 'a')
+    end
+
     def self.copy_entries_to_db( file_path: nil, skip_existing: true )
       file_path ||= provenance_log_path
       line_number = 0
+      lines_encode = 0
+      lines_encode_entry = 0
+      entries_added = 0
+      entries_skipped = 0
+      parse_errors = 0
+      parse_retry_success = 0
+      error_lines_file = "#{file_path}.errors"
+      line_was_encoded = false
+      File.write( error_lines_file, '' )
       File.open( file_path, "r" ) do |fin|
         until fin.eof?
           begin
             line = fin.readline
-            line.chop!
             line_number += 1
-            #line.force_encoding('utf-8')
-            line = line.encode( 'UTF-8', invalid: :replace, undef: :replace )
-            URI.escape line
-            entry = parse_entry( line, line_number: line_number, parse_key_values: true )
+            newline = line.encode( 'UTF-8', invalid: :replace, undef: :replace )
+            if newline != line
+              lines_encode += 1
+            end
+            line = newline
+            # line = URI.escape line
+            newline = encode_entry( entry: line )
+            line_was_encoded = false
+            if newline != line
+              lines_encode_entry += 1
+              line_was_encoded = true
+            end
+            line = newline
+            entry = parse_entry( line, line_number: line_number, parse_key_values: false )
             # write to db
             if entry[:parse_error].present?
-              puts "ERROR: @#{line_number} - #{entry[:parse_error]}"
-              puts "line='#{line}'"
-            else
+              new_entry = parse_entry_retry( line: line, line_number: line_number, parse_key_values: true )
+              if new_entry.present?
+                parse_retry_success += 1
+                db_save_line( line_number: line_number, line: line, entry: new_entry )
+                entries_added += 1
+              else
+                parse_errors += 1
+                lines = []
+                lines << "parse entry retry failed"
+                lines << "line_number: #{line_number}"
+                lines << "line_was_encoded: #{line_was_encoded}"
+                lines << line
+                lines << ""
+                File.write( error_lines_file, lines.join( "\n" ), File.size(error_lines_file), mode: 'a')
+                puts "ERROR: @#{line_number} - #{entry[:parse_error]}"
+                puts "line='#{line}'"
+                puts "entry[:raw_key_values]=#{entry[:raw_key_values]}"
+              end
+             elsif skip_existing
               prov_entry = Provenance.for_timestamp_event( timestamp: entry[:timestamp], event: entry[:event] )
-              db_save( line_number: line_number, line: line, entry: entry ) if prov_entry.blank?
+              if prov_entry.blank?
+                db_save_line( line_number: line_number, line: line, entry: entry )
+                entries_added += 1
+              else
+                entries_skipped += 1
+              end
+            else
+              begin
+                key_values = ProvenanceHelper.parse_log_line_key_values entry[:raw_key_values]
+                entry[:raw_key_values] = key_values
+                db_save_line( line_number: line_number, line: line, entry: entry )
+                entries_added += 1
+              rescue Exception => e # rubocop:disable Lint/RescueException
+                parse_errors += 1
+                puts "ERROR: @#{line_number} - #{e}"
+                puts "line='#{line}'"
+                puts "entry[:raw_key_values]=#{entry[:raw_key_values]}"
+              end
             end
           rescue EOFError
             line = nil
           end
         end
       end
+      return { file_path: file_path,
+               skip_existing: skip_existing,
+               lines: line_number,
+               lines_encode: lines_encode,
+               lines_encode_entry: lines_encode_entry,
+               entries_added: entries_added,
+               entries_skipped: entries_skipped,
+               parse_errors: parse_errors,
+               parse_retry_success: parse_retry_success }
     end
 
     def self.db_save_line( line_number:, line:, entry: )
@@ -85,10 +187,10 @@ module Deepblue
         # when (0x00..0x07) then encode_utf16(u)
         # when (0x0A)       then "\\n"
         # when (0x0D)       then "\\r"
-        # when (0x0E..0x1F) then encode_utf16(u)
+        when (0x0E..0x1F) then encode_utf16(u)
         # when (0x22)       then "\\\""
         # when (0x5C)       then "\\\\"
-        # when (0x7F)       then encode_utf16(u)
+        when (0x7F)       then encode_utf16(u)
       when (0x00..0x7F) then u.chr
       else
         raise ArgumentError.new("expected an ASCII character in (0x00..0x7F), but got 0x#{u.to_s(16)}")
@@ -111,11 +213,13 @@ module Deepblue
     # @see http://www.w3.org/TR/rdf-testcases/#ntrip_strings
     def self.encode_utf16(u)
       sprintf("\\u%04X", u.ord)
+      # "&u#{u.ord};"
     end
 
     # @see http://www.w3.org/TR/rdf-testcases/#ntrip_strings
     def self.encode_utf32(u)
       sprintf("\\U%08X", u.ord)
+      # "&U#{u.ord};"
     end
 
     def self.entries( id, refresh: false, debug_verbose: provenance_log_service_debug_verbose )
@@ -224,7 +328,40 @@ module Deepblue
                line_number: line_number,
                parse_error: nil }
     rescue LogParseError => e
+      new_entry = parse_entry_retry( line: entry, line_number: line_number, parse_key_values: parse_key_values )
+      return new_entry if new_entry.present?
       return { entry: entry, line_number: line_number, parse_error: e }
+    end
+
+    def self.parse_entry_retry( line:, line_number:, parse_key_values: false )
+      entry = {}
+      if line =~ /^.*\s+\{(.*)$/
+        raw_key_values = Regexp.last_match(1)
+        raw_key_values = raw_key_values.strip
+        raw_key_values = "{#{raw_key_values}"
+        begin
+          key_values = ProvenanceHelper.parse_log_line_key_values raw_key_values
+          entry[:timestamp] = key_values['timestamp']
+          entry[:event] = key_values['event']
+          event_note = key_values['event_note']
+          entry[:event_note] = event_note if event_note.present?
+          class_name = key_values['class_name']
+          entry[:class_name] = class_name if class_name.present?
+          id = key_values['id']
+          entry[:id] = id if id.present?
+          if parse_key_values
+            entry[:raw_key_values] = key_values
+          else
+            entry[:raw_key_values] = raw_key_values
+          end
+          entry.each_key { |k| lines << "#{k}=#{entry[k]}" }
+          entry[:line_number] = line_number
+          entrt[:parse_error] = nil
+        rescue Exception => e # rubocop:disable Lint/RescueException
+          entry = { entry: line, line_number: line_number, parse_error: e }
+        end
+      end
+      return entry
     end
 
     def self.provenance_log_name
