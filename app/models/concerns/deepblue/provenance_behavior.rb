@@ -756,7 +756,7 @@ module Deepblue
       embargo_key_values = update_attr_key_values[:embargo]
       update_attr_key_values.delete :embargo
       embargo_release_date_old_value = embargo_key_values[:UpdateAttribute_embargo_release_date][:old_value]
-      if embargo_release_date_old_value.ends_with? 'T00:00:00.000+00:00'
+      if embargo_release_date_old_value&.ends_with? 'T00:00:00.000+00:00'
         len = 'T00:00:00.000+00:00'.size
         updated_value = embargo_release_date_old_value
         updated_value = embargo_release_date_old_value[0,updated_value.size-len]
