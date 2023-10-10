@@ -16,6 +16,9 @@ if (!String.prototype.startsWith) {
 }
 
 export default class SaveWorkControl {
+
+  save_work_control_version_is() { return "last updated: 2023/10/09"; }
+
   /**
    * Initialize the save controls
    * @param {jQuery} element the jquery selector for the save panel
@@ -68,12 +71,23 @@ export default class SaveWorkControl {
    * Select all file sets for bulk delete
    */
   bulkFileSetDeleteSelectAll() {
-    document.getElementById('selectAllFileSetsForDelete').addEventListener('click',
-        function(event) {
+
+    try {
+      document.getElementById('selectAllFileSetsForDelete').addEventListener('click',
+        function (event) {
           //alert('bulkFileSetDeleteSelectAll');
           var checkboxes = $("input[name^='delete:file_set:']");
-          for (var i=0;i<checkboxes.length;i++) { checkboxes[i].checked = true; }
+          for (var i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].checked = true;
+          }
         }, false);
+    } catch (e) {
+      if (e instanceof TypeError) {
+        // ignore because element is not found
+      } else {
+        throw e;
+      }
+    }
   }
 
   /**
