@@ -18,7 +18,11 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if hyrax_embargo_service_debug_verbose
-        builder = Hyrax::ExpiredEmbargoSearchBuilder.new(self)
+        builder = ::Hyrax::ExpiredEmbargoSearchBuilder.new(self)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "builder.class=#{builder.class.name}",
+                                               "" ] if hyrax_embargo_service_debug_verbose
         presenters(builder)
       end
 
@@ -29,7 +33,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if hyrax_embargo_service_debug_verbose
-        builder = Hyrax::EmbargoSearchBuilder.new(self)
+        builder = ::Hyrax::EmbargoSearchBuilder.new(self)
         presenters(builder)
       end
 
@@ -38,7 +42,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if hyrax_embargo_service_debug_verbose
-        builder = Hyrax::DeactivatedEmbargoSearchBuilder.new(self)
+        builder = ::Hyrax::DeactivatedEmbargoSearchBuilder.new(self)
         presenters(builder)
       end
 
@@ -47,7 +51,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if hyrax_embargo_service_debug_verbose
-        builder = Hyrax::My::ExpiredEmbargoSearchBuilder.new(self)
+        builder = ::Hyrax::My::ExpiredEmbargoSearchBuilder.new(self)
         builder.current_user_key = current_user_key
         presenters(builder)
       end
@@ -59,7 +63,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if hyrax_embargo_service_debug_verbose
-        builder = Hyrax::My::EmbargoSearchBuilder.new(self)
+        builder = ::Hyrax::My::EmbargoSearchBuilder.new(self)
         builder.current_user_key = current_user_key
         presenters(builder)
       end
@@ -69,7 +73,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if hyrax_embargo_service_debug_verbose
-        builder = Hyrax::My::DeactivatedEmbargoSearchBuilder.new(self)
+        builder = ::Hyrax::My::DeactivatedEmbargoSearchBuilder.new(self)
         builder.current_user_key = current_user_key
         presenters(builder)
       end
@@ -77,7 +81,7 @@ module Hyrax
       private
 
         def presenter_class
-          Hyrax::EmbargoPresenter
+          ::Hyrax::EmbargoPresenter
         end
 
     end

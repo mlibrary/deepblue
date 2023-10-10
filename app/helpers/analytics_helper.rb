@@ -739,6 +739,14 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     return true
   end
 
+  # for a given cc_id and event over a month, collect the events from Ahoy
+  # then for each
+  # skip if thumbnail download (i.e. the skip predicate is true)
+  # get the event ip
+  # skip if ip is blank
+  # then, based on ip, count
+  # if count is high enough (100 hits), turn into a high traffic ip
+  # return the ip -> count map
   def self.initialize_visit_event_map( event:,
                                        cc_id:,
                                        month:,
@@ -1268,6 +1276,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     end
   end
 
+  # sum the counts, ignoring if high traffic
   def self.store_condensed_event_total_downloads( record:, ip_event_count_map:, msg_handler: nil )
     msg_handler = MSG_HANDLER_DEBUG_ONLY if msg_handler.nil?
     total_downloads = 0
