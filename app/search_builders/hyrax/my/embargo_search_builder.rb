@@ -12,7 +12,8 @@ module Hyrax
 
       # TODO: add more complex pagination
       def with_pagination(solr_params)
-        solr_params[:rows] = 1000
+        solr_params[:rows] = 10000
+        #solr_params[:rows] = 1000
       end
 
       def with_sorting(solr_params)

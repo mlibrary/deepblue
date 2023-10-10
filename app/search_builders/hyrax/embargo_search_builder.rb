@@ -8,7 +8,8 @@ module Hyrax
     self.default_processor_chain = [:with_pagination, :with_sorting, :only_active_embargoes]
 
     def with_pagination(solr_params)
-      solr_params[:rows] = 1000
+      solr_params[:rows] = 10000
+      #solr_params[:rows] = 1000
     end
 
     def with_sorting(solr_params)
@@ -18,6 +19,7 @@ module Hyrax
     def only_active_embargoes(solr_params)
       solr_params[:fq] ||= []
       solr_params[:fq] = 'embargo_release_date_dtsi:[* TO *]'
+      solr_params[:rows] = 10000
     end
   end
 end
