@@ -48,6 +48,7 @@ module Deepblue
                                      current_user: current_user,
                                      force: force,
                                      test_mode: test_mode )
+      return if ::Deepblue::DraftAdminSetService.has_draft_admin_set? curation_concern
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
@@ -229,11 +230,14 @@ module Deepblue
     end
 
     def self.start_new_ticket_job( curation_concern:, msg_handler: )
+      is_draft = ::Deepblue::DraftAdminSetService.has_draft_admin_set? curation_concern
+      return false if is_draft
       cc_ticket_equals_ticket_job_starting = TICKET_JOB_STARTING == curation_concern.ticket
       msg_handler.bold_debug [ msg_handler.here,
                                msg_handler.called_from,
                                "curation_concern.id=#{curation_concern.id}",
                                "curation_concern.ticket=#{curation_concern.ticket}",
+                               "is_draft=#{is_draft}",
                                "(TICKET_JOB_STARTING == curation_concern.ticket)=#{cc_ticket_equals_ticket_job_starting}",
                                "" ] if msg_handler.debug_verbose
       unless cc_ticket_equals_ticket_job_starting
