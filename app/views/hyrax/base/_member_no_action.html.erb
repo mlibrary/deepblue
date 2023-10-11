@@ -51,7 +51,7 @@
     <td class="attribute attribute-date_modified"><%= member_no_action.try(:date_modified) %></td>
     <td class="attribute attribute-file_size"><%= member_no_action.file_size_human_readable %></td>
     <td class="attribute attribute-permission"><%= member_no_action.permission_badge %></td>
-    <% if current_ability.admin? %>
+    <% if Rails.configuration.work_edit_delete_file_sets_enabled && current_ability.admin? %>
     <td class="center-col">
       <%= check_box_tag( "delete:file_set:#{member_no_action.id.to_s.parameterize}",
                          "true",
