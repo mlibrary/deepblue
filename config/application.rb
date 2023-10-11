@@ -373,6 +373,8 @@ module DeepBlueDocs
     config.google_tag_manager_id = 'GTM-MRNG959'
     # end Google Analytics config
 
+    config.work_edit_delete_file_sets_enabled = true
+
     config.key_value_backend = I18n::Backend::KeyValue.new({})
     config.i18n.backend = I18n.backend
     config.after_initialize do
