@@ -29,6 +29,11 @@ module Umrdr
       fetch('creator_orcid_tesim', [])
     end
 
+    def creator_orcid_json
+      rv = self['creator_orcid_json_ssim']
+      return rv
+    end
+
     def curation_notes_admin
       fetch('curation_notes_admin_tesim', [])
     end

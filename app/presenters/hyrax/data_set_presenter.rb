@@ -8,6 +8,7 @@ module Hyrax
 
     delegate  :authoremail,
               :creator_orcid,
+              :creator_orcid_json,
               :curation_notes_admin,
               :curation_notes_user,
               :date_coverage,

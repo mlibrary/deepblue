@@ -27,6 +27,7 @@ module Deepblue
                                             creator
                                             creator_ordered
                                             creator_orcid
+                                            creator_orcid_json
                                             creator_orcid_ordered
                                             curation_notes_admin
                                             curation_notes_admin_ordered

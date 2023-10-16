@@ -974,6 +974,7 @@ module Deepblue
         contributor = Array( work_hash[:contributor] )
         creator = Array( work_hash[:creator] )
         creator_orcid = Array( work_hash[:creator_orcid] )
+        creator_orcid_json = work_hash[:creator_orcid_json]
         curation_notes_admin = Array( work_hash[:curation_notes_admin] )
         curation_notes_user = Array( work_hash[:curation_notes_user] )
         date_coverage = build_date_coverage( hash: work_hash )
@@ -1008,6 +1009,7 @@ module Deepblue
                              contributor: contributor,
                              creator: creator,
                              creator_orcid: creator_orcid,
+                             creator_orcid_json: creator_orcid_json,
                              curation_notes_admin: curation_notes_admin,
                              curation_notes_user: curation_notes_user,
                              date_coverage: date_coverage,
@@ -2064,6 +2066,7 @@ module Deepblue
                         contributor:,
                         creator:,
                         creator_orcid:,
+                        creator_orcid_json:,
                         curation_notes_admin:,
                         curation_notes_user:,
                         date_coverage:,
@@ -2092,6 +2095,7 @@ module Deepblue
                        contributor: contributor,
                        creator: creator,
                        creator_orcid: creator_orcid,
+                       creator_orcid_json: creator_orcid_json,
                        curation_notes_admin: curation_notes_admin,
                        curation_notes_user: curation_notes_user,
                        date_coverage: date_coverage,
@@ -2120,6 +2124,7 @@ module Deepblue
                        contributor: contributor,
                        creator: creator,
                        creator_orcid: creator_orcid,
+                       creator_orcid_json: creator_orcid_json,
                        curation_notes_admin: curation_notes_admin,
                        curation_notes_user: curation_notes_user,
                        date_coverage: date_coverage,
@@ -2608,6 +2613,8 @@ module Deepblue
         update_attr( updates, work, work_hash, attr_name: :contributor )
         update_attr( updates, work, work_hash, attr_name: :creator )
         update_attr( updates, work, work_hash, attr_name: :creator_ordered, multi: false )
+        update_attr( updates, work, work_hash, attr_name: :creator_orcid )
+        update_attr( updates, work, work_hash, attr_name: :creator_orcid_json, multi: false )
         update_attr( updates, work, work_hash, attr_name: :creator_orcid_ordered, multi: false )
         update_attr( updates, work, work_hash, attr_name: :curation_notes_admin )
         update_attr( updates, work, work_hash, attr_name: :curation_notes_admin_ordered, multi: false )
