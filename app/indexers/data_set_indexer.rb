@@ -28,6 +28,7 @@ class DataSetIndexer < Hyrax::WorkIndexer
       # solr_doc['member_of_collection_ids_ssim'] = object.member_of_collections.map(&:id)
 
       solr_doc[:creator_ordered_tesim] = object.creator_ordered
+      solr_doc[:creator_orcid_json_ssim] = object.creator_orcid_json
       solr_doc[:creator_orcid_ordered_tesim] = object.creator_orcid_ordered
       solr_doc[:doi_tesim] = object.doi
 

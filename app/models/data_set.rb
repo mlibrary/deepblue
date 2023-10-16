@@ -72,9 +72,10 @@ class DataSet < ActiveFedora::Base
       admin_set_id
       authoremail
       creator
+      creator_orcid
+      creator_orcid_json
       curation_notes_admin
       curation_notes_user
-      creator_orcid
       data_set_url
       date_coverage
       date_created
@@ -123,6 +124,7 @@ class DataSet < ActiveFedora::Base
       authoremail
       creator
       creator_orcid
+      creator_orcid_json
       curation_notes_admin
       curation_notes_user
       data_set_url
@@ -238,6 +240,7 @@ class DataSet < ActiveFedora::Base
       authoremail
       creator
       creator_orcid
+      creator_orcid_json
       curation_notes_user
       date_coverage
       date_created

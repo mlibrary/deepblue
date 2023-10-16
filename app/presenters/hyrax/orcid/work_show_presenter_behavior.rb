@@ -8,7 +8,13 @@ module Hyrax
 
       included do
         delegated_methods = [
-          :creator_name, :creator_orcid, :creator_display, :contributor_name, :contributor_orcid, :contributor_display
+          :creator_name,
+          :creator_orcid,
+          :creator_orcid_json,
+          :creator_display,
+          :contributor_name,
+          :contributor_orcid,
+          :contributor_display
         ].freeze
         delegate(*delegated_methods, to: :solr_document)
       end
