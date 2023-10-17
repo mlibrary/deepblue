@@ -143,6 +143,13 @@ gem 'willow_sword', git: 'https://github.com/CottageLabs/willow_sword.git', bran
 #     'samvera-persona' adds the use of 'class.module_parent_name'
 gem 'samvera-persona', '< 0.3.0' # investigate lastest version of this
 
+# APTrust
+# see: https://github.com/tipr/bagit
+gem 'bagit'
+gem 'minitar', '~>0.8'
+gem 'aws-sdk-s3', '~> 1'
+gem 'typhoeus', '~> 1.1'
+
 # Begin security vulnerability mitigation
 # bundle update --source gem-name
 gem 'activerecord',   '>= 5.2.8.1'
