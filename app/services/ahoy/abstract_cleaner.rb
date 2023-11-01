@@ -123,7 +123,7 @@ module Ahoy
     end
 
     def report_path
-      hostname = hostname_short
+      hostname = ::Deepblue::ReportHelper.hostname_short
       return './data/ahoy/' if 'local' == hostname
       return '/deepbluedata-prep/ahoy/'
     end
