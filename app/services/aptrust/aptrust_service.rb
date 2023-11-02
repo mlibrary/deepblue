@@ -91,7 +91,7 @@ module Aptrust
 
     BAG_INFO_KEY_SOURCE = 'Source-Organization'
     BAG_INFO_KEY_COUNT = 'Bag-Count'
-    BAG_INFO_KEY_DATE = 'Bag-Date'
+    BAG_INFO_KEY_DATE = 'Bagging-Date'
     BAG_INFO_VALUE_SOURCE = 'University of Michigan'
     BAG_FILE_APTRUST_INFO = 'aptrust-info.txt'
 
