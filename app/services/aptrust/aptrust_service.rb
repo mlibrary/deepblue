@@ -27,7 +27,7 @@ module Aptrust
                     title: nil )
 
       @access = access; @access = attr_init( @access, 'Institution' )
-      @creator = creator; @creator = attr_init( @item_description, work.creator.join( " & " ) )
+      @creator = creator; @creator = attr_init( @creator, work.creator.join( " & " ) )
       @description = description; @description ||= default_description
       @item_description = item_description; @item_description = attr_init( @item_description, work.description.join( " " ) )
       @storage_option = storage_option; @storage_option = attr_init( @storage_option, 'Standard' )
