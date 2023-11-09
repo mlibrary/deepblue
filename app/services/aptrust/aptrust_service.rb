@@ -83,11 +83,13 @@ module Aptrust
 
     mattr_accessor :aptrust_service_debug_verbose, default: true
 
+    mattr_accessor :aptrust_service_allow_deposit, default: true
+    mattr_accessor :aptrust_service_deposit_context, default: "" # none for DBD
+    mattr_accessor :aptrust_service_deposit_repository, default: "deepbluedata"
+
     EXT_TAR = '.tar'
     IDENTIFIER_TEMPLATE = "%repository%.%context%%type%%id%"
     ID_SEP = '-'
-    CONTEXT = "" # none for DBD
-    REPOSITORY = "deepbluedata"
 
     BAG_INFO_KEY_SOURCE = 'Source-Organization'
     BAG_INFO_KEY_COUNT = 'Bag-Count'
@@ -100,12 +102,27 @@ module Aptrust
                    exported exporting
                    failed
                    packed packing
-                   skipped ]
+                   skipped
+                   uploaded uploading ]
 
+    def self.context
+      rv = aptrust_service_deposit_context
+      if rv.blank?
+        hostname = ::Deepblue::ReportHelper.hostname_short
+        if 'local' == hostname
+          rv = 'localhost' + ID_SEP
+        end
+      end
+    end
+
+    def self.repository
+      aptrust_service_deposit_repository
+    end
 
     def self.allow_deposit?
+      return false unless aptrust_service_allow_deposit
       # TODO: check for service available
-      return false
+      return true
     end
 
     def self.allow_work?(work)
@@ -117,9 +134,12 @@ module Aptrust
       AptrustInfo.new( work: work ).build
     end
 
-    def self.aptrust_info_write( bag:, work: )
+    def self.aptrust_info_write( bag:, work:, additional_tag_files: )
       aptrust_info = aptrust_info( work: work )
-      File.write( File.join( bag.bag_dir, BAG_FILE_APTRUST_INFO ), aptrust_info, mode: 'w' )
+      file = File.join( bag.bag_dir, BAG_FILE_APTRUST_INFO )
+      File.write( file, aptrust_info, mode: 'w' )
+      # this does not work: bag.tag_files << file
+      additional_tag_files << file
     end
 
     def self.bag_export( working_dir: nil, work:, id: nil, status_history: nil )
@@ -134,24 +154,28 @@ module Aptrust
       status_history = track_deposit( id: work.id, status: 'bagging', status_history: status_history )
       working_dir ||= dir_working
       id ||= identifier( work: work )
-      working_dir = File.join( working_dir, id )
+      target_dir = File.join( working_dir, id )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "working_dir=#{working_dir}",
+                                             "working_dir=#{target_dir}",
                                              "work=#{work}",
                                              "id=#{id}",
                                              "" ], bold_puts: false if aptrust_service_debug_verbose
-      Dir.mkdir( working_dir ) unless Dir.exist? working_dir
-      bag = BagIt::Bag.new( working_dir )
+      Dir.mkdir( target_dir ) unless Dir.exist? target_dir
+      bag = BagIt::Bag.new( target_dir )
       bag_info = bag_info( work: work )
       bag.write_bag_info( bag_info ) # Create bagit-info.txt file
-      aptrust_info_write( bag: bag, work: work )
+      additional_tag_files = []
+      aptrust_info_write( bag: bag, work: work, additional_tag_files: additional_tag_files )
       bag_data_dir = File.join( bag.bag_dir, "data" )
       bag_data_dir = Pathname.new bag_data_dir
       export_work( work: work, target_dir: bag_data_dir )
-      bag_manifest( bag: bag )
-      status_history = track_deposit( id: work.id, status: 'bagged', status_history: status_history )
-      working_dir
+      bag_manifest( bag: bag, additional_tag_files: additional_tag_files )
+      status_history = track_deposit( id: work.id,
+                                      status: 'bagged',
+                                      note: "target_dir: #{target_dir}",
+                                      status_history: status_history )
+      target_dir
     end
 
     def self.bag_date_now()
@@ -178,8 +202,23 @@ module Aptrust
       "Bag for a #{work.class.name} hosted at deepblue.lib.umich.edu/data/" # TODO: improve this, or move to config
     end
 
-    def self.bag_manifest( bag: )
+    def self.bag_manifest( bag:, additional_tag_files: )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "bag.tag_files=#{bag.tag_files}",
+                                             "additional_tag_files=#{additional_tag_files}",
+                                             "" ], bold_puts: false if aptrust_service_debug_verbose
       bag.manifest!(algo: 'md5') # Create manifests
+
+      # need to rewrite the tag manifest files to include the aptrust-info.txt file
+      tag_files = bag.tag_files
+      new_tag_files = tag_files & additional_tag_files
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "new_tag_files=#{new_tag_files}",
+                                             "" ], bold_puts: false if aptrust_service_debug_verbose
+      bag.tagmanifest!( new_tag_files ) unless ( new_tag_files - tag_files ).empty?
+
 
       # HELIO-4380 demo.aptrust.org doesn't like this file for some reason, gives an ingest error:
       # "Bag contains illegal tag manifest 'sha1'""
@@ -191,19 +230,49 @@ module Aptrust
     end
 
     def self.deposit( filename:, id:, status_history: nil  ) # TODO: review and code
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "filename=#{filename}",
+                                             "id=#{id}",
+                                             "status_history=#{status_history}",
+                                             "" ], bold_puts: false if aptrust_service_debug_verbose
       success = false
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "allow_deposit?=#{allow_deposit?}",
+                                             "" ], bold_puts: false if aptrust_service_debug_verbose
       if !allow_deposit?
         status_history = track_deposit( id: id, status: 'deposit_skipped', status_history: status_history )
       else
         begin
-        #   aptrust_yaml = Rails.root.join('config', 'aptrust.yml')
-        #   aptrust = YAML.safe_load(File.read(aptrust_yaml))
-        #   Aws.config.update(credentials: Aws::Credentials.new(aptrust['AwsAccessKeyId'], aptrust['AwsSecretAccessKey']))
-        #   s3 = Aws::S3::Resource.new(region: aptrust['BucketRegion'])
-        #   success = s3.bucket(aptrust['Bucket']).object(File.basename(filename)).upload_file(filename)
+          # add timing
+          aptrust = load_config
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "aptrust['Bucket']=#{aptrust['Bucket']}",
+                                                 "aptrust['BucketRegion']=#{aptrust['BucketRegion']}",
+                                                 "aptrust['AwsAccessKeyId']=#{aptrust['AwsAccessKeyId']}",
+                                                 "aptrust['AwsSecretAccessKey']=#{aptrust['AwsSecretAccessKey']}",
+                                                 "" ], bold_puts: false if aptrust_service_debug_verbose
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+          Aws.config.update( credentials: Aws::Credentials.new( aptrust['AwsAccessKeyId'], aptrust['AwsSecretAccessKey'] ) )
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+          s3 = Aws::S3::Resource.new( region: aptrust['BucketRegion'] )
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+          bucket = s3.bucket( aptrust['Bucket'] )
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+          aws_object = bucket.object( File.basename(filename) )
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+          status_history = track_deposit( id: id, status: 'uploading', status_history: status_history )
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+          aws_object.upload_file( filename )
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+          status_history = track_deposit( id: id, status: 'uploaded', status_history: status_history )
         rescue Aws::S3::Errors::ServiceError => e
-        #   Rails.logger.error "Upload of file #{filename} failed in #{e.context} with error #{e}"
-        #   success = false
+          status_history = track_deposit( id: id, status: 'failed', status_history: status_history, note: "failed in #{e.context} with error #{e}" )
+          ::Deepblue::LoggingHelper.bold_error ["Upload of file #{filename} failed in #{e.context} with error #{e}"] + e.backtrace[0..20]
+          Rails.logger.error "Upload of file #{filename} failed with error #{e}"
+          success = false
         end
       end
       status_history = track_deposit( id: id, status: 'deposited', status_history: status_history ) if success
@@ -272,11 +341,33 @@ module Aptrust
 
     def self.identifier( work: )
       rv = IDENTIFIER_TEMPLATE
-      rv = rv.gsub( /\%repository\%/, REPOSITORY )
-      rv = rv.gsub( /\%context\%/, CONTEXT )
+      rv = rv.gsub( /\%repository\%/, repository )
+      rv = rv.gsub( /\%context\%/, context )
       rv = rv.gsub( /\%type\%/, type( work ) )
       rv = rv.gsub( /\%id\%/, work.id )
       return rv
+    end
+
+    def self.load_config
+
+      # TODO: load this into a var and reuse
+
+      #   aptrust_yaml = Rails.root.join('config', 'aptrust.yml')
+      #   aptrust = YAML.safe_load(File.read(aptrust_yaml))
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ], bold_puts: false if aptrust_service_debug_verbose
+      aptrust_yaml = Rails.root.join('config', 'aptrust.yml')
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "aptrust_yaml=#{aptrust_yaml}",
+                                             "" ], bold_puts: false if aptrust_service_debug_verbose
+      aptrust = YAML.safe_load( File.read(aptrust_yaml) )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "aptrust_yaml=#{aptrust_yaml}",
+                                             "" ], bold_puts: false if aptrust_service_debug_verbose
+      return aptrust
     end
 
     def self.perform_deposit( id, status_history: nil  )
@@ -294,23 +385,54 @@ module Aptrust
         work = find_work( id )
         work_dir = bag_export( work: work, status_history: status_history )
         tar_file = tar( dir: work_dir, id: id, status_history: status_history )
-        # TODO: move tar_file to dir_export
-        # TODO: delete untarred file
-        # FileUtils.mv( @ingest_script_path, new_path )
-        deposit( filename: tar_file, id: id, status_history: status_history )
+        # TODO: move tar_file to dir_export (create method for this)
+        export_dir = dir_export
+        export_tar_file = File.join( export_dir, File.basename( tar_file ) )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "export_dir=#{export_dir}",
+                                               "tar_file=#{tar_file}",
+                                               "export_tar_file=#{export_tar_file}",
+                                               "" ] if aptrust_service_debug_verbose
+        FileUtils.mv( tar_file, export_tar_file )
+        # TODO: delete untarred files
+        deposit( filename: export_tar_file, id: id, status_history: status_history )
       rescue StandardError => e
         ::Deepblue::LoggingHelper.bold_error ["AptrustService.perform_deposit(#{id}) error #{e}"] + e.backtrace[0..20]
-        status_history = track_deposit( id: id, status: 'failed', status_history: status_history )
+        status_history = track_deposit( id: id, status: 'failed', status_history: status_history, note: "failed in #{e.context} with error #{e}" )
       end
       return status_history
     end
 
     def self.tar( dir:, id:, status_history: nil  )
-      tar_file = dir + EXT_TAR
-      status_history = track_deposit( id: id, status: 'packing', status_history: status_history )
-      Minitar.pack( dir, File.open( tar_file, 'wb') )
-      status_history = track_deposit( id: id, status: 'packed', status_history: status_history )
-      tar_file
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "dir=#{dir}",
+                                             "id=#{id}",
+                                             "" ] if aptrust_service_debug_verbose
+      parent = File.dirname dir
+      Dir.chdir(parent) do
+        tar_src = File.basename dir
+        tar_file = File.basename( dir ) + EXT_TAR
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "dir=#{dir}",
+                                               "parent=#{parent}",
+                                               "tar_src=#{tar_src}",
+                                               "tar_file=#{tar_file}",
+                                               "" ] if aptrust_service_debug_verbose
+        status_history = track_deposit( id: id, status: 'packing', status_history: status_history )
+        Minitar.pack( tar_src, File.open( tar_file, 'wb') )
+        status_history = track_deposit( id: id, status: 'packed', status_history: status_history )
+      end
+      rv = dir + EXT_TAR
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "dir=#{dir}",
+                                             "id=#{id}",
+                                             "rv=#{rv}",
+                                             "" ] if aptrust_service_debug_verbose
+      return rv
     end
 
     def self.target_file_name( dir, filename, ext = '' ) # TODO: review
