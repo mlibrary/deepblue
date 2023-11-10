@@ -4,87 +4,12 @@ module Aptrust
 
   # TODO: tracking of status of deposit
 
-  class AptrustInfo
-
-    mattr_accessor :aptrust_info_debug_verbose, default: true
-
-    # mattr_accessor :default_description, default: 'This bag contains all of the data and metadata related to a Monograph which has been exported from the Fulcrum publishing platform hosted at https://www.fulcrum.org. The data folder contains a Fulcrum manifest in the form of a CSV file named with the NOID assigned to this Monograph in the Fulcrum repository. This manifest is exported directly from Fulcrum's heliotrope application (https://github.com/mlibrary/heliotrope) and can be used for re-import as well. The first two rows contain column headers and human-readable field descriptions, respectively. {{ The final row contains descriptive metadata for the Monograph; other rows contain metadata for Resources, which may be components of the Monograph or material supplemental to it.}}'
-    mattr_accessor :default_description, default: 'The Description' # TODO
-
-    attr_accessor :access
-    attr_accessor :creator
-    attr_accessor :description
-    attr_accessor :item_description
-    attr_accessor :storage_option
-    attr_accessor :title
-
-    def initialize( work:,
-                    access: nil,
-                    creator: nil,
-                    description: nil,
-                    item_description: nil,
-                    storage_option: nil,
-                    title: nil )
-
-      @access = access; @access = attr_init( @access, 'Institution' )
-      @creator = creator; @creator = attr_init( @creator, work.creator.join( " & " ) )
-      @description = description; @description ||= default_description
-      @item_description = item_description; @item_description = attr_init( @item_description, work.description.join( " " ) )
-      @storage_option = storage_option; @storage_option = attr_init( @storage_option, 'Standard' )
-      @title = title; @title = attr_init( @title, Array( work.title ).join( " " ) )
-    end
-
-    def attr_init( attr, work_attr )
-      attr ||= work_attr
-      if attr.blank?
-        attr = ''
-      else
-        attr = attr.squish[0..255]
-      end
-      return attr
-    end
-
-    def build
-      <<~INFO
-        Title: #{title}
-        Access: #{access}
-        Storage-Option: #{storage_option}
-        Description: #{description}
-        Item Description: #{item_description}
-        Creator/Author: #{creator}
-      INFO
-    end
-
-    def build_fulcrum
-      # # Add aptrust-info.txt file
-      # # this is text that shows up in the APTrust web interface
-      # # title, access, and description are required; Storage-Option defaults to Standard if not present
-      # monograph_presenter = Sighrax.hyrax_presenter(monograph)
-      # title = monograph_presenter.title.blank? ? '' : monograph_presenter.title.squish[0..255]
-      # publisher = monograph_presenter.publisher.blank? ? '' : monograph_presenter.publisher.first.squish[0..249]
-      # press = monograph_presenter.press.blank? ? '' : monograph_presenter.press.squish[0..249]
-      # description = monograph_presenter.description.first.blank? ? '' : monograph_presenter.description.first.squish[0..249]
-      # creator = monograph_presenter.creator.blank? ? '' : monograph_presenter.creator.first.squish[0..249]
-      <<~INFO
-        Title: #{title}
-        Access: #{institution}
-        Storage-Option: #{storage_option}
-        Description: #{description}
-        Press-Name: #{publisher}
-        Press: #{press}
-        Item Description: #{description}
-        Creator/Author: #{creator}
-      INFO
-    end
-
-  end
-
   class AptrustService
 
     mattr_accessor :aptrust_service_debug_verbose, default: true
 
-    mattr_accessor :aptrust_service_allow_deposit, default: true
-    mattr_accessor :aptrust_service_deposit_context, default: "" # none for DBD
+    mattr_accessor :aptrust_service_allow_deposit,      default: true
+    mattr_accessor :aptrust_service_deposit_context,    default: "" # none for DBD
     mattr_accessor :aptrust_service_deposit_repository, default: "deepbluedata"
 
     EXT_TAR = '.tar'
@@ -142,24 +67,24 @@ module Aptrust
       additional_tag_files << file
     end
 
-    def self.bag_export( working_dir: nil, work:, id: nil, status_history: nil )
+    def self.bag_export( working_dir: nil, work:, bag_id: nil, status_history: nil )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "working_dir=#{working_dir}",
                                              "work=#{work}",
-                                             "id=#{id}",
+                                             "bag_id=#{bag_id}",
                                              "status_history=#{status_history}",
                                              "" ], bold_puts: false if aptrust_service_debug_verbose
 
       status_history = track_deposit( id: work.id, status: 'bagging', status_history: status_history )
       working_dir ||= dir_working
-      id ||= identifier( work: work )
+      bag_id ||= bag_identifier( work: work )
       target_dir = File.join( working_dir, id )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "working_dir=#{target_dir}",
                                              "work=#{work}",
-                                             "id=#{id}",
+                                             "bag_id=#{bag_id}",
                                              "" ], bold_puts: false if aptrust_service_debug_verbose
       Dir.mkdir( target_dir ) unless Dir.exist? target_dir
       bag = BagIt::Bag.new( target_dir )
@@ -202,23 +127,14 @@ module Aptrust
       "Bag for a #{work.class.name} hosted at deepblue.lib.umich.edu/data/" # TODO: improve this, or move to config
     end
 
-    def self.bag_manifest( bag:, additional_tag_files: )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "bag.tag_files=#{bag.tag_files}",
-                                             "additional_tag_files=#{additional_tag_files}",
-                                             "" ], bold_puts: false if aptrust_service_debug_verbose
-      bag.manifest!(algo: 'md5') # Create manifests
+    def self.bag_manifest
+      bag.manifest!(algo: 'md5') # Create tagmanifest-info.txt and the data directory maniftest.txt
 
       # need to rewrite the tag manifest files to include the aptrust-info.txt file
       tag_files = bag.tag_files
       new_tag_files = tag_files & additional_tag_files
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "new_tag_files=#{new_tag_files}",
-                                             "" ], bold_puts: false if aptrust_service_debug_verbose
+      # rewrite tagmanifest-info.txt if necessary
       bag.tagmanifest!( new_tag_files ) unless ( new_tag_files - tag_files ).empty?
-
 
       # HELIO-4380 demo.aptrust.org doesn't like this file for some reason, gives an ingest error:
       # "Bag contains illegal tag manifest 'sha1'""
@@ -339,7 +255,7 @@ module Aptrust
       work.id
     end
 
-    def self.identifier( work: )
+    def self.bag_identifier( work: )
       rv = IDENTIFIER_TEMPLATE
       rv = rv.gsub( /\%repository\%/, repository )
       rv = rv.gsub( /\%context\%/, context )
@@ -382,10 +298,8 @@ module Aptrust
       end
       begin
         status_history = track_deposit( id: id, status: 'depositing', status_history: status_history )
-        work = find_work( id )
         work_dir = bag_export( work: work, status_history: status_history )
         tar_file = tar( dir: work_dir, id: id, status_history: status_history )
-        # TODO: move tar_file to dir_export (create method for this)
         export_dir = dir_export
         export_tar_file = File.join( export_dir, File.basename( tar_file ) )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
