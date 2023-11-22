@@ -2,9 +2,8 @@
 
 module Deepblue
 
-  require 'tasks/abstract_task'
+  require_relative '../../app/tasks/deepblue/abstract_task'
   require 'tasks/active_fedora_indexing_descendent_fetcher2'
-  require 'tasks/task_logger'
 
   class MissingSolrdocs < AbstractTask
 

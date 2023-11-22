@@ -6,9 +6,9 @@ require 'rails_helper'
 
 Rails.application.load_tasks
 
-require_relative '../../lib/tasks/yaml_populate_for_collection'
+require_relative '../../app/tasks/deepblue/yaml_populate_for_collection'
 
-describe "yaml_populate_from_collection.rake" do
+describe "yaml_populate_for_collection.rake" do
 
   # reference: https://tasdikrahman.me/2020/10/20/testing-rake-tasks-with-rspec/
 

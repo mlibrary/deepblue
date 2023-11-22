@@ -2,7 +2,7 @@
 
 module Deepblue
 
-  require 'tasks/abstract_task'
+  require_relative '../../app/tasks/deepblue/abstract_task'
 
   class UpdateCondensedEventsTask < AbstractTask
 

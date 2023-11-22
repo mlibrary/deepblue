@@ -15,8 +15,8 @@ end
 module Deepblue
 
   require 'tasks/missing_solr_docs'
-  require 'tasks/task_logger'
-  require 'tasks/task_pacifier'
+  require_relative '../../app/tasks/deepblue/task_logger'
+  require_relative '../../app/tasks/deepblue/task_pacifier'
 
   class WorksAndFilesMissingSolrdocs < MissingSolrdocs
 

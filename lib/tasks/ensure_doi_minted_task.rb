@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative './abstract_task'
+require_relative '../../app/tasks/deepblue/abstract_task'
 require_relative '../../app/services/deepblue/doi_minting_service'
 
 module Deepblue

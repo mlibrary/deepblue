@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'hydra/file_characterization'
-require_relative '../../../lib/tasks/task_helper'
-require_relative '../../../lib/tasks/task_logger'
+require_relative '../../../app/helpers/deepblue/task_helper'
+require_relative '../../../app/tasks/deepblue/task_logger'
 # require_relative '../../app/helpers/deepblue/email_helper'
 require_relative './ingest_integration_service'
 

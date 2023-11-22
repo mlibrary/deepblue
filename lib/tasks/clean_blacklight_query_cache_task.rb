@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative './abstract_task'
+require_relative '../../app/tasks/deepblue/abstract_task'
 require_relative '../../app/helpers/deepblue/clean_up_helper'
 
 module Deepblue

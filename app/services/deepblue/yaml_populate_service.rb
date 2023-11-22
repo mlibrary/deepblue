@@ -7,6 +7,8 @@ module Deepblue
     DEFAULT_CREATE_ZERO_LENGTH_FILES = true
     DEFAULT_OVERWRITE_EXPORT_FILES = true
 
+    DEBUG_VERBOSE = false
+
     attr_accessor :mode, :source
 
     # TODO: count these
@@ -72,13 +74,13 @@ module Deepblue
         single_value = 1 == file_set.title.size
         yaml_item( out, indent, ':title:', file_set.title, escape: true, single_value: single_value )
         yaml_item_prior_identifier( out, indent, curation_concern: file_set )
-        file_path = yaml_export_file_path( target_dirname: target_dirname, file_set: file_set )
+        file_path = yaml_import_file_path( target_dirname: target_dirname, file_set: file_set )
         yaml_item( out, indent, ':file_path:', file_path.to_s, escape: true )
         # checksum = yaml_file_set_checksum( file_set: file_set )
         # yaml_item( out, indent, ":checksum_algorithm:", checksum.present? ? checksum.algorithm : '', escape: true )
         # yaml_item( out, indent, ":checksum_value:", checksum.present? ? checksum.value : '', escape: true )
-        yaml_item( out, indent, ":checksum_algorithm:", checksum.checksum_algorithm, escape: true )
-        yaml_item( out, indent, ":checksum_value:", checksum.checksum_value, escape: true )
+        # yaml_item( out, indent, ":checksum_algorithm:", checksum.algorithm, escape: true )
+        # yaml_item( out, indent, ":checksum_value:", checksum.value, escape: true )
         yaml_item( out, indent, ":edit_users:", file_set.edit_users, escape: true )
         file_size = MetadataHelper.file_set_file_size file_set
         # puts "\nfile_size=#{file_size} file_size.class=#{file_size.class.name}\n" unless file_size.is_a? Integer
@@ -160,7 +162,21 @@ module Deepblue
 
     def yaml_export_file_path( target_dirname:, file_set: )
       export_file_name = yaml_export_file_name( file_set: file_set )
-      target_dirname.join "#{file_set.id}_#{export_file_name}"
+      filename = "#{file_set.id}_#{export_file_name}"
+      puts filename if DEBUG_VERBOSE
+      target_dirname.join filename
+     end
+
+    def yaml_import_file_path( target_dirname:, file_set: )
+      export_file_name = yaml_export_file_name( file_set: file_set )
+      filename = "#{file_set.id}_#{export_file_name}"
+      puts filename if DEBUG_VERBOSE
+      if MetadataHelper::MODE_BAG == mode
+        filename = File.basename filename
+        File.join ".", filename
+      else
+        target_dirname.join filename
+      end
     end
 
     def yaml_export_file_name( file_set: )
@@ -189,7 +205,10 @@ module Deepblue
 
     def yaml_filename( pathname_dir:, id:, prefix:, task: )
       pathname_dir = Pathname.new pathname_dir unless pathname_dir.is_a? Pathname
-      pathname_dir.join "#{prefix}#{id}_#{task}.yml"
+      rv = pathname_dir.join "#{prefix}#{id}_#{task}.yml"
+      puts "yaml_filename( pathname_dir: #{pathname_dir}, id: #{id}, prefix: #{prefix}, task: #{task} )" if DEBUG_VERBOSE
+      puts "rv=#{rv}" if DEBUG_VERBOSE
+      return rv
     end
 
     def yaml_filename_collection( pathname_dir:, collection:, task: MetadataHelper::DEFAULT_TASK )
@@ -445,8 +464,18 @@ module Deepblue
                             target_filename: nil,
                             target_dirname: nil )
 
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "curation_concern.nil?=#{curation_concern.nil?}",
+                                             "dir=#{dir}",
+                                             "out.nil?=#{out.nil?}",
+                                             "export_files=#{export_files}",
+                                             "target_filename=#{target_filename}",
+                                             "target_dirname=#{target_dirname}",
+                                             "" ] if DEBUG_VERBOSE
       target_file = nil
       dir = Pathname.new dir unless dir.is_a? Pathname
+      puts "dir=#{dir}" if DEBUG_VERBOSE
       if out.nil?
         curation_concern = yaml_work_find( curation_concern: curation_concern ) if curation_concern.is_a? String
         target_file = yaml_filename_work( pathname_dir: dir, work: curation_concern )
@@ -485,7 +514,14 @@ module Deepblue
 
     def yaml_targetdir( pathname_dir:, id:, prefix:, task: )
       pathname_dir = Pathname.new pathname_dir unless pathname_dir.is_a? Pathname
-      pathname_dir.join "#{prefix}#{id}_#{task}"
+      if MetadataHelper::MODE_BAG == mode
+        rv = pathname_dir
+      else
+        rv = pathname_dir.join "#{prefix}#{id}_#{task}"
+      end
+      puts "yaml_targetdir( pathname_dir: #{pathname_dir}, id: #{id}, prefix: #{prefix}, task: #{task} )" if DEBUG_VERBOSE
+      puts "rv=#{rv}" if DEBUG_VERBOSE
+      return rv
     end
 
     def yaml_targetdir_collection( pathname_dir:, collection:, task: MetadataHelper::DEFAULT_TASK )
@@ -505,6 +541,11 @@ module Deepblue
     end
 
     def yaml_work_export_files( work:, target_dirname: nil, log_filename: nil )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "work.nil?=#{work.nil?}",
+                                             "target_dirname=#{target_dirname}",
+                                             "" ] if DEBUG_VERBOSE
       log_file = target_dirname.join ".export.log" if log_filename.nil?
       File.open( log_file, 'w' ) { |f| f.write('') } # erase log file
       start_time = Time.now

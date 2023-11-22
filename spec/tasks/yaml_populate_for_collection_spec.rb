@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-require_relative '../../lib/tasks/yaml_populate_for_collection'
+require_relative '../../app/tasks/deepblue/yaml_populate_for_collection'
 
 RSpec.describe ::Deepblue::YamlPopulateFromAllCollections, skip: false do
 

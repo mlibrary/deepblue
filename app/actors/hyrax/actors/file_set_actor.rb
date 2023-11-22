@@ -247,6 +247,15 @@ module Hyrax
         file_set.visibility = work.visibility unless assign_visibility?(file_set_params)
         work.ordered_members << file_set
         file_set.ingest_attach( called_from: 'FileSetActor.attach_to_af_work', parent_id: work.id )
+        # if work.responds_to? :link_file_set!
+        #   work.link_file_set!( file_set: file_set )
+        # else
+        #   work.representative = file_set if work.representative_id.blank?
+        #   work.thumbnail = file_set if work.thumbnail_id.blank?
+        #   # Save the work so the association between the work and the file_set is persisted (head_id)
+        #   # NOTE: the work may not be valid, in which case this save doesn't do anything.
+        #   work.save
+        # end
         work.representative = file_set if work.representative_id.blank?
         work.thumbnail = file_set if work.thumbnail_id.blank?
         # Save the work so the association between the work and the file_set is persisted (head_id)
@@ -417,6 +426,10 @@ module Hyrax
           # monkey patch
           work.total_file_size_subtract_file_set! file_set
           work.read_me_delete( file_set: file_set )
+          # if work.respond_to? :unlink_from_file_set!
+          #   work.unlink_from_file_set!( file_set: file_set )
+          #   return
+          # end
           # monkey patch
           return unless work && (work.thumbnail_id == file_set.id || work.representative_id == file_set.id || work.rendering_ids.include?(file_set.id))
           work.thumbnail = nil if work.thumbnail_id == file_set.id

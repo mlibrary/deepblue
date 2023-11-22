@@ -4,14 +4,14 @@ namespace :deepblue do
 
   desc 'List works and their files missing edit users'
   task works_missing_edit_users: :environment do
-    WorksMissingEditUsers.new.run
+    ::Deepblue::WorksMissingEditUsers.new.run
   end
 
 end
 
 module Deepblue
 
-  require 'tasks/abstract_task'
+  require_relative '../../app/tasks/deepblue/abstract_task'
 
   class WorksMissingEditUsers < AbstractTask
 

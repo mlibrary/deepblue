@@ -2,7 +2,7 @@
 
 module Deepblue
 
-  require 'tasks/abstract_log_task'
+  require_relative './abstract_log_task'
 
   class AbstractProvenanceLogTask < AbstractLogTask
 

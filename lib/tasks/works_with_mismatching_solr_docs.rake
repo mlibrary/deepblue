@@ -4,14 +4,14 @@ namespace :deepblue do
 
   desc 'List works and their files with mismatching solr documents'
   task works_with_mismatching_solr_docs: :environment do
-    WorksWithMismatchingSolrDocs.new.run
+    ::Deepblue::WorksWithMismatchingSolrDocs.new.run
   end
 
 end
 
 module Deepblue
 
-  require 'tasks/abstract_task'
+  require_relative '../../app/tasks/deepblue/abstract_task'
 
   class WorksWithMismatchingSolrDocs < AbstractTask
 

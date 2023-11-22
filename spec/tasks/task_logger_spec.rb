@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-require_relative '../../lib/tasks/task_logger'
+require_relative '../../app/tasks/deepblue/task_logger'
 
 RSpec.describe ::Deepblue::TaskLogger do
 

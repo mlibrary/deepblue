@@ -60,7 +60,8 @@ module Deepblue
 
     # do the date_filter as options
 
-    def initialize( msg_handler:, options: {} )
+    def initialize( msg_handler: nil, options: {} )
+      msg_handler ||= MessageHandler.msg_handler_for_task( options: options )
       msg_handler.debug_verbose = msg_handler.debug_verbose || work_impact_reporter_debug_verbose
       super( msg_handler: msg_handler, options: options )
       @skip_admin = task_options_value( key: 'skip_admin', default_value: DEFAULT_SKIP_ADMIN )

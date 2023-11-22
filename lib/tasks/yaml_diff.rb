@@ -4,8 +4,7 @@ require 'open-uri'
 
 module Deepblue
 
-  require 'tasks/abstract_task'
-  require_relative 'task_helper'
+  require_relative '../../app/tasks/deepblue/abstract_task'
   require_relative '../diff_content_service'
   require 'benchmark'
   include Benchmark

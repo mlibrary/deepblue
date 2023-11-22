@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-require_relative "../../lib/tasks/abstract_provenance_log_task"
+require_relative "../../app/tasks/deepblue/abstract_provenance_log_task"
 
 class MockAbstractProvenanceLogTask < ::Deepblue::AbstractProvenanceLogTask
 

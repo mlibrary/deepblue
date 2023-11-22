@@ -15,7 +15,7 @@ end
 
 module Deepblue
 
-  require 'tasks/abstract_provenance_log_task'
+  require_relative '../../app/tasks/deepblue/abstract_provenance_log_task'
   require_relative '../../app/services/deepblue/publication_log_reporter'
 
   class PublicationLogReport < AbstractProvenanceLogTask

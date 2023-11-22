@@ -160,36 +160,7 @@ module Aptrust
       if !allow_deposit?
         status_history = track_deposit( id: id, status: 'deposit_skipped', status_history: status_history )
       else
-        begin
-          # add timing
-          aptrust = load_config
-          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                                 ::Deepblue::LoggingHelper.called_from,
-                                                 "aptrust['Bucket']=#{aptrust['Bucket']}",
-                                                 "aptrust['BucketRegion']=#{aptrust['BucketRegion']}",
-                                                 "aptrust['AwsAccessKeyId']=#{aptrust['AwsAccessKeyId']}",
-                                                 "aptrust['AwsSecretAccessKey']=#{aptrust['AwsSecretAccessKey']}",
-                                                 "" ], bold_puts: false if aptrust_service_debug_verbose
-          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
-          Aws.config.update( credentials: Aws::Credentials.new( aptrust['AwsAccessKeyId'], aptrust['AwsSecretAccessKey'] ) )
-          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
-          s3 = Aws::S3::Resource.new( region: aptrust['BucketRegion'] )
-          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
-          bucket = s3.bucket( aptrust['Bucket'] )
-          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
-          aws_object = bucket.object( File.basename(filename) )
-          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
-          status_history = track_deposit( id: id, status: 'uploading', status_history: status_history )
-          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
-          aws_object.upload_file( filename )
-          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
-          status_history = track_deposit( id: id, status: 'uploaded', status_history: status_history )
-        rescue Aws::S3::Errors::ServiceError => e
-          status_history = track_deposit( id: id, status: 'failed', status_history: status_history, note: "failed in #{e.context} with error #{e}" )
-          ::Deepblue::LoggingHelper.bold_error ["Upload of file #{filename} failed in #{e.context} with error #{e}"] + e.backtrace[0..20]
-          Rails.logger.error "Upload of file #{filename} failed with error #{e}"
-          success = false
-        end
+        upload( filename: filename, id: id, status_history: status_history )
       end
       status_history = track_deposit( id: id, status: 'deposited', status_history: status_history ) if success
       success
@@ -286,7 +257,17 @@ module Aptrust
       return aptrust
     end
 
-    def self.perform_deposit( id, status_history: nil  )
+    def self.peform_deposit( id )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "" ] if aptrust_service_debug_verbose
+      work = find_work( id )
+      uploader = AptrustUploaderForWork.new( work: work )
+      uploader.upload
+    end
+
+    def self.perform_deposit2( id, status_history: nil  )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "id=#{id}",
@@ -379,6 +360,49 @@ module Aptrust
 
     def self.type( work )
       return "#{work.class.name}#{ID_SEP}"
+    end
+
+    def self.upload( filename:, id: 'uknown', status_history: nil  )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "filename=#{filename}",
+                                             "id=#{id}",
+                                             "status_history=#{status_history}",
+                                             "" ], bold_puts: false if aptrust_service_debug_verbose
+      status_history = [] if status_history.nil?
+      success = false
+      begin
+        # add timing
+        aptrust = load_config
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "aptrust['Bucket']=#{aptrust['Bucket']}",
+                                               "aptrust['BucketRegion']=#{aptrust['BucketRegion']}",
+                                               "aptrust['AwsAccessKeyId']=#{aptrust['AwsAccessKeyId']}",
+                                               "aptrust['AwsSecretAccessKey']=#{aptrust['AwsSecretAccessKey']}",
+                                               "" ], bold_puts: false if aptrust_service_debug_verbose
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+        Aws.config.update( credentials: Aws::Credentials.new( aptrust['AwsAccessKeyId'], aptrust['AwsSecretAccessKey'] ) )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+        s3 = Aws::S3::Resource.new( region: aptrust['BucketRegion'] )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+        bucket = s3.bucket( aptrust['Bucket'] )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+        aws_object = bucket.object( File.basename(filename) )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+        status_history = track_deposit( id: id, status: 'uploading', status_history: status_history )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+        aws_object.upload_file( filename )
+        success = true
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+        status_history = track_deposit( id: id, status: 'uploaded', status_history: status_history )
+      rescue Aws::S3::Errors::ServiceError => e
+        status_history = track_deposit( id: id, status: 'failed', status_history: status_history, note: "failed in #{e.context} with error #{e}" )
+        ::Deepblue::LoggingHelper.bold_error ["Upload of file #{filename} failed in #{e.context} with error #{e}"] + e.backtrace[0..20]
+        Rails.logger.error "Upload of file #{filename} failed with error #{e}"
+        success = false
+      end
+      success
     end
 
   end

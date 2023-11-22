@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative './task_logger'
-
 module Deepblue
 
   # see: http://ruby-doc.org/stdlib-2.0.0/libdoc/benchmark/rdoc/Benchmark.html

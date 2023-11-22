@@ -2,7 +2,7 @@
 
 module Deepblue
 
-  require 'tasks/abstract_task'
+  require_relative '../../app/tasks/deepblue/abstract_task'
   require_relative '../../app/services/deepblue/curation_concern_report_behavior'
 
   class CurationConcernReportTask < AbstractTask

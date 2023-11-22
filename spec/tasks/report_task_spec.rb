@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-require_relative "../../lib/tasks/report_task"
+require_relative '../../app/tasks/deepblue/report_task'
 
 RSpec.describe ::Deepblue::ReportTask, skip: false do
 

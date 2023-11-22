@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-require_relative "../../lib/tasks/task_helper"
+require_relative "../../app/helpers/deepblue/task_helper"
 
 RSpec.describe ::Deepblue::TaskHelper, skip: false do
 

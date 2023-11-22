@@ -62,6 +62,41 @@ module Umrdr
       save!( validate: false )
     end
 
+    # def link_file_set( file_set:, force: false )
+    #   return false if file_set.blank?
+    #   if force
+    #     representative = file_set if representative_id
+    #     thumbnail = file_set if thumbnail_id
+    #     return true
+    #   end
+    #   modified = ( representative_id.blank? || thumbnail_id.blank? )
+    #   representative = file_set if representative_id.blank?
+    #   thumbnail = file_set if thumbnail_id.blank?
+    #   return modified
+    # end
+    #
+    # def link_file_set!( file_set:, force: false )
+    #   return if file_set.blank?
+    #   work.save! if link_file_set( file_set: file_set, force: force )
+    # end
+    #
+    # def unlink_file_set( file_set: )
+    #   return if file_set.blank?
+    #   total_file_size_subtract_file_set file_set
+    #   read_me_delete( file_set: file_set )
+    #   fid = file_set_id
+    #   return unless ( thumbnail_id == fid || representative_id == fid || rendering_ids.include?(fid) )
+    #   thumbnail = nil if thumbnail_id == fid
+    #   representative = nil if work.representative_id == fid
+    #   rendering_ids -= [fid]
+    # end
+    #
+    # def unlink_file_set!( file_set: )
+    #   return if file_set.blank?
+    #   unlink_file_set( file_set: file_set )
+    #   work.save!
+    # end
+
   end
 
 end

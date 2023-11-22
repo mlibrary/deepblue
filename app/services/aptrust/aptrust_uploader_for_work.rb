@@ -75,7 +75,7 @@ module Aptrust
       # return false unless monograph.is_a?(Sighrax::Monograph)
     end
 
-    def aptrust_info_work # DBD dependency
+    def aptrust_info_work
       @aptrust_info ||= AptrustInfoFromWork.new( work:             work,
                                                  access:           ai_access,
                                                  creator:          ai_creator,
@@ -85,7 +85,7 @@ module Aptrust
                                                  title:            ai_title ).build
     end
 
-    def aptrust_info_work_write # DBD dependency
+    def aptrust_info_work_write
       aptrust_info_work
       aptrust_info_write( aptrust_info: aptrust_info )
     end
@@ -110,25 +110,34 @@ module Aptrust
       return rv
     end
 
-    def export_work_files( target_dir: ) # DBD dependency
+    def export_work_files( target_dir: )
+      work.metadata_report( dir: target_dir, filename_pre: 'w_' )
+      pop = ::Deepblue::YamlPopulate.new( populate_type: 'work',
+                                          options: { mode: 'bag',
+                                                     target_dir: target_dir,
+                                                     export_files: true } )
+      pop.yaml_bag_work( id: work.id, work: work )
+    end
+
+    def export_work_files2( target_dir: )
       work.metadata_report( dir: target_dir, filename_pre: 'w_' )
       # TODO: import script?
       # TODO: work.import_script( dir: target_dir )
       file_sets = work.file_sets
       do_copy_predicate = ->(target_file_name, _target_file) { export_do_copy?( target_dir, target_file_name ) }
       ::Deepblue::ExportFilesHelper.export_file_sets( target_dir: target_dir,
-                                        file_sets: file_sets,
-                                        log_prefix: '',
-                                        do_export_predicate: do_copy_predicate ) do |target_file_name, target_file|
+                                                      file_sets: file_sets,
+                                                      log_prefix: '',
+                                                      do_export_predicate: do_copy_predicate ) do |target_file_name, target_file|
       end
     end
 
-    def export_data_work( target_dir: ) # DBD dependency
+    def export_data_work( target_dir: )
       path = Pathname.new target_dir
       export_work_files( target_dir: path )
     end
 
-    # def bag_export_work() # DBD dependency
+    # def bag_export_work()
     #   track_deposit( status: 'bagging' )
     #   working_dir ||= dir_working
     #   target_dir = File.join( working_dir, bag_id )
@@ -142,7 +151,7 @@ module Aptrust
     #   target_dir
     # end
 
-    # def deposit_work() # DBD dependency
+    # def deposit_work()
     #   unless allow_deposit?
     #     track_deposit( status: 'skipped' )
     #     return

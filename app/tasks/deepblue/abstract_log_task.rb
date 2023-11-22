@@ -2,8 +2,6 @@
 
 module Deepblue
 
-  require 'tasks/abstract_task'
-
   class AbstractLogTask < AbstractTask
 
     DEFAULT_BEGIN = '' unless const_defined? :DEFAULT_BEGIN

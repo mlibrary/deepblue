@@ -14,7 +14,7 @@ end
 
 module Deepblue
 
-  require_relative 'yaml_populate'
+  require_relative '../../app/tasks/deepblue/yaml_populate'
 
   # see: http://ruby-doc.org/stdlib-2.0.0/libdoc/benchmark/rdoc/Benchmark.html
   require 'benchmark'

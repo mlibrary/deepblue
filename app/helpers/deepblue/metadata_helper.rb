@@ -4,6 +4,8 @@ module Deepblue
 
   module MetadataHelper
 
+    class UnknownMode < ::StandardError; end
+
     mattr_accessor :metadata_helper_debug_verbose, default: false
 
     SOURCE_DBDv1 = 'DBDv1' unless const_defined? :SOURCE_DBDv1 # rubocop:disable Style/ConstantName
@@ -16,11 +18,14 @@ module Deepblue
     HEADER_TYPE_USERS = ':users:' unless const_defined? :HEADER_TYPE_USERS
     HEADER_TYPE_WORKS = ':works:' unless const_defined? :HEADER_TYPE_WORKS
     MODE_APPEND = 'append' unless const_defined? :MODE_APPEND
+    MODE_BAG = 'bag' unless const_defined? :MODE_BAG
     MODE_BUILD = 'build' unless const_defined? :MODE_BUILD
     MODE_MIGRATE = 'migrate' unless const_defined? :MODE_MIGRATE
     PREFIX_COLLECTION = 'c_' unless const_defined? :PREFIX_COLLECTION
     PREFIX_USERS = 'users' unless const_defined? :PREFIX_USERS
     PREFIX_WORK = 'w_' unless const_defined? :PREFIX_WORK
+
+    VALID_MODES = [ MODE_APPEND, MODE_BAG, MODE_BUILD, MODE_MIGRATE ]
 
     ATTRIBUTE_NAMES_ALWAYS_INCLUDE_CC = %w[ admin_set_id
                                             authoremail

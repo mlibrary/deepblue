@@ -1,12 +1,8 @@
 # frozen_string_literal: true
 
-# keywords task_spec
-
 require 'rails_helper'
 
 Rails.application.load_tasks
-
-require_relative '../../lib/tasks/work_find_and_fix_task'
 
 describe "work_find_and_fix.rake" do
 
@@ -14,6 +10,7 @@ describe "work_find_and_fix.rake" do
 
   context "work_find_and_fix" do
 
+    let(:task)     { 'deepblue:work_find_and_fix' }
     let(:options)  { { option: 'an option' } }
     let(:id)       { 'dbdworkid' }
     let(:invoked)  { ::Deepblue::WorkFindAndFixTask.new( id: id, options: options ) }
@@ -25,11 +22,11 @@ describe "work_find_and_fix.rake" do
     end
 
     after do
-      Rake::Task["deepblue:work_find_and_fix"].reenable
+      Rake::Task[task].reenable
     end
 
     it "invokes Deepblue::WorkFindAndFixTask" do
-      Rake::Task["deepblue:work_find_and_fix"].invoke( id, options )
+      Rake::Task[task].invoke( id, options )
     end
 
   end

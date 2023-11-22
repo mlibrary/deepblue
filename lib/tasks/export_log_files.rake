@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'tasks/report_task'
+require_relative '../../app/tasks/deepblue/report_task'
 require 'tasks/export_log_files_task'
 
 namespace :deepblue do
