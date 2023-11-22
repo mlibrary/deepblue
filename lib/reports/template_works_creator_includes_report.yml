@@ -1,21 +1,27 @@
-# works_without_doi_report.yml
+# template_works_creator_includes_report.yml
 ---
 :report:
   :config:
-    :verbose: true
+    :verbose: false
   :output:
     :format: CSV
-    :file: %report_path%%date%.%hostname%.works_without_doi_report_out
+    :file: '%report_path%%date%.%hostname%.works_creator_includes_report'
   :curation_concern: DataSet
   :fields:
     :id             : ID
     :title          : Title
     :depositor      : Depositor
+    :creator        : Creator
     :doi            : DOI
-    :visibility     : Visibility
+    :draft_mode?    : Draft?
     :date_published : Published
+    :data_set_url   : URL
   :field_accessors:
     :visibility:
+      :method:
+    :data_set_url:
+      :method:
+    :draft_mode?:
       :method:
   :field_formats:
     :date_published:
@@ -24,8 +30,8 @@
       :join: ' '
   :filters:
     :include:
-      :doi:
-        :blank:
+      :creator:
+        :contains: 'Heath'
     :exclude:
 #      :doi:
 #        :blank:

@@ -32,7 +32,6 @@
 module Deepblue
 
   require 'open-uri'
-  require_relative 'task_helper'
   require_relative 'yaml_populate'
 
   # see: http://ruby-doc.org/stdlib-2.0.0/libdoc/benchmark/rdoc/Benchmark.html

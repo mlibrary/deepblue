@@ -1,11 +1,8 @@
 # frozen_string_literal: true
 
-require_relative './task_pacifier'
-
 module Deepblue
 
   module TaskReporter
-    require_relative './task_reporter'
 
     attr_accessor :log, :pacifier
 

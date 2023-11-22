@@ -6,7 +6,7 @@ module Deepblue
 
   require 'csv'
   # require 'tasks/abstract_report_task'
-  require_relative './abstract_report_task'
+  require_relative './/../app/tasks/deepblue/abstract_report_task'
 
   class AbstractCurationConcernFilter
 

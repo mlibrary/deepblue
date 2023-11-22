@@ -4,8 +4,7 @@ require 'open-uri'
 
 module Deepblue
 
-  require 'tasks/abstract_task'
-  require_relative 'task_helper'
+  # require 'tasks/abstract_task'
   require_relative '../../app/services/deepblue/yaml_populate_service'
   # see: http://ruby-doc.org/stdlib-2.0.0/libdoc/benchmark/rdoc/Benchmark.html
   require 'benchmark'
@@ -15,7 +14,7 @@ module Deepblue
 
     DEFAULT_CREATE_ZERO_LENGTH_FILES = true
     DEFAULT_EXPORT_FILES = true
-    DEFAULT_MODE = 'build'
+    DEFAULT_MODE = MetadataHelper::MODE_BUILD
     DEFAULT_OVERWRITE_EXPORT_FILES = true
     DEFAULT_TARGET_DIR = "#{::Deepblue::GlobusIntegrationService.globus_upload_dir}"
 
@@ -29,6 +28,7 @@ module Deepblue
       @target_dir = task_options_value( key: 'target_dir', default_value: DEFAULT_TARGET_DIR )
       @export_files = task_options_value( key: 'export_files', default_value: DEFAULT_EXPORT_FILES )
       @mode = task_options_value( key: 'mode', default_value: DEFAULT_MODE )
+      raise UnknownMode.new( "mode: '#{@mode}'" ) unless MetadataHelper::VALID_MODES.include? @mode
       @create_zero_length_files = task_options_value( key: 'create_zero_length_files',
                                                       default_value: DEFAULT_CREATE_ZERO_LENGTH_FILES )
       @overwrite_export_files = task_options_value( key: 'overwrite_export_files',
@@ -149,6 +149,21 @@ module Deepblue
         end
       end
       return measurement
+    end
+
+    def yaml_bag_work( id:, work: nil )
+      @mode = MetadataHelper::MODE_BAG
+      report_puts "Bagging work #{id} to '#{@target_dir}' with export files flag set to #{@export_files}"
+      service = YamlPopulateService.new( mode: @mode,
+                                         create_zero_length_files: @create_zero_length_files,
+                                         overwrite_export_files: @overwrite_export_files )
+      if work.nil?
+        service.yaml_populate_work( curation_concern: id, dir: @target_dir, export_files: @export_files )
+      else
+        service.yaml_populate_work( curation_concern: work, dir: @target_dir, export_files: @export_files )
+      end
+      @populate_ids << id
+      @populate_stats << service.yaml_populate_stats
     end
 
     def yaml_populate_collection( id:, collection: nil )
