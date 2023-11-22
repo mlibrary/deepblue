@@ -2,7 +2,7 @@
 
 module Deepblue
 
-  require 'tasks/abstract_report_task'
+  require_relative '../../app/tasks/deepblue/abstract_report_task'
   require_relative '../../app/services/deepblue/work_impact_reporter'
 
   class WorkImpactReportTask < AbstractReportTask

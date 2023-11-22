@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
-require_relative './abstract_task'
 require_relative '../../app/services/deepblue/find_and_fix_service'
 
 module Deepblue
+
+  require_relative '../../app/tasks/deepblue/abstract_task'
 
   class WorkFindAndFixTask < AbstractTask
 

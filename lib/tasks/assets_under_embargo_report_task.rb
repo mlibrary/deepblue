@@ -16,7 +16,7 @@
 
 module Deepblue
 
-  require 'tasks/abstract_report_task'
+  require_relative '../../app/tasks/deepblue/abstract_report_task'
   require_relative '../../app/helpers/hyrax/embargo_helper'
 
   class AssetsUnderEmbargoReportTask < AbstractReportTask

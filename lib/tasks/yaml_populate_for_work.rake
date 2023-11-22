@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative './yaml_populate_for_work'
+require_relative '../../app/tasks/deepblue/abstract_task'
 
 namespace :deepblue do
 

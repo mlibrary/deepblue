@@ -15,7 +15,6 @@ end
 module Deepblue
 
   require 'open-uri'
-  require_relative 'task_helper'
   require_relative 'yaml_update'
   require 'benchmark'
   include Benchmark

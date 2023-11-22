@@ -17,6 +17,8 @@ require_relative '../../app/helpers/deepblue/job_task_helper'
 
 module Deepblue
 
+  require_relative '../../app/tasks/deepblue/abstract_task'
+
   class RunJobTask < AbstractTask
 
     mattr_accessor :run_job_task_debug_verbose, default: ::Deepblue::JobTaskHelper.run_job_task_debug_verbose

@@ -12,7 +12,7 @@ end
 # rubocop:disable Style/SafeNavigation Style/Semicolon
 module Deepblue
 
-  require 'tasks/abstract_task'
+  require_relative '../../app/tasks/deepblue/abstract_task'
 
   class ReindexWorksWithMismatchingSolrDocs < AbstractTask
 

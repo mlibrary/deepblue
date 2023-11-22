@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative './yaml_populate_for_collection'
+require_relative '../../app/tasks/deepblue/yaml_populate_for_collection'
 
 namespace :deepblue do
 

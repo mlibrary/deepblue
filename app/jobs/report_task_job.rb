@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require_relative '../../lib/tasks/task_logger'
-require_relative '../../lib/tasks/abstract_task'
-require_relative '../../lib/tasks/abstract_report_task'
-require_relative '../../lib/tasks/report_task'
+require_relative '../../app/tasks/deepblue/task_logger'
+require_relative '../../app/tasks/deepblue/abstract_task'
+require_relative '../../app/tasks/deepblue/abstract_report_task'
+require_relative '../../app/tasks/deepblue/report_task'
 
 class ReportTaskJob < ::Hyrax::ApplicationJob
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'tasks/report_task'
+require_relative '../../app/tasks/deepblue/report_task'
 require 'tasks/clean_blacklight_query_cache_task'
 
 namespace :deepblue do

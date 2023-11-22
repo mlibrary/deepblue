@@ -19,7 +19,7 @@ end
 
 module Deepblue
 
-  require 'tasks/abstract_log_task'
+  require_relative '../../app/tasks/deepblue/abstract_log_task'
   require_relative '../../app/services/deepblue/email_log_reporter'
 
   class EmailLogReport < AbstractLogTask

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-require_relative '../../lib/tasks/task_pacifier'
+require_relative '../../app/tasks/deepblue/task_pacifier'
 
 RSpec.describe ::Deepblue::TaskPacifier do
   let( :out ) { double("out") }

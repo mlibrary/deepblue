@@ -15,9 +15,10 @@ describe "doi pending report rake" do
 
   context "task is run" do
 
-    let(:options)  { {} }
-    let(:quiet)    { false }
-    let(:invoked)  { ::Deepblue::DoiPendingReportTask.new( options: options ) }
+    let(:task)        { "deepblue:doi_pending_report" }
+    let(:options)     { {} }
+    let(:quiet)       { false }
+    let(:invoked)     { ::Deepblue::DoiPendingReportTask.new( options: options ) }
     let(:msg_handler) { instance_double(::Deepblue::MessageHandler) }
 
     before do
@@ -43,11 +44,11 @@ describe "doi pending report rake" do
     end
 
     after do
-      Rake::Task["deepblue:doi_pending_report"].reenable
+      Rake::Task[task].reenable
     end
 
     it "invokes Deepblue::DoiPendingReport" do
-      Rake::Task["deepblue:doi_pending_report"].invoke( options )
+      Rake::Task[task].invoke( options )
     end
 
   end

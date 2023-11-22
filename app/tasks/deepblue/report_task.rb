@@ -5,8 +5,6 @@ module Deepblue
   # mattr_accessor :deepblue_report_task_debug_verbose, default: false
 
   require 'csv'
-  # require 'tasks/abstract_report_task'
-  require_relative './abstract_report_task'
 
   class AbstractCurationConcernFilter
 

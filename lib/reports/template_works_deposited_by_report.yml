@@ -1,0 +1,37 @@
+# template_works_deposited_by_report.yml
+---
+:report:
+  :config:
+    :verbose: false
+  :output:
+    :format: CSV
+    :file: '%report_path%%date%.%hostname%.works_deposited_by_report'
+  :curation_concern: DataSet
+  :fields:
+    :id             : ID
+    :title          : Title
+    :depositor      : Depositor
+    :doi            : DOI
+    :visibility     : Visibility
+    :draft_mode?    : Draft?
+    :date_published : Published
+    :data_set_url   : URL
+  :field_accessors:
+    :visibility:
+      :method:
+    :data_set_url:
+      :method:
+    :draft_mode?:
+      :method:
+  :field_formats:
+    :date_published:
+      :date: "%Y-%m-%d %H:%M:%S"
+    :title:
+      :join: ' '
+  :filters:
+    :include:
+      :depositor:
+        :equals: 'jheath@umich.edu'
+    :exclude:
+#      :doi:
+#        :blank:

@@ -2,8 +2,6 @@
 
 module Deepblue
 
-  require_relative '../../../lib/tasks/task_helper'
-
   # rubocop:disable Rails/Output
   class AbstractService
 
@@ -21,6 +19,7 @@ module Deepblue
 
     def initialize( msg_handler:, options: {} )
       @msg_handler = msg_handler
+      @msg_handler ||= MessageHandler.msg_handler_for_task( options: @options )
       @options = task_options_parse options
       if OptionsHelper.error? @options
         @options_error = @options[:error]

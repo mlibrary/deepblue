@@ -3,8 +3,7 @@
 module Deepblue
 
   require 'open-uri'
-  require 'tasks/abstract_task'
-  require 'tasks/task_helper'
+  require_relative '../../app/tasks/deepblue/abstract_task'
   require 'tasks/new_content_service'
   require_relative '../append_content_service'
   require_relative '../build_content_service'

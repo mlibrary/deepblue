@@ -14,7 +14,7 @@ end
 
 module Deepblue
 
-  require 'tasks/abstract_log_task'
+  require_relative '../../app/tasks/deepblue/abstract_log_task'
   require_relative '../../app/services/deepblue/migration_log_reporter'
 
   class MigrationLogReport < AbstractLogTask

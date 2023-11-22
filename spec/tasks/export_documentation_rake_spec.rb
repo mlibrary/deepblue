@@ -7,7 +7,7 @@ require 'rails_helper'
 Rails.application.load_tasks
 
 require_relative '../../app/services/deepblue/work_view_content_service'
-require_relative '../../lib/tasks/yaml_populate_for_collection'
+require_relative '../../app/tasks/deepblue/yaml_populate_for_collection'
 
 describe "export_documentation.rake" do
 

@@ -17,7 +17,7 @@ end
 
 module Deepblue
 
-  require 'tasks/abstract_task'
+  require_relative '../../app/tasks/deepblue/abstract_task'
   require_relative '../../app/helpers/hyrax/embargo_helper'
   require_relative '../../app/services/deepblue/deactivate_expired_embargoes_service'
 

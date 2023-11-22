@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative './active_fedora_indexing_reindex_everything2'
-require_relative './task_logger'
 require_relative '../../app/jobs/hyrax/application_job'
 
 module Deepblue

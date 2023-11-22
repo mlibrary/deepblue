@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative './task_reporter'
 require_relative '../../app/models/concerns/deepblue/abstract_event_behavior'
+require_relative '../../app/tasks/deepblue/task_reporter'
 
 namespace :deepblue do
 
@@ -14,9 +14,10 @@ namespace :deepblue do
     task = Deepblue::UpgradeProvenanceLog.new( input_file: args[:input_file],
                                                output_file: args[:output_file],
                                                report_file: args[:report_file] )
-    task.run
-    task.report_results( to_this: STDOUT )
-    task.report_results
+    if task.run
+      task.report_results( to_this: STDOUT )
+      task.report_results
+    end
   end
 
 end
@@ -185,6 +186,7 @@ module Deepblue
     end
 
     def run
+      return false if input_file.blank? || ouput_file.blank? || report_file.blank?
       log.level = @log_level
       pacifier.active = @pacifier_active
       log.debug "#{self.class.name}.run"
@@ -219,6 +221,7 @@ module Deepblue
         @output_log.flush unless @output_log.nil? # rubocop:disable Style/SafeNavigation
         @output_log.close unless @output_log.nil? # rubocop:disable Style/SafeNavigation
       end
+      return true
     end
 
     protected

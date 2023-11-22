@@ -1,0 +1,54 @@
+# monthly_works_report.yml
+---
+:report:
+  :config:
+    :verbose: false
+  :output:
+    :format: CSV
+    :file: '%report_path%%date%.%hostname%.monthly_works_report'
+  :curation_concern: DataSet
+  :fields:
+
+    :id             : ID
+    :date_create    : Create Date
+    :date_update    : Update Date
+    :date_published : Published Date
+    :depositor      : Depositor
+
+    :author_email   : Author Email
+    :status         : Status
+    :visibility     : Visibility
+    :file_set_count : File set count
+    :work_size      : Work size
+    :work_size_print : Work size print
+    :parent_ids     : Parent IDs
+    :discipline     : Discipline
+    :creator        : Creators
+    :license        : License
+    :license_otehr  : License Other
+    :thumbnail_id   : Thumbnail ID
+    :doi            : DOI
+    :tombstone      : tombstone
+    :citations      : Citations to related material
+
+  :field_accessors:
+    :visibility:
+      :method:
+  :field_formats:
+    :date_created:
+      :date: "%Y-%m-%d %H:%M:%S"
+    :date_published:
+      :date: "%Y-%m-%d %H:%M:%S"
+    :date_updated:
+      :date: "%Y-%m-%d %H:%M:%S"
+    :parent_ids:
+      :join: ' '
+    :creator:
+      :join: '; '
+  :filters:
+    :include:
+#      :depositor:
+#        :equals: 'jheath@umich.edu'
+    :exclude:
+#      :doi:
+#        :blank:

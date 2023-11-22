@@ -1,0 +1,34 @@
+# template_works_creator_includes_report.yml
+---
+:report:
+  :config:
+    :verbose: false
+  :output:
+    :format: CSV
+    :file: '%report_path%%date%.%hostname%.works_creator_includes_report'
+  :curation_concern: Collection
+  :fields:
+    :id             : ID
+    :title          : Title
+    :creator        : Creator
+    :doi            : DOI
+    :date_published : Published
+    :collection_url : URL
+  :field_accessors:
+    :visibility:
+      :method:
+    :collection_url:
+      :method:
+  :field_formats:
+    :date_published:
+      :date: "%Y-%m-%d %H:%M:%S"
+    :title:
+      :join: ' '
+  :filters:
+    :include:
+      :creator:
+        :contains: 'Heath'
+    :exclude:
+#      :doi:
+#        :blank:
+

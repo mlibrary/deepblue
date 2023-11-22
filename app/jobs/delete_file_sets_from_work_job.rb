@@ -113,11 +113,23 @@ class DeleteFileSetsFromWorkJob < ::Deepblue::DeepblueJob
   end
 
   def unlink_from_work( file_set )
+    # if work.responds_to? :unlink_file_set
+    #   work.unlink_file_set( file_set: file_set )
+    # else
+    #   work.total_file_size_subtract_file_set! file_set
+    #   work.read_me_delete( file_set: file_set )
+    #   return unless work && ( work.thumbnail_id == file_set.id ||
+    #     work.representative_id == file_set.id ||
+    #     work.rendering_ids.include?(file_set.id) )
+    #   work.thumbnail = nil if work.thumbnail_id == file_set.id
+    #   work.representative = nil if work.representative_id == file_set.id
+    #   work.rendering_ids -= [file_set.id]
+    # end
     work.total_file_size_subtract_file_set! file_set
     work.read_me_delete( file_set: file_set )
     return unless work && ( work.thumbnail_id == file_set.id ||
-                            work.representative_id == file_set.id ||
-                            work.rendering_ids.include?(file_set.id) )
+      work.representative_id == file_set.id ||
+      work.rendering_ids.include?(file_set.id) )
     work.thumbnail = nil if work.thumbnail_id == file_set.id
     work.representative = nil if work.representative_id == file_set.id
     work.rendering_ids -= [file_set.id]
