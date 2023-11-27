@@ -4,12 +4,12 @@ namespace :deepblue do
 
   desc 'Find all file sets with files that need derivative updates'
   task update_all_work_file_sets: :environment do
-    Deepblue::UpdateAllWorkFileSets.run
+    Deepblue::UpdateAllWorkFileSets.new.run
   end
 
   desc 'Find file sets with files that need derivative updates for the given works'
   task update_work_file_sets: :environment do
-    Deepblue::UpdateWorkFileSets.run
+    Deepblue::UpdateWorkFileSets.new.run
   end
 
 end
@@ -21,14 +21,14 @@ module Deepblue
   require 'logger'
 
   class UpdateAllWorkFileSets
-    def self.run
+    def run
       works = TaskHelper.all_works
       UpdateFileDerivatives.new( works ).run
     end
   end
 
   class UpdateWorkFileSets
-    def self.run
+    def run
       # TODO: pass in the work ids
       works = []
       # works << TaskHelper.work_find( id: '1n79h444s' )

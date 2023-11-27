@@ -14,7 +14,7 @@ module Aptrust
     DEFAULT_EXPORT_DIR     = './aptrust_export'
     DEFAULT_REPOSITORY     = 'UnknownRepo'
     DEFAULT_TYPE           = ''
-    DEFAULT_UPLOAD_CONFIG_FILE = Rails.root.join( 'config', 'aptrust.yml' )
+    DEFAULT_UPLOAD_CONFIG_FILE = Rails.root.join( 'data', 'config', 'aptrust.yml' )
     DEFAULT_WORKING_DIR    = './aptrust_work'
     EXT_TAR                = '.tar'
     IDENTIFIER_TEMPLATE    = "%repository%.%context%%type%%id%"
