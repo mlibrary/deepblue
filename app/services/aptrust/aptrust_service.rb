@@ -244,7 +244,7 @@ module Aptrust
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ], bold_puts: false if aptrust_service_debug_verbose
-      aptrust_yaml = Rails.root.join('config', 'aptrust.yml')
+      aptrust_yaml = Rails.root.join( 'data', 'config', 'aptrust.yml')
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "aptrust_yaml=#{aptrust_yaml}",

@@ -4,12 +4,12 @@ namespace :deepblue do
 
   desc 'Update generic works to include total file size'
   task update_works: :environment do
-    Deepblue::UpdateWorks.run
+    Deepblue::UpdateWorks.new.run
   end
 
   desc 'Update single generic work to include total file size'
   task update_work: :environment do
-    Deepblue::UpdateWork.run
+    Deepblue::UpdateWork.new.run
   end
 
 end
@@ -17,7 +17,7 @@ end
 module Deepblue
 
   class UpdateWork
-    def self.run
+    def run
       # TODO: pass in the work ids
       all_works = []
       all_works << TaskHelper.work_find( id: '1n79h444s' )
@@ -28,7 +28,7 @@ module Deepblue
   end
 
   class UpdateWorks
-    def self.run
+    def run
       all_works = TaskHelper.all_works
       UpdateWorksTotalFileSizes.new( all_works ).run
     end
