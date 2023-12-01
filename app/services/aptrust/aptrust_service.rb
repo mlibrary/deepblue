@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-module Aptrust
+require_relative './aptrust'
 
-  # TODO: tracking of status of deposit
+module Aptrust
 
   class AptrustService
 

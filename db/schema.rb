@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_09_05_155609) do
+ActiveRecord::Schema.define(version: 2023_11_28_155844) do
 
   create_table "ahoy_condensed_events", force: :cascade do |t|
     t.string "name"
@@ -78,6 +78,32 @@ ActiveRecord::Schema.define(version: 2023_09_05_155609) do
     t.index ["download_key"], name: "index_anonymous_links_on_download_key"
     t.index ["item_id"], name: "index_anonymous_links_on_item_id"
     t.index ["path"], name: "index_anonymous_links_on_path"
+  end
+
+  create_table "aptrust_events", force: :cascade do |t|
+    t.datetime "timestamp", null: false
+    t.string "event", null: false
+    t.string "event_note"
+    t.string "noid", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "aptrust_status_id"
+    t.index ["aptrust_status_id"], name: "index_aptrust_events_on_aptrust_status_id"
+    t.index ["event"], name: "index_aptrust_events_on_event"
+    t.index ["noid"], name: "index_aptrust_events_on_noid"
+    t.index ["timestamp"], name: "index_aptrust_events_on_timestamp"
+  end
+
+  create_table "aptrust_statuses", force: :cascade do |t|
+    t.datetime "timestamp", null: false
+    t.string "event", null: false
+    t.text "event_note"
+    t.string "noid", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event"], name: "index_aptrust_statuses_on_event"
+    t.index ["noid"], name: "index_aptrust_statuses_on_noid"
+    t.index ["timestamp"], name: "index_aptrust_statuses_on_timestamp"
   end
 
   create_table "bookmarks", force: :cascade do |t|

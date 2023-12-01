@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
+require_relative './aptrust'
+
 module Aptrust
+
+  include Aptrust
 
   class AptrustUploaderForWork < AptrustUploader
 
