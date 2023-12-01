@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
+require_relative './aptrust'
+
 module Aptrust
 
   class AptrustUploader
 
-    # include AptrustBehavior
+    mattr_accessor :aptrust_uploader_debug_verbose, default: true
 
     ALLOW_DEPOSIT          = true
     BAG_FILE_APTRUST_INFO  = 'aptrust-info.txt'
@@ -18,21 +20,6 @@ module Aptrust
     DEFAULT_WORKING_DIR    = './aptrust_work'
     EXT_TAR                = '.tar'
     IDENTIFIER_TEMPLATE    = "%repository%.%context%%type%%id%"
-
-    def self.arg_init( attr, default )
-      attr ||= default
-      return attr
-    end
-
-    def self.arg_init_squish(attr, default, squish: 255 )
-      attr ||= default
-      if attr.blank? && squish.present?
-        attr = ''
-      else
-        attr = attr.squish[0..squish]
-      end
-      return attr
-    end
 
     def self.bag_date_now()
       rv = Time.now.utc.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -121,25 +108,25 @@ module Aptrust
 
       @bag                 = bag
       @bag_info            = bag_info
-      @bi_date             = AptrustBehavior.arg_init_squish( bi_date,        AptrustUploader.bag_date_now )
-      @bi_description      = AptrustBehavior.arg_init_squish( bi_description, DEFAULT_BI_DESCRIPTION )
-      @bi_id               = AptrustBehavior.arg_init_squish( bi_id,          @object_id )
-      @bi_source           = AptrustBehavior.arg_init_squish( bi_source,      DEFAULT_BI_SOURCE )
+      @bi_date             = Aptrust.arg_init_squish( bi_date,        AptrustUploader.bag_date_now )
+      @bi_description      = Aptrust.arg_init_squish( bi_description, DEFAULT_BI_DESCRIPTION )
+      @bi_id               = Aptrust.arg_init_squish( bi_id,          @object_id )
+      @bi_source           = Aptrust.arg_init_squish( bi_source,      DEFAULT_BI_SOURCE )
 
       @bag_id              = bag_id
-      @bag_id_context      = AptrustBehavior.arg_init_squish( bag_id_context,    DEFAULT_CONTEXT )
-      @bag_id_repository   = AptrustBehavior.arg_init_squish( bag_id_repository, DEFAULT_REPOSITORY )
-      @bag_id_type         = AptrustBehavior.arg_init_squish( bag_id_type,       DEFAULT_TYPE )
+      @bag_id_context      = Aptrust.arg_init_squish( bag_id_context,    DEFAULT_CONTEXT )
+      @bag_id_repository   = Aptrust.arg_init_squish( bag_id_repository, DEFAULT_REPOSITORY )
+      @bag_id_type         = Aptrust.arg_init_squish( bag_id_type,       DEFAULT_TYPE )
 
       @export_by_closure   = export_by_closure
       @export_copy_src     = export_copy_src
       @export_src_dir      = export_src_dir
 
-      @export_dir          = AptrustBehavior.arg_init( export_dir,  DEFAULT_EXPORT_DIR )
-      @working_dir         = AptrustBehavior.arg_init( working_dir, DEFAULT_WORKING_DIR )
+      @export_dir          = Aptrust.arg_init( export_dir,  DEFAULT_EXPORT_DIR )
+      @working_dir         = Aptrust.arg_init( working_dir, DEFAULT_WORKING_DIR )
 
       @upload_config       = upload_config
-      @upload_config_file  = AptrustBehavior.arg_init( upload_config_file, DEFAULT_UPLOAD_CONFIG_FILE )
+      @upload_config_file  = Aptrust.arg_init( upload_config_file, DEFAULT_UPLOAD_CONFIG_FILE )
     end
 
     def additional_tag_files
@@ -218,12 +205,16 @@ module Aptrust
     end
 
     def bag_export
-      track( status: 'bagging' )
+      track( status: EVENT_BAGGING )
       bag.write_bag_info( bag_info ) # Create bagit-info.txt file
       aptrust_info_write
-      export_data
-      bag_manifest
-      track( status: 'bagged', note: "bag_dir: #{bag_dir}" )
+      status = export_data
+      if status == EVENT_EXPORTED
+        bag_manifest
+        track( status: EVENT_BAGGED, note: "bag_dir: #{bag_dir}" )
+        return EVENT_BAGGED
+      end
+      return export_status
     end
 
     def bag_manifest
@@ -252,8 +243,12 @@ module Aptrust
 
     def bag_upload
       if !allow_deposit?
-        track( status: 'upload_skipped', note: 'allow_deposit? returned false' )
+        track( status: EVENT_UPLOAD_SKIPPED, note: 'allow_deposit? returned false' )
         return false
+      end
+      if DEBUG_ASSUME_UPLOAD_SUCCEEDS
+        track( status: EVENT_UPLOAD, note: 'DEBUG_ASSUME_UPLOAD_SUCCEEDS is true' )
+        return true
       end
       begin
         # TODO: add timing
@@ -265,16 +260,84 @@ module Aptrust
         # filename = tar_filename
         # aws_object = bucket.object( File.basename(filename) )
         aws_object = bucket.object( tar_filename )
-        track( status: 'uploading' )
+        track( status: EVENT_UPLOADING )
         filename = File.join( export_dir, tar_filename )
         aws_object.upload_file( filename )
-        track( status: 'uploaded' )
+        track( status: EVENT_UPLOADED )
         return true
       rescue Aws::S3::Errors::ServiceError => e
-        track( status: 'failed', note: "failed in #{e.context} with error #{e}" )
+        track( status: EVENT_FAILED, note: "failed in #{e.context} with error #{e}" )
         # TODO: Rails.logger.error "Upload of file #{filename} failed with error #{e}"
         return false
       end
+    end
+
+    def bag_upload2( upload_file: )
+      begin
+        # TODO: add timing
+        aptrust = upload_config
+        Aws.config.update( credentials: Aws::Credentials.new( aptrust['AwsAccessKeyId'],
+                                                              aptrust['AwsSecretAccessKey'] ) )
+        s3 = Aws::S3::Resource.new( region: aptrust['BucketRegion'] )
+        bucket = s3.bucket( aptrust['Bucket'] )
+        # filename = tar_filename
+        # aws_object = bucket.object( File.basename(filename) )
+        aws_object = bucket.object( upload_file )
+        track( status: EVENT_UPLOADING )
+        filename = File.join( export_dir, tar_filename )
+        aws_object.upload_file( filename )
+        track( status: EVENT_UPLOADED )
+        return true
+      rescue Aws::S3::Errors::ServiceError => e
+        track( status: EVENT_FAILED, note: "failed in #{e.context} with error #{e}" )
+        # TODO: Rails.logger.error "Upload of file #{filename} failed with error #{e}"
+        return false
+      end
+    end
+
+    # TODO: review this for references to static methods
+    def upload2( filename:, id: 'uknown' )
+      @id ||= id
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "filename=#{filename}",
+                                             "id=#{id}",
+                                             "" ], bold_puts: false if aptrust_uploader_debug_verbose
+      success = false
+      track( status: EVENT_DEPOSITING )
+      begin
+        # add timing
+        aptrust = upload_config
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "aptrust['Bucket']=#{aptrust['Bucket']}",
+                                               "aptrust['BucketRegion']=#{aptrust['BucketRegion']}",
+                                               "aptrust['AwsAccessKeyId']=#{aptrust['AwsAccessKeyId']}",
+                                               "aptrust['AwsSecretAccessKey']=#{aptrust['AwsSecretAccessKey']}",
+                                               "" ], bold_puts: false if aptrust_uploader_debug_verbose
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+        Aws.config.update( credentials: Aws::Credentials.new( aptrust['AwsAccessKeyId'], aptrust['AwsSecretAccessKey'] ) )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+        s3 = Aws::S3::Resource.new( region: aptrust['BucketRegion'] )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+        bucket = s3.bucket( aptrust['Bucket'] )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+        aws_object = bucket.object( File.basename(filename) )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+        track( status: EVENT_UPLOADING )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+        aws_object.upload_file( filename )
+        success = true
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+        track( status: EVENT_UPLOADED )
+        track( status: EVENT_DEPOSITED )
+      rescue Aws::S3::Errors::ServiceError => e
+        track( status: EVENT_FAILED, note: "failed in #{e.context} with error #{e}" )
+        ::Deepblue::LoggingHelper.bold_error ["Upload of file #{filename} failed in #{e.context} with error #{e}"] + e.backtrace[0..20]
+        Rails.logger.error "Upload of file #{filename} failed with error #{e}"
+        success = false
+      end
+      success
     end
 
     def bag_dir
@@ -283,11 +346,12 @@ module Aptrust
 
     def deposit()
       begin
-        track( status: 'depositing' )
-        bag_export
-        bag_tar
-        if bag_upload
-          track( status: 'deposited' )
+        track( status: EVENT_DEPOSITING )
+        status = bag_export
+        if status == EVENT_BAGGED
+          bag_tar
+          bag_upload
+          track( status: EVENT_DEPOSITED )
           # TODO: delete untarred files
         end
       rescue StandardError => e
@@ -297,12 +361,30 @@ module Aptrust
     end
 
     def export_data()
-      track( status: 'exporting' )
-      export_data_by_closure unless export_by_closure.nil?
-      export_data_by_copy if export_copy_src
-      export_data_by_move if export_move_src
-      track( status: 'exported' )
-    end
+      track( status: EVENT_EXPORTING )
+      status_note = nil
+      begin # until true for break
+        unless export_by_closure.nil?
+          export_data_by_closure
+          status = EVENT_EXPORTED
+          break
+        end
+        if export_copy_src
+          export_data_by_copy
+          status = EVENT_EXPORTED
+          break
+        end
+        if export_move_src
+          export_data_by_move
+          status = EVENT_EXPORTED
+          break
+        end
+        status = EVENT_EXPORT_FAILED
+        status_note = 'no export method defined'
+      end until true
+      track( status: EVENT_EXPORTED, note: status_note )
+      return status
+   end
 
     def export_data_by_closure # DBD dependency
       return if export_by_closure.nil?
@@ -338,9 +420,9 @@ module Aptrust
       parent = File.dirname bag.bag_dir
       Dir.chdir( parent ) do
         tar_src = File.basename bag.bag_dir
-        track( status: 'packing' )
+        track( status: EVENT_PACKING )
         Minitar.pack( tar_src, File.open( tar_filename, 'wb') )
-        track( status: 'packed' )
+        track( status: EVENT_PACKED )
       end
     end
 

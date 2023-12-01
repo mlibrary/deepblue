@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative './aptrust'
+
 module Aptrust
 
   class AptrustInfo
@@ -25,12 +27,12 @@ module Aptrust
                     storage_option: nil,
                     title: nil )
 
-      @access           = AptrustBehavior.arg_init_squish( access,           DEFAULT_ACCESS )
-      @creator          = AptrustBehavior.arg_init_squish( creator,          DEFAULT_CREATOR )
-      @description      = AptrustBehavior.arg_init_squish( description,      DEFAULT_DESCRIPTION )
-      @item_description = AptrustBehavior.arg_init_squish( item_description, DEFAULT_ITEM_DESCRIPTION )
-      @storage_option   = AptrustBehavior.arg_init_squish( storage_option,   DEFAULT_STORAGE_OPTION )
-      @title            = AptrustBehavior.arg_init_squish( title,            DEFAULT_TITLE )
+      @access           = Aptrust.arg_init_squish( access,           DEFAULT_ACCESS )
+      @creator          = Aptrust.arg_init_squish( creator,          DEFAULT_CREATOR )
+      @description      = Aptrust.arg_init_squish( description,      DEFAULT_DESCRIPTION )
+      @item_description = Aptrust.arg_init_squish( item_description, DEFAULT_ITEM_DESCRIPTION )
+      @storage_option   = Aptrust.arg_init_squish( storage_option,   DEFAULT_STORAGE_OPTION )
+      @title            = Aptrust.arg_init_squish( title,            DEFAULT_TITLE )
     end
 
     def build
