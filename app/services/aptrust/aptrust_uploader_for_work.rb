@@ -4,8 +4,6 @@ require_relative './aptrust'
 
 module Aptrust
 
-  include Aptrust
-
   class AptrustUploaderForWork < AptrustUploader
 
     mattr_accessor :aptrust_service_allow_deposit, default: true

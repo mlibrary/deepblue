@@ -6,7 +6,7 @@ module Aptrust
 
     DEBUG_ASSUME_UPLOAD_SUCCEEDS = true
 
-    STATUS_IN_DB = false
+    STATUS_IN_DB = true
 
     EVENT_BAGGED          = 'bagged'
     EVENT_BAGGING         = 'bagging'

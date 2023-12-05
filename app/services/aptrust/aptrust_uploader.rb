@@ -247,7 +247,7 @@ module Aptrust
         return false
       end
       if DEBUG_ASSUME_UPLOAD_SUCCEEDS
-        track( status: EVENT_UPLOAD, note: 'DEBUG_ASSUME_UPLOAD_SUCCEEDS is true' )
+        track( status: EVENT_UPLOADED, note: 'DEBUG_ASSUME_UPLOAD_SUCCEEDS is true' )
         return true
       end
       begin
