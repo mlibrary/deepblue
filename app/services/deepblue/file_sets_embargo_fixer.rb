@@ -38,7 +38,7 @@ module Deepblue
         curation_concern.metadata_touch
         add_id_fixed curation_concern.id
         msg_verbose "FileSet #{curation_concern.id} parent work #{parent.id} updating embargo."
-      elsif parent.embargo&embargo_release_date.present?
+      elsif parent&.embargo&.embargo_release_date.present?
         apply_embargo( curation_concern )
         curation_concern.metadata_touch
         add_id_fixed curation_concern.id
