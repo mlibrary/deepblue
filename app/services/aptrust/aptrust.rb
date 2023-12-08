@@ -8,6 +8,8 @@ module Aptrust
 
     STATUS_IN_DB = true
 
+    DEFAULT_UPLOAD_CONFIG_FILE = Rails.root.join( 'data', 'config', 'aptrust.yml' )
+
     EVENT_BAGGED          = 'bagged'
     EVENT_BAGGING         = 'bagging'
     EVENT_DEPOSIT_SKIPPED = 'deposit_skipped'

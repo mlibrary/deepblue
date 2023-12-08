@@ -66,7 +66,6 @@ module Aptrust
              bag_id_type:        'DataSet.',
              export_dir:         AptrustUploaderForWork.dbd_export_dir,
              working_dir:        AptrustUploaderForWork.dbd_working_dir,
-             upload_config_file: Rails.root.join( 'config', 'aptrust.yml' ),
              bi_description:     AptrustUploaderForWork.dbd_bag_description( work: work ) )
       @work = work
       @export_by_closure = ->(target_dir) { export_data_work( target_dir: target_dir ) }

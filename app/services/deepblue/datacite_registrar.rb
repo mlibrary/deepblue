@@ -238,7 +238,16 @@ module Deepblue
                                              "" ] if debug_verbose
       # 1. Add metadata to the DOI (or update it)
       # TODO: check that required metadata is present if current DOI record is registered or findable OR handle error?
-      client.put_metadata(doi, cc_to_datacite_xml(curation_concern)) if put_metadata
+      if put_metadata
+        datacite_xml = cc_to_datacite_xml(curation_concern)
+        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+        #                                        ::Deepblue::LoggingHelper.called_from,
+        #                                        "curation_concern=#{curation_concern.id}",
+        #                                        "doi=#{doi}",
+        #                                        "datacite_xml=#{datacite_xml}",
+        #                                        "" ] if debug_verbose
+        client.put_metadata(doi, datacite_xml)
+      end
       doi_findable = doi_findable?(curation_concern)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -296,10 +305,22 @@ module Deepblue
     def cc_to_datacite_xml(curation_concern)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "curation_concern=#{curation_concern}",
+                                             "curation_concern.id=#{curation_concern.id}",
                                              "" ], bold_puts: debug_verbose_puts if debug_verbose
-      Bolognese::Metadata.new(input: curation_concern.attributes.merge(has_model: curation_concern.has_model.first, publisher: self.publisher).to_json,
-                              from: 'hyrax_work').datacite
+      json = curation_concern.attributes.merge(has_model: curation_concern.has_model.first,
+                                               publisher: self.publisher).to_json
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "curation_concern=#{curation_concern.id}",
+                                             "json=#{json}",
+                                             "" ], bold_puts: debug_verbose_puts if debug_verbose
+      rv = Bolognese::Metadata.new( input: json, from: 'hyrax_work' ).datacite
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "curation_concern=#{curation_concern.id}",
+                                             "rv=#{rv}",
+                                             "" ], bold_puts: debug_verbose_puts if debug_verbose
+      return rv
     end
 
     def doi_hide_cc( curation_concern: )
