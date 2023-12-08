@@ -61,6 +61,4 @@ module McommunityHelper
     return obj['person']['affiliation'].join('; ')
   end 
 
-
-
 end

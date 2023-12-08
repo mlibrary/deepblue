@@ -56,7 +56,9 @@ module Bolognese
         # TODO: Map work.resource_type or work.
         resource_type_general = "Other"
         hyrax_resource_type = meta.fetch('has_model', nil) || "Work"
+        hyrax_resource_type = hyrax_resource_type[0] if hyrax_resource_type.is_a? Array
         resource_type = meta.fetch('resource_type', nil).presence || hyrax_resource_type
+        resource_type = resource_type[0] if resource_type.is_a? Array
         {
           "resourceTypeGeneral" => resource_type_general,
           "resourceType" => resource_type,

@@ -16,7 +16,6 @@ module Aptrust
     DEFAULT_EXPORT_DIR     = './aptrust_export'
     DEFAULT_REPOSITORY     = 'UnknownRepo'
     DEFAULT_TYPE           = ''
-    DEFAULT_UPLOAD_CONFIG_FILE = Rails.root.join( 'data', 'config', 'aptrust.yml' )
     DEFAULT_WORKING_DIR    = './aptrust_work'
     EXT_TAR                = '.tar'
     IDENTIFIER_TEMPLATE    = "%repository%.%context%%type%%id%"
@@ -28,6 +27,9 @@ module Aptrust
     end
 
     attr_accessor :additional_tag_files
+
+    attr_accessor :aptrust_config
+    attr_accessor :aptrust_config_file
 
     attr_accessor :aptrust_info
     attr_accessor :ai_access
@@ -60,10 +62,10 @@ module Aptrust
     attr_accessor :export_dir
     attr_accessor :working_dir
 
-    attr_accessor :upload_config
-    attr_accessor :upload_config_file
-
     def initialize( object_id:,
+
+                    aptrust_config:      nil,
+                    aptrust_config_file: nil, # ignored if aptrust_config is defined
 
                     aptrust_info:        nil,
                     ai_access:           nil, # ignored if aptrust_info is defined
@@ -90,13 +92,22 @@ module Aptrust
                     export_src_dir:      nil,
 
                     export_dir:          nil,
-                    working_dir:         nil,
+                    working_dir:         nil
 
-                    upload_config:       nil,
-                    upload_config_file:  nil # ignored if upload_config is defined
                     )
 
       @object_id           = object_id
+
+      @aptrust_config      = aptrust_config
+      @aptrust_config_file = aptrust_config_file
+
+      if @aptrust_config.blank?
+        @aptrust_config = if @aptrust_config_file.present?
+                            AptrustConfig.new( filename: @aptrust_config_filename )
+                          else
+                            AptrustConfig.new
+                          end
+      end
 
       @aptrust_info        = aptrust_info
       @ai_access           = ai_access
@@ -124,9 +135,6 @@ module Aptrust
 
       @export_dir          = Aptrust.arg_init( export_dir,  DEFAULT_EXPORT_DIR )
       @working_dir         = Aptrust.arg_init( working_dir, DEFAULT_WORKING_DIR )
-
-      @upload_config       = upload_config
-      @upload_config_file  = Aptrust.arg_init( upload_config_file, DEFAULT_UPLOAD_CONFIG_FILE )
     end
 
     def additional_tag_files
@@ -252,11 +260,11 @@ module Aptrust
       end
       begin
         # TODO: add timing
-        aptrust = upload_config
-        Aws.config.update( credentials: Aws::Credentials.new( aptrust['AwsAccessKeyId'],
-                                                              aptrust['AwsSecretAccessKey'] ) )
-        s3 = Aws::S3::Resource.new( region: aptrust['BucketRegion'] )
-        bucket = s3.bucket( aptrust['Bucket'] )
+        config = aptrust_config
+        Aws.config.update( credentials: Aws::Credentials.new( config.aws_access_key_id,
+                                                              config.aws_secret_access_key ) )
+        s3 = Aws::S3::Resource.new( region: config.bucket_region )
+        bucket = s3.bucket( config.bucket )
         # filename = tar_filename
         # aws_object = bucket.object( File.basename(filename) )
         aws_object = bucket.object( tar_filename )
@@ -275,11 +283,11 @@ module Aptrust
     def bag_upload2( upload_file: )
       begin
         # TODO: add timing
-        aptrust = upload_config
-        Aws.config.update( credentials: Aws::Credentials.new( aptrust['AwsAccessKeyId'],
-                                                              aptrust['AwsSecretAccessKey'] ) )
-        s3 = Aws::S3::Resource.new( region: aptrust['BucketRegion'] )
-        bucket = s3.bucket( aptrust['Bucket'] )
+        config = aptrust_config
+        Aws.config.update( credentials: Aws::Credentials.new( config.aws_access_key_id,
+                                                              config.aws_secret_access_key ) )
+        s3 = Aws::S3::Resource.new( region: config.bucket_region )
+        bucket = s3.bucket( config.bucket )
         # filename = tar_filename
         # aws_object = bucket.object( File.basename(filename) )
         aws_object = bucket.object( upload_file )
@@ -307,20 +315,20 @@ module Aptrust
       track( status: EVENT_DEPOSITING )
       begin
         # add timing
-        aptrust = upload_config
+        config = aptrust_config
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "aptrust['Bucket']=#{aptrust['Bucket']}",
-                                               "aptrust['BucketRegion']=#{aptrust['BucketRegion']}",
-                                               "aptrust['AwsAccessKeyId']=#{aptrust['AwsAccessKeyId']}",
-                                               "aptrust['AwsSecretAccessKey']=#{aptrust['AwsSecretAccessKey']}",
+                                               "config.bucket=#{config.bucket}",
+                                               "config.bucket_region=#{config.bucket_region}",
+                                               "config.aws_access_key_id=#{config.aws_access_key_id}",
+                                               "config.aws_secret_access_key=#{config.aws_secret_access_key}",
                                                "" ], bold_puts: false if aptrust_uploader_debug_verbose
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
-        Aws.config.update( credentials: Aws::Credentials.new( aptrust['AwsAccessKeyId'], aptrust['AwsSecretAccessKey'] ) )
+        Aws.config.update( credentials: Aws::Credentials.new( config.aws_access_key_id, config.aws_secret_access_key ) )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
-        s3 = Aws::S3::Resource.new( region: aptrust['BucketRegion'] )
+        s3 = Aws::S3::Resource.new( region: config.bucket_region )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
-        bucket = s3.bucket( aptrust['Bucket'] )
+        bucket = s3.bucket( config.bucket )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
         aws_object = bucket.object( File.basename(filename) )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
@@ -446,16 +454,6 @@ module Aptrust
 
     def upload
       deposit
-    end
-
-    def upload_config
-      @aptrust_upload_config ||= upload_config_load
-    end
-
-    def upload_config_load
-      aptrust_yaml = upload_config_file
-      aptrust = YAML.safe_load( File.read( aptrust_yaml ) )
-      return aptrust
     end
 
   end
