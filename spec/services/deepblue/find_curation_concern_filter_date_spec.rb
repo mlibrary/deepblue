@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Deepblue::FindAndFixCurationConcernFilterDate, skip: false do
+RSpec.describe Deepblue::FindCurationConcernFilterDate, skip: false do
 
   describe 'filters' do
     let(:begin_date)    { 'now - 7 days' }

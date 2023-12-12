@@ -58,11 +58,12 @@ module Aptrust
 
     attr_accessor :work
 
-    def initialize( work: nil )
+    def initialize( work: nil, msg_handler: nil )
       super( object_id:          work.id,
+             msg_handler:        msg_handler,
              aptrust_info:       AptrustInfoFromWork.new( work: work ),
-             bag_id_context:     aptrust_service_deposit_context,
-             bag_id_repository:  aptrust_service_deposit_repository,
+             #bag_id_context:     aptrust_service_deposit_context,
+             #bag_id_repository:  aptrust_service_deposit_repository,
              bag_id_type:        'DataSet.',
              export_dir:         AptrustUploaderForWork.dbd_export_dir,
              working_dir:        AptrustUploaderForWork.dbd_working_dir,
