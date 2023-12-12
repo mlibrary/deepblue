@@ -8,6 +8,20 @@ module Aptrust
 
     mattr_accessor :aptrust_uplaoder_status_debug_verbose, default: false
 
+    def self.clean_database!
+      if Rails.env.production?
+        Aptrust::Event.delete_all
+        #ActiveRecord::Base.connection.reset_pk_sequence!(:aptrust_events)
+        #ActiveRecord::Base.connection.reset_sequence!(:aptrust_events)
+        Aptrust::Status.delete_all
+        #ActiveRecord::Base.connection.reset_pk_sequence!(:aptrust_statuses)
+        #ActiveRecord::Base.connection.reset_sequence!(:aptrust_statuses)
+      else
+        ActiveRecord::Base.connection.truncate(:aptrust_events)
+        ActiveRecord::Base.connection.truncate(:aptrust_statuses)
+      end
+    end
+
     attr_accessor :status_history
     attr_accessor :status
     attr_accessor :id

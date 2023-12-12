@@ -62,8 +62,8 @@ module Deepblue
                                "" ] if debug_verbose
       filter_date = nil
       if filter_date_begin.present? || filter_date_end.present?
-        filter_date = FindAndFixCurationConcernFilterDate.new( begin_date: filter_date_begin,
-                                                               end_date: filter_date_end )
+        filter_date = FindCurationConcernFilterDate.new(begin_date: filter_date_begin,
+                                                        end_date: filter_date_end )
         msg_handler.msg "Filter dates between #{filter_date.begin_date} and #{filter_date.end_date}."
       end
       fixer = FindAndFix.new( filter: filter_date, msg_handler: msg_handler )

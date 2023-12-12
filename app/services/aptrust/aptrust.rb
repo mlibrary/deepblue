@@ -22,9 +22,11 @@ module Aptrust
     EVENT_PACKED          = 'packed'
     EVENT_PACKING         = 'packing'
     EVENT_UPLOAD_SKIPPED  = 'upload_skipped'
-    EVENT_UPLOADED        = 'uploading'
+    EVENT_UPLOADED        = 'uploaded'
     EVENT_UPLOADING       = 'uploading'
     EVENT_UNKNOWN         = 'uknown'
+    EVENT_VERIFIED        = 'verified'
+    EVENT_VERIFYING       = 'verifying'
 
     VALID_EVENTS = [ EVENT_BAGGED,
                      EVENT_BAGGING,
@@ -40,7 +42,9 @@ module Aptrust
                      EVENT_UPLOAD_SKIPPED,
                      EVENT_UPLOADED,
                      EVENT_UPLOADING,
-                     EVENT_UNKNOWN ]
+                     EVENT_UNKNOWN,
+                     EVENT_VERIFIED,
+                     EVENT_VERIFYING ]
 
     def self.arg_init( attr, default )
         attr ||= default

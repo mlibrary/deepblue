@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-class Deepblue::FindAndFixCurationConcernFilterDate
+module Deepblue
+
+class FindCurationConcernFilterDate < AbstractFindCurationConcern
 
   attr_reader :begin_date, :end_date
 
@@ -90,3 +92,4 @@ class Deepblue::FindAndFixCurationConcernFilterDate
 
 end
 
+end
