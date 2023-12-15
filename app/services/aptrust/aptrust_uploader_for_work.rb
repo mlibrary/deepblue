@@ -6,9 +6,9 @@ module Aptrust
 
   class AptrustUploaderForWork < AptrustUploader
 
-    mattr_accessor :aptrust_service_allow_deposit, default: true
-    mattr_accessor :aptrust_service_deposit_context, default: "" # none for DBD
-    mattr_accessor :aptrust_service_deposit_repository, default: "deepbluedata"
+    mattr_accessor :aptrust_service_allow_deposit,      default: true
+    mattr_accessor :aptrust_service_deposit_context,    default: '' # none for DBD
+    mattr_accessor :aptrust_service_deposit_repository, default: 'deepbluedata'
 
     def self.dbd_bag_description( work: )
       "Bag of a #{work.class.name} hosted at deepblue.lib.umich.edu/data/" # TODO: improve this, or move to config

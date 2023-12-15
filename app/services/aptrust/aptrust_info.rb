@@ -6,12 +6,12 @@ module Aptrust
 
   class AptrustInfo
 
-    DEFAULT_ACCESS = 'Institution'
-    DEFAULT_CREATOR = ''
-    DEFAULT_DESCRIPTION = 'No description.'
-    DEFAULT_ITEM_DESCRIPTION = 'No item description.'
-    DEFAULT_STORAGE_OPTION = 'Standard'
-    DEFAULT_TITLE = 'No Title'
+    DEFAULT_ACCESS           = 'Institution'          unless const_defined? :DEFAULT_ACCESS
+    DEFAULT_CREATOR          = ''                     unless const_defined? :DEFAULT_CREATOR
+    DEFAULT_DESCRIPTION      = 'No description.'      unless const_defined? :DEFAULT_DESCRIPTION
+    DEFAULT_ITEM_DESCRIPTION = 'No item description.' unless const_defined? :DEFAULT_ITEM_DESCRIPTION
+    DEFAULT_STORAGE_OPTION   = 'Standard'             unless const_defined? :DEFAULT_STORAGE_OPTION
+    DEFAULT_TITLE            = 'No Title'             unless const_defined? :DEFAULT_TITLE
 
     attr_accessor :access
     attr_accessor :creator

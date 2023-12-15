@@ -10,22 +10,50 @@ module Aptrust
 
     mattr_accessor :test_mode, default: true
 
-    FILTER_DEFAULT = AptrustFilterWork.new
+    FILTER_DEFAULT = AptrustFilterWork.new unless const_defined? :FILTER_DEFAULT
 
+    attr_accessor :clean_up_after_deposit
+    attr_accessor :debug_assume_upload_succeeds
     attr_accessor :debug_verbose
     attr_accessor :filter
     attr_accessor :max_upload_jobs
+    attr_accessor :max_uploads
     attr_accessor :msg_handler
 
-    def initialize( filter: nil, msg_handler: nil, debug_verbose: aptrust_find_and_upload_debug_verbose  )
+    attr_accessor :upload_count
+
+    def initialize( clean_up_after_deposit: ::Aptrust::AptrustUploader::CLEAN_UP_AFTER_DEPOSIT,
+                    debug_assume_upload_succeeds: false,
+                    filter: nil,
+                    max_upload_jobs: 1,
+                    max_uploads: -1,
+                    msg_handler: nil,
+                    debug_verbose: aptrust_find_and_upload_debug_verbose )
+
       @debug_verbose = debug_verbose
       @debug_verbose ||= aptrust_find_and_upload_debug_verbose
       @msg_handler = msg_handler
       @msg_handler ||= ::Deepblue::MessageHandlerNull.new
+
+      @clean_up_after_deposit = clean_up_after_deposit
+      @debug_assume_upload_succeeds = debug_assume_upload_succeeds
       @filter = filter
       @filter ||= FILTER_DEFAULT
-      @filter.debug_verbose = true if @filter.respond_to? :debug_verbose=
-      @max_upload_jobs = 1
+      # @filter.debug_verbose = true if @filter.respond_to? :debug_verbose=
+
+      @max_upload_jobs = max_upload_jobs
+      @max_uploads = max_uploads
+
+      @upload_count = 0
+
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "clean_up_after_deposit=#{clean_up_after_deposit}",
+                                             "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}",
+                                             "filter=#{filter}",
+                                             "max_upload_jobs=#{max_upload_jobs}",
+                                             "max_uploads=#{max_uploads}",
+                                             "" ] if debug_verbose
     end
 
     def process( work: )
@@ -44,7 +72,10 @@ module Aptrust
         #                                        "uploader.bag_id_type=#{uploader.bag_id_type}",
         #                                        "uploader.bag_id=#{uploader.bag_id}",
         #                                        "" ] if debug_verbose
+        uploader.clean_up_after_deposit = clean_up_after_deposit
+        uploader.debug_assume_upload_succeeds = debug_assume_upload_succeeds
         uploader.upload
+        @upload_count += 1
       else
         # TODO launch and keep track of jobs;
       end
@@ -56,9 +87,11 @@ module Aptrust
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if debug_verbose
       DataSet.all.each do |work|
+        return if -1 != max_uploads && @upload_count >= max_uploads
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "work.id=#{work.id}",
+                                               "@upload_count=#{@upload_count}",
                                                "" ] if debug_verbose
         filter_rv = filter.include? work: work
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

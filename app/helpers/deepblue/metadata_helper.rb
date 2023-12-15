@@ -25,7 +25,7 @@ module Deepblue
     PREFIX_USERS = 'users' unless const_defined? :PREFIX_USERS
     PREFIX_WORK = 'w_' unless const_defined? :PREFIX_WORK
 
-    VALID_MODES = [ MODE_APPEND, MODE_BAG, MODE_BUILD, MODE_MIGRATE ]
+    VALID_MODES = [ MODE_APPEND, MODE_BAG, MODE_BUILD, MODE_MIGRATE ] unless const_defined? :VALID_MODES
 
     ATTRIBUTE_NAMES_ALWAYS_INCLUDE_CC = %w[ admin_set_id
                                             authoremail

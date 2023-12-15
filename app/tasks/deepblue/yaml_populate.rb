@@ -161,9 +161,11 @@ module Deepblue
       puts "yaml_bag_work( id: #{id}, work: #{work} )" if DEBUG_VERBOSE
       puts "@target_dir=#{@target_dir}" if DEBUG_VERBOSE
       if work.nil?
-        service.yaml_populate_work( curation_concern: id, dir: @target_dir, export_files: @export_files )
+        log_filename = "#{id}.export.log"
+        service.yaml_populate_work( curation_concern: id, dir: @target_dir, export_files: @export_files, log_filename: log_filename )
       else
-        service.yaml_populate_work( curation_concern: work, dir: @target_dir, export_files: @export_files )
+        log_filename = "#{work.id}.export.log"
+        service.yaml_populate_work( curation_concern: work, dir: @target_dir, export_files: @export_files, log_filename: log_filename )
       end
       @populate_ids << id
       @populate_stats << service.yaml_populate_stats

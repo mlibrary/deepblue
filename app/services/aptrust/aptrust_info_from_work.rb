@@ -8,9 +8,9 @@ module Aptrust
 
     mattr_accessor :aptrust_info_debug_verbose, default: true
 
-    CREATOR_JOIN = ' & '
-    DESCRIPTION_JOIN = ' '
-    TITLE_JOIN = ' '
+    CREATOR_JOIN     = ' & ' unless const_defined? :CREATOR_JOIN
+    DESCRIPTION_JOIN = ' '   unless const_defined? :DESCRIPTION_JOIN
+    TITLE_JOIN       = ' '   unless const_defined? :TITLE_JOIN
 
     def initialize( work:,
                     access: nil,
