@@ -12,6 +12,7 @@ module Aptrust
 
   class FilterDate
 
+    attr_accessor :debug_verbose
     attr_accessor :filter
 
     def initialize( begin_date:, end_date: )
@@ -59,10 +60,11 @@ module Aptrust
                       EVENT_UPLOAD_SKIPPED,
                       EVENT_EXPORT_FAILED,
                       EVENT_VERIFIED,
-                      EVENT_VERIFYING ]
+                      EVENT_VERIFY_FAILED,
+                      EVENT_VERIFYING ] unless const_defined? :SKIP_STATUSES
 
-    attr_accessor :skip_statuses
     attr_accessor :debug_verbose
+    attr_accessor :skip_statuses
 
     def initialize( skip_statuses: nil )
       @skip_statuses = skip_statuses
@@ -71,10 +73,27 @@ module Aptrust
     end
 
     def include?( work: )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "work.id=#{work.id}",
+                                             "" ] if debug_verbose
       status = Status.for_id( noid: work.id )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "status=#{status}",
+                                             "" ] if debug_verbose
       return true if status.blank?
       status = status[0]
-      return false if @skip_statuses.include? status.event
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "status=#{status}",
+                                             "" ] if debug_verbose
+      rv = @skip_statuses.include? status.event
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "#{@skip_statuses}.include? #{status.event}=#{rv}",
+                                             "" ] if debug_verbose
+      return false if rv
       return true
     end
 
@@ -91,13 +110,17 @@ module Aptrust
     attr_accessor :filter_by_size
     attr_accessor :filter_by_status
 
-    def initialize( filter_by_date: nil, filter_by_size: nil, filter_by_status: nil )
+    def initialize( filter_by_date: nil, filter_by_size: nil, filter_by_status: nil, debug_verbose: false )
+      @debug_verbose = debug_verbose
       @filter_by_date = filter_by_date
       @filter_by_date ||= FILTER_IN
       @filter_by_size = filter_by_size
       @filter_by_size ||= DEFAULT_FILTER_SIZE
       @filter_by_status = filter_by_status
       @filter_by_status ||= DEFAULT_FILTER_STATUS
+      @filter_by_date.debug_verbose = debug_verbose if @filter_by_date.respond_to? :debug_verbose=
+      @filter_by_size.debug_verbose = debug_verbose if @filter_by_size.respond_to? :debug_verbose=
+      @filter_by_status.debug_verbose = debug_verbose if @filter_by_status.respond_to? :debug_verbose=
     end
 
     def debug_verbose=(flag)
@@ -109,21 +132,62 @@ module Aptrust
 
     def set_filter_by_date( begin_date:, end_date: )
       @filter_by_date = FilterDate.new( begin_date: begin_date, end_date: end_date )
+      @filter_by_date.debug_verbose = debug_verbose if @filter_by_date.respond_to? :debug_verbose=
     end
 
     def set_filter_by_size( min_size: 1, max_size: )
       @filter_by_size = FilterSize.new( min_size: min_size, max_size: max_size )
+      @filter_by_size.debug_verbose = debug_verbose if @filter_by_size.respond_to? :debug_verbose=
     end
 
     def set_filter_by_status( skip_statuses: nil )
       @filter_by_status = FilterStatus.new( skip_statuses: skip_statuses )
+      @filter_by_status.debug_verbose = debug_verbose if @filter_by_status.respond_to? :debug_verbose=
     end
 
     def include?( work: )
-      return false unless @filter_by_date.include? work: work
-      return false unless @filter_by_size.include? work: work
-      return false unless @filter_by_status.include? work: work
+      return false unless include_by_date? work: work
+      return false unless include_by_size? work: work
+      return false unless include_by_status? work: work
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "include? including work.id=#{work.id}",
+                                             "" ] if debug_verbose
       return true
+    end
+
+    def include_by_date?( work: )
+      rv_include = @filter_by_date.include? work: work
+      if !rv_include
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "include_by_date? #{rv_include} exclude work.id=#{work.id}",
+                                               "" ] if debug_verbose
+      end
+      return rv_include
+    end
+
+    def include_by_size?( work: )
+      rv_include = @filter_by_size.include? work: work
+      if !rv_include
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "include_by_size? #{rv_include} exclude work.id=#{work.id}",
+                                               "" ] if debug_verbose
+      end
+      return rv_include
+    end
+
+    def include_by_status?( work: )
+      rv_include = @filter_by_status.include? work: work
+      if !rv_include
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "",
+                                               "include_by_status? #{rv_include} exclude work.id=#{work.id}",
+                                               "" ] if debug_verbose
+      end
+      return rv_include
     end
 
   end

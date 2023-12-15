@@ -462,7 +462,8 @@ module Deepblue
                             out: nil,
                             export_files: true,
                             target_filename: nil,
-                            target_dirname: nil )
+                            target_dirname: nil,
+                            log_filename: nil )
 
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -472,6 +473,7 @@ module Deepblue
                                              "export_files=#{export_files}",
                                              "target_filename=#{target_filename}",
                                              "target_dirname=#{target_dirname}",
+                                             "log_filename=#{log_filename}",
                                              "" ] if DEBUG_VERBOSE
       target_file = nil
       dir = Pathname.new dir unless dir.is_a? Pathname
@@ -489,7 +491,7 @@ module Deepblue
                               target_dirname: target_dir )
         end
         if export_files
-          yaml_work_export_files( work: curation_concern, target_dirname: target_dir )
+          yaml_work_export_files( work: curation_concern, target_dirname: target_dir, log_filename: log_filename )
         end
       else
         log_provenance_migrate( curation_concern: curation_concern ) if MetadataHelper::MODE_MIGRATE == mode
@@ -546,7 +548,8 @@ module Deepblue
                                              "work.nil?=#{work.nil?}",
                                              "target_dirname=#{target_dirname}",
                                              "" ] if DEBUG_VERBOSE
-      log_file = target_dirname.join ".export.log" if log_filename.nil?
+      log_filename ||= "w_#{work.id}.export.log"
+      log_file = target_dirname.join log_filename
       File.open( log_file, 'w' ) { |f| f.write('') } # erase log file
       start_time = Time.now
       log_lines( log_file,

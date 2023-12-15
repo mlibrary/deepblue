@@ -20,19 +20,34 @@ aptrust_upload_job:
   queue: scheduler
   description: Scan and upload works to APTrust
   args:
+    by_request_only: true
+    clean_up_after_deposit: true
+    #debug_assume_upload_succeeds: true
+    #debug_verbose: true
+    #filter_debug_verbose: true
     email_results_to:
       - 'fritx@umich.edu'
-    xfilter_date_begin: now - 7 days
-    xfilter_date_end: now
-    filter_min_total_size: 
-    filter_max_total_size: 
-    filter_skip_statuses:
+    #filter_date_begin: now - 7 days
+    #filter_date_end: now
+    #filter_min_total_size: 1
+    #filter_max_total_size: 1000000 # 1 million bytes
+    #filter_max_total_size: 1000000000 # 1 billion bytes
+    xfilter_skip_statuses: # see: ::Aptrust::FilterStatus::SKIP_STATUSES
       - uploaded
       - verified
+      - deposited
+      - deposit_skipped
+      - upload_skipped
+      - export_failed
+      - verified
+      - verify_failed
+      - verifying
     hostnames:
       - 'deepblue.lib.umich.edu'
       - 'staging.deepblue.lib.umich.edu'
       - 'testing.deepblue.lib.umich.edu'
+    #max_upload_jobs: 1
+    #max_uploads: 3
     subscription_service_id: aptrust_upload_job
     verbose: false
 
@@ -57,25 +72,43 @@ aptrust_upload_job:
                              "" ] if aptrust_upload_job_debug_verbose
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name )
     return unless initialized
+    debug_verbose = job_options_value( key: 'debug_verbose', default_value: debug_verbose )
+    filter_debug_verbose = job_options_value( key: 'filter_debug_verbose', default_value: false )
+    msg_handler.debug_verbose = debug_verbose
+    debug_assume_upload_succeeds = job_options_value( key: 'debug_assume_upload_succeeds', default_value: false )
+    clean_up_after_deposit = job_options_value( key: 'clean_up_after_deposit', default_value: true )
     filter_date_begin = job_options_value( key: 'filter_date_begin', default_value: nil )
     filter_date_end = job_options_value( key: 'filter_date_end', default_value: nil )
     filter_min_total_size = job_options_value( key: 'filter_min_total_size', default_value: 1 )
     filter_max_total_size = job_options_value( key: 'filter_max_total_size', default_value: nil )
     filter_skip_statuses = job_options_value( key: 'filter_skip_statuses', default_value: [] )
+    max_upload_jobs = job_options_value( key: 'max_upload_jobs', default_value: 1 )
+    max_uploads = job_options_value( key: 'max_uploads', default_value: -1 )
     msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
                              ::Deepblue::LoggingHelper.called_from,
+                             "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}",
+                             "clean_up_after_deposit=#{clean_up_after_deposit}",
                              "filter_date_begin=#{filter_date_begin}",
                              "filter_date_end=#{filter_date_end}",
                              "filter_min_total_size=#{filter_min_total_size}",
                              "filter_max_total_size=#{filter_max_total_size}",
                              "filter_skip_statuses=#{filter_skip_statuses}",
-                             "" ] if aptrust_upload_job_debug_verbose
+                             "max_upload_jobs=#{max_upload_jobs}",
+                             "max_uploads=#{max_uploads}",
+                             "" ] if debug_verbose
     run_job_delay
     filter = ::Aptrust::AptrustFilterWork.new
     filter.set_filter_by_date( begin_date: filter_date_begin, end_date: filter_date_end )
     filter.set_filter_by_size( min_size: filter_min_total_size, max_size: filter_max_total_size )
     filter.set_filter_by_status( skip_statuses: filter_skip_statuses )
-    finder = ::Aptrust::AptrustFindAndUpload.new( filter: filter, msg_handler: msg_handler )
+    filter.debug_verbose = filter_debug_verbose
+    finder = ::Aptrust::AptrustFindAndUpload.new( clean_up_after_deposit: clean_up_after_deposit,
+                                                  debug_assume_upload_succeeds: debug_assume_upload_succeeds,
+                                                  filter: filter,
+                                                  max_upload_jobs: max_upload_jobs,
+                                                  max_uploads: max_uploads,
+                                                  msg_handler: msg_handler,
+                                                  debug_verbose: debug_verbose )
     finder.run
     timestamp_end = DateTime.now
     msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,

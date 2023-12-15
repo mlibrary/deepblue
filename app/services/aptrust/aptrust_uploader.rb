@@ -8,20 +8,20 @@ module Aptrust
 
     mattr_accessor :aptrust_uploader_debug_verbose, default: true
 
-    CLEAN_UP_AFTER_DEPOSIT = true
-    NULL_MSG_HANDLER       = ::Deepblue::MessageHandlerNull.new
+    CLEAN_UP_AFTER_DEPOSIT = true unless const_defined? :CLEAN_UP_AFTER_DEPOSIT
+    NULL_MSG_HANDLER       = ::Deepblue::MessageHandlerNull.new unless const_defined? :NULL_MSG_HANDLER
 
-    ALLOW_DEPOSIT          = true
-    BAG_FILE_APTRUST_INFO  = 'aptrust-info.txt'
-    DEFAULT_BI_DESCRIPTION = 'No description supplied.'
-    DEFAULT_BI_SOURCE      = 'University of Michigan'
-    DEFAULT_CONTEXT        = ''
-    DEFAULT_EXPORT_DIR     = './aptrust_export'
-    DEFAULT_REPOSITORY     = 'UnknownRepo'
-    DEFAULT_TYPE           = ''
-    DEFAULT_WORKING_DIR    = './aptrust_work'
-    EXT_TAR                = '.tar'
-    IDENTIFIER_TEMPLATE    = "%repository%.%context%%type%%id%"
+    ALLOW_DEPOSIT          = true                               unless const_defined? :ALLOW_DEPOSIT
+    BAG_FILE_APTRUST_INFO  = 'aptrust-info.txt'                 unless const_defined? :BAG_FILE_APTRUST_INFO
+    DEFAULT_BI_DESCRIPTION = 'No description supplied.'         unless const_defined? :DEFAULT_BI_DESCRIPTION
+    DEFAULT_BI_SOURCE      = 'University of Michigan'           unless const_defined? :DEFAULT_BI_SOURCE
+    DEFAULT_CONTEXT        = ''                                 unless const_defined? :DEFAULT_CONTEXT
+    DEFAULT_EXPORT_DIR     = './aptrust_export'                 unless const_defined? :DEFAULT_EXPORT_DIR
+    DEFAULT_REPOSITORY     = 'UnknownRepo'                      unless const_defined? :DEFAULT_REPOSITORY
+    DEFAULT_TYPE           = ''                                 unless const_defined? :DEFAULT_TYPE
+    DEFAULT_WORKING_DIR    = './aptrust_work'                   unless const_defined? :DEFAULT_WORKING_DIR
+    EXT_TAR                = '.tar'                             unless const_defined? :EXT_TAR
+    IDENTIFIER_TEMPLATE    = '%repository%.%context%%type%%id%' unless const_defined? :IDENTIFIER_TEMPLATE
 
     def self.bag_date_now()
       rv = Time.now.utc.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -55,6 +55,9 @@ module Aptrust
     attr_accessor :bag_id_context
     attr_accessor :bag_id_repository
     attr_accessor :bag_id_type
+
+    attr_accessor :debug_assume_upload_succeeds
+    attr_accessor :clean_up_after_deposit
 
     attr_accessor :export_by_closure
     attr_accessor :export_copy_src
@@ -168,6 +171,9 @@ module Aptrust
       @bag_id_repository   = bag_id_repository
       @bag_id_type         = Aptrust.arg_init_squish( bag_id_type,       DEFAULT_TYPE )
 
+      @clean_up_after_deposit = CLEAN_UP_AFTER_DEPOSIT
+      @debug_assume_upload_succeeds = Aptrust.aptrust_debug_assume_upload_succeeds
+
       @export_by_closure   = export_by_closure
       @export_copy_src     = export_copy_src
       @export_src_dir      = export_src_dir
@@ -195,6 +201,7 @@ module Aptrust
 
     def aptrust_info_write( aptrust_info: nil )
       aptrust_info ||= self.aptrust_info
+      aptrust_info = aptrust_info.build if aptrust_info.respond_to? :build
       file = File.join( bag.bag_dir, BAG_FILE_APTRUST_INFO )
       File.write( file, aptrust_info, mode: 'w' )
       # this does not work: bag.tag_files << file
@@ -284,11 +291,21 @@ module Aptrust
     end
 
     def bag_manifest
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if aptrust_uploader_debug_verbose
       bag.manifest!(algo: 'md5') # Create tagmanifest-info.txt and the data directory maniftest.txt
 
       # need to rewrite the tag manifest files to include the aptrust-info.txt file
       tag_files = bag.tag_files
-      new_tag_files = tag_files & additional_tag_files
+      new_tag_files = tag_files | additional_tag_files
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "tag_files=#{tag_files}",
+                                             "additional_tag_files=#{additional_tag_files}",
+                                             "new_tag_files=#{new_tag_files}",
+                                             "( new_tag_files - tag_files )=#{( new_tag_files - tag_files )}",
+                                             "" ] if aptrust_uploader_debug_verbose
       # rewrite tagmanifest-info.txt if necessary
       bag.tagmanifest!( new_tag_files ) unless ( new_tag_files - tag_files ).empty?
 
@@ -312,8 +329,8 @@ module Aptrust
         track( status: EVENT_UPLOAD_SKIPPED, note: 'allow_deposit? returned false' )
         return false
       end
-      if DEBUG_ASSUME_UPLOAD_SUCCEEDS
-        track( status: EVENT_UPLOADED, note: 'DEBUG_ASSUME_UPLOAD_SUCCEEDS is true' )
+      if debug_assume_upload_succeeds
+        track( status: EVENT_UPLOADED, note: 'debug_assume_upload_succeeds is true' )
         return true
       end
       begin
@@ -369,7 +386,7 @@ module Aptrust
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if aptrust_uploader_debug_verbose
-      return unless CLEAN_UP_AFTER_DEPOSIT
+      return unless clean_up_after_deposit
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "should delete bag.bag_dir=#{bag.bag_dir}",
@@ -388,7 +405,7 @@ module Aptrust
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if aptrust_uploader_debug_verbose
-      return unless CLEAN_UP_AFTER_DEPOSIT
+      return unless clean_up_after_deposit
       filename = File.join( export_dir, tar_filename )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

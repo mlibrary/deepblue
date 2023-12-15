@@ -55,7 +55,7 @@ module Aptrust
       # return false unless monograph.is_a?(Sighrax::Monograph)
     end
 
-    def self.aptrust_info( work: )
+    def self.aptrust_info( work: ) # TODO: broken
       AptrustInfo.new( work: work ).build
     end
 

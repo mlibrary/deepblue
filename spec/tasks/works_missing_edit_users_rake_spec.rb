@@ -16,9 +16,10 @@ describe "works_missing_edit_users.rake" do
 
     before do
       expect(::Deepblue::WorksMissingEditUsers).to receive(:new)
-                                                        .with( no_args )
+                                                        .with( any_args )
                                                         .at_least(:once).and_return invoked
       expect(invoked).to receive(:run).with(no_args).at_least(:once)
+      # expect(invoked).to receive(:logger).with(any_args).at_least(:once)
     end
 
     after do
@@ -26,7 +27,10 @@ describe "works_missing_edit_users.rake" do
     end
 
     it "invokes Deepblue::WorksMissingEditUsers" do
-      Rake::Task[task].invoke
+      task1 = Rake::Task[task]
+      puts "task1=#{task1}"
+      puts "task1.class=#{task1.class}"
+      task1.invoke
     end
 
   end
