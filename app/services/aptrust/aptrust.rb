@@ -2,7 +2,7 @@
 
 module Aptrust
 
-    mattr_accessor :aptrust_debug_verbose, default: true
+    mattr_accessor :aptrust_debug_verbose, default: false
 
     mattr_accessor :aptrust_debug_assume_upload_succeeds, default: true # TODO: set this false for production
 

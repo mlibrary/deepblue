@@ -22,6 +22,7 @@ aptrust_upload_job:
   args:
     by_request_only: true
     clean_up_after_deposit: true
+    clear_status: true
     #debug_assume_upload_succeeds: true
     #debug_verbose: true
     #filter_debug_verbose: true
@@ -32,6 +33,7 @@ aptrust_upload_job:
     #filter_min_total_size: 1
     #filter_max_total_size: 1000000 # 1 million bytes
     #filter_max_total_size: 1000000000 # 1 billion bytes
+    filter_ignore_status: false
     xfilter_skip_statuses: # see: ::Aptrust::FilterStatus::SKIP_STATUSES
       - uploaded
       - verified
@@ -77,6 +79,8 @@ aptrust_upload_job:
     msg_handler.debug_verbose = debug_verbose
     debug_assume_upload_succeeds = job_options_value( key: 'debug_assume_upload_succeeds', default_value: false )
     clean_up_after_deposit = job_options_value( key: 'clean_up_after_deposit', default_value: true )
+    clear_status = job_options_value( key: 'clear_status', default_value: true )
+    filter_ignore_status = job_options_value( key: 'filter_ignore_status', default_value: false )
     filter_date_begin = job_options_value( key: 'filter_date_begin', default_value: nil )
     filter_date_end = job_options_value( key: 'filter_date_end', default_value: nil )
     filter_min_total_size = job_options_value( key: 'filter_min_total_size', default_value: 1 )
@@ -88,6 +92,8 @@ aptrust_upload_job:
                              ::Deepblue::LoggingHelper.called_from,
                              "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}",
                              "clean_up_after_deposit=#{clean_up_after_deposit}",
+                             "clear_status=#{clear_status}",
+                             "filter_ignore_status=#{filter_ignore_status}",
                              "filter_date_begin=#{filter_date_begin}",
                              "filter_date_end=#{filter_date_end}",
                              "filter_min_total_size=#{filter_min_total_size}",
@@ -100,9 +106,14 @@ aptrust_upload_job:
     filter = ::Aptrust::AptrustFilterWork.new
     filter.set_filter_by_date( begin_date: filter_date_begin, end_date: filter_date_end )
     filter.set_filter_by_size( min_size: filter_min_total_size, max_size: filter_max_total_size )
-    filter.set_filter_by_status( skip_statuses: filter_skip_statuses )
+    if filter_ignore_status
+      filter.set_filter_by_status( skip_statuses: nil )
+    else
+      filter.set_filter_by_status( skip_statuses: filter_skip_statuses )
+    end
     filter.debug_verbose = filter_debug_verbose
     finder = ::Aptrust::AptrustFindAndUpload.new( clean_up_after_deposit: clean_up_after_deposit,
+                                                  clear_status: clear_status,
                                                   debug_assume_upload_succeeds: debug_assume_upload_succeeds,
                                                   filter: filter,
                                                   max_upload_jobs: max_upload_jobs,

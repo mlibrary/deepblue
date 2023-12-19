@@ -119,6 +119,10 @@ module Aptrust
                                                      target_dir: target_dir,
                                                      export_files: true } )
       pop.yaml_bag_work( id: work.id, work: work )
+      # export provenance log
+      entries = ::Deepblue::ProvenanceLogService.entries( work.id, refresh: true )
+      prov_file = File.join( target_dir, "w_#{work.id}_provenance.log" )
+      ::Deepblue::ProvenanceLogService.write_entries( prov_file, entries )
     end
 
     def export_work_files2( target_dir: )
