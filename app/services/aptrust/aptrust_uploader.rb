@@ -25,9 +25,10 @@ module Aptrust
     IDENTIFIER_TEMPLATE    = '%repository%.%context%%type%%id%' unless const_defined? :IDENTIFIER_TEMPLATE
 
     def self.bag_date_now()
-      rv = Time.now.utc.strftime("%Y-%m-%dT%H:%M:%SZ")
-      rv = Time.parse(rv).iso8601
-      return rv
+      return Time.now
+      # rv = Time.now.utc.strftime("%Y-%m-%dT%H:%M:%SZ")
+      # rv = Time.parse(rv).iso8601
+      # return rv
     end
 
     attr_accessor :additional_tag_files
@@ -166,7 +167,9 @@ module Aptrust
 
       @bag                 = bag
       @bag_info            = bag_info
-      @bi_date             = Aptrust.arg_init_squish( bi_date,        AptrustUploader.bag_date_now )
+      # @bi_date           = Aptrust.arg_init_squish( bi_date, AptrustUploader.bag_date_now )
+      @bi_date             = bi_date
+      @bi_date             ||= AptrustUploader.bag_date_now
       @bi_description      = Aptrust.arg_init_squish( bi_description, DEFAULT_BI_DESCRIPTION )
       @bi_id               = Aptrust.arg_init_squish( bi_id,          @object_id )
       @bi_source           = Aptrust.arg_init_squish( bi_source,      DEFAULT_BI_SOURCE )
@@ -228,6 +231,18 @@ module Aptrust
       @bag_data_dir ||= File.join( bag.bag_dir, "data" )
     end
 
+    def bag_date_str( t )
+      rv = t.utc.strftime("%Y-%m-%d")
+      rv = Time.parse(rv).iso8601
+      return rv
+    end
+
+    def bag_date_time_str( t )
+      rv = t.utc.strftime("%Y-%m-%dT%H:%M:%SZ")
+      rv = Time.parse(rv).iso8601
+      return rv
+    end
+
     def bag_id_context
       @bag_id_context = bag_id_context_init if @bag_id_context.blank?
       @bag_id_context
@@ -278,7 +293,8 @@ module Aptrust
       rv = {
         'Source-Organization'         => bi_source,
         'Bag-Count'                   => '1',
-        'Bagging-Date'                => bi_date,
+        'Bagging-Date'                => bag_date_str( bi_date ),
+        'Bagging-Timestamp'           => bag_date_time_str( bi_date ),
         'Internal-Sender-Description' => bi_description,
         'Internal-Sender-Identifier'  => bi_id
       }
