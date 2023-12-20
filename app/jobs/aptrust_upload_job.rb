@@ -33,7 +33,7 @@ aptrust_upload_job:
     #filter_min_total_size: 1
     #filter_max_total_size: 1000000 # 1 million bytes
     #filter_max_total_size: 1000000000 # 1 billion bytes
-    filter_ignore_status: false
+    #filter_ignore_status: true # i.e. reupload
     xfilter_skip_statuses: # see: ::Aptrust::FilterStatus::SKIP_STATUSES
       - uploaded
       - verified
@@ -74,6 +74,7 @@ aptrust_upload_job:
                              "" ] if aptrust_upload_job_debug_verbose
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name )
     return unless initialized
+    return job_finished unless by_request_only? && from_dashboard.present?
     debug_verbose = job_options_value( key: 'debug_verbose', default_value: debug_verbose )
     filter_debug_verbose = job_options_value( key: 'filter_debug_verbose', default_value: false )
     msg_handler.debug_verbose = debug_verbose
