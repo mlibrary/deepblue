@@ -6,9 +6,10 @@ module Aptrust
 
   class AptrustUploader
 
-    mattr_accessor :aptrust_uploader_debug_verbose, default: true
+    mattr_accessor :aptrust_uploader_debug_verbose, default: false
 
     CLEAN_UP_AFTER_DEPOSIT = true unless const_defined? :CLEAN_UP_AFTER_DEPOSIT
+    CLEAR_STATUS           = true unless const_defined? :CLEAR_STATUS
     NULL_MSG_HANDLER       = ::Deepblue::MessageHandlerNull.new unless const_defined? :NULL_MSG_HANDLER
 
     ALLOW_DEPOSIT          = true                               unless const_defined? :ALLOW_DEPOSIT
@@ -58,6 +59,7 @@ module Aptrust
 
     attr_accessor :debug_assume_upload_succeeds
     attr_accessor :clean_up_after_deposit
+    attr_accessor :clear_status
 
     attr_accessor :export_by_closure
     attr_accessor :export_copy_src
@@ -69,6 +71,8 @@ module Aptrust
     attr_accessor :object_id
     attr_accessor :export_dir
     attr_accessor :working_dir
+
+    attr_accessor :debug_verbose
 
     def initialize( object_id:,
                     msg_handler:         nil,
@@ -101,10 +105,13 @@ module Aptrust
                     export_src_dir:      nil,
 
                     export_dir:          nil,
-                    working_dir:         nil
+                    working_dir:         nil,
+
+                    debug_verbose:       aptrust_uploader_debug_verbose
 
                     )
 
+      @debug_verbose ||= aptrust_uploader_debug_verbose
       @msg_handler = msg_handler
       @msg_handler ||= NULL_MSG_HANDLER
 
@@ -172,6 +179,7 @@ module Aptrust
       @bag_id_type         = Aptrust.arg_init_squish( bag_id_type,       DEFAULT_TYPE )
 
       @clean_up_after_deposit = CLEAN_UP_AFTER_DEPOSIT
+      @clear_status           = CLEAR_STATUS
       @debug_assume_upload_succeeds = Aptrust.aptrust_debug_assume_upload_succeeds
 
       @export_by_closure   = export_by_closure
@@ -293,7 +301,7 @@ module Aptrust
     def bag_manifest
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if aptrust_uploader_debug_verbose
+                                             "" ] if debug_verbose
       bag.manifest!(algo: 'md5') # Create tagmanifest-info.txt and the data directory maniftest.txt
 
       # need to rewrite the tag manifest files to include the aptrust-info.txt file
@@ -305,7 +313,7 @@ module Aptrust
                                              "additional_tag_files=#{additional_tag_files}",
                                              "new_tag_files=#{new_tag_files}",
                                              "( new_tag_files - tag_files )=#{( new_tag_files - tag_files )}",
-                                             "" ] if aptrust_uploader_debug_verbose
+                                             "" ] if debug_verbose
       # rewrite tagmanifest-info.txt if necessary
       bag.tagmanifest!( new_tag_files ) unless ( new_tag_files - tag_files ).empty?
 
@@ -327,11 +335,15 @@ module Aptrust
     def bag_upload
       if !allow_deposit?
         track( status: EVENT_UPLOAD_SKIPPED, note: 'allow_deposit? returned false' )
-        return false
+        return false, EVENT_UPLOAD_SKIPPED
       end
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "debug_assume_upload_succeeds=#{debug_assume_upload_succeedss}",
+                                             "" ] if debug_verbose
       if debug_assume_upload_succeeds
-        track( status: EVENT_UPLOADED, note: 'debug_assume_upload_succeeds is true' )
-        return true
+        track( status: EVENT_UPLOAD_SKIPPED, note: 'debug_assume_upload_succeeds is true' )
+        return true, EVENT_UPLOAD_SKIPPED
       end
       begin
         # TODO: add timing
@@ -347,11 +359,11 @@ module Aptrust
         filename = File.join( export_dir, tar_filename )
         aws_object.upload_file( filename )
         track( status: EVENT_UPLOADED )
-        return true
+        return true, EVENT_UPLOADED
       rescue Aws::S3::Errors::ServiceError => e
         track( status: EVENT_FAILED, note: "failed in #{e.context} with error #{e}" )
         # TODO: Rails.logger.error "Upload of file #{filename} failed with error #{e}"
-        return false
+        return false, EVENT_FAILED
       end
     end
 
@@ -385,12 +397,12 @@ module Aptrust
     def cleanup_bag
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if aptrust_uploader_debug_verbose
+                                             "" ] if debug_verbose
       return unless clean_up_after_deposit
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "should delete bag.bag_dir=#{bag.bag_dir}",
-                                             "" ] if aptrust_uploader_debug_verbose
+                                             "" ] if debug_verbose
       return unless Dir.exist? bag.bag_dir
 
       if Dir.exist? bag_data_dir
@@ -404,13 +416,13 @@ module Aptrust
     def cleanup_tar_file
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if aptrust_uploader_debug_verbose
+                                             "" ] if debug_verbose
       return unless clean_up_after_deposit
       filename = File.join( export_dir, tar_filename )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "delete filename=#{filename}",
-                                             "" ] if aptrust_uploader_debug_verbose
+                                             "" ] if debug_verbose
       return unless File.exist? filename
       File.delete filename
     end
@@ -418,11 +430,22 @@ module Aptrust
     def deposit
       bag_uploaded_succeeded = false
       begin
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "bag_uploaded_succeeded=#{bag_uploaded_succeeded}",
+                                               "clear_status=#{clear_status}",
+                                               "" ] if debug_verbose
+        aptrust_upload_status.clear_statuses if clear_status
         track( status: EVENT_DEPOSITING )
         status = bag_export
         if status == EVENT_BAGGED
           bag_tar
-          bag_uploaded_succeeded = bag_upload
+          bag_uploaded_succeeded, status = bag_upload
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "bag_uploaded_succeeded=#{bag_uploaded_succeeded}",
+                                                 "status=#{status}",
+                                                 "" ] if debug_verbose
         end
       rescue StandardError => e
         #::Deepblue::LoggingHelper.bold_error ["AptrustService.perform_deposit(#{object_id}) error #{e}"] + e.backtrace[0..20]
@@ -430,7 +453,7 @@ module Aptrust
       end
       return unless bag_uploaded_succeeded
       begin
-        track( status: EVENT_DEPOSITED )
+        track( status: EVENT_DEPOSITED ) if status == EVENT_UPLOADED
         cleanup_tar_file
         cleanup_bag
       end
@@ -526,12 +549,12 @@ module Aptrust
 
     # TODO: review this for references to static methods
     def upload2( filename:, id: 'uknown' )
-      @id ||= id
+      @id ||= object_id
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "filename=#{filename}",
                                              "id=#{id}",
-                                             "" ], bold_puts: false if aptrust_uploader_debug_verbose
+                                             "" ], bold_puts: false if debug_verbose
       success = false
       track( status: EVENT_DEPOSITING )
       begin
@@ -543,7 +566,7 @@ module Aptrust
                                                "config.bucket_region=#{config.bucket_region}",
                                                "config.aws_access_key_id=#{config.aws_access_key_id}",
                                                "config.aws_secret_access_key=#{config.aws_secret_access_key}",
-                                               "" ], bold_puts: false if aptrust_uploader_debug_verbose
+                                               "" ], bold_puts: false if debug_verbose
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
         Aws.config.update( credentials: Aws::Credentials.new( config.aws_access_key_id, config.aws_secret_access_key ) )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]

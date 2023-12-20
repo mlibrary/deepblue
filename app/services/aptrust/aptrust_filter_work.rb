@@ -123,7 +123,7 @@ module Aptrust
       @filter_by_status.debug_verbose = debug_verbose if @filter_by_status.respond_to? :debug_verbose=
     end
 
-    def debug_verbose=(flag)
+    def debug_verbose=( flag )
       @debug_verbose = flag
       @filter_by_date.debug_verbose = flag if @filter_by_date.respond_to? :debug_verbose=
       @filter_by_size.debug_verbose = flag if @filter_by_size.respond_to? :debug_verbose=
@@ -141,11 +141,24 @@ module Aptrust
     end
 
     def set_filter_by_status( skip_statuses: nil )
-      @filter_by_status = FilterStatus.new( skip_statuses: skip_statuses )
-      @filter_by_status.debug_verbose = debug_verbose if @filter_by_status.respond_to? :debug_verbose=
+      if skip_statuses.blank?
+        @filter_by_status = FILTER_IN
+      else
+        @filter_by_status = FilterStatus.new( skip_statuses: skip_statuses )
+        @filter_by_status.debug_verbose = debug_verbose if @filter_by_status.respond_to? :debug_verbose=
+      end
     end
 
     def include?( work: )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "work.id=#{work.id}",
+                                             "work.tombstone.present?=#{work.tombstone.present?}",
+                                             "work.published?=#{work.published?}",
+                                             "" ] if debug_verbose
+      return false if work.tombstone.present?
+      return false unless work.published?
+
       return false unless include_by_date? work: work
       return false unless include_by_size? work: work
       return false unless include_by_status? work: work

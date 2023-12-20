@@ -22,9 +22,16 @@ module Aptrust
       end
     end
 
-    attr_accessor :status_history
-    attr_accessor :status
+    def self.clear_history( id: )
+      # select all events, then delete
+      records = Event.where( noid: id )
+      records.each { |r| r.delete }
+      clear_status( id: id )
+    end
+
     attr_accessor :id
+    attr_accessor :status
+    attr_accessor :status_history
 
     def initialize( id:, status_history: nil )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -34,6 +41,19 @@ module Aptrust
                                              "" ] if aptrust_uplaoder_status_debug_verbose
       @id = id
       @status_history = status_history
+    end
+
+    def clear_statuses
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "id=#{id}",
+                                             "" ] if aptrust_uplaoder_status_debug_verbose
+      if STATUS_IN_DB
+        records = Status.where( noid: id )
+        records.each { |r| r.delete }
+      end
+      @status = EVENT_UNKNOWN
+      @status_history = []
     end
 
     def status
@@ -51,7 +71,7 @@ module Aptrust
       rv = if STATUS_IN_DB
              history = []
              records = Event.where( noid: id )
-             records.each { |e| history << { id: e.id, status: e.event, note: e.event_note} }
+             records.each { |e| history << { id: e.id, status: e.event, note: e.event_note } }
              history
            else
              []
@@ -61,7 +81,7 @@ module Aptrust
 
     def status_init
       return EVENT_UNKNOWN if status_history.empty?
-      return status_history.first[:id]
+      return status_history.last[:status]
     end
 
     def status_done( status: )
