@@ -5,7 +5,7 @@ module Hyrax
     #   e.g.: presenter.attribute_to_html(:depositor, render_as: :depositor)
     class CreatorOrcidAttributeRenderer < AttributeRenderer
 
-      mattr_accessor :creator_orcid_attribute_renderer_debug_verbose, default: false
+      mattr_accessor :creator_orcid_attribute_renderer_debug_verbose, default: true
 
       # Draw the table row for the attribute
       def render
@@ -24,6 +24,7 @@ module Hyrax
         attributes.delete(:itemtype) # remove :itemtype
         if values.count <= 5
           markup += Array(values).map do |value|
+            value = value.strip # trim leading and trailing whitespace
             ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                    ::Deepblue::LoggingHelper.called_from,
                                                    "value=#{value}",
