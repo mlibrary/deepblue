@@ -29,7 +29,24 @@ module Aptrust
     EVENT_VERIFY_FAILED   = 'verify_failed'   unless const_defined? :EVENT_VERIFY_FAILED
     EVENT_VERIFYING       = 'verifying'       unless const_defined? :EVENT_VERIFYING
 
-    VALID_EVENTS = [ EVENT_BAGGED,
+    EVENTS_FINISHED = [ EVENT_DEPOSITED, EVENT_DEPOSIT_SKIPPED ] unless const_defined? :EVENTS_FINISHED
+
+    EVENTS_ERRORS = [ EVENT_EXPORT_FAILED, EVENT_FAILED, EVENT_VERIFY_FAILED ] unless const_defined? :EVENTS_ERRORS
+
+    EVENTS_PROCESSING = [ EVENT_BAGGED,
+                          EVENT_BAGGING,
+                          EVENT_DEPOSITED,
+                          EVENT_DEPOSITING,
+                          EVENT_EXPORTED,
+                          EVENT_EXPORTING,
+                          EVENT_PACKED,
+                          EVENT_PACKING,
+                          EVENT_UPLOADED,
+                          EVENT_UPLOADING ] unless const_defined? :EVENTS_PROCESSING
+
+    EVENTS_SKIPPED = [ EVENT_DEPOSIT_SKIPPED, EVENT_UPLOAD_SKIPPED ] unless const_defined? :EVENTS_SKIPPED
+
+    EVENTS_VALID = [ EVENT_BAGGED,
                      EVENT_BAGGING,
                      EVENT_DEPOSIT_SKIPPED,
                      EVENT_DEPOSITED,
@@ -46,7 +63,7 @@ module Aptrust
                      EVENT_UNKNOWN,
                      EVENT_VERIFIED,
                      EVENT_VERIFY_FAILED,
-                     EVENT_VERIFYING ] unless const_defined? :VALID_EVENTS
+                     EVENT_VERIFYING ] unless const_defined? :EVENTS_VALID
 
     def self.arg_init( attr, default )
         attr ||= default

@@ -5,7 +5,7 @@ module Hyrax
     #   e.g.: presenter.attribute_to_html(:depositor, render_as: :depositor)
     class CreatorOrcidAttributeRenderer < AttributeRenderer
 
-      mattr_accessor :creator_orcid_attribute_renderer_debug_verbose, default: true
+      mattr_accessor :creator_orcid_attribute_renderer_debug_verbose, default: false
 
       # Draw the table row for the attribute
       def render

@@ -313,6 +313,16 @@ Rails.application.routes.draw do
   resource :email_subscription
   get 'email_subscriptions', to: 'email_subscriptions#index', as: 'email_subscriptions' # index
 
+  resource :aptrust_status
+  get 'aptrust_statuses', controller: 'aptrust/aptrust_statuses', action: :index
+  post 'aptrust_statuses', controller: 'aptrust/aptrust_statuses', action: :index
+  # put 'aptrust_statuses', to: 'aptrust_statuses#index' #, as: 'aptrust_statuses' # index
+  # get '/aptrust_statuses_failed/' => 'aptrust_statuses#status_failed'
+  # get '/aptrust_statuses_finished/' => 'aptrust_statuses#status_finished'
+  # get '/aptrust_statuses_has_error/' => 'aptrust_statuses#has_error'
+  # get '/aptrust_statuses_not_finished/' => 'aptrust_statuses#status_not_finished'
+  # get '/aptrust_statuses_started/' => 'aptrust_statuses#status_started'
+
   get 'job_workers', to: 'job_workers#index', as: 'job_workers' # index
   put 'job_workers', to: 'job_workers#index' #, as: 'job_workers' # index
   # get '/job_statuses_failed/' => 'job_statuses#status_failed'

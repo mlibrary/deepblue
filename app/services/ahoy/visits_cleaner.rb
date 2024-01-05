@@ -61,22 +61,22 @@ module Ahoy
     def run
       @ips = {}
       summarize_ips( @report_summary )
-      while ( trim_date > begin_date )
-        end_date = begin_date + inc
-        msg_handler.msg "Starting: >= #{begin_date} to < #{end_date}"
+      while ( trim_date > @begin_date )
+        end_date = @begin_date + inc
+        msg_handler.msg "Starting: >= #{@begin_date} to < #{end_date}"
         rows = visits( begin_date, end_date )
         if 0 == rows.size
-          msg_handler.msg "  Skipped: >= #{begin_date} to < #{end_date}"
+          msg_handler.msg "  Skipped: >= #{@begin_date} to < #{end_date}"
         else
           msg_handler.msg "  Processing #{rows.size} rows..."
-          save_rows( "#{@report_dir}#{begin_date.strftime('%Y%m%d')}_#{@report_base_filename}", rows )
-          save_ips( "#{@report_dir}#{begin_date.strftime('%Y%m%d')}_ip_#{@report_base_filename}" )
-          summarize_ips( @report_summary, @ips, begin_date, end_date)
+          save_rows( "#{@report_dir}#{@begin_date.strftime('%Y%m%d')}_#{@report_base_filename}", rows )
+          save_ips( "#{@report_dir}#{@begin_date.strftime('%Y%m%d')}_ip_#{@report_base_filename}" )
+          summarize_ips( @report_summary, @ips, @begin_date, end_date)
           delete_visits
           @ips = {}
-          msg_handler.msg "  Finished: >= #{begin_date} to < #{end_date}"
+          msg_handler.msg "  Finished: >= #{@begin_date} to < #{end_date}"
         end
-        begin_date = end_date
+        @begin_date = end_date
       end
     end
 
