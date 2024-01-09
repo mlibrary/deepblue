@@ -8,12 +8,12 @@ module Deepblue
 
     mattr_accessor :metadata_helper_debug_verbose, default: false
 
-    SOURCE_DBDv1 = 'DBDv1' unless const_defined? :SOURCE_DBDv1 # rubocop:disable Style/ConstantName
-    SOURCE_DBDv2 = 'DBDv2' unless const_defined? :SOURCE_DBDv2 # rubocop:disable Style/ConstantName
+    SOURCE_DBDv1     = 'DBDv1' unless const_defined? :SOURCE_DBDv1 # rubocop:disable Style/ConstantName
+    SOURCE_DBDv2     = 'DBDv2' unless const_defined? :SOURCE_DBDv2 # rubocop:disable Style/ConstantName
     DEFAULT_BASE_DIR = "#{Rails.configuration.shared_drive_deepbluedata_prep}" unless const_defined? :DEFAULT_BASE_DIR
-    DEFAULT_SOURCE = SOURCE_DBDv2 unless const_defined? :DEFAULT_SOURCE
-    DEFAULT_TASK = 'populate' unless const_defined? :DEFAULT_TASK
-    FIELD_SEP = '; ' unless const_defined? :FIELD_SEP
+    DEFAULT_SOURCE   = SOURCE_DBDv2 unless const_defined? :DEFAULT_SOURCE
+    DEFAULT_TASK     = 'populate' unless const_defined? :DEFAULT_TASK
+    FIELD_SEP        = '; ' unless const_defined? :FIELD_SEP
     HEADER_TYPE_COLLECTIONS = ':collections:' unless const_defined? :HEADER_TYPE_COLLECTIONS
     HEADER_TYPE_USERS = ':users:' unless const_defined? :HEADER_TYPE_USERS
     HEADER_TYPE_WORKS = ':works:' unless const_defined? :HEADER_TYPE_WORKS
@@ -183,7 +183,6 @@ module Deepblue
       unless files.nil? || files.size.zero?
         file = files[0]
         files.each do |f|
-
           file = f unless f&.original_name&.empty?
         end
       end
@@ -327,6 +326,9 @@ module Deepblue
       report_item( out, "Checksum algorithm: ", file_set.checksum_algorithm )
       report_item( out, "Mimetype: ", file_set.mime_type )
       report_item( out, "DOI: ", file_set.doi, optional: true )
+      original = file_set.original_file
+      versions = original ? original.versions.all : []
+      report_item( out, "Versions: ", versions.count, optional: true )
     end
 
     def self.report_work( work, dir: nil, out: nil, depth: '==' )
@@ -381,6 +383,7 @@ module Deepblue
                           item_seperator: FIELD_SEP,
                           one_line: nil,
                           optional: false )
+
       multi_item = value.respond_to?( :count ) && value.respond_to?( :each )
       if optional
         return if value.nil?

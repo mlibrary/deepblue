@@ -67,7 +67,12 @@ module Deepblue
       curation_concern.file_sets.each do |file_set|
         @total_file_sets_exported += 1
         log_provenance_migrate( curation_concern: file_set, parent: curation_concern ) if MetadataHelper::MODE_MIGRATE == mode
-        file_id = ":#{yaml_file_set_id( file_set )}:"
+        export_file_name = yaml_export_file_path( target_dirname: target_dirname, file_set: file_set )
+        export_parent = File.dirname export_file_name
+        # puts "export_parent=#{export_parent}"
+        # puts `ls -l #{export_parent}`
+        file_id_base = yaml_file_set_id( file_set )
+        file_id = ":#{file_id_base}:"
         yaml_line( out, indent_first_line, file_id )
         indent = indent_base + indent_first_line
         yaml_item( out, indent, ':id:', file_set.id, escape: true )
@@ -75,6 +80,7 @@ module Deepblue
         yaml_item( out, indent, ':title:', file_set.title, escape: true, single_value: single_value )
         yaml_item_prior_identifier( out, indent, curation_concern: file_set )
         file_path = yaml_import_file_path( target_dirname: target_dirname, file_set: file_set )
+        filename = File.basename file_path
         yaml_item( out, indent, ':file_path:', file_path.to_s, escape: true )
         # checksum = yaml_file_set_checksum( file_set: file_set )
         # yaml_item( out, indent, ":checksum_algorithm:", checksum.present? ? checksum.algorithm : '', escape: true )
@@ -93,12 +99,67 @@ module Deepblue
         value = file_set.original_file.nil? ? nil : file_set.original_file.original_name
         yaml_item( out, indent, ":original_name:", value, escape: true )
         yaml_item( out, indent, ":visibility:", file_set.visibility )
+
+        original = file_set.original_file
+        versions = original ? original.versions.all : []
+        yaml_item( out, indent, ":version_count:", versions.count )
+        if versions.count > 1
+          versions.each_with_index do |ver,index|
+            index += 1 # not zero-based
+            yaml_item( out, indent, ":version#{index}:" )
+            # yaml_item( out, indent + indent_base, ":version_id:", ver.uri )
+            vc = Hyrax::VersionCommitter.where( version_id: ver.uri )
+            if vc.empty?
+              yaml_item( out, indent + indent_base, ":version_committer:", '' )
+              yaml_item( out, indent + indent_base, ":created_at:", '' )
+              yaml_item( out, indent + indent_base, ":updated_at:", '' )
+              yaml_item( out, indent + indent_base, ":file_name:", '' )
+              yaml_item( out, indent + indent_base, ":file_size:", '' )
+              yaml_item( out, indent + indent_base, ":checksum_algorithm:", '' )
+              yaml_item( out, indent + indent_base, ":checksum_value:", '' )
+            else
+              vc = vc.first
+              yaml_item( out, indent + indent_base, ":version_committer:", vc.committer_login )
+              yaml_item( out, indent + indent_base, ":created_at:", vc.created_at )
+              yaml_item( out, indent + indent_base, ":updated_at:", vc.updated_at )
+              v_filename = "v#{index}_#{filename}"
+              # puts "v_filename=#{v_filename}"
+              v_exported_file = File.join export_parent, v_filename
+              # puts "v_exported_file=#{v_exported_file} --> exist? #{File.exist? v_exported_file}"
+              yaml_item( out, indent + indent_base, ":file_name:", v_filename )
+              if File.exist? v_exported_file
+                # puts "File.size? v_exported_file=#{File.size? v_exported_file}"
+                file_size = File.size? v_exported_file
+                yaml_item( out, indent + indent_base, ":file_size:", file_size )
+                checksum,algo = yaml_compute_checksum_in_chunks v_exported_file
+                yaml_item( out, indent + indent_base, ":checksum_algorithm:", algo )
+                yaml_item( out, indent + indent_base, ":checksum_value:", checksum )
+              else
+                yaml_item( out, indent + indent_base, ":file_size:", '' )
+                yaml_item( out, indent + indent_base, ":checksum_algorithm:", '' )
+                yaml_item( out, indent + indent_base, ":checksum_value:", '' )
+              end
+            end
+          end
+        end
+
         skip = %w[ prior_identifier title file_size ]
         attribute_names_file_set.each do |name|
           next if skip.include? name
           yaml_item_file_set( out, indent, file_set, name: name )
         end
       end
+    end
+
+    def yaml_compute_checksum_in_chunks(file)
+      checksum = File.open( file, 'rb' ) do |io|
+        Digest::SHA1.new.tap do |checksum|
+          while chunk = io.read(5.megabytes)
+            checksum << chunk
+          end
+        end.hexdigest
+      end
+      return checksum,'SHA1'
     end
 
     def yaml_body_user_body( out, indent_base:, indent:, user: )
@@ -482,7 +543,11 @@ module Deepblue
         curation_concern = yaml_work_find( curation_concern: curation_concern ) if curation_concern.is_a? String
         target_file = yaml_filename_work( pathname_dir: dir, work: curation_concern )
         target_dir = yaml_targetdir_work( pathname_dir: dir, work: curation_concern )
-        Dir.mkdir( target_dir ) if export_files && !Dir.exist?( target_dir )
+        # Dir.mkdir( target_dir ) if export_files && !Dir.exist?( target_dir )
+        if export_files
+          Dir.mkdir( target_dir ) unless Dir.exist?( target_dir )
+          yaml_work_export_files( work: curation_concern, target_dirname: target_dir, log_filename: log_filename )
+        end
         File.open( target_file, 'w' ) do |out2|
           yaml_populate_work( curation_concern: curation_concern,
                               out: out2,
@@ -490,9 +555,9 @@ module Deepblue
                               target_filename: target_file,
                               target_dirname: target_dir )
         end
-        if export_files
-          yaml_work_export_files( work: curation_concern, target_dirname: target_dir, log_filename: log_filename )
-        end
+        # if export_files
+        #   yaml_work_export_files( work: curation_concern, target_dirname: target_dir, log_filename: log_filename )
+        # end
       else
         log_provenance_migrate( curation_concern: curation_concern ) if MetadataHelper::MODE_MIGRATE == mode
         indent_base = " " * 2
@@ -589,6 +654,33 @@ module Deepblue
             log_lines( log_file, "WARNING: Skipping file export of file_set #{file_set.id} -- #{export_what} at #{Time.now} because file is nil and export_file_name is empty." )
           else
             log_lines( log_file, "Skipping file export of #{export_what} at #{Time.now}." )
+          end
+          # TODO: write out version files if versions exist
+          # TODO:
+          original = file_set.original_file
+          versions = original ? original.versions.all : []
+          parent = File.dirname export_file_name
+          # puts "export_file_name=#{export_file_name}"
+          filename = File.basename export_file_name
+          # puts `ls -l #{parent}`
+          if versions.count > 1
+            versions.each_with_index do |ver,index|
+              index += 1 # not zero-based
+              next if index >= versions.count # skip exporting last version file as it is the current version
+              vc = Hyrax::VersionCommitter.where( version_id: ver.uri )
+              if vc.empty?
+
+              else
+                vc = vc.first
+                v_filename = "v#{index}_#{filename}"
+                v_filename = File.join parent, v_filename
+                # TODO: check if overwriting, and do the right thing
+                log_lines( log_file, "Starting file export of #{v_filename} at #{Time.now}." )
+                bytes_copied = ExportFilesHelper.export_file_uri( source_uri: ver.uri, target_file: v_filename )
+                total_byte_count += bytes_copied
+                log_lines( log_file, "Finished file export of #{v_filename} at #{Time.now}." )
+              end
+            end
           end
         end
       end

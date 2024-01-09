@@ -71,6 +71,16 @@ module Deepblue
     #   return rv
     # end
 
+    def parent_published?
+      return false unless parent.present?
+      parent.published?
+    end
+
+    def parent_tombstoned?
+      return false unless parent.present?
+      parent.tombstone.present?
+    end
+
     # versioning
 
     def versions

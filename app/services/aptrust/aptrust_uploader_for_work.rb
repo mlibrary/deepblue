@@ -143,40 +143,6 @@ module Aptrust
       export_work_files( target_dir: path )
     end
 
-    # def bag_export_work()
-    #   track_deposit( status: 'bagging' )
-    #   working_dir ||= dir_working
-    #   target_dir = File.join( working_dir, bag_id )
-    #   Dir.mkdir( target_dir ) unless Dir.exist? target_dir
-    #   @bag = BagIt::Bag.new( target_dir )
-    #   bag.write_bag_info( bag_info ) # Create bagit-info.txt file
-    #   aptrust_info_work_write
-    #   export_data_work( target_dir: bag_data_dir )
-    #   bag_manifest
-    #   track_deposit( status: 'bagged', note: "target_dir: #{target_dir}" )
-    #   target_dir
-    # end
-
-    # def deposit_work()
-    #   unless allow_deposit?
-    #     track_deposit( status: 'skipped' )
-    #     return
-    #   end
-    #   begin
-    #     track_deposit( status: 'depositing' )
-    #     work_dir = bag_export
-    #     tar_file = tar( dir: work_dir, id: object_id, status_history: status_history )
-    #     export_dir = dir_export
-    #     export_tar_file = File.join( export_dir, File.basename( tar_file ) )
-    #     FileUtils.mv( tar_file, export_tar_file )
-    #     # TODO: delete untarred files
-    #     #deposit( filename: export_tar_file, id: object_id, status_history: status_history )
-    #   rescue StandardError => e
-    #     ::Deepblue::LoggingHelper.bold_error ["AptrustService.perform_deposit(#{object_id}) error #{e}"] + e.backtrace[0..20]
-    #     #track( id: object_id, status: 'failed', status_history: status_history, note: "failed in #{e.context} with error #{e}" )
-    #   end
-    # end
-
   end
 
 end

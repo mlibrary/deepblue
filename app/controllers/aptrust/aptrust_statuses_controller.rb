@@ -103,6 +103,8 @@ class AptrustStatusesController < ApplicationController
     case params[:commit]
     when 'All'
       init_aptrust_statuses
+    when 'Deposited'
+      init_aptrust_statuses( event: ::Aptrust::EVENT_DEPOSITED )
     when 'Exported'
       init_aptrust_statuses( event: ::Aptrust::EVENT_EXPORTED )
     when 'Failed'
