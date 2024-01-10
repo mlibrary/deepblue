@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Aptrust
-  class AptrustStatusesPresenter
+  class AptrustEventsPresenter
 
     include ::Deepblue::DeepbluePresenterBehavior
 

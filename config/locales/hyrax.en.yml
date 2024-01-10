@@ -61,6 +61,7 @@ en:
               Private -- depositor can only select private for visibility. Access is restricted to repository
               administrators, managers, and viewers of the set. Must be used with "No embargo" setting above.
       sidebar:
+        aptrust_statuses:   "APTrust Upload Statuses"
         documentation:      "Manage Documentation"
         google_analytics:   "Google Analytics"
         job_statuses:       "Job Statuses"
