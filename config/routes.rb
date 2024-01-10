@@ -313,6 +313,10 @@ Rails.application.routes.draw do
   resource :email_subscription
   get 'email_subscriptions', to: 'email_subscriptions#index', as: 'email_subscriptions' # index
 
+  resource :aptrust_event
+  get 'aptrust_events', controller: 'aptrust/aptrust_events', action: :index
+  post 'aptrust_events', controller: 'aptrust/aptrust_events', action: :index
+
   resource :aptrust_status
   get 'aptrust_statuses', controller: 'aptrust/aptrust_statuses', action: :index
   post 'aptrust_statuses', controller: 'aptrust/aptrust_statuses', action: :index

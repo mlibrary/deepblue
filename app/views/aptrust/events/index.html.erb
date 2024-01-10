@@ -1,8 +1,8 @@
 <% provide :page_header do %>
-  <h1><%= "APTrust Statuses" %></h1>
+  <h1><%= "APTrust Events" %></h1>
 <% end %>
 
-<%= form_tag( main_app.aptrust_statuses_path, method: 'post' ) do %>
+<%= form_tag( main_app.aptrust_events_path, method: 'post' ) do %>
   <table style="width:40em;">
     <tr>
       <td><%= label_tag(:begin_date_label, 'Begin Date') %></td>
@@ -17,25 +17,6 @@
   </table>
   <table style="width:40em;">
 
-<!--    EVENTS_VALID = [ EVENT_BAGGED,-->
-<!--    EVENT_BAGGING,-->
-<!--    EVENT_DEPOSIT_SKIPPED,-->
-<!--    EVENT_DEPOSITED,-->
-<!--    EVENT_DEPOSITING,-->
-<!--    EVENT_EXPORT_FAILED,-->
-<!--    EVENT_EXPORTED,-->
-<!--    EVENT_EXPORTING,-->
-<!--    EVENT_FAILED,-->
-<!--    EVENT_PACKED,-->
-<!--    EVENT_PACKING,-->
-<!--    EVENT_UPLOAD_SKIPPED,-->
-<!--    EVENT_UPLOADED,-->
-<!--    EVENT_UPLOADING,-->
-<!--    EVENT_UNKNOWN,-->
-<!--    EVENT_VERIFIED,-->
-<!--    EVENT_VERIFY_FAILED,-->
-<!--    EVENT_VERIFYING ] unless const_defined? :EVENTS_VALID-->
-
     <tr>
       <td> <%= submit_tag( 'All', class: 'btn btn-primary' ) %> </td>
       <td> <%= submit_tag( 'Deposited', class: 'btn btn-primary' ) %> </td>
@@ -49,44 +30,12 @@
   </table>
 <% end %>
 
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Timestamp</th>
-      <th>NOID</th>
-      <th>Event</th>
-      <th>Event Note</th>
-      <th>Updated</th>
-      <th>Created</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <% @aptrust_statuses.each do |status| %>
-      <tr>
-        <td>
-          <%= link_to "#{status.id}", main_app.aptrust_events_url( status_id: status.id ) %>
-        </td>
-        <td><%= status.timestamp %></td>
-        <td><%= status.noid %></td>
-        <td><%= status.event %></td>
-        <td><%= status.event_note %></td>
-        <td><%= status.updated_at %></td>
-        <td><%= status.created_at %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
-<% if @aptrust_events.present? %>
-  <h2><%= "APTrust Events" %></h2>
-
+<% if @aptrust_statuses.present? %>
+  <h2><%= "APTrust Status" %></h2>
   <table>
     <thead>
     <tr>
       <th>ID</th>
-      <th>Status ID</th>
       <th>Timestamp</th>
       <th>NOID</th>
       <th>Event</th>
@@ -97,10 +46,43 @@
     </thead>
 
     <tbody>
+    <% @aptrust_statuses.each do |status| %>
+      <tr>
+        <td><%= status.id %></td>
+        <td><%= status.timestamp %></td>
+        <td><%= status.noid %></td>
+        <td><%= status.event %></td>
+        <td><%= status.event_note %></td>
+        <td><%= status.updated_at %></td>
+        <td><%= status.created_at %></td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+  <h2><%= "APTrust Events" %></h2>
+<% end %>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Status ID</th>
+      <th>Timestamp</th>
+      <th>NOID</th>
+      <th>Event</th>
+      <th>Event Note</th>
+      <th>Updated</th>
+      <th>Created</th>
+    </tr>
+  </thead>
+
+  <tbody>
     <% @aptrust_events.each do |event| %>
       <tr>
         <td><%= event.id %></td>
-        <td><%= event.aptrust_status_id %></td>
+        <td>
+          <%= link_to "#{event.aptrust_status_id}", main_app.aptrust_statuses_url( status_id: event.aptrust_status_id ) %>
+        </td>
         <td><%= event.timestamp %></td>
         <td><%= event.noid %></td>
         <td><%= event.event %></td>
@@ -109,7 +91,6 @@
         <td><%= event.created_at %></td>
       </tr>
     <% end %>
-    </tbody>
-  </table>
+  </tbody>
+</table>
 
-<% end %>
