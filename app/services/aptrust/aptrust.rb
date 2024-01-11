@@ -10,6 +10,8 @@ module Aptrust
 
     DEFAULT_UPLOAD_CONFIG_FILE = Rails.root.join( 'data', 'config', 'aptrust.yml' ) unless const_defined? :DEFAULT_UPLOAD_CONFIG_FILE
 
+    NULL_MSG_HANDLER      = ::Deepblue::MessageHandlerNull.new unless const_defined? :NULL_MSG_HANDLER
+
     EVENT_BAGGED          = 'bagged'          unless const_defined? :EVENT_BAGGED
     EVENT_BAGGING         = 'bagging'         unless const_defined? :EVENT_BAGGING
     EVENT_DEPOSIT_SKIPPED = 'deposit_skipped' unless const_defined? :EVENT_DEPOSIT_SKIPPED
