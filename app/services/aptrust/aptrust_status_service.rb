@@ -4,11 +4,12 @@ module Aptrust
 
   class AptrustStatusService
 
-    # TODO: review
-    def ingest_status(identifier) # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-      # For API V3 we need identifiers that look like fulcrum.org/fulcrum.org.michelt-zc77ss45g
-      # and not just fulcrum.org.michelt-zc77ss45g
-      response = connection.get("items?object_identifier=fulcrum.org\/#{identifier}&action=Ingest")
+    mattr_accessor :aptrust_status_service_debug_verbose, default: true
+
+    def ingest_status( identifier )
+      # TODO: figure out what the identifier should really be
+      get_arg = "items?object_identifier=#{aptrust_config.repository}\/#{identifier}&action=Ingest"
+      response = connection.get( get_arg )
 
       return 'http_error' unless response.success?
 
@@ -28,26 +29,49 @@ module Aptrust
       'standard_error'
     end
 
-    def initialize(options = {})
-      @base = options[:base] # TODO: review
-      @base ||= begin # TODO: review
-        filename = Rails.root.join('config', 'aptrust.yml') # TODO: review
-        @yaml = YAML.safe_load(File.read(filename)) if File.exist?(filename) # TODO: review
-        @yaml ||= {} # TODO: review
-        @yaml['AptrustApiUrl'] # TODO: review
+    attr_accessor :aptrust_config
+    attr_accessor :base
+    attr_accessor :debug_verbose
+    attr_accessor :options
+
+    def initialize( msg_handler:         nil,
+
+                    aptrust_config:      nil,
+                    aptrust_config_file: nil, # ignored if aptrust_config is defined
+
+                    debug_verbose:       aptrust_uploader_debug_verbose )
+
+      @debug_verbose = debug_verbose
+      @debug_verbose ||= aptrust_uploader_debug_verbose
+      @msg_handler = msg_handler
+      @msg_handler ||= ::Aptrust::NULL_MSG_HANDLER
+
+      @aptrust_config      = aptrust_config
+      @aptrust_config_file = aptrust_config_file
+
+      if @aptrust_config.blank?
+        @aptrust_config = if @aptrust_config_file.present?
+                            AptrustConfig.new( filename: @aptrust_config_filename )
+                          else
+                            AptrustConfig.new
+                          end
       end
+
+    end
+
+    def base
+      @base ||= aptrust_config.aptrust_api_url
     end
 
     private
 
-      # TODO: review
       def connection
-        @connection ||= Faraday.new(@base) do |conn|
+        @connection ||= Faraday.new( base ) do |conn|
           conn.headers = {
             accept: "application/json",
             content_type: "application/json",
-            "X-Pharos-API-User" => @yaml['AptrustApiUser'],
-            "X-Pharos-API-Key" => @yaml['AptrustApiKey']
+            "X-Pharos-API-User" => aptrust_config.aptrust_api_user,
+            "X-Pharos-API-Key" => aptrust_config.aptrust_api_key
           }
           conn.request :json
           conn.response :json, content_type: /\bjson$/

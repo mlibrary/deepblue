@@ -10,7 +10,6 @@ module Aptrust
 
     CLEAN_UP_AFTER_DEPOSIT = true unless const_defined? :CLEAN_UP_AFTER_DEPOSIT
     CLEAR_STATUS           = true unless const_defined? :CLEAR_STATUS
-    NULL_MSG_HANDLER       = ::Deepblue::MessageHandlerNull.new unless const_defined? :NULL_MSG_HANDLER
 
     ALLOW_DEPOSIT          = true                               unless const_defined? :ALLOW_DEPOSIT
     BAG_FILE_APTRUST_INFO  = 'aptrust-info.txt'                 unless const_defined? :BAG_FILE_APTRUST_INFO
@@ -108,13 +107,12 @@ module Aptrust
                     export_dir:          nil,
                     working_dir:         nil,
 
-                    debug_verbose:       aptrust_uploader_debug_verbose
+                    debug_verbose:       aptrust_uploader_debug_verbose )
 
-                    )
-
+      @debug_verbose = debug_verbose
       @debug_verbose ||= aptrust_uploader_debug_verbose
       @msg_handler = msg_handler
-      @msg_handler ||= NULL_MSG_HANDLER
+      @msg_handler ||= ::Aptrust::NULL_MSG_HANDLER
 
       # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
       #                                        ::Deepblue::LoggingHelper.called_from,
