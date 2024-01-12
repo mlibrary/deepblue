@@ -21,7 +21,7 @@ module Aptrust
     DEFAULT_TYPE           = ''                                 unless const_defined? :DEFAULT_TYPE
     DEFAULT_WORKING_DIR    = './aptrust_work'                   unless const_defined? :DEFAULT_WORKING_DIR
     EXT_TAR                = '.tar'                             unless const_defined? :EXT_TAR
-    IDENTIFIER_TEMPLATE    = '%repository%.%context%%type%%id%' unless const_defined? :IDENTIFIER_TEMPLATE
+    IDENTIFIER_TEMPLATE    = '%local_repository%.%context%%type%%id%' unless const_defined? :IDENTIFIER_TEMPLATE
 
     def self.bag_date_now()
       return Time.now
@@ -54,7 +54,7 @@ module Aptrust
 
     attr_accessor :bag_id
     attr_accessor :bag_id_context
-    attr_accessor :bag_id_repository
+    attr_accessor :bag_id_local_repository
     attr_accessor :bag_id_type
 
     attr_accessor :debug_assume_upload_succeeds
@@ -97,7 +97,7 @@ module Aptrust
 
                     bag_id:              nil,
                     bag_id_context:      nil, # ignored if bag_id is defined
-                    bag_id_repository:   nil, # ignored if bag_id is defined
+                    bag_id_local_repository:   nil, # ignored if bag_id is defined
                     bag_id_type:         nil, # ignored if bag_id is defined
 
                     export_by_closure:   nil,
@@ -133,7 +133,7 @@ module Aptrust
       #                                        "bi_id=#{bi_id}",
       #                                        "bag_id=#{bag_id}",
       #                                        "bag_id_context=#{bag_id_context}",
-      #                                        "bag_id_repository=#{bag_id_repository}",
+      #                                        "bag_id_local_repository=#{bag_id_local_repository}",
       #                                        "bag_id_type=#{bag_id_type}",
       #                                        "export_by_closure=#{export_by_closure}",
       #                                        "export_copy_src=#{export_copy_src}",
@@ -174,9 +174,9 @@ module Aptrust
 
       @bag_id              = bag_id
       # @bag_id_context      = Aptrust.arg_init_squish( bag_id_context,    DEFAULT_CONTEXT )
-      # @bag_id_repository   = Aptrust.arg_init_squish( bag_id_repository, DEFAULT_REPOSITORY )
+      # @bag_id_local_repository   = Aptrust.arg_init_squish( bag_id_local_repository, DEFAULT_REPOSITORY )
       @bag_id_context      = bag_id_context
-      @bag_id_repository   = bag_id_repository
+      @bag_id_local_repository   = bag_id_local_repository
       @bag_id_type         = Aptrust.arg_init_squish( bag_id_type,       DEFAULT_TYPE )
 
       @clean_up_after_deposit = CLEAN_UP_AFTER_DEPOSIT
@@ -250,13 +250,13 @@ module Aptrust
       aptrust_config.context
     end
 
-    def bag_id_repository
-      @bag_id_repository = bag_id_repository_init if @bag_id_repository.blank?
-      @bag_id_repository
+    def bag_id_local_repository
+      @bag_id_local_repository = bag_id_local_repository_init if @bag_id_local_repository.blank?
+      @bag_id_local_repository
     end
 
-    def bag_id_repository_init
-      aptrust_config.repository
+    def bag_id_local_repository_init
+      aptrust_config.local_repository
     end
 
     def bag_init
@@ -272,7 +272,7 @@ module Aptrust
 
     def bag_id_init()
       rv = bag_id_template
-      rv = rv.gsub( /\%repository\%/, bag_id_repository )
+      rv = rv.gsub( /\%local_repository\%/, bag_id_local_repository )
       rv = rv.gsub( /\%context\%/, bag_id_context )
       rv = rv.gsub( /\%type\%/, bag_id_type )
       rv = rv.gsub( /\%id\%/, object_id )

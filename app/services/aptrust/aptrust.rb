@@ -35,6 +35,8 @@ module Aptrust
 
     EVENTS_ERRORS = [ EVENT_EXPORT_FAILED, EVENT_FAILED, EVENT_VERIFY_FAILED ] unless const_defined? :EVENTS_ERRORS
 
+    EVENTS_NEED_VERIFY = [ EVENT_DEPOSITED, EVENT_VERIFYING ] unless const_defined? :EVENTS_NEED_VERIFY
+
     EVENTS_PROCESSING = [ EVENT_BAGGED,
                           EVENT_BAGGING,
                           EVENT_DEPOSITED,
