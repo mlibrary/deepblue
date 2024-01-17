@@ -12,6 +12,7 @@ module Aptrust
     attr_accessor :bucket_region
     attr_accessor :context
     attr_accessor :repository
+    attr_accessor :local_repository
 
     attr_accessor :aptrust_api_download_dir
     attr_accessor :aptrust_api_url
@@ -28,6 +29,7 @@ module Aptrust
         @bucket_region            = Settings.aptrust.bucket_region
         @context                  = Settings.aptrust.context
         @repository               = Settings.aptrust.repository
+        @local_repository         = Settings.aptrust.local_repository
         @aptrust_api_download_dir = Settings.aptrust.aptrust_api_download_dir
         @aptrust_api_url          = Settings.aptrust.aptrust_api_url
         @aptrust_api_user         = Settings.aptrust.aptrust_api_user
@@ -43,6 +45,7 @@ module Aptrust
       @bucket_region            = aptrust_config['BucketRegion']
       @context                  = aptrust_config['Context']
       @repository               = aptrust_config['Repository']
+      @local_repository         = aptrust_config['LocalRepository']
       @aptrust_api_download_dir = aptrust_config['DownloadDir']
       @aptrust_api_url          = aptrust_config['AptrustApiUrl']
       @aptrust_api_user         = aptrust_config['AptrustApiUser']
