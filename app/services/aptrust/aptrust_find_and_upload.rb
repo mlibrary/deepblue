@@ -8,7 +8,7 @@ class Aptrust::AptrustFindAndUpload
 
   mattr_accessor :test_mode, default: true
 
-  FILTER_DEFAULT = AptrustFilterWork.new unless const_defined? :FILTER_DEFAULT
+  FILTER_DEFAULT = Aptrust::AptrustFilterWork.new unless const_defined? :FILTER_DEFAULT
 
   attr_accessor :clean_up_after_deposit
   attr_accessor :clear_status
