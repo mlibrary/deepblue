@@ -147,9 +147,9 @@ class Aptrust::AptrustUploader
 
     if @aptrust_config.blank?
       @aptrust_config = if @aptrust_config_file.present?
-                          AptrustConfig.new( filename: @aptrust_config_filename )
+                          Aptrust::AptrustConfig.new( filename: @aptrust_config_filename )
                         else
-                          AptrustConfig.new
+                          Aptrust::AptrustConfig.new
                         end
     end
 
@@ -163,9 +163,9 @@ class Aptrust::AptrustUploader
 
     @bag                 = bag
     @bag_info            = bag_info
-    # @bi_date           = Aptrust.arg_init_squish( bi_date, AptrustUploader.bag_date_now )
+    # @bi_date           = Aptrust.arg_init_squish( bi_date, Aptrust::AptrustUploader.bag_date_now )
     @bi_date             = bi_date
-    @bi_date             ||= AptrustUploader.bag_date_now
+    @bi_date             ||= Aptrust::AptrustUploader.bag_date_now
     @bi_description      = Aptrust.arg_init_squish( bi_description, DEFAULT_BI_DESCRIPTION )
     @bi_id               = Aptrust.arg_init_squish( bi_id,          @object_id )
     @bi_source           = Aptrust.arg_init_squish( bi_source,      DEFAULT_BI_SOURCE )
@@ -198,7 +198,7 @@ class Aptrust::AptrustUploader
   end
 
   def aptrust_info
-    @aptrust_info ||= AptrustInfo.new( access:           ai_access,
+    @aptrust_info ||= Aptrust::AptrustInfo.new( access:           ai_access,
                                        creator:          ai_creator,
                                        description:      ai_description,
                                        item_description: ai_item_description,
@@ -216,7 +216,7 @@ class Aptrust::AptrustUploader
   end
 
   def aptrust_upload_status
-    @aptrust_uploader_status ||= AptrustUploaderStatus.new( id: @object_id )
+    @aptrust_uploader_status ||= Aptrust::AptrustUploaderStatus.new( id: @object_id )
   end
 
   def bag
@@ -298,14 +298,14 @@ class Aptrust::AptrustUploader
   end
 
   def bag_export
-    track( status: EVENT_BAGGING )
+    track( status: ::Aptrust::EVENT_BAGGING )
     bag.write_bag_info( bag_info ) # Create bagit-info.txt file
     aptrust_info_write
     status = export_data
-    if status == EVENT_EXPORTED
+    if status == ::Aptrust::EVENT_EXPORTED
       bag_manifest
-      track( status: EVENT_BAGGED, note: "bag_dir: #{bag_dir}" )
-      return EVENT_BAGGED
+      track( status: ::Aptrust::EVENT_BAGGED, note: "bag_dir: #{bag_dir}" )
+      return ::Aptrust::EVENT_BAGGED
     end
     return export_status
   end
@@ -346,16 +346,16 @@ class Aptrust::AptrustUploader
 
   def bag_upload
     if !allow_deposit?
-      track( status: EVENT_UPLOAD_SKIPPED, note: 'allow_deposit? returned false' )
-      return false, EVENT_UPLOAD_SKIPPED
+      track( status: ::Aptrust::EVENT_UPLOAD_SKIPPED, note: 'allow_deposit? returned false' )
+      return false, ::Aptrust::EVENT_UPLOAD_SKIPPED
     end
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "debug_assume_upload_succeeds=#{debug_assume_upload_succeedss}",
                                            "" ] if debug_verbose
     if debug_assume_upload_succeeds
-      track( status: EVENT_UPLOAD_SKIPPED, note: 'debug_assume_upload_succeeds is true' )
-      return true, EVENT_UPLOAD_SKIPPED
+      track( status: ::Aptrust::EVENT_UPLOAD_SKIPPED, note: 'debug_assume_upload_succeeds is true' )
+      return true, ::Aptrust::EVENT_UPLOAD_SKIPPED
     end
     begin
       # TODO: add timing
@@ -367,15 +367,15 @@ class Aptrust::AptrustUploader
       # filename = tar_filename
       # aws_object = bucket.object( File.basename(filename) )
       aws_object = bucket.object( tar_filename )
-      track( status: EVENT_UPLOADING )
+      track( status: ::Aptrust::EVENT_UPLOADING )
       filename = File.join( export_dir, tar_filename )
       aws_object.upload_file( filename )
-      track( status: EVENT_UPLOADED )
-      return true, EVENT_UPLOADED
+      track( status: ::Aptrust::EVENT_UPLOADED )
+      return true, ::Aptrust::EVENT_UPLOADED
     rescue Aws::S3::Errors::ServiceError => e
-      track( status: EVENT_FAILED, note: "failed in #{e.context} with error #{e}" )
+      track( status: ::Aptrust::EVENT_FAILED, note: "failed in #{e.context} with error #{e}" )
       # TODO: Rails.logger.error "Upload of file #{filename} failed with error #{e}"
-      return false, EVENT_FAILED
+      return false, ::Aptrust::EVENT_FAILED
     end
   end
 
@@ -390,13 +390,13 @@ class Aptrust::AptrustUploader
       # filename = tar_filename
       # aws_object = bucket.object( File.basename(filename) )
       aws_object = bucket.object( upload_file )
-      track( status: EVENT_UPLOADING )
+      track( status: ::Aptrust::EVENT_UPLOADING )
       filename = File.join( export_dir, tar_filename )
       aws_object.upload_file( filename )
-      track( status: EVENT_UPLOADED )
+      track( status: ::Aptrust::EVENT_UPLOADED )
       return true
     rescue Aws::S3::Errors::ServiceError => e
-      track( status: EVENT_FAILED, note: "failed in #{e.context} with error #{e}" )
+      track( status: ::Aptrust::EVENT_FAILED, note: "failed in #{e.context} with error #{e}" )
       # TODO: Rails.logger.error "Upload of file #{filename} failed with error #{e}"
       return false
     end
@@ -448,9 +448,9 @@ class Aptrust::AptrustUploader
                                              "clear_status=#{clear_status}",
                                              "" ] if debug_verbose
       aptrust_upload_status.clear_statuses if clear_status
-      track( status: EVENT_DEPOSITING )
+      track( status: ::Aptrust::EVENT_DEPOSITING )
       status = bag_export
-      if status == EVENT_BAGGED
+      if status == ::Aptrust::EVENT_BAGGED
         bag_tar
         bag_uploaded_succeeded, status = bag_upload
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -460,40 +460,40 @@ class Aptrust::AptrustUploader
                                                "" ] if debug_verbose
       end
     rescue StandardError => e
-      #::Deepblue::LoggingHelper.bold_error ["AptrustService.perform_deposit(#{object_id}) error #{e}"] + e.backtrace[0..20]
+      #::Deepblue::LoggingHelper.bold_error ["Aptrust::AptrustService.perform_deposit(#{object_id}) error #{e}"] + e.backtrace[0..20]
       track( status: 'deposit failed', note: "failed in #{e.backtrace[0]} with error #{e}" )
     end
     return unless bag_uploaded_succeeded
     begin
-      track( status: EVENT_DEPOSITED ) if status == EVENT_UPLOADED
+      track( status: ::Aptrust::EVENT_DEPOSITED ) if status == ::Aptrust::EVENT_UPLOADED
       cleanup_tar_file
       cleanup_bag
     end
   end
 
   def export_data
-    track( status: EVENT_EXPORTING )
+    track( status: ::Aptrust::EVENT_EXPORTING )
     status_note = nil
     begin # until true for break
       unless export_by_closure.nil?
         export_data_by_closure
-        status = EVENT_EXPORTED
+        status = ::Aptrust::EVENT_EXPORTED
         break
       end
       if export_copy_src
         export_data_by_copy
-        status = EVENT_EXPORTED
+        status = ::Aptrust::EVENT_EXPORTED
         break
       end
       if export_move_src
         export_data_by_move
-        status = EVENT_EXPORTED
+        status = ::Aptrust::EVENT_EXPORTED
         break
       end
-      status = EVENT_EXPORT_FAILED
+      status = ::Aptrust::EVENT_EXPORT_FAILED
       status_note = 'no export method defined'
     end until true
-    track( status: EVENT_EXPORTED, note: status_note )
+    track( status: ::Aptrust::EVENT_EXPORTED, note: status_note )
     return status
  end
 
@@ -531,9 +531,9 @@ class Aptrust::AptrustUploader
     parent = File.dirname bag.bag_dir
     Dir.chdir( parent ) do
       tar_src = File.basename bag.bag_dir
-      track( status: EVENT_PACKING )
+      track( status: ::Aptrust::EVENT_PACKING )
       Minitar.pack( tar_src, File.open( tar_filename, 'wb') )
-      track( status: EVENT_PACKED )
+      track( status: ::Aptrust::EVENT_PACKED )
     end
   end
 
@@ -568,7 +568,7 @@ class Aptrust::AptrustUploader
                                            "id=#{id}",
                                            "" ], bold_puts: false if debug_verbose
     success = false
-    track( status: EVENT_DEPOSITING )
+    track( status: ::Aptrust::EVENT_DEPOSITING )
     begin
       # add timing
       config = aptrust_config
@@ -588,15 +588,15 @@ class Aptrust::AptrustUploader
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
       aws_object = bucket.object( File.basename(filename) )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
-      track( status: EVENT_UPLOADING )
+      track( status: ::Aptrust::EVENT_UPLOADING )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
       aws_object.upload_file( filename )
       success = true
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
-      track( status: EVENT_UPLOADED )
-      track( status: EVENT_DEPOSITED )
+      track( status: ::Aptrust::EVENT_UPLOADED )
+      track( status: ::Aptrust::EVENT_DEPOSITED )
     rescue Aws::S3::Errors::ServiceError => e
-      track( status: EVENT_FAILED, note: "failed in #{e.context} with error #{e}" )
+      track( status: ::Aptrust::EVENT_FAILED, note: "failed in #{e.context} with error #{e}" )
       ::Deepblue::LoggingHelper.bold_error ["Upload of file #{filename} failed in #{e.context} with error #{e}"] + e.backtrace[0..20]
       Rails.logger.error "Upload of file #{filename} failed with error #{e}"
       success = false

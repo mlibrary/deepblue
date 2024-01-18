@@ -75,7 +75,7 @@ class Aptrust::FilterStatus
                                            ::Deepblue::LoggingHelper.called_from,
                                            "work.id=#{work.id}",
                                            "" ] if debug_verbose
-    status = Status.for_id( noid: work.id )
+    status = ::Aptrust::Status.for_id( noid: work.id )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "status=#{status}",
@@ -129,7 +129,7 @@ class Aptrust::AptrustFilterWork
   end
 
   def set_filter_by_date( begin_date:, end_date: )
-    @filter_by_date = FilterDate.new( begin_date: begin_date, end_date: end_date )
+    @filter_by_date = Aptrust::FilterDate.new( begin_date: begin_date, end_date: end_date )
     @filter_by_date.debug_verbose = debug_verbose if @filter_by_date.respond_to? :debug_verbose=
   end
 

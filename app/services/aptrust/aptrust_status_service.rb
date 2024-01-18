@@ -86,7 +86,7 @@ class Aptrust::AptrustStatusService
                                              ::Deepblue::LoggingHelper.called_from,
                                              "get_arg=#{get_arg}",
                                              "" ] if debug_verbose
-      track( status: EVENT_VERIFYING, note: "object_identifier=#{aptrust_config.repository}\/#{identifier}" )
+      track( status: ::Aptrust::EVENT_VERIFYING, note: "object_identifier=#{aptrust_config.repository}\/#{identifier}" )
       response = connection.get( get_arg )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -94,7 +94,7 @@ class Aptrust::AptrustStatusService
                                              "" ] if debug_verbose
       unless response.success?
         rv = 'http_error'
-        track( status: EVENT_VERIFY_FAILED, note: "#{rv} - #{object_identifier}" )
+        track( status: ::Aptrust::EVENT_VERIFY_FAILED, note: "#{rv} - #{object_identifier}" )
         break
       end
       results = response.body['results']
@@ -104,7 +104,7 @@ class Aptrust::AptrustStatusService
                                              "" ] if debug_verbose
       if results.blank?
         rv = 'not_found'
-        track( status: EVENT_VERIFY_FAILED, note: "#{rv} - #{object_identifier}" )
+        track( status: ::Aptrust::EVENT_VERIFY_FAILED, note: "#{rv} - #{object_identifier}" )
         break
       end
       item = results.first
@@ -114,12 +114,12 @@ class Aptrust::AptrustStatusService
                                              "" ] if debug_verbose
       if /failed/i.match?(item['status']) || /cancelled/i.match?(item['status'])
         rv =  'failed'
-        track( status: EVENT_VERIFY_FAILED, note: "#{object_identifier}" )
+        track( status: ::Aptrust::EVENT_VERIFY_FAILED, note: "#{object_identifier}" )
         break
       end
       if /cleanup/i.match?(item['stage']) && /success/i.match?(item['status'])
         rv = 'success'
-        track( status: EVENT_VERIFIED, note: "#{object_identifier}" )
+        track( status: ::Aptrust::EVENT_VERIFIED, note: "#{object_identifier}" )
         break
       end
       rv = 'processing'
@@ -129,7 +129,7 @@ class Aptrust::AptrustStatusService
                                              "Aptrust::AptrustStatusService.ingest_status(#{identifier}) #{e}",
                                              "" ]
       rv = 'standard_error'
-      track( status: EVENT_VERIFY_FAILED, note: "#{rv} - #{object_identifier}" )
+      track( status: ::Aptrust::EVENT_VERIFY_FAILED, note: "#{rv} - #{object_identifier}" )
     end until true
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
