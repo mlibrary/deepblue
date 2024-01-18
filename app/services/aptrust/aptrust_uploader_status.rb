@@ -22,7 +22,7 @@ class Aptrust::AptrustUploaderStatus
 
   def self.clear_history( id: )
     # select all events, then delete
-    records = Event.where( noid: id )
+    records = Aptrust::Event.where( noid: id )
     records.each { |r| r.delete }
     clear_status( id: id )
   end
@@ -46,11 +46,11 @@ class Aptrust::AptrustUploaderStatus
                                            ::Deepblue::LoggingHelper.called_from,
                                            "id=#{id}",
                                            "" ] if aptrust_uplaoder_status_debug_verbose
-    if STATUS_IN_DB
-      records = Status.where( noid: id )
+    if ::Aptrust::STATUS_IN_DB
+      records = ::Aptrust::Status.where( noid: id )
       records.each { |r| r.delete }
     end
-    @status = EVENT_UNKNOWN
+    @status = ::Aptrust::EVENT_UNKNOWN
     @status_history = []
   end
 
@@ -66,9 +66,9 @@ class Aptrust::AptrustUploaderStatus
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "" ] if aptrust_uplaoder_status_debug_verbose
-    rv = if STATUS_IN_DB
+    rv = if ::Aptrust::STATUS_IN_DB
            history = []
-           records = Event.where( noid: id )
+           records = Aptrust::Event.where( noid: id )
            records.each { |e| history << { id: e.id, status: e.event, note: e.event_note } }
            history
          else
@@ -78,7 +78,7 @@ class Aptrust::AptrustUploaderStatus
   end
 
   def status_init
-    return EVENT_UNKNOWN if status_history.empty?
+    return ::Aptrust::EVENT_UNKNOWN if status_history.empty?
     return status_history.last[:status]
   end
 
@@ -101,7 +101,7 @@ class Aptrust::AptrustUploaderStatus
     else
       status_history << { id: id, status: status, timestamp: timestamp, note: note }
     end
-    update_db( status_event: status, note: note, timestamp: timestamp ) if STATUS_IN_DB
+    update_db( status_event: status, note: note, timestamp: timestamp ) if ::Aptrust::STATUS_IN_DB
   end
 
   def update_db( status_event:, note: nil, timestamp: DateTime.now )
@@ -114,9 +114,9 @@ class Aptrust::AptrustUploaderStatus
     begin
     timestamp ||= DateTime.now
     noid = id
-    status = Status.for_id( noid: noid )
+    status = Aptrust::Status.for_id( noid: noid )
     if status.blank?
-      status = Status.new( timestamp: timestamp, event: status_event, event_note: note, noid: noid )
+      status = Aptrust::Status.new( timestamp: timestamp, event: status_event, event_note: note, noid: noid )
     else
       status = status[0]
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -130,7 +130,7 @@ class Aptrust::AptrustUploaderStatus
     end
     status.save
     aptrust_status_id = status.id
-    event = Event.new( timestamp: timestamp,
+    event = Aptrust::Event.new( timestamp: timestamp,
                        event: status_event,
                        event_note: note,
                        noid: noid,
@@ -142,7 +142,7 @@ class Aptrust::AptrustUploaderStatus
   end
 
   def load_status_history
-    status = Status.for_id( noid: noid )
+    status = Aptrust::Status.for_id( noid: noid )
   end
 
 end

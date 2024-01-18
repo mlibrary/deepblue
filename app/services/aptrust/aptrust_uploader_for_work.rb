@@ -61,13 +61,13 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
   def initialize( work: nil, msg_handler: nil )
     super( object_id:          work.id,
            msg_handler:        msg_handler,
-           aptrust_info:       AptrustInfoFromWork.new( work: work ),
+           aptrust_info:       Aptrust::AptrustInfoFromWork.new( work: work ),
            #bag_id_context:     aptrust_service_deposit_context,
            #bag_id_local_repository:  aptrust_service_deposit_local_repository,
            bag_id_type:        'DataSet.',
-           export_dir:         AptrustUploaderForWork.dbd_export_dir,
-           working_dir:        AptrustUploaderForWork.dbd_working_dir,
-           bi_description:     AptrustUploaderForWork.dbd_bag_description( work: work ) )
+           export_dir:         Aptrust::AptrustUploaderForWork.dbd_export_dir,
+           working_dir:        Aptrust::AptrustUploaderForWork.dbd_working_dir,
+           bi_description:     Aptrust::AptrustUploaderForWork.dbd_bag_description( work: work ) )
     @work = work
     @export_by_closure = ->(target_dir) { export_data_work( target_dir: target_dir ) }
   end
@@ -78,7 +78,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
   end
 
   def aptrust_info_work
-    @aptrust_info ||= AptrustInfoFromWork.new( work:             work,
+    @aptrust_info ||= Aptrust::AptrustInfoFromWork.new( work:             work,
                                                access:           ai_access,
                                                creator:          ai_creator,
                                                description:      ai_description,

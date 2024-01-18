@@ -60,20 +60,20 @@ class Aptrust::AptrustFindAndUpload
 
   def process( work: )
     # TODO: deal with incomplete uploads
-    # status = Status.for_id( noid: work.id )
+    # status = ::Aptrust::Status.for_id( noid: work.id )
     # status = status[0] unless status.blank?
 
     # else start uplaod
     if 1 == max_upload_jobs
-      uploader = AptrustUploaderForWork.new( work: work, msg_handler: msg_handler )
-      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-      #                                        ::Deepblue::LoggingHelper.called_from,
-      #                                        "uploader.aptrust_config=#{uploader.aptrust_config}",
-      #                                        "uploader.bag_id_context=#{uploader.bag_id_context}",
-      #                                        "uploader.bag_id_repository=#{uploader.bag_id_repository}",
-      #                                        "uploader.bag_id_type=#{uploader.bag_id_type}",
-      #                                        "uploader.bag_id=#{uploader.bag_id}",
-      #                                        "" ] if debug_verbose
+      uploader = ::Aptrust::AptrustUploaderForWork.new( work: work, msg_handler: msg_handler )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             # "uploader.aptrust_config=#{uploader.aptrust_config}",
+                                             "uploader.bag_id_context=#{uploader.bag_id_context}",
+                                             "uploader.bag_id_local_repository=#{uploader.bag_id_local_repository}",
+                                             "uploader.bag_id_type=#{uploader.bag_id_type}",
+                                             "uploader.bag_id=#{uploader.bag_id}",
+                                             "" ] if debug_verbose
       uploader.clean_up_after_deposit = clean_up_after_deposit
       uploader.clear_status = clear_status
       uploader.debug_assume_upload_succeeds = debug_assume_upload_succeeds
@@ -81,6 +81,10 @@ class Aptrust::AptrustFindAndUpload
       @upload_count += 1
     else
       # TODO launch and keep track of jobs;
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "TODO launch and keep track of jobs",
+                                             "" ] if debug_verbose
     end
   end
 
@@ -90,6 +94,11 @@ class Aptrust::AptrustFindAndUpload
                                            ::Deepblue::LoggingHelper.called_from,
                                            "" ] if debug_verbose
     DataSet.all.each do |work|
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "max_uploads=#{max_uploads}",
+                                             "@upload_count=#{@upload_count}",
+                                             "" ] if debug_verbose
       return if -1 != max_uploads && @upload_count >= max_uploads
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -101,10 +110,10 @@ class Aptrust::AptrustFindAndUpload
       # next if work.tombstone.present?
       # next unless work.published?
       filter_rv = filter.include? work: work
-      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-      #                                        ::Deepblue::LoggingHelper.called_from,
-      #                                        "filter_rv=#{filter_rv}",
-      #                                        "" ] if debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "filter_rv=#{filter_rv}",
+                                             "" ] if debug_verbose
       next unless filter_rv
       process work: work
     end
