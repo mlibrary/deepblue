@@ -191,7 +191,7 @@ en:
         date_created:
           'The date the work’s data was created, as determined by the creator.'
         date_coverage: >
-          Select the dates that correspond to the span of time that the data were collected and processed.
+          Select the span of time that the data represent or the dates the data were collected, whichever is more salient for your data. Please also indicate what the chosen dates represent in your readme.
         contributor: >
           Person or organization outside the Creator role who have contributed to the work in some way
           (e.g., interns, other non-authors/creators).

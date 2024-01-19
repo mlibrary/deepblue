@@ -270,7 +270,7 @@ en:
           List the ORCID(s) of the person(s) responsible for creating the Work; use the following format:
           https://orcid.org/XXXX-XXXX-XXXX-XXXX
         date_coverage: >
-          Select the dates that correspond to the span of time that the data were collected and processed.
+          Select the span of time that the data represent or the dates the data were collected, whichever is more salient for your data. Please also indicate what the chosen dates represent in your readme.
         date_created: >
           The date the work’s data was created, as determined by the creator.
         describe_work: >

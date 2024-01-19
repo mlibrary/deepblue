@@ -40,9 +40,9 @@ class Aptrust::AptrustStatusService
 
     if @aptrust_config.blank?
       @aptrust_config = if @aptrust_config_file.present?
-                          AptrustConfig.new( filename: @aptrust_config_filename )
+                          Aptrust::AptrustConfig.new( filename: @aptrust_config_filename )
                         else
-                          AptrustConfig.new
+                          Aptrust::AptrustConfig.new
                         end
     end
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -53,7 +53,7 @@ class Aptrust::AptrustStatusService
   end
 
   def aptrust_upload_status
-    @aptrust_uploader_status ||= AptrustUploaderStatus.new( id: @object_id )
+    @aptrust_uploader_status ||= Aptrust::AptrustUploaderStatus.new( id: @object_id )
   end
 
   def base
