@@ -61,7 +61,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
   def initialize( work: nil, msg_handler: nil )
     super( object_id:          work.id,
            msg_handler:        msg_handler,
-           aptrust_info:       Aptrust::AptrustInfoFromWork.new( work: work ),
+           aptrust_info:       Aptrust::AptrustInfoFromWork.new( work: work, storage_option: 'Glacier-Deep-OR' ), # TODO: shift to config for storage option
            #bag_id_context:     aptrust_service_deposit_context,
            #bag_id_local_repository:  aptrust_service_deposit_local_repository,
            bag_id_type:        'DataSet.',
