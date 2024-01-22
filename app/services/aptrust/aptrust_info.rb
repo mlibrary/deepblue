@@ -4,6 +4,8 @@ require_relative './aptrust'
 
 class Aptrust::AptrustInfo
 
+  mattr_accessor :aptrust_info_debug_verbose, default: false
+
   DEFAULT_ACCESS           = 'Institution'          unless const_defined? :DEFAULT_ACCESS
   DEFAULT_CREATOR          = ''                     unless const_defined? :DEFAULT_CREATOR
   DEFAULT_DESCRIPTION      = 'No description.'      unless const_defined? :DEFAULT_DESCRIPTION
@@ -11,6 +13,7 @@ class Aptrust::AptrustInfo
   DEFAULT_STORAGE_OPTION   = 'Standard'             unless const_defined? :DEFAULT_STORAGE_OPTION
   DEFAULT_TITLE            = 'No Title'             unless const_defined? :DEFAULT_TITLE
 
+  attr_accessor :aptrust_config
   attr_accessor :access
   attr_accessor :creator
   attr_accessor :description
@@ -18,18 +21,35 @@ class Aptrust::AptrustInfo
   attr_accessor :storage_option
   attr_accessor :title
 
-  def initialize( access: nil,
+  def self.default_storage( aptrust_config: )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "aptrust_config.pretty_inspect=#{aptrust_config.pretty_inspect}",
+                                           "" ] if aptrust_info_debug_verbose
+    rv = aptrust_config.blank? ? DEFAULT_STORAGE_OPTION : aptrust_config.storage_option
+    rv ||= DEFAULT_STORAGE_OPTION
+    rv
+  end
+
+  def initialize( aptrust_config: nil,
+                  access: nil,
                   creator: nil,
                   description: nil,
                   item_description: nil,
                   storage_option: nil,
                   title: nil )
 
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "aptrust_config.pretty_inspect=#{aptrust_config.pretty_inspect}",
+                                           "" ] if aptrust_info_debug_verbose
+    @aptrust_config   = aptrust_config
     @access           = Aptrust.arg_init_squish( access,           DEFAULT_ACCESS )
     @creator          = Aptrust.arg_init_squish( creator,          DEFAULT_CREATOR )
     @description      = Aptrust.arg_init_squish( description,      DEFAULT_DESCRIPTION )
     @item_description = Aptrust.arg_init_squish( item_description, DEFAULT_ITEM_DESCRIPTION )
-    @storage_option   = Aptrust.arg_init_squish( storage_option,   DEFAULT_STORAGE_OPTION )
+    @storage_option   = Aptrust.arg_init(        storage_option,
+                                                 Aptrust::AptrustInfo.default_storage( aptrust_config: aptrust_config ) )
     @title            = Aptrust.arg_init_squish( title,            DEFAULT_TITLE )
   end
 

@@ -4,6 +4,8 @@ require_relative './aptrust'
 
 class Aptrust::AptrustConfig
 
+  mattr_accessor :aptrust_config_debug_verbose, default: false
+
   attr_accessor :aws_access_key_id
   attr_accessor :aws_secret_access_key
   attr_accessor :bucket
@@ -20,7 +22,13 @@ class Aptrust::AptrustConfig
   attr_accessor :export_dir
   attr_accessor :working_dir
 
+  attr_accessor :storage_option
+
   def initialize( filename: nil )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "filename=#{filename}",
+                                           "" ] if aptrust_config_debug_verbose
     if filename.present?
       load( filename )
     else
@@ -38,7 +46,12 @@ class Aptrust::AptrustConfig
       @download_dir             = Settings.aptrust.download_dir
       @export_dir               = Settings.aptrust.export_dir
       @working_dir              = Settings.aptrust.working_dir
+      @storage_option           = Settings.aptrust.storage_option
     end
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "self.pretty_inspect=#{self.pretty_inspect}",
+                                           "" ] if aptrust_config_debug_verbose
   end
 
   def load( filename )

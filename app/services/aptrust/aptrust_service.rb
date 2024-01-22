@@ -4,7 +4,7 @@ require_relative './aptrust'
 
 class Aptrust::AptrustService
 
-  mattr_accessor :aptrust_service_debug_verbose, default: true
+  mattr_accessor :aptrust_service_debug_verbose, default: false
 
   mattr_accessor :aptrust_service_allow_deposit,      default: true
   mattr_accessor :aptrust_service_deposit_context,    default: "" # none for DBD

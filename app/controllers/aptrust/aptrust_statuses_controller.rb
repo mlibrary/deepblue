@@ -5,7 +5,7 @@ require_relative '../../services/aptrust/aptrust'
 module Aptrust
 class AptrustStatusesController < ApplicationController
 
-  mattr_accessor :aptrust_statuses_controller_debug_verbose, default: true
+  mattr_accessor :aptrust_statuses_controller_debug_verbose, default: false
 
   include AdminOnlyControllerBehavior
 

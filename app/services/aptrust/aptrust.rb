@@ -74,7 +74,7 @@ module Aptrust
         return attr
     end
 
-    def self.arg_init_squish(attr, default, squish: 255 )
+    def self.arg_init_squish( attr, default, squish: 255 )
         attr ||= default
         if attr.blank? && squish.present?
             attr = ''

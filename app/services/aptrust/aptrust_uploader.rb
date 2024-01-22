@@ -144,14 +144,7 @@ class Aptrust::AptrustUploader
 
     @aptrust_config      = aptrust_config
     @aptrust_config_file = aptrust_config_file
-
-    if @aptrust_config.blank?
-      @aptrust_config = if @aptrust_config_file.present?
-                          Aptrust::AptrustConfig.new( filename: @aptrust_config_filename )
-                        else
-                          Aptrust::AptrustConfig.new
-                        end
-    end
+    @aptrust_config      ||= aptrust_config_init
 
     @aptrust_info        = aptrust_info
     @ai_access           = ai_access
@@ -197,13 +190,31 @@ class Aptrust::AptrustUploader
     return ALLOW_DEPOSIT
   end
 
+  def aptrust_config
+    @aptrust_config ||= aptrust_config_init
+  end
+
+  def aptrust_config_init
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "" ] if debug_verbose
+    if @aptrust_config.blank?
+      @aptrust_config = if @aptrust_config_file.present?
+                          Aptrust::AptrustConfig.new( filename: @aptrust_config_filename )
+                        else
+                          Aptrust::AptrustConfig.new
+                        end
+    end
+    @aptrust_config
+  end
+
   def aptrust_info
     @aptrust_info ||= Aptrust::AptrustInfo.new( access:           ai_access,
-                                       creator:          ai_creator,
-                                       description:      ai_description,
-                                       item_description: ai_item_description,
-                                       storage_option:   ai_storage_option,
-                                       title:            ai_title ).build
+                                                creator:          ai_creator,
+                                                description:      ai_description,
+                                                item_description: ai_item_description,
+                                                storage_option:   ai_storage_option,
+                                                title:            ai_title ).build
   end
 
   def aptrust_info_write( aptrust_info: nil )
