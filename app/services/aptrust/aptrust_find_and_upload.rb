@@ -21,6 +21,8 @@ class Aptrust::AptrustFindAndUpload
 
   attr_accessor :upload_count
 
+  attr_accessor :aptrust_config
+
   def initialize( clean_up_after_deposit:       ::Aptrust::AptrustUploader::CLEAN_UP_AFTER_DEPOSIT,
                   clear_status:                 ::Aptrust::AptrustUploader::CLEAR_STATUS,
                   debug_assume_upload_succeeds: false,
@@ -47,6 +49,8 @@ class Aptrust::AptrustFindAndUpload
 
     @upload_count = 0
 
+    @aptrust_config = ::Aptrust::AptrustConfig.new
+
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "clean_up_after_deposit=#{clean_up_after_deposit}",
@@ -55,6 +59,7 @@ class Aptrust::AptrustFindAndUpload
                                            "filter=#{filter}",
                                            "max_upload_jobs=#{max_upload_jobs}",
                                            "max_uploads=#{max_uploads}",
+                                           "@aptrust_config.pretty_inspect=#{@aptrust_config.pretty_inspect}",
                                            "" ] if debug_verbose
   end
 
@@ -65,7 +70,9 @@ class Aptrust::AptrustFindAndUpload
 
     # else start uplaod
     if 1 == max_upload_jobs
-      uploader = ::Aptrust::AptrustUploaderForWork.new( work: work, msg_handler: msg_handler )
+      uploader = ::Aptrust::AptrustUploaderForWork.new( aptrust_config: aptrust_config,
+                                                        work: work,
+                                                        msg_handler: msg_handler )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              # "uploader.aptrust_config=#{uploader.aptrust_config}",

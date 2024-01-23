@@ -31,7 +31,11 @@ class AptrustUploadWorkJob < AbstractRakeTaskJob
     run_job_delay
     id = job_options_value( key: 'id', default_value: nil )
     work = DataSet.find id
-    uploader = ::Aptrust::AptrustUploaderForWork.new( work: work, msg_handler: msg_handler )
+    aptrust_config = ::Aptrust::AptrustConfig.new
+    uploader = ::Aptrust::AptrustUploaderForWork.new( aptrust_config: aptrust_config,
+                                                      work: work,
+                                                      msg_handler: msg_handler )
+    # TODO: invoke uploader
     timestamp_end = DateTime.now
     # email_results( task_name: EVENT, event: EVENT )
     job_finished

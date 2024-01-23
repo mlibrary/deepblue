@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require_relative './aptrust'
+require_relative './aptrust_config'
 
 class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
+
+  mattr_accessor :aptrust_uploader_for_work_debug_verbose, default: false
 
   mattr_accessor :aptrust_service_allow_deposit,      default: true
   mattr_accessor :aptrust_service_deposit_context,    default: '' # none for DBD
@@ -58,10 +61,16 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
 
   attr_accessor :work
 
-  def initialize( work: nil, msg_handler: nil )
+  def initialize( aptrust_config: nil, work: nil, msg_handler: nil )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "aptrust_config.pretty_inspect=#{aptrust_config.pretty_inspect}",
+                                           "" ] if aptrust_uploader_for_work_debug_verbose
     super( object_id:          work.id,
            msg_handler:        msg_handler,
-           aptrust_info:       Aptrust::AptrustInfoFromWork.new( work: work, storage_option: 'Glacier-Deep-OR' ), # TODO: shift to config for storage option
+           aptrust_info:       Aptrust::AptrustInfoFromWork.new( work: work, aptrust_config: aptrust_config ),
+           # aptrust_info:       Aptrust::AptrustInfoFromWork.new( work: work,
+           #                                                       aptrust_config: ::Aptrust::AptrustConfig.new ),
            #bag_id_context:     aptrust_service_deposit_context,
            #bag_id_local_repository:  aptrust_service_deposit_local_repository,
            bag_id_type:        'DataSet.',
@@ -79,12 +88,13 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
 
   def aptrust_info_work
     @aptrust_info ||= Aptrust::AptrustInfoFromWork.new( work:             work,
-                                               access:           ai_access,
-                                               creator:          ai_creator,
-                                               description:      ai_description,
-                                               item_description: ai_item_description,
-                                               storage_option:   ai_storage_option,
-                                               title:            ai_title ).build
+                                                        aptrust_config:   aptrust_config,
+                                                        access:           ai_access,
+                                                        creator:          ai_creator,
+                                                        description:      ai_description,
+                                                        item_description: ai_item_description,
+                                                        storage_option:   ai_storage_option,
+                                                        title:            ai_title ).build
   end
 
   def aptrust_info_work_write

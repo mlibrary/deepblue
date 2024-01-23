@@ -6,7 +6,7 @@ class Aptrust::AptrustStatusService
 
   DEFAULT_TRACK_STATUS = false
 
-  mattr_accessor :aptrust_status_service_debug_verbose, default: true
+  mattr_accessor :aptrust_status_service_debug_verbose, default: false
 
   attr_accessor :aptrust_config
   attr_accessor :aptrust_upload_status
