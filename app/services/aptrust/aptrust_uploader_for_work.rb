@@ -7,17 +7,22 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
 
   mattr_accessor :aptrust_uploader_for_work_debug_verbose, default: false
 
-  mattr_accessor :aptrust_service_allow_deposit,      default: true
-  mattr_accessor :aptrust_service_deposit_context,    default: '' # none for DBD
+  mattr_accessor :aptrust_service_allow_deposit,            default: true
+  mattr_accessor :aptrust_service_deposit_context,          default: '' # none for DBD
   mattr_accessor :aptrust_service_deposit_local_repository, default: 'deepbluedata'
 
   def self.dbd_bag_description( work: )
     "Bag of a #{work.class.name} hosted at deepblue.lib.umich.edu/data/" # TODO: improve this, or move to config
   end
 
+  def self.dbd_bag_id_type( work: )
+    return 'DataSet.' if work.blank?
+    return "#{work.model_name.name}."
+  end
+
   def self.dbd_export_dir
     hostname = dbd_hostname_short
-    rv = Settings.aptrust.export_dir # TODO: get this from config
+    rv = Settings.aptrust.export_dir
     if rv.blank? && 'local' == hostname
       rv = './data/aptrust_export/'
     elsif rv.blank?
@@ -66,17 +71,18 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
                                            ::Deepblue::LoggingHelper.called_from,
                                            "aptrust_config.pretty_inspect=#{aptrust_config.pretty_inspect}",
                                            "" ] if aptrust_uploader_for_work_debug_verbose
+    bag_id_type = ::Aptrust::AptrustUploaderForWork.dbd_bag_id_type( work: work )
     super( object_id:          work.id,
            msg_handler:        msg_handler,
-           aptrust_info:       Aptrust::AptrustInfoFromWork.new( work: work, aptrust_config: aptrust_config ),
-           # aptrust_info:       Aptrust::AptrustInfoFromWork.new( work: work,
+           aptrust_info:       ::Aptrust::AptrustInfoFromWork.new( work: work, aptrust_config: aptrust_config ),
+           # aptrust_info:       ::Aptrust::AptrustInfoFromWork.new( work: work,
            #                                                       aptrust_config: ::Aptrust::AptrustConfig.new ),
            #bag_id_context:     aptrust_service_deposit_context,
            #bag_id_local_repository:  aptrust_service_deposit_local_repository,
-           bag_id_type:        'DataSet.',
-           export_dir:         Aptrust::AptrustUploaderForWork.dbd_export_dir,
-           working_dir:        Aptrust::AptrustUploaderForWork.dbd_working_dir,
-           bi_description:     Aptrust::AptrustUploaderForWork.dbd_bag_description( work: work ) )
+           bag_id_type:        bag_id_type,
+           export_dir:         ::Aptrust::AptrustUploaderForWork.dbd_export_dir,
+           working_dir:        ::Aptrust::AptrustUploaderForWork.dbd_working_dir,
+           bi_description:     ::Aptrust::AptrustUploaderForWork.dbd_bag_description( work: work ) )
     @work = work
     @export_by_closure = ->(target_dir) { export_data_work( target_dir: target_dir ) }
   end
@@ -87,7 +93,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
   end
 
   def aptrust_info_work
-    @aptrust_info ||= Aptrust::AptrustInfoFromWork.new( work:             work,
+    @aptrust_info ||= ::Aptrust::AptrustInfoFromWork.new( work:             work,
                                                         aptrust_config:   aptrust_config,
                                                         access:           ai_access,
                                                         creator:          ai_creator,

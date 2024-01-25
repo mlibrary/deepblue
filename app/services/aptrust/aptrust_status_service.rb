@@ -4,13 +4,14 @@ require_relative './aptrust'
 
 class Aptrust::AptrustStatusService
 
-  DEFAULT_TRACK_STATUS = false
+  DEFAULT_TRACK_STATUS = true
 
   mattr_accessor :aptrust_status_service_debug_verbose, default: false
 
   attr_accessor :aptrust_config
   attr_accessor :aptrust_upload_status
   attr_accessor :base
+  attr_accessor :debug_assume_verify_succeeds
   attr_accessor :debug_verbose
   attr_accessor :object_id
   attr_accessor :options
@@ -22,6 +23,8 @@ class Aptrust::AptrustStatusService
                   aptrust_config_file: nil, # ignored if aptrust_config is defined
 
                   track_status:        DEFAULT_TRACK_STATUS,
+
+                  debug_assume_verify_succeeds: false,
 
                   debug_verbose:       aptrust_status_service_debug_verbose )
 
@@ -36,13 +39,15 @@ class Aptrust::AptrustStatusService
     @aptrust_config      = aptrust_config
     @aptrust_config_file = aptrust_config_file
 
+    @debug_assume_verify_succeeds = debug_assume_verify_succeeds
+
     @track_status ||= DEFAULT_TRACK_STATUS
 
     if @aptrust_config.blank?
       @aptrust_config = if @aptrust_config_file.present?
-                          Aptrust::AptrustConfig.new( filename: @aptrust_config_filename )
+                          ::Aptrust::AptrustConfig.new( filename: @aptrust_config_filename )
                         else
-                          Aptrust::AptrustConfig.new
+                          ::Aptrust::AptrustConfig.new
                         end
     end
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -53,20 +58,20 @@ class Aptrust::AptrustStatusService
   end
 
   def aptrust_upload_status
-    @aptrust_uploader_status ||= Aptrust::AptrustUploaderStatus.new( id: @object_id )
+    @aptrust_uploader_status ||= ::Aptrust::AptrustUploaderStatus.new( id: @object_id )
   end
 
   def base
     @base ||= aptrust_config.aptrust_api_url
   end
 
-  # TODO: add status tracking
   def ingest_status( identifier:, noid:, force: false )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "identifier=#{identifier}",
                                            "noid=#{noid}",
                                            "force=#{force}",
+                                           "track_status=#{track_status}",
                                            "" ] if debug_verbose
     @object_id = noid
 
@@ -122,7 +127,8 @@ class Aptrust::AptrustStatusService
         track( status: ::Aptrust::EVENT_VERIFIED, note: "#{object_identifier}" )
         break
       end
-      rv = 'processing'
+      rv = 'pending'
+      track( status: ::Aptrust::EVENT_VERIFY_PENDING, note: "#{object_identifier}" )
     rescue StandardError => e
       ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -139,7 +145,7 @@ class Aptrust::AptrustStatusService
   end
 
   def track( status:, note: nil )
-    aptrust_upload_status.track( status: status, note: note )
+    aptrust_upload_status.track( status: status, note: note ) if track_status
   end
 
   private
