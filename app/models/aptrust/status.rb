@@ -8,4 +8,8 @@ class Aptrust::Status < ApplicationRecord
     where( noid: noid )
   end
 
+  def type
+    return "DataSet"
+  end
+
 end

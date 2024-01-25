@@ -53,13 +53,13 @@ end
 
 class Aptrust::FilterStatus
 
-  SKIP_STATUSES = [ Aptrust::EVENT_DEPOSITED,
-                    Aptrust::EVENT_DEPOSIT_SKIPPED,
-                    Aptrust::EVENT_UPLOAD_SKIPPED,
-                    Aptrust::EVENT_EXPORT_FAILED,
-                    Aptrust::EVENT_VERIFIED,
-                    Aptrust::EVENT_VERIFY_FAILED,
-                    Aptrust::EVENT_VERIFYING ] unless const_defined? :SKIP_STATUSES
+  SKIP_STATUSES = [ ::Aptrust::EVENT_DEPOSITED,
+                    ::Aptrust::EVENT_DEPOSIT_SKIPPED,
+                    ::Aptrust::EVENT_UPLOAD_SKIPPED,
+                    ::Aptrust::EVENT_EXPORT_FAILED,
+                    ::Aptrust::EVENT_VERIFIED,
+                    ::Aptrust::EVENT_VERIFY_FAILED,
+                    ::Aptrust::EVENT_VERIFYING ] unless const_defined? :SKIP_STATUSES
 
   attr_accessor :debug_verbose
   attr_accessor :skip_statuses
@@ -99,9 +99,9 @@ end
 
 class Aptrust::AptrustFilterWork
 
-  FILTER_IN = Aptrust::FilterIn.new
-  DEFAULT_FILTER_SIZE = Aptrust::FilterSize.new( min_size: 1, max_size: 100_000_000_000 )
-  DEFAULT_FILTER_STATUS = Aptrust::FilterStatus.new
+  FILTER_IN = ::Aptrust::FilterIn.new
+  DEFAULT_FILTER_SIZE = ::Aptrust::FilterSize.new( min_size: 1, max_size: 100_000_000_000 )
+  DEFAULT_FILTER_STATUS = ::Aptrust::FilterStatus.new
 
   attr_accessor :debug_verbose
   attr_accessor :filter_by_date
@@ -129,12 +129,12 @@ class Aptrust::AptrustFilterWork
   end
 
   def set_filter_by_date( begin_date:, end_date: )
-    @filter_by_date = Aptrust::FilterDate.new( begin_date: begin_date, end_date: end_date )
+    @filter_by_date = ::Aptrust::FilterDate.new( begin_date: begin_date, end_date: end_date )
     @filter_by_date.debug_verbose = debug_verbose if @filter_by_date.respond_to? :debug_verbose=
   end
 
   def set_filter_by_size( min_size: 1, max_size: )
-    @filter_by_size = Aptrust::FilterSize.new( min_size: min_size, max_size: max_size )
+    @filter_by_size = ::Aptrust::FilterSize.new( min_size: min_size, max_size: max_size )
     @filter_by_size.debug_verbose = debug_verbose if @filter_by_size.respond_to? :debug_verbose=
   end
 
@@ -142,7 +142,7 @@ class Aptrust::AptrustFilterWork
     if skip_statuses.blank?
       @filter_by_status = FILTER_IN
     else
-      @filter_by_status = Aptrust::FilterStatus.new( skip_statuses: skip_statuses )
+      @filter_by_status = ::Aptrust::FilterStatus.new( skip_statuses: skip_statuses )
       @filter_by_status.debug_verbose = debug_verbose if @filter_by_status.respond_to? :debug_verbose=
     end
   end

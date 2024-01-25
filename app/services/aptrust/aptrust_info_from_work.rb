@@ -29,7 +29,7 @@ class Aptrust::AptrustInfoFromWork < Aptrust::AptrustInfo
            description:      Aptrust.arg_init_squish( description,      DEFAULT_DESCRIPTION ),
            item_description: Aptrust.arg_init_squish( item_description, Array( work.description ).join( DESCRIPTION_JOIN ) ),
            storage_option:   Aptrust.arg_init(        storage_option,
-                                                      Aptrust::AptrustInfo.default_storage( aptrust_config: aptrust_config ) ),
+                                                      ::Aptrust::AptrustInfo.default_storage( aptrust_config: aptrust_config ) ),
            title:            Aptrust.arg_init_squish( title,            Array( work.title ).join(TITLE_JOIN ) ) )
   end
 

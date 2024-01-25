@@ -90,7 +90,7 @@ class AptrustEventsController < ApplicationController
     when 'Exported'
       init_aptrust_events( event: ::Aptrust::EVENT_EXPORTED )
     when 'Failed'
-      init_aptrust_events( event: ::Aptrust::EVENT_FAILED )
+      init_aptrust_events( event: ::Aptrust::EVENTS_FAILED )
     when 'Finished'
       init_aptrust_events( event: ::Aptrust::EVENTS_FINISHED )
     when 'Has Error'

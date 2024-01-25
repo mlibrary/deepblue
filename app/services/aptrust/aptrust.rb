@@ -10,10 +10,13 @@ module Aptrust
 
     DEFAULT_UPLOAD_CONFIG_FILE = Rails.root.join( 'data', 'config', 'aptrust.yml' ) unless const_defined? :DEFAULT_UPLOAD_CONFIG_FILE
 
+    IDENTIFIER_TEMPLATE = '%local_repository%.%context%%type%%id%' unless const_defined? :IDENTIFIER_TEMPLATE
+
     NULL_MSG_HANDLER      = ::Deepblue::MessageHandlerNull.new unless const_defined? :NULL_MSG_HANDLER
 
     EVENT_BAGGED          = 'bagged'          unless const_defined? :EVENT_BAGGED
     EVENT_BAGGING         = 'bagging'         unless const_defined? :EVENT_BAGGING
+    EVENT_DEPOSIT_FAILED  = 'deposit_failed'  unless const_defined? :EVENT_DEPOSIT_FAILED
     EVENT_DEPOSIT_SKIPPED = 'deposit_skipped' unless const_defined? :EVENT_DEPOSIT_SKIPPED
     EVENT_DEPOSITED       = 'deposited'       unless const_defined? :EVENT_DEPOSITED
     EVENT_DEPOSITING      = 'depositing'      unless const_defined? :EVENT_DEPOSITING
@@ -26,16 +29,27 @@ module Aptrust
     EVENT_UPLOAD_SKIPPED  = 'upload_skipped'  unless const_defined? :EVENT_UPLOAD_SKIPPED
     EVENT_UPLOADED        = 'uploaded'        unless const_defined? :EVENT_UPLOADED
     EVENT_UPLOADING       = 'uploading'       unless const_defined? :EVENT_UPLOADING
-    EVENT_UNKNOWN         = 'uknown'          unless const_defined? :EVENT_UNKNOWN
+    EVENT_UNKNOWN         = 'unknown'         unless const_defined? :EVENT_UNKNOWN
     EVENT_VERIFIED        = 'verified'        unless const_defined? :EVENT_VERIFIED
     EVENT_VERIFY_FAILED   = 'verify_failed'   unless const_defined? :EVENT_VERIFY_FAILED
+    EVENT_VERIFY_PENDING  = 'verify_pending'  unless const_defined? :EVENT_VERIFY_FAILED
     EVENT_VERIFYING       = 'verifying'       unless const_defined? :EVENT_VERIFYING
 
     EVENTS_FINISHED = [ EVENT_DEPOSITED, EVENT_DEPOSIT_SKIPPED ] unless const_defined? :EVENTS_FINISHED
 
-    EVENTS_ERRORS = [ EVENT_EXPORT_FAILED, EVENT_FAILED, EVENT_VERIFY_FAILED ] unless const_defined? :EVENTS_ERRORS
+    EVENTS_ERRORS = [ EVENT_EXPORT_FAILED,
+                      EVENT_DEPOSIT_FAILED,
+                      EVENT_FAILED,
+                      EVENT_VERIFY_FAILED ] unless const_defined? :EVENTS_ERRORS
 
-    EVENTS_NEED_VERIFY = [ EVENT_DEPOSITED, EVENT_VERIFYING ] unless const_defined? :EVENTS_NEED_VERIFY
+    EVENTS_FAILED = [ EVENT_EXPORT_FAILED,
+                      EVENT_DEPOSIT_FAILED,
+                      EVENT_FAILED,
+                      EVENT_VERIFY_FAILED ] unless const_defined? :EVENTS_FAILED
+
+    EVENTS_NEED_VERIFY = [ EVENT_DEPOSITED,
+                           EVENT_VERIFYING,
+                           EVENT_VERIFY_PENDING ] unless const_defined? :EVENTS_NEED_VERIFY
 
     EVENTS_PROCESSING = [ EVENT_BAGGED,
                           EVENT_BAGGING,
@@ -52,6 +66,7 @@ module Aptrust
 
     EVENTS_VALID = [ EVENT_BAGGED,
                      EVENT_BAGGING,
+                     EVENT_DEPOSIT_FAILED,
                      EVENT_DEPOSIT_SKIPPED,
                      EVENT_DEPOSITED,
                      EVENT_DEPOSITING,
@@ -82,6 +97,15 @@ module Aptrust
             attr = attr.squish[0..squish]
         end
         return attr
+    end
+
+    def self.aptrust_identifier( template:, local_repository:, context:, type:, noid: )
+        rv = template
+        rv = rv.gsub( /\%local_repository\%/, local_repository )
+        rv = rv.gsub( /\%context\%/, context )
+        rv = rv.gsub( /\%type\%/, type )
+        rv = rv.gsub( /\%id\%/, noid )
+        return rv
     end
 
 end

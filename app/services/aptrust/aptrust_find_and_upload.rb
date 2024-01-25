@@ -8,7 +8,7 @@ class Aptrust::AptrustFindAndUpload
 
   mattr_accessor :test_mode, default: true
 
-  FILTER_DEFAULT = Aptrust::AptrustFilterWork.new unless const_defined? :FILTER_DEFAULT
+  FILTER_DEFAULT = ::Aptrust::AptrustFilterWork.new unless const_defined? :FILTER_DEFAULT
 
   attr_accessor :clean_up_after_deposit
   attr_accessor :clear_status
@@ -125,8 +125,11 @@ class Aptrust::AptrustFindAndUpload
       process work: work
     end
     rescue Exception => e
-      puts e
-      puts e.backtrace
+      Rails.logger.error "#{e.class} -- #{e.message} at #{e.backtrace[0]}"
+      ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                             "Aptrust::AptrustFindAndUpload.run #{e.class}: #{e.message} at #{e.backtrace[0]}",
+                                             "" ] + e.backtrace # error
+      raise
     end
   end
 

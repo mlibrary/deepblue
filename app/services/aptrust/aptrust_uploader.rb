@@ -19,7 +19,6 @@ class Aptrust::AptrustUploader
   DEFAULT_TYPE           = ''                                 unless const_defined? :DEFAULT_TYPE
   DEFAULT_WORKING_DIR    = './aptrust_work'                   unless const_defined? :DEFAULT_WORKING_DIR
   EXT_TAR                = '.tar'                             unless const_defined? :EXT_TAR
-  IDENTIFIER_TEMPLATE    = '%local_repository%.%context%%type%%id%' unless const_defined? :IDENTIFIER_TEMPLATE
 
   def self.bag_date_now()
     return Time.now
@@ -93,10 +92,10 @@ class Aptrust::AptrustUploader
                   bi_id:               nil, # ignored if bag_info is defined
                   bi_source:           nil, # ignored if bag_info is defined
 
-                  bag_id:              nil,
-                  bag_id_context:      nil, # ignored if bag_id is defined
-                  bag_id_local_repository:   nil, # ignored if bag_id is defined
-                  bag_id_type:         nil, # ignored if bag_id is defined
+                  bag_id:                  nil,
+                  bag_id_context:          nil, # ignored if bag_id is defined
+                  bag_id_local_repository: nil, # ignored if bag_id is defined
+                  bag_id_type:             nil, # ignored if bag_id is defined
 
                   export_by_closure:   nil,
                   export_copy_src:     false,
@@ -156,30 +155,27 @@ class Aptrust::AptrustUploader
 
     @bag                 = bag
     @bag_info            = bag_info
-    # @bi_date           = Aptrust.arg_init_squish( bi_date, Aptrust::AptrustUploader.bag_date_now )
     @bi_date             = bi_date
-    @bi_date             ||= Aptrust::AptrustUploader.bag_date_now
-    @bi_description      = Aptrust.arg_init_squish( bi_description, DEFAULT_BI_DESCRIPTION )
-    @bi_id               = Aptrust.arg_init_squish( bi_id,          @object_id )
-    @bi_source           = Aptrust.arg_init_squish( bi_source,      DEFAULT_BI_SOURCE )
+    @bi_date             ||= ::Aptrust::AptrustUploader.bag_date_now
+    @bi_description      = ::Aptrust.arg_init_squish( bi_description, DEFAULT_BI_DESCRIPTION )
+    @bi_id               = ::Aptrust.arg_init_squish( bi_id,          @object_id )
+    @bi_source           = ::Aptrust.arg_init_squish( bi_source,      DEFAULT_BI_SOURCE )
 
-    @bag_id              = bag_id
-    # @bag_id_context      = Aptrust.arg_init_squish( bag_id_context,    DEFAULT_CONTEXT )
-    # @bag_id_local_repository   = Aptrust.arg_init_squish( bag_id_local_repository, DEFAULT_REPOSITORY )
-    @bag_id_context      = bag_id_context
-    @bag_id_local_repository   = bag_id_local_repository
-    @bag_id_type         = Aptrust.arg_init_squish( bag_id_type,       DEFAULT_TYPE )
+    @bag_id                  = bag_id
+    @bag_id_context          = bag_id_context
+    @bag_id_local_repository = bag_id_local_repository
+    @bag_id_type             = ::Aptrust.arg_init( bag_id_type, DEFAULT_TYPE )
 
     @clean_up_after_deposit = CLEAN_UP_AFTER_DEPOSIT
     @clear_status           = CLEAR_STATUS
-    @debug_assume_upload_succeeds = Aptrust.aptrust_debug_assume_upload_succeeds
+    @debug_assume_upload_succeeds = ::Aptrust.aptrust_debug_assume_upload_succeeds
 
     @export_by_closure   = export_by_closure
     @export_copy_src     = export_copy_src
     @export_src_dir      = export_src_dir
 
-    @export_dir          = Aptrust.arg_init( export_dir,  DEFAULT_EXPORT_DIR )
-    @working_dir         = Aptrust.arg_init( working_dir, DEFAULT_WORKING_DIR )
+    @export_dir          = ::Aptrust.arg_init( export_dir,  DEFAULT_EXPORT_DIR )
+    @working_dir         = ::Aptrust.arg_init( working_dir, DEFAULT_WORKING_DIR )
   end
 
   def additional_tag_files
@@ -200,16 +196,16 @@ class Aptrust::AptrustUploader
                                            "" ] if debug_verbose
     if @aptrust_config.blank?
       @aptrust_config = if @aptrust_config_file.present?
-                          Aptrust::AptrustConfig.new( filename: @aptrust_config_filename )
+                          ::Aptrust::AptrustConfig.new( filename: @aptrust_config_filename )
                         else
-                          Aptrust::AptrustConfig.new
+                          ::Aptrust::AptrustConfig.new
                         end
     end
     @aptrust_config
   end
 
   def aptrust_info
-    @aptrust_info ||= Aptrust::AptrustInfo.new( access:           ai_access,
+    @aptrust_info ||= ::Aptrust::AptrustInfo.new( access:           ai_access,
                                                 creator:          ai_creator,
                                                 description:      ai_description,
                                                 item_description: ai_item_description,
@@ -227,7 +223,7 @@ class Aptrust::AptrustUploader
   end
 
   def aptrust_upload_status
-    @aptrust_uploader_status ||= Aptrust::AptrustUploaderStatus.new( id: @object_id )
+    @aptrust_uploader_status ||= ::Aptrust::AptrustUploaderStatus.new( id: @object_id )
   end
 
   def bag
@@ -280,16 +276,21 @@ class Aptrust::AptrustUploader
   end
 
   def bag_id_init()
-    rv = bag_id_template
-    rv = rv.gsub( /\%local_repository\%/, bag_id_local_repository )
-    rv = rv.gsub( /\%context\%/, bag_id_context )
-    rv = rv.gsub( /\%type\%/, bag_id_type )
-    rv = rv.gsub( /\%id\%/, object_id )
-    return rv
+    return Aptrust.aptrust_identifier( template: bag_id_template,
+                                       local_repository: bag_id_local_repository,
+                                       context: bag_id_context,
+                                       type: bag_id_type,
+                                       noid: object_id )
+    # rv = bag_id_template
+    # rv = rv.gsub( /\%local_repository\%/, bag_id_local_repository )
+    # rv = rv.gsub( /\%context\%/, bag_id_context )
+    # rv = rv.gsub( /\%type\%/, bag_id_type )
+    # rv = rv.gsub( /\%id\%/, object_id )
+    # return rv
   end
 
   def bag_id_template
-    return IDENTIFIER_TEMPLATE
+    return ::Aptrust::IDENTIFIER_TEMPLATE
   end
 
   def bag_info
@@ -429,11 +430,11 @@ class Aptrust::AptrustUploader
     return unless Dir.exist? bag.bag_dir
 
     if Dir.exist? bag_data_dir
-      files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( bag_data_dir, dotmatch: true, msg_handler: NULL_MSG_HANDLER )
-      ::Deepblue::DiskUtilitiesHelper.delete_files( *files, msg_handler: NULL_MSG_HANDLER )
-      ::Deepblue::DiskUtilitiesHelper.delete_dir( bag_data_dir, msg_handler: NULL_MSG_HANDLER )
+      files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( bag_data_dir, dotmatch: true, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
+      ::Deepblue::DiskUtilitiesHelper.delete_files( *files, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
+      ::Deepblue::DiskUtilitiesHelper.delete_dir( bag_data_dir, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
     end
-    ::Deepblue::DiskUtilitiesHelper.delete_dir( bag.bag_dir, msg_handler: NULL_MSG_HANDLER )
+    ::Deepblue::DiskUtilitiesHelper.delete_dir( bag.bag_dir, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
   end
 
   def cleanup_tar_file
@@ -472,7 +473,7 @@ class Aptrust::AptrustUploader
       end
     rescue StandardError => e
       #::Deepblue::LoggingHelper.bold_error ["Aptrust::AptrustService.perform_deposit(#{object_id}) error #{e}"] + e.backtrace[0..20]
-      track( status: 'deposit failed', note: "failed in #{e.backtrace[0]} with error #{e}" )
+      track( status: ::Aptrust::EVENT_DEPOSIT_FAILED, note: "failed in #{e.backtrace[0]} with error #{e}" )
     end
     return unless bag_uploaded_succeeded
     begin

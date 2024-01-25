@@ -11,7 +11,6 @@ class Aptrust::AptrustService
   mattr_accessor :aptrust_service_deposit_repository, default: "deepbluedata"
 
   EXT_TAR = '.tar'
-  IDENTIFIER_TEMPLATE = "%repository%.%context%%type%%id%"
   ID_SEP = '-'
 
   BAG_INFO_KEY_SOURCE = 'Source-Organization'
@@ -225,7 +224,7 @@ class Aptrust::AptrustService
   end
 
   def self.bag_identifier( work: )
-    rv = IDENTIFIER_TEMPLATE
+    rv = ::Aptrust::IDENTIFIER_TEMPLATE
     rv = rv.gsub( /\%repository\%/, repository )
     rv = rv.gsub( /\%context\%/, context )
     rv = rv.gsub( /\%type\%/, type( work ) )

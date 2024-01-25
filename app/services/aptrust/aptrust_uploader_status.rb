@@ -8,10 +8,10 @@ class Aptrust::AptrustUploaderStatus
 
   def self.clean_database!
     if Rails.env.production?
-      Aptrust::Event.delete_all
+      ::Aptrust::Event.delete_all
       #ActiveRecord::Base.connection.reset_pk_sequence!(:aptrust_events)
       #ActiveRecord::Base.connection.reset_sequence!(:aptrust_events)
-      Aptrust::Status.delete_all
+      ::Aptrust::Status.delete_all
       #ActiveRecord::Base.connection.reset_pk_sequence!(:aptrust_statuses)
       #ActiveRecord::Base.connection.reset_sequence!(:aptrust_statuses)
     else
@@ -22,7 +22,7 @@ class Aptrust::AptrustUploaderStatus
 
   def self.clear_history( id: )
     # select all events, then delete
-    records = Aptrust::Event.where( noid: id )
+    records = ::Aptrust::Event.where( noid: id )
     records.each { |r| r.delete }
     clear_status( id: id )
   end
@@ -68,7 +68,7 @@ class Aptrust::AptrustUploaderStatus
                                            "" ] if aptrust_uplaoder_status_debug_verbose
     rv = if ::Aptrust::STATUS_IN_DB
            history = []
-           records = Aptrust::Event.where( noid: id )
+           records = ::Aptrust::Event.where( noid: id )
            records.each { |e| history << { id: e.id, status: e.event, note: e.event_note } }
            history
          else
@@ -114,9 +114,9 @@ class Aptrust::AptrustUploaderStatus
     begin
     timestamp ||= DateTime.now
     noid = id
-    status = Aptrust::Status.for_id( noid: noid )
+    status = ::Aptrust::Status.for_id( noid: noid )
     if status.blank?
-      status = Aptrust::Status.new( timestamp: timestamp, event: status_event, event_note: note, noid: noid )
+      status = ::Aptrust::Status.new( timestamp: timestamp, event: status_event, event_note: note, noid: noid )
     else
       status = status[0]
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -130,7 +130,7 @@ class Aptrust::AptrustUploaderStatus
     end
     status.save
     aptrust_status_id = status.id
-    event = Aptrust::Event.new( timestamp: timestamp,
+    event = ::Aptrust::Event.new( timestamp: timestamp,
                        event: status_event,
                        event_note: note,
                        noid: noid,
@@ -142,7 +142,7 @@ class Aptrust::AptrustUploaderStatus
   end
 
   def load_status_history
-    status = Aptrust::Status.for_id( noid: noid )
+    status = ::Aptrust::Status.for_id( noid: noid )
   end
 
 end

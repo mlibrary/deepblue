@@ -54,6 +54,16 @@ class Aptrust::AptrustConfig
                                            "" ] if aptrust_config_debug_verbose
   end
 
+  def identifier( template: nil, type:, noid: )
+    rv = template
+    rv ||= ::Aptrust::IDENTIFIER_TEMPLATE
+    rv = rv.gsub( /\%local_repository\%/, local_repository )
+    rv = rv.gsub( /\%context\%/, context )
+    rv = rv.gsub( /\%type\%/, type )
+    rv = rv.gsub( /\%id\%/, noid )
+    return rv
+  end
+
   def load( filename )
     aptrust_config = YAML.safe_load( File.read( filename ) )
     @aws_access_key_id        = aptrust_config['AwsAccessKeyId']
