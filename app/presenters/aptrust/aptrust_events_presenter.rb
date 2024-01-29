@@ -8,7 +8,7 @@ class Aptrust::AptrustEventsPresenter
 
   delegate :begin_date, :end_date, to: :controller
 
-  delegate  :status_id, :aptrust_events, :aptrust_statuses, to: :controller
+  delegate  :status_id, :aptrust_events, :aptrust_statuses, :status_event_list, to: :controller
 
   def initialize( controller:, current_ability: )
     @controller = controller

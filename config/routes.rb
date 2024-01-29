@@ -320,6 +320,8 @@ Rails.application.routes.draw do
   resource :aptrust_status
   get 'aptrust_statuses', controller: 'aptrust/aptrust_statuses', action: :index
   post 'aptrust_statuses', controller: 'aptrust/aptrust_statuses', action: :index
+  get '/aptrust_status_action/', controller: 'aptrust/aptrust_statuses', action: :status_action
+  post '/aptrust_status_action/', controller: 'aptrust/aptrust_statuses', action: :status_action
   # put 'aptrust_statuses', to: 'aptrust_statuses#index' #, as: 'aptrust_statuses' # index
   # get '/aptrust_statuses_failed/' => 'aptrust_statuses#status_failed'
   # get '/aptrust_statuses_finished/' => 'aptrust_statuses#status_finished'

@@ -59,7 +59,7 @@ class Aptrust::AptrustFindAndUpload
                                            "filter=#{filter}",
                                            "max_upload_jobs=#{max_upload_jobs}",
                                            "max_uploads=#{max_uploads}",
-                                           "@aptrust_config.pretty_inspect=#{@aptrust_config.pretty_inspect}",
+                                           # "@aptrust_config.pretty_inspect=#{@aptrust_config.pretty_inspect}",
                                            "" ] if debug_verbose
   end
 

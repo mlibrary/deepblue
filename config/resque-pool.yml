@@ -1,4 +1,5 @@
 # Numbers of workers for the different job types, the default being "*".
+aptrust: 2
 batch_update: 3
 derivatives: 1
 resolrize: 1

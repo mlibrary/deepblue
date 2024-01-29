@@ -22,17 +22,19 @@ module Aptrust
     EVENT_DEPOSITING      = 'depositing'      unless const_defined? :EVENT_DEPOSITING
     EVENT_EXPORTED        = 'exported'        unless const_defined? :EVENT_EXPORTED
     EVENT_EXPORTING       = 'exporting'       unless const_defined? :EVENT_EXPORTING
-    EVENT_EXPORT_FAILED   = 'export_skipped'  unless const_defined? :EVENT_EXPORT_FAILED
+    EVENT_EXPORT_FAILED   = 'export_failed'   unless const_defined? :EVENT_EXPORT_FAILED
     EVENT_FAILED          = 'failed'          unless const_defined? :EVENT_FAILED
     EVENT_PACKED          = 'packed'          unless const_defined? :EVENT_PACKED
     EVENT_PACKING         = 'packing'         unless const_defined? :EVENT_PACKING
+    EVENT_UPLOAD_AGAIN    = 'upload_again'    unless const_defined? :EVENT_UPLOAD_AGAIN
     EVENT_UPLOAD_SKIPPED  = 'upload_skipped'  unless const_defined? :EVENT_UPLOAD_SKIPPED
     EVENT_UPLOADED        = 'uploaded'        unless const_defined? :EVENT_UPLOADED
     EVENT_UPLOADING       = 'uploading'       unless const_defined? :EVENT_UPLOADING
     EVENT_UNKNOWN         = 'unknown'         unless const_defined? :EVENT_UNKNOWN
     EVENT_VERIFIED        = 'verified'        unless const_defined? :EVENT_VERIFIED
     EVENT_VERIFY_FAILED   = 'verify_failed'   unless const_defined? :EVENT_VERIFY_FAILED
-    EVENT_VERIFY_PENDING  = 'verify_pending'  unless const_defined? :EVENT_VERIFY_FAILED
+    EVENT_VERIFY_PENDING  = 'verify_pending'  unless const_defined? :EVENT_VERIFY_PENDING
+    EVENT_VERIFY_SKIPPED  = 'verify_skipped'  unless const_defined? :EVENT_VERIFY_SKIPPED
     EVENT_VERIFYING       = 'verifying'       unless const_defined? :EVENT_VERIFYING
 
     EVENTS_FINISHED = [ EVENT_DEPOSITED, EVENT_DEPOSIT_SKIPPED ] unless const_defined? :EVENTS_FINISHED
@@ -48,6 +50,7 @@ module Aptrust
                       EVENT_VERIFY_FAILED ] unless const_defined? :EVENTS_FAILED
 
     EVENTS_NEED_VERIFY = [ EVENT_DEPOSITED,
+                           EVENT_UPLOAD_SKIPPED, # for testing
                            EVENT_VERIFYING,
                            EVENT_VERIFY_PENDING ] unless const_defined? :EVENTS_NEED_VERIFY
 
@@ -62,27 +65,9 @@ module Aptrust
                           EVENT_UPLOADED,
                           EVENT_UPLOADING ] unless const_defined? :EVENTS_PROCESSING
 
-    EVENTS_SKIPPED = [ EVENT_DEPOSIT_SKIPPED, EVENT_UPLOAD_SKIPPED ] unless const_defined? :EVENTS_SKIPPED
-
-    EVENTS_VALID = [ EVENT_BAGGED,
-                     EVENT_BAGGING,
-                     EVENT_DEPOSIT_FAILED,
-                     EVENT_DEPOSIT_SKIPPED,
-                     EVENT_DEPOSITED,
-                     EVENT_DEPOSITING,
-                     EVENT_EXPORT_FAILED,
-                     EVENT_EXPORTED,
-                     EVENT_EXPORTING,
-                     EVENT_FAILED,
-                     EVENT_PACKED,
-                     EVENT_PACKING,
-                     EVENT_UPLOAD_SKIPPED,
-                     EVENT_UPLOADED,
-                     EVENT_UPLOADING,
-                     EVENT_UNKNOWN,
-                     EVENT_VERIFIED,
-                     EVENT_VERIFY_FAILED,
-                     EVENT_VERIFYING ] unless const_defined? :EVENTS_VALID
+    EVENTS_SKIPPED = [ EVENT_DEPOSIT_SKIPPED,
+                       EVENT_UPLOAD_SKIPPED,
+                       EVENT_VERIFY_SKIPPED ] unless const_defined? :EVENTS_SKIPPED
 
     def self.arg_init( attr, default )
         attr ||= default

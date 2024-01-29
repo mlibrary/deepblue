@@ -24,7 +24,7 @@ class Aptrust::AptrustInfo
   def self.default_storage( aptrust_config: )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "aptrust_config.pretty_inspect=#{aptrust_config.pretty_inspect}",
+                                           # "aptrust_config.pretty_inspect=#{aptrust_config.pretty_inspect}",
                                            "" ] if aptrust_info_debug_verbose
     rv = aptrust_config.blank? ? DEFAULT_STORAGE_OPTION : aptrust_config.storage_option
     rv ||= DEFAULT_STORAGE_OPTION
@@ -41,16 +41,16 @@ class Aptrust::AptrustInfo
 
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "aptrust_config.pretty_inspect=#{aptrust_config.pretty_inspect}",
+                                           # "aptrust_config.pretty_inspect=#{aptrust_config.pretty_inspect}",
                                            "" ] if aptrust_info_debug_verbose
     @aptrust_config   = aptrust_config
-    @access           = Aptrust.arg_init_squish( access,           DEFAULT_ACCESS )
-    @creator          = Aptrust.arg_init_squish( creator,          DEFAULT_CREATOR )
-    @description      = Aptrust.arg_init_squish( description,      DEFAULT_DESCRIPTION )
-    @item_description = Aptrust.arg_init_squish( item_description, DEFAULT_ITEM_DESCRIPTION )
-    @storage_option   = Aptrust.arg_init(        storage_option,
+    @access           = ::Aptrust.arg_init_squish( access,           DEFAULT_ACCESS )
+    @creator          = ::Aptrust.arg_init_squish( creator,          DEFAULT_CREATOR )
+    @description      = ::Aptrust.arg_init_squish( description,      DEFAULT_DESCRIPTION )
+    @item_description = ::Aptrust.arg_init_squish( item_description, DEFAULT_ITEM_DESCRIPTION )
+    @storage_option   = ::Aptrust.arg_init(        storage_option,
                                                  ::Aptrust::AptrustInfo.default_storage( aptrust_config: aptrust_config ) )
-    @title            = Aptrust.arg_init_squish( title,            DEFAULT_TITLE )
+    @title            = ::Aptrust.arg_init_squish( title,            DEFAULT_TITLE )
   end
 
   def build

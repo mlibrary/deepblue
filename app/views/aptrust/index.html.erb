@@ -17,16 +17,12 @@
   </table>
   <table style="width:40em;">
     <tr>
-      <td> <%= submit_tag( 'All', class: 'btn btn-primary' ) %> </td>
-      <td> <%= submit_tag( 'Deposited', class: 'btn btn-primary' ) %> </td>
-      <td> <%= submit_tag( 'Exported', class: 'btn btn-primary' ) %> </td>
-      <td> <%= submit_tag( 'Failed', class: 'btn btn-primary' ) %> </td>
-      <td> <%= submit_tag( 'Not Finished', class: 'btn btn-primary' ) %> </td>
-      <td> <%= submit_tag( 'Skipped', class: 'btn btn-primary' ) %> </td>
-      <td> <%= submit_tag( 'Started', class: 'btn btn-primary' ) %> </td>
+      <% @presenter.status_event_list.each do |e| %>
+        <td> <%= submit_tag( e, class: 'btn btn-primary' ) %>&nbsp;</td>
+      <% end %>
     </tr>
   </table>
-<% end %>
+<% end %> <%# end of form %>
 
 <table>
   <thead>
@@ -38,22 +34,38 @@
       <th>Event Note</th>
       <th>Updated</th>
       <th>Created</th>
+      <th>Reupload</th>
+      <th>Delete</th>
     </tr>
   </thead>
 
   <tbody>
     <% @aptrust_statuses.each do |status| %>
+    <%= form_tag(main_app.aptrust_status_action_path, method: 'post') do %>
+      <%= hidden_field_tag('id', status.id) %>
+      <%= hidden_field_tag('noid', status.noid) %>
       <tr>
         <td>
           <%= link_to "#{status.id}", main_app.aptrust_events_url( status_id: status.id ) %>
         </td>
         <td><%= status.timestamp %></td>
-        <td><%= status.noid %></td>
+        <td><%= link_to status.noid, hyrax_data_set_path(id: status.noid) %></td>
         <td><%= status.event %></td>
         <td><%= status.event_note %></td>
         <td><%= status.updated_at %></td>
         <td><%= status.created_at %></td>
+        <td><%= submit_tag( 'Reupload',
+                            class: 'btn btn-primary',
+                            id: "reupload_#{status.id}",
+                            data: { confirm: "Reupload #{status.noid}?" } ) %>
+        </td>
+        <td><%= submit_tag( 'Delete',
+                            class: 'btn btn-primary',
+                            id: "delete_#{status.id}",
+                            data: { confirm: "Delete #{status.noid} status record?" } ) %>
+        </td>
       </tr>
+    <% end %>
     <% end %>
   </tbody>
 </table>
@@ -81,7 +93,7 @@
         <td><%= event.id %></td>
         <td><%= event.aptrust_status_id %></td>
         <td><%= event.timestamp %></td>
-        <td><%= event.noid %></td>
+        <td><%= link_to event.noid, hyrax_data_set_path(id: event.noid) %></td>
         <td><%= event.event %></td>
         <td><%= event.event_note %></td>
         <td><%= event.updated_at %></td>

@@ -40,7 +40,7 @@ class Aptrust::AptrustFindAndVerify
                                            "debug_assume_verify_succeeds=#{debug_assume_verify_succeeds}",
                                            "force_verification=#{force_verification}",
                                            "max_verifies=#{max_verifies}",
-                                           "@aptrust_config.pretty_inspect=#{@aptrust_config.pretty_inspect}",
+                                           # "@aptrust_config.pretty_inspect=#{@aptrust_config.pretty_inspect}",
                                            "" ] if debug_verbose
   end
 
@@ -48,7 +48,7 @@ class Aptrust::AptrustFindAndVerify
     return aptrust_config.identifier( noid: status.noid, type: status.type )
   end
 
-  def process( identifier:, noid: )
+  def process( identifier:, noid:, status: )
     verifier = ::Aptrust::AptrustStatusService.new( aptrust_config: aptrust_config,
                                                     track_status: true,
                                                     msg_handler: msg_handler,
@@ -59,7 +59,13 @@ class Aptrust::AptrustFindAndVerify
                                            "identifier=#{identifier}",
                                            "noid=#{noid}",
                                            "" ] if debug_verbose
-    rv = verifier.ingest_status( identifier: identifier, noid: noid, force: force_verification )
+    if status.event == ::Aptrust::EVENT_DEPOSIT_SKIPPED || debug_assume_verify_succeeds
+      verifier.object_id = noid
+      verifier.track( status: ::Aptrust::EVENT_VERIFY_SKIPPED )
+      rv = ::Aptrust::EVENT_VERIFY_SKIPPED
+    else
+      rv = verifier.ingest_status( identifier: identifier, noid: noid, force: force_verification )
+    end
     @verify_count += 1
     return rv
   end
@@ -71,7 +77,7 @@ class Aptrust::AptrustFindAndVerify
                                              "" ] if debug_verbose
 
       ::Aptrust::Status.all.each do |status|
-          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "max_verifies=#{max_verifies}",
                                                  "@verify_count=#{@verify_count}",
@@ -80,7 +86,7 @@ class Aptrust::AptrustFindAndVerify
         next unless ::Aptrust::EVENTS_NEED_VERIFY.include? status.event
         noid = status.noid
         identifier = identifier( status: status )
-        rv = process( identifier: identifier, noid: noid )
+        rv = process( identifier: identifier, noid: noid, status: status )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "rv=#{rv}",

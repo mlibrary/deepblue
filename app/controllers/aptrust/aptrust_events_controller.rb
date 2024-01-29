@@ -25,6 +25,10 @@ class AptrustEventsController < ApplicationController
 
   attr_reader :action_error
 
+  def status_event_list
+    @status_event_list ||= [ 'All', 'Deposited', 'Exported', 'Failed', 'Finished', 'Has Error', 'Not Finished', 'Skipped', 'Started', 'Verified' ]
+  end
+
   def action
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
@@ -64,6 +68,7 @@ class AptrustEventsController < ApplicationController
                                            "params[:status_id]=#{params[:status_id]}",
                                            "params[:commit]=#{params[:commit]}",
                                            "" ] if aptrust_events_controller_debug_verbose
+    @status_event_list = [ 'All', 'Deposited', 'Exported', 'Failed', 'Finished', 'Has Error', 'Not Finished', 'Skipped', 'Started', 'Verified' ]
     @aptrust_events = []
     @aptrust_statuses = []
     if params[:status_id].present?
@@ -102,6 +107,8 @@ class AptrustEventsController < ApplicationController
       # init_aptrust_events( event: ::Aptrust::EVENT_UPLOAD_SKIPPED )
     when 'Started'
       init_aptrust_events( event: ::Aptrust::EVENTS_PROCESSING )
+    when 'Verified'
+      init_aptrust_statuses( event: ::Aptrust::EVENT_VERIFIED )
     else
       init_aptrust_events
     end
