@@ -5,7 +5,7 @@ require_relative '../../services/aptrust/aptrust'
 module Aptrust
 class AptrustStatusesController < ApplicationController
 
-  mattr_accessor :aptrust_statuses_controller_debug_verbose, default: false
+  mattr_accessor :aptrust_statuses_controller_debug_verbose, default: true
 
   include AdminOnlyControllerBehavior
 
@@ -25,17 +25,25 @@ class AptrustStatusesController < ApplicationController
 
   attr_reader :action_error
 
-  def action
+  def status_event_list
+    @status_event_list ||= [ 'All', 'Deposited', 'Exported', 'Failed', 'Finished', 'Has Error', 'Not Finished', 'Skipped', 'Started', 'Verified' ]
+  end
+
+  def status_action
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
+                                           ">>> status action <<<",
                                            "params=#{params}",
                                            "params[:commit]=#{params[:commit]}",
                                            "" ] if aptrust_statuses_controller_debug_verbose
     action = params[:commit]
     @action_error = false
     msg = case action
-          when MsgHelper.t( 'simple_form.actions.scheduler.restart' )
-            action_restart
+          # when MsgHelper.t( 'simple_form.actions.scheduler.restart' )
+          when 'Delete'
+            action_delete
+          when 'Reupload'
+            action_reupload
           else
             @action_error = true
             "Unkown action #{action}"
@@ -85,12 +93,15 @@ class AptrustStatusesController < ApplicationController
     case commit
     when 'All'
       init_aptrust_statuses
+    # when 'Delete'
+    #   status_delete
+    #   init_aptrust_statuses
     when 'Deposited'
       init_aptrust_statuses( event: ::Aptrust::EVENT_DEPOSITED )
     when 'Exported'
       init_aptrust_statuses( event: ::Aptrust::EVENT_EXPORTED )
     when 'Failed'
-      init_aptrust_statuses( event: ::Aptrust::EVENT_FAILED )
+      init_aptrust_statuses( event: ::Aptrust::EVENTS_FAILED )
     when 'Finished'
       init_aptrust_statuses( event: ::Aptrust::EVENTS_FINISHED )
     when 'Has Error'
@@ -102,6 +113,8 @@ class AptrustStatusesController < ApplicationController
       # init_aptrust_statuses( event: ::Aptrust::EVENT_UPLOAD_SKIPPED )
     when 'Started'
       init_aptrust_statuses( event: ::Aptrust::EVENTS_PROCESSING )
+    when 'Verified'
+      init_aptrust_statuses( event: ::Aptrust::EVENT_VERIFIED )
     else
       init_aptrust_statuses
     end
@@ -183,7 +196,54 @@ class AptrustStatusesController < ApplicationController
   end
 
   def set_aptrust_status
-    @aptrust_status = Status.find(params[:id])
+    @aptrust_status = ::Aptrust::Status.find(params[:id])
+  end
+
+  def action_delete
+    raise CanCan::AccessDenied unless current_ability.admin?
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "params=#{params}",
+                                           "params['id']=#{params['id']}",
+                                           "params['noid']=#{params['noid']}",
+                                           "" ] if aptrust_statuses_controller_debug_verbose
+    records = ::Aptrust::Status.where( id: params['id'] )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "records.size=#{records.size}",
+                                           "" ] if aptrust_statuses_controller_debug_verbose
+    return if records.size < 1 # TODO: error
+    record = records[0]
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "record.id=#{record.id}",
+                                           "record.noid=#{record.noid}",
+                                           "" ] if aptrust_statuses_controller_debug_verbose
+    record.delete
+  end
+
+  def action_reupload
+    raise CanCan::AccessDenied unless current_ability.admin?
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "params=#{params}",
+                                           "params['id']=#{params['id']}",
+                                           "params['noid']=#{params['noid']}",
+                                           "" ] if aptrust_statuses_controller_debug_verbose
+    records = ::Aptrust::Status.where( id: params['id'] )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "records.size=#{records.size}",
+                                           "" ] if aptrust_statuses_controller_debug_verbose
+    return if records.size < 1 # TODO: error
+    record = records[0]
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "record.id=#{record.id}",
+                                           "record.noid=#{record.noid}",
+                                           "" ] if aptrust_statuses_controller_debug_verbose
+    record.event = ::Aptrust::EVENT_UPLOAD_AGAIN
+    record.save
   end
 
   def status_failed

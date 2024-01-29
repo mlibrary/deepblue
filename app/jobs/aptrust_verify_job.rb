@@ -8,7 +8,7 @@ class AptrustVerifyJob < AbstractRakeTaskJob
 
   mattr_accessor :aptrust_verify_job_debug_verbose, default: false
 
-  # queue_as :scheduler
+  queue_as :aptrust
 
   SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 
@@ -18,7 +18,7 @@ aptrust_verify_job:
   cron: '15 5 * * *'
   class: AptrustVerifyJob
   queue: scheduler
-  description: Scan and verify works to APTrust
+  description: Verify works uploaded to APTrust
   args:
     by_request_only: true
     #debug_assume_verify_succeeds: true

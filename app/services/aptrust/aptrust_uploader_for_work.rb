@@ -69,7 +69,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
   def initialize( aptrust_config: nil, work: nil, msg_handler: nil )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "aptrust_config.pretty_inspect=#{aptrust_config.pretty_inspect}",
+                                           # "aptrust_config.pretty_inspect=#{aptrust_config.pretty_inspect}",
                                            "" ] if aptrust_uploader_for_work_debug_verbose
     bag_id_type = ::Aptrust::AptrustUploaderForWork.dbd_bag_id_type( work: work )
     super( object_id:          work.id,

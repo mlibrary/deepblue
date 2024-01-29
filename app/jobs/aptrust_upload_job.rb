@@ -8,7 +8,7 @@ class AptrustUploadJob < AbstractRakeTaskJob
 
   mattr_accessor :aptrust_upload_job_debug_verbose, default: false
 
-  # queue_as :scheduler
+  queue_as :aptrust
 
   SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 

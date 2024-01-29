@@ -52,7 +52,7 @@ class Aptrust::AptrustStatusService
     end
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
-                                           "@aptrust_config=#{@aptrust_config.pretty_inspect}",
+                                           # "@aptrust_config=#{@aptrust_config.pretty_inspect}",
                                            "" ] if debug_verbose
 
   end
