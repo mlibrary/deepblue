@@ -141,21 +141,21 @@ class AptrustStatusesController < ApplicationController
                                            "" ] if aptrust_statuses_controller_debug_verbose
     init_begin_end_dates
     @aptrust_statuses = if event.blank? && not_event.blank?
-                      Status.where( [ 'created_at >= ? AND created_at <= ?', begin_date, end_date ] )
-                                     .order( created_at: :desc )
+                      Status.where( [ 'updated_at >= ? AND updated_at <= ?', begin_date, end_date ] )
+                                     .order( updated_at: :desc )
                     elsif not_event.blank?
-                      Status.where( [ 'created_at >= ? AND created_at <= ?', begin_date, end_date ] )
+                      Status.where( [ 'updated_at >= ? AND updated_at <= ?', begin_date, end_date ] )
                                      .where( event: event )
-                                     .order( created_at: :desc )
+                                     .order( updated_at: :desc )
                     elsif event.blank?
-                      Status.where( [ 'created_at >= ? AND created_at <= ?', begin_date, end_date ] )
+                      Status.where( [ 'updated_at >= ? AND updated_at <= ?', begin_date, end_date ] )
                                      .where.not( event: not_event )
-                        .order( created_at: :desc )
+                        .order( updated_at: :desc )
                     else
-                      Status.where( [ 'created_at >= ? AND created_at <= ?', begin_date, end_date ] )
+                      Status.where( [ 'updated_at >= ? AND updated_at <= ?', begin_date, end_date ] )
                                      .where( event: event )
                                      .where.not( event: not_event )
-                                     .order( created_at: :desc )
+                                     .order( updated_at: :desc )
                     end
   end
 
@@ -165,7 +165,7 @@ class AptrustStatusesController < ApplicationController
                                            "" ] if aptrust_statuses_controller_debug_verbose
     init_status_id
     @aptrust_statuses = Status.where( id: @status_id )
-    @aptrust_events = Event.where( aptrust_status_id: @status_id ).order( created_at: :desc )
+    @aptrust_events = Event.where( aptrust_status_id: @status_id ).order( updated_at: :desc )
   end
 
   def init_status_id()
@@ -243,6 +243,8 @@ class AptrustStatusesController < ApplicationController
                                            "record.noid=#{record.noid}",
                                            "" ] if aptrust_statuses_controller_debug_verbose
     record.event = ::Aptrust::EVENT_UPLOAD_AGAIN
+    record.note = ''
+    record.timestamp = DateTime.now
     record.save
   end
 
