@@ -58,6 +58,18 @@ class Aptrust::AptrustUploaderStatus
     @status ||= status_init
   end
 
+  def status_current
+    if ::Aptrust::STATUS_IN_DB
+      records = ::Aptrust::Status.where( noid: id )
+      return records.first.event if records.exists?
+    end
+    if status_history.empty?
+      ::Aptrust::EVENT_UNKNOWN
+    else
+      status_history.last[:status]
+    end
+  end
+
   def status_history
     @status_history ||= status_history_init
   end
@@ -78,8 +90,15 @@ class Aptrust::AptrustUploaderStatus
   end
 
   def status_init
-    return ::Aptrust::EVENT_UNKNOWN if status_history.empty?
-    return status_history.last[:status]
+    if ::Aptrust::STATUS_IN_DB
+      records = ::Aptrust::Status.where( noid: id )
+      return records.first.event if records.exists?
+    end
+    if status_history.empty?
+      ::Aptrust::EVENT_UNKNOWN
+    else
+      status_history.last[:status]
+    end
   end
 
   def status_done( status: )
@@ -113,10 +132,9 @@ class Aptrust::AptrustUploaderStatus
                                            "" ] if aptrust_uplaoder_status_debug_verbose
     begin
     timestamp ||= DateTime.now
-    noid = id
-    status = ::Aptrust::Status.for_id( noid: noid )
+    status = ::Aptrust::Status.for_id( noid: id )
     if status.blank?
-      status = ::Aptrust::Status.new( timestamp: timestamp, event: status_event, event_note: note, noid: noid )
+      status = ::Aptrust::Status.new( timestamp: timestamp, event: status_event, event_note: note, noid: id )
     else
       status = status[0]
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -133,7 +151,7 @@ class Aptrust::AptrustUploaderStatus
     event = ::Aptrust::Event.new( timestamp: timestamp,
                        event: status_event,
                        event_note: note,
-                       noid: noid,
+                       noid: id,
                        aptrust_status_id: aptrust_status_id )
     event.save
     rescue Exception => e
@@ -142,7 +160,7 @@ class Aptrust::AptrustUploaderStatus
   end
 
   def load_status_history
-    status = ::Aptrust::Status.for_id( noid: noid )
+    status = ::Aptrust::Status.for_id( noid: id )
   end
 
 end

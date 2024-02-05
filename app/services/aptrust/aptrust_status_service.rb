@@ -79,9 +79,16 @@ class Aptrust::AptrustStatusService
       status = aptrust_upload_status.status
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
+                                             "@aptrust_uploader_status.object_id=#{@aptrust_uploader_status.object_id}",
                                              "status=#{status}",
+                                             "force=#{force}",
+                                             "Aptrust::EVENTS_NEED_VERIFY.include?( status )=#{Aptrust::EVENTS_NEED_VERIFY.include?( status )}",
                                              "" ] if debug_verbose
       if !force && !Aptrust::EVENTS_NEED_VERIFY.include?( status )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "skip because not force and not events need verify",
+                                               "" ] if debug_verbose
         rv = status
         break
       end
@@ -95,7 +102,8 @@ class Aptrust::AptrustStatusService
       response = connection.get( get_arg )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "response=#{response}",
+                                             "response.success?=#{response.success?}",
+                                             # "response.pretty_inspect=#{response.pretty_inspect}",
                                              "" ] if debug_verbose
       unless response.success?
         rv = 'http_error'
@@ -133,7 +141,7 @@ class Aptrust::AptrustStatusService
       ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "Aptrust::AptrustStatusService.ingest_status(#{identifier}) #{e}",
-                                             "" ]
+                                             "" ] # + e.backtrace # [0..40]
       rv = 'standard_error'
       track( status: ::Aptrust::EVENT_VERIFY_FAILED, note: "#{rv} - #{object_identifier}" )
     end until true
@@ -154,8 +162,8 @@ class Aptrust::AptrustStatusService
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "base=#{base}",
-                                             "aptrust_config.aptrust_api_user=#{aptrust_config.aptrust_api_user}",
-                                             "aptrust_config.aptrust_api_key=#{aptrust_config.aptrust_api_key}",
+                                             # "aptrust_config.aptrust_api_user=#{aptrust_config.aptrust_api_user}",
+                                             # "aptrust_config.aptrust_api_key=#{aptrust_config.aptrust_api_key}",
                                              "" ] if debug_verbose
       @connection ||= Faraday.new( base ) do |conn|
         conn.headers = {

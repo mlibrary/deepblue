@@ -45,7 +45,7 @@ class Aptrust::AptrustFindAndVerify
   end
 
   def identifier( status: )
-    return aptrust_config.identifier( noid: status.noid, type: status.type )
+    return aptrust_config.identifier( noid: status.noid, type: "#{status.type}." )
   end
 
   def process( identifier:, noid:, status: )
@@ -58,6 +58,7 @@ class Aptrust::AptrustFindAndVerify
                                            ::Deepblue::LoggingHelper.called_from,
                                            "identifier=#{identifier}",
                                            "noid=#{noid}",
+                                           "status.event=#{status.event}",
                                            "" ] if debug_verbose
     if status.event == ::Aptrust::EVENT_DEPOSIT_SKIPPED || debug_assume_verify_succeeds
       verifier.object_id = noid
@@ -67,6 +68,12 @@ class Aptrust::AptrustFindAndVerify
       rv = verifier.ingest_status( identifier: identifier, noid: noid, force: force_verification )
     end
     @verify_count += 1
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "identifier=#{identifier}",
+                                           "noid=#{noid}",
+                                           "rv=#{rv}",
+                                           "" ] if debug_verbose
     return rv
   end
 
@@ -81,6 +88,8 @@ class Aptrust::AptrustFindAndVerify
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "max_verifies=#{max_verifies}",
                                                  "@verify_count=#{@verify_count}",
+                                                 "status.noid=#{status.noid}",
+                                                 "status.event=#{status.event}",
                                                  "" ] if debug_verbose
         return if -1 != max_verifies && @verify_count >= max_verifies
         next unless ::Aptrust::EVENTS_NEED_VERIFY.include? status.event
