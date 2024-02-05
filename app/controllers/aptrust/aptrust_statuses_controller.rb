@@ -5,7 +5,7 @@ require_relative '../../services/aptrust/aptrust'
 module Aptrust
 class AptrustStatusesController < ApplicationController
 
-  mattr_accessor :aptrust_statuses_controller_debug_verbose, default: true
+  mattr_accessor :aptrust_statuses_controller_debug_verbose, default: false
 
   include AdminOnlyControllerBehavior
 
@@ -243,7 +243,7 @@ class AptrustStatusesController < ApplicationController
                                            "record.noid=#{record.noid}",
                                            "" ] if aptrust_statuses_controller_debug_verbose
     record.event = ::Aptrust::EVENT_UPLOAD_AGAIN
-    record.note = ''
+    record.event_note = ''
     record.timestamp = DateTime.now
     record.save
   end

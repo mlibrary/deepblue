@@ -37,7 +37,7 @@ class JobStatus < ApplicationRecord
       job_status.parent_job_id = parent_job_id.to_s if parent_job_id.present?
       job_status.main_cc_id = main_cc_id if main_cc_id.present?
       job_status.user_id = user_id if user_id.present?
-      job_status.save!
+      job_status.save_safe
     end
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
@@ -128,7 +128,7 @@ class JobStatus < ApplicationRecord
     job_status.status = status
     job_status.message = message if message.present?
     job_status.error = error if error.present?
-    job_status.save!
+    job_status.save_safe
     return job_status
   end
 
@@ -151,7 +151,7 @@ class JobStatus < ApplicationRecord
 
   def add_error!( error, sep: "\n" )
     add_error( error, sep: sep )
-    save!
+    save_safe
     return self
   end
 
@@ -166,7 +166,7 @@ class JobStatus < ApplicationRecord
 
   def add_message!( message, sep: "\n" )
     add_message( message, sep: sep )
-    save!
+    save_safe
     return self
   end
 
@@ -177,12 +177,12 @@ class JobStatus < ApplicationRecord
 
   def add_messages!( messages, sep: "\n" )
     add_messages( messages, sep: sep )
-    save!
+    save_safe
   end
 
   def error!( error: nil )
     self.error = error.to_s
-    save!
+    save_safe
     return self
   end
 
@@ -223,6 +223,32 @@ class JobStatus < ApplicationRecord
     false
   end
 
+  def save_safe
+    # TODO: find out a way to directly test the size of the 'message' column
+    # TODO: in the mean time, force truncate the message
+    begin
+      save!
+    rescue => e
+      raise unless e.message.include? "Data too long for column 'message'"
+      save_safe_retry
+    end
+  end
+
+  def save_safe_retry
+    retries = 0
+    while ( retries < 4 )
+      msg = self.message
+      len = msg.length / 2
+      self.message = "[#{msg.length}/2]#{msg[0,len]}[...]"
+      retries += 1
+      begin
+        save!
+      rescue => e
+        raise unless e.message.include? "Data too long for column 'message'"
+      end
+    end
+  end
+
   def started!( message: nil )
     status!( STARTED, message: message )
   end
@@ -255,14 +281,14 @@ class JobStatus < ApplicationRecord
 
   def state_serialize!( state )
     state_serialize( state )
-    save!
+    save_safe
   end
 
   def status!( status, message: nil, error: nil )
     self.status = status
     self.message = message.to_s if message.present?
     self.error = error.to_s if error.present?
-    save!
+    save_safe
     return self
   end
 
@@ -401,6 +427,15 @@ class JobStatus < ApplicationRecord
     end
 
     def reload
+      # ignore
+    end
+
+
+    def save_safe
+      # ignore
+    end
+
+    def save_safe_retry
       # ignore
     end
 
