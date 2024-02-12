@@ -48,6 +48,18 @@ module Deepblue
       return ''
     end
 
+    def bold_error( _msg = nil,
+                    bold_puts: false,
+                    label: nil,
+                    key_value_lines: true,
+                    add_stack_trace: false,
+                    add_stack_trace_depth: 3,
+                    lines: 1,
+                    logger: nil,
+                    &block )
+      # ignore
+    end
+
     def bold_debug( _msg = nil,
                     bold_puts: false,
                     label: nil,

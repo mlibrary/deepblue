@@ -24,6 +24,8 @@
   </table>
 <% end %> <%# end of form %>
 
+<% zone = ActiveSupport::TimeZone.new("Eastern Time (US & Canada)") %>
+
 <table>
   <thead>
     <tr>
@@ -52,8 +54,8 @@
         <td><%= link_to status.noid, hyrax_data_set_path(id: status.noid) %></td>
         <td><%= status.event %></td>
         <td><%= status.event_note %></td>
-        <td><%= status.updated_at %></td>
-        <td><%= status.created_at %></td>
+        <td><%= status.updated_at.in_time_zone(zone) %></td>
+        <td><%= status.created_at.in_time_zone(zone) %></td>
         <td><%= submit_tag( 'Reupload',
                             class: 'btn btn-primary',
                             id: "reupload_#{status.id}",
@@ -96,8 +98,8 @@
         <td><%= link_to event.noid, hyrax_data_set_path(id: event.noid) %></td>
         <td><%= event.event %></td>
         <td><%= event.event_note %></td>
-        <td><%= event.updated_at %></td>
-        <td><%= event.created_at %></td>
+        <td><%= event.updated_at.in_time_zone(zone) %></td>
+        <td><%= event.created_at.in_time_zone(zone) %></td>
       </tr>
     <% end %>
     </tbody>

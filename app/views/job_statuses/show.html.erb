@@ -4,6 +4,8 @@
 
 <div class="<%= main_content_classes %> static-page-main" style="width: 60rem;">
 
+  <% zone = ActiveSupport::TimeZone.new("Eastern Time (US & Canada)") %>
+
   <table>
     <tr><td>ID:</td><td><%= @job_status.id %></td>
     <tr><td>Job Class:</td><td><%= @job_status.job_class %></td>
@@ -15,8 +17,8 @@
     <tr><td>Main CC ID:</td><td><%= @job_status.main_cc_id %></td>
     <tr><td>User ID:</td><td><%= @job_status.user_id %></td>
     <tr><td>State:</td><td style="width:40em;"><%= raw JsonHelper.key_values_to_table_safe( @job_status.state, parse: true ) %></td>
-    <tr><td>Created At:</td><td><%= @job_status.created_at %></td>
-    <tr><td>Updated At:</td><td><%= @job_status.updated_at %></td>
+    <tr><td>Created At:</td><td><%= @job_status.created_at.in_time_zone(zone) %></td>
+    <tr><td>Updated At:</td><td><%= @job_status.updated_at.in_time_zone(zone) %></td>
   </table>
   <br/><br/>
   <% if @presenter.back_id.present? %>

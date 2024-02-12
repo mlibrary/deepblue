@@ -21,6 +21,12 @@ module JobHelper
   attr_writer   :timestamp_begin
   attr_writer   :timestamp_end
 
+  def allow_by_request_only?
+    return true if from_dashboard.present?
+    return true if task?
+    return false
+  end
+
   def by_request_only
     @by_request_only ||= job_options_value( key: 'by_request_only', default_value: false )
   end
@@ -447,6 +453,7 @@ module JobHelper
   def task
     @task ||= task_init
   end
+  alias :task? :task
 
   def task_init
     job_options_value( key: 'task', default_value: false, no_msg_handler: true )
