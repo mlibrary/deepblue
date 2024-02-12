@@ -23,6 +23,7 @@ module Deepblue
 
     mattr_accessor :run_job_task_debug_verbose, default: ::Deepblue::JobTaskHelper.run_job_task_debug_verbose
 
+    DEFAULT_VERBOSE = false unless const_defined? :DEFAULT_VERBOSE
     DEFAULT_PERFORM_LATER = false unless const_defined? :DEFAULT_PERFORM_LATER
 
     def initialize( options: {} )
@@ -50,12 +51,12 @@ module Deepblue
         job.perform_now
       end
     rescue NameError => e
-      Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
-      Rails.logger.error e.backtrace.join("\n")
+      ::Deepblue::LoggingHelper.bold_error "#{e.class} #{e.message} at #{e.backtrace[0]}"
+      ::Deepblue::LoggingHelper.bold_error e.backtrace.join("\n")
       raise e
     rescue Exception => e
-      Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
-      Rails.logger.error e.backtrace.join("\n")
+      ::Deepblue::LoggingHelper.bold_error "#{e.class} #{e.message} at #{e.backtrace[0]}"
+      ::Deepblue::LoggingHelper.bold_error e.backtrace.join("\n")
       raise e
     end
 

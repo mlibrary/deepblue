@@ -134,6 +134,41 @@ module Deepblue
     # Provide the same functionality as the LoggingHelper.bold_debug, but override bold_puts parameter
     # with the MessageHandler's to_console flag, and use the MessageHandler's logger, which defaults
     # to Rails.logger
+    def bold_error( msg = nil,
+                    bold_puts: @to_console,
+                    label: nil,
+                    key_value_lines: true,
+                    add_stack_trace: false,
+                    add_stack_trace_depth: 3,
+                    lines: 1,
+                    logger: nil, # defaults to the MessageHandler's logger
+                    &block )
+
+      if to_console
+        LoggingHelper.bold_puts( msg,
+                                 label: label,
+                                 key_value_lines: key_value_lines,
+                                 add_stack_trace: add_stack_trace,
+                                 add_stack_trace_depth: add_stack_trace_depth,
+                                 lines: lines,
+                                 &block )
+      else
+        logger ||= self.logger
+        LoggingHelper.bold_error( msg,
+                                  bold_puts: bold_puts,
+                                  label: label,
+                                  key_value_lines: key_value_lines,
+                                  add_stack_trace: add_stack_trace,
+                                  add_stack_trace_depth: add_stack_trace_depth,
+                                  lines: lines,
+                                  logger: logger,
+                                  &block )
+      end
+    end
+
+    # Provide the same functionality as the LoggingHelper.bold_debug, but override bold_puts parameter
+    # with the MessageHandler's to_console flag, and use the MessageHandler's logger, which defaults
+    # to Rails.logger
     def bold_debug( msg = nil,
                     bold_puts: @to_console,
                     label: nil,

@@ -24,6 +24,8 @@
   </table>
 <% end %>
 
+<% zone = ActiveSupport::TimeZone.new("Eastern Time (US & Canada)") %>
+
 <% if @aptrust_statuses.present? %>
   <h2><%= "APTrust Status" %></h2>
   <table>
@@ -47,8 +49,8 @@
         <td><%= link_to status.noid, hyrax_data_set_path(id: status.noid) %></td>
         <td><%= status.event %></td>
         <td><%= status.event_note %></td>
-        <td><%= status.updated_at %></td>
-        <td><%= status.created_at %></td>
+        <td><%= status.updated_at.in_time_zone(zone) %></td>
+        <td><%= status.created_at.in_time_zone(zone) %></td>
       </tr>
     <% end %>
     </tbody>
@@ -81,8 +83,8 @@
         <td><%= link_to event.noid, hyrax_data_set_path(id: event.noid) %></td>
         <td><%= event.event %></td>
         <td><%= event.event_note %></td>
-        <td><%= event.updated_at %></td>
-        <td><%= event.created_at %></td>
+        <td><%= event.updated_at.in_time_zone(zone) %></td>
+        <td><%= event.created_at.in_time_zone(zone) %></td>
       </tr>
     <% end %>
   </tbody>

@@ -10,6 +10,9 @@
       <% if @presenter.job_statuses.empty? %>
         <%= t('hyrax.base.job_statuses.empty', type: "Work" ) %>
       <% else %>
+
+        <% zone = ActiveSupport::TimeZone.new("Eastern Time (US & Canada)") %>
+
         <table>
           <thead>
           <tr>
@@ -26,7 +29,7 @@
           <% @presenter.job_statuses.each do |job_status| %>
             <tr>
               <!-- td><%= job_status.id %></td -->
-              <td><%= job_status.updated_at %></td>
+              <td><%= job_status.updated_at.in_time_zone(zone) %></td>
               <td><%= job_status.job_class %></td>
               <td><%= job_status.status %></td>
               <td><%= job_status.error_snipped %></td>

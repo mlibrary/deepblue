@@ -2,9 +2,9 @@
 
 require_relative './aptrust'
 
-class Aptrust::AptrustVerifier < Aptrust::AbstractAptrustService
+class Aptrust::AptrustVerifyWork < Aptrust::AbstractAptrustService
 
-  mattr_accessor :aptrust_verifier_debug_verbose, default: false
+  mattr_accessor :aptrust_verify_work_debug_verbose, default: false
 
   attr_accessor :debug_assume_verify_succeeds
   attr_accessor :force_verification
@@ -15,10 +15,10 @@ class Aptrust::AptrustVerifier < Aptrust::AbstractAptrustService
                   aptrust_config:      nil,
                   aptrust_config_file: nil, # ignored if aptrust_config is defined
                   debug_assume_verify_succeeds: false,
-                  force_verification:           false,
-                  reverify_failed:              false,
-                  noid:                    ,
-                  debug_verbose:                aptrust_verifier_debug_verbose )
+                  force_verification:  false,
+                  reverify_failed:     false,
+                  noid:                ,
+                  debug_verbose:       aptrust_verify_work_debug_verbose )
 
     super( msg_handler:         msg_handler,
            aptrust_config:      aptrust_config,
@@ -46,13 +46,7 @@ class Aptrust::AptrustVerifier < Aptrust::AbstractAptrustService
     return false
   end
 
-  def process( work: )
-    status = ::Aptrust::Status.where( noid: work.id )
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "status.size=#{status.size}",
-                             "" ] if debug_verbose
-    return if status.blank?
-    identifier = identifier( status: status )
+  def process( identifier:, noid:, status: )
     verifier = ::Aptrust::AptrustStatusService.new( aptrust_config: aptrust_config,
                                                     force: force_verification,
                                                     reverify_failed: reverify_failed,
@@ -81,17 +75,29 @@ class Aptrust::AptrustVerifier < Aptrust::AbstractAptrustService
   end
 
   def run
-    begin
-      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ] if debug_verbose
-      work = DataSet.find noid
-      process work: work
+    begin # until true for break
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "run", "" ] if debug_verbose
+      status = ::Aptrust::Status.where( noid: noid )
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "status.size=#{status.size}",
+                               "" ] if debug_verbose
+      break if status.blank?
+      status = status.first
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "status.noid=#{status.noid}",
+                               "status.event=#{status.event}",
+                               "" ] if debug_verbose
+      break unless needs_verification?( status: status.event )
+      identifier = identifier( status: status )
+      process( identifier: identifier, noid: status.noid, status: status )
     rescue Exception => e
       Rails.logger.error "#{e.class} -- #{e.message} at #{e.backtrace[0]}"
       msg_handler.bold_error [ msg_handler.here, msg_handler.called_from,
-                               "Aptrust::AptrustVerifier.run #{e.class}: #{e.message} at #{e.backtrace[0]}",
+                               "Aptrust::AptrustVerifyWork.run #{e.class}: #{e.message} at #{e.backtrace[0]}",
                                "" ] + e.backtrace # error
       raise
-    end
+    end until true # for break
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "run", "" ] if debug_verbose
   end
 
 end

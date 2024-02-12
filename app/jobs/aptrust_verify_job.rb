@@ -17,13 +17,14 @@ aptrust_verify_job:
 #       M H D
   cron: '15 5 * * *'
   class: AptrustVerifyJob
-  queue: scheduler
+  queue: aptrust
   description: Verify works uploaded to APTrust
   args:
     by_request_only: true
     #debug_assume_verify_succeeds: true
     #debug_verbose: true
     force_verification: false
+    reverify_failed: false
     email_results_to:
       - 'fritx@umich.edu'
     hostnames:
@@ -39,48 +40,57 @@ aptrust_verify_job:
   EVENT = "aptrust_verify"
 
   def self.perform( *args )
-    RakeTaskJob.perform_now( *args )
+    AptrustVerifyJob.perform_now( *args )
   end
 
   def perform( *args )
-    # msg_handler.debug_verbose = aptrust_verify_job_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "args=#{args}",
                                            "" ] if aptrust_verify_job_debug_verbose
-    initialized = initialize_from_args( *args, debug_verbose: debug_verbose )
-    msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
-                             ::Deepblue::LoggingHelper.called_from,
+    initialized = initialize_from_args( *args, debug_verbose: aptrust_verify_job_debug_verbose )
+    msg_handler.bold_debug [ msg_handler.here,
+                             msg_handler.called_from,
                              "initialized=#{initialized}",
-                             "" ] if aptrust_verify_job_debug_verbose
+                             "" ] if debug_verbose
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name )
     return unless initialized
-    return job_finished unless by_request_only? && from_dashboard.present?
-    debug_verbose = job_options_value( key: 'debug_verbose', default_value: debug_verbose )
-    msg_handler.debug_verbose = debug_verbose
-    debug_assume_verify_succeeds = job_options_value( key: 'debug_assume_verify_succeeds', default_value: false )
-    force_verification = job_options_value( key: 'force_verification', default_value: false )
-    max_verifies = job_options_value( key: 'max_verifies', default_value: -1 )
-    msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
-                             ::Deepblue::LoggingHelper.called_from,
+    begin # until true for break
+      debug_verbose = job_options_value( key: 'debug_verbose', default_value: debug_verbose )
+      msg_handler.bold_debug [ msg_handler.here,
+                               msg_handler.called_from,
+                               "by_request_only?=#{by_request_only?}",
+                               "allow_by_request_only?=#{allow_by_request_only?}",
+                               "" ] if debug_verbose
+      break if by_request_only? && !allow_by_request_only?
+      msg_handler.debug_verbose = debug_verbose
+      debug_assume_verify_succeeds = job_options_value( key: 'debug_assume_verify_succeeds', default_value: false )
+      force_verification = job_options_value( key: 'force_verification', default_value: false )
+      reverify_failed = job_options_value( key: 'reverify_failed', default_value: false )
+      max_verifies = job_options_value( key: 'max_verifies', default_value: -1 )
+      msg_handler.bold_debug [ msg_handler.here,
+                             msg_handler.called_from,
                              "debug_assume_verify_succeeds=#{debug_assume_verify_succeeds}",
                              "force_verification=#{force_verification}",
+                             "reverify_failed=#{reverify_failed}",
                              "max_verifies=#{max_verifies}",
                              "" ] if debug_verbose
-    run_job_delay
-    verifier = ::Aptrust::AptrustFindAndVerify.new( debug_assume_verify_succeeds: debug_assume_verify_succeeds,
+      run_job_delay
+      verifier = ::Aptrust::AptrustFindAndVerify.new( debug_assume_verify_succeeds: debug_assume_verify_succeeds,
                                                     force_verification:           force_verification,
+                                                    reverify_failed:              reverify_failed,
                                                     max_verifies:                 max_verifies,
                                                     msg_handler:                  msg_handler,
                                                     debug_verbose:                debug_verbose )
-    verifier.run
-    timestamp_end = DateTime.now
-    msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
-                             ::Deepblue::LoggingHelper.called_from,
+      verifier.run
+      timestamp_end = DateTime.now
+      msg_handler.bold_debug [ msg_handler.here,
+                             msg_handler.called_from,
                              "msg_handler.msg_queue=#{msg_handler.msg_queue}",
                              "timestamp_end=#{timestamp_end}",
-                             "" ] if aptrust_verify_job_debug_verbose
-    email_results( task_name: EVENT, event: EVENT )
+                             "" ] if debug_verbose
+      email_results( task_name: EVENT, event: EVENT )
+    end until true # for break
     job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
     job_status_register( exception: e, args: args )

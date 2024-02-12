@@ -381,12 +381,24 @@ class Aptrust::AptrustUploader
       aws_object = bucket.object( tar_filename )
       track( status: ::Aptrust::EVENT_UPLOADING )
       filename = File.join( export_dir, tar_filename )
+      # https://docs.aws.amazon.com/sdk-for-ruby/v3/api/Aws/S3/Object.html#upload_file-instance_method
       aws_object.upload_file( filename )
       track( status: ::Aptrust::EVENT_UPLOADED )
       return true, ::Aptrust::EVENT_UPLOADED
+    rescue Aws::S3::MultipartUploadError => e
+      track( status: ::Aptrust::EVENT_FAILED, note: "failed in #{e.context} with error #{e}" )
+      ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "failed in #{e.context} with error #{e}",
+                                             "" ]
+      # TODO: Rails.logger.error "Upload of file #{filename} failed with error #{e}"
+      return false, ::Aptrust::EVENT_FAILED
     rescue Aws::S3::Errors::ServiceError => e
       track( status: ::Aptrust::EVENT_FAILED, note: "failed in #{e.context} with error #{e}" )
-      # TODO: Rails.logger.error "Upload of file #{filename} failed with error #{e}"
+      ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "failed in #{e.context} with error #{e}",
+                                             "" ]
       return false, ::Aptrust::EVENT_FAILED
     end
   end

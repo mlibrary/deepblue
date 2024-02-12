@@ -16,6 +16,10 @@ module Aptrust
 
     EVENT_BAGGED          = 'bagged'          unless const_defined? :EVENT_BAGGED
     EVENT_BAGGING         = 'bagging'         unless const_defined? :EVENT_BAGGING
+    EVENT_DELETE_FAILED   = 'deleted_failed'  unless const_defined? :EVENT_DELETE_FAILED
+    EVENT_DELETE_PENDING  = 'deleted_pending' unless const_defined? :EVENT_DELETE_PENDING
+    EVENT_DELETED         = 'deleted'         unless const_defined? :EVENT_DELETED
+    EVENT_DELETING        = 'deleting'        unless const_defined? :EVENT_DELETING
     EVENT_DEPOSIT_FAILED  = 'deposit_failed'  unless const_defined? :EVENT_DEPOSIT_FAILED
     EVENT_DEPOSIT_SKIPPED = 'deposit_skipped' unless const_defined? :EVENT_DEPOSIT_SKIPPED
     EVENT_DEPOSITED       = 'deposited'       unless const_defined? :EVENT_DEPOSITED
@@ -37,7 +41,8 @@ module Aptrust
     EVENT_VERIFY_SKIPPED  = 'verify_skipped'  unless const_defined? :EVENT_VERIFY_SKIPPED
     EVENT_VERIFYING       = 'verifying'       unless const_defined? :EVENT_VERIFYING
 
-    EVENTS_FINISHED = [ EVENT_DEPOSITED, EVENT_DEPOSIT_SKIPPED ] unless const_defined? :EVENTS_FINISHED
+    EVENTS_FINISHED = [ EVENT_DEPOSITED,
+                        EVENT_DEPOSIT_SKIPPED ] unless const_defined? :EVENTS_FINISHED
 
     EVENTS_ERRORS = [ EVENT_EXPORT_FAILED,
                       EVENT_DEPOSIT_FAILED,
@@ -45,6 +50,7 @@ module Aptrust
                       EVENT_VERIFY_FAILED ] unless const_defined? :EVENTS_ERRORS
 
     EVENTS_FAILED = [ EVENT_EXPORT_FAILED,
+                      EVENT_DELETE_FAILED,
                       EVENT_DEPOSIT_FAILED,
                       EVENT_FAILED,
                       EVENT_VERIFY_FAILED ] unless const_defined? :EVENTS_FAILED
@@ -56,6 +62,7 @@ module Aptrust
 
     EVENTS_PROCESSING = [ EVENT_BAGGED,
                           EVENT_BAGGING,
+                          EVENT_DELETING,
                           EVENT_DEPOSITED,
                           EVENT_DEPOSITING,
                           EVENT_EXPORTED,
