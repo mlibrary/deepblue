@@ -139,6 +139,8 @@ en:
         analytics:                      "View Work Analytics"
         analytics_subscribe:            "Subscribe to Monthly Analytics Report"
         analytics_unsubscribe:          "Unsubscribe from Monthly Analytics Report"
+        aptrust_upload:                 "Upload to APTrust"
+        aptrust_verify:                 "Verify with APTrust"
         confirm:                        "Confirm Your Deposit"
         create_service_request:         "Create Service Request"
         csv_download:                   "Download Archive Stats"

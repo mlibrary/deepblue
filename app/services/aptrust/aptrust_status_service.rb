@@ -40,7 +40,33 @@ class Aptrust::AptrustStatusService < Aptrust::AbstractAptrustService
                              "" ] if debug_verbose
   end
 
-  def ingest_status( identifier:, noid: )
+  def ingest_result_to_verification( current_status:, results: )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "current_status=#{current_status}",
+                             "results=#{results}",
+                             "" ] if debug_verbose
+    rv = ::Aptrust::EVENT_VERIFY_PENDING
+    begin # until true for break
+      if results.blank?
+        break if ::Aptrust::EVENTS_PROCESSING.include?( current_status )
+        break if ::Aptrust::EVENTS_NEED_VERIFY.include?( current_status )
+      end
+      results = results.first if results.is_a? Array
+      status = results['status']
+      rv = ::Aptrust::EVENT_VERIFY_FAILED
+      break if /failed/i.match? status
+      break if /cancelled/i.match? status
+      stage = results['stage']
+      if /success/i.match?( status ) && /cleanup/i.match?( stage )
+        rv = ::Aptrust::EVENT_VERIFIED
+        breakl
+      end
+      rv = ::Aptrust::EVENT_VERIFY_PENDING
+    end until true # for break
+    return rv
+  end
+
+  def ingest_status2( identifier:, noid: )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "identifier=#{identifier}",
                              "noid=#{noid}",
@@ -76,7 +102,7 @@ class Aptrust::AptrustStatusService < Aptrust::AbstractAptrustService
                                "" ] if debug_verbose
       unless response.success?
         rv = 'http_error'
-        track( status: ::Aptrust::EVENT_VERIFY_FAILED, note: "#{rv} - #{object_identifier}" )
+        # track( status: ::Aptrust::EVENT_VERIFY_FAILED, note: "#{rv} - #{object_identifier}" )
         break
       end
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
@@ -115,7 +141,67 @@ class Aptrust::AptrustStatusService < Aptrust::AbstractAptrustService
                                "" ] # + e.backtrace # [0..40]
       rv = 'standard_error'
       track( status: ::Aptrust::EVENT_VERIFY_FAILED, note: "#{rv} - #{object_identifier}" )
-    end until true
+    end until true # for break
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "rv=#{rv}",
+                             "" ] if debug_verbose
+    return rv
+  end
+
+  def ingest_status( identifier:, noid: )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "identifier=#{identifier}",
+                             "noid=#{noid}",
+                             "force=#{force}",
+                             "reverify_failed=#{reverify_failed}",
+                             "track_status=#{track_status}",
+                             "" ] if debug_verbose
+    @noid = noid
+
+    begin # until true for break
+      status = aptrust_upload_status.status
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "@aptrust_uploader_status.object_id=#{@aptrust_uploader_status.object_id}",
+                               "needs_verification?( status: #{status} )=#{needs_verification?( status: status )}",
+                               "" ] if debug_verbose
+      unless needs_verification?( status: status )
+        msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                                 "skip because it does not need verification",
+                                 "" ] if debug_verbose
+        rv = status
+        break
+      end
+      object_identifier = "object_identifier=#{aptrust_config.repository}\/#{identifier}"
+      get_arg = "items?#{object_identifier}&action=Ingest"
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "get_arg=#{get_arg}",
+                               "" ] if debug_verbose
+      # track( status: ::Aptrust::EVENT_VERIFYING, note: "object_identifier=#{aptrust_config.repository}\/#{identifier}" )
+      response = connection.get( get_arg )
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "response.success?=#{response.success?}",
+                               # "response.pretty_inspect=#{response.pretty_inspect}",
+                               "" ] if debug_verbose
+      unless response.success?
+        rv = 'http_error'
+        # track( status: ::Aptrust::EVENT_VERIFY_FAILED, note: "#{rv} - #{object_identifier}" )
+        break
+      end
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               # "response.pretty_inspect=#{response.pretty_inspect}",
+                               "response.success?=#{response.success?}",
+                               "response.body.pretty_inspect=#{response.body.pretty_inspect}",
+                               "" ] if debug_verbose
+      rv = ingest_result_to_verification( current_status: status, results: response.body['results'] )
+      break if rv == ::Aptrust::EVENT_VERIFY_FAILED
+      track( status: rv )
+    rescue StandardError => e
+      msg_handler.bold_error [ msg_handler.here, msg_handler.called_from,
+                               "Aptrust::AptrustStatusService.ingest_status(#{identifier}) #{e}",
+                               "" ] # + e.backtrace # [0..40]
+      rv = 'standard_error'
+      track( status: ::Aptrust::EVENT_VERIFY_FAILED, note: "#{rv} - #{object_identifier}" )
+    end until true # for break
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "rv=#{rv}",
                              "" ] if debug_verbose

@@ -230,6 +230,16 @@
                       class: 'btn btn-subtle',
                       data: { confirm: "Run find and fix for this #{@presenter.human_readable_type}?\nNOTE: should not be run while files are being attached." },
                       method: :work_find_and_fix %>
+          <%= link_to t('simple_form.actions.data_set.aptrust_upload'),
+                      "/data/concern/data_sets/#{@presenter.id}/aptrust_upload",
+                      class: 'btn btn-subtle',
+                      data: { confirm: "Upload to APTrust?" },
+                      method: :aptrust_upload %>
+          <%= link_to t('simple_form.actions.data_set.aptrust_verify'),
+                      "/data/concern/data_sets/#{@presenter.id}/aptrust_verify",
+                      class: 'btn btn-subtle',
+                      data: { confirm: "Verify APTrust?" },
+                      method: :aptrust_verify %>
         </div>
       </div> <!-- End Admin panel -->
     <% end %>

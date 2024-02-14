@@ -62,8 +62,8 @@ module Aptrust
 
     EVENTS_PROCESSING = [ EVENT_BAGGED,
                           EVENT_BAGGING,
-                          EVENT_DELETING,
-                          EVENT_DEPOSITED,
+                          # EVENT_DELETING,
+                          # EVENT_DEPOSITED,
                           EVENT_DEPOSITING,
                           EVENT_EXPORTED,
                           EVENT_EXPORTING,
