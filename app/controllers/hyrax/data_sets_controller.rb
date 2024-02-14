@@ -54,6 +54,8 @@ module Hyrax
     protect_from_forgery with: :null_session,    only: [:ingest_append_script_generate]
     protect_from_forgery with: :null_session,    only: [:ingest_append_script_prep]
     protect_from_forgery with: :null_session,    only: [:ingest_append_script_run_job]
+    protect_from_forgery with: :null_session,    only: [:aptrust_upload]
+    protect_from_forgery with: :null_session,    only: [:aptrust_verify]
     protect_from_forgery with: :null_session,    only: [:work_find_and_fix]
     protect_from_forgery with: :null_session,    only: [:zip_download]
 
@@ -141,6 +143,33 @@ module Hyrax
                                           current_user: current_user.email,
                                           email_results_to: current_user.email )
       flash[:notice] = "Ensure DOI minted job started. You will be emailed the results."
+      redirect_to [main_app, curation_concern]
+    end
+
+    def aptrust_upload
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if data_sets_controller_debug_verbose
+      ::AptrustUploadWorkJob.perform_later( id: params[:id],
+                                            email_results_to: current_user.email,
+                                            clean_up_after_deposit: false,  # TODO
+                                            debug_assume_upload_succeeds: false,
+                                            debug_verbose: true )  # TODO
+      flash[:notice] = "APTrust upload work started. You will be emailed the results."
+      redirect_to [main_app, curation_concern]
+    end
+
+    def aptrust_verify
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if true || data_sets_controller_debug_verbose
+      ::AptrustVerifyWorkJob.perform_later( id: params[:id],
+                                            email_results_to: current_user.email,
+                                            force_verification: true,  # TODO
+                                            reverify_failed: true,  # TODO
+                                            debug_assume_verify_succeeds: false,
+                                            debug_verbose: true )  # TODO
+      flash[:notice] = "APTrust verify work started. You will be emailed the results."
       redirect_to [main_app, curation_concern]
     end
 
