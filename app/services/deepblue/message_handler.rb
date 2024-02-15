@@ -356,6 +356,10 @@ module Deepblue
       false
     end
 
+    def obj_class( label, obj )
+      "#{label}.class=#{obj.class.name}"
+    end
+
     def quiet=(is_quiet)
       @quiet = is_quiet
       @verbose = false if @quiet

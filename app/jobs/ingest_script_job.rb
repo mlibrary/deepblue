@@ -12,18 +12,26 @@ class IngestScriptJob < ::Deepblue::DeepblueJob
   EVENT = 'ingest script'
 
   def perform( ingest_mode:, ingester:, path_to_script:, id: nil, **options )
+    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+    #                                         "ingest_mode=#{ingest_mode}",
+    #                                         "ingester=#{ingester}",
+    #                                         "id=#{id}",
+    #                                         "path_to_script=#{path_to_script}",
+    #                                         "options=#{options}",
+    #                                        ::Deepblue::LoggingHelper.obj_class( 'options', options ),
+    #                                         "" ] if ingest_script_job_debug_verbose
     msg_handler.debug_verbose = ingest_script_job_debug_verbose
     initialize_with( id: id, debug_verbose: debug_verbose, options: options )
+    child_job?
     email_targets << ingester if ingester.present?
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           ::Deepblue::LoggingHelper.obj_class( 'class', self ),
-                                           "ingest_mode=#{ingest_mode}",
-                                           "ingester=#{ingester}",
-                                           "path_to_script=#{path_to_script}",
-                                           "options=#{options}",
-                                           ::Deepblue::LoggingHelper.obj_class( 'options', options ),
-                                           "" ] if ingest_script_job_debug_verbose
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "id=#{id}",
+                             "ingest_mode=#{ingest_mode}",
+                             "ingester=#{ingester}",
+                             "path_to_script=#{path_to_script}",
+                             "options=#{options}",
+                             msg_handler.obj_class( 'options', options ),
+                             "" ] if msg_handler.debug_verbose
 
     @ingest_mode = ingest_mode
     @ingester = ingester
@@ -34,15 +42,13 @@ class IngestScriptJob < ::Deepblue::DeepblueJob
                                            mode: ingest_mode,
                                            options: options )
 
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                            "ingest_mode=#{ingest_mode}",
                                            "ingester=#{ingester}",
                                            "path_to_script=#{path_to_script}",
                                            "options=#{options}",
-                                           ::Deepblue::LoggingHelper.obj_class( 'options', options ),
-                                           "" ] if ingest_script_job_debug_verbose
+                                           msg_handler.obj_class( 'options', options ),
+                                           "" ] if msg_handler.debug_verbose
     email_results( task_name: EVENT, event: EVENT )
     job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
