@@ -177,21 +177,26 @@ module Deepblue
       end
     end
 
+    def log_error( msg )
+      @msg_handler.msg_error msg if @msg_handler.present?
+      logger.error msg
+    end
+
     def run
       validate_config
       build_repo_contents
     rescue RestrictedVocabularyError => e
-      logger.error e.message.to_s
+      log_error e.message.to_s
     rescue TaskConfigError => e
-      logger.error e.message.to_s
+      log_error e.message.to_s
     rescue UserNotFoundError => e
-      logger.error e.message.to_s
+      log_error e.message.to_s
     rescue VisibilityError => e
-      logger.error e.message.to_s
+      log_error e.message.to_s
     rescue WorkNotFoundError => e
-      logger.error e.message.to_s
+      log_error e.message.to_s
     rescue Exception => e # rubocop:disable Lint/RescueException
-      logger.error "#{e.class}: #{e.message} at #{e.backtrace[0]}"
+      log_error "#{e.class}: #{e.message} at #{e.backtrace[0]}"
     end
 
     protected

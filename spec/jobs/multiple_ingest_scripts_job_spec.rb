@@ -16,8 +16,9 @@ RSpec.describe MultipleIngestScriptsJob, skip: false do
     it { expect( described_class.scripts_allowed_path_extensions ).to eq [ '.yml', '.yaml' ] }
     it { expect( described_class.scripts_allowed_path_prefixes ).to eq [ "#{::Deepblue::GlobusIntegrationService.globus_prep_dir}",
                                                              './data/reports/',
-                                                             "#{::Deepblue::GlobusIntegrationService.globus_upload_dir}" ] +
-                                                                         Rails.configuration.shared_drive_mounts }
+                                                             "#{::Deepblue::GlobusIntegrationService.globus_upload_dir}",
+                                                             "/Volumes/ulib-dbd-prep/" ] +
+                                                             Rails.configuration.shared_drive_mounts }
   end
 
   describe 'all', skip: false do
@@ -33,7 +34,7 @@ RSpec.describe MultipleIngestScriptsJob, skip: false do
       end
       context do
 
-        let(:subject_job) { class_double(IngestScriptJob).as_stubbed_const(:transfer_nested_constants => true) }
+        # let(:subject_job) { class_double(IngestScriptJob).as_stubbed_const(:transfer_nested_constants => true) }
         let(:ingest_mode) { 'populate' }
         let(:ingester)    { "ingester@umich.edu" }
         let(:options)     { {} }
@@ -47,20 +48,40 @@ RSpec.describe MultipleIngestScriptsJob, skip: false do
                                                          ingester: ingester,
                                                          paths_to_scripts: paths_to_scripts,
                                                          **options ) }
+          let(:sub_job1) { IngestScriptJob.new( ingest_mode: ingest_mode,
+                                                               ingester: ingester,
+                                                               path_to_script: path1,
+                                                               child_job: true,
+                                                               verbose: false ) }
+          let(:sub_job2) { IngestScriptJob.new( ingest_mode: ingest_mode,
+                                                               ingester: ingester,
+                                                               path_to_script: path2,
+                                                               child_job: true,
+                                                               verbose: false ) }
 
           before do
+            expect( IngestScriptJob ).to receive( :job_or_instantiate ).at_least(:once) do |args|
+              expect( args[:ingest_mode] ).to eq ingest_mode
+              expect( args[:ingester] ).to eq ingester
+              expect( args[:child_job] ).to eq true
+              expect( args[:verbose] ).to eq false
+              # puts "path1=#{path1}"
+              # puts "path2=#{path2}"
+              # puts "args[:path_to_script]=#{args[:path_to_script]}"
+              if  path1 == args[:path_to_script]
+                sub_job1
+              else
+                sub_job2
+              end
+            end
             expect( job ).to receive( :init_paths_to_scripts ).with( paths_to_scripts ).and_call_original
             expect( job ).to receive( :validate_paths_to_scripts ).with( no_args ).and_return true
             expect( job ).to receive( :ingest_script_run ).with( path_to_script: path1 ).and_call_original
             expect( job ).to receive( :ingest_script_run ).with( path_to_script: path2 ).and_call_original
             expect( job ).to receive( :email_results ).with(no_args)
             expect( job ).to_not receive( :email_failure ).with( any_args )
-            expect( subject_job ).to receive(:perform_now ).with( ingest_mode: ingest_mode,
-                                                                  ingester: ingester,
-                                                                  path_to_script: path1 )
-            expect( subject_job ).to receive(:perform_now ).with( ingest_mode: ingest_mode,
-                                                                  ingester: ingester,
-                                                                  path_to_script: path2 )
+            expect( sub_job1 ).to receive(:perform_now)
+            expect( sub_job2 ).to receive(:perform_now)
           end
 
           it 'it performs the job' do
@@ -93,6 +114,8 @@ RSpec.describe MultipleIngestScriptsJob, skip: false do
                                               ingest_mode: ingest_mode,
                                               ingester: ingester,
                                               paths_to_scripts: '',
+                                              child_job: true,
+                                              verbose: false,
                                               **options ) }
 
           context 'given an array of two paths, it sets paths_to_scripts to an array of with two paths' do

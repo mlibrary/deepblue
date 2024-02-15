@@ -81,7 +81,8 @@ class IngestDashboardController < ApplicationController
    if paths_to_scripts.present?
       MultipleIngestScriptsJob.perform_later( ingest_mode: ingest_mode,
                                               ingester: current_user.email,
-                                              paths_to_scripts: paths_to_scripts )
+                                              paths_to_scripts: paths_to_scripts,
+                                              verbose: false )
       return "Started ingest scripts:<br/>#{paths_to_scripts.join("<br/>")}"
     end
     "No file script paths specified."

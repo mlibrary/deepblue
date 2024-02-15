@@ -182,6 +182,10 @@ module Deepblue
       true
     end
 
+    def obj_class( label, obj )
+      ''
+    end
+
     def reset
       # ignore
       re

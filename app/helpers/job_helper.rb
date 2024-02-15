@@ -5,6 +5,7 @@ module JobHelper
   mattr_accessor :job_helper_debug_verbose, default: ::Deepblue::JobTaskHelper.job_helper_debug_verbose
 
   attr_writer   :debug_verbose
+  attr_accessor :child_job
   attr_writer   :email_targets
   attr_writer   :from_dashboard
   attr_writer   :hostname
@@ -32,6 +33,15 @@ module JobHelper
   end
   alias :by_request_only? :by_request_only
 
+  def child_job
+    @from_dashboard ||= child_job_init
+  end
+  alias :child_job? :child_job
+
+  def child_job_init
+    job_options_value( key: 'child_job', default_value: false )
+  end
+
   def debug_verbose
     @debug_verbose ||= job_helper_debug_verbose
   end
@@ -40,6 +50,10 @@ module JobHelper
   def default_value_is( value, default_value = nil )
     return value if value.present?
     default_value
+  end
+
+  def delay_job( job_delay )
+    sleep job_delay if job_delay > 0
   end
 
   def email_all_targets( task_name:,
@@ -53,6 +67,7 @@ module JobHelper
                              "task_name=#{task_name}",
                              "email_targets=#{email_targets}",
                              "" ] if msg_handler.debug_verbose
+    return if child_job?
     body = msg_handler.join( "\n" ) if body.blank?
     if from_dashboard.present? # just email user running the job from the dashboard
       ::Deepblue::JobTaskHelper.send_email( email_target: from_dashboard,
@@ -75,10 +90,6 @@ module JobHelper
     end
   end
 
-  def delay_job( job_delay )
-    sleep job_delay if job_delay > 0
-  end
-
   def email_failure( targets: email_targets,
                      task_name: self.class.name,
                      exception:,
@@ -87,6 +98,7 @@ module JobHelper
                      timestamp_begin: self.timestamp_begin,
                      timestamp_end: self.timestamp_end )
 
+    return if child_job?
     initialize_defaults if @options.nil?
     msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
                              ::Deepblue::LoggingHelper.called_from,
@@ -100,7 +112,7 @@ module JobHelper
                                            ::Deepblue::LoggingHelper.called_from,
                                            "targets=#{targets}",
                                            "" ] if debug_verbose
-    lines = msg_handler.join
+    # lines = msg_handler.join
     ::Deepblue::JobTaskHelper.email_failure( targets: targets,
                                              task_name: task_name,
                                              exception: exception,
@@ -134,6 +146,7 @@ module JobHelper
                              "task_name=#{task_name}",
                              "msg_handler.msg_queue=#{msg_handler.msg_queue}",
                              "" ] if msg_handler.debug_verbose
+    return if child_job?
     targets = Array(targets) + email_targets
     targets.uniq!
     return unless targets.present?
