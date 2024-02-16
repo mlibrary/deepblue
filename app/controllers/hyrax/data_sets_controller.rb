@@ -150,11 +150,14 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if data_sets_controller_debug_verbose
-      ::AptrustUploadWorkJob.perform_later( id: params[:id],
-                                            email_results_to: current_user.email,
-                                            clean_up_after_deposit: false,  # TODO
-                                            debug_assume_upload_succeeds: false,
-                                            debug_verbose: true )  # TODO
+      ::AptrustUploadWorkJob.perform_later( id:                     params[:id],
+                                            email_results_to:       current_user.email,
+                                            clean_up_after_deposit: true,  # TODO
+                                            clean_up_bag:           false, # TODO
+                                            clean_up_bag_data:      true,  # TODO
+                                            clear_status:           true,  # force upload
+                                            debug_assume_upload_succeeds: true,
+                                            debug_verbose:          true )  # TODO
       flash[:notice] = "APTrust upload work started. You will be emailed the results."
       redirect_to [main_app, curation_concern]
     end
@@ -162,13 +165,13 @@ module Hyrax
     def aptrust_verify
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if true || data_sets_controller_debug_verbose
-      ::AptrustVerifyWorkJob.perform_later( id: params[:id],
-                                            email_results_to: current_user.email,
+                                             "" ] if data_sets_controller_debug_verbose
+      ::AptrustVerifyWorkJob.perform_later( id:                 params[:id],
+                                            email_results_to:   current_user.email,
                                             force_verification: true,  # TODO
-                                            reverify_failed: true,  # TODO
+                                            reverify_failed:    true,  # TODO
                                             debug_assume_verify_succeeds: false,
-                                            debug_verbose: true )  # TODO
+                                            debug_verbose:      true )  # TODO
       flash[:notice] = "APTrust verify work started. You will be emailed the results."
       redirect_to [main_app, curation_concern]
     end

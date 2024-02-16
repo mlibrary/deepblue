@@ -6,8 +6,10 @@ class Aptrust::AptrustUploader
 
   mattr_accessor :aptrust_uploader_debug_verbose, default: false
 
-  CLEAN_UP_AFTER_DEPOSIT = true unless const_defined? :CLEAN_UP_AFTER_DEPOSIT
-  CLEAR_STATUS           = true unless const_defined? :CLEAR_STATUS
+  CLEAN_UP_AFTER_DEPOSIT = true  unless const_defined? :CLEAN_UP_AFTER_DEPOSIT
+  CLEAN_UP_BAG           = false unless const_defined? :CLEAN_UP_BAG
+  CLEAN_UP_BAG_DATA      = true  unless const_defined? :CLEAN_UP_BAG_DATA
+  CLEAR_STATUS           = true  unless const_defined? :CLEAR_STATUS
 
   ALLOW_DEPOSIT          = true                               unless const_defined? :ALLOW_DEPOSIT
   BAG_FILE_APTRUST_INFO  = 'aptrust-info.txt'                 unless const_defined? :BAG_FILE_APTRUST_INFO
@@ -56,6 +58,8 @@ class Aptrust::AptrustUploader
 
   attr_accessor :debug_assume_upload_succeeds
   attr_accessor :clean_up_after_deposit
+  attr_accessor :clean_up_bag
+  attr_accessor :clean_up_bag_data
   attr_accessor :clear_status
 
   attr_accessor :export_by_closure
@@ -96,6 +100,11 @@ class Aptrust::AptrustUploader
                   bag_id_context:          nil, # ignored if bag_id is defined
                   bag_id_local_repository: nil, # ignored if bag_id is defined
                   bag_id_type:             nil, # ignored if bag_id is defined
+
+                  clean_up_after_deposit: CLEAN_UP_AFTER_DEPOSIT,
+                  clean_up_bag:           CLEAN_UP_BAG,
+                  clean_up_bag_data:      CLEAN_UP_BAG_DATA,
+                  clear_status:           CLEAR_STATUS,
 
                   export_by_closure:   nil,
                   export_copy_src:     false,
@@ -166,8 +175,10 @@ class Aptrust::AptrustUploader
     @bag_id_local_repository = bag_id_local_repository
     @bag_id_type             = ::Aptrust.arg_init( bag_id_type, DEFAULT_TYPE )
 
-    @clean_up_after_deposit = CLEAN_UP_AFTER_DEPOSIT
-    @clear_status           = CLEAR_STATUS
+    @clean_up_after_deposit = clean_up_after_deposit
+    @clean_up_bag           = clean_up_bag
+    @clean_up_bag_data      = clean_up_bag_data
+    @clear_status           = clear_status
     @debug_assume_upload_succeeds = ::Aptrust.aptrust_debug_assume_upload_succeeds
 
     @export_by_closure   = export_by_closure
@@ -191,9 +202,7 @@ class Aptrust::AptrustUploader
   end
 
   def aptrust_config_init
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "" ] if debug_verbose
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ] if debug_verbose
     if @aptrust_config.blank?
       @aptrust_config = if @aptrust_config_file.present?
                           ::Aptrust::AptrustConfig.new( filename: @aptrust_config_filename )
@@ -323,16 +332,13 @@ class Aptrust::AptrustUploader
   end
 
   def bag_manifest
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "" ] if debug_verbose
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ] if debug_verbose
     bag.manifest!(algo: 'md5') # Create tagmanifest-info.txt and the data directory maniftest.txt
 
     # need to rewrite the tag manifest files to include the aptrust-info.txt file
     tag_files = bag.tag_files
     new_tag_files = tag_files | additional_tag_files
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                            "tag_files=#{tag_files}",
                                            "additional_tag_files=#{additional_tag_files}",
                                            "new_tag_files=#{new_tag_files}",
@@ -361,8 +367,7 @@ class Aptrust::AptrustUploader
       track( status: ::Aptrust::EVENT_UPLOAD_SKIPPED, note: 'allow_deposit? returned false' )
       return false, ::Aptrust::EVENT_UPLOAD_SKIPPED
     end
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                            "debug_assume_upload_succeeds=#{debug_assume_upload_succeedss}",
                                            "" ] if debug_verbose
     if debug_assume_upload_succeeds
@@ -387,16 +392,16 @@ class Aptrust::AptrustUploader
       return true, ::Aptrust::EVENT_UPLOADED
     rescue Aws::S3::MultipartUploadError => e
       track( status: ::Aptrust::EVENT_FAILED, note: "failed in #{e.context} with error #{e}" )
-      ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
+      msg_handler.bold_error [ msg_handler.here,
+                                             msg_handler.called_from,
                                              "failed in #{e.context} with error #{e}",
                                              "" ]
       # TODO: Rails.logger.error "Upload of file #{filename} failed with error #{e}"
       return false, ::Aptrust::EVENT_FAILED
     rescue Aws::S3::Errors::ServiceError => e
       track( status: ::Aptrust::EVENT_FAILED, note: "failed in #{e.context} with error #{e}" )
-      ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
+      msg_handler.bold_error [ msg_handler.here,
+                                             msg_handler.called_from,
                                              "failed in #{e.context} with error #{e}",
                                              "" ]
       return false, ::Aptrust::EVENT_FAILED
@@ -431,32 +436,55 @@ class Aptrust::AptrustUploader
   end
 
   def cleanup_bag
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "" ] if debug_verbose
-    return unless clean_up_after_deposit
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "should delete bag.bag_dir=#{bag.bag_dir}",
-                                           "" ] if debug_verbose
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "bag.bag_dir=#{bag.bag_dir}",
+                             "Dir.exist? bag.bag_dir=#{Dir.exist? bag.bag_dir}",
+                             "" ] if debug_verbose
     return unless Dir.exist? bag.bag_dir
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "clean_up_after_deposit=#{clean_up_after_deposit}",
+                             "clean_up_bag=#{clean_up_bag}",
+                             "clean_up_bag_data=#{clean_up_bag_data}",
+                             "" ] if debug_verbose
+    return unless clean_up_after_deposit
+    files = cleanup_bag_data_files
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "files.size=#{files.size}",
+                             "" ] if debug_verbose
+    null_msg_handler = ::Aptrust::NULL_MSG_HANDLER
+    if files.present?
+      ::Deepblue::DiskUtilitiesHelper.delete_files( *files, msg_handler: null_msg_handler )
+      files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( bag.bag_dir,
+                                                            dotmatch: true,
+                                                            msg_handler: null_msg_handler )
 
-    if Dir.exist? bag_data_dir
-      files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( bag_data_dir, dotmatch: true, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
-      ::Deepblue::DiskUtilitiesHelper.delete_files( *files, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
-      ::Deepblue::DiskUtilitiesHelper.delete_dir( bag_data_dir, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
+      ::Deepblue::DiskUtilitiesHelper.delete_dir( bag_data_dir, msg_handler: null_msg_handler ) if Dir.empty? bag_data_dir
     end
-    ::Deepblue::DiskUtilitiesHelper.delete_dir( bag.bag_dir, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
+    return unless clean_up_bag
+    files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( bag.bag_dir,
+                                                          dotmatch: true,
+                                                          msg_handler: null_msg_handler )
+    ::Deepblue::DiskUtilitiesHelper.delete_files( *files, msg_handler: null_msg_handler )
+    ::Deepblue::DiskUtilitiesHelper.delete_dir( bag.bag_dir, msg_handler: null_msg_handler ) if Dir.empty? bag_data_dir
+  end
+
+  def cleanup_bag_data_files
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "clean_up_bag_data=#{clean_up_bag_data}",
+                             "" ] if debug_verbose
+    return [] unless Dir.exist? bag.bag_dir
+    return [] unless clean_up_bag_data
+    files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( bag_data_dir,
+                                                          dotmatch: true,
+                                                          msg_handler: ::Aptrust::NULL_MSG_HANDLER )
+    return files
   end
 
   def cleanup_tar_file
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "" ] if debug_verbose
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ] if debug_verbose
     return unless clean_up_after_deposit
     filename = File.join( export_dir, tar_filename )
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                            "delete filename=#{filename}",
                                            "" ] if debug_verbose
     return unless File.exist? filename
@@ -466,8 +494,7 @@ class Aptrust::AptrustUploader
   def deposit
     bag_uploaded_succeeded = false
     begin
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                              "bag_uploaded_succeeded=#{bag_uploaded_succeeded}",
                                              "clear_status=#{clear_status}",
                                              "" ] if debug_verbose
@@ -477,14 +504,13 @@ class Aptrust::AptrustUploader
       if status == ::Aptrust::EVENT_BAGGED
         bag_tar
         bag_uploaded_succeeded, status = bag_upload
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
+        msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                                "bag_uploaded_succeeded=#{bag_uploaded_succeeded}",
                                                "status=#{status}",
                                                "" ] if debug_verbose
       end
     rescue StandardError => e
-      #::Deepblue::LoggingHelper.bold_error ["Aptrust::AptrustService.perform_deposit(#{object_id}) error #{e}"] + e.backtrace[0..20]
+      #msg_handler.bold_error ["Aptrust::AptrustService.perform_deposit(#{object_id}) error #{e}"] + e.backtrace[0..20]
       track( status: ::Aptrust::EVENT_DEPOSIT_FAILED, note: "failed in #{e.backtrace[0]} with error #{e}" )
     end
     return unless bag_uploaded_succeeded
@@ -586,8 +612,7 @@ class Aptrust::AptrustUploader
   # TODO: review this for references to static methods
   def upload2( filename:, id: 'uknown' )
     @id ||= object_id
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                            "filename=#{filename}",
                                            "id=#{id}",
                                            "" ], bold_puts: false if debug_verbose
@@ -596,32 +621,31 @@ class Aptrust::AptrustUploader
     begin
       # add timing
       config = aptrust_config
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                              "config.bucket=#{config.bucket}",
                                              "config.bucket_region=#{config.bucket_region}",
                                              "config.aws_access_key_id=#{config.aws_access_key_id}",
                                              "config.aws_secret_access_key=#{config.aws_secret_access_key}",
                                              "" ], bold_puts: false if debug_verbose
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+      msg_handler.bold_debug [ msg_handler.here ]
       Aws.config.update( credentials: Aws::Credentials.new( config.aws_access_key_id, config.aws_secret_access_key ) )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+      msg_handler.bold_debug [ msg_handler.here ]
       s3 = Aws::S3::Resource.new( region: config.bucket_region )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+      msg_handler.bold_debug [ msg_handler.here ]
       bucket = s3.bucket( config.bucket )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+      msg_handler.bold_debug [ msg_handler.here ]
       aws_object = bucket.object( File.basename(filename) )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+      msg_handler.bold_debug [ msg_handler.here ]
       track( status: ::Aptrust::EVENT_UPLOADING )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+      msg_handler.bold_debug [ msg_handler.here ]
       aws_object.upload_file( filename )
       success = true
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here ]
+      msg_handler.bold_debug [ msg_handler.here ]
       track( status: ::Aptrust::EVENT_UPLOADED )
       track( status: ::Aptrust::EVENT_DEPOSITED )
     rescue Aws::S3::Errors::ServiceError => e
       track( status: ::Aptrust::EVENT_FAILED, note: "failed in #{e.context} with error #{e}" )
-      ::Deepblue::LoggingHelper.bold_error ["Upload of file #{filename} failed in #{e.context} with error #{e}"] + e.backtrace[0..20]
+      msg_handler.bold_error ["Upload of file #{filename} failed in #{e.context} with error #{e}"] + e.backtrace[0..20]
       Rails.logger.error "Upload of file #{filename} failed with error #{e}"
       success = false
     end

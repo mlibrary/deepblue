@@ -9,17 +9,26 @@ module Deepblue
 
     DEBUG_VERBOSE = false
 
-    attr_accessor :mode, :source
+    attr_accessor :mode
+    attr_accessor :source
 
     # TODO: count these
-    attr_reader :total_collections_exported, :total_file_sets_exported, :total_works_exported, :total_users_exported
+    attr_reader :total_collections_exported
+    attr_reader :total_file_sets_exported
+    attr_reader :total_works_exported
+    attr_reader :total_users_exported
 
-    attr_accessor :overwrite_export_files, :create_zero_length_files
+    attr_accessor :overwrite_export_files
+    attr_accessor :create_zero_length_files
+
+    attr_accessor :exported_file_set_files
+    attr_accessor :collect_exported_file_set_files
 
     def initialize( create_zero_length_files: DEFAULT_CREATE_ZERO_LENGTH_FILES,
                     mode: MetadataHelper::MODE_BUILD,
                     overwrite_export_files: DEFAULT_OVERWRITE_EXPORT_FILES,
-                    source: MetadataHelper::DEFAULT_SOURCE )
+                    source: MetadataHelper::DEFAULT_SOURCE,
+                    collect_exported_file_set_files: false )
 
       @create_zero_length_files = create_zero_length_files
       @mode = mode
@@ -30,6 +39,8 @@ module Deepblue
       @total_file_sets_size_exported = 0
       @total_works_exported = 0
       @total_users_exported = 0
+      @collect_exported_file_set_files = collect_exported_file_set_files
+      @exported_file_set_files = []
     end
 
     def yaml_body_collections( out, indent:, curation_concern: )
@@ -625,6 +636,7 @@ module Deepblue
       if work.file_sets.count.positive?
         work.file_sets.each do |file_set|
           export_file_name = yaml_export_file_path( target_dirname: target_dirname, file_set: file_set )
+          exported_file_set_files << export_file_name if collect_exported_file_set_files
           write_file = if overwrite_export_files
                          true
                        else

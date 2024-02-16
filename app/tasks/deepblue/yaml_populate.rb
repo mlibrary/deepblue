@@ -157,18 +157,27 @@ module Deepblue
       report_puts "Bagging work #{id} to '#{@target_dir}' with export files flag set to #{@export_files}"
       service = YamlPopulateService.new( mode: @mode,
                                          create_zero_length_files: @create_zero_length_files,
-                                         overwrite_export_files: @overwrite_export_files )
+                                         overwrite_export_files: @overwrite_export_files,
+                                         collect_exported_file_set_files: true )
       puts "yaml_bag_work( id: #{id}, work: #{work} )" if DEBUG_VERBOSE
       puts "@target_dir=#{@target_dir}" if DEBUG_VERBOSE
       if work.nil?
         log_filename = "#{id}.export.log"
-        service.yaml_populate_work( curation_concern: id, dir: @target_dir, export_files: @export_files, log_filename: log_filename )
+        service.yaml_populate_work( curation_concern: id,
+                                    dir: @target_dir,
+                                    export_files: @export_files,
+                                    log_filename: log_filename )
       else
         log_filename = "#{work.id}.export.log"
-        service.yaml_populate_work( curation_concern: work, dir: @target_dir, export_files: @export_files, log_filename: log_filename )
+        service.yaml_populate_work( curation_concern: work,
+                                    dir: @target_dir,
+                                    export_files: @export_files,
+                                    log_filename: log_filename )
       end
+      exported_file_set_files = service.exported_file_set_files
       @populate_ids << id
       @populate_stats << service.yaml_populate_stats
+      return exported_file_set_files
     end
 
     def yaml_populate_collection( id:, collection: nil )
