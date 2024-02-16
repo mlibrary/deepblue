@@ -22,6 +22,8 @@ aptrust_upload_work_job:
   args:
     by_request_only: true
     clean_up_after_deposit: true
+    clean_up_bag: false
+    clean_up_bag_data: true
     clear_status: true
     #debug_assume_upload_succeeds: true
     #debug_verbose: true
@@ -49,43 +51,45 @@ aptrust_upload_work_job:
                                            "args=#{args}",
                                            "" ] if aptrust_upload_work_job_debug_verbose
     initialized = initialize_from_args( *args, debug_verbose: aptrust_upload_work_job_debug_verbose )
-    msg_handler.bold_debug [ msg_handler.here,
-                             msg_handler.called_from,
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "initialized=#{initialized}",
                              "" ] if aptrust_upload_work_job_debug_verbose
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name )
     return unless initialized
     begin # until true for break
       debug_verbose = job_options_value( key: 'debug_verbose', default_value: debug_verbose )
-      msg_handler.bold_debug [ msg_handler.here,
-                               msg_handler.called_from,
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                "by_request_only?=#{by_request_only?}",
                                "allow_by_request_only?=#{allow_by_request_only?}",
                                "" ] if debug_verbose
       break if by_request_only? && !allow_by_request_only?
-      msg_handler.debug_verbose = debug_verbose
+      msg_handler.debug_verbose    = debug_verbose
       debug_assume_upload_succeeds = job_options_value( key: 'debug_assume_upload_succeeds', default_value: false )
-      clean_up_after_deposit = job_options_value( key: 'clean_up_after_deposit', default_value: true )
-      clear_status = job_options_value( key: 'clear_status', default_value: true )
-      id = job_options_value( key: 'id', default_value: nil )
-      msg_handler.bold_debug [ msg_handler.here,
-                             msg_handler.called_from,
-                             "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}",
-                             "clean_up_after_deposit=#{clean_up_after_deposit}",
-                             "clear_status=#{clear_status}",
-                             "id=#{id}",
-                             "" ] if debug_verbose
+      clean_up_after_deposit       = job_options_value( key: 'clean_up_after_deposit',       default_value: true )
+      clean_up_bag                 = job_options_value( key: 'clean_up_bag',                 default_value: false )
+      clean_up_bag_data            = job_options_value( key: 'clean_up_bag_data',            default_value: true )
+      clear_status                 = job_options_value( key: 'clear_status',                 default_value: true )
+      id                           = job_options_value( key: 'id',                           default_value: nil )
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}",
+                               "clean_up_after_deposit=#{clean_up_after_deposit}",
+                               "clean_up_bag=#{clean_up_bag}",
+                               "clean_up_bag_data=#{clean_up_bag_data}",
+                               "clear_status=#{clear_status}",
+                               "id=#{id}",
+                               "" ] if debug_verbose
       run_job_delay
       uploader = ::Aptrust::AptrustUploadWork.new( clean_up_after_deposit: clean_up_after_deposit,
-                                                 clear_status: clear_status,
-                                                 debug_assume_upload_succeeds: debug_assume_upload_succeeds,
-                                                 noid: id,
-                                                 msg_handler: msg_handler,
-                                                 debug_verbose: debug_verbose )
+                                                   clean_up_bag:           clean_up_bag,
+                                                   clean_up_bag_data:      clean_up_bag_data,
+                                                   clear_status:           clear_status,
+                                                   debug_assume_upload_succeeds: debug_assume_upload_succeeds,
+                                                   noid:                   id,
+                                                   msg_handler:            msg_handler,
+                                                   debug_verbose:          debug_verbose )
       uploader.run
       timestamp_end = DateTime.now
-      msg_handler.bold_debug [ msg_handler.here,
-                             msg_handler.called_from,
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "msg_handler.msg_queue=#{msg_handler.msg_queue}",
                              "timestamp_end=#{timestamp_end}",
                              "" ] if debug_verbose

@@ -2,8 +2,7 @@
 
 require_relative '../../services/aptrust/aptrust'
 
-module Aptrust
-class AptrustEventsController < ApplicationController
+class Aptrust::AptrustEventsController < ApplicationController
 
   mattr_accessor :aptrust_events_controller_debug_verbose, default: false
 
@@ -135,18 +134,18 @@ class AptrustEventsController < ApplicationController
                                            "" ] if aptrust_events_controller_debug_verbose
     init_begin_end_dates
     @aptrust_events = if event.blank? && not_event.blank?
-                        Event.where( [ 'updated_at >= ? AND updated_at <= ?', begin_date, end_date ] )
+                        ::Aptrust::Event.where( [ 'updated_at >= ? AND updated_at <= ?', begin_date, end_date ] )
                              .order( updated_at: :desc )
                       elsif not_event.blank?
-                        Event.where( [ 'updated_at >= ? AND updated_at <= ?', begin_date, end_date ] )
+                        ::Aptrust::Event.where( [ 'updated_at >= ? AND updated_at <= ?', begin_date, end_date ] )
                              .where( event: event )
                              .order( updated_at: :desc )
                       elsif event.blank?
-                        Event.where( [ 'updated_at >= ? AND updated_at <= ?', begin_date, end_date ] )
+                        ::Aptrust::Event.where( [ 'updated_at >= ? AND updated_at <= ?', begin_date, end_date ] )
                              .where.not( event: not_event )
                              .order( updated_at: :desc )
                       else
-                        Event.where( [ 'updated_at >= ? AND updated_at <= ?', begin_date, end_date ] )
+                        ::Aptrust::Event.where( [ 'updated_at >= ? AND updated_at <= ?', begin_date, end_date ] )
                              .where( event: event )
                              .where.not( event: not_event )
                              .order( updated_at: :desc )
@@ -158,8 +157,8 @@ class AptrustEventsController < ApplicationController
                                            ::Deepblue::LoggingHelper.called_from,
                                            "" ] if aptrust_events_controller_debug_verbose
     init_status_id
-    @aptrust_statuses = Status.where( id: @status_id )
-    @aptrust_events = Event.where( aptrust_status_id: @status_id ).order( updated_at: :desc )
+    @aptrust_statuses = ::Aptrust::Status.where( id: @status_id )
+    @aptrust_events = ::Aptrust::Event.where( aptrust_status_id: @status_id ).order( updated_at: :desc )
   end
 
   def init_status_id()
@@ -201,7 +200,7 @@ class AptrustEventsController < ApplicationController
   end
 
   def set_aptrust_event
-    @aptrust_event = Event.find(params[:id])
+    @aptrust_event = ::Aptrust::Event.find(params[:id])
   end
 
   def event_failed
@@ -242,5 +241,4 @@ class AptrustEventsController < ApplicationController
     end
   end
 
-end
 end

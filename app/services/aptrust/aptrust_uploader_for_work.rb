@@ -65,8 +65,16 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
   end
 
   attr_accessor :work
+  attr_accessor :exported_file_set_files
 
-  def initialize( aptrust_config: nil, work: nil, msg_handler: nil )
+  def initialize( aptrust_config: nil,
+                  clean_up_after_deposit: ::Aptrust::AptrustUploader::CLEAN_UP_AFTER_DEPOSIT,
+                  clean_up_bag:           ::Aptrust::AptrustUploader::CLEAN_UP_BAG,
+                  clean_up_bag_data:      ::Aptrust::AptrustUploader::CLEAN_UP_BAG_DATA,
+                  clear_status:           ::Aptrust::AptrustUploader::CLEAR_STATUS,
+                  work: nil,
+                  msg_handler: nil )
+
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            # "aptrust_config.pretty_inspect=#{aptrust_config.pretty_inspect}",
@@ -80,6 +88,10 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
            #bag_id_context:     aptrust_service_deposit_context,
            #bag_id_local_repository:  aptrust_service_deposit_local_repository,
            bag_id_type:        bag_id_type,
+           clean_up_after_deposit: clean_up_after_deposit,
+           clean_up_bag:       clean_up_bag,
+           clean_up_bag_data:  clean_up_bag_data,
+           clear_status:       clear_status,
            export_dir:         ::Aptrust::AptrustUploaderForWork.dbd_export_dir,
            working_dir:        ::Aptrust::AptrustUploaderForWork.dbd_working_dir,
            bi_description:     ::Aptrust::AptrustUploaderForWork.dbd_bag_description( work: work ) )
@@ -108,6 +120,16 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
     aptrust_info_write( aptrust_info: aptrust_info )
   end
 
+  def cleanup_bag_data_files
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ] if debug_verbose
+    return [] unless clean_up_bag_data
+    return [] unless Dir.exist? bag.bag_dir
+    files = exported_file_set_files
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "exported_file_set_files.size=#{exported_file_set_files.size}" ] if debug_verbose
+    return files
+  end
+
   def export_do_copy?( target_dir, target_file_name ) # TODO: check file size?
     prep_file_name = target_file_name( target_dir, target_file_name )
     do_copy = true
@@ -134,7 +156,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
                                         options: { mode: 'bag',
                                                    target_dir: target_dir,
                                                    export_files: true } )
-    pop.yaml_bag_work( id: work.id, work: work )
+    @exported_file_set_files = pop.yaml_bag_work( id: work.id, work: work )
     # export provenance log
     entries = ::Deepblue::ProvenanceLogService.entries( work.id, refresh: true )
     prov_file = File.join( target_dir, "w_#{work.id}_provenance.log" )
