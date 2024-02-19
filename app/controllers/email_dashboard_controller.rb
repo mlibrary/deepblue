@@ -135,6 +135,82 @@ class EmailDashboardController < ApplicationController
     ::Deepblue::LogFileHelper.log_parse_entry entry
   end
 
+  def log_display_tr_for_body( add_css:, depth:, key:, hash:, row_index:, debug_verbose: )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "depth=#{depth}",
+                                           "key=#{key}",
+                                           "value=#{hash[key]}",
+                                           "" ] if debug_verbose || email_dashboard_controller_debug_verbose
+    body = hash[key]
+    max_size = Rails.configuration.email_display_max_body_size
+    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                        ::Deepblue::LoggingHelper.called_from,
+    #                                        "body.size=#{body.size}",
+    #                                        "" ]
+    return nil unless body.present?
+    return nil unless max_size > -1
+    original_size = body.size
+    return nil unless original_size > max_size
+    body = "#{body[0..max_size]}\n(body trimmed from #{original_size} to #{max_size} characters)"
+    table = JsonHelper.key_values_to_table_string( body,
+                                                depth: depth, # depth+1?
+                                                on_key_values_to_table_body_callback: nil,
+                                                parse: false,
+                                                row_key_value_callback: nil,
+                                                add_css: true,
+                                                debug_verbose: debug_verbose )
+    css_tr = JsonHelper.css_tr( add: add_css, depth: depth )
+    css_td = JsonHelper.css_td_key( add: add_css, depth: depth )
+    css_td2 = JsonHelper.css_td( add: add_css, depth: depth )
+    tr = "<tr#{css_tr}><td#{css_td}>body</td><td#{css_td2}>#{table}</td></tr>\n"
+    return tr
+  end
+
+  def log_display_tr_for_resend_button( add_css:, depth:, key:, hash:, row_index:, debug_verbose: )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "depth=#{depth}",
+                                           "key=#{key}",
+                                           "value=#{hash[key]}",
+                                           "hash=#{hash}",
+                                           "row_index=#{row_index}",
+                                           "" ] if debug_verbose || email_dashboard_controller_debug_verbose
+    table = JsonHelper.key_values_to_table( hash[key], depth: depth + 1, parse: false, debug_verbose: debug_verbose )
+    begin
+      parms = []
+      parms << "begin_date=#{begin_date_parm}"
+      parms << "end_date=#{end_date_parm}"
+      add_get_parm( hash: hash, key: 'event', parms: parms )
+      add_get_parm( hash: hash, key: 'id', parms: parms )
+      add_get_parm( hash: hash, key: 'timestamp', parms: parms )
+      link = link_to( "Resend this email.",
+                      "/data/email_dashboard_resend?#{parms.join('&')}",
+                      class: 'btn btn-default',
+                      data: {confirm: t('Confirm resend email?')} )
+    rescue => e
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "e=#{e}",
+                                             "" ] + e.backtrace[0..20]
+      link = "Resend this email."
+    end
+    css_tr = JsonHelper.css_tr( add: add_css, depth: depth )
+    css_td = JsonHelper.css_td_key( add: add_css, depth: depth )
+    css_td2 = JsonHelper.css_td( add: add_css, depth: depth )
+    row = <<-end_of_row
+<tr#{css_tr}>
+  <td#{css_td}>#{ERB::Util.html_escape( key )}</td>
+  <td#{css_td2}>#{table}</td>
+</tr>
+<tr#{css_tr}>
+  <td#{css_td}>&nbsp;</td>
+  <td#{css_td2}>#{link}</td>
+</tr>
+    end_of_row
+    return row
+  end
+
   def log_key_values_to_table( key_values,
                                on_key_values_to_table_body_callback: nil,
                                parse: false,
@@ -144,7 +220,6 @@ class EmailDashboardController < ApplicationController
 
     debug_verbose ||= email_dashboard_controller_debug_verbose
     row_key_value_callback ||= ->( depth, key, hash, row_index ) do
-      return nil unless add_remail_button?( hash: hash, row_index: row_index )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "depth=#{depth}",
@@ -153,39 +228,20 @@ class EmailDashboardController < ApplicationController
                                              "hash=#{hash}",
                                              "row_index=#{row_index}",
                                              "" ] if debug_verbose || email_dashboard_controller_debug_verbose
-      table = JsonHelper.key_values_to_table( hash[key], depth: depth + 1, parse: false, debug_verbose: debug_verbose )
-      begin
-        parms = []
-        parms << "begin_date=#{begin_date_parm}"
-        parms << "end_date=#{end_date_parm}"
-        add_get_parm( hash: hash, key: 'event', parms: parms )
-        add_get_parm( hash: hash, key: 'id', parms: parms )
-        add_get_parm( hash: hash, key: 'timestamp', parms: parms )
-        link = link_to( "Resend this email.",
-                        "/data/email_dashboard_resend?#{parms.join('&')}",
-                        class: 'btn btn-default',
-                        data: {confirm: t('Confirm resend email?')} )
-      rescue => e
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "e=#{e}",
-                                               "" ] + e.backtrace[0..20]
-        link = "Resend this email."
-      end
-      css_tr = JsonHelper.css_tr( add: add_css, depth: depth )
-      css_td = JsonHelper.css_td_key( add: add_css, depth: depth )
-      css_td2 = JsonHelper.css_td( add: add_css, depth: depth )
-      row = <<-end_of_row
-<tr#{css_tr}>
-  <td#{css_td}>#{ERB::Util.html_escape( key )}</td>
-  <td#{css_td2}>#{table}</td>
-</tr>
-<tr#{css_tr}>
-  <td#{css_td}>&nbsp;</td>
-  <td#{css_td2}>#{link}</td>
-</tr>
-end_of_row
-      return row
+      return log_display_tr_for_body( add_css: add_css,
+                                      depth: depth,
+                                      key: key,
+                                      hash: hash,
+                                      row_index: row_index,
+                                      debug_verbose: debug_verbose ) if key == "body"
+      return log_display_tr_for_resend_button( add_css: add_css,
+                                               depth: depth,
+                                               key: key,
+                                               hash: hash,
+                                               row_index: row_index,
+                                               debug_verbose: debug_verbose ) if add_remail_button?( hash: hash,
+                                                                                             row_index: row_index )
+      return nil
     end
     ::Deepblue::LogFileHelper.log_key_values_to_table( key_values,
                                              on_key_values_to_table_body_callback: on_key_values_to_table_body_callback,

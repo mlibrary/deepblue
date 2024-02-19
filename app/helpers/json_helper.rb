@@ -174,6 +174,10 @@ module JsonHelper
           tr = row_key_value_callback.call( depth, key, key_values, row_index ) if row_key_value_callback.present?
         end
         if tr.blank?
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "tr is blank",
+                                                 "" ] if debug_verbose
           table = key_values_to_table( value,
                                        depth: depth + 1,
                                        on_key_values_to_table_body_callback: on_key_values_to_table_body_callback,
