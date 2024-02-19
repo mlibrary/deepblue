@@ -3,9 +3,15 @@
 Flipflop.configure do
 
   group :orcid do
+
     feature :hyrax_orcid,
-            default: true,
+            default: false,
             description: "Enable Hyrax ORCID functionality."
+
+    feature :strict_orcid,
+            default: true,
+            description: "Enable ORCID functionality."
+
   end
 
   group :deep_blue_data do
