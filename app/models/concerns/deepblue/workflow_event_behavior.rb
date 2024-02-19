@@ -79,6 +79,9 @@ module Deepblue
                                              "message=#{message}",
                                              "" ] if workflow_event_behavior_debug_verbose
       return if id.blank?
+      # replace href="/data with href="http://hostname/data
+      message = message.gsub(/href="\/data/, "href=\"https://#{Rails.configuration.hostname}/data")
+      message = message.gsub("http:", "https:")
       if respond_to? :date_published
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
         #                                        ::Deepblue::LoggingHelper.called_from,
