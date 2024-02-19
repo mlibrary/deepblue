@@ -239,6 +239,10 @@ module DeepBlueDocs
 
     config.email_error_alert_addresses = [ 'fritx@umich.edu', 'blancoj@umich.edu' ].freeze
 
+    #config.email_display_max_body_size = 100
+    config.email_display_max_body_size = 10_000
+    config.email_log_max_body_size = 20_000
+
     # see config/settings/production.yml etc. for real values, it's null in development.yml
     config.notification_email = Settings.notification_email
     config.notification_email_contact_form_to = Settings.notification_email_contact_form_to

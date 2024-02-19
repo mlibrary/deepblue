@@ -296,6 +296,15 @@ module Deepblue
         event = "#{event}/#{event_note}"
       end
       key_values.merge! added_key_values
+      body = key_values[:body]
+      max_size = Rails.configuration.email_log_max_body_size
+      if body.present? && max_size > -1
+        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+        #                                        ::Deepblue::LoggingHelper.called_from,
+        #                                        "body.size=#{body.size}",
+        #                                        "" ]
+        key_values["body"] = body[0..max_size] if body.size > max_size
+      end
       key_values = ActiveSupport::JSON.encode key_values if json_encode
       "#{timestamp} #{event}/#{class_name}/#{id} #{key_values}"
     end
