@@ -5,7 +5,7 @@ Flipflop.configure do
   group :orcid do
 
     feature :hyrax_orcid,
-            default: false,
+            default: true,
             description: "Enable Hyrax ORCID functionality."
 
     feature :strict_orcid,
