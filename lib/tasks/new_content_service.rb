@@ -646,7 +646,8 @@ module Deepblue
                                       build_mode: mode )
           return file_set
         rescue Exception => e # rubocop:disable Lint/RescueException
-          # Rails.logger.error "#{e.class} work.id=#{work.id} -- #{file_set&.id} -- #{e.message} at #{e.backtrace[0]}"
+          @msg_handler.msg_error "build_file_set(id: #{id}, path: #{path}) #{e.class}: #{e.message}"
+          e.backtrace[0..40].each { |m| @msg_handler.msg_error m }
           ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "new_content_service_error",
@@ -654,7 +655,7 @@ module Deepblue
                                                  "file_set.id=#{file_set&.id}",
                                                  "e=#{e.class.name}",
                                                  "e.message=#{e.message}",
-                                                 "e.backtrace:" ] + e.backtrace[0..25]
+                                                 "e.backtrace:" ] + e.backtrace[0..40]
           return file_set
         end
       end
@@ -2157,7 +2158,7 @@ module Deepblue
       if id.present?
         FileSet.new( id: id ) { |fs| fs.ingest_begin( called_from: 'NewContentService.new_file_set' ) }
       else
-        FileSet.new { |fs| fs.ingest_begin( called_from: 'NewContentService.new_file_set' ) }
+        FileSet.new # { |fs| fs.ingest_begin( called_from: 'NewContentService.new_file_set' ) }
       end
     end
 
