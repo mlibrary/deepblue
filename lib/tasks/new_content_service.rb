@@ -908,7 +908,8 @@ module Deepblue
              else
                hash[:rights_license]
              end
-        rv = rv[0] if rv.respond_to?( '[]' )
+        # rv = rv[0] if rv.respond_to?( '[]' )
+        rv = Array(rv).first
         return rv
       end
 
